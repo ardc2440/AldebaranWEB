@@ -1,11 +1,19 @@
-using Aldebaran.Web.Data;
-using Aldebaran.Web.Models;
+using System;
+using System.Linq;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
-using Microsoft.AspNetCore.OData.Results;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.OData.Results;
+using Microsoft.AspNetCore.OData.Deltas;
+using System.ComponentModel.DataAnnotations.Schema;
+
+using Aldebaran.Web.Data;
+using Aldebaran.Web.Models;
 
 namespace Aldebaran.Web.Controllers
 {
@@ -15,6 +23,7 @@ namespace Aldebaran.Web.Controllers
     {
         private readonly ApplicationIdentityDbContext context;
         private readonly UserManager<ApplicationUser> userManager;
+
 
         public ApplicationUsersController(ApplicationIdentityDbContext context, UserManager<ApplicationUser> userManager)
         {
@@ -70,7 +79,7 @@ namespace Aldebaran.Web.Controllers
         partial void OnUserUpdated(ApplicationUser user);
 
         [HttpPatch("{Id}")]
-        public async Task<IActionResult> Patch(string key, [FromBody] ApplicationUser data)
+        public async Task<IActionResult> Patch(string key, [FromBody]ApplicationUser data)
         {
             var user = await userManager.FindByIdAsync(key);
 
@@ -91,7 +100,7 @@ namespace Aldebaran.Web.Controllers
             {
                 result = await userManager.RemoveFromRolesAsync(user, await userManager.GetRolesAsync(user));
 
-                if (result.Succeeded)
+                if (result.Succeeded) 
                 {
                     result = await userManager.AddToRolesAsync(user, data.Roles.Select(r => r.Name));
                 }

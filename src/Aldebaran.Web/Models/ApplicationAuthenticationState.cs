@@ -1,3 +1,7 @@
+
+using System;
+using System.Collections.Generic;
+
 namespace Aldebaran.Web.Models
 {
     public class ApplicationClaim

@@ -1,8 +1,16 @@
-using Aldebaran.Web.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+using Microsoft.Extensions.Configuration;
+using Aldebaran.Web.Models;
 
 namespace Aldebaran.Web.Controllers
 {
@@ -14,7 +22,7 @@ namespace Aldebaran.Web.Controllers
         private readonly RoleManager<ApplicationRole> roleManager;
         private readonly IWebHostEnvironment env;
         private readonly IConfiguration configuration;
-
+    
         public AccountController(IWebHostEnvironment env, SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager,
             RoleManager<ApplicationRole> roleManager, IConfiguration configuration)
         {
@@ -27,14 +35,14 @@ namespace Aldebaran.Web.Controllers
 
         private IActionResult RedirectWithError(string error, string redirectUrl = null)
         {
-            if (!string.IsNullOrEmpty(redirectUrl))
-            {
-                return Redirect($"~/Login?error={error}&redirectUrl={Uri.EscapeDataString(redirectUrl)}");
-            }
-            else
-            {
-                return Redirect($"~/Login?error={error}");
-            }
+             if (!string.IsNullOrEmpty(redirectUrl))
+             {
+                 return Redirect($"~/Login?error={error}&redirectUrl={Uri.EscapeDataString(redirectUrl)}");
+             }
+             else
+             {
+                 return Redirect($"~/Login?error={error}");
+             }
         }
 
         [HttpGet]

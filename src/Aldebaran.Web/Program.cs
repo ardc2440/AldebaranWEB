@@ -1,11 +1,16 @@
-using Aldebaran.Web.Data;
-using Aldebaran.Web.Models;
-using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.OData;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.OData.ModelBuilder;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Radzen;
+using Microsoft.EntityFrameworkCore;
+using Aldebaran.Web.Data;
+using Microsoft.AspNetCore.Identity;
+using Aldebaran.Web.Models;
+using Microsoft.AspNetCore.OData;
+using Microsoft.OData.ModelBuilder;
+using Microsoft.AspNetCore.Components.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
@@ -18,8 +23,8 @@ builder.Services.AddScoped<DialogService>();
 builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<TooltipService>();
 builder.Services.AddScoped<ContextMenuService>();
-builder.Services.AddScoped<Aldebaran.Web.AldebaranContextService>();
-builder.Services.AddDbContext<Aldebaran.Web.Data.AldebaranContext>(options =>
+builder.Services.AddScoped<Aldebaran.Web.AldebaranDbService>();
+builder.Services.AddDbContext<Aldebaran.Web.Data.AldebaranDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("AldebaranDbConnection"));
 });
@@ -44,10 +49,6 @@ builder.Services.AddControllers().AddOData(o =>
     o.AddRouteComponents("odata/Identity", oDataBuilder.GetEdmModel()).Count().Filter().OrderBy().Expand().Select().SetMaxTop(null).TimeZone = TimeZoneInfo.Utc;
 });
 builder.Services.AddScoped<AuthenticationStateProvider, Aldebaran.Web.ApplicationAuthenticationStateProvider>();
-builder.Services.AddDbContext<Aldebaran.Web.Data.AldebaranContext>(options =>
-{
-    options.UseSqlServer(builder.Configuration.GetConnectionString("AldebaranDbConnection"));
-});
 var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

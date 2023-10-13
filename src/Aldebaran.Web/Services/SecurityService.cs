@@ -1,10 +1,19 @@
-using Aldebaran.Web.Models;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Authorization;
-using Radzen;
-using System.Security.Claims;
+using System;
+using System.Web;
+using System.Linq;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Threading.Tasks;
 using System.Text;
 using System.Text.Json;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
+
+using Radzen;
+
+using Aldebaran.Web.Models;
 
 namespace Aldebaran.Web
 {
@@ -84,7 +93,7 @@ namespace Aldebaran.Web
 
         public async Task<ApplicationAuthenticationState> GetAuthenticationStateAsync()
         {
-            var uri = new Uri($"{navigationManager.BaseUri}Account/CurrentUser");
+            var uri =  new Uri($"{navigationManager.BaseUri}Account/CurrentUser");
 
             var response = await httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Post, uri));
 
@@ -193,7 +202,7 @@ namespace Aldebaran.Web
         }
         public async Task ChangePassword(string oldPassword, string newPassword)
         {
-            var uri = new Uri($"{navigationManager.BaseUri}Account/ChangePassword");
+            var uri =  new Uri($"{navigationManager.BaseUri}Account/ChangePassword");
 
             var content = new FormUrlEncodedContent(new Dictionary<string, string> {
                 { "oldPassword", oldPassword },
