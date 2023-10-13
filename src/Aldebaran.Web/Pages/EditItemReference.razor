@@ -1,0 +1,111 @@
+@page "/edit-item-reference"
+
+@attribute [Authorize]
+<PageTitle>Edit ItemReference</PageTitle>
+
+    <RadzenColumn SizeMD=12>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">Cannot save ItemReference</RadzenAlert>
+        <RadzenTemplateForm TItem="Aldebaran.Web.Models.AldebaranDb.ItemReference" Data="@itemReference" Visible="@(itemReference != null)" Submit="@FormSubmit">
+          <RadzenStack>
+            <RadzenFormField Text="R E F E R E N C E C O D E" Variant="Variant.Flat">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@itemReference.REFERENCE_CODE" Name="REFERENCE_CODE" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="REFERENCE_CODE" Text="REFERENCE_CODE is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="P R O V I D E R R E F E R E N C E C O D E" Variant="Variant.Flat">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@itemReference.PROVIDER_REFERENCE_CODE" Name="PROVIDER_REFERENCE_CODE" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="R E F E R E N C E N A M E" Variant="Variant.Flat">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@itemReference.REFERENCE_NAME" Name="REFERENCE_NAME" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="REFERENCE_NAME" Text="REFERENCE_NAME is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="P R O V I D E R R E F E R E N C E N A M E" Variant="Variant.Flat">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@itemReference.PROVIDER_REFERENCE_NAME" Name="PROVIDER_REFERENCE_NAME" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="N O T E S" Variant="Variant.Flat">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@itemReference.NOTES" Name="NOTES" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="I N V E N T O R Y Q U A N T I T Y" Variant="Variant.Flat">
+                  <ChildContent>
+                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@itemReference.INVENTORY_QUANTITY" Name="INVENTORY_QUANTITY" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="INVENTORY_QUANTITY" Text="INVENTORY_QUANTITY is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="O R D E R E D Q U A N T I T Y" Variant="Variant.Flat">
+                  <ChildContent>
+                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@itemReference.ORDERED_QUANTITY" Name="ORDERED_QUANTITY" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="ORDERED_QUANTITY" Text="ORDERED_QUANTITY is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="R E S E R V E D Q U A N T I T Y" Variant="Variant.Flat">
+                  <ChildContent>
+                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@itemReference.RESERVED_QUANTITY" Name="RESERVED_QUANTITY" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="RESERVED_QUANTITY" Text="RESERVED_QUANTITY is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="W O R K I N P R O C E S S Q U A N T I T Y" Variant="Variant.Flat">
+                  <ChildContent>
+                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@itemReference.WORK_IN_PROCESS_QUANTITY" Name="WORK_IN_PROCESS_QUANTITY" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="WORK_IN_PROCESS_QUANTITY" Text="WORK_IN_PROCESS_QUANTITY is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenRow style="margin-bottom: 1rem">
+                <RadzenColumn SizeMD="3">
+                    <RadzenLabel Text="I S A C T I V E" Component="IS_ACTIVE" style="width: 100%" />
+                </RadzenColumn>
+                <RadzenColumn SizeMD="9">
+                    <RadzenCheckBox @bind-Value="@itemReference.IS_ACTIVE" Name="IS_ACTIVE" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenRow style="margin-bottom: 1rem">
+                <RadzenColumn SizeMD="3">
+                    <RadzenLabel Text="I S S O L D O U T" Component="IS_SOLD_OUT" style="width: 100%" />
+                </RadzenColumn>
+                <RadzenColumn SizeMD="9">
+                    <RadzenCheckBox @bind-Value="@itemReference.IS_SOLD_OUT" Name="IS_SOLD_OUT" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenFormField Text="A L A R M M I N I M U M Q U A N T I T Y" Variant="Variant.Flat">
+                  <ChildContent>
+                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@itemReference.ALARM_MINIMUM_QUANTITY" Name="ALARM_MINIMUM_QUANTITY" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="ALARM_MINIMUM_QUANTITY" Text="ALARM_MINIMUM_QUANTITY is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Item" Variant="Variant.Flat">
+                  <ChildContent>
+                    <RadzenDropDownDataGrid Data="@itemsForITEMID" TextProperty="INTERNAL_REFERENCE" ValueProperty="ITEM_ID" AllowClear=true
+                        Disabled=@(hasITEM_IDValue)  style="display: block; width: 100%" @bind-Value="@itemReference.ITEM_ID" Name="ITEM_ID"
+                           />
+              </ChildContent>
+            </RadzenFormField>
+          </RadzenStack>
+          <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                    <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Save" Variant="Variant.Flat" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancel" Variant="Variant.Flat" Click="@CancelButtonClick"  />
+          </RadzenStack>
+        </RadzenTemplateForm>
+    </RadzenColumn>
+

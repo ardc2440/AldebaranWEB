@@ -1,5 +1,10 @@
-using Microsoft.AspNetCore.Components;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.JSInterop;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using Radzen;
 using Radzen.Blazor;
 
@@ -47,7 +52,7 @@ namespace Aldebaran.Web.Pages
 
         protected async Task RowSelect(Aldebaran.Web.Models.ApplicationUser user)
         {
-            await DialogService.OpenAsync<EditApplicationUser>("Edit Application User", new Dictionary<string, object> { { "Id", user.Id } });
+            await DialogService.OpenAsync<EditApplicationUser>("Edit Application User", new Dictionary<string, object>{ {"Id", user.Id} });
 
             users = await Security.GetUsers();
         }

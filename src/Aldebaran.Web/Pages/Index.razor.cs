@@ -1,6 +1,14 @@
+using System.Net.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Components.Routing;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Components.Web.Virtualization;
 using Microsoft.JSInterop;
 using Radzen;
+using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages
 {
@@ -26,17 +34,5 @@ namespace Aldebaran.Web.Pages
 
         [Inject]
         protected SecurityService Security { get; set; }
-
-        protected override async Task OnInitializedAsync()
-        {
-            //var roles = await Security.GetRoles();
-            //Aldebaran.Web.Models.ApplicationUser user = new Models.ApplicationUser()
-            //{
-            //    Email = "javierl@gmlsoftware.com",
-            //    //Roles = roles.ToList(),
-            //    Password = "PruebA01"
-            //};
-            //await Security.CreateUser(user);
-        }
     }
 }

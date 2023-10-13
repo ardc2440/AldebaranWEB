@@ -6,7 +6,7 @@ namespace Aldebaran.Web.Filters
 {
     public class ApplicationAuthorizeFilter : AuthorizeFilter
     {
-        public ApplicationAuthorizeFilter(AuthorizationPolicy policy) : base(policy)
+        public ApplicationAuthorizeFilter(AuthorizationPolicy policy): base(policy)
         {
         }
 
