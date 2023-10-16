@@ -27,8 +27,10 @@
     <RadzenRow>
         <RadzenColumn SizeMD=12>
             <RadzenDataGrid @ref="grid0" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                            Data="@items" TItem="Aldebaran.Web.Models.AldebaranDb.Item" RowExpand=@GetChildData AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowGrouping="true" AllowColumnReorder="true">
+                            Data="@items" TItem="Aldebaran.Web.Models.AldebaranDb.Item" RowExpand=@GetChildData AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowGrouping="true" AllowColumnReorder="true" Render="@OnRender">                         
                 <Columns>
+                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Item" Property="Line.LINE_NAME" Title="Linea" Visible="false">
+                    </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Item" Property="INTERNAL_REFERENCE" Title="Referencia interna">
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Item" Property="ITEM_NAME" Title="Nombre">

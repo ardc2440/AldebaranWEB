@@ -42,10 +42,16 @@ namespace Aldebaran.Web.Pages.ItemPages
         protected DialogResult dialogResult { get; set; }
         protected override async Task OnInitializedAsync()
         {
-            System.Threading.Thread.Sleep(5000);
             items = await AldebaranDbService.GetItems(new Query { Filter = $@"i => i.INTERNAL_REFERENCE.Contains(@0) || i.ITEM_NAME.Contains(@0) || i.PROVIDER_REFERENCE.Contains(@0) || i.PROVIDER_ITEM_NAME.Contains(@0) || i.NOTES.Contains(@0)", FilterParameters = new object[] { search }, Expand = "MeasureUnit,Currency,MeasureUnit1,Line" });            
         }
-
+        void OnRender(DataGridRenderEventArgs<Models.AldebaranDb.Item> args)
+        {
+            if(args.FirstRender)
+            {
+                args.Grid.Groups.Add(new GroupDescriptor(){ Title = "Línea", Property = "Line.LINE_NAME", SortOrder = SortOrder.Descending });
+                StateHasChanged();
+            }
+        }
         protected async Task Search(ChangeEventArgs args)
         {
             search = $"{args.Value}";
