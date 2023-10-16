@@ -102,5 +102,19 @@ namespace Aldebaran.Web.Controllers
         {
             return ToExcel(ApplyQuery(await service.GetMeasureUnits(), Request.Query), fileName);
         }
+
+        [HttpGet("/export/AldebaranDb/areas/csv")]
+        [HttpGet("/export/AldebaranDb/areas/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportAreasToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetAreas(), Request.Query), fileName);
+        }
+
+        [HttpGet("/export/AldebaranDb/areas/excel")]
+        [HttpGet("/export/AldebaranDb/areas/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportAreasToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetAreas(), Request.Query), fileName);
+        }
     }
 }

@@ -578,6 +578,7 @@ namespace Aldebaran.Web
         {
             var items = Context.ItemsAreas.AsQueryable();
 
+            items = items.Include(i => i.Area);
             items = items.Include(i => i.Item);
 
             if (query != null)
@@ -609,6 +610,7 @@ namespace Aldebaran.Web
                               .AsNoTracking()
                               .Where(i => i.ITEM_ID == itemid && i.AREA_ID == areaid);
 
+            items = items.Include(i => i.Area);
             items = items.Include(i => i.Item);
  
             OnGetItemsAreaByItemIdAndAreaId(ref items);
@@ -1043,6 +1045,167 @@ namespace Aldebaran.Web
             }
 
             OnAfterMeasureUnitDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+    
+        public async Task ExportAreasToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/areas/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/areas/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportAreasToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/areas/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/areas/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnAreasRead(ref IQueryable<Aldebaran.Web.Models.AldebaranDb.Area> items);
+
+        public async Task<IQueryable<Aldebaran.Web.Models.AldebaranDb.Area>> GetAreas(Query query = null)
+        {
+            var items = Context.Areas.AsQueryable();
+
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach(var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnAreasRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnAreaGet(Aldebaran.Web.Models.AldebaranDb.Area item);
+        partial void OnGetAreaByAreaId(ref IQueryable<Aldebaran.Web.Models.AldebaranDb.Area> items);
+
+
+        public async Task<Aldebaran.Web.Models.AldebaranDb.Area> GetAreaByAreaId(short areaid)
+        {
+            var items = Context.Areas
+                              .AsNoTracking()
+                              .Where(i => i.AREA_ID == areaid);
+
+ 
+            OnGetAreaByAreaId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnAreaGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnAreaCreated(Aldebaran.Web.Models.AldebaranDb.Area item);
+        partial void OnAfterAreaCreated(Aldebaran.Web.Models.AldebaranDb.Area item);
+
+        public async Task<Aldebaran.Web.Models.AldebaranDb.Area> CreateArea(Aldebaran.Web.Models.AldebaranDb.Area area)
+        {
+            OnAreaCreated(area);
+
+            var existingItem = Context.Areas
+                              .Where(i => i.AREA_ID == area.AREA_ID)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+               throw new Exception("Item already available");
+            }            
+
+            try
+            {
+                Context.Areas.Add(area);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(area).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterAreaCreated(area);
+
+            return area;
+        }
+
+        public async Task<Aldebaran.Web.Models.AldebaranDb.Area> CancelAreaChanges(Aldebaran.Web.Models.AldebaranDb.Area item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+              entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+              entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnAreaUpdated(Aldebaran.Web.Models.AldebaranDb.Area item);
+        partial void OnAfterAreaUpdated(Aldebaran.Web.Models.AldebaranDb.Area item);
+
+        public async Task<Aldebaran.Web.Models.AldebaranDb.Area> UpdateArea(short areaid, Aldebaran.Web.Models.AldebaranDb.Area area)
+        {
+            OnAreaUpdated(area);
+
+            var itemToUpdate = Context.Areas
+                              .Where(i => i.AREA_ID == area.AREA_ID)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+                
+            var entryToUpdate = Context.Entry(itemToUpdate);
+            entryToUpdate.CurrentValues.SetValues(area);
+            entryToUpdate.State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterAreaUpdated(area);
+
+            return area;
+        }
+
+        partial void OnAreaDeleted(Aldebaran.Web.Models.AldebaranDb.Area item);
+        partial void OnAfterAreaDeleted(Aldebaran.Web.Models.AldebaranDb.Area item);
+
+        public async Task<Aldebaran.Web.Models.AldebaranDb.Area> DeleteArea(short areaid)
+        {
+            var itemToDelete = Context.Areas
+                              .Where(i => i.AREA_ID == areaid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            OnAreaDeleted(itemToDelete);
+
+
+            Context.Areas.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterAreaDeleted(itemToDelete);
 
             return itemToDelete;
         }

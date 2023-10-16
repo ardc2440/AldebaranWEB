@@ -40,10 +40,10 @@ namespace Aldebaran.Web.Pages.ItemPages
 
         protected string search = "";
         protected DialogResult dialogResult { get; set; }
-
         protected override async Task OnInitializedAsync()
         {
-            items = await AldebaranDbService.GetItems(new Query { Filter = $@"i => i.INTERNAL_REFERENCE.Contains(@0) || i.ITEM_NAME.Contains(@0) || i.PROVIDER_REFERENCE.Contains(@0) || i.PROVIDER_ITEM_NAME.Contains(@0) || i.NOTES.Contains(@0)", FilterParameters = new object[] { search }, Expand = "MeasureUnit,Currency,MeasureUnit1,Line" });
+            System.Threading.Thread.Sleep(5000);
+            items = await AldebaranDbService.GetItems(new Query { Filter = $@"i => i.INTERNAL_REFERENCE.Contains(@0) || i.ITEM_NAME.Contains(@0) || i.PROVIDER_REFERENCE.Contains(@0) || i.PROVIDER_ITEM_NAME.Contains(@0) || i.NOTES.Contains(@0)", FilterParameters = new object[] { search }, Expand = "MeasureUnit,Currency,MeasureUnit1,Line" });            
         }
 
         protected async Task Search(ChangeEventArgs args)
@@ -155,14 +155,6 @@ namespace Aldebaran.Web.Pages.ItemPages
             await GetChildData(data);
             await ItemReferencesDataGrid.Reload();
         }
-
-        protected async Task ItemReferencesRowSelect(DataGridRowMouseEventArgs<Aldebaran.Web.Models.AldebaranDb.ItemReference> args, Aldebaran.Web.Models.AldebaranDb.Item data)
-        {
-            var dialogResult = await DialogService.OpenAsync<EditItemReference>("Edit ItemReferences", new Dictionary<string, object> { { "REFERENCE_ID", args.Data.REFERENCE_ID } });
-            await GetChildData(data);
-            await ItemReferencesDataGrid.Reload();
-        }
-
         protected async Task EditChildRow(Models.AldebaranDb.ItemReference args, Models.AldebaranDb.Item data)
         {
             dialogResult = null;

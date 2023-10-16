@@ -91,6 +91,7 @@
     --rz-on-danger-lighter: #7b1d21;
     --rz-on-danger-dark: #ffffff;
     --rz-on-danger-darker: #ffffff;
+    --rz-grid-background-color: #f8fafb;
 }
 
 body {
@@ -161,12 +162,17 @@ a:focus {
 .rz-stack {
     gap: 1rem;
 }
-.rz-grid-table-striped tbody>tr:not(.rz-expanded-row-content):nth-child(even)>td {
-    background-color: #f8fafb;
-}
+
 .text-primary-color {
     color: var(--rz-primary);
 }
 .text-secondary-color {
     color: var(--rz-base-700);
+}
+.loading-progress {
+    position: relative;
+    display: block;
+    width: 8rem;
+    height: 8rem;
+    margin: 20vh auto 1rem auto;
 }

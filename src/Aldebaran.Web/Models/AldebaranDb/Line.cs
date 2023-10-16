@@ -13,17 +13,13 @@ namespace Aldebaran.Web.Models.AldebaranDb
         public short LINE_ID { get; set; }
 
         [Required]
-        [ConcurrencyCheck]
         public string LINE_CODE { get; set; }
 
         [Required]
-        [ConcurrencyCheck]
         public string LINE_NAME { get; set; }
 
-        [ConcurrencyCheck]
         public bool IS_DEMON { get; set; }
 
-        [ConcurrencyCheck]
         public bool IS_ACTIVE { get; set; }
 
         public ICollection<Item> Items { get; set; }

@@ -57,6 +57,12 @@ namespace Aldebaran.Web.Data
               .HasPrincipalKey(i => i.LINE_ID);
 
             builder.Entity<Aldebaran.Web.Models.AldebaranDb.ItemsArea>()
+              .HasOne(i => i.Area)
+              .WithMany(i => i.ItemsAreas)
+              .HasForeignKey(i => i.AREA_ID)
+              .HasPrincipalKey(i => i.AREA_ID);
+
+            builder.Entity<Aldebaran.Web.Models.AldebaranDb.ItemsArea>()
               .HasOne(i => i.Item)
               .WithMany(i => i.ItemsAreas)
               .HasForeignKey(i => i.ITEM_ID)
@@ -91,6 +97,8 @@ namespace Aldebaran.Web.Data
         public DbSet<Aldebaran.Web.Models.AldebaranDb.Line> Lines { get; set; }
 
         public DbSet<Aldebaran.Web.Models.AldebaranDb.MeasureUnit> MeasureUnits { get; set; }
+
+        public DbSet<Aldebaran.Web.Models.AldebaranDb.Area> Areas { get; set; }
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {

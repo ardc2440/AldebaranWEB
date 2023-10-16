@@ -96,7 +96,7 @@
                             </RadzenColumn>
                         </RadzenRow>
                         <RadzenDataGrid ColumnWidth="200px" Visible="@(item != null)" @ref=ItemReferencesDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                        Data="@item?.ItemReferences" TItem="Aldebaran.Web.Models.AldebaranDb.ItemReference" RowDoubleClick="@(args => ItemReferencesRowSelect(args, item))" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" AllowGrouping="true" AllowColumnReorder="true">
+                                        Data="@item?.ItemReferences" TItem="Aldebaran.Web.Models.AldebaranDb.ItemReference" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" AllowGrouping="true" AllowColumnReorder="true">
                             <Columns>
                                 <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemReference" Property="REFERENCE_CODE" Title="Referencia">
                                 </RadzenDataGridColumn>

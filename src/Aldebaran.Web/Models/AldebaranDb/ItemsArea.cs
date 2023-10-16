@@ -16,6 +16,8 @@ namespace Aldebaran.Web.Models.AldebaranDb
         [Required]
         public short AREA_ID { get; set; }
 
+        public Area Area { get; set; }
+
         public Item Item { get; set; }
 
     }

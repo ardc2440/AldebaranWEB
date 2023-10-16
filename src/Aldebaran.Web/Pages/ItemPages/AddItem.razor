@@ -3,10 +3,10 @@
 @attribute [Authorize]
 <PageTitle>Nuevo artículo</PageTitle>
 <RadzenColumn SizeMD=12>
-    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">No se ha podido crear el artículo</RadzenAlert>
+    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Text" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">No se ha podido crear el artículo</RadzenAlert>
     <RadzenTemplateForm TItem="Aldebaran.Web.Models.AldebaranDb.Item" Data="@item" Visible="@(item != null)" Submit="@FormSubmit">
         <RadzenStack>
-            <RadzenFormField Text="Nombre" Variant="Variant.Flat">
+            <RadzenFormField Text="Nombre" Variant="Variant.Text">
                 <ChildContent>
                     <RadzenTextBox style="display: block; width: 100%" @bind-Value="@item.ITEM_NAME" Name="ITEM_NAME" />
                 </ChildContent>
@@ -16,7 +16,7 @@
             </RadzenFormField>
             <RadzenRow AlignItems="Radzen.AlignItems.Start">
                 <RadzenColumn Size="12" SizeMD="6">
-                    <RadzenFormField Text="Referencia interna" Variant="Variant.Flat" Style="width: 100%;">
+                    <RadzenFormField Text="Referencia interna" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
                             <RadzenTextBox style="display: block; width: 100%" @bind-Value="@item.INTERNAL_REFERENCE" Name="INTERNAL_REFERENCE" />
                         </ChildContent>
@@ -42,7 +42,7 @@
             </RadzenRow>
             <RadzenRow AlignItems="Radzen.AlignItems.Start">
                 <RadzenColumn Size="12" SizeMD="6">
-                    <RadzenFormField Text="Línea" Variant="Variant.Flat" Style="width: 100%;">
+                    <RadzenFormField Text="Línea" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
                             <RadzenDropDownDataGrid Data="@linesForLINEID" TextProperty="LINE_NAME" ValueProperty="LINE_ID" AllowClear=true
                                                     style="display: block; width: 100%" @bind-Value="@item.LINE_ID" Name="LINE_ID">
@@ -58,7 +58,7 @@
                     </RadzenFormField>
                 </RadzenColumn>
                 <RadzenColumn Size="12" SizeMD="6">
-                    <RadzenFormField Text="Moneda" Variant="Variant.Flat" Style="width: 100%;">
+                    <RadzenFormField Text="Moneda" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
                             <RadzenDropDownDataGrid Data="@currenciesForCURRENCYID" TextProperty="CURRENCY_NAME" ValueProperty="CURRENCY_ID" AllowClear=true
                                                     style="display: block; width: 100%" @bind-Value="@item.CURRENCY_ID" Name="CURRENCY_ID">
@@ -72,7 +72,7 @@
             </RadzenRow>
             <RadzenRow AlignItems="Radzen.AlignItems.Start">
                 <RadzenColumn Size="12" SizeMD="6">
-                    <RadzenFormField Text="Volumen" Variant="Variant.Flat" Style="width: 100%;">
+                    <RadzenFormField Text="Volumen" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
                             <RadzenNumeric style="display: block; width: 100%" @bind-Value="@item.VOLUME" Name="VOLUME" />
                         </ChildContent>
@@ -82,7 +82,7 @@
                     </RadzenFormField>
                 </RadzenColumn>
                 <RadzenColumn Size="12" SizeMD="6">
-                    <RadzenFormField Text="Peso" Variant="Variant.Flat" Style="width: 100%;">
+                    <RadzenFormField Text="Peso" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
                             <RadzenNumeric style="display: block; width: 100%" @bind-Value="@item.WEIGHT" Name="WEIGHT" />
                         </ChildContent>
@@ -94,7 +94,7 @@
             </RadzenRow>
             <RadzenRow AlignItems="Radzen.AlignItems.Start">
                 <RadzenColumn Size="12" SizeMD="6">
-                    <RadzenFormField Text="Referencia del proveedor" Variant="Variant.Flat" Style="width: 100%;">
+                    <RadzenFormField Text="Referencia del proveedor" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
                             <RadzenTextBox style="display: block; width: 100%" @bind-Value="@item.PROVIDER_REFERENCE" Name="PROVIDER_REFERENCE" />
                         </ChildContent>
@@ -104,7 +104,7 @@
                     </RadzenFormField>
                 </RadzenColumn>
                 <RadzenColumn Size="12" SizeMD="6">
-                    <RadzenFormField Text="Nombre item proveedor" Variant="Variant.Flat" Style="width: 100%;">
+                    <RadzenFormField Text="Nombre item proveedor" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
                             <RadzenTextBox style="display: block; width: 100%" @bind-Value="@item.PROVIDER_ITEM_NAME" Name="PROVIDER_ITEM_NAME" />
                         </ChildContent>
@@ -116,7 +116,7 @@
             </RadzenRow>
             <RadzenRow AlignItems="Radzen.AlignItems.Start">
                 <RadzenColumn Size="12" SizeMD="6">
-                    <RadzenFormField Text="Unidad FOB" Variant="Variant.Flat" Style="width: 100%;">
+                    <RadzenFormField Text="Unidad FOB" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
                             <RadzenDropDownDataGrid Data="@measureUnitsForFOBMEASUREUNITID" TextProperty="MEASURE_UNIT_NAME" ValueProperty="MEASURE_UNIT_ID" AllowClear=true
                                                     style="display: block; width: 100%" @bind-Value="@item.FOB_MEASURE_UNIT_ID" Name="FOB_MEASURE_UNIT_ID">
@@ -128,7 +128,7 @@
                     </RadzenFormField>
                 </RadzenColumn>
                 <RadzenColumn Size="12" SizeMD="6">
-                    <RadzenFormField Text="Costo FOB" Variant="Variant.Flat" Style="width: 100%;">
+                    <RadzenFormField Text="Costo FOB" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
                             <RadzenNumeric style="display: block; width: 100%" @bind-Value="@item.FOB_COST" Name="FOB_COST" />
                         </ChildContent>
@@ -140,7 +140,7 @@
             </RadzenRow>
             <RadzenRow AlignItems="Radzen.AlignItems.Start">
                 <RadzenColumn Size="12" SizeMD="6">
-                    <RadzenFormField Text="Unidad CIF" Variant="Variant.Flat" Style="width: 100%;">
+                    <RadzenFormField Text="Unidad CIF" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
                             <RadzenDropDownDataGrid Data="@measureUnitsForCIFMEASUREUNITID" TextProperty="MEASURE_UNIT_NAME" ValueProperty="MEASURE_UNIT_ID" AllowClear=true
                                                     style="display: block; width: 100%" @bind-Value="@item.CIF_MEASURE_UNIT_ID" Name="CIF_MEASURE_UNIT_ID">
@@ -152,7 +152,7 @@
                     </RadzenFormField>
                 </RadzenColumn>
                 <RadzenColumn Size="12" SizeMD="6">
-                    <RadzenFormField Text="Costo CIF" Variant="Variant.Flat" Style="width: 100%;">
+                    <RadzenFormField Text="Costo CIF" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
                             <RadzenNumeric style="display: block; width: 100%" @bind-Value="@item.CIF_COST" Name="CIF_COST" />
                         </ChildContent>
@@ -176,15 +176,15 @@
                     </RadzenRow>
                 </RadzenColumn>
             </RadzenRow>
-            <RadzenFormField Text="Notas" Variant="Variant.Flat">
+            <RadzenFormField Text="Notas" Variant="Variant.Text">
                 <ChildContent>
                     <RadzenTextArea style="display: block; width: 100%" @bind-Value="@item.NOTES" Name="NOTES" Rows="3"></RadzenTextArea>
                 </ChildContent>
             </RadzenFormField>
         </RadzenStack>
         <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
-            <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@isSubmitInProgress" />
-            <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
+            <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Text" BusyText="Procesando..." IsBusy="@isSubmitInProgress" />
+            <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Text" Click="@CancelButtonClick" />
         </RadzenStack>
     </RadzenTemplateForm>
 </RadzenColumn>

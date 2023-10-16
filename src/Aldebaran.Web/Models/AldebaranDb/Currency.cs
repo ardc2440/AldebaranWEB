@@ -13,7 +13,6 @@ namespace Aldebaran.Web.Models.AldebaranDb
         public short CURRENCY_ID { get; set; }
 
         [Required]
-        [ConcurrencyCheck]
         public string CURRENCY_NAME { get; set; }
 
         public ICollection<Item> Items { get; set; }

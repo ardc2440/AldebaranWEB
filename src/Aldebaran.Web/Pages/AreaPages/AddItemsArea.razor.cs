@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Radzen;
 using Radzen.Blazor;
 
-namespace Aldebaran.Web.Pages
+namespace Aldebaran.Web.Pages.AreaPages
 {
     public partial class AddItemsArea
     {
@@ -34,24 +34,34 @@ namespace Aldebaran.Web.Pages
 
         protected override async Task OnInitializedAsync()
         {
-
-            itemsForITEMID = await AldebaranDbService.GetItems();
+            area = await AldebaranDbService.GetAreaByAreaId(AREA_ID);
+            var currentItemsInArea = await AldebaranDbService.GetItemsAreas(new Query { Filter = $"@i => i.AREA_ID == @0", FilterParameters = new object[] { AREA_ID } });
+            itemsForITEMID = await AldebaranDbService.GetItems(new Query { Filter = $"@i => !@0.Contains(i.ITEM_ID)", FilterParameters = new object[] { currentItemsInArea.Select(s => s.ITEM_ID) } });
+            itemsArea = new Models.AldebaranDb.ItemsArea();
+            itemsArea.AREA_ID = AREA_ID;
         }
         protected bool errorVisible;
-        protected Aldebaran.Web.Models.AldebaranDb.ItemsArea itemsArea;
+        protected Models.AldebaranDb.ItemsArea itemsArea;
 
-        protected IEnumerable<Aldebaran.Web.Models.AldebaranDb.Item> itemsForITEMID;
+        protected Models.AldebaranDb.Area area;
 
+        protected IEnumerable<Models.AldebaranDb.Item> itemsForITEMID;
+        protected bool isSubmitInProgress;
         protected async Task FormSubmit()
         {
             try
             {
+                isSubmitInProgress = true;
                 await AldebaranDbService.CreateItemsArea(itemsArea);
-                DialogService.Close(itemsArea);
+                DialogService.Close(true);
             }
             catch (Exception ex)
             {
                 errorVisible = true;
+            }
+            finally
+            {
+                isSubmitInProgress = false;
             }
         }
 
@@ -60,40 +70,7 @@ namespace Aldebaran.Web.Pages
             DialogService.Close(null);
         }
 
-
-
-
-
-        bool hasAREA_IDValue;
-
         [Parameter]
         public short AREA_ID { get; set; }
-
-        bool hasITEM_IDValue;
-
-        [Parameter]
-        public int ITEM_ID { get; set; }
-
-        [Inject]
-        protected SecurityService Security { get; set; }
-        public override async Task SetParametersAsync(ParameterView parameters)
-        {
-            itemsArea = new Aldebaran.Web.Models.AldebaranDb.ItemsArea();
-
-            hasAREA_IDValue = parameters.TryGetValue<short>("AREA_ID", out var hasAREA_IDResult);
-
-            if (hasAREA_IDValue)
-            {
-                itemsArea.AREA_ID = hasAREA_IDResult;
-            }
-
-            hasITEM_IDValue = parameters.TryGetValue<int>("ITEM_ID", out var hasITEM_IDResult);
-
-            if (hasITEM_IDValue)
-            {
-                itemsArea.ITEM_ID = hasITEM_IDResult;
-            }
-            await base.SetParametersAsync(parameters);
-        }
     }
 }

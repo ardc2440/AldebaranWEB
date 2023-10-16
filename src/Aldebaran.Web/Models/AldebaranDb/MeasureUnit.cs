@@ -13,7 +13,6 @@ namespace Aldebaran.Web.Models.AldebaranDb
         public short MEASURE_UNIT_ID { get; set; }
 
         [Required]
-        [ConcurrencyCheck]
         public string MEASURE_UNIT_NAME { get; set; }
 
         public ICollection<Item> Items { get; set; }

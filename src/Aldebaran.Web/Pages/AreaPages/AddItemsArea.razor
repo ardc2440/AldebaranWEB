@@ -1,0 +1,41 @@
+@page "/add-items-area"
+
+@attribute [Authorize]
+<PageTitle>Agregar artículo al área</PageTitle>
+    <RadzenColumn SizeMD=12>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">No se ha podido agregar el artículo al área</RadzenAlert>
+        <RadzenTemplateForm TItem="Aldebaran.Web.Models.AldebaranDb.ItemsArea" Data="@itemsArea" Submit="@FormSubmit">
+          <RadzenStack>
+            <div class="flex-shrink-0">
+                <div class="text-primary-color" style="font-size: 16px">
+                    <RadzenLabel Text="Item: " Style="font-weight: bold" />
+                    <RadzenLabel Text="@area.AREA_NAME" />
+                </div>
+                <div class="text-secondary-color">
+                    <RadzenLabel Text="Código: " />
+                    <RadzenLabel Text="@area.AREA_CODE" />
+                </div>
+            </div>           
+            <RadzenFormField Text="Artículo" Variant="Variant.Text">
+                  <ChildContent>
+                    <RadzenDropDownDataGrid Data="@itemsForITEMID" TextProperty="ITEM_NAME" ValueProperty="ITEM_ID" AllowClear=true
+                        style="display: block; width: 100%" @bind-Value="@itemsArea.ITEM_ID" Name="ITEM_ID">
+                        <Columns>
+                            <RadzenDropDownDataGridColumn Property="INTERNAL_REFERENCE" Title="Referencia interna" />
+                            <RadzenDropDownDataGridColumn Property="ITEM_NAME" Title="Nombre" />
+                            <RadzenDropDownDataGridColumn Property="PROVIDER_REFERENCE" Title="Referencia proveedor" />
+                            <RadzenDropDownDataGridColumn Property="PROVIDER_ITEM_NAME" Title="Nombre item proveedor" />
+                        </Columns>
+                    </RadzenDropDownDataGrid>         
+              </ChildContent>
+               <Helper>
+                    <RadzenNumericRangeValidator Component="ITEM_ID" Min="1" Text="Artículo es requerido" />
+                </Helper>
+            </RadzenFormField>
+          </RadzenStack>
+          <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                    <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@isSubmitInProgress" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick"  />
+          </RadzenStack>
+        </RadzenTemplateForm>
+    </RadzenColumn>
