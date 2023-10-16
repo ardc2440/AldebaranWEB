@@ -3,25 +3,31 @@
 @attribute [Authorize]
 <PageTitle>Items</PageTitle>
 <RadzenStack>
+    @if(dialogResult!= null && dialogResult.Success){
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Success">@dialogResult.Message</RadzenAlert>
+    }
+    @if(dialogResult!= null && !dialogResult.Success){
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger">@dialogResult.Message</RadzenAlert>
+    }
     <RadzenRow AlignItems="AlignItems.Center">
         <RadzenColumn Size="12" SizeMD="6">
-            <RadzenText Text="Artículos" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
+            <RadzenText Text="Artículos" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />  
         </RadzenColumn>
-        <RadzenColumn Size="12" SizeMD="6">
+        <RadzenColumn Size="12" SizeMD="6">            
             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
-                <RadzenSplitButton Icon="get_app" Text="Export" Click="@ExportClick" Variant="Variant.Flat" Shade="Shade.Lighter">
+                <RadzenSplitButton Icon="get_app" Text="Exportar" Click="@ExportClick" Variant="Variant.Flat" Shade="Shade.Lighter">
                     <RadzenSplitButtonItem Text="Excel" Value="xlsx" />
                     <RadzenSplitButtonItem Text="CSV" Value="csv" />
                 </RadzenSplitButton>
-                <RadzenButton Icon="add_circle_outline" Text="Add" Click="@AddButtonClick" Variant="Variant.Flat" />
+                <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddButtonClick" Variant="Variant.Flat" />
             </RadzenStack>
         </RadzenColumn>
     </RadzenRow>
-    <RadzenTextBox Placeholder="Search ..." style="display: block; width: 100%" @oninput="@Search" />
+    <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
     <RadzenRow>
         <RadzenColumn SizeMD=12>
             <RadzenDataGrid @ref="grid0" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                            Data="@items" TItem="Aldebaran.Web.Models.AldebaranDb.Item" RowDoubleClick="@EditRow" RowExpand=@GetChildData AllowColumnPicking="true" AllowColumnResize="true" AllowFilterDateInput="false" AllowMultiColumnSorting="true" AllowVirtualization="true" ColumnsPickerAllowFiltering="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" Responsive="true">
+                            Data="@items" TItem="Aldebaran.Web.Models.AldebaranDb.Item" RowExpand=@GetChildData AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowGrouping="true" AllowColumnReorder="true">
                 <Columns>
                     <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Item" Property="INTERNAL_REFERENCE" Title="Referencia interna">
                     </RadzenDataGridColumn>
@@ -42,7 +48,7 @@
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Item" Property="CIF_COST" Title="Costo CIF" Visible="false">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Item" Property="VOLUME" Title="Volumne" Visible="false">
+                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Item" Property="VOLUME" Title="Volumen" Visible="false">
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Item" Property="WEIGHT" Title="Peso" Visible="false">
                     </RadzenDataGridColumn>
@@ -67,8 +73,10 @@
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Item" Property="MeasureUnit1.MEASURE_UNIT_NAME" Title="Unidad CIF" Visible="false">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Item" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center" Pickable="false">
+                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Item" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false">
                         <Template Context="item">
+                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRow(item))" @onclick:stopPropagation="true">
+                            </RadzenButton>
                             <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
                                           Shade="Shade.Lighter" Variant="Variant.Flat"
                                           Click=@(args => GridDeleteButtonClick(args, item)) @onclick:stopPropagation="true" />
@@ -83,12 +91,12 @@
                             </RadzenColumn>
                             <RadzenColumn Size="12" SizeMD="6">
                                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
-                                    <RadzenButton Visible="@(item != null)" Icon="add_circle_outline" Text="Add" Click=@(args => ItemReferencesAddButtonClick(args,item)) />
+                                    <RadzenButton Visible="@(item != null)" Icon="add_circle_outline" Text="Nuevo" Click=@(args => ItemReferencesAddButtonClick(args,item)) />
                                 </RadzenStack>
                             </RadzenColumn>
                         </RadzenRow>
                         <RadzenDataGrid ColumnWidth="200px" Visible="@(item != null)" @ref=ItemReferencesDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                        Data="@item?.ItemReferences" TItem="Aldebaran.Web.Models.AldebaranDb.ItemReference" RowDoubleClick="@(args => ItemReferencesRowSelect(args, item))" AllowVirtualization="true" AllowColumnReorder="true" AllowColumnPicking="true">
+                                        Data="@item?.ItemReferences" TItem="Aldebaran.Web.Models.AldebaranDb.ItemReference" RowDoubleClick="@(args => ItemReferencesRowSelect(args, item))" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" AllowGrouping="true" AllowColumnReorder="true">
                             <Columns>
                                 <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemReference" Property="REFERENCE_CODE" Title="Referencia">
                                 </RadzenDataGridColumn>
@@ -112,8 +120,10 @@
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemReference" Property="ALARM_MINIMUM_QUANTITY" Title="Cantidad mínima" Visible="false">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemReference" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center" Pickable="false">
+                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemReference" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false">
                                     <Template Context="itemReferenceChild">
+                                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditChildRow(itemReferenceChild, item))" @onclick:stopPropagation="true">
+                                        </RadzenButton>
                                         <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Shade="Shade.Lighter" Variant="Variant.Flat"
                                                       Click=@(args => ItemReferencesDeleteButtonClick(args, itemReferenceChild)) @onclick:stopPropagation="true" />
                                     </Template>

@@ -19,6 +19,78 @@
 
 :root {
     font-size: var(--rz-root-font-size);
+    --rz-white: #ffffff;
+    --rz-black: #000000;
+    --rz-base-50: #f5f5f5;
+    --rz-base-100: #f3f2f1;
+    --rz-base-200: #edebe9;
+    --rz-base-300: #d2d0ce;
+    --rz-base-400: #a19f9d;
+    --rz-base-500: #8a8886;
+    --rz-base-600: #605e5c;
+    --rz-base-700: #616161;
+    --rz-base-800: #323130;
+    --rz-base-900: #201f1e;
+    --rz-primary: #f7620b;
+    --rz-primary-light: #fbb185;
+    --rz-primary-lighter: #feebdf;
+    --rz-primary-dark: #de580a;
+    --rz-primary-darker: #b94a08;
+    --rz-secondary: #8a8886;
+    --rz-secondary-light: #c5c4c3;
+    --rz-secondary-lighter: #f0f0ef;
+    --rz-secondary-dark: #7c7a79;
+    --rz-secondary-darker: #686665;
+    --rz-info: #00b7c3;
+    --rz-info-light: #80dbe1;
+    --rz-info-lighter: #def6f7;
+    --rz-info-dark: #00a5b0;
+    --rz-info-darker: #008992;
+    --rz-success: #107c10;
+    --rz-success-light: #88be88;
+    --rz-success-lighter: #e0eee0;
+    --rz-success-dark: #0e700e;
+    --rz-success-darker: #0c5d0c;
+    --rz-warning: #ffc80a;
+    --rz-warning-light: #ffe485;
+    --rz-warning-lighter: #fff8df;
+    --rz-warning-dark: #e6b409;
+    --rz-warning-darker: #bf9608;
+    --rz-danger: #a4262c;
+    --rz-danger-light: #d29396;
+    --rz-danger-lighter: #f3e3e4;
+    --rz-danger-dark: #942228;
+    --rz-danger-darker: #7b1d21;
+    --rz-on-primary: #ffffff;
+    --rz-on-primary-light: #ffffff;
+    --rz-on-primary-lighter: #b94a08;
+    --rz-on-primary-dark: #ffffff;
+    --rz-on-primary-darker: #ffffff;
+    --rz-on-secondary: #ffffff;
+    --rz-on-secondary-light: #ffffff;
+    --rz-on-secondary-lighter: #686665;
+    --rz-on-secondary-dark: #ffffff;
+    --rz-on-secondary-darker: #ffffff;
+    --rz-on-info: #ffffff;
+    --rz-on-info-light: #ffffff;
+    --rz-on-info-lighter: #008992;
+    --rz-on-info-dark: #ffffff;
+    --rz-on-info-darker: #ffffff;
+    --rz-on-success: #ffffff;
+    --rz-on-success-light: #ffffff;
+    --rz-on-success-lighter: #0c5d0c;
+    --rz-on-success-dark: #ffffff;
+    --rz-on-success-darker: #ffffff;
+    --rz-on-warning: #201f1e;
+    --rz-on-warning-light: #201f1e;
+    --rz-on-warning-lighter: #bf9608;
+    --rz-on-warning-dark: #201f1e;
+    --rz-on-warning-darker: #ffffff;
+    --rz-on-danger: #ffffff;
+    --rz-on-danger-light: #ffffff;
+    --rz-on-danger-lighter: #7b1d21;
+    --rz-on-danger-dark: #ffffff;
+    --rz-on-danger-darker: #ffffff;
 }
 
 body {
@@ -83,4 +155,18 @@ a:focus {
 
 .loading-progress-text:after {
     content: var(--blazor-load-percentage-text, "Loading");
+}
+
+/*JLinG*/
+.rz-stack {
+    gap: 1rem;
+}
+.rz-grid-table-striped tbody>tr:not(.rz-expanded-row-content):nth-child(even)>td {
+    background-color: #f8fafb;
+}
+.text-primary-color {
+    color: var(--rz-primary);
+}
+.text-secondary-color {
+    color: var(--rz-base-700);
 }

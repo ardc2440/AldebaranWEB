@@ -8,9 +8,9 @@ using Microsoft.AspNetCore.Components.Web;
 using Radzen;
 using Radzen.Blazor;
 
-namespace Aldebaran.Web.Pages
+namespace Aldebaran.Web.Pages.ItemPages
 {
-    public partial class AddItemReference
+    public partial class AddItem
     {
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
@@ -32,56 +32,55 @@ namespace Aldebaran.Web.Pages
         [Inject]
         public AldebaranDbService AldebaranDbService { get; set; }
 
+        protected bool isSubmitInProgress;
+
         protected override async Task OnInitializedAsync()
         {
+            item = new Models.AldebaranDb.Item();
+            item.IS_ACTIVE = true;
 
-            itemsForITEMID = await AldebaranDbService.GetItems();
+            measureUnitsForCIFMEASUREUNITID = await AldebaranDbService.GetMeasureUnits();
+
+            currenciesForCURRENCYID = await AldebaranDbService.GetCurrencies();
+
+            measureUnitsForFOBMEASUREUNITID = await AldebaranDbService.GetMeasureUnits();
+
+            linesForLINEID = await AldebaranDbService.GetLines();
         }
         protected bool errorVisible;
-        protected Aldebaran.Web.Models.AldebaranDb.ItemReference itemReference;
+        protected Models.AldebaranDb.Item item;
 
-        protected IEnumerable<Aldebaran.Web.Models.AldebaranDb.Item> itemsForITEMID;
+        protected IEnumerable<Models.AldebaranDb.MeasureUnit> measureUnitsForCIFMEASUREUNITID;
 
+        protected IEnumerable<Models.AldebaranDb.Currency> currenciesForCURRENCYID;
+
+        protected IEnumerable<Models.AldebaranDb.MeasureUnit> measureUnitsForFOBMEASUREUNITID;
+
+        protected IEnumerable<Models.AldebaranDb.Line> linesForLINEID;
+
+        [Inject]
+        protected SecurityService Security { get; set; }
         protected async Task FormSubmit()
         {
             try
             {
-                await AldebaranDbService.CreateItemReference(itemReference);
-                DialogService.Close(itemReference);
+                isSubmitInProgress = true;
+                await AldebaranDbService.CreateItem(item);
+                DialogService.Close(true);
             }
             catch (Exception ex)
             {
                 errorVisible = true;
+            }
+            finally
+            {
+                isSubmitInProgress = false;
             }
         }
 
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
             DialogService.Close(null);
-        }
-
-
-
-
-
-        bool hasITEM_IDValue;
-
-        [Parameter]
-        public int ITEM_ID { get; set; }
-
-        [Inject]
-        protected SecurityService Security { get; set; }
-        public override async Task SetParametersAsync(ParameterView parameters)
-        {
-            itemReference = new Aldebaran.Web.Models.AldebaranDb.ItemReference();
-
-            hasITEM_IDValue = parameters.TryGetValue<int>("ITEM_ID", out var hasITEM_IDResult);
-
-            if (hasITEM_IDValue)
-            {
-                itemReference.ITEM_ID = hasITEM_IDResult;
-            }
-            await base.SetParametersAsync(parameters);
         }
     }
 }

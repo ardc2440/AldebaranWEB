@@ -8,9 +8,9 @@ using Microsoft.AspNetCore.Components.Web;
 using Radzen;
 using Radzen.Blazor;
 
-namespace Aldebaran.Web.Pages
+namespace Aldebaran.Web.Pages.ItemPages
 {
-    public partial class AddItem
+    public partial class EditItemReference
     {
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
@@ -32,42 +32,34 @@ namespace Aldebaran.Web.Pages
         [Inject]
         public AldebaranDbService AldebaranDbService { get; set; }
 
+        [Parameter]
+        public int REFERENCE_ID { get; set; }
+
         protected override async Task OnInitializedAsync()
         {
-            item = new Aldebaran.Web.Models.AldebaranDb.Item();
-
-            measureUnitsForCIFMEASUREUNITID = await AldebaranDbService.GetMeasureUnits();
-
-            currenciesForCURRENCYID = await AldebaranDbService.GetCurrencies();
-
-            measureUnitsForFOBMEASUREUNITID = await AldebaranDbService.GetMeasureUnits();
-
-            linesForLINEID = await AldebaranDbService.GetLines();
+            itemReference = await AldebaranDbService.GetItemReferenceByReferenceId(REFERENCE_ID);
+            item = itemReference.Item;
         }
         protected bool errorVisible;
-        protected Aldebaran.Web.Models.AldebaranDb.Item item;
+        protected Models.AldebaranDb.ItemReference itemReference;
 
-        protected IEnumerable<Aldebaran.Web.Models.AldebaranDb.MeasureUnit> measureUnitsForCIFMEASUREUNITID;
-
-        protected IEnumerable<Aldebaran.Web.Models.AldebaranDb.Currency> currenciesForCURRENCYID;
-
-        protected IEnumerable<Aldebaran.Web.Models.AldebaranDb.MeasureUnit> measureUnitsForFOBMEASUREUNITID;
-
-        protected IEnumerable<Aldebaran.Web.Models.AldebaranDb.Line> linesForLINEID;
-
-        [Inject]
-        protected SecurityService Security { get; set; }
-
+        protected Models.AldebaranDb.Item item;
+        protected bool isSubmitInProgress;
         protected async Task FormSubmit()
         {
             try
             {
-                await AldebaranDbService.CreateItem(item);
-                DialogService.Close(item);
+                isSubmitInProgress = true;
+                await AldebaranDbService.UpdateItemReference(REFERENCE_ID, itemReference);
+                DialogService.Close(true);
             }
             catch (Exception ex)
             {
                 errorVisible = true;
+            }
+            finally
+            {
+                isSubmitInProgress = false;
             }
         }
 
@@ -75,5 +67,12 @@ namespace Aldebaran.Web.Pages
         {
             DialogService.Close(null);
         }
+
+
+        [Parameter]
+        public int ITEM_ID { get; set; }
+
+        [Inject]
+        protected SecurityService Security { get; set; }
     }
 }

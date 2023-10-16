@@ -8,9 +8,9 @@ using Microsoft.AspNetCore.Components.Web;
 using Radzen;
 using Radzen.Blazor;
 
-namespace Aldebaran.Web.Pages
+namespace Aldebaran.Web.Pages.ItemPages
 {
-    public partial class EditItemReference
+    public partial class AddItemReference
     {
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
@@ -32,30 +32,31 @@ namespace Aldebaran.Web.Pages
         [Inject]
         public AldebaranDbService AldebaranDbService { get; set; }
 
-        [Parameter]
-        public int REFERENCE_ID { get; set; }
-
         protected override async Task OnInitializedAsync()
         {
-            itemReference = await AldebaranDbService.GetItemReferenceByReferenceId(REFERENCE_ID);
-
-            itemsForITEMID = await AldebaranDbService.GetItems();
+            item = await AldebaranDbService.GetItemByItemId(ITEM_ID);
         }
         protected bool errorVisible;
-        protected Aldebaran.Web.Models.AldebaranDb.ItemReference itemReference;
+        protected Models.AldebaranDb.ItemReference itemReference;
 
-        protected IEnumerable<Aldebaran.Web.Models.AldebaranDb.Item> itemsForITEMID;
+        protected Models.AldebaranDb.Item item;
+        protected bool isSubmitInProgress;
 
         protected async Task FormSubmit()
         {
             try
             {
-                await AldebaranDbService.UpdateItemReference(REFERENCE_ID, itemReference);
-                DialogService.Close(itemReference);
+                isSubmitInProgress = true;
+                await AldebaranDbService.CreateItemReference(itemReference);
+                DialogService.Close(true);
             }
             catch (Exception ex)
             {
                 errorVisible = true;
+            }
+            finally
+            {
+                isSubmitInProgress = false;
             }
         }
 
@@ -77,7 +78,7 @@ namespace Aldebaran.Web.Pages
         protected SecurityService Security { get; set; }
         public override async Task SetParametersAsync(ParameterView parameters)
         {
-            itemReference = new Aldebaran.Web.Models.AldebaranDb.ItemReference();
+            itemReference = new Models.AldebaranDb.ItemReference();
 
             hasITEM_IDValue = parameters.TryGetValue<int>("ITEM_ID", out var hasITEM_IDResult);
 

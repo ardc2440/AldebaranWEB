@@ -1,0 +1,102 @@
+@page "/add-item-reference"
+
+@attribute [Authorize]
+<PageTitle>"Nueva referencia</PageTitle>
+<RadzenColumn SizeMD=12>
+    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">No se ha podido crear la referencia</RadzenAlert>
+    <RadzenTemplateForm TItem="Aldebaran.Web.Models.AldebaranDb.ItemReference" Data="@itemReference" Visible="@(itemReference != null)" Submit="@FormSubmit">
+        <RadzenStack>
+            <div class="flex-shrink-0">
+                <div class="text-primary-color" style="font-size: 16px">
+                    <RadzenLabel Text="Item: " Style="font-weight: bold" />
+                    <RadzenLabel Text="@item.ITEM_NAME" />
+                </div>
+                <div class="text-secondary-color">
+                    <RadzenLabel Text="Referencia interna: " />
+                    <RadzenLabel Text="@item.INTERNAL_REFERENCE" />
+                </div>
+            </div>
+            <RadzenFormField Text="Nombre" Variant="Variant.Flat">
+                <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@itemReference.REFERENCE_NAME" Name="REFERENCE_NAME" />
+                </ChildContent>
+                <Helper>
+                    <RadzenRequiredValidator Component="REFERENCE_NAME" Text="Nombre es requerido" />
+                </Helper>
+            </RadzenFormField>
+            <RadzenRow AlignItems="Radzen.AlignItems.Start">
+                <RadzenColumn Size="12" SizeMD="6">
+                    <RadzenFormField Text="Referencia" Variant="Variant.Flat" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@itemReference.REFERENCE_CODE" Name="REFERENCE_CODE" />
+                        </ChildContent>
+                        <Helper>
+                            <RadzenRequiredValidator Component="REFERENCE_CODE" Text="Referencia es requerida" />
+                        </Helper>
+                    </RadzenFormField>
+                </RadzenColumn>
+                <RadzenColumn Size="12" SizeMD="6">
+                    <RadzenFormField Text="Cantidad en inventario" Variant="Variant.Flat" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenNumeric style="display: block; width: 100%" @bind-Value="@itemReference.INVENTORY_QUANTITY" Name="INVENTORY_QUANTITY" />
+                        </ChildContent>
+                        <Helper>
+                            <RadzenRequiredValidator Component="INVENTORY_QUANTITY" Text="Cantidad es requerida" />
+                        </Helper>
+                    </RadzenFormField>
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenRow AlignItems="Radzen.AlignItems.Start">
+                <RadzenColumn Size="12" SizeMD="6">
+                    <RadzenFormField Text="Referencia del proveedor" Variant="Variant.Flat" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@itemReference.PROVIDER_REFERENCE_CODE" Name="PROVIDER_REFERENCE_CODE" />
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenColumn>
+                <RadzenColumn Size="12" SizeMD="6">
+                    <RadzenFormField Text="Nombre referencia proveedor" Variant="Variant.Flat" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@itemReference.PROVIDER_REFERENCE_NAME" Name="PROVIDER_REFERENCE_NAME" />
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenRow AlignItems="Radzen.AlignItems.Start">
+                <RadzenColumn Size="12" SizeMD="6">
+                    <RadzenFormField Text="Alarma para cantidad mínima" Variant="Variant.Flat" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenNumeric style="display: block; width: 100%" @bind-Value="@itemReference.ALARM_MINIMUM_QUANTITY" Name="ALARM_MINIMUM_QUANTITY" />
+                        </ChildContent>
+                        <Helper>
+                            <RadzenRequiredValidator Component="ALARM_MINIMUM_QUANTITY" Text="Cantidad mínima es requerida" />
+                        </Helper>
+                    </RadzenFormField>
+                </RadzenColumn>
+                <RadzenColumn Size="12" SizeMD="6">
+                    <RadzenColumn Size="12" SizeMD="6">
+                        <RadzenRow style="margin-bottom: 1rem; width:100%">
+                            <RadzenCheckBox @bind-Value="@itemReference.IS_SOLD_OUT" Name="IS_SOLD_OUT" />
+                            <RadzenLabel Text="Agotado" Component="IS_SOLD_OUT" />
+                        </RadzenRow>
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="6">
+                        <RadzenRow style="margin-bottom: 1rem; width:100%">
+                            <RadzenCheckBox @bind-Value="@itemReference.IS_ACTIVE" Name="IS_ACTIVE" />
+                            <RadzenLabel Text="Activo" Component="IS_ACTIVE" />
+                        </RadzenRow>
+                    </RadzenColumn>
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenFormField Text="Notas" Variant="Variant.Flat">
+                <ChildContent>
+                    <RadzenTextArea style="display: block; width: 100%" @bind-Value="itemReference.NOTES" Name="NOTES" Rows="3"></RadzenTextArea>
+                </ChildContent>
+            </RadzenFormField>
+        </RadzenStack>
+        <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+            <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@isSubmitInProgress" />
+            <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
+        </RadzenStack>
+    </RadzenTemplateForm>
+</RadzenColumn>

@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Radzen;
 using Radzen.Blazor;
 
-namespace Aldebaran.Web.Pages
+namespace Aldebaran.Web.Pages.ItemPages
 {
     public partial class EditItem
     {
@@ -48,29 +48,34 @@ namespace Aldebaran.Web.Pages
             linesForLINEID = await AldebaranDbService.GetLines();
         }
         protected bool errorVisible;
-        protected Aldebaran.Web.Models.AldebaranDb.Item item;
+        protected Models.AldebaranDb.Item item;
 
-        protected IEnumerable<Aldebaran.Web.Models.AldebaranDb.MeasureUnit> measureUnitsForCIFMEASUREUNITID;
+        protected IEnumerable<Models.AldebaranDb.MeasureUnit> measureUnitsForCIFMEASUREUNITID;
 
-        protected IEnumerable<Aldebaran.Web.Models.AldebaranDb.Currency> currenciesForCURRENCYID;
+        protected IEnumerable<Models.AldebaranDb.Currency> currenciesForCURRENCYID;
 
-        protected IEnumerable<Aldebaran.Web.Models.AldebaranDb.MeasureUnit> measureUnitsForFOBMEASUREUNITID;
+        protected IEnumerable<Models.AldebaranDb.MeasureUnit> measureUnitsForFOBMEASUREUNITID;
 
-        protected IEnumerable<Aldebaran.Web.Models.AldebaranDb.Line> linesForLINEID;
+        protected IEnumerable<Models.AldebaranDb.Line> linesForLINEID;
 
         [Inject]
         protected SecurityService Security { get; set; }
-
+        protected bool isSubmitInProgress;
         protected async Task FormSubmit()
         {
             try
             {
+                isSubmitInProgress = true;
                 await AldebaranDbService.UpdateItem(ITEM_ID, item);
-                DialogService.Close(item);
+                DialogService.Close(true);
             }
             catch (Exception ex)
             {
                 errorVisible = true;
+            }
+            finally
+            {
+                isSubmitInProgress = false;
             }
         }
 
