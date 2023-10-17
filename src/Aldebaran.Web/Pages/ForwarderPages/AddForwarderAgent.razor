@@ -1,0 +1,71 @@
+@page "/add-forwarder-agent"
+
+@attribute [Authorize]
+
+<PageTitle>Nuevo agente</PageTitle>
+<RadzenColumn SizeMD=12>
+    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">No se ha podido crear el agente</RadzenAlert>
+    <RadzenTemplateForm TItem="Aldebaran.Web.Models.AldebaranDb.ForwarderAgent" Data="@forwarderAgent" Visible="@(forwarderAgent != null)" Submit="@FormSubmit">
+        <RadzenStack>
+            <RadzenFormField Text="Nombre" Variant="Variant.Text">
+                <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@forwarderAgent.FORWARDER_AGENT_NAME" Name="FORWARDER_AGENT_NAME" />
+                </ChildContent>
+                <Helper>
+                    <RadzenRequiredValidator Component="FORWARDER_AGENT_NAME" Text="FORWARDER_AGENT_NAME is required" />
+                </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Teléfono" Variant="Variant.Text">
+                <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@forwarderAgent.PHONE1" Name="PHONE1" />
+                </ChildContent>
+                <Helper>
+                    <RadzenRequiredValidator Component="PHONE1" Text="PHONE1 is required" />
+                </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Teléfono opcional" Variant="Variant.Text">
+                <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@forwarderAgent.PHONE2" Name="PHONE2" />
+                </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Fax" Variant="Variant.Text">
+                <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@forwarderAgent.FAX" Name="FAX" />
+                </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Dirección" Variant="Variant.Text">
+                <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@forwarderAgent.FORWARDER_AGENT_ADDRESS" Name="FORWARDER_AGENT_ADDRESS" />
+                </ChildContent>
+                <Helper>
+                    <RadzenRequiredValidator Component="FORWARDER_AGENT_ADDRESS" Text="FORWARDER_AGENT_ADDRESS is required" />
+                </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Contacto" Variant="Variant.Text">
+                <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@forwarderAgent.CONTACT" Name="CONTACT" />
+                </ChildContent>
+                <Helper>
+                    <RadzenRequiredValidator Component="CONTACT" Text="CONTACT is required" />
+                </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Correo electrónico" Variant="Variant.Text">
+                <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@forwarderAgent.EMAIL1" Name="EMAIL1" />
+                </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Correo electrónico opcional" Variant="Variant.Text">
+                <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@forwarderAgent.EMAIL2" Name="EMAIL2" />
+                </ChildContent>
+            </RadzenFormField>
+            <LocalizationPicker OnChange="LocalizationHandler" />
+            <RadzenRequiredValidator Text="Ubicación requerida" Component="CITY_ID" Style="margin-top: -0.875rem;" />
+        </RadzenStack>
+        <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+            <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@isSubmitInProgress" />
+            <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
+        </RadzenStack>
+    </RadzenTemplateForm>
+</RadzenColumn>
+

@@ -11,16 +11,8 @@
         <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger">@dialogResult.Message</RadzenAlert>
     }
     <RadzenRow AlignItems="AlignItems.Center">
-        <RadzenColumn Size="12" SizeMD="6">
+        <RadzenColumn Size="12">
             <RadzenText Text="Areas" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
-        </RadzenColumn>
-        <RadzenColumn Size="12" SizeMD="6">
-            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
-                <RadzenSplitButton Icon="get_app" Text="Export" Click="@ExportClick" Variant="Variant.Flat" Shade="Shade.Lighter">
-                    <RadzenSplitButtonItem Text="Excel" Value="xlsx" />
-                    <RadzenSplitButtonItem Text="CSV" Value="csv" />
-                </RadzenSplitButton>
-            </RadzenStack>
         </RadzenColumn>
     </RadzenRow>
     <RadzenTextBox Placeholder="Search ..." style="display: block; width: 100%" @oninput="@Search" />

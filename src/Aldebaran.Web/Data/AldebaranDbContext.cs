@@ -68,6 +68,36 @@ namespace Aldebaran.Web.Data
               .HasForeignKey(i => i.ITEM_ID)
               .HasPrincipalKey(i => i.ITEM_ID);
 
+            builder.Entity<Aldebaran.Web.Models.AldebaranDb.City>()
+              .HasOne(i => i.Department)
+              .WithMany(i => i.Cities)
+              .HasForeignKey(i => i.DEPARTMENT_ID)
+              .HasPrincipalKey(i => i.DEPARTMENT_ID);
+
+            builder.Entity<Aldebaran.Web.Models.AldebaranDb.Department>()
+              .HasOne(i => i.Country)
+              .WithMany(i => i.Departments)
+              .HasForeignKey(i => i.COUNTRY_ID)
+              .HasPrincipalKey(i => i.COUNTRY_ID);
+
+            builder.Entity<Aldebaran.Web.Models.AldebaranDb.Forwarder>()
+              .HasOne(i => i.City)
+              .WithMany(i => i.Forwarders)
+              .HasForeignKey(i => i.CITY_ID)
+              .HasPrincipalKey(i => i.CITY_ID);
+
+            builder.Entity<Aldebaran.Web.Models.AldebaranDb.ForwarderAgent>()
+              .HasOne(i => i.City)
+              .WithMany(i => i.ForwarderAgents)
+              .HasForeignKey(i => i.CITY_ID)
+              .HasPrincipalKey(i => i.CITY_ID);
+
+            builder.Entity<Aldebaran.Web.Models.AldebaranDb.ForwarderAgent>()
+              .HasOne(i => i.Forwarder)
+              .WithMany(i => i.ForwarderAgents)
+              .HasForeignKey(i => i.FORWARDER_ID)
+              .HasPrincipalKey(i => i.FORWARDER_ID);
+
             builder.Entity<Aldebaran.Web.Models.AldebaranDb.ItemReference>()
               .Property(p => p.IS_ACTIVE)
               .HasDefaultValueSql(@"((1))");
@@ -86,6 +116,8 @@ namespace Aldebaran.Web.Data
             this.OnModelBuilding(builder);
         }
 
+        public DbSet<Aldebaran.Web.Models.AldebaranDb.Area> Areas { get; set; }
+
         public DbSet<Aldebaran.Web.Models.AldebaranDb.Currency> Currencies { get; set; }
 
         public DbSet<Aldebaran.Web.Models.AldebaranDb.ItemReference> ItemReferences { get; set; }
@@ -98,7 +130,15 @@ namespace Aldebaran.Web.Data
 
         public DbSet<Aldebaran.Web.Models.AldebaranDb.MeasureUnit> MeasureUnits { get; set; }
 
-        public DbSet<Aldebaran.Web.Models.AldebaranDb.Area> Areas { get; set; }
+        public DbSet<Aldebaran.Web.Models.AldebaranDb.City> Cities { get; set; }
+
+        public DbSet<Aldebaran.Web.Models.AldebaranDb.Country> Countries { get; set; }
+
+        public DbSet<Aldebaran.Web.Models.AldebaranDb.Department> Departments { get; set; }
+
+        public DbSet<Aldebaran.Web.Models.AldebaranDb.Forwarder> Forwarders { get; set; }
+
+        public DbSet<Aldebaran.Web.Models.AldebaranDb.ForwarderAgent> ForwarderAgents { get; set; }
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {

@@ -3,7 +3,7 @@
 @attribute [Authorize]
 <PageTitle>Nuevo artículo</PageTitle>
 <RadzenColumn SizeMD=12>
-    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Text" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">No se ha podido crear el artículo</RadzenAlert>
+    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">No se ha podido crear el artículo</RadzenAlert>
     <RadzenTemplateForm TItem="Aldebaran.Web.Models.AldebaranDb.Item" Data="@item" Visible="@(item != null)" Submit="@FormSubmit">
         <RadzenStack>
             <RadzenFormField Text="Nombre" Variant="Variant.Text">

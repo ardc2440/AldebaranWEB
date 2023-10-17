@@ -1,0 +1,62 @@
+@page "/add-forwarder"
+
+@attribute [Authorize]
+
+<PageTitle>Nueva transportadora</PageTitle>
+<RadzenColumn SizeMD=12>
+    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">No se ha podido crear la transportadora</RadzenAlert>
+    <RadzenTemplateForm id="forwarderForm" TItem="Aldebaran.Web.Models.AldebaranDb.Forwarder" Data="@forwarder" Visible="@(forwarder != null)" Submit="@FormSubmit">
+        <RadzenStack>
+            <RadzenFormField Text="Nombre" Variant="Variant.Text">
+                <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@forwarder.FORWARDER_NAME" Name="FORWARDER_NAME" />
+                </ChildContent>
+                <Helper>
+                    <RadzenRequiredValidator Component="FORWARDER_NAME" Text="Nombre es requerido" />
+                </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Teléfono" Variant="Variant.Text">
+                <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@forwarder.PHONE1" Name="PHONE1" />
+                </ChildContent>
+                <Helper>
+                    <RadzenRequiredValidator Component="PHONE1" Text="Teléfono es requerido" />
+                </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Teléfono opcional" Variant="Variant.Text">
+                <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@forwarder.PHONE2" Name="PHONE2" />
+                </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Fax" Variant="Variant.Text">
+                <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@forwarder.FAX" Name="FAX" />
+                </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Dirección" Variant="Variant.Text">
+                <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@forwarder.FORWARDER_ADDRESS" Name="FORWARDER_ADDRESS" />
+                </ChildContent>
+                <Helper>
+                    <RadzenRequiredValidator Component="FORWARDER_ADDRESS" Text="Dirección es requerida" />
+                </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Correo electrónico" Variant="Variant.Text">
+                <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@forwarder.MAIL1" Name="MAIL1" />
+                </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Correo electrónico opcional" Variant="Variant.Text">
+                <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@forwarder.MAIL2" Name="MAIL2" />
+                </ChildContent>
+            </RadzenFormField>
+            <LocalizationPicker OnChange="LocalizationHandler" />
+            <RadzenRequiredValidator Text="Ubicación requerida" Component="CITY_ID" Style="margin-top: -0.875rem;" />
+        </RadzenStack>
+        <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+            <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@isSubmitInProgress" />
+            <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
+        </RadzenStack>
+    </RadzenTemplateForm>
+</RadzenColumn>

@@ -78,31 +78,6 @@ namespace Aldebaran.Web.Pages.AreaPages
             }
         }
 
-        protected async Task ExportClick(RadzenSplitButtonItem args)
-        {
-            if (args?.Value == "csv")
-            {
-                await AldebaranDbService.ExportAreasToCSV(new Query
-                {
-                    Filter = $@"{(string.IsNullOrEmpty(grid0.Query.Filter) ? "true" : grid0.Query.Filter)}",
-                    OrderBy = $"{grid0.Query.OrderBy}",
-                    Expand = "",
-                    Select = string.Join(",", grid0.ColumnsCollection.Where(c => c.GetVisible() && !string.IsNullOrEmpty(c.Property)).Select(c => c.Property.Contains(".") ? c.Property + " as " + c.Property.Replace(".", "") : c.Property))
-                }, "Areas");
-            }
-
-            if (args == null || args.Value == "xlsx")
-            {
-                await AldebaranDbService.ExportAreasToExcel(new Query
-                {
-                    Filter = $@"{(string.IsNullOrEmpty(grid0.Query.Filter) ? "true" : grid0.Query.Filter)}",
-                    OrderBy = $"{grid0.Query.OrderBy}",
-                    Expand = "",
-                    Select = string.Join(",", grid0.ColumnsCollection.Where(c => c.GetVisible() && !string.IsNullOrEmpty(c.Property)).Select(c => c.Property.Contains(".") ? c.Property + " as " + c.Property.Replace(".", "") : c.Property))
-                }, "Areas");
-            }
-        }
-
         protected Models.AldebaranDb.Area area;
         protected async Task GetChildData(Models.AldebaranDb.Area args)
         {
