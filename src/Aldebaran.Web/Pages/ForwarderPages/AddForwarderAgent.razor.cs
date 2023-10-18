@@ -29,23 +29,30 @@ namespace Aldebaran.Web.Pages.ForwarderPages
 
         [Inject]
         protected NotificationService NotificationService { get; set; }
+
         [Inject]
         public AldebaranDbService AldebaranDbService { get; set; }
 
-        protected override async Task OnInitializedAsync()
-        {
+        [Inject]
+        protected SecurityService Security { get; set; }
 
-            citiesForCITYID = await AldebaranDbService.GetCities();
-
-            forwardersForFORWARDERID = await AldebaranDbService.GetForwarders();
-        }
+        [Parameter]
+        public int FORWARDER_ID { get; set; }
         protected bool errorVisible;
         protected Aldebaran.Web.Models.AldebaranDb.ForwarderAgent forwarderAgent;
-
-        protected IEnumerable<Aldebaran.Web.Models.AldebaranDb.City> citiesForCITYID;
-
-        protected IEnumerable<Aldebaran.Web.Models.AldebaranDb.Forwarder> forwardersForFORWARDERID;
+        protected Aldebaran.Web.Models.AldebaranDb.Forwarder forwarder;
+        protected Aldebaran.Web.Models.AldebaranDb.City city;
         protected bool isSubmitInProgress;
+
+        protected override async Task OnInitializedAsync()
+        {
+            forwarder = await AldebaranDbService.GetForwarderByForwarderId(FORWARDER_ID);
+            var selectedCity = await AldebaranDbService.GetCities(new Query { Filter = "i=>i.CITY_ID == @0", FilterParameters = new object[] { forwarder.CITY_ID }, Expand = "Department.Country" });
+            city = selectedCity.Single();
+            forwarderAgent = new Models.AldebaranDb.ForwarderAgent();
+            forwarderAgent.FORWARDER_ID = FORWARDER_ID;
+        }
+        
         protected async Task FormSubmit()
         {
             try
@@ -67,46 +74,10 @@ namespace Aldebaran.Web.Pages.ForwarderPages
         protected async Task LocalizationHandler(Aldebaran.Web.Models.AldebaranDb.City city)
         {
             forwarderAgent.CITY_ID = city?.CITY_ID ?? 0;
-        }    
+        }
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
             DialogService.Close(null);
-        }
-
-
-
-
-
-        bool hasCITY_IDValue;
-
-        [Parameter]
-        public int CITY_ID { get; set; }
-
-        bool hasFORWARDER_IDValue;
-
-        [Parameter]
-        public int FORWARDER_ID { get; set; }
-
-        [Inject]
-        protected SecurityService Security { get; set; }
-        public override async Task SetParametersAsync(ParameterView parameters)
-        {
-            forwarderAgent = new Aldebaran.Web.Models.AldebaranDb.ForwarderAgent();
-
-            hasCITY_IDValue = parameters.TryGetValue<int>("CITY_ID", out var hasCITY_IDResult);
-
-            if (hasCITY_IDValue)
-            {
-                forwarderAgent.CITY_ID = hasCITY_IDResult;
-            }
-
-            hasFORWARDER_IDValue = parameters.TryGetValue<int>("FORWARDER_ID", out var hasFORWARDER_IDResult);
-
-            if (hasFORWARDER_IDValue)
-            {
-                forwarderAgent.FORWARDER_ID = hasFORWARDER_IDResult;
-            }
-            await base.SetParametersAsync(parameters);
         }
     }
 }

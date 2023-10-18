@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using Radzen;
-using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.ForwarderPages
 {
@@ -29,19 +24,22 @@ namespace Aldebaran.Web.Pages.ForwarderPages
 
         [Inject]
         protected NotificationService NotificationService { get; set; }
+        
         [Inject]
         public AldebaranDbService AldebaranDbService { get; set; }
+
+        [Inject]
+        protected SecurityService Security { get; set; }
+
+        protected bool errorVisible;
+        protected Aldebaran.Web.Models.AldebaranDb.Forwarder forwarder;
+        protected bool isSubmitInProgress;
 
         protected override async Task OnInitializedAsync()
         {
             forwarder = new Aldebaran.Web.Models.AldebaranDb.Forwarder();
         }
-        protected bool errorVisible;
-        protected Aldebaran.Web.Models.AldebaranDb.Forwarder forwarder;
-
-        [Inject]
-        protected SecurityService Security { get; set; }
-        protected bool isSubmitInProgress;
+        
         protected async Task FormSubmit()
         {
             try

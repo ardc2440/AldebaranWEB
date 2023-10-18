@@ -42,5 +42,7 @@ namespace Aldebaran.Web.Models.AldebaranDb
 
         public Forwarder Forwarder { get; set; }
 
+        public ICollection<ShipmentForwarderAgentMethod> ShipmentForwarderAgentMethods { get; set; }
+
     }
 }

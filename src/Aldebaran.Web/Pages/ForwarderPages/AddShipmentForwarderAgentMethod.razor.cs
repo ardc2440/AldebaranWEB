@@ -1,16 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.JSInterop;
+using Aldebaran.Web.Models.AldebaranDb;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using Radzen;
-using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.ForwarderPages
 {
-    public partial class EditForwarder
+    public partial class AddShipmentForwarderAgentMethod
     {
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
@@ -29,7 +25,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
 
         [Inject]
         protected NotificationService NotificationService { get; set; }
-
+       
         [Inject]
         public AldebaranDbService AldebaranDbService { get; set; }
 
@@ -37,23 +33,28 @@ namespace Aldebaran.Web.Pages.ForwarderPages
         protected SecurityService Security { get; set; }
 
         [Parameter]
-        public int FORWARDER_ID { get; set; }
-
-        protected bool isSubmitInProgress;
+        public int FORWARDER_AGENT_ID { get; set; }
+        protected IEnumerable<ShipmentMethod> shipmentMethods;
         protected bool errorVisible;
-        protected Aldebaran.Web.Models.AldebaranDb.Forwarder forwarder;
+        protected ForwarderAgent forwarderAgent;
+        protected ShipmentForwarderAgentMethod shipmentForwarderAgentMethod;
+        protected bool isSubmitInProgress;
 
         protected override async Task OnInitializedAsync()
         {
-            forwarder = await AldebaranDbService.GetForwarderByForwarderId(FORWARDER_ID);
+            forwarderAgent = await AldebaranDbService.GetForwarderAgentByForwarderAgentId(FORWARDER_AGENT_ID);
+            var currentShipmentMethodsForAgent = await AldebaranDbService.GetShipmentForwarderAgentMethods(new Query { Filter = $"@i => i.FORWARDER_AGENT_ID == @0", FilterParameters = new object[] { FORWARDER_AGENT_ID } });
+            shipmentMethods = await AldebaranDbService.GetShipmentMethods(new Query { Filter = $"@i => !@0.Contains(i.SHIPMENT_METHOD_ID)", FilterParameters = new object[] { currentShipmentMethodsForAgent.Select(s => s.SHIPMENT_METHOD_ID) } });
+            shipmentForwarderAgentMethod = new ShipmentForwarderAgentMethod();
+            shipmentForwarderAgentMethod.FORWARDER_AGENT_ID = FORWARDER_AGENT_ID;
         }
-
+        
         protected async Task FormSubmit()
         {
             try
             {
                 isSubmitInProgress = true;
-                await AldebaranDbService.UpdateForwarder(FORWARDER_ID, forwarder);
+                await AldebaranDbService.CreateShipmentForwarderAgentMethod(shipmentForwarderAgentMethod);
                 DialogService.Close(true);
             }
             catch (Exception ex)
@@ -64,11 +65,6 @@ namespace Aldebaran.Web.Pages.ForwarderPages
             {
                 isSubmitInProgress = false;
             }
-        }
-
-        protected async Task LocalizationHandler(Aldebaran.Web.Models.AldebaranDb.City city)
-        {
-            forwarder.CITY_ID = city?.CITY_ID ?? 0;
         }
 
         protected async Task CancelButtonClick(MouseEventArgs args)

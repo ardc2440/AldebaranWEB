@@ -1,13 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.JSInterop;
+using Aldebaran.Web.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using Radzen;
 using Radzen.Blazor;
-using Aldebaran.Web.Models;
 
 namespace Aldebaran.Web.Pages.ItemPages
 {
@@ -34,12 +30,16 @@ namespace Aldebaran.Web.Pages.ItemPages
         [Inject]
         public AldebaranDbService AldebaranDbService { get; set; }
 
+        [Inject]
+        protected SecurityService Security { get; set; }
+
         protected IEnumerable<Models.AldebaranDb.Item> items;
-
         protected RadzenDataGrid<Models.AldebaranDb.Item> grid0;
-
+        protected RadzenDataGrid<Models.AldebaranDb.ItemReference> ItemReferencesDataGrid;
         protected string search = "";
         protected DialogResult dialogResult { get; set; }
+        protected Models.AldebaranDb.Item item;
+
         protected override async Task OnInitializedAsync()
         {
             items = await AldebaranDbService.GetItems(new Query { Filter = $@"i => i.INTERNAL_REFERENCE.Contains(@0) || i.ITEM_NAME.Contains(@0) || i.PROVIDER_REFERENCE.Contains(@0) || i.PROVIDER_ITEM_NAME.Contains(@0) || i.NOTES.Contains(@0)", FilterParameters = new object[] { search }, Expand = "MeasureUnit,Currency,MeasureUnit1,Line" });            
@@ -55,9 +55,7 @@ namespace Aldebaran.Web.Pages.ItemPages
         protected async Task Search(ChangeEventArgs args)
         {
             search = $"{args.Value}";
-
             await grid0.GoToPage(0);
-
             items = await AldebaranDbService.GetItems(new Query { Filter = $@"i => i.INTERNAL_REFERENCE.Contains(@0) || i.ITEM_NAME.Contains(@0) || i.PROVIDER_REFERENCE.Contains(@0) || i.PROVIDER_ITEM_NAME.Contains(@0) || i.NOTES.Contains(@0)", FilterParameters = new object[] { search }, Expand = "MeasureUnit,Currency,MeasureUnit1,Line" });
         }
 
@@ -65,7 +63,7 @@ namespace Aldebaran.Web.Pages.ItemPages
         protected async Task AddButtonClick(MouseEventArgs args)
         {
             dialogResult = null;
-            var result = await DialogService.OpenAsync<AddItem>("Nuevo artículo", null);
+            var result = await DialogService.OpenAsync<AddItem>("Nuevo artículo");
             if (result == true)
             {
                 dialogResult = new DialogResult { Success = true, Message = "Artículo creado correctamente." };
@@ -134,21 +132,16 @@ namespace Aldebaran.Web.Pages.ItemPages
             }
         }
 
-        protected Models.AldebaranDb.Item item;
+        
         protected async Task GetChildData(Models.AldebaranDb.Item args)
         {
             item = args;
-            var ItemReferencesResult = await AldebaranDbService.GetItemReferences(new Query { Filter = $@"i => i.ITEM_ID == {args.ITEM_ID}", Expand = "Item" });
+            var ItemReferencesResult = await AldebaranDbService.GetItemReferences(new Query { Filter = $@"i => i.ITEM_ID == @0", FilterParameters = new object[] { args.ITEM_ID }, Expand = "Item" });
             if (ItemReferencesResult != null)
             {
                 args.ItemReferences = ItemReferencesResult.ToList();
             }
         }
-
-        protected RadzenDataGrid<Models.AldebaranDb.ItemReference> ItemReferencesDataGrid;
-
-        [Inject]
-        protected SecurityService Security { get; set; }
 
         protected async Task ItemReferencesAddButtonClick(MouseEventArgs args, Models.AldebaranDb.Item data)
         {

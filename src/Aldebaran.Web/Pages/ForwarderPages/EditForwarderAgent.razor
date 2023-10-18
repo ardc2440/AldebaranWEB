@@ -7,6 +7,16 @@
     <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">No se ha podido actualizar el agente</RadzenAlert>
     <RadzenTemplateForm TItem="Aldebaran.Web.Models.AldebaranDb.ForwarderAgent" Data="@forwarderAgent" Visible="@(forwarderAgent != null)" Submit="@FormSubmit">
         <RadzenStack>
+            <div class="flex-shrink-0">
+                <div class="text-primary-color" style="font-size: 16px">
+                    <RadzenLabel Text="Transportadora: " Style="font-weight: bold" />
+                    <RadzenLabel Text="@forwarder.FORWARDER_NAME" />
+                </div>
+                <div class="text-secondary-color">
+                    <RadzenLabel Text="Ubicación: " />
+                    <span>(@city?.Department?.Country?.COUNTRY_CODE) @city?.Department?.DEPARTMENT_NAME - @city?.CITY_NAME</span>
+                </div>
+            </div>
             <RadzenFormField Text="Nombre" Variant="Variant.Text">
                 <ChildContent>
                     <RadzenTextBox style="display: block; width: 100%" @bind-Value="@forwarderAgent.FORWARDER_AGENT_NAME" Name="FORWARDER_AGENT_NAME" />

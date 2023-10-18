@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using Radzen;
-using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.AreaPages
 {
@@ -29,8 +24,18 @@ namespace Aldebaran.Web.Pages.AreaPages
 
         [Inject]
         protected NotificationService NotificationService { get; set; }
+        
         [Inject]
         public AldebaranDbService AldebaranDbService { get; set; }
+
+        [Parameter]
+        public short AREA_ID { get; set; }
+
+        protected bool errorVisible;
+        protected Models.AldebaranDb.ItemsArea itemsArea;
+        protected Models.AldebaranDb.Area area;
+        protected IEnumerable<Models.AldebaranDb.Item> itemsForITEMID;
+        protected bool isSubmitInProgress;
 
         protected override async Task OnInitializedAsync()
         {
@@ -40,13 +45,7 @@ namespace Aldebaran.Web.Pages.AreaPages
             itemsArea = new Models.AldebaranDb.ItemsArea();
             itemsArea.AREA_ID = AREA_ID;
         }
-        protected bool errorVisible;
-        protected Models.AldebaranDb.ItemsArea itemsArea;
-
-        protected Models.AldebaranDb.Area area;
-
-        protected IEnumerable<Models.AldebaranDb.Item> itemsForITEMID;
-        protected bool isSubmitInProgress;
+        
         protected async Task FormSubmit()
         {
             try
@@ -69,8 +68,6 @@ namespace Aldebaran.Web.Pages.AreaPages
         {
             DialogService.Close(null);
         }
-
-        [Parameter]
-        public short AREA_ID { get; set; }
+       
     }
 }

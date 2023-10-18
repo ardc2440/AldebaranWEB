@@ -1,13 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.JSInterop;
+using Aldebaran.Web.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using Radzen;
 using Radzen.Blazor;
-using Aldebaran.Web.Models;
 
 namespace Aldebaran.Web.Pages.ForwarderPages
 {
@@ -34,19 +30,23 @@ namespace Aldebaran.Web.Pages.ForwarderPages
         [Inject]
         public AldebaranDbService AldebaranDbService { get; set; }
 
+        [Inject]
+        protected SecurityService Security { get; set; }
+
         protected IEnumerable<Aldebaran.Web.Models.AldebaranDb.Forwarder> forwarders;
-
         protected RadzenDataGrid<Aldebaran.Web.Models.AldebaranDb.Forwarder> grid0;
-
         protected string search = "";
-
         protected DialogResult dialogResult { get; set; }
+        protected Aldebaran.Web.Models.AldebaranDb.Forwarder forwarder;
+        protected RadzenDataGrid<Aldebaran.Web.Models.AldebaranDb.ForwarderAgent> ForwarderAgentsDataGrid;
+        protected RadzenDataGrid<Aldebaran.Web.Models.AldebaranDb.ShipmentForwarderAgentMethod> ShipmentForwarderAgentMethodDataGrid;
+        protected Aldebaran.Web.Models.AldebaranDb.ShipmentForwarderAgentMethod shipmentMethod;
+        protected Aldebaran.Web.Models.AldebaranDb.ForwarderAgent forwarderAgent;
+
         protected async Task Search(ChangeEventArgs args)
         {
             search = $"{args.Value}";
-
             await grid0.GoToPage(0);
-
             forwarders = await AldebaranDbService.GetForwarders(new Query { Filter = $@"i => i.FORWARDER_NAME.Contains(@0) || i.PHONE1.Contains(@0) || i.PHONE2.Contains(@0) || i.FAX.Contains(@0) || i.FORWARDER_ADDRESS.Contains(@0) || i.MAIL1.Contains(@0) || i.MAIL2.Contains(@0)", FilterParameters = new object[] { search }, Expand = "City.Department.Country" });
         }
         protected override async Task OnInitializedAsync()
@@ -57,7 +57,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
         protected async Task AddButtonClick(MouseEventArgs args)
         {
             dialogResult = null;
-            var result = await DialogService.OpenAsync<AddForwarder>("Nueva transportadora", null);
+            var result = await DialogService.OpenAsync<AddForwarder>("Nueva transportadora");
             if (result == true)
             {
                 dialogResult = new DialogResult { Success = true, Message = "Transportadora creada correctamente." };
@@ -100,8 +100,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
                 });
             }
         }
-
-        protected Aldebaran.Web.Models.AldebaranDb.Forwarder forwarder;
+        
         protected async Task GetChildData(Aldebaran.Web.Models.AldebaranDb.Forwarder args)
         {
             forwarder = args;
@@ -112,15 +111,10 @@ namespace Aldebaran.Web.Pages.ForwarderPages
             }
         }
 
-        protected RadzenDataGrid<Aldebaran.Web.Models.AldebaranDb.ForwarderAgent> ForwarderAgentsDataGrid;
-
-        [Inject]
-        protected SecurityService Security { get; set; }
-
         protected async Task ForwarderAgentsAddButtonClick(MouseEventArgs args, Aldebaran.Web.Models.AldebaranDb.Forwarder data)
         {
             dialogResult = null;
-            var result = await DialogService.OpenAsync<AddForwarderAgent>("Nuevo agente", new Dictionary<string, object> { { "CITY_ID", data.CITY_ID }, { "FORWARDER_ID", data.FORWARDER_ID } });
+            var result = await DialogService.OpenAsync<AddForwarderAgent>("Nuevo agente", new Dictionary<string, object> { { "FORWARDER_ID", data.FORWARDER_ID } });
             if (result == true)
             {
                 dialogResult = new DialogResult { Success = true, Message = "Agente creado correctamente." };
@@ -132,7 +126,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
         protected async Task EditChildRow(Aldebaran.Web.Models.AldebaranDb.ForwarderAgent args, Aldebaran.Web.Models.AldebaranDb.Forwarder data)
         {
             dialogResult = null;
-            var result = await DialogService.OpenAsync<EditForwarderAgent>("Actualizar agente", new Dictionary<string, object> { { "CITY_ID", args.CITY_ID }, { "FORWARDER_ID", args.FORWARDER_ID }, { "FORWARDER_AGENT_ID", args.FORWARDER_AGENT_ID } });
+            var result = await DialogService.OpenAsync<EditForwarderAgent>("Actualizar agente", new Dictionary<string, object> { { "FORWARDER_AGENT_ID", args.FORWARDER_AGENT_ID } });
             if (result == true)
             {
                 dialogResult = new DialogResult { Success = true, Message = "Agente actualizado correctamente." };
@@ -145,6 +139,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
         {
             try
             {
+                dialogResult = null;
                 if (await DialogService.Confirm("Está seguro que desea eliminar este agente?") == true)
                 {
                     var deleteResult = await AldebaranDbService.DeleteForwarderAgent(forwarderAgent.FORWARDER_AGENT_ID);
@@ -153,6 +148,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
 
                     if (deleteResult != null)
                     {
+                        dialogResult = new DialogResult { Success = true, Message = "Agente eliminado correctamente." };
                         await ForwarderAgentsDataGrid.Reload();
                     }
                 }
@@ -164,6 +160,52 @@ namespace Aldebaran.Web.Pages.ForwarderPages
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
                     Detail = $"No se ha podido eliminar el agente"
+                });
+            }
+        }
+        
+        protected async Task GetShipmentData(Aldebaran.Web.Models.AldebaranDb.ForwarderAgent args)
+        {
+            forwarderAgent = args;
+            var ShipmentForwarderAgentMethodsResult = await AldebaranDbService.GetShipmentForwarderAgentMethods(new Query { Filter = $@"i => i.FORWARDER_AGENT_ID == {args.FORWARDER_AGENT_ID}", Expand = "ShipmentMethod" });
+            if (ShipmentForwarderAgentMethodsResult != null)
+            {
+                forwarderAgent.ShipmentForwarderAgentMethods = ShipmentForwarderAgentMethodsResult.ToList();
+            }
+        }
+        protected async Task ShippingAddButtonClick(MouseEventArgs args, Aldebaran.Web.Models.AldebaranDb.ForwarderAgent data)
+        {
+            dialogResult = null;
+            var result = await DialogService.OpenAsync<AddShipmentForwarderAgentMethod>("Nuevo método de envío", new Dictionary<string, object> { { "FORWARDER_AGENT_ID", data.FORWARDER_AGENT_ID } });
+            if (result == true)
+            {
+                dialogResult = new DialogResult { Success = true, Message = "Método de envío creado correctamente." };
+            }
+            await GetShipmentData(data);
+            await ForwarderAgentsDataGrid.Reload();
+        }       
+        protected async Task ShippingDeleteButtonClick(MouseEventArgs args, Aldebaran.Web.Models.AldebaranDb.ShipmentForwarderAgentMethod shipmentForwarderAgent)
+        {
+            try
+            {
+                dialogResult = null;
+                if (await DialogService.Confirm("Está seguro que desea eliminar este método de envío?") == true)
+                {
+                    var deleteResult = await AldebaranDbService.DeleteShipmentForwarderAgentMethod(shipmentForwarderAgent.SHIPMENT_FORWARDER_AGENT_METHOD_ID);
+                    if (deleteResult != null)
+                    {
+                        dialogResult = new DialogResult { Success = true, Message = "Método de envío eliminado correctamente." };
+                        await ShipmentForwarderAgentMethodDataGrid.Reload();
+                    }
+                }
+            }
+            catch (System.Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = $"Error",
+                    Detail = $"No se ha podido eliminar el método de envío"
                 });
             }
         }

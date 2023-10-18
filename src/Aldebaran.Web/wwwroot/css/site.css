@@ -185,7 +185,9 @@ a {
     border: 0;
     box-shadow: none;
 }
-
+    .toggle-panel .rz-panel-titlebar {
+        margin: var(--rz-form-field-margin);
+    }
     .toggle-panel .rz-panel-titlebar button {
         width: 100%;
         background-color: rgba(0,0,0,0) !important;

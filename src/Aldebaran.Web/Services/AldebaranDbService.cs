@@ -203,7 +203,6 @@ namespace Aldebaran.Web
         {
             var itemToDelete = Context.Areas
                               .Where(i => i.AREA_ID == areaid)
-                              .Include(i => i.ItemsAreas)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -227,6 +226,330 @@ namespace Aldebaran.Web
             }
 
             OnAfterAreaDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+    
+        public async Task ExportCitiesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/cities/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/cities/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportCitiesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/cities/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/cities/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnCitiesRead(ref IQueryable<Aldebaran.Web.Models.AldebaranDb.City> items);
+
+        public async Task<IQueryable<Aldebaran.Web.Models.AldebaranDb.City>> GetCities(Query query = null)
+        {
+            var items = Context.Cities.AsQueryable();
+
+            items = items.Include(i => i.Department);
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach(var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnCitiesRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnCityGet(Aldebaran.Web.Models.AldebaranDb.City item);
+        partial void OnGetCityByCityId(ref IQueryable<Aldebaran.Web.Models.AldebaranDb.City> items);
+
+
+        public async Task<Aldebaran.Web.Models.AldebaranDb.City> GetCityByCityId(int cityid)
+        {
+            var items = Context.Cities
+                              .AsNoTracking()
+                              .Where(i => i.CITY_ID == cityid);
+
+            items = items.Include(i => i.Department);
+ 
+            OnGetCityByCityId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnCityGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnCityCreated(Aldebaran.Web.Models.AldebaranDb.City item);
+        partial void OnAfterCityCreated(Aldebaran.Web.Models.AldebaranDb.City item);
+
+        public async Task<Aldebaran.Web.Models.AldebaranDb.City> CreateCity(Aldebaran.Web.Models.AldebaranDb.City city)
+        {
+            OnCityCreated(city);
+
+            var existingItem = Context.Cities
+                              .Where(i => i.CITY_ID == city.CITY_ID)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+               throw new Exception("Item already available");
+            }            
+
+            try
+            {
+                Context.Cities.Add(city);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(city).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterCityCreated(city);
+
+            return city;
+        }
+
+        public async Task<Aldebaran.Web.Models.AldebaranDb.City> CancelCityChanges(Aldebaran.Web.Models.AldebaranDb.City item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+              entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+              entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnCityUpdated(Aldebaran.Web.Models.AldebaranDb.City item);
+        partial void OnAfterCityUpdated(Aldebaran.Web.Models.AldebaranDb.City item);
+
+        public async Task<Aldebaran.Web.Models.AldebaranDb.City> UpdateCity(int cityid, Aldebaran.Web.Models.AldebaranDb.City city)
+        {
+            OnCityUpdated(city);
+
+            var itemToUpdate = Context.Cities
+                              .Where(i => i.CITY_ID == city.CITY_ID)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+                
+            var entryToUpdate = Context.Entry(itemToUpdate);
+            entryToUpdate.CurrentValues.SetValues(city);
+            entryToUpdate.State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterCityUpdated(city);
+
+            return city;
+        }
+
+        partial void OnCityDeleted(Aldebaran.Web.Models.AldebaranDb.City item);
+        partial void OnAfterCityDeleted(Aldebaran.Web.Models.AldebaranDb.City item);
+
+        public async Task<Aldebaran.Web.Models.AldebaranDb.City> DeleteCity(int cityid)
+        {
+            var itemToDelete = Context.Cities
+                              .Where(i => i.CITY_ID == cityid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            OnCityDeleted(itemToDelete);
+
+
+            Context.Cities.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterCityDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+    
+        public async Task ExportCountriesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/countries/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/countries/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportCountriesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/countries/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/countries/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnCountriesRead(ref IQueryable<Aldebaran.Web.Models.AldebaranDb.Country> items);
+
+        public async Task<IQueryable<Aldebaran.Web.Models.AldebaranDb.Country>> GetCountries(Query query = null)
+        {
+            var items = Context.Countries.AsQueryable();
+
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach(var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnCountriesRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnCountryGet(Aldebaran.Web.Models.AldebaranDb.Country item);
+        partial void OnGetCountryByCountryId(ref IQueryable<Aldebaran.Web.Models.AldebaranDb.Country> items);
+
+
+        public async Task<Aldebaran.Web.Models.AldebaranDb.Country> GetCountryByCountryId(short countryid)
+        {
+            var items = Context.Countries
+                              .AsNoTracking()
+                              .Where(i => i.COUNTRY_ID == countryid);
+
+ 
+            OnGetCountryByCountryId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnCountryGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnCountryCreated(Aldebaran.Web.Models.AldebaranDb.Country item);
+        partial void OnAfterCountryCreated(Aldebaran.Web.Models.AldebaranDb.Country item);
+
+        public async Task<Aldebaran.Web.Models.AldebaranDb.Country> CreateCountry(Aldebaran.Web.Models.AldebaranDb.Country country)
+        {
+            OnCountryCreated(country);
+
+            var existingItem = Context.Countries
+                              .Where(i => i.COUNTRY_ID == country.COUNTRY_ID)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+               throw new Exception("Item already available");
+            }            
+
+            try
+            {
+                Context.Countries.Add(country);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(country).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterCountryCreated(country);
+
+            return country;
+        }
+
+        public async Task<Aldebaran.Web.Models.AldebaranDb.Country> CancelCountryChanges(Aldebaran.Web.Models.AldebaranDb.Country item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+              entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+              entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnCountryUpdated(Aldebaran.Web.Models.AldebaranDb.Country item);
+        partial void OnAfterCountryUpdated(Aldebaran.Web.Models.AldebaranDb.Country item);
+
+        public async Task<Aldebaran.Web.Models.AldebaranDb.Country> UpdateCountry(short countryid, Aldebaran.Web.Models.AldebaranDb.Country country)
+        {
+            OnCountryUpdated(country);
+
+            var itemToUpdate = Context.Countries
+                              .Where(i => i.COUNTRY_ID == country.COUNTRY_ID)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+                
+            var entryToUpdate = Context.Entry(itemToUpdate);
+            entryToUpdate.CurrentValues.SetValues(country);
+            entryToUpdate.State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterCountryUpdated(country);
+
+            return country;
+        }
+
+        partial void OnCountryDeleted(Aldebaran.Web.Models.AldebaranDb.Country item);
+        partial void OnAfterCountryDeleted(Aldebaran.Web.Models.AldebaranDb.Country item);
+
+        public async Task<Aldebaran.Web.Models.AldebaranDb.Country> DeleteCountry(short countryid)
+        {
+            var itemToDelete = Context.Countries
+                              .Where(i => i.COUNTRY_ID == countryid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            OnCountryDeleted(itemToDelete);
+
+
+            Context.Countries.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterCountryDeleted(itemToDelete);
 
             return itemToDelete;
         }
@@ -365,7 +688,6 @@ namespace Aldebaran.Web
         {
             var itemToDelete = Context.Currencies
                               .Where(i => i.CURRENCY_ID == currencyid)
-                              .Include(i => i.Items)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -389,6 +711,497 @@ namespace Aldebaran.Web
             }
 
             OnAfterCurrencyDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+    
+        public async Task ExportDepartmentsToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/departments/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/departments/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportDepartmentsToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/departments/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/departments/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnDepartmentsRead(ref IQueryable<Aldebaran.Web.Models.AldebaranDb.Department> items);
+
+        public async Task<IQueryable<Aldebaran.Web.Models.AldebaranDb.Department>> GetDepartments(Query query = null)
+        {
+            var items = Context.Departments.AsQueryable();
+
+            items = items.Include(i => i.Country);
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach(var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnDepartmentsRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnDepartmentGet(Aldebaran.Web.Models.AldebaranDb.Department item);
+        partial void OnGetDepartmentByDepartmentId(ref IQueryable<Aldebaran.Web.Models.AldebaranDb.Department> items);
+
+
+        public async Task<Aldebaran.Web.Models.AldebaranDb.Department> GetDepartmentByDepartmentId(short departmentid)
+        {
+            var items = Context.Departments
+                              .AsNoTracking()
+                              .Where(i => i.DEPARTMENT_ID == departmentid);
+
+            items = items.Include(i => i.Country);
+ 
+            OnGetDepartmentByDepartmentId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnDepartmentGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnDepartmentCreated(Aldebaran.Web.Models.AldebaranDb.Department item);
+        partial void OnAfterDepartmentCreated(Aldebaran.Web.Models.AldebaranDb.Department item);
+
+        public async Task<Aldebaran.Web.Models.AldebaranDb.Department> CreateDepartment(Aldebaran.Web.Models.AldebaranDb.Department department)
+        {
+            OnDepartmentCreated(department);
+
+            var existingItem = Context.Departments
+                              .Where(i => i.DEPARTMENT_ID == department.DEPARTMENT_ID)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+               throw new Exception("Item already available");
+            }            
+
+            try
+            {
+                Context.Departments.Add(department);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(department).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterDepartmentCreated(department);
+
+            return department;
+        }
+
+        public async Task<Aldebaran.Web.Models.AldebaranDb.Department> CancelDepartmentChanges(Aldebaran.Web.Models.AldebaranDb.Department item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+              entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+              entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnDepartmentUpdated(Aldebaran.Web.Models.AldebaranDb.Department item);
+        partial void OnAfterDepartmentUpdated(Aldebaran.Web.Models.AldebaranDb.Department item);
+
+        public async Task<Aldebaran.Web.Models.AldebaranDb.Department> UpdateDepartment(short departmentid, Aldebaran.Web.Models.AldebaranDb.Department department)
+        {
+            OnDepartmentUpdated(department);
+
+            var itemToUpdate = Context.Departments
+                              .Where(i => i.DEPARTMENT_ID == department.DEPARTMENT_ID)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+                
+            var entryToUpdate = Context.Entry(itemToUpdate);
+            entryToUpdate.CurrentValues.SetValues(department);
+            entryToUpdate.State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterDepartmentUpdated(department);
+
+            return department;
+        }
+
+        partial void OnDepartmentDeleted(Aldebaran.Web.Models.AldebaranDb.Department item);
+        partial void OnAfterDepartmentDeleted(Aldebaran.Web.Models.AldebaranDb.Department item);
+
+        public async Task<Aldebaran.Web.Models.AldebaranDb.Department> DeleteDepartment(short departmentid)
+        {
+            var itemToDelete = Context.Departments
+                              .Where(i => i.DEPARTMENT_ID == departmentid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            OnDepartmentDeleted(itemToDelete);
+
+
+            Context.Departments.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterDepartmentDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+    
+        public async Task ExportForwarderAgentsToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/forwarderagents/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/forwarderagents/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportForwarderAgentsToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/forwarderagents/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/forwarderagents/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnForwarderAgentsRead(ref IQueryable<Aldebaran.Web.Models.AldebaranDb.ForwarderAgent> items);
+
+        public async Task<IQueryable<Aldebaran.Web.Models.AldebaranDb.ForwarderAgent>> GetForwarderAgents(Query query = null)
+        {
+            var items = Context.ForwarderAgents.AsQueryable();
+
+            items = items.Include(i => i.City);
+            items = items.Include(i => i.Forwarder);
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach(var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnForwarderAgentsRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnForwarderAgentGet(Aldebaran.Web.Models.AldebaranDb.ForwarderAgent item);
+        partial void OnGetForwarderAgentByForwarderAgentId(ref IQueryable<Aldebaran.Web.Models.AldebaranDb.ForwarderAgent> items);
+
+
+        public async Task<Aldebaran.Web.Models.AldebaranDb.ForwarderAgent> GetForwarderAgentByForwarderAgentId(int forwarderagentid)
+        {
+            var items = Context.ForwarderAgents
+                              .AsNoTracking()
+                              .Where(i => i.FORWARDER_AGENT_ID == forwarderagentid);
+
+            items = items.Include(i => i.City);
+            items = items.Include(i => i.Forwarder);
+ 
+            OnGetForwarderAgentByForwarderAgentId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnForwarderAgentGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnForwarderAgentCreated(Aldebaran.Web.Models.AldebaranDb.ForwarderAgent item);
+        partial void OnAfterForwarderAgentCreated(Aldebaran.Web.Models.AldebaranDb.ForwarderAgent item);
+
+        public async Task<Aldebaran.Web.Models.AldebaranDb.ForwarderAgent> CreateForwarderAgent(Aldebaran.Web.Models.AldebaranDb.ForwarderAgent forwarderagent)
+        {
+            OnForwarderAgentCreated(forwarderagent);
+
+            var existingItem = Context.ForwarderAgents
+                              .Where(i => i.FORWARDER_AGENT_ID == forwarderagent.FORWARDER_AGENT_ID)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+               throw new Exception("Item already available");
+            }            
+
+            try
+            {
+                Context.ForwarderAgents.Add(forwarderagent);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(forwarderagent).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterForwarderAgentCreated(forwarderagent);
+
+            return forwarderagent;
+        }
+
+        public async Task<Aldebaran.Web.Models.AldebaranDb.ForwarderAgent> CancelForwarderAgentChanges(Aldebaran.Web.Models.AldebaranDb.ForwarderAgent item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+              entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+              entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnForwarderAgentUpdated(Aldebaran.Web.Models.AldebaranDb.ForwarderAgent item);
+        partial void OnAfterForwarderAgentUpdated(Aldebaran.Web.Models.AldebaranDb.ForwarderAgent item);
+
+        public async Task<Aldebaran.Web.Models.AldebaranDb.ForwarderAgent> UpdateForwarderAgent(int forwarderagentid, Aldebaran.Web.Models.AldebaranDb.ForwarderAgent forwarderagent)
+        {
+            OnForwarderAgentUpdated(forwarderagent);
+
+            var itemToUpdate = Context.ForwarderAgents
+                              .Where(i => i.FORWARDER_AGENT_ID == forwarderagent.FORWARDER_AGENT_ID)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+                
+            var entryToUpdate = Context.Entry(itemToUpdate);
+            entryToUpdate.CurrentValues.SetValues(forwarderagent);
+            entryToUpdate.State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterForwarderAgentUpdated(forwarderagent);
+
+            return forwarderagent;
+        }
+
+        partial void OnForwarderAgentDeleted(Aldebaran.Web.Models.AldebaranDb.ForwarderAgent item);
+        partial void OnAfterForwarderAgentDeleted(Aldebaran.Web.Models.AldebaranDb.ForwarderAgent item);
+
+        public async Task<Aldebaran.Web.Models.AldebaranDb.ForwarderAgent> DeleteForwarderAgent(int forwarderagentid)
+        {
+            var itemToDelete = Context.ForwarderAgents
+                              .Where(i => i.FORWARDER_AGENT_ID == forwarderagentid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            OnForwarderAgentDeleted(itemToDelete);
+
+
+            Context.ForwarderAgents.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterForwarderAgentDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+    
+        public async Task ExportForwardersToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/forwarders/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/forwarders/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportForwardersToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/forwarders/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/forwarders/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnForwardersRead(ref IQueryable<Aldebaran.Web.Models.AldebaranDb.Forwarder> items);
+
+        public async Task<IQueryable<Aldebaran.Web.Models.AldebaranDb.Forwarder>> GetForwarders(Query query = null)
+        {
+            var items = Context.Forwarders.AsQueryable();
+
+            items = items.Include(i => i.City);
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach(var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnForwardersRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnForwarderGet(Aldebaran.Web.Models.AldebaranDb.Forwarder item);
+        partial void OnGetForwarderByForwarderId(ref IQueryable<Aldebaran.Web.Models.AldebaranDb.Forwarder> items);
+
+
+        public async Task<Aldebaran.Web.Models.AldebaranDb.Forwarder> GetForwarderByForwarderId(int forwarderid)
+        {
+            var items = Context.Forwarders
+                              .AsNoTracking()
+                              .Where(i => i.FORWARDER_ID == forwarderid);
+
+            items = items.Include(i => i.City);
+ 
+            OnGetForwarderByForwarderId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnForwarderGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnForwarderCreated(Aldebaran.Web.Models.AldebaranDb.Forwarder item);
+        partial void OnAfterForwarderCreated(Aldebaran.Web.Models.AldebaranDb.Forwarder item);
+
+        public async Task<Aldebaran.Web.Models.AldebaranDb.Forwarder> CreateForwarder(Aldebaran.Web.Models.AldebaranDb.Forwarder forwarder)
+        {
+            OnForwarderCreated(forwarder);
+
+            var existingItem = Context.Forwarders
+                              .Where(i => i.FORWARDER_ID == forwarder.FORWARDER_ID)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+               throw new Exception("Item already available");
+            }            
+
+            try
+            {
+                Context.Forwarders.Add(forwarder);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(forwarder).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterForwarderCreated(forwarder);
+
+            return forwarder;
+        }
+
+        public async Task<Aldebaran.Web.Models.AldebaranDb.Forwarder> CancelForwarderChanges(Aldebaran.Web.Models.AldebaranDb.Forwarder item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+              entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+              entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnForwarderUpdated(Aldebaran.Web.Models.AldebaranDb.Forwarder item);
+        partial void OnAfterForwarderUpdated(Aldebaran.Web.Models.AldebaranDb.Forwarder item);
+
+        public async Task<Aldebaran.Web.Models.AldebaranDb.Forwarder> UpdateForwarder(int forwarderid, Aldebaran.Web.Models.AldebaranDb.Forwarder forwarder)
+        {
+            OnForwarderUpdated(forwarder);
+
+            var itemToUpdate = Context.Forwarders
+                              .Where(i => i.FORWARDER_ID == forwarder.FORWARDER_ID)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+                
+            var entryToUpdate = Context.Entry(itemToUpdate);
+            entryToUpdate.CurrentValues.SetValues(forwarder);
+            entryToUpdate.State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterForwarderUpdated(forwarder);
+
+            return forwarder;
+        }
+
+        partial void OnForwarderDeleted(Aldebaran.Web.Models.AldebaranDb.Forwarder item);
+        partial void OnAfterForwarderDeleted(Aldebaran.Web.Models.AldebaranDb.Forwarder item);
+
+        public async Task<Aldebaran.Web.Models.AldebaranDb.Forwarder> DeleteForwarder(int forwarderid)
+        {
+            var itemToDelete = Context.Forwarders
+                              .Where(i => i.FORWARDER_ID == forwarderid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            OnForwarderDeleted(itemToDelete);
+
+
+            Context.Forwarders.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterForwarderDeleted(itemToDelete);
 
             return itemToDelete;
         }
@@ -698,8 +1511,6 @@ namespace Aldebaran.Web
         {
             var itemToDelete = Context.Items
                               .Where(i => i.ITEM_ID == itemid)
-                              .Include(i => i.ItemReferences)
-                              .Include(i => i.ItemsAreas)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -1026,7 +1837,6 @@ namespace Aldebaran.Web
         {
             var itemToDelete = Context.Lines
                               .Where(i => i.LINE_ID == lineid)
-                              .Include(i => i.Items)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -1188,8 +1998,6 @@ namespace Aldebaran.Web
         {
             var itemToDelete = Context.MeasureUnits
                               .Where(i => i.MEASURE_UNIT_ID == measureunitid)
-                              .Include(i => i.Items)
-                              .Include(i => i.Items1)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -1217,23 +2025,24 @@ namespace Aldebaran.Web
             return itemToDelete;
         }
     
-        public async Task ExportCitiesToExcel(Query query = null, string fileName = null)
+        public async Task ExportShipmentForwarderAgentMethodsToExcel(Query query = null, string fileName = null)
         {
-            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/cities/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/cities/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/shipmentforwarderagentmethods/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/shipmentforwarderagentmethods/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
         }
 
-        public async Task ExportCitiesToCSV(Query query = null, string fileName = null)
+        public async Task ExportShipmentForwarderAgentMethodsToCSV(Query query = null, string fileName = null)
         {
-            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/cities/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/cities/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/shipmentforwarderagentmethods/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/shipmentforwarderagentmethods/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
         }
 
-        partial void OnCitiesRead(ref IQueryable<Aldebaran.Web.Models.AldebaranDb.City> items);
+        partial void OnShipmentForwarderAgentMethodsRead(ref IQueryable<Aldebaran.Web.Models.AldebaranDb.ShipmentForwarderAgentMethod> items);
 
-        public async Task<IQueryable<Aldebaran.Web.Models.AldebaranDb.City>> GetCities(Query query = null)
+        public async Task<IQueryable<Aldebaran.Web.Models.AldebaranDb.ShipmentForwarderAgentMethod>> GetShipmentForwarderAgentMethods(Query query = null)
         {
-            var items = Context.Cities.AsQueryable();
+            var items = Context.ShipmentForwarderAgentMethods.AsQueryable();
 
-            items = items.Include(i => i.Department);
+            items = items.Include(i => i.ForwarderAgent);
+            items = items.Include(i => i.ShipmentMethod);
 
             if (query != null)
             {
@@ -1249,41 +2058,42 @@ namespace Aldebaran.Web
                 ApplyQuery(ref items, query);
             }
 
-            OnCitiesRead(ref items);
+            OnShipmentForwarderAgentMethodsRead(ref items);
 
             return await Task.FromResult(items);
         }
 
-        partial void OnCityGet(Aldebaran.Web.Models.AldebaranDb.City item);
-        partial void OnGetCityByCityId(ref IQueryable<Aldebaran.Web.Models.AldebaranDb.City> items);
+        partial void OnShipmentForwarderAgentMethodGet(Aldebaran.Web.Models.AldebaranDb.ShipmentForwarderAgentMethod item);
+        partial void OnGetShipmentForwarderAgentMethodByShipmentForwarderAgentMethodId(ref IQueryable<Aldebaran.Web.Models.AldebaranDb.ShipmentForwarderAgentMethod> items);
 
 
-        public async Task<Aldebaran.Web.Models.AldebaranDb.City> GetCityByCityId(int cityid)
+        public async Task<Aldebaran.Web.Models.AldebaranDb.ShipmentForwarderAgentMethod> GetShipmentForwarderAgentMethodByShipmentForwarderAgentMethodId(short shipmentforwarderagentmethodid)
         {
-            var items = Context.Cities
+            var items = Context.ShipmentForwarderAgentMethods
                               .AsNoTracking()
-                              .Where(i => i.CITY_ID == cityid);
+                              .Where(i => i.SHIPMENT_FORWARDER_AGENT_METHOD_ID == shipmentforwarderagentmethodid);
 
-            items = items.Include(i => i.Department);
+            items = items.Include(i => i.ForwarderAgent);
+            items = items.Include(i => i.ShipmentMethod);
  
-            OnGetCityByCityId(ref items);
+            OnGetShipmentForwarderAgentMethodByShipmentForwarderAgentMethodId(ref items);
 
             var itemToReturn = items.FirstOrDefault();
 
-            OnCityGet(itemToReturn);
+            OnShipmentForwarderAgentMethodGet(itemToReturn);
 
             return await Task.FromResult(itemToReturn);
         }
 
-        partial void OnCityCreated(Aldebaran.Web.Models.AldebaranDb.City item);
-        partial void OnAfterCityCreated(Aldebaran.Web.Models.AldebaranDb.City item);
+        partial void OnShipmentForwarderAgentMethodCreated(Aldebaran.Web.Models.AldebaranDb.ShipmentForwarderAgentMethod item);
+        partial void OnAfterShipmentForwarderAgentMethodCreated(Aldebaran.Web.Models.AldebaranDb.ShipmentForwarderAgentMethod item);
 
-        public async Task<Aldebaran.Web.Models.AldebaranDb.City> CreateCity(Aldebaran.Web.Models.AldebaranDb.City city)
+        public async Task<Aldebaran.Web.Models.AldebaranDb.ShipmentForwarderAgentMethod> CreateShipmentForwarderAgentMethod(Aldebaran.Web.Models.AldebaranDb.ShipmentForwarderAgentMethod shipmentforwarderagentmethod)
         {
-            OnCityCreated(city);
+            OnShipmentForwarderAgentMethodCreated(shipmentforwarderagentmethod);
 
-            var existingItem = Context.Cities
-                              .Where(i => i.CITY_ID == city.CITY_ID)
+            var existingItem = Context.ShipmentForwarderAgentMethods
+                              .Where(i => i.SHIPMENT_FORWARDER_AGENT_METHOD_ID == shipmentforwarderagentmethod.SHIPMENT_FORWARDER_AGENT_METHOD_ID)
                               .FirstOrDefault();
 
             if (existingItem != null)
@@ -1293,21 +2103,21 @@ namespace Aldebaran.Web
 
             try
             {
-                Context.Cities.Add(city);
+                Context.ShipmentForwarderAgentMethods.Add(shipmentforwarderagentmethod);
                 Context.SaveChanges();
             }
             catch
             {
-                Context.Entry(city).State = EntityState.Detached;
+                Context.Entry(shipmentforwarderagentmethod).State = EntityState.Detached;
                 throw;
             }
 
-            OnAfterCityCreated(city);
+            OnAfterShipmentForwarderAgentMethodCreated(shipmentforwarderagentmethod);
 
-            return city;
+            return shipmentforwarderagentmethod;
         }
 
-        public async Task<Aldebaran.Web.Models.AldebaranDb.City> CancelCityChanges(Aldebaran.Web.Models.AldebaranDb.City item)
+        public async Task<Aldebaran.Web.Models.AldebaranDb.ShipmentForwarderAgentMethod> CancelShipmentForwarderAgentMethodChanges(Aldebaran.Web.Models.AldebaranDb.ShipmentForwarderAgentMethod item)
         {
             var entityToCancel = Context.Entry(item);
             if (entityToCancel.State == EntityState.Modified)
@@ -1319,15 +2129,15 @@ namespace Aldebaran.Web
             return item;
         }
 
-        partial void OnCityUpdated(Aldebaran.Web.Models.AldebaranDb.City item);
-        partial void OnAfterCityUpdated(Aldebaran.Web.Models.AldebaranDb.City item);
+        partial void OnShipmentForwarderAgentMethodUpdated(Aldebaran.Web.Models.AldebaranDb.ShipmentForwarderAgentMethod item);
+        partial void OnAfterShipmentForwarderAgentMethodUpdated(Aldebaran.Web.Models.AldebaranDb.ShipmentForwarderAgentMethod item);
 
-        public async Task<Aldebaran.Web.Models.AldebaranDb.City> UpdateCity(int cityid, Aldebaran.Web.Models.AldebaranDb.City city)
+        public async Task<Aldebaran.Web.Models.AldebaranDb.ShipmentForwarderAgentMethod> UpdateShipmentForwarderAgentMethod(short shipmentforwarderagentmethodid, Aldebaran.Web.Models.AldebaranDb.ShipmentForwarderAgentMethod shipmentforwarderagentmethod)
         {
-            OnCityUpdated(city);
+            OnShipmentForwarderAgentMethodUpdated(shipmentforwarderagentmethod);
 
-            var itemToUpdate = Context.Cities
-                              .Where(i => i.CITY_ID == city.CITY_ID)
+            var itemToUpdate = Context.ShipmentForwarderAgentMethods
+                              .Where(i => i.SHIPMENT_FORWARDER_AGENT_METHOD_ID == shipmentforwarderagentmethod.SHIPMENT_FORWARDER_AGENT_METHOD_ID)
                               .FirstOrDefault();
 
             if (itemToUpdate == null)
@@ -1336,25 +2146,23 @@ namespace Aldebaran.Web
             }
                 
             var entryToUpdate = Context.Entry(itemToUpdate);
-            entryToUpdate.CurrentValues.SetValues(city);
+            entryToUpdate.CurrentValues.SetValues(shipmentforwarderagentmethod);
             entryToUpdate.State = EntityState.Modified;
 
             Context.SaveChanges();
 
-            OnAfterCityUpdated(city);
+            OnAfterShipmentForwarderAgentMethodUpdated(shipmentforwarderagentmethod);
 
-            return city;
+            return shipmentforwarderagentmethod;
         }
 
-        partial void OnCityDeleted(Aldebaran.Web.Models.AldebaranDb.City item);
-        partial void OnAfterCityDeleted(Aldebaran.Web.Models.AldebaranDb.City item);
+        partial void OnShipmentForwarderAgentMethodDeleted(Aldebaran.Web.Models.AldebaranDb.ShipmentForwarderAgentMethod item);
+        partial void OnAfterShipmentForwarderAgentMethodDeleted(Aldebaran.Web.Models.AldebaranDb.ShipmentForwarderAgentMethod item);
 
-        public async Task<Aldebaran.Web.Models.AldebaranDb.City> DeleteCity(int cityid)
+        public async Task<Aldebaran.Web.Models.AldebaranDb.ShipmentForwarderAgentMethod> DeleteShipmentForwarderAgentMethod(short shipmentforwarderagentmethodid)
         {
-            var itemToDelete = Context.Cities
-                              .Where(i => i.CITY_ID == cityid)
-                              .Include(i => i.ForwarderAgents)
-                              .Include(i => i.Forwarders)
+            var itemToDelete = Context.ShipmentForwarderAgentMethods
+                              .Where(i => i.SHIPMENT_FORWARDER_AGENT_METHOD_ID == shipmentforwarderagentmethodid)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -1362,10 +2170,10 @@ namespace Aldebaran.Web
                throw new Exception("Item no longer available");
             }
 
-            OnCityDeleted(itemToDelete);
+            OnShipmentForwarderAgentMethodDeleted(itemToDelete);
 
 
-            Context.Cities.Remove(itemToDelete);
+            Context.ShipmentForwarderAgentMethods.Remove(itemToDelete);
 
             try
             {
@@ -1377,26 +2185,26 @@ namespace Aldebaran.Web
                 throw;
             }
 
-            OnAfterCityDeleted(itemToDelete);
+            OnAfterShipmentForwarderAgentMethodDeleted(itemToDelete);
 
             return itemToDelete;
         }
     
-        public async Task ExportCountriesToExcel(Query query = null, string fileName = null)
+        public async Task ExportShipmentMethodsToExcel(Query query = null, string fileName = null)
         {
-            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/countries/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/countries/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/shipmentmethods/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/shipmentmethods/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
         }
 
-        public async Task ExportCountriesToCSV(Query query = null, string fileName = null)
+        public async Task ExportShipmentMethodsToCSV(Query query = null, string fileName = null)
         {
-            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/countries/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/countries/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/shipmentmethods/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/shipmentmethods/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
         }
 
-        partial void OnCountriesRead(ref IQueryable<Aldebaran.Web.Models.AldebaranDb.Country> items);
+        partial void OnShipmentMethodsRead(ref IQueryable<Aldebaran.Web.Models.AldebaranDb.ShipmentMethod> items);
 
-        public async Task<IQueryable<Aldebaran.Web.Models.AldebaranDb.Country>> GetCountries(Query query = null)
+        public async Task<IQueryable<Aldebaran.Web.Models.AldebaranDb.ShipmentMethod>> GetShipmentMethods(Query query = null)
         {
-            var items = Context.Countries.AsQueryable();
+            var items = Context.ShipmentMethods.AsQueryable();
 
 
             if (query != null)
@@ -1413,40 +2221,40 @@ namespace Aldebaran.Web
                 ApplyQuery(ref items, query);
             }
 
-            OnCountriesRead(ref items);
+            OnShipmentMethodsRead(ref items);
 
             return await Task.FromResult(items);
         }
 
-        partial void OnCountryGet(Aldebaran.Web.Models.AldebaranDb.Country item);
-        partial void OnGetCountryByCountryId(ref IQueryable<Aldebaran.Web.Models.AldebaranDb.Country> items);
+        partial void OnShipmentMethodGet(Aldebaran.Web.Models.AldebaranDb.ShipmentMethod item);
+        partial void OnGetShipmentMethodByShipmentMethodId(ref IQueryable<Aldebaran.Web.Models.AldebaranDb.ShipmentMethod> items);
 
 
-        public async Task<Aldebaran.Web.Models.AldebaranDb.Country> GetCountryByCountryId(short countryid)
+        public async Task<Aldebaran.Web.Models.AldebaranDb.ShipmentMethod> GetShipmentMethodByShipmentMethodId(short shipmentmethodid)
         {
-            var items = Context.Countries
+            var items = Context.ShipmentMethods
                               .AsNoTracking()
-                              .Where(i => i.COUNTRY_ID == countryid);
+                              .Where(i => i.SHIPMENT_METHOD_ID == shipmentmethodid);
 
  
-            OnGetCountryByCountryId(ref items);
+            OnGetShipmentMethodByShipmentMethodId(ref items);
 
             var itemToReturn = items.FirstOrDefault();
 
-            OnCountryGet(itemToReturn);
+            OnShipmentMethodGet(itemToReturn);
 
             return await Task.FromResult(itemToReturn);
         }
 
-        partial void OnCountryCreated(Aldebaran.Web.Models.AldebaranDb.Country item);
-        partial void OnAfterCountryCreated(Aldebaran.Web.Models.AldebaranDb.Country item);
+        partial void OnShipmentMethodCreated(Aldebaran.Web.Models.AldebaranDb.ShipmentMethod item);
+        partial void OnAfterShipmentMethodCreated(Aldebaran.Web.Models.AldebaranDb.ShipmentMethod item);
 
-        public async Task<Aldebaran.Web.Models.AldebaranDb.Country> CreateCountry(Aldebaran.Web.Models.AldebaranDb.Country country)
+        public async Task<Aldebaran.Web.Models.AldebaranDb.ShipmentMethod> CreateShipmentMethod(Aldebaran.Web.Models.AldebaranDb.ShipmentMethod shipmentmethod)
         {
-            OnCountryCreated(country);
+            OnShipmentMethodCreated(shipmentmethod);
 
-            var existingItem = Context.Countries
-                              .Where(i => i.COUNTRY_ID == country.COUNTRY_ID)
+            var existingItem = Context.ShipmentMethods
+                              .Where(i => i.SHIPMENT_METHOD_ID == shipmentmethod.SHIPMENT_METHOD_ID)
                               .FirstOrDefault();
 
             if (existingItem != null)
@@ -1456,21 +2264,21 @@ namespace Aldebaran.Web
 
             try
             {
-                Context.Countries.Add(country);
+                Context.ShipmentMethods.Add(shipmentmethod);
                 Context.SaveChanges();
             }
             catch
             {
-                Context.Entry(country).State = EntityState.Detached;
+                Context.Entry(shipmentmethod).State = EntityState.Detached;
                 throw;
             }
 
-            OnAfterCountryCreated(country);
+            OnAfterShipmentMethodCreated(shipmentmethod);
 
-            return country;
+            return shipmentmethod;
         }
 
-        public async Task<Aldebaran.Web.Models.AldebaranDb.Country> CancelCountryChanges(Aldebaran.Web.Models.AldebaranDb.Country item)
+        public async Task<Aldebaran.Web.Models.AldebaranDb.ShipmentMethod> CancelShipmentMethodChanges(Aldebaran.Web.Models.AldebaranDb.ShipmentMethod item)
         {
             var entityToCancel = Context.Entry(item);
             if (entityToCancel.State == EntityState.Modified)
@@ -1482,15 +2290,15 @@ namespace Aldebaran.Web
             return item;
         }
 
-        partial void OnCountryUpdated(Aldebaran.Web.Models.AldebaranDb.Country item);
-        partial void OnAfterCountryUpdated(Aldebaran.Web.Models.AldebaranDb.Country item);
+        partial void OnShipmentMethodUpdated(Aldebaran.Web.Models.AldebaranDb.ShipmentMethod item);
+        partial void OnAfterShipmentMethodUpdated(Aldebaran.Web.Models.AldebaranDb.ShipmentMethod item);
 
-        public async Task<Aldebaran.Web.Models.AldebaranDb.Country> UpdateCountry(short countryid, Aldebaran.Web.Models.AldebaranDb.Country country)
+        public async Task<Aldebaran.Web.Models.AldebaranDb.ShipmentMethod> UpdateShipmentMethod(short shipmentmethodid, Aldebaran.Web.Models.AldebaranDb.ShipmentMethod shipmentmethod)
         {
-            OnCountryUpdated(country);
+            OnShipmentMethodUpdated(shipmentmethod);
 
-            var itemToUpdate = Context.Countries
-                              .Where(i => i.COUNTRY_ID == country.COUNTRY_ID)
+            var itemToUpdate = Context.ShipmentMethods
+                              .Where(i => i.SHIPMENT_METHOD_ID == shipmentmethod.SHIPMENT_METHOD_ID)
                               .FirstOrDefault();
 
             if (itemToUpdate == null)
@@ -1499,24 +2307,23 @@ namespace Aldebaran.Web
             }
                 
             var entryToUpdate = Context.Entry(itemToUpdate);
-            entryToUpdate.CurrentValues.SetValues(country);
+            entryToUpdate.CurrentValues.SetValues(shipmentmethod);
             entryToUpdate.State = EntityState.Modified;
 
             Context.SaveChanges();
 
-            OnAfterCountryUpdated(country);
+            OnAfterShipmentMethodUpdated(shipmentmethod);
 
-            return country;
+            return shipmentmethod;
         }
 
-        partial void OnCountryDeleted(Aldebaran.Web.Models.AldebaranDb.Country item);
-        partial void OnAfterCountryDeleted(Aldebaran.Web.Models.AldebaranDb.Country item);
+        partial void OnShipmentMethodDeleted(Aldebaran.Web.Models.AldebaranDb.ShipmentMethod item);
+        partial void OnAfterShipmentMethodDeleted(Aldebaran.Web.Models.AldebaranDb.ShipmentMethod item);
 
-        public async Task<Aldebaran.Web.Models.AldebaranDb.Country> DeleteCountry(short countryid)
+        public async Task<Aldebaran.Web.Models.AldebaranDb.ShipmentMethod> DeleteShipmentMethod(short shipmentmethodid)
         {
-            var itemToDelete = Context.Countries
-                              .Where(i => i.COUNTRY_ID == countryid)
-                              .Include(i => i.Departments)
+            var itemToDelete = Context.ShipmentMethods
+                              .Where(i => i.SHIPMENT_METHOD_ID == shipmentmethodid)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -1524,10 +2331,10 @@ namespace Aldebaran.Web
                throw new Exception("Item no longer available");
             }
 
-            OnCountryDeleted(itemToDelete);
+            OnShipmentMethodDeleted(itemToDelete);
 
 
-            Context.Countries.Remove(itemToDelete);
+            Context.ShipmentMethods.Remove(itemToDelete);
 
             try
             {
@@ -1539,28 +2346,27 @@ namespace Aldebaran.Web
                 throw;
             }
 
-            OnAfterCountryDeleted(itemToDelete);
+            OnAfterShipmentMethodDeleted(itemToDelete);
 
             return itemToDelete;
         }
     
-        public async Task ExportDepartmentsToExcel(Query query = null, string fileName = null)
+        public async Task ExportShippingMethodsToExcel(Query query = null, string fileName = null)
         {
-            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/departments/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/departments/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/shippingmethods/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/shippingmethods/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
         }
 
-        public async Task ExportDepartmentsToCSV(Query query = null, string fileName = null)
+        public async Task ExportShippingMethodsToCSV(Query query = null, string fileName = null)
         {
-            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/departments/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/departments/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/shippingmethods/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/shippingmethods/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
         }
 
-        partial void OnDepartmentsRead(ref IQueryable<Aldebaran.Web.Models.AldebaranDb.Department> items);
+        partial void OnShippingMethodsRead(ref IQueryable<Aldebaran.Web.Models.AldebaranDb.ShippingMethod> items);
 
-        public async Task<IQueryable<Aldebaran.Web.Models.AldebaranDb.Department>> GetDepartments(Query query = null)
+        public async Task<IQueryable<Aldebaran.Web.Models.AldebaranDb.ShippingMethod>> GetShippingMethods(Query query = null)
         {
-            var items = Context.Departments.AsQueryable();
+            var items = Context.ShippingMethods.AsQueryable();
 
-            items = items.Include(i => i.Country);
 
             if (query != null)
             {
@@ -1576,41 +2382,40 @@ namespace Aldebaran.Web
                 ApplyQuery(ref items, query);
             }
 
-            OnDepartmentsRead(ref items);
+            OnShippingMethodsRead(ref items);
 
             return await Task.FromResult(items);
         }
 
-        partial void OnDepartmentGet(Aldebaran.Web.Models.AldebaranDb.Department item);
-        partial void OnGetDepartmentByDepartmentId(ref IQueryable<Aldebaran.Web.Models.AldebaranDb.Department> items);
+        partial void OnShippingMethodGet(Aldebaran.Web.Models.AldebaranDb.ShippingMethod item);
+        partial void OnGetShippingMethodByShippingMethodId(ref IQueryable<Aldebaran.Web.Models.AldebaranDb.ShippingMethod> items);
 
 
-        public async Task<Aldebaran.Web.Models.AldebaranDb.Department> GetDepartmentByDepartmentId(short departmentid)
+        public async Task<Aldebaran.Web.Models.AldebaranDb.ShippingMethod> GetShippingMethodByShippingMethodId(short shippingmethodid)
         {
-            var items = Context.Departments
+            var items = Context.ShippingMethods
                               .AsNoTracking()
-                              .Where(i => i.DEPARTMENT_ID == departmentid);
+                              .Where(i => i.SHIPPING_METHOD_ID == shippingmethodid);
 
-            items = items.Include(i => i.Country);
  
-            OnGetDepartmentByDepartmentId(ref items);
+            OnGetShippingMethodByShippingMethodId(ref items);
 
             var itemToReturn = items.FirstOrDefault();
 
-            OnDepartmentGet(itemToReturn);
+            OnShippingMethodGet(itemToReturn);
 
             return await Task.FromResult(itemToReturn);
         }
 
-        partial void OnDepartmentCreated(Aldebaran.Web.Models.AldebaranDb.Department item);
-        partial void OnAfterDepartmentCreated(Aldebaran.Web.Models.AldebaranDb.Department item);
+        partial void OnShippingMethodCreated(Aldebaran.Web.Models.AldebaranDb.ShippingMethod item);
+        partial void OnAfterShippingMethodCreated(Aldebaran.Web.Models.AldebaranDb.ShippingMethod item);
 
-        public async Task<Aldebaran.Web.Models.AldebaranDb.Department> CreateDepartment(Aldebaran.Web.Models.AldebaranDb.Department department)
+        public async Task<Aldebaran.Web.Models.AldebaranDb.ShippingMethod> CreateShippingMethod(Aldebaran.Web.Models.AldebaranDb.ShippingMethod shippingmethod)
         {
-            OnDepartmentCreated(department);
+            OnShippingMethodCreated(shippingmethod);
 
-            var existingItem = Context.Departments
-                              .Where(i => i.DEPARTMENT_ID == department.DEPARTMENT_ID)
+            var existingItem = Context.ShippingMethods
+                              .Where(i => i.SHIPPING_METHOD_ID == shippingmethod.SHIPPING_METHOD_ID)
                               .FirstOrDefault();
 
             if (existingItem != null)
@@ -1620,21 +2425,21 @@ namespace Aldebaran.Web
 
             try
             {
-                Context.Departments.Add(department);
+                Context.ShippingMethods.Add(shippingmethod);
                 Context.SaveChanges();
             }
             catch
             {
-                Context.Entry(department).State = EntityState.Detached;
+                Context.Entry(shippingmethod).State = EntityState.Detached;
                 throw;
             }
 
-            OnAfterDepartmentCreated(department);
+            OnAfterShippingMethodCreated(shippingmethod);
 
-            return department;
+            return shippingmethod;
         }
 
-        public async Task<Aldebaran.Web.Models.AldebaranDb.Department> CancelDepartmentChanges(Aldebaran.Web.Models.AldebaranDb.Department item)
+        public async Task<Aldebaran.Web.Models.AldebaranDb.ShippingMethod> CancelShippingMethodChanges(Aldebaran.Web.Models.AldebaranDb.ShippingMethod item)
         {
             var entityToCancel = Context.Entry(item);
             if (entityToCancel.State == EntityState.Modified)
@@ -1646,15 +2451,15 @@ namespace Aldebaran.Web
             return item;
         }
 
-        partial void OnDepartmentUpdated(Aldebaran.Web.Models.AldebaranDb.Department item);
-        partial void OnAfterDepartmentUpdated(Aldebaran.Web.Models.AldebaranDb.Department item);
+        partial void OnShippingMethodUpdated(Aldebaran.Web.Models.AldebaranDb.ShippingMethod item);
+        partial void OnAfterShippingMethodUpdated(Aldebaran.Web.Models.AldebaranDb.ShippingMethod item);
 
-        public async Task<Aldebaran.Web.Models.AldebaranDb.Department> UpdateDepartment(short departmentid, Aldebaran.Web.Models.AldebaranDb.Department department)
+        public async Task<Aldebaran.Web.Models.AldebaranDb.ShippingMethod> UpdateShippingMethod(short shippingmethodid, Aldebaran.Web.Models.AldebaranDb.ShippingMethod shippingmethod)
         {
-            OnDepartmentUpdated(department);
+            OnShippingMethodUpdated(shippingmethod);
 
-            var itemToUpdate = Context.Departments
-                              .Where(i => i.DEPARTMENT_ID == department.DEPARTMENT_ID)
+            var itemToUpdate = Context.ShippingMethods
+                              .Where(i => i.SHIPPING_METHOD_ID == shippingmethod.SHIPPING_METHOD_ID)
                               .FirstOrDefault();
 
             if (itemToUpdate == null)
@@ -1663,24 +2468,23 @@ namespace Aldebaran.Web
             }
                 
             var entryToUpdate = Context.Entry(itemToUpdate);
-            entryToUpdate.CurrentValues.SetValues(department);
+            entryToUpdate.CurrentValues.SetValues(shippingmethod);
             entryToUpdate.State = EntityState.Modified;
 
             Context.SaveChanges();
 
-            OnAfterDepartmentUpdated(department);
+            OnAfterShippingMethodUpdated(shippingmethod);
 
-            return department;
+            return shippingmethod;
         }
 
-        partial void OnDepartmentDeleted(Aldebaran.Web.Models.AldebaranDb.Department item);
-        partial void OnAfterDepartmentDeleted(Aldebaran.Web.Models.AldebaranDb.Department item);
+        partial void OnShippingMethodDeleted(Aldebaran.Web.Models.AldebaranDb.ShippingMethod item);
+        partial void OnAfterShippingMethodDeleted(Aldebaran.Web.Models.AldebaranDb.ShippingMethod item);
 
-        public async Task<Aldebaran.Web.Models.AldebaranDb.Department> DeleteDepartment(short departmentid)
+        public async Task<Aldebaran.Web.Models.AldebaranDb.ShippingMethod> DeleteShippingMethod(short shippingmethodid)
         {
-            var itemToDelete = Context.Departments
-                              .Where(i => i.DEPARTMENT_ID == departmentid)
-                              .Include(i => i.Cities)
+            var itemToDelete = Context.ShippingMethods
+                              .Where(i => i.SHIPPING_METHOD_ID == shippingmethodid)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -1688,10 +2492,10 @@ namespace Aldebaran.Web
                throw new Exception("Item no longer available");
             }
 
-            OnDepartmentDeleted(itemToDelete);
+            OnShippingMethodDeleted(itemToDelete);
 
 
-            Context.Departments.Remove(itemToDelete);
+            Context.ShippingMethods.Remove(itemToDelete);
 
             try
             {
@@ -1703,336 +2507,7 @@ namespace Aldebaran.Web
                 throw;
             }
 
-            OnAfterDepartmentDeleted(itemToDelete);
-
-            return itemToDelete;
-        }
-    
-        public async Task ExportForwardersToExcel(Query query = null, string fileName = null)
-        {
-            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/forwarders/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/forwarders/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
-        }
-
-        public async Task ExportForwardersToCSV(Query query = null, string fileName = null)
-        {
-            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/forwarders/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/forwarders/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
-        }
-
-        partial void OnForwardersRead(ref IQueryable<Aldebaran.Web.Models.AldebaranDb.Forwarder> items);
-
-        public async Task<IQueryable<Aldebaran.Web.Models.AldebaranDb.Forwarder>> GetForwarders(Query query = null)
-        {
-            var items = Context.Forwarders.AsQueryable();
-
-            items = items.Include(i => i.City);
-
-            if (query != null)
-            {
-                if (!string.IsNullOrEmpty(query.Expand))
-                {
-                    var propertiesToExpand = query.Expand.Split(',');
-                    foreach(var p in propertiesToExpand)
-                    {
-                        items = items.Include(p.Trim());
-                    }
-                }
-
-                ApplyQuery(ref items, query);
-            }
-
-            OnForwardersRead(ref items);
-
-            return await Task.FromResult(items);
-        }
-
-        partial void OnForwarderGet(Aldebaran.Web.Models.AldebaranDb.Forwarder item);
-        partial void OnGetForwarderByForwarderId(ref IQueryable<Aldebaran.Web.Models.AldebaranDb.Forwarder> items);
-
-
-        public async Task<Aldebaran.Web.Models.AldebaranDb.Forwarder> GetForwarderByForwarderId(int forwarderid)
-        {
-            var items = Context.Forwarders
-                              .AsNoTracking()
-                              .Where(i => i.FORWARDER_ID == forwarderid);
-
-            items = items.Include(i => i.City);
- 
-            OnGetForwarderByForwarderId(ref items);
-
-            var itemToReturn = items.FirstOrDefault();
-
-            OnForwarderGet(itemToReturn);
-
-            return await Task.FromResult(itemToReturn);
-        }
-
-        partial void OnForwarderCreated(Aldebaran.Web.Models.AldebaranDb.Forwarder item);
-        partial void OnAfterForwarderCreated(Aldebaran.Web.Models.AldebaranDb.Forwarder item);
-
-        public async Task<Aldebaran.Web.Models.AldebaranDb.Forwarder> CreateForwarder(Aldebaran.Web.Models.AldebaranDb.Forwarder forwarder)
-        {
-            OnForwarderCreated(forwarder);
-
-            var existingItem = Context.Forwarders
-                              .Where(i => i.FORWARDER_ID == forwarder.FORWARDER_ID)
-                              .FirstOrDefault();
-
-            if (existingItem != null)
-            {
-               throw new Exception("Item already available");
-            }            
-
-            try
-            {
-                Context.Forwarders.Add(forwarder);
-                Context.SaveChanges();
-            }
-            catch
-            {
-                Context.Entry(forwarder).State = EntityState.Detached;
-                throw;
-            }
-
-            OnAfterForwarderCreated(forwarder);
-
-            return forwarder;
-        }
-
-        public async Task<Aldebaran.Web.Models.AldebaranDb.Forwarder> CancelForwarderChanges(Aldebaran.Web.Models.AldebaranDb.Forwarder item)
-        {
-            var entityToCancel = Context.Entry(item);
-            if (entityToCancel.State == EntityState.Modified)
-            {
-              entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
-              entityToCancel.State = EntityState.Unchanged;
-            }
-
-            return item;
-        }
-
-        partial void OnForwarderUpdated(Aldebaran.Web.Models.AldebaranDb.Forwarder item);
-        partial void OnAfterForwarderUpdated(Aldebaran.Web.Models.AldebaranDb.Forwarder item);
-
-        public async Task<Aldebaran.Web.Models.AldebaranDb.Forwarder> UpdateForwarder(int forwarderid, Aldebaran.Web.Models.AldebaranDb.Forwarder forwarder)
-        {
-            OnForwarderUpdated(forwarder);
-
-            var itemToUpdate = Context.Forwarders
-                              .Where(i => i.FORWARDER_ID == forwarder.FORWARDER_ID)
-                              .FirstOrDefault();
-
-            if (itemToUpdate == null)
-            {
-               throw new Exception("Item no longer available");
-            }
-                
-            var entryToUpdate = Context.Entry(itemToUpdate);
-            entryToUpdate.CurrentValues.SetValues(forwarder);
-            entryToUpdate.State = EntityState.Modified;
-
-            Context.SaveChanges();
-
-            OnAfterForwarderUpdated(forwarder);
-
-            return forwarder;
-        }
-
-        partial void OnForwarderDeleted(Aldebaran.Web.Models.AldebaranDb.Forwarder item);
-        partial void OnAfterForwarderDeleted(Aldebaran.Web.Models.AldebaranDb.Forwarder item);
-
-        public async Task<Aldebaran.Web.Models.AldebaranDb.Forwarder> DeleteForwarder(int forwarderid)
-        {
-            var itemToDelete = Context.Forwarders
-                              .Where(i => i.FORWARDER_ID == forwarderid)
-                              .Include(i => i.ForwarderAgents)
-                              .FirstOrDefault();
-
-            if (itemToDelete == null)
-            {
-               throw new Exception("Item no longer available");
-            }
-
-            OnForwarderDeleted(itemToDelete);
-
-
-            Context.Forwarders.Remove(itemToDelete);
-
-            try
-            {
-                Context.SaveChanges();
-            }
-            catch
-            {
-                Context.Entry(itemToDelete).State = EntityState.Unchanged;
-                throw;
-            }
-
-            OnAfterForwarderDeleted(itemToDelete);
-
-            return itemToDelete;
-        }
-    
-        public async Task ExportForwarderAgentsToExcel(Query query = null, string fileName = null)
-        {
-            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/forwarderagents/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/forwarderagents/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
-        }
-
-        public async Task ExportForwarderAgentsToCSV(Query query = null, string fileName = null)
-        {
-            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/forwarderagents/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/forwarderagents/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
-        }
-
-        partial void OnForwarderAgentsRead(ref IQueryable<Aldebaran.Web.Models.AldebaranDb.ForwarderAgent> items);
-
-        public async Task<IQueryable<Aldebaran.Web.Models.AldebaranDb.ForwarderAgent>> GetForwarderAgents(Query query = null)
-        {
-            var items = Context.ForwarderAgents.AsQueryable();
-
-            items = items.Include(i => i.City);
-            items = items.Include(i => i.Forwarder);
-
-            if (query != null)
-            {
-                if (!string.IsNullOrEmpty(query.Expand))
-                {
-                    var propertiesToExpand = query.Expand.Split(',');
-                    foreach(var p in propertiesToExpand)
-                    {
-                        items = items.Include(p.Trim());
-                    }
-                }
-
-                ApplyQuery(ref items, query);
-            }
-
-            OnForwarderAgentsRead(ref items);
-
-            return await Task.FromResult(items);
-        }
-
-        partial void OnForwarderAgentGet(Aldebaran.Web.Models.AldebaranDb.ForwarderAgent item);
-        partial void OnGetForwarderAgentByForwarderAgentId(ref IQueryable<Aldebaran.Web.Models.AldebaranDb.ForwarderAgent> items);
-
-
-        public async Task<Aldebaran.Web.Models.AldebaranDb.ForwarderAgent> GetForwarderAgentByForwarderAgentId(int forwarderagentid)
-        {
-            var items = Context.ForwarderAgents
-                              .AsNoTracking()
-                              .Where(i => i.FORWARDER_AGENT_ID == forwarderagentid);
-
-            items = items.Include(i => i.City);
-            items = items.Include(i => i.Forwarder);
- 
-            OnGetForwarderAgentByForwarderAgentId(ref items);
-
-            var itemToReturn = items.FirstOrDefault();
-
-            OnForwarderAgentGet(itemToReturn);
-
-            return await Task.FromResult(itemToReturn);
-        }
-
-        partial void OnForwarderAgentCreated(Aldebaran.Web.Models.AldebaranDb.ForwarderAgent item);
-        partial void OnAfterForwarderAgentCreated(Aldebaran.Web.Models.AldebaranDb.ForwarderAgent item);
-
-        public async Task<Aldebaran.Web.Models.AldebaranDb.ForwarderAgent> CreateForwarderAgent(Aldebaran.Web.Models.AldebaranDb.ForwarderAgent forwarderagent)
-        {
-            OnForwarderAgentCreated(forwarderagent);
-
-            var existingItem = Context.ForwarderAgents
-                              .Where(i => i.FORWARDER_AGENT_ID == forwarderagent.FORWARDER_AGENT_ID)
-                              .FirstOrDefault();
-
-            if (existingItem != null)
-            {
-               throw new Exception("Item already available");
-            }            
-
-            try
-            {
-                Context.ForwarderAgents.Add(forwarderagent);
-                Context.SaveChanges();
-            }
-            catch
-            {
-                Context.Entry(forwarderagent).State = EntityState.Detached;
-                throw;
-            }
-
-            OnAfterForwarderAgentCreated(forwarderagent);
-
-            return forwarderagent;
-        }
-
-        public async Task<Aldebaran.Web.Models.AldebaranDb.ForwarderAgent> CancelForwarderAgentChanges(Aldebaran.Web.Models.AldebaranDb.ForwarderAgent item)
-        {
-            var entityToCancel = Context.Entry(item);
-            if (entityToCancel.State == EntityState.Modified)
-            {
-              entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
-              entityToCancel.State = EntityState.Unchanged;
-            }
-
-            return item;
-        }
-
-        partial void OnForwarderAgentUpdated(Aldebaran.Web.Models.AldebaranDb.ForwarderAgent item);
-        partial void OnAfterForwarderAgentUpdated(Aldebaran.Web.Models.AldebaranDb.ForwarderAgent item);
-
-        public async Task<Aldebaran.Web.Models.AldebaranDb.ForwarderAgent> UpdateForwarderAgent(int forwarderagentid, Aldebaran.Web.Models.AldebaranDb.ForwarderAgent forwarderagent)
-        {
-            OnForwarderAgentUpdated(forwarderagent);
-
-            var itemToUpdate = Context.ForwarderAgents
-                              .Where(i => i.FORWARDER_AGENT_ID == forwarderagent.FORWARDER_AGENT_ID)
-                              .FirstOrDefault();
-
-            if (itemToUpdate == null)
-            {
-               throw new Exception("Item no longer available");
-            }
-                
-            var entryToUpdate = Context.Entry(itemToUpdate);
-            entryToUpdate.CurrentValues.SetValues(forwarderagent);
-            entryToUpdate.State = EntityState.Modified;
-
-            Context.SaveChanges();
-
-            OnAfterForwarderAgentUpdated(forwarderagent);
-
-            return forwarderagent;
-        }
-
-        partial void OnForwarderAgentDeleted(Aldebaran.Web.Models.AldebaranDb.ForwarderAgent item);
-        partial void OnAfterForwarderAgentDeleted(Aldebaran.Web.Models.AldebaranDb.ForwarderAgent item);
-
-        public async Task<Aldebaran.Web.Models.AldebaranDb.ForwarderAgent> DeleteForwarderAgent(int forwarderagentid)
-        {
-            var itemToDelete = Context.ForwarderAgents
-                              .Where(i => i.FORWARDER_AGENT_ID == forwarderagentid)
-                              .FirstOrDefault();
-
-            if (itemToDelete == null)
-            {
-               throw new Exception("Item no longer available");
-            }
-
-            OnForwarderAgentDeleted(itemToDelete);
-
-
-            Context.ForwarderAgents.Remove(itemToDelete);
-
-            try
-            {
-                Context.SaveChanges();
-            }
-            catch
-            {
-                Context.Entry(itemToDelete).State = EntityState.Unchanged;
-                throw;
-            }
-
-            OnAfterForwarderAgentDeleted(itemToDelete);
+            OnAfterShippingMethodDeleted(itemToDelete);
 
             return itemToDelete;
         }
