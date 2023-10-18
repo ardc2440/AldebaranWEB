@@ -5,7 +5,7 @@ using Radzen;
 
 namespace Aldebaran.Web.Pages.ForwarderPages
 {
-    public partial class EditForwarderAgent
+    public partial class EditForwarderAgent : ComponentBase
     {
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }

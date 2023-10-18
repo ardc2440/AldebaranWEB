@@ -1,11 +1,12 @@
+using Aldebaran.Web.Models.AldebaranDb;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using Radzen;
 
-namespace Aldebaran.Web.Pages.ForwarderPages
+namespace Aldebaran.Web.Pages
 {
-    public partial class AddForwarderAgent : ComponentBase
+    public partial class EditCustomerContact
     {
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
@@ -28,24 +29,24 @@ namespace Aldebaran.Web.Pages.ForwarderPages
         [Inject]
         public AldebaranDbService AldebaranDbService { get; set; }
 
-        [Inject]
-        protected SecurityService Security { get; set; }
+        [Parameter]
+        public int CUSTOMER_CONTACT_ID { get; set; }
 
         [Parameter]
-        public int FORWARDER_ID { get; set; }
+        public int CUSTOMER_ID { get; set; }
+
         protected bool errorVisible;
-        protected Models.AldebaranDb.ForwarderAgent forwarderAgent;
-        protected Models.AldebaranDb.Forwarder forwarder;
-        protected Models.AldebaranDb.City city;
+        protected CustomerContact customerContact;
+        protected City city;
+        protected Customer customer;
         protected bool isSubmitInProgress;
 
         protected override async Task OnInitializedAsync()
         {
-            forwarder = await AldebaranDbService.GetForwarderByForwarderId(FORWARDER_ID);
-            var selectedCity = await AldebaranDbService.GetCities(new Query { Filter = "i=>i.CITY_ID == @0", FilterParameters = new object[] { forwarder.CITY_ID }, Expand = "Department.Country" });
+            customerContact = await AldebaranDbService.GetCustomerContactByCustomerContactId(CUSTOMER_CONTACT_ID);
+            customer = await AldebaranDbService.GetCustomerByCustomerId(customerContact.CUSTOMER_ID);
+            var selectedCity = await AldebaranDbService.GetCities(new Query { Filter = "i=>i.CITY_ID == @0", FilterParameters = new object[] { customer.CITY_ID }, Expand = "Department.Country" });
             city = selectedCity.Single();
-            forwarderAgent = new Models.AldebaranDb.ForwarderAgent();
-            forwarderAgent.FORWARDER_ID = FORWARDER_ID;
         }
 
         protected async Task FormSubmit()
@@ -53,7 +54,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
             try
             {
                 isSubmitInProgress = true;
-                await AldebaranDbService.CreateForwarderAgent(forwarderAgent);
+                await AldebaranDbService.UpdateCustomerContact(CUSTOMER_CONTACT_ID, customerContact);
                 DialogService.Close(true);
             }
             catch (Exception ex)
@@ -66,10 +67,6 @@ namespace Aldebaran.Web.Pages.ForwarderPages
             }
         }
 
-        protected async Task LocalizationHandler(Models.AldebaranDb.City city)
-        {
-            forwarderAgent.CITY_ID = city?.CITY_ID ?? 0;
-        }
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
             DialogService.Close(null);

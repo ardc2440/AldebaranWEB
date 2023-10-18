@@ -44,6 +44,14 @@ builder.Services.AddControllers().AddOData(o =>
     o.AddRouteComponents("odata/Identity", oDataBuilder.GetEdmModel()).Count().Filter().OrderBy().Expand().Select().SetMaxTop(null).TimeZone = TimeZoneInfo.Utc;
 });
 builder.Services.AddScoped<AuthenticationStateProvider, Aldebaran.Web.ApplicationAuthenticationStateProvider>();
+builder.Services.AddDbContext<AldebaranDbContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("AldebaranDbConnection"));
+});
+builder.Services.AddDbContext<AldebaranDbContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("AldebaranDbConnection"));
+});
 var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

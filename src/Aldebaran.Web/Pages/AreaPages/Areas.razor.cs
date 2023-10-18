@@ -7,7 +7,7 @@ using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.AreaPages
 {
-    public partial class Areas
+    public partial class Areas : ComponentBase
     {
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
@@ -32,7 +32,6 @@ namespace Aldebaran.Web.Pages.AreaPages
 
         [Inject]
         protected SecurityService Security { get; set; }
-
 
         protected IEnumerable<Models.AldebaranDb.Area> areas;
         protected RadzenDataGrid<Models.AldebaranDb.Area> grid0;

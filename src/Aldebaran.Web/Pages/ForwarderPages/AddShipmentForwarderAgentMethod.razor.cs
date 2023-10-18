@@ -6,7 +6,7 @@ using Radzen;
 
 namespace Aldebaran.Web.Pages.ForwarderPages
 {
-    public partial class AddShipmentForwarderAgentMethod
+    public partial class AddShipmentForwarderAgentMethod : ComponentBase
     {
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }

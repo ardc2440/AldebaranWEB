@@ -11,9 +11,9 @@
     }
     <RadzenRow AlignItems="AlignItems.Center">
         <RadzenColumn Size="12" SizeMD="6">
-            <RadzenText Text="Artículos" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />  
+            <RadzenText Text="Artículos" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
         </RadzenColumn>
-        <RadzenColumn Size="12" SizeMD="6">            
+        <RadzenColumn Size="12" SizeMD="6">
             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
                 <RadzenSplitButton Icon="get_app" Text="Exportar" Click="@ExportClick" Variant="Variant.Flat" Shade="Shade.Lighter">
                     <RadzenSplitButtonItem Text="Excel" Value="xlsx" />
@@ -27,7 +27,7 @@
     <RadzenRow>
         <RadzenColumn SizeMD=12>
             <RadzenDataGrid @ref="grid0" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                            Data="@items" TItem="Aldebaran.Web.Models.AldebaranDb.Item" RowExpand=@GetChildData AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowGrouping="true" AllowColumnReorder="true" Render="@OnRender">                         
+                            Data="@items" TItem="Aldebaran.Web.Models.AldebaranDb.Item" RowExpand=@GetChildData AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowGrouping="true" AllowColumnReorder="true" Render="@OnRender">
                 <Columns>
                     <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Item" Property="Line.LINE_NAME" Title="Linea" Visible="false">
                     </RadzenDataGridColumn>
