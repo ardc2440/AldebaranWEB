@@ -2,9 +2,9 @@
 
 @attribute [Authorize]
 
-<PageTitle>Nuevo método de envío</PageTitle>
+<PageTitle>Nuevo mÃ©todo de envÃ­o</PageTitle>
 <RadzenColumn SizeMD=12>
-    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">No se ha podido asignar el método de envío</RadzenAlert>
+    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">No se ha podido asignar el mÃ©todo de envÃ­o</RadzenAlert>
     <RadzenTemplateForm TItem="Aldebaran.Web.Models.AldebaranDb.ShipmentForwarderAgentMethod" Data="@shipmentForwarderAgentMethod" Visible="@(shipmentForwarderAgentMethod != null)" Submit="@FormSubmit">
         <RadzenStack>
             <div class="flex-shrink-0">
@@ -17,18 +17,18 @@
                     <RadzenLabel Text="@forwarderAgent.FORWARDER_AGENT_NAME" />
                 </div>
             </div>
-            <RadzenFormField Text="Método de envío" Variant="Variant.Text">
+            <RadzenFormField Text="MÃ©todo de envÃ­o" Variant="Variant.Text">
                 <ChildContent>
                     <RadzenDropDownDataGrid Data="@shipmentMethods" TextProperty="SHIPMENT_METHOD_NAME" ValueProperty="SHIPMENT_METHOD_ID" AllowClear=true
                                             style="display: block; width: 100%" @bind-Value="@shipmentForwarderAgentMethod.SHIPMENT_METHOD_ID" Name="SHIPMENT_METHOD_ID">
                         <Columns>
                             <RadzenDropDownDataGridColumn Property="SHIPMENT_METHOD_NAME" Title="Nombre" />
-                            <RadzenDropDownDataGridColumn Property="SHIPMENT_METHOD_NOTES" Title="Descripción" />
+                            <RadzenDropDownDataGridColumn Property="SHIPMENT_METHOD_NOTES" Title="DescripciÃ³n" />
                         </Columns>
                     </RadzenDropDownDataGrid>
                 </ChildContent>
                 <Helper>
-                    <RadzenNumericRangeValidator Component="SHIPMENT_METHOD_ID" Min="1" Text="Método de envío es requerido" />
+                    <RadzenNumericRangeValidator Component="SHIPMENT_METHOD_ID" Min="1" Text="MÃ©todo de envÃ­o es requerido" />
                 </Helper>
             </RadzenFormField>
         </RadzenStack>

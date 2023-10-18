@@ -13,7 +13,7 @@
                     <RadzenLabel Text="@forwarder.FORWARDER_NAME" />
                 </div>
                 <div class="text-secondary-color">
-                    <RadzenLabel Text="Ubicaci髇: " />
+                    <RadzenLabel Text="Ubicaci贸n: " />
                     <span>(@city?.Department?.Country?.COUNTRY_CODE) @city?.Department?.DEPARTMENT_NAME - @city?.CITY_NAME</span>
                 </div>
             </div>
@@ -25,7 +25,7 @@
                     <RadzenRequiredValidator Component="FORWARDER_AGENT_NAME" Text="FORWARDER_AGENT_NAME is required" />
                 </Helper>
             </RadzenFormField>
-            <RadzenFormField Text="Tel閒ono" Variant="Variant.Text">
+            <RadzenFormField Text="Tel茅fono" Variant="Variant.Text">
                 <ChildContent>
                     <RadzenTextBox style="display: block; width: 100%" @bind-Value="@forwarderAgent.PHONE1" Name="PHONE1" />
                 </ChildContent>
@@ -33,7 +33,7 @@
                     <RadzenRequiredValidator Component="PHONE1" Text="PHONE1 is required" />
                 </Helper>
             </RadzenFormField>
-            <RadzenFormField Text="Tel閒ono opcional" Variant="Variant.Text">
+            <RadzenFormField Text="Tel茅fono opcional" Variant="Variant.Text">
                 <ChildContent>
                     <RadzenTextBox style="display: block; width: 100%" @bind-Value="@forwarderAgent.PHONE2" Name="PHONE2" />
                 </ChildContent>
@@ -43,7 +43,7 @@
                     <RadzenTextBox style="display: block; width: 100%" @bind-Value="@forwarderAgent.FAX" Name="FAX" />
                 </ChildContent>
             </RadzenFormField>
-            <RadzenFormField Text="Direcci髇" Variant="Variant.Text">
+            <RadzenFormField Text="Direcci贸n" Variant="Variant.Text">
                 <ChildContent>
                     <RadzenTextBox style="display: block; width: 100%" @bind-Value="@forwarderAgent.FORWARDER_AGENT_ADDRESS" Name="FORWARDER_AGENT_ADDRESS" />
                 </ChildContent>
@@ -59,18 +59,18 @@
                     <RadzenRequiredValidator Component="CONTACT" Text="CONTACT is required" />
                 </Helper>
             </RadzenFormField>
-            <RadzenFormField Text="Correo electr髇ico" Variant="Variant.Text">
+            <RadzenFormField Text="Correo electr贸nico" Variant="Variant.Text">
                 <ChildContent>
                     <RadzenTextBox style="display: block; width: 100%" @bind-Value="@forwarderAgent.EMAIL1" Name="EMAIL1" />
                 </ChildContent>
             </RadzenFormField>
-            <RadzenFormField Text="Correo electr髇ico opcional" Variant="Variant.Text">
+            <RadzenFormField Text="Correo electr贸nico opcional" Variant="Variant.Text">
                 <ChildContent>
                     <RadzenTextBox style="display: block; width: 100%" @bind-Value="@forwarderAgent.EMAIL2" Name="EMAIL2" />
                 </ChildContent>
             </RadzenFormField>
             <LocalizationPicker CITY_ID="@forwarderAgent.CITY_ID" OnChange="LocalizationHandler" />
-            <RadzenRequiredValidator Text="Ubicaci髇 requerida" Component="CITY_ID" Style="margin-top: -0.875rem;" />
+            <RadzenRequiredValidator Text="Ubicaci贸n requerida" Component="CITY_ID" Style="margin-top: -0.875rem;" />
         </RadzenStack>
         <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
             <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@isSubmitInProgress" />
