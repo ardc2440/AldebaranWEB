@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using Radzen;
-using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.ItemPages
 {
@@ -29,8 +24,12 @@ namespace Aldebaran.Web.Pages.ItemPages
 
         [Inject]
         protected NotificationService NotificationService { get; set; }
+
         [Inject]
         public AldebaranDbService AldebaranDbService { get; set; }
+
+        [Inject]
+        protected SecurityService Security { get; set; }
 
         [Parameter]
         public int REFERENCE_ID { get; set; }
@@ -67,12 +66,5 @@ namespace Aldebaran.Web.Pages.ItemPages
         {
             DialogService.Close(null);
         }
-
-
-        [Parameter]
-        public int ITEM_ID { get; set; }
-
-        [Inject]
-        protected SecurityService Security { get; set; }
     }
 }

@@ -3,7 +3,7 @@
 @attribute [Authorize]
 <PageTitle>Nuevo artículo</PageTitle>
 <RadzenColumn SizeMD=12>
-    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Text" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">No se ha podido crear el artículo</RadzenAlert>
+    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">No se ha podido crear el artículo</RadzenAlert>
     <RadzenTemplateForm TItem="Aldebaran.Web.Models.AldebaranDb.Item" Data="@item" Visible="@(item != null)" Submit="@FormSubmit">
         <RadzenStack>
             <RadzenFormField Text="Nombre" Variant="Variant.Text">
@@ -183,8 +183,8 @@
             </RadzenFormField>
         </RadzenStack>
         <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
-            <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Text" BusyText="Procesando..." IsBusy="@isSubmitInProgress" />
-            <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Text" Click="@CancelButtonClick" />
+            <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@isSubmitInProgress" />
+            <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
         </RadzenStack>
     </RadzenTemplateForm>
 </RadzenColumn>

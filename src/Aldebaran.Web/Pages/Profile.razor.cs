@@ -1,12 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using Radzen;
-using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages
 {
@@ -33,7 +27,7 @@ namespace Aldebaran.Web.Pages
         protected string oldPassword = "";
         protected string newPassword = "";
         protected string confirmPassword = "";
-        protected Aldebaran.Web.Models.ApplicationUser user;
+        protected Models.ApplicationUser user;
         protected string error;
         protected bool errorVisible;
         protected bool successVisible;

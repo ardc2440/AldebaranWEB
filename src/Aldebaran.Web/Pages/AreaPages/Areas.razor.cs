@@ -1,13 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.JSInterop;
+using Aldebaran.Web.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using Radzen;
 using Radzen.Blazor;
-using Aldebaran.Web.Models;
 
 namespace Aldebaran.Web.Pages.AreaPages
 {
@@ -34,18 +30,21 @@ namespace Aldebaran.Web.Pages.AreaPages
         [Inject]
         public AldebaranDbService AldebaranDbService { get; set; }
 
+        [Inject]
+        protected SecurityService Security { get; set; }
+
+
         protected IEnumerable<Models.AldebaranDb.Area> areas;
-
         protected RadzenDataGrid<Models.AldebaranDb.Area> grid0;
-
+        protected RadzenDataGrid<Models.AldebaranDb.ItemsArea> ItemsAreasDataGrid;
+        protected Models.AldebaranDb.Area area;
         protected string search = "";
         protected DialogResult dialogResult { get; set; }
+
         protected async Task Search(ChangeEventArgs args)
         {
             search = $"{args.Value}";
-
             await grid0.GoToPage(0);
-
             areas = await AldebaranDbService.GetAreas(new Query { Filter = $@"i => i.AREA_CODE.Contains(@0) || i.AREA_NAME.Contains(@0) || i.DESCRIPTION.Contains(@0)", FilterParameters = new object[] { search } });
         }
         protected override async Task OnInitializedAsync()
@@ -60,7 +59,6 @@ namespace Aldebaran.Web.Pages.AreaPages
                 if (await DialogService.Confirm("Are you sure you want to delete this record?") == true)
                 {
                     var deleteResult = await AldebaranDbService.DeleteArea(area.AREA_ID);
-
                     if (deleteResult != null)
                     {
                         await grid0.Reload();
@@ -78,32 +76,6 @@ namespace Aldebaran.Web.Pages.AreaPages
             }
         }
 
-        protected async Task ExportClick(RadzenSplitButtonItem args)
-        {
-            if (args?.Value == "csv")
-            {
-                await AldebaranDbService.ExportAreasToCSV(new Query
-                {
-                    Filter = $@"{(string.IsNullOrEmpty(grid0.Query.Filter) ? "true" : grid0.Query.Filter)}",
-                    OrderBy = $"{grid0.Query.OrderBy}",
-                    Expand = "",
-                    Select = string.Join(",", grid0.ColumnsCollection.Where(c => c.GetVisible() && !string.IsNullOrEmpty(c.Property)).Select(c => c.Property.Contains(".") ? c.Property + " as " + c.Property.Replace(".", "") : c.Property))
-                }, "Areas");
-            }
-
-            if (args == null || args.Value == "xlsx")
-            {
-                await AldebaranDbService.ExportAreasToExcel(new Query
-                {
-                    Filter = $@"{(string.IsNullOrEmpty(grid0.Query.Filter) ? "true" : grid0.Query.Filter)}",
-                    OrderBy = $"{grid0.Query.OrderBy}",
-                    Expand = "",
-                    Select = string.Join(",", grid0.ColumnsCollection.Where(c => c.GetVisible() && !string.IsNullOrEmpty(c.Property)).Select(c => c.Property.Contains(".") ? c.Property + " as " + c.Property.Replace(".", "") : c.Property))
-                }, "Areas");
-            }
-        }
-
-        protected Models.AldebaranDb.Area area;
         protected async Task GetChildData(Models.AldebaranDb.Area args)
         {
             area = args;
@@ -113,11 +85,6 @@ namespace Aldebaran.Web.Pages.AreaPages
                 args.ItemsAreas = ItemsAreasResult.ToList();
             }
         }
-
-        protected RadzenDataGrid<Models.AldebaranDb.ItemsArea> ItemsAreasDataGrid;
-
-        [Inject]
-        protected SecurityService Security { get; set; }
 
         protected async Task ItemsAreasAddButtonClick(MouseEventArgs args, Models.AldebaranDb.Area data)
         {
