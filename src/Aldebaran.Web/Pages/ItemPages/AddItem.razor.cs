@@ -24,7 +24,7 @@ namespace Aldebaran.Web.Pages.ItemPages
 
         [Inject]
         protected NotificationService NotificationService { get; set; }
-        
+
         [Inject]
         public AldebaranDbService AldebaranDbService { get; set; }
 
@@ -49,7 +49,7 @@ namespace Aldebaran.Web.Pages.ItemPages
             measureUnitsForFOBMEASUREUNITID = await AldebaranDbService.GetMeasureUnits();
             linesForLINEID = await AldebaranDbService.GetLines();
         }
-       
+
         protected async Task FormSubmit()
         {
             try

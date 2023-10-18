@@ -24,7 +24,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
 
         [Inject]
         protected NotificationService NotificationService { get; set; }
-        
+
         [Inject]
         public AldebaranDbService AldebaranDbService { get; set; }
 
@@ -32,14 +32,14 @@ namespace Aldebaran.Web.Pages.ForwarderPages
         protected SecurityService Security { get; set; }
 
         protected bool errorVisible;
-        protected Aldebaran.Web.Models.AldebaranDb.Forwarder forwarder;
+        protected Models.AldebaranDb.Forwarder forwarder;
         protected bool isSubmitInProgress;
 
         protected override async Task OnInitializedAsync()
         {
-            forwarder = new Aldebaran.Web.Models.AldebaranDb.Forwarder();
+            forwarder = new Models.AldebaranDb.Forwarder();
         }
-        
+
         protected async Task FormSubmit()
         {
             try
@@ -57,7 +57,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
                 isSubmitInProgress = false;
             }
         }
-        protected async Task LocalizationHandler(Aldebaran.Web.Models.AldebaranDb.City city)
+        protected async Task LocalizationHandler(Models.AldebaranDb.City city)
         {
             forwarder.CITY_ID = city?.CITY_ID ?? 0;
         }

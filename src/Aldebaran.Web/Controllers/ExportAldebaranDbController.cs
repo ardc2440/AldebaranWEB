@@ -1,10 +1,5 @@
-using System;
-using System.Linq;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
-
 using Aldebaran.Web.Data;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Aldebaran.Web.Controllers
 {

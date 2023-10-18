@@ -40,7 +40,7 @@ namespace Aldebaran.Web.Pages.AreaPages
         protected Models.AldebaranDb.Area area;
         protected string search = "";
         protected DialogResult dialogResult { get; set; }
-        
+
         protected async Task Search(ChangeEventArgs args)
         {
             search = $"{args.Value}";

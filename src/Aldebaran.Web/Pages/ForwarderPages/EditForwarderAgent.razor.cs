@@ -1,4 +1,3 @@
-using Aldebaran.Web.Models.AldebaranDb;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
@@ -25,7 +24,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
 
         [Inject]
         protected NotificationService NotificationService { get; set; }
-        
+
         [Inject]
         public AldebaranDbService AldebaranDbService { get; set; }
 
@@ -36,9 +35,9 @@ namespace Aldebaran.Web.Pages.ForwarderPages
         public int FORWARDER_AGENT_ID { get; set; }
 
         protected bool errorVisible;
-        protected Aldebaran.Web.Models.AldebaranDb.ForwarderAgent forwarderAgent;
-        protected Aldebaran.Web.Models.AldebaranDb.Forwarder forwarder;
-        protected Aldebaran.Web.Models.AldebaranDb.City city;
+        protected Models.AldebaranDb.ForwarderAgent forwarderAgent;
+        protected Models.AldebaranDb.Forwarder forwarder;
+        protected Models.AldebaranDb.City city;
         protected bool isSubmitInProgress;
 
         protected override async Task OnInitializedAsync()
@@ -48,7 +47,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
             var selectedCity = await AldebaranDbService.GetCities(new Query { Filter = "i=>i.CITY_ID == @0", FilterParameters = new object[] { forwarder.CITY_ID }, Expand = "Department.Country" });
             city = selectedCity.Single();
         }
-        
+
         protected async Task FormSubmit()
         {
             try
@@ -72,7 +71,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
             DialogService.Close(null);
         }
 
-        protected async Task LocalizationHandler(Aldebaran.Web.Models.AldebaranDb.City city)
+        protected async Task LocalizationHandler(Models.AldebaranDb.City city)
         {
             forwarderAgent.CITY_ID = city?.CITY_ID ?? 0;
         }

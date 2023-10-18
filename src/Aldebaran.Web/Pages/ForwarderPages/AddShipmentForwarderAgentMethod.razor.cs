@@ -25,7 +25,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
 
         [Inject]
         protected NotificationService NotificationService { get; set; }
-       
+
         [Inject]
         public AldebaranDbService AldebaranDbService { get; set; }
 
@@ -48,7 +48,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
             shipmentForwarderAgentMethod = new ShipmentForwarderAgentMethod();
             shipmentForwarderAgentMethod.FORWARDER_AGENT_ID = FORWARDER_AGENT_ID;
         }
-        
+
         protected async Task FormSubmit()
         {
             try

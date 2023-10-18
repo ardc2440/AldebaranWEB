@@ -42,13 +42,13 @@ namespace Aldebaran.Web.Pages.ItemPages
 
         protected override async Task OnInitializedAsync()
         {
-            items = await AldebaranDbService.GetItems(new Query { Filter = $@"i => i.INTERNAL_REFERENCE.Contains(@0) || i.ITEM_NAME.Contains(@0) || i.PROVIDER_REFERENCE.Contains(@0) || i.PROVIDER_ITEM_NAME.Contains(@0) || i.NOTES.Contains(@0)", FilterParameters = new object[] { search }, Expand = "MeasureUnit,Currency,MeasureUnit1,Line" });            
+            items = await AldebaranDbService.GetItems(new Query { Filter = $@"i => i.INTERNAL_REFERENCE.Contains(@0) || i.ITEM_NAME.Contains(@0) || i.PROVIDER_REFERENCE.Contains(@0) || i.PROVIDER_ITEM_NAME.Contains(@0) || i.NOTES.Contains(@0)", FilterParameters = new object[] { search }, Expand = "MeasureUnit,Currency,MeasureUnit1,Line" });
         }
         void OnRender(DataGridRenderEventArgs<Models.AldebaranDb.Item> args)
         {
-            if(args.FirstRender)
+            if (args.FirstRender)
             {
-                args.Grid.Groups.Add(new GroupDescriptor(){ Title = "Línea", Property = "Line.LINE_NAME", SortOrder = SortOrder.Descending });
+                args.Grid.Groups.Add(new GroupDescriptor() { Title = "Línea", Property = "Line.LINE_NAME", SortOrder = SortOrder.Descending });
                 StateHasChanged();
             }
         }
@@ -132,7 +132,7 @@ namespace Aldebaran.Web.Pages.ItemPages
             }
         }
 
-        
+
         protected async Task GetChildData(Models.AldebaranDb.Item args)
         {
             item = args;

@@ -24,7 +24,7 @@ namespace Aldebaran.Web.Pages.AreaPages
 
         [Inject]
         protected NotificationService NotificationService { get; set; }
-        
+
         [Inject]
         public AldebaranDbService AldebaranDbService { get; set; }
 
@@ -45,7 +45,7 @@ namespace Aldebaran.Web.Pages.AreaPages
             itemsArea = new Models.AldebaranDb.ItemsArea();
             itemsArea.AREA_ID = AREA_ID;
         }
-        
+
         protected async Task FormSubmit()
         {
             try
@@ -68,6 +68,6 @@ namespace Aldebaran.Web.Pages.AreaPages
         {
             DialogService.Close(null);
         }
-       
+
     }
 }

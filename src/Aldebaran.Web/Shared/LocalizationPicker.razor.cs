@@ -1,14 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using Radzen;
-using Radzen.Blazor;
-using Aldebaran.Web.Models.AldebaranDb;
-using DocumentFormat.OpenXml.Bibliography;
 
 namespace Aldebaran.Web.Shared
 {
@@ -44,20 +36,20 @@ namespace Aldebaran.Web.Shared
         [Parameter]
         public int? CITY_ID { get; set; }
         [Parameter]
-        public EventCallback<Aldebaran.Web.Models.AldebaranDb.City> OnChange { get; set; }
+        public EventCallback<Models.AldebaranDb.City> OnChange { get; set; }
 
-        protected IEnumerable<Aldebaran.Web.Models.AldebaranDb.Country> countries;
-        protected Aldebaran.Web.Models.AldebaranDb.Country country;
-        protected IEnumerable<Aldebaran.Web.Models.AldebaranDb.Department> departments;
-        protected Aldebaran.Web.Models.AldebaranDb.Department department;
-        protected IEnumerable<Aldebaran.Web.Models.AldebaranDb.City> cities;
-        protected Aldebaran.Web.Models.AldebaranDb.City city;
+        protected IEnumerable<Models.AldebaranDb.Country> countries;
+        protected Models.AldebaranDb.Country country;
+        protected IEnumerable<Models.AldebaranDb.Department> departments;
+        protected Models.AldebaranDb.Department department;
+        protected IEnumerable<Models.AldebaranDb.City> cities;
+        protected Models.AldebaranDb.City city;
         protected override async Task OnInitializedAsync()
         {
             countries = await AldebaranDbService.GetCountries();
         }
         protected bool CollapsedPanel { get; set; } = true;
-        protected async System.Threading.Tasks.Task OnCountryChange(object countryId)
+        protected async Task OnCountryChange(object countryId)
         {
             if (countryId == null)
             {
@@ -70,7 +62,7 @@ namespace Aldebaran.Web.Shared
             departments = await AldebaranDbService.GetDepartments(new Query { Filter = $"i=>i.COUNTRY_ID==@0", FilterParameters = new object[] { countryId } });
         }
 
-        protected async System.Threading.Tasks.Task OnDepartmentChange(object departmentId)
+        protected async Task OnDepartmentChange(object departmentId)
         {
             if (departmentId == null)
             {
@@ -81,7 +73,7 @@ namespace Aldebaran.Web.Shared
             department = departments.Single(s => s.DEPARTMENT_ID == (short)departmentId);
             cities = await AldebaranDbService.GetCities(new Query { Filter = $"i=>i.DEPARTMENT_ID==@0", FilterParameters = new object[] { departmentId } });
         }
-        protected async System.Threading.Tasks.Task OnCityChange(object cityId)
+        protected async Task OnCityChange(object cityId)
         {
             if (cityId == null)
             {
@@ -93,7 +85,7 @@ namespace Aldebaran.Web.Shared
             CollapsedPanel = true;
             await OnChange.InvokeAsync(city);
         }
-        protected async System.Threading.Tasks.Task PanelCollapseToggle(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        protected async Task PanelCollapseToggle(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
             CollapsedPanel = !CollapsedPanel;
         }

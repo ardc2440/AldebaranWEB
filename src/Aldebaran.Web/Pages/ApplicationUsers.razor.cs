@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using Radzen;
 using Radzen.Blazor;
 
@@ -30,8 +25,8 @@ namespace Aldebaran.Web.Pages
         [Inject]
         protected NotificationService NotificationService { get; set; }
 
-        protected IEnumerable<Aldebaran.Web.Models.ApplicationUser> users;
-        protected RadzenDataGrid<Aldebaran.Web.Models.ApplicationUser> grid0;
+        protected IEnumerable<Models.ApplicationUser> users;
+        protected RadzenDataGrid<Models.ApplicationUser> grid0;
         protected string error;
         protected bool errorVisible;
 
@@ -50,14 +45,14 @@ namespace Aldebaran.Web.Pages
             users = await Security.GetUsers();
         }
 
-        protected async Task RowSelect(Aldebaran.Web.Models.ApplicationUser user)
+        protected async Task RowSelect(Models.ApplicationUser user)
         {
-            await DialogService.OpenAsync<EditApplicationUser>("Edit Application User", new Dictionary<string, object>{ {"Id", user.Id} });
+            await DialogService.OpenAsync<EditApplicationUser>("Edit Application User", new Dictionary<string, object> { { "Id", user.Id } });
 
             users = await Security.GetUsers();
         }
 
-        protected async Task DeleteClick(Aldebaran.Web.Models.ApplicationUser user)
+        protected async Task DeleteClick(Models.ApplicationUser user)
         {
             try
             {

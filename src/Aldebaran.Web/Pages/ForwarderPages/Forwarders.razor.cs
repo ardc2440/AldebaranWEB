@@ -33,15 +33,15 @@ namespace Aldebaran.Web.Pages.ForwarderPages
         [Inject]
         protected SecurityService Security { get; set; }
 
-        protected IEnumerable<Aldebaran.Web.Models.AldebaranDb.Forwarder> forwarders;
-        protected RadzenDataGrid<Aldebaran.Web.Models.AldebaranDb.Forwarder> grid0;
+        protected IEnumerable<Models.AldebaranDb.Forwarder> forwarders;
+        protected RadzenDataGrid<Models.AldebaranDb.Forwarder> grid0;
         protected string search = "";
         protected DialogResult dialogResult { get; set; }
-        protected Aldebaran.Web.Models.AldebaranDb.Forwarder forwarder;
-        protected RadzenDataGrid<Aldebaran.Web.Models.AldebaranDb.ForwarderAgent> ForwarderAgentsDataGrid;
-        protected RadzenDataGrid<Aldebaran.Web.Models.AldebaranDb.ShipmentForwarderAgentMethod> ShipmentForwarderAgentMethodDataGrid;
-        protected Aldebaran.Web.Models.AldebaranDb.ShipmentForwarderAgentMethod shipmentMethod;
-        protected Aldebaran.Web.Models.AldebaranDb.ForwarderAgent forwarderAgent;
+        protected Models.AldebaranDb.Forwarder forwarder;
+        protected RadzenDataGrid<Models.AldebaranDb.ForwarderAgent> ForwarderAgentsDataGrid;
+        protected RadzenDataGrid<Models.AldebaranDb.ShipmentForwarderAgentMethod> ShipmentForwarderAgentMethodDataGrid;
+        protected Models.AldebaranDb.ShipmentForwarderAgentMethod shipmentMethod;
+        protected Models.AldebaranDb.ForwarderAgent forwarderAgent;
 
         protected async Task Search(ChangeEventArgs args)
         {
@@ -65,7 +65,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
             await grid0.Reload();
         }
 
-        protected async Task EditRow(Aldebaran.Web.Models.AldebaranDb.Forwarder args)
+        protected async Task EditRow(Models.AldebaranDb.Forwarder args)
         {
             dialogResult = null;
             var result = await DialogService.OpenAsync<EditForwarder>("Actualizar transportadora", new Dictionary<string, object> { { "FORWARDER_ID", args.FORWARDER_ID } });
@@ -75,7 +75,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
             }
         }
 
-        protected async Task GridDeleteButtonClick(MouseEventArgs args, Aldebaran.Web.Models.AldebaranDb.Forwarder forwarder)
+        protected async Task GridDeleteButtonClick(MouseEventArgs args, Models.AldebaranDb.Forwarder forwarder)
         {
             try
             {
@@ -100,8 +100,8 @@ namespace Aldebaran.Web.Pages.ForwarderPages
                 });
             }
         }
-        
-        protected async Task GetChildData(Aldebaran.Web.Models.AldebaranDb.Forwarder args)
+
+        protected async Task GetChildData(Models.AldebaranDb.Forwarder args)
         {
             forwarder = args;
             var ForwarderAgentsResult = await AldebaranDbService.GetForwarderAgents(new Query { Filter = $@"i => i.FORWARDER_ID == {args.FORWARDER_ID}", Expand = "City.Department.Country,Forwarder" });
@@ -111,7 +111,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
             }
         }
 
-        protected async Task ForwarderAgentsAddButtonClick(MouseEventArgs args, Aldebaran.Web.Models.AldebaranDb.Forwarder data)
+        protected async Task ForwarderAgentsAddButtonClick(MouseEventArgs args, Models.AldebaranDb.Forwarder data)
         {
             dialogResult = null;
             var result = await DialogService.OpenAsync<AddForwarderAgent>("Nuevo agente", new Dictionary<string, object> { { "FORWARDER_ID", data.FORWARDER_ID } });
@@ -123,7 +123,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
             await ForwarderAgentsDataGrid.Reload();
         }
 
-        protected async Task EditChildRow(Aldebaran.Web.Models.AldebaranDb.ForwarderAgent args, Aldebaran.Web.Models.AldebaranDb.Forwarder data)
+        protected async Task EditChildRow(Models.AldebaranDb.ForwarderAgent args, Models.AldebaranDb.Forwarder data)
         {
             dialogResult = null;
             var result = await DialogService.OpenAsync<EditForwarderAgent>("Actualizar agente", new Dictionary<string, object> { { "FORWARDER_AGENT_ID", args.FORWARDER_AGENT_ID } });
@@ -135,7 +135,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
             await ForwarderAgentsDataGrid.Reload();
         }
 
-        protected async Task ForwarderAgentsDeleteButtonClick(MouseEventArgs args, Aldebaran.Web.Models.AldebaranDb.ForwarderAgent forwarderAgent)
+        protected async Task ForwarderAgentsDeleteButtonClick(MouseEventArgs args, Models.AldebaranDb.ForwarderAgent forwarderAgent)
         {
             try
             {
@@ -153,7 +153,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
                     }
                 }
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 NotificationService.Notify(new NotificationMessage
                 {
@@ -163,8 +163,8 @@ namespace Aldebaran.Web.Pages.ForwarderPages
                 });
             }
         }
-        
-        protected async Task GetShipmentData(Aldebaran.Web.Models.AldebaranDb.ForwarderAgent args)
+
+        protected async Task GetShipmentData(Models.AldebaranDb.ForwarderAgent args)
         {
             forwarderAgent = args;
             var ShipmentForwarderAgentMethodsResult = await AldebaranDbService.GetShipmentForwarderAgentMethods(new Query { Filter = $@"i => i.FORWARDER_AGENT_ID == {args.FORWARDER_AGENT_ID}", Expand = "ShipmentMethod" });
@@ -173,7 +173,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
                 forwarderAgent.ShipmentForwarderAgentMethods = ShipmentForwarderAgentMethodsResult.ToList();
             }
         }
-        protected async Task ShippingAddButtonClick(MouseEventArgs args, Aldebaran.Web.Models.AldebaranDb.ForwarderAgent data)
+        protected async Task ShippingAddButtonClick(MouseEventArgs args, Models.AldebaranDb.ForwarderAgent data)
         {
             dialogResult = null;
             var result = await DialogService.OpenAsync<AddShipmentForwarderAgentMethod>("Nuevo método de envío", new Dictionary<string, object> { { "FORWARDER_AGENT_ID", data.FORWARDER_AGENT_ID } });
@@ -183,8 +183,8 @@ namespace Aldebaran.Web.Pages.ForwarderPages
             }
             await GetShipmentData(data);
             await ForwarderAgentsDataGrid.Reload();
-        }       
-        protected async Task ShippingDeleteButtonClick(MouseEventArgs args, Aldebaran.Web.Models.AldebaranDb.ShipmentForwarderAgentMethod shipmentForwarderAgent)
+        }
+        protected async Task ShippingDeleteButtonClick(MouseEventArgs args, Models.AldebaranDb.ShipmentForwarderAgentMethod shipmentForwarderAgent)
         {
             try
             {
@@ -199,7 +199,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
                     }
                 }
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 NotificationService.Notify(new NotificationMessage
                 {

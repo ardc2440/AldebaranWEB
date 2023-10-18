@@ -1,12 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using Radzen;
-using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages
 {
@@ -30,8 +24,8 @@ namespace Aldebaran.Web.Pages
         [Inject]
         protected NotificationService NotificationService { get; set; }
 
-        protected IEnumerable<Aldebaran.Web.Models.ApplicationRole> roles;
-        protected Aldebaran.Web.Models.ApplicationUser user;
+        protected IEnumerable<Models.ApplicationRole> roles;
+        protected Models.ApplicationUser user;
         protected IEnumerable<string> userRoles;
         protected string error;
         protected bool errorVisible;
@@ -51,7 +45,7 @@ namespace Aldebaran.Web.Pages
             roles = await Security.GetRoles();
         }
 
-        protected async Task FormSubmit(Aldebaran.Web.Models.ApplicationUser user)
+        protected async Task FormSubmit(Models.ApplicationUser user)
         {
             try
             {

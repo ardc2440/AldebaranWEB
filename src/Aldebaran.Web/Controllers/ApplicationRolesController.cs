@@ -1,12 +1,9 @@
-using System.Linq;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using Aldebaran.Web.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
-using Aldebaran.Web.Models;
 
 namespace Aldebaran.Web.Controllers
 {
@@ -14,73 +11,73 @@ namespace Aldebaran.Web.Controllers
     [Route("odata/Identity/ApplicationRoles")]
     public partial class ApplicationRolesController : ODataController
     {
-       private readonly RoleManager<ApplicationRole> roleManager;
+        private readonly RoleManager<ApplicationRole> roleManager;
 
-       public ApplicationRolesController(RoleManager<ApplicationRole> roleManager)
-       {
-           this.roleManager = roleManager;
-       }
+        public ApplicationRolesController(RoleManager<ApplicationRole> roleManager)
+        {
+            this.roleManager = roleManager;
+        }
 
-       partial void OnRolesRead(ref IQueryable<ApplicationRole> roles);
+        partial void OnRolesRead(ref IQueryable<ApplicationRole> roles);
 
-       [EnableQuery]
-       [HttpGet]
-       public IEnumerable<ApplicationRole> Get()
-       {
-           var roles = roleManager.Roles;
-           OnRolesRead(ref roles);
+        [EnableQuery]
+        [HttpGet]
+        public IEnumerable<ApplicationRole> Get()
+        {
+            var roles = roleManager.Roles;
+            OnRolesRead(ref roles);
 
-           return roles;
-       }
+            return roles;
+        }
 
-       partial void OnRoleCreated(ApplicationRole role);
+        partial void OnRoleCreated(ApplicationRole role);
 
-       [HttpPost]
-       public async Task<IActionResult> Post([FromBody] ApplicationRole role)
-       {
-           if (role == null)
-           {
-               return BadRequest();
-           }
+        [HttpPost]
+        public async Task<IActionResult> Post([FromBody] ApplicationRole role)
+        {
+            if (role == null)
+            {
+                return BadRequest();
+            }
 
-           OnRoleCreated(role);
+            OnRoleCreated(role);
 
-           var result = await roleManager.CreateAsync(role);
+            var result = await roleManager.CreateAsync(role);
 
-           if (!result.Succeeded)
-           {
-               var message = string.Join(", ", result.Errors.Select(error => error.Description));
+            if (!result.Succeeded)
+            {
+                var message = string.Join(", ", result.Errors.Select(error => error.Description));
 
-               return BadRequest(new { error = new { message }});
-           }
+                return BadRequest(new { error = new { message } });
+            }
 
-           return Created($"odata/Identity/Roles('{role.Id}')", role);
-       }
+            return Created($"odata/Identity/Roles('{role.Id}')", role);
+        }
 
-       partial void OnRoleDeleted(ApplicationRole role);
+        partial void OnRoleDeleted(ApplicationRole role);
 
-       [HttpDelete("{Id}")]
-       public async Task<IActionResult> Delete(string key)
-       {
-           var role = await roleManager.FindByIdAsync(key);
+        [HttpDelete("{Id}")]
+        public async Task<IActionResult> Delete(string key)
+        {
+            var role = await roleManager.FindByIdAsync(key);
 
-           if (role == null)
-           {
-               return NotFound();
-           }
+            if (role == null)
+            {
+                return NotFound();
+            }
 
-           OnRoleDeleted(role);
+            OnRoleDeleted(role);
 
-           var result = await roleManager.DeleteAsync(role);
+            var result = await roleManager.DeleteAsync(role);
 
-           if (!result.Succeeded)
-           {
-               var message = string.Join(", ", result.Errors.Select(error => error.Description));
+            if (!result.Succeeded)
+            {
+                var message = string.Join(", ", result.Errors.Select(error => error.Description));
 
-               return BadRequest(new { error = new { message }});
-           }
+                return BadRequest(new { error = new { message } });
+            }
 
-           return new NoContentResult();
-       }
+            return new NoContentResult();
+        }
     }
 }

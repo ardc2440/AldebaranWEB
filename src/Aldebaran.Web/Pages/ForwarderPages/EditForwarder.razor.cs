@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using Radzen;
-using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.ForwarderPages
 {
@@ -41,7 +36,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
 
         protected bool isSubmitInProgress;
         protected bool errorVisible;
-        protected Aldebaran.Web.Models.AldebaranDb.Forwarder forwarder;
+        protected Models.AldebaranDb.Forwarder forwarder;
 
         protected override async Task OnInitializedAsync()
         {
@@ -66,7 +61,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
             }
         }
 
-        protected async Task LocalizationHandler(Aldebaran.Web.Models.AldebaranDb.City city)
+        protected async Task LocalizationHandler(Models.AldebaranDb.City city)
         {
             forwarder.CITY_ID = city?.CITY_ID ?? 0;
         }
