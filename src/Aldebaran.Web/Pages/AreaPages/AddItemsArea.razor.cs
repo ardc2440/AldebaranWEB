@@ -5,7 +5,7 @@ using Radzen;
 
 namespace Aldebaran.Web.Pages.AreaPages
 {
-    public partial class AddItemsArea
+    public partial class AddItemsArea : ComponentBase
     {
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }

@@ -62,6 +62,7 @@ namespace Aldebaran.Web
             }
         }
 
+
         public async Task ExportAreasToExcel(Query query = null, string fileName = null)
         {
             navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/areas/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/areas/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
@@ -77,6 +78,7 @@ namespace Aldebaran.Web
         public async Task<IQueryable<Models.AldebaranDb.Area>> GetAreas(Query query = null)
         {
             var items = Context.Areas.AsQueryable();
+
 
             if (query != null)
             {
@@ -100,11 +102,13 @@ namespace Aldebaran.Web
         partial void OnAreaGet(Models.AldebaranDb.Area item);
         partial void OnGetAreaByAreaId(ref IQueryable<Models.AldebaranDb.Area> items);
 
+
         public async Task<Models.AldebaranDb.Area> GetAreaByAreaId(short areaid)
         {
             var items = Context.Areas
                               .AsNoTracking()
                               .Where(i => i.AREA_ID == areaid);
+
 
             OnGetAreaByAreaId(ref items);
 
@@ -202,6 +206,7 @@ namespace Aldebaran.Web
 
             OnAreaDeleted(itemToDelete);
 
+
             Context.Areas.Remove(itemToDelete);
 
             try
@@ -258,6 +263,7 @@ namespace Aldebaran.Web
 
         partial void OnCityGet(Models.AldebaranDb.City item);
         partial void OnGetCityByCityId(ref IQueryable<Models.AldebaranDb.City> items);
+
 
         public async Task<Models.AldebaranDb.City> GetCityByCityId(int cityid)
         {
@@ -363,6 +369,7 @@ namespace Aldebaran.Web
 
             OnCityDeleted(itemToDelete);
 
+
             Context.Cities.Remove(itemToDelete);
 
             try
@@ -396,6 +403,7 @@ namespace Aldebaran.Web
         {
             var items = Context.Countries.AsQueryable();
 
+
             if (query != null)
             {
                 if (!string.IsNullOrEmpty(query.Expand))
@@ -418,11 +426,13 @@ namespace Aldebaran.Web
         partial void OnCountryGet(Models.AldebaranDb.Country item);
         partial void OnGetCountryByCountryId(ref IQueryable<Models.AldebaranDb.Country> items);
 
+
         public async Task<Models.AldebaranDb.Country> GetCountryByCountryId(short countryid)
         {
             var items = Context.Countries
                               .AsNoTracking()
                               .Where(i => i.COUNTRY_ID == countryid);
+
 
             OnGetCountryByCountryId(ref items);
 
@@ -520,6 +530,7 @@ namespace Aldebaran.Web
 
             OnCountryDeleted(itemToDelete);
 
+
             Context.Countries.Remove(itemToDelete);
 
             try
@@ -553,6 +564,7 @@ namespace Aldebaran.Web
         {
             var items = Context.Currencies.AsQueryable();
 
+
             if (query != null)
             {
                 if (!string.IsNullOrEmpty(query.Expand))
@@ -575,11 +587,13 @@ namespace Aldebaran.Web
         partial void OnCurrencyGet(Models.AldebaranDb.Currency item);
         partial void OnGetCurrencyByCurrencyId(ref IQueryable<Models.AldebaranDb.Currency> items);
 
+
         public async Task<Models.AldebaranDb.Currency> GetCurrencyByCurrencyId(short currencyid)
         {
             var items = Context.Currencies
                               .AsNoTracking()
                               .Where(i => i.CURRENCY_ID == currencyid);
+
 
             OnGetCurrencyByCurrencyId(ref items);
 
@@ -677,6 +691,7 @@ namespace Aldebaran.Web
 
             OnCurrencyDeleted(itemToDelete);
 
+
             Context.Currencies.Remove(itemToDelete);
 
             try
@@ -690,6 +705,334 @@ namespace Aldebaran.Web
             }
 
             OnAfterCurrencyDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+
+        public async Task ExportCustomerContactsToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/customercontacts/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/customercontacts/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportCustomerContactsToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/customercontacts/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/customercontacts/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnCustomerContactsRead(ref IQueryable<Models.AldebaranDb.CustomerContact> items);
+
+        public async Task<IQueryable<Models.AldebaranDb.CustomerContact>> GetCustomerContacts(Query query = null)
+        {
+            var items = Context.CustomerContacts.AsQueryable();
+
+            items = items.Include(i => i.Customer);
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach (var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnCustomerContactsRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnCustomerContactGet(Models.AldebaranDb.CustomerContact item);
+        partial void OnGetCustomerContactByCustomerContactId(ref IQueryable<Models.AldebaranDb.CustomerContact> items);
+
+
+        public async Task<Models.AldebaranDb.CustomerContact> GetCustomerContactByCustomerContactId(int customercontactid)
+        {
+            var items = Context.CustomerContacts
+                              .AsNoTracking()
+                              .Where(i => i.CUSTOMER_CONTACT_ID == customercontactid);
+
+            items = items.Include(i => i.Customer);
+
+            OnGetCustomerContactByCustomerContactId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnCustomerContactGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnCustomerContactCreated(Models.AldebaranDb.CustomerContact item);
+        partial void OnAfterCustomerContactCreated(Models.AldebaranDb.CustomerContact item);
+
+        public async Task<Models.AldebaranDb.CustomerContact> CreateCustomerContact(Models.AldebaranDb.CustomerContact customercontact)
+        {
+            OnCustomerContactCreated(customercontact);
+
+            var existingItem = Context.CustomerContacts
+                              .Where(i => i.CUSTOMER_CONTACT_ID == customercontact.CUSTOMER_CONTACT_ID)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+                throw new Exception("Item already available");
+            }
+
+            try
+            {
+                Context.CustomerContacts.Add(customercontact);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(customercontact).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterCustomerContactCreated(customercontact);
+
+            return customercontact;
+        }
+
+        public async Task<Models.AldebaranDb.CustomerContact> CancelCustomerContactChanges(Models.AldebaranDb.CustomerContact item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+                entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+                entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnCustomerContactUpdated(Models.AldebaranDb.CustomerContact item);
+        partial void OnAfterCustomerContactUpdated(Models.AldebaranDb.CustomerContact item);
+
+        public async Task<Models.AldebaranDb.CustomerContact> UpdateCustomerContact(int customercontactid, Models.AldebaranDb.CustomerContact customercontact)
+        {
+            OnCustomerContactUpdated(customercontact);
+
+            var itemToUpdate = Context.CustomerContacts
+                              .Where(i => i.CUSTOMER_CONTACT_ID == customercontact.CUSTOMER_CONTACT_ID)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            var entryToUpdate = Context.Entry(itemToUpdate);
+            entryToUpdate.CurrentValues.SetValues(customercontact);
+            entryToUpdate.State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterCustomerContactUpdated(customercontact);
+
+            return customercontact;
+        }
+
+        partial void OnCustomerContactDeleted(Models.AldebaranDb.CustomerContact item);
+        partial void OnAfterCustomerContactDeleted(Models.AldebaranDb.CustomerContact item);
+
+        public async Task<Models.AldebaranDb.CustomerContact> DeleteCustomerContact(int customercontactid)
+        {
+            var itemToDelete = Context.CustomerContacts
+                              .Where(i => i.CUSTOMER_CONTACT_ID == customercontactid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            OnCustomerContactDeleted(itemToDelete);
+
+
+            Context.CustomerContacts.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterCustomerContactDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+
+        public async Task ExportCustomersToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/customers/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/customers/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportCustomersToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/customers/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/customers/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnCustomersRead(ref IQueryable<Models.AldebaranDb.Customer> items);
+
+        public async Task<IQueryable<Models.AldebaranDb.Customer>> GetCustomers(Query query = null)
+        {
+            var items = Context.Customers.AsQueryable();
+
+            items = items.Include(i => i.City);
+            items = items.Include(i => i.IdentityType);
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach (var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnCustomersRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnCustomerGet(Models.AldebaranDb.Customer item);
+        partial void OnGetCustomerByCustomerId(ref IQueryable<Models.AldebaranDb.Customer> items);
+
+
+        public async Task<Models.AldebaranDb.Customer> GetCustomerByCustomerId(int customerid)
+        {
+            var items = Context.Customers
+                              .AsNoTracking()
+                              .Where(i => i.CUSTOMER_ID == customerid);
+
+            items = items.Include(i => i.City);
+            items = items.Include(i => i.IdentityType);
+
+            OnGetCustomerByCustomerId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnCustomerGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnCustomerCreated(Models.AldebaranDb.Customer item);
+        partial void OnAfterCustomerCreated(Models.AldebaranDb.Customer item);
+
+        public async Task<Models.AldebaranDb.Customer> CreateCustomer(Models.AldebaranDb.Customer customer)
+        {
+            OnCustomerCreated(customer);
+
+            var existingItem = Context.Customers
+                              .Where(i => i.CUSTOMER_ID == customer.CUSTOMER_ID)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+                throw new Exception("Item already available");
+            }
+
+            try
+            {
+                Context.Customers.Add(customer);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(customer).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterCustomerCreated(customer);
+
+            return customer;
+        }
+
+        public async Task<Models.AldebaranDb.Customer> CancelCustomerChanges(Models.AldebaranDb.Customer item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+                entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+                entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnCustomerUpdated(Models.AldebaranDb.Customer item);
+        partial void OnAfterCustomerUpdated(Models.AldebaranDb.Customer item);
+
+        public async Task<Models.AldebaranDb.Customer> UpdateCustomer(int customerid, Models.AldebaranDb.Customer customer)
+        {
+            OnCustomerUpdated(customer);
+
+            var itemToUpdate = Context.Customers
+                              .Where(i => i.CUSTOMER_ID == customer.CUSTOMER_ID)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            var entryToUpdate = Context.Entry(itemToUpdate);
+            entryToUpdate.CurrentValues.SetValues(customer);
+            entryToUpdate.State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterCustomerUpdated(customer);
+
+            return customer;
+        }
+
+        partial void OnCustomerDeleted(Models.AldebaranDb.Customer item);
+        partial void OnAfterCustomerDeleted(Models.AldebaranDb.Customer item);
+
+        public async Task<Models.AldebaranDb.Customer> DeleteCustomer(int customerid)
+        {
+            var itemToDelete = Context.Customers
+                              .Where(i => i.CUSTOMER_ID == customerid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            OnCustomerDeleted(itemToDelete);
+
+
+            Context.Customers.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterCustomerDeleted(itemToDelete);
 
             return itemToDelete;
         }
@@ -733,6 +1076,7 @@ namespace Aldebaran.Web
 
         partial void OnDepartmentGet(Models.AldebaranDb.Department item);
         partial void OnGetDepartmentByDepartmentId(ref IQueryable<Models.AldebaranDb.Department> items);
+
 
         public async Task<Models.AldebaranDb.Department> GetDepartmentByDepartmentId(short departmentid)
         {
@@ -838,6 +1182,7 @@ namespace Aldebaran.Web
 
             OnDepartmentDeleted(itemToDelete);
 
+
             Context.Departments.Remove(itemToDelete);
 
             try
@@ -895,6 +1240,7 @@ namespace Aldebaran.Web
 
         partial void OnForwarderAgentGet(Models.AldebaranDb.ForwarderAgent item);
         partial void OnGetForwarderAgentByForwarderAgentId(ref IQueryable<Models.AldebaranDb.ForwarderAgent> items);
+
 
         public async Task<Models.AldebaranDb.ForwarderAgent> GetForwarderAgentByForwarderAgentId(int forwarderagentid)
         {
@@ -1001,6 +1347,7 @@ namespace Aldebaran.Web
 
             OnForwarderAgentDeleted(itemToDelete);
 
+
             Context.ForwarderAgents.Remove(itemToDelete);
 
             try
@@ -1057,6 +1404,7 @@ namespace Aldebaran.Web
 
         partial void OnForwarderGet(Models.AldebaranDb.Forwarder item);
         partial void OnGetForwarderByForwarderId(ref IQueryable<Models.AldebaranDb.Forwarder> items);
+
 
         public async Task<Models.AldebaranDb.Forwarder> GetForwarderByForwarderId(int forwarderid)
         {
@@ -1162,6 +1510,7 @@ namespace Aldebaran.Web
 
             OnForwarderDeleted(itemToDelete);
 
+
             Context.Forwarders.Remove(itemToDelete);
 
             try
@@ -1175,6 +1524,167 @@ namespace Aldebaran.Web
             }
 
             OnAfterForwarderDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+
+        public async Task ExportIdentityTypesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/identitytypes/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/identitytypes/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportIdentityTypesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/identitytypes/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/identitytypes/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnIdentityTypesRead(ref IQueryable<Models.AldebaranDb.IdentityType> items);
+
+        public async Task<IQueryable<Models.AldebaranDb.IdentityType>> GetIdentityTypes(Query query = null)
+        {
+            var items = Context.IdentityTypes.AsQueryable();
+
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach (var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnIdentityTypesRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnIdentityTypeGet(Models.AldebaranDb.IdentityType item);
+        partial void OnGetIdentityTypeByIdentityTypeId(ref IQueryable<Models.AldebaranDb.IdentityType> items);
+
+
+        public async Task<Models.AldebaranDb.IdentityType> GetIdentityTypeByIdentityTypeId(int identitytypeid)
+        {
+            var items = Context.IdentityTypes
+                              .AsNoTracking()
+                              .Where(i => i.IDENTITY_TYPE_ID == identitytypeid);
+
+
+            OnGetIdentityTypeByIdentityTypeId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnIdentityTypeGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnIdentityTypeCreated(Models.AldebaranDb.IdentityType item);
+        partial void OnAfterIdentityTypeCreated(Models.AldebaranDb.IdentityType item);
+
+        public async Task<Models.AldebaranDb.IdentityType> CreateIdentityType(Models.AldebaranDb.IdentityType identitytype)
+        {
+            OnIdentityTypeCreated(identitytype);
+
+            var existingItem = Context.IdentityTypes
+                              .Where(i => i.IDENTITY_TYPE_ID == identitytype.IDENTITY_TYPE_ID)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+                throw new Exception("Item already available");
+            }
+
+            try
+            {
+                Context.IdentityTypes.Add(identitytype);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(identitytype).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterIdentityTypeCreated(identitytype);
+
+            return identitytype;
+        }
+
+        public async Task<Models.AldebaranDb.IdentityType> CancelIdentityTypeChanges(Models.AldebaranDb.IdentityType item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+                entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+                entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnIdentityTypeUpdated(Models.AldebaranDb.IdentityType item);
+        partial void OnAfterIdentityTypeUpdated(Models.AldebaranDb.IdentityType item);
+
+        public async Task<Models.AldebaranDb.IdentityType> UpdateIdentityType(int identitytypeid, Models.AldebaranDb.IdentityType identitytype)
+        {
+            OnIdentityTypeUpdated(identitytype);
+
+            var itemToUpdate = Context.IdentityTypes
+                              .Where(i => i.IDENTITY_TYPE_ID == identitytype.IDENTITY_TYPE_ID)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            var entryToUpdate = Context.Entry(itemToUpdate);
+            entryToUpdate.CurrentValues.SetValues(identitytype);
+            entryToUpdate.State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterIdentityTypeUpdated(identitytype);
+
+            return identitytype;
+        }
+
+        partial void OnIdentityTypeDeleted(Models.AldebaranDb.IdentityType item);
+        partial void OnAfterIdentityTypeDeleted(Models.AldebaranDb.IdentityType item);
+
+        public async Task<Models.AldebaranDb.IdentityType> DeleteIdentityType(int identitytypeid)
+        {
+            var itemToDelete = Context.IdentityTypes
+                              .Where(i => i.IDENTITY_TYPE_ID == identitytypeid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            OnIdentityTypeDeleted(itemToDelete);
+
+
+            Context.IdentityTypes.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterIdentityTypeDeleted(itemToDelete);
 
             return itemToDelete;
         }
@@ -1218,6 +1728,7 @@ namespace Aldebaran.Web
 
         partial void OnItemReferenceGet(Models.AldebaranDb.ItemReference item);
         partial void OnGetItemReferenceByReferenceId(ref IQueryable<Models.AldebaranDb.ItemReference> items);
+
 
         public async Task<Models.AldebaranDb.ItemReference> GetItemReferenceByReferenceId(int referenceid)
         {
@@ -1323,6 +1834,7 @@ namespace Aldebaran.Web
 
             OnItemReferenceDeleted(itemToDelete);
 
+
             Context.ItemReferences.Remove(itemToDelete);
 
             try
@@ -1382,6 +1894,7 @@ namespace Aldebaran.Web
 
         partial void OnItemGet(Models.AldebaranDb.Item item);
         partial void OnGetItemByItemId(ref IQueryable<Models.AldebaranDb.Item> items);
+
 
         public async Task<Models.AldebaranDb.Item> GetItemByItemId(int itemid)
         {
@@ -1490,6 +2003,7 @@ namespace Aldebaran.Web
 
             OnItemDeleted(itemToDelete);
 
+
             Context.Items.Remove(itemToDelete);
 
             try
@@ -1547,6 +2061,7 @@ namespace Aldebaran.Web
 
         partial void OnItemsAreaGet(Models.AldebaranDb.ItemsArea item);
         partial void OnGetItemsAreaByItemIdAndAreaId(ref IQueryable<Models.AldebaranDb.ItemsArea> items);
+
 
         public async Task<Models.AldebaranDb.ItemsArea> GetItemsAreaByItemIdAndAreaId(int itemid, short areaid)
         {
@@ -1653,6 +2168,7 @@ namespace Aldebaran.Web
 
             OnItemsAreaDeleted(itemToDelete);
 
+
             Context.ItemsAreas.Remove(itemToDelete);
 
             try
@@ -1686,6 +2202,7 @@ namespace Aldebaran.Web
         {
             var items = Context.Lines.AsQueryable();
 
+
             if (query != null)
             {
                 if (!string.IsNullOrEmpty(query.Expand))
@@ -1708,11 +2225,13 @@ namespace Aldebaran.Web
         partial void OnLineGet(Models.AldebaranDb.Line item);
         partial void OnGetLineByLineId(ref IQueryable<Models.AldebaranDb.Line> items);
 
+
         public async Task<Models.AldebaranDb.Line> GetLineByLineId(short lineid)
         {
             var items = Context.Lines
                               .AsNoTracking()
                               .Where(i => i.LINE_ID == lineid);
+
 
             OnGetLineByLineId(ref items);
 
@@ -1810,6 +2329,7 @@ namespace Aldebaran.Web
 
             OnLineDeleted(itemToDelete);
 
+
             Context.Lines.Remove(itemToDelete);
 
             try
@@ -1843,6 +2363,7 @@ namespace Aldebaran.Web
         {
             var items = Context.MeasureUnits.AsQueryable();
 
+
             if (query != null)
             {
                 if (!string.IsNullOrEmpty(query.Expand))
@@ -1865,11 +2386,13 @@ namespace Aldebaran.Web
         partial void OnMeasureUnitGet(Models.AldebaranDb.MeasureUnit item);
         partial void OnGetMeasureUnitByMeasureUnitId(ref IQueryable<Models.AldebaranDb.MeasureUnit> items);
 
+
         public async Task<Models.AldebaranDb.MeasureUnit> GetMeasureUnitByMeasureUnitId(short measureunitid)
         {
             var items = Context.MeasureUnits
                               .AsNoTracking()
                               .Where(i => i.MEASURE_UNIT_ID == measureunitid);
+
 
             OnGetMeasureUnitByMeasureUnitId(ref items);
 
@@ -1967,6 +2490,7 @@ namespace Aldebaran.Web
 
             OnMeasureUnitDeleted(itemToDelete);
 
+
             Context.MeasureUnits.Remove(itemToDelete);
 
             try
@@ -2024,6 +2548,7 @@ namespace Aldebaran.Web
 
         partial void OnShipmentForwarderAgentMethodGet(Models.AldebaranDb.ShipmentForwarderAgentMethod item);
         partial void OnGetShipmentForwarderAgentMethodByShipmentForwarderAgentMethodId(ref IQueryable<Models.AldebaranDb.ShipmentForwarderAgentMethod> items);
+
 
         public async Task<Models.AldebaranDb.ShipmentForwarderAgentMethod> GetShipmentForwarderAgentMethodByShipmentForwarderAgentMethodId(short shipmentforwarderagentmethodid)
         {
@@ -2130,6 +2655,7 @@ namespace Aldebaran.Web
 
             OnShipmentForwarderAgentMethodDeleted(itemToDelete);
 
+
             Context.ShipmentForwarderAgentMethods.Remove(itemToDelete);
 
             try
@@ -2163,6 +2689,7 @@ namespace Aldebaran.Web
         {
             var items = Context.ShipmentMethods.AsQueryable();
 
+
             if (query != null)
             {
                 if (!string.IsNullOrEmpty(query.Expand))
@@ -2185,11 +2712,13 @@ namespace Aldebaran.Web
         partial void OnShipmentMethodGet(Models.AldebaranDb.ShipmentMethod item);
         partial void OnGetShipmentMethodByShipmentMethodId(ref IQueryable<Models.AldebaranDb.ShipmentMethod> items);
 
+
         public async Task<Models.AldebaranDb.ShipmentMethod> GetShipmentMethodByShipmentMethodId(short shipmentmethodid)
         {
             var items = Context.ShipmentMethods
                               .AsNoTracking()
                               .Where(i => i.SHIPMENT_METHOD_ID == shipmentmethodid);
+
 
             OnGetShipmentMethodByShipmentMethodId(ref items);
 
@@ -2287,6 +2816,7 @@ namespace Aldebaran.Web
 
             OnShipmentMethodDeleted(itemToDelete);
 
+
             Context.ShipmentMethods.Remove(itemToDelete);
 
             try
@@ -2320,6 +2850,7 @@ namespace Aldebaran.Web
         {
             var items = Context.ShippingMethods.AsQueryable();
 
+
             if (query != null)
             {
                 if (!string.IsNullOrEmpty(query.Expand))
@@ -2342,11 +2873,13 @@ namespace Aldebaran.Web
         partial void OnShippingMethodGet(Models.AldebaranDb.ShippingMethod item);
         partial void OnGetShippingMethodByShippingMethodId(ref IQueryable<Models.AldebaranDb.ShippingMethod> items);
 
+
         public async Task<Models.AldebaranDb.ShippingMethod> GetShippingMethodByShippingMethodId(short shippingmethodid)
         {
             var items = Context.ShippingMethods
                               .AsNoTracking()
                               .Where(i => i.SHIPPING_METHOD_ID == shippingmethodid);
+
 
             OnGetShippingMethodByShippingMethodId(ref items);
 
@@ -2443,6 +2976,7 @@ namespace Aldebaran.Web
             }
 
             OnShippingMethodDeleted(itemToDelete);
+
 
             Context.ShippingMethods.Remove(itemToDelete);
 

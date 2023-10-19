@@ -16,13 +16,13 @@
         <RadzenColumn Size="12">
             <RadzenText Text="Transportadoras" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
         </RadzenColumn>
-        <RadzenColumn Size="12">            
+        <RadzenColumn Size="12">
             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
                 <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddButtonClick" Variant="Variant.Flat" />
             </RadzenStack>
         </RadzenColumn>
     </RadzenRow>
-    <RadzenTextBox Placeholder="Search ..." style="display: block; width: 100%" @oninput="@Search" />
+    <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
     <RadzenRow>
         <RadzenColumn SizeMD=12>
             <RadzenDataGrid @ref="grid0" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
@@ -128,10 +128,9 @@
                                                 </Template>
                                             </RadzenDataGridColumn>
                                         </Columns>
-                                    </RadzenDataGrid>                                    
+                                    </RadzenDataGrid>
                                 </RadzenStack>
                             </Template>
-
 
                         </RadzenDataGrid>
                     </RadzenStack>

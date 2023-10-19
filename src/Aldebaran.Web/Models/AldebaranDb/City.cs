@@ -18,6 +18,8 @@ namespace Aldebaran.Web.Models.AldebaranDb
 
         public Department Department { get; set; }
 
+        public ICollection<Customer> Customers { get; set; }
+
         public ICollection<ForwarderAgent> ForwarderAgents { get; set; }
 
         public ICollection<Forwarder> Forwarders { get; set; }

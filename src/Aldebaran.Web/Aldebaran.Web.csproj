@@ -11,6 +11,9 @@
     <None Remove="wwwroot\js\**" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Models\AldebaranDb\Forwarder.cs~RF1dbd8670.TMP" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Radzen.Blazor" Version="*" />
     <PackageReference Include="DocumentFormat.OpenXml" Version="2.20.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.0" />
@@ -19,5 +22,8 @@
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.HeaderPropagation" Version="7.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.OData" Version="8.0.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Pages\CustomerPages\" />
   </ItemGroup>
 </Project>

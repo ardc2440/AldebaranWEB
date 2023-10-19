@@ -7,7 +7,7 @@ using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.ForwarderPages
 {
-    public partial class Forwarders
+    public partial class Forwarders : ComponentBase
     {
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
@@ -143,9 +143,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
                 if (await DialogService.Confirm("Está seguro que desea eliminar este agente?") == true)
                 {
                     var deleteResult = await AldebaranDbService.DeleteForwarderAgent(forwarderAgent.FORWARDER_AGENT_ID);
-
                     await GetChildData(forwarder);
-
                     if (deleteResult != null)
                     {
                         dialogResult = new DialogResult { Success = true, Message = "Agente eliminado correctamente." };
