@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using Radzen;
 
-namespace Aldebaran.Web.Pages
+namespace Aldebaran.Web.Pages.CustomerPages
 {
     public partial class AddCustomerContact
     {

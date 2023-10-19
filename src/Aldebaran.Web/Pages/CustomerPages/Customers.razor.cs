@@ -1,15 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.JSInterop;
+﻿using Aldebaran.Web.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using Radzen;
 using Radzen.Blazor;
-using Aldebaran.Web.Models;
 
-namespace Aldebaran.Web.Pages
+namespace Aldebaran.Web.Pages.CustomerPages
 {
     public partial class Customers
     {
@@ -58,7 +54,7 @@ namespace Aldebaran.Web.Pages
         protected async Task AddButtonClick(MouseEventArgs args)
         {
             dialogResult = null;
-            var result =await DialogService.OpenAsync<AddCustomer>("Nuevo cliente");
+            var result = await DialogService.OpenAsync<AddCustomer>("Nuevo cliente");
             if (result == true)
             {
                 dialogResult = new DialogResult { Success = true, Message = "Cliente creado correctamente." };
@@ -69,7 +65,7 @@ namespace Aldebaran.Web.Pages
         protected async Task EditRow(Models.AldebaranDb.Customer args)
         {
             dialogResult = null;
-            var result = await DialogService.OpenAsync<EditCustomer>("Actualizar cliente", new Dictionary<string, object> { {"CUSTOMER_ID", args.CUSTOMER_ID} });
+            var result = await DialogService.OpenAsync<EditCustomer>("Actualizar cliente", new Dictionary<string, object> { { "CUSTOMER_ID", args.CUSTOMER_ID } });
             if (result == true)
             {
                 dialogResult = new DialogResult { Success = true, Message = "Cliente actualizado correctamente." };
@@ -86,7 +82,7 @@ namespace Aldebaran.Web.Pages
                     var deleteResult = await AldebaranDbService.DeleteCustomer(customer.CUSTOMER_ID);
                     if (deleteResult != null)
                     {
-                         dialogResult = new DialogResult { Success = true, Message = "Cliente eliminado correctamente." };
+                        dialogResult = new DialogResult { Success = true, Message = "Cliente eliminado correctamente." };
                         await grid0.Reload();
                     }
                 }
@@ -101,7 +97,7 @@ namespace Aldebaran.Web.Pages
                 });
             }
         }
-        
+
         protected async Task GetChildData(Models.AldebaranDb.Customer args)
         {
             customer = args;
@@ -110,12 +106,12 @@ namespace Aldebaran.Web.Pages
             {
                 args.CustomerContacts = CustomerContactsResult.ToList();
             }
-        }  
+        }
 
         protected async Task CustomerContactsAddButtonClick(MouseEventArgs args, Models.AldebaranDb.Customer data)
         {
             dialogResult = null;
-            var result = await DialogService.OpenAsync<AddCustomerContact>("Nuevo contacto", new Dictionary<string, object> { {"CUSTOMER_ID" , data.CUSTOMER_ID} });
+            var result = await DialogService.OpenAsync<AddCustomerContact>("Nuevo contacto", new Dictionary<string, object> { { "CUSTOMER_ID", data.CUSTOMER_ID } });
             if (result == true)
             {
                 dialogResult = new DialogResult { Success = true, Message = "Contacto creado correctamente." };
@@ -127,7 +123,7 @@ namespace Aldebaran.Web.Pages
         protected async Task EditChildRow(Models.AldebaranDb.CustomerContact args, Models.AldebaranDb.Customer data)
         {
             dialogResult = null;
-            var result =  await DialogService.OpenAsync<EditCustomerContact>("Actualizar contacto", new Dictionary<string, object> { {"CUSTOMER_CONTACT_ID", args.CUSTOMER_CONTACT_ID} });
+            var result = await DialogService.OpenAsync<EditCustomerContact>("Actualizar contacto", new Dictionary<string, object> { { "CUSTOMER_CONTACT_ID", args.CUSTOMER_CONTACT_ID } });
             if (result == true)
             {
                 dialogResult = new DialogResult { Success = true, Message = "Contacto actualizado correctamente." };
