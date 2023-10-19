@@ -1,12 +1,11 @@
-using Aldebaran.Web.Models.AldebaranDb;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using Radzen;
 
-namespace Aldebaran.Web.Pages
+namespace Aldebaran.Web.Pages.CustomerPages
 {
-    public partial class AddCustomerContact
+    public partial class AddCustomer
     {
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
@@ -32,21 +31,15 @@ namespace Aldebaran.Web.Pages
         [Inject]
         protected SecurityService Security { get; set; }
 
-        [Parameter]
-        public int CUSTOMER_ID { get; set; }
         protected bool errorVisible;
-        protected CustomerContact customerContact;
-        protected Customer customer;
-        protected City city;
+        protected Models.AldebaranDb.Customer customer;
+        protected IEnumerable<Models.AldebaranDb.IdentityType> identityTypesForIDENTITYTYPEID;
         protected bool isSubmitInProgress;
 
         protected override async Task OnInitializedAsync()
         {
-            customer = await AldebaranDbService.GetCustomerByCustomerId(CUSTOMER_ID);
-            var selectedCity = await AldebaranDbService.GetCities(new Query { Filter = "i=>i.CITY_ID == @0", FilterParameters = new object[] { customer.CITY_ID }, Expand = "Department.Country" });
-            city = selectedCity.Single();
-            customerContact = new CustomerContact();
-            customerContact.CUSTOMER_ID = CUSTOMER_ID;
+            customer = new Models.AldebaranDb.Customer();
+            identityTypesForIDENTITYTYPEID = await AldebaranDbService.GetIdentityTypes();
         }
 
         protected async Task FormSubmit()
@@ -54,7 +47,7 @@ namespace Aldebaran.Web.Pages
             try
             {
                 isSubmitInProgress = true;
-                await AldebaranDbService.CreateCustomerContact(customerContact);
+                await AldebaranDbService.CreateCustomer(customer);
                 DialogService.Close(true);
             }
             catch (Exception ex)
@@ -67,6 +60,10 @@ namespace Aldebaran.Web.Pages
             }
         }
 
+        protected async Task LocalizationHandler(Models.AldebaranDb.City city)
+        {
+            customer.CITY_ID = city?.CITY_ID ?? 0;
+        }
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
             DialogService.Close(null);

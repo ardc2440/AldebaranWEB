@@ -46,5 +46,7 @@ namespace Aldebaran.Web.Models.AldebaranDb
 
         public Item Item { get; set; }
 
+        public ICollection<ProviderReference> ProviderReferences { get; set; }
+
     }
 }

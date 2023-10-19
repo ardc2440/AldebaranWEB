@@ -265,5 +265,33 @@ namespace Aldebaran.Web.Controllers
         {
             return ToExcel(ApplyQuery(await service.GetShippingMethods(), Request.Query), fileName);
         }
+
+        [HttpGet("/export/AldebaranDb/providers/csv")]
+        [HttpGet("/export/AldebaranDb/providers/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportProvidersToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetProviders(), Request.Query), fileName);
+        }
+
+        [HttpGet("/export/AldebaranDb/providers/excel")]
+        [HttpGet("/export/AldebaranDb/providers/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportProvidersToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetProviders(), Request.Query), fileName);
+        }
+
+        [HttpGet("/export/AldebaranDb/providerreferences/csv")]
+        [HttpGet("/export/AldebaranDb/providerreferences/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportProviderReferencesToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetProviderReferences(), Request.Query), fileName);
+        }
+
+        [HttpGet("/export/AldebaranDb/providerreferences/excel")]
+        [HttpGet("/export/AldebaranDb/providerreferences/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportProviderReferencesToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetProviderReferences(), Request.Query), fileName);
+        }
     }
 }

@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using Radzen;
 
-namespace Aldebaran.Web.Pages
+namespace Aldebaran.Web.Pages.ProviderPages
 {
-    public partial class AddCustomer
+    public partial class AddProvider
     {
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
@@ -32,13 +32,13 @@ namespace Aldebaran.Web.Pages
         protected SecurityService Security { get; set; }
 
         protected bool errorVisible;
-        protected Models.AldebaranDb.Customer customer;
+        protected Models.AldebaranDb.Provider provider;
         protected IEnumerable<Models.AldebaranDb.IdentityType> identityTypesForIDENTITYTYPEID;
         protected bool isSubmitInProgress;
 
         protected override async Task OnInitializedAsync()
         {
-            customer = new Models.AldebaranDb.Customer();
+            provider = new Models.AldebaranDb.Provider();
             identityTypesForIDENTITYTYPEID = await AldebaranDbService.GetIdentityTypes();
         }
 
@@ -47,7 +47,7 @@ namespace Aldebaran.Web.Pages
             try
             {
                 isSubmitInProgress = true;
-                await AldebaranDbService.CreateCustomer(customer);
+                await AldebaranDbService.CreateProvider(provider);
                 DialogService.Close(true);
             }
             catch (Exception ex)
@@ -62,7 +62,7 @@ namespace Aldebaran.Web.Pages
 
         protected async Task LocalizationHandler(Models.AldebaranDb.City city)
         {
-            customer.CITY_ID = city?.CITY_ID ?? 0;
+            provider.CITY_ID = city?.CITY_ID ?? 0;
         }
         protected async Task CancelButtonClick(MouseEventArgs args)
         {

@@ -24,5 +24,7 @@ namespace Aldebaran.Web.Models.AldebaranDb
 
         public ICollection<Forwarder> Forwarders { get; set; }
 
+        public ICollection<Provider> Providers { get; set; }
+
     }
 }

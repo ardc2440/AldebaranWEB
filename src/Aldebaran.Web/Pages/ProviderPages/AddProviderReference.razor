@@ -1,0 +1,44 @@
+@page "/add-provider-reference"
+
+@attribute [Authorize]
+
+<PageTitle>Agregar referencia al proveedor</PageTitle>
+<RadzenColumn SizeMD=12>
+    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">No se ha podido agregar la referencia al proveedor</RadzenAlert>
+    <RadzenTemplateForm TItem="Aldebaran.Web.Models.AldebaranDb.ProviderReference" Data="@providerReference" Visible="@(providerReference != null)" Submit="@FormSubmit">
+        <RadzenStack>
+            <div class="flex-shrink-0">
+                <div class="text-primary-color" style="font-size: 16px">
+                    <RadzenLabel Text="Nombre: " Style="font-weight: bold" />
+                    <RadzenLabel Text="@provider.PROVIDER_NAME" />
+                </div>
+                <div class="text-secondary-color">
+                    <RadzenLabel Text="Código: " />
+                    <RadzenLabel Text="@provider.PROVIDER_CODE" />
+                </div>
+            </div>
+            <RadzenFormField Text="Referencia" Variant="Variant.Text">
+                <ChildContent>
+                    <RadzenDropDownDataGrid Data="@itemReferencesForREFERENCEID" TextProperty="REFERENCE_NAME" ValueProperty="REFERENCE_ID" AllowClear=true
+                                            style="display: block; width: 100%" @bind-Value="@providerReference.REFERENCE_ID" Name="REFERENCE_ID" AllowFilteringByWord="true">
+                        <Columns>
+                            <RadzenDropDownDataGridColumn Property="REFERENCE_CODE" Title="Referencia" />
+                            <RadzenDropDownDataGridColumn Property="PROVIDER_REFERENCE_CODE" Title="Referencia proveedor" />
+                            <RadzenDropDownDataGridColumn Property="REFERENCE_NAME" Title="Nombre" />
+                            <RadzenDropDownDataGridColumn Property="PROVIDER_REFERENCE_NAME" Title="Nombre referencia proveedor" />
+                            <RadzenDropDownDataGridColumn Property="IS_ACTIVE" Title="Activo" />
+                        </Columns>
+                    </RadzenDropDownDataGrid>
+                </ChildContent>
+                <Helper>
+                    <RadzenNumericRangeValidator Component="REFERENCE_ID" Min="1" Text="Referencia es requerida" />
+                </Helper>
+            </RadzenFormField>
+        </RadzenStack>
+        <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+            <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@isSubmitInProgress" />
+            <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
+        </RadzenStack>
+    </RadzenTemplateForm>
+</RadzenColumn>
+

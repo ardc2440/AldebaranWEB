@@ -10,16 +10,17 @@
         <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger">@dialogResult.Message</RadzenAlert>
     }
     <RadzenRow AlignItems="AlignItems.Center">
-        <RadzenColumn Size="12" SizeMD="6">
+        <RadzenColumn Size="12">
             <RadzenText Text="Artículos" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
         </RadzenColumn>
-        <RadzenColumn Size="12" SizeMD="6">
-            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+        <RadzenColumn Size="12">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
+                <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddButtonClick" Variant="Variant.Flat" />
                 <RadzenSplitButton Icon="get_app" Text="Exportar" Click="@ExportClick" Variant="Variant.Flat" Shade="Shade.Lighter">
                     <RadzenSplitButtonItem Text="Excel" Value="xlsx" />
                     <RadzenSplitButtonItem Text="CSV" Value="csv" />
                 </RadzenSplitButton>
-                <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddButtonClick" Variant="Variant.Flat" />
+                
             </RadzenStack>
         </RadzenColumn>
     </RadzenRow>
