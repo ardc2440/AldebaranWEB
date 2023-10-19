@@ -19,7 +19,7 @@
     <RadzenRow>
         <RadzenColumn SizeMD=12>
             <RadzenDataGrid @ref="grid0" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                            Data="@areas" TItem="Aldebaran.Web.Models.AldebaranDb.Area" RowExpand=@GetChildData>
+                            Data="@areas" TItem="Aldebaran.Web.Models.AldebaranDb.Area" RowExpand=@GetChildData ExpandMode="Radzen.DataGridExpandMode.Single">
                 <Columns>
                     <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Area" Property="AREA_CODE" Title="Código">
                     </RadzenDataGridColumn>
@@ -89,7 +89,7 @@
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemsArea" Property="Item.MeasureUnit1.MEASURE_UNIT_NAME" Title="Unidad CIF" Visible="false">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemsArea" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false">
+                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemsArea" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false">
                                     <Template Context="itemsAreaChild">
                                         <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Shade="Shade.Lighter" Variant="Variant.Flat"
                                                       Click=@(args => ItemsAreasDeleteButtonClick(args, itemsAreaChild)) @onclick:stopPropagation="true" />

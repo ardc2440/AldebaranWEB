@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using Radzen;
 
-namespace Aldebaran.Web.Pages.CustomerPages
+namespace Aldebaran.Web.Pages.ProviderPages
 {
-    public partial class EditCustomer
+    public partial class AddProviderReference
     {
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
@@ -32,16 +32,21 @@ namespace Aldebaran.Web.Pages.CustomerPages
         protected SecurityService Security { get; set; }
 
         [Parameter]
-        public int CUSTOMER_ID { get; set; }
+        public int PROVIDER_ID { get; set; }
+
         protected bool errorVisible;
-        protected Models.AldebaranDb.Customer customer;
-        protected IEnumerable<Models.AldebaranDb.IdentityType> identityTypesForIDENTITYTYPEID;
+        protected Models.AldebaranDb.ProviderReference providerReference;
+        protected Models.AldebaranDb.Provider provider;
+        protected IEnumerable<Models.AldebaranDb.ItemReference> itemReferencesForREFERENCEID;
         protected bool isSubmitInProgress;
 
         protected override async Task OnInitializedAsync()
         {
-            customer = await AldebaranDbService.GetCustomerByCustomerId(CUSTOMER_ID);
-            identityTypesForIDENTITYTYPEID = await AldebaranDbService.GetIdentityTypes();
+            provider = await AldebaranDbService.GetProviderByProviderId(PROVIDER_ID);
+            var currentReferencesInProvider = await AldebaranDbService.GetProviderReferences(new Query { Filter = $"@i => i.PROVIDER_ID == @0", FilterParameters = new object[] { PROVIDER_ID } });
+            itemReferencesForREFERENCEID = await AldebaranDbService.GetItemReferences(new Query { Filter = $"@i => !@0.Contains(i.REFERENCE_ID)", FilterParameters = new object[] { currentReferencesInProvider.Select(s => s.REFERENCE_ID) } });
+            providerReference = new Models.AldebaranDb.ProviderReference();
+            providerReference.PROVIDER_ID = PROVIDER_ID;
         }
 
         protected async Task FormSubmit()
@@ -49,7 +54,7 @@ namespace Aldebaran.Web.Pages.CustomerPages
             try
             {
                 isSubmitInProgress = true;
-                await AldebaranDbService.UpdateCustomer(CUSTOMER_ID, customer);
+                await AldebaranDbService.CreateProviderReference(providerReference);
                 DialogService.Close(true);
             }
             catch (Exception ex)
@@ -60,11 +65,6 @@ namespace Aldebaran.Web.Pages.CustomerPages
             {
                 isSubmitInProgress = false;
             }
-        }
-
-        protected async Task LocalizationHandler(Models.AldebaranDb.City city)
-        {
-            customer.CITY_ID = city?.CITY_ID ?? 0;
         }
 
         protected async Task CancelButtonClick(MouseEventArgs args)

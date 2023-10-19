@@ -18,5 +18,7 @@ namespace Aldebaran.Web.Models.AldebaranDb
 
         public ICollection<Customer> Customers { get; set; }
 
+        public ICollection<Provider> Providers { get; set; }
+
     }
 }

@@ -2994,5 +2994,335 @@ namespace Aldebaran.Web
 
             return itemToDelete;
         }
+
+        public async Task ExportProvidersToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/providers/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/providers/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportProvidersToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/providers/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/providers/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnProvidersRead(ref IQueryable<Models.AldebaranDb.Provider> items);
+
+        public async Task<IQueryable<Models.AldebaranDb.Provider>> GetProviders(Query query = null)
+        {
+            var items = Context.Providers.AsQueryable();
+
+            items = items.Include(i => i.City);
+            items = items.Include(i => i.IdentityType);
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach (var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnProvidersRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnProviderGet(Models.AldebaranDb.Provider item);
+        partial void OnGetProviderByProviderId(ref IQueryable<Models.AldebaranDb.Provider> items);
+
+
+        public async Task<Models.AldebaranDb.Provider> GetProviderByProviderId(int providerid)
+        {
+            var items = Context.Providers
+                              .AsNoTracking()
+                              .Where(i => i.PROVIDER_ID == providerid);
+
+            items = items.Include(i => i.City);
+            items = items.Include(i => i.IdentityType);
+
+            OnGetProviderByProviderId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnProviderGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnProviderCreated(Models.AldebaranDb.Provider item);
+        partial void OnAfterProviderCreated(Models.AldebaranDb.Provider item);
+
+        public async Task<Models.AldebaranDb.Provider> CreateProvider(Models.AldebaranDb.Provider provider)
+        {
+            OnProviderCreated(provider);
+
+            var existingItem = Context.Providers
+                              .Where(i => i.PROVIDER_ID == provider.PROVIDER_ID)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+                throw new Exception("Item already available");
+            }
+
+            try
+            {
+                Context.Providers.Add(provider);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(provider).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterProviderCreated(provider);
+
+            return provider;
+        }
+
+        public async Task<Models.AldebaranDb.Provider> CancelProviderChanges(Models.AldebaranDb.Provider item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+                entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+                entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnProviderUpdated(Models.AldebaranDb.Provider item);
+        partial void OnAfterProviderUpdated(Models.AldebaranDb.Provider item);
+
+        public async Task<Models.AldebaranDb.Provider> UpdateProvider(int providerid, Models.AldebaranDb.Provider provider)
+        {
+            OnProviderUpdated(provider);
+
+            var itemToUpdate = Context.Providers
+                              .Where(i => i.PROVIDER_ID == provider.PROVIDER_ID)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            var entryToUpdate = Context.Entry(itemToUpdate);
+            entryToUpdate.CurrentValues.SetValues(provider);
+            entryToUpdate.State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterProviderUpdated(provider);
+
+            return provider;
+        }
+
+        partial void OnProviderDeleted(Models.AldebaranDb.Provider item);
+        partial void OnAfterProviderDeleted(Models.AldebaranDb.Provider item);
+
+        public async Task<Models.AldebaranDb.Provider> DeleteProvider(int providerid)
+        {
+            var itemToDelete = Context.Providers
+                              .Where(i => i.PROVIDER_ID == providerid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            OnProviderDeleted(itemToDelete);
+
+
+            Context.Providers.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterProviderDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+
+        public async Task ExportProviderReferencesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/providerreferences/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/providerreferences/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportProviderReferencesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/providerreferences/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/providerreferences/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnProviderReferencesRead(ref IQueryable<Models.AldebaranDb.ProviderReference> items);
+
+        public async Task<IQueryable<Models.AldebaranDb.ProviderReference>> GetProviderReferences(Query query = null)
+        {
+            var items = Context.ProviderReferences.AsQueryable();
+
+            items = items.Include(i => i.Provider);
+            items = items.Include(i => i.ItemReference);
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach (var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnProviderReferencesRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnProviderReferenceGet(Models.AldebaranDb.ProviderReference item);
+        partial void OnGetProviderReferenceByReferenceIdAndProviderId(ref IQueryable<Models.AldebaranDb.ProviderReference> items);
+
+
+        public async Task<Models.AldebaranDb.ProviderReference> GetProviderReferenceByReferenceIdAndProviderId(int referenceid, int providerid)
+        {
+            var items = Context.ProviderReferences
+                              .AsNoTracking()
+                              .Where(i => i.REFERENCE_ID == referenceid && i.PROVIDER_ID == providerid);
+
+            items = items.Include(i => i.Provider);
+            items = items.Include(i => i.ItemReference);
+
+            OnGetProviderReferenceByReferenceIdAndProviderId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnProviderReferenceGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnProviderReferenceCreated(Models.AldebaranDb.ProviderReference item);
+        partial void OnAfterProviderReferenceCreated(Models.AldebaranDb.ProviderReference item);
+
+        public async Task<Models.AldebaranDb.ProviderReference> CreateProviderReference(Models.AldebaranDb.ProviderReference providerreference)
+        {
+            OnProviderReferenceCreated(providerreference);
+
+            var existingItem = Context.ProviderReferences
+                              .Where(i => i.REFERENCE_ID == providerreference.REFERENCE_ID && i.PROVIDER_ID == providerreference.PROVIDER_ID)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+                throw new Exception("Item already available");
+            }
+
+            try
+            {
+                Context.ProviderReferences.Add(providerreference);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(providerreference).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterProviderReferenceCreated(providerreference);
+
+            return providerreference;
+        }
+
+        public async Task<Models.AldebaranDb.ProviderReference> CancelProviderReferenceChanges(Models.AldebaranDb.ProviderReference item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+                entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+                entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnProviderReferenceUpdated(Models.AldebaranDb.ProviderReference item);
+        partial void OnAfterProviderReferenceUpdated(Models.AldebaranDb.ProviderReference item);
+
+        public async Task<Models.AldebaranDb.ProviderReference> UpdateProviderReference(int referenceid, int providerid, Models.AldebaranDb.ProviderReference providerreference)
+        {
+            OnProviderReferenceUpdated(providerreference);
+
+            var itemToUpdate = Context.ProviderReferences
+                              .Where(i => i.REFERENCE_ID == providerreference.REFERENCE_ID && i.PROVIDER_ID == providerreference.PROVIDER_ID)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            var entryToUpdate = Context.Entry(itemToUpdate);
+            entryToUpdate.CurrentValues.SetValues(providerreference);
+            entryToUpdate.State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterProviderReferenceUpdated(providerreference);
+
+            return providerreference;
+        }
+
+        partial void OnProviderReferenceDeleted(Models.AldebaranDb.ProviderReference item);
+        partial void OnAfterProviderReferenceDeleted(Models.AldebaranDb.ProviderReference item);
+
+        public async Task<Models.AldebaranDb.ProviderReference> DeleteProviderReference(int referenceid, int providerid)
+        {
+            var itemToDelete = Context.ProviderReferences
+                              .Where(i => i.REFERENCE_ID == referenceid && i.PROVIDER_ID == providerid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            OnProviderReferenceDeleted(itemToDelete);
+
+
+            Context.ProviderReferences.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterProviderReferenceDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
     }
 }

@@ -55,7 +55,7 @@ namespace Aldebaran.Web.Pages.AreaPages
         {
             try
             {
-                if (await DialogService.Confirm("Are you sure you want to delete this record?") == true)
+                if (await DialogService.Confirm("Está seguro que desea eliminar esta área?") == true)
                 {
                     var deleteResult = await AldebaranDbService.DeleteArea(area.AREA_ID);
                     if (deleteResult != null)
@@ -70,7 +70,7 @@ namespace Aldebaran.Web.Pages.AreaPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"Unable to delete Area"
+                    Detail = $"No se ha podido eliminar el área"
                 });
             }
         }
@@ -102,7 +102,7 @@ namespace Aldebaran.Web.Pages.AreaPages
             try
             {
                 dialogResult = null;
-                if (await DialogService.Confirm("Está seguro que desea eliminar esta artículo del área??") == true)
+                if (await DialogService.Confirm("Está seguro que desea eliminar esta artículo del área?") == true)
                 {
                     var deleteResult = await AldebaranDbService.DeleteItemsArea(itemsArea.ITEM_ID, itemsArea.AREA_ID);
                     await GetChildData(area);
@@ -119,7 +119,7 @@ namespace Aldebaran.Web.Pages.AreaPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"Unable to delete ItemsArea"
+                    Detail = $"No se ha podido eliminar el artículo del área"
                 });
             }
         }
