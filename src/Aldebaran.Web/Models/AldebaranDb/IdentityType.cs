@@ -20,5 +20,7 @@ namespace Aldebaran.Web.Models.AldebaranDb
 
         public ICollection<Provider> Providers { get; set; }
 
+        public ICollection<Aspnetuser> Aspnetusers { get; set; }
+
     }
 }

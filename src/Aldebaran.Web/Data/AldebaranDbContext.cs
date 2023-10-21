@@ -1,3 +1,4 @@
+using Aldebaran.Web.Models.AldebaranDb;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.Web.Data
@@ -171,6 +172,76 @@ namespace Aldebaran.Web.Data
             builder.Entity<Models.AldebaranDb.Line>()
               .Property(p => p.IS_ACTIVE)
               .HasDefaultValueSql(@"((1))");
+
+            builder.Entity<Models.AldebaranDb.Adjustment>()
+              .HasOne(i => i.AdjustmentReason)
+              .WithMany(i => i.Adjustments)
+              .HasForeignKey(i => i.ADJUSTMENT_REASON_ID)
+              .HasPrincipalKey(i => i.ADJUSTMENT_REASON_ID);
+
+            builder.Entity<Models.AldebaranDb.Adjustment>()
+              .HasOne(i => i.AdjustmentType)
+              .WithMany(i => i.Adjustments)
+              .HasForeignKey(i => i.ADJUSTMENT_TYPE_ID)
+              .HasPrincipalKey(i => i.ADJUSTMENT_TYPE_ID);
+
+            builder.Entity<Models.AldebaranDb.Adjustment>()
+              .HasOne(i => i.Aspnetuser)
+              .WithMany(i => i.Adjustments)
+              .HasForeignKey(i => i.ASPNETUSER_ID)
+              .HasPrincipalKey(i => i.Id);
+
+            builder.Entity<Models.AldebaranDb.Adjustment>()
+             .Property(p => p.ADJUSTMENT_DATE)
+             .HasDefaultValueSql("GETDATE()");
+
+            builder.Entity<Models.AldebaranDb.Adjustment>()
+             .Property(p => p.CREATION_DATE)
+             .HasDefaultValueSql("GETDATE()");
+
+            builder.Entity<Models.AldebaranDb.AdjustmentDetail>()
+              .HasOne(i => i.Adjustment)
+              .WithMany(i => i.AdjustmentDetails)
+              .HasForeignKey(i => i.ADJUSTMENT_ID)
+              .HasPrincipalKey(i => i.ADJUSTMENT_ID);
+
+            builder.Entity<Models.AldebaranDb.AdjustmentDetail>()
+              .HasOne(i => i.ItemReference)
+              .WithMany(i => i.AdjustmentDetails)
+              .HasForeignKey(i => i.REFERENCE_ID)
+              .HasPrincipalKey(i => i.REFERENCE_ID);
+
+            builder.Entity<Models.AldebaranDb.AdjustmentDetail>()
+              .HasOne(i => i.Warehouse)
+              .WithMany(i => i.AdjustmentDetails)
+              .HasForeignKey(i => i.WAREHOUSE_ID)
+              .HasPrincipalKey(i => i.WAREHOUSE_ID);
+
+            builder.Entity<Models.AldebaranDb.Aspnetuser>()
+              .HasOne(i => i.Area)
+              .WithMany(i => i.Aspnetusers)
+              .HasForeignKey(i => i.AREA_ID)
+              .HasPrincipalKey(i => i.AREA_ID);
+
+            builder.Entity<Models.AldebaranDb.Aspnetuser>()
+              .HasOne(i => i.IdentityType)
+              .WithMany(i => i.Aspnetusers)
+              .HasForeignKey(i => i.IDENTITY_TYPE_ID)
+              .HasPrincipalKey(i => i.IDENTITY_TYPE_ID);
+
+            builder.Entity<Models.AldebaranDb.ReferencesWarehouse>()
+            .HasOne(i => i.Warehouse)
+            .WithMany(i => i.ReferencesWarehouses)
+            .HasForeignKey(i => i.WAREHOUSE_ID)
+            .HasPrincipalKey(i => i.WAREHOUSE_ID);
+
+            builder.Entity<Models.AldebaranDb.ReferencesWarehouse>()
+              .HasOne(i => i.ItemReference)
+              .WithMany(i => i.ReferencesWarehouses)
+              .HasForeignKey(i => i.REFERENCE_ID)
+              .HasPrincipalKey(i => i.REFERENCE_ID);
+
+
             this.OnModelBuilding(builder);
         }
 
@@ -214,6 +285,20 @@ namespace Aldebaran.Web.Data
 
         public DbSet<Models.AldebaranDb.ProviderReference> ProviderReferences { get; set; }
 
+        public DbSet<Models.AldebaranDb.Adjustment> Adjustments { get; set; }
+
+        public DbSet<Models.AldebaranDb.AdjustmentDetail> AdjustmentDetails { get; set; }
+
+        public DbSet<Models.AldebaranDb.AdjustmentReason> AdjustmentReasons { get; set; }
+
+        public DbSet<Models.AldebaranDb.AdjustmentType> AdjustmentTypes { get; set; }
+
+        public DbSet<Models.AldebaranDb.Aspnetuser> Aspnetusers { get; set; }
+
+        public DbSet<Models.AldebaranDb.Warehouse> Warehouses { get; set; }
+
+        public DbSet<Models.AldebaranDb.ReferencesWarehouse> ReferencesWarehouses{ get; set; }
+        
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {
             configurationBuilder.Conventions.Add(_ => new BlankTriggerAddingConvention());

@@ -19,6 +19,7 @@ namespace Aldebaran.Web
         }
 
         private readonly AldebaranDbContext context;
+
         private readonly NavigationManager navigationManager;
 
         public AldebaranDbService(AldebaranDbContext context, NavigationManager navigationManager)
@@ -62,7 +63,6 @@ namespace Aldebaran.Web
             }
         }
 
-
         public async Task ExportAreasToExcel(Query query = null, string fileName = null)
         {
             navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/areas/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/areas/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
@@ -102,7 +102,6 @@ namespace Aldebaran.Web
         partial void OnAreaGet(Models.AldebaranDb.Area item);
         partial void OnGetAreaByAreaId(ref IQueryable<Models.AldebaranDb.Area> items);
 
-
         public async Task<Models.AldebaranDb.Area> GetAreaByAreaId(short areaid)
         {
             var items = Context.Areas
@@ -120,6 +119,7 @@ namespace Aldebaran.Web
         }
 
         partial void OnAreaCreated(Models.AldebaranDb.Area item);
+
         partial void OnAfterAreaCreated(Models.AldebaranDb.Area item);
 
         public async Task<Models.AldebaranDb.Area> CreateArea(Models.AldebaranDb.Area area)
@@ -164,6 +164,7 @@ namespace Aldebaran.Web
         }
 
         partial void OnAreaUpdated(Models.AldebaranDb.Area item);
+
         partial void OnAfterAreaUpdated(Models.AldebaranDb.Area item);
 
         public async Task<Models.AldebaranDb.Area> UpdateArea(short areaid, Models.AldebaranDb.Area area)
@@ -191,7 +192,16 @@ namespace Aldebaran.Web
         }
 
         partial void OnAreaDeleted(Models.AldebaranDb.Area item);
+
+        partial void OnAdjustmentDeleted(Models.AldebaranDb.Adjustment item);
+
+        partial void OnAdjustmentDetailDeleted(Models.AldebaranDb.AdjustmentDetail item);
+
         partial void OnAfterAreaDeleted(Models.AldebaranDb.Area item);
+
+        partial void OnAfterAdjustmentDeleted(Models.AldebaranDb.Adjustment item);
+
+        partial void OnAfterAdjustmentDetailDeleted(Models.AldebaranDb.AdjustmentDetail item);
 
         public async Task<Models.AldebaranDb.Area> DeleteArea(short areaid)
         {
@@ -220,6 +230,68 @@ namespace Aldebaran.Web
             }
 
             OnAfterAreaDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+
+        public async Task<Models.AldebaranDb.Adjustment> DeleteAdjustment(int adjustmentId)
+        {
+            var itemToDelete = Context.Adjustments
+                              .Where(i => i.ADJUSTMENT_ID == adjustmentId)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            OnAdjustmentDeleted(itemToDelete);
+
+
+            Context.Adjustments.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterAdjustmentDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+
+        public async Task<Models.AldebaranDb.AdjustmentDetail> DeleteAdjustmentDetail(int adjustmentDetailId)
+        {
+            var itemToDelete = Context.AdjustmentDetails
+                              .Where(i => i.ADJUSTMENT_DETAIL_ID == adjustmentDetailId)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            OnAdjustmentDetailDeleted(itemToDelete);
+
+
+            Context.AdjustmentDetails.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterAdjustmentDetailDeleted(itemToDelete);
 
             return itemToDelete;
         }
@@ -262,8 +334,8 @@ namespace Aldebaran.Web
         }
 
         partial void OnCityGet(Models.AldebaranDb.City item);
-        partial void OnGetCityByCityId(ref IQueryable<Models.AldebaranDb.City> items);
 
+        partial void OnGetCityByCityId(ref IQueryable<Models.AldebaranDb.City> items);
 
         public async Task<Models.AldebaranDb.City> GetCityByCityId(int cityid)
         {
@@ -283,6 +355,7 @@ namespace Aldebaran.Web
         }
 
         partial void OnCityCreated(Models.AldebaranDb.City item);
+
         partial void OnAfterCityCreated(Models.AldebaranDb.City item);
 
         public async Task<Models.AldebaranDb.City> CreateCity(Models.AldebaranDb.City city)
@@ -327,6 +400,7 @@ namespace Aldebaran.Web
         }
 
         partial void OnCityUpdated(Models.AldebaranDb.City item);
+
         partial void OnAfterCityUpdated(Models.AldebaranDb.City item);
 
         public async Task<Models.AldebaranDb.City> UpdateCity(int cityid, Models.AldebaranDb.City city)
@@ -354,6 +428,7 @@ namespace Aldebaran.Web
         }
 
         partial void OnCityDeleted(Models.AldebaranDb.City item);
+
         partial void OnAfterCityDeleted(Models.AldebaranDb.City item);
 
         public async Task<Models.AldebaranDb.City> DeleteCity(int cityid)
@@ -424,8 +499,8 @@ namespace Aldebaran.Web
         }
 
         partial void OnCountryGet(Models.AldebaranDb.Country item);
-        partial void OnGetCountryByCountryId(ref IQueryable<Models.AldebaranDb.Country> items);
 
+        partial void OnGetCountryByCountryId(ref IQueryable<Models.AldebaranDb.Country> items);
 
         public async Task<Models.AldebaranDb.Country> GetCountryByCountryId(short countryid)
         {
@@ -444,6 +519,7 @@ namespace Aldebaran.Web
         }
 
         partial void OnCountryCreated(Models.AldebaranDb.Country item);
+
         partial void OnAfterCountryCreated(Models.AldebaranDb.Country item);
 
         public async Task<Models.AldebaranDb.Country> CreateCountry(Models.AldebaranDb.Country country)
@@ -488,6 +564,7 @@ namespace Aldebaran.Web
         }
 
         partial void OnCountryUpdated(Models.AldebaranDb.Country item);
+
         partial void OnAfterCountryUpdated(Models.AldebaranDb.Country item);
 
         public async Task<Models.AldebaranDb.Country> UpdateCountry(short countryid, Models.AldebaranDb.Country country)
@@ -515,6 +592,7 @@ namespace Aldebaran.Web
         }
 
         partial void OnCountryDeleted(Models.AldebaranDb.Country item);
+
         partial void OnAfterCountryDeleted(Models.AldebaranDb.Country item);
 
         public async Task<Models.AldebaranDb.Country> DeleteCountry(short countryid)
@@ -585,8 +663,8 @@ namespace Aldebaran.Web
         }
 
         partial void OnCurrencyGet(Models.AldebaranDb.Currency item);
-        partial void OnGetCurrencyByCurrencyId(ref IQueryable<Models.AldebaranDb.Currency> items);
 
+        partial void OnGetCurrencyByCurrencyId(ref IQueryable<Models.AldebaranDb.Currency> items);
 
         public async Task<Models.AldebaranDb.Currency> GetCurrencyByCurrencyId(short currencyid)
         {
@@ -605,6 +683,7 @@ namespace Aldebaran.Web
         }
 
         partial void OnCurrencyCreated(Models.AldebaranDb.Currency item);
+
         partial void OnAfterCurrencyCreated(Models.AldebaranDb.Currency item);
 
         public async Task<Models.AldebaranDb.Currency> CreateCurrency(Models.AldebaranDb.Currency currency)
@@ -649,6 +728,7 @@ namespace Aldebaran.Web
         }
 
         partial void OnCurrencyUpdated(Models.AldebaranDb.Currency item);
+
         partial void OnAfterCurrencyUpdated(Models.AldebaranDb.Currency item);
 
         public async Task<Models.AldebaranDb.Currency> UpdateCurrency(short currencyid, Models.AldebaranDb.Currency currency)
@@ -676,6 +756,7 @@ namespace Aldebaran.Web
         }
 
         partial void OnCurrencyDeleted(Models.AldebaranDb.Currency item);
+
         partial void OnAfterCurrencyDeleted(Models.AldebaranDb.Currency item);
 
         public async Task<Models.AldebaranDb.Currency> DeleteCurrency(short currencyid)
@@ -747,8 +828,8 @@ namespace Aldebaran.Web
         }
 
         partial void OnCustomerContactGet(Models.AldebaranDb.CustomerContact item);
-        partial void OnGetCustomerContactByCustomerContactId(ref IQueryable<Models.AldebaranDb.CustomerContact> items);
 
+        partial void OnGetCustomerContactByCustomerContactId(ref IQueryable<Models.AldebaranDb.CustomerContact> items);
 
         public async Task<Models.AldebaranDb.CustomerContact> GetCustomerContactByCustomerContactId(int customercontactid)
         {
@@ -768,6 +849,7 @@ namespace Aldebaran.Web
         }
 
         partial void OnCustomerContactCreated(Models.AldebaranDb.CustomerContact item);
+
         partial void OnAfterCustomerContactCreated(Models.AldebaranDb.CustomerContact item);
 
         public async Task<Models.AldebaranDb.CustomerContact> CreateCustomerContact(Models.AldebaranDb.CustomerContact customercontact)
@@ -812,6 +894,7 @@ namespace Aldebaran.Web
         }
 
         partial void OnCustomerContactUpdated(Models.AldebaranDb.CustomerContact item);
+
         partial void OnAfterCustomerContactUpdated(Models.AldebaranDb.CustomerContact item);
 
         public async Task<Models.AldebaranDb.CustomerContact> UpdateCustomerContact(int customercontactid, Models.AldebaranDb.CustomerContact customercontact)
@@ -839,6 +922,7 @@ namespace Aldebaran.Web
         }
 
         partial void OnCustomerContactDeleted(Models.AldebaranDb.CustomerContact item);
+
         partial void OnAfterCustomerContactDeleted(Models.AldebaranDb.CustomerContact item);
 
         public async Task<Models.AldebaranDb.CustomerContact> DeleteCustomerContact(int customercontactid)
@@ -911,8 +995,8 @@ namespace Aldebaran.Web
         }
 
         partial void OnCustomerGet(Models.AldebaranDb.Customer item);
-        partial void OnGetCustomerByCustomerId(ref IQueryable<Models.AldebaranDb.Customer> items);
 
+        partial void OnGetCustomerByCustomerId(ref IQueryable<Models.AldebaranDb.Customer> items);
 
         public async Task<Models.AldebaranDb.Customer> GetCustomerByCustomerId(int customerid)
         {
@@ -933,6 +1017,7 @@ namespace Aldebaran.Web
         }
 
         partial void OnCustomerCreated(Models.AldebaranDb.Customer item);
+
         partial void OnAfterCustomerCreated(Models.AldebaranDb.Customer item);
 
         public async Task<Models.AldebaranDb.Customer> CreateCustomer(Models.AldebaranDb.Customer customer)
@@ -977,6 +1062,7 @@ namespace Aldebaran.Web
         }
 
         partial void OnCustomerUpdated(Models.AldebaranDb.Customer item);
+
         partial void OnAfterCustomerUpdated(Models.AldebaranDb.Customer item);
 
         public async Task<Models.AldebaranDb.Customer> UpdateCustomer(int customerid, Models.AldebaranDb.Customer customer)
@@ -1004,6 +1090,7 @@ namespace Aldebaran.Web
         }
 
         partial void OnCustomerDeleted(Models.AldebaranDb.Customer item);
+
         partial void OnAfterCustomerDeleted(Models.AldebaranDb.Customer item);
 
         public async Task<Models.AldebaranDb.Customer> DeleteCustomer(int customerid)
@@ -1075,6 +1162,7 @@ namespace Aldebaran.Web
         }
 
         partial void OnDepartmentGet(Models.AldebaranDb.Department item);
+
         partial void OnGetDepartmentByDepartmentId(ref IQueryable<Models.AldebaranDb.Department> items);
 
 
@@ -1096,6 +1184,7 @@ namespace Aldebaran.Web
         }
 
         partial void OnDepartmentCreated(Models.AldebaranDb.Department item);
+
         partial void OnAfterDepartmentCreated(Models.AldebaranDb.Department item);
 
         public async Task<Models.AldebaranDb.Department> CreateDepartment(Models.AldebaranDb.Department department)
@@ -1140,6 +1229,7 @@ namespace Aldebaran.Web
         }
 
         partial void OnDepartmentUpdated(Models.AldebaranDb.Department item);
+
         partial void OnAfterDepartmentUpdated(Models.AldebaranDb.Department item);
 
         public async Task<Models.AldebaranDb.Department> UpdateDepartment(short departmentid, Models.AldebaranDb.Department department)
@@ -1539,6 +1629,9 @@ namespace Aldebaran.Web
         }
 
         partial void OnIdentityTypesRead(ref IQueryable<Models.AldebaranDb.IdentityType> items);
+        partial void OnAdjustmentReasonsRead(ref IQueryable<Models.AldebaranDb.AdjustmentReason> items);
+        partial void OnAdjustmentTypesRead(ref IQueryable<Models.AldebaranDb.AdjustmentType> items);
+        partial void OnAspNetUsersRead(ref IQueryable<Models.AldebaranDb.Aspnetuser> items);
 
         public async Task<IQueryable<Models.AldebaranDb.IdentityType>> GetIdentityTypes(Query query = null)
         {
@@ -1564,9 +1657,80 @@ namespace Aldebaran.Web
             return await Task.FromResult(items);
         }
 
+        public async Task<IQueryable<Models.AldebaranDb.AdjustmentReason>> GetAdjustmentReasons(Query query = null)
+        {
+            var items = Context.AdjustmentReasons.AsQueryable();
+
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach (var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnAdjustmentReasonsRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        public async Task<IQueryable<Models.AldebaranDb.AdjustmentType>> GetAdjustmentTypes(Query query = null)
+        {
+            var items = Context.AdjustmentTypes.AsQueryable();
+
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach (var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnAdjustmentTypesRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        public async Task<IQueryable<Models.AldebaranDb.Aspnetuser>> GetAspNetUsers(Query query = null)
+        {
+            var items = Context.Aspnetusers.AsQueryable();
+
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach (var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnAspNetUsersRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
         partial void OnIdentityTypeGet(Models.AldebaranDb.IdentityType item);
         partial void OnGetIdentityTypeByIdentityTypeId(ref IQueryable<Models.AldebaranDb.IdentityType> items);
-
 
         public async Task<Models.AldebaranDb.IdentityType> GetIdentityTypeByIdentityTypeId(int identitytypeid)
         {
@@ -3006,6 +3170,33 @@ namespace Aldebaran.Web
         }
 
         partial void OnProvidersRead(ref IQueryable<Models.AldebaranDb.Provider> items);
+        partial void OnAdjustmentsRead(ref IQueryable<Models.AldebaranDb.Adjustment> items);
+        partial void OnAdjustmentDetailsRead(ref IQueryable<Models.AldebaranDb.AdjustmentDetail> items);
+        partial void OnWarehousesRead(ref IQueryable<Models.AldebaranDb.Warehouse> items);
+        partial void OnAspnetusersRead(ref IQueryable<Models.AldebaranDb.Aspnetuser> items);
+
+        public async Task<IQueryable<Models.AldebaranDb.Warehouse>> GetWarehouses(Query query = null)
+        {
+            var items = Context.Warehouses.AsQueryable();
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach (var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnWarehousesRead(ref items);
+
+            return await Task.FromResult(items);
+        }
 
         public async Task<IQueryable<Models.AldebaranDb.Provider>> GetProviders(Query query = null)
         {
@@ -3033,9 +3224,96 @@ namespace Aldebaran.Web
             return await Task.FromResult(items);
         }
 
+        public async Task<IQueryable<Models.AldebaranDb.Aspnetuser>> GetAspnetusers(Query query = null)
+        {
+            var items = Context.Aspnetusers.AsQueryable();
+
+            items = items.Include(i => i.Area);
+            items = items.Include(i => i.IdentityType);
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach (var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnAspnetusersRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        public async Task<IQueryable<Models.AldebaranDb.Adjustment>> GetAdjustments(Query query = null)
+        {
+            var items = Context.Adjustments.AsQueryable();
+
+            items = items.Include(i => i.AdjustmentReason);
+            items = items.Include(i => i.AdjustmentType);
+            items = items.Include(i => i.Aspnetuser);
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach (var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnAdjustmentsRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        public async Task<IQueryable<Models.AldebaranDb.AdjustmentDetail>> GetAdjustmentDetails(Query query = null)
+        {
+            var items = Context.AdjustmentDetails.AsQueryable();
+
+            items = items.Include(i => i.ItemReference);
+            items = items.Include(i => i.Adjustment);
+            items = items.Include(i => i.Warehouse);
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach (var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnAdjustmentDetailsRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
         partial void OnProviderGet(Models.AldebaranDb.Provider item);
+        partial void OnAdjustmentGet(Models.AldebaranDb.Adjustment item);
+
+        partial void OnAdjustmentDetailGet(Models.AldebaranDb.AdjustmentDetail item);
+
         partial void OnGetProviderByProviderId(ref IQueryable<Models.AldebaranDb.Provider> items);
 
+        partial void OnGetAdjustmentByAdjustmentId(ref IQueryable<Models.AldebaranDb.Adjustment> items);
+
+        partial void OnGetAdjustmentDetailByAdjustmentDetailId(ref IQueryable<Models.AldebaranDb.AdjustmentDetail> items);
 
         public async Task<Models.AldebaranDb.Provider> GetProviderByProviderId(int providerid)
         {
@@ -3055,8 +3333,50 @@ namespace Aldebaran.Web
             return await Task.FromResult(itemToReturn);
         }
 
+        public async Task<Models.AldebaranDb.Adjustment> GetAdjustmentByAdjustmentId(int adjustmentId)
+        {
+            var items = Context.Adjustments
+                              .AsNoTracking()
+                              .Where(i => i.ADJUSTMENT_ID == adjustmentId);
+
+            items = items.Include(i => i.AdjustmentReason);
+            items = items.Include(i => i.AdjustmentType);
+            items = items.Include(i => i.Aspnetuser);
+
+            OnGetAdjustmentByAdjustmentId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnAdjustmentGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        public async Task<Models.AldebaranDb.AdjustmentDetail> GetAdjustmentDetailByAdjustmentDetailId(int adjustmentDetailId)
+        {
+            var items = Context.AdjustmentDetails
+                              .AsNoTracking()
+                              .Where(i => i.ADJUSTMENT_DETAIL_ID == adjustmentDetailId);
+
+            items = items.Include(i => i.Adjustment);
+            items = items.Include(i => i.ItemReference);
+            items = items.Include(i => i.Warehouse);
+
+            OnGetAdjustmentDetailByAdjustmentDetailId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnAdjustmentDetailGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+        
+        partial void OnAdjustmentDetailCreated(Models.AldebaranDb.AdjustmentDetail item);
+        partial void OnAdjustmentCreated(Models.AldebaranDb.Adjustment item);
         partial void OnProviderCreated(Models.AldebaranDb.Provider item);
         partial void OnAfterProviderCreated(Models.AldebaranDb.Provider item);
+        partial void OnAfterAdjustmentCreated(Models.AldebaranDb.Adjustment item);
+        partial void OnAfterAdjustmentDetailCreated(Models.AldebaranDb.AdjustmentDetail item);
 
         public async Task<Models.AldebaranDb.Provider> CreateProvider(Models.AldebaranDb.Provider provider)
         {
@@ -3087,6 +3407,64 @@ namespace Aldebaran.Web
             return provider;
         }
 
+        public async Task<Models.AldebaranDb.Adjustment> CreateAdjustment(Models.AldebaranDb.Adjustment adjustment)
+        {
+            OnAdjustmentCreated(adjustment);
+
+            var existingItem = Context.Adjustments
+                              .Where(i => i.ADJUSTMENT_ID == adjustment.ADJUSTMENT_ID)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+                throw new Exception("Item already available");
+            }
+
+            try
+            {
+                Context.Adjustments.Add(adjustment);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(adjustment).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterAdjustmentCreated(adjustment);
+
+            return adjustment;
+        }
+
+        public async Task<Models.AldebaranDb.AdjustmentDetail> CreateAdjustmentDetail(Models.AldebaranDb.AdjustmentDetail adjustmentDetail)
+        {
+            OnAdjustmentDetailCreated(adjustmentDetail);
+
+            var existingItem = Context.AdjustmentDetails
+                              .Where(i => i.ADJUSTMENT_DETAIL_ID == adjustmentDetail.ADJUSTMENT_DETAIL_ID)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+                throw new Exception("Item already available");
+            }
+
+            try
+            {
+                Context.AdjustmentDetails.Add(adjustmentDetail);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(adjustmentDetail).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterAdjustmentDetailCreated(adjustmentDetail);
+
+            return adjustmentDetail;
+        }
+
         public async Task<Models.AldebaranDb.Provider> CancelProviderChanges(Models.AldebaranDb.Provider item)
         {
             var entityToCancel = Context.Entry(item);
@@ -3100,7 +3478,11 @@ namespace Aldebaran.Web
         }
 
         partial void OnProviderUpdated(Models.AldebaranDb.Provider item);
+        partial void OnAdjustmentUpdated(Models.AldebaranDb.Adjustment item);
+        partial void OnAdjustmentDetailUpdated(Models.AldebaranDb.AdjustmentDetail item);
         partial void OnAfterProviderUpdated(Models.AldebaranDb.Provider item);
+        partial void OnAfterAdjustmentUpdated(Models.AldebaranDb.Adjustment item);
+        partial void OnAfterAdjustmentDetailUpdated(Models.AldebaranDb.AdjustmentDetail item);
 
         public async Task<Models.AldebaranDb.Provider> UpdateProvider(int providerid, Models.AldebaranDb.Provider provider)
         {
@@ -3124,6 +3506,54 @@ namespace Aldebaran.Web
             OnAfterProviderUpdated(provider);
 
             return provider;
+        }
+
+        public async Task<Models.AldebaranDb.Adjustment> UpdateAdjustment(int adjustmentId, Models.AldebaranDb.Adjustment adjustment)
+        {
+            OnAdjustmentUpdated(adjustment);
+
+            var itemToUpdate = Context.Adjustments
+                              .Where(i => i.ADJUSTMENT_ID == adjustment.ADJUSTMENT_ID)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            var entryToUpdate = Context.Entry(itemToUpdate);
+            entryToUpdate.CurrentValues.SetValues(adjustment);
+            entryToUpdate.State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterAdjustmentUpdated(adjustment);
+
+            return adjustment;
+        }
+
+        public async Task<Models.AldebaranDb.AdjustmentDetail> UpdateAdjustmentDetail(int adjustmentDetailId, Models.AldebaranDb.AdjustmentDetail adjustmentDetail)
+        {
+            OnAdjustmentDetailUpdated(adjustmentDetail);
+
+            var itemToUpdate = Context.AdjustmentDetails
+                              .Where(i => i.ADJUSTMENT_DETAIL_ID == adjustmentDetail.ADJUSTMENT_DETAIL_ID)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            var entryToUpdate = Context.Entry(itemToUpdate);
+            entryToUpdate.CurrentValues.SetValues(adjustmentDetail);
+            entryToUpdate.State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterAdjustmentDetailUpdated(adjustmentDetail);
+
+            return adjustmentDetail;
         }
 
         partial void OnProviderDeleted(Models.AldebaranDb.Provider item);

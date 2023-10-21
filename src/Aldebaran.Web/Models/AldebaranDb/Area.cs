@@ -20,5 +20,7 @@ namespace Aldebaran.Web.Models.AldebaranDb
 
         public ICollection<ItemsArea> ItemsAreas { get; set; }
 
+        public ICollection<Aspnetuser> Aspnetusers { get; set; }
+
     }
 }
