@@ -9,6 +9,7 @@ using Radzen;
 using Radzen.Blazor;
 using Aldebaran.Web.Pages.AdjustmentPages;
 using Aldebaran.Web.Models;
+using Aldebaran.Web.Pages.ForwarderPages;
 
 namespace Aldebaran.Web.Pages.AdjustmentPages
 {
@@ -141,6 +142,18 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         protected async Task AdjustmentDetailsRowSelect(Aldebaran.Web.Models.AldebaranDb.AdjustmentDetail args, Aldebaran.Web.Models.AldebaranDb.Adjustment data)
         {
             var dialogResult = await DialogService.OpenAsync<EditAdjustmentDetail>("Edit AdjustmentDetails", new Dictionary<string, object> { {"ADJUSTMENT_DETAIL_ID", args.ADJUSTMENT_DETAIL_ID} });
+            await GetChildData(data);
+            await AdjustmentDetailsDataGrid.Reload();
+        }
+
+        protected async Task EditChildRow(Models.AldebaranDb.AdjustmentDetail args, Models.AldebaranDb.Adjustment data)
+        {
+            dialogResult = null;
+            var result = await DialogService.OpenAsync<EditForwarderAgent>("Actualizar referencia", new Dictionary<string, object> { { "ADJUSTMENT_DETAIL_ID", args.ADJUSTMENT_DETAIL_ID } });
+            if (result == true)
+            {
+                dialogResult = new DialogResult { Success = true, Message = "Referencia actualizada correctamente." };
+            }
             await GetChildData(data);
             await AdjustmentDetailsDataGrid.Reload();
         }
