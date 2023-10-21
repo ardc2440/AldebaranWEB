@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Radzen;
 using Radzen.Blazor;
 using Aldebaran.Web.Pages.AdjustmentPages;
+using Aldebaran.Web.Models;
 
 namespace Aldebaran.Web.Pages.AdjustmentPages
 {
@@ -38,6 +39,8 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected RadzenDataGrid<Aldebaran.Web.Models.AldebaranDb.Adjustment> grid0;
 
+        protected DialogResult dialogResult { get; set; }
+
         protected string search = "";
 
         protected async Task Search(ChangeEventArgs args)
@@ -55,25 +58,41 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected async Task AddButtonClick(MouseEventArgs args)
         {
-            await DialogService.OpenAsync<AddAdjustment>("Add Adjustment", null);
+            dialogResult = null;
+            var result = await DialogService.OpenAsync<AddAdjustment>("Add Adjustment", null);
+
+            if (result == true)
+            {
+                dialogResult = new DialogResult { Success = true, Message = "Ajuste creado correctamente." };
+            }
             await grid0.Reload();
         }
 
         protected async Task EditRow(Aldebaran.Web.Models.AldebaranDb.Adjustment args)
         {
-            await DialogService.OpenAsync<EditAdjustment>("Edit Adjustment", new Dictionary<string, object> { {"ADJUSTMENT_ID", args.ADJUSTMENT_ID} });
+            dialogResult = null;
+
+            var result = await DialogService.OpenAsync<EditAdjustment>("Edit Adjustment", new Dictionary<string, object> { {"ADJUSTMENT_ID", args.ADJUSTMENT_ID} });
+
+            if (result == true)
+            {
+                dialogResult = new DialogResult { Success = true, Message = "Ajuste modificado correctamente." };
+            }
         }
 
         protected async Task GridDeleteButtonClick(MouseEventArgs args, Aldebaran.Web.Models.AldebaranDb.Adjustment adjustment)
         {
             try
             {
-                if (await DialogService.Confirm("Are you sure you want to delete this record?") == true)
+                dialogResult = null;
+
+                if (await DialogService.Confirm("Esta seguro que desea eliminar este ajuste?") == true)
                 {
                     var deleteResult = await AldebaranDbService.DeleteAdjustment(adjustment.ADJUSTMENT_ID);
 
                     if (deleteResult != null)
                     {
+                        dialogResult = new DialogResult { Success = true, Message = "Ajuste eliminado correctamente." };
                         await grid0.Reload();
                     }
                 }
@@ -84,7 +103,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"Unable to delete Adjustment"
+                    Detail = $"No se ha podido eliminar el ajuste"
                 });
             }
         }
@@ -107,7 +126,14 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected async Task AdjustmentDetailsAddButtonClick(MouseEventArgs args, Aldebaran.Web.Models.AldebaranDb.Adjustment data)
         {
-            var dialogResult = await DialogService.OpenAsync<AddAdjustmentDetail>("Add AdjustmentDetails", new Dictionary<string, object> { {"ADJUSTMENT_ID" , data.ADJUSTMENT_ID} });
+            dialogResult = null;
+
+            var result = await DialogService.OpenAsync<AddAdjustmentDetail>("Add AdjustmentDetails", new Dictionary<string, object> { {"ADJUSTMENT_ID" , data.ADJUSTMENT_ID} });
+            if (result == true)
+            {
+                dialogResult = new DialogResult { Success = true, Message = "Referencia agregada correctamente al ajuste." };
+            }
+
             await GetChildData(data);
             await AdjustmentDetailsDataGrid.Reload();
         }
@@ -123,7 +149,9 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         {
             try
             {
-                if (await DialogService.Confirm("Are you sure you want to delete this record?") == true)
+                dialogResult = null;
+
+                if (await DialogService.Confirm("Esta seguro que desea eliminar esta referencia del ajuste actual?") == true)
                 {
                     var deleteResult = await AldebaranDbService.DeleteAdjustmentDetail(adjustmentDetail.ADJUSTMENT_DETAIL_ID);
 
@@ -131,6 +159,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
                     if (deleteResult != null)
                     {
+                        dialogResult = new DialogResult { Success = true, Message = "Referencia eliminada del ajuste correctamente." };
                         await AdjustmentDetailsDataGrid.Reload();
                     }
                 }

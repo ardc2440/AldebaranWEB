@@ -54,6 +54,8 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected IEnumerable<Models.AldebaranDb.Aspnetuser> aspnetusersForASPNETUSERID;
 
+        protected bool isSubmitInProgress;
+
         [Inject]
         protected SecurityService Security { get; set; }
 
@@ -61,6 +63,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         {
             try
             {
+                isSubmitInProgress = true;
                 await AldebaranDbService.CreateAdjustment(adjustment);
                 DialogService.Close(adjustment);
             }
@@ -68,6 +71,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
             {
                 errorVisible = true;
             }
+            finally { isSubmitInProgress = false; }
         }
 
         protected async Task CancelButtonClick(MouseEventArgs args)

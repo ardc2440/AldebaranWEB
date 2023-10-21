@@ -46,6 +46,9 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
             warehousesForWAREHOUSEID = await AldebaranDbService.GetWarehouses();
         }
         protected bool errorVisible;
+
+        protected bool isSubmitInProgress;
+
         protected Aldebaran.Web.Models.AldebaranDb.AdjustmentDetail adjustmentDetail;
 
         protected IEnumerable<Aldebaran.Web.Models.AldebaranDb.Adjustment> adjustmentsForADJUSTMENTID;
@@ -58,6 +61,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         {
             try
             {
+                isSubmitInProgress = true;
                 await AldebaranDbService.UpdateAdjustmentDetail(ADJUSTMENT_DETAIL_ID, adjustmentDetail);
                 DialogService.Close(adjustmentDetail);
             }
@@ -65,6 +69,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
             {
                 errorVisible = true;
             }
+            finally { isSubmitInProgress = false; }
         }
 
         protected async Task CancelButtonClick(MouseEventArgs args)

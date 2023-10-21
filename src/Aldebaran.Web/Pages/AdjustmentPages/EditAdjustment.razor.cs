@@ -35,6 +35,8 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         [Parameter]
         public int ADJUSTMENT_ID { get; set; }
 
+        protected bool isSubmitInProgress;
+
         protected override async Task OnInitializedAsync()
         {
             adjustment = await AldebaranDbService.GetAdjustmentByAdjustmentId(ADJUSTMENT_ID);
@@ -61,6 +63,8 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         {
             try
             {
+                isSubmitInProgress = true;
+
                 await AldebaranDbService.UpdateAdjustment(ADJUSTMENT_ID, adjustment);
                 DialogService.Close(adjustment);
             }
@@ -68,6 +72,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
             {
                 errorVisible = true;
             }
+            finally { isSubmitInProgress = false; }
         }
 
         protected async Task CancelButtonClick(MouseEventArgs args)

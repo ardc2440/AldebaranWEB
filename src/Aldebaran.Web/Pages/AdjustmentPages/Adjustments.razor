@@ -1,41 +1,47 @@
-@page "/adjustments"
+@page "/adjustments"
+
 @attribute [Authorize]
 
 <PageTitle>Adjustments</PageTitle>
 <RadzenStack>
+    @if (dialogResult != null && dialogResult.Success)
+    {
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Success">@dialogResult.Message</RadzenAlert>
+    }
+    @if (dialogResult != null && !dialogResult.Success)
+    {
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger">@dialogResult.Message</RadzenAlert>
+    }
     <RadzenRow AlignItems="AlignItems.Center">
         <RadzenColumn Size="12" SizeMD="6">
-            <RadzenText Text="Adjustments" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
+            <RadzenText Text="Ajustes de Inventario" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
         </RadzenColumn>
         <RadzenColumn Size="12" SizeMD="6">
             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
-                <RadzenButton Icon="add_circle_outline" Text="Add" Click="@AddButtonClick" Variant="Variant.Flat" />
+                <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddButtonClick" Variant="Variant.Flat" />
             </RadzenStack>
         </RadzenColumn>
     </RadzenRow>
-    <RadzenTextBox Placeholder="Search ..." style="display: block; width: 100%" @oninput="@Search" />
+    <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
     <RadzenRow>
       <RadzenColumn SizeMD=12>
         <RadzenDataGrid @ref="grid0" ColumnWidth="200px"  AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-            Data="@adjustments"    TItem="Aldebaran.Web.Models.AldebaranDb.Adjustment" RowSelect="@EditRow" RowExpand=@GetChildData>
+            Data="@adjustments"    TItem="Aldebaran.Web.Models.AldebaranDb.Adjustment" RowSelect="@EditRow" RowExpand=@GetChildData AllowColumnPicking="true">
             <Columns>
-                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Adjustment" Property="ADJUSTMENT_ID" Title="A D J U S T M E N T I D">
+                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Adjustment" Property="ADJUSTMENT_DATE" Title="Fecha de Ajuste">
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Adjustment" Property="ADJUSTMENT_DATE" Title="A D J U S T M E N T D A T E">
+                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Adjustment" Property="AdjustmentType.ADJUSTMENT_TYPE_NAME" Title="Tipo de Ajuste">
+                                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Adjustment" Property="AdjustmentReason.ADJUSTMENT_REASON_NAME" Title="Motivo del Ajuste">
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Adjustment" Property="NOTES" Title="N O T E S">
+                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Adjustment" Property="Aspnetuser.Id" Title="Usuario Responsable">
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Adjustment" Property="CREATION_DATE" Title="C R E A T I O N D A T E">
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Adjustment" Property="AdjustmentReason.ADJUSTMENT_REASON_NAME" Title="Adjustment Reason">
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Adjustment" Property="AdjustmentType.ADJUSTMENT_TYPE_NAME" Title="Adjustment Type">
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Adjustment" Property="Aspnetuser.Id" Title="Aspnetuser">
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Adjustment" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center">
+                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Adjustment" Property="NOTES" Title="Notas" Visible="false">
+                                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Adjustment" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
                     <Template Context="adjustment">
-
+                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRow(adjustment))" @onclick:stopPropagation="true">
+                            </RadzenButton>
                         <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
                             Shade="Shade.Lighter" Variant="Variant.Flat"
                             Click=@(args => GridDeleteButtonClick(args, adjustment)) @onclick:stopPropagation="true" />

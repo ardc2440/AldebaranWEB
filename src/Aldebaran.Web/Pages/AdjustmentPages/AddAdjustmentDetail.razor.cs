@@ -6,7 +6,6 @@ using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
-using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.AdjustmentPages
 {
@@ -52,10 +51,12 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected IEnumerable<Models.AldebaranDb.Warehouse> warehousesForWAREHOUSEID;
 
+        protected bool isSubmitInProgress;
         protected async Task FormSubmit()
         {
             try
             {
+                isSubmitInProgress = true;
                 await AldebaranDbService.CreateAdjustmentDetail(adjustmentDetail);
                 DialogService.Close(adjustmentDetail);
             }
@@ -63,6 +64,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
             {
                 errorVisible = true;
             }
+            finally { isSubmitInProgress = false; }
         }
 
         protected async Task CancelButtonClick(MouseEventArgs args)
