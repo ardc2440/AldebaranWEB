@@ -26,7 +26,7 @@
     <RadzenRow>
       <RadzenColumn SizeMD=12>
         <RadzenDataGrid @ref="grid0" ColumnWidth="200px"  AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-            Data="@adjustments"    TItem="Aldebaran.Web.Models.AldebaranDb.Adjustment" RowSelect="@EditRow" RowExpand=@GetChildData AllowColumnPicking="true">
+            Data="@adjustments"    TItem="Aldebaran.Web.Models.AldebaranDb.Adjustment" RowSelect="@EditRow" RowExpand=@GetChildData AllowColumnPicking="true" PageSizeText="items por página" PagingSummaryFormat="Página {0} de {1} ({2} Ajustes)">
             <Columns>
                 <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Adjustment" Property="ADJUSTMENT_DATE" Title="Fecha de Ajuste">
                 </RadzenDataGridColumn>
