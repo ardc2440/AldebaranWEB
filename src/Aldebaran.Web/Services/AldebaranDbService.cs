@@ -19,7 +19,6 @@ namespace Aldebaran.Web
         }
 
         private readonly AldebaranDbContext context;
-
         private readonly NavigationManager navigationManager;
 
         public AldebaranDbService(AldebaranDbContext context, NavigationManager navigationManager)
@@ -63,6 +62,664 @@ namespace Aldebaran.Web
             }
         }
 
+
+        public async Task ExportAdjustmentDetailsToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/adjustmentdetails/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/adjustmentdetails/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportAdjustmentDetailsToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/adjustmentdetails/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/adjustmentdetails/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnAdjustmentDetailsRead(ref IQueryable<Models.AldebaranDb.AdjustmentDetail> items);
+
+        public async Task<IQueryable<Models.AldebaranDb.AdjustmentDetail>> GetAdjustmentDetails(Query query = null)
+        {
+            var items = Context.AdjustmentDetails.AsQueryable();
+
+            items = items.Include(i => i.Adjustment);
+            items = items.Include(i => i.ItemReference);
+            items = items.Include(i => i.Warehouse);
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach (var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnAdjustmentDetailsRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnAdjustmentDetailGet(Models.AldebaranDb.AdjustmentDetail item);
+        partial void OnGetAdjustmentDetailByAdjustmentDetailId(ref IQueryable<Models.AldebaranDb.AdjustmentDetail> items);
+
+
+        public async Task<Models.AldebaranDb.AdjustmentDetail> GetAdjustmentDetailByAdjustmentDetailId(int adjustmentdetailid)
+        {
+            var items = Context.AdjustmentDetails
+                              .AsNoTracking()
+                              .Where(i => i.ADJUSTMENT_DETAIL_ID == adjustmentdetailid);
+
+            items = items.Include(i => i.Adjustment);
+            items = items.Include(i => i.ItemReference);
+            items = items.Include(i => i.Warehouse);
+
+            OnGetAdjustmentDetailByAdjustmentDetailId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnAdjustmentDetailGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnAdjustmentDetailCreated(Models.AldebaranDb.AdjustmentDetail item);
+        partial void OnAfterAdjustmentDetailCreated(Models.AldebaranDb.AdjustmentDetail item);
+
+        public async Task<Models.AldebaranDb.AdjustmentDetail> CreateAdjustmentDetail(Models.AldebaranDb.AdjustmentDetail adjustmentdetail)
+        {
+            OnAdjustmentDetailCreated(adjustmentdetail);
+
+            var existingItem = Context.AdjustmentDetails
+                              .Where(i => i.ADJUSTMENT_DETAIL_ID == adjustmentdetail.ADJUSTMENT_DETAIL_ID)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+                throw new Exception("Item already available");
+            }
+
+            try
+            {
+                Context.AdjustmentDetails.Add(adjustmentdetail);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(adjustmentdetail).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterAdjustmentDetailCreated(adjustmentdetail);
+
+            return adjustmentdetail;
+        }
+
+        public async Task<Models.AldebaranDb.AdjustmentDetail> CancelAdjustmentDetailChanges(Models.AldebaranDb.AdjustmentDetail item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+                entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+                entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnAdjustmentDetailUpdated(Models.AldebaranDb.AdjustmentDetail item);
+        partial void OnAfterAdjustmentDetailUpdated(Models.AldebaranDb.AdjustmentDetail item);
+
+        public async Task<Models.AldebaranDb.AdjustmentDetail> UpdateAdjustmentDetail(int adjustmentdetailid, Models.AldebaranDb.AdjustmentDetail adjustmentdetail)
+        {
+            OnAdjustmentDetailUpdated(adjustmentdetail);
+
+            var itemToUpdate = Context.AdjustmentDetails
+                              .Where(i => i.ADJUSTMENT_DETAIL_ID == adjustmentdetail.ADJUSTMENT_DETAIL_ID)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            var entryToUpdate = Context.Entry(itemToUpdate);
+            entryToUpdate.CurrentValues.SetValues(adjustmentdetail);
+            entryToUpdate.State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterAdjustmentDetailUpdated(adjustmentdetail);
+
+            return adjustmentdetail;
+        }
+
+        partial void OnAdjustmentDetailDeleted(Models.AldebaranDb.AdjustmentDetail item);
+        partial void OnAfterAdjustmentDetailDeleted(Models.AldebaranDb.AdjustmentDetail item);
+
+        public async Task<Models.AldebaranDb.AdjustmentDetail> DeleteAdjustmentDetail(int adjustmentdetailid)
+        {
+            var itemToDelete = Context.AdjustmentDetails
+                              .Where(i => i.ADJUSTMENT_DETAIL_ID == adjustmentdetailid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            OnAdjustmentDetailDeleted(itemToDelete);
+
+
+            Context.AdjustmentDetails.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterAdjustmentDetailDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+
+        public async Task ExportAdjustmentReasonsToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/adjustmentreasons/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/adjustmentreasons/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportAdjustmentReasonsToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/adjustmentreasons/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/adjustmentreasons/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnAdjustmentReasonsRead(ref IQueryable<Models.AldebaranDb.AdjustmentReason> items);
+
+        public async Task<IQueryable<Models.AldebaranDb.AdjustmentReason>> GetAdjustmentReasons(Query query = null)
+        {
+            var items = Context.AdjustmentReasons.AsQueryable();
+
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach (var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnAdjustmentReasonsRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnAdjustmentReasonGet(Models.AldebaranDb.AdjustmentReason item);
+        partial void OnGetAdjustmentReasonByAdjustmentReasonId(ref IQueryable<Models.AldebaranDb.AdjustmentReason> items);
+
+
+        public async Task<Models.AldebaranDb.AdjustmentReason> GetAdjustmentReasonByAdjustmentReasonId(short adjustmentreasonid)
+        {
+            var items = Context.AdjustmentReasons
+                              .AsNoTracking()
+                              .Where(i => i.ADJUSTMENT_REASON_ID == adjustmentreasonid);
+
+
+            OnGetAdjustmentReasonByAdjustmentReasonId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnAdjustmentReasonGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnAdjustmentReasonCreated(Models.AldebaranDb.AdjustmentReason item);
+        partial void OnAfterAdjustmentReasonCreated(Models.AldebaranDb.AdjustmentReason item);
+
+        public async Task<Models.AldebaranDb.AdjustmentReason> CreateAdjustmentReason(Models.AldebaranDb.AdjustmentReason adjustmentreason)
+        {
+            OnAdjustmentReasonCreated(adjustmentreason);
+
+            var existingItem = Context.AdjustmentReasons
+                              .Where(i => i.ADJUSTMENT_REASON_ID == adjustmentreason.ADJUSTMENT_REASON_ID)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+                throw new Exception("Item already available");
+            }
+
+            try
+            {
+                Context.AdjustmentReasons.Add(adjustmentreason);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(adjustmentreason).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterAdjustmentReasonCreated(adjustmentreason);
+
+            return adjustmentreason;
+        }
+
+        public async Task<Models.AldebaranDb.AdjustmentReason> CancelAdjustmentReasonChanges(Models.AldebaranDb.AdjustmentReason item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+                entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+                entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnAdjustmentReasonUpdated(Models.AldebaranDb.AdjustmentReason item);
+        partial void OnAfterAdjustmentReasonUpdated(Models.AldebaranDb.AdjustmentReason item);
+
+        public async Task<Models.AldebaranDb.AdjustmentReason> UpdateAdjustmentReason(short adjustmentreasonid, Models.AldebaranDb.AdjustmentReason adjustmentreason)
+        {
+            OnAdjustmentReasonUpdated(adjustmentreason);
+
+            var itemToUpdate = Context.AdjustmentReasons
+                              .Where(i => i.ADJUSTMENT_REASON_ID == adjustmentreason.ADJUSTMENT_REASON_ID)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            var entryToUpdate = Context.Entry(itemToUpdate);
+            entryToUpdate.CurrentValues.SetValues(adjustmentreason);
+            entryToUpdate.State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterAdjustmentReasonUpdated(adjustmentreason);
+
+            return adjustmentreason;
+        }
+
+        partial void OnAdjustmentReasonDeleted(Models.AldebaranDb.AdjustmentReason item);
+        partial void OnAfterAdjustmentReasonDeleted(Models.AldebaranDb.AdjustmentReason item);
+
+        public async Task<Models.AldebaranDb.AdjustmentReason> DeleteAdjustmentReason(short adjustmentreasonid)
+        {
+            var itemToDelete = Context.AdjustmentReasons
+                              .Where(i => i.ADJUSTMENT_REASON_ID == adjustmentreasonid)
+                              .Include(i => i.Adjustments)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            OnAdjustmentReasonDeleted(itemToDelete);
+
+
+            Context.AdjustmentReasons.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterAdjustmentReasonDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+
+        public async Task ExportAdjustmentTypesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/adjustmenttypes/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/adjustmenttypes/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportAdjustmentTypesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/adjustmenttypes/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/adjustmenttypes/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnAdjustmentTypesRead(ref IQueryable<Models.AldebaranDb.AdjustmentType> items);
+
+        public async Task<IQueryable<Models.AldebaranDb.AdjustmentType>> GetAdjustmentTypes(Query query = null)
+        {
+            var items = Context.AdjustmentTypes.AsQueryable();
+
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach (var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnAdjustmentTypesRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnAdjustmentTypeGet(Models.AldebaranDb.AdjustmentType item);
+        partial void OnGetAdjustmentTypeByAdjustmentTypeId(ref IQueryable<Models.AldebaranDb.AdjustmentType> items);
+
+
+        public async Task<Models.AldebaranDb.AdjustmentType> GetAdjustmentTypeByAdjustmentTypeId(short adjustmenttypeid)
+        {
+            var items = Context.AdjustmentTypes
+                              .AsNoTracking()
+                              .Where(i => i.ADJUSTMENT_TYPE_ID == adjustmenttypeid);
+
+
+            OnGetAdjustmentTypeByAdjustmentTypeId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnAdjustmentTypeGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnAdjustmentTypeCreated(Models.AldebaranDb.AdjustmentType item);
+        partial void OnAfterAdjustmentTypeCreated(Models.AldebaranDb.AdjustmentType item);
+
+        public async Task<Models.AldebaranDb.AdjustmentType> CreateAdjustmentType(Models.AldebaranDb.AdjustmentType adjustmenttype)
+        {
+            OnAdjustmentTypeCreated(adjustmenttype);
+
+            var existingItem = Context.AdjustmentTypes
+                              .Where(i => i.ADJUSTMENT_TYPE_ID == adjustmenttype.ADJUSTMENT_TYPE_ID)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+                throw new Exception("Item already available");
+            }
+
+            try
+            {
+                Context.AdjustmentTypes.Add(adjustmenttype);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(adjustmenttype).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterAdjustmentTypeCreated(adjustmenttype);
+
+            return adjustmenttype;
+        }
+
+        public async Task<Models.AldebaranDb.AdjustmentType> CancelAdjustmentTypeChanges(Models.AldebaranDb.AdjustmentType item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+                entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+                entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnAdjustmentTypeUpdated(Models.AldebaranDb.AdjustmentType item);
+        partial void OnAfterAdjustmentTypeUpdated(Models.AldebaranDb.AdjustmentType item);
+
+        public async Task<Models.AldebaranDb.AdjustmentType> UpdateAdjustmentType(short adjustmenttypeid, Models.AldebaranDb.AdjustmentType adjustmenttype)
+        {
+            OnAdjustmentTypeUpdated(adjustmenttype);
+
+            var itemToUpdate = Context.AdjustmentTypes
+                              .Where(i => i.ADJUSTMENT_TYPE_ID == adjustmenttype.ADJUSTMENT_TYPE_ID)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            var entryToUpdate = Context.Entry(itemToUpdate);
+            entryToUpdate.CurrentValues.SetValues(adjustmenttype);
+            entryToUpdate.State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterAdjustmentTypeUpdated(adjustmenttype);
+
+            return adjustmenttype;
+        }
+
+        partial void OnAdjustmentTypeDeleted(Models.AldebaranDb.AdjustmentType item);
+        partial void OnAfterAdjustmentTypeDeleted(Models.AldebaranDb.AdjustmentType item);
+
+        public async Task<Models.AldebaranDb.AdjustmentType> DeleteAdjustmentType(short adjustmenttypeid)
+        {
+            var itemToDelete = Context.AdjustmentTypes
+                              .Where(i => i.ADJUSTMENT_TYPE_ID == adjustmenttypeid)
+                              .Include(i => i.Adjustments)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            OnAdjustmentTypeDeleted(itemToDelete);
+
+
+            Context.AdjustmentTypes.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterAdjustmentTypeDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+
+        public async Task ExportAdjustmentsToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/adjustments/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/adjustments/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportAdjustmentsToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/adjustments/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/adjustments/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnAdjustmentsRead(ref IQueryable<Models.AldebaranDb.Adjustment> items);
+
+        public async Task<IQueryable<Models.AldebaranDb.Adjustment>> GetAdjustments(Query query = null)
+        {
+            var items = Context.Adjustments.AsQueryable();
+
+            items = items.Include(i => i.AdjustmentReason);
+            items = items.Include(i => i.AdjustmentType);
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach (var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnAdjustmentsRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnAdjustmentGet(Models.AldebaranDb.Adjustment item);
+        partial void OnGetAdjustmentByAdjustmentId(ref IQueryable<Models.AldebaranDb.Adjustment> items);
+
+
+        public async Task<Models.AldebaranDb.Adjustment> GetAdjustmentByAdjustmentId(int adjustmentid)
+        {
+            var items = Context.Adjustments
+                              .AsNoTracking()
+                              .Where(i => i.ADJUSTMENT_ID == adjustmentid);
+
+            items = items.Include(i => i.AdjustmentReason);
+            items = items.Include(i => i.AdjustmentType);
+
+            OnGetAdjustmentByAdjustmentId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnAdjustmentGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnAdjustmentCreated(Models.AldebaranDb.Adjustment item);
+        partial void OnAfterAdjustmentCreated(Models.AldebaranDb.Adjustment item);
+
+        public async Task<Models.AldebaranDb.Adjustment> CreateAdjustment(Models.AldebaranDb.Adjustment adjustment)
+        {
+            OnAdjustmentCreated(adjustment);
+
+            var existingItem = Context.Adjustments
+                              .Where(i => i.ADJUSTMENT_ID == adjustment.ADJUSTMENT_ID)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+                throw new Exception("Item already available");
+            }
+
+            try
+            {
+                Context.Adjustments.Add(adjustment);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(adjustment).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterAdjustmentCreated(adjustment);
+
+            return adjustment;
+        }
+
+        public async Task<Models.AldebaranDb.Adjustment> CancelAdjustmentChanges(Models.AldebaranDb.Adjustment item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+                entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+                entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnAdjustmentUpdated(Models.AldebaranDb.Adjustment item);
+        partial void OnAfterAdjustmentUpdated(Models.AldebaranDb.Adjustment item);
+
+        public async Task<Models.AldebaranDb.Adjustment> UpdateAdjustment(int adjustmentid, Models.AldebaranDb.Adjustment adjustment)
+        {
+            OnAdjustmentUpdated(adjustment);
+
+            var itemToUpdate = Context.Adjustments
+                              .Where(i => i.ADJUSTMENT_ID == adjustment.ADJUSTMENT_ID)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            var entryToUpdate = Context.Entry(itemToUpdate);
+            entryToUpdate.CurrentValues.SetValues(adjustment);
+            entryToUpdate.State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterAdjustmentUpdated(adjustment);
+
+            return adjustment;
+        }
+
+        partial void OnAdjustmentDeleted(Models.AldebaranDb.Adjustment item);
+        partial void OnAfterAdjustmentDeleted(Models.AldebaranDb.Adjustment item);
+
+        public async Task<Models.AldebaranDb.Adjustment> DeleteAdjustment(int adjustmentid)
+        {
+            var itemToDelete = Context.Adjustments
+                              .Where(i => i.ADJUSTMENT_ID == adjustmentid)
+                              .Include(i => i.AdjustmentDetails)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            OnAdjustmentDeleted(itemToDelete);
+
+
+            Context.Adjustments.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterAdjustmentDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+
         public async Task ExportAreasToExcel(Query query = null, string fileName = null)
         {
             navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/areas/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/areas/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
@@ -102,6 +759,7 @@ namespace Aldebaran.Web
         partial void OnAreaGet(Models.AldebaranDb.Area item);
         partial void OnGetAreaByAreaId(ref IQueryable<Models.AldebaranDb.Area> items);
 
+
         public async Task<Models.AldebaranDb.Area> GetAreaByAreaId(short areaid)
         {
             var items = Context.Areas
@@ -119,7 +777,6 @@ namespace Aldebaran.Web
         }
 
         partial void OnAreaCreated(Models.AldebaranDb.Area item);
-
         partial void OnAfterAreaCreated(Models.AldebaranDb.Area item);
 
         public async Task<Models.AldebaranDb.Area> CreateArea(Models.AldebaranDb.Area area)
@@ -164,7 +821,6 @@ namespace Aldebaran.Web
         }
 
         partial void OnAreaUpdated(Models.AldebaranDb.Area item);
-
         partial void OnAfterAreaUpdated(Models.AldebaranDb.Area item);
 
         public async Task<Models.AldebaranDb.Area> UpdateArea(short areaid, Models.AldebaranDb.Area area)
@@ -192,21 +848,14 @@ namespace Aldebaran.Web
         }
 
         partial void OnAreaDeleted(Models.AldebaranDb.Area item);
-
-        partial void OnAdjustmentDeleted(Models.AldebaranDb.Adjustment item);
-
-        partial void OnAdjustmentDetailDeleted(Models.AldebaranDb.AdjustmentDetail item);
-
         partial void OnAfterAreaDeleted(Models.AldebaranDb.Area item);
-
-        partial void OnAfterAdjustmentDeleted(Models.AldebaranDb.Adjustment item);
-
-        partial void OnAfterAdjustmentDetailDeleted(Models.AldebaranDb.AdjustmentDetail item);
 
         public async Task<Models.AldebaranDb.Area> DeleteArea(short areaid)
         {
             var itemToDelete = Context.Areas
                               .Where(i => i.AREA_ID == areaid)
+                              .Include(i => i.ItemsAreas)
+                              .Include(i => i.Users)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -230,68 +879,6 @@ namespace Aldebaran.Web
             }
 
             OnAfterAreaDeleted(itemToDelete);
-
-            return itemToDelete;
-        }
-
-        public async Task<Models.AldebaranDb.Adjustment> DeleteAdjustment(int adjustmentId)
-        {
-            var itemToDelete = Context.Adjustments
-                              .Where(i => i.ADJUSTMENT_ID == adjustmentId)
-                              .FirstOrDefault();
-
-            if (itemToDelete == null)
-            {
-                throw new Exception("Item no longer available");
-            }
-
-            OnAdjustmentDeleted(itemToDelete);
-
-
-            Context.Adjustments.Remove(itemToDelete);
-
-            try
-            {
-                Context.SaveChanges();
-            }
-            catch
-            {
-                Context.Entry(itemToDelete).State = EntityState.Unchanged;
-                throw;
-            }
-
-            OnAfterAdjustmentDeleted(itemToDelete);
-
-            return itemToDelete;
-        }
-
-        public async Task<Models.AldebaranDb.AdjustmentDetail> DeleteAdjustmentDetail(int adjustmentDetailId)
-        {
-            var itemToDelete = Context.AdjustmentDetails
-                              .Where(i => i.ADJUSTMENT_DETAIL_ID == adjustmentDetailId)
-                              .FirstOrDefault();
-
-            if (itemToDelete == null)
-            {
-                throw new Exception("Item no longer available");
-            }
-
-            OnAdjustmentDetailDeleted(itemToDelete);
-
-
-            Context.AdjustmentDetails.Remove(itemToDelete);
-
-            try
-            {
-                Context.SaveChanges();
-            }
-            catch
-            {
-                Context.Entry(itemToDelete).State = EntityState.Unchanged;
-                throw;
-            }
-
-            OnAfterAdjustmentDetailDeleted(itemToDelete);
 
             return itemToDelete;
         }
@@ -334,8 +921,8 @@ namespace Aldebaran.Web
         }
 
         partial void OnCityGet(Models.AldebaranDb.City item);
-
         partial void OnGetCityByCityId(ref IQueryable<Models.AldebaranDb.City> items);
+
 
         public async Task<Models.AldebaranDb.City> GetCityByCityId(int cityid)
         {
@@ -355,7 +942,6 @@ namespace Aldebaran.Web
         }
 
         partial void OnCityCreated(Models.AldebaranDb.City item);
-
         partial void OnAfterCityCreated(Models.AldebaranDb.City item);
 
         public async Task<Models.AldebaranDb.City> CreateCity(Models.AldebaranDb.City city)
@@ -400,7 +986,6 @@ namespace Aldebaran.Web
         }
 
         partial void OnCityUpdated(Models.AldebaranDb.City item);
-
         partial void OnAfterCityUpdated(Models.AldebaranDb.City item);
 
         public async Task<Models.AldebaranDb.City> UpdateCity(int cityid, Models.AldebaranDb.City city)
@@ -428,13 +1013,16 @@ namespace Aldebaran.Web
         }
 
         partial void OnCityDeleted(Models.AldebaranDb.City item);
-
         partial void OnAfterCityDeleted(Models.AldebaranDb.City item);
 
         public async Task<Models.AldebaranDb.City> DeleteCity(int cityid)
         {
             var itemToDelete = Context.Cities
                               .Where(i => i.CITY_ID == cityid)
+                              .Include(i => i.Customers)
+                              .Include(i => i.ForwarderAgents)
+                              .Include(i => i.Forwarders)
+                              .Include(i => i.Providers)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -499,10 +1087,10 @@ namespace Aldebaran.Web
         }
 
         partial void OnCountryGet(Models.AldebaranDb.Country item);
-
         partial void OnGetCountryByCountryId(ref IQueryable<Models.AldebaranDb.Country> items);
 
-        public async Task<Models.AldebaranDb.Country> GetCountryByCountryId(short countryid)
+
+        public async Task<Models.AldebaranDb.Country> GetCountryByCountryId(int countryid)
         {
             var items = Context.Countries
                               .AsNoTracking()
@@ -519,7 +1107,6 @@ namespace Aldebaran.Web
         }
 
         partial void OnCountryCreated(Models.AldebaranDb.Country item);
-
         partial void OnAfterCountryCreated(Models.AldebaranDb.Country item);
 
         public async Task<Models.AldebaranDb.Country> CreateCountry(Models.AldebaranDb.Country country)
@@ -564,10 +1151,9 @@ namespace Aldebaran.Web
         }
 
         partial void OnCountryUpdated(Models.AldebaranDb.Country item);
-
         partial void OnAfterCountryUpdated(Models.AldebaranDb.Country item);
 
-        public async Task<Models.AldebaranDb.Country> UpdateCountry(short countryid, Models.AldebaranDb.Country country)
+        public async Task<Models.AldebaranDb.Country> UpdateCountry(int countryid, Models.AldebaranDb.Country country)
         {
             OnCountryUpdated(country);
 
@@ -592,13 +1178,13 @@ namespace Aldebaran.Web
         }
 
         partial void OnCountryDeleted(Models.AldebaranDb.Country item);
-
         partial void OnAfterCountryDeleted(Models.AldebaranDb.Country item);
 
-        public async Task<Models.AldebaranDb.Country> DeleteCountry(short countryid)
+        public async Task<Models.AldebaranDb.Country> DeleteCountry(int countryid)
         {
             var itemToDelete = Context.Countries
                               .Where(i => i.COUNTRY_ID == countryid)
+                              .Include(i => i.Departments)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -663,8 +1249,8 @@ namespace Aldebaran.Web
         }
 
         partial void OnCurrencyGet(Models.AldebaranDb.Currency item);
-
         partial void OnGetCurrencyByCurrencyId(ref IQueryable<Models.AldebaranDb.Currency> items);
+
 
         public async Task<Models.AldebaranDb.Currency> GetCurrencyByCurrencyId(short currencyid)
         {
@@ -683,7 +1269,6 @@ namespace Aldebaran.Web
         }
 
         partial void OnCurrencyCreated(Models.AldebaranDb.Currency item);
-
         partial void OnAfterCurrencyCreated(Models.AldebaranDb.Currency item);
 
         public async Task<Models.AldebaranDb.Currency> CreateCurrency(Models.AldebaranDb.Currency currency)
@@ -728,7 +1313,6 @@ namespace Aldebaran.Web
         }
 
         partial void OnCurrencyUpdated(Models.AldebaranDb.Currency item);
-
         partial void OnAfterCurrencyUpdated(Models.AldebaranDb.Currency item);
 
         public async Task<Models.AldebaranDb.Currency> UpdateCurrency(short currencyid, Models.AldebaranDb.Currency currency)
@@ -756,13 +1340,13 @@ namespace Aldebaran.Web
         }
 
         partial void OnCurrencyDeleted(Models.AldebaranDb.Currency item);
-
         partial void OnAfterCurrencyDeleted(Models.AldebaranDb.Currency item);
 
         public async Task<Models.AldebaranDb.Currency> DeleteCurrency(short currencyid)
         {
             var itemToDelete = Context.Currencies
                               .Where(i => i.CURRENCY_ID == currencyid)
+                              .Include(i => i.Items)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -828,8 +1412,8 @@ namespace Aldebaran.Web
         }
 
         partial void OnCustomerContactGet(Models.AldebaranDb.CustomerContact item);
-
         partial void OnGetCustomerContactByCustomerContactId(ref IQueryable<Models.AldebaranDb.CustomerContact> items);
+
 
         public async Task<Models.AldebaranDb.CustomerContact> GetCustomerContactByCustomerContactId(int customercontactid)
         {
@@ -849,7 +1433,6 @@ namespace Aldebaran.Web
         }
 
         partial void OnCustomerContactCreated(Models.AldebaranDb.CustomerContact item);
-
         partial void OnAfterCustomerContactCreated(Models.AldebaranDb.CustomerContact item);
 
         public async Task<Models.AldebaranDb.CustomerContact> CreateCustomerContact(Models.AldebaranDb.CustomerContact customercontact)
@@ -894,7 +1477,6 @@ namespace Aldebaran.Web
         }
 
         partial void OnCustomerContactUpdated(Models.AldebaranDb.CustomerContact item);
-
         partial void OnAfterCustomerContactUpdated(Models.AldebaranDb.CustomerContact item);
 
         public async Task<Models.AldebaranDb.CustomerContact> UpdateCustomerContact(int customercontactid, Models.AldebaranDb.CustomerContact customercontact)
@@ -922,7 +1504,6 @@ namespace Aldebaran.Web
         }
 
         partial void OnCustomerContactDeleted(Models.AldebaranDb.CustomerContact item);
-
         partial void OnAfterCustomerContactDeleted(Models.AldebaranDb.CustomerContact item);
 
         public async Task<Models.AldebaranDb.CustomerContact> DeleteCustomerContact(int customercontactid)
@@ -995,8 +1576,8 @@ namespace Aldebaran.Web
         }
 
         partial void OnCustomerGet(Models.AldebaranDb.Customer item);
-
         partial void OnGetCustomerByCustomerId(ref IQueryable<Models.AldebaranDb.Customer> items);
+
 
         public async Task<Models.AldebaranDb.Customer> GetCustomerByCustomerId(int customerid)
         {
@@ -1017,7 +1598,6 @@ namespace Aldebaran.Web
         }
 
         partial void OnCustomerCreated(Models.AldebaranDb.Customer item);
-
         partial void OnAfterCustomerCreated(Models.AldebaranDb.Customer item);
 
         public async Task<Models.AldebaranDb.Customer> CreateCustomer(Models.AldebaranDb.Customer customer)
@@ -1062,7 +1642,6 @@ namespace Aldebaran.Web
         }
 
         partial void OnCustomerUpdated(Models.AldebaranDb.Customer item);
-
         partial void OnAfterCustomerUpdated(Models.AldebaranDb.Customer item);
 
         public async Task<Models.AldebaranDb.Customer> UpdateCustomer(int customerid, Models.AldebaranDb.Customer customer)
@@ -1090,13 +1669,13 @@ namespace Aldebaran.Web
         }
 
         partial void OnCustomerDeleted(Models.AldebaranDb.Customer item);
-
         partial void OnAfterCustomerDeleted(Models.AldebaranDb.Customer item);
 
         public async Task<Models.AldebaranDb.Customer> DeleteCustomer(int customerid)
         {
             var itemToDelete = Context.Customers
                               .Where(i => i.CUSTOMER_ID == customerid)
+                              .Include(i => i.CustomerContacts)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -1162,11 +1741,10 @@ namespace Aldebaran.Web
         }
 
         partial void OnDepartmentGet(Models.AldebaranDb.Department item);
-
         partial void OnGetDepartmentByDepartmentId(ref IQueryable<Models.AldebaranDb.Department> items);
 
 
-        public async Task<Models.AldebaranDb.Department> GetDepartmentByDepartmentId(short departmentid)
+        public async Task<Models.AldebaranDb.Department> GetDepartmentByDepartmentId(int departmentid)
         {
             var items = Context.Departments
                               .AsNoTracking()
@@ -1184,7 +1762,6 @@ namespace Aldebaran.Web
         }
 
         partial void OnDepartmentCreated(Models.AldebaranDb.Department item);
-
         partial void OnAfterDepartmentCreated(Models.AldebaranDb.Department item);
 
         public async Task<Models.AldebaranDb.Department> CreateDepartment(Models.AldebaranDb.Department department)
@@ -1229,10 +1806,9 @@ namespace Aldebaran.Web
         }
 
         partial void OnDepartmentUpdated(Models.AldebaranDb.Department item);
-
         partial void OnAfterDepartmentUpdated(Models.AldebaranDb.Department item);
 
-        public async Task<Models.AldebaranDb.Department> UpdateDepartment(short departmentid, Models.AldebaranDb.Department department)
+        public async Task<Models.AldebaranDb.Department> UpdateDepartment(int departmentid, Models.AldebaranDb.Department department)
         {
             OnDepartmentUpdated(department);
 
@@ -1259,10 +1835,11 @@ namespace Aldebaran.Web
         partial void OnDepartmentDeleted(Models.AldebaranDb.Department item);
         partial void OnAfterDepartmentDeleted(Models.AldebaranDb.Department item);
 
-        public async Task<Models.AldebaranDb.Department> DeleteDepartment(short departmentid)
+        public async Task<Models.AldebaranDb.Department> DeleteDepartment(int departmentid)
         {
             var itemToDelete = Context.Departments
                               .Where(i => i.DEPARTMENT_ID == departmentid)
+                              .Include(i => i.Cities)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -1286,6 +1863,167 @@ namespace Aldebaran.Web
             }
 
             OnAfterDepartmentDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+
+        public async Task ExportDocumentTypesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/documenttypes/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/documenttypes/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportDocumentTypesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/documenttypes/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/documenttypes/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnDocumentTypesRead(ref IQueryable<Models.AldebaranDb.DocumentType> items);
+
+        public async Task<IQueryable<Models.AldebaranDb.DocumentType>> GetDocumentTypes(Query query = null)
+        {
+            var items = Context.DocumentTypes.AsQueryable();
+
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach (var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnDocumentTypesRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnDocumentTypeGet(Models.AldebaranDb.DocumentType item);
+        partial void OnGetDocumentTypeByDocumentTypeId(ref IQueryable<Models.AldebaranDb.DocumentType> items);
+
+
+        public async Task<Models.AldebaranDb.DocumentType> GetDocumentTypeByDocumentTypeId(short documenttypeid)
+        {
+            var items = Context.DocumentTypes
+                              .AsNoTracking()
+                              .Where(i => i.DOCUMENT_TYPE_ID == documenttypeid);
+
+
+            OnGetDocumentTypeByDocumentTypeId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnDocumentTypeGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnDocumentTypeCreated(Models.AldebaranDb.DocumentType item);
+        partial void OnAfterDocumentTypeCreated(Models.AldebaranDb.DocumentType item);
+
+        public async Task<Models.AldebaranDb.DocumentType> CreateDocumentType(Models.AldebaranDb.DocumentType documenttype)
+        {
+            OnDocumentTypeCreated(documenttype);
+
+            var existingItem = Context.DocumentTypes
+                              .Where(i => i.DOCUMENT_TYPE_ID == documenttype.DOCUMENT_TYPE_ID)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+                throw new Exception("Item already available");
+            }
+
+            try
+            {
+                Context.DocumentTypes.Add(documenttype);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(documenttype).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterDocumentTypeCreated(documenttype);
+
+            return documenttype;
+        }
+
+        public async Task<Models.AldebaranDb.DocumentType> CancelDocumentTypeChanges(Models.AldebaranDb.DocumentType item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+                entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+                entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnDocumentTypeUpdated(Models.AldebaranDb.DocumentType item);
+        partial void OnAfterDocumentTypeUpdated(Models.AldebaranDb.DocumentType item);
+
+        public async Task<Models.AldebaranDb.DocumentType> UpdateDocumentType(short documenttypeid, Models.AldebaranDb.DocumentType documenttype)
+        {
+            OnDocumentTypeUpdated(documenttype);
+
+            var itemToUpdate = Context.DocumentTypes
+                              .Where(i => i.DOCUMENT_TYPE_ID == documenttype.DOCUMENT_TYPE_ID)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            var entryToUpdate = Context.Entry(itemToUpdate);
+            entryToUpdate.CurrentValues.SetValues(documenttype);
+            entryToUpdate.State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterDocumentTypeUpdated(documenttype);
+
+            return documenttype;
+        }
+
+        partial void OnDocumentTypeDeleted(Models.AldebaranDb.DocumentType item);
+        partial void OnAfterDocumentTypeDeleted(Models.AldebaranDb.DocumentType item);
+
+        public async Task<Models.AldebaranDb.DocumentType> DeleteDocumentType(short documenttypeid)
+        {
+            var itemToDelete = Context.DocumentTypes
+                              .Where(i => i.DOCUMENT_TYPE_ID == documenttypeid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            OnDocumentTypeDeleted(itemToDelete);
+
+
+            Context.DocumentTypes.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterDocumentTypeDeleted(itemToDelete);
 
             return itemToDelete;
         }
@@ -1428,6 +2166,8 @@ namespace Aldebaran.Web
         {
             var itemToDelete = Context.ForwarderAgents
                               .Where(i => i.FORWARDER_AGENT_ID == forwarderagentid)
+                              .Include(i => i.PurchaseOrders)
+                              .Include(i => i.ShipmentForwarderAgentMethods)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -1591,6 +2331,7 @@ namespace Aldebaran.Web
         {
             var itemToDelete = Context.Forwarders
                               .Where(i => i.FORWARDER_ID == forwarderid)
+                              .Include(i => i.ForwarderAgents)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -1629,9 +2370,6 @@ namespace Aldebaran.Web
         }
 
         partial void OnIdentityTypesRead(ref IQueryable<Models.AldebaranDb.IdentityType> items);
-        partial void OnAdjustmentReasonsRead(ref IQueryable<Models.AldebaranDb.AdjustmentReason> items);
-        partial void OnAdjustmentTypesRead(ref IQueryable<Models.AldebaranDb.AdjustmentType> items);
-        partial void OnAspNetUsersRead(ref IQueryable<Models.AldebaranDb.Aspnetuser> items);
 
         public async Task<IQueryable<Models.AldebaranDb.IdentityType>> GetIdentityTypes(Query query = null)
         {
@@ -1657,80 +2395,9 @@ namespace Aldebaran.Web
             return await Task.FromResult(items);
         }
 
-        public async Task<IQueryable<Models.AldebaranDb.AdjustmentReason>> GetAdjustmentReasons(Query query = null)
-        {
-            var items = Context.AdjustmentReasons.AsQueryable();
-
-
-            if (query != null)
-            {
-                if (!string.IsNullOrEmpty(query.Expand))
-                {
-                    var propertiesToExpand = query.Expand.Split(',');
-                    foreach (var p in propertiesToExpand)
-                    {
-                        items = items.Include(p.Trim());
-                    }
-                }
-
-                ApplyQuery(ref items, query);
-            }
-
-            OnAdjustmentReasonsRead(ref items);
-
-            return await Task.FromResult(items);
-        }
-
-        public async Task<IQueryable<Models.AldebaranDb.AdjustmentType>> GetAdjustmentTypes(Query query = null)
-        {
-            var items = Context.AdjustmentTypes.AsQueryable();
-
-
-            if (query != null)
-            {
-                if (!string.IsNullOrEmpty(query.Expand))
-                {
-                    var propertiesToExpand = query.Expand.Split(',');
-                    foreach (var p in propertiesToExpand)
-                    {
-                        items = items.Include(p.Trim());
-                    }
-                }
-
-                ApplyQuery(ref items, query);
-            }
-
-            OnAdjustmentTypesRead(ref items);
-
-            return await Task.FromResult(items);
-        }
-
-        public async Task<IQueryable<Models.AldebaranDb.Aspnetuser>> GetAspNetUsers(Query query = null)
-        {
-            var items = Context.Aspnetusers.AsQueryable();
-
-
-            if (query != null)
-            {
-                if (!string.IsNullOrEmpty(query.Expand))
-                {
-                    var propertiesToExpand = query.Expand.Split(',');
-                    foreach (var p in propertiesToExpand)
-                    {
-                        items = items.Include(p.Trim());
-                    }
-                }
-
-                ApplyQuery(ref items, query);
-            }
-
-            OnAspNetUsersRead(ref items);
-
-            return await Task.FromResult(items);
-        }
-
         partial void OnIdentityTypeGet(Models.AldebaranDb.IdentityType item);
         partial void OnGetIdentityTypeByIdentityTypeId(ref IQueryable<Models.AldebaranDb.IdentityType> items);
+
 
         public async Task<Models.AldebaranDb.IdentityType> GetIdentityTypeByIdentityTypeId(int identitytypeid)
         {
@@ -1826,6 +2493,9 @@ namespace Aldebaran.Web
         {
             var itemToDelete = Context.IdentityTypes
                               .Where(i => i.IDENTITY_TYPE_ID == identitytypeid)
+                              .Include(i => i.Customers)
+                              .Include(i => i.Providers)
+                              .Include(i => i.Users)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -1989,6 +2659,10 @@ namespace Aldebaran.Web
         {
             var itemToDelete = Context.ItemReferences
                               .Where(i => i.REFERENCE_ID == referenceid)
+                              .Include(i => i.AdjustmentDetails)
+                              .Include(i => i.ProviderReferences)
+                              .Include(i => i.PurchaseOrderDetails)
+                              .Include(i => i.ReferencesWarehouses)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -2158,6 +2832,8 @@ namespace Aldebaran.Web
         {
             var itemToDelete = Context.Items
                               .Where(i => i.ITEM_ID == itemid)
+                              .Include(i => i.ItemReferences)
+                              .Include(i => i.ItemsAreas)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -2484,6 +3160,7 @@ namespace Aldebaran.Web
         {
             var itemToDelete = Context.Lines
                               .Where(i => i.LINE_ID == lineid)
+                              .Include(i => i.Items)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -2645,6 +3322,8 @@ namespace Aldebaran.Web
         {
             var itemToDelete = Context.MeasureUnits
                               .Where(i => i.MEASURE_UNIT_ID == measureunitid)
+                              .Include(i => i.Items)
+                              .Include(i => i.Items1)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -2668,6 +3347,1004 @@ namespace Aldebaran.Web
             }
 
             OnAfterMeasureUnitDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+
+        public async Task ExportProviderReferencesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/providerreferences/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/providerreferences/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportProviderReferencesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/providerreferences/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/providerreferences/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnProviderReferencesRead(ref IQueryable<Models.AldebaranDb.ProviderReference> items);
+
+        public async Task<IQueryable<Models.AldebaranDb.ProviderReference>> GetProviderReferences(Query query = null)
+        {
+            var items = Context.ProviderReferences.AsQueryable();
+
+            items = items.Include(i => i.Provider);
+            items = items.Include(i => i.ItemReference);
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach (var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnProviderReferencesRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnProviderReferenceGet(Models.AldebaranDb.ProviderReference item);
+        partial void OnGetProviderReferenceByReferenceIdAndProviderId(ref IQueryable<Models.AldebaranDb.ProviderReference> items);
+
+
+        public async Task<Models.AldebaranDb.ProviderReference> GetProviderReferenceByReferenceIdAndProviderId(int referenceid, int providerid)
+        {
+            var items = Context.ProviderReferences
+                              .AsNoTracking()
+                              .Where(i => i.REFERENCE_ID == referenceid && i.PROVIDER_ID == providerid);
+
+            items = items.Include(i => i.Provider);
+            items = items.Include(i => i.ItemReference);
+
+            OnGetProviderReferenceByReferenceIdAndProviderId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnProviderReferenceGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnProviderReferenceCreated(Models.AldebaranDb.ProviderReference item);
+        partial void OnAfterProviderReferenceCreated(Models.AldebaranDb.ProviderReference item);
+
+        public async Task<Models.AldebaranDb.ProviderReference> CreateProviderReference(Models.AldebaranDb.ProviderReference providerreference)
+        {
+            OnProviderReferenceCreated(providerreference);
+
+            var existingItem = Context.ProviderReferences
+                              .Where(i => i.REFERENCE_ID == providerreference.REFERENCE_ID && i.PROVIDER_ID == providerreference.PROVIDER_ID)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+                throw new Exception("Item already available");
+            }
+
+            try
+            {
+                Context.ProviderReferences.Add(providerreference);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(providerreference).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterProviderReferenceCreated(providerreference);
+
+            return providerreference;
+        }
+
+        public async Task<Models.AldebaranDb.ProviderReference> CancelProviderReferenceChanges(Models.AldebaranDb.ProviderReference item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+                entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+                entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnProviderReferenceUpdated(Models.AldebaranDb.ProviderReference item);
+        partial void OnAfterProviderReferenceUpdated(Models.AldebaranDb.ProviderReference item);
+
+        public async Task<Models.AldebaranDb.ProviderReference> UpdateProviderReference(int referenceid, int providerid, Models.AldebaranDb.ProviderReference providerreference)
+        {
+            OnProviderReferenceUpdated(providerreference);
+
+            var itemToUpdate = Context.ProviderReferences
+                              .Where(i => i.REFERENCE_ID == providerreference.REFERENCE_ID && i.PROVIDER_ID == providerreference.PROVIDER_ID)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            var entryToUpdate = Context.Entry(itemToUpdate);
+            entryToUpdate.CurrentValues.SetValues(providerreference);
+            entryToUpdate.State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterProviderReferenceUpdated(providerreference);
+
+            return providerreference;
+        }
+
+        partial void OnProviderReferenceDeleted(Models.AldebaranDb.ProviderReference item);
+        partial void OnAfterProviderReferenceDeleted(Models.AldebaranDb.ProviderReference item);
+
+        public async Task<Models.AldebaranDb.ProviderReference> DeleteProviderReference(int referenceid, int providerid)
+        {
+            var itemToDelete = Context.ProviderReferences
+                              .Where(i => i.REFERENCE_ID == referenceid && i.PROVIDER_ID == providerid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            OnProviderReferenceDeleted(itemToDelete);
+
+
+            Context.ProviderReferences.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterProviderReferenceDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+
+        public async Task ExportProvidersToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/providers/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/providers/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportProvidersToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/providers/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/providers/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnProvidersRead(ref IQueryable<Models.AldebaranDb.Provider> items);
+
+        public async Task<IQueryable<Models.AldebaranDb.Provider>> GetProviders(Query query = null)
+        {
+            var items = Context.Providers.AsQueryable();
+
+            items = items.Include(i => i.City);
+            items = items.Include(i => i.IdentityType);
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach (var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnProvidersRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnProviderGet(Models.AldebaranDb.Provider item);
+        partial void OnGetProviderByProviderId(ref IQueryable<Models.AldebaranDb.Provider> items);
+
+
+        public async Task<Models.AldebaranDb.Provider> GetProviderByProviderId(int providerid)
+        {
+            var items = Context.Providers
+                              .AsNoTracking()
+                              .Where(i => i.PROVIDER_ID == providerid);
+
+            items = items.Include(i => i.City);
+            items = items.Include(i => i.IdentityType);
+
+            OnGetProviderByProviderId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnProviderGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnProviderCreated(Models.AldebaranDb.Provider item);
+        partial void OnAfterProviderCreated(Models.AldebaranDb.Provider item);
+
+        public async Task<Models.AldebaranDb.Provider> CreateProvider(Models.AldebaranDb.Provider provider)
+        {
+            OnProviderCreated(provider);
+
+            var existingItem = Context.Providers
+                              .Where(i => i.PROVIDER_ID == provider.PROVIDER_ID)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+                throw new Exception("Item already available");
+            }
+
+            try
+            {
+                Context.Providers.Add(provider);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(provider).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterProviderCreated(provider);
+
+            return provider;
+        }
+
+        public async Task<Models.AldebaranDb.Provider> CancelProviderChanges(Models.AldebaranDb.Provider item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+                entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+                entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnProviderUpdated(Models.AldebaranDb.Provider item);
+        partial void OnAfterProviderUpdated(Models.AldebaranDb.Provider item);
+
+        public async Task<Models.AldebaranDb.Provider> UpdateProvider(int providerid, Models.AldebaranDb.Provider provider)
+        {
+            OnProviderUpdated(provider);
+
+            var itemToUpdate = Context.Providers
+                              .Where(i => i.PROVIDER_ID == provider.PROVIDER_ID)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            var entryToUpdate = Context.Entry(itemToUpdate);
+            entryToUpdate.CurrentValues.SetValues(provider);
+            entryToUpdate.State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterProviderUpdated(provider);
+
+            return provider;
+        }
+
+        partial void OnProviderDeleted(Models.AldebaranDb.Provider item);
+        partial void OnAfterProviderDeleted(Models.AldebaranDb.Provider item);
+
+        public async Task<Models.AldebaranDb.Provider> DeleteProvider(int providerid)
+        {
+            var itemToDelete = Context.Providers
+                              .Where(i => i.PROVIDER_ID == providerid)
+                              .Include(i => i.ProviderReferences)
+                              .Include(i => i.PurchaseOrders)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            OnProviderDeleted(itemToDelete);
+
+
+            Context.Providers.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterProviderDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+
+        public async Task ExportPurchaseOrderActivitiesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/purchaseorderactivities/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/purchaseorderactivities/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportPurchaseOrderActivitiesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/purchaseorderactivities/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/purchaseorderactivities/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnPurchaseOrderActivitiesRead(ref IQueryable<Models.AldebaranDb.PurchaseOrderActivity> items);
+
+        public async Task<IQueryable<Models.AldebaranDb.PurchaseOrderActivity>> GetPurchaseOrderActivities(Query query = null)
+        {
+            var items = Context.PurchaseOrderActivities.AsQueryable();
+
+            items = items.Include(i => i.PurchaseOrder);
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach (var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnPurchaseOrderActivitiesRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnPurchaseOrderActivityGet(Models.AldebaranDb.PurchaseOrderActivity item);
+        partial void OnGetPurchaseOrderActivityByPurchaseOrderActivityId(ref IQueryable<Models.AldebaranDb.PurchaseOrderActivity> items);
+
+
+        public async Task<Models.AldebaranDb.PurchaseOrderActivity> GetPurchaseOrderActivityByPurchaseOrderActivityId(int purchaseorderactivityid)
+        {
+            var items = Context.PurchaseOrderActivities
+                              .AsNoTracking()
+                              .Where(i => i.PURCHASE_ORDER_ACTIVITY_ID == purchaseorderactivityid);
+
+            items = items.Include(i => i.PurchaseOrder);
+
+            OnGetPurchaseOrderActivityByPurchaseOrderActivityId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnPurchaseOrderActivityGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnPurchaseOrderActivityCreated(Models.AldebaranDb.PurchaseOrderActivity item);
+        partial void OnAfterPurchaseOrderActivityCreated(Models.AldebaranDb.PurchaseOrderActivity item);
+
+        public async Task<Models.AldebaranDb.PurchaseOrderActivity> CreatePurchaseOrderActivity(Models.AldebaranDb.PurchaseOrderActivity purchaseorderactivity)
+        {
+            OnPurchaseOrderActivityCreated(purchaseorderactivity);
+
+            var existingItem = Context.PurchaseOrderActivities
+                              .Where(i => i.PURCHASE_ORDER_ACTIVITY_ID == purchaseorderactivity.PURCHASE_ORDER_ACTIVITY_ID)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+                throw new Exception("Item already available");
+            }
+
+            try
+            {
+                Context.PurchaseOrderActivities.Add(purchaseorderactivity);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(purchaseorderactivity).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterPurchaseOrderActivityCreated(purchaseorderactivity);
+
+            return purchaseorderactivity;
+        }
+
+        public async Task<Models.AldebaranDb.PurchaseOrderActivity> CancelPurchaseOrderActivityChanges(Models.AldebaranDb.PurchaseOrderActivity item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+                entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+                entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnPurchaseOrderActivityUpdated(Models.AldebaranDb.PurchaseOrderActivity item);
+        partial void OnAfterPurchaseOrderActivityUpdated(Models.AldebaranDb.PurchaseOrderActivity item);
+
+        public async Task<Models.AldebaranDb.PurchaseOrderActivity> UpdatePurchaseOrderActivity(int purchaseorderactivityid, Models.AldebaranDb.PurchaseOrderActivity purchaseorderactivity)
+        {
+            OnPurchaseOrderActivityUpdated(purchaseorderactivity);
+
+            var itemToUpdate = Context.PurchaseOrderActivities
+                              .Where(i => i.PURCHASE_ORDER_ACTIVITY_ID == purchaseorderactivity.PURCHASE_ORDER_ACTIVITY_ID)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            var entryToUpdate = Context.Entry(itemToUpdate);
+            entryToUpdate.CurrentValues.SetValues(purchaseorderactivity);
+            entryToUpdate.State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterPurchaseOrderActivityUpdated(purchaseorderactivity);
+
+            return purchaseorderactivity;
+        }
+
+        partial void OnPurchaseOrderActivityDeleted(Models.AldebaranDb.PurchaseOrderActivity item);
+        partial void OnAfterPurchaseOrderActivityDeleted(Models.AldebaranDb.PurchaseOrderActivity item);
+
+        public async Task<Models.AldebaranDb.PurchaseOrderActivity> DeletePurchaseOrderActivity(int purchaseorderactivityid)
+        {
+            var itemToDelete = Context.PurchaseOrderActivities
+                              .Where(i => i.PURCHASE_ORDER_ACTIVITY_ID == purchaseorderactivityid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            OnPurchaseOrderActivityDeleted(itemToDelete);
+
+
+            Context.PurchaseOrderActivities.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterPurchaseOrderActivityDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+
+        public async Task ExportPurchaseOrderDetailsToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/purchaseorderdetails/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/purchaseorderdetails/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportPurchaseOrderDetailsToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/purchaseorderdetails/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/purchaseorderdetails/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnPurchaseOrderDetailsRead(ref IQueryable<Models.AldebaranDb.PurchaseOrderDetail> items);
+
+        public async Task<IQueryable<Models.AldebaranDb.PurchaseOrderDetail>> GetPurchaseOrderDetails(Query query = null)
+        {
+            var items = Context.PurchaseOrderDetails.AsQueryable();
+
+            items = items.Include(i => i.PurchaseOrder);
+            items = items.Include(i => i.ItemReference);
+            items = items.Include(i => i.Warehouse);
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach (var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnPurchaseOrderDetailsRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnPurchaseOrderDetailGet(Models.AldebaranDb.PurchaseOrderDetail item);
+        partial void OnGetPurchaseOrderDetailByPurchaseOrderDetailId(ref IQueryable<Models.AldebaranDb.PurchaseOrderDetail> items);
+
+
+        public async Task<Models.AldebaranDb.PurchaseOrderDetail> GetPurchaseOrderDetailByPurchaseOrderDetailId(int purchaseorderdetailid)
+        {
+            var items = Context.PurchaseOrderDetails
+                              .AsNoTracking()
+                              .Where(i => i.PURCHASE_ORDER_DETAIL_ID == purchaseorderdetailid);
+
+            items = items.Include(i => i.PurchaseOrder);
+            items = items.Include(i => i.ItemReference);
+            items = items.Include(i => i.Warehouse);
+
+            OnGetPurchaseOrderDetailByPurchaseOrderDetailId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnPurchaseOrderDetailGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnPurchaseOrderDetailCreated(Models.AldebaranDb.PurchaseOrderDetail item);
+        partial void OnAfterPurchaseOrderDetailCreated(Models.AldebaranDb.PurchaseOrderDetail item);
+
+        public async Task<Models.AldebaranDb.PurchaseOrderDetail> CreatePurchaseOrderDetail(Models.AldebaranDb.PurchaseOrderDetail purchaseorderdetail)
+        {
+            OnPurchaseOrderDetailCreated(purchaseorderdetail);
+
+            var existingItem = Context.PurchaseOrderDetails
+                              .Where(i => i.PURCHASE_ORDER_DETAIL_ID == purchaseorderdetail.PURCHASE_ORDER_DETAIL_ID)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+                throw new Exception("Item already available");
+            }
+
+            try
+            {
+                Context.PurchaseOrderDetails.Add(purchaseorderdetail);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(purchaseorderdetail).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterPurchaseOrderDetailCreated(purchaseorderdetail);
+
+            return purchaseorderdetail;
+        }
+
+        public async Task<Models.AldebaranDb.PurchaseOrderDetail> CancelPurchaseOrderDetailChanges(Models.AldebaranDb.PurchaseOrderDetail item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+                entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+                entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnPurchaseOrderDetailUpdated(Models.AldebaranDb.PurchaseOrderDetail item);
+        partial void OnAfterPurchaseOrderDetailUpdated(Models.AldebaranDb.PurchaseOrderDetail item);
+
+        public async Task<Models.AldebaranDb.PurchaseOrderDetail> UpdatePurchaseOrderDetail(int purchaseorderdetailid, Models.AldebaranDb.PurchaseOrderDetail purchaseorderdetail)
+        {
+            OnPurchaseOrderDetailUpdated(purchaseorderdetail);
+
+            var itemToUpdate = Context.PurchaseOrderDetails
+                              .Where(i => i.PURCHASE_ORDER_DETAIL_ID == purchaseorderdetail.PURCHASE_ORDER_DETAIL_ID)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            var entryToUpdate = Context.Entry(itemToUpdate);
+            entryToUpdate.CurrentValues.SetValues(purchaseorderdetail);
+            entryToUpdate.State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterPurchaseOrderDetailUpdated(purchaseorderdetail);
+
+            return purchaseorderdetail;
+        }
+
+        partial void OnPurchaseOrderDetailDeleted(Models.AldebaranDb.PurchaseOrderDetail item);
+        partial void OnAfterPurchaseOrderDetailDeleted(Models.AldebaranDb.PurchaseOrderDetail item);
+
+        public async Task<Models.AldebaranDb.PurchaseOrderDetail> DeletePurchaseOrderDetail(int purchaseorderdetailid)
+        {
+            var itemToDelete = Context.PurchaseOrderDetails
+                              .Where(i => i.PURCHASE_ORDER_DETAIL_ID == purchaseorderdetailid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            OnPurchaseOrderDetailDeleted(itemToDelete);
+
+
+            Context.PurchaseOrderDetails.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterPurchaseOrderDetailDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+
+        public async Task ExportPurchaseOrdersToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/purchaseorders/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/purchaseorders/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportPurchaseOrdersToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/purchaseorders/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/purchaseorders/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnPurchaseOrdersRead(ref IQueryable<Models.AldebaranDb.PurchaseOrder> items);
+
+        public async Task<IQueryable<Models.AldebaranDb.PurchaseOrder>> GetPurchaseOrders(Query query = null)
+        {
+            var items = Context.PurchaseOrders.AsQueryable();
+
+            items = items.Include(i => i.ForwarderAgent);
+            items = items.Include(i => i.Provider);
+            items = items.Include(i => i.ShipmentForwarderAgentMethod);
+            items = items.Include(i => i.User);
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach (var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnPurchaseOrdersRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnPurchaseOrderGet(Models.AldebaranDb.PurchaseOrder item);
+        partial void OnGetPurchaseOrderByPurchaseOrderId(ref IQueryable<Models.AldebaranDb.PurchaseOrder> items);
+
+
+        public async Task<Models.AldebaranDb.PurchaseOrder> GetPurchaseOrderByPurchaseOrderId(int purchaseorderid)
+        {
+            var items = Context.PurchaseOrders
+                              .AsNoTracking()
+                              .Where(i => i.PURCHASE_ORDER_ID == purchaseorderid);
+
+            items = items.Include(i => i.ForwarderAgent);
+            items = items.Include(i => i.Provider);
+            items = items.Include(i => i.ShipmentForwarderAgentMethod);
+            items = items.Include(i => i.User);
+
+            OnGetPurchaseOrderByPurchaseOrderId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnPurchaseOrderGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnPurchaseOrderCreated(Models.AldebaranDb.PurchaseOrder item);
+        partial void OnAfterPurchaseOrderCreated(Models.AldebaranDb.PurchaseOrder item);
+
+        public async Task<Models.AldebaranDb.PurchaseOrder> CreatePurchaseOrder(Models.AldebaranDb.PurchaseOrder purchaseorder)
+        {
+            OnPurchaseOrderCreated(purchaseorder);
+
+            var existingItem = Context.PurchaseOrders
+                              .Where(i => i.PURCHASE_ORDER_ID == purchaseorder.PURCHASE_ORDER_ID)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+                throw new Exception("Item already available");
+            }
+
+            try
+            {
+                Context.PurchaseOrders.Add(purchaseorder);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(purchaseorder).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterPurchaseOrderCreated(purchaseorder);
+
+            return purchaseorder;
+        }
+
+        public async Task<Models.AldebaranDb.PurchaseOrder> CancelPurchaseOrderChanges(Models.AldebaranDb.PurchaseOrder item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+                entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+                entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnPurchaseOrderUpdated(Models.AldebaranDb.PurchaseOrder item);
+        partial void OnAfterPurchaseOrderUpdated(Models.AldebaranDb.PurchaseOrder item);
+
+        public async Task<Models.AldebaranDb.PurchaseOrder> UpdatePurchaseOrder(int purchaseorderid, Models.AldebaranDb.PurchaseOrder purchaseorder)
+        {
+            OnPurchaseOrderUpdated(purchaseorder);
+
+            var itemToUpdate = Context.PurchaseOrders
+                              .Where(i => i.PURCHASE_ORDER_ID == purchaseorder.PURCHASE_ORDER_ID)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            var entryToUpdate = Context.Entry(itemToUpdate);
+            entryToUpdate.CurrentValues.SetValues(purchaseorder);
+            entryToUpdate.State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterPurchaseOrderUpdated(purchaseorder);
+
+            return purchaseorder;
+        }
+
+        partial void OnPurchaseOrderDeleted(Models.AldebaranDb.PurchaseOrder item);
+        partial void OnAfterPurchaseOrderDeleted(Models.AldebaranDb.PurchaseOrder item);
+
+        public async Task<Models.AldebaranDb.PurchaseOrder> DeletePurchaseOrder(int purchaseorderid)
+        {
+            var itemToDelete = Context.PurchaseOrders
+                              .Where(i => i.PURCHASE_ORDER_ID == purchaseorderid)
+                              .Include(i => i.PurchaseOrderActivities)
+                              .Include(i => i.PurchaseOrderDetails)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            OnPurchaseOrderDeleted(itemToDelete);
+
+
+            Context.PurchaseOrders.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterPurchaseOrderDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+
+        public async Task ExportReferencesWarehousesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/referenceswarehouses/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/referenceswarehouses/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportReferencesWarehousesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/referenceswarehouses/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/referenceswarehouses/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnReferencesWarehousesRead(ref IQueryable<Models.AldebaranDb.ReferencesWarehouse> items);
+
+        public async Task<IQueryable<Models.AldebaranDb.ReferencesWarehouse>> GetReferencesWarehouses(Query query = null)
+        {
+            var items = Context.ReferencesWarehouses.AsQueryable();
+
+            items = items.Include(i => i.ItemReference);
+            items = items.Include(i => i.Warehouse);
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach (var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnReferencesWarehousesRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnReferencesWarehouseGet(Models.AldebaranDb.ReferencesWarehouse item);
+        partial void OnGetReferencesWarehouseByReferenceIdAndWarehouseId(ref IQueryable<Models.AldebaranDb.ReferencesWarehouse> items);
+
+
+        public async Task<Models.AldebaranDb.ReferencesWarehouse> GetReferencesWarehouseByReferenceIdAndWarehouseId(int referenceid, short warehouseid)
+        {
+            var items = Context.ReferencesWarehouses
+                              .AsNoTracking()
+                              .Where(i => i.REFERENCE_ID == referenceid && i.WAREHOUSE_ID == warehouseid);
+
+            items = items.Include(i => i.ItemReference);
+            items = items.Include(i => i.Warehouse);
+
+            OnGetReferencesWarehouseByReferenceIdAndWarehouseId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnReferencesWarehouseGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnReferencesWarehouseCreated(Models.AldebaranDb.ReferencesWarehouse item);
+        partial void OnAfterReferencesWarehouseCreated(Models.AldebaranDb.ReferencesWarehouse item);
+
+        public async Task<Models.AldebaranDb.ReferencesWarehouse> CreateReferencesWarehouse(Models.AldebaranDb.ReferencesWarehouse referenceswarehouse)
+        {
+            OnReferencesWarehouseCreated(referenceswarehouse);
+
+            var existingItem = Context.ReferencesWarehouses
+                              .Where(i => i.REFERENCE_ID == referenceswarehouse.REFERENCE_ID && i.WAREHOUSE_ID == referenceswarehouse.WAREHOUSE_ID)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+                throw new Exception("Item already available");
+            }
+
+            try
+            {
+                Context.ReferencesWarehouses.Add(referenceswarehouse);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(referenceswarehouse).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterReferencesWarehouseCreated(referenceswarehouse);
+
+            return referenceswarehouse;
+        }
+
+        public async Task<Models.AldebaranDb.ReferencesWarehouse> CancelReferencesWarehouseChanges(Models.AldebaranDb.ReferencesWarehouse item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+                entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+                entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnReferencesWarehouseUpdated(Models.AldebaranDb.ReferencesWarehouse item);
+        partial void OnAfterReferencesWarehouseUpdated(Models.AldebaranDb.ReferencesWarehouse item);
+
+        public async Task<Models.AldebaranDb.ReferencesWarehouse> UpdateReferencesWarehouse(int referenceid, short warehouseid, Models.AldebaranDb.ReferencesWarehouse referenceswarehouse)
+        {
+            OnReferencesWarehouseUpdated(referenceswarehouse);
+
+            var itemToUpdate = Context.ReferencesWarehouses
+                              .Where(i => i.REFERENCE_ID == referenceswarehouse.REFERENCE_ID && i.WAREHOUSE_ID == referenceswarehouse.WAREHOUSE_ID)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            var entryToUpdate = Context.Entry(itemToUpdate);
+            entryToUpdate.CurrentValues.SetValues(referenceswarehouse);
+            entryToUpdate.State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterReferencesWarehouseUpdated(referenceswarehouse);
+
+            return referenceswarehouse;
+        }
+
+        partial void OnReferencesWarehouseDeleted(Models.AldebaranDb.ReferencesWarehouse item);
+        partial void OnAfterReferencesWarehouseDeleted(Models.AldebaranDb.ReferencesWarehouse item);
+
+        public async Task<Models.AldebaranDb.ReferencesWarehouse> DeleteReferencesWarehouse(int referenceid, short warehouseid)
+        {
+            var itemToDelete = Context.ReferencesWarehouses
+                              .Where(i => i.REFERENCE_ID == referenceid && i.WAREHOUSE_ID == warehouseid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            OnReferencesWarehouseDeleted(itemToDelete);
+
+
+            Context.ReferencesWarehouses.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterReferencesWarehouseDeleted(itemToDelete);
 
             return itemToDelete;
         }
@@ -2810,6 +4487,7 @@ namespace Aldebaran.Web
         {
             var itemToDelete = Context.ShipmentForwarderAgentMethods
                               .Where(i => i.SHIPMENT_FORWARDER_AGENT_METHOD_ID == shipmentforwarderagentmethodid)
+                              .Include(i => i.PurchaseOrders)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -2971,6 +4649,7 @@ namespace Aldebaran.Web
         {
             var itemToDelete = Context.ShipmentMethods
                               .Where(i => i.SHIPMENT_METHOD_ID == shipmentmethodid)
+                              .Include(i => i.ShipmentForwarderAgentMethods)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -3159,25 +4838,22 @@ namespace Aldebaran.Web
             return itemToDelete;
         }
 
-        public async Task ExportProvidersToExcel(Query query = null, string fileName = null)
+        public async Task ExportWarehousesToExcel(Query query = null, string fileName = null)
         {
-            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/providers/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/providers/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/warehouses/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/warehouses/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
         }
 
-        public async Task ExportProvidersToCSV(Query query = null, string fileName = null)
+        public async Task ExportWarehousesToCSV(Query query = null, string fileName = null)
         {
-            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/providers/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/providers/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/warehouses/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/warehouses/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
         }
 
-        partial void OnProvidersRead(ref IQueryable<Models.AldebaranDb.Provider> items);
-        partial void OnAdjustmentsRead(ref IQueryable<Models.AldebaranDb.Adjustment> items);
-        partial void OnAdjustmentDetailsRead(ref IQueryable<Models.AldebaranDb.AdjustmentDetail> items);
         partial void OnWarehousesRead(ref IQueryable<Models.AldebaranDb.Warehouse> items);
-        partial void OnAspnetusersRead(ref IQueryable<Models.AldebaranDb.Aspnetuser> items);
 
         public async Task<IQueryable<Models.AldebaranDb.Warehouse>> GetWarehouses(Query query = null)
         {
             var items = Context.Warehouses.AsQueryable();
+
 
             if (query != null)
             {
@@ -3198,35 +4874,149 @@ namespace Aldebaran.Web
             return await Task.FromResult(items);
         }
 
-        public async Task<IQueryable<Models.AldebaranDb.Provider>> GetProviders(Query query = null)
+        partial void OnWarehouseGet(Models.AldebaranDb.Warehouse item);
+        partial void OnGetWarehouseByWarehouseId(ref IQueryable<Models.AldebaranDb.Warehouse> items);
+
+
+        public async Task<Models.AldebaranDb.Warehouse> GetWarehouseByWarehouseId(short warehouseid)
         {
-            var items = Context.Providers.AsQueryable();
+            var items = Context.Warehouses
+                              .AsNoTracking()
+                              .Where(i => i.WAREHOUSE_ID == warehouseid);
 
-            items = items.Include(i => i.City);
-            items = items.Include(i => i.IdentityType);
 
-            if (query != null)
-            {
-                if (!string.IsNullOrEmpty(query.Expand))
-                {
-                    var propertiesToExpand = query.Expand.Split(',');
-                    foreach (var p in propertiesToExpand)
-                    {
-                        items = items.Include(p.Trim());
-                    }
-                }
+            OnGetWarehouseByWarehouseId(ref items);
 
-                ApplyQuery(ref items, query);
-            }
+            var itemToReturn = items.FirstOrDefault();
 
-            OnProvidersRead(ref items);
+            OnWarehouseGet(itemToReturn);
 
-            return await Task.FromResult(items);
+            return await Task.FromResult(itemToReturn);
         }
 
-        public async Task<IQueryable<Models.AldebaranDb.Aspnetuser>> GetAspnetusers(Query query = null)
+        partial void OnWarehouseCreated(Models.AldebaranDb.Warehouse item);
+        partial void OnAfterWarehouseCreated(Models.AldebaranDb.Warehouse item);
+
+        public async Task<Models.AldebaranDb.Warehouse> CreateWarehouse(Models.AldebaranDb.Warehouse warehouse)
         {
-            var items = Context.Aspnetusers.AsQueryable();
+            OnWarehouseCreated(warehouse);
+
+            var existingItem = Context.Warehouses
+                              .Where(i => i.WAREHOUSE_ID == warehouse.WAREHOUSE_ID)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+                throw new Exception("Item already available");
+            }
+
+            try
+            {
+                Context.Warehouses.Add(warehouse);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(warehouse).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterWarehouseCreated(warehouse);
+
+            return warehouse;
+        }
+
+        public async Task<Models.AldebaranDb.Warehouse> CancelWarehouseChanges(Models.AldebaranDb.Warehouse item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+                entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+                entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnWarehouseUpdated(Models.AldebaranDb.Warehouse item);
+        partial void OnAfterWarehouseUpdated(Models.AldebaranDb.Warehouse item);
+
+        public async Task<Models.AldebaranDb.Warehouse> UpdateWarehouse(short warehouseid, Models.AldebaranDb.Warehouse warehouse)
+        {
+            OnWarehouseUpdated(warehouse);
+
+            var itemToUpdate = Context.Warehouses
+                              .Where(i => i.WAREHOUSE_ID == warehouse.WAREHOUSE_ID)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            var entryToUpdate = Context.Entry(itemToUpdate);
+            entryToUpdate.CurrentValues.SetValues(warehouse);
+            entryToUpdate.State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterWarehouseUpdated(warehouse);
+
+            return warehouse;
+        }
+
+        partial void OnWarehouseDeleted(Models.AldebaranDb.Warehouse item);
+        partial void OnAfterWarehouseDeleted(Models.AldebaranDb.Warehouse item);
+
+        public async Task<Models.AldebaranDb.Warehouse> DeleteWarehouse(short warehouseid)
+        {
+            var itemToDelete = Context.Warehouses
+                              .Where(i => i.WAREHOUSE_ID == warehouseid)
+                              .Include(i => i.AdjustmentDetails)
+                              .Include(i => i.PurchaseOrderDetails)
+                              .Include(i => i.ReferencesWarehouses)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            OnWarehouseDeleted(itemToDelete);
+
+
+            Context.Warehouses.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterWarehouseDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+
+        public async Task ExportUsersToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/users/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/users/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportUsersToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/users/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/users/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnUsersRead(ref IQueryable<Models.AldebaranDb.User> items);
+
+        public async Task<IQueryable<Models.AldebaranDb.User>> GetUsers(Query query = null)
+        {
+            var items = Context.Users.AsQueryable();
 
             items = items.Include(i => i.Area);
             items = items.Include(i => i.IdentityType);
@@ -3245,145 +5035,42 @@ namespace Aldebaran.Web
                 ApplyQuery(ref items, query);
             }
 
-            OnAspnetusersRead(ref items);
+            OnUsersRead(ref items);
 
             return await Task.FromResult(items);
         }
 
-        public async Task<IQueryable<Models.AldebaranDb.Adjustment>> GetAdjustments(Query query = null)
+        partial void OnUserGet(Models.AldebaranDb.User item);
+        partial void OnGetUserByUserId(ref IQueryable<Models.AldebaranDb.User> items);
+
+
+        public async Task<Models.AldebaranDb.User> GetUserByUserId(int userid)
         {
-            var items = Context.Adjustments.AsQueryable();
-
-            items = items.Include(i => i.AdjustmentReason);
-            items = items.Include(i => i.AdjustmentType);
-            items = items.Include(i => i.Aspnetuser);
-
-            if (query != null)
-            {
-                if (!string.IsNullOrEmpty(query.Expand))
-                {
-                    var propertiesToExpand = query.Expand.Split(',');
-                    foreach (var p in propertiesToExpand)
-                    {
-                        items = items.Include(p.Trim());
-                    }
-                }
-
-                ApplyQuery(ref items, query);
-            }
-
-            OnAdjustmentsRead(ref items);
-
-            return await Task.FromResult(items);
-        }
-
-        public async Task<IQueryable<Models.AldebaranDb.AdjustmentDetail>> GetAdjustmentDetails(Query query = null)
-        {
-            var items = Context.AdjustmentDetails.AsQueryable();
-
-            items = items.Include(i => i.ItemReference);
-            items = items.Include(i => i.Adjustment);
-            items = items.Include(i => i.Warehouse);
-
-            if (query != null)
-            {
-                if (!string.IsNullOrEmpty(query.Expand))
-                {
-                    var propertiesToExpand = query.Expand.Split(',');
-                    foreach (var p in propertiesToExpand)
-                    {
-                        items = items.Include(p.Trim());
-                    }
-                }
-
-                ApplyQuery(ref items, query);
-            }
-
-            OnAdjustmentDetailsRead(ref items);
-
-            return await Task.FromResult(items);
-        }
-
-        partial void OnProviderGet(Models.AldebaranDb.Provider item);
-        partial void OnAdjustmentGet(Models.AldebaranDb.Adjustment item);
-
-        partial void OnAdjustmentDetailGet(Models.AldebaranDb.AdjustmentDetail item);
-
-        partial void OnGetProviderByProviderId(ref IQueryable<Models.AldebaranDb.Provider> items);
-
-        partial void OnGetAdjustmentByAdjustmentId(ref IQueryable<Models.AldebaranDb.Adjustment> items);
-
-        partial void OnGetAdjustmentDetailByAdjustmentDetailId(ref IQueryable<Models.AldebaranDb.AdjustmentDetail> items);
-
-        public async Task<Models.AldebaranDb.Provider> GetProviderByProviderId(int providerid)
-        {
-            var items = Context.Providers
+            var items = Context.Users
                               .AsNoTracking()
-                              .Where(i => i.PROVIDER_ID == providerid);
+                              .Where(i => i.USER_ID == userid);
 
-            items = items.Include(i => i.City);
+            items = items.Include(i => i.Area);
             items = items.Include(i => i.IdentityType);
 
-            OnGetProviderByProviderId(ref items);
+            OnGetUserByUserId(ref items);
 
             var itemToReturn = items.FirstOrDefault();
 
-            OnProviderGet(itemToReturn);
+            OnUserGet(itemToReturn);
 
             return await Task.FromResult(itemToReturn);
         }
 
-        public async Task<Models.AldebaranDb.Adjustment> GetAdjustmentByAdjustmentId(int adjustmentId)
+        partial void OnUserCreated(Models.AldebaranDb.User item);
+        partial void OnAfterUserCreated(Models.AldebaranDb.User item);
+
+        public async Task<Models.AldebaranDb.User> CreateUser(Models.AldebaranDb.User user)
         {
-            var items = Context.Adjustments
-                              .AsNoTracking()
-                              .Where(i => i.ADJUSTMENT_ID == adjustmentId);
+            OnUserCreated(user);
 
-            items = items.Include(i => i.AdjustmentReason);
-            items = items.Include(i => i.AdjustmentType);
-            items = items.Include(i => i.Aspnetuser);
-
-            OnGetAdjustmentByAdjustmentId(ref items);
-
-            var itemToReturn = items.FirstOrDefault();
-
-            OnAdjustmentGet(itemToReturn);
-
-            return await Task.FromResult(itemToReturn);
-        }
-
-        public async Task<Models.AldebaranDb.AdjustmentDetail> GetAdjustmentDetailByAdjustmentDetailId(int adjustmentDetailId)
-        {
-            var items = Context.AdjustmentDetails
-                              .AsNoTracking()
-                              .Where(i => i.ADJUSTMENT_DETAIL_ID == adjustmentDetailId);
-
-            items = items.Include(i => i.Adjustment);
-            items = items.Include(i => i.ItemReference);
-            items = items.Include(i => i.Warehouse);
-
-            OnGetAdjustmentDetailByAdjustmentDetailId(ref items);
-
-            var itemToReturn = items.FirstOrDefault();
-
-            OnAdjustmentDetailGet(itemToReturn);
-
-            return await Task.FromResult(itemToReturn);
-        }
-        
-        partial void OnAdjustmentDetailCreated(Models.AldebaranDb.AdjustmentDetail item);
-        partial void OnAdjustmentCreated(Models.AldebaranDb.Adjustment item);
-        partial void OnProviderCreated(Models.AldebaranDb.Provider item);
-        partial void OnAfterProviderCreated(Models.AldebaranDb.Provider item);
-        partial void OnAfterAdjustmentCreated(Models.AldebaranDb.Adjustment item);
-        partial void OnAfterAdjustmentDetailCreated(Models.AldebaranDb.AdjustmentDetail item);
-
-        public async Task<Models.AldebaranDb.Provider> CreateProvider(Models.AldebaranDb.Provider provider)
-        {
-            OnProviderCreated(provider);
-
-            var existingItem = Context.Providers
-                              .Where(i => i.PROVIDER_ID == provider.PROVIDER_ID)
+            var existingItem = Context.Users
+                              .Where(i => i.USER_ID == user.USER_ID)
                               .FirstOrDefault();
 
             if (existingItem != null)
@@ -3393,79 +5080,21 @@ namespace Aldebaran.Web
 
             try
             {
-                Context.Providers.Add(provider);
+                Context.Users.Add(user);
                 Context.SaveChanges();
             }
             catch
             {
-                Context.Entry(provider).State = EntityState.Detached;
+                Context.Entry(user).State = EntityState.Detached;
                 throw;
             }
 
-            OnAfterProviderCreated(provider);
+            OnAfterUserCreated(user);
 
-            return provider;
+            return user;
         }
 
-        public async Task<Models.AldebaranDb.Adjustment> CreateAdjustment(Models.AldebaranDb.Adjustment adjustment)
-        {
-            OnAdjustmentCreated(adjustment);
-
-            var existingItem = Context.Adjustments
-                              .Where(i => i.ADJUSTMENT_ID == adjustment.ADJUSTMENT_ID)
-                              .FirstOrDefault();
-
-            if (existingItem != null)
-            {
-                throw new Exception("Item already available");
-            }
-
-            try
-            {
-                Context.Adjustments.Add(adjustment);
-                Context.SaveChanges();
-            }
-            catch
-            {
-                Context.Entry(adjustment).State = EntityState.Detached;
-                throw;
-            }
-
-            OnAfterAdjustmentCreated(adjustment);
-
-            return adjustment;
-        }
-
-        public async Task<Models.AldebaranDb.AdjustmentDetail> CreateAdjustmentDetail(Models.AldebaranDb.AdjustmentDetail adjustmentDetail)
-        {
-            OnAdjustmentDetailCreated(adjustmentDetail);
-
-            var existingItem = Context.AdjustmentDetails
-                              .Where(i => i.ADJUSTMENT_DETAIL_ID == adjustmentDetail.ADJUSTMENT_DETAIL_ID)
-                              .FirstOrDefault();
-
-            if (existingItem != null)
-            {
-                throw new Exception("Item already available");
-            }
-
-            try
-            {
-                Context.AdjustmentDetails.Add(adjustmentDetail);
-                Context.SaveChanges();
-            }
-            catch
-            {
-                Context.Entry(adjustmentDetail).State = EntityState.Detached;
-                throw;
-            }
-
-            OnAfterAdjustmentDetailCreated(adjustmentDetail);
-
-            return adjustmentDetail;
-        }
-
-        public async Task<Models.AldebaranDb.Provider> CancelProviderChanges(Models.AldebaranDb.Provider item)
+        public async Task<Models.AldebaranDb.User> CancelUserChanges(Models.AldebaranDb.User item)
         {
             var entityToCancel = Context.Entry(item);
             if (entityToCancel.State == EntityState.Modified)
@@ -3477,19 +5106,15 @@ namespace Aldebaran.Web
             return item;
         }
 
-        partial void OnProviderUpdated(Models.AldebaranDb.Provider item);
-        partial void OnAdjustmentUpdated(Models.AldebaranDb.Adjustment item);
-        partial void OnAdjustmentDetailUpdated(Models.AldebaranDb.AdjustmentDetail item);
-        partial void OnAfterProviderUpdated(Models.AldebaranDb.Provider item);
-        partial void OnAfterAdjustmentUpdated(Models.AldebaranDb.Adjustment item);
-        partial void OnAfterAdjustmentDetailUpdated(Models.AldebaranDb.AdjustmentDetail item);
+        partial void OnUserUpdated(Models.AldebaranDb.User item);
+        partial void OnAfterUserUpdated(Models.AldebaranDb.User item);
 
-        public async Task<Models.AldebaranDb.Provider> UpdateProvider(int providerid, Models.AldebaranDb.Provider provider)
+        public async Task<Models.AldebaranDb.User> UpdateUser(int userid, Models.AldebaranDb.User user)
         {
-            OnProviderUpdated(provider);
+            OnUserUpdated(user);
 
-            var itemToUpdate = Context.Providers
-                              .Where(i => i.PROVIDER_ID == provider.PROVIDER_ID)
+            var itemToUpdate = Context.Users
+                              .Where(i => i.USER_ID == user.USER_ID)
                               .FirstOrDefault();
 
             if (itemToUpdate == null)
@@ -3498,71 +5123,24 @@ namespace Aldebaran.Web
             }
 
             var entryToUpdate = Context.Entry(itemToUpdate);
-            entryToUpdate.CurrentValues.SetValues(provider);
+            entryToUpdate.CurrentValues.SetValues(user);
             entryToUpdate.State = EntityState.Modified;
 
             Context.SaveChanges();
 
-            OnAfterProviderUpdated(provider);
+            OnAfterUserUpdated(user);
 
-            return provider;
+            return user;
         }
 
-        public async Task<Models.AldebaranDb.Adjustment> UpdateAdjustment(int adjustmentId, Models.AldebaranDb.Adjustment adjustment)
+        partial void OnUserDeleted(Models.AldebaranDb.User item);
+        partial void OnAfterUserDeleted(Models.AldebaranDb.User item);
+
+        public async Task<Models.AldebaranDb.User> DeleteUser(int userid)
         {
-            OnAdjustmentUpdated(adjustment);
-
-            var itemToUpdate = Context.Adjustments
-                              .Where(i => i.ADJUSTMENT_ID == adjustment.ADJUSTMENT_ID)
-                              .FirstOrDefault();
-
-            if (itemToUpdate == null)
-            {
-                throw new Exception("Item no longer available");
-            }
-
-            var entryToUpdate = Context.Entry(itemToUpdate);
-            entryToUpdate.CurrentValues.SetValues(adjustment);
-            entryToUpdate.State = EntityState.Modified;
-
-            Context.SaveChanges();
-
-            OnAfterAdjustmentUpdated(adjustment);
-
-            return adjustment;
-        }
-
-        public async Task<Models.AldebaranDb.AdjustmentDetail> UpdateAdjustmentDetail(int adjustmentDetailId, Models.AldebaranDb.AdjustmentDetail adjustmentDetail)
-        {
-            OnAdjustmentDetailUpdated(adjustmentDetail);
-
-            var itemToUpdate = Context.AdjustmentDetails
-                              .Where(i => i.ADJUSTMENT_DETAIL_ID == adjustmentDetail.ADJUSTMENT_DETAIL_ID)
-                              .FirstOrDefault();
-
-            if (itemToUpdate == null)
-            {
-                throw new Exception("Item no longer available");
-            }
-
-            var entryToUpdate = Context.Entry(itemToUpdate);
-            entryToUpdate.CurrentValues.SetValues(adjustmentDetail);
-            entryToUpdate.State = EntityState.Modified;
-
-            Context.SaveChanges();
-
-            OnAfterAdjustmentDetailUpdated(adjustmentDetail);
-
-            return adjustmentDetail;
-        }
-
-        partial void OnProviderDeleted(Models.AldebaranDb.Provider item);
-        partial void OnAfterProviderDeleted(Models.AldebaranDb.Provider item);
-
-        public async Task<Models.AldebaranDb.Provider> DeleteProvider(int providerid)
-        {
-            var itemToDelete = Context.Providers
-                              .Where(i => i.PROVIDER_ID == providerid)
+            var itemToDelete = Context.Users
+                              .Where(i => i.USER_ID == userid)
+                              .Include(i => i.PurchaseOrders)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -3570,10 +5148,10 @@ namespace Aldebaran.Web
                 throw new Exception("Item no longer available");
             }
 
-            OnProviderDeleted(itemToDelete);
+            OnUserDeleted(itemToDelete);
 
 
-            Context.Providers.Remove(itemToDelete);
+            Context.Users.Remove(itemToDelete);
 
             try
             {
@@ -3585,172 +5163,7 @@ namespace Aldebaran.Web
                 throw;
             }
 
-            OnAfterProviderDeleted(itemToDelete);
-
-            return itemToDelete;
-        }
-
-        public async Task ExportProviderReferencesToExcel(Query query = null, string fileName = null)
-        {
-            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/providerreferences/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/providerreferences/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
-        }
-
-        public async Task ExportProviderReferencesToCSV(Query query = null, string fileName = null)
-        {
-            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/providerreferences/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/providerreferences/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
-        }
-
-        partial void OnProviderReferencesRead(ref IQueryable<Models.AldebaranDb.ProviderReference> items);
-
-        public async Task<IQueryable<Models.AldebaranDb.ProviderReference>> GetProviderReferences(Query query = null)
-        {
-            var items = Context.ProviderReferences.AsQueryable();
-
-            items = items.Include(i => i.Provider);
-            items = items.Include(i => i.ItemReference);
-
-            if (query != null)
-            {
-                if (!string.IsNullOrEmpty(query.Expand))
-                {
-                    var propertiesToExpand = query.Expand.Split(',');
-                    foreach (var p in propertiesToExpand)
-                    {
-                        items = items.Include(p.Trim());
-                    }
-                }
-
-                ApplyQuery(ref items, query);
-            }
-
-            OnProviderReferencesRead(ref items);
-
-            return await Task.FromResult(items);
-        }
-
-        partial void OnProviderReferenceGet(Models.AldebaranDb.ProviderReference item);
-        partial void OnGetProviderReferenceByReferenceIdAndProviderId(ref IQueryable<Models.AldebaranDb.ProviderReference> items);
-
-
-        public async Task<Models.AldebaranDb.ProviderReference> GetProviderReferenceByReferenceIdAndProviderId(int referenceid, int providerid)
-        {
-            var items = Context.ProviderReferences
-                              .AsNoTracking()
-                              .Where(i => i.REFERENCE_ID == referenceid && i.PROVIDER_ID == providerid);
-
-            items = items.Include(i => i.Provider);
-            items = items.Include(i => i.ItemReference);
-
-            OnGetProviderReferenceByReferenceIdAndProviderId(ref items);
-
-            var itemToReturn = items.FirstOrDefault();
-
-            OnProviderReferenceGet(itemToReturn);
-
-            return await Task.FromResult(itemToReturn);
-        }
-
-        partial void OnProviderReferenceCreated(Models.AldebaranDb.ProviderReference item);
-        partial void OnAfterProviderReferenceCreated(Models.AldebaranDb.ProviderReference item);
-
-        public async Task<Models.AldebaranDb.ProviderReference> CreateProviderReference(Models.AldebaranDb.ProviderReference providerreference)
-        {
-            OnProviderReferenceCreated(providerreference);
-
-            var existingItem = Context.ProviderReferences
-                              .Where(i => i.REFERENCE_ID == providerreference.REFERENCE_ID && i.PROVIDER_ID == providerreference.PROVIDER_ID)
-                              .FirstOrDefault();
-
-            if (existingItem != null)
-            {
-                throw new Exception("Item already available");
-            }
-
-            try
-            {
-                Context.ProviderReferences.Add(providerreference);
-                Context.SaveChanges();
-            }
-            catch
-            {
-                Context.Entry(providerreference).State = EntityState.Detached;
-                throw;
-            }
-
-            OnAfterProviderReferenceCreated(providerreference);
-
-            return providerreference;
-        }
-
-        public async Task<Models.AldebaranDb.ProviderReference> CancelProviderReferenceChanges(Models.AldebaranDb.ProviderReference item)
-        {
-            var entityToCancel = Context.Entry(item);
-            if (entityToCancel.State == EntityState.Modified)
-            {
-                entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
-                entityToCancel.State = EntityState.Unchanged;
-            }
-
-            return item;
-        }
-
-        partial void OnProviderReferenceUpdated(Models.AldebaranDb.ProviderReference item);
-        partial void OnAfterProviderReferenceUpdated(Models.AldebaranDb.ProviderReference item);
-
-        public async Task<Models.AldebaranDb.ProviderReference> UpdateProviderReference(int referenceid, int providerid, Models.AldebaranDb.ProviderReference providerreference)
-        {
-            OnProviderReferenceUpdated(providerreference);
-
-            var itemToUpdate = Context.ProviderReferences
-                              .Where(i => i.REFERENCE_ID == providerreference.REFERENCE_ID && i.PROVIDER_ID == providerreference.PROVIDER_ID)
-                              .FirstOrDefault();
-
-            if (itemToUpdate == null)
-            {
-                throw new Exception("Item no longer available");
-            }
-
-            var entryToUpdate = Context.Entry(itemToUpdate);
-            entryToUpdate.CurrentValues.SetValues(providerreference);
-            entryToUpdate.State = EntityState.Modified;
-
-            Context.SaveChanges();
-
-            OnAfterProviderReferenceUpdated(providerreference);
-
-            return providerreference;
-        }
-
-        partial void OnProviderReferenceDeleted(Models.AldebaranDb.ProviderReference item);
-        partial void OnAfterProviderReferenceDeleted(Models.AldebaranDb.ProviderReference item);
-
-        public async Task<Models.AldebaranDb.ProviderReference> DeleteProviderReference(int referenceid, int providerid)
-        {
-            var itemToDelete = Context.ProviderReferences
-                              .Where(i => i.REFERENCE_ID == referenceid && i.PROVIDER_ID == providerid)
-                              .FirstOrDefault();
-
-            if (itemToDelete == null)
-            {
-                throw new Exception("Item no longer available");
-            }
-
-            OnProviderReferenceDeleted(itemToDelete);
-
-
-            Context.ProviderReferences.Remove(itemToDelete);
-
-            try
-            {
-                Context.SaveChanges();
-            }
-            catch
-            {
-                Context.Entry(itemToDelete).State = EntityState.Unchanged;
-                throw;
-            }
-
-            OnAfterProviderReferenceDeleted(itemToDelete);
+            OnAfterUserDeleted(itemToDelete);
 
             return itemToDelete;
         }

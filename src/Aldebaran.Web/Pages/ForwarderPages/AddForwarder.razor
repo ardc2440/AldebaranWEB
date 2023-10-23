@@ -1,6 +1,4 @@
-@page "/add-forwarder"
-
-@attribute [Authorize]
+@attribute [Authorize(Roles="Admin,Forwarder Editor")]
 
 <PageTitle>Nueva transportadora</PageTitle>
 <RadzenColumn SizeMD=12>

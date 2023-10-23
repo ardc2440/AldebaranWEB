@@ -1,0 +1,124 @@
+@page "/add-application-user"
+@attribute [Authorize]
+
+<PageTitle>Nuevo Usuario</PageTitle>
+<RadzenColumn SizeMD="12">
+    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible" Title="No se ha podido crear el usuario">@error</RadzenAlert>
+    <RadzenTemplateForm TItem="Aldebaran.Web.Models.ApplicationUser" Data="@applicationUser" Visible="@(applicationUser != null)" Submit="@FormSubmit">
+        <RadzenStack>
+            <RadzenRow AlignItems="Radzen.AlignItems.Start">
+                <RadzenColumn Size="12" SizeMD="4">
+                    <RadzenFormField Text="Nombre" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenTextBox style="width: 100%" @bind-Value="@(user.FULL_NAME)" Name="USER_FULL_NAME" />
+                        </ChildContent>
+                        <Helper>
+                            <RadzenRequiredValidator Component="USER_FULL_NAME" Text="Nombre es requerido" />
+                        </Helper>
+                    </RadzenFormField>
+                </RadzenColumn>
+                <RadzenColumn Size="12" SizeMD="4">
+                    <RadzenFormField Text="Área" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenDropDownDataGrid Data="@areasForAREAID" TextProperty="AREA_NAME" ValueProperty="AREA_ID" AllowClear=true
+                                                    style="display: block; width: 100%" @bind-Value="@user.AREA_ID" Name="AREA_ID" AllowFilteringByWord="true">
+                                <Columns>
+                                    <RadzenDropDownDataGridColumn Property="AREA_CODE" Title="Código" />
+                                    <RadzenDropDownDataGridColumn Property="AREA_NAME" Title="Nombre" />
+                                    <RadzenDropDownDataGridColumn Property="DESCRIPTION" Title="Descripción" />
+                                </Columns>
+                            </RadzenDropDownDataGrid>
+                        </ChildContent>
+                        <Helper>
+                            <RadzenNumericRangeValidator Component="AREA_ID" Min="1" Text="Área es requerida" />
+                        </Helper>
+                    </RadzenFormField>
+                </RadzenColumn>
+                <RadzenColumn Size="12" SizeMD="4">
+                    <RadzenFormField Text="Posición" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenTextBox style="width: 100%" @bind-Value="@(user.POSITION)" Name="POSITION" />
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenRow AlignItems="Radzen.AlignItems.Start">
+                <RadzenColumn Size="12" SizeMD="6">
+                    <RadzenFormField Text="Tipo de documento" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenDropDown Data="@identityTypesForIDENTITYTYPEID" TextProperty="IDENTITY_TYPE_CODE" ValueProperty="IDENTITY_TYPE_ID" AllowClear=true
+                                            style="display: block; width: 100%" @bind-Value="@user.IDENTITY_TYPE_ID" Name="IDENTITY_TYPE_ID" AllowFiltering="true" ClearSearchAfterSelection="true" />
+                        </ChildContent>
+                        <Helper>
+                            <RadzenNumericRangeValidator Component="IDENTITY_TYPE_ID" Min="1" Text="Tipo de documento es requerido" />
+                        </Helper>
+                    </RadzenFormField>
+                </RadzenColumn>
+                <RadzenColumn Size="12" SizeMD="6">
+                    <RadzenFormField Text="Número de documento" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@user.IDENTITY_NUMBER" Name="IDENTITY_NUMBER" />
+                        </ChildContent>
+                        <Helper>
+                            <RadzenRequiredValidator Component="IDENTITY_NUMBER" Text="Número de documento es requerido" />
+                        </Helper>
+                    </RadzenFormField>
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenRow AlignItems="Radzen.AlignItems.Start">
+                <RadzenColumn Size="12" SizeMD="6">
+                    <RadzenFormField Text="Correo electrónico" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenTextBox style="width: 100%" @bind-Value="@(applicationUser.Email)" Name="Email" />
+                        </ChildContent>
+                        <Helper>
+                            <RadzenRequiredValidator Component="Email" Text="Correo electrónico es requerido" />
+                        </Helper>
+                    </RadzenFormField>
+                </RadzenColumn>
+                <RadzenColumn Size="12" SizeMD="6">
+                    <RadzenFormField Text="Nombre de usuario" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenTextBox style="width: 100%" @bind-Value="@(applicationUser.UserName)" Name="UserName" />
+                        </ChildContent>
+                        <Helper>
+                            <RadzenRequiredValidator Component="UserName" Text="Nombre de usuario es requerido" />
+                        </Helper>
+                    </RadzenFormField>
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenFormField Text="Roles" Variant="Variant.Text">
+                <ChildContent>
+                    <RadzenDropDown Data="@roles" Multiple="true" style="width: 100%" TextProperty="Name" @bind-Value="@(userRoles)" ValueProperty="Id" Name="Roles" AllowSelectAll="false" AllowClear="true" AllowFiltering="true" ClearSearchAfterSelection="true" />
+                </ChildContent>
+            </RadzenFormField>
+            <RadzenRow AlignItems="Radzen.AlignItems.Start">
+                <RadzenColumn Size="12" SizeMD="6">
+                    <RadzenFormField Text="Contraseña" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenPassword @bind-Value="@(applicationUser.Password)" style="display: block; width: 100%" Name="Password" />
+                        </ChildContent>
+                        <Helper>
+                            <RadzenRequiredValidator Component="Email" Text="Contraseña es requerida" />
+                        </Helper>
+                    </RadzenFormField>
+                </RadzenColumn>
+                <RadzenColumn Size="12" SizeMD="6">
+                    <RadzenFormField Text="Confirmar contraseña" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenPassword style="display: block; width: 100%" @bind-Value="@(applicationUser.ConfirmPassword)" Name="ConfirmPassword" />
+                        </ChildContent>
+                        <Helper>
+                            <RadzenRequiredValidator Component="ConfirmPassword" Text="Confirmar contraseña es requerido" style="display: block; width: 100%" />
+                            <RadzenCompareValidator Text="Las contraseñas deben coincidir" Component="ConfirmPassword" Value="@applicationUser.Password" style="display: block; width: 100%" />
+                        </Helper>
+                    </RadzenFormField>
+                </RadzenColumn>
+            </RadzenRow>
+        </RadzenStack>
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem" style="margin-top:1rem;">
+            <RadzenButton ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@isSubmitInProgress" />
+            <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Click="@CancelClick" Variant="Variant.Flat" />
+        </RadzenStack>
+    </RadzenTemplateForm>
+</RadzenColumn>

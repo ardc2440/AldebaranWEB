@@ -1,0 +1,95 @@
+@page "/edit-purchase-order"
+@attribute [Authorize]
+
+<PageTitle>Edit PurchaseOrder</PageTitle>
+
+    <RadzenColumn SizeMD=12>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">Cannot save PurchaseOrder</RadzenAlert>
+        <RadzenTemplateForm TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrder" Data="@purchaseOrder" Visible="@(purchaseOrder != null)" Submit="@FormSubmit">
+          <RadzenStack>
+            <RadzenFormField Text="O R D E R N U M B E R" Variant="Variant.Text">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@purchaseOrder.ORDER_NUMBER" Name="ORDER_NUMBER" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="ORDER_NUMBER" Text="ORDER_NUMBER is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="R E Q U E S T D A T E" Variant="Variant.Text">
+                  <ChildContent>
+                    <RadzenDatePicker DateFormat="MM/dd/yyyy" style="display: block; width: 100%" @bind-Value="@purchaseOrder.REQUEST_DATE" Name="REQUEST_DATE" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="REQUEST_DATE" Text="REQUEST_DATE is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="E X P E C T E D R E C E I P T D A T E" Variant="Variant.Text">
+                  <ChildContent>
+                    <RadzenDatePicker DateFormat="MM/dd/yyyy" style="display: block; width: 100%" @bind-Value="@purchaseOrder.EXPECTED_RECEIPT_DATE" Name="EXPECTED_RECEIPT_DATE" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="EXPECTED_RECEIPT_DATE" Text="EXPECTED_RECEIPT_DATE is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="R E A L R E C E I P T D A T E" Variant="Variant.Text">
+                  <ChildContent>
+                    <RadzenDatePicker DateFormat="MM/dd/yyyy" style="display: block; width: 100%" @bind-Value="@purchaseOrder.REAL_RECEIPT_DATE" Name="REAL_RECEIPT_DATE" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="S T A T U S D O C U M E N T T Y P E I D" Variant="Variant.Text">
+                  <ChildContent>
+                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@purchaseOrder.STATUS_DOCUMENT_TYPE_ID" Name="STATUS_DOCUMENT_TYPE_ID" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="STATUS_DOCUMENT_TYPE_ID" Text="STATUS_DOCUMENT_TYPE_ID is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="I M P O R T N U M B E R" Variant="Variant.Text">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@purchaseOrder.IMPORT_NUMBER" Name="IMPORT_NUMBER" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="E M B A R K A T I O N P O R T" Variant="Variant.Text">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@purchaseOrder.EMBARKATION_PORT" Name="EMBARKATION_PORT" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="P R O F O R M A N U M B E R" Variant="Variant.Text">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@purchaseOrder.PROFORMA_NUMBER" Name="PROFORMA_NUMBER" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="C R E A T I O N D A T E" Variant="Variant.Text">
+                  <ChildContent>
+                    <RadzenDatePicker DateFormat="MM/dd/yyyy" style="display: block; width: 100%" @bind-Value="@purchaseOrder.CREATION_DATE" Name="CREATION_DATE" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Forwarder Agent" Variant="Variant.Text">
+                  <ChildContent>
+                    <RadzenDropDownDataGrid Data="@forwarderAgentsForFORWARDERAGENTID" TextProperty="FORWARDER_AGENT_NAME" ValueProperty="FORWARDER_AGENT_ID" AllowClear=true
+                          style="display: block; width: 100%" @bind-Value="@purchaseOrder.FORWARDER_AGENT_ID" Name="FORWARDER_AGENT_ID"
+                           />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Provider" Variant="Variant.Text">
+                  <ChildContent>
+                    <RadzenDropDownDataGrid Data="@providersForPROVIDERID" TextProperty="IDENTITY_NUMBER" ValueProperty="PROVIDER_ID" AllowClear=true
+                          style="display: block; width: 100%" @bind-Value="@purchaseOrder.PROVIDER_ID" Name="PROVIDER_ID"
+                           />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Shipment Forwarder Agent Method" Variant="Variant.Text">
+                  <ChildContent>
+                    <RadzenDropDownDataGrid Data="@shipmentForwarderAgentMethodsForSHIPMENTFORWARDERAGENTMETHODID" TextProperty="" ValueProperty="SHIPMENT_FORWARDER_AGENT_METHOD_ID" AllowClear=true
+                          style="display: block; width: 100%" @bind-Value="@purchaseOrder.SHIPMENT_FORWARDER_AGENT_METHOD_ID" Name="SHIPMENT_FORWARDER_AGENT_METHOD_ID"
+                           />
+              </ChildContent>
+            </RadzenFormField>
+          </RadzenStack>
+          <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                    <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Save" Variant="Variant.Flat" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancel" Variant="Variant.Flat" Click="@CancelButtonClick"  />
+          </RadzenStack>
+        </RadzenTemplateForm>
+    </RadzenColumn>
+

@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using Radzen;
-using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.AdjustmentPages
 {
@@ -49,13 +44,13 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected bool isSubmitInProgress;
 
-        protected Aldebaran.Web.Models.AldebaranDb.AdjustmentDetail adjustmentDetail;
+        protected Models.AldebaranDb.AdjustmentDetail adjustmentDetail;
 
-        protected IEnumerable<Aldebaran.Web.Models.AldebaranDb.Adjustment> adjustmentsForADJUSTMENTID;
+        protected IEnumerable<Models.AldebaranDb.Adjustment> adjustmentsForADJUSTMENTID;
 
-        protected IEnumerable<Aldebaran.Web.Models.AldebaranDb.ItemReference> itemReferencesForREFERENCEID;
+        protected IEnumerable<Models.AldebaranDb.ItemReference> itemReferencesForREFERENCEID;
 
-        protected IEnumerable<Aldebaran.Web.Models.AldebaranDb.Warehouse> warehousesForWAREHOUSEID;
+        protected IEnumerable<Models.AldebaranDb.Warehouse> warehousesForWAREHOUSEID;
 
         protected async Task FormSubmit()
         {
@@ -100,7 +95,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         protected SecurityService Security { get; set; }
         public override async Task SetParametersAsync(ParameterView parameters)
         {
-            adjustmentDetail = new Aldebaran.Web.Models.AldebaranDb.AdjustmentDetail();
+            adjustmentDetail = new Models.AldebaranDb.AdjustmentDetail();
 
             hasADJUSTMENT_IDValue = parameters.TryGetValue<int>("ADJUSTMENT_ID", out var hasADJUSTMENT_IDResult);
 

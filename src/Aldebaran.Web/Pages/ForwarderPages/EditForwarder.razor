@@ -1,6 +1,4 @@
-@page "/edit-forwarder"
-
-@attribute [Authorize]
+@attribute [Authorize(Roles="Admin,Forwarder Editor")]
 
 <PageTitle>Actualizar transportadora</PageTitle>
 <RadzenColumn SizeMD=12>

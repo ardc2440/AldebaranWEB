@@ -1,6 +1,5 @@
 @page "/areas"
-
-@attribute [Authorize]
+@attribute [Authorize(Roles="Admin,Area Viwer,Area Editor")]
 
 <PageTitle>Areas</PageTitle>
 <RadzenStack>
@@ -29,13 +28,12 @@
                     </RadzenDataGridColumn>
                 </Columns>
                 <Template Context="area">
-
                     <RadzenStack Class="rz-my-8">
                         <RadzenRow Gap="0" AlignItems="AlignItems.Center">
                             <RadzenColumn Size="12" SizeMD="6">
                                 <RadzenText Visible="@(area != null)" Text="Artículos" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
                             </RadzenColumn>
-                            <RadzenColumn Size="12" SizeMD="6">
+                            <RadzenColumn Size="12" SizeMD="6" Visible="@Security.IsInRole("Admin","Area Editor")">
                                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
                                     <RadzenButton Visible="@(area != null)" Icon="add_circle_outline" Text="Nuevo" Click=@(args => ItemsAreasAddButtonClick(args,area)) />
                                 </RadzenStack>
@@ -89,7 +87,7 @@
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemsArea" Property="Item.MeasureUnit1.MEASURE_UNIT_NAME" Title="Unidad CIF" Visible="false">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemsArea" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false">
+                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemsArea" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Area Editor")">
                                     <Template Context="itemsAreaChild">
                                         <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Shade="Shade.Lighter" Variant="Variant.Flat"
                                                       Click=@(args => ItemsAreasDeleteButtonClick(args, itemsAreaChild)) @onclick:stopPropagation="true" />
@@ -100,7 +98,6 @@
                     </RadzenStack>
                 </Template>
             </RadzenDataGrid>
-
         </RadzenColumn>
     </RadzenRow>
 </RadzenStack>

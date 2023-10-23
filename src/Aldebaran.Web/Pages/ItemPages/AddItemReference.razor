@@ -1,7 +1,6 @@
-@page "/add-item-reference"
+@attribute [Authorize(Roles="Admin,Item Editor")]
 
-@attribute [Authorize]
-<PageTitle>"Nueva referencia</PageTitle>
+<PageTitle>Nueva referencia</PageTitle>
 <RadzenColumn SizeMD=12>
     <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">No se ha podido crear la referencia</RadzenAlert>
     <RadzenTemplateForm TItem="Aldebaran.Web.Models.AldebaranDb.ItemReference" Data="@itemReference" Visible="@(itemReference != null)" Submit="@FormSubmit">

@@ -1,6 +1,4 @@
-@page "/edit-provider"
-
-@attribute [Authorize]
+@attribute [Authorize(Roles="Admin,Provider Editor")]
 
 <PageTitle>Actualizar proveedor</PageTitle>
 <RadzenColumn SizeMD=12>

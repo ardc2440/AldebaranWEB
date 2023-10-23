@@ -15,12 +15,13 @@ namespace Aldebaran.Web.Controllers
     {
         private readonly ApplicationIdentityDbContext context;
         private readonly UserManager<ApplicationUser> userManager;
+        private readonly RoleManager<ApplicationRole> roleManager;
 
-
-        public ApplicationUsersController(ApplicationIdentityDbContext context, UserManager<ApplicationUser> userManager)
+        public ApplicationUsersController(ApplicationIdentityDbContext context, UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager)
         {
             this.context = context;
             this.userManager = userManager;
+            this.roleManager = roleManager;
         }
 
         partial void OnUsersRead(ref IQueryable<ApplicationUser> users);
@@ -33,6 +34,18 @@ namespace Aldebaran.Web.Controllers
             OnUsersRead(ref users);
 
             return users;
+        }
+
+        [EnableQuery]
+        [HttpGet]
+        [Route("UsersByRole/{roleId}")]
+        public async Task<IEnumerable<ApplicationUser>> GetUsersByRole(string roleId)
+        {
+            var role = await roleManager.FindByIdAsync(roleId);
+            if (role == null)
+                return null;
+            var usersInRole = await userManager.GetUsersInRoleAsync(role.Name);
+            return usersInRole;
         }
 
         [EnableQuery]
@@ -124,32 +137,80 @@ namespace Aldebaran.Web.Controllers
         partial void OnUserCreated(ApplicationUser user);
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] ApplicationUser user)
+        public async Task<IActionResult> Post([FromBody] ApplicationUser data)
         {
-            user.UserName = user.Email;
-            user.EmailConfirmed = true;
-            var password = user.Password;
-            var roles = user.Roles;
-            user.Roles = null;
-            IdentityResult result = await userManager.CreateAsync(user, password);
-
-            if (result.Succeeded && roles != null)
+            var username = data.UserName;
+            var email = data.Email;
+            var password = data.Password;
+            var user = new ApplicationUser { UserName = username, Email = email, EmailConfirmed = true };
+            try
             {
-                result = await userManager.AddToRolesAsync(user, roles.Select(r => r.Name));
+
+                IdentityResult result = await userManager.CreateAsync(user, password);
+                if (result.Succeeded && data.Roles != null)
+                {
+                    result = await userManager.AddToRolesAsync(user, data.Roles.Select(r => r.Name));
+                }
+
+                if (result.Succeeded)
+                {
+                    OnUserCreated(user);
+
+                    return Created($"odata/Identity/Users('{user.Id}')", user);
+                }
+                else
+                {
+                    return IdentityError(result);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
+        partial void OnLockUser(ApplicationUser user);
+        partial void OnUnlockUser(ApplicationUser user);
+
+        [Route("LockUser/{key}")]
+        public async Task<IActionResult> LockUser(string key)
+        {
+            var user = await userManager.FindByIdAsync(key);
+
+            if (user == null)
+            {
+                return NotFound();
             }
 
-            user.Roles = roles;
-
-            if (result.Succeeded)
-            {
-                OnUserCreated(user);
-
-                return Created($"odata/Identity/Users('{user.Id}')", user);
-            }
-            else
+            OnLockUser(user);
+            var result = await userManager.SetLockoutEnabledAsync(user, true);
+            if (result != null && !result.Succeeded)
             {
                 return IdentityError(result);
             }
+
+            return new NoContentResult();
+        }
+
+        [Route("UnlockUser/{key}")]
+        public async Task<IActionResult> UnlockUser(string key)
+        {
+            var user = await userManager.FindByIdAsync(key);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            OnUnlockUser(user);
+            var result = await userManager.SetLockoutEnabledAsync(user, false);
+            if (result != null && !result.Succeeded)
+            {
+                return IdentityError(result);
+            }
+
+            return new NoContentResult();
         }
 
         private IActionResult IdentityError(IdentityResult result)

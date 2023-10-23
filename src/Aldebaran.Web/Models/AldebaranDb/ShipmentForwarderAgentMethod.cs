@@ -16,6 +16,8 @@ namespace Aldebaran.Web.Models.AldebaranDb
         [Required]
         public int FORWARDER_AGENT_ID { get; set; }
 
+        public ICollection<PurchaseOrder> PurchaseOrders { get; set; }
+
         public ForwarderAgent ForwarderAgent { get; set; }
 
         public ShipmentMethod ShipmentMethod { get; set; }

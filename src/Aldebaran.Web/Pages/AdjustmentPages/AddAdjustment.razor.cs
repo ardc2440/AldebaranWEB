@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using Radzen;
-using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.AdjustmentPages
 {
@@ -41,7 +36,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
             adjustmentTypesForADJUSTMENTTYPEID = await AldebaranDbService.GetAdjustmentTypes();
 
-            aspnetusersForASPNETUSERID = await AldebaranDbService.GetAspNetUsers();
+            //aspnetusersForASPNETUSERID = await AldebaranDbService.GetAspNetUsers();
         }
 
         protected bool errorVisible;

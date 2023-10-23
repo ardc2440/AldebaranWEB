@@ -14,6 +14,62 @@ namespace Aldebaran.Web.Controllers
             this.context = context;
         }
 
+        [HttpGet("/export/AldebaranDb/adjustmentdetails/csv")]
+        [HttpGet("/export/AldebaranDb/adjustmentdetails/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportAdjustmentDetailsToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetAdjustmentDetails(), Request.Query), fileName);
+        }
+
+        [HttpGet("/export/AldebaranDb/adjustmentdetails/excel")]
+        [HttpGet("/export/AldebaranDb/adjustmentdetails/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportAdjustmentDetailsToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetAdjustmentDetails(), Request.Query), fileName);
+        }
+
+        [HttpGet("/export/AldebaranDb/adjustmentreasons/csv")]
+        [HttpGet("/export/AldebaranDb/adjustmentreasons/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportAdjustmentReasonsToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetAdjustmentReasons(), Request.Query), fileName);
+        }
+
+        [HttpGet("/export/AldebaranDb/adjustmentreasons/excel")]
+        [HttpGet("/export/AldebaranDb/adjustmentreasons/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportAdjustmentReasonsToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetAdjustmentReasons(), Request.Query), fileName);
+        }
+
+        [HttpGet("/export/AldebaranDb/adjustmenttypes/csv")]
+        [HttpGet("/export/AldebaranDb/adjustmenttypes/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportAdjustmentTypesToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetAdjustmentTypes(), Request.Query), fileName);
+        }
+
+        [HttpGet("/export/AldebaranDb/adjustmenttypes/excel")]
+        [HttpGet("/export/AldebaranDb/adjustmenttypes/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportAdjustmentTypesToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetAdjustmentTypes(), Request.Query), fileName);
+        }
+
+        [HttpGet("/export/AldebaranDb/adjustments/csv")]
+        [HttpGet("/export/AldebaranDb/adjustments/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportAdjustmentsToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetAdjustments(), Request.Query), fileName);
+        }
+
+        [HttpGet("/export/AldebaranDb/adjustments/excel")]
+        [HttpGet("/export/AldebaranDb/adjustments/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportAdjustmentsToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetAdjustments(), Request.Query), fileName);
+        }
+
         [HttpGet("/export/AldebaranDb/areas/csv")]
         [HttpGet("/export/AldebaranDb/areas/csv(fileName='{fileName}')")]
         public async Task<FileStreamResult> ExportAreasToCSV(string fileName = null)
@@ -110,6 +166,20 @@ namespace Aldebaran.Web.Controllers
         public async Task<FileStreamResult> ExportDepartmentsToExcel(string fileName = null)
         {
             return ToExcel(ApplyQuery(await service.GetDepartments(), Request.Query), fileName);
+        }
+
+        [HttpGet("/export/AldebaranDb/documenttypes/csv")]
+        [HttpGet("/export/AldebaranDb/documenttypes/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportDocumentTypesToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetDocumentTypes(), Request.Query), fileName);
+        }
+
+        [HttpGet("/export/AldebaranDb/documenttypes/excel")]
+        [HttpGet("/export/AldebaranDb/documenttypes/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportDocumentTypesToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetDocumentTypes(), Request.Query), fileName);
         }
 
         [HttpGet("/export/AldebaranDb/forwarderagents/csv")]
@@ -224,6 +294,90 @@ namespace Aldebaran.Web.Controllers
             return ToExcel(ApplyQuery(await service.GetMeasureUnits(), Request.Query), fileName);
         }
 
+        [HttpGet("/export/AldebaranDb/providerreferences/csv")]
+        [HttpGet("/export/AldebaranDb/providerreferences/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportProviderReferencesToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetProviderReferences(), Request.Query), fileName);
+        }
+
+        [HttpGet("/export/AldebaranDb/providerreferences/excel")]
+        [HttpGet("/export/AldebaranDb/providerreferences/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportProviderReferencesToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetProviderReferences(), Request.Query), fileName);
+        }
+
+        [HttpGet("/export/AldebaranDb/providers/csv")]
+        [HttpGet("/export/AldebaranDb/providers/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportProvidersToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetProviders(), Request.Query), fileName);
+        }
+
+        [HttpGet("/export/AldebaranDb/providers/excel")]
+        [HttpGet("/export/AldebaranDb/providers/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportProvidersToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetProviders(), Request.Query), fileName);
+        }
+
+        [HttpGet("/export/AldebaranDb/purchaseorderactivities/csv")]
+        [HttpGet("/export/AldebaranDb/purchaseorderactivities/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportPurchaseOrderActivitiesToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetPurchaseOrderActivities(), Request.Query), fileName);
+        }
+
+        [HttpGet("/export/AldebaranDb/purchaseorderactivities/excel")]
+        [HttpGet("/export/AldebaranDb/purchaseorderactivities/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportPurchaseOrderActivitiesToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetPurchaseOrderActivities(), Request.Query), fileName);
+        }
+
+        [HttpGet("/export/AldebaranDb/purchaseorderdetails/csv")]
+        [HttpGet("/export/AldebaranDb/purchaseorderdetails/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportPurchaseOrderDetailsToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetPurchaseOrderDetails(), Request.Query), fileName);
+        }
+
+        [HttpGet("/export/AldebaranDb/purchaseorderdetails/excel")]
+        [HttpGet("/export/AldebaranDb/purchaseorderdetails/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportPurchaseOrderDetailsToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetPurchaseOrderDetails(), Request.Query), fileName);
+        }
+
+        [HttpGet("/export/AldebaranDb/purchaseorders/csv")]
+        [HttpGet("/export/AldebaranDb/purchaseorders/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportPurchaseOrdersToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetPurchaseOrders(), Request.Query), fileName);
+        }
+
+        [HttpGet("/export/AldebaranDb/purchaseorders/excel")]
+        [HttpGet("/export/AldebaranDb/purchaseorders/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportPurchaseOrdersToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetPurchaseOrders(), Request.Query), fileName);
+        }
+
+        [HttpGet("/export/AldebaranDb/referenceswarehouses/csv")]
+        [HttpGet("/export/AldebaranDb/referenceswarehouses/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportReferencesWarehousesToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetReferencesWarehouses(), Request.Query), fileName);
+        }
+
+        [HttpGet("/export/AldebaranDb/referenceswarehouses/excel")]
+        [HttpGet("/export/AldebaranDb/referenceswarehouses/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportReferencesWarehousesToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetReferencesWarehouses(), Request.Query), fileName);
+        }
+
         [HttpGet("/export/AldebaranDb/shipmentforwarderagentmethods/csv")]
         [HttpGet("/export/AldebaranDb/shipmentforwarderagentmethods/csv(fileName='{fileName}')")]
         public async Task<FileStreamResult> ExportShipmentForwarderAgentMethodsToCSV(string fileName = null)
@@ -266,32 +420,32 @@ namespace Aldebaran.Web.Controllers
             return ToExcel(ApplyQuery(await service.GetShippingMethods(), Request.Query), fileName);
         }
 
-        [HttpGet("/export/AldebaranDb/providers/csv")]
-        [HttpGet("/export/AldebaranDb/providers/csv(fileName='{fileName}')")]
-        public async Task<FileStreamResult> ExportProvidersToCSV(string fileName = null)
+        [HttpGet("/export/AldebaranDb/warehouses/csv")]
+        [HttpGet("/export/AldebaranDb/warehouses/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportWarehousesToCSV(string fileName = null)
         {
-            return ToCSV(ApplyQuery(await service.GetProviders(), Request.Query), fileName);
+            return ToCSV(ApplyQuery(await service.GetWarehouses(), Request.Query), fileName);
         }
 
-        [HttpGet("/export/AldebaranDb/providers/excel")]
-        [HttpGet("/export/AldebaranDb/providers/excel(fileName='{fileName}')")]
-        public async Task<FileStreamResult> ExportProvidersToExcel(string fileName = null)
+        [HttpGet("/export/AldebaranDb/warehouses/excel")]
+        [HttpGet("/export/AldebaranDb/warehouses/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportWarehousesToExcel(string fileName = null)
         {
-            return ToExcel(ApplyQuery(await service.GetProviders(), Request.Query), fileName);
+            return ToExcel(ApplyQuery(await service.GetWarehouses(), Request.Query), fileName);
         }
 
-        [HttpGet("/export/AldebaranDb/providerreferences/csv")]
-        [HttpGet("/export/AldebaranDb/providerreferences/csv(fileName='{fileName}')")]
-        public async Task<FileStreamResult> ExportProviderReferencesToCSV(string fileName = null)
+        [HttpGet("/export/AldebaranDb/users/csv")]
+        [HttpGet("/export/AldebaranDb/users/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportUsersToCSV(string fileName = null)
         {
-            return ToCSV(ApplyQuery(await service.GetProviderReferences(), Request.Query), fileName);
+            return ToCSV(ApplyQuery(await service.GetUsers(), Request.Query), fileName);
         }
 
-        [HttpGet("/export/AldebaranDb/providerreferences/excel")]
-        [HttpGet("/export/AldebaranDb/providerreferences/excel(fileName='{fileName}')")]
-        public async Task<FileStreamResult> ExportProviderReferencesToExcel(string fileName = null)
+        [HttpGet("/export/AldebaranDb/users/excel")]
+        [HttpGet("/export/AldebaranDb/users/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportUsersToExcel(string fileName = null)
         {
-            return ToExcel(ApplyQuery(await service.GetProviderReferences(), Request.Query), fileName);
+            return ToExcel(ApplyQuery(await service.GetUsers(), Request.Query), fileName);
         }
     }
 }

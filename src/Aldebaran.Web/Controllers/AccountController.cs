@@ -51,24 +51,16 @@ namespace Aldebaran.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(string userName, string password, string redirectUrl)
         {
-            if (env.EnvironmentName == "Development" && userName == "admin" && password == "admin")
-            {
-                var claims = new List<Claim>()
-                {
-                    new Claim(ClaimTypes.Name, "admin"),
-                    new Claim(ClaimTypes.Email, "admin")
-                };
-
-                roleManager.Roles.ToList().ForEach(r => claims.Add(new Claim(ClaimTypes.Role, r.Name)));
-                await signInManager.SignInWithClaimsAsync(new ApplicationUser { UserName = userName, Email = userName }, isPersistent: false, claims);
-
-                return Redirect($"~/{redirectUrl}");
-            }
-
             if (!string.IsNullOrEmpty(userName) && !string.IsNullOrEmpty(password))
             {
-                var result = await signInManager.PasswordSignInAsync(userName, password, false, false);
+                var user = await userManager.FindByNameAsync(userName);
+                if (user == null)
+                    return RedirectWithError("Invalid user or password", redirectUrl);
 
+                if (user.LockoutEnabled)
+                    return RedirectWithError("Your account is blocked, please contact the administrator", redirectUrl);
+
+                var result = await signInManager.PasswordSignInAsync(userName, password, false, false);
                 if (result.Succeeded)
                 {
                     return Redirect($"~/{redirectUrl}");

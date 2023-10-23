@@ -1,6 +1,4 @@
-@page "/edit-forwarder-agent"
-
-@attribute [Authorize]
+@attribute [Authorize(Roles="Admin,Forwarder Editor")]
 
 <PageTitle>Actualizar agente</PageTitle>
 <RadzenColumn SizeMD=12>

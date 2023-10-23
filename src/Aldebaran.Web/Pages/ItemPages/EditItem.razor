@@ -1,6 +1,5 @@
-@page "/edit-item"
+@attribute [Authorize(Roles="Admin,Item Editor")]
 
-@attribute [Authorize]
 <PageTitle>Actualizar artículo</PageTitle>
 <RadzenColumn SizeMD=12>
     <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">No se ha podido actualizar el artículo</RadzenAlert>

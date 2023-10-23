@@ -1,15 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.JSInterop;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
-using Radzen;
-using Radzen.Blazor;
-using Aldebaran.Web.Pages.AdjustmentPages;
 using Aldebaran.Web.Models;
 using Aldebaran.Web.Pages.ForwarderPages;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
+using Radzen;
+using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.AdjustmentPages
 {
@@ -36,9 +31,9 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         [Inject]
         public AldebaranDbService AldebaranDbService { get; set; }
 
-        protected IEnumerable<Aldebaran.Web.Models.AldebaranDb.Adjustment> adjustments;
+        protected IEnumerable<Models.AldebaranDb.Adjustment> adjustments;
 
-        protected RadzenDataGrid<Aldebaran.Web.Models.AldebaranDb.Adjustment> grid0;
+        protected RadzenDataGrid<Models.AldebaranDb.Adjustment> grid0;
 
         protected DialogResult dialogResult { get; set; }
 
@@ -69,11 +64,11 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
             await grid0.Reload();
         }
 
-        protected async Task EditRow(Aldebaran.Web.Models.AldebaranDb.Adjustment args)
+        protected async Task EditRow(Models.AldebaranDb.Adjustment args)
         {
             dialogResult = null;
 
-            var result = await DialogService.OpenAsync<EditAdjustment>("Edit Adjustment", new Dictionary<string, object> { {"ADJUSTMENT_ID", args.ADJUSTMENT_ID} });
+            var result = await DialogService.OpenAsync<EditAdjustment>("Edit Adjustment", new Dictionary<string, object> { { "ADJUSTMENT_ID", args.ADJUSTMENT_ID } });
 
             if (result == true)
             {
@@ -81,7 +76,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
             }
         }
 
-        protected async Task GridDeleteButtonClick(MouseEventArgs args, Aldebaran.Web.Models.AldebaranDb.Adjustment adjustment)
+        protected async Task GridDeleteButtonClick(MouseEventArgs args, Models.AldebaranDb.Adjustment adjustment)
         {
             try
             {
@@ -109,8 +104,8 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
             }
         }
 
-        protected Aldebaran.Web.Models.AldebaranDb.Adjustment adjustment;
-        protected async Task GetChildData(Aldebaran.Web.Models.AldebaranDb.Adjustment args)
+        protected Models.AldebaranDb.Adjustment adjustment;
+        protected async Task GetChildData(Models.AldebaranDb.Adjustment args)
         {
             adjustment = args;
             var AdjustmentDetailsResult = await AldebaranDbService.GetAdjustmentDetails(new Query { Filter = $@"i => i.ADJUSTMENT_ID == {args.ADJUSTMENT_ID}", Expand = "Adjustment,ItemReference,Warehouse" });
@@ -120,16 +115,16 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
             }
         }
 
-        protected RadzenDataGrid<Aldebaran.Web.Models.AldebaranDb.AdjustmentDetail> AdjustmentDetailsDataGrid;
+        protected RadzenDataGrid<Models.AldebaranDb.AdjustmentDetail> AdjustmentDetailsDataGrid;
 
         [Inject]
         protected SecurityService Security { get; set; }
 
-        protected async Task AdjustmentDetailsAddButtonClick(MouseEventArgs args, Aldebaran.Web.Models.AldebaranDb.Adjustment data)
+        protected async Task AdjustmentDetailsAddButtonClick(MouseEventArgs args, Models.AldebaranDb.Adjustment data)
         {
             dialogResult = null;
 
-            var result = await DialogService.OpenAsync<AddAdjustmentDetail>("Add AdjustmentDetails", new Dictionary<string, object> { {"ADJUSTMENT_ID" , data.ADJUSTMENT_ID} });
+            var result = await DialogService.OpenAsync<AddAdjustmentDetail>("Add AdjustmentDetails", new Dictionary<string, object> { { "ADJUSTMENT_ID", data.ADJUSTMENT_ID } });
             if (result == true)
             {
                 dialogResult = new DialogResult { Success = true, Message = "Referencia agregada correctamente al ajuste." };
@@ -139,9 +134,9 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
             await AdjustmentDetailsDataGrid.Reload();
         }
 
-        protected async Task AdjustmentDetailsRowSelect(Aldebaran.Web.Models.AldebaranDb.AdjustmentDetail args, Aldebaran.Web.Models.AldebaranDb.Adjustment data)
+        protected async Task AdjustmentDetailsRowSelect(Models.AldebaranDb.AdjustmentDetail args, Models.AldebaranDb.Adjustment data)
         {
-            var dialogResult = await DialogService.OpenAsync<EditAdjustmentDetail>("Edit AdjustmentDetails", new Dictionary<string, object> { {"ADJUSTMENT_DETAIL_ID", args.ADJUSTMENT_DETAIL_ID} });
+            var dialogResult = await DialogService.OpenAsync<EditAdjustmentDetail>("Edit AdjustmentDetails", new Dictionary<string, object> { { "ADJUSTMENT_DETAIL_ID", args.ADJUSTMENT_DETAIL_ID } });
             await GetChildData(data);
             await AdjustmentDetailsDataGrid.Reload();
         }
@@ -158,7 +153,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
             await AdjustmentDetailsDataGrid.Reload();
         }
 
-        protected async Task AdjustmentDetailsDeleteButtonClick(MouseEventArgs args, Aldebaran.Web.Models.AldebaranDb.AdjustmentDetail adjustmentDetail)
+        protected async Task AdjustmentDetailsDeleteButtonClick(MouseEventArgs args, Models.AldebaranDb.AdjustmentDetail adjustmentDetail)
         {
             try
             {
@@ -177,7 +172,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
                     }
                 }
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 NotificationService.Notify(new NotificationMessage
                 {

@@ -1,6 +1,5 @@
 @page "/providers"
-
-@attribute [Authorize]
+@attribute [Authorize(Roles="Admin,Provider Viwer,Provider Editor")]
 
 <PageTitle>Proveedores</PageTitle>
 <RadzenStack>
@@ -16,7 +15,7 @@
         <RadzenColumn Size="12" SizeMD="6">
             <RadzenText Text="Proveedores" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
         </RadzenColumn>
-        <RadzenColumn Size="12" SizeMD="6">
+        <RadzenColumn Size="12" SizeMD="6" Visible="@Security.IsInRole("Admin","Provider Editor")">
             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
                 <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddButtonClick" Variant="Variant.Flat" />
             </RadzenStack>
@@ -51,7 +50,7 @@
                             <span>(@provider.City.Department.Country.COUNTRY_CODE) @provider.City.Department.DEPARTMENT_NAME - @provider.City.CITY_NAME</span>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Provider" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false">
+                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Provider" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Provider Editor")">
                         <Template Context="provider">
                             <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRow(provider))" @onclick:stopPropagation="true">
                             </RadzenButton>
@@ -67,7 +66,7 @@
                             <RadzenColumn Size="12" SizeMD="6">
                                 <RadzenText Visible="@(provider != null)" Text="Referencias" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
                             </RadzenColumn>
-                            <RadzenColumn Size="12" SizeMD="6">
+                            <RadzenColumn Size="12" SizeMD="6" Visible="@Security.IsInRole("Admin","Provider Editor")">
                                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
                                     <RadzenButton Visible="@(provider != null)" Icon="add_circle_outline" Text="Nuevo" Click=@(args => ProviderReferencesAddButtonClick(args,provider)) />
                                 </RadzenStack>
@@ -96,7 +95,7 @@
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ProviderReference" Property="ItemReference.ALARM_MINIMUM_QUANTITY" Title="Cantidad mínima" Visible="false">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ProviderReference" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false">
+                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ProviderReference" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Provider Editor")">
                                     <Template Context="providerReferenceChild">
                                         <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Shade="Shade.Lighter" Variant="Variant.Flat"
                                                       Click=@(args => ProviderReferencesDeleteButtonClick(args, providerReferenceChild)) @onclick:stopPropagation="true" />

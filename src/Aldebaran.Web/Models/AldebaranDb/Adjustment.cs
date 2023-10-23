@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -32,8 +30,6 @@ namespace Aldebaran.Web.Models.AldebaranDb
         public AdjustmentReason AdjustmentReason { get; set; }
 
         public AdjustmentType AdjustmentType { get; set; }
-
-        public Aspnetuser Aspnetuser { get; set; }
 
     }
 }

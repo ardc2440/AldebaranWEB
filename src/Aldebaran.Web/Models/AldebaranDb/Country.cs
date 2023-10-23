@@ -8,7 +8,7 @@ namespace Aldebaran.Web.Models.AldebaranDb
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public short COUNTRY_ID { get; set; }
+        public int COUNTRY_ID { get; set; }
 
         [Required]
         public string COUNTRY_NAME { get; set; }

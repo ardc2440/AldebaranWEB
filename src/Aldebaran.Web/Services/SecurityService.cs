@@ -81,7 +81,6 @@ namespace Aldebaran.Web
             return IsAuthenticated();
         }
 
-
         public async Task<ApplicationAuthenticationState> GetAuthenticationStateAsync()
         {
             var uri = new Uri($"{navigationManager.BaseUri}Account/CurrentUser");
@@ -132,10 +131,23 @@ namespace Aldebaran.Web
             return await httpClient.DeleteAsync(uri);
         }
 
+        public async Task<IEnumerable<ApplicationUser>> GetUsersByRole(string roleId)
+        {
+            var uri = new Uri(baseUri, $"ApplicationUsers/UsersByRole/{roleId}");
+
+            uri = uri.GetODataUri();
+
+            var response = await httpClient.GetAsync(uri);
+
+            var result = await response.ReadAsync<IList<ApplicationUser>>();
+
+            return result;
+
+        }
+
         public async Task<IEnumerable<ApplicationUser>> GetUsers()
         {
             var uri = new Uri(baseUri, $"ApplicationUsers");
-
 
             uri = uri.GetODataUri();
 
@@ -162,6 +174,30 @@ namespace Aldebaran.Web
             var uri = new Uri(baseUri, $"ApplicationUsers('{id}')");
 
             return await httpClient.DeleteAsync(uri);
+        }
+
+        public async Task LockUser(string id)
+        {
+            var uri = new Uri(baseUri, $"ApplicationUsers/LockUser/{id}");
+            var response = await httpClient.PostAsync(uri, null);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var message = await response.Content.ReadAsStringAsync();
+                throw new ApplicationException(message);
+            }
+        }
+
+        public async Task UnlockUser(string id)
+        {
+            var uri = new Uri(baseUri, $"ApplicationUsers/UnlockUser/{id}");
+            var response = await httpClient.PostAsync(uri, null);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var message = await response.Content.ReadAsStringAsync();
+                throw new ApplicationException(message);
+            }
         }
 
         public async Task<ApplicationUser> GetUserById(string id)

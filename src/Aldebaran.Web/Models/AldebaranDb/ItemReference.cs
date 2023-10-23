@@ -37,18 +37,20 @@ namespace Aldebaran.Web.Models.AldebaranDb
         [Required]
         public int WORK_IN_PROCESS_QUANTITY { get; set; }
 
-        public bool? IS_ACTIVE { get; set; }
+        public bool IS_ACTIVE { get; set; }
 
-        public bool? IS_SOLD_OUT { get; set; }
+        public bool IS_SOLD_OUT { get; set; }
 
         [Required]
         public int ALARM_MINIMUM_QUANTITY { get; set; }
+
+        public ICollection<AdjustmentDetail> AdjustmentDetails { get; set; }
 
         public Item Item { get; set; }
 
         public ICollection<ProviderReference> ProviderReferences { get; set; }
 
-        public ICollection<AdjustmentDetail> AdjustmentDetails { get; set; }
+        public ICollection<PurchaseOrderDetail> PurchaseOrderDetails { get; set; }
 
         public ICollection<ReferencesWarehouse> ReferencesWarehouses { get; set; }
 

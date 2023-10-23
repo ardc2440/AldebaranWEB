@@ -1,6 +1,6 @@
 @page "/items"
+@attribute [Authorize(Roles="Admin,Item Viwer,Item Editor")]
 
-@attribute [Authorize]
 <PageTitle>Items</PageTitle>
 <RadzenStack>
     @if(dialogResult!= null && dialogResult.Success){
@@ -15,12 +15,11 @@
         </RadzenColumn>
         <RadzenColumn Size="12">
             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
-                <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddButtonClick" Variant="Variant.Flat" />
+                <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddButtonClick" Variant="Variant.Flat" Visible="@Security.IsInRole("Admin","Item Editor")"/>
                 <RadzenSplitButton Icon="get_app" Text="Exportar" Click="@ExportClick" Variant="Variant.Flat" Shade="Shade.Lighter">
                     <RadzenSplitButtonItem Text="Excel" Value="xlsx" />
                     <RadzenSplitButtonItem Text="CSV" Value="csv" />
-                </RadzenSplitButton>
-                
+                </RadzenSplitButton>                
             </RadzenStack>
         </RadzenColumn>
     </RadzenRow>
@@ -76,7 +75,7 @@
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Item" Property="MeasureUnit1.MEASURE_UNIT_NAME" Title="Unidad CIF" Visible="false">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Item" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false">
+                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Item" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Item Editor")">
                         <Template Context="item">
                             <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRow(item))" @onclick:stopPropagation="true">
                             </RadzenButton>
@@ -92,7 +91,7 @@
                             <RadzenColumn Size="12" SizeMD="6">
                                 <RadzenText Visible="@(item != null)" Text="Referencias" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
                             </RadzenColumn>
-                            <RadzenColumn Size="12" SizeMD="6">
+                            <RadzenColumn Size="12" SizeMD="6" Visible="@Security.IsInRole("Admin","Item Editor")">
                                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
                                     <RadzenButton Visible="@(item != null)" Icon="add_circle_outline" Text="Nuevo" Click=@(args => ItemReferencesAddButtonClick(args,item)) />
                                 </RadzenStack>
@@ -123,7 +122,7 @@
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemReference" Property="ALARM_MINIMUM_QUANTITY" Title="Cantidad mínima" Visible="false">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemReference" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false">
+                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemReference" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Item Editor")">
                                     <Template Context="itemReferenceChild">
                                         <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditChildRow(itemReferenceChild, item))" @onclick:stopPropagation="true">
                                         </RadzenButton>

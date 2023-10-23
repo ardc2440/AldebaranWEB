@@ -1,6 +1,5 @@
-﻿@page "/customers"
-
-@attribute [Authorize]
+@page "/customers"
+@attribute [Authorize(Roles="Admin,Customer Viwer,Customer Editor")]
 
 <PageTitle>Customers</PageTitle>
 <RadzenStack>
@@ -16,7 +15,7 @@
         <RadzenColumn Size="12" SizeMD="6">
             <RadzenText Text="Clientes" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
         </RadzenColumn>
-        <RadzenColumn Size="12" SizeMD="6">
+        <RadzenColumn Size="12" SizeMD="6" Visible="@Security.IsInRole("Admin","Customer Editor")">
             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
                 <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddButtonClick" Variant="Variant.Flat" />
             </RadzenStack>
@@ -60,7 +59,7 @@
                             <RadzenCheckBox @bind-Value="@customer.SEND_EMAIL" Name="SEND_EMAIL" Disabled="true"></RadzenCheckBox>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Customer" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false">
+                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Customer" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Customer Editor")">
                         <Template Context="customer">
                             <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRow(customer))" @onclick:stopPropagation="true">
                             </RadzenButton>
@@ -76,7 +75,7 @@
                             <RadzenColumn Size="12" SizeMD="6">
                                 <RadzenText Visible="@(customer != null)" Text="Contactos" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
                             </RadzenColumn>
-                            <RadzenColumn Size="12" SizeMD="6">
+                            <RadzenColumn Size="12" SizeMD="6" Visible="@Security.IsInRole("Admin","Customer Editor")">
                                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
                                     <RadzenButton Visible="@(customer != null)" Icon="add_circle_outline" Text="Nuevo" Click=@(args => CustomerContactsAddButtonClick(args,customer)) />
                                 </RadzenStack>
@@ -93,7 +92,7 @@
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerContact" Property="EMAIL" Title="Correo electrónico">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerContact" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false">
+                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerContact" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Customer Editor")">
                                     <Template Context="customerContactChild">
                                         <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditChildRow(customerContactChild, customer))" @onclick:stopPropagation="true">
                                         </RadzenButton>

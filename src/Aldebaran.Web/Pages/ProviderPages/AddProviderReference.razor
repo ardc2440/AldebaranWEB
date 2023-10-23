@@ -1,6 +1,4 @@
-@page "/add-provider-reference"
-
-@attribute [Authorize]
+@attribute [Authorize(Roles="Admin,Provider Editor")]
 
 <PageTitle>Agregar referencia al proveedor</PageTitle>
 <RadzenColumn SizeMD=12>

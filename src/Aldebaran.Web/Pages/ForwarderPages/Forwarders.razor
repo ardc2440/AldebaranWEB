@@ -1,6 +1,5 @@
 @page "/forwarders"
-
-@attribute [Authorize]
+@attribute [Authorize(Roles="Admin,Forwarder Viwer,Forwarder Editor")]
 
 <PageTitle>Forwarders</PageTitle>
 <RadzenStack>
@@ -16,7 +15,7 @@
         <RadzenColumn Size="12">
             <RadzenText Text="Transportadoras" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
         </RadzenColumn>
-        <RadzenColumn Size="12">
+        <RadzenColumn Size="12" Visible="@Security.IsInRole("Admin","Forwarder Editor")">
             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
                 <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddButtonClick" Variant="Variant.Flat" />
             </RadzenStack>
@@ -47,7 +46,7 @@
                             <span>(@forwarder.City.Department.Country.COUNTRY_CODE) @forwarder.City.Department.DEPARTMENT_NAME - @forwarder.City.CITY_NAME</span>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Forwarder" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false">
+                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Forwarder" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Forwarder Editor")">
                         <Template Context="forwarder">
                             <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRow(forwarder))" @onclick:stopPropagation="true">
                             </RadzenButton>
@@ -63,7 +62,7 @@
                             <RadzenColumn Size="12" SizeMD="6">
                                 <RadzenText Visible="@(forwarder != null)" Text="Agentes" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
                             </RadzenColumn>
-                            <RadzenColumn Size="12" SizeMD="6">
+                            <RadzenColumn Size="12" SizeMD="6" Visible="@Security.IsInRole("Admin","Forwarder Editor")">
                                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
                                     <RadzenButton Visible="@(forwarder != null)" Icon="add_circle_outline" Text="Nuevo" Click=@(args => ForwarderAgentsAddButtonClick(args,forwarder)) />
                                 </RadzenStack>
@@ -93,7 +92,7 @@
                                         <span>(@forwarderAgentChild.City.Department.Country.COUNTRY_CODE) @forwarderAgentChild.City.Department.DEPARTMENT_NAME - @forwarderAgentChild.City.CITY_NAME</span>
                                     </Template>
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ForwarderAgent" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false">
+                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ForwarderAgent" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Forwarder Editor")">
                                     <Template Context="forwarderAgentChild">
                                         <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditChildRow(forwarderAgentChild,forwarder))" @onclick:stopPropagation="true">
                                         </RadzenButton>
@@ -108,7 +107,7 @@
                                         <RadzenColumn Size="12" SizeMD="6">
                                             <RadzenText Visible="@(forwarderAgent != null)" Text="Método de envío" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
                                         </RadzenColumn>
-                                        <RadzenColumn Size="12" SizeMD="6">
+                                        <RadzenColumn Size="12" SizeMD="6" Visible="@Security.IsInRole("Admin","Forwarder Editor")">
                                             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
                                                 <RadzenButton Visible="@(forwarderAgent != null)" Icon="add_circle_outline" Text="Nuevo" Click=@(args => ShippingAddButtonClick(args,forwarderAgent)) />
                                             </RadzenStack>
@@ -121,7 +120,7 @@
                                             </RadzenDataGridColumn>
                                             <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ShipmentForwarderAgentMethod" Property="ShipmentMethod.SHIPMENT_METHOD_NOTES" Title="Descripción">
                                             </RadzenDataGridColumn>
-                                            <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ShipmentForwarderAgentMethod" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false">
+                                            <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ShipmentForwarderAgentMethod" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Forwarder Editor")">
                                                 <Template Context="shipmentForwarderAgentChild">
                                                     <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Shade="Shade.Lighter" Variant="Variant.Flat"
                                                                   Click=@(args => ShippingDeleteButtonClick(args, shipmentForwarderAgentChild)) @onclick:stopPropagation="true" />

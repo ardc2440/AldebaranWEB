@@ -30,8 +30,8 @@ namespace Aldebaran.Web.Shared
         [Inject]
         public AldebaranDbService AldebaranDbService { get; set; }
 
-        public short? COUNTRY_ID { get; set; }
-        public short? DEPARTMENT_ID { get; set; }
+        public int? COUNTRY_ID { get; set; }
+        public int? DEPARTMENT_ID { get; set; }
 
         [Parameter]
         public int? CITY_ID { get; set; }

@@ -1,6 +1,4 @@
-@page "/add-shipment-forwarder-agent-method"
-
-@attribute [Authorize]
+@attribute [Authorize(Roles="Admin,Forwarder Editor")]
 
 <PageTitle>Nuevo método de envío</PageTitle>
 <RadzenColumn SizeMD=12>

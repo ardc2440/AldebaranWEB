@@ -38,9 +38,11 @@ namespace Aldebaran.Web.Models.AldebaranDb
         [Required]
         public double CIF_COST { get; set; }
 
-        public double? VOLUME { get; set; }
+        [Required]
+        public double VOLUME { get; set; }
 
-        public double? WEIGHT { get; set; }
+        [Required]
+        public double WEIGHT { get; set; }
 
         public short? FOB_MEASURE_UNIT_ID { get; set; }
 

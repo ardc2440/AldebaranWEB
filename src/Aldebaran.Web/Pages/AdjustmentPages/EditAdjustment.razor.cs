@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using Radzen;
-using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.AdjustmentPages
 {
@@ -45,16 +40,16 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
             adjustmentTypesForADJUSTMENTTYPEID = await AldebaranDbService.GetAdjustmentTypes();
 
-            aspnetusersForASPNETUSERID = await AldebaranDbService.GetAspnetusers();
+            //aspnetusersForASPNETUSERID = await AldebaranDbService.GetAspnetusers();
         }
         protected bool errorVisible;
-        protected Aldebaran.Web.Models.AldebaranDb.Adjustment adjustment;
+        protected Models.AldebaranDb.Adjustment adjustment;
 
-        protected IEnumerable<Aldebaran.Web.Models.AldebaranDb.AdjustmentReason> adjustmentReasonsForADJUSTMENTREASONID;
+        protected IEnumerable<Models.AldebaranDb.AdjustmentReason> adjustmentReasonsForADJUSTMENTREASONID;
 
-        protected IEnumerable<Aldebaran.Web.Models.AldebaranDb.AdjustmentType> adjustmentTypesForADJUSTMENTTYPEID;
+        protected IEnumerable<Models.AldebaranDb.AdjustmentType> adjustmentTypesForADJUSTMENTTYPEID;
 
-        protected IEnumerable<Aldebaran.Web.Models.AldebaranDb.Aspnetuser> aspnetusersForASPNETUSERID;
+        protected IEnumerable<Models.AldebaranDb.Aspnetuser> aspnetusersForASPNETUSERID;
 
         [Inject]
         protected SecurityService Security { get; set; }

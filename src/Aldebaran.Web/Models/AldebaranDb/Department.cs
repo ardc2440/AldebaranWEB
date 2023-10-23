@@ -8,13 +8,13 @@ namespace Aldebaran.Web.Models.AldebaranDb
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public short DEPARTMENT_ID { get; set; }
+        public int DEPARTMENT_ID { get; set; }
 
         [Required]
         public string DEPARTMENT_NAME { get; set; }
 
         [Required]
-        public short COUNTRY_ID { get; set; }
+        public int COUNTRY_ID { get; set; }
 
         public ICollection<City> Cities { get; set; }
 

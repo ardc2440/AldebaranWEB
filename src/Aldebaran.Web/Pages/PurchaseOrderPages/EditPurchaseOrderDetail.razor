@@ -1,0 +1,54 @@
+@page "/edit-purchase-order-detail"
+@attribute [Authorize]
+
+<PageTitle>Edit PurchaseOrderDetail</PageTitle>
+
+    <RadzenColumn SizeMD=12>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">Cannot save PurchaseOrderDetail</RadzenAlert>
+        <RadzenTemplateForm TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrderDetail" Data="@purchaseOrderDetail" Visible="@(purchaseOrderDetail != null)" Submit="@FormSubmit">
+          <RadzenStack>
+            <RadzenFormField Text="R E C E I V E D Q U A N T I T Y" Variant="Variant.Text">
+                  <ChildContent>
+                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@purchaseOrderDetail.RECEIVED_QUANTITY" Name="RECEIVED_QUANTITY" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="RECEIVED_QUANTITY" Text="RECEIVED_QUANTITY is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="R E Q U E S T E D Q U A N T I T Y" Variant="Variant.Text">
+                  <ChildContent>
+                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@purchaseOrderDetail.REQUESTED_QUANTITY" Name="REQUESTED_QUANTITY" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="REQUESTED_QUANTITY" Text="REQUESTED_QUANTITY is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Purchase Order" Variant="Variant.Text">
+                  <ChildContent>
+                    <RadzenDropDownDataGrid Data="@purchaseOrdersForPURCHASEORDERID" TextProperty="ORDER_NUMBER" ValueProperty="PURCHASE_ORDER_ID" AllowClear=true
+                        Disabled=@(hasPURCHASE_ORDER_IDValue)  style="display: block; width: 100%" @bind-Value="@purchaseOrderDetail.PURCHASE_ORDER_ID" Name="PURCHASE_ORDER_ID"
+                           />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Item Reference" Variant="Variant.Text">
+                  <ChildContent>
+                    <RadzenDropDownDataGrid Data="@itemReferencesForREFERENCEID" TextProperty="REFERENCE_CODE" ValueProperty="REFERENCE_ID" AllowClear=true
+                        Disabled=@(hasREFERENCE_IDValue)  style="display: block; width: 100%" @bind-Value="@purchaseOrderDetail.REFERENCE_ID" Name="REFERENCE_ID"
+                           />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Warehouse" Variant="Variant.Text">
+                  <ChildContent>
+                    <RadzenDropDownDataGrid Data="@warehousesForWAREHOUSEID" TextProperty="WAREHOUSE_NAME" ValueProperty="WAREHOUSE_ID" AllowClear=true
+                        Disabled=@(hasWAREHOUSE_IDValue)  style="display: block; width: 100%" @bind-Value="@purchaseOrderDetail.WAREHOUSE_ID" Name="WAREHOUSE_ID"
+                           />
+              </ChildContent>
+            </RadzenFormField>
+          </RadzenStack>
+          <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                    <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Save" Variant="Variant.Flat" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancel" Variant="Variant.Flat" Click="@CancelButtonClick"  />
+          </RadzenStack>
+        </RadzenTemplateForm>
+    </RadzenColumn>
+

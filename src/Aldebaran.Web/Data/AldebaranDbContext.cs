@@ -1,4 +1,3 @@
-using Aldebaran.Web.Models.AldebaranDb;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.Web.Data
@@ -30,6 +29,42 @@ namespace Aldebaran.Web.Data
                 table.REFERENCE_ID,
                 table.PROVIDER_ID
             });
+
+            builder.Entity<Models.AldebaranDb.ReferencesWarehouse>().HasKey(table => new
+            {
+                table.REFERENCE_ID,
+                table.WAREHOUSE_ID
+            });
+
+            builder.Entity<Models.AldebaranDb.AdjustmentDetail>()
+              .HasOne(i => i.Adjustment)
+              .WithMany(i => i.AdjustmentDetails)
+              .HasForeignKey(i => i.ADJUSTMENT_ID)
+              .HasPrincipalKey(i => i.ADJUSTMENT_ID);
+
+            builder.Entity<Models.AldebaranDb.AdjustmentDetail>()
+              .HasOne(i => i.ItemReference)
+              .WithMany(i => i.AdjustmentDetails)
+              .HasForeignKey(i => i.REFERENCE_ID)
+              .HasPrincipalKey(i => i.REFERENCE_ID);
+
+            builder.Entity<Models.AldebaranDb.AdjustmentDetail>()
+              .HasOne(i => i.Warehouse)
+              .WithMany(i => i.AdjustmentDetails)
+              .HasForeignKey(i => i.WAREHOUSE_ID)
+              .HasPrincipalKey(i => i.WAREHOUSE_ID);
+
+            builder.Entity<Models.AldebaranDb.Adjustment>()
+              .HasOne(i => i.AdjustmentReason)
+              .WithMany(i => i.Adjustments)
+              .HasForeignKey(i => i.ADJUSTMENT_REASON_ID)
+              .HasPrincipalKey(i => i.ADJUSTMENT_REASON_ID);
+
+            builder.Entity<Models.AldebaranDb.Adjustment>()
+              .HasOne(i => i.AdjustmentType)
+              .WithMany(i => i.Adjustments)
+              .HasForeignKey(i => i.ADJUSTMENT_TYPE_ID)
+              .HasPrincipalKey(i => i.ADJUSTMENT_TYPE_ID);
 
             builder.Entity<Models.AldebaranDb.City>()
               .HasOne(i => i.Department)
@@ -121,17 +156,17 @@ namespace Aldebaran.Web.Data
               .HasForeignKey(i => i.ITEM_ID)
               .HasPrincipalKey(i => i.ITEM_ID);
 
-            builder.Entity<Models.AldebaranDb.ShipmentForwarderAgentMethod>()
-              .HasOne(i => i.ForwarderAgent)
-              .WithMany(i => i.ShipmentForwarderAgentMethods)
-              .HasForeignKey(i => i.FORWARDER_AGENT_ID)
-              .HasPrincipalKey(i => i.FORWARDER_AGENT_ID);
+            builder.Entity<Models.AldebaranDb.ProviderReference>()
+              .HasOne(i => i.Provider)
+              .WithMany(i => i.ProviderReferences)
+              .HasForeignKey(i => i.PROVIDER_ID)
+              .HasPrincipalKey(i => i.PROVIDER_ID);
 
-            builder.Entity<Models.AldebaranDb.ShipmentForwarderAgentMethod>()
-              .HasOne(i => i.ShipmentMethod)
-              .WithMany(i => i.ShipmentForwarderAgentMethods)
-              .HasForeignKey(i => i.SHIPMENT_METHOD_ID)
-              .HasPrincipalKey(i => i.SHIPMENT_METHOD_ID);
+            builder.Entity<Models.AldebaranDb.ProviderReference>()
+              .HasOne(i => i.ItemReference)
+              .WithMany(i => i.ProviderReferences)
+              .HasForeignKey(i => i.REFERENCE_ID)
+              .HasPrincipalKey(i => i.REFERENCE_ID);
 
             builder.Entity<Models.AldebaranDb.Provider>()
               .HasOne(i => i.City)
@@ -145,25 +180,101 @@ namespace Aldebaran.Web.Data
               .HasForeignKey(i => i.IDENTITY_TYPE_ID)
               .HasPrincipalKey(i => i.IDENTITY_TYPE_ID);
 
-            builder.Entity<Models.AldebaranDb.ProviderReference>()
+            builder.Entity<Models.AldebaranDb.PurchaseOrderActivity>()
+              .HasOne(i => i.PurchaseOrder)
+              .WithMany(i => i.PurchaseOrderActivities)
+              .HasForeignKey(i => i.PURCHASE_ORDER_ID)
+              .HasPrincipalKey(i => i.PURCHASE_ORDER_ID);
+
+            builder.Entity<Models.AldebaranDb.PurchaseOrderDetail>()
+              .HasOne(i => i.PurchaseOrder)
+              .WithMany(i => i.PurchaseOrderDetails)
+              .HasForeignKey(i => i.PURCHASE_ORDER_ID)
+              .HasPrincipalKey(i => i.PURCHASE_ORDER_ID);
+
+            builder.Entity<Models.AldebaranDb.PurchaseOrderDetail>()
+              .HasOne(i => i.ItemReference)
+              .WithMany(i => i.PurchaseOrderDetails)
+              .HasForeignKey(i => i.REFERENCE_ID)
+              .HasPrincipalKey(i => i.REFERENCE_ID);
+
+            builder.Entity<Models.AldebaranDb.PurchaseOrderDetail>()
+              .HasOne(i => i.Warehouse)
+              .WithMany(i => i.PurchaseOrderDetails)
+              .HasForeignKey(i => i.WAREHOUSE_ID)
+              .HasPrincipalKey(i => i.WAREHOUSE_ID);
+
+            builder.Entity<Models.AldebaranDb.PurchaseOrder>()
+              .HasOne(i => i.ForwarderAgent)
+              .WithMany(i => i.PurchaseOrders)
+              .HasForeignKey(i => i.FORWARDER_AGENT_ID)
+              .HasPrincipalKey(i => i.FORWARDER_AGENT_ID);
+
+            builder.Entity<Models.AldebaranDb.PurchaseOrder>()
               .HasOne(i => i.Provider)
-              .WithMany(i => i.ProviderReferences)
+              .WithMany(i => i.PurchaseOrders)
               .HasForeignKey(i => i.PROVIDER_ID)
               .HasPrincipalKey(i => i.PROVIDER_ID);
 
-            builder.Entity<Models.AldebaranDb.ProviderReference>()
+            builder.Entity<Models.AldebaranDb.PurchaseOrder>()
+              .HasOne(i => i.ShipmentForwarderAgentMethod)
+              .WithMany(i => i.PurchaseOrders)
+              .HasForeignKey(i => i.SHIPMENT_FORWARDER_AGENT_METHOD_ID)
+              .HasPrincipalKey(i => i.SHIPMENT_FORWARDER_AGENT_METHOD_ID);
+
+            builder.Entity<Models.AldebaranDb.PurchaseOrder>()
+              .HasOne(i => i.User)
+              .WithMany(i => i.PurchaseOrders)
+              .HasForeignKey(i => i.USER_ID)
+              .HasPrincipalKey(i => i.USER_ID);
+
+            builder.Entity<Models.AldebaranDb.ReferencesWarehouse>()
               .HasOne(i => i.ItemReference)
-              .WithMany(i => i.ProviderReferences)
+              .WithMany(i => i.ReferencesWarehouses)
               .HasForeignKey(i => i.REFERENCE_ID)
               .HasPrincipalKey(i => i.REFERENCE_ID);
+
+            builder.Entity<Models.AldebaranDb.ReferencesWarehouse>()
+              .HasOne(i => i.Warehouse)
+              .WithMany(i => i.ReferencesWarehouses)
+              .HasForeignKey(i => i.WAREHOUSE_ID)
+              .HasPrincipalKey(i => i.WAREHOUSE_ID);
+
+            builder.Entity<Models.AldebaranDb.ShipmentForwarderAgentMethod>()
+              .HasOne(i => i.ForwarderAgent)
+              .WithMany(i => i.ShipmentForwarderAgentMethods)
+              .HasForeignKey(i => i.FORWARDER_AGENT_ID)
+              .HasPrincipalKey(i => i.FORWARDER_AGENT_ID);
+
+            builder.Entity<Models.AldebaranDb.ShipmentForwarderAgentMethod>()
+              .HasOne(i => i.ShipmentMethod)
+              .WithMany(i => i.ShipmentForwarderAgentMethods)
+              .HasForeignKey(i => i.SHIPMENT_METHOD_ID)
+              .HasPrincipalKey(i => i.SHIPMENT_METHOD_ID);
+
+            builder.Entity<Models.AldebaranDb.User>()
+              .HasOne(i => i.Area)
+              .WithMany(i => i.Users)
+              .HasForeignKey(i => i.AREA_ID)
+              .HasPrincipalKey(i => i.AREA_ID);
+
+            builder.Entity<Models.AldebaranDb.User>()
+              .HasOne(i => i.IdentityType)
+              .WithMany(i => i.Users)
+              .HasForeignKey(i => i.IDENTITY_TYPE_ID)
+              .HasPrincipalKey(i => i.IDENTITY_TYPE_ID);
+
+            builder.Entity<Models.AldebaranDb.Adjustment>()
+              .Property(p => p.ADJUSTMENT_DATE)
+              .HasDefaultValueSql(@"(getdate())");
+
+            builder.Entity<Models.AldebaranDb.Adjustment>()
+              .Property(p => p.CREATION_DATE)
+              .HasDefaultValueSql(@"(getdate())");
 
             builder.Entity<Models.AldebaranDb.ItemReference>()
               .Property(p => p.IS_ACTIVE)
               .HasDefaultValueSql(@"((1))");
-
-            builder.Entity<Models.AldebaranDb.ItemReference>()
-              .Property(p => p.IS_SOLD_OUT)
-              .HasDefaultValueSql(@"((0))");
 
             builder.Entity<Models.AldebaranDb.Item>()
               .Property(p => p.IS_ACTIVE)
@@ -173,77 +284,51 @@ namespace Aldebaran.Web.Data
               .Property(p => p.IS_ACTIVE)
               .HasDefaultValueSql(@"((1))");
 
-            builder.Entity<Models.AldebaranDb.Adjustment>()
-              .HasOne(i => i.AdjustmentReason)
-              .WithMany(i => i.Adjustments)
-              .HasForeignKey(i => i.ADJUSTMENT_REASON_ID)
-              .HasPrincipalKey(i => i.ADJUSTMENT_REASON_ID);
+            builder.Entity<Models.AldebaranDb.PurchaseOrderActivity>()
+              .Property(p => p.EXECUTION_DATE)
+              .HasDefaultValueSql(@"(getdate())");
+
+            builder.Entity<Models.AldebaranDb.PurchaseOrderActivity>()
+              .Property(p => p.CREATION_DATE)
+              .HasDefaultValueSql(@"(getdate())");
+
+            builder.Entity<Models.AldebaranDb.PurchaseOrder>()
+              .Property(p => p.EMBARKATION_PORT)
+              .HasDefaultValueSql(@"(' ')");
+
+            builder.Entity<Models.AldebaranDb.PurchaseOrder>()
+              .Property(p => p.PROFORMA_NUMBER)
+              .HasDefaultValueSql(@"(' ')");
+
+            builder.Entity<Models.AldebaranDb.PurchaseOrder>()
+              .Property(p => p.CREATION_DATE)
+              .HasDefaultValueSql(@"(getdate())");
 
             builder.Entity<Models.AldebaranDb.Adjustment>()
-              .HasOne(i => i.AdjustmentType)
-              .WithMany(i => i.Adjustments)
-              .HasForeignKey(i => i.ADJUSTMENT_TYPE_ID)
-              .HasPrincipalKey(i => i.ADJUSTMENT_TYPE_ID);
+              .Property(p => p.CREATION_DATE)
+              .HasColumnType("datetime");
 
-            builder.Entity<Models.AldebaranDb.Adjustment>()
-              .HasOne(i => i.Aspnetuser)
-              .WithMany(i => i.Adjustments)
-              .HasForeignKey(i => i.ASPNETUSER_ID)
-              .HasPrincipalKey(i => i.Id);
+            builder.Entity<Models.AldebaranDb.PurchaseOrderActivity>()
+              .Property(p => p.EXECUTION_DATE)
+              .HasColumnType("datetime");
 
-            builder.Entity<Models.AldebaranDb.Adjustment>()
-             .Property(p => p.ADJUSTMENT_DATE)
-             .HasDefaultValueSql("GETDATE()");
+            builder.Entity<Models.AldebaranDb.PurchaseOrderActivity>()
+              .Property(p => p.CREATION_DATE)
+              .HasColumnType("datetime");
 
-            builder.Entity<Models.AldebaranDb.Adjustment>()
-             .Property(p => p.CREATION_DATE)
-             .HasDefaultValueSql("GETDATE()");
-
-            builder.Entity<Models.AldebaranDb.AdjustmentDetail>()
-              .HasOne(i => i.Adjustment)
-              .WithMany(i => i.AdjustmentDetails)
-              .HasForeignKey(i => i.ADJUSTMENT_ID)
-              .HasPrincipalKey(i => i.ADJUSTMENT_ID);
-
-            builder.Entity<Models.AldebaranDb.AdjustmentDetail>()
-              .HasOne(i => i.ItemReference)
-              .WithMany(i => i.AdjustmentDetails)
-              .HasForeignKey(i => i.REFERENCE_ID)
-              .HasPrincipalKey(i => i.REFERENCE_ID);
-
-            builder.Entity<Models.AldebaranDb.AdjustmentDetail>()
-              .HasOne(i => i.Warehouse)
-              .WithMany(i => i.AdjustmentDetails)
-              .HasForeignKey(i => i.WAREHOUSE_ID)
-              .HasPrincipalKey(i => i.WAREHOUSE_ID);
-
-            builder.Entity<Models.AldebaranDb.Aspnetuser>()
-              .HasOne(i => i.Area)
-              .WithMany(i => i.Aspnetusers)
-              .HasForeignKey(i => i.AREA_ID)
-              .HasPrincipalKey(i => i.AREA_ID);
-
-            builder.Entity<Models.AldebaranDb.Aspnetuser>()
-              .HasOne(i => i.IdentityType)
-              .WithMany(i => i.Aspnetusers)
-              .HasForeignKey(i => i.IDENTITY_TYPE_ID)
-              .HasPrincipalKey(i => i.IDENTITY_TYPE_ID);
-
-            builder.Entity<Models.AldebaranDb.ReferencesWarehouse>()
-            .HasOne(i => i.Warehouse)
-            .WithMany(i => i.ReferencesWarehouses)
-            .HasForeignKey(i => i.WAREHOUSE_ID)
-            .HasPrincipalKey(i => i.WAREHOUSE_ID);
-
-            builder.Entity<Models.AldebaranDb.ReferencesWarehouse>()
-              .HasOne(i => i.ItemReference)
-              .WithMany(i => i.ReferencesWarehouses)
-              .HasForeignKey(i => i.REFERENCE_ID)
-              .HasPrincipalKey(i => i.REFERENCE_ID);
-
-
+            builder.Entity<Models.AldebaranDb.PurchaseOrder>()
+              .Property(p => p.CREATION_DATE)
+              .HasColumnType("datetime");
             this.OnModelBuilding(builder);
         }
+
+        public DbSet<Models.AldebaranDb.AdjustmentDetail> AdjustmentDetails { get; set; }
+
+        public DbSet<Models.AldebaranDb.AdjustmentReason> AdjustmentReasons { get; set; }
+
+        public DbSet<Models.AldebaranDb.AdjustmentType> AdjustmentTypes { get; set; }
+
+        public DbSet<Models.AldebaranDb.Adjustment> Adjustments { get; set; }
 
         public DbSet<Models.AldebaranDb.Area> Areas { get; set; }
 
@@ -258,6 +343,8 @@ namespace Aldebaran.Web.Data
         public DbSet<Models.AldebaranDb.Customer> Customers { get; set; }
 
         public DbSet<Models.AldebaranDb.Department> Departments { get; set; }
+
+        public DbSet<Models.AldebaranDb.DocumentType> DocumentTypes { get; set; }
 
         public DbSet<Models.AldebaranDb.ForwarderAgent> ForwarderAgents { get; set; }
 
@@ -275,30 +362,28 @@ namespace Aldebaran.Web.Data
 
         public DbSet<Models.AldebaranDb.MeasureUnit> MeasureUnits { get; set; }
 
+        public DbSet<Models.AldebaranDb.ProviderReference> ProviderReferences { get; set; }
+
+        public DbSet<Models.AldebaranDb.Provider> Providers { get; set; }
+
+        public DbSet<Models.AldebaranDb.PurchaseOrderActivity> PurchaseOrderActivities { get; set; }
+
+        public DbSet<Models.AldebaranDb.PurchaseOrderDetail> PurchaseOrderDetails { get; set; }
+
+        public DbSet<Models.AldebaranDb.PurchaseOrder> PurchaseOrders { get; set; }
+
+        public DbSet<Models.AldebaranDb.ReferencesWarehouse> ReferencesWarehouses { get; set; }
+
         public DbSet<Models.AldebaranDb.ShipmentForwarderAgentMethod> ShipmentForwarderAgentMethods { get; set; }
 
         public DbSet<Models.AldebaranDb.ShipmentMethod> ShipmentMethods { get; set; }
 
         public DbSet<Models.AldebaranDb.ShippingMethod> ShippingMethods { get; set; }
 
-        public DbSet<Models.AldebaranDb.Provider> Providers { get; set; }
-
-        public DbSet<Models.AldebaranDb.ProviderReference> ProviderReferences { get; set; }
-
-        public DbSet<Models.AldebaranDb.Adjustment> Adjustments { get; set; }
-
-        public DbSet<Models.AldebaranDb.AdjustmentDetail> AdjustmentDetails { get; set; }
-
-        public DbSet<Models.AldebaranDb.AdjustmentReason> AdjustmentReasons { get; set; }
-
-        public DbSet<Models.AldebaranDb.AdjustmentType> AdjustmentTypes { get; set; }
-
-        public DbSet<Models.AldebaranDb.Aspnetuser> Aspnetusers { get; set; }
-
         public DbSet<Models.AldebaranDb.Warehouse> Warehouses { get; set; }
 
-        public DbSet<Models.AldebaranDb.ReferencesWarehouse> ReferencesWarehouses{ get; set; }
-        
+        public DbSet<Models.AldebaranDb.User> Users { get; set; }
+
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {
             configurationBuilder.Conventions.Add(_ => new BlankTriggerAddingConvention());

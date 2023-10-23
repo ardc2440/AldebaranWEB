@@ -41,5 +41,7 @@ namespace Aldebaran.Web.Models.AldebaranDb
 
         public IdentityType IdentityType { get; set; }
 
+        public ICollection<PurchaseOrder> PurchaseOrders { get; set; }
+
     }
 }

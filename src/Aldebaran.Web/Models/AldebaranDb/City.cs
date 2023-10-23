@@ -14,7 +14,7 @@ namespace Aldebaran.Web.Models.AldebaranDb
         public string CITY_NAME { get; set; }
 
         [Required]
-        public short DEPARTMENT_ID { get; set; }
+        public int DEPARTMENT_ID { get; set; }
 
         public Department Department { get; set; }
 

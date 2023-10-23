@@ -1,6 +1,4 @@
-@page "/edit-customer"
-
-@attribute [Authorize]
+@attribute [Authorize(Roles="Admin,Customer Editor")]
 
 <PageTitle>Actualizar cliente</PageTitle>
 <RadzenColumn SizeMD=12>

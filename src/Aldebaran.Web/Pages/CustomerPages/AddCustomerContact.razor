@@ -1,6 +1,4 @@
-@page "/add-customer-contact"
-
-@attribute [Authorize]
+@attribute [Authorize(Roles="Admin,Customer Editor")]
 
 <PageTitle>Nuevo contacto</PageTitle>
 <RadzenColumn SizeMD=12>

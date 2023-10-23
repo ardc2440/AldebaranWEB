@@ -1,0 +1,42 @@
+@page "/edit-purchase-order-activity"
+@attribute [Authorize]
+
+<PageTitle>Edit PurchaseOrderActivity</PageTitle>
+
+    <RadzenColumn SizeMD=12>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">Cannot save PurchaseOrderActivity</RadzenAlert>
+        <RadzenTemplateForm TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrderActivity" Data="@purchaseOrderActivity" Visible="@(purchaseOrderActivity != null)" Submit="@FormSubmit">
+          <RadzenStack>
+            <RadzenFormField Text="E X E C U T I O N D A T E" Variant="Variant.Text">
+                  <ChildContent>
+                    <RadzenDatePicker DateFormat="MM/dd/yyyy" style="display: block; width: 100%" @bind-Value="@purchaseOrderActivity.EXECUTION_DATE" Name="EXECUTION_DATE" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="A C T I V I T Y D E S C R I P T I O N" Variant="Variant.Text">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@purchaseOrderActivity.ACTIVITY_DESCRIPTION" Name="ACTIVITY_DESCRIPTION" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="ACTIVITY_DESCRIPTION" Text="ACTIVITY_DESCRIPTION is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="C R E A T I O N D A T E" Variant="Variant.Text">
+                  <ChildContent>
+                    <RadzenDatePicker DateFormat="MM/dd/yyyy" style="display: block; width: 100%" @bind-Value="@purchaseOrderActivity.CREATION_DATE" Name="CREATION_DATE" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Purchase Order" Variant="Variant.Text">
+                  <ChildContent>
+                    <RadzenDropDownDataGrid Data="@purchaseOrdersForPURCHASEORDERID" TextProperty="ORDER_NUMBER" ValueProperty="PURCHASE_ORDER_ID" AllowClear=true
+                        Disabled=@(hasPURCHASE_ORDER_IDValue)  style="display: block; width: 100%" @bind-Value="@purchaseOrderActivity.PURCHASE_ORDER_ID" Name="PURCHASE_ORDER_ID"
+                           />
+              </ChildContent>
+            </RadzenFormField>
+          </RadzenStack>
+          <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                    <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Save" Variant="Variant.Flat" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancel" Variant="Variant.Flat" Click="@CancelButtonClick"  />
+          </RadzenStack>
+        </RadzenTemplateForm>
+    </RadzenColumn>
+
