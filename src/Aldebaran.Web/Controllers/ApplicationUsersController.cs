@@ -96,7 +96,7 @@ namespace Aldebaran.Web.Controllers
             OnUserUpdated(data);
 
             IdentityResult result = null;
-
+            user.Email = data.Email;
             user.Roles = null;
 
             result = await userManager.UpdateAsync(user);
