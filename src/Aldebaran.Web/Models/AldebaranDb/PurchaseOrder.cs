@@ -29,7 +29,7 @@ namespace Aldebaran.Web.Models.AldebaranDb
         public short? SHIPMENT_FORWARDER_AGENT_METHOD_ID { get; set; }
 
         [Required]
-        public int USER_ID { get; set; }
+        public int EMPLOYEE_ID { get; set; }
 
         [Required]
         public short STATUS_DOCUMENT_TYPE_ID { get; set; }
@@ -52,7 +52,7 @@ namespace Aldebaran.Web.Models.AldebaranDb
 
         public ShipmentForwarderAgentMethod ShipmentForwarderAgentMethod { get; set; }
 
-        public User User { get; set; }
+        public Employee User { get; set; }
 
     }
 }

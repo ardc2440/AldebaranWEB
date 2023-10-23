@@ -35,7 +35,7 @@ namespace Aldebaran.Web.Pages.IdentityPages
         protected IEnumerable<IdentityType> identityTypesForIDENTITYTYPEID;
         protected IEnumerable<Area> areasForAREAID;
         protected Models.ApplicationUser applicationUser;
-        protected User user;
+        protected Employee user;
         protected IEnumerable<string> userRoles = Enumerable.Empty<string>();
         protected bool errorVisible;
         protected string error;
@@ -43,7 +43,7 @@ namespace Aldebaran.Web.Pages.IdentityPages
 
         protected override async Task OnInitializedAsync()
         {
-            user = new User();
+            user = new Employee();
             applicationUser = new Models.ApplicationUser();
             roles = await Security.GetRoles();
             identityTypesForIDENTITYTYPEID = await AldebaranDbService.GetIdentityTypes();

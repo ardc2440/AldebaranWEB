@@ -20,7 +20,7 @@ namespace Aldebaran.Web.Models.AldebaranDb
 
         public ICollection<ItemsArea> ItemsAreas { get; set; }
 
-        public ICollection<User> Users { get; set; }
+        public ICollection<Employee> Employees { get; set; }
 
     }
 }

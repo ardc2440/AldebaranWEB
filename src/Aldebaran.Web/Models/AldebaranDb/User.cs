@@ -3,12 +3,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Aldebaran.Web.Models.AldebaranDb
 {
-    [Table("users", Schema = "dbo")]
-    public partial class User
+    [Table("employees", Schema = "dbo")]
+    public partial class Employee
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int USER_ID { get; set; }
+        public int EMPLOYEE_ID { get; set; }
 
         [Required]
         public short AREA_ID { get; set; }

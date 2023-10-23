@@ -855,7 +855,7 @@ namespace Aldebaran.Web
             var itemToDelete = Context.Areas
                               .Where(i => i.AREA_ID == areaid)
                               .Include(i => i.ItemsAreas)
-                              .Include(i => i.Users)
+                              .Include(i => i.Employees)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -2495,7 +2495,7 @@ namespace Aldebaran.Web
                               .Where(i => i.IDENTITY_TYPE_ID == identitytypeid)
                               .Include(i => i.Customers)
                               .Include(i => i.Providers)
-                              .Include(i => i.Users)
+                              .Include(i => i.Employees)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -5012,9 +5012,9 @@ namespace Aldebaran.Web
             navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/users/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/users/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
         }
 
-        partial void OnUsersRead(ref IQueryable<Models.AldebaranDb.User> items);
+        partial void OnUsersRead(ref IQueryable<Models.AldebaranDb.Employee> items);
 
-        public async Task<IQueryable<Models.AldebaranDb.User>> GetUsers(Query query = null)
+        public async Task<IQueryable<Models.AldebaranDb.Employee>> GetUsers(Query query = null)
         {
             var items = Context.Users.AsQueryable();
 
@@ -5040,15 +5040,15 @@ namespace Aldebaran.Web
             return await Task.FromResult(items);
         }
 
-        partial void OnUserGet(Models.AldebaranDb.User item);
-        partial void OnGetUserByUserId(ref IQueryable<Models.AldebaranDb.User> items);
+        partial void OnUserGet(Models.AldebaranDb.Employee item);
+        partial void OnGetUserByUserId(ref IQueryable<Models.AldebaranDb.Employee> items);
 
 
-        public async Task<Models.AldebaranDb.User> GetUserByUserId(int userid)
+        public async Task<Models.AldebaranDb.Employee> GetUserByUserId(int userid)
         {
             var items = Context.Users
                               .AsNoTracking()
-                              .Where(i => i.USER_ID == userid);
+                              .Where(i => i.EMPLOYEE_ID == userid);
 
             items = items.Include(i => i.Area);
             items = items.Include(i => i.IdentityType);
@@ -5062,15 +5062,15 @@ namespace Aldebaran.Web
             return await Task.FromResult(itemToReturn);
         }
 
-        partial void OnUserCreated(Models.AldebaranDb.User item);
-        partial void OnAfterUserCreated(Models.AldebaranDb.User item);
+        partial void OnUserCreated(Models.AldebaranDb.Employee item);
+        partial void OnAfterUserCreated(Models.AldebaranDb.Employee item);
 
-        public async Task<Models.AldebaranDb.User> CreateUser(Models.AldebaranDb.User user)
+        public async Task<Models.AldebaranDb.Employee> CreateUser(Models.AldebaranDb.Employee user)
         {
             OnUserCreated(user);
 
             var existingItem = Context.Users
-                              .Where(i => i.USER_ID == user.USER_ID)
+                              .Where(i => i.EMPLOYEE_ID == user.EMPLOYEE_ID)
                               .FirstOrDefault();
 
             if (existingItem != null)
@@ -5094,7 +5094,7 @@ namespace Aldebaran.Web
             return user;
         }
 
-        public async Task<Models.AldebaranDb.User> CancelUserChanges(Models.AldebaranDb.User item)
+        public async Task<Models.AldebaranDb.Employee> CancelUserChanges(Models.AldebaranDb.Employee item)
         {
             var entityToCancel = Context.Entry(item);
             if (entityToCancel.State == EntityState.Modified)
@@ -5106,15 +5106,15 @@ namespace Aldebaran.Web
             return item;
         }
 
-        partial void OnUserUpdated(Models.AldebaranDb.User item);
-        partial void OnAfterUserUpdated(Models.AldebaranDb.User item);
+        partial void OnUserUpdated(Models.AldebaranDb.Employee item);
+        partial void OnAfterUserUpdated(Models.AldebaranDb.Employee item);
 
-        public async Task<Models.AldebaranDb.User> UpdateUser(int userid, Models.AldebaranDb.User user)
+        public async Task<Models.AldebaranDb.Employee> UpdateUser(int userid, Models.AldebaranDb.Employee user)
         {
             OnUserUpdated(user);
 
             var itemToUpdate = Context.Users
-                              .Where(i => i.USER_ID == user.USER_ID)
+                              .Where(i => i.EMPLOYEE_ID == user.EMPLOYEE_ID)
                               .FirstOrDefault();
 
             if (itemToUpdate == null)
@@ -5133,13 +5133,13 @@ namespace Aldebaran.Web
             return user;
         }
 
-        partial void OnUserDeleted(Models.AldebaranDb.User item);
-        partial void OnAfterUserDeleted(Models.AldebaranDb.User item);
+        partial void OnUserDeleted(Models.AldebaranDb.Employee item);
+        partial void OnAfterUserDeleted(Models.AldebaranDb.Employee item);
 
-        public async Task<Models.AldebaranDb.User> DeleteUser(int userid)
+        public async Task<Models.AldebaranDb.Employee> DeleteUser(int userid)
         {
             var itemToDelete = Context.Users
-                              .Where(i => i.USER_ID == userid)
+                              .Where(i => i.EMPLOYEE_ID == userid)
                               .Include(i => i.PurchaseOrders)
                               .FirstOrDefault();
 
