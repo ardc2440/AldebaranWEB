@@ -101,7 +101,7 @@ namespace Aldebaran.Web.Pages.IdentityPages
                 if (await DialogService.Confirm("Está seguro que desea eliminar este usuario?") == true)
                 {
                     var u = await AldebaranDbService.GetUsers(new Query { Filter = "i=>i.LOGIN_USER_ID==@0", FilterParameters = new object[] { user.Id } });
-                    var deleteResult = await AldebaranDbService.DeleteUser(u.Single().USER_ID);
+                    var deleteResult = await AldebaranDbService.DeleteUser(u.Single().EMPLOYEE_ID);
                     var deleteSecurityResult = await Security.DeleteUser($"{user.Id}");
                     if (deleteResult != null && deleteSecurityResult != null)
                     {

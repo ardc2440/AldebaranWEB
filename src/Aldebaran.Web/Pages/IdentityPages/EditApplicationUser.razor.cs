@@ -37,7 +37,7 @@ namespace Aldebaran.Web.Pages.IdentityPages
 
         protected IEnumerable<Models.ApplicationRole> roles;
         protected Models.ApplicationUser applicationUser;
-        protected User user;
+        protected Employee user;
         protected IEnumerable<IdentityType> identityTypesForIDENTITYTYPEID;
         protected IEnumerable<Area> areasForAREAID;
         protected IEnumerable<string> userRoles;
@@ -63,7 +63,7 @@ namespace Aldebaran.Web.Pages.IdentityPages
                 isSubmitInProgress = true;
                 applicationUser.Roles = roles.Where(role => userRoles.Contains(role.Id)).ToList();
                 var result = await Security.UpdateUser($"{Id}", applicationUser);
-                await AldebaranDbService.UpdateUser(user.USER_ID, user);
+                await AldebaranDbService.UpdateUser(user.EMPLOYEE_ID, user);
                 DialogService.Close(true);
             }
             catch (Exception ex)
