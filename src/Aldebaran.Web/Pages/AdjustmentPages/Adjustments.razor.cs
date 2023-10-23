@@ -45,11 +45,11 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
             await grid0.GoToPage(0);
 
-            adjustments = await AldebaranDbService.GetAdjustments(new Query { Filter = $@"i => i.ASPNETUSER_ID.Contains(@0) || i.NOTES.Contains(@0)", FilterParameters = new object[] { search }, Expand = "AdjustmentReason,AdjustmentType,Aspnetuser" });
+            adjustments = await AldebaranDbService.GetAdjustments(new Query { Filter = $@"I => i.NOTES.Contains(@0)", FilterParameters = new object[] { search }, Expand = "AdjustmentReason,AdjustmentType,Employee" });
         }
         protected override async Task OnInitializedAsync()
         {
-            adjustments = await AldebaranDbService.GetAdjustments(new Query { Filter = $@"i => i.ASPNETUSER_ID.Contains(@0) || i.NOTES.Contains(@0)", FilterParameters = new object[] { search }, Expand = "AdjustmentReason,AdjustmentType,Aspnetuser" });
+            adjustments = await AldebaranDbService.GetAdjustments(new Query { Filter = $@"i => i.NOTES.Contains(@0)", FilterParameters = new object[] { search }, Expand = "AdjustmentReason,AdjustmentType,Employee" });
         }
 
         protected async Task AddButtonClick(MouseEventArgs args)
