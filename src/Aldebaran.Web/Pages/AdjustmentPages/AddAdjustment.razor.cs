@@ -47,7 +47,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected IEnumerable<Models.AldebaranDb.AdjustmentType> adjustmentTypesForADJUSTMENTTYPEID;
 
-        protected IEnumerable<Models.AldebaranDb.Aspnetuser> aspnetusersForASPNETUSERID;
+        protected IEnumerable<Models.AldebaranDb.Employee> employeesForEMPLOYEEID;
 
         protected bool isSubmitInProgress;
 
