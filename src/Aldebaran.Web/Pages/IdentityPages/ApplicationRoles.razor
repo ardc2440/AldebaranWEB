@@ -11,7 +11,7 @@
     <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
     <RadzenRow>
         <RadzenColumn SizeMD="12">
-            <RadzenDataGrid @ref="grid0" AllowFiltering="true" AllowPaging="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+            <RadzenDataGrid @ref="ApplicationRoleDataGrid" AllowFiltering="true" AllowPaging="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                             AllowSorting="true" Data="@roles" TItem="Aldebaran.Web.Models.ApplicationRole" RowExpand=@GetChildData ExpandMode="Radzen.DataGridExpandMode.Single" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive">
                 <Columns>
                     <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ApplicationRole" Property="Name" Title="Nombre" />
@@ -20,19 +20,15 @@
                     <RadzenStack Class="rz-my-8">
                         <RadzenRow Gap="0" AlignItems="AlignItems.Center">
                             <RadzenColumn Size="12">
-                                <RadzenText Visible="@(role != null)" Text="Usuarios" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
+                                <RadzenText Visible="@(role != null)" Text="Inicios de sesión" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
                             </RadzenColumn>
                         </RadzenRow>
                         <RadzenDataGrid ColumnWidth="200px" Visible="@(role != null)" @ref=ApplicationUserDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                        Data="@users" TItem="Aldebaran.Web.Models.ViewModel.UserViewModel" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" AllowGrouping="true" AllowColumnReorder="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive">
+                                        Data="@users" TItem="Aldebaran.Web.Models.ApplicationUser" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" AllowGrouping="true" AllowColumnReorder="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive">
                             <Columns>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModel.UserViewModel" Property="FullName" Title="Nombre" />
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModel.UserViewModel" Property="UserName" Title="Nombre de usuario" />
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModel.UserViewModel" Property="Email" Title="Correo electrónico" />
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModel.UserViewModel" Property="IdentificationNumber" Title="Identificación" />
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModel.UserViewModel" Property="Area" Title="Área" />
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModel.UserViewModel" Property="Position" Title="Posición" />
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModel.UserViewModel" Property="LockoutEnabled" Title="Bloqueado">
+                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ApplicationUser" Property="Email" Title="Correo electrónico" />
+                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ApplicationUser" Property="UserName" Title="Nombre de usuario" />
+                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ApplicationUser" Property="LockoutEnabled" Title="Bloqueado">
                                     <Template Context="user">
                                         <RadzenCheckBox @bind-Value="@user.LockoutEnabled" Name="LockoutEnabled" Disabled="true"></RadzenCheckBox>
                                     </Template>

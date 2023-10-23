@@ -1,4 +1,3 @@
-using Aldebaran.Web.Models.AldebaranDb;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.JSInterop;
@@ -37,9 +36,6 @@ namespace Aldebaran.Web.Pages.IdentityPages
 
         protected IEnumerable<Models.ApplicationRole> roles;
         protected Models.ApplicationUser applicationUser;
-        protected Employee user;
-        protected IEnumerable<IdentityType> identityTypesForIDENTITYTYPEID;
-        protected IEnumerable<Area> areasForAREAID;
         protected IEnumerable<string> userRoles;
         protected string error;
         protected bool errorVisible;
@@ -48,12 +44,8 @@ namespace Aldebaran.Web.Pages.IdentityPages
         protected override async Task OnInitializedAsync()
         {
             applicationUser = await Security.GetUserById($"{Id}");
-            var users = await AldebaranDbService.GetUsers(new Query { Filter = "i=> i.LOGIN_USER_ID==@0", FilterParameters = new object[] { applicationUser.Id } });
-            user = await users.FirstOrDefaultAsync();
             userRoles = applicationUser.Roles.Select(role => role.Id);
             roles = await Security.GetRoles();
-            identityTypesForIDENTITYTYPEID = await AldebaranDbService.GetIdentityTypes();
-            areasForAREAID = await AldebaranDbService.GetAreas();
         }
 
         protected async Task FormSubmit()
@@ -63,7 +55,6 @@ namespace Aldebaran.Web.Pages.IdentityPages
                 isSubmitInProgress = true;
                 applicationUser.Roles = roles.Where(role => userRoles.Contains(role.Id)).ToList();
                 var result = await Security.UpdateUser($"{Id}", applicationUser);
-                await AldebaranDbService.UpdateUser(user.EMPLOYEE_ID, user);
                 DialogService.Close(true);
             }
             catch (Exception ex)

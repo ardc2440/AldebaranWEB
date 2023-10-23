@@ -1,4 +1,3 @@
-using Aldebaran.Web.Models.AldebaranDb;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Radzen;
@@ -32,10 +31,7 @@ namespace Aldebaran.Web.Pages.IdentityPages
         protected SecurityService Security { get; set; }
 
         protected IEnumerable<Models.ApplicationRole> roles;
-        protected IEnumerable<IdentityType> identityTypesForIDENTITYTYPEID;
-        protected IEnumerable<Area> areasForAREAID;
         protected Models.ApplicationUser applicationUser;
-        protected Employee user;
         protected IEnumerable<string> userRoles = Enumerable.Empty<string>();
         protected bool errorVisible;
         protected string error;
@@ -43,11 +39,8 @@ namespace Aldebaran.Web.Pages.IdentityPages
 
         protected override async Task OnInitializedAsync()
         {
-            user = new Employee();
             applicationUser = new Models.ApplicationUser();
             roles = await Security.GetRoles();
-            identityTypesForIDENTITYTYPEID = await AldebaranDbService.GetIdentityTypes();
-            areasForAREAID = await AldebaranDbService.GetAreas();
         }
 
         protected async Task FormSubmit()
@@ -59,14 +52,10 @@ namespace Aldebaran.Web.Pages.IdentityPages
                 var users = await Security.GetUsers();
                 if (users.Any(s => s.UserName == applicationUser.UserName.Trim()))
                     throw new Exception("Ya existe un usuario con el mismo nombre");
-
+                applicationUser.LockoutEnabled = false;
                 applicationUser.UserName = applicationUser.UserName.Trim();
                 applicationUser.Roles = roles.Where(role => userRoles.Contains(role.Id)).ToList();
                 var result = await Security.CreateUser(applicationUser);
-
-                user.LOGIN_USER_ID = result.Id;
-                await AldebaranDbService.CreateUser(user);
-
                 DialogService.Close(true);
             }
             catch (Exception ex)
