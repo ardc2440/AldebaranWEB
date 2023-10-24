@@ -19,7 +19,7 @@ namespace Aldebaran.Web.Models.AldebaranDb
         public short ADJUSTMENT_TYPE_ID { get; set; }
 
         [Required]
-        public string EMPLOYEE_ID { get; set; }
+        public string ASPNETUSER_ID { get; set; }
 
         public string NOTES { get; set; }
 

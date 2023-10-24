@@ -46,13 +46,13 @@ namespace Aldebaran.Web.Models.AldebaranDb
 
         public ICollection<PurchaseOrderDetail> PurchaseOrderDetails { get; set; }
 
+        public Employee Employee { get; set; }
+
         public ForwarderAgent ForwarderAgent { get; set; }
 
         public Provider Provider { get; set; }
 
         public ShipmentForwarderAgentMethod ShipmentForwarderAgentMethod { get; set; }
-
-        public Employee User { get; set; }
 
     }
 }

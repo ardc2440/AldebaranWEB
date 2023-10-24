@@ -182,6 +182,20 @@ namespace Aldebaran.Web.Controllers
             return ToExcel(ApplyQuery(await service.GetDocumentTypes(), Request.Query), fileName);
         }
 
+        [HttpGet("/export/AldebaranDb/employees/csv")]
+        [HttpGet("/export/AldebaranDb/employees/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportEmployeesToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetEmployees(), Request.Query), fileName);
+        }
+
+        [HttpGet("/export/AldebaranDb/employees/excel")]
+        [HttpGet("/export/AldebaranDb/employees/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportEmployeesToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetEmployees(), Request.Query), fileName);
+        }
+
         [HttpGet("/export/AldebaranDb/forwarderagents/csv")]
         [HttpGet("/export/AldebaranDb/forwarderagents/csv(fileName='{fileName}')")]
         public async Task<FileStreamResult> ExportForwarderAgentsToCSV(string fileName = null)
@@ -432,20 +446,6 @@ namespace Aldebaran.Web.Controllers
         public async Task<FileStreamResult> ExportWarehousesToExcel(string fileName = null)
         {
             return ToExcel(ApplyQuery(await service.GetWarehouses(), Request.Query), fileName);
-        }
-
-        [HttpGet("/export/AldebaranDb/users/csv")]
-        [HttpGet("/export/AldebaranDb/users/csv(fileName='{fileName}')")]
-        public async Task<FileStreamResult> ExportUsersToCSV(string fileName = null)
-        {
-            return ToCSV(ApplyQuery(await service.GetUsers(), Request.Query), fileName);
-        }
-
-        [HttpGet("/export/AldebaranDb/users/excel")]
-        [HttpGet("/export/AldebaranDb/users/excel(fileName='{fileName}')")]
-        public async Task<FileStreamResult> ExportUsersToExcel(string fileName = null)
-        {
-            return ToExcel(ApplyQuery(await service.GetUsers(), Request.Query), fileName);
         }
     }
 }

@@ -1,0 +1,58 @@
+<RadzenPanel AllowCollapse="false" Collapsed="@CollapsedPanel" Class="rz-mx-auto toggle-panel" Expand=@(() => PanelCollapseChange("Expand")) Collapse=@(() => PanelCollapseChange("Collapse"))>
+    <HeaderTemplate>
+        <RadzenButton Click="@PanelCollapseToggle" class="@(CollapsedPanel ? "panel-collapsed":"panel-expanded")">
+            @if (item == null || reference == null)
+            {
+                <span>Referencia</span>
+            }
+            else
+            {
+                <div class="d-flex flex-column">
+                    <span class="text-primary-color">
+                        Artículo: (@item?.INTERNAL_REFERENCE) @item?.ITEM_NAME
+                    </span>
+                    <span class="text-secondary-color"> Referencia: (@reference?.REFERENCE_CODE) @reference?.REFERENCE_NAME</span>
+                </div>
+            }
+        </RadzenButton>
+    </HeaderTemplate>
+    <ChildContent>
+        <RadzenCard class="mt-4">
+            <RadzenRow>
+                <RadzenColumn Size="12">
+                    <RadzenFormField Text="Artículo" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenDropDownDataGrid Data="@items" TextProperty="ITEM_NAME" ValueProperty="ITEM_ID" AllowClear=true
+                                                    style="display: block; width: 100%" @bind-Value="ITEM_ID" Name="ITEM_ID" Change="@OnItemChange" AllowFiltering="true" ClearSearchAfterSelection="true">
+                                <Columns>
+                                    <RadzenDropDownDataGridColumn Property="INTERNAL_REFERENCE" Title="Referencia" />
+                                    <RadzenDropDownDataGridColumn Property="ITEM_NAME" Title="Nombre" />
+                                    <RadzenDropDownDataGridColumn Property="Line.LINE_ID" Title="Línea">
+                                        <Template Context="item">
+                                            <span>(@item.Line.LINE_CODE) @item.Line?.LINE_NAME</span>
+                                        </Template>
+                                    </RadzenDropDownDataGridColumn>
+                                </Columns>
+                            </RadzenDropDownDataGrid>
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenRow class="mt-2">
+                <RadzenColumn Size="12">
+                    <RadzenFormField Text="Referencia" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenDropDownDataGrid Data="@references" TextProperty="REFERENCE_NAME" ValueProperty="REFERENCE_ID" AllowClear=true
+                                                    style="display: block; width: 100%" @bind-Value="REFERENCE_ID" Name="REFERENCE_ID" Change="@OnItemReferenceChange" AllowFiltering="true" ClearSearchAfterSelection="true">
+                                <Columns>
+                                    <RadzenDropDownDataGridColumn Property="REFERENCE_CODE" Title="Código" />
+                                    <RadzenDropDownDataGridColumn Property="REFERENCE_NAME" Title="Nombre" />
+                                </Columns>
+                            </RadzenDropDownDataGrid>
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenColumn>
+            </RadzenRow>
+        </RadzenCard>
+    </ChildContent>
+</RadzenPanel>

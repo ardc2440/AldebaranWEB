@@ -96,6 +96,18 @@ namespace Aldebaran.Web.Data
               .HasForeignKey(i => i.COUNTRY_ID)
               .HasPrincipalKey(i => i.COUNTRY_ID);
 
+            builder.Entity<Models.AldebaranDb.Employee>()
+              .HasOne(i => i.Area)
+              .WithMany(i => i.Employees)
+              .HasForeignKey(i => i.AREA_ID)
+              .HasPrincipalKey(i => i.AREA_ID);
+
+            builder.Entity<Models.AldebaranDb.Employee>()
+              .HasOne(i => i.IdentityType)
+              .WithMany(i => i.Employees)
+              .HasForeignKey(i => i.IDENTITY_TYPE_ID)
+              .HasPrincipalKey(i => i.IDENTITY_TYPE_ID);
+
             builder.Entity<Models.AldebaranDb.ForwarderAgent>()
               .HasOne(i => i.City)
               .WithMany(i => i.ForwarderAgents)
@@ -181,6 +193,18 @@ namespace Aldebaran.Web.Data
               .HasPrincipalKey(i => i.IDENTITY_TYPE_ID);
 
             builder.Entity<Models.AldebaranDb.PurchaseOrderActivity>()
+              .HasOne(i => i.Employee)
+              .WithMany(i => i.PurchaseOrderActivities)
+              .HasForeignKey(i => i.ACTIVITY_EMPLOYEE_ID)
+              .HasPrincipalKey(i => i.EMPLOYEE_ID);
+
+            builder.Entity<Models.AldebaranDb.PurchaseOrderActivity>()
+              .HasOne(i => i.Employee1)
+              .WithMany(i => i.PurchaseOrderActivities1)
+              .HasForeignKey(i => i.EMPLOYEE_ID)
+              .HasPrincipalKey(i => i.EMPLOYEE_ID);
+
+            builder.Entity<Models.AldebaranDb.PurchaseOrderActivity>()
               .HasOne(i => i.PurchaseOrder)
               .WithMany(i => i.PurchaseOrderActivities)
               .HasForeignKey(i => i.PURCHASE_ORDER_ID)
@@ -205,6 +229,12 @@ namespace Aldebaran.Web.Data
               .HasPrincipalKey(i => i.WAREHOUSE_ID);
 
             builder.Entity<Models.AldebaranDb.PurchaseOrder>()
+              .HasOne(i => i.Employee)
+              .WithMany(i => i.PurchaseOrders)
+              .HasForeignKey(i => i.EMPLOYEE_ID)
+              .HasPrincipalKey(i => i.EMPLOYEE_ID);
+
+            builder.Entity<Models.AldebaranDb.PurchaseOrder>()
               .HasOne(i => i.ForwarderAgent)
               .WithMany(i => i.PurchaseOrders)
               .HasForeignKey(i => i.FORWARDER_AGENT_ID)
@@ -221,12 +251,6 @@ namespace Aldebaran.Web.Data
               .WithMany(i => i.PurchaseOrders)
               .HasForeignKey(i => i.SHIPMENT_FORWARDER_AGENT_METHOD_ID)
               .HasPrincipalKey(i => i.SHIPMENT_FORWARDER_AGENT_METHOD_ID);
-
-            builder.Entity<Models.AldebaranDb.PurchaseOrder>()
-              .HasOne(i => i.User)
-              .WithMany(i => i.PurchaseOrders)
-              .HasForeignKey(i => i.EMPLOYEE_ID)
-              .HasPrincipalKey(i => i.EMPLOYEE_ID);
 
             builder.Entity<Models.AldebaranDb.ReferencesWarehouse>()
               .HasOne(i => i.ItemReference)
@@ -251,18 +275,6 @@ namespace Aldebaran.Web.Data
               .WithMany(i => i.ShipmentForwarderAgentMethods)
               .HasForeignKey(i => i.SHIPMENT_METHOD_ID)
               .HasPrincipalKey(i => i.SHIPMENT_METHOD_ID);
-
-            builder.Entity<Models.AldebaranDb.Employee>()
-              .HasOne(i => i.Area)
-              .WithMany(i => i.Employees)
-              .HasForeignKey(i => i.AREA_ID)
-              .HasPrincipalKey(i => i.AREA_ID);
-
-            builder.Entity<Models.AldebaranDb.Employee>()
-              .HasOne(i => i.IdentityType)
-              .WithMany(i => i.Employees)
-              .HasForeignKey(i => i.IDENTITY_TYPE_ID)
-              .HasPrincipalKey(i => i.IDENTITY_TYPE_ID);
 
             builder.Entity<Models.AldebaranDb.Adjustment>()
               .Property(p => p.ADJUSTMENT_DATE)
@@ -346,6 +358,8 @@ namespace Aldebaran.Web.Data
 
         public DbSet<Models.AldebaranDb.DocumentType> DocumentTypes { get; set; }
 
+        public DbSet<Models.AldebaranDb.Employee> Employees { get; set; }
+
         public DbSet<Models.AldebaranDb.ForwarderAgent> ForwarderAgents { get; set; }
 
         public DbSet<Models.AldebaranDb.Forwarder> Forwarders { get; set; }
@@ -381,8 +395,6 @@ namespace Aldebaran.Web.Data
         public DbSet<Models.AldebaranDb.ShippingMethod> ShippingMethods { get; set; }
 
         public DbSet<Models.AldebaranDb.Warehouse> Warehouses { get; set; }
-
-        public DbSet<Models.AldebaranDb.Employee> Users { get; set; }
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {

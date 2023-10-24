@@ -18,9 +18,9 @@ namespace Aldebaran.Web.Models.AldebaranDb
 
         public string DESCRIPTION { get; set; }
 
-        public ICollection<ItemsArea> ItemsAreas { get; set; }
-
         public ICollection<Employee> Employees { get; set; }
+
+        public ICollection<ItemsArea> ItemsAreas { get; set; }
 
     }
 }

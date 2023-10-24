@@ -9,8 +9,8 @@
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Tipo de documento" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDownDataGrid Data="@identityTypesForIDENTITYTYPEID" TextProperty="IDENTITY_TYPE_CODE" ValueProperty="IDENTITY_TYPE_ID" AllowClear=true
-                                                    style="display: block; width: 100%" @bind-Value="@provider.IDENTITY_TYPE_ID" Name="IDENTITY_TYPE_ID" />
+                            <RadzenDropDown Data="@identityTypesForIDENTITYTYPEID" TextProperty="IDENTITY_TYPE_CODE" ValueProperty="IDENTITY_TYPE_ID" AllowClear=true
+                                style="display: block; width: 100%" @bind-Value="@provider.IDENTITY_TYPE_ID" Name="IDENTITY_TYPE_ID" AllowFiltering="true" ClearSearchAfterSelection="true"  />
                         </ChildContent>
                         <Helper>
                             <RadzenNumericRangeValidator Component="IDENTITY_TYPE_ID" Min="1" Text="Tipo de documento es requerido" />

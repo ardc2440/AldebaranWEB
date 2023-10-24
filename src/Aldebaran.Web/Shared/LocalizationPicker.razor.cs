@@ -58,7 +58,7 @@ namespace Aldebaran.Web.Shared
                 await CleanCities();
                 return;
             }
-            country = countries.Single(s => s.COUNTRY_ID == (short)countryId);
+            country = countries.Single(s => s.COUNTRY_ID == (int)countryId);
             departments = await AldebaranDbService.GetDepartments(new Query { Filter = $"i=>i.COUNTRY_ID==@0", FilterParameters = new object[] { countryId } });
         }
 
@@ -70,7 +70,7 @@ namespace Aldebaran.Web.Shared
                 await CleanCities();
                 return;
             }
-            department = departments.Single(s => s.DEPARTMENT_ID == (short)departmentId);
+            department = departments.Single(s => s.DEPARTMENT_ID == (int)departmentId);
             cities = await AldebaranDbService.GetCities(new Query { Filter = $"i=>i.DEPARTMENT_ID==@0", FilterParameters = new object[] { departmentId } });
         }
         protected async Task OnCityChange(object cityId)

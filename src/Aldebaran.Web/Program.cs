@@ -48,6 +48,10 @@ builder.Services.AddDbContext<AldebaranDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("AldebaranDbConnection"));
 });
+builder.Services.AddDbContext<AldebaranDbContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("AldebaranDbConnection"));
+});
 var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

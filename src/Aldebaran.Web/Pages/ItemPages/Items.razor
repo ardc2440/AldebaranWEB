@@ -1,12 +1,14 @@
 @page "/items"
-@attribute [Authorize(Roles="Admin,Item Viwer,Item Editor")]
+@attribute [Authorize(Roles = "Admin,Item Viwer,Item Editor")]
 
 <PageTitle>Items</PageTitle>
 <RadzenStack>
-    @if(dialogResult!= null && dialogResult.Success){
+    @if (dialogResult != null && dialogResult.Success)
+    {
         <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Success">@dialogResult.Message</RadzenAlert>
     }
-    @if(dialogResult!= null && !dialogResult.Success){
+    @if (dialogResult != null && !dialogResult.Success)
+    {
         <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger">@dialogResult.Message</RadzenAlert>
     }
     <RadzenRow AlignItems="AlignItems.Center">
@@ -15,11 +17,11 @@
         </RadzenColumn>
         <RadzenColumn Size="12">
             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
-                <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddButtonClick" Variant="Variant.Flat" Visible="@Security.IsInRole("Admin","Item Editor")"/>
+                <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddButtonClick" Variant="Variant.Flat" Visible="@Security.IsInRole("Admin","Item Editor")" />
                 <RadzenSplitButton Icon="get_app" Text="Exportar" Click="@ExportClick" Variant="Variant.Flat" Shade="Shade.Lighter">
                     <RadzenSplitButtonItem Text="Excel" Value="xlsx" />
                     <RadzenSplitButtonItem Text="CSV" Value="csv" />
-                </RadzenSplitButton>                
+                </RadzenSplitButton>
             </RadzenStack>
         </RadzenColumn>
     </RadzenRow>
@@ -97,14 +99,14 @@
                                 </RadzenStack>
                             </RadzenColumn>
                         </RadzenRow>
-                        <RadzenDataGrid ColumnWidth="200px" Visible="@(item != null)" @ref=ItemReferencesDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                        <RadzenDataGrid ColumnWidth="80px" Visible="@(item != null)" @ref=ItemReferencesDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                         Data="@item?.ItemReferences" TItem="Aldebaran.Web.Models.AldebaranDb.ItemReference" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" AllowGrouping="true" AllowColumnReorder="true">
                             <Columns>
                                 <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemReference" Property="REFERENCE_CODE" Title="Referencia">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemReference" Property="PROVIDER_REFERENCE_CODE" Title="Referencia proveedor">
-                                </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemReference" Property="REFERENCE_NAME" Title="Nombre">
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemReference" Property="PROVIDER_REFERENCE_CODE" Title="Referencia proveedor">
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemReference" Property="PROVIDER_REFERENCE_NAME" Title="Nombre referencia proveedor">
                                 </RadzenDataGridColumn>

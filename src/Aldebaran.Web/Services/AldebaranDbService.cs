@@ -364,7 +364,6 @@ namespace Aldebaran.Web
         {
             var itemToDelete = Context.AdjustmentReasons
                               .Where(i => i.ADJUSTMENT_REASON_ID == adjustmentreasonid)
-                              .Include(i => i.Adjustments)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -526,7 +525,6 @@ namespace Aldebaran.Web
         {
             var itemToDelete = Context.AdjustmentTypes
                               .Where(i => i.ADJUSTMENT_TYPE_ID == adjustmenttypeid)
-                              .Include(i => i.Adjustments)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -692,7 +690,6 @@ namespace Aldebaran.Web
         {
             var itemToDelete = Context.Adjustments
                               .Where(i => i.ADJUSTMENT_ID == adjustmentid)
-                              .Include(i => i.AdjustmentDetails)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -854,8 +851,6 @@ namespace Aldebaran.Web
         {
             var itemToDelete = Context.Areas
                               .Where(i => i.AREA_ID == areaid)
-                              .Include(i => i.ItemsAreas)
-                              .Include(i => i.Employees)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -1019,10 +1014,6 @@ namespace Aldebaran.Web
         {
             var itemToDelete = Context.Cities
                               .Where(i => i.CITY_ID == cityid)
-                              .Include(i => i.Customers)
-                              .Include(i => i.ForwarderAgents)
-                              .Include(i => i.Forwarders)
-                              .Include(i => i.Providers)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -1184,7 +1175,6 @@ namespace Aldebaran.Web
         {
             var itemToDelete = Context.Countries
                               .Where(i => i.COUNTRY_ID == countryid)
-                              .Include(i => i.Departments)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -1346,7 +1336,6 @@ namespace Aldebaran.Web
         {
             var itemToDelete = Context.Currencies
                               .Where(i => i.CURRENCY_ID == currencyid)
-                              .Include(i => i.Items)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -1675,7 +1664,6 @@ namespace Aldebaran.Web
         {
             var itemToDelete = Context.Customers
                               .Where(i => i.CUSTOMER_ID == customerid)
-                              .Include(i => i.CustomerContacts)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -1839,7 +1827,6 @@ namespace Aldebaran.Web
         {
             var itemToDelete = Context.Departments
                               .Where(i => i.DEPARTMENT_ID == departmentid)
-                              .Include(i => i.Cities)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -2028,6 +2015,171 @@ namespace Aldebaran.Web
             return itemToDelete;
         }
 
+        public async Task ExportEmployeesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/employees/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/employees/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportEmployeesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/employees/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/employees/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnEmployeesRead(ref IQueryable<Models.AldebaranDb.Employee> items);
+
+        public async Task<IQueryable<Models.AldebaranDb.Employee>> GetEmployees(Query query = null)
+        {
+            var items = Context.Employees.AsQueryable();
+
+            items = items.Include(i => i.Area);
+            items = items.Include(i => i.IdentityType);
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach (var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnEmployeesRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnEmployeeGet(Models.AldebaranDb.Employee item);
+        partial void OnGetEmployeeByEmployeeId(ref IQueryable<Models.AldebaranDb.Employee> items);
+
+
+        public async Task<Models.AldebaranDb.Employee> GetEmployeeByEmployeeId(int employeeid)
+        {
+            var items = Context.Employees
+                              .AsNoTracking()
+                              .Where(i => i.EMPLOYEE_ID == employeeid);
+
+            items = items.Include(i => i.Area);
+            items = items.Include(i => i.IdentityType);
+
+            OnGetEmployeeByEmployeeId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnEmployeeGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnEmployeeCreated(Models.AldebaranDb.Employee item);
+        partial void OnAfterEmployeeCreated(Models.AldebaranDb.Employee item);
+
+        public async Task<Models.AldebaranDb.Employee> CreateEmployee(Models.AldebaranDb.Employee employee)
+        {
+            OnEmployeeCreated(employee);
+
+            var existingItem = Context.Employees
+                              .Where(i => i.EMPLOYEE_ID == employee.EMPLOYEE_ID)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+                throw new Exception("Item already available");
+            }
+
+            try
+            {
+                Context.Employees.Add(employee);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(employee).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterEmployeeCreated(employee);
+
+            return employee;
+        }
+
+        public async Task<Models.AldebaranDb.Employee> CancelEmployeeChanges(Models.AldebaranDb.Employee item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+                entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+                entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnEmployeeUpdated(Models.AldebaranDb.Employee item);
+        partial void OnAfterEmployeeUpdated(Models.AldebaranDb.Employee item);
+
+        public async Task<Models.AldebaranDb.Employee> UpdateEmployee(int employeeid, Models.AldebaranDb.Employee employee)
+        {
+            OnEmployeeUpdated(employee);
+
+            var itemToUpdate = Context.Employees
+                              .Where(i => i.EMPLOYEE_ID == employee.EMPLOYEE_ID)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            var entryToUpdate = Context.Entry(itemToUpdate);
+            entryToUpdate.CurrentValues.SetValues(employee);
+            entryToUpdate.State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterEmployeeUpdated(employee);
+
+            return employee;
+        }
+
+        partial void OnEmployeeDeleted(Models.AldebaranDb.Employee item);
+        partial void OnAfterEmployeeDeleted(Models.AldebaranDb.Employee item);
+
+        public async Task<Models.AldebaranDb.Employee> DeleteEmployee(int employeeid)
+        {
+            var itemToDelete = Context.Employees
+                              .Where(i => i.EMPLOYEE_ID == employeeid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            OnEmployeeDeleted(itemToDelete);
+
+
+            Context.Employees.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterEmployeeDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+
         public async Task ExportForwarderAgentsToExcel(Query query = null, string fileName = null)
         {
             navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/forwarderagents/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/forwarderagents/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
@@ -2166,8 +2318,6 @@ namespace Aldebaran.Web
         {
             var itemToDelete = Context.ForwarderAgents
                               .Where(i => i.FORWARDER_AGENT_ID == forwarderagentid)
-                              .Include(i => i.PurchaseOrders)
-                              .Include(i => i.ShipmentForwarderAgentMethods)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -2331,7 +2481,6 @@ namespace Aldebaran.Web
         {
             var itemToDelete = Context.Forwarders
                               .Where(i => i.FORWARDER_ID == forwarderid)
-                              .Include(i => i.ForwarderAgents)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -2493,9 +2642,6 @@ namespace Aldebaran.Web
         {
             var itemToDelete = Context.IdentityTypes
                               .Where(i => i.IDENTITY_TYPE_ID == identitytypeid)
-                              .Include(i => i.Customers)
-                              .Include(i => i.Providers)
-                              .Include(i => i.Employees)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -2659,10 +2805,6 @@ namespace Aldebaran.Web
         {
             var itemToDelete = Context.ItemReferences
                               .Where(i => i.REFERENCE_ID == referenceid)
-                              .Include(i => i.AdjustmentDetails)
-                              .Include(i => i.ProviderReferences)
-                              .Include(i => i.PurchaseOrderDetails)
-                              .Include(i => i.ReferencesWarehouses)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -2832,8 +2974,6 @@ namespace Aldebaran.Web
         {
             var itemToDelete = Context.Items
                               .Where(i => i.ITEM_ID == itemid)
-                              .Include(i => i.ItemReferences)
-                              .Include(i => i.ItemsAreas)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -3160,7 +3300,6 @@ namespace Aldebaran.Web
         {
             var itemToDelete = Context.Lines
                               .Where(i => i.LINE_ID == lineid)
-                              .Include(i => i.Items)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -3322,8 +3461,6 @@ namespace Aldebaran.Web
         {
             var itemToDelete = Context.MeasureUnits
                               .Where(i => i.MEASURE_UNIT_ID == measureunitid)
-                              .Include(i => i.Items)
-                              .Include(i => i.Items1)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -3654,8 +3791,6 @@ namespace Aldebaran.Web
         {
             var itemToDelete = Context.Providers
                               .Where(i => i.PROVIDER_ID == providerid)
-                              .Include(i => i.ProviderReferences)
-                              .Include(i => i.PurchaseOrders)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -3699,6 +3834,8 @@ namespace Aldebaran.Web
         {
             var items = Context.PurchaseOrderActivities.AsQueryable();
 
+            items = items.Include(i => i.Employee);
+            items = items.Include(i => i.Employee1);
             items = items.Include(i => i.PurchaseOrder);
 
             if (query != null)
@@ -3730,6 +3867,8 @@ namespace Aldebaran.Web
                               .AsNoTracking()
                               .Where(i => i.PURCHASE_ORDER_ACTIVITY_ID == purchaseorderactivityid);
 
+            items = items.Include(i => i.Employee);
+            items = items.Include(i => i.Employee1);
             items = items.Include(i => i.PurchaseOrder);
 
             OnGetPurchaseOrderActivityByPurchaseOrderActivityId(ref items);
@@ -4029,10 +4168,10 @@ namespace Aldebaran.Web
         {
             var items = Context.PurchaseOrders.AsQueryable();
 
+            items = items.Include(i => i.Employee);
             items = items.Include(i => i.ForwarderAgent);
             items = items.Include(i => i.Provider);
             items = items.Include(i => i.ShipmentForwarderAgentMethod);
-            items = items.Include(i => i.User);
 
             if (query != null)
             {
@@ -4063,10 +4202,10 @@ namespace Aldebaran.Web
                               .AsNoTracking()
                               .Where(i => i.PURCHASE_ORDER_ID == purchaseorderid);
 
+            items = items.Include(i => i.Employee);
             items = items.Include(i => i.ForwarderAgent);
             items = items.Include(i => i.Provider);
             items = items.Include(i => i.ShipmentForwarderAgentMethod);
-            items = items.Include(i => i.User);
 
             OnGetPurchaseOrderByPurchaseOrderId(ref items);
 
@@ -4155,8 +4294,6 @@ namespace Aldebaran.Web
         {
             var itemToDelete = Context.PurchaseOrders
                               .Where(i => i.PURCHASE_ORDER_ID == purchaseorderid)
-                              .Include(i => i.PurchaseOrderActivities)
-                              .Include(i => i.PurchaseOrderDetails)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -4487,7 +4624,6 @@ namespace Aldebaran.Web
         {
             var itemToDelete = Context.ShipmentForwarderAgentMethods
                               .Where(i => i.SHIPMENT_FORWARDER_AGENT_METHOD_ID == shipmentforwarderagentmethodid)
-                              .Include(i => i.PurchaseOrders)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -4649,7 +4785,6 @@ namespace Aldebaran.Web
         {
             var itemToDelete = Context.ShipmentMethods
                               .Where(i => i.SHIPMENT_METHOD_ID == shipmentmethodid)
-                              .Include(i => i.ShipmentForwarderAgentMethods)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -4972,9 +5107,6 @@ namespace Aldebaran.Web
         {
             var itemToDelete = Context.Warehouses
                               .Where(i => i.WAREHOUSE_ID == warehouseid)
-                              .Include(i => i.AdjustmentDetails)
-                              .Include(i => i.PurchaseOrderDetails)
-                              .Include(i => i.ReferencesWarehouses)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -4998,172 +5130,6 @@ namespace Aldebaran.Web
             }
 
             OnAfterWarehouseDeleted(itemToDelete);
-
-            return itemToDelete;
-        }
-
-        public async Task ExportUsersToExcel(Query query = null, string fileName = null)
-        {
-            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/users/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/users/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
-        }
-
-        public async Task ExportUsersToCSV(Query query = null, string fileName = null)
-        {
-            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/users/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/users/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
-        }
-
-        partial void OnUsersRead(ref IQueryable<Models.AldebaranDb.Employee> items);
-
-        public async Task<IQueryable<Models.AldebaranDb.Employee>> GetUsers(Query query = null)
-        {
-            var items = Context.Users.AsQueryable();
-
-            items = items.Include(i => i.Area);
-            items = items.Include(i => i.IdentityType);
-
-            if (query != null)
-            {
-                if (!string.IsNullOrEmpty(query.Expand))
-                {
-                    var propertiesToExpand = query.Expand.Split(',');
-                    foreach (var p in propertiesToExpand)
-                    {
-                        items = items.Include(p.Trim());
-                    }
-                }
-
-                ApplyQuery(ref items, query);
-            }
-
-            OnUsersRead(ref items);
-
-            return await Task.FromResult(items);
-        }
-
-        partial void OnUserGet(Models.AldebaranDb.Employee item);
-        partial void OnGetUserByUserId(ref IQueryable<Models.AldebaranDb.Employee> items);
-
-
-        public async Task<Models.AldebaranDb.Employee> GetUserByUserId(int userid)
-        {
-            var items = Context.Users
-                              .AsNoTracking()
-                              .Where(i => i.EMPLOYEE_ID == userid);
-
-            items = items.Include(i => i.Area);
-            items = items.Include(i => i.IdentityType);
-
-            OnGetUserByUserId(ref items);
-
-            var itemToReturn = items.FirstOrDefault();
-
-            OnUserGet(itemToReturn);
-
-            return await Task.FromResult(itemToReturn);
-        }
-
-        partial void OnUserCreated(Models.AldebaranDb.Employee item);
-        partial void OnAfterUserCreated(Models.AldebaranDb.Employee item);
-
-        public async Task<Models.AldebaranDb.Employee> CreateUser(Models.AldebaranDb.Employee user)
-        {
-            OnUserCreated(user);
-
-            var existingItem = Context.Users
-                              .Where(i => i.EMPLOYEE_ID == user.EMPLOYEE_ID)
-                              .FirstOrDefault();
-
-            if (existingItem != null)
-            {
-                throw new Exception("Item already available");
-            }
-
-            try
-            {
-                Context.Users.Add(user);
-                Context.SaveChanges();
-            }
-            catch
-            {
-                Context.Entry(user).State = EntityState.Detached;
-                throw;
-            }
-
-            OnAfterUserCreated(user);
-
-            return user;
-        }
-
-        public async Task<Models.AldebaranDb.Employee> CancelUserChanges(Models.AldebaranDb.Employee item)
-        {
-            var entityToCancel = Context.Entry(item);
-            if (entityToCancel.State == EntityState.Modified)
-            {
-                entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
-                entityToCancel.State = EntityState.Unchanged;
-            }
-
-            return item;
-        }
-
-        partial void OnUserUpdated(Models.AldebaranDb.Employee item);
-        partial void OnAfterUserUpdated(Models.AldebaranDb.Employee item);
-
-        public async Task<Models.AldebaranDb.Employee> UpdateUser(int userid, Models.AldebaranDb.Employee user)
-        {
-            OnUserUpdated(user);
-
-            var itemToUpdate = Context.Users
-                              .Where(i => i.EMPLOYEE_ID == user.EMPLOYEE_ID)
-                              .FirstOrDefault();
-
-            if (itemToUpdate == null)
-            {
-                throw new Exception("Item no longer available");
-            }
-
-            var entryToUpdate = Context.Entry(itemToUpdate);
-            entryToUpdate.CurrentValues.SetValues(user);
-            entryToUpdate.State = EntityState.Modified;
-
-            Context.SaveChanges();
-
-            OnAfterUserUpdated(user);
-
-            return user;
-        }
-
-        partial void OnUserDeleted(Models.AldebaranDb.Employee item);
-        partial void OnAfterUserDeleted(Models.AldebaranDb.Employee item);
-
-        public async Task<Models.AldebaranDb.Employee> DeleteUser(int userid)
-        {
-            var itemToDelete = Context.Users
-                              .Where(i => i.EMPLOYEE_ID == userid)
-                              .Include(i => i.PurchaseOrders)
-                              .FirstOrDefault();
-
-            if (itemToDelete == null)
-            {
-                throw new Exception("Item no longer available");
-            }
-
-            OnUserDeleted(itemToDelete);
-
-
-            Context.Users.Remove(itemToDelete);
-
-            try
-            {
-                Context.SaveChanges();
-            }
-            catch
-            {
-                Context.Entry(itemToDelete).State = EntityState.Unchanged;
-                throw;
-            }
-
-            OnAfterUserDeleted(itemToDelete);
 
             return itemToDelete;
         }
