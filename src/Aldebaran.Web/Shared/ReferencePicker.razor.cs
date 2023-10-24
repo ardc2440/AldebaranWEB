@@ -70,7 +70,7 @@ namespace Aldebaran.Web.Shared
                 await CleanReferences();
                 return;
             }
-            item = items.Single(s => s.ITEM_ID == (short)itemId);
+            item = items.Single(s => s.ITEM_ID == (int)itemId);
             itemReferences = await AldebaranDbService.GetItemReferences(new Query { Filter = $"i=>i.ITEM_ID==@0", FilterParameters = new object[] { itemId } });
         }
         protected async Task OnReferenceChange(object referenceId)
