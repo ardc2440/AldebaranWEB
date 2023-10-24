@@ -40,6 +40,8 @@ namespace Aldebaran.Web.Pages.ProviderPages
         protected RadzenDataGrid<Models.AldebaranDb.ProviderReference> ProviderReferencesDataGrid;
         protected DialogResult dialogResult { get; set; }
 
+        protected bool isLoadingInProgress;
+
         protected async Task Search(ChangeEventArgs args)
         {
             search = $"{args.Value}";
@@ -49,7 +51,19 @@ namespace Aldebaran.Web.Pages.ProviderPages
 
         protected override async Task OnInitializedAsync()
         {
-            providers = await AldebaranDbService.GetProviders(new Query { Filter = $@"i => i.IDENTITY_NUMBER.Contains(@0) || i.PROVIDER_CODE.Contains(@0) || i.PROVIDER_NAME.Contains(@0) || i.PROVIDER_ADDRESS.Contains(@0) || i.PHONE.Contains(@0) || i.FAX.Contains(@0) || i.EMAIL.Contains(@0) || i.CONTACT_PERSON.Contains(@0)", FilterParameters = new object[] { search }, Expand = "City.Department.Country,IdentityType" });
+            try
+            {
+                isLoadingInProgress = true;
+
+                await Task.Yield();
+
+                providers = await AldebaranDbService.GetProviders(new Query { Filter = $@"i => i.IDENTITY_NUMBER.Contains(@0) || i.PROVIDER_CODE.Contains(@0) || i.PROVIDER_NAME.Contains(@0) || i.PROVIDER_ADDRESS.Contains(@0) || i.PHONE.Contains(@0) || i.FAX.Contains(@0) || i.EMAIL.Contains(@0) || i.CONTACT_PERSON.Contains(@0)", FilterParameters = new object[] { search }, Expand = "City.Department.Country,IdentityType" });
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+
         }
 
         protected async Task AddButtonClick(MouseEventArgs args)
@@ -102,11 +116,18 @@ namespace Aldebaran.Web.Pages.ProviderPages
         protected async Task GetChildData(Models.AldebaranDb.Provider args)
         {
             provider = args;
-            var ProviderReferencesResult = await AldebaranDbService.GetProviderReferences(new Query { Filter = $@"i => i.PROVIDER_ID == {args.PROVIDER_ID}", Expand = "Provider,ItemReference" });
-            if (ProviderReferencesResult != null)
+            try
             {
-                args.ProviderReferences = ProviderReferencesResult.ToList();
+                isLoadingInProgress = true;
+
+                await Task.Yield();
+                var ProviderReferencesResult = await AldebaranDbService.GetProviderReferences(new Query { Filter = $@"i => i.PROVIDER_ID == {args.PROVIDER_ID}", Expand = "Provider,ItemReference" });
+                if (ProviderReferencesResult != null)
+                {
+                    args.ProviderReferences = ProviderReferencesResult.ToList();
+                }
             }
+            finally { isLoadingInProgress = false; }
         }
 
         protected async Task ProviderReferencesAddButtonClick(MouseEventArgs args, Models.AldebaranDb.Provider data)

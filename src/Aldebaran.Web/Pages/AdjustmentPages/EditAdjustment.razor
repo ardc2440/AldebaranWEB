@@ -1,6 +1,4 @@
-@page "/edit-adjustment"
-
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin,Adjustment Editor")]
 
 <PageTitle>Modificar Ajuste</PageTitle>
 

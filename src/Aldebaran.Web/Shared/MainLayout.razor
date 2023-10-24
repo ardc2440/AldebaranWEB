@@ -51,8 +51,7 @@
                 <RadzenPanelMenuItem Text="Clientes" Path="customers" Visible="@Security.IsInRole("Admin","Customer Editor","Customer Viwer")"/>
                 <RadzenPanelMenuItem Text="Proveedores" Path="providers" Visible="@Security.IsInRole("Admin","Provider Editor","Provider Viwer")"/>
                 <RadzenPanelMenuItem Text="Ordenes de compra" Path="purchase-orders" />
-
-                <RadzenPanelMenuItem Text="Ajustes Inventario" Path="adjustments"/>
+                <RadzenPanelMenuItem Text="Ajustes Inventario" Path="adjustments" Visible=@Security.IsInRole("Admin","Adjustment Editor","Adjustment Viwer")/>
             </RadzenPanelMenuItem>
         </RadzenPanelMenu>
         <RadzenStack AlignItems="Radzen.AlignItems.Center" Gap="0" class="rz-py-4 rz-py-lg-6" Style="padding: var(--rz-panel-menu-item-padding);">

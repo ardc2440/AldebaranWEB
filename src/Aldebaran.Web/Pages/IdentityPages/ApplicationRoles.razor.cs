@@ -37,10 +37,23 @@ namespace Aldebaran.Web.Pages.IdentityPages
         protected bool errorVisible;
         protected string search = "";
         protected IEnumerable<ApplicationUser> users;
+        protected bool isLoadingInProgress;
 
         protected override async Task OnInitializedAsync()
         {
-            roles = await Security.GetRoles();
+            try
+            {
+                isLoadingInProgress = true;
+
+                await Task.Yield();
+
+                roles = await Security.GetRoles();
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+
         }
         protected async Task Search(ChangeEventArgs args)
         {
@@ -52,7 +65,18 @@ namespace Aldebaran.Web.Pages.IdentityPages
         protected async Task GetChildData(ApplicationRole args)
         {
             role = args;
-            users = await Security.GetUsersByRole(args.Id);
+            try
+            {
+                isLoadingInProgress = true;
+
+                await Task.Yield();
+
+                users = await Security.GetUsersByRole(args.Id);
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            };
         }
     }
 }

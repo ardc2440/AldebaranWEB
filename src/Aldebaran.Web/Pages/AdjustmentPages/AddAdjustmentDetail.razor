@@ -1,6 +1,4 @@
-@page "/add-adjustment-detail"
-
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin,Adjustment Editor")]
 
 <PageTitle>Agregar Referencia</PageTitle>
 <RadzenColumn SizeMD=12>

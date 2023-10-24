@@ -66,6 +66,12 @@ namespace Aldebaran.Web.Data
               .HasForeignKey(i => i.ADJUSTMENT_TYPE_ID)
               .HasPrincipalKey(i => i.ADJUSTMENT_TYPE_ID);
 
+            builder.Entity<Models.AldebaranDb.Adjustment>()
+              .HasOne(i => i.Employee)
+              .WithMany(i => i.Adjustments)
+              .HasForeignKey(i => i.EMPLOYEE_ID)
+              .HasPrincipalKey(i => i.EMPLOYEE_ID);
+
             builder.Entity<Models.AldebaranDb.City>()
               .HasOne(i => i.Department)
               .WithMany(i => i.Cities)

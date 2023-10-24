@@ -31,6 +31,9 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         [Inject]
         public AldebaranDbService AldebaranDbService { get; set; }
 
+        [Inject]
+        protected SecurityService Security { get; set; }
+
         protected IEnumerable<Models.AldebaranDb.Adjustment> adjustments;
 
         protected RadzenDataGrid<Models.AldebaranDb.Adjustment> grid0;
@@ -39,17 +42,34 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected string search = "";
 
+        protected bool isLoadingInProgress;
+
         protected async Task Search(ChangeEventArgs args)
         {
+
             search = $"{args.Value}";
 
             await grid0.GoToPage(0);
 
-            adjustments = await AldebaranDbService.GetAdjustments(new Query { Filter = $@"i => i.ASPNETUSER_ID.Contains(@0) || i.NOTES.Contains(@0)", FilterParameters = new object[] { search }, Expand = "AdjustmentReason,AdjustmentType,Aspnetuser" });
+            adjustments = await AldebaranDbService.GetAdjustments(new Query { Filter = $@"I => i.NOTES.Contains(@0)", FilterParameters = new object[] { search }, Expand = "AdjustmentReason,AdjustmentType,Employee" });
+
         }
+
         protected override async Task OnInitializedAsync()
         {
-            adjustments = await AldebaranDbService.GetAdjustments(new Query { Filter = $@"i => i.ASPNETUSER_ID.Contains(@0) || i.NOTES.Contains(@0)", FilterParameters = new object[] { search }, Expand = "AdjustmentReason,AdjustmentType,Aspnetuser" });
+            try
+            {
+                isLoadingInProgress = true;
+
+                await Task.Yield();
+
+                adjustments = await AldebaranDbService.GetAdjustments(new Query { Filter = $@"i => i.NOTES.Contains(@0)", FilterParameters = new object[] { search }, Expand = "AdjustmentReason,AdjustmentType,Employee" });
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+
         }
 
         protected async Task AddButtonClick(MouseEventArgs args)
@@ -116,9 +136,6 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         }
 
         protected RadzenDataGrid<Models.AldebaranDb.AdjustmentDetail> AdjustmentDetailsDataGrid;
-
-        [Inject]
-        protected SecurityService Security { get; set; }
 
         protected async Task AdjustmentDetailsAddButtonClick(MouseEventArgs args, Models.AldebaranDb.Adjustment data)
         {
