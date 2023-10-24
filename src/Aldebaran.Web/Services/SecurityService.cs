@@ -63,14 +63,14 @@ namespace Aldebaran.Web
         public async Task<bool> InitializeAsync(AuthenticationState result)
         {
             Principal = result.User;
-#if DEBUG
-            if (Principal.Identity.Name == "admin")
-            {
-                User = new ApplicationUser { Name = "Admin" };
+            //#if DEBUG
+            //            if (Principal.Identity.Name == "admin")
+            //            {
+            //                User = new ApplicationUser { Name = "Admin" };
 
-                return true;
-            }
-#endif
+            //                return true;
+            //            }
+            //#endif
             var userId = Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (userId != null && User?.Id != userId)

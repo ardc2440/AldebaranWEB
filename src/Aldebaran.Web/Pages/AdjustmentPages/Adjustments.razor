@@ -1,6 +1,5 @@
 @page "/adjustments"
-
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin,Adjustment Viwer,Adjustment Editor")]
 
 <PageTitle>Adjustments</PageTitle>
 <RadzenStack>

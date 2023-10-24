@@ -120,6 +120,8 @@ INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) 
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'D9F0A318-073B-407D-842A-748171E52DD0', N'679060b5-df92-4471-b170-d34241dcfce2', N'Item Viwer', N'ITEM VIWER')
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'DEF1FA65-AA33-4508-82F7-F8094F3DCACF', N'5913647b-8b79-4bc0-9417-95b6aec32fe9', N'Area Editor', N'AREA EDITOR')
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'FFEBC6FB-D258-4E32-BAB4-406CF4E2BB12', N'2f18315e-5f18-4f55-9a75-053ee74fc7fb', N'Provider Editor', N'PROVIDER EDITOR')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'17488316-F3CC-4E9A-B90F-69E7608776E7', N'1691B7A5-5120-4AE7-914C-609750C0ECF3', N'Adjustment Viwer', N'ADJUSTMENT VIWER')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'5309DB17-EBBB-4554-86D3-F58E2252EF1E', N'624679D3-8550-4F77-ADB9-AD806B2081D4', N'Adjustment Editor', N'ADJUSTMENT EDITOR')
 GO
 
 /* Populate [AspNetUsers] */
