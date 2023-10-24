@@ -18,7 +18,7 @@
     <RadzenRow>
         <RadzenColumn SizeMD=12>
             <RadzenDataGrid @ref="grid0" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                            Data="@areas" TItem="Aldebaran.Web.Models.AldebaranDb.Area" RowExpand=@GetChildData ExpandMode="Radzen.DataGridExpandMode.Single">
+                            Data="@areas" TItem="Aldebaran.Web.Models.AldebaranDb.Area" RowExpand=@GetChildData ExpandMode="Radzen.DataGridExpandMode.Single" IsLoading="@isLoadingInProgress">
                 <Columns>
                     <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Area" Property="AREA_CODE" Title="Código">
                     </RadzenDataGridColumn>
@@ -40,7 +40,7 @@
                             </RadzenColumn>
                         </RadzenRow>
                         <RadzenDataGrid ColumnWidth="200px" Visible="@(area != null)" @ref=ItemsAreasDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                        Data="@area?.ItemsAreas" TItem="Aldebaran.Web.Models.AldebaranDb.ItemsArea" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowGrouping="true" AllowColumnReorder="true">
+                                        Data="@area?.ItemsAreas" TItem="Aldebaran.Web.Models.AldebaranDb.ItemsArea" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowGrouping="true" AllowColumnReorder="true" IsLoading="@isLoadingInProgress">
                             <Columns>
                                 <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemsArea" Property="Item.INTERNAL_REFERENCE" Title="Referencia interna">
                                 </RadzenDataGridColumn>

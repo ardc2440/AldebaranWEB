@@ -42,6 +42,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
         protected RadzenDataGrid<Models.AldebaranDb.ShipmentForwarderAgentMethod> ShipmentForwarderAgentMethodDataGrid;
         protected Models.AldebaranDb.ShipmentForwarderAgentMethod shipmentMethod;
         protected Models.AldebaranDb.ForwarderAgent forwarderAgent;
+        protected bool isLoadingInProgress;
 
         protected async Task Search(ChangeEventArgs args)
         {
@@ -51,7 +52,18 @@ namespace Aldebaran.Web.Pages.ForwarderPages
         }
         protected override async Task OnInitializedAsync()
         {
-            forwarders = await AldebaranDbService.GetForwarders(new Query { Filter = $@"i => i.FORWARDER_NAME.Contains(@0) || i.PHONE1.Contains(@0) || i.PHONE2.Contains(@0) || i.FAX.Contains(@0) || i.FORWARDER_ADDRESS.Contains(@0) || i.MAIL1.Contains(@0) || i.MAIL2.Contains(@0)", FilterParameters = new object[] { search }, Expand = "City.Department.Country" });
+            try
+            {
+                isLoadingInProgress = true;
+
+                await Task.Yield();
+
+                forwarders = await AldebaranDbService.GetForwarders(new Query { Filter = $@"i => i.FORWARDER_NAME.Contains(@0) || i.PHONE1.Contains(@0) || i.PHONE2.Contains(@0) || i.FAX.Contains(@0) || i.FORWARDER_ADDRESS.Contains(@0) || i.MAIL1.Contains(@0) || i.MAIL2.Contains(@0)", FilterParameters = new object[] { search }, Expand = "City.Department.Country" });
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
         }
 
         protected async Task AddButtonClick(MouseEventArgs args)
@@ -104,10 +116,21 @@ namespace Aldebaran.Web.Pages.ForwarderPages
         protected async Task GetChildData(Models.AldebaranDb.Forwarder args)
         {
             forwarder = args;
-            var ForwarderAgentsResult = await AldebaranDbService.GetForwarderAgents(new Query { Filter = $@"i => i.FORWARDER_ID == {args.FORWARDER_ID}", Expand = "City.Department.Country,Forwarder" });
-            if (ForwarderAgentsResult != null)
+
+            try
             {
-                args.ForwarderAgents = ForwarderAgentsResult.ToList();
+                isLoadingInProgress = true;
+
+                await Task.Yield();
+                var ForwarderAgentsResult = await AldebaranDbService.GetForwarderAgents(new Query { Filter = $@"i => i.FORWARDER_ID == {args.FORWARDER_ID}", Expand = "City.Department.Country,Forwarder" });
+                if (ForwarderAgentsResult != null)
+                {
+                    args.ForwarderAgents = ForwarderAgentsResult.ToList();
+                }
+            }
+            finally
+            {
+                isLoadingInProgress = false;
             }
         }
 
@@ -165,10 +188,21 @@ namespace Aldebaran.Web.Pages.ForwarderPages
         protected async Task GetShipmentData(Models.AldebaranDb.ForwarderAgent args)
         {
             forwarderAgent = args;
-            var ShipmentForwarderAgentMethodsResult = await AldebaranDbService.GetShipmentForwarderAgentMethods(new Query { Filter = $@"i => i.FORWARDER_AGENT_ID == {args.FORWARDER_AGENT_ID}", Expand = "ShipmentMethod" });
-            if (ShipmentForwarderAgentMethodsResult != null)
+
+            try
             {
-                forwarderAgent.ShipmentForwarderAgentMethods = ShipmentForwarderAgentMethodsResult.ToList();
+                isLoadingInProgress = true;
+
+                await Task.Yield();
+                var ShipmentForwarderAgentMethodsResult = await AldebaranDbService.GetShipmentForwarderAgentMethods(new Query { Filter = $@"i => i.FORWARDER_AGENT_ID == {args.FORWARDER_AGENT_ID}", Expand = "ShipmentMethod" });
+                if (ShipmentForwarderAgentMethodsResult != null)
+                {
+                    forwarderAgent.ShipmentForwarderAgentMethods = ShipmentForwarderAgentMethodsResult.ToList();
+                }
+            }
+            finally
+            {
+                isLoadingInProgress = false;
             }
         }
         protected async Task ShippingAddButtonClick(MouseEventArgs args, Models.AldebaranDb.ForwarderAgent data)

@@ -39,17 +39,34 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected string search = "";
 
+        protected bool isLoadingInProgress;
+
         protected async Task Search(ChangeEventArgs args)
         {
+
             search = $"{args.Value}";
 
             await grid0.GoToPage(0);
 
             adjustments = await AldebaranDbService.GetAdjustments(new Query { Filter = $@"I => i.NOTES.Contains(@0)", FilterParameters = new object[] { search }, Expand = "AdjustmentReason,AdjustmentType,Employee" });
+
         }
+
         protected override async Task OnInitializedAsync()
         {
-            adjustments = await AldebaranDbService.GetAdjustments(new Query { Filter = $@"i => i.NOTES.Contains(@0)", FilterParameters = new object[] { search }, Expand = "AdjustmentReason,AdjustmentType,Employee" });
+            try
+            {
+                isLoadingInProgress = true;
+
+                await Task.Yield();
+
+                adjustments = await AldebaranDbService.GetAdjustments(new Query { Filter = $@"i => i.NOTES.Contains(@0)", FilterParameters = new object[] { search }, Expand = "AdjustmentReason,AdjustmentType,Employee" });
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+
         }
 
         protected async Task AddButtonClick(MouseEventArgs args)

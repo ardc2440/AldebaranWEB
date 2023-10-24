@@ -39,6 +39,7 @@ namespace Aldebaran.Web.Pages.CustomerPages
         protected Models.AldebaranDb.Customer customer;
         protected RadzenDataGrid<Models.AldebaranDb.CustomerContact> CustomerContactsDataGrid;
         protected DialogResult dialogResult { get; set; }
+        protected bool isLoadingInProgress;
 
         protected async Task Search(ChangeEventArgs args)
         {
@@ -48,7 +49,18 @@ namespace Aldebaran.Web.Pages.CustomerPages
         }
         protected override async Task OnInitializedAsync()
         {
-            customers = await AldebaranDbService.GetCustomers(new Query { Filter = $@"i => i.IDENTITY_NUMBER.Contains(@0) || i.CUSTOMER_NAME.Contains(@0) || i.PHONE1.Contains(@0) || i.PHONE2.Contains(@0) || i.FAX.Contains(@0) || i.CUSTOMER_ADDRESS.Contains(@0) || i.CELL_PHONE.Contains(@0) || i.EMAIL1.Contains(@0) || i.EMAIL2.Contains(@0) || i.EMAIL3.Contains(@0)", FilterParameters = new object[] { search }, Expand = "City.Department.Country,IdentityType" });
+            try
+            {
+                isLoadingInProgress = true;
+
+                await Task.Yield();
+
+                customers = await AldebaranDbService.GetCustomers(new Query { Filter = $@"i => i.IDENTITY_NUMBER.Contains(@0) || i.CUSTOMER_NAME.Contains(@0) || i.PHONE1.Contains(@0) || i.PHONE2.Contains(@0) || i.FAX.Contains(@0) || i.CUSTOMER_ADDRESS.Contains(@0) || i.CELL_PHONE.Contains(@0) || i.EMAIL1.Contains(@0) || i.EMAIL2.Contains(@0) || i.EMAIL3.Contains(@0)", FilterParameters = new object[] { search }, Expand = "City.Department.Country,IdentityType" });
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
         }
 
         protected async Task AddButtonClick(MouseEventArgs args)
@@ -101,10 +113,20 @@ namespace Aldebaran.Web.Pages.CustomerPages
         protected async Task GetChildData(Models.AldebaranDb.Customer args)
         {
             customer = args;
-            var CustomerContactsResult = await AldebaranDbService.GetCustomerContacts(new Query { Filter = $@"i => i.CUSTOMER_ID == {args.CUSTOMER_ID}", Expand = "Customer" });
-            if (CustomerContactsResult != null)
+            try
             {
-                args.CustomerContacts = CustomerContactsResult.ToList();
+                isLoadingInProgress = true;
+
+                await Task.Yield();
+                var CustomerContactsResult = await AldebaranDbService.GetCustomerContacts(new Query { Filter = $@"i => i.CUSTOMER_ID == {args.CUSTOMER_ID}", Expand = "Customer" });
+                if (CustomerContactsResult != null)
+                {
+                    args.CustomerContacts = CustomerContactsResult.ToList();
+                }
+            }
+            finally
+            {
+                isLoadingInProgress = false;
             }
         }
 

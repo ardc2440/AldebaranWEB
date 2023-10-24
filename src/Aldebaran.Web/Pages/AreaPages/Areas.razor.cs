@@ -39,6 +39,7 @@ namespace Aldebaran.Web.Pages.AreaPages
         protected Models.AldebaranDb.Area area;
         protected string search = "";
         protected DialogResult dialogResult { get; set; }
+        protected bool isLoadingInProgress;
 
         protected async Task Search(ChangeEventArgs args)
         {
@@ -48,7 +49,17 @@ namespace Aldebaran.Web.Pages.AreaPages
         }
         protected override async Task OnInitializedAsync()
         {
-            areas = await AldebaranDbService.GetAreas(new Query { Filter = $@"i => i.AREA_CODE.Contains(@0) || i.AREA_NAME.Contains(@0) || i.DESCRIPTION.Contains(@0)", FilterParameters = new object[] { search } });
+            try
+            {
+                isLoadingInProgress = true;
+
+                await Task.Yield();
+                areas = await AldebaranDbService.GetAreas(new Query { Filter = $@"i => i.AREA_CODE.Contains(@0) || i.AREA_NAME.Contains(@0) || i.DESCRIPTION.Contains(@0)", FilterParameters = new object[] { search } });
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
         }
 
         protected async Task GridDeleteButtonClick(MouseEventArgs args, Models.AldebaranDb.Area area)
@@ -78,10 +89,21 @@ namespace Aldebaran.Web.Pages.AreaPages
         protected async Task GetChildData(Models.AldebaranDb.Area args)
         {
             area = args;
-            var ItemsAreasResult = await AldebaranDbService.GetItemsAreas(new Query { Filter = $@"i => i.AREA_ID == {args.AREA_ID}", Expand = "Area,Item.MeasureUnit,Item.Currency,Item.MeasureUnit1,Item.Line" });
-            if (ItemsAreasResult != null)
+            try
             {
-                args.ItemsAreas = ItemsAreasResult.ToList();
+                isLoadingInProgress = true;
+
+                await Task.Yield();
+
+                var ItemsAreasResult = await AldebaranDbService.GetItemsAreas(new Query { Filter = $@"i => i.AREA_ID == {args.AREA_ID}", Expand = "Area,Item.MeasureUnit,Item.Currency,Item.MeasureUnit1,Item.Line" });
+                if (ItemsAreasResult != null)
+                {
+                    args.ItemsAreas = ItemsAreasResult.ToList();
+                }
+            }
+            finally
+            {
+                isLoadingInProgress = false;
             }
         }
 

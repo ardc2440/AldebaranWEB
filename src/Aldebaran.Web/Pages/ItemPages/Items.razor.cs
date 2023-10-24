@@ -39,10 +39,23 @@ namespace Aldebaran.Web.Pages.ItemPages
         protected string search = "";
         protected DialogResult dialogResult { get; set; }
         protected Models.AldebaranDb.Item item;
+        protected bool isLoadingInProgress;
 
         protected override async Task OnInitializedAsync()
         {
-            items = await AldebaranDbService.GetItems(new Query { Filter = $@"i => i.INTERNAL_REFERENCE.Contains(@0) || i.ITEM_NAME.Contains(@0) || i.PROVIDER_REFERENCE.Contains(@0) || i.PROVIDER_ITEM_NAME.Contains(@0) || i.NOTES.Contains(@0)", FilterParameters = new object[] { search }, Expand = "MeasureUnit,Currency,MeasureUnit1,Line" });
+            try
+            {
+                isLoadingInProgress = true;
+
+                await Task.Yield();
+
+                items = await AldebaranDbService.GetItems(new Query { Filter = $@"i => i.INTERNAL_REFERENCE.Contains(@0) || i.ITEM_NAME.Contains(@0) || i.PROVIDER_REFERENCE.Contains(@0) || i.PROVIDER_ITEM_NAME.Contains(@0) || i.NOTES.Contains(@0)", FilterParameters = new object[] { search }, Expand = "MeasureUnit,Currency,MeasureUnit1,Line" });
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+
         }
         void OnRender(DataGridRenderEventArgs<Models.AldebaranDb.Item> args)
         {
@@ -58,7 +71,6 @@ namespace Aldebaran.Web.Pages.ItemPages
             await grid0.GoToPage(0);
             items = await AldebaranDbService.GetItems(new Query { Filter = $@"i => i.INTERNAL_REFERENCE.Contains(@0) || i.ITEM_NAME.Contains(@0) || i.PROVIDER_REFERENCE.Contains(@0) || i.PROVIDER_ITEM_NAME.Contains(@0) || i.NOTES.Contains(@0)", FilterParameters = new object[] { search }, Expand = "MeasureUnit,Currency,MeasureUnit1,Line" });
         }
-
 
         protected async Task AddButtonClick(MouseEventArgs args)
         {
@@ -132,15 +144,21 @@ namespace Aldebaran.Web.Pages.ItemPages
             }
         }
 
-
         protected async Task GetChildData(Models.AldebaranDb.Item args)
         {
             item = args;
-            var ItemReferencesResult = await AldebaranDbService.GetItemReferences(new Query { Filter = $@"i => i.ITEM_ID == @0", FilterParameters = new object[] { args.ITEM_ID }, Expand = "Item" });
-            if (ItemReferencesResult != null)
+            try
             {
-                args.ItemReferences = ItemReferencesResult.ToList();
+                isLoadingInProgress = true;
+
+                await Task.Yield();
+                var ItemReferencesResult = await AldebaranDbService.GetItemReferences(new Query { Filter = $@"i => i.ITEM_ID == @0", FilterParameters = new object[] { args.ITEM_ID }, Expand = "Item" });
+                if (ItemReferencesResult != null)
+                {
+                    args.ItemReferences = ItemReferencesResult.ToList();
+                }
             }
+            finally { isLoadingInProgress = false; }
         }
 
         protected async Task ItemReferencesAddButtonClick(MouseEventArgs args, Models.AldebaranDb.Item data)
