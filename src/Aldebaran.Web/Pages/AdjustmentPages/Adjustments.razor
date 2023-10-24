@@ -17,7 +17,7 @@
         </RadzenColumn>
         <RadzenColumn Size="12" SizeMD="6">
             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
-                <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddButtonClick" Variant="Variant.Flat" />
+                <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddButtonClick" Variant="Variant.Flat" Visible="@Security.IsInRole("Admin","Adjustment Editor")" />
             </RadzenStack>
         </RadzenColumn>
     </RadzenRow>
@@ -39,10 +39,10 @@
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Adjustment" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
                         <Template Context="adjustment">
-                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRow(adjustment))" @onclick:stopPropagation="true">
+                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRow(adjustment))" @onclick:stopPropagation="true" Visible="@Security.IsInRole("Admin","Adjustment Editor")">
                             </RadzenButton>
                             <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
-                                          Shade="Shade.Lighter" Variant="Variant.Flat"
+                                          Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@Security.IsInRole("Admin","Adjustment Editor")"
                                           Click=@(args => GridDeleteButtonClick(args, adjustment)) @onclick:stopPropagation="true" />
                         </Template>
                     </RadzenDataGridColumn>

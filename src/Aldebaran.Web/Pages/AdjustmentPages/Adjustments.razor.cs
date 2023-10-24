@@ -31,6 +31,9 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         [Inject]
         public AldebaranDbService AldebaranDbService { get; set; }
 
+        [Inject]
+        protected SecurityService Security { get; set; }
+
         protected IEnumerable<Models.AldebaranDb.Adjustment> adjustments;
 
         protected RadzenDataGrid<Models.AldebaranDb.Adjustment> grid0;
@@ -133,9 +136,6 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         }
 
         protected RadzenDataGrid<Models.AldebaranDb.AdjustmentDetail> AdjustmentDetailsDataGrid;
-
-        [Inject]
-        protected SecurityService Security { get; set; }
 
         protected async Task AdjustmentDetailsAddButtonClick(MouseEventArgs args, Models.AldebaranDb.Adjustment data)
         {
