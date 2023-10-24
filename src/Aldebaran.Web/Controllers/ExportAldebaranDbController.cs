@@ -168,20 +168,6 @@ namespace Aldebaran.Web.Controllers
             return ToExcel(ApplyQuery(await service.GetDepartments(), Request.Query), fileName);
         }
 
-        [HttpGet("/export/AldebaranDb/documenttypes/csv")]
-        [HttpGet("/export/AldebaranDb/documenttypes/csv(fileName='{fileName}')")]
-        public async Task<FileStreamResult> ExportDocumentTypesToCSV(string fileName = null)
-        {
-            return ToCSV(ApplyQuery(await service.GetDocumentTypes(), Request.Query), fileName);
-        }
-
-        [HttpGet("/export/AldebaranDb/documenttypes/excel")]
-        [HttpGet("/export/AldebaranDb/documenttypes/excel(fileName='{fileName}')")]
-        public async Task<FileStreamResult> ExportDocumentTypesToExcel(string fileName = null)
-        {
-            return ToExcel(ApplyQuery(await service.GetDocumentTypes(), Request.Query), fileName);
-        }
-
         [HttpGet("/export/AldebaranDb/employees/csv")]
         [HttpGet("/export/AldebaranDb/employees/csv(fileName='{fileName}')")]
         public async Task<FileStreamResult> ExportEmployeesToCSV(string fileName = null)

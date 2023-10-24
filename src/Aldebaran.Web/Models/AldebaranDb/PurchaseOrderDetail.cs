@@ -19,7 +19,6 @@ namespace Aldebaran.Web.Models.AldebaranDb
         [Required]
         public short WAREHOUSE_ID { get; set; }
 
-        [Required]
         public int? RECEIVED_QUANTITY { get; set; }
 
         [Required]

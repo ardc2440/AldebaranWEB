@@ -4,7 +4,7 @@
     <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">No se ha podido agregar la referencia</RadzenAlert>
     <RadzenTemplateForm TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrderDetail" Data="@purchaseOrderDetail" Submit="@FormSubmit">
         <RadzenStack>
-            <ItemReferencePicker OnChange="ItemReferenceHandler" />
+            <ReferencePicker OnChange="ItemReferenceHandler" />
             <RadzenRequiredValidator Text="Referencia requerida" Component="REFERENCE_ID" />
             <RadzenRow AlignItems="Radzen.AlignItems.Start">
                 <RadzenColumn Size="12" SizeMD="6">

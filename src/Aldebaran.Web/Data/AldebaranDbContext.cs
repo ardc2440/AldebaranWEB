@@ -310,6 +310,10 @@ namespace Aldebaran.Web.Data
               .Property(p => p.CREATION_DATE)
               .HasDefaultValueSql(@"(getdate())");
 
+            builder.Entity<Models.AldebaranDb.PurchaseOrderDetail>()
+              .Property(p => p.RECEIVED_QUANTITY)
+              .HasDefaultValueSql(@"((0))");
+
             builder.Entity<Models.AldebaranDb.PurchaseOrder>()
               .Property(p => p.EMBARKATION_PORT)
               .HasDefaultValueSql(@"(' ')");
@@ -361,8 +365,6 @@ namespace Aldebaran.Web.Data
         public DbSet<Models.AldebaranDb.Customer> Customers { get; set; }
 
         public DbSet<Models.AldebaranDb.Department> Departments { get; set; }
-
-        public DbSet<Models.AldebaranDb.DocumentType> DocumentTypes { get; set; }
 
         public DbSet<Models.AldebaranDb.Employee> Employees { get; set; }
 

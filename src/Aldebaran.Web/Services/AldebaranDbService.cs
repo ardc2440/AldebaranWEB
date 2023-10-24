@@ -570,6 +570,7 @@ namespace Aldebaran.Web
 
             items = items.Include(i => i.AdjustmentReason);
             items = items.Include(i => i.AdjustmentType);
+            items = items.Include(i => i.Employee);
 
             if (query != null)
             {
@@ -602,6 +603,7 @@ namespace Aldebaran.Web
 
             items = items.Include(i => i.AdjustmentReason);
             items = items.Include(i => i.AdjustmentType);
+            items = items.Include(i => i.Employee);
 
             OnGetAdjustmentByAdjustmentId(ref items);
 
@@ -1850,167 +1852,6 @@ namespace Aldebaran.Web
             }
 
             OnAfterDepartmentDeleted(itemToDelete);
-
-            return itemToDelete;
-        }
-
-        public async Task ExportDocumentTypesToExcel(Query query = null, string fileName = null)
-        {
-            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/documenttypes/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/documenttypes/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
-        }
-
-        public async Task ExportDocumentTypesToCSV(Query query = null, string fileName = null)
-        {
-            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/documenttypes/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/documenttypes/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
-        }
-
-        partial void OnDocumentTypesRead(ref IQueryable<Models.AldebaranDb.DocumentType> items);
-
-        public async Task<IQueryable<Models.AldebaranDb.DocumentType>> GetDocumentTypes(Query query = null)
-        {
-            var items = Context.DocumentTypes.AsQueryable();
-
-
-            if (query != null)
-            {
-                if (!string.IsNullOrEmpty(query.Expand))
-                {
-                    var propertiesToExpand = query.Expand.Split(',');
-                    foreach (var p in propertiesToExpand)
-                    {
-                        items = items.Include(p.Trim());
-                    }
-                }
-
-                ApplyQuery(ref items, query);
-            }
-
-            OnDocumentTypesRead(ref items);
-
-            return await Task.FromResult(items);
-        }
-
-        partial void OnDocumentTypeGet(Models.AldebaranDb.DocumentType item);
-        partial void OnGetDocumentTypeByDocumentTypeId(ref IQueryable<Models.AldebaranDb.DocumentType> items);
-
-
-        public async Task<Models.AldebaranDb.DocumentType> GetDocumentTypeByDocumentTypeId(short documenttypeid)
-        {
-            var items = Context.DocumentTypes
-                              .AsNoTracking()
-                              .Where(i => i.DOCUMENT_TYPE_ID == documenttypeid);
-
-
-            OnGetDocumentTypeByDocumentTypeId(ref items);
-
-            var itemToReturn = items.FirstOrDefault();
-
-            OnDocumentTypeGet(itemToReturn);
-
-            return await Task.FromResult(itemToReturn);
-        }
-
-        partial void OnDocumentTypeCreated(Models.AldebaranDb.DocumentType item);
-        partial void OnAfterDocumentTypeCreated(Models.AldebaranDb.DocumentType item);
-
-        public async Task<Models.AldebaranDb.DocumentType> CreateDocumentType(Models.AldebaranDb.DocumentType documenttype)
-        {
-            OnDocumentTypeCreated(documenttype);
-
-            var existingItem = Context.DocumentTypes
-                              .Where(i => i.DOCUMENT_TYPE_ID == documenttype.DOCUMENT_TYPE_ID)
-                              .FirstOrDefault();
-
-            if (existingItem != null)
-            {
-                throw new Exception("Item already available");
-            }
-
-            try
-            {
-                Context.DocumentTypes.Add(documenttype);
-                Context.SaveChanges();
-            }
-            catch
-            {
-                Context.Entry(documenttype).State = EntityState.Detached;
-                throw;
-            }
-
-            OnAfterDocumentTypeCreated(documenttype);
-
-            return documenttype;
-        }
-
-        public async Task<Models.AldebaranDb.DocumentType> CancelDocumentTypeChanges(Models.AldebaranDb.DocumentType item)
-        {
-            var entityToCancel = Context.Entry(item);
-            if (entityToCancel.State == EntityState.Modified)
-            {
-                entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
-                entityToCancel.State = EntityState.Unchanged;
-            }
-
-            return item;
-        }
-
-        partial void OnDocumentTypeUpdated(Models.AldebaranDb.DocumentType item);
-        partial void OnAfterDocumentTypeUpdated(Models.AldebaranDb.DocumentType item);
-
-        public async Task<Models.AldebaranDb.DocumentType> UpdateDocumentType(short documenttypeid, Models.AldebaranDb.DocumentType documenttype)
-        {
-            OnDocumentTypeUpdated(documenttype);
-
-            var itemToUpdate = Context.DocumentTypes
-                              .Where(i => i.DOCUMENT_TYPE_ID == documenttype.DOCUMENT_TYPE_ID)
-                              .FirstOrDefault();
-
-            if (itemToUpdate == null)
-            {
-                throw new Exception("Item no longer available");
-            }
-
-            var entryToUpdate = Context.Entry(itemToUpdate);
-            entryToUpdate.CurrentValues.SetValues(documenttype);
-            entryToUpdate.State = EntityState.Modified;
-
-            Context.SaveChanges();
-
-            OnAfterDocumentTypeUpdated(documenttype);
-
-            return documenttype;
-        }
-
-        partial void OnDocumentTypeDeleted(Models.AldebaranDb.DocumentType item);
-        partial void OnAfterDocumentTypeDeleted(Models.AldebaranDb.DocumentType item);
-
-        public async Task<Models.AldebaranDb.DocumentType> DeleteDocumentType(short documenttypeid)
-        {
-            var itemToDelete = Context.DocumentTypes
-                              .Where(i => i.DOCUMENT_TYPE_ID == documenttypeid)
-                              .FirstOrDefault();
-
-            if (itemToDelete == null)
-            {
-                throw new Exception("Item no longer available");
-            }
-
-            OnDocumentTypeDeleted(itemToDelete);
-
-
-            Context.DocumentTypes.Remove(itemToDelete);
-
-            try
-            {
-                Context.SaveChanges();
-            }
-            catch
-            {
-                Context.Entry(itemToDelete).State = EntityState.Unchanged;
-                throw;
-            }
-
-            OnAfterDocumentTypeDeleted(itemToDelete);
 
             return itemToDelete;
         }

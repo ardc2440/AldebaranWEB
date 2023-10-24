@@ -24,9 +24,11 @@ namespace Aldebaran.Web.Models.AldebaranDb
         [Required]
         public int PROVIDER_ID { get; set; }
 
-        public int? FORWARDER_AGENT_ID { get; set; }
+        [Required]
+        public int FORWARDER_AGENT_ID { get; set; }
 
-        public short? SHIPMENT_FORWARDER_AGENT_METHOD_ID { get; set; }
+        [Required]
+        public short SHIPMENT_FORWARDER_AGENT_METHOD_ID { get; set; }
 
         [Required]
         public int EMPLOYEE_ID { get; set; }
