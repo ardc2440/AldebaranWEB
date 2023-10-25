@@ -20,6 +20,16 @@ namespace Aldebaran.Web.Models.AldebaranDb
 
         public DateTime CREATION_DATE { get; set; }
 
+        [Required]
+        public int EMPLOYEE_ID { get; set; }
+
+        [Required]
+        public int ACTIVITY_EMPLOYEE_ID { get; set; }
+
+        public Employee Employee { get; set; }
+
+        public Employee Employee1 { get; set; }
+
         public PurchaseOrder PurchaseOrder { get; set; }
 
     }

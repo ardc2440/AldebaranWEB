@@ -41,17 +41,16 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
 
             await grid0.GoToPage(0);
 
-            purchaseOrders = await AldebaranDbService.GetPurchaseOrders(new Query { Filter = $@"i => i.ORDER_NUMBER.Contains(@0) || i.ASPNETUSER_ID.Contains(@0) || i.IMPORT_NUMBER.Contains(@0) || i.EMBARKATION_PORT.Contains(@0) || i.PROFORMA_NUMBER.Contains(@0)", FilterParameters = new object[] { search }, Expand = "ForwarderAgent,Provider,ShipmentForwarderAgentMethod" });
+            purchaseOrders = await AldebaranDbService.GetPurchaseOrders(new Query { Filter = $@"i => i.ORDER_NUMBER.Contains(@0) || i.EMPLOYEE_ID.Contains(@0) || i.IMPORT_NUMBER.Contains(@0) || i.EMBARKATION_PORT.Contains(@0) || i.PROFORMA_NUMBER.Contains(@0)", FilterParameters = new object[] { search }, Expand = "ForwarderAgent,Provider,ShipmentForwarderAgentMethod" });
         }
         protected override async Task OnInitializedAsync()
         {
-            purchaseOrders = await AldebaranDbService.GetPurchaseOrders(new Query { Filter = $@"i => i.ORDER_NUMBER.Contains(@0) || i.ASPNETUSER_ID.Contains(@0) || i.IMPORT_NUMBER.Contains(@0) || i.EMBARKATION_PORT.Contains(@0) || i.PROFORMA_NUMBER.Contains(@0)", FilterParameters = new object[] { search }, Expand = "ForwarderAgent,Provider,ShipmentForwarderAgentMethod" });
+            purchaseOrders = await AldebaranDbService.GetPurchaseOrders(new Query { Filter = $@"i => i.ORDER_NUMBER.Contains(@0) || i.IMPORT_NUMBER.Contains(@0) || i.EMBARKATION_PORT.Contains(@0) || i.PROFORMA_NUMBER.Contains(@0)", FilterParameters = new object[] { search }, Expand = "ForwarderAgent,Provider,ShipmentForwarderAgentMethod" });
         }
 
         protected async Task AddButtonClick(MouseEventArgs args)
         {
-            await DialogService.OpenAsync<AddPurchaseOrder>("Add PurchaseOrder", null);
-            await grid0.Reload();
+            NavigationManager.NavigateTo("add-purchase-order");
         }
 
         protected async Task EditRow(Models.AldebaranDb.PurchaseOrder args)

@@ -24,18 +24,21 @@ namespace Aldebaran.Web.Models.AldebaranDb
         [Required]
         public string FULL_NAME { get; set; }
 
-        [Required]
         public string LOGIN_USER_ID { get; set; }
 
         public string POSITION { get; set; }
-
-        public ICollection<PurchaseOrder> PurchaseOrders { get; set; }
 
         public ICollection<Adjustment> Adjustments { get; set; }
 
         public Area Area { get; set; }
 
         public IdentityType IdentityType { get; set; }
+
+        public ICollection<PurchaseOrderActivity> PurchaseOrderActivities { get; set; }
+
+        public ICollection<PurchaseOrderActivity> PurchaseOrderActivities1 { get; set; }
+
+        public ICollection<PurchaseOrder> PurchaseOrders { get; set; }
 
     }
 }

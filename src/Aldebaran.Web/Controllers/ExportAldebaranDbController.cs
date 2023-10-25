@@ -168,18 +168,18 @@ namespace Aldebaran.Web.Controllers
             return ToExcel(ApplyQuery(await service.GetDepartments(), Request.Query), fileName);
         }
 
-        [HttpGet("/export/AldebaranDb/documenttypes/csv")]
-        [HttpGet("/export/AldebaranDb/documenttypes/csv(fileName='{fileName}')")]
-        public async Task<FileStreamResult> ExportDocumentTypesToCSV(string fileName = null)
+        [HttpGet("/export/AldebaranDb/employees/csv")]
+        [HttpGet("/export/AldebaranDb/employees/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportEmployeesToCSV(string fileName = null)
         {
-            return ToCSV(ApplyQuery(await service.GetDocumentTypes(), Request.Query), fileName);
+            return ToCSV(ApplyQuery(await service.GetEmployees(), Request.Query), fileName);
         }
 
-        [HttpGet("/export/AldebaranDb/documenttypes/excel")]
-        [HttpGet("/export/AldebaranDb/documenttypes/excel(fileName='{fileName}')")]
-        public async Task<FileStreamResult> ExportDocumentTypesToExcel(string fileName = null)
+        [HttpGet("/export/AldebaranDb/employees/excel")]
+        [HttpGet("/export/AldebaranDb/employees/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportEmployeesToExcel(string fileName = null)
         {
-            return ToExcel(ApplyQuery(await service.GetDocumentTypes(), Request.Query), fileName);
+            return ToExcel(ApplyQuery(await service.GetEmployees(), Request.Query), fileName);
         }
 
         [HttpGet("/export/AldebaranDb/forwarderagents/csv")]
@@ -432,20 +432,6 @@ namespace Aldebaran.Web.Controllers
         public async Task<FileStreamResult> ExportWarehousesToExcel(string fileName = null)
         {
             return ToExcel(ApplyQuery(await service.GetWarehouses(), Request.Query), fileName);
-        }
-
-        [HttpGet("/export/AldebaranDb/users/csv")]
-        [HttpGet("/export/AldebaranDb/users/csv(fileName='{fileName}')")]
-        public async Task<FileStreamResult> ExportUsersToCSV(string fileName = null)
-        {
-            return ToCSV(ApplyQuery(await service.GetUsers(), Request.Query), fileName);
-        }
-
-        [HttpGet("/export/AldebaranDb/users/excel")]
-        [HttpGet("/export/AldebaranDb/users/excel(fileName='{fileName}')")]
-        public async Task<FileStreamResult> ExportUsersToExcel(string fileName = null)
-        {
-            return ToExcel(ApplyQuery(await service.GetUsers(), Request.Query), fileName);
         }
     }
 }

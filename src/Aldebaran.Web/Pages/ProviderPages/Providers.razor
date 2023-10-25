@@ -72,19 +72,21 @@
                                 </RadzenStack>
                             </RadzenColumn>
                         </RadzenRow>
-                        <RadzenDataGrid ColumnWidth="200px" Visible="@(provider != null)" @ref=ProviderReferencesDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                        Data="@provider?.ProviderReferences" TItem="Aldebaran.Web.Models.AldebaranDb.ProviderReference" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowGrouping="true" AllowColumnReorder="true" IsLoading="@isLoadingInProgress">
+                        <RadzenDataGrid ColumnWidth="80px" Visible="@(provider != null)" @ref=ProviderReferencesDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                        Data="@provider?.ProviderReferences" TItem="Aldebaran.Web.Models.AldebaranDb.ProviderReference" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowGrouping="true" AllowColumnReorder="true">
                             <Columns>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ProviderReference" Property="ItemReference.PROVIDER_REFERENCE_CODE" Title="Referencia proveedor">
+                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ProviderReference" Property="ItemReference.REFERENCE_CODE" Title="Referencia">
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ProviderReference" Property="ItemReference.REFERENCE_NAME" Title="Nombre">
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ProviderReference" Property="ItemReference.PROVIDER_REFERENCE_CODE" Title="Referencia proveedor">
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ProviderReference" Property="ItemReference.PROVIDER_REFERENCE_NAME" Title="Nombre referencia proveedor">
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ProviderReference" Property="ItemReference.NOTES" Title="Notas" Visible="false">
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ProviderReference" Property="ItemReference.IS_ACTIVE" Title="Activo">
-                                    <Template Context="itemReferenceChild">
+                                    <Template Context="itemReferenceChild" >
                                         <RadzenCheckBox @bind-Value="@itemReferenceChild.ItemReference.IS_ACTIVE" Name="IS_ACTIVE" Disabled="true"></RadzenCheckBox>
                                     </Template>
                                 </RadzenDataGridColumn>

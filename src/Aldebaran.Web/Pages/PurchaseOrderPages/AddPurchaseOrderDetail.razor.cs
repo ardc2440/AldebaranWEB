@@ -1,3 +1,4 @@
+using Aldebaran.Web.Models.AldebaranDb;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
@@ -24,87 +25,55 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
 
         [Inject]
         protected NotificationService NotificationService { get; set; }
+
         [Inject]
         public AldebaranDbService AldebaranDbService { get; set; }
 
+        [Inject]
+        protected SecurityService Security { get; set; }
+
+        protected bool errorVisible;
+        protected PurchaseOrderDetail purchaseOrderDetail;
+        protected IEnumerable<Warehouse> warehousesForWAREHOUSEID;
+        protected bool isSubmitInProgress;
+
         protected override async Task OnInitializedAsync()
         {
-
-            purchaseOrdersForPURCHASEORDERID = await AldebaranDbService.GetPurchaseOrders();
-
-            itemReferencesForREFERENCEID = await AldebaranDbService.GetItemReferences();
-
+            purchaseOrderDetail = new PurchaseOrderDetail();
             warehousesForWAREHOUSEID = await AldebaranDbService.GetWarehouses();
         }
-        protected bool errorVisible;
-        protected Models.AldebaranDb.PurchaseOrderDetail purchaseOrderDetail;
-
-        protected IEnumerable<Models.AldebaranDb.PurchaseOrder> purchaseOrdersForPURCHASEORDERID;
-
-        protected IEnumerable<Models.AldebaranDb.ItemReference> itemReferencesForREFERENCEID;
-
-        protected IEnumerable<Models.AldebaranDb.Warehouse> warehousesForWAREHOUSEID;
 
         protected async Task FormSubmit()
         {
             try
             {
-                await AldebaranDbService.CreatePurchaseOrderDetail(purchaseOrderDetail);
+                isSubmitInProgress = true;
+                purchaseOrderDetail.Warehouse = await AldebaranDbService.GetWarehouseByWarehouseId(purchaseOrderDetail.WAREHOUSE_ID);
+                var reference = await AldebaranDbService.GetItemReferences(new Query
+                {
+                    Filter = "i=> i.REFERENCE_ID==@0",
+                    FilterParameters = new object[] { purchaseOrderDetail.REFERENCE_ID },
+                    Expand = "Item"
+                });
+                purchaseOrderDetail.ItemReference = reference.Single();
                 DialogService.Close(purchaseOrderDetail);
             }
             catch (Exception ex)
             {
                 errorVisible = true;
             }
+            finally
+            {
+                isSubmitInProgress = false;
+            }
         }
-
+        protected async Task ItemReferenceHandler(ItemReference reference)
+        {
+            purchaseOrderDetail.REFERENCE_ID = reference?.REFERENCE_ID ?? 0;
+        }
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
             DialogService.Close(null);
-        }
-
-        bool hasPURCHASE_ORDER_IDValue;
-
-        [Parameter]
-        public int PURCHASE_ORDER_ID { get; set; }
-
-        bool hasREFERENCE_IDValue;
-
-        [Parameter]
-        public int REFERENCE_ID { get; set; }
-
-        bool hasWAREHOUSE_IDValue;
-
-        [Parameter]
-        public short WAREHOUSE_ID { get; set; }
-
-        [Inject]
-        protected SecurityService Security { get; set; }
-        public override async Task SetParametersAsync(ParameterView parameters)
-        {
-            purchaseOrderDetail = new Models.AldebaranDb.PurchaseOrderDetail();
-
-            hasPURCHASE_ORDER_IDValue = parameters.TryGetValue<int>("PURCHASE_ORDER_ID", out var hasPURCHASE_ORDER_IDResult);
-
-            if (hasPURCHASE_ORDER_IDValue)
-            {
-                purchaseOrderDetail.PURCHASE_ORDER_ID = hasPURCHASE_ORDER_IDResult;
-            }
-
-            hasREFERENCE_IDValue = parameters.TryGetValue<int>("REFERENCE_ID", out var hasREFERENCE_IDResult);
-
-            if (hasREFERENCE_IDValue)
-            {
-                purchaseOrderDetail.REFERENCE_ID = hasREFERENCE_IDResult;
-            }
-
-            hasWAREHOUSE_IDValue = parameters.TryGetValue<short>("WAREHOUSE_ID", out var hasWAREHOUSE_IDResult);
-
-            if (hasWAREHOUSE_IDValue)
-            {
-                purchaseOrderDetail.WAREHOUSE_ID = hasWAREHOUSE_IDResult;
-            }
-            await base.SetParametersAsync(parameters);
         }
     }
 }

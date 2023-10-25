@@ -24,9 +24,11 @@ namespace Aldebaran.Web.Models.AldebaranDb
         [Required]
         public int PROVIDER_ID { get; set; }
 
-        public int? FORWARDER_AGENT_ID { get; set; }
+        [Required]
+        public int FORWARDER_AGENT_ID { get; set; }
 
-        public short? SHIPMENT_FORWARDER_AGENT_METHOD_ID { get; set; }
+        [Required]
+        public short SHIPMENT_FORWARDER_AGENT_METHOD_ID { get; set; }
 
         [Required]
         public int EMPLOYEE_ID { get; set; }
@@ -46,13 +48,13 @@ namespace Aldebaran.Web.Models.AldebaranDb
 
         public ICollection<PurchaseOrderDetail> PurchaseOrderDetails { get; set; }
 
+        public Employee Employee { get; set; }
+
         public ForwarderAgent ForwarderAgent { get; set; }
 
         public Provider Provider { get; set; }
 
         public ShipmentForwarderAgentMethod ShipmentForwarderAgentMethod { get; set; }
-
-        public Employee User { get; set; }
 
     }
 }
