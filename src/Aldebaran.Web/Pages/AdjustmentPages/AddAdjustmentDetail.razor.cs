@@ -1,3 +1,4 @@
+using Aldebaran.Web.Models.AldebaranDb;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
@@ -28,39 +29,58 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         [Inject]
         public AldebaranDbService AldebaranDbService { get; set; }
 
+        protected bool errorVisible;
+
+        protected string alertMessage = "No se ha podido Agregar la Referencia";
+
+        protected AdjustmentDetail adjustmentDetail;
+
+        protected IEnumerable<Adjustment> adjustmentsForADJUSTMENTID;
+
+        protected IEnumerable<ItemReference> itemReferencesForREFERENCEID;
+
+        protected IEnumerable<Warehouse> warehousesForWAREHOUSEID;
+
+        [Parameter]
+        public ICollection<AdjustmentDetail> adjustmentDetails { get; set; }
+
+        protected bool isSubmitInProgress;
+
         protected override async Task OnInitializedAsync()
         {
-
             adjustmentsForADJUSTMENTID = await AldebaranDbService.GetAdjustments();
 
             itemReferencesForREFERENCEID = await AldebaranDbService.GetItemReferences();
 
             warehousesForWAREHOUSEID = await AldebaranDbService.GetWarehouses();
+
+            adjustmentDetail.QUANTITY = 1;
         }
-        protected bool errorVisible;
 
-        protected Models.AldebaranDb.AdjustmentDetail adjustmentDetail;
-
-        protected IEnumerable<Models.AldebaranDb.Adjustment> adjustmentsForADJUSTMENTID;
-
-        protected IEnumerable<Models.AldebaranDb.ItemReference> itemReferencesForREFERENCEID;
-
-        protected IEnumerable<Models.AldebaranDb.Warehouse> warehousesForWAREHOUSEID;
-
-        protected bool isSubmitInProgress;
         protected async Task FormSubmit()
         {
             try
             {
+                errorVisible = false;
                 isSubmitInProgress = true;
-                await AldebaranDbService.CreateAdjustmentDetail(adjustmentDetail);
+
+                if (adjustmentDetails.Any(ad => ad.REFERENCE_ID.Equals(adjustmentDetail.REFERENCE_ID) && ad.WAREHOUSE_ID.Equals(adjustmentDetail.WAREHOUSE_ID)))
+                    throw new Exception("La Referencia y Bodega seleccionadas, ya existen dentro de este ajuste.");
+
+                adjustmentDetail.Warehouse = await AldebaranDbService.GetWarehouseByWarehouseId(adjustmentDetail.WAREHOUSE_ID);
+                var reference = await AldebaranDbService.GetItemReferences(new Query { Filter = "i=> i.REFERENCE_ID==@0", FilterParameters = new object[] { adjustmentDetail.REFERENCE_ID }, Expand = "Item" });
+                adjustmentDetail.ItemReference = reference.Single();
                 DialogService.Close(adjustmentDetail);
             }
             catch (Exception ex)
             {
+                alertMessage = ex.Message;
                 errorVisible = true;
             }
-            finally { isSubmitInProgress = false; }
+            finally
+            {
+                isSubmitInProgress = false;
+            }
         }
 
         protected async Task CancelButtonClick(MouseEventArgs args)
@@ -88,7 +108,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         public override async Task SetParametersAsync(ParameterView parameters)
         {
-            adjustmentDetail = new Models.AldebaranDb.AdjustmentDetail();
+            adjustmentDetail = new AdjustmentDetail();
 
             hasADJUSTMENT_IDValue = parameters.TryGetValue<int>("ADJUSTMENT_ID", out var hasADJUSTMENT_IDResult);
 
@@ -111,6 +131,11 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
                 adjustmentDetail.WAREHOUSE_ID = hasWAREHOUSE_IDResult;
             }
             await base.SetParametersAsync(parameters);
+        }
+
+        protected async Task ItemReferenceHandler(ItemReference reference)
+        {
+            adjustmentDetail.REFERENCE_ID = reference?.REFERENCE_ID ?? 0;
         }
     }
 }

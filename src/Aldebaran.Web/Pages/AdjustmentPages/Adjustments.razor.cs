@@ -74,14 +74,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected async Task AddButtonClick(MouseEventArgs args)
         {
-            dialogResult = null;
-            var result = await DialogService.OpenAsync<AddAdjustment>("Add Adjustment", null);
-
-            if (result == true)
-            {
-                dialogResult = new DialogResult { Success = true, Message = "Ajuste creado correctamente." };
-            }
-            await grid0.Reload();
+            NavigationManager.NavigateTo("add-adjustment");
         }
 
         protected async Task EditRow(Models.AldebaranDb.Adjustment args)
