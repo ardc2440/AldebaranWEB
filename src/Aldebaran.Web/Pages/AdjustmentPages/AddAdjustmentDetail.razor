@@ -1,6 +1,6 @@
 @attribute [Authorize(Roles = "Admin,Adjustment Editor")]
 
-<PageTitle>Agregar Referencia</PageTitle>
+<PageTitle>Agregar Referencia al Ajuste</PageTitle>
 <RadzenColumn SizeMD=12>
     <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible" AllowClose="false">@alertMessage</RadzenAlert>
     <RadzenTemplateForm TItem="Aldebaran.Web.Models.AldebaranDb.AdjustmentDetail" Data="@adjustmentDetail" Visible="@(adjustmentDetail != null)" Submit="@FormSubmit">
