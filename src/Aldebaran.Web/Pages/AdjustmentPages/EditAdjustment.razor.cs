@@ -74,6 +74,8 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
             adjustment = AldebaranDbService.GetAdjustmentByAdjustmentId(adjustmentId).Result;
 
+            await GetChildData(adjustment);
+
             adjustment.EMPLOYEE_ID = 1;
         }
 
@@ -139,6 +141,15 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
             adjustmentDetails.Add(detail);
 
             await adjustmentDetailGrid.Reload();
+        }
+
+        protected async Task GetChildData(Adjustment args)
+        {
+            var AdjustmentDetailsResult = await AldebaranDbService.GetAdjustmentDetails(new Query { Filter = $@"i => i.ADJUSTMENT_ID == {args.ADJUSTMENT_ID}", Expand = "Adjustment,ItemReference,Warehouse, ItemReference.Item" });
+            if (AdjustmentDetailsResult != null)
+            {
+                adjustmentDetails = AdjustmentDetailsResult.ToList();
+            }
         }
     }
 }

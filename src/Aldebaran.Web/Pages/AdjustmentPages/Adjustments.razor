@@ -54,31 +54,20 @@
                     <RadzenStack Class="rz-my-8">
                         <RadzenRow Gap="0" AlignItems="AlignItems.Center">
                             <RadzenColumn Size="12" SizeMD="6">
-                                <RadzenText Visible="@(adjustment != null)" Text="AdjustmentDetails" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
-                            </RadzenColumn>
-                            <RadzenColumn Size="12" SizeMD="6">
-                                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
-                                    <RadzenButton Visible="@(adjustment != null)" Icon="add_circle_outline" Text="Nueva" Click=@(args => AdjustmentDetailsAddButtonClick(args,adjustment)) />
-                                </RadzenStack>
+                                <RadzenText Visible="@(adjustment != null)" Text="Referencias de Ajuste" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
                             </RadzenColumn>
                         </RadzenRow>
                         <RadzenDataGrid ColumnWidth="200px" Visible="@(adjustment != null)" @ref=AdjustmentDetailsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                        Data="@adjustment?.AdjustmentDetails" TItem="Aldebaran.Web.Models.AldebaranDb.AdjustmentDetail" RowSelect="@(args => AdjustmentDetailsRowSelect(args, adjustment))">
+                                        Data="@adjustment?.AdjustmentDetails" TItem="Aldebaran.Web.Models.AldebaranDb.AdjustmentDetail">
                             <Columns>
                                 <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.AdjustmentDetail" Property="QUANTITY" Title="Cantidad">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.AdjustmentDetail" Property="ItemReference.REFERENCE_CODE" Title="Referencia">
+                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.AdjustmentDetail" Title="Artículo/Referencia">
+                                    <Template Context="detail">
+                                        <span>(@detail.ItemReference.Item.INTERNAL_REFERENCE) @detail.ItemReference.Item.ITEM_NAME - @detail.ItemReference.REFERENCE_NAME</span>
+                                    </Template>
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.AdjustmentDetail" Property="Warehouse.WAREHOUSE_NAME" Title="Bodega">
-                                </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.AdjustmentDetail" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center">
-                                    <Template Context="adjustmentDetailChild">
-                                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
-                                                      Click="@(args => EditChildRow(adjustmentDetailChild, adjustment))" @onclick:stopPropagation="true">
-                                        </RadzenButton>
-                                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Shade="Shade.Lighter" Variant="Variant.Flat"
-                                                      Click=@(args => AdjustmentDetailsDeleteButtonClick(args, adjustmentDetailChild)) @onclick:stopPropagation="true" />
-                                    </Template>
                                 </RadzenDataGridColumn>
                             </Columns>
                         </RadzenDataGrid>
