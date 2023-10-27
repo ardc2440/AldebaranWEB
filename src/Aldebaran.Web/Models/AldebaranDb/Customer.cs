@@ -48,5 +48,7 @@ namespace Aldebaran.Web.Models.AldebaranDb
 
         public IdentityType IdentityType { get; set; }
 
+        public ICollection<CustomerReservation> CustomerReservations { get; set; }
+
     }
 }

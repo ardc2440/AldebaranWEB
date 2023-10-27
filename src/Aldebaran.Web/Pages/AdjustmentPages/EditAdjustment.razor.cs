@@ -1,7 +1,9 @@
+using Aldebaran.Web.Models.AldebaranDb;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using Radzen;
+using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.AdjustmentPages
 {
@@ -24,26 +26,17 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         [Inject]
         protected NotificationService NotificationService { get; set; }
+
         [Inject]
         public AldebaranDbService AldebaranDbService { get; set; }
 
-        [Parameter]
-        public int ADJUSTMENT_ID { get; set; }
+        protected DateTime Now { get; set; }
 
-        protected bool isSubmitInProgress;
-
-        protected override async Task OnInitializedAsync()
-        {
-            adjustment = await AldebaranDbService.GetAdjustmentByAdjustmentId(ADJUSTMENT_ID);
-
-            adjustmentReasonsForADJUSTMENTREASONID = await AldebaranDbService.GetAdjustmentReasons();
-
-            adjustmentTypesForADJUSTMENTTYPEID = await AldebaranDbService.GetAdjustmentTypes();
-
-            //aspnetusersForASPNETUSERID = await AldebaranDbService.GetAspnetusers();
-        }
         protected bool errorVisible;
-        protected Models.AldebaranDb.Adjustment adjustment;
+
+        protected string errorMessage;
+
+        protected Adjustment adjustment;
 
         protected IEnumerable<Models.AldebaranDb.AdjustmentReason> adjustmentReasonsForADJUSTMENTREASONID;
 
@@ -51,20 +44,55 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected IEnumerable<Models.AldebaranDb.Employee> employeesForEMPLOYEEID;
 
+        protected ICollection<AdjustmentDetail> adjustmentDetails;
+
+        protected RadzenDataGrid<AdjustmentDetail> adjustmentDetailGrid;
+
+        protected bool isSubmitInProgress;
+
+        protected RadzenPanelMenu panelMenu;
+
         [Inject]
         protected SecurityService Security { get; set; }
+
+        [Parameter]
+        public string pAdjustmentId { get; set; } = "NoParamInput";
+
+        protected override async Task OnInitializedAsync()
+        {
+            adjustmentReasonsForADJUSTMENTREASONID = await AldebaranDbService.GetAdjustmentReasons();
+
+            adjustmentTypesForADJUSTMENTTYPEID = await AldebaranDbService.GetAdjustmentTypes();
+
+            Now = DateTime.UtcNow.AddDays(-1);
+
+            adjustmentDetails = new List<AdjustmentDetail>();
+
+            var adjustmentId = 0;
+
+            int.TryParse(pAdjustmentId, out adjustmentId);
+
+            adjustment = AldebaranDbService.GetAdjustmentByAdjustmentId(adjustmentId).Result;
+
+            adjustment.EMPLOYEE_ID = 1;
+        }
 
         protected async Task FormSubmit()
         {
             try
             {
                 isSubmitInProgress = true;
+                if (!adjustmentDetails.Any())
+                    throw new Exception("No ha ingresado ninguna referencia");
 
-                await AldebaranDbService.UpdateAdjustment(ADJUSTMENT_ID, adjustment);
-                DialogService.Close(adjustment);
+                adjustment.AdjustmentDetails = adjustmentDetails;
+                await AldebaranDbService.UpdateAdjustment(adjustment.ADJUSTMENT_ID, adjustment);
+                await DialogService.Alert("Ajuste Guardado Satisfactoriamente", "Información");
+                NavigationManager.NavigateTo("adjustments");
             }
             catch (Exception ex)
             {
+                errorMessage = ex.Message;
                 errorVisible = true;
             }
             finally { isSubmitInProgress = false; }
@@ -72,7 +100,45 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
-            DialogService.Close(null);
+            if (await DialogService.Confirm("Está seguro que cancelar la creacion del Ajuste??", "Confirmar") == true)
+                NavigationManager.NavigateTo("adjustments");
+        }
+
+        protected async Task AddAdjustmentDetailButtonClick(MouseEventArgs args)
+        {
+            var result = await DialogService.OpenAsync<AddAdjustmentDetail>("Nueva referencia", new Dictionary<string, object> { { "adjustmentDetails", adjustmentDetails } });
+
+            if (result == null)
+                return;
+
+            var detail = (AdjustmentDetail)result;
+
+            adjustmentDetails.Add(detail);
+
+            await adjustmentDetailGrid.Reload();
+        }
+
+        protected async Task DeleteAdjustmentDetailButtonClick(MouseEventArgs args, AdjustmentDetail item)
+        {
+            if (await DialogService.Confirm("Está seguro que desea eliminar esta referencia?", "Confirmar") == true)
+            {
+                adjustmentDetails.Remove(item);
+
+                await adjustmentDetailGrid.Reload();
+            }
+        }
+
+        protected async Task EditRow(AdjustmentDetail args)
+        {
+            var result = await DialogService.OpenAsync<EditAdjustmentDetail>("Actualizar referencia", new Dictionary<string, object> { { "adjustmentDetail", args } });
+            if (result == null)
+                return;
+            var detail = (AdjustmentDetail)result;
+
+            adjustmentDetails.Remove(args);
+            adjustmentDetails.Add(detail);
+
+            await adjustmentDetailGrid.Reload();
         }
     }
 }

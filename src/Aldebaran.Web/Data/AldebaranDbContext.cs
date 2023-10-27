@@ -36,6 +36,42 @@ namespace Aldebaran.Web.Data
                 table.WAREHOUSE_ID
             });
 
+            builder.Entity<Models.AldebaranDb.CustomerReservation>()
+              .HasOne(i => i.Customer)
+              .WithMany(i => i.CustomerReservations)
+              .HasForeignKey(i => i.CUSTOMER_ID)
+              .HasPrincipalKey(i => i.CUSTOMER_ID);
+
+            builder.Entity<Models.AldebaranDb.CustomerReservation>()
+              .HasOne(i => i.StatusDocumentType)
+              .WithMany(i => i.CustomerReservations)
+              .HasForeignKey(i => i.STATUS_DOCUMENT_TYPE_ID)
+              .HasPrincipalKey(i => i.STATUS_DOCUMENT_TYPE_ID);
+
+            builder.Entity<Models.AldebaranDb.CustomerReservation>()
+              .HasOne(i => i.Employee)
+              .WithMany(i => i.CustomerReservations)
+              .HasForeignKey(i => i.EMPLOYEE_ID)
+              .HasPrincipalKey(i => i.EMPLOYEE_ID);
+
+            builder.Entity<Models.AldebaranDb.CustomerReservationDetail>()
+              .HasOne(i => i.ItemReference)
+              .WithMany(i => i.CustomerReservationDetails)
+              .HasForeignKey(i => i.REFERENCE_ID)
+              .HasPrincipalKey(i => i.REFERENCE_ID);
+
+            builder.Entity<Models.AldebaranDb.CustomerReservationDetail>()
+              .HasOne(i => i.CustomerReservation)
+              .WithMany(i => i.CustomerReservationDetails)
+              .HasForeignKey(i => i.CUSTOMER_RESERVATION_ID)
+              .HasPrincipalKey(i => i.CUSTOMER_RESERVATION_ID);
+
+            builder.Entity<Models.AldebaranDb.StatusDocumentType>()
+              .HasOne(i => i.DocumentType)
+              .WithMany(i => i.StatusDocumentTypes)
+              .HasForeignKey(i => i.DOCUMENT_TYPE_ID)
+              .HasPrincipalKey(i => i.DOCUMENT_TYPE_ID);
+
             builder.Entity<Models.AldebaranDb.AdjustmentDetail>()
               .HasOne(i => i.Adjustment)
               .WithMany(i => i.AdjustmentDetails)
@@ -290,6 +326,10 @@ namespace Aldebaran.Web.Data
               .Property(p => p.CREATION_DATE)
               .HasDefaultValueSql(@"(getdate())");
 
+            builder.Entity<Models.AldebaranDb.StatusDocumentType>()
+              .Property(p => p.EDIT_MODE)
+              .HasDefaultValueSql(@"((1))");
+
             builder.Entity<Models.AldebaranDb.ItemReference>()
               .Property(p => p.IS_ACTIVE)
               .HasDefaultValueSql(@"((1))");
@@ -314,6 +354,10 @@ namespace Aldebaran.Web.Data
               .Property(p => p.RECEIVED_QUANTITY)
               .HasDefaultValueSql(@"((0))");
 
+            builder.Entity<Models.AldebaranDb.CustomerReservationDetail>()
+              .Property(p => p.SEND_TO_CUSTOMER_ORDER)
+              .HasDefaultValueSql(@"((0))");
+
             builder.Entity<Models.AldebaranDb.PurchaseOrder>()
               .Property(p => p.EMBARKATION_PORT)
               .HasDefaultValueSql(@"(' ')");
@@ -325,6 +369,14 @@ namespace Aldebaran.Web.Data
             builder.Entity<Models.AldebaranDb.PurchaseOrder>()
               .Property(p => p.CREATION_DATE)
               .HasDefaultValueSql(@"(getdate())");
+
+            builder.Entity<Models.AldebaranDb.CustomerReservation>()
+              .Property(p => p.CREATION_DATE)
+              .HasDefaultValueSql(@"(getdate())");
+
+            builder.Entity<Models.AldebaranDb.CustomerReservation>()
+              .Property(p => p.CREATION_DATE)
+              .HasColumnType("datetime");
 
             builder.Entity<Models.AldebaranDb.Adjustment>()
               .Property(p => p.CREATION_DATE)

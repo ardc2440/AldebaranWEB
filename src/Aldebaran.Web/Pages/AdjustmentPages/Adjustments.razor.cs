@@ -79,14 +79,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected async Task EditRow(Models.AldebaranDb.Adjustment args)
         {
-            dialogResult = null;
-
-            var result = await DialogService.OpenAsync<EditAdjustment>("Edit Adjustment", new Dictionary<string, object> { { "ADJUSTMENT_ID", args.ADJUSTMENT_ID } });
-
-            if (result == true)
-            {
-                dialogResult = new DialogResult { Success = true, Message = "Ajuste modificado correctamente." };
-            }
+            NavigationManager.NavigateTo("edit-adjustment/" + args.ADJUSTMENT_ID);
         }
 
         protected async Task GridDeleteButtonClick(MouseEventArgs args, Models.AldebaranDb.Adjustment adjustment)

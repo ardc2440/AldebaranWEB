@@ -36,7 +36,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected string errorMessage;
 
-        protected Models.AldebaranDb.Adjustment adjustment;
+        protected Adjustment adjustment;
 
         protected IEnumerable<Models.AldebaranDb.AdjustmentReason> adjustmentReasonsForADJUSTMENTREASONID;
 
@@ -45,8 +45,6 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         protected IEnumerable<Models.AldebaranDb.Employee> employeesForEMPLOYEEID;
 
         protected ICollection<AdjustmentDetail> adjustmentDetails;
-
-        protected AdjustmentDetail adjustmentDetail;
 
         protected RadzenDataGrid<AdjustmentDetail> adjustmentDetailGrid;
 
@@ -57,10 +55,11 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         [Inject]
         protected SecurityService Security { get; set; }
 
+        [Parameter]
+        public string pAdjustmentId { get; set; } = "NoParamInput";
+
         protected override async Task OnInitializedAsync()
         {
-            adjustment = new Models.AldebaranDb.Adjustment();
-
             adjustmentReasonsForADJUSTMENTREASONID = await AldebaranDbService.GetAdjustmentReasons();
 
             adjustmentTypesForADJUSTMENTTYPEID = await AldebaranDbService.GetAdjustmentTypes();
@@ -68,6 +67,10 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
             Now = DateTime.UtcNow.AddDays(-1);
 
             adjustmentDetails = new List<AdjustmentDetail>();
+
+            var adjustmentId = 0;
+
+            int.TryParse(pAdjustmentId, out adjustmentId);
 
             adjustment = new Adjustment();
 

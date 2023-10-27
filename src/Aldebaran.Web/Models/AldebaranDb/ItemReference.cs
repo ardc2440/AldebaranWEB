@@ -54,5 +54,7 @@ namespace Aldebaran.Web.Models.AldebaranDb
 
         public ICollection<ReferencesWarehouse> ReferencesWarehouses { get; set; }
 
+        public ICollection<CustomerReservationDetail> CustomerReservationDetails { get; set; }
+
     }
 }

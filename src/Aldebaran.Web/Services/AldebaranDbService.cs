@@ -62,7 +62,6 @@ namespace Aldebaran.Web
             }
         }
 
-
         public async Task ExportAdjustmentDetailsToExcel(Query query = null, string fileName = null)
         {
             navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/adjustmentdetails/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/adjustmentdetails/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
@@ -104,7 +103,6 @@ namespace Aldebaran.Web
 
         partial void OnAdjustmentDetailGet(Models.AldebaranDb.AdjustmentDetail item);
         partial void OnGetAdjustmentDetailByAdjustmentDetailId(ref IQueryable<Models.AldebaranDb.AdjustmentDetail> items);
-
 
         public async Task<Models.AldebaranDb.AdjustmentDetail> GetAdjustmentDetailByAdjustmentDetailId(int adjustmentdetailid)
         {
@@ -212,7 +210,6 @@ namespace Aldebaran.Web
 
             OnAdjustmentDetailDeleted(itemToDelete);
 
-
             Context.AdjustmentDetails.Remove(itemToDelete);
 
             try
@@ -246,7 +243,6 @@ namespace Aldebaran.Web
         {
             var items = Context.AdjustmentReasons.AsQueryable();
 
-
             if (query != null)
             {
                 if (!string.IsNullOrEmpty(query.Expand))
@@ -269,13 +265,11 @@ namespace Aldebaran.Web
         partial void OnAdjustmentReasonGet(Models.AldebaranDb.AdjustmentReason item);
         partial void OnGetAdjustmentReasonByAdjustmentReasonId(ref IQueryable<Models.AldebaranDb.AdjustmentReason> items);
 
-
         public async Task<Models.AldebaranDb.AdjustmentReason> GetAdjustmentReasonByAdjustmentReasonId(short adjustmentreasonid)
         {
             var items = Context.AdjustmentReasons
                               .AsNoTracking()
                               .Where(i => i.ADJUSTMENT_REASON_ID == adjustmentreasonid);
-
 
             OnGetAdjustmentReasonByAdjustmentReasonId(ref items);
 
@@ -373,7 +367,6 @@ namespace Aldebaran.Web
 
             OnAdjustmentReasonDeleted(itemToDelete);
 
-
             Context.AdjustmentReasons.Remove(itemToDelete);
 
             try
@@ -407,7 +400,6 @@ namespace Aldebaran.Web
         {
             var items = Context.AdjustmentTypes.AsQueryable();
 
-
             if (query != null)
             {
                 if (!string.IsNullOrEmpty(query.Expand))
@@ -430,13 +422,11 @@ namespace Aldebaran.Web
         partial void OnAdjustmentTypeGet(Models.AldebaranDb.AdjustmentType item);
         partial void OnGetAdjustmentTypeByAdjustmentTypeId(ref IQueryable<Models.AldebaranDb.AdjustmentType> items);
 
-
         public async Task<Models.AldebaranDb.AdjustmentType> GetAdjustmentTypeByAdjustmentTypeId(short adjustmenttypeid)
         {
             var items = Context.AdjustmentTypes
                               .AsNoTracking()
                               .Where(i => i.ADJUSTMENT_TYPE_ID == adjustmenttypeid);
-
 
             OnGetAdjustmentTypeByAdjustmentTypeId(ref items);
 
@@ -534,7 +524,6 @@ namespace Aldebaran.Web
 
             OnAdjustmentTypeDeleted(itemToDelete);
 
-
             Context.AdjustmentTypes.Remove(itemToDelete);
 
             try
@@ -593,7 +582,6 @@ namespace Aldebaran.Web
 
         partial void OnAdjustmentGet(Models.AldebaranDb.Adjustment item);
         partial void OnGetAdjustmentByAdjustmentId(ref IQueryable<Models.AldebaranDb.Adjustment> items);
-
 
         public async Task<Models.AldebaranDb.Adjustment> GetAdjustmentByAdjustmentId(int adjustmentid)
         {
@@ -674,10 +662,11 @@ namespace Aldebaran.Web
                 throw new Exception("Item no longer available");
             }
 
-            var entryToUpdate = Context.Entry(itemToUpdate);
-            entryToUpdate.CurrentValues.SetValues(adjustment);
-            entryToUpdate.State = EntityState.Modified;
+            //var entryToUpdate = Context.Entry(itemToUpdate);
+            //entryToUpdate.CurrentValues.SetValues(adjustment);
+            //entryToUpdate.State = EntityState.Modified;
 
+            context.Adjustments.Update(adjustment);
             Context.SaveChanges();
 
             OnAfterAdjustmentUpdated(adjustment);
@@ -700,7 +689,6 @@ namespace Aldebaran.Web
             }
 
             OnAdjustmentDeleted(itemToDelete);
-
 
             Context.Adjustments.Remove(itemToDelete);
 
@@ -735,7 +723,6 @@ namespace Aldebaran.Web
         {
             var items = Context.Areas.AsQueryable();
 
-
             if (query != null)
             {
                 if (!string.IsNullOrEmpty(query.Expand))
@@ -758,13 +745,11 @@ namespace Aldebaran.Web
         partial void OnAreaGet(Models.AldebaranDb.Area item);
         partial void OnGetAreaByAreaId(ref IQueryable<Models.AldebaranDb.Area> items);
 
-
         public async Task<Models.AldebaranDb.Area> GetAreaByAreaId(short areaid)
         {
             var items = Context.Areas
                               .AsNoTracking()
                               .Where(i => i.AREA_ID == areaid);
-
 
             OnGetAreaByAreaId(ref items);
 
@@ -862,7 +847,6 @@ namespace Aldebaran.Web
 
             OnAreaDeleted(itemToDelete);
 
-
             Context.Areas.Remove(itemToDelete);
 
             try
@@ -919,7 +903,6 @@ namespace Aldebaran.Web
 
         partial void OnCityGet(Models.AldebaranDb.City item);
         partial void OnGetCityByCityId(ref IQueryable<Models.AldebaranDb.City> items);
-
 
         public async Task<Models.AldebaranDb.City> GetCityByCityId(int cityid)
         {
@@ -1025,7 +1008,6 @@ namespace Aldebaran.Web
 
             OnCityDeleted(itemToDelete);
 
-
             Context.Cities.Remove(itemToDelete);
 
             try
@@ -1059,7 +1041,6 @@ namespace Aldebaran.Web
         {
             var items = Context.Countries.AsQueryable();
 
-
             if (query != null)
             {
                 if (!string.IsNullOrEmpty(query.Expand))
@@ -1082,13 +1063,11 @@ namespace Aldebaran.Web
         partial void OnCountryGet(Models.AldebaranDb.Country item);
         partial void OnGetCountryByCountryId(ref IQueryable<Models.AldebaranDb.Country> items);
 
-
         public async Task<Models.AldebaranDb.Country> GetCountryByCountryId(int countryid)
         {
             var items = Context.Countries
                               .AsNoTracking()
                               .Where(i => i.COUNTRY_ID == countryid);
-
 
             OnGetCountryByCountryId(ref items);
 
@@ -1186,7 +1165,6 @@ namespace Aldebaran.Web
 
             OnCountryDeleted(itemToDelete);
 
-
             Context.Countries.Remove(itemToDelete);
 
             try
@@ -1220,7 +1198,6 @@ namespace Aldebaran.Web
         {
             var items = Context.Currencies.AsQueryable();
 
-
             if (query != null)
             {
                 if (!string.IsNullOrEmpty(query.Expand))
@@ -1243,13 +1220,11 @@ namespace Aldebaran.Web
         partial void OnCurrencyGet(Models.AldebaranDb.Currency item);
         partial void OnGetCurrencyByCurrencyId(ref IQueryable<Models.AldebaranDb.Currency> items);
 
-
         public async Task<Models.AldebaranDb.Currency> GetCurrencyByCurrencyId(short currencyid)
         {
             var items = Context.Currencies
                               .AsNoTracking()
                               .Where(i => i.CURRENCY_ID == currencyid);
-
 
             OnGetCurrencyByCurrencyId(ref items);
 
@@ -1347,7 +1322,6 @@ namespace Aldebaran.Web
 
             OnCurrencyDeleted(itemToDelete);
 
-
             Context.Currencies.Remove(itemToDelete);
 
             try
@@ -1404,7 +1378,6 @@ namespace Aldebaran.Web
 
         partial void OnCustomerContactGet(Models.AldebaranDb.CustomerContact item);
         partial void OnGetCustomerContactByCustomerContactId(ref IQueryable<Models.AldebaranDb.CustomerContact> items);
-
 
         public async Task<Models.AldebaranDb.CustomerContact> GetCustomerContactByCustomerContactId(int customercontactid)
         {
@@ -1510,7 +1483,6 @@ namespace Aldebaran.Web
 
             OnCustomerContactDeleted(itemToDelete);
 
-
             Context.CustomerContacts.Remove(itemToDelete);
 
             try
@@ -1568,7 +1540,6 @@ namespace Aldebaran.Web
 
         partial void OnCustomerGet(Models.AldebaranDb.Customer item);
         partial void OnGetCustomerByCustomerId(ref IQueryable<Models.AldebaranDb.Customer> items);
-
 
         public async Task<Models.AldebaranDb.Customer> GetCustomerByCustomerId(int customerid)
         {
@@ -1675,7 +1646,6 @@ namespace Aldebaran.Web
 
             OnCustomerDeleted(itemToDelete);
 
-
             Context.Customers.Remove(itemToDelete);
 
             try
@@ -1732,7 +1702,6 @@ namespace Aldebaran.Web
 
         partial void OnDepartmentGet(Models.AldebaranDb.Department item);
         partial void OnGetDepartmentByDepartmentId(ref IQueryable<Models.AldebaranDb.Department> items);
-
 
         public async Task<Models.AldebaranDb.Department> GetDepartmentByDepartmentId(int departmentid)
         {
@@ -1838,7 +1807,6 @@ namespace Aldebaran.Web
 
             OnDepartmentDeleted(itemToDelete);
 
-
             Context.Departments.Remove(itemToDelete);
 
             try
@@ -1896,7 +1864,6 @@ namespace Aldebaran.Web
 
         partial void OnEmployeeGet(Models.AldebaranDb.Employee item);
         partial void OnGetEmployeeByEmployeeId(ref IQueryable<Models.AldebaranDb.Employee> items);
-
 
         public async Task<Models.AldebaranDb.Employee> GetEmployeeByEmployeeId(int employeeid)
         {
@@ -2003,7 +1970,6 @@ namespace Aldebaran.Web
 
             OnEmployeeDeleted(itemToDelete);
 
-
             Context.Employees.Remove(itemToDelete);
 
             try
@@ -2061,7 +2027,6 @@ namespace Aldebaran.Web
 
         partial void OnForwarderAgentGet(Models.AldebaranDb.ForwarderAgent item);
         partial void OnGetForwarderAgentByForwarderAgentId(ref IQueryable<Models.AldebaranDb.ForwarderAgent> items);
-
 
         public async Task<Models.AldebaranDb.ForwarderAgent> GetForwarderAgentByForwarderAgentId(int forwarderagentid)
         {
@@ -2168,7 +2133,6 @@ namespace Aldebaran.Web
 
             OnForwarderAgentDeleted(itemToDelete);
 
-
             Context.ForwarderAgents.Remove(itemToDelete);
 
             try
@@ -2225,7 +2189,6 @@ namespace Aldebaran.Web
 
         partial void OnForwarderGet(Models.AldebaranDb.Forwarder item);
         partial void OnGetForwarderByForwarderId(ref IQueryable<Models.AldebaranDb.Forwarder> items);
-
 
         public async Task<Models.AldebaranDb.Forwarder> GetForwarderByForwarderId(int forwarderid)
         {
@@ -2331,7 +2294,6 @@ namespace Aldebaran.Web
 
             OnForwarderDeleted(itemToDelete);
 
-
             Context.Forwarders.Remove(itemToDelete);
 
             try
@@ -2365,7 +2327,6 @@ namespace Aldebaran.Web
         {
             var items = Context.IdentityTypes.AsQueryable();
 
-
             if (query != null)
             {
                 if (!string.IsNullOrEmpty(query.Expand))
@@ -2388,13 +2349,11 @@ namespace Aldebaran.Web
         partial void OnIdentityTypeGet(Models.AldebaranDb.IdentityType item);
         partial void OnGetIdentityTypeByIdentityTypeId(ref IQueryable<Models.AldebaranDb.IdentityType> items);
 
-
         public async Task<Models.AldebaranDb.IdentityType> GetIdentityTypeByIdentityTypeId(int identitytypeid)
         {
             var items = Context.IdentityTypes
                               .AsNoTracking()
                               .Where(i => i.IDENTITY_TYPE_ID == identitytypeid);
-
 
             OnGetIdentityTypeByIdentityTypeId(ref items);
 
@@ -2492,7 +2451,6 @@ namespace Aldebaran.Web
 
             OnIdentityTypeDeleted(itemToDelete);
 
-
             Context.IdentityTypes.Remove(itemToDelete);
 
             try
@@ -2549,7 +2507,6 @@ namespace Aldebaran.Web
 
         partial void OnItemReferenceGet(Models.AldebaranDb.ItemReference item);
         partial void OnGetItemReferenceByReferenceId(ref IQueryable<Models.AldebaranDb.ItemReference> items);
-
 
         public async Task<Models.AldebaranDb.ItemReference> GetItemReferenceByReferenceId(int referenceid)
         {
@@ -2655,7 +2612,6 @@ namespace Aldebaran.Web
 
             OnItemReferenceDeleted(itemToDelete);
 
-
             Context.ItemReferences.Remove(itemToDelete);
 
             try
@@ -2715,7 +2671,6 @@ namespace Aldebaran.Web
 
         partial void OnItemGet(Models.AldebaranDb.Item item);
         partial void OnGetItemByItemId(ref IQueryable<Models.AldebaranDb.Item> items);
-
 
         public async Task<Models.AldebaranDb.Item> GetItemByItemId(int itemid)
         {
@@ -2824,7 +2779,6 @@ namespace Aldebaran.Web
 
             OnItemDeleted(itemToDelete);
 
-
             Context.Items.Remove(itemToDelete);
 
             try
@@ -2882,7 +2836,6 @@ namespace Aldebaran.Web
 
         partial void OnItemsAreaGet(Models.AldebaranDb.ItemsArea item);
         partial void OnGetItemsAreaByItemIdAndAreaId(ref IQueryable<Models.AldebaranDb.ItemsArea> items);
-
 
         public async Task<Models.AldebaranDb.ItemsArea> GetItemsAreaByItemIdAndAreaId(int itemid, short areaid)
         {
@@ -2989,7 +2942,6 @@ namespace Aldebaran.Web
 
             OnItemsAreaDeleted(itemToDelete);
 
-
             Context.ItemsAreas.Remove(itemToDelete);
 
             try
@@ -3023,7 +2975,6 @@ namespace Aldebaran.Web
         {
             var items = Context.Lines.AsQueryable();
 
-
             if (query != null)
             {
                 if (!string.IsNullOrEmpty(query.Expand))
@@ -3046,13 +2997,11 @@ namespace Aldebaran.Web
         partial void OnLineGet(Models.AldebaranDb.Line item);
         partial void OnGetLineByLineId(ref IQueryable<Models.AldebaranDb.Line> items);
 
-
         public async Task<Models.AldebaranDb.Line> GetLineByLineId(short lineid)
         {
             var items = Context.Lines
                               .AsNoTracking()
                               .Where(i => i.LINE_ID == lineid);
-
 
             OnGetLineByLineId(ref items);
 
@@ -3150,7 +3099,6 @@ namespace Aldebaran.Web
 
             OnLineDeleted(itemToDelete);
 
-
             Context.Lines.Remove(itemToDelete);
 
             try
@@ -3184,7 +3132,6 @@ namespace Aldebaran.Web
         {
             var items = Context.MeasureUnits.AsQueryable();
 
-
             if (query != null)
             {
                 if (!string.IsNullOrEmpty(query.Expand))
@@ -3207,13 +3154,11 @@ namespace Aldebaran.Web
         partial void OnMeasureUnitGet(Models.AldebaranDb.MeasureUnit item);
         partial void OnGetMeasureUnitByMeasureUnitId(ref IQueryable<Models.AldebaranDb.MeasureUnit> items);
 
-
         public async Task<Models.AldebaranDb.MeasureUnit> GetMeasureUnitByMeasureUnitId(short measureunitid)
         {
             var items = Context.MeasureUnits
                               .AsNoTracking()
                               .Where(i => i.MEASURE_UNIT_ID == measureunitid);
-
 
             OnGetMeasureUnitByMeasureUnitId(ref items);
 
@@ -3311,7 +3256,6 @@ namespace Aldebaran.Web
 
             OnMeasureUnitDeleted(itemToDelete);
 
-
             Context.MeasureUnits.Remove(itemToDelete);
 
             try
@@ -3369,7 +3313,6 @@ namespace Aldebaran.Web
 
         partial void OnProviderReferenceGet(Models.AldebaranDb.ProviderReference item);
         partial void OnGetProviderReferenceByReferenceIdAndProviderId(ref IQueryable<Models.AldebaranDb.ProviderReference> items);
-
 
         public async Task<Models.AldebaranDb.ProviderReference> GetProviderReferenceByReferenceIdAndProviderId(int referenceid, int providerid)
         {
@@ -3476,7 +3419,6 @@ namespace Aldebaran.Web
 
             OnProviderReferenceDeleted(itemToDelete);
 
-
             Context.ProviderReferences.Remove(itemToDelete);
 
             try
@@ -3534,7 +3476,6 @@ namespace Aldebaran.Web
 
         partial void OnProviderGet(Models.AldebaranDb.Provider item);
         partial void OnGetProviderByProviderId(ref IQueryable<Models.AldebaranDb.Provider> items);
-
 
         public async Task<Models.AldebaranDb.Provider> GetProviderByProviderId(int providerid)
         {
@@ -3641,7 +3582,6 @@ namespace Aldebaran.Web
 
             OnProviderDeleted(itemToDelete);
 
-
             Context.Providers.Remove(itemToDelete);
 
             try
@@ -3700,7 +3640,6 @@ namespace Aldebaran.Web
 
         partial void OnPurchaseOrderActivityGet(Models.AldebaranDb.PurchaseOrderActivity item);
         partial void OnGetPurchaseOrderActivityByPurchaseOrderActivityId(ref IQueryable<Models.AldebaranDb.PurchaseOrderActivity> items);
-
 
         public async Task<Models.AldebaranDb.PurchaseOrderActivity> GetPurchaseOrderActivityByPurchaseOrderActivityId(int purchaseorderactivityid)
         {
@@ -3808,7 +3747,6 @@ namespace Aldebaran.Web
 
             OnPurchaseOrderActivityDeleted(itemToDelete);
 
-
             Context.PurchaseOrderActivities.Remove(itemToDelete);
 
             try
@@ -3867,7 +3805,6 @@ namespace Aldebaran.Web
 
         partial void OnPurchaseOrderDetailGet(Models.AldebaranDb.PurchaseOrderDetail item);
         partial void OnGetPurchaseOrderDetailByPurchaseOrderDetailId(ref IQueryable<Models.AldebaranDb.PurchaseOrderDetail> items);
-
 
         public async Task<Models.AldebaranDb.PurchaseOrderDetail> GetPurchaseOrderDetailByPurchaseOrderDetailId(int purchaseorderdetailid)
         {
@@ -3975,7 +3912,6 @@ namespace Aldebaran.Web
 
             OnPurchaseOrderDetailDeleted(itemToDelete);
 
-
             Context.PurchaseOrderDetails.Remove(itemToDelete);
 
             try
@@ -4035,7 +3971,6 @@ namespace Aldebaran.Web
 
         partial void OnPurchaseOrderGet(Models.AldebaranDb.PurchaseOrder item);
         partial void OnGetPurchaseOrderByPurchaseOrderId(ref IQueryable<Models.AldebaranDb.PurchaseOrder> items);
-
 
         public async Task<Models.AldebaranDb.PurchaseOrder> GetPurchaseOrderByPurchaseOrderId(int purchaseorderid)
         {
@@ -4144,7 +4079,6 @@ namespace Aldebaran.Web
 
             OnPurchaseOrderDeleted(itemToDelete);
 
-
             Context.PurchaseOrders.Remove(itemToDelete);
 
             try
@@ -4202,7 +4136,6 @@ namespace Aldebaran.Web
 
         partial void OnReferencesWarehouseGet(Models.AldebaranDb.ReferencesWarehouse item);
         partial void OnGetReferencesWarehouseByReferenceIdAndWarehouseId(ref IQueryable<Models.AldebaranDb.ReferencesWarehouse> items);
-
 
         public async Task<Models.AldebaranDb.ReferencesWarehouse> GetReferencesWarehouseByReferenceIdAndWarehouseId(int referenceid, short warehouseid)
         {
@@ -4309,7 +4242,6 @@ namespace Aldebaran.Web
 
             OnReferencesWarehouseDeleted(itemToDelete);
 
-
             Context.ReferencesWarehouses.Remove(itemToDelete);
 
             try
@@ -4367,7 +4299,6 @@ namespace Aldebaran.Web
 
         partial void OnShipmentForwarderAgentMethodGet(Models.AldebaranDb.ShipmentForwarderAgentMethod item);
         partial void OnGetShipmentForwarderAgentMethodByShipmentForwarderAgentMethodId(ref IQueryable<Models.AldebaranDb.ShipmentForwarderAgentMethod> items);
-
 
         public async Task<Models.AldebaranDb.ShipmentForwarderAgentMethod> GetShipmentForwarderAgentMethodByShipmentForwarderAgentMethodId(short shipmentforwarderagentmethodid)
         {
@@ -4474,7 +4405,6 @@ namespace Aldebaran.Web
 
             OnShipmentForwarderAgentMethodDeleted(itemToDelete);
 
-
             Context.ShipmentForwarderAgentMethods.Remove(itemToDelete);
 
             try
@@ -4508,7 +4438,6 @@ namespace Aldebaran.Web
         {
             var items = Context.ShipmentMethods.AsQueryable();
 
-
             if (query != null)
             {
                 if (!string.IsNullOrEmpty(query.Expand))
@@ -4531,13 +4460,11 @@ namespace Aldebaran.Web
         partial void OnShipmentMethodGet(Models.AldebaranDb.ShipmentMethod item);
         partial void OnGetShipmentMethodByShipmentMethodId(ref IQueryable<Models.AldebaranDb.ShipmentMethod> items);
 
-
         public async Task<Models.AldebaranDb.ShipmentMethod> GetShipmentMethodByShipmentMethodId(short shipmentmethodid)
         {
             var items = Context.ShipmentMethods
                               .AsNoTracking()
                               .Where(i => i.SHIPMENT_METHOD_ID == shipmentmethodid);
-
 
             OnGetShipmentMethodByShipmentMethodId(ref items);
 
@@ -4635,7 +4562,6 @@ namespace Aldebaran.Web
 
             OnShipmentMethodDeleted(itemToDelete);
 
-
             Context.ShipmentMethods.Remove(itemToDelete);
 
             try
@@ -4669,7 +4595,6 @@ namespace Aldebaran.Web
         {
             var items = Context.ShippingMethods.AsQueryable();
 
-
             if (query != null)
             {
                 if (!string.IsNullOrEmpty(query.Expand))
@@ -4692,13 +4617,11 @@ namespace Aldebaran.Web
         partial void OnShippingMethodGet(Models.AldebaranDb.ShippingMethod item);
         partial void OnGetShippingMethodByShippingMethodId(ref IQueryable<Models.AldebaranDb.ShippingMethod> items);
 
-
         public async Task<Models.AldebaranDb.ShippingMethod> GetShippingMethodByShippingMethodId(short shippingmethodid)
         {
             var items = Context.ShippingMethods
                               .AsNoTracking()
                               .Where(i => i.SHIPPING_METHOD_ID == shippingmethodid);
-
 
             OnGetShippingMethodByShippingMethodId(ref items);
 
@@ -4796,7 +4719,6 @@ namespace Aldebaran.Web
 
             OnShippingMethodDeleted(itemToDelete);
 
-
             Context.ShippingMethods.Remove(itemToDelete);
 
             try
@@ -4830,7 +4752,6 @@ namespace Aldebaran.Web
         {
             var items = Context.Warehouses.AsQueryable();
 
-
             if (query != null)
             {
                 if (!string.IsNullOrEmpty(query.Expand))
@@ -4853,13 +4774,11 @@ namespace Aldebaran.Web
         partial void OnWarehouseGet(Models.AldebaranDb.Warehouse item);
         partial void OnGetWarehouseByWarehouseId(ref IQueryable<Models.AldebaranDb.Warehouse> items);
 
-
         public async Task<Models.AldebaranDb.Warehouse> GetWarehouseByWarehouseId(short warehouseid)
         {
             var items = Context.Warehouses
                               .AsNoTracking()
                               .Where(i => i.WAREHOUSE_ID == warehouseid);
-
 
             OnGetWarehouseByWarehouseId(ref items);
 
@@ -4956,7 +4875,6 @@ namespace Aldebaran.Web
             }
 
             OnWarehouseDeleted(itemToDelete);
-
 
             Context.Warehouses.Remove(itemToDelete);
 
