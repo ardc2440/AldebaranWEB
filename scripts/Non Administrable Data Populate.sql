@@ -122,7 +122,11 @@ INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) 
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'FFEBC6FB-D258-4E32-BAB4-406CF4E2BB12', N'2f18315e-5f18-4f55-9a75-053ee74fc7fb', N'Provider Editor', N'PROVIDER EDITOR')
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'17488316-F3CC-4E9A-B90F-69E7608776E7', N'1691B7A5-5120-4AE7-914C-609750C0ECF3', N'Adjustment Viwer', N'ADJUSTMENT VIWER')
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'5309DB17-EBBB-4554-86D3-F58E2252EF1E', N'624679D3-8550-4F77-ADB9-AD806B2081D4', N'Adjustment Editor', N'ADJUSTMENT EDITOR')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'522A25EC-D939-4E72-A6B2-24BEA9E9E05E', N'95154F99-AB57-476D-9809-7B3BBF01B1B7', N'Customer Reservation Viwer', N'CUSTOMER RESERVATION VIWER')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'63CD17B9-7FC8-485F-9B39-47DBBA4BA8EA', N'D030FD33-6837-4406-901C-19343D6BA0F3', N'Customer Reservation Editor', N'CUSTOMER RESERVATION EDITOR')
 GO
+
+select NEWID()
 
 /* Populate [AspNetUsers] */
 INSERT [dbo].[AspNetUsers] ([Id], [AccessFailedCount], [ConcurrencyStamp], [Email], [EmailConfirmed], [LockoutEnabled], [LockoutEnd], [NormalizedEmail], [NormalizedUserName], [PasswordHash], [PhoneNumber], [PhoneNumberConfirmed], [SecurityStamp], [TwoFactorEnabled], [UserName]) VALUES (N'685d8718-442e-4c05-b692-0c38f152c09b', 0, N'bb598b0e-754e-47d4-b288-66366345db11', N'admin@aldebaran.com', 1, 0, NULL, N'ADMIN@ALDEBARAN.COM', N'SA', N'AQAAAAIAAYagAAAAEKnhTxr9IQcqMLbyCCct9zKiP1GXJgES8K3hSq1Lg5C49rr0AvV3pTii9QOUUiJAHg==', NULL, 0, N'Y6J4AUSPMJV5CAMMR3NJH6CFZD4RSIGW', 0, N'sa')

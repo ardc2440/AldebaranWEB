@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Aldebaran.Web.Models.AldebaranDb
 {
     [Table("customer_reservations", Schema = "dbo")]
-
     public partial class CustomerReservation
     {
         [Key]
@@ -22,12 +21,13 @@ namespace Aldebaran.Web.Models.AldebaranDb
 
         [Required]
         public DateTime EXPIRATION_DATE { get; set; }
+
         public string NOTES { get; set; }
 
         [Required]
         public int EMPLOYEE_ID { get; set; }
 
-        public int CUSTOMER_ORDER_ID { get; set; }
+        public int? CUSTOMER_ORDER_ID { get; set; }
 
         [Required]
         public short STATUS_DOCUMENT_TYPE_ID { get; set; }
@@ -42,5 +42,7 @@ namespace Aldebaran.Web.Models.AldebaranDb
         public StatusDocumentType StatusDocumentType { get; set; }
 
         public Employee Employee { get; set; }
+
+        public CustomerOrder CustomerOrder { get; set; }
     }
 }

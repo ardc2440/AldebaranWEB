@@ -3,7 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Aldebaran.Web.Models.AldebaranDb
 {
-    public class CustomerReservationDetail
+    [Table("customer_reservation_details", Schema = "dbo")]
+    public partial class CustomerReservationDetail
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Aldebaran.Web.Models.AldebaranDb
 {
     [Table("status_document_types", Schema = "dbo")]
-    public class StatusDocumentType
+    public partial class StatusDocumentType
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

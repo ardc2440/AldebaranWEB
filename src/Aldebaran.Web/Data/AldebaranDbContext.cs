@@ -318,6 +318,12 @@ namespace Aldebaran.Web.Data
               .HasForeignKey(i => i.SHIPMENT_METHOD_ID)
               .HasPrincipalKey(i => i.SHIPMENT_METHOD_ID);
 
+            builder.Entity<Models.AldebaranDb.CustomerReservation>()
+              .HasOne(i => i.CustomerOrder)
+              .WithMany(i => i.CustomerReservations)
+              .HasForeignKey(i => i.CUSTOMER_ORDER_ID)
+              .HasPrincipalKey(i => i.CUSTOMER_ORDER_ID);
+
             builder.Entity<Models.AldebaranDb.Adjustment>()
               .Property(p => p.ADJUSTMENT_DATE)
               .HasDefaultValueSql(@"(getdate())");
@@ -455,6 +461,16 @@ namespace Aldebaran.Web.Data
         public DbSet<Models.AldebaranDb.ShippingMethod> ShippingMethods { get; set; }
 
         public DbSet<Models.AldebaranDb.Warehouse> Warehouses { get; set; }
+
+        public DbSet<Models.AldebaranDb.CustomerReservation> CustomerReservations { get; set; }
+
+        public DbSet<Models.AldebaranDb.CustomerOrder> CustomerOrders { get; set; }
+
+        public DbSet<Models.AldebaranDb.CustomerReservationDetail> CustomerReservationDetails { get; set; }
+
+        public DbSet<Models.AldebaranDb.StatusDocumentType> StatusDocumentTypes { get; set; }
+
+        public DbSet<Models.AldebaranDb.DocumentType> DocumentTypes { get; set; }
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {
