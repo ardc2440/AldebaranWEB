@@ -50,8 +50,6 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected bool isSubmitInProgress;
 
-        protected RadzenPanelMenu panelMenu;
-
         [Inject]
         protected SecurityService Security { get; set; }
 

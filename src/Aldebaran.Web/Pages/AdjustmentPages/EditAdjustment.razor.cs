@@ -89,7 +89,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
                 adjustment.AdjustmentDetails = adjustmentDetails;
                 await AldebaranDbService.UpdateAdjustment(adjustment.ADJUSTMENT_ID, adjustment);
-                await DialogService.Alert("Ajuste Guardado Satisfactoriamente", "Información");
+                await DialogService.Alert("Ajuste Modificado Satisfactoriamente", "Información");
                 NavigationManager.NavigateTo("adjustments");
             }
             catch (Exception ex)
