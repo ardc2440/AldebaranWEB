@@ -76,11 +76,11 @@
                                 <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.AdjustmentDetail" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center">
                                     <Template Context="detail">
                                         <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
-                                                      Click="@(args => EditRow(detail))" @onclick:stopPropagation="true">
+                                                      Click="@(args => EditRow(detail))" @onclick:stopPropagation="true" title="Modificar cantidad">
                                         </RadzenButton>
                                         <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
                                                       Shade="Shade.Lighter" Variant="Variant.Flat"
-                                                      Click=@(args => DeleteAdjustmentDetailButtonClick(args, detail)) @onclick:stopPropagation="true" />
+                                                      Click=@(args => DeleteAdjustmentDetailButtonClick(args, detail)) @onclick:stopPropagation="true" title="Eliminar artículo"/>
                                     </Template>
                                 </RadzenDataGridColumn>
                             </Columns>

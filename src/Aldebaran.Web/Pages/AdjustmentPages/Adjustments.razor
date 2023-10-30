@@ -41,11 +41,11 @@
                         <Template Context="adjustment">
                             <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
                                           Click="@(args => EditRow(adjustment))" @onclick:stopPropagation="true"
-                                          Visible="@Security.IsInRole("Admin","Adjustment Editor")">
+                                          Visible="@Security.IsInRole("Admin","Adjustment Editor")" title="Modificar Ajuste">
                             </RadzenButton>
                             <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
                                           Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@Security.IsInRole("Admin","Adjustment Editor")"
-                                          Click=@(args => GridDeleteButtonClick(args, adjustment)) @onclick:stopPropagation="true" />
+                                          Click=@(args => GridDeleteButtonClick(args, adjustment)) @onclick:stopPropagation="true" title="Eliminar Ajuste"/>
                         </Template>
                     </RadzenDataGridColumn>
                 </Columns>
