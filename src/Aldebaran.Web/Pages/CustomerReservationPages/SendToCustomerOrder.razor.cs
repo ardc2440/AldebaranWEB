@@ -7,7 +7,7 @@ using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.CustomerReservationPages
 {
-    public partial class EditCustomerReservation
+    public partial class SendToCustomerOrder
     {
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
@@ -76,13 +76,12 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             try
             {
                 isSubmitInProgress = true;
-                if (!customerReservationDetails.Any())
-                    throw new Exception("No ha ingresado ninguna referencia");
+                if (!customerReservationDetails.Any(d => d.SEND_TO_CUSTOMER_ORDER))
+                    throw new Exception("No ha seleccionado ningun artículo para el pedido");
 
-                customerReservation.CustomerReservationDetails = customerReservationDetails;
-                await AldebaranDbService.UpdateCustomerReservation(customerReservation);
-                await DialogService.Alert("Reserva modificada Satisfactoriamente", "Información");
-                NavigationManager.NavigateTo("customer-reservations");
+                await AldebaranDbService.UpdateCustomerReservationDetails(customerReservationDetails);
+
+                NavigationManager.NavigateTo("add-customer-order-from-reservation/" + customerReservation.CUSTOMER_RESERVATION_ID);
             }
             catch (Exception ex)
             {
@@ -94,45 +93,8 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
-            if (await DialogService.Confirm("Está seguro que cancelar la modificación de la Reserva??", "Confirmar") == true)
+            if (await DialogService.Confirm("Está seguro que cancelar el envio a Pedido de la Reserva??", "Confirmar") == true)
                 NavigationManager.NavigateTo("customer-reservations");
-        }
-
-        protected async Task AddCustomerReservationDetailButtonClick(MouseEventArgs args)
-        {
-            var result = await DialogService.OpenAsync<AddCustomerReservationDetail>("Nueva referencia", new Dictionary<string, object> { { "customerReservationDetails", customerReservationDetails } });
-
-            if (result == null)
-                return;
-
-            var detail = (CustomerReservationDetail)result;
-
-            customerReservationDetails.Add(detail);
-
-            await customerReservationDetailGrid.Reload();
-        }
-
-        protected async Task DeleteCustomerReservationDetailButtonClick(MouseEventArgs args, CustomerReservationDetail item)
-        {
-            if (await DialogService.Confirm("Está seguro que desea eliminar esta referencia?", "Confirmar") == true)
-            {
-                customerReservationDetails.Remove(item);
-
-                await customerReservationDetailGrid.Reload();
-            }
-        }
-
-        protected async Task EditRow(CustomerReservationDetail args)
-        {
-            var result = await DialogService.OpenAsync<EditCustomerReservationDetail>("Actualizar referencia", new Dictionary<string, object> { { "customerReservationDetail", args } });
-            if (result == null)
-                return;
-            var detail = (CustomerReservationDetail)result;
-
-            customerReservationDetails.Remove(args);
-            customerReservationDetails.Add(detail);
-
-            await customerReservationDetailGrid.Reload();
         }
 
         protected async Task GetChildData(CustomerReservation args)

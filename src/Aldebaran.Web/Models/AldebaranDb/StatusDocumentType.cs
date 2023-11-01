@@ -22,7 +22,12 @@ namespace Aldebaran.Web.Models.AldebaranDb
         [Required]
         public bool EDIT_MODE { get; set; }
 
+        [Required]
+        public short STATUS_ORDER { get; set; }
+
         public ICollection<CustomerReservation> CustomerReservations { get; set; }
+
+        public ICollection<CustomerOrder> CustomerOrders { get; set; }
 
         public DocumentType DocumentType { get; set; }
 

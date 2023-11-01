@@ -132,5 +132,10 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         {
             return Security.IsInRole("Admin", "Customer Reservation Editor") && customerReservation.StatusDocumentType.EDIT_MODE;
         }
+
+        protected async Task SendToCustomerOrder(Models.AldebaranDb.CustomerReservation args)
+        {
+            NavigationManager.NavigateTo("send-to-customer-order/" + args.CUSTOMER_RESERVATION_ID);
+        }
     }
 }

@@ -1,4 +1,5 @@
 using Aldebaran.Web.Models.AldebaranDb;
+using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
@@ -32,21 +33,9 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         public CustomerReservationDetail customerReservationDetail { get; set; }
 
         protected bool errorVisible;
-
         protected string alertMessage;
-
         protected bool isSubmitInProgress;
-
-        protected IEnumerable<Models.AldebaranDb.Adjustment> customerReservationsForCUSTOMERRESERVATIONID;
-
-        protected IEnumerable<Models.AldebaranDb.ItemReference> itemReferencesForREFERENCEID;
-
-        protected override async Task OnInitializedAsync()
-        {
-            customerReservationsForCUSTOMERRESERVATIONID = await AldebaranDbService.GetAdjustments();
-
-            itemReferencesForREFERENCEID = await AldebaranDbService.GetItemReferences();
-        }
+        protected InventoryQuantities QuantitiesPanel;
 
         protected async Task FormSubmit()
         {
@@ -72,37 +61,16 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             DialogService.Close(null);
         }
 
-        bool hasCUSTOMER_RESERVATION_IDValue;
-
-        [Parameter]
-        public int CUSTOMER_RESERVATION_ID { get; set; }
-
-        bool hasREFERENCE_IDValue;
-
-        [Parameter]
-        public int REFERENCE_ID { get; set; }
-
-        [Inject]
-        protected SecurityService Security { get; set; }
         public override async Task SetParametersAsync(ParameterView parameters)
         {
             customerReservationDetail = new CustomerReservationDetail();
 
-            hasCUSTOMER_RESERVATION_IDValue = parameters.TryGetValue<int>("CUSTOMER_RESERVATION_ID", out var hasCUSTOMER_RESERVATION_IDResult);
-
-            if (hasCUSTOMER_RESERVATION_IDValue)
-            {
-                customerReservationDetail.CUSTOMER_RESERVATION_ID = hasCUSTOMER_RESERVATION_IDResult;
-            }
-
-            hasREFERENCE_IDValue = parameters.TryGetValue<int>("REFERENCE_ID", out var hasREFERENCE_IDResult);
-
-            if (hasREFERENCE_IDValue)
-            {
-                customerReservationDetail.REFERENCE_ID = hasREFERENCE_IDResult;
-            }
-
             await base.SetParametersAsync(parameters);
+        }
+
+        protected async Task ItemReferenceHandler()
+        {
+            await QuantitiesPanel.Refresh(customerReservationDetail.ItemReference);
         }
     }
 }

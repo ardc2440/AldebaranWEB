@@ -30,8 +30,6 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         [Inject]
         public AldebaranDbService AldebaranDbService { get; set; }
 
-        protected DateTime Now { get; set; }
-
         protected bool errorVisible;
 
         protected string errorMessage;
@@ -48,27 +46,27 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
         protected bool isSubmitInProgress;
 
+        protected DocumentType documentType;
+
         [Inject]
         protected SecurityService Security { get; set; }
-
-        [Parameter]
-        public string pAdjustmentId { get; set; } = "NoParamInput";
 
         protected override async Task OnInitializedAsync()
         {
             customersForCUSTOMERID = await AldebaranDbService.GetCustomers();
 
-            Now = DateTime.UtcNow.AddDays(-1);
+            documentType = await AldebaranDbService.GetDocumentTypeByCode("R");
 
             customerReservationDetails = new List<CustomerReservationDetail>();
 
-            var adjustmentId = 0;
-
-            int.TryParse(pAdjustmentId, out adjustmentId);
-
-            customerReservation = new CustomerReservation();
-
-            customerReservation.EMPLOYEE_ID = 1;
+            customerReservation = new CustomerReservation()
+            {
+                CUSTOMER_RESERVATION_ID = 0,
+                EMPLOYEE_ID = AldebaranDbService.GetLoggedEmployee(Security).Id,
+                StatusDocumentType = await AldebaranDbService.GetStatusDocumentTypeByDocumentAndOrder(documentType, 1),
+                RESERVATION_DATE = DateTime.Today,
+                RESERVATION_NUMBER = "0"
+            };
         }
 
         protected async Task FormSubmit()
@@ -81,7 +79,11 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
                 customerReservation.CustomerReservationDetails = customerReservationDetails;
                 await AldebaranDbService.CreateCustomerReservation(customerReservation);
-                await DialogService.Alert("Reserva de Articulos Guardada Satisfactoriamente", "Información");
+
+                customerReservation.RESERVATION_NUMBER = await AldebaranDbService.GenerateDocumentNumber(documentType);
+                await AldebaranDbService.UpdateCustomerReservation(customerReservation);
+
+                await DialogService.Alert("Reserva de Articulos Guardada Satisfactoriamente con el consecutivo " + customerReservation.RESERVATION_NUMBER, "Información");
                 NavigationManager.NavigateTo("customer-reservations");
             }
             catch (Exception ex)

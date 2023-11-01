@@ -4,11 +4,10 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using Radzen;
-using System.Linq.Dynamic.Core;
 
-namespace Aldebaran.Web.Pages.CustomerReservationPages
+namespace Aldebaran.Web.Pages.CustomerOrderPages
 {
-    public partial class AddCustomerReservationDetail
+    public partial class EditCustomerOrderDetail
     {
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
@@ -27,17 +26,15 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
         [Inject]
         protected NotificationService NotificationService { get; set; }
-
         [Inject]
         public AldebaranDbService AldebaranDbService { get; set; }
 
         [Parameter]
-        public ICollection<CustomerReservationDetail> CustomerReservationDetails { get; set; }
+        public CustomerOrderDetail customerOrderDetail { get; set; }
 
         protected bool errorVisible;
         protected string alertMessage;
         protected bool isSubmitInProgress;
-        protected CustomerReservationDetail customerReservationDetail;
         protected InventoryQuantities QuantitiesPanel;
 
         protected async Task FormSubmit()
@@ -46,13 +43,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             {
                 errorVisible = false;
                 isSubmitInProgress = true;
-
-                if (CustomerReservationDetails.Any(ad => ad.REFERENCE_ID.Equals(customerReservationDetail.REFERENCE_ID)))
-                    throw new Exception("La Referencia seleccionada, ya existe dentro de esta reserva.");
-
-                var reference = await AldebaranDbService.GetItemReferences(new Query { Filter = "i=> i.REFERENCE_ID==@0", FilterParameters = new object[] { customerReservationDetail.REFERENCE_ID }, Expand = "Item" });
-                customerReservationDetail.ItemReference = reference.Single();
-                DialogService.Close(customerReservationDetail);
+                DialogService.Close(customerOrderDetail);
             }
             catch (Exception ex)
             {
@@ -72,16 +63,15 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
         public override async Task SetParametersAsync(ParameterView parameters)
         {
-            customerReservationDetail = new CustomerReservationDetail();
+            customerOrderDetail = new CustomerOrderDetail();
 
             await base.SetParametersAsync(parameters);
         }
 
-        protected async Task ItemReferenceHandler(ItemReference reference)
+        protected async Task ItemReferenceHandler()
         {
-            customerReservationDetail.REFERENCE_ID = reference?.REFERENCE_ID ?? 0;
-
-            await QuantitiesPanel.Refresh(reference);
+            await QuantitiesPanel.Refresh(customerReservationDetail.ItemReference);
         }
+
     }
 }

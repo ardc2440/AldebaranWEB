@@ -16,6 +16,9 @@ namespace Aldebaran.Web.Models.AldebaranDb
         [Required]
         public string DOCUMENT_TYPE_CODE { get; set; }
 
+        [Required]
+        public int NEXT_DOCUMENT_NUMBER { get; set; }
+
         public ICollection<StatusDocumentType> StatusDocumentTypes { get; set; }
 
     }

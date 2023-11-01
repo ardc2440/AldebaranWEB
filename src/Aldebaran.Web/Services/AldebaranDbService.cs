@@ -4914,6 +4914,27 @@ namespace Aldebaran.Web
 
         partial void OnStatusDocumentTypesRead(ref IQueryable<StatusDocumentType> items);
 
+        partial void OnStatusDocumentTypeGet(StatusDocumentType item);
+
+        partial void OnGetStatusDocumentTypeByDocumentAndOrder(ref IQueryable<StatusDocumentType> items);
+
+        public async Task<StatusDocumentType> GetStatusDocumentTypeByDocumentAndOrder(DocumentType documentType, short orderId)
+        {
+
+            var items = Context.StatusDocumentTypes
+                    .AsNoTracking()
+                    .Where(i => i.DOCUMENT_TYPE_ID.Equals(documentType.DOCUMENT_TYPE_ID) && i.STATUS_ORDER.Equals(orderId));
+
+            OnGetStatusDocumentTypeByDocumentAndOrder(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnStatusDocumentTypeGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+
+        }
+
         public async Task<IQueryable<StatusDocumentType>> GetStatusDocumentTypes(Query query = null)
         {
             var items = Context.StatusDocumentTypes.AsQueryable();
@@ -4935,6 +4956,29 @@ namespace Aldebaran.Web
             OnStatusDocumentTypesRead(ref items);
 
             return await Task.FromResult(items);
+        }
+
+        public async Task<Employee> GetLoggedEmployee(SecurityService security)
+        {
+
+            var userId = security.User.Id;
+
+            var employee = context.Employees
+                .AsNoTracking()
+                .FirstOrDefault(e => e.LOGIN_USER_ID.Equals(userId));
+            return employee;
+        }
+
+        public async Task<string> GenerateDocumentNumber(DocumentType documentType)
+        {
+            var documentNumber = documentType.NEXT_DOCUMENT_NUMBER;
+
+            documentType.NEXT_DOCUMENT_NUMBER++;
+
+            context.DocumentTypes.Update(documentType);
+            context.SaveChanges();
+
+            return documentNumber.ToString().PadLeft(10, '0');
         }
 
         /* Customer Reservations */
@@ -4979,6 +5023,7 @@ namespace Aldebaran.Web
             items = items.Include(i => i.StatusDocumentType);
             items = items.Include(i => i.Employee);
             items = items.Include(i => i.CustomerOrder);
+            items = items.Include(i => i.CustomerReservationDetails);
 
             OnGetCustomerReservationByCustomerReservationId(ref items);
 
@@ -5041,6 +5086,7 @@ namespace Aldebaran.Web
             try
             {
                 Context.CustomerReservations.Add(customerReservation);
+
                 Context.SaveChanges();
             }
             catch
@@ -5099,9 +5145,10 @@ namespace Aldebaran.Web
         partial void OnCustomerReservationDetailsRead(ref IQueryable<CustomerReservationDetail> items);
 
         partial void OnCustomerReservationUpdated(CustomerReservation item);
+
         partial void OnAfterCustomerReservationUpdated(CustomerReservation item);
 
-        public async Task<CustomerReservation> UpdateCustomerReservation(int customerReservationid, CustomerReservation customerReservation)
+        public async Task<CustomerReservation> UpdateCustomerReservation(CustomerReservation customerReservation)
         {
             OnCustomerReservationUpdated(customerReservation);
 
@@ -5114,10 +5161,6 @@ namespace Aldebaran.Web
                 throw new Exception("Item no longer available");
             }
 
-            //var entryToUpdate = Context.Entry(itemToUpdate);
-            //entryToUpdate.CurrentValues.SetValues(adjustment);
-            //entryToUpdate.State = EntityState.Modified;
-
             context.CustomerReservations.Update(customerReservation);
             Context.SaveChanges();
 
@@ -5126,5 +5169,84 @@ namespace Aldebaran.Web
             return customerReservation;
         }
 
+        public async Task<ICollection<CustomerReservationDetail>> UpdateCustomerReservationDetails(ICollection<CustomerReservationDetail> customerReservationDetails)
+        {
+            foreach (var customerReservationDetail in customerReservationDetails)
+                Context.CustomerReservationDetails.Update(customerReservationDetail);
+
+            Context.SaveChanges();
+
+            return customerReservationDetails;
+        }
+
+        /* Customer Order */
+
+        partial void OnCustomerOrderUpdated(CustomerOrder customerOrder);
+
+        partial void OnAfterCustomerOrderUpdated(CustomerOrder customerOrder);
+
+        public async Task<CustomerOrder> UpdateCustomerOrder(CustomerOrder customerOrder)
+        {
+            OnCustomerOrderUpdated(customerOrder);
+
+            var itemToUpdate = Context.CustomerOrders
+                              .Where(i => i.CUSTOMER_ORDER_ID == customerOrder.CUSTOMER_ORDER_ID)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            context.CustomerOrders.Update(customerOrder);
+            Context.SaveChanges();
+
+            OnAfterCustomerOrderUpdated(customerOrder);
+
+            return customerOrder;
+        }
+
+        partial void OnCustomerOrderCreated(CustomerOrder customerOrder);
+        partial void OnAfterCustomerOrderCreated(CustomerOrder customerOrder);
+        public async Task<CustomerOrder> CreateCustomerOrder(CustomerOrder customerOrder)
+        {
+            OnCustomerOrderCreated(customerOrder);
+
+            var existingItem = Context.CustomerOrders
+                              .Where(i => i.CUSTOMER_ORDER_ID == customerOrder.CUSTOMER_ORDER_ID)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+                throw new Exception("Item already available");
+            }
+
+            try
+            {
+                Context.CustomerOrders.Add(customerOrder);
+
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(customerOrder).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterCustomerOrderCreated(customerOrder);
+
+            return customerOrder;
+        }
+
+        public async Task<ICollection<GroupPurchaseOrderDetail>> GetTotalTransitOrdersPurchaseByReferenceId(int referenceId)
+        {
+            var documentType = await GetDocumentTypeByCode("O");
+            var statusOrder = await GetStatusDocumentTypeByDocumentAndOrder(documentType, 1);
+
+            return context.PurchaseOrderDetails
+                    .Where(det => det.PurchaseOrder.STATUS_DOCUMENT_TYPE_ID.Equals(statusOrder.STATUS_DOCUMENT_TYPE_ID))
+                    .GroupBy(group => group.PurchaseOrder.REQUEST_DATE)
+                    .Select(c => new GroupPurchaseOrderDetail() { REQUEST_DATE = c.Key, QUANTITY = c.Sum(p => p.REQUESTED_QUANTITY) }).ToList();
+        }
     }
 }
