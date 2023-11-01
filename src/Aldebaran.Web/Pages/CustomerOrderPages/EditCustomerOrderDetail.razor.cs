@@ -70,7 +70,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task ItemReferenceHandler()
         {
-            await QuantitiesPanel.Refresh(customerReservationDetail.ItemReference);
+            await QuantitiesPanel.Refresh(customerOrderDetail.ItemReference);
         }
 
     }

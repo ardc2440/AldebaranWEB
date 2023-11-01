@@ -10,7 +10,7 @@
             <RadzenColumn SizeMD="6">
                 <RadzenCard Variant="Variant.Filled" Class="rz-my-5 rz-mx-auto" Style="max-width: 420px">
                     <RadzenColumn SizeMD="3">
-                        <RadzenLabel Text="En Bodega" Component="REFERENCE" style="width: 100%" />
+                        <RadzenLabel class="fw-bold" Text="En Bodega" Component="REFERENCE" style="width: 100%" />
                     </RadzenColumn>
                     <RadzenDataGrid @ref="referencesWarehousesGrid" ColumnWidth="200px" AllowFiltering="false" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="false" AllowSorting="false" ShowPagingSummary="false" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                     Data="@referencesWarehouses" TItem="Aldebaran.Web.Models.AldebaranDb.ReferencesWarehouse">
@@ -20,7 +20,7 @@
                         </Columns>
                     </RadzenDataGrid>
                     <RadzenColumn SizeMD="3">
-                        <RadzenLabel Text="En Tránsito" Component="REFERENCE" style="width: 100%" />
+                        <RadzenLabel class="fw-bold" Text="En Tránsito" Component="REFERENCE" style="width: 100%" />
                     </RadzenColumn>
                     <RadzenDataGrid @ref="totalTransitOrdersGrid" ColumnWidth="200px" AllowFiltering="false" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="false" AllowSorting="false" ShowPagingSummary="false" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                     Data="@totalTransitOrders" TItem="Aldebaran.Web.Models.AldebaranDb.GroupPurchaseOrderDetail">
@@ -34,13 +34,15 @@
             <RadzenColumn SizeMD="6">
                 <RadzenCard Variant="Variant.Filled" Class="rz-my-5 rz-mx-auto" Style="max-width: 420px">
                     <RadzenColumn SizeMD="3">
-                        <RadzenLabel Text="Disponible" Component="REFERENCE" style="width: 100%" />
+                        <RadzenLabel class="fw-bold" Text="Disponible" Component="REFERENCE" style="width: 100%" />
                     </RadzenColumn>
-                    <RadzenColumn SizeMD="9">
-                        <span>Cantidad: @inventoryQuantity</span><br />
-                        <span>Reservado: @reservedQuantity</span><br />
-                        <span>Pedido: @orderedQuantity</span><br />
-                    </RadzenColumn>
+                    <RadzenDataGrid @ref="itemReferenceInventorysGrid" ColumnWidth="200px" AllowFiltering="false" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="false" AllowSorting="false" ShowPagingSummary="false" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                    Data="@itemReferenceInventorys" TItem="Aldebaran.Web.Models.AldebaranDb.ItemReferenceInventory">
+                        <Columns>
+                            <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemReferenceInventory" Property="Type" Title="" Width="100px" />
+                            <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemReferenceInventory" Property="Quantity" Title="" Width="100px" />
+                        </Columns>
+                    </RadzenDataGrid>
                 </RadzenCard>
             </RadzenColumn>
         </RadzenRow>

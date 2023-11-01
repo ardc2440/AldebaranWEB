@@ -5246,7 +5246,7 @@ namespace Aldebaran.Web
             return context.PurchaseOrderDetails
                     .Where(det => det.PurchaseOrder.STATUS_DOCUMENT_TYPE_ID.Equals(statusOrder.STATUS_DOCUMENT_TYPE_ID))
                     .GroupBy(group => group.PurchaseOrder.REQUEST_DATE)
-                    .Select(c => new GroupPurchaseOrderDetail() { REQUEST_DATE = c.Key, QUANTITY = c.Sum(p => p.REQUESTED_QUANTITY) }).ToList();
+                    .Select(c => new GroupPurchaseOrderDetail() { Request_Date = c.Key, Quantity = c.Sum(p => p.REQUESTED_QUANTITY) }).ToList();
         }
     }
 }

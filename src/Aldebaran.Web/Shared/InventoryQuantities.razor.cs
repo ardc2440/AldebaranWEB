@@ -39,6 +39,8 @@ namespace Aldebaran.Web.Shared
         protected RadzenDataGrid<ReferencesWarehouse> referencesWarehousesGrid;
         protected ICollection<GroupPurchaseOrderDetail> totalTransitOrders;
         protected RadzenDataGrid<GroupPurchaseOrderDetail> totalTransitOrdersGrid;
+        protected ICollection<ItemReferenceInventory> itemReferenceInventorys;
+        protected RadzenDataGrid<ItemReferenceInventory> itemReferenceInventorysGrid;
         protected int inventoryQuantity = 0;
         protected int reservedQuantity = 0;
         protected int orderedQuantity = 0;
@@ -48,6 +50,7 @@ namespace Aldebaran.Web.Shared
             Reference = null;
             referencesWarehouses = new List<ReferencesWarehouse>();
             totalTransitOrders = new List<GroupPurchaseOrderDetail>();
+            itemReferenceInventorys = new List<ItemReferenceInventory>();
         }
 
         protected override async Task OnInitializedAsync()
@@ -70,14 +73,14 @@ namespace Aldebaran.Web.Shared
             }
 
             var totalTransitOrders = await AldebaranDbService.GetTotalTransitOrdersPurchaseByReferenceId(Reference.REFERENCE_ID);
-            if (referencesWarehouses != null)
+            if (totalTransitOrders != null)
             {
                 this.totalTransitOrders = totalTransitOrders;
             }
 
-            inventoryQuantity = Reference?.INVENTORY_QUANTITY ?? 0;
-            reservedQuantity = Reference?.RESERVED_QUANTITY ?? 0;
-            orderedQuantity = Reference?.ORDERED_QUANTITY ?? 0;
+            itemReferenceInventorys.Add(new ItemReferenceInventory() { Type = "Cantidad", Quantity = Reference?.INVENTORY_QUANTITY ?? 0 });
+            itemReferenceInventorys.Add(new ItemReferenceInventory() { Type = "Pedido", Quantity = Reference?.RESERVED_QUANTITY ?? 0 });
+            itemReferenceInventorys.Add(new ItemReferenceInventory() { Type = "Reservado", Quantity = Reference?.ORDERED_QUANTITY ?? 0 });
         }
 
         public override async Task SetParametersAsync(ParameterView parameters)

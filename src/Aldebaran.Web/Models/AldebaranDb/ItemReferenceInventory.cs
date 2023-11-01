@@ -1,8 +1,8 @@
 ﻿namespace Aldebaran.Web.Models.AldebaranDb
 {
-    public class GroupPurchaseOrderDetail
+    public class ItemReferenceInventory
     {
-        public DateTime Request_Date { get; set; }
+        public String Type { get; set; }
         public int Quantity { get; set; }
     }
 }
