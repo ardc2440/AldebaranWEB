@@ -22,5 +22,9 @@ namespace Aldebaran.Web.Models.AldebaranDb
 
         public ICollection<ItemsArea> ItemsAreas { get; set; }
 
+        public ICollection<ActivityTypeArea> ActivityTypesAreas { get; set; }
+
+        public ICollection<CustomerOrderActivity> CustomerOrderActivities { get; set; }
+
     }
 }

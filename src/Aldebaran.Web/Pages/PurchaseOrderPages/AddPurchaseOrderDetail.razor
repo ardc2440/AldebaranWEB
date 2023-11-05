@@ -30,6 +30,9 @@
                 </RadzenColumn>
             </RadzenRow>
         </RadzenStack>
+        <RadzenRow style="margin-bottom: 1rem">
+            <InventoryQuantities @ref="QuantitiesPanel" />
+        </RadzenRow>
         <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
             <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@isSubmitInProgress" />
             <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />

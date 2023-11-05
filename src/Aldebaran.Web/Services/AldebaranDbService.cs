@@ -5036,10 +5036,10 @@ namespace Aldebaran.Web
 
         partial void OnCustomerReservationRead(ref IQueryable<CustomerReservation> items);
 
-        public async Task<CustomerReservation> DeleteCustomerReservation(int customerReservationId)
+        public async Task<CustomerReservation> DeleteCustomerReservation(CustomerReservation customerReservation)
         {
             var itemToDelete = Context.CustomerReservations
-                              .Where(i => i.CUSTOMER_RESERVATION_ID == customerReservationId)
+                              .Where(i => i.CUSTOMER_RESERVATION_ID == customerReservation.CUSTOMER_RESERVATION_ID)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -5049,7 +5049,18 @@ namespace Aldebaran.Web
 
             OnCustomerReservationDeleted(itemToDelete);
 
-            Context.CustomerReservations.Remove(itemToDelete);
+            var documentType = await GetDocumentTypeByCode("R");
+
+            if (documentType == null)
+            {
+                throw new Exception("Document type no longer available");
+            }
+
+            var cancelStatusDocumentType = await GetStatusDocumentTypeByDocumentAndOrder(documentType, 3);
+
+            itemToDelete.STATUS_DOCUMENT_TYPE_ID = cancelStatusDocumentType.STATUS_DOCUMENT_TYPE_ID;
+
+            Context.CustomerReservations.Update(itemToDelete);
 
             try
             {
@@ -5208,6 +5219,7 @@ namespace Aldebaran.Web
 
         partial void OnCustomerOrderCreated(CustomerOrder customerOrder);
         partial void OnAfterCustomerOrderCreated(CustomerOrder customerOrder);
+
         public async Task<CustomerOrder> CreateCustomerOrder(CustomerOrder customerOrder)
         {
             OnCustomerOrderCreated(customerOrder);
@@ -5248,5 +5260,161 @@ namespace Aldebaran.Web
                     .GroupBy(group => group.PurchaseOrder.REQUEST_DATE)
                     .Select(c => new GroupPurchaseOrderDetail() { Request_Date = c.Key, Quantity = c.Sum(p => p.REQUESTED_QUANTITY) }).ToList();
         }
+
+        partial void OnCustomerOrderDetailsRead(ref IQueryable<CustomerOrderDetail> items);
+
+        partial void OnCustomerOrdersRead(ref IQueryable<CustomerOrder> items);
+
+        public async Task<IQueryable<CustomerOrderDetail>> GetCustomerOrderDetails(Query query = null)
+        {
+            var items = Context.CustomerOrderDetails.AsQueryable();
+
+            items = items.Include(i => i.CustomerOrder);
+            items = items.Include(i => i.ItemReference);
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach (var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnCustomerOrderDetailsRead(ref items);
+
+            return await Task.FromResult(items);
+
+        }
+
+        partial void OnCustomerOrderActivitiesRead(ref IQueryable<CustomerOrderActivity> items);
+
+        public async Task<IQueryable<CustomerOrderActivity>> GetCustomerOrderActivities(Query query = null)
+        {
+            var items = Context.CustomerOrderActivities.AsQueryable();
+
+            items = items.Include(i => i.CustomerOrder);
+            items = items.Include(i => i.Area);
+            items = items.Include(i => i.Employee);
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach (var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnCustomerOrderActivitiesRead(ref items);
+
+            return await Task.FromResult(items);
+
+        }
+
+        partial void OnCustomerOrderActivityDetailsRead(ref IQueryable<CustomerOrderActivityDetail> items);
+
+        public async Task<IQueryable<CustomerOrderActivityDetail>> GetCustomerOrderActivityDetails(Query query = null)
+        {
+            var items = Context.CustomerOrderActivityDetails.AsQueryable();
+
+            items = items.Include(i => i.CustomerOrderActivity);
+            items = items.Include(i => i.ActivityType);
+            items = items.Include(i => i.Employee);
+            items = items.Include(i => i.EmployeeActivity);
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach (var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnCustomerOrderActivityDetailsRead(ref items);
+
+            return await Task.FromResult(items);
+
+        }
+
+        public async Task<IQueryable<CustomerOrder>> GetCustomerOrders(Query query = null)
+        {
+            var items = Context.CustomerOrders.AsQueryable();
+
+            items = items.Include(i => i.Customer);
+            items = items.Include(i => i.Employee);
+            items = items.Include(i => i.StatusDocumentType);
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach (var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnCustomerOrdersRead(ref items);
+
+            return await Task.FromResult(items);
+
+        }
+
+        partial void OnCustomerOrderDeleted(CustomerOrder itemToDelete);
+        partial void OnAfterCustomerOrderDeleted(CustomerOrder itemToDelete);
+
+        public async Task<CustomerOrder> UpdateCustomerOrderStatus(CustomerOrder customerOrder, short newDocumentStatusId)
+        {
+            var itemToDelete = Context.CustomerOrders
+                              .Where(i => i.CUSTOMER_ORDER_ID == customerOrder.CUSTOMER_ORDER_ID && i.STATUS_DOCUMENT_TYPE_ID.Equals(customerOrder.STATUS_DOCUMENT_TYPE_ID))
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            OnCustomerOrderDeleted(itemToDelete);
+
+            itemToDelete.STATUS_DOCUMENT_TYPE_ID = newDocumentStatusId;
+
+            Context.CustomerOrders.Update(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterCustomerOrderDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+
     }
 }

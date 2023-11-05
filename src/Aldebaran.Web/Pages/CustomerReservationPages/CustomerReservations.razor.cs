@@ -53,7 +53,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
             await grid0.GoToPage(0);
 
-            customerReservations = await AldebaranDbService.GetCustomerReservations(new Query { Filter = $@"i => (i.StatusDocumentType.DOCUMENT_TYPE_ID.Equals(@1) && i.StatusDocumentType.STATUS_DOCUMENT_TYPE_NAME.Contains(@0)) || i.Customer.CUSTOMER_NAME.Contains(@0) || i.RESERVATION_NUMBER.Contains(@0) || i.NOTES.Contains(@0)", FilterParameters = new object[] { search }, Expand = "Customer,StatusDocumentType,Employee" });
+            customerReservations = await AldebaranDbService.GetCustomerReservations(new Query { Filter = $@"i => (i.StatusDocumentType.DOCUMENT_TYPE_ID.Equals(@1) && i.StatusDocumentType.STATUS_DOCUMENT_TYPE_NAME.Contains(@0)) || i.Customer.CUSTOMER_NAME.Contains(@0) || i.RESERVATION_NUMBER.Contains(@0) || i.NOTES.Contains(@0)", FilterParameters = new object[] { search, documentType.DOCUMENT_TYPE_ID }, Expand = "Customer,StatusDocumentType,Employee" });
 
         }
 
@@ -92,13 +92,13 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             {
                 dialogResult = null;
 
-                if (await DialogService.Confirm("Esta seguro que desea eliminar esta reserva?") == true)
+                if (await DialogService.Confirm("Esta seguro que desea cancelar esta reserva?") == true)
                 {
-                    var deleteResult = await AldebaranDbService.DeleteCustomerReservation(customerReservation.CUSTOMER_RESERVATION_ID);
+                    var deleteResult = await AldebaranDbService.DeleteCustomerReservation(customerReservation);
 
                     if (deleteResult != null)
                     {
-                        dialogResult = new DialogResult { Success = true, Message = "Reserva eliminada correctamente." };
+                        dialogResult = new DialogResult { Success = true, Message = "Reserva cancelada correctamente." };
                         await grid0.Reload();
                     }
                 }
@@ -109,7 +109,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido eliminar el ajuste"
+                    Detail = $"No se ha podido cancelar la reserva"
                 });
             }
         }
@@ -131,6 +131,11 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         protected async Task<bool> CanEdit(CustomerReservation customerReservation)
         {
             return Security.IsInRole("Admin", "Customer Reservation Editor") && customerReservation.StatusDocumentType.EDIT_MODE;
+        }
+
+        protected async Task<bool> CanSendToCustomerOrder(CustomerReservation customerReservation)
+        {
+            return Security.IsInRole("Admin", "Customer Order Editor") && customerReservation.StatusDocumentType.EDIT_MODE;
         }
 
         protected async Task SendToCustomerOrder(Models.AldebaranDb.CustomerReservation args)

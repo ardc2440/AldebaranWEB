@@ -43,7 +43,7 @@
                         <Template Context="customerReservation">
                             <RadzenButton Icon="assignment_turned_in" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
                                           Click="@(args => SendToCustomerOrder(customerReservation))" @onclick:stopPropagation="true"
-                                          Visible="@CanEdit(customerReservation).Result" title="Enviar a Pedido">
+                                          Visible="@CanSendToCustomerOrder(customerReservation).Result" title="Enviar a Pedido">
                             </RadzenButton>
                             <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
                                           Click="@(args => EditRow(customerReservation))" @onclick:stopPropagation="true"

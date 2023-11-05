@@ -1,0 +1,153 @@
+@page "/customer-orders"
+@attribute [Authorize(Roles = "Admin,Customer Order Viwer,Customer Order Editor")]
+
+<PageTitle>Pedido de Artículos</PageTitle>
+<RadzenStack>
+    @if (dialogResult != null && dialogResult.Success)
+    {
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Success">@dialogResult.Message</RadzenAlert>
+    }
+    @if (dialogResult != null && !dialogResult.Success)
+    {
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger">@dialogResult.Message</RadzenAlert>
+    }
+    <RadzenRow AlignItems="AlignItems.Center">
+        <RadzenColumn Size="12" SizeMD="6">
+            <RadzenText Text="Pedido de Artículos" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
+        </RadzenColumn>
+        <RadzenColumn Size="12" SizeMD="6">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddButtonClick" Variant="Variant.Flat" Visible="@Security.IsInRole("Admin","Customer Order Editor")" />
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
+    <RadzenRow>
+        <RadzenColumn SizeMD=12>
+            <RadzenDataGrid @ref="grid0" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                            Data="@customerOrders" TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrder" RowExpand=@GetChildData AllowColumnPicking="true" PageSizeText="items per page" PagingSummaryFormat="Page {0} de {1} ({2} items)" IsLoading="@isLoadingInProgress">
+                <Columns>
+                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrder" Property="ORDER_NUMBER" Title="No. Pedido">
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrder" Property="Customer.CUSTOMER_NAME" Title="Cliente">
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrder" Property="ORDER_DATE" Title="Fecha Pedido">
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrder" Property="ESTIMATED_DELIVERY_DATE" Title="Fecha Estimada Entrega">
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrder" Property="StatusDocumentType.STATUS_DOCUMENT_TYPE_NAME" Title="Estado">
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrder" Property="CUSTOMER_NOTES" Title="Notas del Cliente" Visible="false">
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrder" Property="INTERNAL_NOTES" Title="Notas Internas" Visible="false">
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrder" Filterable="false" Sortable="false" Width="110px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                        <Template Context="customerOrder">
+                            <RadzenButton Icon="done_all" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                          Click="@(args => CloseCustomerOrder(customerOrder))" @onclick:stopPropagation="true"
+                                          Visible="@CanCloseCustomerOrder(customerOrder).Result" title="Cerrar Pedido">
+                            </RadzenButton>
+                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                          Click="@(args => EditRow(customerOrder))" @onclick:stopPropagation="true"
+                                          Visible="@CanEdit(customerOrder).Result" title="Modificar Pedido">
+                            </RadzenButton>
+                            <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
+                                          Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@CanEdit(customerOrder).Result"
+                                          Click=@(args => GridCancelButtonClick(args, customerOrder)) @onclick:stopPropagation="true" title="Cancelar Pedido" />
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+                <Template Context="customerOrder">
+                    <RadzenStack Class="rz-my-8">
+                        <RadzenRow Gap="0" AlignItems="AlignItems.Center">
+                            <RadzenColumn Size="12" SizeMD="6">
+                                <RadzenText Visible="@(customerOrder != null)" Text="Referencias del Pedido" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
+                            </RadzenColumn>
+                        </RadzenRow>
+                        <RadzenDataGrid ColumnWidth="200px" Visible="@(customerOrder != null)" @ref=CustomerOrderDetailsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                        Data="@customerOrder?.CustomerOrderDetails" TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderDetail">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderDetail" Property="REQUESTED_QUANTITY" Title="Cantidad">
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderDetail" Title="Artículo/Referencia">
+                                    <Template Context="detail">
+                                        <span>(@detail.ItemReference.Item.INTERNAL_REFERENCE) @detail.ItemReference.Item.ITEM_NAME - @detail.ItemReference.REFERENCE_NAME</span>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderDetail" Property="PROCESSED_QUANTITY" Title="En Proceso">
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderDetail" Property="DELIVERED_QUANTITY" Title="Despachado">
+                                </RadzenDataGridColumn>
+                            </Columns>
+                        </RadzenDataGrid>
+                        <RadzenStack Visible="@Security.IsInRole("Admin","Customer Order Activities Viwer")">
+                            <RadzenRow Gap="0" AlignItems="AlignItems.Center">
+                                <RadzenColumn Size="12" SizeMD="6">
+                                    <RadzenText Visible="@(customerOrder != null)" Text="Actividades del Pedido" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
+                                </RadzenColumn>
+                            </RadzenRow>
+                            <RadzenColumn Size="12" SizeMD="6">
+                                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                                    <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddActivityButtonClick" Variant="Variant.Flat" Visible="@Security.IsInRole("Admin","Customer Order Activities Editor")" />
+                                </RadzenStack>
+                            </RadzenColumn>
+                            <RadzenDataGrid ColumnWidth="200px" Visible="@(customerOrder != null)" @ref=CustomerOrderActivitiesDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                            Data="@customerOrder?.CustomerOrderActivities" RowExpand=@GetChildActivityData TItem ="Aldebaran.Web.Models.AldebaranDb.CustomerOrderActivity">
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderActivity" Property="Area.AREA_NAME" Title="Area">
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderActivity" Property="ACTIVITY_DATE" Title="Fecha Ejecución">
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderActivity" Property="NOTES" Title="Notas de la Actividad">
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderActivity" Filterable="false" Sortable="false" Width="110px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                                        <Template Context="customerOrderActivity">
+                                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                                          Click="@(args => EditRow(customerOrder))" @onclick:stopPropagation="true"
+                                                          Visible="@Security.IsInRole("Admin","Customer Order Activities Editor")" title="Modificar Actividad">
+                                            </RadzenButton>
+                                            <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
+                                                          Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@Security.IsInRole("Admin","Customer Order Activities Editor")"
+                                                          Click=@(args => GridCancelButtonClick(args, customerOrder)) @onclick:stopPropagation="true" title="Eliminar Actividad" />
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                </Columns>
+                                <Template Context="customerOrderActivity">
+                                    <RadzenStack Class="rz-my-8">
+                                        <RadzenRow Gap="0" AlignItems="AlignItems.Center">
+                                            <RadzenColumn Size="12" SizeMD="6">
+                                                <RadzenText Visible="@(customerOrder != null)" Text="Detalle de la Actividad" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
+                                            </RadzenColumn>
+                                        </RadzenRow>
+                                        <RadzenDataGrid ColumnWidth="200px" Visible="@(customerOrder != null)" @ref=CustomerOrderActivityDetailsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                                        Data="@customerOrderActivity?.CustomerOrderActivityDetails" TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderActivityDetail">
+                                            <Columns>
+                                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderActivityDetail" Property="Area.AREA_NAME" Title="Area">
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderActivityDetail" Property="ACTIVITY_DATE" Title="Fecha Ejecución">
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderActivityDetail" Property="NOTES" Title="Notas de la Actividad">
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderActivityDetail" Filterable="false" Sortable="false" Width="110px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                                                    <Template Context="customerOrderActivityDetail">
+                                                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                                                      Click="@(args => EditRow(customerOrder))" @onclick:stopPropagation="true"
+                                                                      Visible="@Security.IsInRole("Admin","Customer Order Activities Editor")" title="Modificar Actividad">
+                                                        </RadzenButton>
+                                                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
+                                                                      Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@Security.IsInRole("Admin","Customer Order Activities Editor")"
+                                                                      Click=@(args => GridCancelButtonClick(args, customerOrder)) @onclick:stopPropagation="true" title="Eliminar Actividad" />
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                            </Columns>
+                                        </RadzenDataGrid>
+                                    </RadzenStack>
+                                </Template>
+                            </RadzenDataGrid>
+                        </RadzenStack>
+                    </RadzenStack>
+                </Template>
+            </RadzenDataGrid>
+        </RadzenColumn>
+    </RadzenRow>
+</RadzenStack>

@@ -124,9 +124,18 @@ INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) 
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'5309DB17-EBBB-4554-86D3-F58E2252EF1E', N'624679D3-8550-4F77-ADB9-AD806B2081D4', N'Adjustment Editor', N'ADJUSTMENT EDITOR')
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'522A25EC-D939-4E72-A6B2-24BEA9E9E05E', N'95154F99-AB57-476D-9809-7B3BBF01B1B7', N'Customer Reservation Viwer', N'CUSTOMER RESERVATION VIWER')
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'63CD17B9-7FC8-485F-9B39-47DBBA4BA8EA', N'D030FD33-6837-4406-901C-19343D6BA0F3', N'Customer Reservation Editor', N'CUSTOMER RESERVATION EDITOR')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'EB3CF662-1D17-4ECF-ACFD-CDA90F2B4F08', N'776577F0-F84A-454E-A47D-96715B515E03', N'Customer Order Viwer', N'CUSTOMER ORDER VIWER')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'D9326438-F865-407F-AECB-88835E5684DF', N'3B00D9D0-1368-4352-BF25-E4EA7C14C341', N'Customer Order Editor', N'CUSTOMER ORDER EDITOR')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'6237D7AE-B500-4BC3-A3F0-C481C39C7537', N'5006A0A3-A82B-4F2B-AB6D-A8E148690F75', N'Customer Order Activities Viwer', N'CUSTOMER ORDER ACTIVITIES VIWER')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'CEFCF7BA-8051-4834-A71E-9EDF6D00994F', N'6A012978-A636-4992-B83F-E3D1438D1FC2', N'Customer Order Activities Editor', N'CUSTOMER ORDER ACTIVITIES EDITOR')
 GO
 
-select NEWID()
+/*
+SELECT NEWID()
+SELECT NEWID()
+SELECT NEWID()
+SELECT NEWID() 
+*/
 
 /* Populate [AspNetUsers] */
 INSERT [dbo].[AspNetUsers] ([Id], [AccessFailedCount], [ConcurrencyStamp], [Email], [EmailConfirmed], [LockoutEnabled], [LockoutEnd], [NormalizedEmail], [NormalizedUserName], [PasswordHash], [PhoneNumber], [PhoneNumberConfirmed], [SecurityStamp], [TwoFactorEnabled], [UserName]) VALUES (N'685d8718-442e-4c05-b692-0c38f152c09b', 0, N'bb598b0e-754e-47d4-b288-66366345db11', N'admin@aldebaran.com', 1, 0, NULL, N'ADMIN@ALDEBARAN.COM', N'SA', N'AQAAAAIAAYagAAAAEKnhTxr9IQcqMLbyCCct9zKiP1GXJgES8K3hSq1Lg5C49rr0AvV3pTii9QOUUiJAHg==', NULL, 0, N'Y6J4AUSPMJV5CAMMR3NJH6CFZD4RSIGW', 0, N'sa')

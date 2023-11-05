@@ -18,6 +18,12 @@ namespace Aldebaran.Web.Data
         {
             base.OnModelCreating(builder);
 
+            builder.Entity<Models.AldebaranDb.ActivityTypeArea>().HasKey(table => new
+            {
+                table.ACTIVITY_TYPE_ID,
+                table.AREA_ID
+            });
+
             builder.Entity<Models.AldebaranDb.ItemsArea>().HasKey(table => new
             {
                 table.ITEM_ID,
@@ -35,6 +41,24 @@ namespace Aldebaran.Web.Data
                 table.REFERENCE_ID,
                 table.WAREHOUSE_ID
             });
+
+            builder.Entity<Models.AldebaranDb.CustomerOrderActivityDetail>().HasKey(table => new
+            {
+                table.CUSTOMER_ORDER_ACTIVITY_ID,
+                table.ACTIVITY_TYPE_ID
+            });
+
+            builder.Entity<Models.AldebaranDb.ActivityTypeArea>()
+             .HasOne(i => i.Area)
+             .WithMany(i => i.ActivityTypesAreas)
+             .HasForeignKey(i => i.AREA_ID)
+             .HasPrincipalKey(i => i.AREA_ID);
+
+            builder.Entity<Models.AldebaranDb.ActivityTypeArea>()
+             .HasOne(i => i.ActivityType)
+             .WithMany(i => i.ActivityTypesAreas)
+             .HasForeignKey(i => i.ACTIVITY_TYPE_ID)
+             .HasPrincipalKey(i => i.ACTIVITY_TYPE_ID);
 
             builder.Entity<Models.AldebaranDb.CustomerReservation>()
               .HasOne(i => i.Customer)
@@ -354,94 +378,144 @@ namespace Aldebaran.Web.Data
              .HasForeignKey(i => i.CUSTOMER_ORDER_ID)
              .HasPrincipalKey(i => i.CUSTOMER_ORDER_ID);
 
-            builder.Entity<Models.AldebaranDb.Adjustment>()
-              .Property(p => p.ADJUSTMENT_DATE)
-              .HasDefaultValueSql(@"(getdate())");
+            builder.Entity<Models.AldebaranDb.CustomerOrderActivity>()
+             .HasOne(i => i.CustomerOrder)
+             .WithMany(i => i.CustomerOrderActivities)
+             .HasForeignKey(i => i.CUSTOMER_ORDER_ID)
+             .HasPrincipalKey(i => i.CUSTOMER_ORDER_ID);
+
+            builder.Entity<Models.AldebaranDb.CustomerOrderActivity>()
+             .HasOne(i => i.Area)
+             .WithMany(i => i.CustomerOrderActivities)
+             .HasForeignKey(i => i.AREA_ID)
+             .HasPrincipalKey(i => i.AREA_ID);
+
+            builder.Entity<Models.AldebaranDb.CustomerOrderActivity>()
+             .HasOne(i => i.Employee)
+             .WithMany(i => i.CustomerOrderActivities)
+             .HasForeignKey(i => i.EMPLOYEE_ID)
+             .HasPrincipalKey(i => i.EMPLOYEE_ID);
+
+            builder.Entity<Models.AldebaranDb.CustomerOrderActivityDetail>()
+             .HasOne(i => i.CustomerOrderActivity)
+             .WithMany(i => i.CustomerOrderActivityDetails)
+             .HasForeignKey(i => i.CUSTOMER_ORDER_ACTIVITY_ID)
+             .HasPrincipalKey(i => i.CUSTOMER_ORDER_ACTIVITY_ID);
+
+            builder.Entity<Models.AldebaranDb.CustomerOrderActivityDetail>()
+             .HasOne(i => i.ActivityType)
+             .WithMany(i => i.CustomerOrderActivityDetails)
+             .HasForeignKey(i => i.ACTIVITY_TYPE_ID)
+             .HasPrincipalKey(i => i.ACTIVITY_TYPE_ID);
+
+            builder.Entity<Models.AldebaranDb.CustomerOrderActivityDetail>()
+             .HasOne(i => i.Employee)
+             .WithMany(i => i.CustomerOrderActivityDetails)
+             .HasForeignKey(i => i.EMPLOYEE_ID)
+             .HasPrincipalKey(i => i.EMPLOYEE_ID);
+
+            builder.Entity<Models.AldebaranDb.CustomerOrderActivityDetail>()
+             .HasOne(i => i.EmployeeActivity)
+             .WithMany(i => i.CustomerOrderActivityDetailsActivityEmployee)
+             .HasForeignKey(i => i.ACTIVITY_EMPLOYEE_ID)
+             .HasPrincipalKey(i => i.EMPLOYEE_ID);
 
             builder.Entity<Models.AldebaranDb.Adjustment>()
-              .Property(p => p.CREATION_DATE)
-              .HasDefaultValueSql(@"(getdate())");
+                  .Property(p => p.ADJUSTMENT_DATE)
+                  .HasDefaultValueSql(@"(getdate())");
+
+            builder.Entity<Models.AldebaranDb.Adjustment>()
+                  .Property(p => p.CREATION_DATE)
+                  .HasDefaultValueSql(@"(getdate())");
 
             builder.Entity<Models.AldebaranDb.StatusDocumentType>()
-              .Property(p => p.EDIT_MODE)
-              .HasDefaultValueSql(@"((1))");
+                  .Property(p => p.EDIT_MODE)
+                  .HasDefaultValueSql(@"((1))");
 
             builder.Entity<Models.AldebaranDb.ItemReference>()
-              .Property(p => p.IS_ACTIVE)
-              .HasDefaultValueSql(@"((1))");
+                  .Property(p => p.IS_ACTIVE)
+                  .HasDefaultValueSql(@"((1))");
 
             builder.Entity<Models.AldebaranDb.Item>()
-              .Property(p => p.IS_ACTIVE)
-              .HasDefaultValueSql(@"((1))");
+                  .Property(p => p.IS_ACTIVE)
+                  .HasDefaultValueSql(@"((1))");
 
             builder.Entity<Models.AldebaranDb.Line>()
-              .Property(p => p.IS_ACTIVE)
-              .HasDefaultValueSql(@"((1))");
+                  .Property(p => p.IS_ACTIVE)
+                  .HasDefaultValueSql(@"((1))");
 
             builder.Entity<Models.AldebaranDb.CustomerOrder>()
-              .Property(p => p.CREATION_DATE)
-              .HasDefaultValueSql(@"(getdate())");
+                  .Property(p => p.CREATION_DATE)
+                  .HasDefaultValueSql(@"(getdate())");
 
             builder.Entity<Models.AldebaranDb.PurchaseOrderActivity>()
-              .Property(p => p.EXECUTION_DATE)
-              .HasDefaultValueSql(@"(getdate())");
+                  .Property(p => p.EXECUTION_DATE)
+                  .HasDefaultValueSql(@"(getdate())");
 
             builder.Entity<Models.AldebaranDb.PurchaseOrderActivity>()
-              .Property(p => p.CREATION_DATE)
-              .HasDefaultValueSql(@"(getdate())");
+                  .Property(p => p.CREATION_DATE)
+                  .HasDefaultValueSql(@"(getdate())");
 
             builder.Entity<Models.AldebaranDb.CustomerOrderDetail>()
-              .Property(p => p.PROCESSED_QUANTITY)
-              .HasDefaultValueSql(@"((0))");
+                  .Property(p => p.PROCESSED_QUANTITY)
+                  .HasDefaultValueSql(@"((0))");
 
             builder.Entity<Models.AldebaranDb.CustomerOrderDetail>()
-              .Property(p => p.DELIVERED_QUANTITY)
-              .HasDefaultValueSql(@"((0))");
+                  .Property(p => p.DELIVERED_QUANTITY)
+                  .HasDefaultValueSql(@"((0))");
 
             builder.Entity<Models.AldebaranDb.PurchaseOrderDetail>()
-              .Property(p => p.RECEIVED_QUANTITY)
-              .HasDefaultValueSql(@"((0))");
+                  .Property(p => p.RECEIVED_QUANTITY)
+                  .HasDefaultValueSql(@"((0))");
 
             builder.Entity<Models.AldebaranDb.CustomerReservationDetail>()
-              .Property(p => p.SEND_TO_CUSTOMER_ORDER)
-              .HasDefaultValueSql(@"((0))");
+                  .Property(p => p.SEND_TO_CUSTOMER_ORDER)
+                  .HasDefaultValueSql(@"((0))");
 
             builder.Entity<Models.AldebaranDb.PurchaseOrder>()
-              .Property(p => p.EMBARKATION_PORT)
-              .HasDefaultValueSql(@"(' ')");
+                  .Property(p => p.EMBARKATION_PORT)
+                  .HasDefaultValueSql(@"(' ')");
 
             builder.Entity<Models.AldebaranDb.PurchaseOrder>()
-              .Property(p => p.PROFORMA_NUMBER)
-              .HasDefaultValueSql(@"(' ')");
+                  .Property(p => p.PROFORMA_NUMBER)
+                  .HasDefaultValueSql(@"(' ')");
 
             builder.Entity<Models.AldebaranDb.PurchaseOrder>()
-              .Property(p => p.CREATION_DATE)
-              .HasDefaultValueSql(@"(getdate())");
+                  .Property(p => p.CREATION_DATE)
+                  .HasDefaultValueSql(@"(getdate())");
 
             builder.Entity<Models.AldebaranDb.CustomerReservation>()
-              .Property(p => p.CREATION_DATE)
-              .HasDefaultValueSql(@"(getdate())");
+                  .Property(p => p.CREATION_DATE)
+                  .HasDefaultValueSql(@"(getdate())");
 
             builder.Entity<Models.AldebaranDb.CustomerReservation>()
-              .Property(p => p.CREATION_DATE)
-              .HasColumnType("datetime");
+                  .Property(p => p.CREATION_DATE)
+                  .HasColumnType("datetime");
 
             builder.Entity<Models.AldebaranDb.Adjustment>()
-              .Property(p => p.CREATION_DATE)
-              .HasColumnType("datetime");
+                  .Property(p => p.CREATION_DATE)
+                  .HasColumnType("datetime");
 
             builder.Entity<Models.AldebaranDb.PurchaseOrderActivity>()
-              .Property(p => p.EXECUTION_DATE)
-              .HasColumnType("datetime");
+                  .Property(p => p.EXECUTION_DATE)
+                  .HasColumnType("datetime");
 
             builder.Entity<Models.AldebaranDb.PurchaseOrderActivity>()
-              .Property(p => p.CREATION_DATE)
-              .HasColumnType("datetime");
+                  .Property(p => p.CREATION_DATE)
+                  .HasColumnType("datetime");
 
             builder.Entity<Models.AldebaranDb.PurchaseOrder>()
-              .Property(p => p.CREATION_DATE)
-              .HasColumnType("datetime");
+                  .Property(p => p.CREATION_DATE)
+                  .HasColumnType("datetime");
             this.OnModelBuilding(builder);
+
+            builder.Entity<Models.AldebaranDb.CustomerOrderActivity>()
+                 .Property(p => p.ACTIVITY_DATE)
+                 .HasDefaultValueSql(@"(getdate())");
+
+            builder.Entity<Models.AldebaranDb.CustomerOrderActivity>()
+                  .Property(p => p.ACTIVITY_DATE)
+                  .HasColumnType("datetime");
         }
 
         public DbSet<Models.AldebaranDb.AdjustmentDetail> AdjustmentDetails { get; set; }
@@ -514,7 +588,15 @@ namespace Aldebaran.Web.Data
 
         public DbSet<Models.AldebaranDb.CustomerOrder> CustomerOrders { get; set; }
 
-        public DbSet<Models.AldebaranDb.CustomerOrderDetail> customerOrderDetails { get; set; }
+        public DbSet<Models.AldebaranDb.CustomerOrderDetail> CustomerOrderDetails { get; set; }
+
+        public DbSet<Models.AldebaranDb.ActivityType> ActivityTypes { get; set; }
+
+        public DbSet<Models.AldebaranDb.ActivityTypeArea> ActivityTypesAreas { get; set; }
+
+        public DbSet<Models.AldebaranDb.CustomerOrderActivity> CustomerOrderActivities { get; set; }
+
+        public DbSet<Models.AldebaranDb.CustomerOrderActivityDetail> CustomerOrderActivityDetails { get; set; }
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {

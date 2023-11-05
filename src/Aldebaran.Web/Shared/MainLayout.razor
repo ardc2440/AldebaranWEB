@@ -53,7 +53,8 @@
             </RadzenPanelMenuItem>
             <RadzenPanelMenuItem Text="Movimientos de Inventario" Icon="extension">
                 <RadzenPanelMenuItem Text="Ordenes de compra" Path="purchase-orders" />
-                <RadzenPanelMenuItem Text="Reserva de Artículos" Path="customer-reservations" Visible=@Security.IsInRole("Admin","Customer Reservation Viwer","Customer Reservation Editor") />
+                <RadzenPanelMenuItem Text="Reserva de Artículos" Path="customer-reservations" Visible=@Security.IsInRole("Admin","Customer Reservation Viwer","Customer Reservation Editor","Customer Order Editor") />
+                <RadzenPanelMenuItem Text="Pedido de Artículos" Path="customer-orders" Visible=@Security.IsInRole("Admin","Customer Order Viwer","Customer Order Editor") />
                 <RadzenPanelMenuItem Text="Ajustes Inventario" Path="adjustments" Visible=@Security.IsInRole("Admin","Adjustment Editor","Adjustment Viwer") />
             </RadzenPanelMenuItem>
         </RadzenPanelMenu>
