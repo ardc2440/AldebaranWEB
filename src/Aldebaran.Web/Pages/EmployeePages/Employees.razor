@@ -44,10 +44,10 @@
                     <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Employee" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Employee Editor")">
                         <Template Context="employee">
                             <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat"
-                                          Size="ButtonSize.Medium"
+                                          Size="ButtonSize.Medium" Visible="@Security.IsInRole("Admin","Employee Editor")"
                                           Click="@(args => EditRow(employee))" @onclick:stopPropagation="true" />
                             <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
-                                          Shade="Shade.Lighter" Variant="Variant.Flat"
+                                          Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@Security.IsInRole("Admin","Employee Editor")"
                                           Click=@(args => GridDeleteButtonClick(args,employee)) @onclick:stopPropagation="true" />
                         </Template>
                     </RadzenDataGridColumn>
