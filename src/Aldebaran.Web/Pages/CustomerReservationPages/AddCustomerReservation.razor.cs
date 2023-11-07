@@ -53,7 +53,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
         protected override async Task OnInitializedAsync()
         {
-            customersForCUSTOMERID = await AldebaranDbService.GetCustomers();
+            customersForCUSTOMERID = await AldebaranDbService.GetCustomers(new Query { Expand = "City.Department.Country" });
 
             documentType = await AldebaranDbService.GetDocumentTypeByCode("R");
 
@@ -83,7 +83,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                 customerReservation.RESERVATION_NUMBER = await AldebaranDbService.GenerateDocumentNumber(documentType);
                 await AldebaranDbService.UpdateCustomerReservation(customerReservation);
 
-                await DialogService.Alert("Reserva de Articulos Guardada Satisfactoriamente con el consecutivo " + customerReservation.RESERVATION_NUMBER, "Información");
+                await DialogService.Alert($"Reserva de Articulos Guardada Satisfactoriamente con el consecutivo {customerReservation.RESERVATION_NUMBER}", "Información");
                 NavigationManager.NavigateTo("customer-reservations");
             }
             catch (Exception ex)

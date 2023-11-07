@@ -263,6 +263,24 @@ namespace Aldebaran.Web
             return await Task.FromResult(items);
         }
 
+        partial void OnActivityTypeGet(ActivityType item);
+        partial void OnGetActivityTypeByActivityTypeId(ref IQueryable<ActivityType> items);
+
+        public async Task<ActivityType> GetActivityTypeById(short activityTypeId)
+        {
+            var items = Context.ActivityTypes
+                              .AsNoTracking()
+                              .Where(i => i.ACTIVITY_TYPE_ID == activityTypeId);
+
+            OnGetActivityTypeByActivityTypeId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnActivityTypeGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
         partial void OnAdjustmentReasonGet(AdjustmentReason item);
         partial void OnGetAdjustmentReasonByAdjustmentReasonId(ref IQueryable<AdjustmentReason> items);
 
@@ -1064,6 +1082,24 @@ namespace Aldebaran.Web
         partial void OnCountryGet(Country item);
         partial void OnGetCountryByCountryId(ref IQueryable<Country> items);
 
+        partial void OnCustomerOrderGet(CustomerOrder item);
+        partial void OnGetCustomerOrderByCustomerOrderId(ref IQueryable<CustomerOrder> items);
+
+        public async Task<CustomerOrder> GetCustomerOrdersById(int customerOrderId)
+        {
+            var items = Context.CustomerOrders
+                              .AsNoTracking()
+                              .Where(i => i.CUSTOMER_ORDER_ID == customerOrderId);
+
+            OnGetCustomerOrderByCustomerOrderId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnCustomerOrderGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
         public async Task<Country> GetCountryByCountryId(int countryid)
         {
             var items = Context.Countries
@@ -1833,6 +1869,34 @@ namespace Aldebaran.Web
         public async Task ExportEmployeesToCSV(Query query = null, string fileName = null)
         {
             navigationManager.NavigateTo(query != null ? query.ToUrl($"export/aldebarandb/employees/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/aldebarandb/employees/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnActivityTypesAreaRead(ref IQueryable<ActivityTypeArea> items);
+
+        public async Task<IQueryable<ActivityTypeArea>> GetActivityTypesArea(Query query = null)
+        {
+            var items = Context.ActivityTypesAreas.AsQueryable();
+
+            items = items.Include(i => i.ActivityType);
+            items = items.Include(i => i.Area);
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach (var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnActivityTypesAreaRead(ref items);
+
+            return await Task.FromResult(items);
         }
 
         partial void OnEmployeesRead(ref IQueryable<Employee> items);
@@ -5412,6 +5476,47 @@ namespace Aldebaran.Web
             }
 
             OnAfterCustomerOrderDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+
+        partial void OnOrderActivityDeleted(CustomerOrderActivity customerOrderActivity);
+        partial void OnAfterOrderActivityDeleted(CustomerOrderActivity customerOrderActivity);
+
+        public async Task<CustomerOrderActivity> DeleteCustomerOrderActivity(CustomerOrderActivity customerOrderActivity)
+        {
+            var itemToDelete = Context.CustomerOrderActivities
+                                          .Where(i => i.CUSTOMER_ORDER_ACTIVITY_ID == customerOrderActivity.CUSTOMER_ORDER_ACTIVITY_ID)
+                                          .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            var childItemToDelete = Context.CustomerOrderActivityDetails
+                .Where(i => i.CUSTOMER_ORDER_ACTIVITY_ID == customerOrderActivity.CUSTOMER_ORDER_ACTIVITY_ID);
+
+            OnOrderActivityDeleted(itemToDelete);
+
+            foreach (var item in childItemToDelete)
+            {
+                Context.CustomerOrderActivityDetails.Remove(item);
+            }
+
+            Context.CustomerOrderActivities.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterOrderActivityDeleted(itemToDelete);
 
             return itemToDelete;
         }

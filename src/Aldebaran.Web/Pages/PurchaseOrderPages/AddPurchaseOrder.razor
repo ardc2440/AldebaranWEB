@@ -25,7 +25,7 @@
                         </RadzenFormField>
                         <RadzenFormField Text="Proveedor" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
-                                <RadzenDropDownDataGrid Data="@providersForPROVIDERID" TextProperty="IDENTITY_NUMBER" ValueProperty="PROVIDER_ID" AllowClear=true
+                                <RadzenDropDownDataGrid Data="@providersForPROVIDERID" TextProperty="PROVIDER_NAME" ValueProperty="PROVIDER_ID" AllowClear=true
                                                         style="display: block; width: 100%" @bind-Value="@purchaseOrder.PROVIDER_ID" Name="PROVIDER_ID" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true">
                                     <Columns>
                                         <RadzenDropDownDataGridColumn Property="PROVIDER_CODE" Title="Código" />

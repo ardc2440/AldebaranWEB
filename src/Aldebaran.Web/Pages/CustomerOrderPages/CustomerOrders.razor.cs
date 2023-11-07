@@ -89,6 +89,43 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             NavigationManager.NavigateTo("edit-customer-order/" + args.CUSTOMER_ORDER_ID);
         }
 
+        protected async Task AddActivityButtonClick(MouseEventArgs args)
+        {
+            NavigationManager.NavigateTo("add-customer-order-activity/" + customerOrder.CUSTOMER_ORDER_ID);
+        }
+
+        protected async Task EditActivityRow(Models.AldebaranDb.CustomerOrderActivity args)
+        {
+            NavigationManager.NavigateTo("edit-customer-order-activity/" + args.CUSTOMER_ORDER_ACTIVITY_ID);
+        }
+
+        protected async Task GridDeleteActivityButtonClick(MouseEventArgs args, Models.AldebaranDb.CustomerOrderActivity customerOrderActivity)
+        {
+            try
+            {
+                dialogResult = null;
+
+                if (await DialogService.Confirm("Esta seguro que desea eliminar esta actividad??") == true)
+                {
+
+                    if (await AldebaranDbService.DeleteCustomerOrderActivity(customerOrderActivity) != null)
+                    {
+                        dialogResult = new DialogResult { Success = true, Message = "Actividad eliminada correctamente." };
+                        await grid0.Reload();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = $"Error",
+                    Detail = $"No se ha podido eliminar la actividad"
+                });
+            }
+        }
+
         protected async Task GridCancelButtonClick(MouseEventArgs args, Models.AldebaranDb.CustomerOrder customerOrder)
         {
             try
@@ -130,7 +167,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task GetOrderActivities(Models.AldebaranDb.CustomerOrder args)
         {
-            var CustomerOrderActivitiesResult = await AldebaranDbService.GetCustomerOrderActivities(new Query { Filter = $@"i => i.CUSTOMER_ORDER_ID == {args.CUSTOMER_ORDER_ID}", Expand = "CustomerOrder,Area,Employee" });
+            var CustomerOrderActivitiesResult = await AldebaranDbService.GetCustomerOrderActivities(new Query { Filter = $@"i => i.CUSTOMER_ORDER_ID == {args.CUSTOMER_ORDER_ID}", Expand = "CustomerOrder,Area,Employee,Employee.IdentityType" });
             if (CustomerOrderActivitiesResult != null)
             {
                 args.CustomerOrderActivities = CustomerOrderActivitiesResult.ToList();
@@ -198,9 +235,5 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             }
         }
 
-        protected async Task AddActivityButtonClick(MouseEventArgs args)
-        {
-            NavigationManager.NavigateTo("add-customer-order-activity");
-        }
     }
 }
