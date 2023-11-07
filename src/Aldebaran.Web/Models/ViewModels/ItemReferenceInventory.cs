@@ -1,8 +1,8 @@
-﻿namespace Aldebaran.Web.Models.AldebaranDb
+﻿namespace Aldebaran.Web.Models.ViewModels
 {
     public class ItemReferenceInventory
     {
-        public String Type { get; set; }
+        public string Type { get; set; }
         public int Quantity { get; set; }
     }
 }

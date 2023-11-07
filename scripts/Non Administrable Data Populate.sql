@@ -128,6 +128,8 @@ INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) 
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'D9326438-F865-407F-AECB-88835E5684DF', N'3B00D9D0-1368-4352-BF25-E4EA7C14C341', N'Customer Order Editor', N'CUSTOMER ORDER EDITOR')
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'6237D7AE-B500-4BC3-A3F0-C481C39C7537', N'5006A0A3-A82B-4F2B-AB6D-A8E148690F75', N'Customer Order Activities Viwer', N'CUSTOMER ORDER ACTIVITIES VIWER')
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'CEFCF7BA-8051-4834-A71E-9EDF6D00994F', N'6A012978-A636-4992-B83F-E3D1438D1FC2', N'Customer Order Activities Editor', N'CUSTOMER ORDER ACTIVITIES EDITOR')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'FA0772F4-E436-4DC3-8EB8-5AFF4001B359', N'3BD108A7-4ECF-4EC3-8EA2-0091D166FFA6', N'Employee Viwer', N'EMPLOYEE VIWER')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'FF50269F-1010-44BD-8186-2492A104B604', N'DB8AF2E0-7749-414B-A9DA-70F0FB6E30C7', N'Employee Editor', N'EMPLOYEE EDITOR')
 GO
 
 /*

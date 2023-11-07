@@ -1,5 +1,6 @@
 using Aldebaran.Web.Data;
 using Aldebaran.Web.Models.AldebaranDb;
+using Aldebaran.Web.Models.ViewModels;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using Radzen;

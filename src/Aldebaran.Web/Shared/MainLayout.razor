@@ -48,6 +48,7 @@
                 <RadzenPanelMenuItem Text="Artículos" Path="items" Visible="@Security.IsInRole("Admin","Item Editor","Item Viwer")" />
                 <RadzenPanelMenuItem Text="Artículos por áreas" Path="areas" Visible="@Security.IsInRole("Admin","Area Editor","Area Viwer")" />
                 <RadzenPanelMenuItem Text="Transportadoras" Path="forwarders" Visible="@Security.IsInRole("Admin","Forwarder Editor","Forwarder Viwer")" />
+                <RadzenPanelMenuItem Text="Funcionarios" Path="employees" Visible="@Security.IsInRole("Admin","Employee Editor","Employee Viwer")" />
                 <RadzenPanelMenuItem Text="Clientes" Path="customers" Visible="@Security.IsInRole("Admin","Customer Editor","Customer Viwer")" />
                 <RadzenPanelMenuItem Text="Proveedores" Path="providers" Visible="@Security.IsInRole("Admin","Provider Editor","Provider Viwer")" />
             </RadzenPanelMenuItem>

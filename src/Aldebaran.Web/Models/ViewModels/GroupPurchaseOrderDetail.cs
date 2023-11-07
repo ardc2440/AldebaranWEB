@@ -1,4 +1,4 @@
-﻿namespace Aldebaran.Web.Models.AldebaranDb
+﻿namespace Aldebaran.Web.Models.ViewModels
 {
     public class GroupPurchaseOrderDetail
     {
