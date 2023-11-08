@@ -4,10 +4,11 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using Radzen;
 using Radzen.Blazor;
+using System.Linq.Dynamic.Core;
 
 namespace Aldebaran.Web.Pages.CustomerOrderPages
 {
-    public partial class AddCustomerOrderActivity
+    public partial class EditCustomerOrderActivity
     {
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
@@ -48,7 +49,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected string title;
 
         [Parameter]
-        public string pCustomerOrderId { get; set; } = "NoParamInput";
+        public string pCustomerOrderActivityId { get; set; } = "NoParamInput";
 
         protected override async Task OnInitializedAsync()
         {
@@ -58,20 +59,22 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
                 await Task.Yield();
 
-                if (!int.TryParse(pCustomerOrderId, out var customerOrderId))
-                    throw new Exception("El Id de recibido no es valido");
+                if (!int.TryParse(pCustomerOrderActivityId, out var customerOrderActivityId))
+                    throw new Exception("El Id de Referencia recibido no es valido");
 
-                customerOrder = await AldebaranDbService.GetCustomerOrdersById(customerOrderId);
+                customerOrderActivity = await AldebaranDbService.GetCustomerOrderActivityByCustomerOrderActivityId(customerOrderActivityId);
 
-                customerOrderActivity = new CustomerOrderActivity()
-                {
-                    CUSTOMER_ORDER_ID = customerOrderId,
-                };
+                customerOrderActivity.Area = await AldebaranDbService.GetAreaByAreaId(customerOrderActivity.AREA_ID);
+                customerOrderActivity.Employee = await AldebaranDbService.GetEmployeeByEmployeeId(customerOrderActivity.EMPLOYEE_ID);
+
+                customerOrder = await AldebaranDbService.GetCustomerOrdersById(customerOrderActivity.CUSTOMER_ORDER_ID);
 
                 areasForAREAID = await AldebaranDbService.GetAreas();
-                employeesForEMPLOYEEID = new List<Employee>();
+                employeesForEMPLOYEEID = await AldebaranDbService.GetEmployees(new Query { Filter = $"i=>i.AREA_ID==@0", FilterParameters = new object[] { customerOrderActivity.AREA_ID } });
 
-                customerOrderActivityDetails = new List<CustomerOrderActivityDetail>();
+                var customerOrderActivityDetails = await AldebaranDbService.GetCustomerOrderActivityDetails(new Query { Filter = "i=> i.CUSTOMER_ORDER_ACTIVITY_ID==@0", FilterParameters = new object[] { customerOrderActivityId }, Expand = "ActivityType,Employee,EmployeeActivity" });
+
+                this.customerOrderActivityDetails = customerOrderActivityDetails.ToList();
 
                 title = $"Actividades para el Pedido No. {customerOrder.ORDER_NUMBER}";
             }
@@ -90,7 +93,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 isSubmitInProgress = true;
 
                 customerOrderActivity.CustomerOrderActivityDetails = customerOrderActivityDetails;
-                await AldebaranDbService.CreateCustomerOrderActivity(customerOrderActivity);
+                await AldebaranDbService.UpdateCustomerOrderActivity(customerOrderActivity);
 
                 await DialogService.Alert("Actividad Guardada Satisfactoriamente", "Información");
                 NavigationManager.NavigateTo("customer-orders");
@@ -154,9 +157,6 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             if (result == null)
                 return;
             var detail = (CustomerOrderActivityDetail)result;
-
-            customerOrderActivityDetails.Remove(args);
-            customerOrderActivityDetails.Add(detail);
 
             await customerOrderActivityDetailsGrid.Reload();
         }

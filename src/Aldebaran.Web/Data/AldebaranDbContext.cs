@@ -42,12 +42,6 @@ namespace Aldebaran.Web.Data
                 table.WAREHOUSE_ID
             });
 
-            builder.Entity<Models.AldebaranDb.CustomerOrderActivityDetail>().HasKey(table => new
-            {
-                table.CUSTOMER_ORDER_ACTIVITY_ID,
-                table.ACTIVITY_TYPE_ID
-            });
-
             builder.Entity<Models.AldebaranDb.ActivityTypeArea>()
              .HasOne(i => i.Area)
              .WithMany(i => i.ActivityTypesAreas)

@@ -131,9 +131,6 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                 return;
             var detail = (CustomerReservationDetail)result;
 
-            customerReservationDetails.Remove(args);
-            customerReservationDetails.Add(detail);
-
             await customerReservationDetailGrid.Reload();
         }
     }

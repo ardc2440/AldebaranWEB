@@ -6,7 +6,7 @@ using Radzen;
 
 namespace Aldebaran.Web.Pages.CustomerOrderPages
 {
-    public partial class AddCustomerOrderActivityDetail
+    public partial class EditCustomerOrderActivityDetail
     {
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
@@ -29,9 +29,6 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         [Inject]
         public AldebaranDbService AldebaranDbService { get; set; }
 
-        [Inject]
-        protected SecurityService Security { get; set; }
-
         [Parameter]
         public ICollection<CustomerOrderActivityDetail> customerOrderActivityDetails { get; set; }
 
@@ -39,23 +36,12 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         public short customerOrderActivityAreaId { get; set; }
 
         [Parameter]
-        public int CUSTOMER_ORDER_ACTIVITY_ID { get; set; }
-
-        [Parameter]
-        public short ACTIVITY_ID { get; set; }
-
-        [Parameter]
-        public int ACTIVITY_EMPLOYEE_ID { get; set; }
-
-        [Parameter]
-        public int EMPLOYEE_ID { get; set; }
+        public CustomerOrderActivityDetail customerOrderActivityDetail { get; set; }
 
         protected bool errorVisible;
         protected string alertMessage;
         protected bool isSubmitInProgress;
         protected bool isLoadingInProgress;
-
-        protected CustomerOrderActivityDetail customerOrderActivityDetail;
 
         protected IEnumerable<Employee> employeesForACTIVITYEMPLOYEEID;
         protected IEnumerable<ActivityTypeArea> activityTypesForACTIVITY_ID;
@@ -97,18 +83,11 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 errorVisible = false;
                 isSubmitInProgress = true;
 
-                if (customerOrderActivityDetails.Any(ad => ad.ACTIVITY_TYPE_ID.Equals(customerOrderActivityDetail.ACTIVITY_TYPE_ID)))
+                if (customerOrderActivityDetails.Any(ad => ad.ACTIVITY_TYPE_ID.Equals(customerOrderActivityDetail.ACTIVITY_TYPE_ID) && !ad.ACTIVITY_EMPLOYEE_ID.Equals(customerOrderActivityDetail.ACTIVITY_EMPLOYEE_ID)))
                     throw new Exception("El tipo de actividad seleccionada, ya existe dentro de esta actividad del pedido.");
 
                 var activityType = await AldebaranDbService.GetActivityTypeById(customerOrderActivityDetail.ACTIVITY_TYPE_ID);
-                var employeeActivity = await AldebaranDbService.GetEmployeeByEmployeeId(customerOrderActivityDetail.ACTIVITY_EMPLOYEE_ID);
-                var employee = await AldebaranDbService.GetLoggedEmployee(Security);
-
                 customerOrderActivityDetail.ActivityType = activityType;
-                customerOrderActivityDetail.EmployeeActivity = employeeActivity;
-                customerOrderActivityDetail.Employee = employee;
-                customerOrderActivityDetail.EMPLOYEE_ID = employee.EMPLOYEE_ID;
-
                 DialogService.Close(customerOrderActivityDetail);
             }
             catch (Exception ex)

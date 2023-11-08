@@ -5522,5 +5522,141 @@ namespace Aldebaran.Web
             return itemToDelete;
         }
 
+        partial void OnCustomerOrderActivityCreated(CustomerOrderActivity customerOrderActivity);
+        partial void OnAfterCustomerOrderActivityCreated(CustomerOrderActivity customerOrderActivity);
+
+        public async Task<CustomerOrderActivity> CreateCustomerOrderActivity(CustomerOrderActivity customerOrderActivity)
+        {
+            OnCustomerOrderActivityCreated(customerOrderActivity);
+
+            var existingItem = Context.CustomerOrderActivities
+                              .Where(i => i.CUSTOMER_ORDER_ACTIVITY_ID == customerOrderActivity.CUSTOMER_ORDER_ACTIVITY_ID)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+                throw new Exception("Item already available");
+            }
+
+            try
+            {
+                var customerOrderActivityToSave = new CustomerOrderActivity()
+                {
+                    ACTIVITY_DATE = customerOrderActivity.ACTIVITY_DATE,
+                    AREA_ID = customerOrderActivity.AREA_ID,
+                    CUSTOMER_ORDER_ID = customerOrderActivity.CUSTOMER_ORDER_ID,
+                    EMPLOYEE_ID = customerOrderActivity.EMPLOYEE_ID,
+                    NOTES = customerOrderActivity.NOTES,
+                    CustomerOrderActivityDetails = new List<CustomerOrderActivityDetail>()
+                };
+
+                foreach (var customerOrderActivityDetail in customerOrderActivity.CustomerOrderActivityDetails)
+                {
+                    customerOrderActivityToSave.CustomerOrderActivityDetails.Add(new CustomerOrderActivityDetail()
+                    {
+                        ACTIVITY_TYPE_ID = customerOrderActivityDetail.ACTIVITY_TYPE_ID,
+                        ACTIVITY_EMPLOYEE_ID = customerOrderActivityDetail.ACTIVITY_EMPLOYEE_ID,
+                        EMPLOYEE_ID = customerOrderActivityDetail.ACTIVITY_EMPLOYEE_ID
+                    });
+                }
+
+                Context.CustomerOrderActivities.Add(customerOrderActivityToSave);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(customerOrderActivity).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterCustomerOrderActivityCreated(customerOrderActivity);
+
+            return customerOrderActivity;
+        }
+
+        partial void OnGetCustomerOrderActivityByCustomerOrderActivityId(ref IQueryable<CustomerOrderActivity> item);
+        partial void OnCustomerOrderActivityGet(CustomerOrderActivity customerOrderActivity);
+
+        public async Task<CustomerOrderActivity> GetCustomerOrderActivityByCustomerOrderActivityId(int customerOrderActivityId)
+        {
+
+            var items = Context.CustomerOrderActivities
+                              .AsNoTracking()
+                              .Where(i => i.CUSTOMER_ORDER_ACTIVITY_ID == customerOrderActivityId);
+
+            items = items.Include(i => i.Area);
+            items = items.Include(i => i.Employee);
+            items = items.Include(i => i.CustomerOrder);
+
+            OnGetCustomerOrderActivityByCustomerOrderActivityId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnCustomerOrderActivityGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnCustomerOrderActivityUpdated(CustomerOrderActivity customerOrderActivity);
+        partial void OnAfcterCustomerOrderActivityUpdated(CustomerOrderActivity customerOrderActivity);
+        public async Task<CustomerOrderActivity> UpdateCustomerOrderActivity(CustomerOrderActivity customerOrderActivity)
+        {
+            OnCustomerOrderActivityUpdated(customerOrderActivity);
+
+            var itemToUpdate = Context.CustomerOrderActivities
+                              .Where(i => i.CUSTOMER_ORDER_ACTIVITY_ID == customerOrderActivity.CUSTOMER_ORDER_ACTIVITY_ID)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+            var a = new CustomerOrderActivity();
+
+            var entryToUpdate = Context.Entry(itemToUpdate);
+            entryToUpdate.CurrentValues.SetValues(customerOrderActivity);
+            entryToUpdate.State = EntityState.Modified;
+
+            foreach (var item in customerOrderActivity.CustomerOrderActivityDetails)
+            {
+                var itemDetailToUpdate = Context.CustomerOrderActivityDetails
+                              .Where(i => i.CUSTOMER_ORDER_ACTIVITY_DETAIL_ID == item.CUSTOMER_ORDER_ACTIVITY_DETAIL_ID)
+                              .FirstOrDefault();
+                if (itemDetailToUpdate == null)
+                {
+                    var itemDetail = new CustomerOrderActivityDetail()
+                    {
+                        CUSTOMER_ORDER_ACTIVITY_ID = customerOrderActivity.CUSTOMER_ORDER_ACTIVITY_ID,
+                        ACTIVITY_TYPE_ID = item.ACTIVITY_TYPE_ID,
+                        ACTIVITY_EMPLOYEE_ID = item.ACTIVITY_EMPLOYEE_ID,
+                        EMPLOYEE_ID = item.ACTIVITY_EMPLOYEE_ID
+                    };
+                    Context.CustomerOrderActivityDetails.Add(itemDetail);
+                }
+                else
+                {
+                    var entryDetailToUpdate = Context.Entry(itemDetailToUpdate);
+                    entryDetailToUpdate.CurrentValues.SetValues(item);
+                    entryDetailToUpdate.State = EntityState.Modified;
+                }
+            }
+
+            foreach (var item in itemToUpdate.CustomerOrderActivityDetails)
+            {
+                if (!customerOrderActivity.CustomerOrderActivityDetails.Any(x => x.CUSTOMER_ORDER_ACTIVITY_DETAIL_ID.Equals(item.CUSTOMER_ORDER_ACTIVITY_DETAIL_ID)))
+                {
+                    var entryDetailToDelete = Context.Entry(item);
+                    entryDetailToDelete.State = EntityState.Deleted;
+                }
+            }
+
+            Context.SaveChanges();
+
+            OnAfcterCustomerOrderActivityUpdated(customerOrderActivity);
+
+            return customerOrderActivity;
+
+        }
+
     }
 }

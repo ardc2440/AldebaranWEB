@@ -7,10 +7,12 @@ namespace Aldebaran.Web.Models.AldebaranDb
     public partial class CustomerOrderActivityDetail
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int CUSTOMER_ORDER_ACTIVITY_DETAIL_ID { get; set; }
+
         [Required]
         public int CUSTOMER_ORDER_ACTIVITY_ID { get; set; }
 
-        [Key]
         [Required]
         public short ACTIVITY_TYPE_ID { get; set; }
 
