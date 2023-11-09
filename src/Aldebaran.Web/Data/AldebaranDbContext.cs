@@ -42,6 +42,54 @@ namespace Aldebaran.Web.Data
                 table.WAREHOUSE_ID
             });
 
+            builder.Entity<Models.AldebaranDb.CustomerOrderInProcessDetail>()
+             .HasOne(i => i.CustomerOrderDetail)
+             .WithMany(i => i.CustomerOrderInProcessDetails)
+             .HasForeignKey(i => i.CUSTOMER_ORDER_DETAIL_ID)
+             .HasPrincipalKey(i => i.CUSTOMER_ORDER_DETAIL_ID);
+
+            builder.Entity<Models.AldebaranDb.CustomerOrderInProcessDetail>()
+             .HasOne(i => i.CustomerOrderInProcess)
+             .WithMany(i => i.CustomerOrderInProcessDetails)
+             .HasForeignKey(i => i.CUSTOMER_ORDER_IN_PROCESS_ID)
+             .HasPrincipalKey(i => i.CUSTOMER_ORDER_IN_PROCESS_ID);
+
+            builder.Entity<Models.AldebaranDb.CustomerOrderInProcessDetail>()
+             .HasOne(i => i.Warehouse)
+             .WithMany(i => i.CustomerOrderInProcessDetails)
+             .HasForeignKey(i => i.WAREHOUSE_ID)
+             .HasPrincipalKey(i => i.WAREHOUSE_ID);
+
+            builder.Entity<Models.AldebaranDb.CustomerOrderInProcess>()
+             .HasOne(i => i.Employee)
+             .WithMany(i => i.CustomerOrdersInProcess)
+             .HasForeignKey(i => i.EMPLOYEE_RECIPIENT_ID)
+             .HasPrincipalKey(i => i.EMPLOYEE_ID);
+
+            builder.Entity<Models.AldebaranDb.CustomerOrderInProcess>()
+             .HasOne(i => i.ProcessSatellite)
+             .WithMany(i => i.CustomerOrdersInProcess)
+             .HasForeignKey(i => i.PROCESS_SATELLITE_ID)
+             .HasPrincipalKey(i => i.PROCESS_SATELLITE_ID);
+
+            builder.Entity<Models.AldebaranDb.CustomerOrderInProcess>()
+             .HasOne(i => i.CustomerOrder)
+             .WithMany(i => i.CustomerOrdersInProcess)
+             .HasForeignKey(i => i.CUSTOMER_ORDER_ID)
+             .HasPrincipalKey(i => i.CUSTOMER_ORDER_ID);
+
+            builder.Entity<Models.AldebaranDb.ProcessSatellite>()
+             .HasOne(i => i.IdentityType)
+             .WithMany(i => i.ProcessSatellites)
+             .HasForeignKey(i => i.IDENTITY_TYPE_ID)
+             .HasPrincipalKey(i => i.IDENTITY_TYPE_ID);
+
+            builder.Entity<Models.AldebaranDb.ProcessSatellite>()
+             .HasOne(i => i.City)
+             .WithMany(i => i.ProcessSatellites)
+             .HasForeignKey(i => i.CITY_ID)
+             .HasPrincipalKey(i => i.CITY_ID);
+
             builder.Entity<Models.AldebaranDb.ActivityTypeArea>()
              .HasOne(i => i.Area)
              .WithMany(i => i.ActivityTypesAreas)
@@ -414,6 +462,18 @@ namespace Aldebaran.Web.Data
              .HasForeignKey(i => i.ACTIVITY_EMPLOYEE_ID)
              .HasPrincipalKey(i => i.EMPLOYEE_ID);
 
+            builder.Entity<Models.AldebaranDb.CustomerOrderInProcess>()
+                  .Property(p => p.PROCESS_DATE)
+                  .HasDefaultValueSql(@"(getdate())");
+
+            builder.Entity<Models.AldebaranDb.CustomerOrderInProcess>()
+                  .Property(p => p.TRANSFER_DATETIME)
+                  .HasDefaultValueSql(@"(getdate())");
+
+            builder.Entity<Models.AldebaranDb.CustomerOrderInProcess>()
+                  .Property(p => p.CREATION_DATE)
+                  .HasDefaultValueSql(@"(getdate())");
+
             builder.Entity<Models.AldebaranDb.Adjustment>()
                   .Property(p => p.ADJUSTMENT_DATE)
                   .HasDefaultValueSql(@"(getdate())");
@@ -509,6 +569,14 @@ namespace Aldebaran.Web.Data
 
             builder.Entity<Models.AldebaranDb.CustomerOrderActivity>()
                   .Property(p => p.ACTIVITY_DATE)
+                  .HasColumnType("datetime");
+
+            builder.Entity<Models.AldebaranDb.CustomerOrderInProcess>()
+               .Property(p => p.TRANSFER_DATETIME)
+               .HasDefaultValueSql(@"(getdate())");
+
+            builder.Entity<Models.AldebaranDb.CustomerOrderInProcess>()
+                  .Property(p => p.CREATION_DATE)
                   .HasColumnType("datetime");
         }
 

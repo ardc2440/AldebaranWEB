@@ -80,7 +80,9 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                     throw new Exception("No ha ingresado ninguna referencia");
 
                 customerReservation.CustomerReservationDetails = customerReservationDetails;
+
                 await AldebaranDbService.UpdateCustomerReservation(customerReservation);
+
                 await DialogService.Alert("Reserva modificada Satisfactoriamente", "Información");
                 NavigationManager.NavigateTo("customer-reservations");
             }

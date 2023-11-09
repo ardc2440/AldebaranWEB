@@ -30,5 +30,7 @@ namespace Aldebaran.Web.Models.AldebaranDb
         public CustomerOrder CustomerOrder { get; set; }
 
         public ItemReference ItemReference { get; set; }
+
+        public ICollection<CustomerOrderInProcessDetail> CustomerOrderInProcessDetails { get; set; }
     }
 }

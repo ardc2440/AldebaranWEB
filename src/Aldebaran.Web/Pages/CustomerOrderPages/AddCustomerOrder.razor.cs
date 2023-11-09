@@ -62,11 +62,13 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 customerOrder = new CustomerOrder()
                 {
                     CUSTOMER_ORDER_ID = 0,
-                    EMPLOYEE_ID = AldebaranDbService.GetLoggedEmployee(Security).Id,
+                    Employee = await AldebaranDbService.GetLoggedEmployee(Security),
                     StatusDocumentType = await AldebaranDbService.GetStatusDocumentTypeByDocumentAndOrder(documentType, 1),
                     ORDER_DATE = DateTime.Today,
                     ORDER_NUMBER = "0"
                 };
+                customerOrder.EMPLOYEE_ID = customerOrder.Employee.EMPLOYEE_ID;
+                customerOrder.STATUS_DOCUMENT_TYPE_ID = customerOrder.StatusDocumentType.STATUS_DOCUMENT_TYPE_ID;
             }
             catch (Exception ex)
             {
@@ -89,7 +91,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 await AldebaranDbService.CreateCustomerOrder(customerOrder);
 
                 customerOrder.ORDER_NUMBER = await AldebaranDbService.GenerateDocumentNumber(documentType);
-                await AldebaranDbService.UpdateCustomerOrder(customerOrder);
+                await AldebaranDbService.AssignOrderNumber(customerOrder);
 
                 await DialogService.Alert($"Pedido de Articulos Guardado Satisfactoriamente con el Consecutivo {customerOrder.ORDER_NUMBER}", "Información");
                 NavigationManager.NavigateTo("customer-orders");

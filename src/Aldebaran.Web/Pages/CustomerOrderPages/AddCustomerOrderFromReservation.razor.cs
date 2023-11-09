@@ -133,7 +133,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 await AldebaranDbService.CreateCustomerOrder(customerOrder);
 
                 customerOrder.ORDER_NUMBER = await AldebaranDbService.GenerateDocumentNumber(documentType);
-                await AldebaranDbService.UpdateCustomerOrder(customerOrder);
+                await AldebaranDbService.AssignOrderNumber(customerOrder);
 
                 await DialogService.Alert($"Pedido de Reserva de Articulos Guardado Satisfactoriamente con el consecutivo {customerOrder.ORDER_NUMBER}", "Información");
                 NavigationManager.NavigateTo("customer-reservations");

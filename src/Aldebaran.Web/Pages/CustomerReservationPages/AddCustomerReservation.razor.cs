@@ -81,7 +81,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                 await AldebaranDbService.CreateCustomerReservation(customerReservation);
 
                 customerReservation.RESERVATION_NUMBER = await AldebaranDbService.GenerateDocumentNumber(documentType);
-                await AldebaranDbService.UpdateCustomerReservation(customerReservation);
+                await AldebaranDbService.AssignReservationNumber(customerReservation);
 
                 await DialogService.Alert($"Reserva de Articulos Guardada Satisfactoriamente con el consecutivo {customerReservation.RESERVATION_NUMBER}", "Información");
                 NavigationManager.NavigateTo("customer-reservations");

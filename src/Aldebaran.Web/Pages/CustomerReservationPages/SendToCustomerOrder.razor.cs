@@ -79,7 +79,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                 if (!customerReservationDetails.Any(d => d.SEND_TO_CUSTOMER_ORDER))
                     throw new Exception("No ha seleccionado ningun artículo para el pedido");
 
-                await AldebaranDbService.UpdateCustomerReservationDetails(customerReservationDetails);
+                await AldebaranDbService.UpdateCustomerReservationDetails(customerReservationDetails.Where(d => d.SEND_TO_CUSTOMER_ORDER).ToList());
 
                 NavigationManager.NavigateTo("add-customer-order-from-reservation/" + customerReservation.CUSTOMER_RESERVATION_ID);
             }

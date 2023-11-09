@@ -5105,36 +5105,6 @@ namespace Aldebaran.Web
 
         partial void OnAfterCustomerReservationCreated(CustomerReservation item);
 
-        public async Task<CustomerReservation> CreateCustomerReservation(CustomerReservation customerReservation)
-        {
-            OnCustomerReservationCreated(customerReservation);
-
-            var existingItem = Context.CustomerReservations
-                              .Where(i => i.CUSTOMER_RESERVATION_ID == customerReservation.CUSTOMER_RESERVATION_ID)
-                              .FirstOrDefault();
-
-            if (existingItem != null)
-            {
-                throw new Exception("Item already available");
-            }
-
-            try
-            {
-                Context.CustomerReservations.Add(customerReservation);
-
-                Context.SaveChanges();
-            }
-            catch
-            {
-                Context.Entry(customerReservation).State = EntityState.Detached;
-                throw;
-            }
-
-            OnAfterCustomerReservationCreated(customerReservation);
-
-            return customerReservation;
-        }
-
         public async Task<CustomerReservation> CancelCustomerReservationChanges(CustomerReservation item)
         {
             var entityToCancel = Context.Entry(item);
@@ -5183,27 +5153,6 @@ namespace Aldebaran.Web
 
         partial void OnAfterCustomerReservationUpdated(CustomerReservation item);
 
-        public async Task<CustomerReservation> UpdateCustomerReservation(CustomerReservation customerReservation)
-        {
-            OnCustomerReservationUpdated(customerReservation);
-
-            var itemToUpdate = Context.CustomerReservations
-                              .Where(i => i.CUSTOMER_RESERVATION_ID == customerReservation.CUSTOMER_RESERVATION_ID)
-                              .FirstOrDefault();
-
-            if (itemToUpdate == null)
-            {
-                throw new Exception("Item no longer available");
-            }
-
-            context.CustomerReservations.Update(customerReservation);
-            Context.SaveChanges();
-
-            OnAfterCustomerReservationUpdated(customerReservation);
-
-            return customerReservation;
-        }
-
         public async Task<ICollection<CustomerReservationDetail>> UpdateCustomerReservationDetails(ICollection<CustomerReservationDetail> customerReservationDetails)
         {
             foreach (var customerReservationDetail in customerReservationDetails)
@@ -5220,29 +5169,104 @@ namespace Aldebaran.Web
 
         partial void OnAfterCustomerOrderUpdated(CustomerOrder customerOrder);
 
-        public async Task<CustomerOrder> UpdateCustomerOrder(CustomerOrder customerOrder)
+        public async Task<CustomerReservation> AssignReservationNumber(CustomerReservation customerReservation)
         {
-            OnCustomerOrderUpdated(customerOrder);
-
-            var itemToUpdate = Context.CustomerOrders
-                              .Where(i => i.CUSTOMER_ORDER_ID == customerOrder.CUSTOMER_ORDER_ID)
-                              .FirstOrDefault();
+            var itemToUpdate = Context.CustomerReservations
+                              .FirstOrDefault(i => i.CUSTOMER_RESERVATION_ID == customerReservation.CUSTOMER_RESERVATION_ID);
 
             if (itemToUpdate == null)
             {
                 throw new Exception("Item no longer available");
             }
 
-            context.CustomerOrders.Update(customerOrder);
+            itemToUpdate.RESERVATION_NUMBER = customerReservation.RESERVATION_NUMBER;
+
+            context.CustomerReservations.Update(itemToUpdate);
             Context.SaveChanges();
 
-            OnAfterCustomerOrderUpdated(customerOrder);
+            return customerReservation;
+        }
+
+        public async Task<CustomerOrder> AssignOrderNumber(CustomerOrder customerOrder)
+        {
+            var itemToUpdate = Context.CustomerOrders
+                              .FirstOrDefault(i => i.CUSTOMER_ORDER_ID == customerOrder.CUSTOMER_ORDER_ID);
+
+            if (itemToUpdate == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            itemToUpdate.ORDER_NUMBER = customerOrder.ORDER_NUMBER;
+
+            context.CustomerOrders.Update(itemToUpdate);
+            Context.SaveChanges();
 
             return customerOrder;
         }
 
         partial void OnCustomerOrderCreated(CustomerOrder customerOrder);
         partial void OnAfterCustomerOrderCreated(CustomerOrder customerOrder);
+
+        public async Task<CustomerReservation> CreateCustomerReservation(CustomerReservation customerReservation)
+        {
+            OnCustomerReservationCreated(customerReservation);
+
+            var existingItem = Context.CustomerReservations
+                              .Where(i => i.CUSTOMER_RESERVATION_ID == customerReservation.CUSTOMER_RESERVATION_ID)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+                throw new Exception("Item already available");
+            }
+            try
+            {
+                var customerReservationToSave = new CustomerReservation()
+                {
+                    CREATION_DATE = DateTime.Now,
+                    CUSTOMER_ID = customerReservation.CUSTOMER_ID,
+                    EXPIRATION_DATE = customerReservation.EXPIRATION_DATE,
+                    NOTES = customerReservation.NOTES,
+                    RESERVATION_DATE = customerReservation.RESERVATION_DATE,
+                    STATUS_DOCUMENT_TYPE_ID = customerReservation.STATUS_DOCUMENT_TYPE_ID,
+                    EMPLOYEE_ID = customerReservation.EMPLOYEE_ID,
+                    CustomerReservationDetails = new List<CustomerReservationDetail>()
+                };
+
+                foreach (var customerReservationDetail in customerReservation.CustomerReservationDetails)
+                {
+                    customerReservationToSave.CustomerReservationDetails.Add(new CustomerReservationDetail()
+                    {
+                        CUSTOMER_RESERVATION_ID = customerReservationDetail.CUSTOMER_RESERVATION_ID,
+                        RESERVED_QUANTITY = customerReservationDetail.RESERVED_QUANTITY,
+                        REFERENCE_ID = customerReservationDetail.REFERENCE_ID,
+                        BRAND = customerReservationDetail.BRAND
+                    });
+                }
+                try
+                {
+                    Context.CustomerReservations.Add(customerReservationToSave);
+
+                    Context.SaveChanges();
+
+                    customerReservation.CUSTOMER_RESERVATION_ID = customerReservationToSave.CUSTOMER_RESERVATION_ID;
+                }
+                catch
+                {
+                    Context.Entry(customerReservationToSave).State = EntityState.Detached;
+                    throw;
+                }
+
+                OnAfterCustomerReservationCreated(customerReservation);
+
+                return customerReservation;
+            }
+            catch
+            {
+                throw;
+            }
+        }
 
         public async Task<CustomerOrder> CreateCustomerOrder(CustomerOrder customerOrder)
         {
@@ -5259,19 +5283,53 @@ namespace Aldebaran.Web
 
             try
             {
-                Context.CustomerOrders.Add(customerOrder);
+                var customerOrderToSave = new CustomerOrder()
+                {
+                    CREATION_DATE = DateTime.Now,
+                    CUSTOMER_ID = customerOrder.CUSTOMER_ID,
+                    ESTIMATED_DELIVERY_DATE = customerOrder.ESTIMATED_DELIVERY_DATE,
+                    CUSTOMER_NOTES = customerOrder.CUSTOMER_NOTES,
+                    INTERNAL_NOTES = customerOrder.INTERNAL_NOTES,
+                    ORDER_DATE = customerOrder.ORDER_DATE,
+                    STATUS_DOCUMENT_TYPE_ID = customerOrder.STATUS_DOCUMENT_TYPE_ID,
+                    ORDER_NUMBER = customerOrder.ORDER_NUMBER,
+                    EMPLOYEE_ID = customerOrder.EMPLOYEE_ID,
+                    CustomerOrderDetails = new List<CustomerOrderDetail>()
+                };
 
-                Context.SaveChanges();
+                foreach (var customerOrderDetail in customerOrder.CustomerOrderDetails)
+                {
+                    customerOrderToSave.CustomerOrderDetails.Add(new CustomerOrderDetail()
+                    {
+                        CUSTOMER_ORDER_ID = customerOrderDetail.CUSTOMER_ORDER_ID,
+                        DELIVERED_QUANTITY = 0,
+                        CUSTOMER_ORDER_DETAIL_ID = 0,
+                        BRAND = customerOrderDetail.BRAND,
+                        PROCESSED_QUANTITY = 0,
+                        REFERENCE_ID = customerOrderDetail.REFERENCE_ID,
+                        REQUESTED_QUANTITY = customerOrderDetail.REQUESTED_QUANTITY
+                    });
+                }
+                try
+                {
+                    Context.CustomerOrders.Add(customerOrderToSave);
+
+                    Context.SaveChanges();
+                }
+                catch
+                {
+                    Context.Entry(customerOrderToSave).State = EntityState.Detached;
+                    throw;
+                }
+
+                OnAfterCustomerOrderCreated(customerOrder);
+                customerOrder.CUSTOMER_ORDER_ID = customerOrderToSave.CUSTOMER_ORDER_ID;
+                return customerOrder;
             }
             catch
             {
-                Context.Entry(customerOrder).State = EntityState.Detached;
                 throw;
             }
-
-            OnAfterCustomerOrderCreated(customerOrder);
-
-            return customerOrder;
         }
 
         public async Task<ICollection<GroupPurchaseOrderDetail>> GetTotalTransitOrdersPurchaseByReferenceId(int referenceId)
@@ -5578,7 +5636,8 @@ namespace Aldebaran.Web
         }
 
         partial void OnCustomerOrderActivityUpdated(CustomerOrderActivity customerOrderActivity);
-        partial void OnAfcterCustomerOrderActivityUpdated(CustomerOrderActivity customerOrderActivity);
+        partial void OnAfterCustomerOrderActivityUpdated(CustomerOrderActivity customerOrderActivity);
+
         public async Task<CustomerOrderActivity> UpdateCustomerOrderActivity(CustomerOrderActivity customerOrderActivity)
         {
             OnCustomerOrderActivityUpdated(customerOrderActivity);
@@ -5632,10 +5691,129 @@ namespace Aldebaran.Web
 
             Context.SaveChanges();
 
-            OnAfcterCustomerOrderActivityUpdated(customerOrderActivity);
-
+            OnAfterCustomerOrderActivityUpdated(customerOrderActivity);
             return customerOrderActivity;
+        }
 
+        public async Task<CustomerOrder> UpdateCustomerOrder(CustomerOrder customerOrder)
+        {
+            OnCustomerOrderUpdated(customerOrder);
+
+            var itemToUpdate = Context.CustomerOrders
+                              .Where(i => i.CUSTOMER_ORDER_ID == customerOrder.CUSTOMER_ORDER_ID)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+            var a = new CustomerOrderActivity();
+
+            var entryToUpdate = Context.Entry(itemToUpdate);
+            entryToUpdate.CurrentValues.SetValues(customerOrder);
+            entryToUpdate.State = EntityState.Modified;
+
+            foreach (var item in customerOrder.CustomerOrderDetails)
+            {
+                var itemDetailToUpdate = Context.CustomerOrderDetails
+                              .Where(i => i.CUSTOMER_ORDER_DETAIL_ID == item.CUSTOMER_ORDER_DETAIL_ID)
+                              .FirstOrDefault();
+
+                if (itemDetailToUpdate == null)
+                {
+                    var itemDetail = new CustomerOrderDetail()
+                    {
+                        CUSTOMER_ORDER_ID = customerOrder.CUSTOMER_ORDER_ID,
+                        BRAND = item.BRAND,
+                        CUSTOMER_ORDER_DETAIL_ID = 0,
+                        REFERENCE_ID = item.REFERENCE_ID,
+                        DELIVERED_QUANTITY = item.DELIVERED_QUANTITY,
+                        PROCESSED_QUANTITY = item.PROCESSED_QUANTITY,
+                        REQUESTED_QUANTITY = item.REQUESTED_QUANTITY
+                    };
+                    Context.CustomerOrderDetails.Add(itemDetail);
+                }
+                else
+                {
+                    var entryDetailToUpdate = Context.Entry(itemDetailToUpdate);
+                    entryDetailToUpdate.CurrentValues.SetValues(item);
+                    entryDetailToUpdate.State = EntityState.Modified;
+                }
+            }
+
+            foreach (var item in itemToUpdate.CustomerOrderDetails)
+            {
+                if (!customerOrder.CustomerOrderDetails.Any(x => x.CUSTOMER_ORDER_DETAIL_ID.Equals(item.CUSTOMER_ORDER_DETAIL_ID)))
+                {
+                    var entryDetailToDelete = Context.Entry(item);
+                    entryDetailToDelete.State = EntityState.Deleted;
+                }
+            }
+
+            Context.SaveChanges();
+
+            OnAfterCustomerOrderUpdated(customerOrder);
+
+            return customerOrder;
+        }
+
+        public async Task<CustomerReservation> UpdateCustomerReservation(CustomerReservation customerReservation)
+        {
+            OnCustomerReservationUpdated(customerReservation);
+
+            var itemToUpdate = Context.CustomerReservations
+                              .Where(i => i.CUSTOMER_ORDER_ID == customerReservation.CUSTOMER_ORDER_ID)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+            var a = new CustomerOrderActivity();
+
+            var entryToUpdate = Context.Entry(itemToUpdate);
+            entryToUpdate.CurrentValues.SetValues(customerReservation);
+            entryToUpdate.State = EntityState.Modified;
+
+            foreach (var item in customerReservation.CustomerReservationDetails)
+            {
+                var itemDetailToUpdate = Context.CustomerReservationDetails
+                              .Where(i => i.CUSTOMER_RESERVATION_DETAIL_ID == item.CUSTOMER_RESERVATION_DETAIL_ID)
+                              .FirstOrDefault();
+
+                if (itemDetailToUpdate == null)
+                {
+                    var itemDetail = new CustomerReservationDetail()
+                    {
+                        CUSTOMER_RESERVATION_ID = customerReservation.CUSTOMER_RESERVATION_ID,
+                        BRAND = item.BRAND,
+                        REFERENCE_ID = item.REFERENCE_ID,
+                        RESERVED_QUANTITY = item.RESERVED_QUANTITY
+                    };
+
+                    Context.CustomerReservationDetails.Add(itemDetail);
+                }
+                else
+                {
+                    var entryDetailToUpdate = Context.Entry(itemDetailToUpdate);
+                    entryDetailToUpdate.CurrentValues.SetValues(item);
+                    entryDetailToUpdate.State = EntityState.Modified;
+                }
+            }
+
+            foreach (var item in itemToUpdate.CustomerReservationDetails)
+            {
+                if (!customerReservation.CustomerReservationDetails.Any(x => x.CUSTOMER_RESERVATION_DETAIL_ID.Equals(item.CUSTOMER_RESERVATION_DETAIL_ID)))
+                {
+                    var entryDetailToDelete = Context.Entry(item);
+                    entryDetailToDelete.State = EntityState.Deleted;
+                }
+            }
+            Context.SaveChanges();
+
+            OnAfterCustomerReservationUpdated(customerReservation);
+
+            return customerReservation;
         }
 
     }

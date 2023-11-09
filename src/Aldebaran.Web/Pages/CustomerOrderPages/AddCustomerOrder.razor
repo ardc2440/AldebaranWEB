@@ -20,7 +20,9 @@
                             <RadzenFormField Text="Cliente" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                                 <ChildContent>
                                     <RadzenDropDownDataGrid Data="@customersForCUSTOMERID" TextProperty="CUSTOMER_NAME" ValueProperty="CUSTOMER_ID" AllowClear=true
-                                                            style="display: block; width: 100%" @bind-Value="@customerOrder.CUSTOMER_ID" Name="CUSTOMER_ID" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true" Placeholder="Seleccione un Cliente">
+                                                            style="display: block; width: 100%" @bind-Value="@customerOrder.CUSTOMER_ID" Name="CUSTOMER_ID"
+                                                            FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true"
+                                                            Placeholder="Seleccione un Cliente">
                                         <Columns>
                                             <RadzenDropDownDataGridColumn Property="IdentityType.IDENTITY_TYPE_NAME" Title="Tipo Documento" />
                                             <RadzenDropDownDataGridColumn Property="IDENTITY_NUMBER" Title="Identificación" />
