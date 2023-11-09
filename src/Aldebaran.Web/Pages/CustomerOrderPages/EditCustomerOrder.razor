@@ -1,4 +1,4 @@
-@page "/add-customer-order"
+@page "/edit-customer-order/{pCustomerOrderId}"
 
 @attribute [Authorize(Roles = "Admin,Customer Order Editor")]
 
@@ -8,7 +8,7 @@
         <RadzenTemplateForm TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrder" Data="@customerOrder" Visible="@(customerOrder != null)" Submit="@FormSubmit">
             <RadzenRow AlignItems="AlignItems.Center">
                 <RadzenColumn Size="12">
-                    <RadzenText Text="Crear Pedido de Artículos" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
+                    <RadzenText Text="@title" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
                 </RadzenColumn>
                 <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">@errorMessage</RadzenAlert>
             </RadzenRow>

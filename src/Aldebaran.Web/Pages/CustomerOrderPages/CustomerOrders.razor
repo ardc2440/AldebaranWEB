@@ -53,7 +53,7 @@
                             </RadzenButton>
                             <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
                                           Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@CanEdit(customerOrder).Result"
-                                          Click=@(args => GridCancelButtonClick(args, customerOrder)) @onclick:stopPropagation="true" title="Cancelar Pedido" />
+                                          Click=@(args => CancelCustomerOrder(args, customerOrder)) @onclick:stopPropagation="true" title="Cancelar Pedido" />
                         </Template>
                     </RadzenDataGridColumn>
                 </Columns>

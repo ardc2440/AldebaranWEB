@@ -126,7 +126,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             }
         }
 
-        protected async Task GridCancelButtonClick(MouseEventArgs args, Models.AldebaranDb.CustomerOrder customerOrder)
+        protected async Task CancelCustomerOrder(MouseEventArgs args, Models.AldebaranDb.CustomerOrder customerOrder)
         {
             try
             {

@@ -76,7 +76,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
                 this.customerOrderActivityDetails = customerOrderActivityDetails.ToList();
 
-                title = $"Actividades para el Pedido No. {customerOrder.ORDER_NUMBER}";
+                title = $"Modificación de Actividades para el Pedido No. {customerOrder.ORDER_NUMBER}";
             }
             catch (Exception ex)
             {

@@ -86,7 +86,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             NavigationManager.NavigateTo("edit-customer-reservation/" + args.CUSTOMER_RESERVATION_ID);
         }
 
-        protected async Task GridDeleteButtonClick(MouseEventArgs args, Models.AldebaranDb.CustomerReservation customerReservation)
+        protected async Task CancelCustomerReservation(MouseEventArgs args, Models.AldebaranDb.CustomerReservation customerReservation)
         {
             try
             {
@@ -94,9 +94,13 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
                 if (await DialogService.Confirm("Esta seguro que desea cancelar esta reserva?") == true)
                 {
-                    var deleteResult = await AldebaranDbService.DeleteCustomerReservation(customerReservation);
+                    /* TO DO Agregar Ventana pára el ingreso del motivo de cancelacion de la reserva */
 
-                    if (deleteResult != null)
+                    var cancelStatusDocumentType = await AldebaranDbService.GetStatusDocumentTypeByDocumentAndOrder(documentType, 3);
+
+                    var cancelResult = await AldebaranDbService.UpdateCustomerReservationStatus(customerReservation, cancelStatusDocumentType.STATUS_DOCUMENT_TYPE_ID);
+
+                    if (cancelResult != null)
                     {
                         dialogResult = new DialogResult { Success = true, Message = "Reserva cancelada correctamente." };
                         await grid0.Reload();

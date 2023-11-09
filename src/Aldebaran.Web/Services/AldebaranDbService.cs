@@ -5101,47 +5101,6 @@ namespace Aldebaran.Web
 
         partial void OnCustomerReservationRead(ref IQueryable<CustomerReservation> items);
 
-        public async Task<CustomerReservation> DeleteCustomerReservation(CustomerReservation customerReservation)
-        {
-            var itemToDelete = Context.CustomerReservations
-                              .Where(i => i.CUSTOMER_RESERVATION_ID == customerReservation.CUSTOMER_RESERVATION_ID)
-                              .FirstOrDefault();
-
-            if (itemToDelete == null)
-            {
-                throw new Exception("Item no longer available");
-            }
-
-            OnCustomerReservationDeleted(itemToDelete);
-
-            var documentType = await GetDocumentTypeByCode("R");
-
-            if (documentType == null)
-            {
-                throw new Exception("Document type no longer available");
-            }
-
-            var cancelStatusDocumentType = await GetStatusDocumentTypeByDocumentAndOrder(documentType, 3);
-
-            itemToDelete.STATUS_DOCUMENT_TYPE_ID = cancelStatusDocumentType.STATUS_DOCUMENT_TYPE_ID;
-
-            Context.CustomerReservations.Update(itemToDelete);
-
-            try
-            {
-                Context.SaveChanges();
-            }
-            catch
-            {
-                Context.Entry(itemToDelete).State = EntityState.Unchanged;
-                throw;
-            }
-
-            OnAfterCustomerReservationDeleted(itemToDelete);
-
-            return itemToDelete;
-        }
-
         partial void OnCustomerReservationCreated(CustomerReservation item);
 
         partial void OnAfterCustomerReservationCreated(CustomerReservation item);
@@ -5446,25 +5405,20 @@ namespace Aldebaran.Web
 
         }
 
-        partial void OnCustomerOrderDeleted(CustomerOrder itemToDelete);
-        partial void OnAfterCustomerOrderDeleted(CustomerOrder itemToDelete);
-
         public async Task<CustomerOrder> UpdateCustomerOrderStatus(CustomerOrder customerOrder, short newDocumentStatusId)
         {
-            var itemToDelete = Context.CustomerOrders
+            var itemToUpdate = Context.CustomerOrders
                               .Where(i => i.CUSTOMER_ORDER_ID == customerOrder.CUSTOMER_ORDER_ID && i.STATUS_DOCUMENT_TYPE_ID.Equals(customerOrder.STATUS_DOCUMENT_TYPE_ID))
                               .FirstOrDefault();
 
-            if (itemToDelete == null)
+            if (itemToUpdate == null)
             {
                 throw new Exception("Item no longer available");
             }
 
-            OnCustomerOrderDeleted(itemToDelete);
+            itemToUpdate.STATUS_DOCUMENT_TYPE_ID = newDocumentStatusId;
 
-            itemToDelete.STATUS_DOCUMENT_TYPE_ID = newDocumentStatusId;
-
-            Context.CustomerOrders.Update(itemToDelete);
+            Context.CustomerOrders.Update(itemToUpdate);
 
             try
             {
@@ -5472,13 +5426,39 @@ namespace Aldebaran.Web
             }
             catch
             {
-                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                Context.Entry(itemToUpdate).State = EntityState.Unchanged;
                 throw;
             }
 
-            OnAfterCustomerOrderDeleted(itemToDelete);
+            return itemToUpdate;
+        }
 
-            return itemToDelete;
+        public async Task<CustomerReservation> UpdateCustomerReservationStatus(CustomerReservation customerReservation, short newDocumentStatusId)
+        {
+            var itemToUpdate = Context.CustomerReservations
+                              .Where(i => i.CUSTOMER_RESERVATION_ID == customerReservation.CUSTOMER_RESERVATION_ID && i.STATUS_DOCUMENT_TYPE_ID.Equals(customerReservation.STATUS_DOCUMENT_TYPE_ID))
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            itemToUpdate.STATUS_DOCUMENT_TYPE_ID = newDocumentStatusId;
+
+            Context.CustomerReservations.Update(itemToUpdate);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToUpdate).State = EntityState.Unchanged;
+                throw;
+            }
+
+            return itemToUpdate;
         }
 
         partial void OnOrderActivityDeleted(CustomerOrderActivity customerOrderActivity);

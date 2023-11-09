@@ -1,6 +1,6 @@
 @attribute [Authorize(Roles = "Admin,Customer Order Activity Editor")]
 
-<PageTitle>Agregar Tipo de Actividad</PageTitle>
+<PageTitle>Modificar Tipo de Actividad</PageTitle>
 
 <RadzenColumn SizeMD=12>
     <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">@alertMessage</RadzenAlert>
@@ -8,7 +8,7 @@
         <RadzenStack style="margin-bottom: 1rem">
             <RadzenRow style="margin-bottom: 1rem">
                 <RadzenColumn SizeMD="3">
-                    <RadzenLabel Text="Tipo de Actividad" Component="Warehouse" style="width: 100%" />
+                    <RadzenLabel Text="Modificar Tipo de Actividad" Component="Warehouse" style="width: 100%" />
                 </RadzenColumn>
                 <RadzenColumn SizeMD="9">
                     <RadzenDropDownDataGrid Data="@activityTypesForACTIVITY_ID" Title="ACTIVITY_TYPE_NAME" TextProperty="ActivityType.ACTIVITY_TYPE_NAME" ValueProperty="ACTIVITY_TYPE_ID" AllowClear=true

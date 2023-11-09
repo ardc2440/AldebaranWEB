@@ -51,7 +51,7 @@
                             </RadzenButton>
                             <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
                                           Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@CanEdit(customerReservation).Result"
-                                          Click=@(args => GridDeleteButtonClick(args, customerReservation)) @onclick:stopPropagation="true" title="Cancelar Reserva"/>
+                                          Click=@(args => CancelCustomerReservation(args, customerReservation)) @onclick:stopPropagation="true" title="Cancelar Reserva"/>
                         </Template>
                     </RadzenDataGridColumn>
                 </Columns>
