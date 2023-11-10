@@ -24,55 +24,41 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
 
         [Inject]
         protected NotificationService NotificationService { get; set; }
+
         [Inject]
         public AldebaranDbService AldebaranDbService { get; set; }
 
-        protected override async Task OnInitializedAsync()
-        {
-
-            purchaseOrdersForPURCHASEORDERID = await AldebaranDbService.GetPurchaseOrders();
-        }
         protected bool errorVisible;
         protected Models.AldebaranDb.PurchaseOrderActivity purchaseOrderActivity;
+        protected IEnumerable<Models.AldebaranDb.Employee> employees;
+        protected bool isSubmitInProgress;
 
-        protected IEnumerable<Models.AldebaranDb.PurchaseOrder> purchaseOrdersForPURCHASEORDERID;
-
+        protected override async Task OnInitializedAsync()
+        {
+            purchaseOrderActivity = new Models.AldebaranDb.PurchaseOrderActivity();
+            employees = await AldebaranDbService.GetEmployees();
+        }
         protected async Task FormSubmit()
         {
             try
             {
-                await AldebaranDbService.CreatePurchaseOrderActivity(purchaseOrderActivity);
+                isSubmitInProgress = true;
+                purchaseOrderActivity.ActivityEmployee = await AldebaranDbService.GetEmployeeByEmployeeId(purchaseOrderActivity.ACTIVITY_EMPLOYEE_ID);
                 DialogService.Close(purchaseOrderActivity);
             }
             catch (Exception ex)
             {
                 errorVisible = true;
             }
+            finally
+            {
+                isSubmitInProgress = false;
+            }
         }
 
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
             DialogService.Close(null);
-        }
-
-        bool hasPURCHASE_ORDER_IDValue;
-
-        [Parameter]
-        public int PURCHASE_ORDER_ID { get; set; }
-
-        [Inject]
-        protected SecurityService Security { get; set; }
-        public override async Task SetParametersAsync(ParameterView parameters)
-        {
-            purchaseOrderActivity = new Models.AldebaranDb.PurchaseOrderActivity();
-
-            hasPURCHASE_ORDER_IDValue = parameters.TryGetValue<int>("PURCHASE_ORDER_ID", out var hasPURCHASE_ORDER_IDResult);
-
-            if (hasPURCHASE_ORDER_IDValue)
-            {
-                purchaseOrderActivity.PURCHASE_ORDER_ID = hasPURCHASE_ORDER_IDResult;
-            }
-            await base.SetParametersAsync(parameters);
         }
     }
 }

@@ -38,10 +38,11 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         protected PurchaseOrder purchaseOrder;
         protected IEnumerable<Provider> providersForPROVIDERID;
         protected IEnumerable<ShipmentForwarderAgentMethod> shipmentForwarderAgentMethods;
+
         protected ICollection<PurchaseOrderDetail> purchaseOrderDetails;
         protected RadzenDataGrid<PurchaseOrderDetail> purchaseOrderDetailGrid;
 
-        protected IEnumerable<PurchaseOrderActivity> purchaseOrderActivities;
+        protected ICollection<PurchaseOrderActivity> purchaseOrderActivities;
         protected RadzenDataGrid<PurchaseOrderActivity> purchaseOrderActivityGrid;
 
         protected override async Task OnInitializedAsync()
@@ -58,6 +59,23 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         {
             try
             {
+                var now = DateTime.UtcNow;
+                // Complementar la orden compra
+                purchaseOrder.ORDER_NUMBER = "0000001"; // Count() + 1 <= Ojo que se puede presetnar que dos usuarios creen una orden al mismo tiempo por se le asignaria el mismo numero de orden y seria al momento de guardar que por el indice de la tabla no podrai guardarse la nueva orden, se sugiere que este numero sea calculado al momento de guardar
+                purchaseOrder.CREATION_DATE = now;
+                purchaseOrder.EMPLOYEE_ID = 0;//<= se debe obtener de la autenticacion
+                purchaseOrder.STATUS_DOCUMENT_TYPE_ID = 0;//<= se debe obtener el tipo de doc: Orden con Status: Pendiente
+
+                // Complemento para purchase-order-activity
+                foreach (var activity in purchaseOrderActivities)
+                {
+                    activity.EMPLOYEE_ID = 0;//<= se debe obtener de la autenticacion
+                    activity.CREATION_DATE = now;
+                }
+                // Se podra realizar un solo save con todas a partir de las relaciones????
+                purchaseOrder.PurchaseOrderActivities = purchaseOrderActivities;
+                purchaseOrder.PurchaseOrderDetails = purchaseOrderDetails;
+
                 await AldebaranDbService.CreatePurchaseOrder(purchaseOrder);
                 DialogService.Close(purchaseOrder);
             }
@@ -67,6 +85,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
             }
         }
 
+        #region PurchaseOrderDetail
         protected async Task AddPurchaseOrderDetailButtonClick(MouseEventArgs args)
         {
             var result = await DialogService.OpenAsync<AddPurchaseOrderDetail>("Nueva referencia");
@@ -76,7 +95,6 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
             purchaseOrderDetails.Add(detail);
             await purchaseOrderDetailGrid.Reload();
         }
-
         protected async Task DeletePurchaseOrderDetailButtonClick(MouseEventArgs args, PurchaseOrderDetail item)
         {
             if (await DialogService.Confirm("Está seguro que desea eliminar esta referencia?") == true)
@@ -85,6 +103,27 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 await purchaseOrderDetailGrid.Reload();
             }
         }
+        #endregion
+
+        #region PurchaseOrderActivity
+        protected async Task AddPurchaseOrderActivityButtonClick(MouseEventArgs args)
+        {
+            var result = await DialogService.OpenAsync<AddPurchaseOrderActivity>("Nueva actividad");
+            if (result == null)
+                return;
+            var detail = (PurchaseOrderActivity)result;
+            purchaseOrderActivities.Add(detail);
+            await purchaseOrderActivityGrid.Reload();
+        }
+        protected async Task DeletePurchaseOrderActivityButtonClick(MouseEventArgs args, PurchaseOrderActivity item)
+        {
+            if (await DialogService.Confirm("Está seguro que desea eliminar esta actividad?") == true)
+            {
+                purchaseOrderActivities.Remove(item);
+                await purchaseOrderActivityGrid.Reload();
+            }
+        }
+        #endregion
 
         protected async Task AgentForwarderHandler(ForwarderAgent agent)
         {
@@ -99,7 +138,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
 
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
-            DialogService.Close(null);
+            NavigationManager.NavigateTo("purchase-orders");
         }
     }
 }

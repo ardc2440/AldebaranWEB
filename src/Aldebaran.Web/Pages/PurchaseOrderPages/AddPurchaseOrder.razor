@@ -15,14 +15,6 @@
             <RadzenRow AlignItems="AlignItems.Start" Gap="2rem">
                 <RadzenColumn Size="6">
                     <RadzenStack>
-                        <RadzenFormField Text="Número de orden" Variant="Variant.Text" Style="width: 100%;">
-                            <ChildContent>
-                                <RadzenTextBox style="display: block; width: 100%" @bind-Value="@purchaseOrder.ORDER_NUMBER" Name="ORDER_NUMBER" />
-                            </ChildContent>
-                            <Helper>
-                                <RadzenRequiredValidator Component="ORDER_NUMBER" Text="Número de orden es requerido" />
-                            </Helper>
-                        </RadzenFormField>
                         <RadzenFormField Text="Proveedor" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
                                 <RadzenDropDownDataGrid Data="@providersForPROVIDERID" TextProperty="IDENTITY_NUMBER" ValueProperty="PROVIDER_ID" AllowClear=true
@@ -114,7 +106,7 @@
                                     <RadzenRow Gap="0" AlignItems="AlignItems.Center">
                                         <RadzenColumn Size="12">
                                             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
-                                                <RadzenButton Icon="add_circle_outline" Text="Nuevo" />
+                                                <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddPurchaseOrderActivityButtonClick" />
                                             </RadzenStack>
                                         </RadzenColumn>
                                     </RadzenRow>
@@ -132,8 +124,10 @@
                                             <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrderActivity" Property="PurchaseOrder.ORDER_NUMBER" Title="Purchase Order">
                                             </RadzenDataGridColumn>
                                             <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrderActivity" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center">
-                                                <Template Context="purchaseOrderActivityChild">
-                                                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Shade="Shade.Lighter" Variant="Variant.Flat" />
+                                                <Template Context="activity">
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
+                                                                  Shade="Shade.Lighter" Variant="Variant.Flat"
+                                                                  Click=@(args => DeletePurchaseOrderActivityButtonClick(args, activity)) @onclick:stopPropagation="true" />
                                                 </Template>
                                             </RadzenDataGridColumn>
                                         </Columns>
