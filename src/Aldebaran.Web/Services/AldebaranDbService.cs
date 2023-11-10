@@ -5816,5 +5816,54 @@ namespace Aldebaran.Web
             return customerReservation;
         }
 
+        public async Task<IQueryable<CustomerOrderInProcess>> GetCustomerOrderInProcesses(Query query = null)
+        {
+            var items = Context.CustomerOrderInProcesses.AsQueryable();
+
+            items = items.Include(i => i.CustomerOrder);
+            items = items.Include(i => i.Employee);
+            items = items.Include(i => i.ProcessSatellite);
+            items = items.Include(i => i.StatusDocumentType);
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach (var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+            return await Task.FromResult(items);
+        }
+
+        public async Task<IQueryable<CustomerOrderInProcessDetail>> GetCustomerOrderInProcessDetails(Query query = null)
+        {
+            var items = Context.CustomerOrderInProcessDetails.AsQueryable();
+
+            items = items.Include(i => i.CustomerOrderInProcess);
+            items = items.Include(i => i.CustomerOrderDetail);
+            items = items.Include(i => i.Warehouse);
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach (var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+            return await Task.FromResult(items);
+        }
+
     }
 }

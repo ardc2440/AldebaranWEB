@@ -59,6 +59,12 @@ namespace Aldebaran.Web.Shared
             await CleanData();
         }
 
+        public async Task Refresh(int reference_id)
+        {
+            var reference = await AldebaranDbService.GetItemReferenceByReferenceId(reference_id);
+            await Refresh(reference);
+        }
+
         public async Task Refresh(ItemReference reference)
         {
             if (reference == null)

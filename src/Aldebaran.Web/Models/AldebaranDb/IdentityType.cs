@@ -22,8 +22,6 @@ namespace Aldebaran.Web.Models.AldebaranDb
 
         public ICollection<Provider> Providers { get; set; }
 
-        public ICollection<CustomerOrderInProcess> CustomerOrders { get; set; }
-
         public ICollection<ProcessSatellite> ProcessSatellites { get; set; }
     }
 }

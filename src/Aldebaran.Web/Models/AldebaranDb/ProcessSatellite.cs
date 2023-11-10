@@ -44,6 +44,6 @@ namespace Aldebaran.Web.Models.AldebaranDb
 
         public IdentityType IdentityType { get; set; }
 
-        public ICollection<CustomerOrderInProcess> CustomerOrdersInProcess { get; set; }
+        public ICollection<CustomerOrderInProcess> CustomerOrderInProcesses { get; set; }
     }
 }

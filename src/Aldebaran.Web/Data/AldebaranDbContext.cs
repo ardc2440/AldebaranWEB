@@ -61,20 +61,26 @@ namespace Aldebaran.Web.Data
              .HasPrincipalKey(i => i.WAREHOUSE_ID);
 
             builder.Entity<Models.AldebaranDb.CustomerOrderInProcess>()
+             .HasOne(i => i.StatusDocumentType)
+             .WithMany(i => i.CustomerOrderInProcesses)
+             .HasForeignKey(i => i.STATUS_DOCUMENT_TYPE_ID)
+             .HasPrincipalKey(i => i.STATUS_DOCUMENT_TYPE_ID);
+
+            builder.Entity<Models.AldebaranDb.CustomerOrderInProcess>()
              .HasOne(i => i.Employee)
-             .WithMany(i => i.CustomerOrdersInProcess)
+             .WithMany(i => i.CustomerOrderInProcesses)
              .HasForeignKey(i => i.EMPLOYEE_RECIPIENT_ID)
              .HasPrincipalKey(i => i.EMPLOYEE_ID);
 
             builder.Entity<Models.AldebaranDb.CustomerOrderInProcess>()
              .HasOne(i => i.ProcessSatellite)
-             .WithMany(i => i.CustomerOrdersInProcess)
+             .WithMany(i => i.CustomerOrderInProcesses)
              .HasForeignKey(i => i.PROCESS_SATELLITE_ID)
              .HasPrincipalKey(i => i.PROCESS_SATELLITE_ID);
 
             builder.Entity<Models.AldebaranDb.CustomerOrderInProcess>()
              .HasOne(i => i.CustomerOrder)
-             .WithMany(i => i.CustomerOrdersInProcess)
+             .WithMany(i => i.CustomerOrderInProcesses)
              .HasForeignKey(i => i.CUSTOMER_ORDER_ID)
              .HasPrincipalKey(i => i.CUSTOMER_ORDER_ID);
 
@@ -659,6 +665,12 @@ namespace Aldebaran.Web.Data
         public DbSet<Models.AldebaranDb.CustomerOrderActivity> CustomerOrderActivities { get; set; }
 
         public DbSet<Models.AldebaranDb.CustomerOrderActivityDetail> CustomerOrderActivityDetails { get; set; }
+
+        public DbSet<Models.AldebaranDb.CustomerOrderInProcess> CustomerOrderInProcesses { get; set; }
+
+        public DbSet<Models.AldebaranDb.CustomerOrderInProcessDetail> CustomerOrderInProcessDetails { get; set; }
+
+        public DbSet<Models.AldebaranDb.ProcessSatellite> ProcessSatellites { get; set; }
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {

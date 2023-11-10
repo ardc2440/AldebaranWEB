@@ -48,6 +48,6 @@ namespace Aldebaran.Web.Models.AldebaranDb
 
         public ICollection<CustomerOrderActivity> CustomerOrderActivities { get; set; }
 
-        public ICollection<CustomerOrderInProcess> CustomerOrdersInProcess { get; set; }
+        public ICollection<CustomerOrderInProcess> CustomerOrderInProcesses { get; set; }
     }
 }

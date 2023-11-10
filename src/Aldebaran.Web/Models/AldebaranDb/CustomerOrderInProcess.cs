@@ -1,5 +1,4 @@
-﻿using Microsoft.OData.Edm;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Aldebaran.Web.Models.AldebaranDb
@@ -15,7 +14,7 @@ namespace Aldebaran.Web.Models.AldebaranDb
         public int CUSTOMER_ORDER_ID { get; set; }
 
         [Required]
-        public Date PROCESS_DATE { get; set; }
+        public DateTime PROCESS_DATE { get; set; }
 
         [Required]
         public string NOTES { get; set; }
@@ -32,11 +31,16 @@ namespace Aldebaran.Web.Models.AldebaranDb
         [Required]
         public DateTime CREATION_DATE { get; set; }
 
+        [Required]
+        public short STATUS_DOCUMENT_TYPE_ID { get; set; }
+
         public CustomerOrder CustomerOrder { get; set; }
 
         public Employee Employee { get; set; }
 
         public ProcessSatellite ProcessSatellite { get; set; }
+
+        public StatusDocumentType StatusDocumentType { get; set; }
 
         public ICollection<CustomerOrderInProcessDetail> CustomerOrderInProcessDetails { get; set; }
     }

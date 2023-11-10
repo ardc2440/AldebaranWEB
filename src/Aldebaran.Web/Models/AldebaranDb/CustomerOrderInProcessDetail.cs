@@ -17,7 +17,7 @@ namespace Aldebaran.Web.Models.AldebaranDb
         public int CUSTOMER_ORDER_DETAIL_ID { get; set; }
 
         [Required]
-        public int WAREHOUSE_ID { get; set; }
+        public short WAREHOUSE_ID { get; set; }
 
         [Required]
         public int PROCESSED_QUANTITY { get; set; }

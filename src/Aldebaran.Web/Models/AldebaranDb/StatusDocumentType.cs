@@ -25,11 +25,13 @@ namespace Aldebaran.Web.Models.AldebaranDb
         [Required]
         public short STATUS_ORDER { get; set; }
 
+        public DocumentType DocumentType { get; set; }
+
         public ICollection<CustomerReservation> CustomerReservations { get; set; }
 
         public ICollection<CustomerOrder> CustomerOrders { get; set; }
 
-        public DocumentType DocumentType { get; set; }
+        public ICollection<CustomerOrderInProcess> CustomerOrderInProcesses { get; set; }
 
     }
 }
