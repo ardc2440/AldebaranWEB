@@ -22,7 +22,7 @@ builder.Services.AddScoped<Aldebaran.Web.AldebaranDbService>();
 builder.Services.AddDbContext<AldebaranDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("AldebaranDbConnection"));
-});
+}, ServiceLifetime.Scoped, ServiceLifetime.Scoped);
 builder.Services.AddHttpClient("Aldebaran.Web").AddHeaderPropagation(o => o.Headers.Add("Cookie"));
 builder.Services.AddHeaderPropagation(o => o.Headers.Add("Cookie"));
 builder.Services.AddAuthentication();
@@ -31,7 +31,7 @@ builder.Services.AddScoped<Aldebaran.Web.SecurityService>();
 builder.Services.AddDbContext<ApplicationIdentityDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("AldebaranDbConnection"));
-});
+}, ServiceLifetime.Scoped, ServiceLifetime.Scoped);
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>().AddEntityFrameworkStores<ApplicationIdentityDbContext>().AddDefaultTokenProviders();
 builder.Services.AddControllers().AddOData(o =>
 {
@@ -44,10 +44,6 @@ builder.Services.AddControllers().AddOData(o =>
     o.AddRouteComponents("odata/Identity", oDataBuilder.GetEdmModel()).Count().Filter().OrderBy().Expand().Select().SetMaxTop(null).TimeZone = TimeZoneInfo.Utc;
 });
 builder.Services.AddScoped<AuthenticationStateProvider, Aldebaran.Web.ApplicationAuthenticationStateProvider>();
-builder.Services.AddDbContext<AldebaranDbContext>(options =>
-{
-    options.UseSqlServer(builder.Configuration.GetConnectionString("AldebaranDbConnection"));
-});
 var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

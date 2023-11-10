@@ -1,4 +1,5 @@
 using Aldebaran.Web.Models.AldebaranDb;
+using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
@@ -36,6 +37,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         protected PurchaseOrderDetail purchaseOrderDetail;
         protected IEnumerable<Warehouse> warehousesForWAREHOUSEID;
         protected bool isSubmitInProgress;
+        protected InventoryQuantities QuantitiesPanel;
 
         protected override async Task OnInitializedAsync()
         {
@@ -70,6 +72,8 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         protected async Task ItemReferenceHandler(ItemReference reference)
         {
             purchaseOrderDetail.REFERENCE_ID = reference?.REFERENCE_ID ?? 0;
+
+            await QuantitiesPanel.Refresh(reference);
         }
         protected async Task CancelButtonClick(MouseEventArgs args)
         {

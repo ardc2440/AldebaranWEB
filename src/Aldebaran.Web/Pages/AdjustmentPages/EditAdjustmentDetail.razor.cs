@@ -1,3 +1,4 @@
+using Aldebaran.Web.Models.AldebaranDb;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
@@ -28,23 +29,13 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         public AldebaranDbService AldebaranDbService { get; set; }
 
         [Parameter]
-        public int ADJUSTMENT_DETAIL_ID { get; set; }
+        public AdjustmentDetail adjustmentDetail { get; set; }
 
-        protected override async Task OnInitializedAsync()
-        {
-            adjustmentDetail = await AldebaranDbService.GetAdjustmentDetailByAdjustmentDetailId(ADJUSTMENT_DETAIL_ID);
-
-            adjustmentsForADJUSTMENTID = await AldebaranDbService.GetAdjustments();
-
-            itemReferencesForREFERENCEID = await AldebaranDbService.GetItemReferences();
-
-            warehousesForWAREHOUSEID = await AldebaranDbService.GetWarehouses();
-        }
         protected bool errorVisible;
 
-        protected bool isSubmitInProgress;
+        protected string alertMessage;
 
-        protected Models.AldebaranDb.AdjustmentDetail adjustmentDetail;
+        protected bool isSubmitInProgress;
 
         protected IEnumerable<Models.AldebaranDb.Adjustment> adjustmentsForADJUSTMENTID;
 
@@ -52,29 +43,38 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected IEnumerable<Models.AldebaranDb.Warehouse> warehousesForWAREHOUSEID;
 
+        protected override async Task OnInitializedAsync()
+        {
+            adjustmentsForADJUSTMENTID = await AldebaranDbService.GetAdjustments();
+
+            itemReferencesForREFERENCEID = await AldebaranDbService.GetItemReferences();
+
+            warehousesForWAREHOUSEID = await AldebaranDbService.GetWarehouses();
+        }
+
         protected async Task FormSubmit()
         {
             try
             {
+                errorVisible = false;
                 isSubmitInProgress = true;
-                await AldebaranDbService.UpdateAdjustmentDetail(ADJUSTMENT_DETAIL_ID, adjustmentDetail);
                 DialogService.Close(adjustmentDetail);
             }
             catch (Exception ex)
             {
+                alertMessage = ex.Message;
                 errorVisible = true;
             }
-            finally { isSubmitInProgress = false; }
+            finally
+            {
+                isSubmitInProgress = false;
+            }
         }
 
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
             DialogService.Close(null);
         }
-
-
-
-
 
         bool hasADJUSTMENT_IDValue;
 

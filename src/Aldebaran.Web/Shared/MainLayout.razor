@@ -31,27 +31,34 @@
     <RadzenBody Expanded="@sidebarExpanded">
         <RadzenRow class="rz-mx-auto rz-px-4 rz-pt-2 rz-pt-md-4 rz-pt-lg-6 rz-pt-xl-12 rz-pb-2 rz-pb-lg-12" Style="max-width: 1440px;">
             <RadzenColumn Size="12">
-            @Body
+                @Body
             </RadzenColumn>
         </RadzenRow>
     </RadzenBody>
     <RadzenSidebar Expanded="@sidebarExpanded" style="z-index: 2">
         <RadzenStack AlignItems="Radzen.AlignItems.Center" class="rz-py-4 rz-py-lg-6" Style="padding: var(--rz-panel-menu-item-padding); border-bottom: var(--rz-panel-menu-item-border);">
-            <RadzenImage Path="images/aldebaran-icon.svg"  style="width: 32px;"></RadzenImage>
+            <RadzenImage Path="images/aldebaran-icon.svg" style="width: 32px;"></RadzenImage>
             <RadzenImage Path="images/aldebaran-text.svg" style="width: 150px;"></RadzenImage>
             <!--<RadzenText Text="Aldebaran.Web" TextStyle="Radzen.Blazor.TextStyle.Subtitle1" class="rz-mb-0" style="color: var(--rz-sidebar-color);" />-->
         </RadzenStack>
         <RadzenPanelMenu>
             <RadzenPanelMenuItem Text="Home" Path="" />
 
-            <RadzenPanelMenuItem Text="Administración" Icon="admin_panel_settings" >
+            <RadzenPanelMenuItem Text="Administración" Icon="admin_panel_settings">
                 <RadzenPanelMenuItem Text="Artículos" Path="items" Visible="@Security.IsInRole("Admin","Item Editor","Item Viwer")" />
-                <RadzenPanelMenuItem Text="Artículos por áreas" Path="areas" Visible="@Security.IsInRole("Admin","Area Editor","Area Viwer")"/>
-                <RadzenPanelMenuItem Text="Transportadoras" Path="forwarders" Visible="@Security.IsInRole("Admin","Forwarder Editor","Forwarder Viwer")"/>
-                <RadzenPanelMenuItem Text="Clientes" Path="customers" Visible="@Security.IsInRole("Admin","Customer Editor","Customer Viwer")"/>
-                <RadzenPanelMenuItem Text="Proveedores" Path="providers" Visible="@Security.IsInRole("Admin","Provider Editor","Provider Viwer")"/>
+                <RadzenPanelMenuItem Text="Artículos por áreas" Path="areas" Visible="@Security.IsInRole("Admin","Area Editor","Area Viwer")" />
+                <RadzenPanelMenuItem Text="Transportadoras" Path="forwarders" Visible="@Security.IsInRole("Admin","Forwarder Editor","Forwarder Viwer")" />
+                <RadzenPanelMenuItem Text="Funcionarios" Path="employees" Visible="@Security.IsInRole("Admin","Employee Editor","Employee Viwer")" />
+                <RadzenPanelMenuItem Text="Clientes" Path="customers" Visible="@Security.IsInRole("Admin","Customer Editor","Customer Viwer")" />
+                <RadzenPanelMenuItem Text="Proveedores" Path="providers" Visible="@Security.IsInRole("Admin","Provider Editor","Provider Viwer")" />
+            </RadzenPanelMenuItem>
+            <RadzenPanelMenuItem Text="Movimientos de Inventario" Icon="extension">
                 <RadzenPanelMenuItem Text="Ordenes de compra" Path="purchase-orders" />
-                <RadzenPanelMenuItem Text="Ajustes Inventario" Path="adjustments" Visible=@Security.IsInRole("Admin","Adjustment Editor","Adjustment Viwer")/>
+                <RadzenPanelMenuItem Text="Reserva de Artículos" Path="customer-reservations" Visible=@Security.IsInRole("Admin","Customer Reservation Viwer","Customer Reservation Editor","Customer Order Editor") />
+                <RadzenPanelMenuItem Text="Pedido de Artículos" Path="customer-orders" Visible=@Security.IsInRole("Admin","Customer Order Viwer","Customer Order Editor") />
+                <RadzenPanelMenuItem Text="Traslado de Pedidos a Proceso " Path="process-customer-orders" Visible=@Security.IsInRole("Admin","Customer Order In Process Viwer","Customer Order In Process Editor") />
+                <RadzenPanelMenuItem Text="Despacho de Pedidos Procesados" Path="shipment-customer-orders" Visible=@Security.IsInRole("Admin","Customer Order Shipment Viwer","Customer Order Shipment Editor") />
+                <RadzenPanelMenuItem Text="Ajustes Inventario" Path="adjustments" Visible=@Security.IsInRole("Admin","Adjustment Editor","Adjustment Viwer") />
             </RadzenPanelMenuItem>
         </RadzenPanelMenu>
         <RadzenStack AlignItems="Radzen.AlignItems.Center" Gap="0" class="rz-py-4 rz-py-lg-6" Style="padding: var(--rz-panel-menu-item-padding);">

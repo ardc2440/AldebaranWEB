@@ -1,0 +1,87 @@
+@page "/customer-reservations"
+@attribute [Authorize(Roles = "Admin,Customer Reservation Viwer,Customer Reservation Editor")]
+
+<PageTitle>Reserva de Artículos</PageTitle>
+<RadzenStack>
+    @if (dialogResult != null && dialogResult.Success)
+    {
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Success">@dialogResult.Message</RadzenAlert>
+    }
+    @if (dialogResult != null && !dialogResult.Success)
+    {
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger">@dialogResult.Message</RadzenAlert>
+    }
+    <RadzenRow AlignItems="AlignItems.Center">
+        <RadzenColumn Size="12" SizeMD="6">
+            <RadzenText Text="Reserva de Artículos" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
+        </RadzenColumn>
+        <RadzenColumn Size="12" SizeMD="6">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddButtonClick" Variant="Variant.Flat" Visible="@Security.IsInRole("Admin","Customer Reservation Editor")" />
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
+    <RadzenRow>
+        <RadzenColumn SizeMD=12>
+            <RadzenDataGrid @ref="grid0" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                            Data="@customerReservations" TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservation" RowExpand=@GetChildData AllowColumnPicking="true" PageSizeText="items per page" PagingSummaryFormat="Page {0} de {1} ({2} items)" IsLoading="@isLoadingInProgress">
+                <Columns>
+                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservation" Property="RESERVATION_NUMBER" Title="No. Reserva">
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservation" Property="Customer.CUSTOMER_NAME" Title="Cliente">
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservation" Property="RESERVATION_DATE" Title="Fecha Reserva">
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservation" Property="EXPIRATION_DATE" Title="Fecha Expiración">
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservation" Property="StatusDocumentType.STATUS_DOCUMENT_TYPE_NAME" Title="Estado">
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservation" Property="NOTES" Title="Notas" Visible="false">
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservation" Filterable="false" Sortable="false" Width="110px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                        <Template Context="customerReservation">
+                            <RadzenButton Icon="assignment_turned_in" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                          Click="@(args => SendToCustomerOrder(customerReservation))" @onclick:stopPropagation="true"
+                                          Visible="@CanSendToCustomerOrder(customerReservation).Result" title="Enviar a Pedido">
+                            </RadzenButton>
+                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                          Click="@(args => EditRow(customerReservation))" @onclick:stopPropagation="true"
+                                          Visible="@CanEdit(customerReservation).Result" title="Modificar Reserva">
+                            </RadzenButton>
+                            <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
+                                          Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@CanEdit(customerReservation).Result"
+                                          Click=@(args => CancelCustomerReservation(args, customerReservation)) @onclick:stopPropagation="true" title="Cancelar Reserva"/>
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+                <Template Context="customerReservation">
+                    <RadzenStack Class="rz-my-8">
+                        <RadzenRow Gap="0" AlignItems="AlignItems.Center">
+                            <RadzenColumn Size="12" SizeMD="6">
+                                <RadzenText Visible="@(customerReservation != null)" Text="Referencias de la Reserva" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
+                            </RadzenColumn>
+                        </RadzenRow>
+                        <RadzenDataGrid ColumnWidth="200px" Visible="@(customerReservation != null)" @ref=CustomerReservationDetailsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                        Data="@customerReservation?.CustomerReservationDetails" TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservationDetail">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservationDetail" Property="RESERVED_QUANTITY" Title="Cantidad">
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservationDetail" Title="Artículo/Referencia">
+                                    <Template Context="detail">
+                                        <span>(@detail.ItemReference.Item.INTERNAL_REFERENCE) @detail.ItemReference.Item.ITEM_NAME - @detail.ItemReference.REFERENCE_NAME</span>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservationDetail" Property="SEND_TO_CUSTOMER_ORDER" Title="Agregar al Pedido" Visible="false">
+                                    <Template Context="detail">
+                                        <RadzenCheckBox @bind-Value="@detail.SEND_TO_CUSTOMER_ORDER" Name="SEND_TO_CUSTOMER_ORDER" Disabled="true"></RadzenCheckBox>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                            </Columns>
+                        </RadzenDataGrid>
+                    </RadzenStack>
+                </Template>
+            </RadzenDataGrid>
+        </RadzenColumn>
+    </RadzenRow>
+</RadzenStack>

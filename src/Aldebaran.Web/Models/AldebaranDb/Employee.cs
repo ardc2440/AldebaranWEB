@@ -40,5 +40,16 @@ namespace Aldebaran.Web.Models.AldebaranDb
 
         public ICollection<PurchaseOrder> PurchaseOrders { get; set; }
 
+        public ICollection<CustomerReservation> CustomerReservations { get; set; }
+
+        public ICollection<CustomerOrder> CustomerOrders { get; set; }
+
+        public ICollection<CustomerOrderActivity> CustomerOrderActivities { get; set; }
+
+        public ICollection<CustomerOrderActivityDetail> CustomerOrderActivityDetails { get; set; }
+
+        public ICollection<CustomerOrderActivityDetail> CustomerOrderActivityDetailsActivityEmployee { get; set; }
+
+        public ICollection<CustomerOrderInProcess> CustomerOrdersInProcess { get; set; }
     }
 }

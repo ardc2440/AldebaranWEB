@@ -10,6 +10,7 @@ namespace Aldebaran.Web.Models.AldebaranDb
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ADJUSTMENT_ID { get; set; }
 
+        [Required]
         public DateTime ADJUSTMENT_DATE { get; set; }
 
         [Required]

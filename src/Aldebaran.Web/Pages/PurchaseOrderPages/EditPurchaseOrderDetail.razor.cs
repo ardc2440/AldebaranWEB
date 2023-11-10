@@ -1,3 +1,4 @@
+using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
@@ -29,6 +30,8 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
 
         [Parameter]
         public int PURCHASE_ORDER_DETAIL_ID { get; set; }
+
+        protected InventoryQuantities QuantitiesPanel;
 
         protected override async Task OnInitializedAsync()
         {
@@ -109,6 +112,10 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 purchaseOrderDetail.WAREHOUSE_ID = hasWAREHOUSE_IDResult;
             }
             await base.SetParametersAsync(parameters);
+        }
+        protected async Task ItemReferenceHandler()
+        {
+            await QuantitiesPanel.Refresh(purchaseOrderDetail.ItemReference);
         }
     }
 }

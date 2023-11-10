@@ -1,0 +1,58 @@
+@page "/employees"
+@attribute [Authorize(Roles = "Admin,Employee Viwer,Employee Editor")]
+
+<PageTitle>Funcionarios</PageTitle>
+<RadzenStack>
+    @if (dialogResult != null && dialogResult.Success)
+    {
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Success">@dialogResult.Message</RadzenAlert>
+    }
+    @if (dialogResult != null && !dialogResult.Success)
+    {
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger">@dialogResult.Message</RadzenAlert>
+    }
+    <RadzenRow AlignItems="AlignItems.Center">
+        <RadzenColumn Size="12" SizeMD="6">
+            <RadzenText Text="Funcionarios" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
+        </RadzenColumn>
+        <RadzenColumn Size="12" SizeMD="6" Visible="@Security.IsInRole("Admin","Employee Editor")">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddButtonClick" Variant="Variant.Flat" />
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
+    <RadzenRow>
+        <RadzenColumn SizeMD=12>
+            <RadzenDataGrid @ref="employeesGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                            Data="@employees" TItem="Aldebaran.Web.Models.AldebaranDb.Employee" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowGrouping="true" AllowColumnReorder="true" IsLoading="@isLoadingInProgress">
+                <Columns>
+                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Employee" Property="IdentityType.IDENTITY_TYPE_CODE" Title="Tipo de documento">
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Employee" Property="IDENTITY_NUMBER" Title="Número de documento">
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Employee" Property="DISPLAY_NAME" Title="Nombre para Mostrar">
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Employee" Property="FULL_NAME" Title="Nombre Completo">
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Employee" Property="Area.AREA_NAME" Title="Area">
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Employee" Property="POSITION" Title="Cargo" Visible="false">
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Employee" Property="LOGIN_USER_ID" Title="Inicio de Session">
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Employee" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Employee Editor")">
+                        <Template Context="employee">
+                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat"
+                                          Size="ButtonSize.Medium" Visible="@Security.IsInRole("Admin","Employee Editor")"
+                                          Click="@(args => EditRow(employee))" @onclick:stopPropagation="true" />
+                            <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
+                                          Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@Security.IsInRole("Admin","Employee Editor")"
+                                          Click=@(args => GridDeleteButtonClick(args,employee)) @onclick:stopPropagation="true" />
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+           </RadzenDataGrid>
+        </RadzenColumn>
+    </RadzenRow>
+</RadzenStack>

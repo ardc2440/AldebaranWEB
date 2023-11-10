@@ -1,0 +1,40 @@
+@attribute [Authorize(Roles = "Admin,Adjustment Editor")]
+
+<PageTitle>Agregar Referencia a la Reserva</PageTitle>
+
+<RadzenColumn SizeMD=12>
+    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">@alertMessage</RadzenAlert>
+    <RadzenTemplateForm TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservationDetail" Data="@customerReservationDetail" Visible="@(customerReservationDetail != null)" Submit="@FormSubmit">
+        <RadzenStack style="margin-bottom: 1rem">
+            <RadzenRow style="margin-bottom: 1rem">
+                <ReferencePicker OnChange="ItemReferenceHandler" />
+                <RadzenRequiredValidator Text="La Referencia es requerida" Component="REFERENCE_ID" />
+            </RadzenRow>
+            <RadzenRow>
+                <RadzenColumn SizeMD="3">
+                    <RadzenLabel Text="Cantidad" Component="RESERVED_QUANTITY" style="width: 100%" />
+                </RadzenColumn>
+                <RadzenColumn SizeMD="9">
+                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@customerReservationDetail.RESERVED_QUANTITY" Name="RESERVED_QUANTITY" Placeholder="Ingrese la cantidad a reservar" />
+                    <RadzenRequiredValidator Component="RESERVED_QUANTITY" Text="La Cantidad es Requerida" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenRow>
+                <RadzenColumn SizeMD="3">
+                    <RadzenLabel Text="Marcación" Component="BRAND" style="width: 100%" />
+                </RadzenColumn>
+                <RadzenColumn SizeMD="9">
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@customerReservationDetail.BRAND" Name="BRAND" Placeholder="Ingrese la marcación del producto" />
+                </RadzenColumn>
+            </RadzenRow>
+        </RadzenStack>
+        <RadzenRow style="margin-bottom: 1rem">
+            <InventoryQuantities @ref="QuantitiesPanel" />
+        </RadzenRow>
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+            <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@isSubmitInProgress" />
+            <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
+        </RadzenStack>
+    </RadzenTemplateForm>
+</RadzenColumn>
+

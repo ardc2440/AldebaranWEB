@@ -1,5 +1,4 @@
 using Aldebaran.Web.Models;
-using Aldebaran.Web.Pages.ForwarderPages;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
@@ -51,7 +50,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
             await grid0.GoToPage(0);
 
-            adjustments = await AldebaranDbService.GetAdjustments(new Query { Filter = $@"I => i.NOTES.Contains(@0)", FilterParameters = new object[] { search }, Expand = "AdjustmentReason,AdjustmentType,Employee" });
+            adjustments = await AldebaranDbService.GetAdjustments(new Query { Filter = $@"I => i.AdjustmentReason.ADJUSTMENT_REASON_NAME.Contains(@0) || i.AdjustmentType.ADJUSTMENT_TYPE_NAME.Contains(@0) || i.NOTES.Contains(@0)", FilterParameters = new object[] { search }, Expand = "AdjustmentReason,AdjustmentType,Employee" });
 
         }
 
@@ -63,7 +62,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
                 await Task.Yield();
 
-                adjustments = await AldebaranDbService.GetAdjustments(new Query { Filter = $@"i => i.NOTES.Contains(@0)", FilterParameters = new object[] { search }, Expand = "AdjustmentReason,AdjustmentType,Employee" });
+                adjustments = await AldebaranDbService.GetAdjustments(new Query { Filter = $@"i => i.AdjustmentReason.ADJUSTMENT_REASON_NAME.Contains(@0) || i.AdjustmentType.ADJUSTMENT_TYPE_NAME.Contains(@0) || i.NOTES.Contains(@0)", FilterParameters = new object[] { search }, Expand = "AdjustmentReason,AdjustmentType,Employee" });
             }
             finally
             {
@@ -74,26 +73,12 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected async Task AddButtonClick(MouseEventArgs args)
         {
-            dialogResult = null;
-            var result = await DialogService.OpenAsync<AddAdjustment>("Add Adjustment", null);
-
-            if (result == true)
-            {
-                dialogResult = new DialogResult { Success = true, Message = "Ajuste creado correctamente." };
-            }
-            await grid0.Reload();
+            NavigationManager.NavigateTo("add-adjustment");
         }
 
         protected async Task EditRow(Models.AldebaranDb.Adjustment args)
         {
-            dialogResult = null;
-
-            var result = await DialogService.OpenAsync<EditAdjustment>("Edit Adjustment", new Dictionary<string, object> { { "ADJUSTMENT_ID", args.ADJUSTMENT_ID } });
-
-            if (result == true)
-            {
-                dialogResult = new DialogResult { Success = true, Message = "Ajuste modificado correctamente." };
-            }
+            NavigationManager.NavigateTo("edit-adjustment/" + args.ADJUSTMENT_ID);
         }
 
         protected async Task GridDeleteButtonClick(MouseEventArgs args, Models.AldebaranDb.Adjustment adjustment)
@@ -125,10 +110,11 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         }
 
         protected Models.AldebaranDb.Adjustment adjustment;
+
         protected async Task GetChildData(Models.AldebaranDb.Adjustment args)
         {
             adjustment = args;
-            var AdjustmentDetailsResult = await AldebaranDbService.GetAdjustmentDetails(new Query { Filter = $@"i => i.ADJUSTMENT_ID == {args.ADJUSTMENT_ID}", Expand = "Adjustment,ItemReference,Warehouse" });
+            var AdjustmentDetailsResult = await AldebaranDbService.GetAdjustmentDetails(new Query { Filter = $@"i => i.ADJUSTMENT_ID == {args.ADJUSTMENT_ID}", Expand = "Adjustment,ItemReference,Warehouse, ItemReference.Item" });
             if (AdjustmentDetailsResult != null)
             {
                 args.AdjustmentDetails = AdjustmentDetailsResult.ToList();
@@ -137,67 +123,5 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected RadzenDataGrid<Models.AldebaranDb.AdjustmentDetail> AdjustmentDetailsDataGrid;
 
-        protected async Task AdjustmentDetailsAddButtonClick(MouseEventArgs args, Models.AldebaranDb.Adjustment data)
-        {
-            dialogResult = null;
-
-            var result = await DialogService.OpenAsync<AddAdjustmentDetail>("Add AdjustmentDetails", new Dictionary<string, object> { { "ADJUSTMENT_ID", data.ADJUSTMENT_ID } });
-            if (result == true)
-            {
-                dialogResult = new DialogResult { Success = true, Message = "Referencia agregada correctamente al ajuste." };
-            }
-
-            await GetChildData(data);
-            await AdjustmentDetailsDataGrid.Reload();
-        }
-
-        protected async Task AdjustmentDetailsRowSelect(Models.AldebaranDb.AdjustmentDetail args, Models.AldebaranDb.Adjustment data)
-        {
-            var dialogResult = await DialogService.OpenAsync<EditAdjustmentDetail>("Edit AdjustmentDetails", new Dictionary<string, object> { { "ADJUSTMENT_DETAIL_ID", args.ADJUSTMENT_DETAIL_ID } });
-            await GetChildData(data);
-            await AdjustmentDetailsDataGrid.Reload();
-        }
-
-        protected async Task EditChildRow(Models.AldebaranDb.AdjustmentDetail args, Models.AldebaranDb.Adjustment data)
-        {
-            dialogResult = null;
-            var result = await DialogService.OpenAsync<EditForwarderAgent>("Actualizar referencia", new Dictionary<string, object> { { "ADJUSTMENT_DETAIL_ID", args.ADJUSTMENT_DETAIL_ID } });
-            if (result == true)
-            {
-                dialogResult = new DialogResult { Success = true, Message = "Referencia actualizada correctamente." };
-            }
-            await GetChildData(data);
-            await AdjustmentDetailsDataGrid.Reload();
-        }
-
-        protected async Task AdjustmentDetailsDeleteButtonClick(MouseEventArgs args, Models.AldebaranDb.AdjustmentDetail adjustmentDetail)
-        {
-            try
-            {
-                dialogResult = null;
-
-                if (await DialogService.Confirm("Esta seguro que desea eliminar esta referencia del ajuste actual?") == true)
-                {
-                    var deleteResult = await AldebaranDbService.DeleteAdjustmentDetail(adjustmentDetail.ADJUSTMENT_DETAIL_ID);
-
-                    await GetChildData(adjustment);
-
-                    if (deleteResult != null)
-                    {
-                        dialogResult = new DialogResult { Success = true, Message = "Referencia eliminada del ajuste correctamente." };
-                        await AdjustmentDetailsDataGrid.Reload();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                NotificationService.Notify(new NotificationMessage
-                {
-                    Severity = NotificationSeverity.Error,
-                    Summary = $"Error",
-                    Detail = $"Unable to delete AdjustmentDetail"
-                });
-            }
-        }
     }
 }

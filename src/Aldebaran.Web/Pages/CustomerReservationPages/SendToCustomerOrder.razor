@@ -1,0 +1,98 @@
+@page "/send-to-customer-order/{pCustomerReservationId}"
+
+@attribute [Authorize(Roles = "Admin,Customer Reservation Editor")]
+
+<PageTitle>Convertir Reserva en Pedido</PageTitle>
+<RadzenCard>
+    <RadzenStack>
+        <RadzenTemplateForm TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservation" Data="@customerReservation" Visible="@(customerReservation != null)" Submit="@FormSubmit">
+            <RadzenRow AlignItems="AlignItems.Center">
+                <RadzenColumn Size="12">
+                    <RadzenText Text="Convertir la Reserva en Pedido" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
+                </RadzenColumn>
+                <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">@errorMessage</RadzenAlert>
+            </RadzenRow>
+            <RadzenRow AlignItems="AlignItems.Start" Gap="2rem">
+                <RadzenColumn SizeMD="6">
+                    <RadzenStack>
+                        <RadzenRow />
+                        <RadzenColumn SizeMD="3">
+                            <RadzenLabel Text="Numero Reserva:" class="fw-bold" style="width: 100%" />
+                        </RadzenColumn>
+                        <RadzenColumn SizeMD="3">
+                            <span>@customerReservation.RESERVATION_NUMBER</span>
+                        </RadzenColumn>
+                        <RadzenColumn SizeMD="3">
+                            <RadzenLabel Text="Cliente" class="fw-bold" style="width: 100%" />
+                        </RadzenColumn>
+                        <RadzenColumn SizeMD="3">
+                            <RadzenRow>
+                                <span>@customerReservation.Customer.CUSTOMER_NAME</span>
+                            </RadzenRow>
+                            <RadzenRow>
+                                <span>@customerReservation.Customer.CUSTOMER_ADDRESS</span>
+                            </RadzenRow>
+                            <RadzenRow>
+                                <span>@customerReservation.Customer.PHONE1</span>
+                            </RadzenRow>
+                            <RadzenRow>
+                                <span>@customerReservation.Customer.EMAIL1</span>
+                            </RadzenRow>
+                        </RadzenColumn>
+                        <RadzenColumn SizeMD="3">
+                            <RadzenLabel Text="Fecha de Reserva" class="fw-bold" style="width: 100%" />
+                        </RadzenColumn>
+                        <RadzenColumn SizeMD="3">
+                            <span>@customerReservation.RESERVATION_DATE.ToShortDateString()</span>
+                        </RadzenColumn>
+                        <RadzenColumn SizeMD="3">
+                            <RadzenLabel Text="Fecha de Expiracion" class="fw-bold" style="width: 100%" />
+                        </RadzenColumn>
+                        <RadzenColumn SizeMD="3">
+                            <span>@customerReservation.EXPIRATION_DATE.ToShortDateString()</span>
+                        </RadzenColumn>
+                        <RadzenRow style="margin-bottom: 1rem">
+                            <RadzenColumn SizeMD="3">
+                                <RadzenLabel Text="Notas" Component="NOTES" class="fw-bold" style="width: 100%" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeMD="12">
+                                <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerReservation.NOTES" Name="NOTES" TabIndex="3" ReadOnly="true" />
+                            </RadzenColumn>
+                        </RadzenRow>
+                    </RadzenStack>
+                </RadzenColumn>
+                <RadzenColumn Size="6">
+                    <RadzenStack>
+                        <RadzenRow Gap="0" AlignItems="AlignItems.Start">
+                            <RadzenLabel Text="Articulos Reservados" class="fw-bold" style="width: 100%" />
+                        </RadzenRow>
+                        <RadzenDataGrid @ref="customerReservationDetailGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                        Data="@customerReservationDetails" TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservationDetail">
+                            <Columns>
+                                <RadzenDataGridColumn Width="70px" TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservationDetail" Property="SEND_TO_CUSTOMER_ORDER" Title="Confirmar">
+                                    <Template Context="detail">
+                                        <RadzenCheckBox @bind-Value="@detail.SEND_TO_CUSTOMER_ORDER" Name="SEND_TO_CUSTOMER_ORDER"></RadzenCheckBox>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn Width="200px" TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservationDetail" Title="Artículo/Referencia">
+                                    <Template Context="detail">
+                                        <span>(@detail.ItemReference.Item.INTERNAL_REFERENCE) @detail.ItemReference.Item.ITEM_NAME - @detail.ItemReference.REFERENCE_NAME</span>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservationDetail" Property="RESERVED_QUANTITY" Title="Cantidad" Width="80px" />
+                            </Columns>
+                        </RadzenDataGrid>
+                    </RadzenStack>
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenRow AlignItems="Radzen.AlignItems.Center">
+                <RadzenColumn Size="12">
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                        <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Generar Pedido" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@isSubmitInProgress" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
+                    </RadzenStack>
+                </RadzenColumn>
+            </RadzenRow>
+        </RadzenTemplateForm>
+    </RadzenStack>
+</RadzenCard>
