@@ -1,3 +1,4 @@
+using Aldebaran.Web.Models;
 using Aldebaran.Web.Models.AldebaranDb;
 using Aldebaran.Web.Models.ViewModels;
 using Microsoft.AspNetCore.Components;
@@ -43,6 +44,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
         protected bool isSubmitInProgress;
         protected bool isLoadingInProgress;
+        protected DialogResult dialogResult;
         protected string title;
 
         [Parameter]
@@ -140,12 +142,26 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         {
             try
             {
+                dialogResult = null;
+
+                var inProcessDocumentType = await AldebaranDbService.GetDocumentTypeByCode("T");
+
                 isSubmitInProgress = true;
 
                 if (!detailInProcesses.Any(x => x.THIS_QUANTITY > 0))
                     throw new Exception("No ha ingresado ninguna cantidad a trasladar");
 
-                await DialogService.Alert($"Pedido de Articulos Modificado Satisfactoriamente", "Información");
+                var cancelStatusDocumentType = await AldebaranDbService.GetStatusDocumentTypeByDocumentAndOrder(inProcessDocumentType, 2);
+
+                var cancelResult = await AldebaranDbService.CreateCustomerOrderInProcess(customerOrderInProcess);
+
+                if (cancelResult != null)
+                {
+                    dialogResult = new DialogResult { Success = true, Message = "Traslado a Proceso cancelado correctamente." };
+                    await CustomerOrderInProcessesDataGrid.Reload();
+                }
+
+                await DialogService.Alert($"Traslado a Proceso Grabado Satisfactoriamente", "Información");
                 NavigationManager.NavigateTo("customer-orders");
             }
             catch (Exception ex)

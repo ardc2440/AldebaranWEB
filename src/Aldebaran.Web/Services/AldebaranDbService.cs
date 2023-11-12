@@ -5865,5 +5865,40 @@ namespace Aldebaran.Web
             return await Task.FromResult(items);
         }
 
+        public async Task<CustomerOrderInProcess> UpdateCustomerOrderInProgressStatus(CustomerOrderInProcess customerOrderInProcess, short newDocumentStatusId)
+        {
+            var itemToUpdate = Context.CustomerOrderInProcesses
+                              .Where(i => i.CUSTOMER_ORDER_IN_PROCESS_ID == customerOrderInProcess.CUSTOMER_ORDER_IN_PROCESS_ID && i.STATUS_DOCUMENT_TYPE_ID.Equals(customerOrderInProcess.STATUS_DOCUMENT_TYPE_ID))
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            itemToUpdate.STATUS_DOCUMENT_TYPE_ID = newDocumentStatusId;
+
+            Context.CustomerOrderInProcesses.Update(itemToUpdate);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToUpdate).State = EntityState.Unchanged;
+                throw;
+            }
+
+            return itemToUpdate;
+        }
+
+        public async Task<CustomerOrderInProcess> CreateCustomerOrderInProcess(CustomerOrderInProcess customerOrderInProcess)
+        {
+
+            return new CustomerOrderInProcess();
+
+        }
+
     }
 }

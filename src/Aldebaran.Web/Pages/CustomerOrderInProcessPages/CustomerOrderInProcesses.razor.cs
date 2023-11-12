@@ -156,9 +156,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
                 if (await DialogService.Confirm("Esta seguro que desea cancelar este Traslado a Proceso?") == true)
                 {
-                    var cancelStatusDocumentType = await AldebaranDbService.GetStatusDocumentTypeByDocumentAndOrder(documentType, 2);
+                    var cancelStatusDocumentType = await AldebaranDbService.GetStatusDocumentTypeByDocumentAndOrder(inProcessDocumentType, 2);
 
-                    var cancelResult = new Object();//await AldebaranDbService.UpdateCustomerOrderStatus(customerOrder, cancelStatusDocumentType.STATUS_DOCUMENT_TYPE_ID);
+                    var cancelResult = await AldebaranDbService.UpdateCustomerOrderInProgressStatus(customerOrder, cancelStatusDocumentType.STATUS_DOCUMENT_TYPE_ID);
 
                     if (cancelResult != null)
                     {
