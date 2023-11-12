@@ -1,16 +1,18 @@
 @page "/reference-picker"
 
-<PageTitle>ReferencePicker</PageTitle>
 <RadzenPanel AllowCollapse="false" Collapsed="@CollapsedPanel" Class="rz-mx-auto toggle-panel" Expand=@(() => PanelCollapseChange("Expand")) Collapse=@(() => PanelCollapseChange("Collapse"))>
     <HeaderTemplate>
         <RadzenButton Click="@PanelCollapseToggle" class="@(CollapsedPanel ? "panel-collapsed":"panel-expanded")">
             @if (itemReference == null)
             {
-                <span>Referencia del artículo</span>
+                <span>Referencia</span>
             }
             else
             {
-                <span>(@line?.LINE_NAME) @item?.ITEM_NAME - @itemReference?.REFERENCE_NAME</span>
+                <div class="component-section d-flex flex-column justify-content-start">
+                    <span class="component-label">Referencia</span>
+                    <span>(@line?.LINE_NAME) @item?.ITEM_NAME - @itemReference?.REFERENCE_NAME</span>
+                </div>
             }
         </RadzenButton>
     </HeaderTemplate>

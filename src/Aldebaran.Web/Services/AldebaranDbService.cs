@@ -3681,8 +3681,8 @@ namespace Aldebaran.Web
         {
             var items = Context.PurchaseOrderActivities.AsQueryable();
 
+            items = items.Include(i => i.ActivityEmployee);
             items = items.Include(i => i.Employee);
-            items = items.Include(i => i.Employee1);
             items = items.Include(i => i.PurchaseOrder);
 
             if (query != null)
@@ -3713,8 +3713,8 @@ namespace Aldebaran.Web
                               .AsNoTracking()
                               .Where(i => i.PURCHASE_ORDER_ACTIVITY_ID == purchaseorderactivityid);
 
+            items = items.Include(i => i.ActivityEmployee);
             items = items.Include(i => i.Employee);
-            items = items.Include(i => i.Employee1);
             items = items.Include(i => i.PurchaseOrder);
 
             OnGetPurchaseOrderActivityByPurchaseOrderActivityId(ref items);

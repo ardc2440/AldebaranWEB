@@ -108,8 +108,6 @@
                                 <RadzenDataGrid ColumnWidth="200px" Visible="@(purchaseOrder != null)" @ref=PurchaseOrderDetailsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                 Data="@purchaseOrder?.PurchaseOrderDetails" TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrderDetail"  RowSelect="@(args => PurchaseOrderDetailsRowSelect(args, purchaseOrder))">
                                 <Columns>
-                                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrderDetail" Property="PURCHASE_ORDER_DETAIL_ID" Title="P U R C H A S E O R D E R D E T A I L I D">
-                                    </RadzenDataGridColumn>
                                     <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrderDetail" Property="RECEIVED_QUANTITY" Title="R E C E I V E D Q U A N T I T Y">
                                     </RadzenDataGridColumn>
                                     <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrderDetail" Property="REQUESTED_QUANTITY" Title="R E Q U E S T E D Q U A N T I T Y">

@@ -159,6 +159,17 @@ a {
     }
 
 /*JLinG*/
+.component-section {
+    transform: translate(0, -3px);
+}
+
+    .component-section .component-label {
+        font-size: .75rem;
+        color: var(--rz-input-placeholder-color);
+        line-height: 1rem;
+        transform: translate(0, -2px);
+    }
+
 .rz-stack {
     gap: 1rem;
 }
@@ -185,50 +196,53 @@ a {
     border: 0;
     box-shadow: none;
 }
+
     .toggle-panel .rz-panel-titlebar {
         margin: var(--rz-form-field-margin);
     }
-    .toggle-panel .rz-panel-titlebar button {
-        width: 100%;
-        background-color: rgba(0,0,0,0) !important;
-        text-align: left;
-        border: 0;
-        padding: 0.25rem;
-        color: var(--rz-input-value-color) !important;
-        font-size: var(--rz-input-font-size);
-        font-weight: normal;
-        border-bottom: var(--rz-input-border);
-        border-radius: 0;
-    }
 
-        .toggle-panel .rz-panel-titlebar button:hover,
-        .toggle-panel .rz-panel-titlebar button:active,
-        .toggle-panel .rz-panel-titlebar button:focus {
+        .toggle-panel .rz-panel-titlebar button {
+            width: 100%;
             background-color: rgba(0,0,0,0) !important;
-            background-image: none !important;
-        }
-
-        .toggle-panel .rz-panel-titlebar button:hover {
+            text-align: left;
+            border: 0;
+            padding: 0.25rem;
             color: var(--rz-input-value-color) !important;
-            border-bottom: var(--rz-border-hover);
+            font-size: var(--rz-input-font-size);
+            font-weight: normal;
+            border-bottom: var(--rz-input-border);
+            border-radius: 0;
         }
 
-        .toggle-panel .rz-panel-titlebar button:active {
-            color: var(--rz-input-value-color) !important;
-            border-bottom: var(--rz-border-hover);
-        }
+            .toggle-panel .rz-panel-titlebar button:hover,
+            .toggle-panel .rz-panel-titlebar button:active,
+            .toggle-panel .rz-panel-titlebar button:focus {
+                background-color: rgba(0,0,0,0) !important;
+                background-image: none !important;
+            }
 
-        .toggle-panel .rz-panel-titlebar button:focus {
-            color: var(--rz-input-value-color) !important;
-            border-bottom: var(--rz-border-hover);
-        }
+            .toggle-panel .rz-panel-titlebar button:hover {
+                color: var(--rz-input-value-color) !important;
+                border-bottom: var(--rz-border-hover);
+            }
 
-        .toggle-panel .rz-panel-titlebar button.panel-expanded {
-            color: var(--rz-form-field-label-focus-color) !important;
-            transition: left var(--rz-transition),right var(--rz-transition),border-width var(--rz-transition);
-            border-bottom: var(--rz-input-focus-border);
-            border-bottom-width: 2px;
-        }
-        .toggle-panel .rz-panel-titlebar button.invalid{
-            color: var(--rz-form-error-color) !important;
-        }
+            .toggle-panel .rz-panel-titlebar button:active {
+                color: var(--rz-input-value-color) !important;
+                border-bottom: var(--rz-border-hover);
+            }
+
+            .toggle-panel .rz-panel-titlebar button:focus {
+                color: var(--rz-input-value-color) !important;
+                border-bottom: var(--rz-border-hover);
+            }
+
+            .toggle-panel .rz-panel-titlebar button.panel-expanded {
+                color: var(--rz-form-field-label-focus-color) !important;
+                transition: left var(--rz-transition),right var(--rz-transition),border-width var(--rz-transition);
+                border-bottom: var(--rz-input-focus-border);
+                border-bottom-width: 2px;
+            }
+
+            .toggle-panel .rz-panel-titlebar button.invalid {
+                color: var(--rz-form-error-color) !important;
+            }

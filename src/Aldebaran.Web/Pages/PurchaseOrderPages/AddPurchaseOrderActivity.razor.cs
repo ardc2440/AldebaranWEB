@@ -1,3 +1,4 @@
+using Aldebaran.Web.Models.AldebaranDb;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
@@ -43,7 +44,13 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
             try
             {
                 isSubmitInProgress = true;
-                purchaseOrderActivity.ActivityEmployee = await AldebaranDbService.GetEmployeeByEmployeeId(purchaseOrderActivity.ACTIVITY_EMPLOYEE_ID);
+                var employee = await AldebaranDbService.GetEmployees(new Query
+                {
+                    Filter = "i=>i.EMPLOYEE_ID==@0",
+                    FilterParameters = new object[] { purchaseOrderActivity.ACTIVITY_EMPLOYEE_ID },
+                    Expand = "Area"
+                });
+                purchaseOrderActivity.ActivityEmployee = employee.Single();
                 DialogService.Close(purchaseOrderActivity);
             }
             catch (Exception ex)
@@ -56,6 +63,10 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
             }
         }
 
+        protected async Task EmployeeHandler(Employee employee)
+        {
+            purchaseOrderActivity.ACTIVITY_EMPLOYEE_ID = employee?.EMPLOYEE_ID ?? 0;
+        }
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
             DialogService.Close(null);

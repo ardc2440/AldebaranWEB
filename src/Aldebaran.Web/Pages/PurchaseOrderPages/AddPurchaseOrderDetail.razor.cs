@@ -55,7 +55,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 {
                     Filter = "i=> i.REFERENCE_ID==@0",
                     FilterParameters = new object[] { purchaseOrderDetail.REFERENCE_ID },
-                    Expand = "Item"
+                    Expand = "Item.Line"
                 });
                 purchaseOrderDetail.ItemReference = reference.Single();
                 DialogService.Close(purchaseOrderDetail);

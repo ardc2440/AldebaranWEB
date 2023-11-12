@@ -1,3 +1,4 @@
+using Aldebaran.Web.Models.AldebaranDb;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
@@ -37,14 +38,15 @@ namespace Aldebaran.Web.Pages.ProviderPages
         protected bool errorVisible;
         protected Models.AldebaranDb.ProviderReference providerReference;
         protected Models.AldebaranDb.Provider provider;
-        protected IEnumerable<Models.AldebaranDb.ItemReference> itemReferencesForREFERENCEID;
+        //protected IEnumerable<Models.AldebaranDb.ItemReference> itemReferencesForREFERENCEID;
         protected bool isSubmitInProgress;
+        public IEnumerable<int> CurrentProviderReferencesIds { get; set; }
 
         protected override async Task OnInitializedAsync()
         {
             provider = await AldebaranDbService.GetProviderByProviderId(PROVIDER_ID);
             var currentReferencesInProvider = await AldebaranDbService.GetProviderReferences(new Query { Filter = $"@i => i.PROVIDER_ID == @0", FilterParameters = new object[] { PROVIDER_ID } });
-            itemReferencesForREFERENCEID = await AldebaranDbService.GetItemReferences(new Query { Filter = $"@i => !@0.Contains(i.REFERENCE_ID)", FilterParameters = new object[] { currentReferencesInProvider.Select(s => s.REFERENCE_ID) } });
+            CurrentProviderReferencesIds = currentReferencesInProvider.Select(s => s.REFERENCE_ID);
             providerReference = new Models.AldebaranDb.ProviderReference();
             providerReference.PROVIDER_ID = PROVIDER_ID;
         }
@@ -66,7 +68,10 @@ namespace Aldebaran.Web.Pages.ProviderPages
                 isSubmitInProgress = false;
             }
         }
-
+        protected async Task ItemReferenceHandler(ItemReference reference)
+        {
+            providerReference.REFERENCE_ID = reference?.REFERENCE_ID ?? 0;
+        }
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
             DialogService.Close(null);

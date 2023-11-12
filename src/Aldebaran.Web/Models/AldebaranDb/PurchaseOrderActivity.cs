@@ -26,9 +26,9 @@ namespace Aldebaran.Web.Models.AldebaranDb
         [Required]
         public int ACTIVITY_EMPLOYEE_ID { get; set; }
 
-        public Employee Employee { get; set; }
+        public Employee ActivityEmployee { get; set; }
 
-        public Employee Employee1 { get; set; }
+        public Employee Employee { get; set; }
 
         public PurchaseOrder PurchaseOrder { get; set; }
 

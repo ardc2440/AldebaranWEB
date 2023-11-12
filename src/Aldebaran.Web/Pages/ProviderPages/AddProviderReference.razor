@@ -15,23 +15,8 @@
                     <RadzenLabel Text="@provider.PROVIDER_CODE" />
                 </div>
             </div>
-            <RadzenFormField Text="Referencia" Variant="Variant.Text">
-                <ChildContent>
-                    <RadzenDropDownDataGrid Data="@itemReferencesForREFERENCEID" TextProperty="REFERENCE_NAME" ValueProperty="REFERENCE_ID" AllowClear=true
-                                            style="display: block; width: 100%" @bind-Value="@providerReference.REFERENCE_ID" Name="REFERENCE_ID" AllowFilteringByWord="true">
-                        <Columns>
-                            <RadzenDropDownDataGridColumn Property="REFERENCE_CODE" Title="Referencia" />
-                            <RadzenDropDownDataGridColumn Property="PROVIDER_REFERENCE_CODE" Title="Referencia proveedor" />
-                            <RadzenDropDownDataGridColumn Property="REFERENCE_NAME" Title="Nombre" />
-                            <RadzenDropDownDataGridColumn Property="PROVIDER_REFERENCE_NAME" Title="Nombre referencia proveedor" />
-                            <RadzenDropDownDataGridColumn Property="IS_ACTIVE" Title="Activo" />
-                        </Columns>
-                    </RadzenDropDownDataGrid>
-                </ChildContent>
-                <Helper>
-                    <RadzenNumericRangeValidator Component="REFERENCE_ID" Min="1" Text="Referencia es requerida" />
-                </Helper>
-            </RadzenFormField>
+            <ReferencePicker OnChange="ItemReferenceHandler" ExcludedReferences="CurrentProviderReferencesIds" />
+            <RadzenRequiredValidator Text="Referencia requerida" Component="REFERENCE_ID" />
         </RadzenStack>
         <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
             <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@isSubmitInProgress" />

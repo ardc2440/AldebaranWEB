@@ -73,8 +73,12 @@
                             </RadzenColumn>
                         </RadzenRow>
                         <RadzenDataGrid ColumnWidth="80px" Visible="@(provider != null)" @ref=ProviderReferencesDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                        Data="@provider?.ProviderReferences" TItem="Aldebaran.Web.Models.AldebaranDb.ProviderReference" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowGrouping="true" AllowColumnReorder="true">
+                                        Data="@provider?.ProviderReferences" TItem="Aldebaran.Web.Models.AldebaranDb.ProviderReference" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowGrouping="true" AllowColumnReorder="true" Render="@OnRender">
                             <Columns>
+                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ProviderReference" Property="ItemReference.Item.Line.LINE_NAME" Title="Linea" Visible="false">
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ProviderReference" Property="ItemReference.Item.ITEM_NAME" Title="Artículo" Visible="false">
+                                </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ProviderReference" Property="ItemReference.REFERENCE_CODE" Title="Referencia">
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ProviderReference" Property="ItemReference.REFERENCE_NAME" Title="Nombre">
