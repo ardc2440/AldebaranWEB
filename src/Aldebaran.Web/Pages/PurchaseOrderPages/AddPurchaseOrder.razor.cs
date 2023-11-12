@@ -33,7 +33,6 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         [Inject]
         public AldebaranDbService AldebaranDbService { get; set; }
 
-        protected DateTime Now { get; set; }
         protected bool errorVisible;
         protected PurchaseOrder purchaseOrder;
         protected IEnumerable<Provider> providersForPROVIDERID;
@@ -47,7 +46,6 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
 
         protected override async Task OnInitializedAsync()
         {
-            Now = DateTime.UtcNow.AddDays(-1);
             purchaseOrderDetails = new List<PurchaseOrderDetail>();
             purchaseOrderActivities = new List<PurchaseOrderActivity>();
 

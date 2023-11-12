@@ -307,13 +307,13 @@ namespace Aldebaran.Web.Data
               .HasPrincipalKey(i => i.IDENTITY_TYPE_ID);
 
             builder.Entity<Models.AldebaranDb.PurchaseOrderActivity>()
-              .HasOne(i => i.Employee)
+              .HasOne(i => i.ActivityEmployee)
               .WithMany(i => i.PurchaseOrderActivities)
               .HasForeignKey(i => i.ACTIVITY_EMPLOYEE_ID)
               .HasPrincipalKey(i => i.EMPLOYEE_ID);
 
             builder.Entity<Models.AldebaranDb.PurchaseOrderActivity>()
-              .HasOne(i => i.Employee1)
+              .HasOne(i => i.Employee)
               .WithMany(i => i.PurchaseOrderActivities1)
               .HasForeignKey(i => i.EMPLOYEE_ID)
               .HasPrincipalKey(i => i.EMPLOYEE_ID);

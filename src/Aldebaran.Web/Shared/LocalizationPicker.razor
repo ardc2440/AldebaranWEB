@@ -7,7 +7,10 @@
             }
             else
             {
-                <span>(@country?.COUNTRY_CODE) @department?.DEPARTMENT_NAME - @city?.CITY_NAME</span>
+                <div class="component-section d-flex flex-column justify-content-start">
+                    <span class="component-label">Ubicación</span>
+                    <span>(@country?.COUNTRY_CODE) @department?.DEPARTMENT_NAME - @city?.CITY_NAME</span>
+                </div>
             }
         </RadzenButton>
     </HeaderTemplate>

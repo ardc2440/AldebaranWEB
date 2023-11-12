@@ -36,9 +36,9 @@ namespace Aldebaran.Web.Shared
         [Parameter]
         public ItemReference Reference { get; set; }
 
-        protected ICollection<ReferencesWarehouse> referencesWarehouses;
+        protected IEnumerable<ReferencesWarehouse> referencesWarehouses;
         protected RadzenDataGrid<ReferencesWarehouse> referencesWarehousesGrid;
-        protected ICollection<GroupPurchaseOrderDetail> totalTransitOrders;
+        protected IEnumerable<GroupPurchaseOrderDetail> totalTransitOrders;
         protected RadzenDataGrid<GroupPurchaseOrderDetail> totalTransitOrdersGrid;
         protected ICollection<ItemReferenceInventory> itemReferenceInventorys;
         protected RadzenDataGrid<ItemReferenceInventory> itemReferenceInventorysGrid;
@@ -72,19 +72,9 @@ namespace Aldebaran.Web.Shared
 
             Reference = reference;
 
-            var referencesWarehouses = await AldebaranDbService.GetReferencesWarehouses(new Query { Filter = $@"i => i.REFERENCE_ID == {Reference.REFERENCE_ID}", Expand = "Warehouse" });
+            referencesWarehouses = await AldebaranDbService.GetReferencesWarehouses(new Query { Filter = $@"i => i.REFERENCE_ID == @0", FilterParameters = new object[] { Reference.REFERENCE_ID }, Expand = "Warehouse" });
 
-            if (referencesWarehouses != null)
-            {
-                this.referencesWarehouses = referencesWarehouses.ToList();
-            }
-
-            var totalTransitOrders = await AldebaranDbService.GetTotalTransitOrdersPurchaseByReferenceId(Reference.REFERENCE_ID);
-            if (totalTransitOrders != null)
-            {
-                this.totalTransitOrders = totalTransitOrders;
-            }
-
+            this.totalTransitOrders = await AldebaranDbService.GetTotalTransitOrdersPurchaseByReferenceId(Reference.REFERENCE_ID);
             itemReferenceInventorys.Add(new ItemReferenceInventory() { Type = "Cantidad", Quantity = Reference?.INVENTORY_QUANTITY ?? 0 });
             itemReferenceInventorys.Add(new ItemReferenceInventory() { Type = "Pedido", Quantity = Reference?.RESERVED_QUANTITY ?? 0 });
             itemReferenceInventorys.Add(new ItemReferenceInventory() { Type = "Reservado", Quantity = Reference?.ORDERED_QUANTITY ?? 0 });

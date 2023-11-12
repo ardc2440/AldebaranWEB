@@ -4,43 +4,25 @@
 
 <PageTitle>Add PurchaseOrderActivity</PageTitle>
 <RadzenColumn SizeMD=12>
-    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">Cannot save PurchaseOrderActivity</RadzenAlert>
+    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">No se ha podido agregar la actividad</RadzenAlert>
     <RadzenTemplateForm TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrderActivity" Data="@purchaseOrderActivity" Visible="@(purchaseOrderActivity != null)" Submit="@FormSubmit">
         <RadzenStack>
-            <RadzenFormField Text="Fecha de ejecuci髇" Variant="Variant.Text">
+            <RadzenFormField Text="Fecha de ejecuci贸n" Variant="Variant.Text">
                 <ChildContent>
-                    <RadzenDatePicker DateFormat="MM/dd/yyyy" style="display: block; width: 100%" @bind-Value="@purchaseOrderActivity.EXECUTION_DATE" Name="EXECUTION_DATE" />
+                    <RadzenDatePicker DateFormat="MM/dd/yyyy" style="display: block; width: 100%" @bind-Value="@purchaseOrderActivity.EXECUTION_DATE" Name="EXECUTION_DATE" Min="@DateTime.Now.AddDays(-1)" />
                 </ChildContent>
                 <Helper>
-                    <RadzenRequiredValidator Component="EXECUTION_DATE" Text="Fecha de ejecuci髇 es requerida" />
+                    <RadzenRequiredValidator Component="EXECUTION_DATE" Text="Fecha de ejecuci贸n es requerida" />
                 </Helper>
             </RadzenFormField>
-
-            <RadzenFormField Text="Empleado" Variant="Variant.Text">
-                <ChildContent>
-                    <RadzenDropDownDataGrid Data="@employees" TextProperty="FULL_NAME" ValueProperty="EMPLOYEE_ID" AllowClear=true
-                                            style="display: block; width: 100%" @bind-Value="@purchaseOrderActivity.ACTIVITY_EMPLOYEE_ID" Name="EMPLOYEE_ID">
-                        <Columns>
-                            <RadzenDropDownDataGridColumn Property="INTERNAL_REFERENCE" Title="Referencia interna" >
-                                <Template Context="employee">
-                                    <span>@($"{employee.IdentityType.IDENTITY_TYPE_CODE}. {employee.IDENTITY_NUMBER}")</span>
-                                </Template>
-                            </RadzenDropDownDataGridColumn>
-                            <RadzenDropDownDataGridColumn Property="FULL_NAME" Title="Nombre" />
-                            <RadzenDropDownDataGridColumn Property="POSITION" Title="Posici髇" />
-                        </Columns>
-                    </RadzenDropDownDataGrid>
-                </ChildContent>
-                <Helper>
-                    <RadzenNumericRangeValidator Component="ITEM_ID" Min="1" Text="Art韈ulo es requerido" />
-                </Helper>
-            </RadzenFormField>
-            <RadzenFormField Text="Descripci髇" Variant="Variant.Text">
+            <EmployeePicker OnChange="EmployeeHandler" EMPLOYEE_ID="purchaseOrderActivity.ACTIVITY_EMPLOYEE_ID" />
+            <RadzenRequiredValidator Text="Empleado requerido" Component="EMPLOYEE_ID" />
+            <RadzenFormField Text="Descripci贸n" Variant="Variant.Text">
                 <ChildContent>
                     <RadzenTextArea style="display: block; width: 100%" @bind-Value="@purchaseOrderActivity.ACTIVITY_DESCRIPTION" Name="ACTIVITY_DESCRIPTION" Rows="3" />
                 </ChildContent>
                 <Helper>
-                    <RadzenRequiredValidator Component="ACTIVITY_DESCRIPTION" Text="Descripci髇 es requerida" />
+                    <RadzenRequiredValidator Component="ACTIVITY_DESCRIPTION" Text="Descripci贸n es requerida" />
                 </Helper>
             </RadzenFormField>
         </RadzenStack>

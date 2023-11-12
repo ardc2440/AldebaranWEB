@@ -38,6 +38,9 @@ namespace Aldebaran.Web.Shared
         [Parameter]
         public EventCallback<Models.AldebaranDb.ItemReference> OnChange { get; set; }
 
+        [Parameter]
+        public IEnumerable<int> ExcludedReferences { get; set; }
+
         protected IEnumerable<Models.AldebaranDb.Line> lines;
         protected Models.AldebaranDb.Line line;
         protected IEnumerable<Models.AldebaranDb.Item> items;
@@ -71,7 +74,10 @@ namespace Aldebaran.Web.Shared
                 return;
             }
             item = items.Single(s => s.ITEM_ID == (int)itemId);
-            itemReferences = await AldebaranDbService.GetItemReferences(new Query { Filter = $"i=>i.ITEM_ID==@0", FilterParameters = new object[] { itemId } });
+            if (ExcludedReferences != null && ExcludedReferences.Any())
+                itemReferences = await AldebaranDbService.GetItemReferences(new Query { Filter = $"i=>i.ITEM_ID==@0 && !@1.Contains(i.REFERENCE_ID)", FilterParameters = new object[] { itemId, ExcludedReferences } });
+            else
+                itemReferences = await AldebaranDbService.GetItemReferences(new Query { Filter = $"i=>i.ITEM_ID==@0", FilterParameters = new object[] { itemId } });
         }
         protected async Task OnReferenceChange(object referenceId)
         {

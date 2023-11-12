@@ -31,6 +31,8 @@
                     <RadzenTextBox style="display: block; width: 100%" @bind-Value="@forwarder.FAX" Name="FAX" />
                 </ChildContent>
             </RadzenFormField>
+            <LocalizationPicker OnChange="LocalizationHandler" />
+            <RadzenRequiredValidator Text="Ubicación requerida" Component="CITY_ID" Style="margin-top: -0.875rem;" />
             <RadzenFormField Text="Dirección" Variant="Variant.Text">
                 <ChildContent>
                     <RadzenTextBox style="display: block; width: 100%" @bind-Value="@forwarder.FORWARDER_ADDRESS" Name="FORWARDER_ADDRESS" />
@@ -49,8 +51,6 @@
                     <RadzenTextBox style="display: block; width: 100%" @bind-Value="@forwarder.MAIL2" Name="MAIL2" />
                 </ChildContent>
             </RadzenFormField>
-            <LocalizationPicker OnChange="LocalizationHandler" />
-            <RadzenRequiredValidator Text="Ubicación requerida" Component="CITY_ID" Style="margin-top: -0.875rem;" />
         </RadzenStack>
         <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
             <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@isSubmitInProgress" />

@@ -48,7 +48,15 @@ namespace Aldebaran.Web.Pages.ProviderPages
             await grid0.GoToPage(0);
             providers = await AldebaranDbService.GetProviders(new Query { Filter = $@"i => i.IDENTITY_NUMBER.Contains(@0) || i.PROVIDER_CODE.Contains(@0) || i.PROVIDER_NAME.Contains(@0) || i.PROVIDER_ADDRESS.Contains(@0) || i.PHONE.Contains(@0) || i.FAX.Contains(@0) || i.EMAIL.Contains(@0) || i.CONTACT_PERSON.Contains(@0)", FilterParameters = new object[] { search }, Expand = "City.Department.Country,IdentityType" });
         }
-
+        void OnRender(DataGridRenderEventArgs<Models.AldebaranDb.ProviderReference> args)
+        {
+            if (args.FirstRender)
+            {
+                args.Grid.Groups.Add(new GroupDescriptor() { Title = "Línea", Property = "ItemReference.Item.Line.LINE_NAME", SortOrder = SortOrder.Descending });
+                args.Grid.Groups.Add(new GroupDescriptor() { Title = "Artículo", Property = "ItemReference.Item.ITEM_NAME", SortOrder = SortOrder.Descending });
+                StateHasChanged();
+            }
+        }
         protected override async Task OnInitializedAsync()
         {
             try
@@ -121,7 +129,7 @@ namespace Aldebaran.Web.Pages.ProviderPages
                 isLoadingInProgress = true;
 
                 await Task.Yield();
-                var ProviderReferencesResult = await AldebaranDbService.GetProviderReferences(new Query { Filter = $@"i => i.PROVIDER_ID == {args.PROVIDER_ID}", Expand = "Provider,ItemReference" });
+                var ProviderReferencesResult = await AldebaranDbService.GetProviderReferences(new Query { Filter = $@"i => i.PROVIDER_ID == {args.PROVIDER_ID}", Expand = "Provider,ItemReference.Item.Line" });
                 if (ProviderReferencesResult != null)
                 {
                     args.ProviderReferences = ProviderReferencesResult.ToList();
