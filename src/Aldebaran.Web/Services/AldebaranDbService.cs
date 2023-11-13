@@ -5900,5 +5900,27 @@ namespace Aldebaran.Web
 
         }
 
+        public async Task<IQueryable<ProcessSatellite>> GetProcessSatellites(Query query = null)
+        {
+            var items = Context.ProcessSatellites.AsQueryable();
+
+            items = items.Include(i => i.IdentityType);
+            items = items.Include(i => i.City);
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach (var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+            return await Task.FromResult(items);
+        }
     }
 }

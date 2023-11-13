@@ -1,12 +1,3 @@
-using Aldebaran.Web.Models;
-using Aldebaran.Web.Models.AldebaranDb;
-using Aldebaran.Web.Models.ViewModels;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
-using Radzen;
-using Radzen.Blazor;
-
 namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 {
     public partial class AddCustomerOrderInProcess
@@ -38,14 +29,16 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         protected bool errorVisible;
         protected string errorMessage;
         protected CustomerOrder customerOrder;
+        protected CustomerOrderInProcess customerOrderInProcess;
         protected DocumentType documentType;
+        protected DialogResult dialogResult;
         protected ICollection<DetailInProcess> detailInProcesses;
         protected RadzenDataGrid<DetailInProcess> customerOrderDetailGrid;
-
         protected bool isSubmitInProgress;
         protected bool isLoadingInProgress;
-        protected DialogResult dialogResult;
         protected string title;
+        protected IEnumerable<Employee> employeesFOREMPLOYEEID;
+        protected IEnumerable<ProcessSatellite> processSatellitesFORPROCESSSATELLITEID;
 
         [Parameter]
         public string pCustomerOrderId { get; set; } = "NoParamInput";
@@ -54,19 +47,29 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         {
             try
             {
+                if (!int.TryParse(pCustomerOrderId, out var customerOrderId))
+                    throw new Exception("El Id de Pedido recibido no es valido");
+
                 isLoadingInProgress = true;
 
                 await Task.Yield();
 
-                if (!int.TryParse(pCustomerOrderId, out var customerOrderId))
-                    throw new Exception("El Id de Pedido recibido no es valido");
+                documentType = await AldebaranDbService.GetDocumentTypeByCode("T");
 
-                documentType = await AldebaranDbService.GetDocumentTypeByCode("P");
+                customerOrder = await GetCustomerOrder(customerOrderId);
 
-                var customerOrders = await AldebaranDbService.GetCustomerOrders(new Query { Filter = $@"i => i.CUSTOMER_ORDER_ID.Equals(@0)", FilterParameters = new object[] { customerOrderId }, Expand = "Customer.City.Department.Country" });
-                customerOrder = customerOrders.FirstOrDefault();
+                detailInProcesses = await GetDetailsInProcess(customerOrder);
 
-                await GetDetailsInProcess(customerOrder);
+                processSatellitesFORPROCESSSATELLITEID = await AldebaranDbService.GetProcessSatellites();
+                employeesFOREMPLOYEEID = await AldebaranDbService.GetEmployees();
+
+                customerOrderInProcess = new CustomerOrderInProcess()
+                {
+                    CREATION_DATE = DateTime.Now,
+                    CUSTOMER_ORDER_ID = customerOrder.CUSTOMER_ORDER_ID,
+                    PROCESS_DATE = DateTime.Today,
+                    TRANSFER_DATETIME = DateTime.Today
+                };
 
                 title = $"Traslado a Proceso para el Pedido No. {customerOrder.ORDER_NUMBER}";
             }
@@ -78,64 +81,40 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
             finally { isLoadingInProgress = false; }
         }
 
-        protected async Task<List<CustomerOrderDetail>> GetOrderDetails(Models.AldebaranDb.CustomerOrder args)
-        {
-            var CustomerOrderDetailsResult = await AldebaranDbService.GetCustomerOrderDetails(new Query { Filter = $@"i => i.CUSTOMER_ORDER_ID == {args.CUSTOMER_ORDER_ID}", Expand = "CustomerOrder,ItemReference,ItemReference.Item" });
-            if (CustomerOrderDetailsResult != null)
-            {
-                return CustomerOrderDetailsResult.ToList();
-            }
+        protected async Task<CustomerOrder> GetCustomerOrder(int customerOrderId) => (await AldebaranDbService.GetCustomerOrders(new Query { Filter = $@"i => i.CUSTOMER_ORDER_ID.Equals(@0)", FilterParameters = new object[] { customerOrderId }, Expand = "Customer.City.Department.Country" }) ?? throw new ArgumentException($"The customer order with the ID {customerOrderId}, isn't more available")).FirstOrDefault();
 
-            return new List<CustomerOrderDetail>();
-        }
+        protected async Task<List<CustomerOrderDetail>> GetOrderDetails(Models.AldebaranDb.CustomerOrder args) => await AldebaranDbService.GetCustomerOrderDetails(new Query { Filter = $@"i => i.CUSTOMER_ORDER_ID == {args.CUSTOMER_ORDER_ID}", Expand = "CustomerOrder,ItemReference,ItemReference.Item" }) == null ? new List<CustomerOrderDetail>() : (await AldebaranDbService.GetCustomerOrderDetails(new Query { Filter = $@"i => i.CUSTOMER_ORDER_ID == {args.CUSTOMER_ORDER_ID}", Expand = "CustomerOrder,ItemReference,ItemReference.Item" })).ToList();
 
-        private async Task GetDetailsInProcess(CustomerOrder customerOrder)
-        {
-            var orderDetail = await GetOrderDetails(customerOrder);
-
-            var detailInProcesses = new List<DetailInProcess>();
-
-            foreach (var item in orderDetail)
-            {
-                var viewOrderDetail = new DetailInProcess()
-                {
-                    REFERENCE_ID = item.REFERENCE_ID,
-                    CUSTOMER_ORDER_DETAIL_ID = item.CUSTOMER_ORDER_DETAIL_ID,
-                    REFERENCE_DESCRIPTION = $"({item.ItemReference.Item.INTERNAL_REFERENCE}) {item.ItemReference.Item.ITEM_NAME} - {item.ItemReference.REFERENCE_NAME}",
-                    PENDING_QUANTITY = item.REQUESTED_QUANTITY - item.PROCESSED_QUANTITY - item.DELIVERED_QUANTITY,
-                    PROCESSED_QUANTITY = item.PROCESSED_QUANTITY,
-                    DELIVERED_QUANTITY = item.DELIVERED_QUANTITY,
-                    BRAND = item.BRAND,
-                    THIS_QUANTITY = 0
-                };
-                detailInProcesses.Add(viewOrderDetail);
-            }
-
-            this.detailInProcesses = detailInProcesses;
-        }
+        protected async Task<List<DetailInProcess>> GetDetailsInProcess(CustomerOrder customerOrder) => (from item in await GetOrderDetails(customerOrder) ?? throw new ArgumentException($"The references of Customer Order {customerOrder.ORDER_NUMBER}, could not be obtained.")
+                                                                                                         let viewOrderDetail = new DetailInProcess()
+                                                                                                         {
+                                                                                                             REFERENCE_ID = item.REFERENCE_ID,
+                                                                                                             CUSTOMER_ORDER_DETAIL_ID = item.CUSTOMER_ORDER_DETAIL_ID,
+                                                                                                             REFERENCE_DESCRIPTION = $"({item.ItemReference.Item.INTERNAL_REFERENCE}) {item.ItemReference.Item.ITEM_NAME} - {item.ItemReference.REFERENCE_NAME}",
+                                                                                                             PENDING_QUANTITY = item.REQUESTED_QUANTITY - item.PROCESSED_QUANTITY - item.DELIVERED_QUANTITY,
+                                                                                                             PROCESSED_QUANTITY = item.PROCESSED_QUANTITY,
+                                                                                                             DELIVERED_QUANTITY = item.DELIVERED_QUANTITY,
+                                                                                                             BRAND = item.BRAND,
+                                                                                                             THIS_QUANTITY = 0
+                                                                                                         }
+                                                                                                         select viewOrderDetail).ToList();
 
         protected async Task SendToProcess(Models.ViewModels.DetailInProcess args)
         {
-            var result = await DialogService.OpenAsync<SetQuantityInProcess>("Cantidad a Trasladar", new Dictionary<string, object> { { "detailInProcess", args } });
-
-            if (result == null)
-                return;
-
-            var detail = (DetailInProcess)result;
-
-            args.THIS_QUANTITY = detail.THIS_QUANTITY;
-
-            await customerOrderDetailGrid.Reload();
+            if (await DialogService.OpenAsync<SetQuantityInProcess>("Cantidad a Trasladar", new Dictionary<string, object> { { "detailInProcess", args } }) != null)
+                await customerOrderDetailGrid.Reload();
         }
 
         protected async Task CancelToProcess(Models.ViewModels.DetailInProcess args)
         {
-            if (await DialogService.Confirm("Está seguro que desea eliminar esta referencia?", "Confirmar") == true)
+            if (await DialogService.Confirm("Está seguro que desea eliminar esta referencia?", "Confirmar") != true)
             {
-                args.THIS_QUANTITY = 0;
-
-                await customerOrderDetailGrid.Reload();
+                return;
             }
+
+            args.THIS_QUANTITY = 0;
+
+            await customerOrderDetailGrid.Reload();
         }
 
         protected async Task FormSubmit()
@@ -144,25 +123,20 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
             {
                 dialogResult = null;
 
-                var inProcessDocumentType = await AldebaranDbService.GetDocumentTypeByCode("T");
-
                 isSubmitInProgress = true;
 
                 if (!detailInProcesses.Any(x => x.THIS_QUANTITY > 0))
                     throw new Exception("No ha ingresado ninguna cantidad a trasladar");
 
-                var cancelStatusDocumentType = await AldebaranDbService.GetStatusDocumentTypeByDocumentAndOrder(inProcessDocumentType, 2);
+                //var customerOrderInProcessDetails = MapDetailsInProcess(detailInProcesses);
 
-                //var cancelResult = await AldebaranDbService.CreateCustomerOrderInProcess(customerOrderInProcess);
+                var result = await AldebaranDbService.CreateCustomerOrderInProcess(customerOrderInProcess);
 
-                //if (cancelResult != null)
-                //{
-                //    dialogResult = new DialogResult { Success = true, Message = "Traslado a Proceso cancelado correctamente." };
-                //    await CustomerOrderInProcessesDataGrid.Reload();
-                //}
-
-                await DialogService.Alert($"Traslado a Proceso Grabado Satisfactoriamente", "Información");
-                NavigationManager.NavigateTo("customer-orders");
+                if (result != null)
+                {
+                    await DialogService.Alert($"Traslado a Proceso Grabado Satisfactoriamente", "Información");
+                    NavigationManager.NavigateTo("process-customer-orders");
+                }
             }
             catch (Exception ex)
             {
@@ -172,47 +146,15 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
             finally { isSubmitInProgress = false; }
         }
 
+        protected async Task<CustomerOrderInProcessDetail> MapDetailsInProcess(DetailInProcess detailInProcess)
+        {
+            return new CustomerOrderInProcessDetail();
+        }
+
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
-            if (await DialogService.Confirm("Está seguro que cancelar la creacion del Pedido??", "Confirmar") == true)
+            if (await DialogService.Confirm("Está seguro que cancelar la creacion del Traslado??", "Confirmar") == true)
                 NavigationManager.NavigateTo("process-customer-orders");
-        }
-
-        protected async Task AddCustomerOrderDetailButtonClick(MouseEventArgs args)
-        {
-            /*var result = await DialogService.OpenAsync<AddCustomerOrderDetail>("Nueva referencia", new Dictionary<string, object> { { "customerOrderDetails", customerOrderDetails } });
-
-            if (result == null)
-                return;
-
-            var detail = (CustomerOrderDetail)result;
-
-            customerOrderDetails.Add(detail);
-
-            await customerOrderDetailGrid.Reload();*/
-        }
-
-        protected async Task DeleteCustomerOrderDetailButtonClick(MouseEventArgs args, CustomerOrderDetail item)
-        {
-            /*if (await DialogService.Confirm("Está seguro que desea eliminar esta referencia?", "Confirmar") == true)
-            {
-                customerOrderDetails.Remove(item);
-
-                await customerOrderDetailGrid.Reload();
-            }*/
-        }
-
-        protected async Task EditRow(CustomerOrderDetail args)
-        {
-            /*var result = await DialogService.OpenAsync<EditCustomerOrderDetail>("Actualizar referencia", new Dictionary<string, object> { { "customerOrderDetail", args } });
-            if (result == null)
-                return;
-            var detail = (CustomerOrderDetail)result;
-
-            customerOrderDetails.Remove(args);
-            customerOrderDetails.Add(detail);
-
-            await customerOrderDetailGrid.Reload();*/
         }
     }
 }
