@@ -36,7 +36,7 @@
                             <RadzenColumn SizeMD="9">
                                 <RadzenDropDownDataGrid Data="@customersForCUSTOMERID" TextProperty="CUSTOMER_NAME" ValueProperty="CUSTOMER_ID" AllowClear=true
                                                         Placeholder="Seleccione un cliente" style="display: block; width: 100%" @bind-Value="@customerReservation.CUSTOMER_ID" Name="ADJUSTMENT_REASON_ID" TabIndex="1" />
-                                <RadzenNumericRangeValidator Component="CUSTOMER_ID" Min="1" Text="El Cliente de la reserva es requerido "></RadzenNumericRangeValidator>
+                                <RadzenRequiredValidator Component="CUSTOMER_ID" DefaultValue="0" Text="El Cliente de la reserva es requerido "></RadzenRequiredValidator>
                             </RadzenColumn>
                         </RadzenRow>
                         <RadzenRow style="margin-bottom: 1rem">

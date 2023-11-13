@@ -36,19 +36,21 @@ namespace Aldebaran.Web.Pages.ProviderPages
         public int PROVIDER_ID { get; set; }
 
         protected bool errorVisible;
-        protected Models.AldebaranDb.ProviderReference providerReference;
-        protected Models.AldebaranDb.Provider provider;
-        //protected IEnumerable<Models.AldebaranDb.ItemReference> itemReferencesForREFERENCEID;
+        protected ProviderReference providerReference;
+        protected Provider provider;
         protected bool isSubmitInProgress;
-        public IEnumerable<int> CurrentProviderReferencesIds { get; set; }
+        public IEnumerable<ItemReference> ItemReferences { get; set; }
 
         protected override async Task OnInitializedAsync()
         {
             provider = await AldebaranDbService.GetProviderByProviderId(PROVIDER_ID);
             var currentReferencesInProvider = await AldebaranDbService.GetProviderReferences(new Query { Filter = $"@i => i.PROVIDER_ID == @0", FilterParameters = new object[] { PROVIDER_ID } });
-            CurrentProviderReferencesIds = currentReferencesInProvider.Select(s => s.REFERENCE_ID);
-            providerReference = new Models.AldebaranDb.ProviderReference();
-            providerReference.PROVIDER_ID = PROVIDER_ID;
+            var currentProviderReferencesIds = currentReferencesInProvider.Select(s => s.REFERENCE_ID);
+            ItemReferences = await AldebaranDbService.GetItemReferences(new Query { Filter = "i => !@0.Contains(i.REFERENCE_ID)", FilterParameters = new object[] { currentProviderReferencesIds }, Expand = "Item.Line" });
+            providerReference = new ProviderReference
+            {
+                PROVIDER_ID = PROVIDER_ID
+            };
         }
 
         protected async Task FormSubmit()

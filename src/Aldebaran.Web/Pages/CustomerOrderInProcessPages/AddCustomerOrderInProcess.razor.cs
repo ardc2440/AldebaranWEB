@@ -153,13 +153,13 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
                 var cancelStatusDocumentType = await AldebaranDbService.GetStatusDocumentTypeByDocumentAndOrder(inProcessDocumentType, 2);
 
-                var cancelResult = await AldebaranDbService.CreateCustomerOrderInProcess(customerOrderInProcess);
+                //var cancelResult = await AldebaranDbService.CreateCustomerOrderInProcess(customerOrderInProcess);
 
-                if (cancelResult != null)
-                {
-                    dialogResult = new DialogResult { Success = true, Message = "Traslado a Proceso cancelado correctamente." };
-                    await CustomerOrderInProcessesDataGrid.Reload();
-                }
+                //if (cancelResult != null)
+                //{
+                //    dialogResult = new DialogResult { Success = true, Message = "Traslado a Proceso cancelado correctamente." };
+                //    await CustomerOrderInProcessesDataGrid.Reload();
+                //}
 
                 await DialogService.Alert($"Traslado a Proceso Grabado Satisfactoriamente", "Información");
                 NavigationManager.NavigateTo("customer-orders");

@@ -15,7 +15,7 @@
                     <RadzenLabel Text="@provider.PROVIDER_CODE" />
                 </div>
             </div>
-            <ReferencePicker OnChange="ItemReferenceHandler" ExcludedReferences="CurrentProviderReferencesIds" />
+            <ReferencePicker OnChange="ItemReferenceHandler" References="ItemReferences" />
             <RadzenRequiredValidator Text="Referencia requerida" Component="REFERENCE_ID" />
         </RadzenStack>
         <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">

@@ -43,12 +43,13 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
 
         protected ICollection<PurchaseOrderActivity> purchaseOrderActivities;
         protected RadzenDataGrid<PurchaseOrderActivity> purchaseOrderActivityGrid;
+        private bool submitted = false;
+        protected bool isSubmitInProgress;
 
         protected override async Task OnInitializedAsync()
         {
             purchaseOrderDetails = new List<PurchaseOrderDetail>();
             purchaseOrderActivities = new List<PurchaseOrderActivity>();
-
             purchaseOrder = new PurchaseOrder();
             providersForPROVIDERID = await AldebaranDbService.GetProviders(new Query { Expand = "City.Department.Country" });
         }
@@ -57,36 +58,59 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         {
             try
             {
+                isSubmitInProgress = true;
+                submitted = true;
+                if (!purchaseOrderDetails.Any())
+                    return;
                 var now = DateTime.UtcNow;
                 // Complementar la orden compra
-                purchaseOrder.ORDER_NUMBER = "0000001"; // Count() + 1 <= Ojo que se puede presetnar que dos usuarios creen una orden al mismo tiempo por se le asignaria el mismo numero de orden y seria al momento de guardar que por el indice de la tabla no podrai guardarse la nueva orden, se sugiere que este numero sea calculado al momento de guardar
+                var employee = (await AldebaranDbService.GetEmployees(new Query { Filter = "i=>i.LOGIN_USER_ID==@0", FilterParameters = new object[] { Security.User.Id } })).Single();
+                var documentType = await AldebaranDbService.GetDocumentTypeByCode("O");
+                var statusDocumentType = await AldebaranDbService.GetStatusDocumentTypeByDocumentAndOrder(documentType, 1);
                 purchaseOrder.CREATION_DATE = now;
-                purchaseOrder.EMPLOYEE_ID = 0;//<= se debe obtener de la autenticacion
-                purchaseOrder.STATUS_DOCUMENT_TYPE_ID = 0;//<= se debe obtener el tipo de doc: Orden con Status: Pendiente
-
-                // Complemento para purchase-order-activity
-                foreach (var activity in purchaseOrderActivities)
+                purchaseOrder.EMPLOYEE_ID = employee.EMPLOYEE_ID;
+                purchaseOrder.STATUS_DOCUMENT_TYPE_ID = statusDocumentType.STATUS_DOCUMENT_TYPE_ID;
+                purchaseOrder.PurchaseOrderActivities = purchaseOrderActivities.Select(s => new PurchaseOrderActivity
                 {
-                    activity.EMPLOYEE_ID = 0;//<= se debe obtener de la autenticacion
-                    activity.CREATION_DATE = now;
-                }
-                // Se podra realizar un solo save con todas a partir de las relaciones????
-                purchaseOrder.PurchaseOrderActivities = purchaseOrderActivities;
-                purchaseOrder.PurchaseOrderDetails = purchaseOrderDetails;
+                    EXECUTION_DATE = s.EXECUTION_DATE,
+                    ACTIVITY_DESCRIPTION = s.ACTIVITY_DESCRIPTION,
+                    CREATION_DATE = now,
+                    EMPLOYEE_ID = employee.EMPLOYEE_ID,
+                    ACTIVITY_EMPLOYEE_ID = s.ACTIVITY_EMPLOYEE_ID
+                }).ToList();
+                purchaseOrder.PurchaseOrderDetails = purchaseOrderDetails.Select(s => new PurchaseOrderDetail
+                {
+                    REFERENCE_ID = s.REFERENCE_ID,
+                    WAREHOUSE_ID = s.WAREHOUSE_ID,
+                    REQUESTED_QUANTITY = s.REQUESTED_QUANTITY,
+                }).ToList();
 
                 await AldebaranDbService.CreatePurchaseOrder(purchaseOrder);
-                DialogService.Close(purchaseOrder);
+                NavigationManager.NavigateTo("purchase-orders");
             }
             catch (Exception ex)
             {
                 errorVisible = true;
+            }
+            finally
+            {
+                isSubmitInProgress = false;
             }
         }
 
         #region PurchaseOrderDetail
         protected async Task AddPurchaseOrderDetailButtonClick(MouseEventArgs args)
         {
-            var result = await DialogService.OpenAsync<AddPurchaseOrderDetail>("Nueva referencia");
+            var providerReferences = await AldebaranDbService.GetProviderReferences(new Query { Filter = $"@i => i.PROVIDER_ID == @0", FilterParameters = new object[] { PROVIDER_ID } });
+            var providerReferencesIds = new List<int>();
+            foreach (var reference in providerReferences)
+            {
+                if (!purchaseOrderDetails.Any(a => a.REFERENCE_ID == reference.REFERENCE_ID))
+                    providerReferencesIds.Add(reference.REFERENCE_ID);
+            }
+            //Solo las referencias del proveedor
+            var itemReferences = await AldebaranDbService.GetItemReferences(new Query { Filter = "i => @0.Contains(i.REFERENCE_ID)", FilterParameters = new object[] { providerReferencesIds }, Expand = "Item.Line" });
+            var result = await DialogService.OpenAsync<AddPurchaseOrderDetail>("Nueva referencia", new Dictionary<string, object> { { "ProviderItemReferences", itemReferences.ToList() } });
             if (result == null)
                 return;
             var detail = (PurchaseOrderDetail)result;
@@ -95,7 +119,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         }
         protected async Task DeletePurchaseOrderDetailButtonClick(MouseEventArgs args, PurchaseOrderDetail item)
         {
-            if (await DialogService.Confirm("Est· seguro que desea eliminar esta referencia?") == true)
+            if (await DialogService.Confirm("Est√° seguro que desea eliminar esta referencia?") == true)
             {
                 purchaseOrderDetails.Remove(item);
                 await purchaseOrderDetailGrid.Reload();
@@ -115,7 +139,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         }
         protected async Task DeletePurchaseOrderActivityButtonClick(MouseEventArgs args, PurchaseOrderActivity item)
         {
-            if (await DialogService.Confirm("Est· seguro que desea eliminar esta actividad?") == true)
+            if (await DialogService.Confirm("Est√° seguro que desea eliminar esta actividad?") == true)
             {
                 purchaseOrderActivities.Remove(item);
                 await purchaseOrderActivityGrid.Reload();
@@ -138,5 +162,11 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         {
             NavigationManager.NavigateTo("purchase-orders");
         }
+
+        protected async Task PROVIDER_IDChange(object providerId)
+        {
+            PROVIDER_ID = (int)providerId == 0 ? null : (int)providerId;
+        }
+        private int? PROVIDER_ID { get; set; }
     }
 }

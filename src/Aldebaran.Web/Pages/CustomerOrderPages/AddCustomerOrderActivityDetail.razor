@@ -13,7 +13,7 @@
                 <RadzenColumn SizeMD="9">
                     <RadzenDropDownDataGrid Data="@activityTypesForACTIVITY_ID" Title="ACTIVITY_TYPE_NAME" TextProperty="ActivityType.ACTIVITY_TYPE_NAME" ValueProperty="ACTIVITY_TYPE_ID" AllowClear=true
                                             Disabled=@(hasACTIVITY_TYPE_IDValue) Placeholder="Seleccione un tipo de actividad" style="display: block; width: 100%" @bind-Value="@customerOrderActivityDetail.ACTIVITY_TYPE_ID" Name="ACTIVITY_TYPE_ID" TabIndex="2" />
-                    <RadzenNumericRangeValidator Component="ACTIVITY_TYPE_ID" Min="1" Text="El Tipo de Actividad es requerida"></RadzenNumericRangeValidator>
+                    <RadzenRequiredValidator Component="ACTIVITY_TYPE_ID" DefaultValue="0" Text="El Tipo de Actividad es requerida"></RadzenRequiredValidator>
                 </RadzenColumn>
             </RadzenRow>
             <RadzenRow style="margin-bottom: 2rem">
@@ -29,7 +29,7 @@
                         </RadzenDropDownDataGrid>
                     </ChildContent>
                 </RadzenFormField>
-                <RadzenNumericRangeValidator Component="ACTIVITY_EMPLOYEE_ID" Min="1" Text="El Empleado de la actividad es requerido"></RadzenNumericRangeValidator>
+                <RadzenRequiredValidator Component="ACTIVITY_EMPLOYEE_ID" DefaultValue="0" Text="El Empleado de la actividad es requerido"></RadzenRequiredValidator>
             </RadzenRow>
         </RadzenStack>
         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
