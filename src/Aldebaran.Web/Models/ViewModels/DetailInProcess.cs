@@ -17,5 +17,7 @@
         public int THIS_QUANTITY { get; set; }
 
         public string BRAND { get; set; }
+
+        public short WAREHOUSE_ID { get; set; }
     }
 }

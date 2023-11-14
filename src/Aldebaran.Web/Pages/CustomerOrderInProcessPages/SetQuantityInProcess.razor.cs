@@ -1,3 +1,4 @@
+using Aldebaran.Web.Models.AldebaranDb;
 using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
@@ -32,10 +33,23 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         [Parameter]
         public DetailInProcess detailInProcess { get; set; }
 
+        [Parameter]
+        public short WAREHOUSE_ID { get; set; }
+
         protected bool errorVisible;
         protected string alertMessage;
         protected bool isSubmitInProgress;
         protected InventoryQuantities QuantitiesPanel;
+        protected IEnumerable<Warehouse> warehousesForWAREHOUSEID;
+
+        bool hasWAREHOUSE_IDValue;
+
+        protected override async Task OnInitializedAsync()
+        {
+            warehousesForWAREHOUSEID = await AldebaranDbService.GetWarehouses();
+
+            detailInProcess.THIS_QUANTITY = 1;
+        }
 
         protected async Task FormSubmit()
         {
@@ -43,6 +57,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
             {
                 errorVisible = false;
                 isSubmitInProgress = true;
+
+                if (detailInProcess.PENDING_QUANTITY < detailInProcess.THIS_QUANTITY)
+                    throw new Exception("La cantidad de este traslado debe ser menor o igual a la cantidad pendiente del artículo");
 
                 if (await DialogService.Confirm("Está seguro que desea enviar a proceso esta cantidad de la referencia?", "Confirmar") == true)
                     DialogService.Close(detailInProcess);
@@ -65,6 +82,13 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
         public override async Task SetParametersAsync(ParameterView parameters)
         {
+            hasWAREHOUSE_IDValue = parameters.TryGetValue<short>("WAREHOUSE_ID", out var hasWAREHOUSE_IDResult);
+
+            if (hasWAREHOUSE_IDValue)
+            {
+                detailInProcess.WAREHOUSE_ID = hasWAREHOUSE_IDResult;
+            }
+
             await base.SetParametersAsync(parameters);
         }
 

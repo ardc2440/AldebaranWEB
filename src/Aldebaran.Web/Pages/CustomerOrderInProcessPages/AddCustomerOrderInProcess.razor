@@ -121,7 +121,7 @@
                             <RadzenLabel Text="Referencias del Pedido" class="fw-bold" style="width: 100%" />
                         </RadzenColumn>
                         <RadzenDataGrid @ref="customerOrderDetailGrid" ColumnWidth="200px" AllowFiltering="false" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                        Data="@detailInProcesses" TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess">
+                                        Data="@detailsInProcess" TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess">
                             <Columns>
                                 <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Title="Artículo/Referencia">
                                     <Template Context="detail">

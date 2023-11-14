@@ -5893,11 +5893,37 @@ namespace Aldebaran.Web
             return itemToUpdate;
         }
 
+        partial void OnCustomerOrderInProcessCreated(CustomerOrderInProcess customerOrderInProcess);
+        partial void OnAfterCustomerOrderInProcessCreated(CustomerOrderInProcess customerOrderInProcess);
+
         public async Task<CustomerOrderInProcess> CreateCustomerOrderInProcess(CustomerOrderInProcess customerOrderInProcess)
         {
 
-            return new CustomerOrderInProcess();
+            OnCustomerOrderInProcessCreated(customerOrderInProcess);
 
+            var existingItem = Context.CustomerOrderInProcesses
+                              .Where(i => i.CUSTOMER_ORDER_IN_PROCESS_ID == customerOrderInProcess.CUSTOMER_ORDER_IN_PROCESS_ID)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+                throw new Exception("Item already available");
+            }
+
+            try
+            {
+                Context.CustomerOrderInProcesses.Add(customerOrderInProcess);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(customerOrderInProcess).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterCustomerOrderInProcessCreated(customerOrderInProcess);
+
+            return customerOrderInProcess;
         }
 
         public async Task<IQueryable<ProcessSatellite>> GetProcessSatellites(Query query = null)

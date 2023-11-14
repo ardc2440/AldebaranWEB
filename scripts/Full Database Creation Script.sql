@@ -1565,6 +1565,47 @@ GO
 
 /* Triggers */
 
+CREATE OR ALTER TRIGGER TrgInsertCustomerOrderStatus 
+   ON  CUSTOMER_ORDERS_IN_PROCESS 
+   AFTER INSERT
+AS 
+BEGIN
+	SET NOCOUNT ON;
+	
+	DECLARE @TOTAL_DELIVERED_QUANTITY INT, @STATUS_ORDER SMALLINT, @CUSTOMER_ORDER_STATUS_ID SMALLINT 
+
+	IF EXISTS (SELECT 1 
+				 FROM inserted a
+				 JOIN status_document_types b on b.STATUS_DOCUMENT_TYPE_ID = a.STATUS_DOCUMENT_TYPE_ID
+				WHERE b.STATUS_ORDER = 1) 
+	BEGIN
+
+		SELECT @TOTAL_DELIVERED_QUANTITY = SUM(b.DELIVERED_QUANTITY) 
+		  FROM inserted a 
+		  JOIN customer_order_details b ON b.CUSTOMER_ORDER_ID = a.CUSTOMER_ORDER_ID
+
+		IF @TOTAL_DELIVERED_QUANTITY = 0 
+			SET @STATUS_ORDER = 2
+		ELSE 
+			SET @STATUS_ORDER = 3
+		
+		SELECT @CUSTOMER_ORDER_STATUS_ID = STATUS_DOCUMENT_TYPE_ID
+		  FROM document_types a
+		  JOIN status_document_types b ON b.DOCUMENT_TYPE_ID = a.DOCUMENT_TYPE_ID
+		 WHERE a.DOCUMENT_TYPE_CODE = 'P'
+		   AND b.STATUS_ORDER = @STATUS_ORDER
+		
+		UPDATE b
+		   SET b.STATUS_DOCUMENT_TYPE_ID = @CUSTOMER_ORDER_STATUS_ID
+		  FROM inserted a
+		  JOIN customer_orders b ON b.CUSTOMER_ORDER_ID = a.CUSTOMER_ORDER_ID
+
+	END
+END
+GO
+
+
+/* Cambia el estado de la Customer Orden Y Retorna a las Bodegas las cantidades que pertenecen al Proceso actual Cancelado */
 CREATE OR ALTER TRIGGER TrgUpdateCustomerOrderStatus 
    ON  CUSTOMER_ORDERS_IN_PROCESS 
    AFTER UPDATE
@@ -1586,6 +1627,14 @@ BEGIN
 		  JOIN customer_order_in_process_details b ON b.CUSTOMER_ORDER_IN_PROCESS_ID = a.CUSTOMER_ORDER_IN_PROCESS_ID
 		  JOIN customer_order_details c ON c.CUSTOMER_ORDER_DETAIL_ID = b.CUSTOMER_ORDER_DETAIL_ID
 		 
+		 UPDATE d
+		    SET d.QUANTITY = d.QUANTITY + b.PROCESSED_QUANTITY 
+		   FROM inserted a
+		   JOIN customer_order_in_process_details b ON b.CUSTOMER_ORDER_IN_PROCESS_ID = a.CUSTOMER_ORDER_IN_PROCESS_ID
+		   JOIN customer_order_details c ON c.CUSTOMER_ORDER_DETAIL_ID = b.CUSTOMER_ORDER_DETAIL_ID
+		   JOIN references_warehouse d ON d.REFERENCE_ID = c.REFERENCE_ID
+									  AND d.WAREHOUSE_ID = b.WAREHOUSE_ID		 
+
 		SELECT @TOTAL_PROCESSED_QUANTITY = SUM(b.PROCESSED_QUANTITY), @TOTAL_DELIVERED_QUANTITY = SUM(b.DELIVERED_QUANTITY) 
 		  FROM inserted a 
 		  JOIN customer_order_details b ON b.CUSTOMER_ORDER_ID = a.CUSTOMER_ORDER_ID
@@ -1608,7 +1657,86 @@ BEGIN
 		   SET b.STATUS_DOCUMENT_TYPE_ID = @CUSTOMER_ORDER_STATUS_ID
 		  FROM inserted a
 		  JOIN customer_orders b ON b.CUSTOMER_ORDER_ID = a.CUSTOMER_ORDER_ID	
-
 	END 
+END
+GO
+
+/* Agrega al detalle de la Customer Order y de las bodegas las cantidades trasladadas en el proceso actual */
+CREATE OR ALTER TRIGGER TrgInsertCustomerOrderDetailQuantity 
+   ON  CUSTOMER_ORDER_IN_PROCESS_DETAILS 
+   AFTER INSERT
+AS 
+BEGIN
+	SET NOCOUNT ON;
+	
+	UPDATE b
+	   SET b.PROCESSED_QUANTITY = b.PROCESSED_QUANTITY + a.PROCESSED_QUANTITY 
+	  FROM inserted a
+	  JOIN customer_order_details b ON b.CUSTOMER_ORDER_DETAIL_ID = a.CUSTOMER_ORDER_DETAIL_ID	
+
+	UPDATE c
+	   SET c.QUANTITY = c.QUANTITY - a.PROCESSED_QUANTITY 
+	  FROM inserted a
+	  JOIN customer_order_details b ON b.CUSTOMER_ORDER_DETAIL_ID = a.CUSTOMER_ORDER_DETAIL_ID	
+	  JOIN references_warehouse c on c.REFERENCE_ID = b.REFERENCE_ID
+								 AND c.WAREHOUSE_ID = a.WAREHOUSE_ID
+END
+GO
+
+/* Retira del detalle de la Customer Order y de las bodegas las cantidades trasladadas en el proceso actual que son eliminadas */
+
+CREATE OR ALTER TRIGGER TrgDeleteCustomerOrderDetailQuantity 
+   ON  CUSTOMER_ORDER_IN_PROCESS_DETAILS 
+   AFTER DELETE
+AS 
+BEGIN
+	SET NOCOUNT ON;
+	
+	UPDATE b
+	   SET b.PROCESSED_QUANTITY = b.PROCESSED_QUANTITY - a.PROCESSED_QUANTITY 
+	  FROM deleted a
+	  JOIN customer_order_details b ON b.CUSTOMER_ORDER_DETAIL_ID = a.CUSTOMER_ORDER_DETAIL_ID	
+
+	UPDATE c
+	   SET c.QUANTITY = c.QUANTITY + a.PROCESSED_QUANTITY 
+	  FROM deleted a
+	  JOIN customer_order_details b ON b.CUSTOMER_ORDER_DETAIL_ID = a.CUSTOMER_ORDER_DETAIL_ID	
+	  JOIN references_warehouse c on c.REFERENCE_ID = b.REFERENCE_ID
+								 AND c.WAREHOUSE_ID = a.WAREHOUSE_ID
+END
+GO
+
+/* Retira y agrega en el detalle de la Customer Order y de las bodegas las cantidades trasladadas en el proceso actual que son eliminadas e ingresadas */
+
+CREATE OR ALTER TRIGGER TrgUpdateCustomerOrderDetailQuantity 
+   ON  CUSTOMER_ORDER_IN_PROCESS_DETAILS 
+   AFTER UPDATE
+AS 
+BEGIN
+	SET NOCOUNT ON;
+	
+	UPDATE b
+	   SET b.PROCESSED_QUANTITY = b.PROCESSED_QUANTITY - a.PROCESSED_QUANTITY 
+	  FROM deleted a
+	  JOIN customer_order_details b ON b.CUSTOMER_ORDER_DETAIL_ID = a.CUSTOMER_ORDER_DETAIL_ID	
+
+	UPDATE b
+	   SET b.PROCESSED_QUANTITY = b.PROCESSED_QUANTITY + a.PROCESSED_QUANTITY 
+	  FROM inserted a
+	  JOIN customer_order_details b ON b.CUSTOMER_ORDER_DETAIL_ID = a.CUSTOMER_ORDER_DETAIL_ID	
+
+	UPDATE c
+	   SET c.QUANTITY = c.QUANTITY + a.PROCESSED_QUANTITY 
+	  FROM deleted a
+	  JOIN customer_order_details b ON b.CUSTOMER_ORDER_DETAIL_ID = a.CUSTOMER_ORDER_DETAIL_ID	
+	  JOIN references_warehouse c on c.REFERENCE_ID = b.REFERENCE_ID
+								 AND c.WAREHOUSE_ID = a.WAREHOUSE_ID
+
+    UPDATE c
+	   SET c.QUANTITY = c.QUANTITY - a.PROCESSED_QUANTITY 
+	  FROM inserted a
+	  JOIN customer_order_details b ON b.CUSTOMER_ORDER_DETAIL_ID = a.CUSTOMER_ORDER_DETAIL_ID	
+	  JOIN references_warehouse c on c.REFERENCE_ID = b.REFERENCE_ID
+								 AND c.WAREHOUSE_ID = a.WAREHOUSE_ID
 END
 GO
