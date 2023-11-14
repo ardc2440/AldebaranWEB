@@ -41,7 +41,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         protected CustomerOrderInProcess customerOrderInProcess;
         protected DocumentType documentType;
         protected DialogResult dialogResult;
-        protected ICollection<DetailInProcess> detailInProcesses;
+        protected ICollection<DetailInProcess> detailsInProcess;
         protected RadzenDataGrid<DetailInProcess> customerOrderDetailGrid;
         protected bool isSubmitInProgress;
         protected bool isLoadingInProgress;
@@ -65,9 +65,11 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
                 documentType = await AldebaranDbService.GetDocumentTypeByCode("T");
 
+                var customerOrderInProgressStatusDocumentType = await AldebaranDbService.GetStatusDocumentTypeByDocumentAndOrder(documentType, 1);
+
                 customerOrder = await GetCustomerOrder(customerOrderId);
 
-                detailInProcesses = await GetDetailsInProcess(customerOrder);
+                detailsInProcess = await GetDetailsInProcess(customerOrder);
 
                 processSatellitesFORPROCESSSATELLITEID = await AldebaranDbService.GetProcessSatellites();
                 employeesFOREMPLOYEEID = await AldebaranDbService.GetEmployees();
@@ -77,7 +79,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                     CREATION_DATE = DateTime.Now,
                     CUSTOMER_ORDER_ID = customerOrder.CUSTOMER_ORDER_ID,
                     PROCESS_DATE = DateTime.Today,
-                    TRANSFER_DATETIME = DateTime.Today
+                    TRANSFER_DATETIME = DateTime.Today,
+                    STATUS_DOCUMENT_TYPE_ID = customerOrderInProgressStatusDocumentType.STATUS_DOCUMENT_TYPE_ID
                 };
 
                 title = $"Traslado a Proceso para el Pedido No. {customerOrder.ORDER_NUMBER}";
@@ -134,10 +137,10 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
                 isSubmitInProgress = true;
 
-                if (!detailInProcesses.Any(x => x.THIS_QUANTITY > 0))
+                if (!detailsInProcess.Any(x => x.THIS_QUANTITY > 0))
                     throw new Exception("No ha ingresado ninguna cantidad a trasladar");
 
-                //var customerOrderInProcessDetails = MapDetailsInProcess(detailInProcesses);
+                customerOrderInProcess.CustomerOrderInProcessDetails = await MapDetailsInProcess(detailsInProcess);
 
                 var result = await AldebaranDbService.CreateCustomerOrderInProcess(customerOrderInProcess);
 
@@ -155,9 +158,21 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
             finally { isSubmitInProgress = false; }
         }
 
-        protected async Task<CustomerOrderInProcessDetail> MapDetailsInProcess(DetailInProcess detailInProcess)
+        protected async Task<ICollection<CustomerOrderInProcessDetail>> MapDetailsInProcess(ICollection<DetailInProcess> detailsInProcess)
         {
-            return new CustomerOrderInProcessDetail();
+            var customerOrderInProcessDetails = new List<CustomerOrderInProcessDetail>();
+            foreach (var details in detailsInProcess)
+            {
+                customerOrderInProcessDetails.Add(new CustomerOrderInProcessDetail()
+                {
+                    BRAND = details.BRAND,
+                    CUSTOMER_ORDER_DETAIL_ID = details.CUSTOMER_ORDER_DETAIL_ID,
+                    PROCESSED_QUANTITY = details.THIS_QUANTITY,
+                    WAREHOUSE_ID = details.WAREHOUSE_ID
+                });
+            }
+
+            return customerOrderInProcessDetails;
         }
 
         protected async Task CancelButtonClick(MouseEventArgs args)
