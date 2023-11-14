@@ -13,7 +13,7 @@
                                                     style="display: block; width: 100%" @bind-Value="@customer.IDENTITY_TYPE_ID" Name="IDENTITY_TYPE_ID" AllowFiltering="true" ClearSearchAfterSelection="true"  />
                         </ChildContent>
                         <Helper>
-                            <RadzenNumericRangeValidator Component="IDENTITY_TYPE_ID" Min="1" Text="Tipo de documento es requerido" />
+                            <RadzenRequiredValidator Component="IDENTITY_TYPE_ID" DefaultValue="0" Text="Tipo de documento es requerido" />
                         </Helper>
                     </RadzenFormField>
                 </RadzenColumn>

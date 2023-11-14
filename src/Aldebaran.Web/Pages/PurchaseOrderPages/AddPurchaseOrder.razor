@@ -5,12 +5,12 @@
 <PageTitle>Nueva orden de compra</PageTitle>
 <RadzenCard>
     <RadzenStack>
-        <RadzenTemplateForm TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrder" Data="@purchaseOrder" Visible="@(purchaseOrder != null)" Submit="@FormSubmit">
+        <RadzenTemplateForm TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrder" Data="@purchaseOrder" Visible="@(purchaseOrder != null)" Submit="@FormSubmit" InvalidSubmit="()=>submitted=true">
             <RadzenRow AlignItems="AlignItems.Center">
                 <RadzenColumn Size="12">
                     <RadzenText Text="Nueva orden de compra" TextStyle="TextStyle.H3" TagName="TagName.H1" />
                 </RadzenColumn>
-                <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">Cannot save PurchaseOrder</RadzenAlert>
+                <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">No se ha podido crear la orden de compra</RadzenAlert>
             </RadzenRow>
             <RadzenRow AlignItems="AlignItems.Start" Gap="2rem" class="mt-2">
                 <RadzenColumn Size="6">
@@ -18,7 +18,7 @@
                         <RadzenFormField Text="Proveedor" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
                                 <RadzenDropDownDataGrid Data="@providersForPROVIDERID" TextProperty="PROVIDER_NAME" ValueProperty="PROVIDER_ID" AllowClear=true
-                                                        style="display: block; width: 100%" @bind-Value="@purchaseOrder.PROVIDER_ID" Name="PROVIDER_ID" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true">
+                                                        style="display: block; width: 100%" @bind-Value="@purchaseOrder.PROVIDER_ID" Name="PROVIDER_ID" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true" Change="@PROVIDER_IDChange">
                                     <Columns>
                                         <RadzenDropDownDataGridColumn Property="PROVIDER_CODE" Title="Código" />
                                         <RadzenDropDownDataGridColumn Property="PROVIDER_NAME" Title="Nombre" />
@@ -31,10 +31,13 @@
                                     </Columns>
                                 </RadzenDropDownDataGrid>
                             </ChildContent>
+                            <Helper>
+                                <RadzenRequiredValidator Component="PROVIDER_ID" Text="Proveedor es requerido" DefaultValue="0"></RadzenRequiredValidator>
+                            </Helper>
                         </RadzenFormField>
                         <RadzenFormField Text="Fecha de solicitud" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
-                                <RadzenDatePicker DateFormat="MM/dd/yyyy" style="display: block; width: 100%" @bind-Value="@purchaseOrder.REQUEST_DATE" Name="REQUEST_DATE" Min="@DateTime.Now.AddDays(-1)" />
+                                <RadzenDatePicker DateFormat="MM/dd/yyyy" style="display: block; width: 100%" @bind-Value="@purchaseOrder.REQUEST_DATE" Name="REQUEST_DATE" Min="@DateTime.Now.AddDays(-1)" Change="()=> purchaseOrder.EXPECTED_RECEIPT_DATE = purchaseOrder.EXPECTED_RECEIPT_DATE<purchaseOrder.REQUEST_DATE ? purchaseOrder.REQUEST_DATE : purchaseOrder.EXPECTED_RECEIPT_DATE" />
                             </ChildContent>
                             <Helper>
                                 <RadzenRequiredValidator Component="REQUEST_DATE" Text="Fecha de solicitud es requerida" />
@@ -42,7 +45,7 @@
                         </RadzenFormField>
                         <RadzenFormField Text="Fecha esperada de recepción" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
-                                <RadzenDatePicker DateFormat="MM/dd/yyyy" style="display: block; width: 100%" @bind-Value="@purchaseOrder.EXPECTED_RECEIPT_DATE" Name="EXPECTED_RECEIPT_DATE" />
+                                <RadzenDatePicker DateFormat="MM/dd/yyyy" style="display: block; width: 100%" @bind-Value="@purchaseOrder.EXPECTED_RECEIPT_DATE" Name="EXPECTED_RECEIPT_DATE" Min="@purchaseOrder.REQUEST_DATE" />
                             </ChildContent>
                             <Helper>
                                 <RadzenRequiredValidator Component="EXPECTED_RECEIPT_DATE" Text="Fecha esperada de recepción es requerida" />
@@ -70,8 +73,9 @@
                                     <RadzenRow Gap="0" AlignItems="AlignItems.Center">
                                         <RadzenColumn Size="12">
                                             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
-                                                <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddPurchaseOrderDetailButtonClick" />
+                                                <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddPurchaseOrderDetailButtonClick" Disabled="!PROVIDER_ID.HasValue" />
                                             </RadzenStack>
+                                            <RadzenRequiredValidator Component="PROVIDER_ID" Text="Es requerido seleccionar un proveedor para adicionar detalles de la orden de compra." DefaultValue="0"></RadzenRequiredValidator>
                                         </RadzenColumn>
                                     </RadzenRow>
                                     <RadzenDataGrid @ref="purchaseOrderDetailGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
@@ -139,13 +143,18 @@
                             </RadzenTabsItem>
                         </Tabs>
                     </RadzenTabs>
+                    @if (!purchaseOrderDetails.Any() && submitted)
+                    {
+                        <div class="rz-message rz-messages-error" style="padding: 0 1rem 1rem; transform: translateY(-1rem);">Es requerido ingresar al menos una referencia.</div>
+                    }
                 </RadzenColumn>
             </RadzenRow>
+
             <RadzenRow AlignItems="Radzen.AlignItems.Center">
                 <RadzenColumn Size="12">
                     <RadzenStack class="m-2" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
                         <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
-                        <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@isSubmitInProgress" />
                     </RadzenStack>
                 </RadzenColumn>
             </RadzenRow>

@@ -1,3 +1,4 @@
+using Aldebaran.Web.Models.AldebaranDb;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Radzen;
@@ -27,29 +28,26 @@ namespace Aldebaran.Web.Shared
         [Inject]
         protected SecurityService Security { get; set; }
 
-        [Inject]
-        public AldebaranDbService AldebaranDbService { get; set; }
-
         public short? LINE_ID { get; set; }
         public int? ITEM_ID { get; set; }
 
         [Parameter]
         public int? REFERENCE_ID { get; set; }
         [Parameter]
-        public EventCallback<Models.AldebaranDb.ItemReference> OnChange { get; set; }
+        public EventCallback<ItemReference> OnChange { get; set; }
 
         [Parameter]
-        public IEnumerable<int> ExcludedReferences { get; set; }
+        public IEnumerable<ItemReference> References { get; set; } = new List<ItemReference>();
 
-        protected IEnumerable<Models.AldebaranDb.Line> lines;
-        protected Models.AldebaranDb.Line line;
-        protected IEnumerable<Models.AldebaranDb.Item> items;
-        protected Models.AldebaranDb.Item item;
-        protected IEnumerable<Models.AldebaranDb.ItemReference> itemReferences;
-        protected Models.AldebaranDb.ItemReference itemReference;
+        protected IEnumerable<Line> lines;
+        protected Line line;
+        protected IEnumerable<Item> items;
+        protected Item item;
+        protected IEnumerable<ItemReference> itemReferences;
+        protected ItemReference itemReference;
         protected override async Task OnInitializedAsync()
         {
-            lines = await AldebaranDbService.GetLines();
+            lines = References.Select(s => s.Item.Line).Distinct();
         }
         protected bool CollapsedPanel { get; set; } = true;
         protected async Task OnLineChange(object lineId)
@@ -62,7 +60,7 @@ namespace Aldebaran.Web.Shared
                 return;
             }
             line = lines.Single(s => s.LINE_ID == (short)lineId);
-            items = await AldebaranDbService.GetItems(new Query { Filter = $"i=>i.LINE_ID==@0", FilterParameters = new object[] { lineId } });
+            items = References.Where(w => w.Item.LINE_ID == (short)lineId).Select(s => s.Item).Distinct();
         }
 
         protected async Task OnItemChange(object itemId)
@@ -74,10 +72,7 @@ namespace Aldebaran.Web.Shared
                 return;
             }
             item = items.Single(s => s.ITEM_ID == (int)itemId);
-            if (ExcludedReferences != null && ExcludedReferences.Any())
-                itemReferences = await AldebaranDbService.GetItemReferences(new Query { Filter = $"i=>i.ITEM_ID==@0 && !@1.Contains(i.REFERENCE_ID)", FilterParameters = new object[] { itemId, ExcludedReferences } });
-            else
-                itemReferences = await AldebaranDbService.GetItemReferences(new Query { Filter = $"i=>i.ITEM_ID==@0", FilterParameters = new object[] { itemId } });
+            itemReferences = References.Where(w => w.ITEM_ID == (int)itemId).Select(s => s);
         }
         protected async Task OnReferenceChange(object referenceId)
         {
@@ -119,10 +114,10 @@ namespace Aldebaran.Web.Shared
             await base.SetParametersAsync(parameters);
             if (REFERENCE_ID == null)
                 return;
-            var selectedReference = await AldebaranDbService.GetItemReferences(new Query { Filter = "i=>i.REFERENCE_ID == @0", FilterParameters = new object[] { REFERENCE_ID }, Expand = "Item.Line" });
-            if (!selectedReference.Any())
+            var selectedReference = References.Where(w => w.REFERENCE_ID == REFERENCE_ID).FirstOrDefault();
+            if (selectedReference == null)
                 return;
-            itemReference = selectedReference.First();
+            itemReference = selectedReference;
             LINE_ID = itemReference.Item.LINE_ID;
             await OnLineChange(LINE_ID);
             line = itemReference.Item.Line;

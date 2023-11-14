@@ -13,7 +13,7 @@
                                             style="display: block; width: 100%" @bind-Value="@employee.IDENTITY_TYPE_ID" Name="IDENTITY_TYPE_ID" AllowFiltering="true" ClearSearchAfterSelection="true" />
                         </ChildContent>
                         <Helper>
-                            <RadzenNumericRangeValidator Component="IDENTITY_TYPE_ID" Min="1" Text="Tipo de documento es requerido" />
+                            <RadzenRequiredValidator Component="IDENTITY_TYPE_ID" DefaultValue="0" Text="Tipo de documento es requerido" />
                         </Helper>
                     </RadzenFormField>
                 </RadzenColumn>
@@ -56,7 +56,7 @@
                         </RadzenDropDownDataGrid>
                     </ChildContent>
                 </RadzenFormField>
-                <RadzenNumericRangeValidator Component="AREA_ID" Min="1" Text="El Area del funcionario es requerida"></RadzenNumericRangeValidator>
+                <RadzenRequiredValidator Component="AREA_ID" DefaultValue="0" Text="El Area del funcionario es requerida"></RadzenRequiredValidator>
             </RadzenRow>
             <RadzenFormField Text="Cargo" Variant="Variant.Text">
                 <ChildContent>

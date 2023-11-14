@@ -28,7 +28,7 @@
                                     </RadzenDropDownDataGrid>
                                 </ChildContent>
                             </RadzenFormField>
-                            <RadzenNumericRangeValidator Component="AREA_ID" Min="1" Text="El Area de la actividad es requerida"></RadzenNumericRangeValidator>
+                            <RadzenRequiredValidator Component="AREA_ID" DefaultValue="0" Text="El Area de la actividad es requerida"></RadzenRequiredValidator>
                         </RadzenRow>
                         <RadzenRow style="margin-bottom: 2rem">
                             <RadzenFormField Text="Empleado" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
@@ -43,7 +43,7 @@
                                     </RadzenDropDownDataGrid>
                                 </ChildContent>
                             </RadzenFormField>
-                            <RadzenNumericRangeValidator Component="EMPLOYEE_ID" Min="1" Text="El Empleado de la actividad es requerido"></RadzenNumericRangeValidator>
+                            <RadzenRequiredValidator Component="EMPLOYEE_ID" DefaultValue="0" Text="El Empleado de la actividad es requerido"></RadzenRequiredValidator>
                         </RadzenRow>
                         <RadzenColumn SizeMD="3">
                             <RadzenLabel Text="Fecha de la Actividad" class="fw-bold" style="width: 100%" />

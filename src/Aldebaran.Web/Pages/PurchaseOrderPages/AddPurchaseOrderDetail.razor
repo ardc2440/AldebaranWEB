@@ -4,7 +4,7 @@
     <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">No se ha podido agregar la referencia</RadzenAlert>
     <RadzenTemplateForm TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrderDetail" Data="@purchaseOrderDetail" Submit="@FormSubmit">
         <RadzenStack>
-            <ReferencePicker OnChange="ItemReferenceHandler" />
+            <ReferencePicker OnChange="ItemReferenceHandler" References="ProviderItemReferences" />
             <RadzenRequiredValidator Text="Referencia requerida" Component="REFERENCE_ID" />
             <RadzenRow AlignItems="Radzen.AlignItems.Start">
                 <RadzenColumn Size="12" SizeMD="6">
@@ -13,7 +13,7 @@
                             <RadzenNumeric style="display: block; width: 100%" @bind-Value="@purchaseOrderDetail.REQUESTED_QUANTITY" Name="REQUESTED_QUANTITY" />
                         </ChildContent>
                         <Helper>
-                            <RadzenNumericRangeValidator Component="REQUESTED_QUANTITY" Min="1" Text="Cantidad solicitada es requerida" />
+                            <RadzenRequiredValidator Component="REQUESTED_QUANTITY" DefaultValue="0" Text="Cantidad solicitada es requerida" />
                         </Helper>
                     </RadzenFormField>
                 </RadzenColumn>
@@ -24,7 +24,7 @@
                                                     style="display: block; width: 100%" @bind-Value="@purchaseOrderDetail.WAREHOUSE_ID" Name="WAREHOUSE_ID" />
                         </ChildContent>
                         <Helper>
-                            <RadzenNumericRangeValidator Component="WAREHOUSE_ID" Min="1" Text="Bodega es requerida" />
+                            <RadzenRequiredValidator Component="WAREHOUSE_ID" DefaultValue="0" Text="Bodega es requerida" />
                         </Helper>
                     </RadzenFormField>
                 </RadzenColumn>

@@ -52,7 +52,7 @@
                             </RadzenDropDownDataGrid>
                         </ChildContent>
                         <Helper>
-                            <RadzenNumericRangeValidator Component="LINE_ID" Min="1" Text="Línea es requerida" />
+                            <RadzenRequiredValidator Component="LINE_ID" DefaultValue="0" Text="Línea es requerida" />
                         </Helper>
                     </RadzenFormField>
                 </RadzenColumn>
@@ -76,7 +76,7 @@
                             <RadzenNumeric style="display: block; width: 100%" @bind-Value="@item.VOLUME" Name="VOLUME" />
                         </ChildContent>
                         <Helper>
-                            <RadzenNumericRangeValidator Component="VOLUME" Min="1" Text="Volumen debe ser mayor a 0" />
+                            <RadzenRequiredValidator Component="VOLUME" DefaultValue="0" Text="Volumen debe ser mayor a 0" />
                         </Helper>
                     </RadzenFormField>
                 </RadzenColumn>
@@ -86,7 +86,7 @@
                             <RadzenNumeric style="display: block; width: 100%" @bind-Value="@item.WEIGHT" Name="WEIGHT" />
                         </ChildContent>
                         <Helper>
-                            <RadzenNumericRangeValidator Component="WEIGHT" Min="1" Text="Peso debe ser mayor a 0" />
+                            <RadzenRequiredValidator Component="WEIGHT" DefaultValue="0" Text="Peso debe ser mayor a 0" />
                         </Helper>
                     </RadzenFormField>
                 </RadzenColumn>
@@ -132,7 +132,7 @@
                             <RadzenNumeric style="display: block; width: 100%" @bind-Value="@item.FOB_COST" Name="FOB_COST" />
                         </ChildContent>
                         <Helper>
-                            <RadzenNumericRangeValidator Component="FOB_COST" Min="1" Text="Costo debe ser mayor a 0" />
+                            <RadzenRequiredValidator Component="FOB_COST" DefaultValue="0" Text="Costo debe ser mayor a 0" />
                         </Helper>
                     </RadzenFormField>
                 </RadzenColumn>
@@ -156,7 +156,7 @@
                             <RadzenNumeric style="display: block; width: 100%" @bind-Value="@item.CIF_COST" Name="CIF_COST" />
                         </ChildContent>
                         <Helper>
-                            <RadzenNumericRangeValidator Component="CIF_COST" Min="1" Text="Costo debe ser mayor a 0" />
+                            <RadzenRequiredValidator Component="CIF_COST" DefaultValue="0" Text="Costo debe ser mayor a 0" />
                         </Helper>
                     </RadzenFormField>
                 </RadzenColumn>

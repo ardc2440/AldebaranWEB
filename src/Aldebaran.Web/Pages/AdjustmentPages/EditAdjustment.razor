@@ -30,7 +30,7 @@
                             <RadzenColumn SizeMD="9">
                                 <RadzenDropDownDataGrid Data="@adjustmentReasonsForADJUSTMENTREASONID" TextProperty="ADJUSTMENT_REASON_NAME" ValueProperty="ADJUSTMENT_REASON_ID" AllowClear=true
                                                         Placeholder="Seleccione un motivo" style="display: block; width: 100%" @bind-Value="@adjustment.ADJUSTMENT_REASON_ID" Name="ADJUSTMENT_REASON_ID" TabIndex="1" />
-                                <RadzenNumericRangeValidator Component="ADJUSTMENT_REASON_ID" Min="1" Text="El Motivo del Ajuste es requerido "></RadzenNumericRangeValidator>
+                                <RadzenRequiredValidator Component="ADJUSTMENT_REASON_ID" DefaultValue="0" Text="El Motivo del Ajuste es requerido "></RadzenRequiredValidator>
                             </RadzenColumn>
                         </RadzenRow>
                         <RadzenRow style="margin-bottom: 1rem">
@@ -40,7 +40,7 @@
                             <RadzenColumn SizeMD="9">
                                 <RadzenDropDownDataGrid Data="@adjustmentTypesForADJUSTMENTTYPEID" TextProperty="ADJUSTMENT_TYPE_NAME" ValueProperty="ADJUSTMENT_TYPE_ID" AllowClear=true
                                                         Placeholder="Seleccione un tipo" style="display: block; width: 100%" @bind-Value="@adjustment.ADJUSTMENT_TYPE_ID" Name="ADJUSTMENT_TYPE_ID" TabIndex="2" />
-                                <RadzenNumericRangeValidator Component="ADJUSTMENT_TYPE_ID" Min="1" Text="El Tipo de Ajuste es requerido"></RadzenNumericRangeValidator>
+                                <RadzenRequiredValidator Component="ADJUSTMENT_TYPE_ID" DefaultValue="0" Text="El Tipo de Ajuste es requerido"></RadzenRequiredValidator>
                             </RadzenColumn>
                         </RadzenRow>
                         <RadzenRow style="margin-bottom: 1rem">

@@ -1,12 +1,3 @@
-using Aldebaran.Web.Models;
-using Aldebaran.Web.Models.AldebaranDb;
-using Aldebaran.Web.Models.ViewModels;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
-using Radzen;
-using Radzen.Blazor;
-
 namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 {
     public partial class AddCustomerOrderInProcess

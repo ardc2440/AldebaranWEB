@@ -33,6 +33,9 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         [Inject]
         protected SecurityService Security { get; set; }
 
+        [Parameter]
+        public IEnumerable<ItemReference> ProviderItemReferences { get; set; } = new List<ItemReference>();
+
         protected bool errorVisible;
         protected PurchaseOrderDetail purchaseOrderDetail;
         protected IEnumerable<Warehouse> warehousesForWAREHOUSEID;
