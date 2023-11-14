@@ -113,7 +113,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
         protected async Task SendToProcess(Models.ViewModels.DetailInProcess args)
         {
-            if (await DialogService.OpenAsync<SetQuantityInProcess>("Cantidad a Trasladar", new Dictionary<string, object> { { "detailInProcess", args } }) != null)
+            if (await DialogService.OpenAsync<SetQuantityInProcess>("Cantidad a Trasladar", new Dictionary<string, object> { { "pDetailInProcess", args } }) != null)
                 await customerOrderDetailGrid.Reload();
         }
 
@@ -124,10 +124,13 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                 return;
             }
 
+            args.PENDING_QUANTITY = args.PENDING_QUANTITY + args.THIS_QUANTITY;
             args.THIS_QUANTITY = 0;
 
             await customerOrderDetailGrid.Reload();
         }
+
+        protected bool CanCancel(DetailInProcess detailInProcess) => detailInProcess.THIS_QUANTITY > 0 && Security.IsInRole("Admin", "Customer Order In Process Editor");
 
         protected async Task FormSubmit()
         {

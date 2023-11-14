@@ -31,7 +31,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         public AldebaranDbService AldebaranDbService { get; set; }
 
         [Parameter]
-        public DetailInProcess detailInProcess { get; set; }
+        public DetailInProcess pDetailInProcess { get; set; }
 
         [Parameter]
         public short WAREHOUSE_ID { get; set; }
@@ -41,14 +41,28 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         protected bool isSubmitInProgress;
         protected InventoryQuantities QuantitiesPanel;
         protected IEnumerable<Warehouse> warehousesForWAREHOUSEID;
-
         bool hasWAREHOUSE_IDValue;
+        public DetailInProcess detailInProcess { get; set; }
 
         protected override async Task OnInitializedAsync()
         {
             warehousesForWAREHOUSEID = await AldebaranDbService.GetWarehouses();
 
-            detailInProcess.THIS_QUANTITY = 1;
+            detailInProcess = new DetailInProcess()
+            {
+                CUSTOMER_ORDER_DETAIL_ID = pDetailInProcess.CUSTOMER_ORDER_DETAIL_ID,
+                DELIVERED_QUANTITY = pDetailInProcess.DELIVERED_QUANTITY,
+                BRAND = pDetailInProcess.BRAND,
+                WAREHOUSE_ID = pDetailInProcess.WAREHOUSE_ID,
+                THIS_QUANTITY = pDetailInProcess.THIS_QUANTITY,
+                PENDING_QUANTITY = pDetailInProcess.PENDING_QUANTITY,
+                PROCESSED_QUANTITY = pDetailInProcess.PROCESSED_QUANTITY,
+                REFERENCE_DESCRIPTION = pDetailInProcess.REFERENCE_DESCRIPTION,
+                REFERENCE_ID = pDetailInProcess.REFERENCE_ID
+            };
+
+            if (detailInProcess.THIS_QUANTITY == 0)
+                detailInProcess.THIS_QUANTITY = detailInProcess.PENDING_QUANTITY;
         }
 
         protected async Task FormSubmit()
@@ -58,11 +72,17 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                 errorVisible = false;
                 isSubmitInProgress = true;
 
-                if (detailInProcess.PENDING_QUANTITY < detailInProcess.THIS_QUANTITY)
+                if ((detailInProcess.PENDING_QUANTITY + pDetailInProcess.THIS_QUANTITY) < detailInProcess.THIS_QUANTITY)
                     throw new Exception("La cantidad de este traslado debe ser menor o igual a la cantidad pendiente del artículo");
 
                 if (await DialogService.Confirm("Está seguro que desea enviar a proceso esta cantidad de la referencia?", "Confirmar") == true)
-                    DialogService.Close(detailInProcess);
+                {
+                    pDetailInProcess.WAREHOUSE_ID = detailInProcess.WAREHOUSE_ID;
+                    pDetailInProcess.PENDING_QUANTITY = (detailInProcess.PENDING_QUANTITY + pDetailInProcess.THIS_QUANTITY) - detailInProcess.THIS_QUANTITY;
+                    pDetailInProcess.THIS_QUANTITY = detailInProcess.THIS_QUANTITY;
+
+                    DialogService.Close(pDetailInProcess);
+                }
             }
             catch (Exception ex)
             {

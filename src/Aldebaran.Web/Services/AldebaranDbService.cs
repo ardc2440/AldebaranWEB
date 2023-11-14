@@ -5948,5 +5948,29 @@ namespace Aldebaran.Web
             }
             return await Task.FromResult(items);
         }
+
+        partial void OnGetCustomerOrderInProcessByCustomerOrderInProcessId(ref IQueryable<CustomerOrderInProcess> customerOrderInProcesses);
+
+        partial void OnCustomerOrderInProcessGet(CustomerOrderInProcess customerOrderInProcess);
+
+        public async Task<CustomerOrderInProcess> GetCustomerOrderInProcessByCustomerOrderInProcessId(int customerOrderInProcessId)
+        {
+            var items = Context.CustomerOrderInProcesses
+                              .AsNoTracking()
+                              .Where(i => i.CUSTOMER_ORDER_IN_PROCESS_ID == customerOrderInProcessId);
+
+            items = items.Include(i => i.CustomerOrder);
+            items = items.Include(i => i.Employee);
+            items = items.Include(i => i.ProcessSatellite);
+            items = items.Include(i => i.StatusDocumentType);
+
+            OnGetCustomerOrderInProcessByCustomerOrderInProcessId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnCustomerOrderInProcessGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
     }
 }

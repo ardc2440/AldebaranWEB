@@ -139,7 +139,7 @@
                                                       Visible="@Security.IsInRole("Admin","Customer Order In Process Editor")" title="Enviar Cantidad a Proceso">
                                         </RadzenButton>
                                         <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
-                                                      Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@Security.IsInRole("Admin","Customer Order In Process Editor")"
+                                                      Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@CanCancel(detail)"
                                                       Click=@(args => CancelToProcess(detail)) @onclick:stopPropagation="true" title="Cancelar Traslado" />
                                     </Template>
                                 </RadzenDataGridColumn>
