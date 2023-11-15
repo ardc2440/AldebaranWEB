@@ -124,7 +124,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
         protected async Task GetChildInProcessData(Models.AldebaranDb.CustomerOrderInProcess args)
         {
-            var customerOrderInProcesDetailsResult = await AldebaranDbService.GetCustomerOrderInProcessDetails(new Query { Filter = $@"i => i.CUSTOMER_ORDER_IN_PROCESS_ID == {args.CUSTOMER_ORDER_ID}", Expand = "CustomerOrderDetail.ItemReference.Item" });
+            var customerOrderInProcesDetailsResult = await AldebaranDbService.GetCustomerOrderInProcessDetails(new Query { Filter = $@"i => i.CUSTOMER_ORDER_IN_PROCESS_ID == {args.CUSTOMER_ORDER_IN_PROCESS_ID}", Expand = "CustomerOrderDetail.ItemReference.Item" });
             if (customerOrderInProcesDetailsResult == null)
                 return;
 

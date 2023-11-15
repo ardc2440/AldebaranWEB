@@ -131,6 +131,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                 if (!detailsInProcess.Any(x => x.THIS_QUANTITY > 0))
                     throw new Exception("No ha ingresado ninguna cantidad a trasladar");
 
+                var result = await AldebaranDbService.UpdateCustomerOrderInProcess(customerOrderInProcess, detailsInProcess);
+
                 await DialogService.Alert($"Pedido de Articulos Modificado Satisfactoriamente", "Información");
                 NavigationManager.NavigateTo("process-customer-orders");
             }

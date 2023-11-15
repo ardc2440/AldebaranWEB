@@ -25,7 +25,7 @@
     <RadzenRow>
         <RadzenColumn SizeMD=12>
             <RadzenDataGrid @ref="grid0" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                            Data="@customerReservations" TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservation" RowExpand=@GetChildData AllowColumnPicking="true" PageSizeText="items per page" PagingSummaryFormat="Page {0} de {1} ({2} items)" IsLoading="@isLoadingInProgress">
+                            ExpandMode="DataGridExpandMode.Single" Data="@customerReservations" TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservation" RowExpand=@GetChildData AllowColumnPicking="true" PageSizeText="items per page" PagingSummaryFormat="Page {0} de {1} ({2} items)" IsLoading="@isLoadingInProgress">
                 <Columns>
                     <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservation" Property="RESERVATION_NUMBER" Title="No. Reserva">
                     </RadzenDataGridColumn>
@@ -63,7 +63,7 @@
                             </RadzenColumn>
                         </RadzenRow>
                         <RadzenDataGrid ColumnWidth="200px" Visible="@(customerReservation != null)" @ref=CustomerReservationDetailsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                        Data="@customerReservation?.CustomerReservationDetails" TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservationDetail">
+                                        ExpandMode="DataGridExpandMode.Single" Data="@customerReservation?.CustomerReservationDetails" TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservationDetail">
                             <Columns>
                                 <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservationDetail" Property="RESERVED_QUANTITY" Title="Cantidad">
                                 </RadzenDataGridColumn>

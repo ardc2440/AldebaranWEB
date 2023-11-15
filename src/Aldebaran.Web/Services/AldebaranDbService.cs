@@ -5972,5 +5972,52 @@ namespace Aldebaran.Web
 
             return await Task.FromResult(itemToReturn);
         }
+
+        public async Task<CustomerOrderInProcess> UpdateCustomerOrderInProcess(CustomerOrderInProcess customerOrderInProcess, IEnumerable<DetailInProcess> detailsInProcess)
+        {
+            var itemsToUpdate = context.CustomerOrderInProcesses.Where(i => i.CUSTOMER_ORDER_IN_PROCESS_ID.Equals(customerOrderInProcess.CUSTOMER_ORDER_IN_PROCESS_ID));
+
+            if (itemsToUpdate == null)
+            {
+                throw new Exception("Item no longer available");
+            }
+
+            var itemToUpdate = itemsToUpdate.FirstOrDefault();
+
+            itemToUpdate.NOTES = customerOrderInProcess.NOTES;
+            itemToUpdate.EMPLOYEE_RECIPIENT_ID = customerOrderInProcess.EMPLOYEE_RECIPIENT_ID;
+            itemToUpdate.PROCESS_DATE = customerOrderInProcess.PROCESS_DATE;
+            itemToUpdate.TRANSFER_DATETIME = customerOrderInProcess.TRANSFER_DATETIME;
+            itemToUpdate.PROCESS_SATELLITE_ID = customerOrderInProcess.PROCESS_SATELLITE_ID;
+
+            var itemDetails = context.CustomerOrderInProcessDetails.Where(i => i.CUSTOMER_ORDER_IN_PROCESS_ID.Equals(customerOrderInProcess.CUSTOMER_ORDER_IN_PROCESS_ID));
+
+            foreach (var item in itemDetails)
+                context.CustomerOrderInProcessDetails.Remove(item);
+
+            foreach (var item in detailsInProcess.Where(i => i.THIS_QUANTITY > 0))
+            {
+                context.CustomerOrderInProcessDetails.Add(new CustomerOrderInProcessDetail()
+                {
+                    CUSTOMER_ORDER_DETAIL_ID = item.CUSTOMER_ORDER_DETAIL_ID,
+                    BRAND = item.BRAND,
+                    PROCESSED_QUANTITY = item.THIS_QUANTITY,
+                    WAREHOUSE_ID = item.WAREHOUSE_ID,
+                    CUSTOMER_ORDER_IN_PROCESS_ID = itemToUpdate.CUSTOMER_ORDER_IN_PROCESS_ID
+                });
+            }
+
+            try
+            {
+                Context.CustomerOrderInProcesses.Update(itemToUpdate);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToUpdate).State = EntityState.Detached;
+                throw;
+            }
+            return customerOrderInProcess;
+        }
     }
 }
