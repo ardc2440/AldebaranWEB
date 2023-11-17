@@ -629,28 +629,49 @@ namespace Aldebaran.Web
         {
             OnAdjustmentCreated(adjustment);
 
-            var existingItem = Context.Adjustments
+            var itemToCreate = Context.Adjustments
                               .Where(i => i.ADJUSTMENT_ID == adjustment.ADJUSTMENT_ID)
                               .FirstOrDefault();
 
-            if (existingItem != null)
+            if (itemToCreate != null)
             {
                 throw new Exception("Item already available");
             }
 
+            itemToCreate = new Adjustment()
+            {
+                ADJUSTMENT_DATE = adjustment.ADJUSTMENT_DATE,
+                ADJUSTMENT_REASON_ID = adjustment.ADJUSTMENT_REASON_ID,
+                ADJUSTMENT_TYPE_ID = adjustment.ADJUSTMENT_TYPE_ID,
+                CREATION_DATE = adjustment.CREATION_DATE,
+                EMPLOYEE_ID = adjustment.EMPLOYEE_ID,
+                NOTES = adjustment.NOTES,
+                AdjustmentDetails = new List<AdjustmentDetail>()
+            };
+
+            foreach (var item in adjustment.AdjustmentDetails)
+            {
+                itemToCreate.AdjustmentDetails.Add(new AdjustmentDetail()
+                {
+                    REFERENCE_ID = item.REFERENCE_ID,
+                    WAREHOUSE_ID = item.WAREHOUSE_ID,
+                    QUANTITY = item.QUANTITY
+                });
+            }
+
             try
             {
-                Context.Adjustments.Add(adjustment);
+                Context.Adjustments.Add(itemToCreate);
                 Context.SaveChanges();
             }
             catch
             {
-                Context.Entry(adjustment).State = EntityState.Detached;
+                Context.Entry(itemToCreate).State = EntityState.Detached;
                 throw;
             }
 
             OnAfterAdjustmentCreated(adjustment);
-
+            adjustment.ADJUSTMENT_ID = itemToCreate.ADJUSTMENT_ID;
             return adjustment;
         }
 
@@ -669,7 +690,7 @@ namespace Aldebaran.Web
         partial void OnAdjustmentUpdated(Adjustment item);
         partial void OnAfterAdjustmentUpdated(Adjustment item);
 
-        public async Task<Adjustment> UpdateAdjustment(int adjustmentid, Adjustment adjustment)
+        public async Task<Adjustment> UpdateAdjustment(Adjustment adjustment)
         {
             OnAdjustmentUpdated(adjustment);
 
@@ -682,35 +703,65 @@ namespace Aldebaran.Web
                 throw new Exception("Item no longer available");
             }
 
-            //var entryToUpdate = Context.Entry(itemToUpdate);
-            //entryToUpdate.CurrentValues.SetValues(adjustment);
-            //entryToUpdate.State = EntityState.Modified;
+            itemToUpdate.EMPLOYEE_ID = adjustment.EMPLOYEE_ID;
+            itemToUpdate.NOTES = adjustment.NOTES;
+            itemToUpdate.ADJUSTMENT_DATE = adjustment.ADJUSTMENT_DATE;
+            itemToUpdate.ADJUSTMENT_REASON_ID = adjustment.ADJUSTMENT_REASON_ID;
+            itemToUpdate.ADJUSTMENT_TYPE_ID = adjustment.ADJUSTMENT_TYPE_ID;
 
-            context.Adjustments.Update(adjustment);
-            Context.SaveChanges();
+            foreach (var item in adjustment.AdjustmentDetails)
+            {
+                if (item.ADJUSTMENT_DETAIL_ID > 0)
+                {
+                    var detailToUpdate = context.AdjustmentDetails.FirstOrDefault(i => i.ADJUSTMENT_DETAIL_ID.Equals(item.ADJUSTMENT_DETAIL_ID));
+
+                    detailToUpdate.QUANTITY = item.QUANTITY;
+                    detailToUpdate.REFERENCE_ID = item.REFERENCE_ID;
+                    detailToUpdate.WAREHOUSE_ID = item.WAREHOUSE_ID;
+                    context.AdjustmentDetails.Update(detailToUpdate);
+                }
+                else
+                {
+                    var detailToUpdate = new AdjustmentDetail()
+                    {
+                        ADJUSTMENT_ID = adjustment.ADJUSTMENT_ID,
+                        QUANTITY = item.QUANTITY,
+                        REFERENCE_ID = item.REFERENCE_ID,
+                        WAREHOUSE_ID = item.WAREHOUSE_ID
+                    };
+                    context.AdjustmentDetails.Add(detailToUpdate);
+                }
+            }
+
+            var itemsToDelete = from t1 in context.AdjustmentDetails.Where(i => i.ADJUSTMENT_ID.Equals(adjustment.ADJUSTMENT_ID))
+                                where !(from t2 in adjustment.AdjustmentDetails
+                                        select t2.ADJUSTMENT_DETAIL_ID).Contains(t1.ADJUSTMENT_DETAIL_ID)
+                                select t1;
+            foreach (var item in itemsToDelete)
+                context.AdjustmentDetails.Remove(item);
+
+            context.Adjustments.Update(itemToUpdate);
+            context.SaveChanges();
 
             OnAfterAdjustmentUpdated(adjustment);
 
             return adjustment;
         }
 
-        partial void OnAdjustmentDeleted(Adjustment item);
-        partial void OnAfterAdjustmentDeleted(Adjustment item);
-
-        public async Task<Adjustment> DeleteAdjustment(int adjustmentid)
+        public async Task<Adjustment> CancelAdjustment(Adjustment adjustment, short newStatus)
         {
-            var itemToDelete = Context.Adjustments
-                              .Where(i => i.ADJUSTMENT_ID == adjustmentid)
+            var itemToCancel = Context.Adjustments
+                              .Where(i => i.ADJUSTMENT_ID == adjustment.ADJUSTMENT_ID)
                               .FirstOrDefault();
 
-            if (itemToDelete == null)
+            if (itemToCancel == null)
             {
                 throw new Exception("Item no longer available");
             }
 
-            OnAdjustmentDeleted(itemToDelete);
+            itemToCancel.STATUS_DOCUMENT_TYPE_ID = newStatus;
 
-            Context.Adjustments.Remove(itemToDelete);
+            Context.Adjustments.Update(itemToCancel);
 
             try
             {
@@ -718,13 +769,11 @@ namespace Aldebaran.Web
             }
             catch
             {
-                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                Context.Entry(itemToCancel).State = EntityState.Unchanged;
                 throw;
             }
 
-            OnAfterAdjustmentDeleted(itemToDelete);
-
-            return itemToDelete;
+            return itemToCancel;
         }
 
         public async Task ExportAreasToExcel(Query query = null, string fileName = null)

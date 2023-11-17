@@ -35,17 +35,19 @@
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Adjustment" Property="Employee.FULL_NAME" Title="Usuario Responsable">
                     </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Adjustment" Property="StatusDocumentType.STATUS_DOCUMENT_TYPE_NAME" Title="Estado">
+                    </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Adjustment" Property="NOTES" Title="Notas" Visible="false">
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Adjustment" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
                         <Template Context="adjustment">
                             <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
                                           Click="@(args => EditRow(adjustment))" @onclick:stopPropagation="true"
-                                          Visible="@Security.IsInRole("Admin","Adjustment Editor")" title="Modificar Ajuste">
+                                          Visible="@CanEdit(adjustment)" title="Modificar Ajuste">
                             </RadzenButton>
                             <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
-                                          Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@Security.IsInRole("Admin","Adjustment Editor")"
-                                          Click=@(args => GridDeleteButtonClick(args, adjustment)) @onclick:stopPropagation="true" title="Eliminar Ajuste"/>
+                                          Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@CanEdit(adjustment)"
+                                          Click=@(args => GridCancelButtonClick(args, adjustment)) @onclick:stopPropagation="true" title="Cancelar Ajuste"/>
                         </Template>
                     </RadzenDataGridColumn>
                 </Columns>

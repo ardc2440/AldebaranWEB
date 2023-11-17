@@ -5,7 +5,7 @@
     <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible" AllowClose="false">@alertMessage</RadzenAlert>
     <RadzenTemplateForm TItem="Aldebaran.Web.Models.AldebaranDb.AdjustmentDetail" Data="@adjustmentDetail" Visible="@(adjustmentDetail != null)" Submit="@FormSubmit">
         <RadzenRow style="margin-bottom: 1rem">
-            <ReferencePicker OnChange="ItemReferenceHandler" />
+            <ReferencePicker OnChange="ItemReferenceHandler" References="itemReferencesForREFERENCEID"/>
             <RadzenRequiredValidator Text="La Referencia es requerida" Component="REFERENCE_ID" />
         </RadzenRow>
         <RadzenRow style="margin-bottom: 1rem">

@@ -29,6 +29,8 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         public AldebaranDbService AldebaranDbService { get; set; }
 
         [Parameter]
+        public AdjustmentDetail pAdjustmentDetail { get; set; }
+
         public AdjustmentDetail adjustmentDetail { get; set; }
 
         protected bool errorVisible;
@@ -45,6 +47,17 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected override async Task OnInitializedAsync()
         {
+            adjustmentDetail = new AdjustmentDetail()
+            {
+                ItemReference = pAdjustmentDetail.ItemReference,
+                Warehouse = pAdjustmentDetail.Warehouse,
+                ADJUSTMENT_DETAIL_ID = pAdjustmentDetail.ADJUSTMENT_DETAIL_ID,
+                ADJUSTMENT_ID = pAdjustmentDetail.ADJUSTMENT_ID,
+                QUANTITY = pAdjustmentDetail.QUANTITY,
+                REFERENCE_ID = pAdjustmentDetail.REFERENCE_ID,
+                WAREHOUSE_ID = pAdjustmentDetail.WAREHOUSE_ID
+            };
+
             adjustmentsForADJUSTMENTID = await AldebaranDbService.GetAdjustments();
 
             itemReferencesForREFERENCEID = await AldebaranDbService.GetItemReferences();

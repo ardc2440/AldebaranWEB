@@ -88,7 +88,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
                     throw new Exception("No ha ingresado ninguna referencia");
 
                 adjustment.AdjustmentDetails = adjustmentDetails;
-                await AldebaranDbService.UpdateAdjustment(adjustment.ADJUSTMENT_ID, adjustment);
+                await AldebaranDbService.UpdateAdjustment(adjustment);
                 await DialogService.Alert("Ajuste Modificado Satisfactoriamente", "Información");
                 NavigationManager.NavigateTo("adjustments");
             }
@@ -132,14 +132,12 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected async Task EditRow(AdjustmentDetail args)
         {
-            var result = await DialogService.OpenAsync<EditAdjustmentDetail>("Actualizar referencia", new Dictionary<string, object> { { "adjustmentDetail", args } });
+            var result = await DialogService.OpenAsync<EditAdjustmentDetail>("Actualizar referencia", new Dictionary<string, object> { { "pAdjustmentDetail", args } });
             if (result == null)
                 return;
             var detail = (AdjustmentDetail)result;
 
-            adjustmentDetails.Remove(args);
-            adjustmentDetails.Add(detail);
-
+            args.QUANTITY = detail.QUANTITY;
             await adjustmentDetailGrid.Reload();
         }
 

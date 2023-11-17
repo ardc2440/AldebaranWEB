@@ -742,18 +742,18 @@ INSERT INTO STATUS_DOCUMENT_TYPES (STATUS_DOCUMENT_TYPE_NAME, DOCUMENT_TYPE_ID, 
 
 SELECT @DOCUMENT_TYPE_ID  = DOCUMENT_TYPE_ID  FROM DOCUMENT_TYPES WHERE DOCUMENT_TYPE_CODE = 'T'
 
-INSERT INTO STATUS_DOCUMENT_TYPES (STATUS_DOCUMENT_TYPE_NAME, DOCUMENT_TYPE_ID, NOTES, EDIT_MODE,STATUS_ORDER) VALUES ('Realizado', @DOCUMENT_TYPE_ID, 'La reserva recien fue recibida, el cliente aún no confirma las referencias de producto solicitado', 1,1)
-INSERT INTO STATUS_DOCUMENT_TYPES (STATUS_DOCUMENT_TYPE_NAME, DOCUMENT_TYPE_ID, NOTES, EDIT_MODE,STATUS_ORDER) VALUES ('Cancelada', @DOCUMENT_TYPE_ID, 'No se prosigue con la solicitud de productos, por razón, ya sea del cliente o de Promos. Los artículos reservados son liberados en el inventario', 0,2)
+INSERT INTO STATUS_DOCUMENT_TYPES (STATUS_DOCUMENT_TYPE_NAME, DOCUMENT_TYPE_ID, NOTES, EDIT_MODE,STATUS_ORDER) VALUES ('Realizado', @DOCUMENT_TYPE_ID, 'Traslado a Proceso Realizado, los  articulos son descontados de las bodegas y del disponible del inventario', 1,1)
+INSERT INTO STATUS_DOCUMENT_TYPES (STATUS_DOCUMENT_TYPE_NAME, DOCUMENT_TYPE_ID, NOTES, EDIT_MODE,STATUS_ORDER) VALUES ('Cancelada', @DOCUMENT_TYPE_ID, 'Traslado a Proceso Cancelado, los  articulos son devueltos a las bodegas y al disponible del inventario', 0,2)
 
 SELECT @DOCUMENT_TYPE_ID  = DOCUMENT_TYPE_ID  FROM DOCUMENT_TYPES WHERE DOCUMENT_TYPE_CODE = 'D'
 
-INSERT INTO STATUS_DOCUMENT_TYPES (STATUS_DOCUMENT_TYPE_NAME, DOCUMENT_TYPE_ID, NOTES, EDIT_MODE,STATUS_ORDER) VALUES ('Realizado', @DOCUMENT_TYPE_ID, 'La reserva recien fue recibida, el cliente aún no confirma las referencias de producto solicitado', 1,1)
-INSERT INTO STATUS_DOCUMENT_TYPES (STATUS_DOCUMENT_TYPE_NAME, DOCUMENT_TYPE_ID, NOTES, EDIT_MODE,STATUS_ORDER) VALUES ('Cancelado', @DOCUMENT_TYPE_ID, 'No se prosigue con la solicitud de productos, por razón, ya sea del cliente o de Promos. Los artículos reservados son liberados en el inventario', 0,2)
+INSERT INTO STATUS_DOCUMENT_TYPES (STATUS_DOCUMENT_TYPE_NAME, DOCUMENT_TYPE_ID, NOTES, EDIT_MODE,STATUS_ORDER) VALUES ('Realizado', @DOCUMENT_TYPE_ID, 'Despacho de artículos realizado al cliente, los productos se descuentan de las referencias que se encuentran en proceso dentro del pedido del cliente', 1,1)
+INSERT INTO STATUS_DOCUMENT_TYPES (STATUS_DOCUMENT_TYPE_NAME, DOCUMENT_TYPE_ID, NOTES, EDIT_MODE,STATUS_ORDER) VALUES ('Cancelado', @DOCUMENT_TYPE_ID, 'Despacho de articulos al cliente cancelado, las cantidades despachadas son retornadas a las referencias en proceso dentro del pedido del cliente', 0,2)
 
 SELECT @DOCUMENT_TYPE_ID  = DOCUMENT_TYPE_ID  FROM DOCUMENT_TYPES WHERE DOCUMENT_TYPE_CODE = 'A'
 
-INSERT INTO STATUS_DOCUMENT_TYPES (STATUS_DOCUMENT_TYPE_NAME, DOCUMENT_TYPE_ID, NOTES, EDIT_MODE,STATUS_ORDER) VALUES ('Realizado', @DOCUMENT_TYPE_ID, 'La reserva recien fue recibida, el cliente aún no confirma las referencias de producto solicitado', 1,1)
-INSERT INTO STATUS_DOCUMENT_TYPES (STATUS_DOCUMENT_TYPE_NAME, DOCUMENT_TYPE_ID, NOTES, EDIT_MODE,STATUS_ORDER) VALUES ('Cancelado', @DOCUMENT_TYPE_ID, 'El cliente ha confirmado las cantidades y referencias solicitadas, generando el pedido de los artículos correspondientes', 0,2)
+INSERT INTO STATUS_DOCUMENT_TYPES (STATUS_DOCUMENT_TYPE_NAME, DOCUMENT_TYPE_ID, NOTES, EDIT_MODE,STATUS_ORDER) VALUES ('Realizado', @DOCUMENT_TYPE_ID, 'El Ajuste fue realizado, y el inventario se afecto con las cantidades ajustadas', 1,1)
+INSERT INTO STATUS_DOCUMENT_TYPES (STATUS_DOCUMENT_TYPE_NAME, DOCUMENT_TYPE_ID, NOTES, EDIT_MODE,STATUS_ORDER) VALUES ('Cancelado', @DOCUMENT_TYPE_ID, 'El Ajuste se cancela y sus movimientos son reversados en el inventario', 0,2)
 GO
 
 

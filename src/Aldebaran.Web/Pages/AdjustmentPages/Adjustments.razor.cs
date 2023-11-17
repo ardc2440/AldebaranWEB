@@ -1,4 +1,5 @@
 using Aldebaran.Web.Models;
+using Aldebaran.Web.Models.AldebaranDb;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
@@ -43,6 +44,8 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected bool isLoadingInProgress;
 
+        protected DocumentType documentType;
+
         protected async Task Search(ChangeEventArgs args)
         {
 
@@ -62,7 +65,9 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
                 await Task.Yield();
 
-                adjustments = await AldebaranDbService.GetAdjustments(new Query { Filter = $@"i => i.AdjustmentReason.ADJUSTMENT_REASON_NAME.Contains(@0) || i.AdjustmentType.ADJUSTMENT_TYPE_NAME.Contains(@0) || i.NOTES.Contains(@0)", FilterParameters = new object[] { search }, Expand = "AdjustmentReason,AdjustmentType,Employee" });
+                documentType = await AldebaranDbService.GetDocumentTypeByCode("A");
+
+                adjustments = await AldebaranDbService.GetAdjustments(new Query { Filter = $@"i => i.AdjustmentReason.ADJUSTMENT_REASON_NAME.Contains(@0) || i.AdjustmentType.ADJUSTMENT_TYPE_NAME.Contains(@0) || i.NOTES.Contains(@0)", FilterParameters = new object[] { search }, Expand = "AdjustmentReason,AdjustmentType,Employee,StatusDocumentType.DocumentType" });
             }
             finally
             {
@@ -81,18 +86,27 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
             NavigationManager.NavigateTo("edit-adjustment/" + args.ADJUSTMENT_ID);
         }
 
-        protected async Task GridDeleteButtonClick(MouseEventArgs args, Models.AldebaranDb.Adjustment adjustment)
+        protected bool CanEdit(Adjustment args)
+        {
+            return Security.IsInRole("Admin", "Adjustment Editor") && args.StatusDocumentType.EDIT_MODE;
+        }
+
+        protected async Task GridCancelButtonClick(MouseEventArgs args, Models.AldebaranDb.Adjustment adjustment)
         {
             try
             {
                 dialogResult = null;
 
-                if (await DialogService.Confirm("Esta seguro que desea eliminar este ajuste?") == true)
+                if (await DialogService.Confirm("Esta seguro que desea cancelar este ajuste?") == true)
                 {
-                    var deleteResult = await AldebaranDbService.DeleteAdjustment(adjustment.ADJUSTMENT_ID);
+                    var statusCanceled = await AldebaranDbService.GetStatusDocumentTypeByDocumentAndOrder(documentType, 2);
+                    var deleteResult = await AldebaranDbService.CancelAdjustment(adjustment, statusCanceled.STATUS_DOCUMENT_TYPE_ID);
 
                     if (deleteResult != null)
                     {
+                        adjustment.StatusDocumentType = statusCanceled;
+                        adjustment.STATUS_DOCUMENT_TYPE_ID = adjustment.StatusDocumentType.STATUS_DOCUMENT_TYPE_ID;
+
                         dialogResult = new DialogResult { Success = true, Message = "Ajuste eliminado correctamente." };
                         await grid0.Reload();
                     }

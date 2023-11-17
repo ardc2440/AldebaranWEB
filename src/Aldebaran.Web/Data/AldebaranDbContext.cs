@@ -51,6 +51,12 @@ namespace Aldebaran.Web.Data
              .HasForeignKey(i => i.CUSTOMER_ORDER_DETAIL_ID)
              .HasPrincipalKey(i => i.CUSTOMER_ORDER_DETAIL_ID);
 
+            builder.Entity<Adjustment>()
+             .HasOne(i => i.StatusDocumentType)
+             .WithMany(i => i.Adjustments)
+             .HasForeignKey(i => i.STATUS_DOCUMENT_TYPE_ID)
+             .HasPrincipalKey(i => i.STATUS_DOCUMENT_TYPE_ID);
+
             builder.Entity<CustomerOrderInProcessDetail>()
              .HasOne(i => i.CustomerOrderInProcess)
              .WithMany(i => i.CustomerOrderInProcessDetails)

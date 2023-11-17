@@ -44,13 +44,15 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         [Parameter]
         public ICollection<AdjustmentDetail> adjustmentDetails { get; set; }
 
+        public ICollection<ItemReference> references;
+
         protected bool isSubmitInProgress;
 
         protected override async Task OnInitializedAsync()
         {
             adjustmentsForADJUSTMENTID = await AldebaranDbService.GetAdjustments();
 
-            itemReferencesForREFERENCEID = await AldebaranDbService.GetItemReferences();
+            itemReferencesForREFERENCEID = await AldebaranDbService.GetItemReferences(new Query { Filter = "i => i.IS_ACTIVE && i.Item.IS_ACTIVE", Expand = "Item.Line" });
 
             warehousesForWAREHOUSEID = await AldebaranDbService.GetWarehouses();
 

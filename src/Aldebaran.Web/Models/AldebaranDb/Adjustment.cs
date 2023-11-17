@@ -26,6 +26,8 @@ namespace Aldebaran.Web.Models.AldebaranDb
 
         public DateTime CREATION_DATE { get; set; }
 
+        public short STATUS_DOCUMENT_TYPE_ID { get; set; }
+
         public ICollection<AdjustmentDetail> AdjustmentDetails { get; set; }
 
         public AdjustmentReason AdjustmentReason { get; set; }
@@ -33,6 +35,8 @@ namespace Aldebaran.Web.Models.AldebaranDb
         public AdjustmentType AdjustmentType { get; set; }
 
         public Employee Employee { get; set; }
+
+        public StatusDocumentType StatusDocumentType { get; set; }
 
     }
 }
