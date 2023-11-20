@@ -1092,8 +1092,10 @@ CREATE TABLE adjustment_types
 (
 	ADJUSTMENT_TYPE_ID SMALLINT NOT NULL IDENTITY(1,1),
 	ADJUSTMENT_TYPE_NAME VARCHAR(30) NOT NULL,
+	OPERATOR SMALLINT NOT NULL,
 	CONSTRAINT PK_ADJUSTMENT_TYPE PRIMARY KEY (ADJUSTMENT_TYPE_ID),
-	CONSTRAINT UQ_ADJUSTMENT_TYPE_NAME UNIQUE (ADJUSTMENT_TYPE_NAME)
+	CONSTRAINT UQ_ADJUSTMENT_TYPE_NAME UNIQUE (ADJUSTMENT_TYPE_NAME),
+	CONSTRAINT CK_ADJUSTMENT_TYPE_OPERATOR CHECK (OPERATOR IN (-1,1))
 )
 GO
 
@@ -1568,8 +1570,8 @@ GO
 /* Triggers */
 
 /* Crea la referencia para tdas las bodegas, con saldoen 0 */
-CREATE OR ALTER TRIGGER TrgInsertReferencesWarehouse
-   ON  ITEM_REFERENCES 
+CREATE OR ALTER TRIGGER [dbo].[TrgInsertReferencesWarehouse]
+   ON  [dbo].[item_references] 
    AFTER INSERT
 AS 
 BEGIN
@@ -1582,19 +1584,24 @@ BEGIN
 	 
 	SELECT @REFERENCE_ID = REFERENCE_ID
 	  FROM inserted 
-
-	WHILE @IdReg >= @TotalReg
+	  
+	WHILE @IdReg <= @TotalReg
+	BEGIN
 		IF NOT EXISTS(SELECT 1 
 						FROM references_warehouse 
 					   WHERE WAREHOUSE_ID = @IdReg  
 					     AND REFERENCE_ID = @REFERENCE_ID)
 			INSERT INTO references_warehouse (WAREHOUSE_ID, REFERENCE_ID, QUANTITY) 
 				 VALUES (@IdReg, @REFERENCE_ID, 0)
+		SET @IdReg = @IdReg+1
+	END
 END
 GO
 
+/********* CUSTOMER ORDER IN PROCESS ********/
+
 /* Cambia el estado del CustomerOrder cuando se crea un nuevo CustomerOrderInProcess*/
-CREATE OR ALTER TRIGGER TrgInsertCustomerOrderStatus 
+CREATE OR ALTER TRIGGER TrgInsertCustomerOrderInProcess
    ON  CUSTOMER_ORDERS_IN_PROCESS 
    AFTER INSERT
 AS 
@@ -1633,9 +1640,8 @@ BEGIN
 END
 GO
 
-
 /* Cambia el estado de la Customer Orden Y Retorna a las Bodegas las cantidades que pertenecen al Proceso actual Cancelado */
-CREATE OR ALTER TRIGGER TrgUpdateCustomerOrderStatus 
+CREATE OR ALTER TRIGGER TrgUpdateCustomerOrderInProcess
    ON  CUSTOMER_ORDERS_IN_PROCESS 
    AFTER UPDATE
 AS 
@@ -1662,8 +1668,17 @@ BEGIN
 		   JOIN customer_order_in_process_details b ON b.CUSTOMER_ORDER_IN_PROCESS_ID = a.CUSTOMER_ORDER_IN_PROCESS_ID
 		   JOIN customer_order_details c ON c.CUSTOMER_ORDER_DETAIL_ID = b.CUSTOMER_ORDER_DETAIL_ID
 		   JOIN references_warehouse d ON d.REFERENCE_ID = c.REFERENCE_ID
-									  AND d.WAREHOUSE_ID = b.WAREHOUSE_ID		 
-
+									  AND d.WAREHOUSE_ID = b.WAREHOUSE_ID	
+									  
+		 UPDATE d
+		    SET d.INVENTORY_QUANTITY = d.INVENTORY_QUANTITY + b.PROCESSED_QUANTITY, 
+				d.ORDERED_QUANTITY = d.ORDERED_QUANTITY + b.PROCESSED_QUANTITY,
+				d.WORK_IN_PROCESS_QUANTITY = d.WORK_IN_PROCESS_QUANTITY - b.PROCESSED_QUANTITY
+		   FROM inserted a
+		   JOIN customer_order_in_process_details b ON b.CUSTOMER_ORDER_IN_PROCESS_ID = a.CUSTOMER_ORDER_IN_PROCESS_ID
+		   JOIN customer_order_details c ON c.CUSTOMER_ORDER_DETAIL_ID = b.CUSTOMER_ORDER_DETAIL_ID
+		   JOIN item_references d ON d.REFERENCE_ID = c.REFERENCE_ID
+								
 		SELECT @TOTAL_PROCESSED_QUANTITY = SUM(b.PROCESSED_QUANTITY), @TOTAL_DELIVERED_QUANTITY = SUM(b.DELIVERED_QUANTITY) 
 		  FROM inserted a 
 		  JOIN customer_order_details b ON b.CUSTOMER_ORDER_ID = a.CUSTOMER_ORDER_ID
@@ -1691,7 +1706,7 @@ END
 GO
 
 /* Agrega al detalle de la Customer Order y de las bodegas las cantidades trasladadas en el proceso actual */
-CREATE OR ALTER TRIGGER TrgInsertCustomerOrderDetailQuantity 
+CREATE OR ALTER TRIGGER TrgInsertCustomerOrderInProcessDetailQuantity 
    ON  CUSTOMER_ORDER_IN_PROCESS_DETAILS 
    AFTER INSERT
 AS 
@@ -1709,12 +1724,19 @@ BEGIN
 	  JOIN customer_order_details b ON b.CUSTOMER_ORDER_DETAIL_ID = a.CUSTOMER_ORDER_DETAIL_ID	
 	  JOIN references_warehouse c on c.REFERENCE_ID = b.REFERENCE_ID
 								 AND c.WAREHOUSE_ID = a.WAREHOUSE_ID
+
+	UPDATE c
+	   SET c.INVENTORY_QUANTITY = c.INVENTORY_QUANTITY - a.PROCESSED_QUANTITY, 
+	       c.ORDERED_QUANTITY = c.ORDERED_QUANTITY - a.PROCESSED_QUANTITY,
+		   c.WORK_IN_PROCESS_QUANTITY = c.WORK_IN_PROCESS_QUANTITY + a.PROCESSED_QUANTITY		   
+	  FROM inserted a
+	  JOIN customer_order_details b ON b.CUSTOMER_ORDER_DETAIL_ID = a.CUSTOMER_ORDER_DETAIL_ID	
+	  JOIN item_references c on c.REFERENCE_ID = b.REFERENCE_ID
 END
 GO
 
 /* Retira del detalle de la Customer Order y de las bodegas las cantidades trasladadas en el proceso actual que son eliminadas */
-
-CREATE OR ALTER TRIGGER TrgDeleteCustomerOrderDetailQuantity 
+CREATE OR ALTER TRIGGER TrgDeleteCustomerOrderInProcessDetailQuantity 
    ON  CUSTOMER_ORDER_IN_PROCESS_DETAILS 
    AFTER DELETE
 AS 
@@ -1732,12 +1754,19 @@ BEGIN
 	  JOIN customer_order_details b ON b.CUSTOMER_ORDER_DETAIL_ID = a.CUSTOMER_ORDER_DETAIL_ID	
 	  JOIN references_warehouse c on c.REFERENCE_ID = b.REFERENCE_ID
 								 AND c.WAREHOUSE_ID = a.WAREHOUSE_ID
+
+	UPDATE c
+	   SET c.INVENTORY_QUANTITY = c.INVENTORY_QUANTITY + a.PROCESSED_QUANTITY,
+		   c.ORDERED_QUANTITY = c.ORDERED_QUANTITY + a.PROCESSED_QUANTITY,
+		   c.WORK_IN_PROCESS_QUANTITY = c.WORK_IN_PROCESS_QUANTITY - a.PROCESSED_QUANTITY 
+	  FROM deleted a
+	  JOIN customer_order_details b ON b.CUSTOMER_ORDER_DETAIL_ID = a.CUSTOMER_ORDER_DETAIL_ID	
+	  JOIN item_references c on c.REFERENCE_ID = b.REFERENCE_ID								 
 END
 GO
 
 /* Retira y agrega en el detalle de la Customer Order y de las bodegas las cantidades trasladadas en el proceso actual que son eliminadas e ingresadas */
-
-CREATE OR ALTER TRIGGER TrgUpdateCustomerOrderDetailQuantity 
+CREATE OR ALTER TRIGGER TrgUpdateCustomerOrderInProcessDetailQuantity 
    ON  CUSTOMER_ORDER_IN_PROCESS_DETAILS 
    AFTER UPDATE
 AS 
@@ -1760,12 +1789,163 @@ BEGIN
 	  JOIN customer_order_details b ON b.CUSTOMER_ORDER_DETAIL_ID = a.CUSTOMER_ORDER_DETAIL_ID	
 	  JOIN references_warehouse c on c.REFERENCE_ID = b.REFERENCE_ID
 								 AND c.WAREHOUSE_ID = a.WAREHOUSE_ID
-
-    UPDATE c
+	  
+	UPDATE c
 	   SET c.QUANTITY = c.QUANTITY - a.PROCESSED_QUANTITY 
 	  FROM inserted a
 	  JOIN customer_order_details b ON b.CUSTOMER_ORDER_DETAIL_ID = a.CUSTOMER_ORDER_DETAIL_ID	
 	  JOIN references_warehouse c on c.REFERENCE_ID = b.REFERENCE_ID
 								 AND c.WAREHOUSE_ID = a.WAREHOUSE_ID
+	  
+	UPDATE c
+	   SET c.INVENTORY_QUANTITY = c.INVENTORY_QUANTITY + a.PROCESSED_QUANTITY,
+	       c.ORDERED_QUANTITY = c.ORDERED_QUANTITY + a.PROCESSED_QUANTITY,
+		   c.WORK_IN_PROCESS_QUANTITY = c.ORDERED_QUANTITY - a.PROCESSED_QUANTITY
+	  FROM deleted a
+	  JOIN customer_order_details b ON b.CUSTOMER_ORDER_DETAIL_ID = a.CUSTOMER_ORDER_DETAIL_ID	
+	  JOIN item_references c on c.REFERENCE_ID = b.REFERENCE_ID
+	  
+	UPDATE c
+	   SET c.INVENTORY_QUANTITY = c.INVENTORY_QUANTITY - a.PROCESSED_QUANTITY,
+	       c.ORDERED_QUANTITY = c.ORDERED_QUANTITY - a.PROCESSED_QUANTITY,		   
+		   c.WORK_IN_PROCESS_QUANTITY = c.ORDERED_QUANTITY + a.PROCESSED_QUANTITY
+	  FROM inserted a
+	  JOIN customer_order_details b ON b.CUSTOMER_ORDER_DETAIL_ID = a.CUSTOMER_ORDER_DETAIL_ID	
+	  JOIN item_references c on c.REFERENCE_ID = b.REFERENCE_ID	
+END
+GO
+
+/*********** ADJUSTMENS *************/
+
+/* afecta items en una bodega e inventario a partir de un ajuste manual segun el tipo de ajuste realizado */
+CREATE OR ALTER TRIGGER TrgInsertAdjustmentDetailQuantity 
+   ON  ADJUSTMENT_DETAILS
+   AFTER INSERT
+AS 
+BEGIN
+	SET NOCOUNT ON;
+	
+	DECLARE @IndicatorINOUT SMALLINT
+
+	SELECT @IndicatorINOUT = b.OPERATOR 
+	  FROM adjustments a
+	  JOIN adjustment_types b ON b.ADJUSTMENT_TYPE_ID = a.ADJUSTMENT_TYPE_ID
+	 WHERE EXISTS(SELECT 1 FROM inserted c WHERE c.ADJUSTMENT_ID = a.ADJUSTMENT_ID)    
+
+	UPDATE b
+	   SET b.QUANTITY = b.QUANTITY + (a.QUANTITY * @IndicatorINOUT) 
+	  FROM inserted a
+	  JOIN references_warehouse b ON b.WAREHOUSE_ID = a.WAREHOUSE_ID
+	                             AND b.REFERENCE_ID = a.REFERENCE_ID
+	
+	UPDATE b
+	   SET b.INVENTORY_QUANTITY = b.INVENTORY_QUANTITY + (a.QUANTITY * @IndicatorINOUT) 
+	  FROM inserted a
+	  JOIN item_references b ON b.REFERENCE_ID = a.REFERENCE_ID
+END
+GO
+
+/* afecta items en una bodega e inventario a partir de un ajuste manual segun el tipo de ajuste realizado */
+CREATE OR ALTER TRIGGER TrgDeleteAdjustmentDetailQuantity 
+   ON  ADJUSTMENT_DETAILS
+   AFTER DELETE
+AS 
+BEGIN
+	SET NOCOUNT ON;
+	
+	DECLARE @IndicatorINOUT SMALLINT
+		
+	SELECT @IndicatorINOUT = b.OPERATOR * -1 /* Se invierte el sentido de la operacion para el tipo de ajuste realizado */
+	  FROM adjustments a
+	  JOIN adjustment_types b ON b.ADJUSTMENT_TYPE_ID = a.ADJUSTMENT_TYPE_ID
+	 WHERE EXISTS(SELECT 1 FROM deleted c WHERE c.ADJUSTMENT_ID = a.ADJUSTMENT_ID)    
+
+	UPDATE b
+	   SET b.QUANTITY = b.QUANTITY + (a.QUANTITY * @IndicatorINOUT) 
+	  FROM deleted a
+	  JOIN references_warehouse b ON b.WAREHOUSE_ID = a.WAREHOUSE_ID
+	                             AND b.REFERENCE_ID = a.REFERENCE_ID
+	
+	UPDATE b
+	   SET b.INVENTORY_QUANTITY = b.INVENTORY_QUANTITY + (a.QUANTITY * @IndicatorINOUT) 
+	  FROM deleted a
+	  JOIN item_references b ON b.REFERENCE_ID = a.REFERENCE_ID
+END
+GO
+
+/* afecta items en una bodega e inventario a partir de un ajuste manual segun el tipo de ajuste realizado */
+CREATE OR ALTER TRIGGER TrgUpdateAdjustmentDetailQuantity 
+   ON  ADJUSTMENT_DETAILS
+   AFTER UPDATE
+AS 
+BEGIN
+	SET NOCOUNT ON;
+	
+	DECLARE @IndicatorINOUT SMALLINT
+		
+	SELECT @IndicatorINOUT = b.OPERATOR * -1 /* Se invierte el sentido de la operacion para el tipo de ajuste realizado */
+	  FROM adjustments a
+	  JOIN adjustment_types b ON b.ADJUSTMENT_TYPE_ID = a.ADJUSTMENT_TYPE_ID
+	 WHERE EXISTS(SELECT 1 FROM inserted c WHERE c.ADJUSTMENT_ID = a.ADJUSTMENT_ID)    
+
+	UPDATE b
+	   SET b.QUANTITY = b.QUANTITY + (a.QUANTITY * @IndicatorINOUT) 
+	  FROM deleted a
+	  JOIN references_warehouse b ON b.WAREHOUSE_ID = a.WAREHOUSE_ID
+	                             AND b.REFERENCE_ID = a.REFERENCE_ID
+	
+	UPDATE b
+	   SET b.INVENTORY_QUANTITY = b.INVENTORY_QUANTITY + (a.QUANTITY * @IndicatorINOUT) 
+	  FROM deleted a
+	  JOIN item_references b ON b.REFERENCE_ID = a.REFERENCE_ID
+
+	SET @IndicatorINOUT = @IndicatorINOUT*(-1)
+
+	UPDATE b
+	   SET b.QUANTITY = b.QUANTITY + (a.QUANTITY * @IndicatorINOUT) 
+	  FROM inserted a
+	  JOIN references_warehouse b ON b.WAREHOUSE_ID = a.WAREHOUSE_ID
+	                             AND b.REFERENCE_ID = a.REFERENCE_ID
+	
+	UPDATE b
+	   SET b.INVENTORY_QUANTITY = b.INVENTORY_QUANTITY + (a.QUANTITY * @IndicatorINOUT) 
+	  FROM inserted a
+	  JOIN item_references b ON b.REFERENCE_ID = a.REFERENCE_ID
+END
+GO
+
+CREATE OR ALTER TRIGGER TrgUpdateAdjustmentStatus 
+   ON  ADJUSTMENTS
+   AFTER UPDATE
+AS 
+BEGIN
+	SET NOCOUNT ON;
+	
+	IF EXISTS (SELECT 1 
+				 FROM inserted a
+				 JOIN status_document_types b on b.STATUS_DOCUMENT_TYPE_ID = a.STATUS_DOCUMENT_TYPE_ID
+				WHERE b.STATUS_ORDER = 2) 
+	BEGIN
+
+		DECLARE @IndicatorINOUT SMALLINT
+		
+		SELECT @IndicatorINOUT = b.OPERATOR * -1 /* Se invierte el sentido de la operacion para el tipo de ajuste realizado */
+		  FROM inserted a
+		  JOIN adjustment_types b ON b.ADJUSTMENT_TYPE_ID = a.ADJUSTMENT_TYPE_ID
+		 
+		UPDATE c	
+		   SET c.QUANTITY = c.QUANTITY + (b.QUANTITY * @IndicatorINOUT)
+		  FROM inserted a
+		  JOIN adjustment_details b ON b.ADJUSTMENT_ID = a.ADJUSTMENT_ID
+		  JOIN references_warehouse c ON c.WAREHOUSE_ID = b.WAREHOUSE_ID
+								     AND c.REFERENCE_ID = b.REFERENCE_ID	
+
+		UPDATE c
+		   SET c.INVENTORY_QUANTITY = c.INVENTORY_QUANTITY + (b.QUANTITY * @IndicatorINOUT) 
+		  FROM inserted a
+		  JOIN adjustment_details b ON b.ADJUSTMENT_ID = a.ADJUSTMENT_ID
+		  JOIN item_references c ON c.REFERENCE_ID = b.REFERENCE_ID	
+
+	END
 END
 GO

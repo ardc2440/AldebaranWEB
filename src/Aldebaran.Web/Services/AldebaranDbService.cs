@@ -646,6 +646,7 @@ namespace Aldebaran.Web
                 CREATION_DATE = adjustment.CREATION_DATE,
                 EMPLOYEE_ID = adjustment.EMPLOYEE_ID,
                 NOTES = adjustment.NOTES,
+                STATUS_DOCUMENT_TYPE_ID = adjustment.STATUS_DOCUMENT_TYPE_ID,
                 AdjustmentDetails = new List<AdjustmentDetail>()
             };
 

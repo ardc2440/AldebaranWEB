@@ -50,6 +50,8 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected bool isSubmitInProgress;
 
+        protected DocumentType documentType;
+
         [Inject]
         protected SecurityService Security { get; set; }
 
@@ -72,7 +74,12 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
             adjustment = new Adjustment();
 
-            adjustment.EMPLOYEE_ID = 1;
+            documentType = await AldebaranDbService.GetDocumentTypeByCode("A");
+            adjustment.Employee = await AldebaranDbService.GetLoggedEmployee(Security);
+            adjustment.EMPLOYEE_ID = adjustment.Employee.EMPLOYEE_ID;
+
+            adjustment.StatusDocumentType = await AldebaranDbService.GetStatusDocumentTypeByDocumentAndOrder(documentType, 1);
+            adjustment.STATUS_DOCUMENT_TYPE_ID = adjustment.StatusDocumentType.STATUS_DOCUMENT_TYPE_ID;
         }
 
         protected async Task FormSubmit()
