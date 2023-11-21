@@ -45,6 +45,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         protected RadzenDataGrid<CustomerReservationDetail> customerReservationDetailGrid;
 
         protected bool isSubmitInProgress;
+        protected string title;
 
         [Inject]
         protected SecurityService Security { get; set; }
@@ -60,15 +61,13 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
             customerReservationDetails = new List<CustomerReservationDetail>();
 
-            var customerReservationId = 0;
+            _ = int.TryParse(pCustomerReservationId, out var customerReservationId);
 
-            int.TryParse(pCustomerReservationId, out customerReservationId);
+            customerReservation = await AldebaranDbService.GetCustomerReservationByCustomerReservationId(customerReservationId);
 
-            customerReservation = AldebaranDbService.GetCustomerReservationByCustomerReservationId(customerReservationId).Result;
+            title = $"Modificación de la Reserva No. {customerReservation.RESERVATION_NUMBER}";
 
             await GetChildData(customerReservation);
-
-            customerReservation.EMPLOYEE_ID = 1;
         }
 
         protected async Task FormSubmit()

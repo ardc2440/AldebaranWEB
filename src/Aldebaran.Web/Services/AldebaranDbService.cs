@@ -5084,18 +5084,6 @@ namespace Aldebaran.Web
             return employee;
         }
 
-        public async Task<string> GenerateDocumentNumber(DocumentType documentType)
-        {
-            var documentNumber = documentType.NEXT_DOCUMENT_NUMBER;
-
-            documentType.NEXT_DOCUMENT_NUMBER++;
-
-            context.DocumentTypes.Update(documentType);
-            context.SaveChanges();
-
-            return documentNumber.ToString().PadLeft(10, '0');
-        }
-
         /* Customer Reservations */
 
         public async Task<IQueryable<CustomerReservation>> GetCustomerReservations(Query query = null)
@@ -5206,8 +5194,11 @@ namespace Aldebaran.Web
         public async Task<ICollection<CustomerReservationDetail>> UpdateCustomerReservationDetails(ICollection<CustomerReservationDetail> customerReservationDetails)
         {
             foreach (var customerReservationDetail in customerReservationDetails)
-                Context.CustomerReservationDetails.Update(customerReservationDetail);
-
+            {
+                var itemToUpdate = context.CustomerReservationDetails.FirstOrDefault(i => i.CUSTOMER_RESERVATION_DETAIL_ID.Equals(customerReservationDetail.CUSTOMER_RESERVATION_DETAIL_ID));
+                itemToUpdate.SEND_TO_CUSTOMER_ORDER = customerReservationDetail.SEND_TO_CUSTOMER_ORDER;
+                Context.CustomerReservationDetails.Update(itemToUpdate);
+            }
             Context.SaveChanges();
 
             return customerReservationDetails;
@@ -5278,9 +5269,10 @@ namespace Aldebaran.Web
                     CUSTOMER_ID = customerReservation.CUSTOMER_ID,
                     EXPIRATION_DATE = customerReservation.EXPIRATION_DATE,
                     NOTES = customerReservation.NOTES,
+                    RESERVATION_NUMBER = customerReservation.RESERVATION_NUMBER,
                     RESERVATION_DATE = customerReservation.RESERVATION_DATE,
-                    STATUS_DOCUMENT_TYPE_ID = customerReservation.STATUS_DOCUMENT_TYPE_ID,
-                    EMPLOYEE_ID = customerReservation.EMPLOYEE_ID,
+                    STATUS_DOCUMENT_TYPE_ID = customerReservation.StatusDocumentType.STATUS_DOCUMENT_TYPE_ID,
+                    EMPLOYEE_ID = customerReservation.Employee.EMPLOYEE_ID,
                     CustomerReservationDetails = new List<CustomerReservationDetail>()
                 };
 
@@ -6068,6 +6060,14 @@ namespace Aldebaran.Web
                 throw;
             }
             return customerOrderInProcess;
+        }
+
+        internal async Task<string> GetDocumentNumber<T>(T entry) where T : class
+        {
+            context.Entry(entry);
+            var documentNumber = context.Set<T>().Count();
+
+            return (documentNumber + 1).ToString().PadLeft(10, '0'); ;
         }
     }
 }

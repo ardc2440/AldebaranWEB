@@ -1949,3 +1949,78 @@ BEGIN
 	END
 END
 GO
+
+/********* CUSTOMER_RESERVATIONS ***************/
+
+/* Reserva en el inventario los articulos incluidos en el detalle creado dentro de la customer_reservation */
+CREATE OR ALTER TRIGGER TrgInsertCustomerReservationDetail 
+   ON  CUSTOMER_RESERVATION_DETAILS
+   AFTER INSERT
+AS 
+BEGIN
+	SET NOCOUNT ON;
+
+	UPDATE c
+	   SET c.RESERVED_QUANTITY = c.RESERVED_QUANTITY + a.RESERVED_QUANTITY
+	  FROM inserted a
+	  JOIN item_references c on c.REFERENCE_ID = a.REFERENCE_ID
+END
+GO
+
+/* Libera la reserva en el inventario de los articulos incluidos en el detalle creado dentro de la customer_reservation */
+
+CREATE OR ALTER TRIGGER TrgDeleteCustomerOrderDetailQuantity 
+   ON  CUSTOMER_RESERVATION_DETAILS
+   AFTER DELETE
+AS 
+BEGIN
+	SET NOCOUNT ON;
+
+	UPDATE c
+	   SET c.RESERVED_QUANTITY = c.RESERVED_QUANTITY - a.RESERVED_QUANTITY
+	  FROM deleted a
+	  JOIN item_references c on c.REFERENCE_ID = a.REFERENCE_ID
+END
+GO
+
+/* actualiza en el inventario la cantidad reservada de los articulos incluidos en el detalle creado dentro de la customer_reservation */
+CREATE OR ALTER TRIGGER TrgUpdateCustomerOrderDetailQuantity 
+   ON  CUSTOMER_RESERVATION_DETAILS
+   AFTER UPDATE
+AS 
+BEGIN
+	SET NOCOUNT ON;
+
+	UPDATE c
+		SET c.RESERVED_QUANTITY = c.RESERVED_QUANTITY - a.RESERVED_QUANTITY
+		FROM deleted a
+		JOIN item_references c on c.REFERENCE_ID = a.REFERENCE_ID
+
+	UPDATE c
+		SET c.RESERVED_QUANTITY = c.RESERVED_QUANTITY + a.RESERVED_QUANTITY
+		FROM inserted a
+		JOIN item_references c on c.REFERENCE_ID = a.REFERENCE_ID	
+END
+GO
+
+/* Libera la reserva en el inventario de los articulos incluidos en la customer_reservation cancelada */
+CREATE OR ALTER TRIGGER TrgUpdateCustomerReservation
+   ON  CUSTOMER_RESERVATIONS 
+   AFTER UPDATE
+AS 
+BEGIN
+	SET NOCOUNT ON;
+	
+	IF EXISTS (SELECT 1 
+				 FROM inserted a
+				 JOIN status_document_types b on b.STATUS_DOCUMENT_TYPE_ID = a.STATUS_DOCUMENT_TYPE_ID
+				WHERE b.STATUS_ORDER = 3) 
+	BEGIN		
+		UPDATE c
+		   SET c.RESERVED_QUANTITY = c.RESERVED_QUANTITY - b.RESERVED_QUANTITY  
+		  FROM inserted a
+		  JOIN customer_reservation_details b ON b.CUSTOMER_RESERVATION_ID = a.CUSTOMER_RESERVATION_ID
+		  JOIN item_references c ON c.REFERENCE_ID = b.REFERENCE_ID 
+	END 
+END
+GO

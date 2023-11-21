@@ -8,7 +8,7 @@
         <RadzenTemplateForm TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservation" Data="@customerReservation" Visible="@(customerReservation != null)" Submit="@FormSubmit">
             <RadzenRow AlignItems="AlignItems.Center">
                 <RadzenColumn Size="12">
-                    <RadzenText Text="Convertir la Reserva en Pedido" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
+                    <RadzenText Text="@title" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
                 </RadzenColumn>
                 <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">@errorMessage</RadzenAlert>
             </RadzenRow>
@@ -16,12 +16,6 @@
                 <RadzenColumn SizeMD="6">
                     <RadzenStack>
                         <RadzenRow />
-                        <RadzenColumn SizeMD="3">
-                            <RadzenLabel Text="Numero Reserva:" class="fw-bold" style="width: 100%" />
-                        </RadzenColumn>
-                        <RadzenColumn SizeMD="3">
-                            <span>@customerReservation.RESERVATION_NUMBER</span>
-                        </RadzenColumn>
                         <RadzenColumn SizeMD="3">
                             <RadzenLabel Text="Cliente" class="fw-bold" style="width: 100%" />
                         </RadzenColumn>

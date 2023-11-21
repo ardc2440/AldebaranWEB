@@ -132,7 +132,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 customerOrder.CustomerOrderDetails = customerOrderDetails;
                 await AldebaranDbService.CreateCustomerOrder(customerOrder);
 
-                customerOrder.ORDER_NUMBER = await AldebaranDbService.GenerateDocumentNumber(documentType);
+                customerOrder.ORDER_NUMBER = await AldebaranDbService.GetDocumentNumber<CustomerOrder>(customerOrder); ;
                 await AldebaranDbService.AssignOrderNumber(customerOrder);
 
                 await DialogService.Alert($"Pedido de Reserva de Articulos Guardado Satisfactoriamente con el consecutivo {customerOrder.ORDER_NUMBER}", "Información");
@@ -148,8 +148,20 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
-            if (await DialogService.Confirm("Está seguro que cancelar la creacion del Pedido??", "Confirmar") == true)
+            if (await DialogService.Confirm("Está seguro que cancelar la creación del Pedido??", "Confirmar") == true)
+            {
+                if (!int.TryParse(pCustomerReservationId, out var customerReservationId))
+                    throw new Exception("El Id de Referencia recibido no es valido");
+
+                var customerReservation = await AldebaranDbService.GetCustomerReservationByCustomerReservationId(customerReservationId) ?? throw new Exception("No ha seleccionado una Reservacion Valida");
+
+                foreach (var item in customerReservation.CustomerReservationDetails.Where(d => d.SEND_TO_CUSTOMER_ORDER).ToList())
+                    item.SEND_TO_CUSTOMER_ORDER = false;
+
+                _ = await AldebaranDbService.UpdateCustomerReservationDetails(customerReservation.CustomerReservationDetails.Where(d => !d.SEND_TO_CUSTOMER_ORDER).ToList());
+
                 NavigationManager.NavigateTo("customer-reservations");
+            }
         }
 
         protected async Task AddCustomerOrderDetailButtonClick(MouseEventArgs args)

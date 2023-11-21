@@ -62,7 +62,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             customerReservation = new CustomerReservation()
             {
                 CUSTOMER_RESERVATION_ID = 0,
-                EMPLOYEE_ID = AldebaranDbService.GetLoggedEmployee(Security).Id,
+                Employee = await AldebaranDbService.GetLoggedEmployee(Security),
                 StatusDocumentType = await AldebaranDbService.GetStatusDocumentTypeByDocumentAndOrder(documentType, 1),
                 RESERVATION_DATE = DateTime.Today,
                 RESERVATION_NUMBER = "0"
@@ -78,10 +78,9 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                     throw new Exception("No ha ingresado ninguna referencia");
 
                 customerReservation.CustomerReservationDetails = customerReservationDetails;
-                await AldebaranDbService.CreateCustomerReservation(customerReservation);
+                customerReservation.RESERVATION_NUMBER = await AldebaranDbService.GetDocumentNumber<CustomerReservation>(customerReservation);
 
-                customerReservation.RESERVATION_NUMBER = await AldebaranDbService.GenerateDocumentNumber(documentType);
-                await AldebaranDbService.AssignReservationNumber(customerReservation);
+                await AldebaranDbService.CreateCustomerReservation(customerReservation);
 
                 await DialogService.Alert($"Reserva de Articulos Guardada Satisfactoriamente con el consecutivo {customerReservation.RESERVATION_NUMBER}", "Información");
                 NavigationManager.NavigateTo("customer-reservations");

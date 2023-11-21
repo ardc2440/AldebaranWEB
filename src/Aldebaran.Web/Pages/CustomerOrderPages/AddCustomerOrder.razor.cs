@@ -90,7 +90,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 customerOrder.CustomerOrderDetails = customerOrderDetails;
                 await AldebaranDbService.CreateCustomerOrder(customerOrder);
 
-                customerOrder.ORDER_NUMBER = await AldebaranDbService.GenerateDocumentNumber(documentType);
+                customerOrder.ORDER_NUMBER = await AldebaranDbService.GetDocumentNumber<CustomerOrder>(customerOrder);
                 await AldebaranDbService.AssignOrderNumber(customerOrder);
 
                 await DialogService.Alert($"Pedido de Articulos Guardado Satisfactoriamente con el Consecutivo {customerOrder.ORDER_NUMBER}", "Información");

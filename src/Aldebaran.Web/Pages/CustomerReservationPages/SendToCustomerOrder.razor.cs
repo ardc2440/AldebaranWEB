@@ -45,6 +45,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         protected RadzenDataGrid<CustomerReservationDetail> customerReservationDetailGrid;
 
         protected bool isSubmitInProgress;
+        protected string title;
 
         [Inject]
         protected SecurityService Security { get; set; }
@@ -66,9 +67,10 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
             customerReservation = AldebaranDbService.GetCustomerReservationByCustomerReservationId(customerReservationId).Result;
 
+            title = $"Convertir la Reserva No. {customerReservation.RESERVATION_NUMBER} en pedido";
+
             await GetChildData(customerReservation);
 
-            customerReservation.EMPLOYEE_ID = 1;
         }
 
         protected async Task FormSubmit()
