@@ -1818,7 +1818,7 @@ GO
 /*********** ADJUSTMENS *************/
 
 /* afecta items en una bodega e inventario a partir de un ajuste manual segun el tipo de ajuste realizado */
-CREATE OR ALTER TRIGGER TrgInsertAdjustmentDetailQuantity 
+CREATE OR ALTER TRIGGER TrgInsertAdjustmentDetail 
    ON  ADJUSTMENT_DETAILS
    AFTER INSERT
 AS 
@@ -1846,7 +1846,7 @@ END
 GO
 
 /* afecta items en una bodega e inventario a partir de un ajuste manual segun el tipo de ajuste realizado */
-CREATE OR ALTER TRIGGER TrgDeleteAdjustmentDetailQuantity 
+CREATE OR ALTER TRIGGER TrgDeleteAdjustmentDetail 
    ON  ADJUSTMENT_DETAILS
    AFTER DELETE
 AS 
@@ -1874,7 +1874,7 @@ END
 GO
 
 /* afecta items en una bodega e inventario a partir de un ajuste manual segun el tipo de ajuste realizado */
-CREATE OR ALTER TRIGGER TrgUpdateAdjustmentDetailQuantity 
+CREATE OR ALTER TRIGGER TrgUpdateAdjustmentDetail 
    ON  ADJUSTMENT_DETAILS
    AFTER UPDATE
 AS 
@@ -1969,7 +1969,7 @@ GO
 
 /* Libera la reserva en el inventario de los articulos incluidos en el detalle creado dentro de la customer_reservation */
 
-CREATE OR ALTER TRIGGER TrgDeleteCustomerOrderDetailQuantity 
+CREATE OR ALTER TRIGGER TrgDeleteCustomerReservationDetail 
    ON  CUSTOMER_RESERVATION_DETAILS
    AFTER DELETE
 AS 
@@ -1984,7 +1984,7 @@ END
 GO
 
 /* actualiza en el inventario la cantidad reservada de los articulos incluidos en el detalle creado dentro de la customer_reservation */
-CREATE OR ALTER TRIGGER TrgUpdateCustomerOrderDetailQuantity 
+CREATE OR ALTER TRIGGER TrgUpdateCustomerReservationDetail 
    ON  CUSTOMER_RESERVATION_DETAILS
    AFTER UPDATE
 AS 
@@ -2003,7 +2003,7 @@ BEGIN
 END
 GO
 
-/* Libera la reserva en el inventario de los articulos incluidos en la customer_reservation cancelada */
+/* Libera la reserva en el inventario de los articulos incluidos en la customer_reservation cancelada o convertida en Pedido */
 CREATE OR ALTER TRIGGER TrgUpdateCustomerReservation
    ON  CUSTOMER_RESERVATIONS 
    AFTER UPDATE
@@ -2014,7 +2014,7 @@ BEGIN
 	IF EXISTS (SELECT 1 
 				 FROM inserted a
 				 JOIN status_document_types b on b.STATUS_DOCUMENT_TYPE_ID = a.STATUS_DOCUMENT_TYPE_ID
-				WHERE b.STATUS_ORDER = 3) 
+				WHERE b.STATUS_ORDER in (2,3)) 
 	BEGIN		
 		UPDATE c
 		   SET c.RESERVED_QUANTITY = c.RESERVED_QUANTITY - b.RESERVED_QUANTITY  
@@ -2024,3 +2024,96 @@ BEGIN
 	END 
 END
 GO
+
+/****************** CUSTOMER_ORDERS ********************/
+
+/* bloquea en el inventario los articulos incluidos en el detalle creado dentro de la customer_order */
+CREATE OR ALTER TRIGGER TrgInsertCustomerOrderDetail 
+   ON  CUSTOMER_ORDER_DETAILS
+   AFTER INSERT
+AS 
+BEGIN
+	SET NOCOUNT ON;
+
+	UPDATE c
+	   SET c.ORDERED_QUANTITY = c.ORDERED_QUANTITY + a.REQUESTED_QUANTITY
+	  FROM inserted a
+	  JOIN item_references c on c.REFERENCE_ID = a.REFERENCE_ID
+END
+GO
+
+/* Libera el pedido en el inventario de los articulos incluidos en el detalle creado dentro de la customer_order */
+CREATE OR ALTER TRIGGER TrgDeleteCustomerOrderDetail
+   ON  CUSTOMER_ORDER_DETAILS
+   AFTER DELETE
+AS 
+BEGIN
+	SET NOCOUNT ON;
+
+	UPDATE c
+	   SET c.ORDERED_QUANTITY = c.ORDERED_QUANTITY - a.REQUESTED_QUANTITY
+	  FROM deleted a
+	  JOIN item_references c on c.REFERENCE_ID = a.REFERENCE_ID
+END
+GO
+
+/* actualiza en el inventario la cantidad pedida de los articulos incluidos en el detalle creado dentro de la customer_order */
+CREATE OR ALTER TRIGGER TrgUpdateCustomerOrderDetail
+   ON  CUSTOMER_ORDER_DETAILS
+   AFTER UPDATE
+AS 
+BEGIN
+	SET NOCOUNT ON;
+
+	UPDATE c
+		SET c.ORDERED_QUANTITY = c.ORDERED_QUANTITY - a.REQUESTED_QUANTITY
+		FROM deleted a
+		JOIN item_references c on c.REFERENCE_ID = a.REFERENCE_ID
+
+	UPDATE c
+		SET c.ORDERED_QUANTITY = c.ORDERED_QUANTITY + a.REQUESTED_QUANTITY
+		FROM inserted a
+		JOIN item_references c on c.REFERENCE_ID = a.REFERENCE_ID	
+END
+GO
+
+/* Retorna al inventario las cantidades pedidas cuando el pedido es cerrado o cancelado, si es cancelado, se devuelve la tptalidad pedida, 
+   si es cerrado se devuelve solo la parte faltante por enviar a proceso*/
+CREATE OR ALTER TRIGGER TrgUpdateCustomerOrderStatus
+   ON  CUSTOMER_ORDERS 
+   AFTER UPDATE
+AS 
+BEGIN
+	SET NOCOUNT ON;
+	
+	/* para la cancelacion del pedido */
+	IF EXISTS (SELECT 1 
+				 FROM inserted a
+				 JOIN status_document_types b on b.STATUS_DOCUMENT_TYPE_ID = a.STATUS_DOCUMENT_TYPE_ID
+				WHERE b.STATUS_ORDER in (6)) 
+	BEGIN		
+		UPDATE c
+		   SET c.ORDERED_QUANTITY = c.ORDERED_QUANTITY - b.REQUESTED_QUANTITY
+		  FROM inserted a
+		  JOIN customer_order_details b ON b.CUSTOMER_ORDER_ID = a.CUSTOMER_ORDER_ID
+		  JOIN item_references c ON c.REFERENCE_ID = b.REFERENCE_ID 
+	END 
+
+	/* para el cierre del pedido */
+	IF EXISTS (SELECT 1 
+				 FROM inserted a
+				 JOIN status_document_types b on b.STATUS_DOCUMENT_TYPE_ID = a.STATUS_DOCUMENT_TYPE_ID
+				WHERE b.STATUS_ORDER in (5)) 
+	BEGIN		
+		UPDATE c
+		   /* A la Requested_Quantity, se le descuenta lo que ya se paso a proceso y lo que ya se despacho, 
+		      ya que estos valores ya fueron descontados del ORDERED_QUANTITY, del INVENTORY QUANTITY y de la BODEGA CORRESPONDIENTE en el Inventario,
+			  y el resultado es lo que queda aun pendiente en el pedido, y es liberado en el inventario */
+		   SET c.ORDERED_QUANTITY = c.ORDERED_QUANTITY - (b.REQUESTED_QUANTITY - b.PROCESSED_QUANTITY- b.DELIVERED_QUANTITY)
+		  FROM inserted a
+		  JOIN customer_order_details b ON b.CUSTOMER_ORDER_ID = a.CUSTOMER_ORDER_ID
+		  JOIN item_references c ON c.REFERENCE_ID = b.REFERENCE_ID 
+	END
+END
+GO
+
