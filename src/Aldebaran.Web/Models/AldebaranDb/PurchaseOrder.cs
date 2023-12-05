@@ -54,6 +54,8 @@ namespace Aldebaran.Web.Models.AldebaranDb
 
         public Provider Provider { get; set; }
 
+        public StatusDocumentType StatusDocumentType { get; set; }
+
         public ShipmentForwarderAgentMethod ShipmentForwarderAgentMethod { get; set; }
 
     }

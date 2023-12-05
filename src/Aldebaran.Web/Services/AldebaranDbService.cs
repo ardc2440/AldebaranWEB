@@ -4064,6 +4064,7 @@ namespace Aldebaran.Web
             items = items.Include(i => i.Employee);
             items = items.Include(i => i.ForwarderAgent);
             items = items.Include(i => i.Provider);
+            items = items.Include(i => i.StatusDocumentType);
             items = items.Include(i => i.ShipmentForwarderAgentMethod);
 
             if (query != null)
@@ -4097,6 +4098,7 @@ namespace Aldebaran.Web
             items = items.Include(i => i.Employee);
             items = items.Include(i => i.ForwarderAgent);
             items = items.Include(i => i.Provider);
+            items = items.Include(i => i.StatusDocumentType);
             items = items.Include(i => i.ShipmentForwarderAgentMethod);
 
             OnGetPurchaseOrderByPurchaseOrderId(ref items);

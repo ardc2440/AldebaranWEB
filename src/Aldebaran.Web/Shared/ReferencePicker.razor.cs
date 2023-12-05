@@ -30,7 +30,8 @@ namespace Aldebaran.Web.Shared
 
         public short? LINE_ID { get; set; }
         public int? ITEM_ID { get; set; }
-
+        [Parameter]
+        public bool ReadOnly { get; set; } = false;
         [Parameter]
         public int? REFERENCE_ID { get; set; }
         [Parameter]

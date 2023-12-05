@@ -1,0 +1,50 @@
+﻿@typeparam TItem
+@inherits RadzenDataGrid<TItem>
+@inject ISharedStringLocalizer L;
+
+@RenderBase()
+
+@code {
+    RenderFragment RenderBase() => builder => { base.BuildRenderTree(builder); };
+    protected override void OnInitialized()
+    {
+        base.AllColumnsText = L["grid:all_columns_text"];
+        base.AndOperatorText = L["grid:and_operator_text"];
+        base.ApplyFilterText = L["grid:apply_filter_text"];
+        base.ClearFilterText = L["grid:clear_filter_text"];
+        base.ColumnsShowingText = L["grid:columns_showing_text"];
+        base.ColumnsText = L["grid:columns_text"];
+        base.ContainsText = L["grid:contains_text"];
+        base.DoesNotContainText = L["grid:does_not_contain_text"];
+        base.EmptyText = L["grid:empty_text"];
+        base.EndsWithText = L["grid:ends_with_text"];
+        base.EnumFilterSelectText = L["grid:enum_filter_select_text"];
+        base.EnumNullFilterText = L["grid:enum_null_filter_text"];
+        base.EqualsText = L["grid:equals_text"];
+        base.FilterText = L["grid:filter_text"];
+        base.FirstPageAriaLabel = L["grid:first_page_aria_label"];
+        base.FirstPageTitle = L["grid:first_page_title"];
+        base.GreaterThanOrEqualsText = L["grid:greater_than_equals_text"];
+        base.GreaterThanText = L["grid:greater_than_text"];
+        base.GroupPanelText = L["grid:group_panel_text"];
+        base.IsEmptyText = L["grid:is_empty_text"];
+        base.IsNotEmptyText = L["grid:is_not_empty_text"];
+        base.IsNotNullText = L["grid:is_not_null_text"];
+        base.IsNullText = L["grid:is_null_text"];
+        base.LastPageAriaLabel = L["grid:last_page_aria_label"];
+        base.LastPageTitle = L["grid:last_page_title"];
+        base.LessThanOrEqualsText = L["grid:less_than_equals_text"];
+        base.LessThanText = L["grid:less_than_text"];
+        base.NextPageAriaLabel = L["grid:next_page_aria_label"];
+        base.NextPageTitle = L["grid:next_page_title"];
+        base.NotEqualsText = L["grid:not_equals_text"];
+        base.OrOperatorText = L["grid:or_operator_text"];
+        base.PageAriaLabelFormat = L["grid:page_aria_label_format"];
+        base.PageSizeText = L["grid:page_size_text"];
+        base.PageTitleFormat = L["grid:page_title_format"];
+        base.PagingSummaryFormat = L["grid:paging_summary_format"];
+        base.PrevPageAriaLabel = L["grid:prev_page_aria_label"];
+        base.PrevPageTitle = L["grid:prev_page_title"];
+        base.StartsWithText = L["grid:starts_with_text"];
+    }
+}

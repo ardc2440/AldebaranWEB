@@ -34,5 +34,7 @@ namespace Aldebaran.Web.Models.AldebaranDb
         public ICollection<CustomerOrderInProcess> CustomerOrderInProcesses { get; set; }
 
         public ICollection<Adjustment> Adjustments { get; set; }
+
+        public ICollection<PurchaseOrder> PurchaseOrders { get; set; }
     }
 }

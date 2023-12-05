@@ -2,7 +2,6 @@
 
 @attribute [Authorize]
 
-<PageTitle>Add PurchaseOrderActivity</PageTitle>
 <RadzenColumn SizeMD=12>
     <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">No se ha podido agregar la actividad</RadzenAlert>
     <RadzenTemplateForm TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrderActivity" Data="@purchaseOrderActivity" Visible="@(purchaseOrderActivity != null)" Submit="@FormSubmit">

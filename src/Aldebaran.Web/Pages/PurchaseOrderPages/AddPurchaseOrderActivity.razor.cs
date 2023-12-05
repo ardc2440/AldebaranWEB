@@ -28,15 +28,21 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
 
         [Inject]
         public AldebaranDbService AldebaranDbService { get; set; }
-
+        [Inject]
+        protected SecurityService Security { get; set; }
         protected bool errorVisible;
         protected Models.AldebaranDb.PurchaseOrderActivity purchaseOrderActivity;
         protected IEnumerable<Models.AldebaranDb.Employee> employees;
         protected bool isSubmitInProgress;
+        protected Employee LoggedEmployee { get; set; }
 
         protected override async Task OnInitializedAsync()
         {
-            purchaseOrderActivity = new Models.AldebaranDb.PurchaseOrderActivity();
+            LoggedEmployee = (await AldebaranDbService.GetEmployees(new Query { Filter = "i=>i.LOGIN_USER_ID==@0", FilterParameters = new object[] { Security.User.Id } })).Single();
+            purchaseOrderActivity = new Models.AldebaranDb.PurchaseOrderActivity()
+            {
+                EMPLOYEE_ID = LoggedEmployee.EMPLOYEE_ID
+            };
             employees = await AldebaranDbService.GetEmployees();
         }
         protected async Task FormSubmit()

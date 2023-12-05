@@ -1,3 +1,4 @@
+using Aldebaran.Web.Models.AldebaranDb;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
@@ -30,27 +31,39 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         [Parameter]
         public int PURCHASE_ORDER_ACTIVITY_ID { get; set; }
 
+        [Inject]
+        protected SecurityService Security { get; set; }
+        protected bool errorVisible;
+        protected Models.AldebaranDb.PurchaseOrderActivity purchaseOrderActivity;
+        protected IEnumerable<Models.AldebaranDb.Employee> employees;
+        protected bool isSubmitInProgress;
+        protected Employee LoggedEmployee { get; set; }
+
         protected override async Task OnInitializedAsync()
         {
             purchaseOrderActivity = await AldebaranDbService.GetPurchaseOrderActivityByPurchaseOrderActivityId(PURCHASE_ORDER_ACTIVITY_ID);
-
-            purchaseOrdersForPURCHASEORDERID = await AldebaranDbService.GetPurchaseOrders();
         }
-        protected bool errorVisible;
-        protected Models.AldebaranDb.PurchaseOrderActivity purchaseOrderActivity;
-
-        protected IEnumerable<Models.AldebaranDb.PurchaseOrder> purchaseOrdersForPURCHASEORDERID;
-
         protected async Task FormSubmit()
         {
             try
             {
-                await AldebaranDbService.UpdatePurchaseOrderActivity(PURCHASE_ORDER_ACTIVITY_ID, purchaseOrderActivity);
+                isSubmitInProgress = true;
+                var employee = await AldebaranDbService.GetEmployees(new Query
+                {
+                    Filter = "i=>i.EMPLOYEE_ID==@0",
+                    FilterParameters = new object[] { purchaseOrderActivity.ACTIVITY_EMPLOYEE_ID },
+                    Expand = "Area"
+                });
+                purchaseOrderActivity.ActivityEmployee = employee.Single();
                 DialogService.Close(purchaseOrderActivity);
             }
             catch (Exception ex)
             {
                 errorVisible = true;
+            }
+            finally
+            {
+                isSubmitInProgress = false;
             }
         }
 
@@ -59,24 +72,9 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
             DialogService.Close(null);
         }
 
-        bool hasPURCHASE_ORDER_IDValue;
-
-        [Parameter]
-        public int PURCHASE_ORDER_ID { get; set; }
-
-        [Inject]
-        protected SecurityService Security { get; set; }
-        public override async Task SetParametersAsync(ParameterView parameters)
+        protected async Task EmployeeHandler(Employee employee)
         {
-            purchaseOrderActivity = new Models.AldebaranDb.PurchaseOrderActivity();
-
-            hasPURCHASE_ORDER_IDValue = parameters.TryGetValue<int>("PURCHASE_ORDER_ID", out var hasPURCHASE_ORDER_IDResult);
-
-            if (hasPURCHASE_ORDER_IDValue)
-            {
-                purchaseOrderActivity.PURCHASE_ORDER_ID = hasPURCHASE_ORDER_IDResult;
-            }
-            await base.SetParametersAsync(parameters);
+            purchaseOrderActivity.ACTIVITY_EMPLOYEE_ID = employee?.EMPLOYEE_ID ?? 0;
         }
     }
 }

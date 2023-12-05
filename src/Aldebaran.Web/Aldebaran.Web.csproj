@@ -14,6 +14,7 @@
     <None Remove="Models\AldebaranDb\Forwarder.cs~RF1dbd8670.TMP" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Localization" Version="8.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="7.0.9" />
     <PackageReference Include="Radzen.Blazor" Version="*" />
     <PackageReference Include="DocumentFormat.OpenXml" Version="2.20.0" />
@@ -28,5 +29,10 @@
     <Content Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\SharedResource.resx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>

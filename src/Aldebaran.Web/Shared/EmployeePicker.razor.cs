@@ -44,7 +44,6 @@ namespace Aldebaran.Web.Shared
         protected override async Task OnInitializedAsync()
         {
             areas = await AldebaranDbService.GetAreas();
-            EMPLOYEE_ID = null;
         }
         protected async Task OnAreaChange(object areaId)
         {
@@ -81,6 +80,19 @@ namespace Aldebaran.Web.Shared
                 CollapsedPanel = false;
             if (Command == "Collapse")
                 CollapsedPanel = true;
+        }
+        public override async Task SetParametersAsync(ParameterView parameters)
+        {
+            if (parameters.TryGetValue<int>("EMPLOYEE_ID", out var hasEMPLOYEE_IDResult))
+            {
+                employee = await AldebaranDbService.GetEmployeeByEmployeeId(hasEMPLOYEE_IDResult);
+                if (employee != null)
+                {
+                    employees = await AldebaranDbService.GetEmployees(new Query { Filter = $"i=>i.AREA_ID==@0", FilterParameters = new object[] { employee.AREA_ID }, Expand = "Area" });
+                    AREA_ID = employee.AREA_ID;
+                }
+            }
+            await base.SetParametersAsync(parameters);
         }
     }
 }

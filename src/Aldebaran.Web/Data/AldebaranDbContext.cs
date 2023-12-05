@@ -370,6 +370,12 @@ namespace Aldebaran.Web.Data
               .HasPrincipalKey(i => i.PROVIDER_ID);
 
             builder.Entity<PurchaseOrder>()
+             .HasOne(i => i.StatusDocumentType)
+             .WithMany(i => i.PurchaseOrders)
+             .HasForeignKey(i => i.STATUS_DOCUMENT_TYPE_ID)
+             .HasPrincipalKey(i => i.STATUS_DOCUMENT_TYPE_ID);
+
+            builder.Entity<PurchaseOrder>()
               .HasOne(i => i.ShipmentForwarderAgentMethod)
               .WithMany(i => i.PurchaseOrders)
               .HasForeignKey(i => i.SHIPMENT_FORWARDER_AGENT_METHOD_ID)

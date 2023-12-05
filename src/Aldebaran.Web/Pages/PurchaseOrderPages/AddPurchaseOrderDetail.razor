@@ -13,7 +13,7 @@
                             <RadzenNumeric style="display: block; width: 100%" @bind-Value="@purchaseOrderDetail.REQUESTED_QUANTITY" Name="REQUESTED_QUANTITY" />
                         </ChildContent>
                         <Helper>
-                            <RadzenRequiredValidator Component="REQUESTED_QUANTITY" DefaultValue="0" Text="Cantidad solicitada es requerida" />
+                            <RadzenNumericRangeValidator Component="REQUESTED_QUANTITY" Min="1" Text="Cantidad solicitada es requerida" />
                         </Helper>
                     </RadzenFormField>
                 </RadzenColumn>
@@ -24,7 +24,7 @@
                                                     style="display: block; width: 100%" @bind-Value="@purchaseOrderDetail.WAREHOUSE_ID" Name="WAREHOUSE_ID" />
                         </ChildContent>
                         <Helper>
-                            <RadzenRequiredValidator Component="WAREHOUSE_ID" DefaultValue="0" Text="Bodega es requerida" />
+                            <RadzenNumericRangeValidator Component="WAREHOUSE_ID" Min="1" Text="Bodega es requerida" />
                         </Helper>
                     </RadzenFormField>
                 </RadzenColumn>

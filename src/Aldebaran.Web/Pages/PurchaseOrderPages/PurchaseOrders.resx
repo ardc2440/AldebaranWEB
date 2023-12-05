@@ -1,0 +1,97 @@
+<root>
+	<xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+		<xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+		<xsd:element name="root" msdata:IsDataSet="true">
+			<xsd:complexType>
+				<xsd:choice maxOccurs="unbounded">
+					<xsd:element name="metadata">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" />
+							</xsd:sequence>
+							<xsd:attribute name="name" use="required" type="xsd:string" />
+							<xsd:attribute name="type" type="xsd:string" />
+							<xsd:attribute name="mimetype" type="xsd:string" />
+							<xsd:attribute ref="xml:space" />
+						</xsd:complexType>
+					</xsd:element>
+					<xsd:element name="assembly">
+						<xsd:complexType>
+							<xsd:attribute name="alias" type="xsd:string" />
+							<xsd:attribute name="name" type="xsd:string" />
+						</xsd:complexType>
+					</xsd:element>
+					<xsd:element name="data">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+								<xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+							</xsd:sequence>
+							<xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+							<xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+							<xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+							<xsd:attribute ref="xml:space" />
+						</xsd:complexType>
+					</xsd:element>
+					<xsd:element name="resheader">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+							</xsd:sequence>
+							<xsd:attribute name="name" type="xsd:string" use="required" />
+						</xsd:complexType>
+					</xsd:element>
+				</xsd:choice>
+			</xsd:complexType>
+		</xsd:element>
+	</xsd:schema>
+	<resheader name="resmimetype">
+		<value>text/microsoft-resx</value>
+	</resheader>
+	<resheader name="version">
+		<value>2.0</value>
+	</resheader>
+	<resheader name="reader">
+		<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<resheader name="writer">
+		<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<!--Variables-->
+	<data name="title" xml:space="preserve">
+		<value>Ordenes de compra</value>
+	</data>
+	<data name="order:order_number" xml:space="preserve">
+		<value>Numero de orden</value>
+	</data>
+	<data name="order:creation_date" xml:space="preserve">
+		<value>Fecha de creación</value>
+	</data>
+	<data name="order:request_date" xml:space="preserve">
+		<value>Fecha de solicitud</value>
+	</data>
+	<data name="order:expected_receipt_date" xml:space="preserve">
+		<value>Fecha esperada de recepción</value>
+	</data>
+	<data name="order:real_receipt_date" xml:space="preserve">
+		<value>Fecha real de recepción</value>
+	</data>
+	<data name="order:status" xml:space="preserve">
+		<value>Estado</value>
+	</data>
+	<data name="order:import_number" xml:space="preserve">
+		<value>Número de importación</value>
+	</data>
+	<data name="order:embarkation_port" xml:space="preserve">
+		<value>Puerto de embarcación</value>
+	</data>
+	<data name="order:proforma_number" xml:space="preserve">
+		<value>Número de proforma</value>
+	</data>
+	<data name="order:provider_name" xml:space="preserve">
+		<value>Proveedor</value>
+	</data>
+	<data name="order:shipment_method_name" xml:space="preserve">
+		<value>Método de envío</value>
+	</data>
+</root>

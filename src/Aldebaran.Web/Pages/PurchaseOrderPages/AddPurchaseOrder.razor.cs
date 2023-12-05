@@ -75,7 +75,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                     EXECUTION_DATE = s.EXECUTION_DATE,
                     ACTIVITY_DESCRIPTION = s.ACTIVITY_DESCRIPTION,
                     CREATION_DATE = now,
-                    EMPLOYEE_ID = employee.EMPLOYEE_ID,
+                    EMPLOYEE_ID = s.EMPLOYEE_ID,
                     ACTIVITY_EMPLOYEE_ID = s.ACTIVITY_EMPLOYEE_ID
                 }).ToList();
                 purchaseOrder.PurchaseOrderDetails = purchaseOrderDetails.Select(s => new PurchaseOrderDetail
@@ -85,8 +85,8 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                     REQUESTED_QUANTITY = s.REQUESTED_QUANTITY,
                 }).ToList();
 
-                await AldebaranDbService.CreatePurchaseOrder(purchaseOrder);
-                NavigationManager.NavigateTo("purchase-orders");
+                var order = await AldebaranDbService.CreatePurchaseOrder(purchaseOrder);
+                NavigationManager.NavigateTo($"purchase-orders/{order.ORDER_NUMBER}");
             }
             catch (Exception ex)
             {
@@ -108,7 +108,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 if (!purchaseOrderDetails.Any(a => a.REFERENCE_ID == reference.REFERENCE_ID))
                     providerReferencesIds.Add(reference.REFERENCE_ID);
             }
-            //Solo las referencias del proveedor
+            //Solo las referencias del proveedor, excepto las que ya estan agregadas
             var itemReferences = await AldebaranDbService.GetItemReferences(new Query { Filter = "i => @0.Contains(i.REFERENCE_ID)", FilterParameters = new object[] { providerReferencesIds }, Expand = "Item.Line" });
             var result = await DialogService.OpenAsync<AddPurchaseOrderDetail>("Nueva referencia", new Dictionary<string, object> { { "ProviderItemReferences", itemReferences.ToList() } });
             if (result == null)

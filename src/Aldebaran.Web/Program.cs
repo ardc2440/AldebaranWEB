@@ -1,5 +1,6 @@
 using Aldebaran.Web.Data;
 using Aldebaran.Web.Models;
+using Aldebaran.Web.Resources;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.OData;
@@ -44,6 +45,9 @@ builder.Services.AddControllers().AddOData(o =>
     o.AddRouteComponents("odata/Identity", oDataBuilder.GetEdmModel()).Count().Filter().OrderBy().Expand().Select().SetMaxTop(null).TimeZone = TimeZoneInfo.Utc;
 });
 builder.Services.AddScoped<AuthenticationStateProvider, Aldebaran.Web.ApplicationAuthenticationStateProvider>();
+builder.Services.AddLocalization();
+
+builder.Services.AddTransient<ISharedStringLocalizer, SharedStringLocalizer>();
 var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -56,6 +60,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseHeaderPropagation();
+app.UseRequestLocalization(options => options.AddSupportedCultures("es-CO").AddSupportedUICultures("es-CO").SetDefaultCulture("es-CO"));
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
