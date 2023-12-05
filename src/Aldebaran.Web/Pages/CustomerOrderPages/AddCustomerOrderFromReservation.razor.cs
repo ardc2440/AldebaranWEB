@@ -62,7 +62,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 if (!int.TryParse(pCustomerReservationId, out var customerReservationId))
                     throw new Exception("El Id de Referencia recibido no es valido");
 
-                var customerReservation = await AldebaranDbService.GetCustomerReservationByCustomerReservationId(customerReservationId) ?? throw new Exception("No ha seleccionado una Reservacion Valida");
+                customerReservation = await AldebaranDbService.GetCustomerReservationByCustomerReservationId(customerReservationId) ?? throw new Exception("No ha seleccionado una Reservacion Valida");
 
                 if (!customerReservation.CustomerReservationDetails.Any(cd => cd.SEND_TO_CUSTOMER_ORDER))
                     throw new Exception("La reserva seleccionada no posee articulos para incluir en el pedido");
@@ -130,10 +130,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                     throw new Exception("No ha ingresado ninguna referencia");
 
                 customerOrder.CustomerOrderDetails = customerOrderDetails;
-                await AldebaranDbService.CreateCustomerOrder(customerOrder);
-
                 customerOrder.ORDER_NUMBER = await AldebaranDbService.GetDocumentNumber<CustomerOrder>(customerOrder); ;
-                await AldebaranDbService.AssignOrderNumber(customerOrder);
+
+                await AldebaranDbService.CreateCustomerOrder(customerOrder);
 
                 await DialogService.Alert($"Pedido de Reserva de Articulos Guardado Satisfactoriamente con el consecutivo {customerOrder.ORDER_NUMBER}", "Información");
                 NavigationManager.NavigateTo("customer-reservations");

@@ -88,10 +88,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                     throw new Exception("No ha ingresado ninguna referencia");
 
                 customerOrder.CustomerOrderDetails = customerOrderDetails;
-                await AldebaranDbService.CreateCustomerOrder(customerOrder);
-
                 customerOrder.ORDER_NUMBER = await AldebaranDbService.GetDocumentNumber<CustomerOrder>(customerOrder);
-                await AldebaranDbService.AssignOrderNumber(customerOrder);
+
+                await AldebaranDbService.CreateCustomerOrder(customerOrder);
 
                 await DialogService.Alert($"Pedido de Articulos Guardado Satisfactoriamente con el Consecutivo {customerOrder.ORDER_NUMBER}", "Información");
                 NavigationManager.NavigateTo("customer-orders");
