@@ -23,9 +23,9 @@ namespace Aldebaran.Web
         private readonly AldebaranDbContext context;
         private readonly NavigationManager navigationManager;
 
-        public AldebaranDbService(AldebaranDbContext context, NavigationManager navigationManager)
+        public AldebaranDbService(AldebaranDbContext Context, NavigationManager navigationManager)
         {
-            this.context = context;
+            this.context = Context;
             this.navigationManager = navigationManager;
         }
 
@@ -714,12 +714,12 @@ namespace Aldebaran.Web
             {
                 if (item.ADJUSTMENT_DETAIL_ID > 0)
                 {
-                    var detailToUpdate = context.AdjustmentDetails.FirstOrDefault(i => i.ADJUSTMENT_DETAIL_ID.Equals(item.ADJUSTMENT_DETAIL_ID));
+                    var detailToUpdate = Context.AdjustmentDetails.FirstOrDefault(i => i.ADJUSTMENT_DETAIL_ID.Equals(item.ADJUSTMENT_DETAIL_ID));
 
                     detailToUpdate.QUANTITY = item.QUANTITY;
                     detailToUpdate.REFERENCE_ID = item.REFERENCE_ID;
                     detailToUpdate.WAREHOUSE_ID = item.WAREHOUSE_ID;
-                    context.AdjustmentDetails.Update(detailToUpdate);
+                    Context.AdjustmentDetails.Update(detailToUpdate);
                 }
                 else
                 {
@@ -730,19 +730,19 @@ namespace Aldebaran.Web
                         REFERENCE_ID = item.REFERENCE_ID,
                         WAREHOUSE_ID = item.WAREHOUSE_ID
                     };
-                    context.AdjustmentDetails.Add(detailToUpdate);
+                    Context.AdjustmentDetails.Add(detailToUpdate);
                 }
             }
 
-            var itemsToDelete = from t1 in context.AdjustmentDetails.Where(i => i.ADJUSTMENT_ID.Equals(adjustment.ADJUSTMENT_ID))
+            var itemsToDelete = from t1 in Context.AdjustmentDetails.Where(i => i.ADJUSTMENT_ID.Equals(adjustment.ADJUSTMENT_ID))
                                 where !(from t2 in adjustment.AdjustmentDetails
                                         select t2.ADJUSTMENT_DETAIL_ID).Contains(t1.ADJUSTMENT_DETAIL_ID)
                                 select t1;
             foreach (var item in itemsToDelete)
-                context.AdjustmentDetails.Remove(item);
+                Context.AdjustmentDetails.Remove(item);
 
-            context.Adjustments.Update(itemToUpdate);
-            context.SaveChanges();
+            Context.Adjustments.Update(itemToUpdate);
+            Context.SaveChanges();
 
             OnAfterAdjustmentUpdated(adjustment);
 
@@ -5078,7 +5078,7 @@ namespace Aldebaran.Web
 
             var userId = security.User.Id;
 
-            var employee = context.Employees
+            var employee = Context.Employees
                 .AsNoTracking()
                 .FirstOrDefault(e => e.LOGIN_USER_ID.Equals(userId));
             return employee;
@@ -5195,7 +5195,7 @@ namespace Aldebaran.Web
         {
             foreach (var customerReservationDetail in customerReservationDetails)
             {
-                var itemToUpdate = context.CustomerReservationDetails.FirstOrDefault(i => i.CUSTOMER_RESERVATION_DETAIL_ID.Equals(customerReservationDetail.CUSTOMER_RESERVATION_DETAIL_ID));
+                var itemToUpdate = Context.CustomerReservationDetails.FirstOrDefault(i => i.CUSTOMER_RESERVATION_DETAIL_ID.Equals(customerReservationDetail.CUSTOMER_RESERVATION_DETAIL_ID));
                 itemToUpdate.SEND_TO_CUSTOMER_ORDER = customerReservationDetail.SEND_TO_CUSTOMER_ORDER;
                 Context.CustomerReservationDetails.Update(itemToUpdate);
             }
@@ -5222,28 +5222,10 @@ namespace Aldebaran.Web
 
             itemToUpdate.RESERVATION_NUMBER = customerReservation.RESERVATION_NUMBER;
 
-            context.CustomerReservations.Update(itemToUpdate);
+            Context.CustomerReservations.Update(itemToUpdate);
             Context.SaveChanges();
 
             return customerReservation;
-        }
-
-        public async Task<CustomerOrder> AssignOrderNumber(CustomerOrder customerOrder)
-        {
-            var itemToUpdate = Context.CustomerOrders
-                              .FirstOrDefault(i => i.CUSTOMER_ORDER_ID == customerOrder.CUSTOMER_ORDER_ID);
-
-            if (itemToUpdate == null)
-            {
-                throw new Exception("Item no longer available");
-            }
-
-            itemToUpdate.ORDER_NUMBER = customerOrder.ORDER_NUMBER;
-
-            context.CustomerOrders.Update(itemToUpdate);
-            Context.SaveChanges();
-
-            return customerOrder;
         }
 
         partial void OnCustomerOrderCreated(CustomerOrder customerOrder);
@@ -5310,7 +5292,7 @@ namespace Aldebaran.Web
             }
         }
 
-        public async Task<CustomerOrder> CreateCustomerOrder(CustomerOrder customerOrder)
+        public async Task<CustomerOrder> CreateCustomerOrder(CustomerOrder customerOrder, CustomerReservation customerReservation = null)
         {
             OnCustomerOrderCreated(customerOrder);
 
@@ -5357,6 +5339,17 @@ namespace Aldebaran.Web
                     Context.CustomerOrders.Add(customerOrderToSave);
 
                     Context.SaveChanges();
+                    if (customerReservation != null)
+                    {
+                        var reservationToUpdate = Context.CustomerReservations.FirstOrDefault(i => i.CUSTOMER_RESERVATION_ID.Equals(customerReservation.CUSTOMER_RESERVATION_ID));
+
+                        reservationToUpdate.CUSTOMER_ORDER_ID = customerOrderToSave.CUSTOMER_ORDER_ID;
+                        reservationToUpdate.StatusDocumentType = await GetStatusDocumentTypeByDocumentAndOrder(await GetDocumentTypeByCode("R"), 2);
+
+                        Context.CustomerReservations.Update(reservationToUpdate);
+
+                        Context.SaveChanges();
+                    }
                 }
                 catch
                 {
@@ -5379,7 +5372,7 @@ namespace Aldebaran.Web
             var documentType = await GetDocumentTypeByCode("O");
             var statusOrder = await GetStatusDocumentTypeByDocumentAndOrder(documentType, 1);
 
-            return context.PurchaseOrderDetails
+            return Context.PurchaseOrderDetails
                     .Where(det => det.PurchaseOrder.STATUS_DOCUMENT_TYPE_ID.Equals(statusOrder.STATUS_DOCUMENT_TYPE_ID))
                     .GroupBy(group => group.PurchaseOrder.REQUEST_DATE)
                     .Select(c => new GroupPurchaseOrderDetail() { Request_Date = c.Key, Quantity = c.Sum(p => p.REQUESTED_QUANTITY) }).ToList();
@@ -6017,7 +6010,7 @@ namespace Aldebaran.Web
 
         public async Task<CustomerOrderInProcess> UpdateCustomerOrderInProcess(CustomerOrderInProcess customerOrderInProcess, IEnumerable<DetailInProcess> detailsInProcess)
         {
-            var itemsToUpdate = context.CustomerOrderInProcesses.Where(i => i.CUSTOMER_ORDER_IN_PROCESS_ID.Equals(customerOrderInProcess.CUSTOMER_ORDER_IN_PROCESS_ID));
+            var itemsToUpdate = Context.CustomerOrderInProcesses.Where(i => i.CUSTOMER_ORDER_IN_PROCESS_ID.Equals(customerOrderInProcess.CUSTOMER_ORDER_IN_PROCESS_ID));
 
             if (itemsToUpdate == null)
             {
@@ -6032,14 +6025,14 @@ namespace Aldebaran.Web
             itemToUpdate.TRANSFER_DATETIME = customerOrderInProcess.TRANSFER_DATETIME;
             itemToUpdate.PROCESS_SATELLITE_ID = customerOrderInProcess.PROCESS_SATELLITE_ID;
 
-            var itemDetails = context.CustomerOrderInProcessDetails.Where(i => i.CUSTOMER_ORDER_IN_PROCESS_ID.Equals(customerOrderInProcess.CUSTOMER_ORDER_IN_PROCESS_ID));
+            var itemDetails = Context.CustomerOrderInProcessDetails.Where(i => i.CUSTOMER_ORDER_IN_PROCESS_ID.Equals(customerOrderInProcess.CUSTOMER_ORDER_IN_PROCESS_ID));
 
             foreach (var item in itemDetails)
-                context.CustomerOrderInProcessDetails.Remove(item);
+                Context.CustomerOrderInProcessDetails.Remove(item);
 
             foreach (var item in detailsInProcess.Where(i => i.THIS_QUANTITY > 0))
             {
-                context.CustomerOrderInProcessDetails.Add(new CustomerOrderInProcessDetail()
+                Context.CustomerOrderInProcessDetails.Add(new CustomerOrderInProcessDetail()
                 {
                     CUSTOMER_ORDER_DETAIL_ID = item.CUSTOMER_ORDER_DETAIL_ID,
                     BRAND = item.BRAND,
@@ -6064,8 +6057,8 @@ namespace Aldebaran.Web
 
         internal async Task<string> GetDocumentNumber<T>(T entry) where T : class
         {
-            context.Entry(entry);
-            var documentNumber = context.Set<T>().Count();
+            Context.Entry(entry);
+            var documentNumber = Context.Set<T>().Count();
 
             return (documentNumber + 1).ToString().PadLeft(10, '0'); ;
         }

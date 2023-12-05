@@ -135,7 +135,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected async Task EditRow(AdjustmentDetail args)
         {
-            var result = await DialogService.OpenAsync<EditAdjustmentDetail>("Actualizar referencia", new Dictionary<string, object> { { "adjustmentDetail", args } });
+            var result = await DialogService.OpenAsync<EditAdjustmentDetail>("Actualizar referencia", new Dictionary<string, object> { { "pAdjustmentDetail", args } });
             if (result == null)
                 return;
             var detail = (AdjustmentDetail)result;
