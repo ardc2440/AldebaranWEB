@@ -1,89 +1,99 @@
+using Aldebaran.Application.Services;
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
-using Radzen;
+using ServiceModel = Aldebaran.Application.Services.Models;
 
 namespace Aldebaran.Web.Shared
 {
     public partial class LocalizationPicker
     {
+        #region Injections
         [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
-
+        protected ICountryService CountryService { get; set; }
         [Inject]
-        protected NavigationManager NavigationManager { get; set; }
-
+        protected IDepartmentService DepartmentService { get; set; }
         [Inject]
-        protected DialogService DialogService { get; set; }
+        protected ICityService CityService { get; set; }
+        #endregion
 
-        [Inject]
-        protected TooltipService TooltipService { get; set; }
-
-        [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
-
-        [Inject]
-        protected NotificationService NotificationService { get; set; }
-
-        [Inject]
-        protected SecurityService Security { get; set; }
-
-        [Inject]
-        public AldebaranDbService AldebaranDbService { get; set; }
-
-        public int? COUNTRY_ID { get; set; }
-        public int? DEPARTMENT_ID { get; set; }
-
+        #region Parameters
         [Parameter]
         public int? CITY_ID { get; set; }
         [Parameter]
-        public EventCallback<Models.AldebaranDb.City> OnChange { get; set; }
+        public EventCallback<ServiceModel.City> OnChange { get; set; }
+        #endregion
 
-        protected IEnumerable<Models.AldebaranDb.Country> countries;
-        protected Models.AldebaranDb.Country country;
-        protected IEnumerable<Models.AldebaranDb.Department> departments;
-        protected Models.AldebaranDb.Department department;
-        protected IEnumerable<Models.AldebaranDb.City> cities;
-        protected Models.AldebaranDb.City city;
+        #region Variables
+        public int? COUNTRY_ID { get; set; }
+        public int? DEPARTMENT_ID { get; set; }
+
+        protected IEnumerable<ServiceModel.Country> Countries;
+        protected ServiceModel.Country SelectedCountry;
+        protected IEnumerable<ServiceModel.Department> Departments;
+        protected ServiceModel.Department SelectedDepartment;
+        protected IEnumerable<ServiceModel.City> Cities;
+        protected ServiceModel.City SelectedCity;
+        protected bool CollapsedPanel { get; set; } = true;
+        bool IsSetParametersEnabled = true;
+        #endregion
+
+        #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            countries = await AldebaranDbService.GetCountries();
+            Countries = await CountryService.GetAsync();
         }
-        protected bool CollapsedPanel { get; set; } = true;
+        public override async Task SetParametersAsync(ParameterView parameters)
+        {
+            await base.SetParametersAsync(parameters);
+            if (!IsSetParametersEnabled) return;
+            if (CITY_ID == null)
+                return;
+            var city = await CityService.FindAsync(CITY_ID.Value);
+            if (city == null)
+                return;
+            COUNTRY_ID = city.Department.CountryId;
+            await OnCountryChange(COUNTRY_ID);
+            DEPARTMENT_ID = city.DepartmentId;
+            await OnDepartmentChange(DEPARTMENT_ID);
+            await OnCityChange(CITY_ID);
+        }
+        #endregion
+
+        #region Events
         protected async Task OnCountryChange(object countryId)
         {
             if (countryId == null)
             {
-                country = null;
+                SelectedCountry = null;
                 CleanDepartments();
                 await CleanCities();
                 return;
             }
-            country = countries.Single(s => s.COUNTRY_ID == (int)countryId);
-            departments = await AldebaranDbService.GetDepartments(new Query { Filter = $"i=>i.COUNTRY_ID==@0", FilterParameters = new object[] { countryId } });
+            SelectedCountry = Countries.Single(s => s.CountryId == (int)countryId);
+            Departments = await DepartmentService.GetAsync((int)countryId);
         }
-
         protected async Task OnDepartmentChange(object departmentId)
         {
             if (departmentId == null)
             {
-                department = null;
+                SelectedDepartment = null;
                 await CleanCities();
                 return;
             }
-            department = departments.Single(s => s.DEPARTMENT_ID == (int)departmentId);
-            cities = await AldebaranDbService.GetCities(new Query { Filter = $"i=>i.DEPARTMENT_ID==@0", FilterParameters = new object[] { departmentId } });
+            SelectedDepartment = Departments.Single(s => s.DepartmentId == (int)departmentId);
+            Cities = await CityService.GetAsync((int)departmentId);
         }
         protected async Task OnCityChange(object cityId)
         {
             if (cityId == null)
             {
-                city = null;
+                SelectedCity = null;
                 await OnChange.InvokeAsync(null);
                 return;
             }
-            city = cities.Single(s => s.CITY_ID == (int)cityId);
+            SelectedCity = Cities.Single(s => s.CityId == (int)cityId);
             CollapsedPanel = true;
-            await OnChange.InvokeAsync(city);
+            IsSetParametersEnabled = false;
+            await OnChange.InvokeAsync(SelectedCity);
         }
         protected async Task PanelCollapseToggle(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
@@ -98,31 +108,16 @@ namespace Aldebaran.Web.Shared
         }
         void CleanDepartments()
         {
-            department = null;
-            departments = null;
+            SelectedDepartment = null;
+            Departments = null;
         }
         async Task CleanCities()
         {
             CITY_ID = null;
-            city = null;
-            cities = null;
+            SelectedCity = null;
+            Cities = null;
             await OnChange.InvokeAsync(null);
         }
-        public override async Task SetParametersAsync(ParameterView parameters)
-        {
-            await base.SetParametersAsync(parameters);
-            if (CITY_ID == null)
-                return;
-            var selectedCity = await AldebaranDbService.GetCities(new Query { Filter = "i=>i.CITY_ID == @0", FilterParameters = new object[] { CITY_ID }, Expand = "Department.Country" });
-            if (!selectedCity.Any())
-                return;
-            city = selectedCity.First();
-            COUNTRY_ID = city.Department.COUNTRY_ID;
-            await OnCountryChange(COUNTRY_ID);
-            country = city.Department.Country;
-            DEPARTMENT_ID = city.DEPARTMENT_ID;
-            await OnDepartmentChange(DEPARTMENT_ID);
-            department = city.Department;
-        }
+        #endregion
     }
 }

@@ -1,74 +1,65 @@
+using Aldebaran.Application.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
 using Radzen;
+using ServiceModel = Aldebaran.Application.Services.Models;
 
 namespace Aldebaran.Web.Pages.ForwarderPages
 {
     public partial class EditForwarder : ComponentBase
     {
-        [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
 
-        [Inject]
-        protected NavigationManager NavigationManager { get; set; }
-
+        #region Injections
         [Inject]
         protected DialogService DialogService { get; set; }
-
         [Inject]
-        protected TooltipService TooltipService { get; set; }
+        public IForwarderService ForwarderService { get; set; }
+        #endregion
 
-        [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
-
-        [Inject]
-        protected NotificationService NotificationService { get; set; }
-
-        [Inject]
-        public AldebaranDbService AldebaranDbService { get; set; }
-
-        [Inject]
-        protected SecurityService Security { get; set; }
-
+        #region Parameters
         [Parameter]
         public int FORWARDER_ID { get; set; }
+        #endregion
 
-        protected bool isSubmitInProgress;
-        protected bool errorVisible;
-        protected Models.AldebaranDb.Forwarder forwarder;
+        #region Variables
+        protected bool IsSubmitInProgress;
+        protected bool ErrorVisible;
+        protected ServiceModel.Forwarder Forwarder;
+        #endregion
 
+        #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            forwarder = await AldebaranDbService.GetForwarderByForwarderId(FORWARDER_ID);
+            Forwarder = await ForwarderService.FindAsync(FORWARDER_ID);
         }
+        #endregion
 
+        #region Events
         protected async Task FormSubmit()
         {
             try
             {
-                isSubmitInProgress = true;
-                await AldebaranDbService.UpdateForwarder(FORWARDER_ID, forwarder);
+                IsSubmitInProgress = true;
+                await ForwarderService.UpdateAsync(FORWARDER_ID, Forwarder);
                 DialogService.Close(true);
             }
             catch (Exception ex)
             {
-                errorVisible = true;
+                ErrorVisible = true;
             }
             finally
             {
-                isSubmitInProgress = false;
+                IsSubmitInProgress = false;
             }
         }
-
-        protected async Task LocalizationHandler(Models.AldebaranDb.City city)
+        protected async Task LocalizationHandler(ServiceModel.City city)
         {
-            forwarder.CITY_ID = city?.CITY_ID ?? 0;
+            Forwarder.CityId = city?.CityId ?? 0;
         }
-
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
             DialogService.Close(null);
         }
+        #endregion
     }
 }

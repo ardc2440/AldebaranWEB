@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using Radzen;
+using ServiceModel = Aldebaran.Application.Services.Models;
 
 namespace Aldebaran.Web.Pages.CustomerPages
 {
@@ -62,9 +63,9 @@ namespace Aldebaran.Web.Pages.CustomerPages
             }
         }
 
-        protected async Task LocalizationHandler(Models.AldebaranDb.City city)
+        protected async Task LocalizationHandler(ServiceModel.City city)
         {
-            customer.CITY_ID = city?.CITY_ID ?? 0;
+            customer.CITY_ID = city?.CityId ?? 0;
         }
 
         protected async Task CancelButtonClick(MouseEventArgs args)

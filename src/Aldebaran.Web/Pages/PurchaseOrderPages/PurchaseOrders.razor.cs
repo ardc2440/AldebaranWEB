@@ -1,3 +1,4 @@
+using Aldebaran.Application.Services;
 using Aldebaran.Web.Models;
 using Aldebaran.Web.Models.AldebaranDb;
 using Microsoft.AspNetCore.Components;
@@ -42,6 +43,9 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         protected SecurityService Security { get; set; }
         [Parameter]
         public string OrderNumber { get; set; } = null;
+
+        [Inject]
+        protected IPurchaseOrderService PurchaseOrderService { get; set; }
         protected async Task Search(ChangeEventArgs args)
         {
             search = $"{args.Value}";
@@ -52,6 +56,16 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         }
         protected override async Task OnInitializedAsync()
         {
+            try
+            {
+                var o = await PurchaseOrderService.GetAsync();
+                var x = o.ToList();
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
             purchaseOrders = await AldebaranDbService.GetPurchaseOrders(new Query { Filter = $@"i => i.ORDER_NUMBER.Contains(@0) || i.IMPORT_NUMBER.Contains(@0) || i.EMBARKATION_PORT.Contains(@0) || i.PROFORMA_NUMBER.Contains(@0)", FilterParameters = new object[] { search }, Expand = "ForwarderAgent.Forwarder,Provider,ShipmentForwarderAgentMethod.ShipmentMethod,StatusDocumentType" });
         }
         protected override async void OnParametersSet()

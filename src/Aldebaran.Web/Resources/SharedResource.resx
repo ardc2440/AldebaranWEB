@@ -40,18 +40,6 @@
 		<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
 	</resheader>
 	<!--Variables-->
-	<data name="cancel" xml:space="preserve">
-		<value>Cancelar</value>
-	</data>
-	<data name="new" xml:space="preserve">
-		<value>Nuevo</value>
-	</data>
-	<data name="save" xml:space="preserve">
-		<value>Guardar</value>
-	</data>
-	<data name="search" xml:space="preserve">
-		<value>Buscar ...</value>
-	</data>
 	<data name="date:format" xml:space="preserve">
 		<value>MM/dd/yyyy</value>
 	</data>

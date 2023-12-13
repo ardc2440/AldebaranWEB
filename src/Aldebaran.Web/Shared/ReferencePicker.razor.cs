@@ -1,51 +1,34 @@
 using Aldebaran.Web.Models.AldebaranDb;
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
 using Radzen;
 
 namespace Aldebaran.Web.Shared
 {
     public partial class ReferencePicker
     {
-        [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
 
-        [Inject]
-        protected NavigationManager NavigationManager { get; set; }
-
-        [Inject]
-        protected DialogService DialogService { get; set; }
-
-        [Inject]
-        protected TooltipService TooltipService { get; set; }
-
-        [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
-
-        [Inject]
-        protected NotificationService NotificationService { get; set; }
-
-        [Inject]
-        protected SecurityService Security { get; set; }
-
-        public short? LINE_ID { get; set; }
-        public int? ITEM_ID { get; set; }
+        #region Parameters
         [Parameter]
         public bool ReadOnly { get; set; } = false;
         [Parameter]
         public int? REFERENCE_ID { get; set; }
         [Parameter]
         public EventCallback<ItemReference> OnChange { get; set; }
-
         [Parameter]
         public IEnumerable<ItemReference> References { get; set; } = new List<ItemReference>();
+        #endregion
 
+        #region Variables
         protected IEnumerable<Line> lines;
         protected Line line;
         protected IEnumerable<Item> items;
         protected Item item;
         protected IEnumerable<ItemReference> itemReferences;
         protected ItemReference itemReference;
+        public short? LINE_ID { get; set; }
+        public int? ITEM_ID { get; set; }
+        #endregion
+
         protected override async Task OnInitializedAsync()
         {
             lines = References.Select(s => s.Item.Line).Distinct();

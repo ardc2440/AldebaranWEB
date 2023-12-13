@@ -1,8 +1,7 @@
-@inject Microsoft.Extensions.Localization.IStringLocalizer<LocalizationPicker> L
 <RadzenPanel AllowCollapse="false" Collapsed="@CollapsedPanel" Class="rz-mx-auto toggle-panel" Expand=@(() => PanelCollapseChange("Expand")) Collapse=@(() => PanelCollapseChange("Collapse"))>
     <HeaderTemplate>
         <RadzenButton Click="@PanelCollapseToggle" class="@(CollapsedPanel ? "panel-collapsed":"panel-expanded")">
-            @if (city == null)
+            @if (SelectedCity == null)
             {
                 <span>Ubicación</span>
             }
@@ -10,7 +9,7 @@
             {
                 <div class="component-section d-flex flex-column justify-content-start">
                     <span class="component-label">Ubicación</span>
-                    <span>(@country?.COUNTRY_CODE) @department?.DEPARTMENT_NAME - @city?.CITY_NAME</span>
+                    <span>(@SelectedCountry?.CountryCode) @SelectedDepartment?.DepartmentName - @SelectedCity?.CityName</span>
                 </div>
             }
         </RadzenButton>
@@ -21,24 +20,24 @@
                 <RadzenColumn SizeLG="4" SizeXL="4" SizeMD="4" SizeSM="12" SizeXS="12" SizeXX="12">
                     <RadzenFormField Text="Pais" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDown Data="@countries" TextProperty="COUNTRY_NAME" ValueProperty="COUNTRY_ID" AllowClear=true
-                                            style="display: block; width: 100%" @bind-Value="COUNTRY_ID" Name="COUNTRY_ID" Change="@OnCountryChange" AllowFiltering="true" ClearSearchAfterSelection="true" />
+                            <RadzenDropDown Data="@Countries" TextProperty="CountryName" ValueProperty="CountryId" AllowClear=true
+                                            style="display: block; width: 100%" @bind-Value="COUNTRY_ID" Name="CountryId" Change="@OnCountryChange" AllowFiltering="true" ClearSearchAfterSelection="true" />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenColumn>
                 <RadzenColumn SizeLG="4" SizeXL="4" SizeMD="4" SizeSM="12" SizeXS="12" SizeXX="12">
                     <RadzenFormField Text="Departamento" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDown Data="@departments" TextProperty="DEPARTMENT_NAME" ValueProperty="DEPARTMENT_ID" AllowClear=true
-                                            style="display: block; width: 100%" @bind-Value="DEPARTMENT_ID" Name="DEPARTMENT_ID" Change="@OnDepartmentChange" AllowFiltering="true" ClearSearchAfterSelection="true" />
+                            <RadzenDropDown Data="@Departments" TextProperty="DepartmentName" ValueProperty="DepartmentId" AllowClear=true
+                                            style="display: block; width: 100%" @bind-Value="DEPARTMENT_ID" Name="DepartmentId" Change="@OnDepartmentChange" AllowFiltering="true" ClearSearchAfterSelection="true" />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenColumn>
                 <RadzenColumn SizeLG="4" SizeXL="4" SizeMD="4" SizeSM="12" SizeXS="12" SizeXX="12">
                     <RadzenFormField Text="Ciudad" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDown Data="@cities" TextProperty="CITY_NAME" ValueProperty="CITY_ID" AllowClear=true
-                                            style="display: block; width: 100%" @bind-Value="CITY_ID" Name="CITY_ID" Change="@OnCityChange" AllowFiltering="true" ClearSearchAfterSelection="true" />
+                            <RadzenDropDown Data="@Cities" TextProperty="CityName" ValueProperty="CityId" AllowClear=true
+                                            style="display: block; width: 100%" @bind-Value="CITY_ID" Name="CityId" Change="@OnCityChange" AllowFiltering="true" ClearSearchAfterSelection="true" />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenColumn>

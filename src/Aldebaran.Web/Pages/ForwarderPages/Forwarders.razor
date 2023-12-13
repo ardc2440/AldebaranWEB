@@ -1,141 +1,141 @@
 @page "/forwarders"
 @attribute [Authorize(Roles="Admin,Forwarder Viwer,Forwarder Editor")]
+@using Aldebaran.Web.Resources.LocalizedControls;
+@using ServiceModel = Aldebaran.Application.Services.Models;
 
 <PageTitle>Forwarders</PageTitle>
 <RadzenStack>
-    @if (dialogResult != null && dialogResult.Success)
+    @if (DialogResult != null && DialogResult.Success)
     {
-        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Success">@dialogResult.Message</RadzenAlert>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Success">@DialogResult.Message</RadzenAlert>
     }
-    @if (dialogResult != null && !dialogResult.Success)
+    @if (DialogResult != null && !DialogResult.Success)
     {
-        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger">@dialogResult.Message</RadzenAlert>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger">@DialogResult.Message</RadzenAlert>
     }
     <RadzenRow AlignItems="AlignItems.Center">
         <RadzenColumn Size="12">
             <RadzenText Text="Transportadoras" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
         </RadzenColumn>
         <RadzenColumn Size="12" Visible="@Security.IsInRole("Admin","Forwarder Editor")">
-            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
-                <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddButtonClick" Variant="Variant.Flat" />
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
+                <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddForwarder" Variant="Variant.Flat" />
             </RadzenStack>
         </RadzenColumn>
     </RadzenRow>
     <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
     <RadzenRow>
         <RadzenColumn SizeMD=12>
-            <RadzenDataGrid @ref="grid0" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                            Data="@forwarders" TItem="Aldebaran.Web.Models.AldebaranDb.Forwarder" RowExpand=@GetChildData AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowColumnReorder="true" IsLoading="@isLoadingInProgress">
+            <LocalizedDataGrid @ref="ForwardersDataGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                               Data="@ForwardersList" TItem="ServiceModel.Forwarder" RowExpand=@GetForwarderAgents AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowColumnReorder="true" IsLoading="@IsLoadingInProgress">
                 <Columns>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Forwarder" Property="FORWARDER_NAME" Title="Nombre">
+                    <RadzenDataGridColumn TItem="ServiceModel.Forwarder" Property="ForwarderName" Title="Nombre">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Forwarder" Property="PHONE1" Title="Teléfono">
+                    <RadzenDataGridColumn TItem="ServiceModel.Forwarder" Property="Phone1" Title="Teléfono">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Forwarder" Property="PHONE2" Title="Teléfono opcional" Visible="false">
+                    <RadzenDataGridColumn TItem="ServiceModel.Forwarder" Property="Phone2" Title="Teléfono opcional" Visible="false">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Forwarder" Property="FAX" Title="Fax" Visible="false">
+                    <RadzenDataGridColumn TItem="ServiceModel.Forwarder" Property="Fax" Title="Fax" Visible="false">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Forwarder" Property="FORWARDER_ADDRESS" Title="Dirección">
+                    <RadzenDataGridColumn TItem="ServiceModel.Forwarder" Property="ForwarderAddress" Title="Dirección">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Forwarder" Property="MAIL1" Title="Correo electrónico">
+                    <RadzenDataGridColumn TItem="ServiceModel.Forwarder" Property="Mail1" Title="Correo electrónico">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Forwarder" Property="MAIL2" Title="Correo electrónico opcional" Visible="false">
+                    <RadzenDataGridColumn TItem="ServiceModel.Forwarder" Property="Mail2" Title="Correo electrónico opcional" Visible="false">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Forwarder" Property="City.CITY_ID" Title="Ubicación">
+                    <RadzenDataGridColumn TItem="ServiceModel.Forwarder" Property="City.CityId" Title="Ubicación">
                         <Template Context="forwarder">
-                            <span>(@forwarder.City.Department.Country.COUNTRY_CODE) @forwarder.City.Department.DEPARTMENT_NAME - @forwarder.City.CITY_NAME</span>
+                            <span>(@forwarder.City.Department.Country.CountryCode) @forwarder.City.Department.DepartmentName - @forwarder.City.CityName</span>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Forwarder" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Forwarder Editor")">
+                    <RadzenDataGridColumn TItem="ServiceModel.Forwarder" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Forwarder Editor")">
                         <Template Context="forwarder">
-                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRow(forwarder))" @onclick:stopPropagation="true">
+                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditForwarder(forwarder))" @onclick:stopPropagation="true">
                             </RadzenButton>
                             <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
                                           Shade="Shade.Lighter" Variant="Variant.Flat"
-                                          Click=@(args => GridDeleteButtonClick(args, forwarder)) @onclick:stopPropagation="true" />
+                                          Click=@(args => DeleteForwarder(args, forwarder)) @onclick:stopPropagation="true" />
                         </Template>
                     </RadzenDataGridColumn>
                 </Columns>
                 <Template Context="forwarder">
                     <RadzenStack Class="rz-my-8">
                         <RadzenRow Gap="0" AlignItems="AlignItems.Center">
-                            <RadzenColumn Size="12" SizeMD="6">
+                            <RadzenColumn Size="12">
                                 <RadzenText Visible="@(forwarder != null)" Text="Agentes" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
                             </RadzenColumn>
-                            <RadzenColumn Size="12" SizeMD="6" Visible="@Security.IsInRole("Admin","Forwarder Editor")">
-                                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
-                                    <RadzenButton Visible="@(forwarder != null)" Icon="add_circle_outline" Text="Nuevo" Click=@(args => ForwarderAgentsAddButtonClick(args,forwarder)) />
+                            <RadzenColumn Size="12" Visible="@Security.IsInRole("Admin","Forwarder Editor")">
+                                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
+                                    <RadzenButton Visible="@(forwarder != null)" Icon="add_circle_outline" Text="Nuevo" Click=@(args => AddForwarderAgent(args,forwarder)) />
                                 </RadzenStack>
                             </RadzenColumn>
                         </RadzenRow>
-                        <RadzenDataGrid ColumnWidth="200px" Visible="@(forwarder != null)" @ref=ForwarderAgentsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                        Data="@forwarder?.ForwarderAgents" RowExpand=@GetShipmentData TItem="Aldebaran.Web.Models.AldebaranDb.ForwarderAgent" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowColumnReorder="true" IsLoading="@isLoadingInProgress">
+                        <LocalizedDataGrid ColumnWidth="200px" Visible="@(forwarder != null)" @ref=ForwarderAgentsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                        Data="@forwarder?.ForwarderAgents" RowExpand=@GetShipmentForwarderAgentMethods TItem="ServiceModel.ForwarderAgent" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowColumnReorder="true" IsLoading="@IsLoadingInProgress">
                             <Columns>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ForwarderAgent" Property="FORWARDER_AGENT_NAME" Title="Nombre">
+                                <RadzenDataGridColumn TItem="ServiceModel.ForwarderAgent" Property="ForwarderAgentName" Title="Nombre">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ForwarderAgent" Property="PHONE1" Title="Teléfono">
+                                <RadzenDataGridColumn TItem="ServiceModel.ForwarderAgent" Property="Phone1" Title="Teléfono">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ForwarderAgent" Property="PHONE2" Title="Teléfono opcional" Visible="false">
+                                <RadzenDataGridColumn TItem="ServiceModel.ForwarderAgent" Property="Phone2" Title="Teléfono opcional" Visible="false">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ForwarderAgent" Property="FAX" Title="Fax" Visible="false">
+                                <RadzenDataGridColumn TItem="ServiceModel.ForwarderAgent" Property="Fax" Title="Fax" Visible="false">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ForwarderAgent" Property="FORWARDER_AGENT_ADDRESS" Title="Dirección">
+                                <RadzenDataGridColumn TItem="ServiceModel.ForwarderAgent" Property="ForwarderAgentAddress" Title="Dirección">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ForwarderAgent" Property="CONTACT" Title="Contacto">
+                                <RadzenDataGridColumn TItem="ServiceModel.ForwarderAgent" Property="Contact" Title="Contacto">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ForwarderAgent" Property="EMAIL1" Title="Correo electrónico">
+                                <RadzenDataGridColumn TItem="ServiceModel.ForwarderAgent" Property="Email1" Title="Correo electrónico">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ForwarderAgent" Property="EMAIL2" Title="Correo electrónico opcional" Visible="false">
+                                <RadzenDataGridColumn TItem="ServiceModel.ForwarderAgent" Property="Email2" Title="Correo electrónico opcional" Visible="false">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ForwarderAgent" Property="City.CITY_ID" Title="Ubicación">
-                                    <Template Context="forwarderAgentChild">
-                                        <span>(@forwarderAgentChild.City.Department.Country.COUNTRY_CODE) @forwarderAgentChild.City.Department.DEPARTMENT_NAME - @forwarderAgentChild.City.CITY_NAME</span>
+                                <RadzenDataGridColumn TItem="ServiceModel.ForwarderAgent" Property="City.CityId" Title="Ubicación">
+                                    <Template Context="forwarderAgent">
+                                        <span>(@forwarderAgent.City.Department.Country.CountryCode) @forwarderAgent.City.Department.DepartmentName - @forwarderAgent.City.CityName</span>
                                     </Template>
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ForwarderAgent" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Forwarder Editor")">
-                                    <Template Context="forwarderAgentChild">
-                                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditChildRow(forwarderAgentChild,forwarder))" @onclick:stopPropagation="true">
+                                <RadzenDataGridColumn TItem="ServiceModel.ForwarderAgent" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Forwarder Editor")">
+                                    <Template Context="forwarderAgent">
+                                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditForwarderAgent(forwarderAgent,forwarder))" @onclick:stopPropagation="true">
                                         </RadzenButton>
                                         <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Shade="Shade.Lighter" Variant="Variant.Flat"
-                                                      Click=@(args => ForwarderAgentsDeleteButtonClick(args, forwarderAgentChild)) @onclick:stopPropagation="true" />
+                                                      Click=@(args => DeleteForwarderAgent(args, forwarderAgent)) @onclick:stopPropagation="true" />
                                     </Template>
                                 </RadzenDataGridColumn>
                             </Columns>
                             <Template Context="shipmentMethod">
                                 <RadzenStack Class="rz-my-8">
                                     <RadzenRow Gap="0" AlignItems="AlignItems.Center">
-                                        <RadzenColumn Size="12" SizeMD="6">
-                                            <RadzenText Visible="@(forwarderAgent != null)" Text="Método de envío" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
+                                        <RadzenColumn Size="12">
+                                            <RadzenText Visible="@(ForwarderAgent != null)" Text="Método de envío" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
                                         </RadzenColumn>
-                                        <RadzenColumn Size="12" SizeMD="6" Visible="@Security.IsInRole("Admin","Forwarder Editor")">
-                                            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
-                                                <RadzenButton Visible="@(forwarderAgent != null)" Icon="add_circle_outline" Text="Nuevo" Click=@(args => ShippingAddButtonClick(args,forwarderAgent)) />
+                                        <RadzenColumn Size="12" Visible="@Security.IsInRole("Admin","Forwarder Editor")">
+                                            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
+                                                <RadzenButton Visible="@(ForwarderAgent != null)" Icon="add_circle_outline" Text="Nuevo" Click=@(args => AddShipmentForwarderAgentMethod(args,ForwarderAgent)) />
                                             </RadzenStack>
                                         </RadzenColumn>
                                     </RadzenRow>
-                                    <RadzenDataGrid ColumnWidth="200px" Visible="@(forwarderAgent != null)" @ref=ShipmentForwarderAgentMethodDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                                    Data="@forwarderAgent?.ShipmentForwarderAgentMethods" TItem="Aldebaran.Web.Models.AldebaranDb.ShipmentForwarderAgentMethod" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowColumnReorder="true" IsLoading="@isLoadingInProgress">
+                                    <LocalizedDataGrid ColumnWidth="200px" Visible="@(ForwarderAgent != null)" @ref=ShipmentForwarderAgentMethodDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                                    Data="@ForwarderAgent?.ShipmentForwarderAgentMethods" TItem="ServiceModel.ShipmentForwarderAgentMethod" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowColumnReorder="true" IsLoading="@IsLoadingInProgress">
                                         <Columns>
-                                            <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ShipmentForwarderAgentMethod" Property="ShipmentMethod.SHIPMENT_METHOD_NAME" Title="Método de envío">
+                                            <RadzenDataGridColumn TItem="ServiceModel.ShipmentForwarderAgentMethod" Property="ShipmentMethod.ShipmentMethodName" Title="Método de envío">
                                             </RadzenDataGridColumn>
-                                            <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ShipmentForwarderAgentMethod" Property="ShipmentMethod.SHIPMENT_METHOD_NOTES" Title="Descripción">
+                                            <RadzenDataGridColumn TItem="ServiceModel.ShipmentForwarderAgentMethod" Property="ShipmentMethod.ShipmentMethodNotes" Title="Descripción">
                                             </RadzenDataGridColumn>
-                                            <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ShipmentForwarderAgentMethod" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Forwarder Editor")">
-                                                <Template Context="shipmentForwarderAgentChild">
+                                            <RadzenDataGridColumn TItem="ServiceModel.ShipmentForwarderAgentMethod" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Forwarder Editor")">
+                                                <Template Context="shipmentForwarderAgent">
                                                     <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Shade="Shade.Lighter" Variant="Variant.Flat"
-                                                                  Click=@(args => ShippingDeleteButtonClick(args, shipmentForwarderAgentChild)) @onclick:stopPropagation="true" />
+                                                                  Click=@(args => DeleteShipmentForwarderAgentMethod(args, shipmentForwarderAgent)) @onclick:stopPropagation="true" />
                                                 </Template>
                                             </RadzenDataGridColumn>
                                         </Columns>
-                                    </RadzenDataGrid>
+                                    </LocalizedDataGrid>
                                 </RadzenStack>
                             </Template>
-
-                        </RadzenDataGrid>
+                        </LocalizedDataGrid>
                     </RadzenStack>
                 </Template>
-            </RadzenDataGrid>
-
+            </LocalizedDataGrid>
         </RadzenColumn>
     </RadzenRow>
 </RadzenStack>

@@ -1,73 +1,83 @@
+using Aldebaran.Application.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
 using Radzen;
+using ServiceModel = Aldebaran.Application.Services.Models;
 
 namespace Aldebaran.Web.Pages.AreaPages
 {
     public partial class AddItemsArea : ComponentBase
     {
+        #region Injections
         [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
-
-        [Inject]
-        protected NavigationManager NavigationManager { get; set; }
+        protected ILogger<AddItemsArea> Logger { get; set; }
 
         [Inject]
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected TooltipService TooltipService { get; set; }
+        protected IItemAreaService ItemAreaService { get; set; }
 
         [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
+        protected IAreaService AreaService { get; set; }
 
         [Inject]
-        protected NotificationService NotificationService { get; set; }
+        protected IItemService ItemService { get; set; }
+        #endregion
 
-        [Inject]
-        public AldebaranDbService AldebaranDbService { get; set; }
-
+        #region Parameters
         [Parameter]
         public short AREA_ID { get; set; }
+        #endregion
 
-        protected bool errorVisible;
-        protected Models.AldebaranDb.ItemsArea itemsArea;
-        protected Models.AldebaranDb.Area area;
-        protected IEnumerable<Models.AldebaranDb.Item> itemsForITEMID;
-        protected bool isSubmitInProgress;
+        #region Variables
+        protected ServiceModel.ItemsArea ItemArea;
+        protected ServiceModel.Area Area;
+        protected List<ServiceModel.Item> AvailableItemsForSelection = new List<ServiceModel.Item>();
+        protected bool IsSubmitInProgress;
+        protected bool IsErrorVisible;
+        #endregion
 
+        #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            area = await AldebaranDbService.GetAreaByAreaId(AREA_ID);
-            var currentItemsInArea = await AldebaranDbService.GetItemsAreas(new Query { Filter = $"@i => i.AREA_ID == @0", FilterParameters = new object[] { AREA_ID } });
-            itemsForITEMID = await AldebaranDbService.GetItems(new Query { Filter = $"@i => !@0.Contains(i.ITEM_ID)", FilterParameters = new object[] { currentItemsInArea.Select(s => s.ITEM_ID) } });
-            itemsArea = new Models.AldebaranDb.ItemsArea();
-            itemsArea.AREA_ID = AREA_ID;
+            ItemArea = new ServiceModel.ItemsArea() { AreaId = AREA_ID };
+            Area = await AreaService.FindAsync(AREA_ID);
+            var currentItemsInArea = await ItemAreaService.GetAsync(AREA_ID);
+            var items = await ItemService.GetAsync();
+            // Articulos disponibles para seleccion, Articulos excepto los ya seleccionados
+            AvailableItemsForSelection = items.Where(w => !currentItemsInArea.Any(x => x.ItemId == w.ItemId)).ToList();
         }
+        #endregion
 
+        #region Events
         protected async Task FormSubmit()
         {
             try
             {
-                isSubmitInProgress = true;
-                await AldebaranDbService.CreateItemsArea(itemsArea);
+                IsSubmitInProgress = true;
+                await ItemAreaService.AddAsync(ItemArea);
                 DialogService.Close(true);
             }
             catch (Exception ex)
             {
-                errorVisible = true;
+                Logger.LogError(ex, nameof(FormSubmit));
+                IsErrorVisible = true;
             }
             finally
             {
-                isSubmitInProgress = false;
+                IsSubmitInProgress = false;
             }
         }
-
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
             DialogService.Close(null);
         }
+        protected async Task ItemHandler(ServiceModel.Item item)
+        {
+            ItemArea.ItemId = item?.ItemId ?? 0;
+        }
+        #endregion
 
     }
 }

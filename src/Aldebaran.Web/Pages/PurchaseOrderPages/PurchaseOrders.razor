@@ -5,9 +5,9 @@
 @inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer
 
 @attribute [Authorize]
-<PageTitle>@L["title"]</PageTitle>
-    <RadzenStack>
-        @if (dialogResult != null && dialogResult.Success)
+<PageTitle>Ordenes de compra</PageTitle>
+<RadzenStack>
+    @if (dialogResult != null && dialogResult.Success)
     {
         <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Success">@dialogResult.Message</RadzenAlert>
     }
@@ -21,11 +21,11 @@
         </RadzenColumn>
         <RadzenColumn Size="12" SizeMD="6">
             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
-                <RadzenButton Icon="add_circle_outline" Text="@SharedLocalizer["new"]" Click="@AddPurchaseOrder" Variant="Variant.Flat" />
+                <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddPurchaseOrder" Variant="Variant.Flat" />
             </RadzenStack>
         </RadzenColumn>
     </RadzenRow>
-    <RadzenTextBox Placeholder="@(SharedLocalizer["search"])" style="display: block; width: 100%" @oninput="@Search" />
+    <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
     <RadzenRow>
         <RadzenColumn SizeMD=12>
             <LocalizedDataGrid @ref="grid0" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})

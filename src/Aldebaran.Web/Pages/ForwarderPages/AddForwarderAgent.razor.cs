@@ -1,78 +1,75 @@
+using Aldebaran.Application.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
 using Radzen;
+using ServiceModel = Aldebaran.Application.Services.Models;
 
 namespace Aldebaran.Web.Pages.ForwarderPages
 {
     public partial class AddForwarderAgent : ComponentBase
     {
-        [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
-
-        [Inject]
-        protected NavigationManager NavigationManager { get; set; }
-
+        #region Injections
         [Inject]
         protected DialogService DialogService { get; set; }
-
         [Inject]
-        protected TooltipService TooltipService { get; set; }
-
+        protected IForwarderService ForwarderService { get; set; }
         [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
-
+        protected IForwarderAgentService ForwarderAgentService { get; set; }
         [Inject]
-        protected NotificationService NotificationService { get; set; }
+        protected ICityService CityService { get; set; }
+        #endregion
 
-        [Inject]
-        public AldebaranDbService AldebaranDbService { get; set; }
-
-        [Inject]
-        protected SecurityService Security { get; set; }
-
+        #region Parameters
         [Parameter]
         public int FORWARDER_ID { get; set; }
-        protected bool errorVisible;
-        protected Models.AldebaranDb.ForwarderAgent forwarderAgent;
-        protected Models.AldebaranDb.Forwarder forwarder;
-        protected Models.AldebaranDb.City city;
-        protected bool isSubmitInProgress;
+        #endregion
 
+        #region Variables
+        protected ServiceModel.ForwarderAgent ForwarderAgent;
+        protected ServiceModel.Forwarder Forwarder;
+        protected ServiceModel.City SelectedCity;
+        protected bool IsSubmitInProgress;
+        protected bool ErrorVisible;
+        #endregion
+
+        #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            forwarder = await AldebaranDbService.GetForwarderByForwarderId(FORWARDER_ID);
-            var selectedCity = await AldebaranDbService.GetCities(new Query { Filter = "i=>i.CITY_ID == @0", FilterParameters = new object[] { forwarder.CITY_ID }, Expand = "Department.Country" });
-            city = selectedCity.Single();
-            forwarderAgent = new Models.AldebaranDb.ForwarderAgent();
-            forwarderAgent.FORWARDER_ID = FORWARDER_ID;
+            Forwarder = await ForwarderService.FindAsync(FORWARDER_ID);
+            SelectedCity = await CityService.FindAsync(Forwarder.CityId);
+            ForwarderAgent = new ServiceModel.ForwarderAgent
+            {
+                ForwarderId = FORWARDER_ID
+            };
         }
+        #endregion
 
+        #region Events
         protected async Task FormSubmit()
         {
             try
             {
-                isSubmitInProgress = true;
-                await AldebaranDbService.CreateForwarderAgent(forwarderAgent);
+                IsSubmitInProgress = true;
+                await ForwarderAgentService.AddAsync(ForwarderAgent);
                 DialogService.Close(true);
             }
             catch (Exception ex)
             {
-                errorVisible = true;
+                ErrorVisible = true;
             }
             finally
             {
-                isSubmitInProgress = false;
+                IsSubmitInProgress = false;
             }
         }
-
-        protected async Task LocalizationHandler(Models.AldebaranDb.City city)
+        protected async Task LocalizationHandler(ServiceModel.City city)
         {
-            forwarderAgent.CITY_ID = city?.CITY_ID ?? 0;
+            ForwarderAgent.CityId = city?.CityId ?? 0;
         }
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
             DialogService.Close(null);
         }
+        #endregion
     }
 }

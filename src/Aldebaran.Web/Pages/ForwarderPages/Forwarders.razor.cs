@@ -1,109 +1,116 @@
+using Aldebaran.Application.Services;
 using Aldebaran.Web.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
 using Radzen;
 using Radzen.Blazor;
+using ServiceModel = Aldebaran.Application.Services.Models;
 
 namespace Aldebaran.Web.Pages.ForwarderPages
 {
     public partial class Forwarders : ComponentBase
     {
+        #region Injections
         [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
-
-        [Inject]
-        protected NavigationManager NavigationManager { get; set; }
+        protected ILogger<Forwarders> Logger { get; set; }
 
         [Inject]
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected TooltipService TooltipService { get; set; }
-
-        [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
-
-        [Inject]
         protected NotificationService NotificationService { get; set; }
-
-        [Inject]
-        public AldebaranDbService AldebaranDbService { get; set; }
 
         [Inject]
         protected SecurityService Security { get; set; }
 
-        protected IEnumerable<Models.AldebaranDb.Forwarder> forwarders;
-        protected RadzenDataGrid<Models.AldebaranDb.Forwarder> grid0;
-        protected string search = "";
-        protected DialogResult dialogResult { get; set; }
-        protected Models.AldebaranDb.Forwarder forwarder;
-        protected RadzenDataGrid<Models.AldebaranDb.ForwarderAgent> ForwarderAgentsDataGrid;
-        protected RadzenDataGrid<Models.AldebaranDb.ShipmentForwarderAgentMethod> ShipmentForwarderAgentMethodDataGrid;
-        protected Models.AldebaranDb.ShipmentForwarderAgentMethod shipmentMethod;
-        protected Models.AldebaranDb.ForwarderAgent forwarderAgent;
-        protected bool isLoadingInProgress;
+        [Inject]
+        public IForwarderService ForwarderService { get; set; }
 
-        protected async Task Search(ChangeEventArgs args)
-        {
-            search = $"{args.Value}";
-            await grid0.GoToPage(0);
-            forwarders = await AldebaranDbService.GetForwarders(new Query { Filter = $@"i => i.FORWARDER_NAME.Contains(@0) || i.PHONE1.Contains(@0) || i.PHONE2.Contains(@0) || i.FAX.Contains(@0) || i.FORWARDER_ADDRESS.Contains(@0) || i.MAIL1.Contains(@0) || i.MAIL2.Contains(@0)", FilterParameters = new object[] { search }, Expand = "City.Department.Country" });
-        }
+        [Inject]
+        public IForwarderAgentService ForwarderAgentService { get; set; }
+
+        [Inject]
+        public IShipmentForwarderAgentMethodService ShipmentForwarderAgentMethodService { get; set; }
+        #endregion
+
+        #region Variables
+        protected IEnumerable<ServiceModel.Forwarder> ForwardersList;
+        protected RadzenDataGrid<ServiceModel.Forwarder> ForwardersDataGrid;
+        protected ServiceModel.Forwarder Forwarder;
+        protected RadzenDataGrid<ServiceModel.ForwarderAgent> ForwarderAgentsDataGrid;
+        protected ServiceModel.ForwarderAgent ForwarderAgent;
+        protected RadzenDataGrid<ServiceModel.ShipmentForwarderAgentMethod> ShipmentForwarderAgentMethodDataGrid;
+        protected ServiceModel.ShipmentForwarderAgentMethod ShipmentMethod;
+        protected string search = "";
+        protected DialogResult DialogResult { get; set; }
+        protected bool IsLoadingInProgress;
+        #endregion
+
+        #region Overrides
         protected override async Task OnInitializedAsync()
         {
             try
             {
-                isLoadingInProgress = true;
-
-                await Task.Yield();
-
-                forwarders = await AldebaranDbService.GetForwarders(new Query { Filter = $@"i => i.FORWARDER_NAME.Contains(@0) || i.PHONE1.Contains(@0) || i.PHONE2.Contains(@0) || i.FAX.Contains(@0) || i.FORWARDER_ADDRESS.Contains(@0) || i.MAIL1.Contains(@0) || i.MAIL2.Contains(@0)", FilterParameters = new object[] { search }, Expand = "City.Department.Country" });
+                IsLoadingInProgress = true;
+                await GetForwarders();
             }
             finally
             {
-                isLoadingInProgress = false;
+                IsLoadingInProgress = false;
             }
         }
+        #endregion
 
-        protected async Task AddButtonClick(MouseEventArgs args)
+        #region Events
+        protected async Task GetForwarders(string searchKey = null)
         {
-            dialogResult = null;
+            await Task.Yield();
+            ForwardersList = string.IsNullOrEmpty(searchKey) ? await ForwarderService.GetAsync() : await ForwarderService.GetAsync(searchKey);
+        }
+        protected async Task Search(ChangeEventArgs args)
+        {
+            search = $"{args.Value}";
+            await ForwardersDataGrid.GoToPage(0);
+            await GetForwarders(search);
+        }
+        protected async Task AddForwarder(MouseEventArgs args)
+        {
+            DialogResult = null;
             var result = await DialogService.OpenAsync<AddForwarder>("Nueva transportadora");
             if (result == true)
             {
-                dialogResult = new DialogResult { Success = true, Message = "Transportadora creada correctamente." };
+                DialogResult = new DialogResult { Success = true, Message = "Transportadora creada correctamente." };
             }
-            await grid0.Reload();
+            await GetForwarders();
+            await ForwardersDataGrid.Reload();
         }
-
-        protected async Task EditRow(Models.AldebaranDb.Forwarder args)
+        protected async Task EditForwarder(ServiceModel.Forwarder args)
         {
-            dialogResult = null;
-            var result = await DialogService.OpenAsync<EditForwarder>("Actualizar transportadora", new Dictionary<string, object> { { "FORWARDER_ID", args.FORWARDER_ID } });
+            DialogResult = null;
+            var result = await DialogService.OpenAsync<EditForwarder>("Actualizar transportadora", new Dictionary<string, object> { { "FORWARDER_ID", args.ForwarderId } });
             if (result == true)
             {
-                dialogResult = new DialogResult { Success = true, Message = "Transportadora actualizada correctamente." };
+                DialogResult = new DialogResult { Success = true, Message = "Transportadora actualizada correctamente." };
             }
+            await GetForwarders();
+            await ForwardersDataGrid.Reload();
         }
-
-        protected async Task GridDeleteButtonClick(MouseEventArgs args, Models.AldebaranDb.Forwarder forwarder)
+        protected async Task DeleteForwarder(MouseEventArgs args, ServiceModel.Forwarder forwarder)
         {
             try
             {
-                dialogResult = null;
-                if (await DialogService.Confirm("Está seguro que desea eliminar esta transportadora?") == true)
+                DialogResult = null;
+                if (await DialogService.Confirm("Está seguro que desea eliminar esta transportadora?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }) == true)
                 {
-                    var deleteResult = await AldebaranDbService.DeleteForwarder(forwarder.FORWARDER_ID);
-                    if (deleteResult != null)
-                    {
-                        dialogResult = new DialogResult { Success = true, Message = "Transportadora eliminada correctamente." };
-                        await grid0.Reload();
-                    }
+                    await ForwarderService.DeleteAsync(forwarder.ForwarderId);
+                    await GetForwarders();
+                    DialogResult = new DialogResult { Success = true, Message = "Transportadora eliminada correctamente." };
+                    await ForwardersDataGrid.Reload();
                 }
             }
             catch (Exception ex)
             {
+                Logger.LogError(ex, nameof(DeleteForwarder));
                 NotificationService.Notify(new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
@@ -113,69 +120,59 @@ namespace Aldebaran.Web.Pages.ForwarderPages
             }
         }
 
-        protected async Task GetChildData(Models.AldebaranDb.Forwarder args)
+        protected async Task GetForwarderAgents(ServiceModel.Forwarder args)
         {
-            forwarder = args;
-
+            Forwarder = args;
             try
             {
-                isLoadingInProgress = true;
-
+                IsLoadingInProgress = true;
                 await Task.Yield();
-                var ForwarderAgentsResult = await AldebaranDbService.GetForwarderAgents(new Query { Filter = $@"i => i.FORWARDER_ID == {args.FORWARDER_ID}", Expand = "City.Department.Country,Forwarder" });
-                if (ForwarderAgentsResult != null)
-                {
-                    args.ForwarderAgents = ForwarderAgentsResult.ToList();
-                }
+                var forwarderAgentsResult = await ForwarderAgentService.GetAsync(args.ForwarderId);
+                args.ForwarderAgents = forwarderAgentsResult.ToList();
             }
             finally
             {
-                isLoadingInProgress = false;
+                IsLoadingInProgress = false;
             }
         }
-
-        protected async Task ForwarderAgentsAddButtonClick(MouseEventArgs args, Models.AldebaranDb.Forwarder data)
+        protected async Task AddForwarderAgent(MouseEventArgs args, ServiceModel.Forwarder data)
         {
-            dialogResult = null;
-            var result = await DialogService.OpenAsync<AddForwarderAgent>("Nuevo agente", new Dictionary<string, object> { { "FORWARDER_ID", data.FORWARDER_ID } });
+            DialogResult = null;
+            var result = await DialogService.OpenAsync<AddForwarderAgent>("Nuevo agente", new Dictionary<string, object> { { "FORWARDER_ID", data.ForwarderId } });
             if (result == true)
             {
-                dialogResult = new DialogResult { Success = true, Message = "Agente creado correctamente." };
+                DialogResult = new DialogResult { Success = true, Message = "Agente creado correctamente." };
             }
-            await GetChildData(data);
+            await GetForwarderAgents(data);
             await ForwarderAgentsDataGrid.Reload();
         }
-
-        protected async Task EditChildRow(Models.AldebaranDb.ForwarderAgent args, Models.AldebaranDb.Forwarder data)
+        protected async Task EditForwarderAgent(ServiceModel.ForwarderAgent args, ServiceModel.Forwarder data)
         {
-            dialogResult = null;
-            var result = await DialogService.OpenAsync<EditForwarderAgent>("Actualizar agente", new Dictionary<string, object> { { "FORWARDER_AGENT_ID", args.FORWARDER_AGENT_ID } });
+            DialogResult = null;
+            var result = await DialogService.OpenAsync<EditForwarderAgent>("Actualizar agente", new Dictionary<string, object> { { "FORWARDER_AGENT_ID", args.ForwarderAgentId } });
             if (result == true)
             {
-                dialogResult = new DialogResult { Success = true, Message = "Agente actualizado correctamente." };
+                DialogResult = new DialogResult { Success = true, Message = "Agente actualizado correctamente." };
             }
-            await GetChildData(data);
+            await GetForwarderAgents(data);
             await ForwarderAgentsDataGrid.Reload();
         }
-
-        protected async Task ForwarderAgentsDeleteButtonClick(MouseEventArgs args, Models.AldebaranDb.ForwarderAgent forwarderAgent)
+        protected async Task DeleteForwarderAgent(MouseEventArgs args, ServiceModel.ForwarderAgent forwarderAgent)
         {
             try
             {
-                dialogResult = null;
-                if (await DialogService.Confirm("Está seguro que desea eliminar este agente?") == true)
+                DialogResult = null;
+                if (await DialogService.Confirm("Está seguro que desea eliminar este agente?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }) == true)
                 {
-                    var deleteResult = await AldebaranDbService.DeleteForwarderAgent(forwarderAgent.FORWARDER_AGENT_ID);
-                    await GetChildData(forwarder);
-                    if (deleteResult != null)
-                    {
-                        dialogResult = new DialogResult { Success = true, Message = "Agente eliminado correctamente." };
-                        await ForwarderAgentsDataGrid.Reload();
-                    }
+                    await ForwarderAgentService.DeleteAsync(forwarderAgent.ForwarderAgentId);
+                    await GetForwarderAgents(Forwarder);
+                    DialogResult = new DialogResult { Success = true, Message = "Agente eliminado correctamente." };
+                    await ForwarderAgentsDataGrid.Reload();
                 }
             }
             catch (Exception ex)
             {
+                Logger.LogError(ex, nameof(DeleteForwarderAgent));
                 NotificationService.Notify(new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
@@ -185,54 +182,48 @@ namespace Aldebaran.Web.Pages.ForwarderPages
             }
         }
 
-        protected async Task GetShipmentData(Models.AldebaranDb.ForwarderAgent args)
+        protected async Task GetShipmentForwarderAgentMethods(ServiceModel.ForwarderAgent args)
         {
-            forwarderAgent = args;
-
+            ForwarderAgent = args;
             try
             {
-                isLoadingInProgress = true;
-
+                IsLoadingInProgress = true;
                 await Task.Yield();
-                var ShipmentForwarderAgentMethodsResult = await AldebaranDbService.GetShipmentForwarderAgentMethods(new Query { Filter = $@"i => i.FORWARDER_AGENT_ID == {args.FORWARDER_AGENT_ID}", Expand = "ShipmentMethod" });
-                if (ShipmentForwarderAgentMethodsResult != null)
-                {
-                    forwarderAgent.ShipmentForwarderAgentMethods = ShipmentForwarderAgentMethodsResult.ToList();
-                }
+                var shipmentForwarderAgentMethodsResult = await ShipmentForwarderAgentMethodService.GetAsync(args.ForwarderAgentId);
+                ForwarderAgent.ShipmentForwarderAgentMethods = shipmentForwarderAgentMethodsResult.ToList();
             }
             finally
             {
-                isLoadingInProgress = false;
+                IsLoadingInProgress = false;
             }
         }
-        protected async Task ShippingAddButtonClick(MouseEventArgs args, Models.AldebaranDb.ForwarderAgent data)
+        protected async Task AddShipmentForwarderAgentMethod(MouseEventArgs args, ServiceModel.ForwarderAgent data)
         {
-            dialogResult = null;
-            var result = await DialogService.OpenAsync<AddShipmentForwarderAgentMethod>("Nuevo método de envío", new Dictionary<string, object> { { "FORWARDER_AGENT_ID", data.FORWARDER_AGENT_ID } });
+            DialogResult = null;
+            var result = await DialogService.OpenAsync<AddShipmentForwarderAgentMethod>("Nuevo método de envío", new Dictionary<string, object> { { "FORWARDER_AGENT_ID", data.ForwarderAgentId } });
             if (result == true)
             {
-                dialogResult = new DialogResult { Success = true, Message = "Método de envío creado correctamente." };
+                DialogResult = new DialogResult { Success = true, Message = "Método de envío creado correctamente." };
             }
-            await GetShipmentData(data);
+            await GetShipmentForwarderAgentMethods(data);
             await ForwarderAgentsDataGrid.Reload();
         }
-        protected async Task ShippingDeleteButtonClick(MouseEventArgs args, Models.AldebaranDb.ShipmentForwarderAgentMethod shipmentForwarderAgent)
+        protected async Task DeleteShipmentForwarderAgentMethod(MouseEventArgs args, ServiceModel.ShipmentForwarderAgentMethod shipmentForwarderAgent)
         {
             try
             {
-                dialogResult = null;
-                if (await DialogService.Confirm("Está seguro que desea eliminar este método de envío?") == true)
+                DialogResult = null;
+                if (await DialogService.Confirm("Está seguro que desea eliminar este método de envío?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }) == true)
                 {
-                    var deleteResult = await AldebaranDbService.DeleteShipmentForwarderAgentMethod(shipmentForwarderAgent.SHIPMENT_FORWARDER_AGENT_METHOD_ID);
-                    if (deleteResult != null)
-                    {
-                        dialogResult = new DialogResult { Success = true, Message = "Método de envío eliminado correctamente." };
-                        await ShipmentForwarderAgentMethodDataGrid.Reload();
-                    }
+                    await ShipmentForwarderAgentMethodService.DeleteAsync(shipmentForwarderAgent.ShipmentForwarderAgentMethodId);
+                    await GetShipmentForwarderAgentMethods(ForwarderAgent);
+                    DialogResult = new DialogResult { Success = true, Message = "Método de envío eliminado correctamente." };
+                    await ForwarderAgentsDataGrid.Reload();
                 }
             }
             catch (Exception ex)
             {
+                Logger.LogError(ex, nameof(DeleteShipmentForwarderAgentMethod));
                 NotificationService.Notify(new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
@@ -241,5 +232,6 @@ namespace Aldebaran.Web.Pages.ForwarderPages
                 });
             }
         }
+        #endregion
     }
 }

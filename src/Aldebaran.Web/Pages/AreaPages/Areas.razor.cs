@@ -1,142 +1,115 @@
+using Aldebaran.Application.Services;
 using Aldebaran.Web.Models;
+using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using Radzen;
-using Radzen.Blazor;
+using ServiceModel = Aldebaran.Application.Services.Models;
 
 namespace Aldebaran.Web.Pages.AreaPages
 {
     public partial class Areas : ComponentBase
     {
+        #region Injections
         [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
+        protected ILogger<Areas> Logger { get; set; }
 
         [Inject]
-        protected NavigationManager NavigationManager { get; set; }
+        protected IJSRuntime JSRuntime { get; set; }
 
         [Inject]
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected TooltipService TooltipService { get; set; }
-
-        [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
-
-        [Inject]
         protected NotificationService NotificationService { get; set; }
-
-        [Inject]
-        public AldebaranDbService AldebaranDbService { get; set; }
 
         [Inject]
         protected SecurityService Security { get; set; }
 
-        protected IEnumerable<Models.AldebaranDb.Area> areas;
-        protected RadzenDataGrid<Models.AldebaranDb.Area> grid0;
-        protected RadzenDataGrid<Models.AldebaranDb.ItemsArea> ItemsAreasDataGrid;
-        protected Models.AldebaranDb.Area area;
-        protected string search = "";
-        protected DialogResult dialogResult { get; set; }
-        protected bool isLoadingInProgress;
+        [Inject]
+        protected IAreaService AreaService { get; set; }
 
-        protected async Task Search(ChangeEventArgs args)
-        {
-            search = $"{args.Value}";
-            await grid0.GoToPage(0);
-            areas = await AldebaranDbService.GetAreas(new Query { Filter = $@"i => i.AREA_CODE.Contains(@0) || i.AREA_NAME.Contains(@0) || i.DESCRIPTION.Contains(@0)", FilterParameters = new object[] { search } });
-        }
+        [Inject]
+        protected IItemAreaService ItemAreaService { get; set; }
+        #endregion
+
+        #region Variables
+        protected IEnumerable<ServiceModel.Area> AreasList;
+        protected LocalizedDataGrid<ServiceModel.Area> AreasDataGrid;
+        protected ServiceModel.Area Area;
+        protected LocalizedDataGrid<ServiceModel.ItemsArea> ItemsAreasDataGrid;
+        protected string search = "";
+        protected DialogResult DialogResult { get; set; }
+        protected bool IsLoadingInProgress;
+        #endregion
+
+        #region Overrides
         protected override async Task OnInitializedAsync()
         {
             try
             {
-                isLoadingInProgress = true;
-
+                IsLoadingInProgress = true;
                 await Task.Yield();
-                areas = await AldebaranDbService.GetAreas(new Query { Filter = $@"i => i.AREA_CODE.Contains(@0) || i.AREA_NAME.Contains(@0) || i.DESCRIPTION.Contains(@0)", FilterParameters = new object[] { search } });
+                AreasList = await AreaService.GetAsync();
             }
             finally
             {
-                isLoadingInProgress = false;
+                IsLoadingInProgress = false;
             }
         }
 
-        protected async Task GridDeleteButtonClick(MouseEventArgs args, Models.AldebaranDb.Area area)
+        #endregion
+
+        #region Events
+        protected async Task Search(ChangeEventArgs args)
         {
-            try
-            {
-                if (await DialogService.Confirm("Está seguro que desea eliminar esta área?") == true)
-                {
-                    var deleteResult = await AldebaranDbService.DeleteArea(area.AREA_ID);
-                    if (deleteResult != null)
-                    {
-                        await grid0.Reload();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                NotificationService.Notify(new NotificationMessage
-                {
-                    Severity = NotificationSeverity.Error,
-                    Summary = $"Error",
-                    Detail = $"No se ha podido eliminar el área"
-                });
-            }
+            search = $"{args.Value}";
+            await AreasDataGrid.GoToPage(0);
+            AreasList = await AreaService.GetAsync(search);
         }
-
-        protected async Task GetChildData(Models.AldebaranDb.Area args)
+        protected async Task GetAreaItems(ServiceModel.Area args)
         {
-            area = args;
+            Area = args;
             try
             {
-                isLoadingInProgress = true;
-
+                IsLoadingInProgress = true;
                 await Task.Yield();
-
-                var ItemsAreasResult = await AldebaranDbService.GetItemsAreas(new Query { Filter = $@"i => i.AREA_ID == {args.AREA_ID}", Expand = "Area,Item.MeasureUnit,Item.Currency,Item.MeasureUnit1,Item.Line" });
-                if (ItemsAreasResult != null)
-                {
-                    args.ItemsAreas = ItemsAreasResult.ToList();
-                }
+                var itemsAreasResult = await ItemAreaService.GetAsync(Area.AreaId);
+                args.ItemsAreas = itemsAreasResult.ToList();
             }
             finally
             {
-                isLoadingInProgress = false;
+                IsLoadingInProgress = false;
             }
         }
-
-        protected async Task ItemsAreasAddButtonClick(MouseEventArgs args, Models.AldebaranDb.Area data)
+        protected async Task AddItemArea(MouseEventArgs args, ServiceModel.Area data)
         {
-            dialogResult = null;
-            var result = await DialogService.OpenAsync<AddItemsArea>("Agregar artículo", new Dictionary<string, object> { { "AREA_ID", data.AREA_ID } });
+            DialogResult = null;
+            var result = await DialogService.OpenAsync<AddItemsArea>("Agregar artículo", new Dictionary<string, object> { { "AREA_ID", data.AreaId } });
             if (result == true)
             {
-                dialogResult = new DialogResult { Success = true, Message = "Artículo agregado correctamente al área." };
+                DialogResult = new DialogResult { Success = true, Message = "Artículo agregado correctamente al área." };
             }
-            await GetChildData(data);
+            await GetAreaItems(data);
             await ItemsAreasDataGrid.Reload();
         }
-
-        protected async Task ItemsAreasDeleteButtonClick(MouseEventArgs args, Models.AldebaranDb.ItemsArea itemsArea)
+        protected async Task DeleteItemArea(MouseEventArgs args, ServiceModel.ItemsArea itemsArea)
         {
             try
             {
-                dialogResult = null;
-                if (await DialogService.Confirm("Está seguro que desea eliminar esta artículo del área?") == true)
+                DialogResult = null;
+                if (await DialogService.Confirm("Está seguro que desea eliminar este artículo del área?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }) == true)
                 {
-                    var deleteResult = await AldebaranDbService.DeleteItemsArea(itemsArea.ITEM_ID, itemsArea.AREA_ID);
-                    await GetChildData(area);
-                    if (deleteResult != null)
-                    {
-                        dialogResult = new DialogResult { Success = true, Message = "Artículo eliminado del área correctamente." };
-                        await ItemsAreasDataGrid.Reload();
-                    }
+                    await ItemAreaService.DeleteAsync(itemsArea.AreaId, itemsArea.ItemId);
+                    await GetAreaItems(Area);
+                    DialogResult = new DialogResult { Success = true, Message = "Artículo eliminado del área correctamente." };
+                    await ItemsAreasDataGrid.Reload();
                 }
             }
             catch (Exception ex)
             {
+                Logger.LogError(ex, nameof(DeleteItemArea));
                 NotificationService.Notify(new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
@@ -145,5 +118,6 @@ namespace Aldebaran.Web.Pages.AreaPages
                 });
             }
         }
+        #endregion
     }
 }

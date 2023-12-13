@@ -1,0 +1,78 @@
+﻿using Aldebaran.Application.Services.Models;
+using AutoMapper;
+using Entities = Aldebaran.DataAccess.Entities;
+
+namespace Aldebaran.Application.Services.Mappings
+{
+    public class ApplicationServicesProfile : Profile
+    {
+        public ApplicationServicesProfile()
+        {
+            CreateMap<ActivityType, Entities.ActivityType>().ReverseMap();
+            CreateMap<ActivityTypesArea, Entities.ActivityTypesArea>().ReverseMap();
+            CreateMap<Adjustment, Entities.Adjustment>().ReverseMap();
+            CreateMap<AdjustmentDetail, Entities.AdjustmentDetail>().ReverseMap();
+            CreateMap<AdjustmentReason, Entities.AdjustmentReason>().ReverseMap();
+            CreateMap<AdjustmentType, Entities.AdjustmentType>().ReverseMap();
+            CreateMap<Alarm, Entities.Alarm>().ReverseMap();
+            CreateMap<AlarmMessage, Entities.AlarmMessage>().ReverseMap();
+            CreateMap<AlarmType, Entities.AlarmType>().ReverseMap();
+            CreateMap<Area, Entities.Area>().ReverseMap();
+            CreateMap<CanceledCustomerOrder, Entities.CanceledCustomerOrder>().ReverseMap();
+            CreateMap<CanceledCustomerReservation, Entities.CanceledCustomerReservation>().ReverseMap();
+            CreateMap<CanceledOrderShipment, Entities.CanceledOrderShipment>().ReverseMap();
+            CreateMap<CanceledOrdersInProcess, Entities.CanceledOrdersInProcess>().ReverseMap();
+            CreateMap<CanceledPurchaseOrder, Entities.CanceledPurchaseOrder>().ReverseMap();
+            CreateMap<CancellationReason, Entities.CancellationReason>().ReverseMap();
+            CreateMap<City, Entities.City>().ReverseMap();
+            CreateMap<CloseCustomerOrderReason, Entities.CloseCustomerOrderReason>().ReverseMap();
+            CreateMap<ClosedCustomerOrder, Entities.ClosedCustomerOrder>().ReverseMap();
+            CreateMap<Country, Entities.Country>().ReverseMap();
+            CreateMap<Currency, Entities.Currency>().ReverseMap();
+            CreateMap<Customer, Entities.Customer>().ReverseMap();
+            CreateMap<CustomerContact, Entities.CustomerContact>().ReverseMap();
+            CreateMap<CustomerOrder, Entities.CustomerOrder>().ReverseMap();
+            CreateMap<CustomerOrderActivity, Entities.CustomerOrderActivity>().ReverseMap();
+            CreateMap<CustomerOrderActivityDetail, Entities.CustomerOrderActivityDetail>().ReverseMap();
+            CreateMap<CustomerOrderDetail, Entities.CustomerOrderDetail>().ReverseMap();
+            CreateMap<CustomerOrderInProcessDetail, Entities.CustomerOrderInProcessDetail>().ReverseMap();
+            CreateMap<CustomerOrderShipment, Entities.CustomerOrderShipment>().ReverseMap();
+            CreateMap<CustomerOrderShipmentDetail, Entities.CustomerOrderShipmentDetail>().ReverseMap();
+            CreateMap<CustomerOrdersInProcess, Entities.CustomerOrdersInProcess>().ReverseMap();
+            CreateMap<CustomerReservation, Entities.CustomerReservation>().ReverseMap();
+            CreateMap<CustomerReservationDetail, Entities.CustomerReservationDetail>().ReverseMap();
+            CreateMap<Department, Entities.Department>().ReverseMap();
+            CreateMap<DocumentType, Entities.DocumentType>().ReverseMap();
+            CreateMap<Employee, Entities.Employee>().ReverseMap();
+            CreateMap<Forwarder, Entities.Forwarder>().ReverseMap();
+            CreateMap<ForwarderAgent, Entities.ForwarderAgent>().ReverseMap();
+            CreateMap<IdentityType, Entities.IdentityType>().ReverseMap();
+            CreateMap<Item, Entities.Item>().ReverseMap();
+            CreateMap<ItemReference, Entities.ItemReference>().ReverseMap();
+            CreateMap<ItemsArea, Entities.ItemsArea>().ReverseMap();
+            CreateMap<Line, Entities.Line>().ReverseMap();
+            CreateMap<MeasureUnit, Entities.MeasureUnit>().ReverseMap();
+            CreateMap<ModificationReason, Entities.ModificationReason>().ReverseMap();
+            CreateMap<ModifiedCustomerOrder, Entities.ModifiedCustomerOrder>().ReverseMap();
+            CreateMap<ModifiedCustomerReservation, Entities.ModifiedCustomerReservation>().ReverseMap();
+            CreateMap<ModifiedOrderShipment, Entities.ModifiedOrderShipment>().ReverseMap();
+            CreateMap<ModifiedOrdersInProcess, Entities.ModifiedOrdersInProcess>().ReverseMap();
+            CreateMap<ModifiedPurchaseOrder, Entities.ModifiedPurchaseOrder>().ReverseMap();
+            CreateMap<Packaging, Entities.Packaging>().ReverseMap();
+            CreateMap<ProcessSatellite, Entities.ProcessSatellite>().ReverseMap();
+            CreateMap<Provider, Entities.Provider>().ReverseMap();
+            CreateMap<ProviderReference, Entities.ProviderReference>().ReverseMap();
+            CreateMap<PurchaseOrder, Entities.PurchaseOrder>().ReverseMap();
+            CreateMap<PurchaseOrderActivity, Entities.PurchaseOrderActivity>().ReverseMap();
+            CreateMap<PurchaseOrderDetail, Entities.PurchaseOrderDetail>().ReverseMap();
+            CreateMap<ReferencesWarehouse, Entities.ReferencesWarehouse>().ReverseMap();
+            CreateMap<ShipmentForwarderAgentMethod, Entities.ShipmentForwarderAgentMethod>().ReverseMap();
+            CreateMap<ShipmentMethod, Entities.ShipmentMethod>().ReverseMap();
+            CreateMap<ShippingMethod, Entities.ShippingMethod>().ReverseMap();
+            CreateMap<StatusDocumentType, Entities.StatusDocumentType>().ReverseMap();
+            CreateMap<UsersAlarmType, Entities.UsersAlarmType>().ReverseMap();
+            CreateMap<VisualizedAlarm, Entities.VisualizedAlarm>().ReverseMap();
+            CreateMap<Warehouse, Entities.Warehouse>().ReverseMap();
+        }
+    }
+}

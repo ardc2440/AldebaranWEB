@@ -1,13 +1,17 @@
 @page "/areas"
-@attribute [Authorize(Roles="Admin,Area Viwer,Area Editor")]
+@attribute [Authorize(Roles = "Admin,Area Viwer,Area Editor")]
+@using Aldebaran.Web.Resources.LocalizedControls;
+@using ServiceModel = Aldebaran.Application.Services.Models;
 
 <PageTitle>Areas</PageTitle>
 <RadzenStack>
-    @if(dialogResult!= null && dialogResult.Success){
-        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Success">@dialogResult.Message</RadzenAlert>
+    @if (DialogResult != null && DialogResult.Success)
+    {
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Success">@DialogResult.Message</RadzenAlert>
     }
-    @if(dialogResult!= null && !dialogResult.Success){
-        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger">@dialogResult.Message</RadzenAlert>
+    @if (DialogResult != null && !DialogResult.Success)
+    {
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger">@DialogResult.Message</RadzenAlert>
     }
     <RadzenRow AlignItems="AlignItems.Center">
         <RadzenColumn Size="12">
@@ -17,87 +21,86 @@
     <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
     <RadzenRow>
         <RadzenColumn SizeMD=12>
-            <RadzenDataGrid @ref="grid0" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                            Data="@areas" TItem="Aldebaran.Web.Models.AldebaranDb.Area" RowExpand=@GetChildData ExpandMode="Radzen.DataGridExpandMode.Single" IsLoading="@isLoadingInProgress">
+            <LocalizedDataGrid @ref="AreasDataGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                               Data="@AreasList" TItem="ServiceModel.Area" RowExpand=@GetAreaItems ExpandMode="Radzen.DataGridExpandMode.Single" IsLoading="@IsLoadingInProgress">
                 <Columns>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Area" Property="AREA_CODE" Title="Código">
+                    <RadzenDataGridColumn TItem="ServiceModel.Area" Property="AreaCode" Title="Código">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Area" Property="AREA_NAME" Title="Nombre">
+                    <RadzenDataGridColumn TItem="ServiceModel.Area" Property="AreaName" Title="Nombre">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Area" Property="DESCRIPTION" Title="Descripción">
+                    <RadzenDataGridColumn TItem="ServiceModel.Area" Property="Description" Title="Descripción">
                     </RadzenDataGridColumn>
                 </Columns>
                 <Template Context="area">
                     <RadzenStack Class="rz-my-8">
                         <RadzenRow Gap="0" AlignItems="AlignItems.Center">
-                            <RadzenColumn Size="12" SizeMD="6">
+                            <RadzenColumn Size="12">
                                 <RadzenText Visible="@(area != null)" Text="Artículos" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
                             </RadzenColumn>
-                            <RadzenColumn Size="12" SizeMD="6" Visible="@Security.IsInRole("Admin","Area Editor")">
-                                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
-                                    <RadzenButton Visible="@(area != null)" Icon="add_circle_outline" Text="Nuevo" Click=@(args => ItemsAreasAddButtonClick(args,area)) />
+                            <RadzenColumn Size="12" Visible="@Security.IsInRole("Admin","Area Editor")">
+                                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
+                                    <RadzenButton Visible="@(area != null)" Icon="add_circle_outline" Text="Nuevo" Click=@(args => AddItemArea(args,area)) />
                                 </RadzenStack>
                             </RadzenColumn>
                         </RadzenRow>
-                        <RadzenDataGrid ColumnWidth="200px" Visible="@(area != null)" @ref=ItemsAreasDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                        Data="@area?.ItemsAreas" TItem="Aldebaran.Web.Models.AldebaranDb.ItemsArea" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowGrouping="true" AllowColumnReorder="true" IsLoading="@isLoadingInProgress">
+                        <LocalizedDataGrid ColumnWidth="200px" Visible="@(area != null)" @ref=ItemsAreasDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                           Data="@area?.ItemsAreas" TItem="ServiceModel.ItemsArea" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowGrouping="true" AllowColumnReorder="true" IsLoading="@IsLoadingInProgress">
                             <Columns>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemsArea" Property="Item.INTERNAL_REFERENCE" Title="Referencia interna">
+                                <RadzenDataGridColumn TItem="ServiceModel.ItemsArea" Property="Item.InternalReference" Title="Referencia interna">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemsArea" Property="Item.ITEM_NAME" Title="Nombre">
+                                <RadzenDataGridColumn TItem="ServiceModel.ItemsArea" Property="Item.ItemName" Title="Nombre">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemsArea" Property="Item.PROVIDER_REFERENCE" Title="Referencia proveedor">
+                                <RadzenDataGridColumn TItem="ServiceModel.ItemsArea" Property="Item.ProviderReference" Title="Referencia proveedor">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemsArea" Property="Item.PROVIDER_ITEM_NAME" Title="Nombre item proveedor">
+                                <RadzenDataGridColumn TItem="ServiceModel.ItemsArea" Property="Item.ProviderItemName" Title="Nombre item proveedor">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemsArea" Property="Item.FOB_COST" Title="Costo FOB" Visible="false">
+                                <RadzenDataGridColumn TItem="ServiceModel.ItemsArea" Property="Item.FobCost" Title="Costo FOB" Visible="false">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemsArea" Property="Item.NOTES" Title="Notas" Visible="false">
+                                <RadzenDataGridColumn TItem="ServiceModel.ItemsArea" Property="Item.Notes" Title="Notas" Visible="false">
                                 </RadzenDataGridColumn>
-
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemsArea" Property="Item.IS_EXTERNAL_INVENTORY" Title="Inventario externo">
+                                <RadzenDataGridColumn TItem="ServiceModel.ItemsArea" Property="Item.IsExternalInventory" Title="Inventario externo">
                                     <Template Context="item">
-                                        <RadzenCheckBox @bind-Value="@item.Item.IS_EXTERNAL_INVENTORY" Name="IS_EXTERNAL_INVENTORY" Disabled="true"></RadzenCheckBox>
+                                        <RadzenCheckBox @bind-Value="@item.Item.IsExternalInventory" Name="IsExternalInventory" Disabled="true"></RadzenCheckBox>
                                     </Template>
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemsArea" Property="Item.CIF_COST" Title="Costo CIF" Visible="false">
+                                <RadzenDataGridColumn TItem="ServiceModel.ItemsArea" Property="Item.CifCost" Title="Costo CIF" Visible="false">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemsArea" Property="Item.VOLUME" Title="Volumen" Visible="false">
+                                <RadzenDataGridColumn TItem="ServiceModel.ItemsArea" Property="Item.Volume" Title="Volumen" Visible="false">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemsArea" Property="Item.WEIGHT" Title="Peso" Visible="false">
+                                <RadzenDataGridColumn TItem="ServiceModel.ItemsArea" Property="Item.Weight" Title="Peso" Visible="false">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemsArea" Property="Item.IS_DOMESTIC_PRODUCT" Title="Producto Nacional">
+                                <RadzenDataGridColumn TItem="ServiceModel.ItemsArea" Property="Item.IsDomesticProduct" Title="Producto Nacional">
                                     <Template Context="item">
-                                        <RadzenCheckBox @bind-Value="@item.Item.IS_DOMESTIC_PRODUCT" Name="IS_DOMESTIC_PRODUCT" Disabled="true"></RadzenCheckBox>
+                                        <RadzenCheckBox @bind-Value="@item.Item.IsDomesticProduct" Name="IsDomesticProduct" Disabled="true"></RadzenCheckBox>
                                     </Template>
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemsArea" Property="Item.IS_ACTIVE" Title="Activo">
+                                <RadzenDataGridColumn TItem="ServiceModel.ItemsArea" Property="Item.IsActive" Title="Activo">
                                     <Template Context="item">
-                                        <RadzenCheckBox @bind-Value="@item.Item.IS_ACTIVE" Name="IS_ACTIVE" Disabled="true"></RadzenCheckBox>
+                                        <RadzenCheckBox @bind-Value="@item.Item.IsActive" Name="IsActive" Disabled="true"></RadzenCheckBox>
                                     </Template>
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemsArea" Property="Item.IS_CATALOG_VISIBLE" Title="Visible en catálogo">
+                                <RadzenDataGridColumn TItem="ServiceModel.ItemsArea" Property="Item.IsCatalogVisible" Title="Visible en catálogo">
                                     <Template Context="item">
-                                        <RadzenCheckBox @bind-Value="@item.Item.IS_CATALOG_VISIBLE" Name="IS_CATALOG_VISIBLE" Disabled="true"></RadzenCheckBox>
+                                        <RadzenCheckBox @bind-Value="@item.Item.IsCatalogVisible" Name="IsCatalogVisible" Disabled="true"></RadzenCheckBox>
                                     </Template>
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemsArea" Property="Item.MeasureUnit.MEASURE_UNIT_NAME" Title="Unidad FOB" Visible="false">
+                                <RadzenDataGridColumn TItem="ServiceModel.ItemsArea" Property="Item.FobMeasureUnit.MeasureUnitName" Title="Unidad FOB" Visible="false">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemsArea" Property="Item.Currency.CURRENCY_NAME" Title="Moneda" Visible="false">
+                                <RadzenDataGridColumn TItem="ServiceModel.ItemsArea" Property="Item.Currency.CurrencyName" Title="Moneda" Visible="false">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemsArea" Property="Item.MeasureUnit1.MEASURE_UNIT_NAME" Title="Unidad CIF" Visible="false">
+                                <RadzenDataGridColumn TItem="ServiceModel.ItemsArea" Property="Item.CifMeasureUnit.MeasureUnitName" Title="Unidad CIF" Visible="false">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ItemsArea" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Area Editor")">
+                                <RadzenDataGridColumn TItem="ServiceModel.ItemsArea" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Area Editor")">
                                     <Template Context="itemsAreaChild">
                                         <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Shade="Shade.Lighter" Variant="Variant.Flat"
-                                                      Click=@(args => ItemsAreasDeleteButtonClick(args, itemsAreaChild)) @onclick:stopPropagation="true" />
+                                                      Click=@(args => DeleteItemArea(args, itemsAreaChild)) @onclick:stopPropagation="true" />
                                     </Template>
                                 </RadzenDataGridColumn>
                             </Columns>
-                        </RadzenDataGrid>
+                        </LocalizedDataGrid>
                     </RadzenStack>
                 </Template>
-            </RadzenDataGrid>
+            </LocalizedDataGrid>
         </RadzenColumn>
     </RadzenRow>
 </RadzenStack>
