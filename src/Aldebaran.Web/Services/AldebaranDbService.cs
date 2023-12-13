@@ -5346,7 +5346,9 @@ namespace Aldebaran.Web
                         var reservationToUpdate = Context.CustomerReservations.FirstOrDefault(i => i.CUSTOMER_RESERVATION_ID.Equals(customerReservation.CUSTOMER_RESERVATION_ID));
 
                         reservationToUpdate.CUSTOMER_ORDER_ID = customerOrderToSave.CUSTOMER_ORDER_ID;
-                        reservationToUpdate.StatusDocumentType = await GetStatusDocumentTypeByDocumentAndOrder(await GetDocumentTypeByCode("R"), 2);
+
+                        var statusDocumentType = await GetStatusDocumentTypeByDocumentAndOrder(await GetDocumentTypeByCode("R"), 2);
+                        reservationToUpdate.STATUS_DOCUMENT_TYPE_ID = statusDocumentType.STATUS_DOCUMENT_TYPE_ID;
 
                         Context.CustomerReservations.Update(reservationToUpdate);
 
