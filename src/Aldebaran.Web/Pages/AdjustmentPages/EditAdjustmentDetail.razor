@@ -4,14 +4,14 @@
 
 <RadzenColumn SizeMD=12>
     <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">Cannot save AdjustmentDetail</RadzenAlert>
-    <RadzenTemplateForm TItem="Aldebaran.Web.Models.AldebaranDb.AdjustmentDetail" Data="@adjustmentDetail" Visible="@(adjustmentDetail != null)" Submit="@FormSubmit">
+    <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.AdjustmentDetail" Data="@adjustmentDetail" Visible="@(adjustmentDetail != null)" Submit="@FormSubmit">
         <RadzenStack style="margin-bottom: 1rem">
             <RadzenRow SizeMD="9">
                 <RadzenColumn SizeMD="3">
                     <RadzenLabel Text="Referencia" Component="REFERENCE" style="width: 100%" />
                 </RadzenColumn>
                 <RadzenColumn SizeMD="9">
-                    <span>(@adjustmentDetail.ItemReference.Item.INTERNAL_REFERENCE) @adjustmentDetail.ItemReference.Item.ITEM_NAME - @adjustmentDetail.ItemReference.REFERENCE_NAME</span>
+                    <span>(@adjustmentDetail.ItemReference.Item.InternalReference) @adjustmentDetail.ItemReference.Item.ItemName - @adjustmentDetail.ItemReference.ReferenceName</span>
                 </RadzenColumn>
             </RadzenRow>
             <RadzenRow style="margin-bottom: 1rem">
@@ -19,7 +19,7 @@
                     <RadzenLabel Text="Bodega" Component="WAREHOUSE" style="width: 100%" />
                 </RadzenColumn>
                 <RadzenColumn SizeMD="9">
-                    <span>@adjustmentDetail.Warehouse.WAREHOUSE_NAME</span>
+                    <span>@adjustmentDetail.Warehouse.WarehouseName</span>
                 </RadzenColumn>
             </RadzenRow>
             <RadzenRow>
@@ -27,7 +27,7 @@
                     <RadzenLabel Text="Cantidad" Component="QUANTITY" style="width: 100%" />
                 </RadzenColumn>
                 <RadzenColumn SizeMD="9">
-                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@adjustmentDetail.QUANTITY" Name="QUANTITY" Placeholder="Ingrese la cantidad a ajustar" />
+                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@adjustmentDetail.Quantity" Name="QUANTITY" Placeholder="Ingrese la cantidad a ajustar" />
                     <RadzenRequiredValidator Component="QUANTITY" Text="La Cantidad es Requerida" />
                 </RadzenColumn>
             </RadzenRow>

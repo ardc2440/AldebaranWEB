@@ -18,7 +18,17 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .Where(filter)
                 .Include(i => i.Adjustment)
                 .Include(i => i.ItemReference.Item.Line)
+                .Include(i => i.Warehouse)
                 .ToListAsync(ct);
+        }
+
+        public async Task<AdjustmentDetail?> FindAsync(int adjustmentDetailId, CancellationToken ct = default)
+        {
+            return await _context.AdjustmentDetails.AsNoTracking()
+                .Include(i => i.Adjustment)
+                .Include(i => i.ItemReference.Item.Line)
+                .Include(i => i.Warehouse)
+                .FirstOrDefaultAsync(w => w.AdjustmentDetailId == adjustmentDetailId, ct);
         }
     }
 

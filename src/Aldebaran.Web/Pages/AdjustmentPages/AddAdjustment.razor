@@ -28,7 +28,7 @@
                                 <RadzenLabel Text="Motivo del Ajuste" Component="AdjustmentReason" style="width: 100%" />
                             </RadzenColumn>
                             <RadzenColumn SizeMD="9">
-                                <RadzenDropDownDataGrid Data="@adjustmentReasonsForADJUSTMENTREASONID" TextProperty="ADJUSTMENT_REASON_NAME" ValueProperty="ADJUSTMENT_REASON_ID" AllowClear=true
+                                <RadzenDropDownDataGrid Data="@adjustmentReasonsForADJUSTMENTREASONID" TextProperty="AdjustmentReasonName" ValueProperty="AdjustmentReasonId" AllowClear=true
                                                         Placeholder="Seleccione un motivo" style="display: block; width: 100%" @bind-Value="@adjustment.AdjustmentReasonId" Name="ADJUSTMENT_REASON_ID" TabIndex="1" />
                                 <RadzenRequiredValidator Component="ADJUSTMENT_REASON_ID" DefaultValue="0" Text="El Motivo del Ajuste es requerido "></RadzenRequiredValidator>
                             </RadzenColumn>
@@ -38,7 +38,7 @@
                                 <RadzenLabel Text="Tipo de Ajuste" Component="AdjustmentType" style="width: 100%" />
                             </RadzenColumn>
                             <RadzenColumn SizeMD="9">
-                                <RadzenDropDownDataGrid Data="@adjustmentTypesForADJUSTMENTTYPEID" TextProperty="ADJUSTMENT_TYPE_NAME" ValueProperty="ADJUSTMENT_TYPE_ID" AllowClear=true
+                                <RadzenDropDownDataGrid Data="@adjustmentTypesForADJUSTMENTTYPEID" TextProperty="AdjustmentTypeName" ValueProperty="AdjustmentTypeId" AllowClear=true
                                                         Placeholder="Seleccione un tipo" style="display: block; width: 100%" @bind-Value="@adjustment.AdjustmentTypeId" Name="ADJUSTMENT_TYPE_ID" TabIndex="2" />
                                 <RadzenRequiredValidator Component="ADJUSTMENT_TYPE_ID" DefaultValue="0" Text="El Tipo de Ajuste es requerido"></RadzenRequiredValidator>
                             </RadzenColumn>
