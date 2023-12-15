@@ -47,7 +47,8 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
 
         public async Task<IEnumerable<Forwarder>> GetAsync(string searchKey, CancellationToken ct = default)
         {
-            return await _context.Forwarders.AsNoTracking().Where(w => w.ForwarderName.Contains(searchKey) || w.Phone1.Contains(searchKey) || w.Phone2.Contains(searchKey) || w.Fax.Contains(searchKey) || w.ForwarderAddress.Contains(searchKey) || w.Mail1.Contains(searchKey) || w.Mail2.Contains(searchKey))
+            return await _context.Forwarders.AsNoTracking()
+                .Where(w => w.ForwarderName.Contains(searchKey) || w.Phone1.Contains(searchKey) || w.Phone2.Contains(searchKey) || w.Fax.Contains(searchKey) || w.ForwarderAddress.Contains(searchKey) || w.Mail1.Contains(searchKey) || w.Mail2.Contains(searchKey))
                 .Include(i => i.City.Department.Country)
                 .ToListAsync(ct);
         }

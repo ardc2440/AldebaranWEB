@@ -43,9 +43,9 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         public async Task<IEnumerable<ForwarderAgent>> GetAsync(int forwarderId, CancellationToken ct = default)
         {
             return await _context.ForwarderAgents.AsNoTracking()
+                .Where(w => w.ForwarderId == forwarderId)
                 .Include(i => i.Forwarder)
                 .Include(i => i.City.Department.Country)
-                .Where(w => w.ForwarderId == forwarderId)
                 .ToListAsync(ct);
         }
 

@@ -15,7 +15,7 @@ namespace Aldebaran.Application.Services.Models
         public double CifCost { get; set; }
         public double Volume { get; set; }
         public double Weight { get; set; }
-        public short? FobMeasureUnitId { get; set; }
+        public short FobMeasureUnitId { get; set; }
         public short? CifMeasureUnitId { get; set; }
         public bool IsDomesticProduct { get; set; }
         public bool IsActive { get; set; }

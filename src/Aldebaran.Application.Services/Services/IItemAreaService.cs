@@ -7,5 +7,4 @@ namespace Aldebaran.Application.Services
         Task AddAsync(ItemsArea item, CancellationToken ct = default);
         Task DeleteAsync(short areaId, int itemId, CancellationToken ct = default);
     }
-
 }

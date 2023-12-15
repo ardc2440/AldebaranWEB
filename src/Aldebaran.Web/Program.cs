@@ -4,6 +4,7 @@ using Aldebaran.Web.Data;
 using Aldebaran.Web.Models;
 using Aldebaran.Web.Resources;
 using Aldebaran.Web.Settings;
+using Aldebaran.Web.Utils;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.OData;
@@ -58,6 +59,8 @@ builder.Services.AddScoped<AuthenticationStateProvider, Aldebaran.Web.Applicatio
 builder.Services.AddLocalization();
 
 builder.Services.AddTransient<ISharedStringLocalizer, SharedStringLocalizer>();
+builder.Services.AddTransient<IExportHelper, ExportHelper>();
+
 builder.Services.AddSingleton(AutoMapperConfiguration.Configure());
 
 // Log

@@ -21,13 +21,13 @@ namespace Aldebaran.DataAccess.Entities
             builder.Property(x => x.CifCost).HasColumnName(@"CIF_COST").HasColumnType("float").HasPrecision(53).IsRequired();
             builder.Property(x => x.Volume).HasColumnName(@"VOLUME").HasColumnType("float").HasPrecision(53).IsRequired();
             builder.Property(x => x.Weight).HasColumnName(@"WEIGHT").HasColumnType("float").HasPrecision(53).IsRequired();
-            builder.Property(x => x.FobMeasureUnitId).HasColumnName(@"FOB_MEASURE_UNIT_ID").HasColumnType("smallint").IsRequired(false);
+            builder.Property(x => x.FobMeasureUnitId).HasColumnName(@"FOB_MEASURE_UNIT_ID").HasColumnType("smallint").IsRequired();
             builder.Property(x => x.CifMeasureUnitId).HasColumnName(@"CIF_MEASURE_UNIT_ID").HasColumnType("smallint").IsRequired(false);
             builder.Property(x => x.IsDomesticProduct).HasColumnName(@"IS_DOMESTIC_PRODUCT").HasColumnType("bit").IsRequired();
             builder.Property(x => x.IsActive).HasColumnName(@"IS_ACTIVE").HasColumnType("bit").IsRequired();
             builder.Property(x => x.IsCatalogVisible).HasColumnName(@"IS_CATALOG_VISIBLE").HasColumnType("bit").IsRequired();
             // Foreign keys
-            builder.HasOne(a => a.CifMeasureUnit).WithMany(b => b.Items_CifMeasureUnitId).HasForeignKey(c => c.CifMeasureUnitId).OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_ITEM_MEASURE_UNIT_CIF");
+            builder.HasOne(a => a.CifMeasureUnit).WithMany(b => b.Items_CifMeasureUnitId).HasForeignKey(c => c.CifMeasureUnitId).IsRequired(false).OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_ITEM_MEASURE_UNIT_CIF");
             builder.HasOne(a => a.Currency).WithMany(b => b.Items).HasForeignKey(c => c.CurrencyId).OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_ITEM_CURRENCY");
             builder.HasOne(a => a.FobMeasureUnit).WithMany(b => b.Items_FobMeasureUnitId).HasForeignKey(c => c.FobMeasureUnitId).OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_ITEMS_MEASURE_UNIT_FOB");
             builder.HasOne(a => a.Line).WithMany(b => b.Items).HasForeignKey(c => c.LineId).OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_ITEM_LINE");

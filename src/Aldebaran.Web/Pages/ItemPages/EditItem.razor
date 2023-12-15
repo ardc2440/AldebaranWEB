@@ -1,40 +1,41 @@
 @attribute [Authorize(Roles="Admin,Item Editor")]
+@using ServiceModel = Aldebaran.Application.Services.Models;
 
-<PageTitle>Actualizar artículo</PageTitle>
 <RadzenColumn SizeMD=12>
-    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">No se ha podido actualizar el artículo</RadzenAlert>
-    <RadzenTemplateForm TItem="Aldebaran.Web.Models.AldebaranDb.Item" Data="@item" Visible="@(item != null)" Submit="@FormSubmit">
+    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@ErrorVisible">No se ha podido actualizar el artículo</RadzenAlert>
+    <RadzenTemplateForm TItem="ServiceModel.Item" Data="@Item" Visible="@(Item != null)" Submit="@FormSubmit">
         <RadzenStack>
+            zenStack>
             <RadzenFormField Text="Nombre" Variant="Variant.Text">
                 <ChildContent>
-                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@item.ITEM_NAME" Name="ITEM_NAME" />
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Item.ItemName" Name="ItemName" />
                 </ChildContent>
                 <Helper>
-                    <RadzenRequiredValidator Component="ITEM_NAME" Text="Nombre es requerido" />
+                    <RadzenRequiredValidator Component="ItemName" Text="Nombre es requerido" />
                 </Helper>
             </RadzenFormField>
             <RadzenRow AlignItems="Radzen.AlignItems.Start">
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Referencia interna" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@item.INTERNAL_REFERENCE" Name="INTERNAL_REFERENCE" />
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Item.InternalReference" Name="InternalReference" />
                         </ChildContent>
                         <Helper>
-                            <RadzenRequiredValidator Component="INTERNAL_REFERENCE" Text="Referencia interna es requerida" />
+                            <RadzenRequiredValidator Component="InternalReference" Text="Referencia interna es requerida" />
                         </Helper>
                     </RadzenFormField>
                 </RadzenColumn>
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenColumn Size="12" SizeMD="6">
                         <RadzenRow style="margin-bottom: 1rem; width:100%">
-                            <RadzenCheckBox @bind-Value="@item.IS_ACTIVE" Name="IS_ACTIVE" />
-                            <RadzenLabel Text="Activo" Component="IS_ACTIVE" />
+                            <RadzenCheckBox @bind-Value="@Item.IsActive" Name="IsActive" />
+                            <RadzenLabel Text="Activo" Component="IsActive" />
                         </RadzenRow>
                     </RadzenColumn>
                     <RadzenColumn Size="12" SizeMD="6">
                         <RadzenRow style="margin-bottom: 1rem; width:100%">
-                            <RadzenCheckBox @bind-Value="@item.IS_DOMESTIC_PRODUCT" Name="IS_DOMESTIC_PRODUCT" />
-                            <RadzenLabel Text="Producto Nacional" Component="IS_DOMESTIC_PRODUCT" />
+                            <RadzenCheckBox @bind-Value="@Item.IsDomesticProduct" Name="IsDomesticProduct" />
+                            <RadzenLabel Text="Producto Nacional" Component="IsDomesticProduct" />
                         </RadzenRow>
                     </RadzenColumn>
                 </RadzenColumn>
@@ -43,29 +44,32 @@
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Línea" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDownDataGrid Data="@linesForLINEID" TextProperty="LINE_NAME" ValueProperty="LINE_ID" AllowClear=true
-                                                    style="display: block; width: 100%" @bind-Value="@item.LINE_ID" Name="LINE_ID">
+                            <RadzenDropDownDataGrid Data="@Lines" TextProperty="LineName" ValueProperty="LineId" AllowClear=true
+                                                    style="display: block; width: 100%" @bind-Value="@Item.LineId" Name="LineId">
                                 <Columns>
-                                    <RadzenDropDownDataGridColumn Property="LINE_CODE" Title="Código" />
-                                    <RadzenDropDownDataGridColumn Property="LINE_NAME" Title="Nombre" />
+                                    <RadzenDropDownDataGridColumn Property="LineCode" Title="Código" />
+                                    <RadzenDropDownDataGridColumn Property="LineName" Title="Nombre" />
                                 </Columns>
                             </RadzenDropDownDataGrid>
                         </ChildContent>
                         <Helper>
-                            <RadzenRequiredValidator Component="LINE_ID" DefaultValue="0" Text="Línea es requerida" />
+                            <RadzenNumericRangeValidator Component="LineId" Min="1" Text="Línea es requerida" />
                         </Helper>
                     </RadzenFormField>
                 </RadzenColumn>
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Moneda" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDownDataGrid Data="@currenciesForCURRENCYID" TextProperty="CURRENCY_NAME" ValueProperty="CURRENCY_ID" AllowClear=true
-                                                    style="display: block; width: 100%" @bind-Value="@item.CURRENCY_ID" Name="CURRENCY_ID">
+                            <RadzenDropDownDataGrid Data="@Currencies" TextProperty="CurrencyName" ValueProperty="CurrencyId" AllowClear=true
+                                                    style="display: block; width: 100%" @bind-Value="@Item.CurrencyId" Name="CurrencyId">
                                 <Columns>
-                                    <RadzenDropDownDataGridColumn Property="CURRENCY_NAME" Title="Nombre" />
+                                    <RadzenDropDownDataGridColumn Property="CurrencyName" Title="Nombre" />
                                 </Columns>
                             </RadzenDropDownDataGrid>
                         </ChildContent>
+                        <Helper>
+                            <RadzenNumericRangeValidator Component="CurrencyId" Min="1" Text="Moneda es requerida" />
+                        </Helper>
                     </RadzenFormField>
                 </RadzenColumn>
             </RadzenRow>
@@ -73,20 +77,20 @@
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Volumen" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenNumeric style="display: block; width: 100%" @bind-Value="@item.VOLUME" Name="VOLUME" />
+                            <RadzenNumeric style="display: block; width: 100%" @bind-Value="@Item.Volume" Name="Volume" />
                         </ChildContent>
                         <Helper>
-                            <RadzenRequiredValidator Component="VOLUME" DefaultValue="0" Text="Volumen debe ser mayor a 0" />
+                            <RadzenNumericRangeValidator Component="Volume" Min="1" Text="Volumen debe ser mayor a 0" />
                         </Helper>
                     </RadzenFormField>
                 </RadzenColumn>
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Peso" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenNumeric style="display: block; width: 100%" @bind-Value="@item.WEIGHT" Name="WEIGHT" />
+                            <RadzenNumeric style="display: block; width: 100%" @bind-Value="@Item.Weight" Name="Weight" />
                         </ChildContent>
                         <Helper>
-                            <RadzenRequiredValidator Component="WEIGHT" DefaultValue="0" Text="Peso debe ser mayor a 0" />
+                            <RadzenNumericRangeValidator Component="Weight" Min="1" Text="Peso debe ser mayor a 0" />
                         </Helper>
                     </RadzenFormField>
                 </RadzenColumn>
@@ -95,20 +99,20 @@
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Referencia del proveedor" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@item.PROVIDER_REFERENCE" Name="PROVIDER_REFERENCE" />
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Item.ProviderReference" Name="ProviderReference" />
                         </ChildContent>
                         <Helper>
-                            <RadzenRequiredValidator Component="PROVIDER_REFERENCE" Text="Referencia del proveedor es requerida" />
+                            <RadzenRequiredValidator Component="ProviderReference" Text="Referencia del proveedor es requerida" />
                         </Helper>
                     </RadzenFormField>
                 </RadzenColumn>
                 <RadzenColumn Size="12" SizeMD="6">
-                    <RadzenFormField Text="Nombre item proveedor" Variant="Variant.Text" Style="width: 100%;">
+                    <RadzenFormField Text="Nombre del artículo en el proveedor" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@item.PROVIDER_ITEM_NAME" Name="PROVIDER_ITEM_NAME" />
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Item.ProviderItemName" Name="ProviderItemName" />
                         </ChildContent>
                         <Helper>
-                            <RadzenRequiredValidator Component="PROVIDER_ITEM_NAME" Text="Nombre item proveedor es requerido" />
+                            <RadzenRequiredValidator Component="ProviderItemName" Text="Nombre es requerido" />
                         </Helper>
                     </RadzenFormField>
                 </RadzenColumn>
@@ -117,22 +121,25 @@
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Unidad FOB" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDownDataGrid Data="@measureUnitsForFOBMEASUREUNITID" TextProperty="MEASURE_UNIT_NAME" ValueProperty="MEASURE_UNIT_ID" AllowClear=true
-                                                    style="display: block; width: 100%" @bind-Value="@item.FOB_MEASURE_UNIT_ID" Name="FOB_MEASURE_UNIT_ID">
+                            <RadzenDropDownDataGrid Data="@MeasureUnits" TextProperty="MeasureUnitName" ValueProperty="MeasureUnitId" AllowClear=true
+                                                    style="display: block; width: 100%" @bind-Value="@Item.FobMeasureUnitId" Name="FobMeasureUnitId">
                                 <Columns>
-                                    <RadzenDropDownDataGridColumn Property="MEASURE_UNIT_NAME" Title="Nombre" />
+                                    <RadzenDropDownDataGridColumn Property="MeasureUnitName" Title="Nombre" />
                                 </Columns>
                             </RadzenDropDownDataGrid>
                         </ChildContent>
+                        <Helper>
+                            <RadzenNumericRangeValidator Component="FobMeasureUnitId" Min="1" Text="Unidad FOB es requerida" />
+                        </Helper>
                     </RadzenFormField>
                 </RadzenColumn>
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Costo FOB" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenNumeric style="display: block; width: 100%" @bind-Value="@item.FOB_COST" Name="FOB_COST" />
+                            <RadzenNumeric style="display: block; width: 100%" @bind-Value="@Item.FobCost" Name="FobCost" />
                         </ChildContent>
                         <Helper>
-                            <RadzenRequiredValidator Component="FOB_COST" DefaultValue="0" Text="Costo debe ser mayor a 0" />
+                            <RadzenNumericRangeValidator Component="FobCost" Min="1" Text="Costo debe ser mayor a 0" />
                         </Helper>
                     </RadzenFormField>
                 </RadzenColumn>
@@ -141,10 +148,10 @@
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Unidad CIF" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDownDataGrid Data="@measureUnitsForCIFMEASUREUNITID" TextProperty="MEASURE_UNIT_NAME" ValueProperty="MEASURE_UNIT_ID" AllowClear=true
-                                                    style="display: block; width: 100%" @bind-Value="@item.CIF_MEASURE_UNIT_ID" Name="CIF_MEASURE_UNIT_ID">
+                            <RadzenDropDownDataGrid Data="@MeasureUnits" TextProperty="MeasureUnitName" ValueProperty="MeasureUnitId" AllowClear=true
+                                                    style="display: block; width: 100%" @bind-Value="@Item.CifMeasureUnitId" Name="CifMeasureUnitId">
                                 <Columns>
-                                    <RadzenDropDownDataGridColumn Property="MEASURE_UNIT_NAME" Title="Nombre" />
+                                    <RadzenDropDownDataGridColumn Property="MeasureUnitName" Title="Nombre" />
                                 </Columns>
                             </RadzenDropDownDataGrid>
                         </ChildContent>
@@ -153,36 +160,33 @@
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Costo CIF" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenNumeric style="display: block; width: 100%" @bind-Value="@item.CIF_COST" Name="CIF_COST" />
+                            <RadzenNumeric style="display: block; width: 100%" @bind-Value="@Item.CifCost" Name="CifCost" />
                         </ChildContent>
-                        <Helper>
-                            <RadzenRequiredValidator Component="CIF_COST" DefaultValue="0" Text="Costo debe ser mayor a 0" />
-                        </Helper>
                     </RadzenFormField>
                 </RadzenColumn>
             </RadzenRow>
             <RadzenRow AlignItems="Radzen.AlignItems.Start">
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenRow style="margin-bottom: 1rem; width:100%">
-                        <RadzenCheckBox @bind-Value="@item.IS_EXTERNAL_INVENTORY" Name="IS_EXTERNAL_INVENTORY" />
-                        <RadzenLabel Text="Inventario externo" Component="IS_EXTERNAL_INVENTORY" />
+                        <RadzenCheckBox @bind-Value="@Item.IsExternalInventory" Name="IsExternalInventory" />
+                        <RadzenLabel Text="Inventario externo" Component="IsExternalInventory" />
                     </RadzenRow>
                 </RadzenColumn>
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenRow style="margin-bottom: 1rem; width:100%">
-                        <RadzenCheckBox @bind-Value="@item.IS_CATALOG_VISIBLE" Name="IS_CATALOG_VISIBLE" />
-                        <RadzenLabel Text="Visible en catálogo" Component="IS_CATALOG_VISIBLE" />
+                        <RadzenCheckBox @bind-Value="@Item.IsCatalogVisible" Name="IsCatalogVisible" />
+                        <RadzenLabel Text="Visible en catálogo" Component="IsCatalogVisible" />
                     </RadzenRow>
                 </RadzenColumn>
             </RadzenRow>
             <RadzenFormField Text="Notas" Variant="Variant.Text">
                 <ChildContent>
-                    <RadzenTextArea style="display: block; width: 100%" @bind-Value="@item.NOTES" Name="NOTES" Rows="3"></RadzenTextArea>
+                    <RadzenTextArea style="display: block; width: 100%" @bind-Value="@Item.Notes" Name="Notes" Rows="3"></RadzenTextArea>
                 </ChildContent>
             </RadzenFormField>
         </RadzenStack>
         <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
-            <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@isSubmitInProgress"/>
+            <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress"/>
             <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
         </RadzenStack>
     </RadzenTemplateForm>

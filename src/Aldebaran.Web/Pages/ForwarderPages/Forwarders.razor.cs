@@ -52,7 +52,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
             try
             {
                 IsLoadingInProgress = true;
-                await GetForwarders();
+                await GetForwardersAsync();
             }
             finally
             {
@@ -62,16 +62,16 @@ namespace Aldebaran.Web.Pages.ForwarderPages
         #endregion
 
         #region Events
-        protected async Task GetForwarders(string searchKey = null)
+        async Task GetForwardersAsync(string searchKey = null, CancellationToken ct = default)
         {
             await Task.Yield();
-            ForwardersList = string.IsNullOrEmpty(searchKey) ? await ForwarderService.GetAsync() : await ForwarderService.GetAsync(searchKey);
+            ForwardersList = string.IsNullOrEmpty(searchKey) ? await ForwarderService.GetAsync(ct) : await ForwarderService.GetAsync(searchKey, ct);
         }
         protected async Task Search(ChangeEventArgs args)
         {
             search = $"{args.Value}";
             await ForwardersDataGrid.GoToPage(0);
-            await GetForwarders(search);
+            await GetForwardersAsync(search);
         }
         protected async Task AddForwarder(MouseEventArgs args)
         {
@@ -81,7 +81,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
             {
                 DialogResult = new DialogResult { Success = true, Message = "Transportadora creada correctamente." };
             }
-            await GetForwarders();
+            await GetForwardersAsync();
             await ForwardersDataGrid.Reload();
         }
         protected async Task EditForwarder(ServiceModel.Forwarder args)
@@ -92,7 +92,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
             {
                 DialogResult = new DialogResult { Success = true, Message = "Transportadora actualizada correctamente." };
             }
-            await GetForwarders();
+            await GetForwardersAsync();
             await ForwardersDataGrid.Reload();
         }
         protected async Task DeleteForwarder(MouseEventArgs args, ServiceModel.Forwarder forwarder)
@@ -100,10 +100,10 @@ namespace Aldebaran.Web.Pages.ForwarderPages
             try
             {
                 DialogResult = null;
-                if (await DialogService.Confirm("Está seguro que desea eliminar esta transportadora?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }) == true)
+                if (await DialogService.Confirm("Está seguro que desea eliminar esta transportadora?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
                 {
                     await ForwarderService.DeleteAsync(forwarder.ForwarderId);
-                    await GetForwarders();
+                    await GetForwardersAsync();
                     DialogResult = new DialogResult { Success = true, Message = "Transportadora eliminada correctamente." };
                     await ForwardersDataGrid.Reload();
                 }
@@ -162,7 +162,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
             try
             {
                 DialogResult = null;
-                if (await DialogService.Confirm("Está seguro que desea eliminar este agente?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }) == true)
+                if (await DialogService.Confirm("Está seguro que desea eliminar este agente?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
                 {
                     await ForwarderAgentService.DeleteAsync(forwarderAgent.ForwarderAgentId);
                     await GetForwarderAgents(Forwarder);
@@ -213,7 +213,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
             try
             {
                 DialogResult = null;
-                if (await DialogService.Confirm("Está seguro que desea eliminar este método de envío?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }) == true)
+                if (await DialogService.Confirm("Está seguro que desea eliminar este método de envío?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
                 {
                     await ShipmentForwarderAgentMethodService.DeleteAsync(shipmentForwarderAgent.ShipmentForwarderAgentMethodId);
                     await GetShipmentForwarderAgentMethods(ForwarderAgent);

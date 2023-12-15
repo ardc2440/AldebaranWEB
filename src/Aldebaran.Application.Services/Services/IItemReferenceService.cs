@@ -1,5 +1,13 @@
-﻿namespace Aldebaran.Application.Services
-{
-    public interface IItemReferenceService { }
+﻿using Aldebaran.Application.Services.Models;
 
+namespace Aldebaran.Application.Services
+{
+    public interface IItemReferenceService
+    {
+        Task<ItemReference?> FindAsync(int itemReferenceId, CancellationToken ct = default);
+        Task<IEnumerable<ItemReference>> GetAsync(int itemId, CancellationToken ct = default);
+        Task AddAsync(ItemReference itemReference, CancellationToken ct = default);
+        Task UpdateAsync(int itemReferenceId, ItemReference itemReference, CancellationToken ct = default);
+        Task DeleteAsync(int itemReferenceId, CancellationToken ct = default);
+    }
 }

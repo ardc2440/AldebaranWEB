@@ -8,7 +8,6 @@ namespace Aldebaran.Web.Pages.ForwarderPages
 {
     public partial class EditForwarder : ComponentBase
     {
-
         #region Injections
         [Inject]
         protected DialogService DialogService { get; set; }
