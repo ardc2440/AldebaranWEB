@@ -241,29 +241,6 @@ namespace Aldebaran.Web
 
         partial void OnAdjustmentReasonsRead(ref IQueryable<AdjustmentReason> items);
 
-        public async Task<IQueryable<AdjustmentReason>> GetAdjustmentReasons(Query query = null)
-        {
-            var items = Context.AdjustmentReasons.AsQueryable();
-
-            if (query != null)
-            {
-                if (!string.IsNullOrEmpty(query.Expand))
-                {
-                    var propertiesToExpand = query.Expand.Split(',');
-                    foreach (var p in propertiesToExpand)
-                    {
-                        items = items.Include(p.Trim());
-                    }
-                }
-
-                ApplyQuery(ref items, query);
-            }
-
-            OnAdjustmentReasonsRead(ref items);
-
-            return await Task.FromResult(items);
-        }
-
         partial void OnActivityTypeGet(ActivityType item);
         partial void OnGetActivityTypeByActivityTypeId(ref IQueryable<ActivityType> items);
 
@@ -415,29 +392,6 @@ namespace Aldebaran.Web
         }
 
         partial void OnAdjustmentTypesRead(ref IQueryable<AdjustmentType> items);
-
-        public async Task<IQueryable<AdjustmentType>> GetAdjustmentTypes(Query query = null)
-        {
-            var items = Context.AdjustmentTypes.AsQueryable();
-
-            if (query != null)
-            {
-                if (!string.IsNullOrEmpty(query.Expand))
-                {
-                    var propertiesToExpand = query.Expand.Split(',');
-                    foreach (var p in propertiesToExpand)
-                    {
-                        items = items.Include(p.Trim());
-                    }
-                }
-
-                ApplyQuery(ref items, query);
-            }
-
-            OnAdjustmentTypesRead(ref items);
-
-            return await Task.FromResult(items);
-        }
 
         partial void OnAdjustmentTypeGet(AdjustmentType item);
         partial void OnGetAdjustmentTypeByAdjustmentTypeId(ref IQueryable<AdjustmentType> items);

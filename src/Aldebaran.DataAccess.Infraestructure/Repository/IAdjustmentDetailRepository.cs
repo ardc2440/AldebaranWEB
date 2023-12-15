@@ -1,5 +1,10 @@
-﻿namespace Aldebaran.DataAccess.Infraestructure.Repository
+﻿using Aldebaran.DataAccess.Entities;
+
+namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
-    public interface IAdjustmentDetailRepository { }
+    public interface IAdjustmentDetailRepository
+    {
+        Task<IEnumerable<AdjustmentDetail>> GetAsync(string filter, CancellationToken ct = default);
+    }
 
 }

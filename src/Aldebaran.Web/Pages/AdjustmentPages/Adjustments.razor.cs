@@ -1,8 +1,8 @@
+using Aldebaran.Application.Services;
+using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Models;
-using Aldebaran.Web.Models.AldebaranDb;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
 using Radzen;
 using Radzen.Blazor;
 
@@ -10,8 +10,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 {
     public partial class Adjustments
     {
-        [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
+        #region Injections
 
         [Inject]
         protected NavigationManager NavigationManager { get; set; }
@@ -20,23 +19,30 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected TooltipService TooltipService { get; set; }
-
-        [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
-
-        [Inject]
         protected NotificationService NotificationService { get; set; }
 
         [Inject]
-        public AldebaranDbService AldebaranDbService { get; set; }
+        protected IDocumentTypeService DocumentTypeService { get; set; }
+
+        [Inject]
+        protected IAdjustmentService AdjustmentService { get; set; }
+
+        [Inject]
+        protected IStatusDocumentTypeService StatusDocumentTypeService { get; set; }
+
+        [Inject]
+        protected IAdjustmentDetailService AdjustmentDetailService { get; set; }
 
         [Inject]
         protected SecurityService Security { get; set; }
 
-        protected IEnumerable<Models.AldebaranDb.Adjustment> adjustments;
+        #endregion
 
-        protected RadzenDataGrid<Models.AldebaranDb.Adjustment> grid0;
+        #region Global Variables
+
+        protected IEnumerable<Adjustment> adjustments;
+
+        protected RadzenDataGrid<Adjustment> grid0;
 
         protected DialogResult dialogResult { get; set; }
 
@@ -46,16 +52,13 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected DocumentType documentType;
 
-        protected async Task Search(ChangeEventArgs args)
-        {
+        protected Adjustment adjustment;
 
-            search = $"{args.Value}";
+        protected RadzenDataGrid<AdjustmentDetail> AdjustmentDetailsDataGrid;
 
-            await grid0.GoToPage(0);
+        #endregion
 
-            adjustments = await AldebaranDbService.GetAdjustments(new Query { Filter = $@"I => i.AdjustmentReason.ADJUSTMENT_REASON_NAME.Contains(@0) || i.AdjustmentType.ADJUSTMENT_TYPE_NAME.Contains(@0) || i.NOTES.Contains(@0)", FilterParameters = new object[] { search }, Expand = "AdjustmentReason,AdjustmentType,Employee" });
-
-        }
+        #region Overrides
 
         protected override async Task OnInitializedAsync()
         {
@@ -65,9 +68,9 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
                 await Task.Yield();
 
-                documentType = await AldebaranDbService.GetDocumentTypeByCode("A");
+                documentType = await DocumentTypeService.FindByCodeAsync("A");
 
-                adjustments = await AldebaranDbService.GetAdjustments(new Query { Filter = $@"i => i.AdjustmentReason.ADJUSTMENT_REASON_NAME.Contains(@0) || i.AdjustmentType.ADJUSTMENT_TYPE_NAME.Contains(@0) || i.NOTES.Contains(@0)", FilterParameters = new object[] { search }, Expand = "AdjustmentReason,AdjustmentType,Employee,StatusDocumentType.DocumentType" });
+                adjustments = await AdjustmentService.GetAsync($"i => i.AdjustmentReason.ADJUSTMENT_REASON_NAME.Contains({search}) || i.AdjustmentType.ADJUSTMENT_TYPE_NAME.Contains({search}) || i.NOTES.Contains({search})");
             }
             finally
             {
@@ -76,22 +79,37 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         }
 
+        #endregion
+
+        #region Events
+
+        protected async Task Search(ChangeEventArgs args)
+        {
+
+            search = $"{args.Value}";
+
+            await grid0.GoToPage(0);
+
+            adjustments = await AdjustmentService.GetAsync($"i => i.AdjustmentReason.ADJUSTMENT_REASON_NAME.Contains({search}) || i.AdjustmentType.ADJUSTMENT_TYPE_NAME.Contains({search}) || i.NOTES.Contains({search})");
+
+        }
+
         protected async Task AddButtonClick(MouseEventArgs args)
         {
             NavigationManager.NavigateTo("add-adjustment");
         }
 
-        protected async Task EditRow(Models.AldebaranDb.Adjustment args)
+        protected async Task EditRow(Adjustment args)
         {
-            NavigationManager.NavigateTo("edit-adjustment/" + args.ADJUSTMENT_ID);
+            NavigationManager.NavigateTo("edit-adjustment/" + args.AdjustmentId);
         }
 
         protected bool CanEdit(Adjustment args)
         {
-            return Security.IsInRole("Admin", "Adjustment Editor") && args.StatusDocumentType.EDIT_MODE;
+            return Security.IsInRole("Admin", "Adjustment Editor") && args.StatusDocumentType.EditMode;
         }
 
-        protected async Task GridCancelButtonClick(MouseEventArgs args, Models.AldebaranDb.Adjustment adjustment)
+        protected async Task GridCancelButtonClick(MouseEventArgs args, Adjustment adjustment)
         {
             try
             {
@@ -99,17 +117,14 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
                 if (await DialogService.Confirm("Esta seguro que desea cancelar este ajuste?") == true)
                 {
-                    var statusCanceled = await AldebaranDbService.GetStatusDocumentTypeByDocumentAndOrder(documentType, 2);
-                    var deleteResult = await AldebaranDbService.CancelAdjustment(adjustment, statusCanceled.STATUS_DOCUMENT_TYPE_ID);
+                    adjustment.StatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 2);
 
-                    if (deleteResult != null)
-                    {
-                        adjustment.StatusDocumentType = statusCanceled;
-                        adjustment.STATUS_DOCUMENT_TYPE_ID = adjustment.StatusDocumentType.STATUS_DOCUMENT_TYPE_ID;
+                    adjustment.StatusDocumentTypeId = adjustment.StatusDocumentType.StatusDocumentTypeId;
 
-                        dialogResult = new DialogResult { Success = true, Message = "Ajuste eliminado correctamente." };
-                        await grid0.Reload();
-                    }
+                    await AdjustmentService.UpdateAsync(adjustment.AdjustmentId, adjustment);
+
+                    dialogResult = new DialogResult { Success = true, Message = "Ajuste eliminado correctamente." };
+                    await grid0.Reload();
                 }
             }
             catch (Exception ex)
@@ -123,19 +138,17 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
             }
         }
 
-        protected Models.AldebaranDb.Adjustment adjustment;
-
-        protected async Task GetChildData(Models.AldebaranDb.Adjustment args)
+        protected async Task GetChildData(Adjustment args)
         {
             adjustment = args;
-            var AdjustmentDetailsResult = await AldebaranDbService.GetAdjustmentDetails(new Query { Filter = $@"i => i.ADJUSTMENT_ID == {args.ADJUSTMENT_ID}", Expand = "Adjustment,ItemReference,Warehouse, ItemReference.Item" });
+            var AdjustmentDetailsResult = await AdjustmentDetailService.GetAsync($@"i => i.AdjustmentId == {args.AdjustmentId}");
             if (AdjustmentDetailsResult != null)
             {
                 args.AdjustmentDetails = AdjustmentDetailsResult.ToList();
             }
         }
 
-        protected RadzenDataGrid<Models.AldebaranDb.AdjustmentDetail> AdjustmentDetailsDataGrid;
+        #endregion
 
     }
 }

@@ -1,7 +1,7 @@
-using Aldebaran.Web.Models.AldebaranDb;
+using Aldebaran.Application.Services;
+using Aldebaran.Application.Services.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
 using Radzen;
 using Radzen.Blazor;
 
@@ -9,8 +9,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 {
     public partial class AddAdjustment
     {
-        [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
+        #region Injections
 
         [Inject]
         protected NavigationManager NavigationManager { get; set; }
@@ -19,16 +18,36 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected TooltipService TooltipService { get; set; }
+        public IAdjustmentReasonService AdjustmentReasonService { get; set; }
 
         [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
+        public IAdjustmentTypeService AdjustmentTypeService { get; set; }
 
         [Inject]
-        protected NotificationService NotificationService { get; set; }
+        public IDocumentTypeService DocumentTypeService { get; set; }
 
         [Inject]
-        public AldebaranDbService AldebaranDbService { get; set; }
+        public IStatusDocumentTypeService StatusDocumentTypeService { get; set; }
+
+        [Inject]
+        public IEmployeeService EmployeeService { get; set; }
+
+        [Inject]
+        protected SecurityService Security { get; set; }
+
+        [Inject]
+        public IAdjustmentService AdjustmentService { get; set; }
+
+        #endregion
+
+        #region Parameters
+
+        [Parameter]
+        public string pAdjustmentId { get; set; } = "NoParamInput";
+
+        #endregion
+
+        #region Global Variables
 
         protected DateTime Now { get; set; }
 
@@ -38,11 +57,11 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected Adjustment adjustment;
 
-        protected IEnumerable<Models.AldebaranDb.AdjustmentReason> adjustmentReasonsForADJUSTMENTREASONID;
+        protected IEnumerable<AdjustmentReason> adjustmentReasonsForADJUSTMENTREASONID;
 
-        protected IEnumerable<Models.AldebaranDb.AdjustmentType> adjustmentTypesForADJUSTMENTTYPEID;
+        protected IEnumerable<AdjustmentType> adjustmentTypesForADJUSTMENTTYPEID;
 
-        protected IEnumerable<Models.AldebaranDb.Employee> employeesForEMPLOYEEID;
+        protected IEnumerable<Employee> employeesForEMPLOYEEID;
 
         protected ICollection<AdjustmentDetail> adjustmentDetails;
 
@@ -52,17 +71,15 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected DocumentType documentType;
 
-        [Inject]
-        protected SecurityService Security { get; set; }
+        #endregion
 
-        [Parameter]
-        public string pAdjustmentId { get; set; } = "NoParamInput";
+        #region Overrides
 
         protected override async Task OnInitializedAsync()
         {
-            adjustmentReasonsForADJUSTMENTREASONID = await AldebaranDbService.GetAdjustmentReasons();
+            adjustmentReasonsForADJUSTMENTREASONID = await AdjustmentReasonService.GetAsync();
 
-            adjustmentTypesForADJUSTMENTTYPEID = await AldebaranDbService.GetAdjustmentTypes();
+            adjustmentTypesForADJUSTMENTTYPEID = await AdjustmentTypeService.GetAsync();
 
             Now = DateTime.UtcNow.AddDays(-1);
 
@@ -72,16 +89,20 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
             int.TryParse(pAdjustmentId, out adjustmentId);
 
-            adjustment = new Adjustment();
+            adjustment = new Adjustment() { AdjustmentReason = null, AdjustmentType = null, Employee = null, StatusDocumentType = null };
 
-            documentType = await AldebaranDbService.GetDocumentTypeByCode("A");
-            adjustment.Employee = await AldebaranDbService.GetLoggedEmployee(Security);
-            adjustment.EMPLOYEE_ID = adjustment.Employee.EMPLOYEE_ID;
+            documentType = await DocumentTypeService.FindByCodeAsync("A");
 
-            adjustment.StatusDocumentType = await AldebaranDbService.GetStatusDocumentTypeByDocumentAndOrder(documentType, 1);
-            adjustment.STATUS_DOCUMENT_TYPE_ID = adjustment.StatusDocumentType.STATUS_DOCUMENT_TYPE_ID;
+            adjustment.StatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 1);
+            adjustment.StatusDocumentTypeId = adjustment.StatusDocumentType.StatusDocumentTypeId;
+
+            adjustment.Employee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id);
+            adjustment.EmployeeId = adjustment.Employee.EmployeeId;
+
         }
+        #endregion
 
+        #region Events
         protected async Task FormSubmit()
         {
             try
@@ -91,7 +112,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
                     throw new Exception("No ha ingresado ninguna referencia");
 
                 adjustment.AdjustmentDetails = adjustmentDetails;
-                await AldebaranDbService.CreateAdjustment(adjustment);
+                await AdjustmentService.AddAsync(adjustment);
                 await DialogService.Alert("Ajuste Guardado Satisfactoriamente", "Información");
                 NavigationManager.NavigateTo("adjustments");
             }
@@ -145,5 +166,6 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
             await adjustmentDetailGrid.Reload();
         }
+        #endregion
     }
 }

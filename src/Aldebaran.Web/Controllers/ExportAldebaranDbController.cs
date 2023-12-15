@@ -1,3 +1,4 @@
+using Aldebaran.Application.Services;
 using Aldebaran.Web.Data;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,6 +8,8 @@ namespace Aldebaran.Web.Controllers
     {
         private readonly AldebaranDbContext context;
         private readonly AldebaranDbService service;
+        private readonly IAdjustmentReasonService AdjustmentReasonService;
+        private readonly IAdjustmentTypeService AdjustmentTypeService;
 
         public ExportAldebaranDbController(AldebaranDbContext context, AldebaranDbService service)
         {
@@ -32,28 +35,28 @@ namespace Aldebaran.Web.Controllers
         [HttpGet("/export/AldebaranDb/adjustmentreasons/csv(fileName='{fileName}')")]
         public async Task<FileStreamResult> ExportAdjustmentReasonsToCSV(string fileName = null)
         {
-            return ToCSV(ApplyQuery(await service.GetAdjustmentReasons(), Request.Query), fileName);
+            return ToCSV((IQueryable)await AdjustmentReasonService.GetAsync(), fileName);
         }
 
         [HttpGet("/export/AldebaranDb/adjustmentreasons/excel")]
         [HttpGet("/export/AldebaranDb/adjustmentreasons/excel(fileName='{fileName}')")]
         public async Task<FileStreamResult> ExportAdjustmentReasonsToExcel(string fileName = null)
         {
-            return ToExcel(ApplyQuery(await service.GetAdjustmentReasons(), Request.Query), fileName);
+            return ToCSV((IQueryable)await AdjustmentReasonService.GetAsync(), fileName);
         }
 
         [HttpGet("/export/AldebaranDb/adjustmenttypes/csv")]
         [HttpGet("/export/AldebaranDb/adjustmenttypes/csv(fileName='{fileName}')")]
         public async Task<FileStreamResult> ExportAdjustmentTypesToCSV(string fileName = null)
         {
-            return ToCSV(ApplyQuery(await service.GetAdjustmentTypes(), Request.Query), fileName);
+            return ToCSV((IQueryable)await AdjustmentTypeService.GetAsync(), fileName);
         }
 
         [HttpGet("/export/AldebaranDb/adjustmenttypes/excel")]
         [HttpGet("/export/AldebaranDb/adjustmenttypes/excel(fileName='{fileName}')")]
         public async Task<FileStreamResult> ExportAdjustmentTypesToExcel(string fileName = null)
         {
-            return ToExcel(ApplyQuery(await service.GetAdjustmentTypes(), Request.Query), fileName);
+            return ToCSV((IQueryable)await AdjustmentTypeService.GetAsync(), fileName);
         }
 
         [HttpGet("/export/AldebaranDb/adjustments/csv")]

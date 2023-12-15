@@ -1,4 +1,4 @@
-using Aldebaran.Web.Models.AldebaranDb;
+using Aldebaran.Application.Services.Models;
 using Microsoft.AspNetCore.Components;
 using Radzen;
 
@@ -8,32 +8,62 @@ namespace Aldebaran.Web.Shared
     {
 
         #region Parameters
-        [Parameter]
-        public bool ReadOnly { get; set; } = false;
-        [Parameter]
-        public int? REFERENCE_ID { get; set; }
+
         [Parameter]
         public EventCallback<ItemReference> OnChange { get; set; }
         [Parameter]
         public IEnumerable<ItemReference> References { get; set; } = new List<ItemReference>();
+        [Parameter]
+        public short? LINE_ID { get; set; }
+        [Parameter]
+        public int? ITEM_ID { get; set; }
+        [Parameter]
+        public bool ReadOnly { get; set; } = false;
+        [Parameter]
+        public int? REFERENCE_ID { get; set; }
+
         #endregion
 
-        #region Variables
+        #region Global Variables
+
         protected IEnumerable<Line> lines;
         protected Line line;
         protected IEnumerable<Item> items;
         protected Item item;
         protected IEnumerable<ItemReference> itemReferences;
         protected ItemReference itemReference;
-        public short? LINE_ID { get; set; }
-        public int? ITEM_ID { get; set; }
+        protected bool CollapsedPanel { get; set; } = true;
+
         #endregion
+
+        #region Overrides
 
         protected override async Task OnInitializedAsync()
         {
             lines = References.Select(s => s.Item.Line).Distinct();
         }
-        protected bool CollapsedPanel { get; set; } = true;
+
+        public override async Task SetParametersAsync(ParameterView parameters)
+        {
+            await base.SetParametersAsync(parameters);
+            if (REFERENCE_ID == null)
+                return;
+            var selectedReference = References.Where(w => w.ReferenceId == REFERENCE_ID).FirstOrDefault();
+            if (selectedReference == null)
+                return;
+            itemReference = selectedReference;
+            LINE_ID = itemReference.Item.LineId;
+            await OnLineChange(LINE_ID);
+            line = itemReference.Item.Line;
+            ITEM_ID = itemReference.ItemId;
+            await OnItemChange(ITEM_ID);
+            item = itemReference.Item;
+        }
+
+        #endregion
+
+        #region Events
+
         protected async Task OnLineChange(object lineId)
         {
             if (lineId == null)
@@ -43,8 +73,8 @@ namespace Aldebaran.Web.Shared
                 await CleanReferences();
                 return;
             }
-            line = lines.Single(s => s.LINE_ID == (short)lineId);
-            items = References.Where(w => w.Item.LINE_ID == (short)lineId).Select(s => s.Item).Distinct();
+            line = lines.Single(s => s.LineId == (short)lineId);
+            items = References.Where(w => w.Item.LineId == (short)lineId).Select(s => s.Item).Distinct();
         }
 
         protected async Task OnItemChange(object itemId)
@@ -55,9 +85,10 @@ namespace Aldebaran.Web.Shared
                 await CleanReferences();
                 return;
             }
-            item = items.Single(s => s.ITEM_ID == (int)itemId);
-            itemReferences = References.Where(w => w.ITEM_ID == (int)itemId).Select(s => s);
+            item = items.Single(s => s.ItemId == (int)itemId);
+            itemReferences = References.Where(w => w.ItemId == (int)itemId).Select(s => s);
         }
+
         protected async Task OnReferenceChange(object referenceId)
         {
             if (referenceId == null)
@@ -66,14 +97,16 @@ namespace Aldebaran.Web.Shared
                 await OnChange.InvokeAsync(null);
                 return;
             }
-            itemReference = itemReferences.Single(s => s.REFERENCE_ID == (int)referenceId);
+            itemReference = itemReferences.Single(s => s.ReferenceId == (int)referenceId);
             CollapsedPanel = true;
             await OnChange.InvokeAsync(itemReference);
         }
+
         protected async Task PanelCollapseToggle(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
             CollapsedPanel = !CollapsedPanel;
         }
+
         void PanelCollapseChange(string Command)
         {
             if (Command == "Expand")
@@ -81,11 +114,13 @@ namespace Aldebaran.Web.Shared
             if (Command == "Collapse")
                 CollapsedPanel = true;
         }
+
         void CleanItems()
         {
             item = null;
             items = null;
         }
+
         async Task CleanReferences()
         {
             REFERENCE_ID = null;
@@ -93,21 +128,7 @@ namespace Aldebaran.Web.Shared
             itemReferences = null;
             await OnChange.InvokeAsync(null);
         }
-        public override async Task SetParametersAsync(ParameterView parameters)
-        {
-            await base.SetParametersAsync(parameters);
-            if (REFERENCE_ID == null)
-                return;
-            var selectedReference = References.Where(w => w.REFERENCE_ID == REFERENCE_ID).FirstOrDefault();
-            if (selectedReference == null)
-                return;
-            itemReference = selectedReference;
-            LINE_ID = itemReference.Item.LINE_ID;
-            await OnLineChange(LINE_ID);
-            line = itemReference.Item.Line;
-            ITEM_ID = itemReference.ITEM_ID;
-            await OnItemChange(ITEM_ID);
-            item = itemReference.Item;
-        }
+
+        #endregion
     }
 }

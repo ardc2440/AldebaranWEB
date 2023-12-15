@@ -1,5 +1,7 @@
-﻿using Aldebaran.DataAccess.Infraestructure.Repository;
+﻿using Aldebaran.Application.Services.Models;
+using Aldebaran.DataAccess.Infraestructure.Repository;
 using AutoMapper;
+using Entities = Aldebaran.DataAccess.Entities;
 
 namespace Aldebaran.Application.Services
 {
@@ -12,6 +14,41 @@ namespace Aldebaran.Application.Services
             _repository = repository ?? throw new ArgumentNullException(nameof(IAdjustmentRepository));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(IMapper));
         }
-    }
 
+        public async Task AddAsync(Adjustment adjustment, CancellationToken ct = default)
+        {
+            var entity = _mapper.Map<Entities.Adjustment>(adjustment) ?? throw new ArgumentNullException("Ajuste no puede ser nulo.");
+            await _repository.AddAsync(entity, ct);
+        }
+
+        public async Task DeleteAsync(int adjustmentId, CancellationToken ct = default)
+        {
+            await _repository.DeleteAsync(adjustmentId, ct);
+        }
+
+        public async Task<Adjustment?> FindAsync(int adjustmentId, CancellationToken ct = default)
+        {
+            var data = await _repository.FindAsync(adjustmentId, ct);
+            return _mapper.Map<Adjustment?>(data);
+        }
+
+        public async Task<IEnumerable<Adjustment>> GetAsync(CancellationToken ct = default)
+        {
+            var data = await _repository.GetAsync(ct);
+            return _mapper.Map<List<Adjustment>>(data);
+        }
+
+        public async Task<IEnumerable<Adjustment>> GetAsync(string filter, CancellationToken ct = default)
+        {
+            var data = await _repository.GetAsync(filter, ct);
+            return _mapper.Map<List<Adjustment>>(data);
+        }
+
+        public async Task UpdateAsync(int adjustmentId, Adjustment adjustment, CancellationToken ct = default)
+        {
+            var entity = _mapper.Map<Entities.Adjustment>(adjustment) ?? throw new ArgumentNullException("Ajuste no puede ser nulo.");
+            await _repository.UpdateAsync(adjustmentId, entity, ct);
+        }
+
+    }
 }

@@ -1,5 +1,10 @@
-﻿namespace Aldebaran.Application.Services
+﻿using Aldebaran.Application.Services.Models;
+
+namespace Aldebaran.Application.Services
 {
-    public interface IAdjustmentDetailService { }
+    public interface IAdjustmentDetailService
+    {
+        Task<IEnumerable<AdjustmentDetail>> GetAsync(string filter, CancellationToken ct = default);
+    }
 
 }

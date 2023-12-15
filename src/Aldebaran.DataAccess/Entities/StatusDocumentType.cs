@@ -9,6 +9,7 @@ namespace Aldebaran.DataAccess.Entities
         public bool EditMode { get; set; }
         public short StatusOrder { get; set; }
         // Reverse navigation
+        public ICollection<Adjustment> Adjustments { get; set; }
         public ICollection<CustomerOrder> CustomerOrders { get; set; }
         public ICollection<CustomerReservation> CustomerReservations { get; set; }
         public ICollection<PurchaseOrder> PurchaseOrders { get; set; }
@@ -16,6 +17,7 @@ namespace Aldebaran.DataAccess.Entities
         public StatusDocumentType()
         {
             EditMode = true;
+            Adjustments = new List<Adjustment>();
             CustomerOrders = new List<CustomerOrder>();
             CustomerReservations = new List<CustomerReservation>();
             PurchaseOrders = new List<PurchaseOrder>();

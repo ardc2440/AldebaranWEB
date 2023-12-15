@@ -15,10 +15,13 @@ namespace Aldebaran.DataAccess.Entities
             builder.Property(x => x.EmployeeId).HasColumnName(@"EMPLOYEE_ID").HasColumnType("int").IsRequired();
             builder.Property(x => x.Notes).HasColumnName(@"NOTES").HasColumnType("varchar(250)").IsRequired(false).IsUnicode(false).HasMaxLength(250);
             builder.Property(x => x.CreationDate).HasColumnName(@"CREATION_DATE").HasColumnType("datetime").IsRequired();
+            builder.Property(x => x.StatusDocumentTypeId).HasColumnName(@"STATUS_DOCUMENT_TYPE_ID").HasColumnType("smallint").IsRequired();
+
             // Foreign keys
             builder.HasOne(a => a.AdjustmentReason).WithMany(b => b.Adjustments).HasForeignKey(c => c.AdjustmentReasonId).OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_ADJUSTMENT_ADJUSTMENT_RESON");
             builder.HasOne(a => a.AdjustmentType).WithMany(b => b.Adjustments).HasForeignKey(c => c.AdjustmentTypeId).OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_ADJUSTMENT_ADJUSTMENT_TYPE");
             builder.HasOne(a => a.Employee).WithMany(b => b.Adjustments).HasForeignKey(c => c.EmployeeId).OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_ADJUSTMENT_EMPLOYEE");
+            builder.HasOne(a => a.StatusDocumentType).WithMany(b => b.Adjustments).HasForeignKey(c => c.StatusDocumentTypeId).OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_ADJUSTMENT_STATUS_DOCUMENT_TYPE");
         }
     }
 }

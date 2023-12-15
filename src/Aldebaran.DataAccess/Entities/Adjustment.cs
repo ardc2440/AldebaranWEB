@@ -9,11 +9,15 @@ namespace Aldebaran.DataAccess.Entities
         public int EmployeeId { get; set; }
         public string Notes { get; set; }
         public DateTime CreationDate { get; set; }
+        public short StatusDocumentTypeId { get; set; }
+
         // Reverse navigation
         public ICollection<AdjustmentDetail> AdjustmentDetails { get; set; }
         public AdjustmentReason AdjustmentReason { get; set; }
         public AdjustmentType AdjustmentType { get; set; }
         public Employee Employee { get; set; }
+        public StatusDocumentType StatusDocumentType { get; set; }
+
         public Adjustment()
         {
             AdjustmentDate = DateTime.Now;

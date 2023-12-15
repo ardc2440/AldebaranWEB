@@ -9,6 +9,7 @@ namespace Aldebaran.Application.Services.Models
         public bool EditMode { get; set; }
         public short StatusOrder { get; set; }
         // Reverse navigation
+        public ICollection<Adjustment> Adjustments { get; set; }
         public ICollection<CustomerOrder> CustomerOrders { get; set; }
         public ICollection<CustomerReservation> CustomerReservations { get; set; }
         public ICollection<PurchaseOrder> PurchaseOrders { get; set; }

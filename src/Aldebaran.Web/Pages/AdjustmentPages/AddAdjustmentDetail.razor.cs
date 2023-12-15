@@ -1,33 +1,50 @@
-using Aldebaran.Web.Models.AldebaranDb;
+using Aldebaran.Application.Services;
+using Aldebaran.Application.Services.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
 using Radzen;
 
 namespace Aldebaran.Web.Pages.AdjustmentPages
 {
     public partial class AddAdjustmentDetail
     {
-        [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
-
-        [Inject]
-        protected NavigationManager NavigationManager { get; set; }
+        #region Injections
 
         [Inject]
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected TooltipService TooltipService { get; set; }
+        public IAdjustmentDetailService AdjustmentDetailService { get; set; }
 
         [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
+        public IItemReferenceService ItemReferenceService { get; set; }
 
         [Inject]
-        protected NotificationService NotificationService { get; set; }
+        public IWarehouseService WarehouseService { get; set; }
 
-        [Inject]
-        public AldebaranDbService AldebaranDbService { get; set; }
+        #endregion
+
+        #region Parameters
+
+        [Parameter]
+        public ICollection<AdjustmentDetail> adjustmentDetails { get; set; }
+
+        [Parameter]
+        public int ADJUSTMENT_ID { get; set; }
+
+        bool hasREFERENCE_IDValue;
+
+        [Parameter]
+        public int REFERENCE_ID { get; set; }
+
+        bool hasWAREHOUSE_IDValue;
+
+        [Parameter]
+        public short WAREHOUSE_ID { get; set; }
+
+        #endregion
+
+        #region Global Variables
 
         protected bool errorVisible;
 
@@ -35,29 +52,60 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected AdjustmentDetail adjustmentDetail;
 
-        protected IEnumerable<Adjustment> adjustmentsForADJUSTMENTID;
-
         protected IEnumerable<ItemReference> itemReferencesForREFERENCEID;
 
         protected IEnumerable<Warehouse> warehousesForWAREHOUSEID;
-
-        [Parameter]
-        public ICollection<AdjustmentDetail> adjustmentDetails { get; set; }
 
         public ICollection<ItemReference> references;
 
         protected bool isSubmitInProgress;
 
+        bool hasADJUSTMENT_IDValue;
+
+        #endregion
+
+        #region Overrides
+
         protected override async Task OnInitializedAsync()
         {
-            adjustmentsForADJUSTMENTID = await AldebaranDbService.GetAdjustments();
 
-            itemReferencesForREFERENCEID = await AldebaranDbService.GetItemReferences(new Query { Filter = "i => i.IS_ACTIVE && i.Item.IS_ACTIVE", Expand = "Item.Line" });
+            itemReferencesForREFERENCEID = await ItemReferenceService.GetAsync("i => i.IS_ACTIVE && i.Item.IS_ACTIVE");
 
-            warehousesForWAREHOUSEID = await AldebaranDbService.GetWarehouses();
+            warehousesForWAREHOUSEID = await WarehouseService.GetAsync();
 
-            adjustmentDetail.QUANTITY = 1;
+            adjustmentDetail.Quantity = 0;
         }
+
+        public override async Task SetParametersAsync(ParameterView parameters)
+        {
+            adjustmentDetail = new AdjustmentDetail() { Adjustment = null, ItemReference = null, Warehouse = null };
+
+            hasADJUSTMENT_IDValue = parameters.TryGetValue<int>("ADJUSTMENT_ID", out var hasADJUSTMENT_IDResult);
+
+            if (hasADJUSTMENT_IDValue)
+            {
+                adjustmentDetail.AdjustmentId = hasADJUSTMENT_IDResult;
+            }
+
+            hasREFERENCE_IDValue = parameters.TryGetValue<int>("REFERENCE_ID", out var hasREFERENCE_IDResult);
+
+            if (hasREFERENCE_IDValue)
+            {
+                adjustmentDetail.ReferenceId = hasREFERENCE_IDResult;
+            }
+
+            hasWAREHOUSE_IDValue = parameters.TryGetValue<short>("WAREHOUSE_ID", out var hasWAREHOUSE_IDResult);
+
+            if (hasWAREHOUSE_IDValue)
+            {
+                adjustmentDetail.WarehouseId = hasWAREHOUSE_IDResult;
+            }
+            await base.SetParametersAsync(parameters);
+        }
+
+        #endregion
+
+        #region Events
 
         protected async Task FormSubmit()
         {
@@ -66,12 +114,15 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
                 errorVisible = false;
                 isSubmitInProgress = true;
 
-                if (adjustmentDetails.Any(ad => ad.REFERENCE_ID.Equals(adjustmentDetail.REFERENCE_ID) && ad.WAREHOUSE_ID.Equals(adjustmentDetail.WAREHOUSE_ID)))
+                if (adjustmentDetails.Any(ad => ad.ReferenceId.Equals(adjustmentDetail.ReferenceId) && ad.WarehouseId.Equals(adjustmentDetail.WarehouseId)))
                     throw new Exception("La Referencia y Bodega seleccionadas, ya existen dentro de este ajuste.");
 
-                adjustmentDetail.Warehouse = await AldebaranDbService.GetWarehouseByWarehouseId(adjustmentDetail.WAREHOUSE_ID);
-                var reference = await AldebaranDbService.GetItemReferences(new Query { Filter = "i=> i.REFERENCE_ID==@0", FilterParameters = new object[] { adjustmentDetail.REFERENCE_ID }, Expand = "Item" });
+                adjustmentDetail.Warehouse = await WarehouseService.FindAsync(adjustmentDetail.WarehouseId);
+
+                var reference = await ItemReferenceService.GetAsync($"i=> i.REFERENCE_ID=={adjustmentDetail.ReferenceId}");
+
                 adjustmentDetail.ItemReference = reference.Single();
+
                 DialogService.Close(adjustmentDetail);
             }
             catch (Exception ex)
@@ -90,54 +141,11 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
             DialogService.Close(null);
         }
 
-        bool hasADJUSTMENT_IDValue;
-
-        [Parameter]
-        public int ADJUSTMENT_ID { get; set; }
-
-        bool hasREFERENCE_IDValue;
-
-        [Parameter]
-        public int REFERENCE_ID { get; set; }
-
-        bool hasWAREHOUSE_IDValue;
-
-        [Parameter]
-        public short WAREHOUSE_ID { get; set; }
-
-        [Inject]
-        protected SecurityService Security { get; set; }
-
-        public override async Task SetParametersAsync(ParameterView parameters)
-        {
-            adjustmentDetail = new AdjustmentDetail();
-
-            hasADJUSTMENT_IDValue = parameters.TryGetValue<int>("ADJUSTMENT_ID", out var hasADJUSTMENT_IDResult);
-
-            if (hasADJUSTMENT_IDValue)
-            {
-                adjustmentDetail.ADJUSTMENT_ID = hasADJUSTMENT_IDResult;
-            }
-
-            hasREFERENCE_IDValue = parameters.TryGetValue<int>("REFERENCE_ID", out var hasREFERENCE_IDResult);
-
-            if (hasREFERENCE_IDValue)
-            {
-                adjustmentDetail.REFERENCE_ID = hasREFERENCE_IDResult;
-            }
-
-            hasWAREHOUSE_IDValue = parameters.TryGetValue<short>("WAREHOUSE_ID", out var hasWAREHOUSE_IDResult);
-
-            if (hasWAREHOUSE_IDValue)
-            {
-                adjustmentDetail.WAREHOUSE_ID = hasWAREHOUSE_IDResult;
-            }
-            await base.SetParametersAsync(parameters);
-        }
-
         protected async Task ItemReferenceHandler(ItemReference reference)
         {
-            adjustmentDetail.REFERENCE_ID = reference?.REFERENCE_ID ?? 0;
+            adjustmentDetail.ReferenceId = reference?.ReferenceId ?? 0;
         }
+
+        #endregion
     }
 }

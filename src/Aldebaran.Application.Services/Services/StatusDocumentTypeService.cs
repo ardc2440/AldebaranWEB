@@ -1,4 +1,5 @@
-﻿using Aldebaran.DataAccess.Infraestructure.Repository;
+﻿using Aldebaran.Application.Services.Models;
+using Aldebaran.DataAccess.Infraestructure.Repository;
 using AutoMapper;
 
 namespace Aldebaran.Application.Services
@@ -11,6 +12,13 @@ namespace Aldebaran.Application.Services
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(IStatusDocumentTypeRepository));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(IMapper));
+        }
+
+        public async Task<StatusDocumentType?> FindByDocumentAndOrderAsync(int documentTypeId, int order, CancellationToken ct = default)
+        {
+            var data = await _repository.FindByDocumentAndOrderAsync(documentTypeId, order, ct);
+            return _mapper.Map<StatusDocumentType?>(data);
+
         }
     }
 

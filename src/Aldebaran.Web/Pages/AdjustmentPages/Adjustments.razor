@@ -25,21 +25,21 @@
     <RadzenRow>
         <RadzenColumn SizeMD=12>
             <RadzenDataGrid @ref="grid0" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                            ExpandMode="DataGridExpandMode.Single" Data="@adjustments" TItem="Aldebaran.Web.Models.AldebaranDb.Adjustment" RowExpand=@GetChildData AllowColumnPicking="true" PageSizeText="items per page" PagingSummaryFormat="Page {0} de {1} ({2} items)" IsLoading="@isLoadingInProgress">
+                            ExpandMode="DataGridExpandMode.Single" Data="@adjustments" TItem="Aldebaran.Application.Services.Models.Adjustment" RowExpand=@GetChildData AllowColumnPicking="true" PageSizeText="items per page" PagingSummaryFormat="Page {0} de {1} ({2} items)" IsLoading="@isLoadingInProgress">
                 <Columns>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Adjustment" Property="ADJUSTMENT_DATE" Title="Fecha de Ajuste">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Adjustment" Property="AdjustmentDate" Title="Fecha de Ajuste">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Adjustment" Property="AdjustmentType.ADJUSTMENT_TYPE_NAME" Title="Tipo de Ajuste">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Adjustment" Property="AdjustmentType.AdjustmentTypeName" Title="Tipo de Ajuste">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Adjustment" Property="AdjustmentReason.ADJUSTMENT_REASON_NAME" Title="Motivo del Ajuste">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Adjustment" Property="AdjustmentReason.AdjustmentReasonName" Title="Motivo del Ajuste">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Adjustment" Property="Employee.FULL_NAME" Title="Usuario Responsable">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Adjustment" Property="Employee.FullName" Title="Usuario Responsable">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Adjustment" Property="StatusDocumentType.STATUS_DOCUMENT_TYPE_NAME" Title="Estado">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Adjustment" Property="StatusDocumentType.StatusDocumentTypeName" Title="Estado">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Adjustment" Property="NOTES" Title="Notas" Visible="false">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Adjustment" Property="Notes" Title="Notas" Visible="false">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Adjustment" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Adjustment" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
                         <Template Context="adjustment">
                             <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
                                           Click="@(args => EditRow(adjustment))" @onclick:stopPropagation="true"
@@ -60,16 +60,16 @@
                             </RadzenColumn>
                         </RadzenRow>
                         <RadzenDataGrid ColumnWidth="200px" Visible="@(adjustment != null)" @ref=AdjustmentDetailsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                        Data="@adjustment?.AdjustmentDetails" TItem="Aldebaran.Web.Models.AldebaranDb.AdjustmentDetail">
+                                        Data="@adjustment?.AdjustmentDetails" TItem="Aldebaran.Application.Services.Models.AdjustmentDetail">
                             <Columns>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.AdjustmentDetail" Property="QUANTITY" Title="Cantidad">
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AdjustmentDetail" Property="Quantity" Title="Cantidad">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.AdjustmentDetail" Title="Artículo/Referencia">
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AdjustmentDetail" Title="Artículo/Referencia">
                                     <Template Context="detail">
-                                        <span>(@detail.ItemReference.Item.INTERNAL_REFERENCE) @detail.ItemReference.Item.ITEM_NAME - @detail.ItemReference.REFERENCE_NAME</span>
+                                        <span>(@detail.ItemReference.Item.InternalReference) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName</span>
                                     </Template>
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.AdjustmentDetail" Property="Warehouse.WAREHOUSE_NAME" Title="Bodega">
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AdjustmentDetail" Property="Warehouse.WarehouseName" Title="Bodega">
                                 </RadzenDataGridColumn>
                             </Columns>
                         </RadzenDataGrid>

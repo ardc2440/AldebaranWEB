@@ -1,5 +1,10 @@
-﻿namespace Aldebaran.Application.Services
+﻿using Aldebaran.Application.Services.Models;
+
+namespace Aldebaran.Application.Services
 {
-    public interface IDocumentTypeService { }
+    public interface IDocumentTypeService
+    {
+        Task<DocumentType?> FindByCodeAsync(string code, CancellationToken ct = default);
+    }
 
 }
