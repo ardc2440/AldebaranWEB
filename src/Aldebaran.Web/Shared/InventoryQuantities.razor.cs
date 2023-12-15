@@ -46,17 +46,11 @@ namespace Aldebaran.Web.Shared
         protected int reservedQuantity = 0;
         protected int orderedQuantity = 0;
 
-        async Task CleanData()
+        protected override async Task OnInitializedAsync()
         {
-            Reference = null;
             referencesWarehouses = new List<ReferencesWarehouse>();
             totalTransitOrders = new List<GroupPurchaseOrderDetail>();
             itemReferenceInventorys = new List<ItemReferenceInventory>();
-        }
-
-        protected override async Task OnInitializedAsync()
-        {
-            await CleanData();
         }
 
         public async Task Refresh(int reference_id)
@@ -72,12 +66,24 @@ namespace Aldebaran.Web.Shared
 
             Reference = reference;
 
+            await RefreshInventory(reference);
+
             referencesWarehouses = await AldebaranDbService.GetReferencesWarehouses(new Query { Filter = $@"i => i.REFERENCE_ID == @0", FilterParameters = new object[] { Reference.REFERENCE_ID }, Expand = "Warehouse" });
 
+            await referencesWarehousesGrid.Reload();
+
             this.totalTransitOrders = await AldebaranDbService.GetTotalTransitOrdersPurchaseByReferenceId(Reference.REFERENCE_ID);
+
+        }
+
+        public async Task RefreshInventory(ItemReference reference)
+        {
+            itemReferenceInventorys.Clear();
             itemReferenceInventorys.Add(new ItemReferenceInventory() { Type = "Cantidad", Quantity = Reference?.INVENTORY_QUANTITY ?? 0 });
             itemReferenceInventorys.Add(new ItemReferenceInventory() { Type = "Pedido", Quantity = Reference?.RESERVED_QUANTITY ?? 0 });
             itemReferenceInventorys.Add(new ItemReferenceInventory() { Type = "Reservado", Quantity = Reference?.ORDERED_QUANTITY ?? 0 });
+
+            await itemReferenceInventorysGrid.Reload();
         }
 
         public override async Task SetParametersAsync(ParameterView parameters)
@@ -86,8 +92,6 @@ namespace Aldebaran.Web.Shared
 
             if (Reference == null)
                 return;
-
-            await Refresh(Reference);
         }
     }
 }

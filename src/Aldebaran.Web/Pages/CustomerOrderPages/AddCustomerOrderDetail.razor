@@ -7,7 +7,7 @@
     <RadzenTemplateForm TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderDetail" Data="@customerOrderDetail" Visible="@(customerOrderDetail != null)" Submit="@FormSubmit">
         <RadzenStack style="margin-bottom: 1rem">
             <RadzenRow style="margin-bottom: 1rem">
-                <ReferencePicker OnChange="ItemReferenceHandler" />
+                    <ReferencePicker OnChange="ItemReferenceHandler" References="itemReferencesForREFERENCEID"/>
                 <RadzenRequiredValidator Text="La Referencia es requerida" Component="REFERENCE_ID" />
             </RadzenRow>
             <RadzenRow>

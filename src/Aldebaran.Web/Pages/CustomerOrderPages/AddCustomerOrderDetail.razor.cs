@@ -37,6 +37,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected bool isSubmitInProgress;
         protected CustomerOrderDetail customerOrderDetail;
         protected InventoryQuantities QuantitiesPanel;
+        protected IEnumerable<ItemReference> itemReferencesForREFERENCEID;
 
         protected async Task FormSubmit()
         {
@@ -78,6 +79,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         public override async Task SetParametersAsync(ParameterView parameters)
         {
             customerOrderDetail = new CustomerOrderDetail();
+
+            itemReferencesForREFERENCEID = await AldebaranDbService.GetItemReferences(new Query { Filter = "i => i.IS_ACTIVE && i.Item.IS_ACTIVE", Expand = "Item.Line" });
 
             await base.SetParametersAsync(parameters);
         }

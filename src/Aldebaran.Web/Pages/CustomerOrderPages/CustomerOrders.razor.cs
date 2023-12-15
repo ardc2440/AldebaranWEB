@@ -99,7 +99,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             NavigationManager.NavigateTo("edit-customer-order-activity/" + args.CUSTOMER_ORDER_ACTIVITY_ID);
         }
 
-        protected async Task GridDeleteActivityButtonClick(MouseEventArgs args, Models.AldebaranDb.CustomerOrderActivity customerOrderActivity)
+        protected async Task DeleteActivity(MouseEventArgs args, Models.AldebaranDb.CustomerOrderActivity customerOrderActivity)
         {
             try
             {
@@ -111,7 +111,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                     if (await AldebaranDbService.DeleteCustomerOrderActivity(customerOrderActivity) != null)
                     {
                         dialogResult = new DialogResult { Success = true, Message = "Actividad eliminada correctamente." };
-                        await grid0.Reload();
+                        await CustomerOrderActivitiesDataGrid.Reload();
                     }
                 }
             }

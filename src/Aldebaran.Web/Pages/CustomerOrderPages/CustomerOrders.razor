@@ -113,7 +113,7 @@
                                             </RadzenButton>
                                             <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
                                                           Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@Security.IsInRole("Admin","Customer Order Activities Editor")"
-                                                          Click=@(args => GridDeleteActivityButtonClick(args, customerOrderActivity)) @onclick:stopPropagation="true" title="Eliminar Actividad" />
+                                                          Click=@(args => DeleteActivity(args, customerOrderActivity)) @onclick:stopPropagation="true" title="Eliminar Actividad" />
                                         </Template>
                                     </RadzenDataGridColumn>
                                 </Columns>

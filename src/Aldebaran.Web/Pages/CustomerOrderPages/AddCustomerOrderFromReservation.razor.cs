@@ -67,7 +67,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 if (!customerReservation.CustomerReservationDetails.Any(cd => cd.SEND_TO_CUSTOMER_ORDER))
                     throw new Exception("La reserva seleccionada no posee articulos para incluir en el pedido");
 
-                await ChargeCustomerOrderModel(customerReservation);
+                await ChargeCustomerOrderModel();
             }
             catch (Exception ex)
             {
@@ -77,7 +77,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             finally { isLoadingInProgress = false; }
         }
 
-        protected async Task ChargeCustomerOrderModel(CustomerReservation customerReservation)
+        protected async Task ChargeCustomerOrderModel()
         {
 
             customerOrder = new CustomerOrder()
@@ -132,7 +132,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 customerOrder.CustomerOrderDetails = customerOrderDetails;
                 customerOrder.ORDER_NUMBER = await AldebaranDbService.GetDocumentNumber<CustomerOrder>(customerOrder); ;
 
-                await AldebaranDbService.CreateCustomerOrder(customerOrder);
+                await AldebaranDbService.CreateCustomerOrder(customerOrder, customerReservation);
 
                 await DialogService.Alert($"Pedido de Reserva de Articulos Guardado Satisfactoriamente con el consecutivo {customerOrder.ORDER_NUMBER}", "Información");
                 NavigationManager.NavigateTo("customer-reservations");
