@@ -1,71 +1,70 @@
+using Aldebaran.Application.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
 using Radzen;
+using ServiceModel = Aldebaran.Application.Services.Models;
 
 namespace Aldebaran.Web.Pages.ItemPages
 {
     public partial class EditItem
     {
-        [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
-
-        [Inject]
-        protected NavigationManager NavigationManager { get; set; }
-
+        #region Injections
         [Inject]
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected TooltipService TooltipService { get; set; }
+        protected IMeasureUnitService MeasureUnitService { get; set; }
 
         [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
+        protected ICurrencyService CurrencyService { get; set; }
 
         [Inject]
-        protected NotificationService NotificationService { get; set; }
+        protected ILineService LineService { get; set; }
 
         [Inject]
-        public AldebaranDbService AldebaranDbService { get; set; }
+        protected IItemService ItemService { get; set; }
+        #endregion
 
-        [Inject]
-        protected SecurityService Security { get; set; }
-
+        #region Parameters
         [Parameter]
         public int ITEM_ID { get; set; }
+        #endregion
 
-        protected bool isSubmitInProgress;
-        protected bool errorVisible;
-        protected Models.AldebaranDb.Item item;
-        protected IEnumerable<Models.AldebaranDb.MeasureUnit> measureUnitsForCIFMEASUREUNITID;
-        protected IEnumerable<Models.AldebaranDb.Currency> currenciesForCURRENCYID;
-        protected IEnumerable<Models.AldebaranDb.MeasureUnit> measureUnitsForFOBMEASUREUNITID;
-        protected IEnumerable<Models.AldebaranDb.Line> linesForLINEID;
+        #region Variables
+        protected bool IsSubmitInProgress;
+        protected bool ErrorVisible;
+        protected ServiceModel.Item Item;
+        protected IEnumerable<ServiceModel.MeasureUnit> MeasureUnits;
+        protected IEnumerable<ServiceModel.Currency> Currencies;
+        protected IEnumerable<ServiceModel.Line> Lines;
+        #endregion
 
+        #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            item = await AldebaranDbService.GetItemByItemId(ITEM_ID);
-            measureUnitsForCIFMEASUREUNITID = await AldebaranDbService.GetMeasureUnits();
-            currenciesForCURRENCYID = await AldebaranDbService.GetCurrencies();
-            measureUnitsForFOBMEASUREUNITID = await AldebaranDbService.GetMeasureUnits();
-            linesForLINEID = await AldebaranDbService.GetLines();
+            Item = await ItemService.FindAsync(ITEM_ID);
+            MeasureUnits = await MeasureUnitService.GetAsync();
+            Currencies = await CurrencyService.GetAsync();
+            Lines = await LineService.GetAsync();
         }
+        #endregion
 
+        #region Events
         protected async Task FormSubmit()
         {
             try
             {
-                isSubmitInProgress = true;
-                await AldebaranDbService.UpdateItem(ITEM_ID, item);
+                IsSubmitInProgress = true;
+                await ItemService.UpdateAsync(ITEM_ID, Item);
                 DialogService.Close(true);
             }
             catch (Exception ex)
             {
-                errorVisible = true;
+                ErrorVisible = true;
             }
             finally
             {
-                isSubmitInProgress = false;
+                IsSubmitInProgress = false;
             }
         }
 
@@ -73,5 +72,6 @@ namespace Aldebaran.Web.Pages.ItemPages
         {
             DialogService.Close(null);
         }
+        #endregion
     }
 }

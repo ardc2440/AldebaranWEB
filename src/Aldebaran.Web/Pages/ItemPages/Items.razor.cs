@@ -1,115 +1,129 @@
+using Aldebaran.Application.Services;
 using Aldebaran.Web.Models;
+using Aldebaran.Web.Resources.LocalizedControls;
+using Aldebaran.Web.Utils;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
 using Radzen;
 using Radzen.Blazor;
+using System.Text.Encodings.Web;
+using ServiceModel = Aldebaran.Application.Services.Models;
 
 namespace Aldebaran.Web.Pages.ItemPages
 {
     public partial class Items
     {
+        #region Injections
         [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
-
-        [Inject]
-        protected NavigationManager NavigationManager { get; set; }
+        protected ILogger<Items> Logger { get; set; }
 
         [Inject]
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected TooltipService TooltipService { get; set; }
-
-        [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
-
-        [Inject]
         protected NotificationService NotificationService { get; set; }
-
-        [Inject]
-        public AldebaranDbService AldebaranDbService { get; set; }
 
         [Inject]
         protected SecurityService Security { get; set; }
 
-        protected IEnumerable<Models.AldebaranDb.Item> items;
-        protected RadzenDataGrid<Models.AldebaranDb.Item> grid0;
-        protected RadzenDataGrid<Models.AldebaranDb.ItemReference> ItemReferencesDataGrid;
-        protected string search = "";
-        protected DialogResult dialogResult { get; set; }
-        protected Models.AldebaranDb.Item item;
-        protected bool isLoadingInProgress;
+        [Inject]
+        protected NavigationManager NavigationManager { get; set; }
 
+        [Inject]
+        protected IItemService ItemService { get; set; }
+
+        [Inject]
+        protected IItemReferenceService ItemReferenceService { get; set; }
+
+        [Inject]
+        protected IExportHelper ExportHelper { get; set; }
+        #endregion
+
+        #region Variables
+        protected IEnumerable<ServiceModel.Item> ItemsList;
+        protected ServiceModel.Item Item;
+        protected LocalizedDataGrid<ServiceModel.Item> ItemsDataGrid;
+        protected LocalizedDataGrid<ServiceModel.ItemReference> ItemReferencesDataGrid;
+        protected string search = "";
+        protected DialogResult DialogResult { get; set; }
+        protected bool IsLoadingInProgress;
+        #endregion
+
+        #region Overrides
         protected override async Task OnInitializedAsync()
         {
             try
             {
-                isLoadingInProgress = true;
-
-                await Task.Yield();
-
-                items = await AldebaranDbService.GetItems(new Query { Filter = $@"i => i.INTERNAL_REFERENCE.Contains(@0) || i.ITEM_NAME.Contains(@0) || i.PROVIDER_REFERENCE.Contains(@0) || i.PROVIDER_ITEM_NAME.Contains(@0) || i.NOTES.Contains(@0)", FilterParameters = new object[] { search }, Expand = "MeasureUnit,Currency,MeasureUnit1,Line" });
+                IsLoadingInProgress = true;
+                await GetItemsAsync();
             }
             finally
             {
-                isLoadingInProgress = false;
+                IsLoadingInProgress = false;
             }
+        }
+        #endregion
 
-        }
-        void OnRender(DataGridRenderEventArgs<Models.AldebaranDb.Item> args)
+        #region Events
+        async Task GetItemsAsync(string searchKey = null, CancellationToken ct = default)
         {
-            if (args.FirstRender)
-            {
-                args.Grid.Groups.Add(new GroupDescriptor() { Title = "Línea", Property = "Line.LINE_NAME", SortOrder = SortOrder.Descending });
-                StateHasChanged();
-            }
+            await Task.Yield();
+            ItemsList = string.IsNullOrEmpty(searchKey) ? await ItemService.GetAsync(ct) : await ItemService.GetAsync(searchKey, ct);
         }
+
         protected async Task Search(ChangeEventArgs args)
         {
             search = $"{args.Value}";
-            await grid0.GoToPage(0);
-            items = await AldebaranDbService.GetItems(new Query { Filter = $@"i => i.INTERNAL_REFERENCE.Contains(@0) || i.ITEM_NAME.Contains(@0) || i.PROVIDER_REFERENCE.Contains(@0) || i.PROVIDER_ITEM_NAME.Contains(@0) || i.NOTES.Contains(@0)", FilterParameters = new object[] { search }, Expand = "MeasureUnit,Currency,MeasureUnit1,Line" });
+            await ItemsDataGrid.GoToPage(0);
+            await GetItemsAsync(search);
         }
 
-        protected async Task AddButtonClick(MouseEventArgs args)
+        void OnItemDataGridRender(DataGridRenderEventArgs<ServiceModel.Item> args)
         {
-            dialogResult = null;
+            if (!args.FirstRender)
+                return;
+            args.Grid.Groups.Add(new GroupDescriptor() { Title = "Línea", Property = "Line.LineName", SortOrder = SortOrder.Descending });
+            StateHasChanged();
+        }
+
+        protected async Task AddItem(MouseEventArgs args)
+        {
+            DialogResult = null;
             var result = await DialogService.OpenAsync<AddItem>("Nuevo artículo");
             if (result == true)
             {
-                dialogResult = new DialogResult { Success = true, Message = "Artículo creado correctamente." };
+                DialogResult = new DialogResult { Success = true, Message = "Artículo creado correctamente." };
             }
-            await grid0.Reload();
+            await GetItemsAsync();
+            await ItemsDataGrid.Reload();
         }
-
-        protected async Task EditRow(Models.AldebaranDb.Item item)
+        protected async Task EditItem(ServiceModel.Item item)
         {
-            dialogResult = null;
-            var result = await DialogService.OpenAsync<EditItem>("Actualizar artículo", new Dictionary<string, object> { { "ITEM_ID", item.ITEM_ID } });
+            DialogResult = null;
+            var result = await DialogService.OpenAsync<EditItem>("Actualizar artículo", new Dictionary<string, object> { { "ITEM_ID", item.ItemId } });
             if (result == true)
             {
-                dialogResult = new DialogResult { Success = true, Message = "Artículo actualizado correctamente." };
+                DialogResult = new DialogResult { Success = true, Message = "Artículo actualizado correctamente." };
             }
+            await GetItemsAsync();
+            await ItemsDataGrid.Reload();
         }
-
-        protected async Task GridDeleteButtonClick(MouseEventArgs args, Models.AldebaranDb.Item item)
+        protected async Task DeleteItem(MouseEventArgs args, ServiceModel.Item item)
         {
             try
             {
-                dialogResult = null;
-                if (await DialogService.Confirm("Está seguro que desea eliminar este artículo?") == true)
+                DialogResult = null;
+                if (await DialogService.Confirm("Está seguro que desea eliminar este artículo?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
                 {
-                    var deleteResult = await AldebaranDbService.DeleteItem(item.ITEM_ID);
-                    if (deleteResult != null)
-                    {
-                        dialogResult = new DialogResult { Success = true, Message = "Artículo eliminado correctamente." };
-                        await grid0.Reload();
-                    }
+                    await ItemService.DeleteAsync(item.ItemId);
+                    await GetItemsAsync();
+                    DialogResult = new DialogResult { Success = true, Message = "Artículo eliminado correctamente." };
+                    await ItemsDataGrid.Reload();
                 }
             }
             catch (Exception ex)
             {
+                Logger.LogError(ex, nameof(DeleteItem));
                 NotificationService.Notify(new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
@@ -118,90 +132,72 @@ namespace Aldebaran.Web.Pages.ItemPages
                 });
             }
         }
-
         protected async Task ExportClick(RadzenSplitButtonItem args)
         {
             if (args?.Value == "csv")
             {
-                await AldebaranDbService.ExportItemsToCSV(new Query
-                {
-                    Filter = $@"{(string.IsNullOrEmpty(grid0.Query.Filter) ? "true" : grid0.Query.Filter)}",
-                    OrderBy = $"{grid0.Query.OrderBy}",
-                    Expand = "MeasureUnit,Currency,MeasureUnit1,Line",
-                    Select = string.Join(",", grid0.ColumnsCollection.Where(c => c.GetVisible() && !string.IsNullOrEmpty(c.Property)).Select(c => c.Property.Contains(".") ? c.Property + " as " + c.Property.Replace(".", "") : c.Property))
-                }, "Items");
+                NavigationManager.NavigateTo($"export/aldebarandb/items/csv(fileName='{UrlEncoder.Default.Encode("Artículos")}')", true);
             }
 
             if (args == null || args.Value == "xlsx")
             {
-                await AldebaranDbService.ExportItemsToExcel(new Query
-                {
-                    Filter = $@"{(string.IsNullOrEmpty(grid0.Query.Filter) ? "true" : grid0.Query.Filter)}",
-                    OrderBy = $"{grid0.Query.OrderBy}",
-                    Expand = "MeasureUnit,Currency,MeasureUnit1,Line",
-                    Select = string.Join(",", grid0.ColumnsCollection.Where(c => c.GetVisible() && !string.IsNullOrEmpty(c.Property)).Select(c => c.Property.Contains(".") ? c.Property + " as " + c.Property.Replace(".", "") : c.Property))
-                }, "Items");
+                NavigationManager.NavigateTo($"export/AldebaranDb/items/excel(fileName='{UrlEncoder.Default.Encode("Artículos")}')", true);
             }
         }
 
-        protected async Task GetChildData(Models.AldebaranDb.Item args)
+        protected async Task GetItemReferences(ServiceModel.Item args)
         {
-            item = args;
+            Item = args;
             try
             {
-                isLoadingInProgress = true;
-
+                IsLoadingInProgress = true;
                 await Task.Yield();
-                var ItemReferencesResult = await AldebaranDbService.GetItemReferences(new Query { Filter = $@"i => i.ITEM_ID == @0", FilterParameters = new object[] { args.ITEM_ID }, Expand = "Item" });
-                if (ItemReferencesResult != null)
-                {
-                    args.ItemReferences = ItemReferencesResult.ToList();
-                }
+                var ItemReferencesResult = await ItemReferenceService.GetAsync(args.ItemId);
+                args.ItemReferences = ItemReferencesResult.ToList();
             }
-            finally { isLoadingInProgress = false; }
+            finally
+            {
+                IsLoadingInProgress = false;
+            }
         }
-
-        protected async Task ItemReferencesAddButtonClick(MouseEventArgs args, Models.AldebaranDb.Item data)
+        protected async Task AddItemReference(MouseEventArgs args, ServiceModel.Item data)
         {
-            dialogResult = null;
-            var result = await DialogService.OpenAsync<AddItemReference>("Nueva referencia", new Dictionary<string, object> { { "ITEM_ID", data.ITEM_ID } });
+            DialogResult = null;
+            var result = await DialogService.OpenAsync<AddItemReference>("Nueva referencia", new Dictionary<string, object> { { "ITEM_ID", data.ItemId } });
             if (result == true)
             {
-                dialogResult = new DialogResult { Success = true, Message = "Referencia creada correctamente." };
+                DialogResult = new DialogResult { Success = true, Message = "Referencia creada correctamente." };
             }
-            await GetChildData(data);
+            await GetItemReferences(data);
             await ItemReferencesDataGrid.Reload();
         }
-        protected async Task EditChildRow(Models.AldebaranDb.ItemReference args, Models.AldebaranDb.Item data)
+        protected async Task EditItemReference(ServiceModel.ItemReference args, ServiceModel.Item data)
         {
-            dialogResult = null;
-            var result = await DialogService.OpenAsync<EditItemReference>("Actualizar referencia", new Dictionary<string, object> { { "REFERENCE_ID", args.REFERENCE_ID } });
+            DialogResult = null;
+            var result = await DialogService.OpenAsync<EditItemReference>("Actualizar referencia", new Dictionary<string, object> { { "REFERENCE_ID", args.ReferenceId } });
             if (result == true)
             {
-                dialogResult = new DialogResult { Success = true, Message = "Referencia actualizada correctamente." };
+                DialogResult = new DialogResult { Success = true, Message = "Referencia actualizada correctamente." };
             }
-            await GetChildData(data);
+            await GetItemReferences(data);
             await ItemReferencesDataGrid.Reload();
         }
-
-        protected async Task ItemReferencesDeleteButtonClick(MouseEventArgs args, Models.AldebaranDb.ItemReference itemReference)
+        protected async Task DeleteItemReference(MouseEventArgs args, ServiceModel.ItemReference itemReference)
         {
             try
             {
-                dialogResult = null;
-                if (await DialogService.Confirm("Está seguro que desea eliminar esta referencia?") == true)
+                DialogResult = null;
+                if (await DialogService.Confirm("Está seguro que desea eliminar esta referencia?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
                 {
-                    var deleteResult = await AldebaranDbService.DeleteItemReference(itemReference.REFERENCE_ID);
-                    await GetChildData(item);
-                    if (deleteResult != null)
-                    {
-                        dialogResult = new DialogResult { Success = true, Message = "Referencia eliminada correctamente." };
-                        await ItemReferencesDataGrid.Reload();
-                    }
+                    await ItemReferenceService.DeleteAsync(itemReference.ReferenceId);
+                    await GetItemReferences(Item);
+                    DialogResult = new DialogResult { Success = true, Message = "Referencia eliminada correctamente." };
+                    await ItemReferencesDataGrid.Reload();
                 }
             }
             catch (Exception ex)
             {
+                Logger.LogError(ex, nameof(DeleteItemReference));
                 NotificationService.Notify(new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
@@ -210,5 +206,6 @@ namespace Aldebaran.Web.Pages.ItemPages
                 });
             }
         }
+        #endregion
     }
 }

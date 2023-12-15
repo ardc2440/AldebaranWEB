@@ -51,7 +51,7 @@ namespace Aldebaran.Web.Pages.AreaPages
             {
                 IsLoadingInProgress = true;
                 await Task.Yield();
-                AreasList = await AreaService.GetAsync();
+                await GetAreasAsync();
             }
             finally
             {
@@ -62,11 +62,16 @@ namespace Aldebaran.Web.Pages.AreaPages
         #endregion
 
         #region Events
+        async Task GetAreasAsync(string searchKey = null, CancellationToken ct = default)
+        {
+            await Task.Yield();
+            AreasList = string.IsNullOrEmpty(searchKey) ? await AreaService.GetAsync(ct) : await AreaService.GetAsync(searchKey, ct);
+        }
         protected async Task Search(ChangeEventArgs args)
         {
             search = $"{args.Value}";
             await AreasDataGrid.GoToPage(0);
-            AreasList = await AreaService.GetAsync(search);
+            await GetAreasAsync(search);
         }
         protected async Task GetAreaItems(ServiceModel.Area args)
         {
@@ -99,7 +104,7 @@ namespace Aldebaran.Web.Pages.AreaPages
             try
             {
                 DialogResult = null;
-                if (await DialogService.Confirm("Está seguro que desea eliminar este artículo del área?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }) == true)
+                if (await DialogService.Confirm("Está seguro que desea eliminar este artículo del área?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
                 {
                     await ItemAreaService.DeleteAsync(itemsArea.AreaId, itemsArea.ItemId);
                     await GetAreaItems(Area);

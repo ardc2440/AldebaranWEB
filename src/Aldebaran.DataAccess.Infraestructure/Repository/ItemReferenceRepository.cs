@@ -12,6 +12,66 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
+        public async Task AddAsync(ItemReference itemReference, CancellationToken ct = default)
+        {
+            await _context.ItemReferences.AddAsync(itemReference, ct);
+            await _context.SaveChangesAsync(ct);
+        }
+
+        public async Task DeleteAsync(int itemReferenceId, CancellationToken ct = default)
+        {
+            var entity = await _context.ItemReferences.FirstOrDefaultAsync(x => x.ReferenceId == itemReferenceId, ct) ?? throw new KeyNotFoundException($"Referencia con id {itemReferenceId} no existe.");
+            _context.ItemReferences.Remove(entity);
+            try
+            {
+                await _context.SaveChangesAsync(ct);
+            }
+            catch
+            {
+                _context.Entry(entity).State = EntityState.Unchanged;
+                throw;
+            }
+        }
+
+        public async Task<ItemReference?> FindAsync(int itemReferenceId, CancellationToken ct = default)
+        {
+            return await _context.ItemReferences.AsNoTracking()
+                .Include(i => i.Item.Line)
+                .Include(i => i.Item.Currency)
+                .Include(i => i.Item.CifMeasureUnit)
+                .Include(i => i.Item.FobMeasureUnit)
+                .FirstOrDefaultAsync(w => w.ReferenceId == itemReferenceId, ct);
+        }
+
+        public async Task<IEnumerable<ItemReference>> GetAsync(int itemId, CancellationToken ct = default)
+        {
+            return await _context.ItemReferences.AsNoTracking()
+               .Where(w => w.ItemId == itemId)
+               .Include(i => i.Item.Line)
+               .Include(i => i.Item.Currency)
+               .Include(i => i.Item.CifMeasureUnit)
+               .Include(i => i.Item.FobMeasureUnit)
+               .ToListAsync(ct);
+        }
+
+        public async Task UpdateAsync(int itemReferenceId, ItemReference itemReference, CancellationToken ct = default)
+        {
+            var entity = await _context.ItemReferences.FirstOrDefaultAsync(x => x.ReferenceId == itemReferenceId, ct) ?? throw new KeyNotFoundException($"Referencia con id {itemReferenceId} no existe.");
+            entity.ReferenceCode = itemReference.ReferenceCode;
+            entity.ProviderReferenceCode = itemReference.ProviderReferenceCode;
+            entity.ReferenceName = itemReference.ReferenceName;
+            entity.ProviderReferenceName = itemReference.ProviderReferenceName;
+            entity.Notes = itemReference.Notes;
+            entity.InventoryQuantity = itemReference.InventoryQuantity;
+            entity.OrderedQuantity = itemReference.OrderedQuantity;
+            entity.ReservedQuantity = itemReference.ReservedQuantity;
+            entity.WorkInProcessQuantity = itemReference.WorkInProcessQuantity;
+            entity.IsActive = entity.IsActive;
+            entity.IsSoldOut = entity.IsSoldOut;
+            entity.AlarmMinimumQuantity = entity.AlarmMinimumQuantity;
+            await _context.SaveChangesAsync(ct);
+        }
+
         public async Task<List<ItemReference>> GetAsync(CancellationToken ct = default)
         {
             return await _context.ItemReferences.AsNoTracking()
@@ -25,13 +85,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .Include(i => i.Item.Line)
                 .Where(filter)
                 .ToListAsync(ct);
-        }
-
-        public async Task<ItemReference?> FindAsync(int referenceId, CancellationToken ct = default)
-        {
-            return await _context.ItemReferences.AsNoTracking()
-                .Include(i => i.Item.Line)
-                .FirstOrDefaultAsync(i => i.ReferenceId == referenceId);
         }
     }
 

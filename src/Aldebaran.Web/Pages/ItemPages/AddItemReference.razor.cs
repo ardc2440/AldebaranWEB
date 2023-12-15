@@ -1,66 +1,61 @@
+using Aldebaran.Application.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
 using Radzen;
+using ServiceModel = Aldebaran.Application.Services.Models;
 
 namespace Aldebaran.Web.Pages.ItemPages
 {
     public partial class AddItemReference
     {
-        [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
-
-        [Inject]
-        protected NavigationManager NavigationManager { get; set; }
-
+        #region Injections
         [Inject]
         protected DialogService DialogService { get; set; }
-
         [Inject]
-        protected TooltipService TooltipService { get; set; }
-
+        protected IItemService ItemService { get; set; }
         [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
+        protected IItemReferenceService ItemReferenceService { get; set; }
+        #endregion
 
-        [Inject]
-        protected NotificationService NotificationService { get; set; }
-
-        [Inject]
-        public AldebaranDbService AldebaranDbService { get; set; }
-
-        [Inject]
-        protected SecurityService Security { get; set; }
-
+        #region Parameters
         [Parameter]
         public int ITEM_ID { get; set; }
+        #endregion
 
+        #region Variables
+        protected ServiceModel.ItemReference ItemReference;
+        protected ServiceModel.Item Item;
+        protected bool IsSubmitInProgress;
+        protected bool ErrorVisible;
+        #endregion
+
+        #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            item = await AldebaranDbService.GetItemByItemId(ITEM_ID);
-            itemReference = new Models.AldebaranDb.ItemReference();
-            itemReference.ITEM_ID = ITEM_ID;
+            Item = await ItemService.FindAsync(ITEM_ID);
+            ItemReference = new ServiceModel.ItemReference
+            {
+                ItemId = ITEM_ID
+            };
         }
-        protected bool errorVisible;
-        protected Models.AldebaranDb.ItemReference itemReference;
+        #endregion
 
-        protected Models.AldebaranDb.Item item;
-        protected bool isSubmitInProgress;
-
+        #region Events
         protected async Task FormSubmit()
         {
             try
             {
-                isSubmitInProgress = true;
-                await AldebaranDbService.CreateItemReference(itemReference);
+                IsSubmitInProgress = true;
+                await ItemReferenceService.AddAsync(ItemReference);
                 DialogService.Close(true);
             }
             catch (Exception ex)
             {
-                errorVisible = true;
+                ErrorVisible = true;
             }
             finally
             {
-                isSubmitInProgress = false;
+                IsSubmitInProgress = false;
             }
         }
 
@@ -68,5 +63,6 @@ namespace Aldebaran.Web.Pages.ItemPages
         {
             DialogService.Close(null);
         }
+        #endregion
     }
 }
