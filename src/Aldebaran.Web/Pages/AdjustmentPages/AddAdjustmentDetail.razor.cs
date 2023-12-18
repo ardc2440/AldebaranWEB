@@ -14,20 +14,20 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        public IAdjustmentDetailService AdjustmentDetailService { get; set; }
+        protected IAdjustmentDetailService AdjustmentDetailService { get; set; }
 
         [Inject]
-        public IItemReferenceService ItemReferenceService { get; set; }
+        protected IItemReferenceService ItemReferenceService { get; set; }
 
         [Inject]
-        public IWarehouseService WarehouseService { get; set; }
+        protected IWarehouseService WarehouseService { get; set; }
 
         #endregion
 
         #region Parameters
 
         [Parameter]
-        public ICollection<AdjustmentDetail> adjustmentDetails { get; set; }
+        public ICollection<AdjustmentDetail> AdjustmentDetails { get; set; }
 
         [Parameter]
         public int ADJUSTMENT_ID { get; set; }
@@ -114,7 +114,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
                 errorVisible = false;
                 isSubmitInProgress = true;
 
-                if (adjustmentDetails.Any(ad => ad.ReferenceId.Equals(adjustmentDetail.ReferenceId) && ad.WarehouseId.Equals(adjustmentDetail.WarehouseId)))
+                if (AdjustmentDetails.Any(ad => ad.ReferenceId.Equals(adjustmentDetail.ReferenceId) && ad.WarehouseId.Equals(adjustmentDetail.WarehouseId)))
                     throw new Exception("La Referencia y Bodega seleccionadas, ya existen dentro de este ajuste.");
 
                 adjustmentDetail.Warehouse = await WarehouseService.FindAsync(adjustmentDetail.WarehouseId);

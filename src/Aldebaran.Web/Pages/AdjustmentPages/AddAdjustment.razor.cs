@@ -18,25 +18,25 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        public IAdjustmentReasonService AdjustmentReasonService { get; set; }
+        protected IAdjustmentReasonService AdjustmentReasonService { get; set; }
 
         [Inject]
-        public IAdjustmentTypeService AdjustmentTypeService { get; set; }
+        protected IAdjustmentTypeService AdjustmentTypeService { get; set; }
 
         [Inject]
-        public IDocumentTypeService DocumentTypeService { get; set; }
+        protected IDocumentTypeService DocumentTypeService { get; set; }
 
         [Inject]
-        public IStatusDocumentTypeService StatusDocumentTypeService { get; set; }
+        protected IStatusDocumentTypeService StatusDocumentTypeService { get; set; }
 
         [Inject]
-        public IEmployeeService EmployeeService { get; set; }
+        protected IEmployeeService EmployeeService { get; set; }
 
         [Inject]
         protected SecurityService Security { get; set; }
 
         [Inject]
-        public IAdjustmentService AdjustmentService { get; set; }
+        protected IAdjustmentService AdjustmentService { get; set; }
 
         #endregion
 
@@ -132,7 +132,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected async Task AddAdjustmentDetailButtonClick(MouseEventArgs args)
         {
-            var result = await DialogService.OpenAsync<AddAdjustmentDetail>("Nueva referencia", new Dictionary<string, object> { { "adjustmentDetails", adjustmentDetails } });
+            var result = await DialogService.OpenAsync<AddAdjustmentDetail>("Nueva referencia", new Dictionary<string, object> { { "AdjustmentDetails", adjustmentDetails } });
 
             if (result == null)
                 return;

@@ -14,20 +14,20 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        public IAdjustmentDetailService AdjustmentDetailService { get; set; }
+        protected IAdjustmentDetailService AdjustmentDetailService { get; set; }
 
         [Inject]
-        public IItemReferenceService ItemReferenceService { get; set; }
+        protected IItemReferenceService ItemReferenceService { get; set; }
 
         [Inject]
-        public IWarehouseService WarehouseService { get; set; }
+        protected IWarehouseService WarehouseService { get; set; }
 
         #endregion
 
         #region Parameters
 
         [Parameter]
-        public AdjustmentDetail pAdjustmentDetail { get; set; }
+        public AdjustmentDetail AdjustmentDetail { get; set; }
 
         [Parameter]
         public int ADJUSTMENT_ID { get; set; }
@@ -68,14 +68,14 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         {
             adjustmentDetail = new AdjustmentDetail()
             {
-                ItemReference = pAdjustmentDetail.ItemReference,
-                Warehouse = pAdjustmentDetail.Warehouse,
-                Adjustment = pAdjustmentDetail.Adjustment,
-                AdjustmentDetailId = pAdjustmentDetail.AdjustmentDetailId,
-                AdjustmentId = pAdjustmentDetail.AdjustmentId,
-                Quantity = pAdjustmentDetail.Quantity,
-                ReferenceId = pAdjustmentDetail.ReferenceId,
-                WarehouseId = pAdjustmentDetail.WarehouseId
+                ItemReference = AdjustmentDetail.ItemReference,
+                Warehouse = AdjustmentDetail.Warehouse,
+                Adjustment = AdjustmentDetail.Adjustment,
+                AdjustmentDetailId = AdjustmentDetail.AdjustmentDetailId,
+                AdjustmentId = AdjustmentDetail.AdjustmentId,
+                Quantity = AdjustmentDetail.Quantity,
+                ReferenceId = AdjustmentDetail.ReferenceId,
+                WarehouseId = AdjustmentDetail.WarehouseId
             };
 
             itemReferencesForREFERENCEID = await ItemReferenceService.GetByStatusAsync(true);
