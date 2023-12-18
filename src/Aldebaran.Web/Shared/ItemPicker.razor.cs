@@ -29,7 +29,7 @@ namespace Aldebaran.Web.Shared
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            Lines = AvailableItemsForSelection.Select(s => s.Line).GroupBy(g => g.LineId).Select(s => s.First());
+            Lines = AvailableItemsForSelection.Select(s => s.Line).DistinctBy(x => x.LineId);
         }
         public override async Task SetParametersAsync(ParameterView parameters)
         {
@@ -55,6 +55,7 @@ namespace Aldebaran.Web.Shared
                 SelectedLine = null;
                 Items = null;
                 SelectedItem = null;
+                await OnChange.InvokeAsync(null);
                 return;
             }
             SelectedLine = Lines.Single(s => s.LineId == (short)lineId);
@@ -65,6 +66,7 @@ namespace Aldebaran.Web.Shared
             if (itemId == null)
             {
                 SelectedItem = null;
+                await OnChange.InvokeAsync(null);
                 return;
             }
             SelectedItem = Items.Single(s => s.ItemId == (int)itemId);

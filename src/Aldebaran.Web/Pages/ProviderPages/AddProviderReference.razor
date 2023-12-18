@@ -1,25 +1,25 @@
 @attribute [Authorize(Roles="Admin,Provider Editor")]
+@using ServiceModel = Aldebaran.Application.Services.Models;
 
-<PageTitle>Agregar referencia al proveedor</PageTitle>
 <RadzenColumn SizeMD=12>
-    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">No se ha podido agregar la referencia al proveedor</RadzenAlert>
-    <RadzenTemplateForm TItem="Aldebaran.Web.Models.AldebaranDb.ProviderReference" Data="@providerReference" Visible="@(providerReference != null)" Submit="@FormSubmit">
+    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@ErrorVisible">No se ha podido agregar la referencia al proveedor</RadzenAlert>
+    <RadzenTemplateForm TItem="ServiceModel.ProviderReference" Data="@ProviderReference" Visible="@(ProviderReference != null)" Submit="@FormSubmit">
         <RadzenStack>
             <div class="flex-shrink-0">
                 <div class="text-primary-color" style="font-size: 16px">
                     <RadzenLabel Text="Nombre: " Style="font-weight: bold" />
-                    <RadzenLabel Text="@provider.PROVIDER_NAME" />
+                    <RadzenLabel Text="@Provider.ProviderName" />
                 </div>
                 <div class="text-secondary-color">
                     <RadzenLabel Text="Código: " />
-                    <RadzenLabel Text="@provider.PROVIDER_CODE" />
+                    <RadzenLabel Text="@Provider.ProviderCode" />
                 </div>
             </div>
-            <ReferencePicker OnChange="ItemReferenceHandler" References="ItemReferences" />
-            <RadzenRequiredValidator Text="Referencia requerida" Component="REFERENCE_ID" />
+            <ReferencePicker OnChange="ItemReferenceHandler" References="AvailableItemReferencesForSelection" />
+            <RadzenRequiredValidator Text="Referencia requerida" Component="ReferenceId" />
         </RadzenStack>
         <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
-            <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@isSubmitInProgress" />
+            <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />
             <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
         </RadzenStack>
     </RadzenTemplateForm>

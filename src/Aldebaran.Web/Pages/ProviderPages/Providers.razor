@@ -1,117 +1,119 @@
 @page "/providers"
-@attribute [Authorize(Roles="Admin,Provider Viwer,Provider Editor")]
+@attribute [Authorize(Roles = "Admin,Provider Viwer,Provider Editor")]
+@using Aldebaran.Web.Resources.LocalizedControls;
+@using ServiceModel = Aldebaran.Application.Services.Models;
 
 <PageTitle>Proveedores</PageTitle>
 <RadzenStack>
-    @if (dialogResult != null && dialogResult.Success)
+    @if (DialogResult != null && DialogResult.Success)
     {
-        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Success">@dialogResult.Message</RadzenAlert>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Success">@DialogResult.Message</RadzenAlert>
     }
-    @if (dialogResult != null && !dialogResult.Success)
+    @if (DialogResult != null && !DialogResult.Success)
     {
-        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger">@dialogResult.Message</RadzenAlert>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger">@DialogResult.Message</RadzenAlert>
     }
     <RadzenRow AlignItems="AlignItems.Center">
-        <RadzenColumn Size="12" SizeMD="6">
+        <RadzenColumn Size="12">
             <RadzenText Text="Proveedores" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
         </RadzenColumn>
-        <RadzenColumn Size="12" SizeMD="6" Visible="@Security.IsInRole("Admin","Provider Editor")">
-            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
-                <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddButtonClick" Variant="Variant.Flat" />
+        <RadzenColumn Size="12" Visible="@Security.IsInRole("Admin","Provider Editor")">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
+                <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddProvider" Variant="Variant.Flat" />
             </RadzenStack>
         </RadzenColumn>
     </RadzenRow>
     <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
     <RadzenRow>
         <RadzenColumn SizeMD=12>
-            <RadzenDataGrid @ref="grid0" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                            Data="@providers" TItem="Aldebaran.Web.Models.AldebaranDb.Provider" RowExpand=@GetChildData AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowGrouping="true" AllowColumnReorder="true" IsLoading="@isLoadingInProgress">
+            <LocalizedDataGrid @ref="ProvidersGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                               Data="@ProvidersList" TItem="ServiceModel.Provider" RowExpand=@GetProviderReferences AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowGrouping="true" AllowColumnReorder="true" IsLoading="@IsLoadingInProgress">
                 <Columns>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Provider" Property="PROVIDER_CODE" Title="Código">
+                    <RadzenDataGridColumn TItem="ServiceModel.Provider" Property="ProviderCode" Title="Código">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Provider" Property="PROVIDER_NAME" Title="Nombre">
+                    <RadzenDataGridColumn TItem="ServiceModel.Provider" Property="ProviderName" Title="Nombre">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Provider" Property="IdentityType.IDENTITY_TYPE_CODE" Title="Tipo de documento" Visible="false">
+                    <RadzenDataGridColumn TItem="ServiceModel.Provider" Property="IdentityType.IdentityTypeCode" Title="Tipo de documento" Visible="false">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Provider" Property="IDENTITY_NUMBER" Title="Número de documento" Visible="false">
+                    <RadzenDataGridColumn TItem="ServiceModel.Provider" Property="IdentityNumber" Title="Número de documento" Visible="false">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Provider" Property="PHONE" Title="Teléfono">
+                    <RadzenDataGridColumn TItem="ServiceModel.Provider" Property="Phone" Title="Teléfono">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Provider" Property="FAX" Title="Fax" Visible="false">
+                    <RadzenDataGridColumn TItem="ServiceModel.Provider" Property="Fax" Title="Fax" Visible="false">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Provider" Property="EMAIL" Title="Correo electrónico">
+                    <RadzenDataGridColumn TItem="ServiceModel.Provider" Property="Email" Title="Correo electrónico">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Provider" Property="CONTACT_PERSON" Title="Contacto">
+                    <RadzenDataGridColumn TItem="ServiceModel.Provider" Property="ContactPerson" Title="Contacto">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Provider" Property="PROVIDER_ADDRESS" Title="Dirección">
+                    <RadzenDataGridColumn TItem="ServiceModel.Provider" Property="ProviderAddress" Title="Dirección">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Provider" Property="City.CITY_ID" Title="Ubicación">
+                    <RadzenDataGridColumn TItem="ServiceModel.Provider" Property="City.CityId" Title="Ubicación">
                         <Template Context="provider">
-                            <span>(@provider.City.Department.Country.COUNTRY_CODE) @provider.City.Department.DEPARTMENT_NAME - @provider.City.CITY_NAME</span>
+                            <span>(@provider.City.Department.Country.CountryCode) @provider.City.Department.DepartmentName - @provider.City.CityName</span>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.Provider" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Provider Editor")">
+                    <RadzenDataGridColumn TItem="ServiceModel.Provider" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Provider Editor")">
                         <Template Context="provider">
-                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRow(provider))" @onclick:stopPropagation="true">
+                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditProvider(provider))" @onclick:stopPropagation="true">
                             </RadzenButton>
                             <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
                                           Shade="Shade.Lighter" Variant="Variant.Flat"
-                                          Click=@(args => GridDeleteButtonClick(args, provider)) @onclick:stopPropagation="true" />
+                                          Click=@(args => DeleteProvider(args, provider)) @onclick:stopPropagation="true" />
                         </Template>
                     </RadzenDataGridColumn>
                 </Columns>
                 <Template Context="provider">
                     <RadzenStack Class="rz-my-8">
                         <RadzenRow Gap="0" AlignItems="AlignItems.Center">
-                            <RadzenColumn Size="12" SizeMD="6">
+                            <RadzenColumn Size="12">
                                 <RadzenText Visible="@(provider != null)" Text="Referencias" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
                             </RadzenColumn>
-                            <RadzenColumn Size="12" SizeMD="6" Visible="@Security.IsInRole("Admin","Provider Editor")">
-                                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
-                                    <RadzenButton Visible="@(provider != null)" Icon="add_circle_outline" Text="Nuevo" Click=@(args => ProviderReferencesAddButtonClick(args,provider)) />
+                            <RadzenColumn Size="12" isible="@Security.IsInRole("Admin","Provider Editor")">
+                                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
+                                    <RadzenButton Visible="@(provider != null)" Icon="add_circle_outline" Text="Nuevo" Click=@(args => AddProviderReference(args,provider)) />
                                 </RadzenStack>
                             </RadzenColumn>
                         </RadzenRow>
-                        <RadzenDataGrid ColumnWidth="80px" Visible="@(provider != null)" @ref=ProviderReferencesDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                        Data="@provider?.ProviderReferences" TItem="Aldebaran.Web.Models.AldebaranDb.ProviderReference" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowGrouping="true" AllowColumnReorder="true" Render="@OnRender">
+                        <LocalizedDataGrid ColumnWidth="80px" Visible="@(provider != null)" @ref=ProviderReferencesDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                           Data="@provider?.ProviderReferences" TItem="ServiceModel.ProviderReference" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowGrouping="true" AllowColumnReorder="true" Render="@OnProviderReferenceRender">
                             <Columns>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ProviderReference" Property="ItemReference.Item.Line.LINE_NAME" Title="Linea" Visible="false">
+                                <RadzenDataGridColumn TItem="ServiceModel.ProviderReference" Property="ItemReference.Item.Line.LineName" Title="Linea" Visible="false">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ProviderReference" Property="ItemReference.Item.ITEM_NAME" Title="Artículo" Visible="false">
+                                <RadzenDataGridColumn TItem="ServiceModel.ProviderReference" Property="ItemReference.Item.ItemName" Title="Artículo" Visible="false">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ProviderReference" Property="ItemReference.REFERENCE_CODE" Title="Referencia">
+                                <RadzenDataGridColumn TItem="ServiceModel.ProviderReference" Property="ItemReference.ReferenceCode" Title="Referencia">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ProviderReference" Property="ItemReference.REFERENCE_NAME" Title="Nombre">
+                                <RadzenDataGridColumn TItem="ServiceModel.ProviderReference" Property="ItemReference.ReferenceName" Title="Nombre">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ProviderReference" Property="ItemReference.PROVIDER_REFERENCE_CODE" Title="Referencia proveedor">
+                                <RadzenDataGridColumn TItem="ServiceModel.ProviderReference" Property="ItemReference.ProviderReferenceCode" Title="Referencia proveedor">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ProviderReference" Property="ItemReference.PROVIDER_REFERENCE_NAME" Title="Nombre referencia proveedor">
+                                <RadzenDataGridColumn TItem="ServiceModel.ProviderReference" Property="ItemReference.ProviderReferenceName" Title="Nombre referencia proveedor">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ProviderReference" Property="ItemReference.NOTES" Title="Notas" Visible="false">
+                                <RadzenDataGridColumn TItem="ServiceModel.ProviderReference" Property="ItemReference.Notes" Title="Notas" Visible="false">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ProviderReference" Property="ItemReference.IS_ACTIVE" Title="Activo">
-                                    <Template Context="itemReferenceChild" >
-                                        <RadzenCheckBox @bind-Value="@itemReferenceChild.ItemReference.IS_ACTIVE" Name="IS_ACTIVE" Disabled="true"></RadzenCheckBox>
+                                <RadzenDataGridColumn TItem="ServiceModel.ProviderReference" Property="ItemReference.IsActive" Title="Activo">
+                                    <Template Context="itemReference">
+                                        <RadzenCheckBox @bind-Value="@itemReference.ItemReference.IsActive" Name="IsActive" Disabled="true"></RadzenCheckBox>
                                     </Template>
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ProviderReference" Property="IS_SOLD_OUT" Title="Agotado" Visible="false">
-                                    <Template Context="itemReferenceChild">
-                                        <RadzenCheckBox @bind-Value="@itemReferenceChild.ItemReference.IS_SOLD_OUT" Name="IS_SOLD_OUT" Disabled="true"></RadzenCheckBox>
+                                <RadzenDataGridColumn TItem="ServiceModel.ProviderReference" Property="IsSoldOut" Title="Agotado" Visible="false">
+                                    <Template Context="itemReference">
+                                        <RadzenCheckBox @bind-Value="@itemReference.ItemReference.IsSoldOut" Name="IsSoldOut" Disabled="true"></RadzenCheckBox>
                                     </Template>
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ProviderReference" Property="ItemReference.ALARM_MINIMUM_QUANTITY" Title="Cantidad mínima" Visible="false">
+                                <RadzenDataGridColumn TItem="ServiceModel.ProviderReference" Property="ItemReference.AlarmMinimumQuantity" Title="Cantidad mínima" Visible="false">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.ProviderReference" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Provider Editor")">
-                                    <Template Context="providerReferenceChild">
+                                <RadzenDataGridColumn TItem="ServiceModel.ProviderReference" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Provider Editor")">
+                                    <Template Context="itemReference">
                                         <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Shade="Shade.Lighter" Variant="Variant.Flat"
-                                                      Click=@(args => ProviderReferencesDeleteButtonClick(args, providerReferenceChild)) @onclick:stopPropagation="true" />
+                                                      Click=@(args => DeleteProviderReference(args, itemReference)) @onclick:stopPropagation="true" />
                                     </Template>
                                 </RadzenDataGridColumn>
                             </Columns>
-                        </RadzenDataGrid>
+                        </LocalizedDataGrid>
                     </RadzenStack>
                 </Template>
-            </RadzenDataGrid>
+            </LocalizedDataGrid>
         </RadzenColumn>
     </RadzenRow>
 </RadzenStack>

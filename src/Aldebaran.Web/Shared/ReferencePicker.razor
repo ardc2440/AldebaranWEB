@@ -1,7 +1,7 @@
 <RadzenPanel AllowCollapse="false" Collapsed="@CollapsedPanel" Class="rz-mx-auto toggle-panel" Expand=@(() => PanelCollapseChange("Expand")) Collapse=@(() => PanelCollapseChange("Collapse"))>
     <HeaderTemplate>
         <RadzenButton Click="@PanelCollapseToggle" class="@(CollapsedPanel ? "panel-collapsed":"panel-expanded")" Disabled="@ReadOnly">
-            @if (itemReference == null)
+            @if (SelectedItemReference == null)
             {
                 <span>Referencia</span>
             }
@@ -9,7 +9,7 @@
             {
                 <div class="component-section d-flex flex-column justify-content-start">
                     <span class="component-label">Referencia</span>
-                    <span>(@line?.LineName) @item?.ItemName - @itemReference?.ReferenceName</span>
+                    <span>(@SelectedLine?.LineName) @SelectedItem?.ItemName - @SelectedItemReference?.ReferenceName</span>
                 </div>
             }
         </RadzenButton>
@@ -20,24 +20,24 @@
                 <RadzenColumn SizeLG="4" SizeXL="4" SizeMD="4" SizeSM="12" SizeXS="12" SizeXX="12">
                     <RadzenFormField Text="Linea" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDown Data="@lines" TextProperty="LineName" ValueProperty="LineId" AllowClear=true
-                                            style="display: block; width: 100%" @bind-Value="LINE_ID" Name="LINE_ID" Change="@OnLineChange" AllowFiltering="true" ClearSearchAfterSelection="true" />
+                            <RadzenDropDown Data="@Lines" TextProperty="LineName" ValueProperty="LineId" AllowClear=true
+                                            style="display: block; width: 100%" @bind-Value="LINE_ID" Name="LineId" Change="@OnLineChange" AllowFiltering="true" ClearSearchAfterSelection="true" />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenColumn>
                 <RadzenColumn SizeLG="4" SizeXL="4" SizeMD="4" SizeSM="12" SizeXS="12" SizeXX="12">
                     <RadzenFormField Text="Árticulo" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDown Data="@items" TextProperty="ItemName" ValueProperty="ItemId" AllowClear=true
-                                            style="display: block; width: 100%" @bind-Value="ITEM_ID" Name="ITEM_ID" Change="@OnItemChange" AllowFiltering="true" ClearSearchAfterSelection="true" />
+                            <RadzenDropDown Data="@Items" TextProperty="ItemName" ValueProperty="ItemId" AllowClear=true
+                                            style="display: block; width: 100%" @bind-Value="ITEM_ID" Name="ItemId" Change="@OnItemChange" AllowFiltering="true" ClearSearchAfterSelection="true" />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenColumn>
                 <RadzenColumn SizeLG="4" SizeXL="4" SizeMD="4" SizeSM="12" SizeXS="12" SizeXX="12">
                     <RadzenFormField Text="Referencia" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDown Data="@itemReferences" TextProperty="ReferenceName" ValueProperty="ReferenceId" AllowClear=true
-                                            style="display: block; width: 100%" @bind-Value="REFERENCE_ID" Name="REFERENCE_ID" Change="@OnReferenceChange" AllowFiltering="true" ClearSearchAfterSelection="true" />
+                            <RadzenDropDown Data="@ItemReferences" TextProperty="ReferenceName" ValueProperty="ReferenceId" AllowClear=true
+                                            style="display: block; width: 100%" @bind-Value="REFERENCE_ID" Name="ReferenceId" Change="@OnReferenceChange" AllowFiltering="true" ClearSearchAfterSelection="true" />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenColumn>

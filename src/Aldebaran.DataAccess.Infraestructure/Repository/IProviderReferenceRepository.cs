@@ -1,5 +1,12 @@
-﻿namespace Aldebaran.DataAccess.Infraestructure.Repository
-{
-    public interface IProviderReferenceRepository { }
+﻿using Aldebaran.DataAccess.Entities;
 
+namespace Aldebaran.DataAccess.Infraestructure.Repository
+{
+    public interface IProviderReferenceRepository
+    {
+        Task<ProviderReference?> FindAsync(int providerId, int referenceId, CancellationToken ct = default);
+        Task<IEnumerable<ProviderReference>> GetAsync(int providerId, CancellationToken ct = default);
+        Task AddAsync(ProviderReference providerReference, CancellationToken ct = default);
+        Task DeleteAsync(int providerId, int referenceId, CancellationToken ct = default);
+    }
 }

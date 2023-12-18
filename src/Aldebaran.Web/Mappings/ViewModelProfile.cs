@@ -1,4 +1,6 @@
-﻿using AutoMapper;
+﻿using Aldebaran.Web.Models.ViewModels;
+using AutoMapper;
+using ServiceModel = Aldebaran.Application.Services.Models;
 
 namespace Aldebaran.Application.Services.Mappings
 {
@@ -6,7 +8,7 @@ namespace Aldebaran.Application.Services.Mappings
     {
         public ViewModelProfile()
         {
-            //CreateMap<Warehouse, Entities.Warehouse>().ReverseMap();
+            CreateMap<EmployeeViewModel, ServiceModel.Employee>().ReverseMap();
         }
     }
 }

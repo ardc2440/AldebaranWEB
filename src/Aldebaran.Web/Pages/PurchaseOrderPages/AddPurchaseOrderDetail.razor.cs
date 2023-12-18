@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using Radzen;
+using ServiceModel = Aldebaran.Application.Services.Models;
 
 namespace Aldebaran.Web.Pages.PurchaseOrderPages
 {
@@ -34,7 +35,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         protected SecurityService Security { get; set; }
 
         [Parameter]
-        public IEnumerable<ItemReference> ProviderItemReferences { get; set; } = new List<ItemReference>();
+        public IEnumerable<ServiceModel.ItemReference> ProviderItemReferences { get; set; } = new List<ServiceModel.ItemReference>();
 
         protected bool errorVisible;
         protected PurchaseOrderDetail purchaseOrderDetail;
@@ -72,11 +73,10 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 isSubmitInProgress = false;
             }
         }
-        protected async Task ItemReferenceHandler(ItemReference reference)
+        protected async Task ItemReferenceHandler(ServiceModel.ItemReference reference)
         {
-            purchaseOrderDetail.REFERENCE_ID = reference?.REFERENCE_ID ?? 0;
-
-            await QuantitiesPanel.Refresh(reference);
+            purchaseOrderDetail.REFERENCE_ID = reference?.ReferenceId ?? 0;
+            //await QuantitiesPanel.Refresh(reference);
         }
         protected async Task CancelButtonClick(MouseEventArgs args)
         {

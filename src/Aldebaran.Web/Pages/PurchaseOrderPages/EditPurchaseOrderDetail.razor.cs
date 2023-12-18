@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using Radzen;
+using ServiceModel = Aldebaran.Application.Services.Models;
 
 namespace Aldebaran.Web.Pages.PurchaseOrderPages
 {
@@ -32,7 +33,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         [Parameter]
         public int PURCHASE_ORDER_DETAIL_ID { get; set; }
         [Parameter]
-        public IEnumerable<ItemReference> ProviderItemReferences { get; set; } = new List<ItemReference>();
+        public IEnumerable<ServiceModel.ItemReference> ProviderItemReferences { get; set; } = new List<ServiceModel.ItemReference>();
         protected bool errorVisible;
         protected PurchaseOrderDetail purchaseOrderDetail;
         protected IEnumerable<Warehouse> warehousesForWAREHOUSEID;
@@ -73,11 +74,11 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
             DialogService.Close(null);
         }
 
-        protected async Task ItemReferenceHandler(ItemReference reference)
+        protected async Task ItemReferenceHandler(ServiceModel.ItemReference reference)
         {
-            purchaseOrderDetail.REFERENCE_ID = reference?.REFERENCE_ID ?? 0;
+            purchaseOrderDetail.REFERENCE_ID = reference?.ReferenceId ?? 0;
 
-            await QuantitiesPanel.Refresh(reference);
+            //await QuantitiesPanel.Refresh(reference);
         }
         public override async Task SetParametersAsync(ParameterView parameters)
         {
