@@ -9,9 +9,11 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         Task<IEnumerable<ItemReference>> GetAsync(int itemId, CancellationToken ct = default);
         Task AddAsync(ItemReference itemReference, CancellationToken ct = default);
         Task UpdateAsync(int itemReferenceId, ItemReference itemReference, CancellationToken ct = default);
-        Task DeleteAsync(int itemReferenceId, CancellationToken ct = default);   
+        Task DeleteAsync(int itemReferenceId, CancellationToken ct = default);
         Task<List<ItemReference>> GetAsync(CancellationToken ct = default);
-        Task<List<ItemReference>> GetAsync(string filter, CancellationToken ct = default);        
+        Task<List<ItemReference>> GetAsync(string searchKey, CancellationToken ct = default);
+        Task<IEnumerable<ItemReference>> GetByStatusAsync(bool isActive, CancellationToken ct = default);
+
     }
 
 }

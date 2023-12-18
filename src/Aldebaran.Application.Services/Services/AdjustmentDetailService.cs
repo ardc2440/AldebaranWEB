@@ -25,6 +25,12 @@ namespace Aldebaran.Application.Services
             var data = await _repository.FindAsync(adjustmentDetailId, ct);
             return _mapper.Map<AdjustmentDetail?>(data);
         }
+
+        public async Task<IEnumerable<AdjustmentDetail>> GetByAdjustmentIdAsync(int adjustmentId, CancellationToken ct = default)
+        {
+            var data = await _repository.GetByAdjustmentIdAsync(adjustmentId, ct);
+            return _mapper.Map<List<AdjustmentDetail>>(data);
+        }
     }
 
 }

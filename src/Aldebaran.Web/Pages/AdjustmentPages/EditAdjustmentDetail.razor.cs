@@ -78,7 +78,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
                 WarehouseId = pAdjustmentDetail.WarehouseId
             };
 
-            itemReferencesForREFERENCEID = await ItemReferenceService.GetAsync("i => i.IS_ACTIVE && i.Item.IS_ACTIVE");
+            itemReferencesForREFERENCEID = await ItemReferenceService.GetByStatusAsync(true);
 
             warehousesForWAREHOUSEID = await WarehouseService.GetAsync();
         }

@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.3.7" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Aldebaran.DataAccess\Aldebaran.DataAccess.csproj" />
   </ItemGroup>
 

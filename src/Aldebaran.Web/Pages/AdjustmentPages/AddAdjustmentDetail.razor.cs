@@ -69,7 +69,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         protected override async Task OnInitializedAsync()
         {
 
-            itemReferencesForREFERENCEID = await ItemReferenceService.GetAsync("i => i.IS_ACTIVE && i.Item.IS_ACTIVE");
+            itemReferencesForREFERENCEID = await ItemReferenceService.GetByStatusAsync(true);
 
             warehousesForWAREHOUSEID = await WarehouseService.GetAsync();
 
@@ -119,9 +119,9 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
                 adjustmentDetail.Warehouse = await WarehouseService.FindAsync(adjustmentDetail.WarehouseId);
 
-                var reference = await ItemReferenceService.GetAsync($"i=> i.REFERENCE_ID=={adjustmentDetail.ReferenceId}");
+                var reference = await ItemReferenceService.FindAsync(adjustmentDetail.ReferenceId);
 
-                adjustmentDetail.ItemReference = reference.Single();
+                adjustmentDetail.ItemReference = reference;
 
                 DialogService.Close(adjustmentDetail);
             }

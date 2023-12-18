@@ -1,6 +1,5 @@
 ﻿using Aldebaran.DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Dynamic.Core;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
@@ -55,15 +54,31 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .ToListAsync(ct);
         }
 
-        public async Task<IEnumerable<Adjustment>> GetAsync(string filter, CancellationToken ct = default)
+        public async Task<IEnumerable<Adjustment>> GetAsync(string searchKey, CancellationToken ct = default)
         {
             return await _context.Adjustments.AsNoTracking()
-                .Where(filter)
+                .Where(i => i.StatusDocumentType.StatusDocumentTypeName.Equals(searchKey) ||
+                          i.Employee.FullName.Equals(searchKey) ||
+                          i.Employee.DisplayName.Equals(searchKey) ||
+                          i.Employee.IdentityNumber.Equals(searchKey) ||
+                          i.Employee.IdentityType.IdentityTypeName.Equals(searchKey) ||
+                          i.Employee.IdentityType.IdentityTypeCode.Equals(searchKey) ||
+                          i.Employee.Area.AreaName.Equals(searchKey) ||
+                          i.Employee.Area.AreaCode.Equals(searchKey) ||
+                          i.Employee.Area.Description.Equals(searchKey) ||
+                          i.StatusDocumentType.StatusDocumentTypeName.Equals(searchKey) ||
+                          i.StatusDocumentType.Notes.Equals(searchKey) ||
+                          i.AdjustmentReason.AdjustmentReasonName.Equals(searchKey) ||
+                          i.AdjustmentReason.AdjustmentReasonNotes.Equals(searchKey) ||
+                          i.AdjustmentType.AdjustmentTypeName.Equals(searchKey) ||
+                          i.Notes.Equals(searchKey) ||
+                          i.AdjustmentDate.ToString().Equals(searchKey) ||
+                          i.CreationDate.ToString().Equals(searchKey))
                 .Include(i => i.StatusDocumentType)
                 .Include(i => i.AdjustmentReason)
                 .Include(i => i.AdjustmentType)
-                .Include(i => i.Employee)
-                .Include(i => i.AdjustmentDetails)
+                .Include(i => i.Employee.IdentityType)
+                .Include(i => i.Employee.Area)
                 .ToListAsync(ct);
         }
 

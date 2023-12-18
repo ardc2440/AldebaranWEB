@@ -1,6 +1,5 @@
 ﻿using Aldebaran.DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Dynamic.Core;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
@@ -43,6 +42,17 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .FirstOrDefaultAsync(w => w.ReferenceId == itemReferenceId, ct);
         }
 
+        public async Task<IEnumerable<ItemReference>> GetByStatusAsync(bool isActive, CancellationToken ct = default)
+        {
+            return await _context.ItemReferences.AsNoTracking()
+               .Where(w => w.IsActive == isActive)
+               .Include(i => i.Item.Line)
+               .Include(i => i.Item.Currency)
+               .Include(i => i.Item.CifMeasureUnit)
+               .Include(i => i.Item.FobMeasureUnit)
+               .ToListAsync(ct);
+        }
+
         public async Task<IEnumerable<ItemReference>> GetAsync(int itemId, CancellationToken ct = default)
         {
             return await _context.ItemReferences.AsNoTracking()
@@ -79,11 +89,18 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .ToListAsync(ct);
         }
 
-        public async Task<List<ItemReference>> GetAsync(string filter, CancellationToken ct = default)
+        public async Task<List<ItemReference>> GetAsync(string searchKey, CancellationToken ct = default)
         {
             return await _context.ItemReferences.AsNoTracking()
                 .Include(i => i.Item.Line)
-                .Where(filter)
+                .Include(i => i.Item.Currency)
+                .Where(i => i.Item.ItemName.Contains(searchKey) ||
+                          i.Item.Line.LineName.Contains(searchKey) ||
+                          i.Item.Line.LineCode.Contains(searchKey) ||
+                          i.Item.InternalReference.Contains(searchKey) ||
+                          i.Item.Notes.Contains(searchKey) ||
+                          i.ReferenceCode.Contains(searchKey) ||
+                          i.ReferenceName.Contains(searchKey))
                 .ToListAsync(ct);
         }
     }

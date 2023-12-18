@@ -6,6 +6,7 @@ namespace Aldebaran.Application.Services
     {
         Task<IEnumerable<AdjustmentDetail>> GetAsync(string filter, CancellationToken ct = default);
         Task<AdjustmentDetail?> FindAsync(int adjustmentDetailId, CancellationToken ct = default);
+        Task<IEnumerable<AdjustmentDetail>> GetByAdjustmentIdAsync(int adjustmentId, CancellationToken ct = default);
     }
 
 }

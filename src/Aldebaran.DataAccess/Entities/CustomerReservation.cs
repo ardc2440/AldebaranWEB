@@ -4,6 +4,7 @@ namespace Aldebaran.DataAccess.Entities
     {
         public int CustomerReservationId { get; set; }
         public int CustomerId { get; set; }
+        [Sequence(length: 10)]
         public string ReservationNumber { get; set; }
         public DateTime ReservationDate { get; set; }
         public DateTime ExpirationDate { get; set; }

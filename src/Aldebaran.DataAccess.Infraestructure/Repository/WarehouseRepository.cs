@@ -1,6 +1,5 @@
 ﻿using Aldebaran.DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Dynamic.Core;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
@@ -18,10 +17,10 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .ToListAsync(ct);
         }
 
-        public async Task<List<Warehouse>> GetAsync(string filter, CancellationToken ct = default)
+        public async Task<List<Warehouse>> GetAsync(string searchKey, CancellationToken ct = default)
         {
             return await _context.Warehouses.AsNoTracking()
-                .Where(filter)
+                .Where(i => i.WarehouseName.Contains(searchKey))
                 .ToListAsync(ct);
         }
 

@@ -1,7 +1,8 @@
-using Aldebaran.Web.Models.AldebaranDb;
+using Aldebaran.Application.Services;
+using Aldebaran.Application.Services.Models;
+using Aldebaran.Application.Services.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
 using Radzen;
 using Radzen.Blazor;
 
@@ -9,9 +10,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 {
     public partial class AddCustomerReservation
     {
-        [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
-
+        #region Injections
         [Inject]
         protected NavigationManager NavigationManager { get; set; }
 
@@ -19,17 +18,32 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected TooltipService TooltipService { get; set; }
-
-        [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
-
-        [Inject]
-        protected NotificationService NotificationService { get; set; }
-
-        [Inject]
         public AldebaranDbService AldebaranDbService { get; set; }
 
+        [Inject]
+        protected SecurityService Security { get; set; }
+
+        [Inject]
+        protected ICustomerService CustomerService { get; set; }
+
+        [Inject]
+        protected IEmployeeService EmployeeService { get; set; }
+
+        [Inject]
+        protected IDocumentTypeService DocumentTypeService { get; set; }
+
+        [Inject]
+        protected IStatusDocumentTypeService StatusDocumentTypeService { get; set; }
+
+        [Inject]
+        protected ICustomerReservationService CustomerReservationService { get; set; }
+
+        [Inject]
+        protected IUtilitiesService UtilitiesService { get; set; }
+
+        #endregion
+
+        #region Global Variables
         protected bool errorVisible;
 
         protected string errorMessage;
@@ -48,27 +62,29 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
         protected DocumentType documentType;
 
-        [Inject]
-        protected SecurityService Security { get; set; }
+        #endregion
 
+        #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            customersForCUSTOMERID = await AldebaranDbService.GetCustomers(new Query { Expand = "City.Department.Country" });
+            customersForCUSTOMERID = await CustomerService.GetAsync();
 
-            documentType = await AldebaranDbService.GetDocumentTypeByCode("R");
+            documentType = await DocumentTypeService.FindByCodeAsync("R");
 
             customerReservationDetails = new List<CustomerReservationDetail>();
 
             customerReservation = new CustomerReservation()
             {
-                CUSTOMER_RESERVATION_ID = 0,
-                Employee = await AldebaranDbService.GetLoggedEmployee(Security),
-                StatusDocumentType = await AldebaranDbService.GetStatusDocumentTypeByDocumentAndOrder(documentType, 1),
-                RESERVATION_DATE = DateTime.Today,
-                RESERVATION_NUMBER = "0"
+                CustomerReservationId = 0,
+                Employee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id),
+                StatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 1),
+                ReservationDate = DateTime.Today,
+                ReservationNumber = "0"
             };
         }
+        #endregion
 
+        #region Events
         protected async Task FormSubmit()
         {
             try
@@ -78,9 +94,9 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                     throw new Exception("No ha ingresado ninguna referencia");
 
                 customerReservation.CustomerReservationDetails = customerReservationDetails;
-                customerReservation.RESERVATION_NUMBER = await AldebaranDbService.GetDocumentNumber<CustomerReservation>(customerReservation);
+                customerReservation.ReservationNumber = await UtilitiesService.GetNextDocumentNumber<CustomerReservation>(customerReservation);
 
-                await AldebaranDbService.CreateCustomerReservation(customerReservation);
+                //await CustomerReservationService.Add(customerReservation);
 
                 await DialogService.Alert($"Reserva de Articulos Guardada Satisfactoriamente con el consecutivo {customerReservation.RESERVATION_NUMBER}", "Información");
                 NavigationManager.NavigateTo("customer-reservations");
@@ -132,5 +148,6 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
             await customerReservationDetailGrid.Reload();
         }
+        #endregion
     }
 }

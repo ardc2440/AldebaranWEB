@@ -148,7 +148,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected async Task GetChildData(Adjustment args)
         {
-            var AdjustmentDetailsResult = await AdjustmentDetailService.GetAsync($"i => i.AdjustmentId == {args.AdjustmentId}");
+            var AdjustmentDetailsResult = await AdjustmentDetailService.GetByAdjustmentIdAsync(args.AdjustmentId);
             if (AdjustmentDetailsResult != null)
             {
                 adjustmentDetails = AdjustmentDetailsResult.ToList();

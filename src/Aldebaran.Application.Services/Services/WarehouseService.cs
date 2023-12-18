@@ -20,9 +20,9 @@ namespace Aldebaran.Application.Services
             return _mapper.Map<List<Warehouse>>(data);
         }
 
-        public async Task<IEnumerable<Warehouse>> GetAsync(string filter, CancellationToken ct = default)
+        public async Task<IEnumerable<Warehouse>> GetAsync(string searchKey, CancellationToken ct = default)
         {
-            var data = await _repository.GetAsync(filter, ct);
+            var data = await _repository.GetAsync(searchKey, ct);
             return _mapper.Map<List<Warehouse>>(data);
         }
 

@@ -70,7 +70,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
                 documentType = await DocumentTypeService.FindByCodeAsync("A");
 
-                adjustments = await AdjustmentService.GetAsync($"i => i.AdjustmentReason.ADJUSTMENT_REASON_NAME.Contains({search}) || i.AdjustmentType.ADJUSTMENT_TYPE_NAME.Contains({search}) || i.NOTES.Contains({search})");
+                adjustments = await AdjustmentService.GetAsync(search);
             }
             finally
             {
@@ -90,7 +90,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
             await grid0.GoToPage(0);
 
-            adjustments = await AdjustmentService.GetAsync($"i => i.AdjustmentReason.ADJUSTMENT_REASON_NAME.Contains({search}) || i.AdjustmentType.ADJUSTMENT_TYPE_NAME.Contains({search}) || i.NOTES.Contains({search})");
+            adjustments = await AdjustmentService.GetAsync(search);
 
         }
 
@@ -141,7 +141,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         protected async Task GetChildData(Adjustment args)
         {
             adjustment = args;
-            var AdjustmentDetailsResult = await AdjustmentDetailService.GetAsync($@"i => i.AdjustmentId == {args.AdjustmentId}");
+            var AdjustmentDetailsResult = await AdjustmentDetailService.GetByAdjustmentIdAsync(args.AdjustmentId);
             if (AdjustmentDetailsResult != null)
             {
                 args.AdjustmentDetails = AdjustmentDetailsResult.ToList();

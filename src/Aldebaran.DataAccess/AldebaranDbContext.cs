@@ -1,5 +1,8 @@
+using Aldebaran.DataAccess.Core;
 using Aldebaran.DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
+
 namespace Aldebaran.DataAccess
 {
     // ****************************************************************************************************
@@ -14,6 +17,7 @@ namespace Aldebaran.DataAccess
             : base(options)
         {
         }
+
         public DbSet<ActivityType> ActivityTypes { get; set; }
         public DbSet<ActivityTypesArea> ActivityTypesAreas { get; set; }
         public DbSet<Adjustment> Adjustments { get; set; }
@@ -152,6 +156,48 @@ namespace Aldebaran.DataAccess
             modelBuilder.ApplyConfiguration(new UsersAlarmTypeConfiguration());
             modelBuilder.ApplyConfiguration(new VisualizedAlarmConfiguration());
             modelBuilder.ApplyConfiguration(new WarehouseConfiguration());
+        }
+
+        public override int SaveChanges()
+        {
+            UpdateSequenceProperties();
+            return base.SaveChanges();
+        }
+
+        private void UpdateSequenceProperties()
+        {
+            var dbContext = this;
+            var entities = ChangeTracker.Entries()
+                .Where(e => e.State == EntityState.Added)
+                .Select(e => e.Entity);
+
+            foreach (var entity in entities)
+            {
+                var properties = entity.GetType().GetProperties()
+                    .Where(p => p.GetCustomAttribute<SequenceAttribute>() != null);
+
+                foreach (var property in properties)
+                {
+                    var sequenceAttribute = property.GetCustomAttribute<SequenceAttribute>();
+                    var currentValue = property.GetValue(entity) as string;
+                    var entityType = Model.FindEntityType(entity.GetType());
+                    var setMethod = dbContext.GetType().GetMethod("SET");
+
+                    if (entityType == null) continue;
+                    if (sequenceAttribute == null) continue;
+                    if (!string.IsNullOrEmpty(currentValue)) continue;
+                    if (setMethod == null) continue;
+
+                    var genericMethods = setMethod.MakeGenericMethod(entityType.ClrType);
+                    var dbset = genericMethods.Invoke(dbContext, null);
+                    if (dbset == null) continue;
+
+                    var totalRecords = ((IQueryable<Object>)dbset).Count();
+                    var newValue = (totalRecords + 1).ToString().PadLeft(sequenceAttribute.Length, '0');
+
+                    property.SetValue(entity, newValue);
+                }
+            }
         }
     }
 }
