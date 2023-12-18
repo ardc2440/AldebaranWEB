@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using Radzen;
 using System.Linq.Dynamic.Core;
+using ServiceModel = Aldebaran.Application.Services.Models;
 
 namespace Aldebaran.Web.Pages.CustomerReservationPages
 {
@@ -39,7 +40,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         protected bool isSubmitInProgress;
         protected CustomerReservationDetail customerReservationDetail;
         protected InventoryQuantities QuantitiesPanel;
-        protected IEnumerable<ItemReference> itemReferencesForREFERENCEID;
+        protected IEnumerable<ServiceModel.ItemReference> itemReferencesForREFERENCEID;
 
         protected async Task FormSubmit()
         {
@@ -74,16 +75,15 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         public override async Task SetParametersAsync(ParameterView parameters)
         {
             customerReservationDetail = new CustomerReservationDetail();
-            itemReferencesForREFERENCEID = await AldebaranDbService.GetItemReferences(new Query { Filter = "i => i.IS_ACTIVE && i.Item.IS_ACTIVE", Expand = "Item.Line" });
+            //itemReferencesForREFERENCEID = await AldebaranDbService.GetItemReferences(new Query { Filter = "i => i.IS_ACTIVE && i.Item.IS_ACTIVE", Expand = "Item.Line" });
 
             await base.SetParametersAsync(parameters);
         }
 
-        protected async Task ItemReferenceHandler(ItemReference reference)
+        protected async Task ItemReferenceHandler(ServiceModel.ItemReference reference)
         {
-            customerReservationDetail.REFERENCE_ID = reference?.REFERENCE_ID ?? 0;
-
-            await QuantitiesPanel.Refresh(reference);
+            customerReservationDetail.REFERENCE_ID = reference?.ReferenceId ?? 0;
+            //await QuantitiesPanel.Refresh(reference);
         }
     }
 }

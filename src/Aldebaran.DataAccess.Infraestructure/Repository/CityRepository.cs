@@ -14,14 +14,14 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         public async Task<City?> FindAsync(int cityId, CancellationToken ct = default)
         {
             return await _context.Cities.AsNoTracking()
-                .Include(i => i.Department).ThenInclude(i => i.Country)
+                .Include(i => i.Department.Country)
                 .FirstOrDefaultAsync(f => f.CityId == cityId, ct);
         }
 
         public async Task<IEnumerable<City>> GetAsync(int departmentId, CancellationToken ct = default)
         {
             return await _context.Cities.AsNoTracking()
-                .Include(i => i.Department).ThenInclude(i => i.Country)
+                .Include(i => i.Department.Country)
                 .Where(w => w.DepartmentId == departmentId)
                 .ToListAsync(ct);
         }

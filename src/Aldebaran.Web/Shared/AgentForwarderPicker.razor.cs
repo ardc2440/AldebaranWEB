@@ -44,6 +44,7 @@ namespace Aldebaran.Web.Shared
 
         protected override async Task OnInitializedAsync()
         {
+            await Task.Yield();
             forwarders = await AldebaranDbService.GetForwarders(new Query { Expand = "City.Department.Country" });
         }
         protected async Task OnForwarderChange(object forwarderId)

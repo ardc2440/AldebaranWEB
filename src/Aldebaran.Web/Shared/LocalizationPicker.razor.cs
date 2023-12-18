@@ -39,6 +39,7 @@ namespace Aldebaran.Web.Shared
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
+            await Task.Yield();
             Countries = await CountryService.GetAsync();
         }
         public override async Task SetParametersAsync(ParameterView parameters)

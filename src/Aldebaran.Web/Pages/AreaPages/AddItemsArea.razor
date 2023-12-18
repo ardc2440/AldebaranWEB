@@ -1,7 +1,6 @@
 @attribute [Authorize(Roles = "Admin,Area Editor")]
 @using ServiceModel = Aldebaran.Application.Services.Models;
 
-<PageTitle>Agregar artículo al área</PageTitle>
 <RadzenColumn SizeMD=12>
     <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@IsErrorVisible">No se ha podido agregar el artículo al área</RadzenAlert>
     <RadzenTemplateForm TItem="ServiceModel.ItemsArea" Data="@ItemArea" Submit="@FormSubmit">

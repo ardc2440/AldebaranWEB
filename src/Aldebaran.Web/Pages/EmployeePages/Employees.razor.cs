@@ -1,105 +1,119 @@
-﻿using Aldebaran.Web.Models;
+﻿using Aldebaran.Application.Services;
+using Aldebaran.Web.Models;
+using Aldebaran.Web.Resources.LocalizedControls;
+using AutoMapper;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
 using Radzen;
-using Radzen.Blazor;
+using ViewModels = Aldebaran.Web.Models.ViewModels;
 
 namespace Aldebaran.Web.Pages.EmployeePages
 {
     public partial class Employees
     {
+        #region Injections
         [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
-
-        [Inject]
-        protected NavigationManager NavigationManager { get; set; }
+        protected ILogger<Employees> Logger { get; set; }
 
         [Inject]
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected TooltipService TooltipService { get; set; }
-
-        [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
-
-        [Inject]
         protected NotificationService NotificationService { get; set; }
-
-        [Inject]
-        public AldebaranDbService AldebaranDbService { get; set; }
 
         [Inject]
         protected SecurityService Security { get; set; }
 
-        protected IEnumerable<Models.AldebaranDb.Employee> employees;
-        protected RadzenDataGrid<Models.AldebaranDb.Employee> employeesGrid;
-        protected string search = "";
-        protected Models.AldebaranDb.Employee employee;
-        protected DialogResult dialogResult { get; set; }
-        protected bool isLoadingInProgress;
+        [Inject]
+        protected IMapper Mapper { get; set; }
 
-        protected async Task Search(ChangeEventArgs args)
-        {
-            search = $"{args.Value}";
-            await employeesGrid.GoToPage(0);
-            employees = await AldebaranDbService.GetEmployees(new Query { Filter = $@"i => i.IDENTITY_NUMBER.Contains(@0) || i.DISPLAY_NAME.Contains(@0) || i.FULL_NAME.Contains(@0) || i.Area.AREA_NAME.Contains(@0) || i.Area.AREA_CODE.Contains(@0)", FilterParameters = new object[] { search }, Expand = "Area,IdentityType" });
-        }
+        [Inject]
+        protected IEmployeeService EmployeeService { get; set; }
+        #endregion
+
+        #region Variables
+        protected IEnumerable<ViewModels.EmployeeViewModel> EmployeesList;
+        protected LocalizedDataGrid<ViewModels.EmployeeViewModel> EmployeesGrid;
+        protected ViewModels.EmployeeViewModel Employee;
+        protected string search = "";
+        protected DialogResult DialogResult { get; set; }
+        protected bool IsLoadingInProgress;
+        #endregion
+
+        #region Overrides
         protected override async Task OnInitializedAsync()
         {
             try
             {
-                isLoadingInProgress = true;
-
-                await Task.Yield();
-
-                employees = await AldebaranDbService.GetEmployees(new Query { Filter = $@"i => i.IDENTITY_NUMBER.Contains(@0) || i.DISPLAY_NAME.Contains(@0) || i.FULL_NAME.Contains(@0) || i.Area.AREA_NAME.Contains(@0) || i.Area.AREA_CODE.Contains(@0)", FilterParameters = new object[] { search }, Expand = "Area,IdentityType" });
+                IsLoadingInProgress = true;
+                await GetEmployeesAsync();
             }
             finally
             {
-                isLoadingInProgress = false;
+                IsLoadingInProgress = false;
+            }
+        }
+        #endregion
+
+        #region Events
+        protected async Task Search(ChangeEventArgs args)
+        {
+            search = $"{args.Value}";
+            await EmployeesGrid.GoToPage(0);
+            await GetEmployeesAsync(search);
+        }
+
+        async Task GetEmployeesAsync(string searchKey = null, CancellationToken ct = default)
+        {
+            await Task.Yield();
+            var employees = string.IsNullOrEmpty(searchKey) ? await EmployeeService.GetAsync(ct) : await EmployeeService.GetAsync(searchKey, ct);
+            EmployeesList = Mapper.Map<List<ViewModels.EmployeeViewModel>>(employees);
+            foreach (var employee in EmployeesList)
+            {
+                employee.ApplicationUser = await Security.GetUserById(employee.LoginUserId);
             }
         }
 
-        protected async Task AddButtonClick(MouseEventArgs args)
+        protected async Task AddEmployee(MouseEventArgs args)
         {
-            dialogResult = null;
+            DialogResult = null;
             var result = await DialogService.OpenAsync<AddEmployee>("Nuevo Funcionario");
             if (result == true)
             {
-                dialogResult = new DialogResult { Success = true, Message = "Funcionario creado correctamente." };
+                DialogResult = new DialogResult { Success = true, Message = "Funcionario creado correctamente." };
             }
-            await employeesGrid.Reload();
+            await GetEmployeesAsync();
+            await EmployeesGrid.Reload();
         }
 
-        protected async Task EditRow(Models.AldebaranDb.Employee args)
+        protected async Task EditEmployee(ViewModels.EmployeeViewModel args)
         {
-            dialogResult = null;
-            var result = await DialogService.OpenAsync<EditEmployee>("Actualizar Funcionario", new Dictionary<string, object> { { "EMPLOYEE_ID", args.EMPLOYEE_ID } });
+            DialogResult = null;
+            var result = await DialogService.OpenAsync<EditEmployee>("Actualizar Funcionario", new Dictionary<string, object> { { "EMPLOYEE_ID", args.EmployeeId } });
             if (result == true)
             {
-                dialogResult = new DialogResult { Success = true, Message = "Funcionario actualizado correctamente." };
+                DialogResult = new DialogResult { Success = true, Message = "Funcionario actualizado correctamente." };
             }
+            await GetEmployeesAsync();
+            await EmployeesGrid.Reload();
         }
 
-        protected async Task GridDeleteButtonClick(MouseEventArgs args, Models.AldebaranDb.Employee employee)
+        protected async Task DeleteEmployee(MouseEventArgs args, ViewModels.EmployeeViewModel employee)
         {
             try
             {
-                dialogResult = null;
-                if (await DialogService.Confirm("Está seguro que desea eliminar este funcionario??") == true)
+                DialogResult = null;
+                if (await DialogService.Confirm("Está seguro que desea eliminar este funcionario?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
                 {
-                    var deleteResult = await AldebaranDbService.DeleteEmployee(employee.EMPLOYEE_ID);
-                    if (deleteResult != null)
-                    {
-                        dialogResult = new DialogResult { Success = true, Message = "Funcionario eliminado correctamente." };
-                        await employeesGrid.Reload();
-                    }
+                    await EmployeeService.DeleteAsync(employee.EmployeeId);
+                    await GetEmployeesAsync();
+                    DialogResult = new DialogResult { Success = true, Message = "Funcionario eliminado correctamente." };
+                    await EmployeesGrid.Reload();
                 }
             }
             catch (Exception ex)
             {
+                Logger.LogError(ex, nameof(DeleteEmployee));
                 NotificationService.Notify(new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
@@ -108,5 +122,6 @@ namespace Aldebaran.Web.Pages.EmployeePages
                 });
             }
         }
+        #endregion
     }
 }

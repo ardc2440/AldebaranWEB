@@ -1,5 +1,7 @@
-﻿using Aldebaran.DataAccess.Infraestructure.Repository;
+﻿using Aldebaran.Application.Services.Models;
+using Aldebaran.DataAccess.Infraestructure.Repository;
 using AutoMapper;
+using Entities = Aldebaran.DataAccess.Entities;
 
 namespace Aldebaran.Application.Services
 {
@@ -11,6 +13,42 @@ namespace Aldebaran.Application.Services
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(IProviderRepository));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(IMapper));
+        }
+
+        public async Task AddAsync(Provider provider, CancellationToken ct = default)
+        {
+            var entity = _mapper.Map<Entities.Provider>(provider) ?? throw new ArgumentNullException("Proveedor no puede ser nulo.");
+            await _repository.AddAsync(entity, ct);
+        }
+
+        public async Task DeleteAsync(int providerId, CancellationToken ct = default)
+        {
+            await _repository.DeleteAsync(providerId, ct);
+        }
+
+        public async Task<Provider?> FindAsync(int providerId, CancellationToken ct = default)
+        {
+            var data = await _repository.FindAsync(providerId, ct);
+            return _mapper.Map<Provider?>(data);
+        }
+
+        public async Task<IEnumerable<Provider>> GetAsync(CancellationToken ct = default)
+        {
+            var data = await _repository.GetAsync(ct);
+            return _mapper.Map<List<Provider>>(data);
+        }
+
+        public async Task<IEnumerable<Provider>> GetAsync(string searchKey, CancellationToken ct = default)
+        {
+            var data = await _repository.GetAsync(searchKey, ct);
+            return _mapper.Map<List<Provider>>(data);
+        }
+
+        public async Task UpdateAsync(int providerId, Provider provider, CancellationToken ct = default)
+        {
+            var entity = _mapper.Map<Entities.Provider>(provider) ?? throw new ArgumentNullException("Proveedor no puede ser nulo.");
+            await _repository.UpdateAsync(providerId, entity, ct);
+
         }
     }
 

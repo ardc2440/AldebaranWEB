@@ -43,6 +43,7 @@ namespace Aldebaran.Web.Shared
         protected Models.AldebaranDb.Employee employee;
         protected override async Task OnInitializedAsync()
         {
+            await Task.Yield();
             areas = await AldebaranDbService.GetAreas();
         }
         protected async Task OnAreaChange(object areaId)

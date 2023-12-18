@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using Radzen;
+using ServiceModel = Aldebaran.Application.Services.Models;
 
 namespace Aldebaran.Web.Pages.CustomerOrderPages
 {
@@ -37,7 +38,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected bool isSubmitInProgress;
         protected CustomerOrderDetail customerOrderDetail;
         protected InventoryQuantities QuantitiesPanel;
-        protected IEnumerable<ItemReference> itemReferencesForREFERENCEID;
+        protected IEnumerable<ServiceModel.ItemReference> itemReferencesForREFERENCEID;
 
         protected async Task FormSubmit()
         {
@@ -69,18 +70,18 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             DialogService.Close(null);
         }
 
-        protected async Task ItemReferenceHandler(ItemReference reference)
+        protected async Task ItemReferenceHandler(ServiceModel.ItemReference reference)
         {
-            customerOrderDetail.REFERENCE_ID = reference?.REFERENCE_ID ?? 0;
+            customerOrderDetail.REFERENCE_ID = reference?.ReferenceId ?? 0;
 
-            await QuantitiesPanel.Refresh(reference);
+            //await QuantitiesPanel.Refresh(reference);
         }
 
         public override async Task SetParametersAsync(ParameterView parameters)
         {
             customerOrderDetail = new CustomerOrderDetail();
 
-            itemReferencesForREFERENCEID = await AldebaranDbService.GetItemReferences(new Query { Filter = "i => i.IS_ACTIVE && i.Item.IS_ACTIVE", Expand = "Item.Line" });
+            //itemReferencesForREFERENCEID = await AldebaranDbService.GetItemReferences(new Query { Filter = "i => i.IS_ACTIVE && i.Item.IS_ACTIVE", Expand = "Item.Line" });
 
             await base.SetParametersAsync(parameters);
         }

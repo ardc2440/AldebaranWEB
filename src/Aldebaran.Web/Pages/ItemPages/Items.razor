@@ -3,7 +3,7 @@
 @using Aldebaran.Web.Resources.LocalizedControls;
 @using ServiceModel = Aldebaran.Application.Services.Models;
 
-<PageTitle>Items</PageTitle>
+<PageTitle>Artículos</PageTitle>
 <RadzenStack>
     @if (DialogResult != null && DialogResult.Success)
     {
@@ -79,7 +79,7 @@
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="ServiceModel.Item" Property="Currency.CurrencyName" Title="Moneda" Visible="false">
                     </RadzenDataGridColumn>
-                    
+
                     <RadzenDataGridColumn TItem="ServiceModel.Item" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Item Editor")">
                         <Template Context="item">
                             <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditItem(item))" @onclick:stopPropagation="true">

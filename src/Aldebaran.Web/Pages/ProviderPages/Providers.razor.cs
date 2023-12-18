@@ -1,117 +1,112 @@
+using Aldebaran.Application.Services;
 using Aldebaran.Web.Models;
+using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
 using Radzen;
-using Radzen.Blazor;
+using ServiceModel = Aldebaran.Application.Services.Models;
 
 namespace Aldebaran.Web.Pages.ProviderPages
 {
     public partial class Providers
     {
-        [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
 
+        #region Injections
         [Inject]
-        protected NavigationManager NavigationManager { get; set; }
+        protected ILogger<Providers> Logger { get; set; }
 
         [Inject]
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected TooltipService TooltipService { get; set; }
-
-        [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
-
-        [Inject]
         protected NotificationService NotificationService { get; set; }
-
-        [Inject]
-        public AldebaranDbService AldebaranDbService { get; set; }
 
         [Inject]
         protected SecurityService Security { get; set; }
 
-        protected IEnumerable<Models.AldebaranDb.Provider> providers;
-        protected RadzenDataGrid<Models.AldebaranDb.Provider> grid0;
+        [Inject]
+        protected IProviderService ProviderService { get; set; }
+
+        [Inject]
+        protected IProviderReferenceService ProviderReferenceService { get; set; }
+        #endregion
+
+        #region Variables
+        protected IEnumerable<ServiceModel.Provider> ProvidersList;
+        protected LocalizedDataGrid<ServiceModel.Provider> ProvidersGrid;
+        protected ServiceModel.Provider Provider;
+        protected LocalizedDataGrid<ServiceModel.ProviderReference> ProviderReferencesDataGrid;
         protected string search = "";
-        protected Models.AldebaranDb.Provider provider;
-        protected RadzenDataGrid<Models.AldebaranDb.ProviderReference> ProviderReferencesDataGrid;
-        protected DialogResult dialogResult { get; set; }
+        protected DialogResult DialogResult { get; set; }
+        protected bool IsLoadingInProgress;
 
-        protected bool isLoadingInProgress;
+        #endregion
 
-        protected async Task Search(ChangeEventArgs args)
-        {
-            search = $"{args.Value}";
-            await grid0.GoToPage(0);
-            providers = await AldebaranDbService.GetProviders(new Query { Filter = $@"i => i.IDENTITY_NUMBER.Contains(@0) || i.PROVIDER_CODE.Contains(@0) || i.PROVIDER_NAME.Contains(@0) || i.PROVIDER_ADDRESS.Contains(@0) || i.PHONE.Contains(@0) || i.FAX.Contains(@0) || i.EMAIL.Contains(@0) || i.CONTACT_PERSON.Contains(@0)", FilterParameters = new object[] { search }, Expand = "City.Department.Country,IdentityType" });
-        }
-        void OnRender(DataGridRenderEventArgs<Models.AldebaranDb.ProviderReference> args)
-        {
-            if (args.FirstRender)
-            {
-                args.Grid.Groups.Add(new GroupDescriptor() { Title = "Línea", Property = "ItemReference.Item.Line.LINE_NAME", SortOrder = SortOrder.Descending });
-                args.Grid.Groups.Add(new GroupDescriptor() { Title = "Artículo", Property = "ItemReference.Item.ITEM_NAME", SortOrder = SortOrder.Descending });
-                StateHasChanged();
-            }
-        }
+        #region Overrides
         protected override async Task OnInitializedAsync()
         {
             try
             {
-                isLoadingInProgress = true;
-
-                await Task.Yield();
-
-                providers = await AldebaranDbService.GetProviders(new Query { Filter = $@"i => i.IDENTITY_NUMBER.Contains(@0) || i.PROVIDER_CODE.Contains(@0) || i.PROVIDER_NAME.Contains(@0) || i.PROVIDER_ADDRESS.Contains(@0) || i.PHONE.Contains(@0) || i.FAX.Contains(@0) || i.EMAIL.Contains(@0) || i.CONTACT_PERSON.Contains(@0)", FilterParameters = new object[] { search }, Expand = "City.Department.Country,IdentityType" });
+                IsLoadingInProgress = true;
+                await GetProvidersAsync();
             }
             finally
             {
-                isLoadingInProgress = false;
+                IsLoadingInProgress = false;
             }
-
         }
+        #endregion
 
-        protected async Task AddButtonClick(MouseEventArgs args)
+        #region Events
+        async Task GetProvidersAsync(string searchKey = null, CancellationToken ct = default)
         {
-            dialogResult = null;
+            await Task.Yield();
+            ProvidersList = string.IsNullOrEmpty(searchKey) ? await ProviderService.GetAsync(ct) : await ProviderService.GetAsync(searchKey, ct);
+        }
+        protected async Task Search(ChangeEventArgs args)
+        {
+            search = $"{args.Value}";
+            await ProvidersGrid.GoToPage(0);
+            await GetProvidersAsync(search);
+        }
+        protected async Task AddProvider(MouseEventArgs args)
+        {
+            DialogResult = null;
             var result = await DialogService.OpenAsync<AddProvider>("Nuevo proveedor", null);
             if (result == true)
             {
-                dialogResult = new DialogResult { Success = true, Message = "Proveedor creado correctamente." };
+                DialogResult = new DialogResult { Success = true, Message = "Proveedor creado correctamente." };
             }
-            await grid0.Reload();
+            await GetProvidersAsync();
+            await ProvidersGrid.Reload();
         }
-
-        protected async Task EditRow(Models.AldebaranDb.Provider args)
+        protected async Task EditProvider(ServiceModel.Provider args)
         {
-            dialogResult = null;
-            var result = await DialogService.OpenAsync<EditProvider>("Actualizar proveedor", new Dictionary<string, object> { { "PROVIDER_ID", args.PROVIDER_ID } });
+            DialogResult = null;
+            var result = await DialogService.OpenAsync<EditProvider>("Actualizar proveedor", new Dictionary<string, object> { { "PROVIDER_ID", args.ProviderId } });
             if (result == true)
             {
-                dialogResult = new DialogResult { Success = true, Message = "Proveedor actualizado correctamente." };
+                DialogResult = new DialogResult { Success = true, Message = "Proveedor actualizado correctamente." };
             }
+            await GetProvidersAsync();
+            await ProvidersGrid.Reload();
         }
-
-        protected async Task GridDeleteButtonClick(MouseEventArgs args, Models.AldebaranDb.Provider provider)
+        protected async Task DeleteProvider(MouseEventArgs args, ServiceModel.Provider provider)
         {
             try
             {
-                dialogResult = null;
+                DialogResult = null;
                 if (await DialogService.Confirm("Está seguro que desea eliminar este proveedor?") == true)
                 {
-                    var deleteResult = await AldebaranDbService.DeleteProvider(provider.PROVIDER_ID);
-                    if (deleteResult != null)
-                    {
-                        dialogResult = new DialogResult { Success = true, Message = "Proveedor eliminado correctamente." };
-                        await grid0.Reload();
-                    }
+                    await ProviderService.DeleteAsync(provider.ProviderId);
+                    await GetProvidersAsync();
+                    DialogResult = new DialogResult { Success = true, Message = "Proveedor eliminado correctamente." };
+                    await ProvidersGrid.Reload();
                 }
             }
             catch (Exception ex)
             {
+                Logger.LogError(ex, nameof(DeleteProvider));
                 NotificationService.Notify(new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
@@ -121,53 +116,57 @@ namespace Aldebaran.Web.Pages.ProviderPages
             }
         }
 
-        protected async Task GetChildData(Models.AldebaranDb.Provider args)
+        void OnProviderReferenceRender(DataGridRenderEventArgs<ServiceModel.ProviderReference> args)
         {
-            provider = args;
+            if (args.FirstRender)
+            {
+                args.Grid.Groups.Add(new GroupDescriptor() { Title = "Línea", Property = "ItemReference.Item.Line.LineName", SortOrder = SortOrder.Descending });
+                args.Grid.Groups.Add(new GroupDescriptor() { Title = "Artículo", Property = "ItemReference.Item.ItemName", SortOrder = SortOrder.Descending });
+                StateHasChanged();
+            }
+        }
+        protected async Task GetProviderReferences(ServiceModel.Provider args)
+        {
+            Provider = args;
             try
             {
-                isLoadingInProgress = true;
-
+                IsLoadingInProgress = true;
                 await Task.Yield();
-                var ProviderReferencesResult = await AldebaranDbService.GetProviderReferences(new Query { Filter = $@"i => i.PROVIDER_ID == {args.PROVIDER_ID}", Expand = "Provider,ItemReference.Item.Line" });
-                if (ProviderReferencesResult != null)
-                {
-                    args.ProviderReferences = ProviderReferencesResult.ToList();
-                }
+                var providerReferencesResult = await ProviderReferenceService.GetAsync(args.ProviderId);
+                args.ProviderReferences = providerReferencesResult.ToList();
             }
-            finally { isLoadingInProgress = false; }
+            finally
+            {
+                IsLoadingInProgress = false;
+            }
         }
-
-        protected async Task ProviderReferencesAddButtonClick(MouseEventArgs args, Models.AldebaranDb.Provider data)
+        protected async Task AddProviderReference(MouseEventArgs args, ServiceModel.Provider data)
         {
-            dialogResult = null;
-            var result = await DialogService.OpenAsync<AddProviderReference>("Agregar referencia", new Dictionary<string, object> { { "PROVIDER_ID", data.PROVIDER_ID } });
+            DialogResult = null;
+            var result = await DialogService.OpenAsync<AddProviderReference>("Agregar referencia", new Dictionary<string, object> { { "PROVIDER_ID", data.ProviderId } });
             if (result == true)
             {
-                dialogResult = new DialogResult { Success = true, Message = "Referencia agregada correctamente al proveedor." };
+                DialogResult = new DialogResult { Success = true, Message = "Referencia agregada correctamente al proveedor." };
             }
-            await GetChildData(data);
+            await GetProviderReferences(data);
             await ProviderReferencesDataGrid.Reload();
         }
-
-        protected async Task ProviderReferencesDeleteButtonClick(MouseEventArgs args, Models.AldebaranDb.ProviderReference providerReference)
+        protected async Task DeleteProviderReference(MouseEventArgs args, ServiceModel.ProviderReference providerReference)
         {
             try
             {
-                dialogResult = null;
+                DialogResult = null;
                 if (await DialogService.Confirm("Está seguro que desea eliminar esta referencia del proveedor?") == true)
                 {
-                    var deleteResult = await AldebaranDbService.DeleteProviderReference(providerReference.REFERENCE_ID, providerReference.PROVIDER_ID);
-                    await GetChildData(provider);
-                    if (deleteResult != null)
-                    {
-                        dialogResult = new DialogResult { Success = true, Message = "Referencia eliminada del proveedor correctamente." };
-                        await ProviderReferencesDataGrid.Reload();
-                    }
+                    await ProviderReferenceService.DeleteAsync(providerReference.ProviderId, providerReference.ReferenceId);
+                    await GetProviderReferences(Provider);
+                    DialogResult = new DialogResult { Success = true, Message = "Referencia eliminada del proveedor correctamente." };
+                    await ProviderReferencesDataGrid.Reload();
                 }
             }
             catch (Exception ex)
             {
+                Logger.LogError(ex, nameof(DeleteProviderReference));
                 NotificationService.Notify(new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
@@ -176,5 +175,6 @@ namespace Aldebaran.Web.Pages.ProviderPages
                 });
             }
         }
+        #endregion
     }
 }
