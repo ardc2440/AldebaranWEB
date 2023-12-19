@@ -16,6 +16,15 @@ namespace Aldebaran.Web.Shared
         [Inject]
         public IItemReferenceService ItemReferenceService { get; set; }
 
+        [Inject]
+        public IPurchaseOrderDetailService PurchaseOrderDetailService { get; set; }
+
+        [Inject]
+        public IDocumentTypeService DocumentTypeService { get; set; }
+
+        [Inject]
+        public IStatusDocumentTypeService StatusDocumentTypeService { get; set; }
+
         #endregion
 
         #region Parameters
@@ -66,17 +75,14 @@ namespace Aldebaran.Web.Shared
 
             Reference = reference;
 
-            await RefreshInventory(reference);
+            await RefreshInventory();
 
-            referencesWarehouses = await ReferencesWarehouseService.GetByReferenceIdAsync(Reference.ReferenceId);
+            await RefreshWarehouses();
 
-            await referencesWarehousesGrid.Reload();
-
-            this.totalTransitOrders = await AldebaranDbService.GetTotalTransitOrdersPurchaseByReferenceId(Reference.ReferenceId);
-
+            await RefreshTransitOrders();
         }
 
-        public async Task RefreshInventory(ItemReference reference)
+        public async Task RefreshInventory()
         {
             itemReferenceInventorys.Clear();
             itemReferenceInventorys.Add(new ItemReferenceInventory() { Type = "Cantidad", Quantity = Reference?.InventoryQuantity ?? 0 });
@@ -84,6 +90,25 @@ namespace Aldebaran.Web.Shared
             itemReferenceInventorys.Add(new ItemReferenceInventory() { Type = "Reservado", Quantity = Reference?.OrderedQuantity ?? 0 });
 
             await itemReferenceInventorysGrid.Reload();
+        }
+
+        public async Task RefreshWarehouses()
+        {
+            referencesWarehouses = await ReferencesWarehouseService.GetByReferenceIdAsync(Reference.ReferenceId);
+
+            await referencesWarehousesGrid.Reload();
+        }
+
+        public async Task RefreshTransitOrders()
+        {
+            var documentType = await DocumentTypeService.FindByCodeAsync("O");
+            var statusOrder = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 1);
+
+            var detailInTransit = await PurchaseOrderDetailService.GetTransitDetailOrdersAsync(Reference.ReferenceId, statusOrder.StatusDocumentTypeId);
+
+            totalTransitOrders = detailInTransit.GroupBy(group => group.PurchaseOrder.RequestDate).Select(c => new GroupPurchaseOrderDetail() { Request_Date = c.Key, Quantity = c.Sum(p => p.RequestedQuantity) }).ToList();
+
+            await totalTransitOrdersGrid.Reload();
         }
     }
 }

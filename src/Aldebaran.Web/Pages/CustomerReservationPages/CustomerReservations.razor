@@ -25,21 +25,21 @@
     <RadzenRow>
         <RadzenColumn SizeMD=12>
             <RadzenDataGrid @ref="grid0" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                            ExpandMode="DataGridExpandMode.Single" Data="@customerReservations" TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservation" RowExpand=@GetChildData AllowColumnPicking="true" PageSizeText="items per page" PagingSummaryFormat="Page {0} de {1} ({2} items)" IsLoading="@isLoadingInProgress">
+                            ExpandMode="DataGridExpandMode.Single" Data="@customerReservations" TItem="Aldebaran.Application.Services.Models.CustomerReservation" RowExpand=@GetChildData AllowColumnPicking="true" PageSizeText="items per page" PagingSummaryFormat="Page {0} de {1} ({2} items)" IsLoading="@isLoadingInProgress">
                 <Columns>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservation" Property="RESERVATION_NUMBER" Title="No. Reserva">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservation" Property="ReservationNumber" Title="No. Reserva">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservation" Property="Customer.CUSTOMER_NAME" Title="Cliente">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservation" Property="Customer.CustomerName" Title="Cliente">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservation" Property="RESERVATION_DATE" Title="Fecha Reserva">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservation" Property="ReservationDate" Title="Fecha Reserva">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservation" Property="EXPIRATION_DATE" Title="Fecha Expiración">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservation" Property="ExpirationDate" Title="Fecha Expiración">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservation" Property="StatusDocumentType.STATUS_DOCUMENT_TYPE_NAME" Title="Estado">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservation" Property="StatusDocumentType.StatusDocumentTypeName" Title="Estado">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservation" Property="NOTES" Title="Notas" Visible="false">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservation" Property="Notes" Title="Notas" Visible="false">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservation" Filterable="false" Sortable="false" Width="110px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservation" Filterable="false" Sortable="false" Width="110px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
                         <Template Context="customerReservation">
                             <RadzenButton Icon="assignment_turned_in" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
                                           Click="@(args => SendToCustomerOrder(customerReservation))" @onclick:stopPropagation="true"
@@ -63,18 +63,18 @@
                             </RadzenColumn>
                         </RadzenRow>
                         <RadzenDataGrid ColumnWidth="200px" Visible="@(customerReservation != null)" @ref=CustomerReservationDetailsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                        ExpandMode="DataGridExpandMode.Single" Data="@customerReservation?.CustomerReservationDetails" TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservationDetail">
+                                        ExpandMode="DataGridExpandMode.Single" Data="@customerReservation?.CustomerReservationDetails" TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail">
                             <Columns>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservationDetail" Property="RESERVED_QUANTITY" Title="Cantidad">
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Property="ReservedQuantity" Title="Cantidad">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservationDetail" Title="Artículo/Referencia">
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Title="Artículo/Referencia">
                                     <Template Context="detail">
-                                        <span>(@detail.ItemReference.Item.INTERNAL_REFERENCE) @detail.ItemReference.Item.ITEM_NAME - @detail.ItemReference.REFERENCE_NAME</span>
+                                        <span>(@detail.ItemReference.Item.InternalReference) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName</span>
                                     </Template>
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservationDetail" Property="SEND_TO_CUSTOMER_ORDER" Title="Agregar al Pedido" Visible="false">
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Property="SendToCustomerOrder" Title="Agregar al Pedido" Visible="false">
                                     <Template Context="detail">
-                                        <RadzenCheckBox @bind-Value="@detail.SEND_TO_CUSTOMER_ORDER" Name="SEND_TO_CUSTOMER_ORDER" Disabled="true"></RadzenCheckBox>
+                                        <RadzenCheckBox @bind-Value="@detail.SendToCustomerOrder" Name="SEND_TO_CUSTOMER_ORDER" Disabled="true"></RadzenCheckBox>
                                     </Template>
                                 </RadzenDataGridColumn>
                             </Columns>

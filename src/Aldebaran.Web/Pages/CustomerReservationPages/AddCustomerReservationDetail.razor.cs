@@ -1,47 +1,51 @@
-using Aldebaran.Web.Models.AldebaranDb;
+using Aldebaran.Application.Services;
+using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
 using Radzen;
 using System.Linq.Dynamic.Core;
-using ServiceModel = Aldebaran.Application.Services.Models;
 
 namespace Aldebaran.Web.Pages.CustomerReservationPages
 {
     public partial class AddCustomerReservationDetail
     {
-        [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
-
-        [Inject]
-        protected NavigationManager NavigationManager { get; set; }
-
+        #region Injections
         [Inject]
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected TooltipService TooltipService { get; set; }
+        protected IItemReferenceService ItemReferenceService { get; set; }
 
-        [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
+        #endregion
 
-        [Inject]
-        protected NotificationService NotificationService { get; set; }
-
-        [Inject]
-        public AldebaranDbService AldebaranDbService { get; set; }
+        #region Parameters
 
         [Parameter]
         public ICollection<CustomerReservationDetail> CustomerReservationDetails { get; set; }
 
+        #endregion
+
+        #region Global Variables
         protected bool errorVisible;
         protected string alertMessage;
         protected bool isSubmitInProgress;
         protected CustomerReservationDetail customerReservationDetail;
         protected InventoryQuantities QuantitiesPanel;
-        protected IEnumerable<ServiceModel.ItemReference> itemReferencesForREFERENCEID;
+        protected IEnumerable<ItemReference> itemReferencesForREFERENCEID;
+        #endregion
 
+        #region Overrides
+        public override async Task SetParametersAsync(ParameterView parameters)
+        {
+            customerReservationDetail = new CustomerReservationDetail();
+            itemReferencesForREFERENCEID = await ItemReferenceService.GetByStatusAsync(true);
+
+            await base.SetParametersAsync(parameters);
+        }
+        #endregion
+
+        #region Events
         protected async Task FormSubmit()
         {
             try
@@ -49,11 +53,11 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                 errorVisible = false;
                 isSubmitInProgress = true;
 
-                if (CustomerReservationDetails.Any(ad => ad.REFERENCE_ID.Equals(customerReservationDetail.REFERENCE_ID)))
+                if (CustomerReservationDetails.Any(ad => ad.ReferenceId.Equals(customerReservationDetail.ReferenceId)))
                     throw new Exception("La Referencia seleccionada, ya existe dentro de esta reserva.");
 
-                var reference = await AldebaranDbService.GetItemReferences(new Query { Filter = "i=> i.REFERENCE_ID==@0", FilterParameters = new object[] { customerReservationDetail.REFERENCE_ID }, Expand = "Item" });
-                customerReservationDetail.ItemReference = reference.Single();
+                var reference = await ItemReferenceService.FindAsync(customerReservationDetail.ReferenceId);
+                customerReservationDetail.ItemReference = reference;
                 DialogService.Close(customerReservationDetail);
             }
             catch (Exception ex)
@@ -72,18 +76,11 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             DialogService.Close(null);
         }
 
-        public override async Task SetParametersAsync(ParameterView parameters)
+        protected async Task ItemReferenceHandler(ItemReference reference)
         {
-            customerReservationDetail = new CustomerReservationDetail();
-            //itemReferencesForREFERENCEID = await AldebaranDbService.GetItemReferences(new Query { Filter = "i => i.IS_ACTIVE && i.Item.IS_ACTIVE", Expand = "Item.Line" });
-
-            await base.SetParametersAsync(parameters);
+            customerReservationDetail.ReferenceId = reference?.ReferenceId ?? 0;
+            await QuantitiesPanel.Refresh(reference);
         }
-
-        protected async Task ItemReferenceHandler(ServiceModel.ItemReference reference)
-        {
-            customerReservationDetail.REFERENCE_ID = reference?.ReferenceId ?? 0;
-            //await QuantitiesPanel.Refresh(reference);
-        }
+        #endregion
     }
 }

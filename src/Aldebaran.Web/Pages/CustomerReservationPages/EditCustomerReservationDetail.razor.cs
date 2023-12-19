@@ -1,49 +1,49 @@
-using Aldebaran.Web.Models.AldebaranDb;
+using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
 using Radzen;
 
 namespace Aldebaran.Web.Pages.CustomerReservationPages
 {
     public partial class EditCustomerReservationDetail
     {
-        [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
-
-        [Inject]
-        protected NavigationManager NavigationManager { get; set; }
-
+        #region Injections
         [Inject]
         protected DialogService DialogService { get; set; }
+        #endregion
 
-        [Inject]
-        protected TooltipService TooltipService { get; set; }
-
-        [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
-
-        [Inject]
-        protected NotificationService NotificationService { get; set; }
-        [Inject]
-        public AldebaranDbService AldebaranDbService { get; set; }
-
+        #region Parameters
         [Parameter]
-        public CustomerReservationDetail customerReservationDetail { get; set; }
+        public CustomerReservationDetail CustomerReservationDetail { get; set; }
 
+        #endregion
+
+        #region Global Variables
         protected bool errorVisible;
         protected string alertMessage;
         protected bool isSubmitInProgress;
         protected InventoryQuantities QuantitiesPanel;
 
+        #endregion
+
+        #region Overrides
+        public override async Task SetParametersAsync(ParameterView parameters)
+        {
+            CustomerReservationDetail = new CustomerReservationDetail();
+
+            await base.SetParametersAsync(parameters);
+        }
+        #endregion
+
+        #region Events
         protected async Task FormSubmit()
         {
             try
             {
                 errorVisible = false;
                 isSubmitInProgress = true;
-                DialogService.Close(customerReservationDetail);
+                DialogService.Close(CustomerReservationDetail);
             }
             catch (Exception ex)
             {
@@ -61,16 +61,10 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             DialogService.Close(null);
         }
 
-        public override async Task SetParametersAsync(ParameterView parameters)
-        {
-            customerReservationDetail = new CustomerReservationDetail();
-
-            await base.SetParametersAsync(parameters);
-        }
-
         protected async Task ItemReferenceHandler()
         {
-            await QuantitiesPanel.Refresh(customerReservationDetail.ItemReference);
+            await QuantitiesPanel.Refresh(CustomerReservationDetail.ItemReference);
         }
+        #endregion
     }
 }

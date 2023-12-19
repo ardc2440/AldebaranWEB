@@ -1,3 +1,5 @@
+using Aldebaran.DataAccess.Core;
+
 namespace Aldebaran.DataAccess.Entities
 {
     public class PurchaseOrder

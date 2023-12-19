@@ -11,7 +11,7 @@ namespace Aldebaran.Application.Services
         Task DeleteAsync(int itemReferenceId, CancellationToken ct = default);
         Task<IEnumerable<ItemReference>> GetAsync(CancellationToken ct = default);
         Task<IEnumerable<ItemReference>> GetAsync(string searchKey, CancellationToken ct = default);
-        Task<IEnumerable<ItemReference>> GetByStatusAsync(bool isActive, CancellationToken ct = default)
+        Task<IEnumerable<ItemReference>> GetByStatusAsync(bool isActive, CancellationToken ct = default);
     }
 
 }

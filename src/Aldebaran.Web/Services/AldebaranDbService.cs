@@ -5325,17 +5325,6 @@ namespace Aldebaran.Web
             }
         }
 
-        public async Task<ICollection<GroupPurchaseOrderDetail>> GetTotalTransitOrdersPurchaseByReferenceId(int referenceId)
-        {
-            var documentType = await GetDocumentTypeByCode("O");
-            var statusOrder = await GetStatusDocumentTypeByDocumentAndOrder(documentType, 1);
-
-            return Context.PurchaseOrderDetails
-                    .Where(det => det.PurchaseOrder.STATUS_DOCUMENT_TYPE_ID.Equals(statusOrder.STATUS_DOCUMENT_TYPE_ID))
-                    .GroupBy(group => group.PurchaseOrder.REQUEST_DATE)
-                    .Select(c => new GroupPurchaseOrderDetail() { Request_Date = c.Key, Quantity = c.Sum(p => p.REQUESTED_QUANTITY) }).ToList();
-        }
-
         partial void OnCustomerOrderDetailsRead(ref IQueryable<CustomerOrderDetail> items);
 
         partial void OnCustomerOrdersRead(ref IQueryable<CustomerOrder> items);

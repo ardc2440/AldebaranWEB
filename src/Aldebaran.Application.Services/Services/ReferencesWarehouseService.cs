@@ -18,7 +18,6 @@ namespace Aldebaran.Application.Services
         {
             var data = await _repository.GetByReferenceIdAsync(referenceId, ct);
             return _mapper.Map<IEnumerable<ReferencesWarehouse>>(data);
-
         }
     }
 

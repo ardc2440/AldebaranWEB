@@ -1,5 +1,4 @@
 using Aldebaran.Application.Services;
-using Aldebaran.Application.Services.Services;
 using Aldebaran.DataAccess.Infraestructure.Repository;
 using Aldebaran.Web.Data;
 using Aldebaran.Web.Models;
@@ -134,7 +133,6 @@ services.AddTransient<IStatusDocumentTypeRepository, StatusDocumentTypeRepositor
 services.AddTransient<IUsersAlarmTypeRepository, UsersAlarmTypeRepository>();
 services.AddTransient<IVisualizedAlarmRepository, VisualizedAlarmRepository>();
 services.AddTransient<IWarehouseRepository, WarehouseRepository>();
-services.AddTransient<IUtilitiesRepository, UtilitiesRepository>();
 
 // Services
 services.AddTransient<IActivityTypeService, ActivityTypeService>();
@@ -202,7 +200,6 @@ services.AddTransient<IStatusDocumentTypeService, StatusDocumentTypeService>();
 services.AddTransient<IUsersAlarmTypeService, UsersAlarmTypeService>();
 services.AddTransient<IVisualizedAlarmService, VisualizedAlarmService>();
 services.AddTransient<IWarehouseService, WarehouseService>();
-services.AddTransient<IUtilitiesService, UtilitiesService>();
 
 var app = builder.Build();
 // Configure the HTTP request pipeline.

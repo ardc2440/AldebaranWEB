@@ -1,6 +1,5 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
-using Aldebaran.Application.Services.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
@@ -16,9 +15,6 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
         [Inject]
         protected DialogService DialogService { get; set; }
-
-        [Inject]
-        public AldebaranDbService AldebaranDbService { get; set; }
 
         [Inject]
         protected SecurityService Security { get; set; }
@@ -37,9 +33,6 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
         [Inject]
         protected ICustomerReservationService CustomerReservationService { get; set; }
-
-        [Inject]
-        protected IUtilitiesService UtilitiesService { get; set; }
 
         #endregion
 
@@ -94,11 +87,10 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                     throw new Exception("No ha ingresado ninguna referencia");
 
                 customerReservation.CustomerReservationDetails = customerReservationDetails;
-                customerReservation.ReservationNumber = await UtilitiesService.GetNextDocumentNumber<CustomerReservation>(customerReservation);
 
-                //await CustomerReservationService.Add(customerReservation);
+                await CustomerReservationService.AddAsync(customerReservation);
 
-                await DialogService.Alert($"Reserva de Articulos Guardada Satisfactoriamente con el consecutivo {customerReservation.RESERVATION_NUMBER}", "Información");
+                await DialogService.Alert($"Reserva de Articulos Guardada Satisfactoriamente con el consecutivo {customerReservation.ReservationNumber}", "Información");
                 NavigationManager.NavigateTo("customer-reservations");
             }
             catch (Exception ex)
@@ -117,7 +109,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
         protected async Task AddCustomerReservationDetailButtonClick(MouseEventArgs args)
         {
-            var result = await DialogService.OpenAsync<AddCustomerReservationDetail>("Nueva referencia", new Dictionary<string, object> { { "customerReservationDetails", customerReservationDetails } });
+            var result = await DialogService.OpenAsync<AddCustomerReservationDetail>("Nueva referencia", new Dictionary<string, object> { { "CustomerReservationDetails", customerReservationDetails } });
 
             if (result == null)
                 return;
@@ -141,7 +133,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
         protected async Task EditRow(CustomerReservationDetail args)
         {
-            var result = await DialogService.OpenAsync<EditCustomerReservationDetail>("Actualizar referencia", new Dictionary<string, object> { { "customerReservationDetail", args } });
+            var result = await DialogService.OpenAsync<EditCustomerReservationDetail>("Actualizar referencia", new Dictionary<string, object> { { "CustomerReservationDetail", args } });
             if (result == null)
                 return;
             var detail = (CustomerReservationDetail)result;

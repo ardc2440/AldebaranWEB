@@ -4,14 +4,14 @@
 
 <RadzenColumn SizeMD=12>
     <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">Cannot save AdjustmentDetail</RadzenAlert>
-    <RadzenTemplateForm TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservationDetail" Data="@customerReservationDetail" Visible="@(customerReservationDetail != null)" Submit="@FormSubmit">
+    <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Data="@CustomerReservationDetail" Visible="@(CustomerReservationDetail != null)" Submit="@FormSubmit">
         <RadzenStack style="margin-bottom: 1rem">
             <RadzenRow SizeMD="9">
                 <RadzenColumn SizeMD="3">
                     <RadzenLabel Text="Referencia" Component="REFERENCE" style="width: 100%" />
                 </RadzenColumn>
                 <RadzenColumn onchange="@ItemReferenceHandler()" SizeMD="9">
-                    <span>(@customerReservationDetail.ItemReference.Item.INTERNAL_REFERENCE) @customerReservationDetail.ItemReference.Item.ITEM_NAME - @customerReservationDetail.ItemReference.REFERENCE_NAME</span>
+                    <span>(@CustomerReservationDetail.ItemReference.Item.InternalReference) @CustomerReservationDetail.ItemReference.Item.ItemName - @CustomerReservationDetail.ItemReference.ReferenceName</span>
                 </RadzenColumn>
             </RadzenRow>
             <RadzenRow>
@@ -19,7 +19,7 @@
                     <RadzenLabel Text="Cantidad" Component="RESERVED_QUANTITY" style="width: 100%" />
                 </RadzenColumn>
                 <RadzenColumn SizeMD="9">
-                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@customerReservationDetail.RESERVED_QUANTITY" Name="RESERVED_QUANTITY" Placeholder="Ingrese la cantidad a reservar" />
+                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@CustomerReservationDetail.ReservedQuantity" Name="RESERVED_QUANTITY" Placeholder="Ingrese la cantidad a reservar" />
                     <RadzenRequiredValidator Component="RESERVED_QUANTITY" Text="La Cantidad es Requerida" />
                 </RadzenColumn>
             </RadzenRow>
@@ -28,7 +28,7 @@
                     <RadzenLabel Text="Marcación" Component="BRAND" style="width: 100%" />
                 </RadzenColumn>
                 <RadzenColumn SizeMD="9">
-                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@customerReservationDetail.BRAND" Name="BRAND" Placeholder="Ingrese la marcación del producto" />
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@CustomerReservationDetail.Brand" Name="BRAND" Placeholder="Ingrese la marcación del producto" />
                 </RadzenColumn>
             </RadzenRow>
         </RadzenStack>
