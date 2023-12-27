@@ -1,6 +1,7 @@
 @page "/send-to-customer-order/{pCustomerReservationId}"
 
 @attribute [Authorize(Roles = "Admin,Customer Reservation Editor")]
+@using Aldebaran.Web.Resources.LocalizedControls;
 
 <PageTitle>Convertir Reserva en Pedido</PageTitle>
 <RadzenCard>
@@ -60,7 +61,7 @@
                         <RadzenRow Gap="0" AlignItems="AlignItems.Start">
                             <RadzenLabel Text="Articulos Reservados" class="fw-bold" style="width: 100%" />
                         </RadzenRow>
-                        <RadzenDataGrid @ref="customerReservationDetailGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                        <LocalizedDataGrid @ref="customerReservationDetailGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                         Data="@customerReservationDetails" TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail">
                             <Columns>
                                 <RadzenDataGridColumn Width="70px" TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Property="SendToCustomerOrder" Title="Confirmar">
@@ -75,7 +76,7 @@
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Property="ReservedQuantity" Title="Cantidad" Width="80px" />
                             </Columns>
-                        </RadzenDataGrid>
+                        </LocalizedDataGrid>
                     </RadzenStack>
                 </RadzenColumn>
             </RadzenRow>

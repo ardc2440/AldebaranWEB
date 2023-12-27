@@ -1,10 +1,10 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Models;
+using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
-using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.AdjustmentPages
 {
@@ -42,7 +42,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected IEnumerable<Adjustment> adjustments;
 
-        protected RadzenDataGrid<Adjustment> grid0;
+        protected LocalizedDataGrid<Adjustment> grid0;
 
         protected DialogResult dialogResult { get; set; }
 
@@ -54,7 +54,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected Adjustment adjustment;
 
-        protected RadzenDataGrid<AdjustmentDetail> AdjustmentDetailsDataGrid;
+        protected LocalizedDataGrid<AdjustmentDetail> AdjustmentDetailsDataGrid;
 
         #endregion
 

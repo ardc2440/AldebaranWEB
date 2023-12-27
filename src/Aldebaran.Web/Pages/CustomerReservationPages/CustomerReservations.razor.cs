@@ -1,10 +1,10 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Models;
+using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
-using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.CustomerReservationPages
 {
@@ -39,13 +39,13 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
         #region Global Variables
         protected IEnumerable<CustomerReservation> customerReservations;
-        protected RadzenDataGrid<CustomerReservation> grid0;
+        protected LocalizedDataGrid<CustomerReservation> grid0;
         protected DialogResult DialogResult { get; set; }
         protected string search = "";
         protected bool isLoadingInProgress;
         protected DocumentType documentType;
         protected CustomerReservation customerReservation;
-        protected RadzenDataGrid<CustomerReservationDetail> CustomerReservationDetailsDataGrid;
+        protected LocalizedDataGrid<CustomerReservationDetail> CustomerReservationDetailsDataGrid;
 
         #endregion
 

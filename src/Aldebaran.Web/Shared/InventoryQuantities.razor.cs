@@ -1,8 +1,8 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Models.ViewModels;
+using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
-using Radzen.Blazor;
 
 namespace Aldebaran.Web.Shared
 {
@@ -34,11 +34,11 @@ namespace Aldebaran.Web.Shared
 
         #region Global Variables
         protected IEnumerable<ReferencesWarehouse> referencesWarehouses;
-        protected RadzenDataGrid<ReferencesWarehouse> referencesWarehousesGrid;
+        protected LocalizedDataGrid<ReferencesWarehouse> referencesWarehousesGrid;
         protected IEnumerable<GroupPurchaseOrderDetail> totalTransitOrders;
-        protected RadzenDataGrid<GroupPurchaseOrderDetail> totalTransitOrdersGrid;
+        protected LocalizedDataGrid<GroupPurchaseOrderDetail> totalTransitOrdersGrid;
         protected ICollection<ItemReferenceInventory> itemReferenceInventorys;
-        protected RadzenDataGrid<ItemReferenceInventory> itemReferenceInventorysGrid;
+        protected LocalizedDataGrid<ItemReferenceInventory> itemReferenceInventorysGrid;
         protected int inventoryQuantity = 0;
         protected int reservedQuantity = 0;
         protected int orderedQuantity = 0;

@@ -1,10 +1,10 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Models;
+using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
-using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.CustomerOrderPages
 {
@@ -47,12 +47,12 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected DialogResult dialogResult;
         protected DocumentType documentType;
         protected IEnumerable<CustomerOrder> customerOrders;
-        protected RadzenDataGrid<CustomerOrder> grid0;
+        protected LocalizedDataGrid<CustomerOrder> grid0;
         protected CustomerOrder customerOrder;
         protected CustomerOrderActivity customerOrderActivity;
-        protected RadzenDataGrid<CustomerOrderDetail> CustomerOrderDetailsDataGrid;
-        protected RadzenDataGrid<CustomerOrderActivity> CustomerOrderActivitiesDataGrid;
-        protected RadzenDataGrid<CustomerOrderActivityDetail> CustomerOrderActivityDetailsDataGrid;
+        protected LocalizedDataGrid<CustomerOrderDetail> CustomerOrderDetailsDataGrid;
+        protected LocalizedDataGrid<CustomerOrderActivity> CustomerOrderActivitiesDataGrid;
+        protected LocalizedDataGrid<CustomerOrderActivityDetail> CustomerOrderActivityDetailsDataGrid;
         protected string search = "";
         protected bool isLoadingInProgress;
         #endregion

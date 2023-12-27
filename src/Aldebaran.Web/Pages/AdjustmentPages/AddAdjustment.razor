@@ -1,6 +1,7 @@
 @page "/add-adjustment"
 
 @attribute [Authorize(Roles = "Admin,Adjustment Editor")]
+@using Aldebaran.Web.Resources.LocalizedControls;
 
 <PageTitle>Nuevo Ajuste de Inventario</PageTitle>
 <RadzenCard>
@@ -62,7 +63,7 @@
                                 </RadzenStack>
                             </RadzenColumn>
                         </RadzenRow>
-                        <RadzenDataGrid @ref="adjustmentDetailGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                        <LocalizedDataGrid @ref="adjustmentDetailGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                         Data="@adjustmentDetails" TItem="Aldebaran.Application.Services.Models.AdjustmentDetail">
                             <Columns>
                                 <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AdjustmentDetail" Property="Quantity" Title="Cantidad" Width="100px" />
@@ -84,7 +85,7 @@
                                     </Template>
                                 </RadzenDataGridColumn>
                             </Columns>
-                        </RadzenDataGrid>
+                        </LocalizedDataGrid>
                     </RadzenStack>
                 </RadzenColumn>
             </RadzenRow>

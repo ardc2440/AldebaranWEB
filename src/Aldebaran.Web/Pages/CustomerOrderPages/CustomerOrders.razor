@@ -1,5 +1,6 @@
 @page "/customer-orders"
 @attribute [Authorize(Roles = "Admin,Customer Order Viwer,Customer Order Editor,Customer Order Activities Viwer,Customer Order Activities Editor")]
+@using Aldebaran.Web.Resources.LocalizedControls;
 
 <PageTitle>Pedido de Artículos</PageTitle>
 <RadzenStack>
@@ -24,7 +25,7 @@
     <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
     <RadzenRow>
         <RadzenColumn SizeMD=12>
-            <RadzenDataGrid @ref="grid0" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+            <LocalizedDataGrid @ref="grid0" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                             ExpandMode="DataGridExpandMode.Single" Data="@customerOrders" TItem="Aldebaran.Application.Services.Models.CustomerOrder" RowExpand=@GetChildData AllowColumnPicking="true" PageSizeText="items per page" PagingSummaryFormat="Page {0} de {1} ({2} items)" IsLoading="@isLoadingInProgress">
                 <Columns>
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="OrderNumber" Title="No. Pedido">
@@ -64,7 +65,7 @@
                                 <RadzenText Visible="@(customerOrder != null)" Text="Referencias del Pedido" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
                             </RadzenColumn>
                         </RadzenRow>
-                        <RadzenDataGrid ColumnWidth="200px" Visible="@(customerOrder != null)" @ref=CustomerOrderDetailsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                        <LocalizedDataGrid ColumnWidth="200px" Visible="@(customerOrder != null)" @ref=CustomerOrderDetailsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                         ExpandMode="DataGridExpandMode.Single" Data="@customerOrder?.CustomerOrderDetails" TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail">
                             <Columns>
                                 <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Property="RecuestedQuantity" Title="Cantidad">
@@ -79,7 +80,7 @@
                                 <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Property="DeliveredQuantity" Title="Despachado">
                                 </RadzenDataGridColumn>
                             </Columns>
-                        </RadzenDataGrid>
+                        </LocalizedDataGrid>
                         <RadzenStack Visible="@Security.IsInRole("Admin","Customer Order Activities Viwer","Customer Order Activities Editor")">
                             <RadzenRow Gap="0" AlignItems="AlignItems.Center">
                                 <RadzenColumn Size="12" SizeMD="6">
@@ -91,7 +92,7 @@
                                     <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddActivityButtonClick" Variant="Variant.Flat" Visible="@Security.IsInRole("Admin","Customer Order Activities Editor")" />
                                 </RadzenStack>
                             </RadzenColumn>
-                            <RadzenDataGrid ColumnWidth="200px" Visible="@(customerOrder != null)" @ref=CustomerOrderActivitiesDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                            <LocalizedDataGrid ColumnWidth="200px" Visible="@(customerOrder != null)" @ref=CustomerOrderActivitiesDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                             ExpandMode="DataGridExpandMode.Single" Data="@customerOrder?.CustomerOrderActivities" RowExpand=@GetChildActivityData TItem="Aldebaran.Application.Services.Models.CustomerOrderActivity">
                                 <Columns>
                                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderActivity" Property="Area.AreaName" Title="Area">
@@ -124,7 +125,7 @@
                                                 <RadzenText Visible="@(customerOrderActivity != null)" Text="Detalle de la Actividad" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
                                             </RadzenColumn>
                                         </RadzenRow>
-                                        <RadzenDataGrid ColumnWidth="200px" Visible="@(customerOrder != null)" @ref=CustomerOrderActivityDetailsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                        <LocalizedDataGrid ColumnWidth="200px" Visible="@(customerOrder != null)" @ref=CustomerOrderActivityDetailsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                                         ExpandMode="DataGridExpandMode.Single" Data="@customerOrderActivity?.CustomerOrderActivityDetails" TItem="Aldebaran.Application.Services.Models.CustomerOrderActivityDetail">
                                             <Columns>
                                                 <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderActivityDetail" Property="ActivityType.ActivityTypeName" Title="Tipo de Actividad">
@@ -132,14 +133,14 @@
                                                 <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderActivityDetail" Property="EmployeeActivity.FullName" Title="Ejecutor">
                                                 </RadzenDataGridColumn>
                                             </Columns>
-                                        </RadzenDataGrid>
+                                        </LocalizedDataGrid>
                                     </RadzenStack>
                                 </Template>
-                            </RadzenDataGrid>
+                            </LocalizedDataGrid>
                         </RadzenStack>
                     </RadzenStack>
                 </Template>
-            </RadzenDataGrid>
+            </LocalizedDataGrid>
         </RadzenColumn>
     </RadzenRow>
 </RadzenStack>

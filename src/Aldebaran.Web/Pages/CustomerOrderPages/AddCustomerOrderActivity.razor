@@ -1,6 +1,7 @@
 @page "/add-customer-order-activity/{pCustomerOrderId}"
 
 @attribute [Authorize(Roles = "Admin,Customer Order Activities Editor")]
+@using Aldebaran.Web.Resources.LocalizedControls;
 
 <PageTitle>Pedido de Articulos</PageTitle>
 <RadzenCard>
@@ -71,7 +72,7 @@
                                 </RadzenStack>
                             </RadzenColumn>
                         </RadzenRow>
-                        <RadzenDataGrid @ref="customerOrderActivityDetailsGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                        <LocalizedDataGrid @ref="customerOrderActivityDetailsGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                         Data="@customerOrderActivityDetails" TItem="Aldebaran.Application.Services.Models.CustomerOrderActivityDetail">
                             <Columns>
                                 <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderActivityDetail" Property="ActivityType.ActivityTypeName" Title="Tipo de Actividad" Width="100px" />
@@ -87,7 +88,7 @@
                                     </Template>
                                 </RadzenDataGridColumn>
                             </Columns>
-                        </RadzenDataGrid>
+                        </LocalizedDataGrid>
                     </RadzenStack>
                 </RadzenColumn>
             </RadzenRow>

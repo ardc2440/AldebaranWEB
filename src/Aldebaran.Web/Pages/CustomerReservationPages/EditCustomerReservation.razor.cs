@@ -1,9 +1,9 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
+using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
-using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.CustomerReservationPages
 {
@@ -39,7 +39,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         protected CustomerReservation customerReservation;
         protected IEnumerable<Customer> customersForCUSTOMERID;
         protected ICollection<CustomerReservationDetail> customerReservationDetails;
-        protected RadzenDataGrid<CustomerReservationDetail> customerReservationDetailGrid;
+        protected LocalizedDataGrid<CustomerReservationDetail> customerReservationDetailGrid;
         protected bool isSubmitInProgress;
         protected string title;
         #endregion

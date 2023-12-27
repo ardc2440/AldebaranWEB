@@ -1,9 +1,9 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
+using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
-using Radzen.Blazor;
 using System.Linq.Dynamic.Core;
 
 namespace Aldebaran.Web.Pages.CustomerOrderPages
@@ -47,7 +47,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected bool errorVisible;
         protected string errorMessage;
         protected ICollection<CustomerOrderActivityDetail> customerOrderActivityDetails;
-        protected RadzenDataGrid<CustomerOrderActivityDetail> customerOrderActivityDetailsGrid;
+        protected LocalizedDataGrid<CustomerOrderActivityDetail> customerOrderActivityDetailsGrid;
         protected IEnumerable<Area> areasForAREAID;
         protected IEnumerable<Employee> employeesForEMPLOYEEID;
         protected bool isSubmitInProgress;

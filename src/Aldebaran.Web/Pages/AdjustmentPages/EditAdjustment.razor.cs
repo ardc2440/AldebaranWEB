@@ -1,5 +1,6 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
+using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
@@ -51,7 +52,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected ICollection<AdjustmentDetail> adjustmentDetails;
 
-        protected RadzenDataGrid<AdjustmentDetail> adjustmentDetailGrid;
+        protected LocalizedDataGrid<AdjustmentDetail> adjustmentDetailGrid;
 
         protected bool isSubmitInProgress;
 

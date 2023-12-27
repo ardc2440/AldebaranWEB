@@ -1,11 +1,11 @@
 using Aldebaran.Web.Models;
 using Aldebaran.Web.Models.AldebaranDb;
 using Aldebaran.Web.Models.ViewModels;
+using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using Radzen;
-using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 {
@@ -44,10 +44,10 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         protected IEnumerable<Models.AldebaranDb.CustomerOrderInProcessDetail> customerOrderInProcessDetails;
         protected IEnumerable<Models.ViewModels.DetailInProcess> detailInProcesses;
 
-        protected RadzenDataGrid<Models.ViewModels.DetailInProcess> CustomerOrderDetailsDataGrid;
-        protected RadzenDataGrid<Models.AldebaranDb.CustomerOrderInProcess> CustomerOrderInProcessesDataGrid;
-        protected RadzenDataGrid<Models.AldebaranDb.CustomerOrderInProcessDetail> CustomerOrderInProcessDetailDataGrid;
-        protected RadzenDataGrid<Models.AldebaranDb.CustomerOrder> CustomerOrdersGrid;
+        protected LocalizedDataGrid<Models.ViewModels.DetailInProcess> CustomerOrderDetailsDataGrid;
+        protected LocalizedDataGrid<Models.AldebaranDb.CustomerOrderInProcess> CustomerOrderInProcessesDataGrid;
+        protected LocalizedDataGrid<Models.AldebaranDb.CustomerOrderInProcessDetail> CustomerOrderInProcessDetailDataGrid;
+        protected LocalizedDataGrid<Models.AldebaranDb.CustomerOrder> CustomerOrdersGrid;
 
         protected string search = "";
         protected bool isLoadingInProgress;

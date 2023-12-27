@@ -1,10 +1,10 @@
 using Aldebaran.Web.Models.AldebaranDb;
 using Aldebaran.Web.Models.ViewModels;
+using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using Radzen;
-using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 {
@@ -40,7 +40,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         protected CustomerOrderInProcess customerOrderInProcess;
         protected DocumentType documentType;
         protected ICollection<DetailInProcess> detailsInProcess;
-        protected RadzenDataGrid<DetailInProcess> customerOrderDetailGrid;
+        protected LocalizedDataGrid<DetailInProcess> customerOrderDetailGrid;
 
         protected IEnumerable<Employee> employeesFOREMPLOYEEID;
         protected IEnumerable<ProcessSatellite> processSatellitesFORPROCESSSATELLITEID;
