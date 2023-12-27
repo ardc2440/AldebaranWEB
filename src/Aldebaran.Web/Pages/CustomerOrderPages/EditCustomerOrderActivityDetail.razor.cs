@@ -1,56 +1,61 @@
-using Aldebaran.Web.Models.AldebaranDb;
+using Aldebaran.Application.Services;
+using Aldebaran.Application.Services.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
 using Radzen;
 
 namespace Aldebaran.Web.Pages.CustomerOrderPages
 {
     public partial class EditCustomerOrderActivityDetail
     {
-        [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
-
-        [Inject]
-        protected NavigationManager NavigationManager { get; set; }
+        #region Injections
 
         [Inject]
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected TooltipService TooltipService { get; set; }
+        public IActivityTypesAreaService ActivityTypesAreaService { get; set; }
 
         [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
+        public IEmployeeService EmployeeService { get; set; }
 
         [Inject]
-        protected NotificationService NotificationService { get; set; }
+        public IAreaService AreaService { get; set; }
 
         [Inject]
-        public AldebaranDbService AldebaranDbService { get; set; }
+        public IActivityTypeService ActivityTypeService { get; set; }
+
+        #endregion
+
+        #region Parameters
 
         [Parameter]
-        public ICollection<CustomerOrderActivityDetail> customerOrderActivityDetails { get; set; }
+        public ICollection<CustomerOrderActivityDetail> CustomerOrderActivityDetails { get; set; }
 
         [Parameter]
-        public short customerOrderActivityAreaId { get; set; }
+        public short CustomerOrderActivityAreaId { get; set; }
 
         [Parameter]
-        public CustomerOrderActivityDetail customerOrderActivityDetail { get; set; }
+        public CustomerOrderActivityDetail CustomerOrderActivityDetail { get; set; }
+
+        #endregion
+
+        #region Global Variables
 
         protected bool errorVisible;
         protected string alertMessage;
         protected bool isSubmitInProgress;
         protected bool isLoadingInProgress;
-
         protected IEnumerable<Employee> employeesForACTIVITYEMPLOYEEID;
-        protected IEnumerable<ActivityTypeArea> activityTypesForACTIVITY_ID;
-
+        protected IEnumerable<ActivityTypesArea> activityTypesForACTIVITY_ID;
         bool hasCUSTOMER_ORDER_ACTIVITY_IDValue;
         bool hasACTIVITY_TYPE_IDValue;
         bool hasACTIVITY_EMPLOYEE_IDValue;
         bool hasEMPLOYEE_IDValue;
 
+        #endregion
+
+        #region Override
         protected override async Task OnInitializedAsync()
         {
             try
@@ -59,14 +64,14 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
                 await Task.Yield();
 
-                var area = await AldebaranDbService.GetAreaByAreaId(customerOrderActivityAreaId);
+                var area = await AreaService.FindAsync(CustomerOrderActivityAreaId);
 
-                activityTypesForACTIVITY_ID = await AldebaranDbService.GetActivityTypesArea(new Query { Filter = $"i=>i.AREA_ID==@0", FilterParameters = new object[] { area.AREA_ID }, Expand = "ActivityType" });
+                activityTypesForACTIVITY_ID = await ActivityTypesAreaService.GetByAreaAsync(area.AreaId);
 
                 if (!activityTypesForACTIVITY_ID.Any())
                     throw new Exception("No se han definido tipos de actividad para el área seleccionada");
 
-                employeesForACTIVITYEMPLOYEEID = await AldebaranDbService.GetEmployees(new Query { Filter = $"i=>i.AREA_ID==@0", FilterParameters = new object[] { area.AREA_ID } });
+                employeesForACTIVITYEMPLOYEEID = await EmployeeService.GetByAreaAsync(area.AreaId);
             }
             catch (Exception ex)
             {
@@ -76,6 +81,45 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             finally { isLoadingInProgress = false; }
         }
 
+        public override async Task SetParametersAsync(ParameterView parameters)
+        {
+            CustomerOrderActivityDetail = new CustomerOrderActivityDetail();
+
+            hasCUSTOMER_ORDER_ACTIVITY_IDValue = parameters.TryGetValue<int>("CUSTOMER_ORDER_ACTIVITY_ID", out var hasCUSTOMER_ORDER_ACTIVITY_IDResult);
+
+            if (hasCUSTOMER_ORDER_ACTIVITY_IDValue)
+            {
+                CustomerOrderActivityDetail.CustomerOrderActivityId = hasCUSTOMER_ORDER_ACTIVITY_IDResult;
+            }
+
+            hasACTIVITY_TYPE_IDValue = parameters.TryGetValue<short>("ACTIVITY_TYPE_ID", out var hasACTIVITY_IDResult);
+
+            if (hasACTIVITY_TYPE_IDValue)
+            {
+                CustomerOrderActivityDetail.ActivityTypeId = hasACTIVITY_IDResult;
+            }
+
+            hasACTIVITY_EMPLOYEE_IDValue = parameters.TryGetValue<int>("ACTIVITY_EMPLOYEE_ID", out var hasACTIVITY_EMPLOYEE_IDResult);
+
+            if (hasCUSTOMER_ORDER_ACTIVITY_IDValue)
+            {
+                CustomerOrderActivityDetail.ActivityEmployeeId = hasACTIVITY_EMPLOYEE_IDResult;
+            }
+
+            hasEMPLOYEE_IDValue = parameters.TryGetValue<int>("EMPLOYEE_ID", out var hasEMPLOYEE_IDResult);
+
+            if (hasEMPLOYEE_IDValue)
+            {
+                CustomerOrderActivityDetail.EmployeeId = hasEMPLOYEE_IDResult;
+            }
+
+            await base.SetParametersAsync(parameters);
+        }
+
+        #endregion
+
+        #region Events
+
         protected async Task FormSubmit()
         {
             try
@@ -83,12 +127,12 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 errorVisible = false;
                 isSubmitInProgress = true;
 
-                if (customerOrderActivityDetails.Any(ad => ad.ACTIVITY_TYPE_ID.Equals(customerOrderActivityDetail.ACTIVITY_TYPE_ID) && !ad.ACTIVITY_EMPLOYEE_ID.Equals(customerOrderActivityDetail.ACTIVITY_EMPLOYEE_ID)))
+                if (CustomerOrderActivityDetails.Any(ad => ad.ActivityTypeId.Equals(CustomerOrderActivityDetail.ActivityTypeId) && !ad.ActivityEmployeeId.Equals(CustomerOrderActivityDetail.ActivityEmployeeId)))
                     throw new Exception("El tipo de actividad seleccionada, ya existe dentro de esta actividad del pedido.");
 
-                var activityType = await AldebaranDbService.GetActivityTypeById(customerOrderActivityDetail.ACTIVITY_TYPE_ID);
-                customerOrderActivityDetail.ActivityType = activityType;
-                DialogService.Close(customerOrderActivityDetail);
+                var activityType = await ActivityTypeService.FindAsync(CustomerOrderActivityDetail.ActivityTypeId);
+                CustomerOrderActivityDetail.ActivityType = activityType;
+                DialogService.Close(CustomerOrderActivityDetail);
             }
             catch (Exception ex)
             {
@@ -106,40 +150,6 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             DialogService.Close(null);
         }
 
-        public override async Task SetParametersAsync(ParameterView parameters)
-        {
-            customerOrderActivityDetail = new CustomerOrderActivityDetail();
-
-            hasCUSTOMER_ORDER_ACTIVITY_IDValue = parameters.TryGetValue<int>("CUSTOMER_ORDER_ACTIVITY_ID", out var hasCUSTOMER_ORDER_ACTIVITY_IDResult);
-
-            if (hasCUSTOMER_ORDER_ACTIVITY_IDValue)
-            {
-                customerOrderActivityDetail.CUSTOMER_ORDER_ACTIVITY_ID = hasCUSTOMER_ORDER_ACTIVITY_IDResult;
-            }
-
-            hasACTIVITY_TYPE_IDValue = parameters.TryGetValue<short>("ACTIVITY_TYPE_ID", out var hasACTIVITY_IDResult);
-
-            if (hasACTIVITY_TYPE_IDValue)
-            {
-                customerOrderActivityDetail.ACTIVITY_TYPE_ID = hasACTIVITY_IDResult;
-            }
-
-            hasACTIVITY_EMPLOYEE_IDValue = parameters.TryGetValue<int>("ACTIVITY_EMPLOYEE_ID", out var hasACTIVITY_EMPLOYEE_IDResult);
-
-            if (hasCUSTOMER_ORDER_ACTIVITY_IDValue)
-            {
-                customerOrderActivityDetail.ACTIVITY_EMPLOYEE_ID = hasACTIVITY_EMPLOYEE_IDResult;
-            }
-
-            hasEMPLOYEE_IDValue = parameters.TryGetValue<int>("EMPLOYEE_ID", out var hasEMPLOYEE_IDResult);
-
-            if (hasEMPLOYEE_IDValue)
-            {
-                customerOrderActivityDetail.EMPLOYEE_ID = hasEMPLOYEE_IDResult;
-            }
-
-            await base.SetParametersAsync(parameters);
-        }
-
+        #endregion
     }
 }

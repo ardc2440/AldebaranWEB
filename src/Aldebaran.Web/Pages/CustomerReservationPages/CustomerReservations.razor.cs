@@ -40,10 +40,10 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         #region Global Variables
         protected IEnumerable<CustomerReservation> customerReservations;
         protected RadzenDataGrid<CustomerReservation> grid0;
-        protected DialogResult dialogResult { get; set; }
+        protected DialogResult DialogResult { get; set; }
         protected string search = "";
         protected bool isLoadingInProgress;
-        protected DocumentType documentType { get; set; }
+        protected DocumentType documentType;
         protected CustomerReservation customerReservation;
         protected RadzenDataGrid<CustomerReservationDetail> CustomerReservationDetailsDataGrid;
 
@@ -90,11 +90,11 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             NavigationManager.NavigateTo("edit-customer-reservation/" + args.CustomerReservationId);
         }
 
-        protected async Task CancelCustomerReservation(MouseEventArgs args, CustomerReservation customerReservation)
+        protected async Task CancelCustomerReservation(MouseEventArgs arg, CustomerReservation customerReservation)
         {
             try
             {
-                dialogResult = null;
+                DialogResult = null;
 
                 if (await DialogService.Confirm("Esta seguro que desea cancelar esta reserva?") == true)
                 {
@@ -104,7 +104,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
                     await CustomerReservationService.CancelAsync(customerReservation.CustomerReservationId, cancelStatusDocumentType.StatusDocumentTypeId);
 
-                    dialogResult = new DialogResult { Success = true, Message = "Reserva cancelada correctamente." };
+                    DialogResult = new DialogResult { Success = true, Message = "Reserva cancelada correctamente." };
                     await grid0.Reload();
                 }
             }

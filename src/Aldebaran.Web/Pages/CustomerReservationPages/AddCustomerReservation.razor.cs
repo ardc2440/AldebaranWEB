@@ -121,7 +121,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             await customerReservationDetailGrid.Reload();
         }
 
-        protected async Task DeleteCustomerReservationDetailButtonClick(MouseEventArgs args, CustomerReservationDetail item)
+        protected async Task DeleteCustomerReservationDetailButtonClick(MouseEventArgs arg, CustomerReservationDetail item)
         {
             if (await DialogService.Confirm("Está seguro que desea eliminar esta referencia?", "Confirmar") == true)
             {
@@ -136,7 +136,6 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             var result = await DialogService.OpenAsync<EditCustomerReservationDetail>("Actualizar referencia", new Dictionary<string, object> { { "CustomerReservationDetail", args } });
             if (result == null)
                 return;
-            var detail = (CustomerReservationDetail)result;
 
             await customerReservationDetailGrid.Reload();
         }

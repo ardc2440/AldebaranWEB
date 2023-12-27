@@ -17,7 +17,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         #region Parameters
 
         [Parameter]
-        public CustomerOrderDetail customerOrderDetail { get; set; }
+        public CustomerOrderDetail CustomerOrderDetail { get; set; }
 
         #endregion
 
@@ -25,14 +25,15 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected bool errorVisible;
         protected string alertMessage;
         protected bool isSubmitInProgress;
-        protected InventoryQuantities QuantitiesPanel;
+        protected InventoryQuantities quantitiesPanel;
 
         #endregion
 
         #region Overrides
+
         public override async Task SetParametersAsync(ParameterView parameters)
         {
-            customerOrderDetail = new CustomerOrderDetail();
+            CustomerOrderDetail = new CustomerOrderDetail();
 
             await base.SetParametersAsync(parameters);
         }
@@ -45,7 +46,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             {
                 errorVisible = false;
                 isSubmitInProgress = true;
-                DialogService.Close(customerOrderDetail);
+                DialogService.Close(CustomerOrderDetail);
             }
             catch (Exception ex)
             {
@@ -65,7 +66,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task ItemReferenceHandler()
         {
-            await QuantitiesPanel.Refresh(customerOrderDetail.ItemReference);
+            await quantitiesPanel.Refresh(CustomerOrderDetail.ItemReference);
         }
         #endregion
 

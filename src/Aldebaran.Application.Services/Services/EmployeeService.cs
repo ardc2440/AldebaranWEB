@@ -44,6 +44,12 @@ namespace Aldebaran.Application.Services
             return _mapper.Map<List<Employee>>(data);
         }
 
+        public async Task<IEnumerable<Employee>> GetByAreaAsync(short areaId, CancellationToken ct = default)
+        {
+            var data = await _repository.GetByAreaAsync(areaId, ct);
+            return _mapper.Map<List<Employee>>(data);
+        }
+
         public async Task<IEnumerable<Employee>> GetAsync(string searchKey, CancellationToken ct = default)
         {
             var data = await _repository.GetAsync(searchKey, ct);

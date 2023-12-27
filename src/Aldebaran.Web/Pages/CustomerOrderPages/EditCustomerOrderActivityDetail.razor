@@ -4,27 +4,27 @@
 
 <RadzenColumn SizeMD=12>
     <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">@alertMessage</RadzenAlert>
-    <RadzenTemplateForm TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderActivityDetail" Data="@customerOrderActivityDetail" Visible="@(customerOrderActivityDetail != null)" Submit="@FormSubmit">
+    <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerOrderActivityDetail" Data="@CustomerOrderActivityDetail" Visible="@(CustomerOrderActivityDetail != null)" Submit="@FormSubmit">
         <RadzenStack style="margin-bottom: 1rem">
             <RadzenRow style="margin-bottom: 1rem">
                 <RadzenColumn SizeMD="3">
                     <RadzenLabel Text="Modificar Tipo de Actividad" Component="Warehouse" style="width: 100%" />
                 </RadzenColumn>
                 <RadzenColumn SizeMD="9">
-                    <RadzenDropDownDataGrid Data="@activityTypesForACTIVITY_ID" Title="ACTIVITY_TYPE_NAME" TextProperty="ActivityType.ACTIVITY_TYPE_NAME" ValueProperty="ACTIVITY_TYPE_ID" AllowClear=true
-                                            Disabled=@(hasACTIVITY_TYPE_IDValue) Placeholder="Seleccione un tipo de actividad" style="display: block; width: 100%" @bind-Value="@customerOrderActivityDetail.ACTIVITY_TYPE_ID" Name="ACTIVITY_TYPE_ID" TabIndex="2" />
+                    <RadzenDropDownDataGrid Data="@activityTypesForACTIVITY_ID" Title="ACTIVITY_TYPE_NAME" TextProperty="ActivityType.ActivitiTypeName" ValueProperty="ActivityTypeId" AllowClear=true
+                                            Disabled=@(hasACTIVITY_TYPE_IDValue) Placeholder="Seleccione un tipo de actividad" style="display: block; width: 100%" @bind-Value="@CustomerOrderActivityDetail.ActivityTypeId" Name="ACTIVITY_TYPE_ID" TabIndex="2" />
                     <RadzenRequiredValidator Component="ACTIVITY_TYPE_ID" DefaultValue="0" Text="El Tipo de Actividad es requerida"></RadzenRequiredValidator>
                 </RadzenColumn>
             </RadzenRow>
             <RadzenRow style="margin-bottom: 2rem">
                 <RadzenFormField Text="Empleado" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                     <ChildContent>
-                        <RadzenDropDownDataGrid Data="@employeesForACTIVITYEMPLOYEEID" TextProperty="FULL_NAME" ValueProperty="EMPLOYEE_ID" AllowClear=true
-                                                Disabled=@(hasACTIVITY_EMPLOYEE_IDValue) style="display: block; width: 100%" @bind-Value="@customerOrderActivityDetail.ACTIVITY_EMPLOYEE_ID" Name="ACTIVITY_EMPLOYEE_ID" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true" Placeholder="Seleccione un Empleado">
+                        <RadzenDropDownDataGrid Data="@employeesForACTIVITYEMPLOYEEID" TextProperty="FullName" ValueProperty="EmployeeId" AllowClear=true
+                                                Disabled=@(hasACTIVITY_EMPLOYEE_IDValue) style="display: block; width: 100%" @bind-Value="@CustomerOrderActivityDetail.ActivityEmployeeId" Name="ACTIVITY_EMPLOYEE_ID" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true" Placeholder="Seleccione un Empleado">
                             <Columns>
-                                <RadzenDropDownDataGridColumn Property="EMPLOYEE.IdentityType.IDENTITY_TYPE_NAME" Title="Tipo de Identificación" />
-                                <RadzenDropDownDataGridColumn Property="IDENTITY_NUMBER" Title="Número de Identificación" />
-                                <RadzenDropDownDataGridColumn Property="FULL_NAME" Title="Nombre Completo" />
+                                <RadzenDropDownDataGridColumn Property="EMPLOYEE.IdentityType.IdentityTypeName" Title="Tipo de Identificación" />
+                                <RadzenDropDownDataGridColumn Property="IdentityNumber" Title="Número de Identificación" />
+                                <RadzenDropDownDataGridColumn Property="FullName" Title="Nombre Completo" />
                             </Columns>
                         </RadzenDropDownDataGrid>
                     </ChildContent>

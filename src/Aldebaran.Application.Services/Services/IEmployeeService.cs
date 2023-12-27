@@ -11,5 +11,6 @@ namespace Aldebaran.Application.Services
         Task AddAsync(Employee employee, CancellationToken ct = default);
         Task UpdateAsync(int employeeId, Employee employee, CancellationToken ct = default);
         Task DeleteAsync(int employeeId, CancellationToken ct = default);
+        Task<IEnumerable<Employee>> GetByAreaAsync(short areaId, CancellationToken ct = default);
     }
 }

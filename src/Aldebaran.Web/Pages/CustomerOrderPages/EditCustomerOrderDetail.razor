@@ -4,14 +4,14 @@
 
 <RadzenColumn SizeMD=12>
     <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">Cannot save AdjustmentDetail</RadzenAlert>
-    <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Data="@customerOrderDetail" Visible="@(customerOrderDetail != null)" Submit="@FormSubmit">
+    <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Data="@CustomerOrderDetail" Visible="@(CustomerOrderDetail != null)" Submit="@FormSubmit">
         <RadzenStack style="margin-bottom: 1rem">
             <RadzenRow SizeMD="9">
                 <RadzenColumn SizeMD="3">
                     <RadzenLabel Text="Referencia" Component="REFERENCE" style="width: 100%" />
                 </RadzenColumn>
                 <RadzenColumn onchange="@ItemReferenceHandler()" SizeMD="9">
-                    <span>(@customerOrderDetail.ItemReference.Item.InternalReference) @customerOrderDetail.ItemReference.Item.ItemName - @customerOrderDetail.ItemReference.ReferenceName</span>
+                    <span>(@CustomerOrderDetail.ItemReference.Item.InternalReference) @CustomerOrderDetail.ItemReference.Item.ItemName - @CustomerOrderDetail.ItemReference.ReferenceName</span>
                 </RadzenColumn>
             </RadzenRow>
             <RadzenRow>
@@ -19,7 +19,7 @@
                     <RadzenLabel Text="Cantidad" Component="RESERVED_QUANTITY" style="width: 100%" />
                 </RadzenColumn>
                 <RadzenColumn SizeMD="9">
-                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@customerOrderDetail.RequestedQuantity" Name="REQUESTED_QUANTITY" Placeholder="Ingrese la cantidad a pedir" />
+                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@CustomerOrderDetail.RequestedQuantity" Name="REQUESTED_QUANTITY" Placeholder="Ingrese la cantidad a pedir" />
                     <RadzenRequiredValidator Component="REQUESTED_QUANTITY" Text="La Cantidad es Requerida" />
                 </RadzenColumn>
             </RadzenRow>
@@ -28,12 +28,12 @@
                     <RadzenLabel Text="Marcación" Component="BRAND" style="width: 100%" />
                 </RadzenColumn>
                 <RadzenColumn SizeMD="9">
-                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@customerOrderDetail.Brand" Name="BRAND" Placeholder="Ingrese la marcación del producto" />
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@CustomerOrderDetail.Brand" Name="BRAND" Placeholder="Ingrese la marcación del producto" />
                 </RadzenColumn>
             </RadzenRow>
         </RadzenStack>
         <RadzenRow style="margin-bottom: 1rem">
-            <InventoryQuantities @ref="QuantitiesPanel" />
+            <InventoryQuantities @ref="quantitiesPanel" />
         </RadzenRow>
         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
             <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@isSubmitInProgress" />

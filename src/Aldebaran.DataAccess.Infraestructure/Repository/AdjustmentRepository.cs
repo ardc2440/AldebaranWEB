@@ -86,7 +86,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         {
             var entity = await _context.Adjustments
                 .Include(i => i.AdjustmentDetails)
-                .FirstOrDefaultAsync(x => x.AdjustmentId == adjustmentId, ct) ?? throw new KeyNotFoundException($"Transportadora con id {adjustmentId} no existe.");
+                .FirstOrDefaultAsync(x => x.AdjustmentId == adjustmentId, ct) ?? throw new KeyNotFoundException($"Ajuste con id {adjustmentId} no existe.");
 
             entity.AdjustmentDate = adjustment.AdjustmentDate;
             entity.AdjustmentTypeId = adjustment.AdjustmentTypeId;

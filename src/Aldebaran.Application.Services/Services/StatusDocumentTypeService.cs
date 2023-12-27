@@ -20,6 +20,12 @@ namespace Aldebaran.Application.Services
             return _mapper.Map<StatusDocumentType?>(data);
 
         }
-    }
 
+        public async Task<IEnumerable<StatusDocumentType>> GetAsync(int documentTypeId, CancellationToken ct = default)
+        {
+            var data = _repository.GetAsync(documentTypeId, ct);
+            return _mapper.Map<List<StatusDocumentType>>(data);
+        }
+    }
 }
+

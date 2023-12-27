@@ -72,11 +72,13 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
 
         public async Task UpdateAsync(int customerReservationId, CustomerReservation customerReservation, CancellationToken ct = default)
         {
-            var entity = await _context.CustomerReservations.FirstOrDefaultAsync(x => x.CustomerReservationId == customerReservationId, ct) ?? throw new KeyNotFoundException($"Orden con id {customerReservationId} no existe.");
+            var entity = await _context.CustomerReservations.FirstOrDefaultAsync(x => x.CustomerReservationId == customerReservationId, ct) ?? throw new KeyNotFoundException($"Reserva con id {customerReservationId} no existe.");
             entity.ExpirationDate = customerReservation.ExpirationDate;
             entity.ReservationDate = customerReservation.ReservationDate;
             entity.CustomerId = customerReservation.CustomerId;
             entity.Notes = customerReservation.Notes;
+            entity.StatusDocumentTypeId = customerReservation.StatusDocumentTypeId;
+            entity.CustomerOrderId = customerReservation.CustomerOrderId;
 
             var entityDetail = await _context.CustomerReservationDetails.Where(x => x.CustomerReservationId.Equals(customerReservationId)).ToListAsync(ct);
 
@@ -119,7 +121,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
 
         public async Task CancelAsync(int customerReservationId, short canceledStatusDocumentId, CancellationToken ct = default)
         {
-            var entity = await _context.CustomerReservations.FirstOrDefaultAsync(x => x.CustomerReservationId == customerReservationId, ct) ?? throw new KeyNotFoundException($"Orden con id {customerReservationId} no existe.");
+            var entity = await _context.CustomerReservations.FirstOrDefaultAsync(x => x.CustomerReservationId == customerReservationId, ct) ?? throw new KeyNotFoundException($"Reserva con id {customerReservationId} no existe.");
 
             entity.StatusDocumentTypeId = canceledStatusDocumentId;
 

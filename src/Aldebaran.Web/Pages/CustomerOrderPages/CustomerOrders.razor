@@ -25,23 +25,23 @@
     <RadzenRow>
         <RadzenColumn SizeMD=12>
             <RadzenDataGrid @ref="grid0" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                            ExpandMode="DataGridExpandMode.Single" Data="@customerOrders" TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrder" RowExpand=@GetChildData AllowColumnPicking="true" PageSizeText="items per page" PagingSummaryFormat="Page {0} de {1} ({2} items)" IsLoading="@isLoadingInProgress">
+                            ExpandMode="DataGridExpandMode.Single" Data="@customerOrders" TItem="Aldebaran.Application.Services.Models.CustomerOrder" RowExpand=@GetChildData AllowColumnPicking="true" PageSizeText="items per page" PagingSummaryFormat="Page {0} de {1} ({2} items)" IsLoading="@isLoadingInProgress">
                 <Columns>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrder" Property="ORDER_NUMBER" Title="No. Pedido">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="OrderNumber" Title="No. Pedido">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrder" Property="Customer.CUSTOMER_NAME" Title="Cliente">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="Customer.CustomerName" Title="Cliente">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrder" Property="ORDER_DATE" Title="Fecha Pedido">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="OrderDate" Title="Fecha Pedido">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrder" Property="ESTIMATED_DELIVERY_DATE" Title="Fecha Estimada Entrega">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="EstimateddeliveryDate" Title="Fecha Estimada Entrega">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrder" Property="StatusDocumentType.STATUS_DOCUMENT_TYPE_NAME" Title="Estado">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="StatusDocumentType.StatusDocumentTypeName" Title="Estado">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrder" Property="CUSTOMER_NOTES" Title="Notas del Cliente" Visible="false">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="CustomerNotes" Title="Notas del Cliente" Visible="false">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrder" Property="INTERNAL_NOTES" Title="Notas Internas" Visible="false">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="InternalNotes" Title="Notas Internas" Visible="false">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrder" Filterable="false" Sortable="false" Width="110px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Filterable="false" Sortable="false" Width="110px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
                         <Template Context="customerOrder">
                             <RadzenButton Icon="done_all" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
                                           Click="@(args => CloseCustomerOrder(customerOrder))" @onclick:stopPropagation="true"
@@ -65,18 +65,18 @@
                             </RadzenColumn>
                         </RadzenRow>
                         <RadzenDataGrid ColumnWidth="200px" Visible="@(customerOrder != null)" @ref=CustomerOrderDetailsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                        ExpandMode="DataGridExpandMode.Single" Data="@customerOrder?.CustomerOrderDetails" TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderDetail">
+                                        ExpandMode="DataGridExpandMode.Single" Data="@customerOrder?.CustomerOrderDetails" TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail">
                             <Columns>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderDetail" Property="REQUESTED_QUANTITY" Title="Cantidad">
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Property="RecuestedQuantity" Title="Cantidad">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderDetail" Title="Artículo/Referencia">
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Title="Artículo/Referencia">
                                     <Template Context="detail">
-                                        <span>(@detail.ItemReference.Item.INTERNAL_REFERENCE) @detail.ItemReference.Item.ITEM_NAME - @detail.ItemReference.REFERENCE_NAME</span>
+                                        <span>(@detail.ItemReference.Item.InternalReference) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName</span>
                                     </Template>
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderDetail" Property="PROCESSED_QUANTITY" Title="En Proceso">
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Property="ProcessedQuantity" Title="En Proceso">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderDetail" Property="DELIVERED_QUANTITY" Title="Despachado">
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Property="DeliveredQuantity" Title="Despachado">
                                 </RadzenDataGridColumn>
                             </Columns>
                         </RadzenDataGrid>
@@ -92,20 +92,20 @@
                                 </RadzenStack>
                             </RadzenColumn>
                             <RadzenDataGrid ColumnWidth="200px" Visible="@(customerOrder != null)" @ref=CustomerOrderActivitiesDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                            ExpandMode="DataGridExpandMode.Single" Data="@customerOrder?.CustomerOrderActivities" RowExpand=@GetChildActivityData TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderActivity">
+                                            ExpandMode="DataGridExpandMode.Single" Data="@customerOrder?.CustomerOrderActivities" RowExpand=@GetChildActivityData TItem="Aldebaran.Application.Services.Models.CustomerOrderActivity">
                                 <Columns>
-                                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderActivity" Property="Area.AREA_NAME" Title="Area">
+                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderActivity" Property="Area.AreaName" Title="Area">
                                     </RadzenDataGridColumn>
-                                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderActivity" Title="Ejecutor">
+                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderActivity" Title="Ejecutor">
                                         <Template Context="customerOrderActivity">
-                                            <span>(@customerOrderActivity.Employee.IdentityType.IDENTITY_TYPE_NAME @customerOrderActivity.Employee.IDENTITY_NUMBER - @customerOrderActivity.Employee.FULL_NAME</span>
+                                            <span>(@customerOrderActivity.Employee.IdentityType.IdentityTypeName @customerOrderActivity.Employee.IdentityNumber - @customerOrderActivity.Employee.FullName</span>
                                         </Template>
                                     </RadzenDataGridColumn>
-                                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderActivity" Property="ACTIVITY_DATE" Title="Fecha Ejecución">
+                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderActivity" Property="ActivityDate" Title="Fecha Ejecución">
                                     </RadzenDataGridColumn>
-                                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderActivity" Property="NOTES" Title="Notas de la Actividad">
+                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderActivity" Property="Notes" Title="Notas de la Actividad">
                                     </RadzenDataGridColumn>
-                                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderActivity" Filterable="false" Sortable="false" Width="110px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderActivity" Filterable="false" Sortable="false" Width="110px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
                                         <Template Context="customerOrderActivity">
                                             <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
                                                           Click="@(args => EditActivityRow(customerOrderActivity))" @onclick:stopPropagation="true"
@@ -125,11 +125,11 @@
                                             </RadzenColumn>
                                         </RadzenRow>
                                         <RadzenDataGrid ColumnWidth="200px" Visible="@(customerOrder != null)" @ref=CustomerOrderActivityDetailsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                                        ExpandMode="DataGridExpandMode.Single" Data="@customerOrderActivity?.CustomerOrderActivityDetails" TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderActivityDetail">
+                                                        ExpandMode="DataGridExpandMode.Single" Data="@customerOrderActivity?.CustomerOrderActivityDetails" TItem="Aldebaran.Application.Services.Models.CustomerOrderActivityDetail">
                                             <Columns>
-                                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderActivityDetail" Property="ActivityType.ACTIVITY_TYPE_NAME" Title="Tipo de Actividad">
+                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderActivityDetail" Property="ActivityType.ActivityTypeName" Title="Tipo de Actividad">
                                                 </RadzenDataGridColumn>
-                                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderActivityDetail" Property="EmployeeActivity.FULL_NAME" Title="Ejecutor">
+                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderActivityDetail" Property="EmployeeActivity.FullName" Title="Ejecutor">
                                                 </RadzenDataGridColumn>
                                             </Columns>
                                         </RadzenDataGrid>

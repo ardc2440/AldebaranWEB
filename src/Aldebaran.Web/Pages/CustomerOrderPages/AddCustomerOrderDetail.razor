@@ -4,7 +4,7 @@
 
 <RadzenColumn SizeMD=12>
     <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">@alertMessage</RadzenAlert>
-    <RadzenTemplateForm TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderDetail" Data="@customerOrderDetail" Visible="@(customerOrderDetail != null)" Submit="@FormSubmit">
+    <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Data="@customerOrderDetail" Visible="@(customerOrderDetail != null)" Submit="@FormSubmit">
         <RadzenStack style="margin-bottom: 1rem">
             <RadzenRow style="margin-bottom: 1rem">
                     <ReferencePicker OnChange="ItemReferenceHandler" References="itemReferencesForREFERENCEID"/>
@@ -15,7 +15,7 @@
                     <RadzenLabel Text="Cantidad" Component="RESERVED_QUANTITY" style="width: 100%" />
                 </RadzenColumn>
                 <RadzenColumn SizeMD="9">
-                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@customerOrderDetail.REQUESTED_QUANTITY" Name="RESERVED_QUANTITY" Placeholder="Ingrese la cantidad a reservar" />
+                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@customerOrderDetail.RequestedQuantity" Name="RESERVED_QUANTITY" Placeholder="Ingrese la cantidad a reservar" />
                     <RadzenRequiredValidator Component="RESERVED_QUANTITY" Text="La Cantidad es Requerida" />
                 </RadzenColumn>
             </RadzenRow>
@@ -24,12 +24,12 @@
                     <RadzenLabel Text="Marcación" Component="BRAND" style="width: 100%" />
                 </RadzenColumn>
                 <RadzenColumn SizeMD="9">
-                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@customerOrderDetail.BRAND" Name="BRAND" Placeholder="Ingrese la marcación del producto" />
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@customerOrderDetail.Brand" Name="BRAND" Placeholder="Ingrese la marcación del producto" />
                 </RadzenColumn>
             </RadzenRow>
         </RadzenStack>
         <RadzenRow style="margin-bottom: 1rem">
-            <InventoryQuantities @ref="QuantitiesPanel" />
+            <InventoryQuantities @ref="quantitiesPanel" />
         </RadzenRow>
         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
             <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@isSubmitInProgress" />
