@@ -3,30 +3,30 @@
 <PageTitle>Nuevo contacto</PageTitle>
 <RadzenColumn SizeMD=12>
     <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">No se ha podido crear el contacto</RadzenAlert>
-    <RadzenTemplateForm TItem="Aldebaran.Web.Models.AldebaranDb.CustomerContact" Data="@customerContact" Visible="@(customerContact != null)" Submit="@FormSubmit">
+    <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerContact" Data="@customerContact" Visible="@(customerContact != null)" Submit="@FormSubmit">
         <RadzenStack>
             <div class="flex-shrink-0">
                 <div class="text-primary-color" style="font-size: 16px">
                     <RadzenLabel Text="Cliente: " Style="font-weight: bold" />
-                    <RadzenLabel Text="@customer.CUSTOMER_NAME" />
+                    <RadzenLabel Text="@customer.CustomerName" />
                 </div>
                 <div class="text-secondary-color">
                     <RadzenLabel Text="Ubicación: " />
-                    <span>(@city?.Department?.Country?.COUNTRY_CODE) @city?.Department?.DEPARTMENT_NAME - @city?.CITY_NAME</span>
+                    <span>(@city?.Department?.Country?.CountryCode) @city?.Department?.DepartmentName - @city?.CityName</span>
                 </div>
             </div>
             <RadzenRow AlignItems="Radzen.AlignItems.Start">
                 <RadzenColumn SizeLG="3" SizeXL="3" SizeMD="3" SizeSM="12" SizeXX="12" SizeXS="12">
                     <RadzenFormField Text="Tratamiento" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@customerContact.TITLE" Name="TITLE" Placeholder="Sr. Sra." />
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@customerContact.Title" Name="TITLE" Placeholder="Sr. Sra." />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenColumn>
                 <RadzenColumn SizeLG="9" SizeXL="9" SizeMD="9" SizeSM="12" SizeXX="12" SizeXS="12">
                     <RadzenFormField Text="Nombre" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@customerContact.CUSTOMER_CONTACT_NAME" Name="CUSTOMER_CONTACT_NAME" />
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@customerContact.CustomerContactName" Name="CUSTOMER_CONTACT_NAME" />
                         </ChildContent>
                         <Helper>
                             <RadzenRequiredValidator Component="CUSTOMER_CONTACT_NAME" Text="Nombre es requerido" />
@@ -38,18 +38,18 @@
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Teléfono" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@customerContact.PHONE" Name="PHONE" />
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@customerContact.Phone" Name="PHONE" />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenColumn>
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Correo electrónico" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@customerContact.EMAIL" Name="EMAIL" />
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@customerContact.Email" Name="EMAIL" />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenColumn>
-            </RadzenRow>                    
+            </RadzenRow>
         </RadzenStack>
         <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
             <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@isSubmitInProgress" />

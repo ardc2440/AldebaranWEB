@@ -29,6 +29,7 @@
                 <RadzenColumn SizeMD="9">
                     <RadzenNumeric style="display: block; width: 100%" @bind-Value="@adjustmentDetail.Quantity" Name="QUANTITY" Placeholder="Ingrese la cantidad a ajustar" />
                     <RadzenRequiredValidator Component="QUANTITY" Text="La Cantidad es Requerida" />
+                    <RadzenNumericRangeValidator Component="QUANTITY" Min="1" Text="La cantidad debe ser mayor a 0" />
                 </RadzenColumn>
             </RadzenRow>
         </RadzenStack>

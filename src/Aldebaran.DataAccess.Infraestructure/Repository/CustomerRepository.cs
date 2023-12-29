@@ -52,5 +52,46 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                             i.Phone2.Contains(searchKey))
                 .ToListAsync();
         }
+
+        public async Task AddAsync(Customer customer, CancellationToken ct = default)
+        {
+            await _context.Customers.AddAsync(customer, ct);
+            await _context.SaveChangesAsync(ct);
+        }
+
+        public async Task UpdateAsync(int customerId, Customer customer, CancellationToken ct = default)
+        {
+            var entity = await _context.Customers.FirstOrDefaultAsync(x => x.CustomerId == customerId, ct) ?? throw new KeyNotFoundException($"Cliente con id {customerId} no existe.");
+            entity.CustomerName = customer.CustomerName;
+            entity.Phone1 = customer.Phone1;
+            entity.Phone2 = customer.Phone2;
+            entity.Fax = customer.Fax;
+            entity.CustomerAddress = customer.CustomerAddress;
+            entity.Email1 = customer.Email1;
+            entity.Email2 = customer.Email2;
+            entity.Email3 = customer.Email3;
+            entity.CityId = customer.CityId;
+            entity.SendEmail = customer.SendEmail;
+            entity.IdentityNumber = customer.IdentityNumber;
+            entity.CellPhone = customer.CellPhone;
+            entity.IdentityTypeId = customer.IdentityTypeId;
+
+            await _context.SaveChangesAsync(ct);
+        }
+
+        public async Task DeleteAsync(int customerId, CancellationToken ct = default)
+        {
+            var entity = await _context.Customers.FirstOrDefaultAsync(x => x.CustomerId == customerId, ct) ?? throw new KeyNotFoundException($"Cliente con id {customerId} no existe.");
+            _context.Customers.Remove(entity);
+            try
+            {
+                await _context.SaveChangesAsync(ct);
+            }
+            catch
+            {
+                _context.Entry(entity).State = EntityState.Unchanged;
+                throw;
+            }
+        }
     }
 }

@@ -52,7 +52,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected AdjustmentDetail adjustmentDetail;
 
-        protected IEnumerable<ItemReference> itemReferencesForREFERENCEID;
+        protected IEnumerable<ItemReference> itemReferencesForREFERENCEID { get; set; } = new List<ItemReference>();
 
         protected IEnumerable<Warehouse> warehousesForWAREHOUSEID;
 

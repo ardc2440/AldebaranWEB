@@ -134,8 +134,9 @@ INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) 
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'1C555961-106F-4D24-96CC-D6C4C79D2C58', N'3B0830CE-9819-4B09-A960-E303411ACDE7', N'Customer Order In Process Editor', N'CUSTOMER ORDER IN PROCESS EDITOR')
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'F1739555-CFB2-40E8-AF96-F31035EFD37F', N'2BA2B385-304D-47CE-8C5A-BA58FCB47C79', N'Customer Order Shipment Viwer', N'CUSTOMER ORDER SHIPMENT VIWER')
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'5820492A-1331-4C5F-80B1-935E19C5C1A1', N'8371B223-CE6E-452B-A5B1-D878B329C872', N'Customer Order Shipment Editor', N'CUSTOMER ORDER SHIPMENT EDITOR')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'5862C6BC-B8B7-4579-9B94-A418988E037A', N'BBA2E6C7-BA10-40FB-8E78-4A4CEF4B9397', N'Transfer Warehouses Viwer', N'TRANSFER WAREHOUSES VIWER')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'B4F9324F-B285-4518-974F-CEC1A3782BD1', N'96EE4102-D58B-401C-B45C-A891C0928623', N'Transfer Warehouses Editor', N'TRANSFER WAREHOUSES EDITOR')
 GO
-
 
 /*
 SELECT NEWID()

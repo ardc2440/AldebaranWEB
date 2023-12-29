@@ -13,7 +13,28 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
 
         public async Task AddAsync(Adjustment adjustment, CancellationToken ct = default)
         {
-            await _context.Adjustments.AddAsync(adjustment, ct);
+            var entity = new Adjustment
+            {
+                AdjustmentDate = adjustment.AdjustmentDate,
+                AdjustmentReasonId = adjustment.AdjustmentReasonId,
+                AdjustmentTypeId = adjustment.AdjustmentTypeId,
+                CreationDate = adjustment.CreationDate,
+                EmployeeId = adjustment.EmployeeId,
+                Notes = adjustment.Notes,
+                StatusDocumentTypeId = adjustment.StatusDocumentTypeId,
+                AdjustmentDetails = new List<AdjustmentDetail>()
+            };
+
+            foreach (var item in adjustment.AdjustmentDetails)
+                entity.AdjustmentDetails.Add(new AdjustmentDetail
+                {
+                    Quantity = item.Quantity,
+                    ReferenceId = item.ReferenceId,
+                    WarehouseId = item.WarehouseId,
+                    AdjustmentId = item.AdjustmentId
+                });
+
+            await _context.Adjustments.AddAsync(entity, ct);
             await _context.SaveChangesAsync(ct);
         }
 
@@ -92,9 +113,29 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             entity.AdjustmentTypeId = adjustment.AdjustmentTypeId;
             entity.AdjustmentReasonId = adjustment.AdjustmentReasonId;
             entity.EmployeeId = adjustment.EmployeeId;
-            entity.AdjustmentDetails = adjustment.AdjustmentDetails;
             entity.Notes = adjustment.Notes;
             entity.CreationDate = adjustment.CreationDate;
+
+            foreach (var item in adjustment.AdjustmentDetails)
+            {
+                if (item.AdjustmentDetailId > 0)
+                {
+                    var entityDetail = await _context.AdjustmentDetails.FirstOrDefaultAsync(i => i.AdjustmentDetailId == item.AdjustmentDetailId) ?? throw new KeyNotFoundException($"Dtalle de Ajuste con id {item.AdjustmentDetailId} no existe.");
+
+                    entityDetail.Quantity = item.Quantity;
+                    entityDetail.ReferenceId = item.ReferenceId;
+                    entityDetail.WarehouseId = item.WarehouseId;
+                    continue;
+                }
+
+                entity.AdjustmentDetails.Add(new AdjustmentDetail
+                {
+                    Quantity = item.Quantity,
+                    ReferenceId = item.ReferenceId,
+                    WarehouseId = item.WarehouseId,
+                    AdjustmentId = item.AdjustmentId
+                });
+            }
 
             await _context.SaveChangesAsync(ct);
         }

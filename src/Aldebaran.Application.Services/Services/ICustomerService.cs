@@ -7,6 +7,9 @@ namespace Aldebaran.Application.Services
         Task<Customer?> FindAsync(int customerId, CancellationToken ct = default);
         Task<IEnumerable<Customer>> GetAsync(CancellationToken ct = default);
         Task<IEnumerable<Customer>> GetAsync(string filter, CancellationToken ct = default);
+        Task AddAsync(Customer customer, CancellationToken ct = default);
+        Task UpdateAsync(int customerId, Customer customer, CancellationToken ct = default);
+        Task DeleteAsync(int customerId, CancellationToken ct = default);
     }
 
 }

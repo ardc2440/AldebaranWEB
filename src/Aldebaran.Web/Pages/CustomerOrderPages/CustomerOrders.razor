@@ -13,11 +13,11 @@
         <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger">@dialogResult.Message</RadzenAlert>
     }
     <RadzenRow AlignItems="AlignItems.Center">
-        <RadzenColumn Size="12" SizeMD="6">
+        <RadzenColumn Size="12">
             <RadzenText Text="Pedido de Artículos" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
         </RadzenColumn>
         <RadzenColumn Size="12" SizeMD="6">
-            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
                 <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddButtonClick" Variant="Variant.Flat" Visible="@Security.IsInRole("Admin","Customer Order Editor")" />
             </RadzenStack>
         </RadzenColumn>
@@ -83,12 +83,12 @@
                         </LocalizedDataGrid>
                         <RadzenStack Visible="@Security.IsInRole("Admin","Customer Order Activities Viwer","Customer Order Activities Editor")">
                             <RadzenRow Gap="0" AlignItems="AlignItems.Center">
-                                <RadzenColumn Size="12" SizeMD="6">
+                                <RadzenColumn Size="12" >
                                     <RadzenText Visible="@(customerOrder != null)" Text="Actividades del Pedido" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
                                 </RadzenColumn>
                             </RadzenRow>
                             <RadzenColumn Size="12" SizeMD="6">
-                                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
                                     <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddActivityButtonClick" Variant="Variant.Flat" Visible="@Security.IsInRole("Admin","Customer Order Activities Editor")" />
                                 </RadzenStack>
                             </RadzenColumn>
