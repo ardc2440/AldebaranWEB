@@ -1,69 +1,73 @@
-using Aldebaran.Web.Models.AldebaranDb;
+using Aldebaran.Application.Services;
+using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
 using Radzen;
 
 namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 {
     public partial class SetQuantityInProcess
     {
-        [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
-
-        [Inject]
-        protected NavigationManager NavigationManager { get; set; }
+        #region Injections
 
         [Inject]
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected TooltipService TooltipService { get; set; }
+        protected IWarehouseService WarehouseService { get; set; }
 
-        [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
+        #endregion
 
-        [Inject]
-        protected NotificationService NotificationService { get; set; }
-        [Inject]
-        public AldebaranDbService AldebaranDbService { get; set; }
+        #region Parameters
 
         [Parameter]
-        public DetailInProcess pDetailInProcess { get; set; }
+        public DetailInProcess DetailInProcess { get; set; }
 
         [Parameter]
         public short WAREHOUSE_ID { get; set; }
+
+        #endregion
+
+        #region Global Variables
 
         protected bool errorVisible;
         protected string alertMessage;
         protected bool isSubmitInProgress;
         protected InventoryQuantities QuantitiesPanel;
         protected IEnumerable<Warehouse> warehousesForWAREHOUSEID;
-        bool hasWAREHOUSE_IDValue;
-        public DetailInProcess detailInProcess { get; set; }
+        protected bool hasWAREHOUSE_IDValue;
+        protected DetailInProcess detailInProcess;
+
+        #endregion
+
+        #region Overrides
 
         protected override async Task OnInitializedAsync()
         {
-            warehousesForWAREHOUSEID = await AldebaranDbService.GetWarehouses();
+            warehousesForWAREHOUSEID = await WarehouseService.GetAsync();
 
             detailInProcess = new DetailInProcess()
             {
-                CUSTOMER_ORDER_DETAIL_ID = pDetailInProcess.CUSTOMER_ORDER_DETAIL_ID,
-                DELIVERED_QUANTITY = pDetailInProcess.DELIVERED_QUANTITY,
-                BRAND = pDetailInProcess.BRAND,
-                WAREHOUSE_ID = pDetailInProcess.WAREHOUSE_ID,
-                THIS_QUANTITY = pDetailInProcess.THIS_QUANTITY,
-                PENDING_QUANTITY = pDetailInProcess.PENDING_QUANTITY,
-                PROCESSED_QUANTITY = pDetailInProcess.PROCESSED_QUANTITY,
-                REFERENCE_DESCRIPTION = pDetailInProcess.REFERENCE_DESCRIPTION,
-                REFERENCE_ID = pDetailInProcess.REFERENCE_ID
+                CUSTOMER_ORDER_DETAIL_ID = DetailInProcess.CUSTOMER_ORDER_DETAIL_ID,
+                DELIVERED_QUANTITY = DetailInProcess.DELIVERED_QUANTITY,
+                BRAND = DetailInProcess.BRAND,
+                WAREHOUSE_ID = DetailInProcess.WAREHOUSE_ID,
+                THIS_QUANTITY = DetailInProcess.THIS_QUANTITY,
+                PENDING_QUANTITY = DetailInProcess.PENDING_QUANTITY,
+                PROCESSED_QUANTITY = DetailInProcess.PROCESSED_QUANTITY,
+                REFERENCE_DESCRIPTION = DetailInProcess.REFERENCE_DESCRIPTION,
+                REFERENCE_ID = DetailInProcess.REFERENCE_ID
             };
 
             if (detailInProcess.THIS_QUANTITY == 0)
                 detailInProcess.THIS_QUANTITY = detailInProcess.PENDING_QUANTITY;
         }
+
+        #endregion
+
+        #region Events
 
         protected async Task FormSubmit()
         {
@@ -72,16 +76,16 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                 errorVisible = false;
                 isSubmitInProgress = true;
 
-                if ((detailInProcess.PENDING_QUANTITY + pDetailInProcess.THIS_QUANTITY) < detailInProcess.THIS_QUANTITY)
+                if ((detailInProcess.PENDING_QUANTITY + DetailInProcess.THIS_QUANTITY) < detailInProcess.THIS_QUANTITY)
                     throw new Exception("La cantidad de este traslado debe ser menor o igual a la cantidad pendiente del artículo");
 
                 if (await DialogService.Confirm("Está seguro que desea enviar a proceso esta cantidad de la referencia?", "Confirmar") == true)
                 {
-                    pDetailInProcess.WAREHOUSE_ID = detailInProcess.WAREHOUSE_ID;
-                    pDetailInProcess.PENDING_QUANTITY = (detailInProcess.PENDING_QUANTITY + pDetailInProcess.THIS_QUANTITY) - detailInProcess.THIS_QUANTITY;
-                    pDetailInProcess.THIS_QUANTITY = detailInProcess.THIS_QUANTITY;
+                    DetailInProcess.WAREHOUSE_ID = detailInProcess.WAREHOUSE_ID;
+                    DetailInProcess.PENDING_QUANTITY = (detailInProcess.PENDING_QUANTITY + DetailInProcess.THIS_QUANTITY) - detailInProcess.THIS_QUANTITY;
+                    DetailInProcess.THIS_QUANTITY = detailInProcess.THIS_QUANTITY;
 
-                    DialogService.Close(pDetailInProcess);
+                    DialogService.Close(DetailInProcess);
                 }
             }
             catch (Exception ex)
@@ -116,6 +120,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         {
             await QuantitiesPanel.Refresh(detailInProcess.REFERENCE_ID);
         }
+
+        #endregion
 
     }
 }

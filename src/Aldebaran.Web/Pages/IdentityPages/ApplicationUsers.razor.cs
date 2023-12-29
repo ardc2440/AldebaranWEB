@@ -1,4 +1,5 @@
 using Aldebaran.Web.Models;
+using Aldebaran.Web.Models.ViewModels;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Radzen;

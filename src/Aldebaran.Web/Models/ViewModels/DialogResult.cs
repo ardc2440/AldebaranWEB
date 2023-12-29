@@ -1,4 +1,4 @@
-﻿namespace Aldebaran.Web.Models
+﻿namespace Aldebaran.Web.Models.ViewModels
 {
     public class DialogResult
     {

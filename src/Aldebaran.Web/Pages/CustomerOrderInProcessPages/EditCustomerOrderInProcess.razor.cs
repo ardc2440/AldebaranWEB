@@ -1,17 +1,16 @@
-using Aldebaran.Web.Models.AldebaranDb;
+using Aldebaran.Application.Services;
+using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
 using Radzen;
 
 namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 {
     public partial class EditCustomerOrderInProcess
     {
-        [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
+        #region Injections
 
         [Inject]
         protected NavigationManager NavigationManager { get; set; }
@@ -20,37 +19,53 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected TooltipService TooltipService { get; set; }
-
-        [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
-
-        [Inject]
-        protected NotificationService NotificationService { get; set; }
-
-        [Inject]
-        public AldebaranDbService AldebaranDbService { get; set; }
-
-        [Inject]
         protected SecurityService Security { get; set; }
+
+        [Inject]
+        protected IDocumentTypeService DocumentTypeService { get; set; }
+
+        [Inject]
+        protected ICustomerOrderService CustomerOrderService { get; set; }
+
+        [Inject]
+        protected ICustomerOrdersInProcessService CustomerOrdersInProcessService { get; set; }
+
+        [Inject]
+        protected ICustomerOrderInProcessDetailService CustomerOrderInProcessDetailService { get; set; }
+
+        [Inject]
+        protected IProcessSatelliteService ProcessSatelliteService { get; set; }
+
+        [Inject]
+        protected IEmployeeService EmployeeService { get; set; }
+
+        #endregion
+
+        #region Params
+
+        [Parameter]
+        public string CustomerOrderInProcessId { get; set; } = "NoParamInput";
+
+        #endregion
+
+        #region Global Variables
 
         protected bool errorVisible;
         protected string errorMessage;
         protected CustomerOrder customerOrder;
-        protected CustomerOrderInProcess customerOrderInProcess;
+        protected CustomerOrdersInProcess customerOrderInProcess;
         protected DocumentType documentType;
         protected ICollection<DetailInProcess> detailsInProcess;
         protected LocalizedDataGrid<DetailInProcess> customerOrderDetailGrid;
-
         protected IEnumerable<Employee> employeesFOREMPLOYEEID;
         protected IEnumerable<ProcessSatellite> processSatellitesFORPROCESSSATELLITEID;
-
         protected bool isSubmitInProgress;
         protected bool isLoadingInProgress;
         protected string title;
 
-        [Parameter]
-        public string pCustomerOrderInProcessId { get; set; } = "NoParamInput";
+        #endregion
+
+        #region Overrides
 
         protected override async Task OnInitializedAsync()
         {
@@ -60,21 +75,21 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
                 await Task.Yield();
 
-                if (!int.TryParse(pCustomerOrderInProcessId, out var customerOrderInProcessId))
+                if (!int.TryParse(CustomerOrderInProcessId, out var customerOrderInProcessId))
                     throw new Exception("El Id de Traslado recibido no es valido");
 
-                documentType = await AldebaranDbService.GetDocumentTypeByCode("T");
+                documentType = await DocumentTypeService.FindByCodeAsync("T");
 
-                customerOrderInProcess = await AldebaranDbService.GetCustomerOrderInProcessByCustomerOrderInProcessId(customerOrderInProcessId);
+                customerOrderInProcess = await CustomerOrdersInProcessService.FindAsync(customerOrderInProcessId);
 
-                customerOrder = await GetCustomerOrder(customerOrderInProcess.CUSTOMER_ORDER_ID);
+                customerOrder = await CustomerOrderService.FindAsync(customerOrderInProcess.CustomerOrderId);
 
                 detailsInProcess = await GetDetailsInProcess(customerOrderInProcess);
 
-                processSatellitesFORPROCESSSATELLITEID = await AldebaranDbService.GetProcessSatellites();
-                employeesFOREMPLOYEEID = await AldebaranDbService.GetEmployees();
+                processSatellitesFORPROCESSSATELLITEID = await ProcessSatelliteService.GetAsync();
+                employeesFOREMPLOYEEID = await EmployeeService.GetAsync();
 
-                title = $"Modificación del Traslado a Proceso para el Pedido No. {customerOrder.ORDER_NUMBER}";
+                title = $"Modificación del Traslado a Proceso para el Pedido No. {customerOrder.OrderNumber}";
             }
             catch (Exception ex)
             {
@@ -84,30 +99,32 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
             finally { isLoadingInProgress = false; }
         }
 
-        protected async Task<CustomerOrder> GetCustomerOrder(int customerOrderId) => (await AldebaranDbService.GetCustomerOrders(new Query { Filter = $@"i => i.CUSTOMER_ORDER_ID.Equals(@0)", FilterParameters = new object[] { customerOrderId }, Expand = "Customer.City.Department.Country" }) ?? throw new ArgumentException($"The customer order with the ID {customerOrderId}, isn't more available")).FirstOrDefault();
+        #endregion
 
-        protected async Task<List<DetailInProcess>> GetDetailsInProcess(CustomerOrderInProcess customerOrderInProcess) => (from item in await AldebaranDbService.GetCustomerOrderInProcessDetails(new Query { Filter = $"i=>i.CUSTOMER_ORDER_IN_PROCESS_ID.Equals({customerOrderInProcess.CUSTOMER_ORDER_IN_PROCESS_ID})", Expand = "CustomerOrderDetail.ItemReference.Item, Warehouse" }) ?? throw new ArgumentException("The references of Customer Order In Process, could not be obtained.")
-                                                                                                                           let viewOrderDetail = new DetailInProcess()
-                                                                                                                           {
-                                                                                                                               REFERENCE_ID = item.CustomerOrderDetail.REFERENCE_ID,
-                                                                                                                               CUSTOMER_ORDER_DETAIL_ID = item.CUSTOMER_ORDER_DETAIL_ID,
-                                                                                                                               REFERENCE_DESCRIPTION = $"({item.CustomerOrderDetail.ItemReference.Item.INTERNAL_REFERENCE}) {item.CustomerOrderDetail.ItemReference.Item.ITEM_NAME} - {item.CustomerOrderDetail.ItemReference.REFERENCE_NAME}",
-                                                                                                                               PENDING_QUANTITY = item.CustomerOrderDetail.REQUESTED_QUANTITY - item.CustomerOrderDetail.PROCESSED_QUANTITY - item.CustomerOrderDetail.DELIVERED_QUANTITY,
-                                                                                                                               PROCESSED_QUANTITY = item.CustomerOrderDetail.PROCESSED_QUANTITY,
-                                                                                                                               DELIVERED_QUANTITY = item.CustomerOrderDetail.DELIVERED_QUANTITY,
-                                                                                                                               BRAND = item.BRAND,
-                                                                                                                               WAREHOUSE_ID = item.WAREHOUSE_ID,
-                                                                                                                               THIS_QUANTITY = item.PROCESSED_QUANTITY
-                                                                                                                           }
-                                                                                                                           select viewOrderDetail).ToList();
+        #region Events
 
-        protected async Task SendToProcess(Models.ViewModels.DetailInProcess args)
+        protected async Task<List<DetailInProcess>> GetDetailsInProcess(CustomerOrdersInProcess customerOrderInProcess) => (from item in await CustomerOrderInProcessDetailService.GetAsync(customerOrderInProcess.CustomerOrderInProcessId) ?? throw new ArgumentException("The references of Customer Order In Process, could not be obtained.")
+                                                                                                                            let viewOrderDetail = new DetailInProcess()
+                                                                                                                            {
+                                                                                                                                REFERENCE_ID = item.CustomerOrderDetail.ReferenceId,
+                                                                                                                                CUSTOMER_ORDER_DETAIL_ID = item.CustomerOrderDetailId,
+                                                                                                                                REFERENCE_DESCRIPTION = $"({item.CustomerOrderDetail.ItemReference.Item.InternalReference}) {item.CustomerOrderDetail.ItemReference.Item.ItemName} - {item.CustomerOrderDetail.ItemReference.ReferenceName}",
+                                                                                                                                PENDING_QUANTITY = item.CustomerOrderDetail.RequestedQuantity - item.CustomerOrderDetail.ProcessedQuantity - item.CustomerOrderDetail.DeliveredQuantity,
+                                                                                                                                PROCESSED_QUANTITY = item.CustomerOrderDetail.ProcessedQuantity,
+                                                                                                                                DELIVERED_QUANTITY = item.CustomerOrderDetail.DeliveredQuantity,
+                                                                                                                                BRAND = item.Brand,
+                                                                                                                                WAREHOUSE_ID = item.WarehouseId,
+                                                                                                                                THIS_QUANTITY = item.ProcessedQuantity
+                                                                                                                            }
+                                                                                                                            select viewOrderDetail).ToList();
+
+        protected async Task SendToProcess(DetailInProcess args)
         {
-            if (await DialogService.OpenAsync<SetQuantityInProcess>("Cantidad a Trasladar", new Dictionary<string, object> { { "pDetailInProcess", args } }) != null)
+            if (await DialogService.OpenAsync<SetQuantityInProcess>("Cantidad a Trasladar", new Dictionary<string, object> { { "DetailInProcess", args } }) != null)
                 await customerOrderDetailGrid.Reload();
         }
 
-        protected async Task CancelToProcess(Models.ViewModels.DetailInProcess args)
+        protected async Task CancelToProcess(DetailInProcess args)
         {
             if (await DialogService.Confirm("Está seguro que desea eliminar esta referencia?", "Confirmar") != true)
             {
@@ -131,7 +148,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                 if (!detailsInProcess.Any(x => x.THIS_QUANTITY > 0))
                     throw new Exception("No ha ingresado ninguna cantidad a trasladar");
 
-                var result = await AldebaranDbService.UpdateCustomerOrderInProcess(customerOrderInProcess, detailsInProcess);
+                customerOrderInProcess.CustomerOrderInProcessDetails = await MapDetailsInProcess(detailsInProcess);
+
+                await CustomerOrdersInProcessService.UpdateAsync(customerOrderInProcess.CustomerOrderInProcessId, customerOrderInProcess);
 
                 await DialogService.Alert($"Pedido de Articulos Modificado Satisfactoriamente", "Información");
                 NavigationManager.NavigateTo("process-customer-orders");
@@ -144,47 +163,22 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
             finally { isSubmitInProgress = false; }
         }
 
+        protected async Task<ICollection<CustomerOrderInProcessDetail>> MapDetailsInProcess(ICollection<DetailInProcess> detailsInProcess) => (from item in detailsInProcess
+                                                                                                                                               let orderInProcessDetail = new CustomerOrderInProcessDetail()
+                                                                                                                                               {
+                                                                                                                                                   Brand = item.BRAND,
+                                                                                                                                                   CustomerOrderDetailId = item.CUSTOMER_ORDER_DETAIL_ID,
+                                                                                                                                                   ProcessedQuantity = item.THIS_QUANTITY,
+                                                                                                                                                   WarehouseId = item.WAREHOUSE_ID
+                                                                                                                                               }
+                                                                                                                                               select orderInProcessDetail).ToList();
+
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
             if (await DialogService.Confirm("Está seguro que cancelar la modificación del Traslado??", "Confirmar") == true)
                 NavigationManager.NavigateTo("process-customer-orders");
         }
 
-        protected async Task AddCustomerOrderDetailButtonClick(MouseEventArgs args)
-        {
-            /*var result = await DialogService.OpenAsync<AddCustomerOrderDetail>("Nueva referencia", new Dictionary<string, object> { { "customerOrderDetails", customerOrderDetails } });
-
-            if (result == null)
-                return;
-
-            var detail = (CustomerOrderDetail)result;
-
-            customerOrderDetails.Add(detail);
-
-            await customerOrderDetailGrid.Reload();*/
-        }
-
-        protected async Task DeleteCustomerOrderDetailButtonClick(MouseEventArgs args, CustomerOrderDetail item)
-        {
-            /*if (await DialogService.Confirm("Está seguro que desea eliminar esta referencia?", "Confirmar") == true)
-            {
-                customerOrderDetails.Remove(item);
-
-                await customerOrderDetailGrid.Reload();
-            }*/
-        }
-
-        protected async Task EditRow(CustomerOrderDetail args)
-        {
-            /*var result = await DialogService.OpenAsync<EditCustomerOrderDetail>("Actualizar referencia", new Dictionary<string, object> { { "customerOrderDetail", args } });
-            if (result == null)
-                return;
-            var detail = (CustomerOrderDetail)result;
-
-            customerOrderDetails.Remove(args);
-            customerOrderDetails.Add(detail);
-
-            await customerOrderDetailGrid.Reload();*/
-        }
+        #endregion
     }
 }

@@ -1,5 +1,11 @@
-﻿namespace Aldebaran.DataAccess.Infraestructure.Repository
+﻿
+using Aldebaran.DataAccess.Entities;
+
+namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
-    public interface ICustomerOrderInProcessDetailRepository { }
+    public interface ICustomerOrderInProcessDetailRepository
+    {
+        Task<IEnumerable<CustomerOrderInProcessDetail>> GetAsync(int customerOrderInProcessId, CancellationToken ct);
+    }
 
 }
