@@ -78,23 +78,23 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         public async Task<IEnumerable<Adjustment>> GetAsync(string searchKey, CancellationToken ct = default)
         {
             return await _context.Adjustments.AsNoTracking()
-                .Where(i => i.StatusDocumentType.StatusDocumentTypeName.Equals(searchKey) ||
-                          i.Employee.FullName.Equals(searchKey) ||
-                          i.Employee.DisplayName.Equals(searchKey) ||
-                          i.Employee.IdentityNumber.Equals(searchKey) ||
-                          i.Employee.IdentityType.IdentityTypeName.Equals(searchKey) ||
-                          i.Employee.IdentityType.IdentityTypeCode.Equals(searchKey) ||
-                          i.Employee.Area.AreaName.Equals(searchKey) ||
-                          i.Employee.Area.AreaCode.Equals(searchKey) ||
-                          i.Employee.Area.Description.Equals(searchKey) ||
-                          i.StatusDocumentType.StatusDocumentTypeName.Equals(searchKey) ||
-                          i.StatusDocumentType.Notes.Equals(searchKey) ||
-                          i.AdjustmentReason.AdjustmentReasonName.Equals(searchKey) ||
-                          i.AdjustmentReason.AdjustmentReasonNotes.Equals(searchKey) ||
-                          i.AdjustmentType.AdjustmentTypeName.Equals(searchKey) ||
-                          i.Notes.Equals(searchKey) ||
-                          i.AdjustmentDate.ToString().Equals(searchKey) ||
-                          i.CreationDate.ToString().Equals(searchKey))
+                .Where(i => i.StatusDocumentType.StatusDocumentTypeName.Contains(searchKey) ||
+                          i.Employee.FullName.Contains(searchKey) ||
+                          i.Employee.DisplayName.Contains(searchKey) ||
+                          i.Employee.IdentityNumber.Contains(searchKey) ||
+                          i.Employee.IdentityType.IdentityTypeName.Contains(searchKey) ||
+                          i.Employee.IdentityType.IdentityTypeCode.Contains(searchKey) ||
+                          i.Employee.Area.AreaName.Contains(searchKey) ||
+                          i.Employee.Area.AreaCode.Contains(searchKey) ||
+                          i.Employee.Area.Description.Contains(searchKey) ||
+                          i.StatusDocumentType.StatusDocumentTypeName.Contains(searchKey) ||
+                          i.StatusDocumentType.Notes.Contains(searchKey) ||
+                          i.AdjustmentReason.AdjustmentReasonName.Contains(searchKey) ||
+                          i.AdjustmentReason.AdjustmentReasonNotes.Contains(searchKey) ||
+                          i.AdjustmentType.AdjustmentTypeName.Contains(searchKey) ||
+                          i.Notes.Contains(searchKey) ||
+                          i.AdjustmentDate.ToString().Contains(searchKey) ||
+                          i.CreationDate.ToString().Contains(searchKey))
                 .Include(i => i.StatusDocumentType)
                 .Include(i => i.AdjustmentReason)
                 .Include(i => i.AdjustmentType)

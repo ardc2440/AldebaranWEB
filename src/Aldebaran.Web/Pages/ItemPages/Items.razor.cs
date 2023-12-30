@@ -152,7 +152,7 @@ namespace Aldebaran.Web.Pages.ItemPages
             {
                 IsLoadingInProgress = true;
                 await Task.Yield();
-                var ItemReferencesResult = await ItemReferenceService.GetAsync(args.ItemId);
+                var ItemReferencesResult = await ItemReferenceService.GetByItemIdAsync(args.ItemId);
                 args.ItemReferences = ItemReferencesResult.ToList();
             }
             finally

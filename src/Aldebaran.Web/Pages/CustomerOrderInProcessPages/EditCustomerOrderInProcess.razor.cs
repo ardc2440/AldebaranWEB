@@ -103,7 +103,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
         #region Events
 
-        protected async Task<List<DetailInProcess>> GetDetailsInProcess(CustomerOrdersInProcess customerOrderInProcess) => (from item in await CustomerOrderInProcessDetailService.GetAsync(customerOrderInProcess.CustomerOrderInProcessId) ?? throw new ArgumentException("The references of Customer Order In Process, could not be obtained.")
+        protected async Task<List<DetailInProcess>> GetDetailsInProcess(CustomerOrdersInProcess customerOrderInProcess) => (from item in await CustomerOrderInProcessDetailService.GetByCustomerOrderInProcessIdAsync(customerOrderInProcess.CustomerOrderInProcessId) ?? throw new ArgumentException("The references of Customer Order In Process, could not be obtained.")
                                                                                                                             let viewOrderDetail = new DetailInProcess()
                                                                                                                             {
                                                                                                                                 REFERENCE_ID = item.CustomerOrderDetail.ReferenceId,

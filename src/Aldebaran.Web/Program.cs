@@ -40,10 +40,16 @@ builder.Services.AddDbContext<ApplicationIdentityDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("AldebaranDbConnection"));
 }, ServiceLifetime.Scoped, ServiceLifetime.Scoped);
 
-builder.Services.AddDbContext<Aldebaran.DataAccess.AldebaranDbContext>(options =>
-{
-    options.UseSqlServer(builder.Configuration.GetConnectionString("AldebaranDbConnection"));
-});
+builder.Services.AddDbContext<Aldebaran.DataAccess.AldebaranDbContext>(
+    options =>
+    {
+        options
+            .UseSqlServer(builder.Configuration.GetConnectionString("AldebaranDbConnection"))
+            .UseTriggers(triggerOptions =>
+            {
+                triggerOptions.AddTrigger<Aldebaran.DataAccess.Core.AdjustInventoryFromNewAdjustmentDetailTrigger>();
+            });
+    });
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>().AddEntityFrameworkStores<ApplicationIdentityDbContext>().AddDefaultTokenProviders();
 builder.Services.AddControllers().AddOData(o =>
 {

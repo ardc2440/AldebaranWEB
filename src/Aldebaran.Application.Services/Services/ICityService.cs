@@ -4,7 +4,7 @@ namespace Aldebaran.Application.Services
 {
     public interface ICityService
     {
-        Task<IEnumerable<City>> GetAsync(int departmentId, CancellationToken ct = default);
+        Task<IEnumerable<City>> GetByDepartmentIdAsync(int departmentId, CancellationToken ct = default);
         Task<City?> FindAsync(int cityId, CancellationToken ct = default);
     }
 }

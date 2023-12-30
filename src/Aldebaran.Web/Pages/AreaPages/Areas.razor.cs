@@ -80,7 +80,7 @@ namespace Aldebaran.Web.Pages.AreaPages
             {
                 IsLoadingInProgress = true;
                 await Task.Yield();
-                var itemsAreasResult = await ItemAreaService.GetAsync(Area.AreaId);
+                var itemsAreasResult = await ItemAreaService.GetByAreaIdAsync(Area.AreaId);
                 args.ItemsAreas = itemsAreasResult.ToList();
             }
             finally

@@ -31,7 +31,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 throw;
             }
         }
-        public async Task<IEnumerable<ItemsArea>> GetAsync(short areaId, CancellationToken ct = default)
+        public async Task<IEnumerable<ItemsArea>> GetByAreaIdAsync(short areaId, CancellationToken ct = default)
         {
             return await _context.ItemsAreas.AsNoTracking()
                 .Include(i => i.Area)

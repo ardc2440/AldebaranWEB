@@ -74,7 +74,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
                 customerOrder = await CustomerOrderService.FindAsync(customerOrderId);
 
-                var customerOrderDetails = await CustomerOrderDetailService.GetAsync(customerOrder.CustomerOrderId);
+                var customerOrderDetails = await CustomerOrderDetailService.GetByCustomerOrderIdAsync(customerOrder.CustomerOrderId);
                 this.customerOrderDetails = customerOrderDetails.ToList();
 
                 title = $"Modificaciones para el Pedido No. {customerOrder.OrderNumber}";

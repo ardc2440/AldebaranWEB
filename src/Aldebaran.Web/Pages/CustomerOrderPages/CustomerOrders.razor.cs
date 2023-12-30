@@ -165,7 +165,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task GetOrderDetails(CustomerOrder args)
         {
-            var CustomerOrderDetailsResult = await CustomerOrderDetailService.GetAsync(args.CustomerOrderId);
+            var CustomerOrderDetailsResult = await CustomerOrderDetailService.GetByCustomerOrderIdAsync(args.CustomerOrderId);
             if (CustomerOrderDetailsResult != null)
             {
                 args.CustomerOrderDetails = CustomerOrderDetailsResult.ToList();
@@ -174,7 +174,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task GetOrderActivities(CustomerOrder args)
         {
-            var CustomerOrderActivitiesResult = await CustomerOrderActivityService.GetAsync(args.CustomerOrderId);
+            var CustomerOrderActivitiesResult = await CustomerOrderActivityService.GetByCustomerOrderIdAsync(args.CustomerOrderId);
             if (CustomerOrderActivitiesResult != null)
             {
                 args.CustomerOrderActivities = CustomerOrderActivitiesResult.ToList();
@@ -185,7 +185,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         {
             customerOrderActivity = args;
 
-            var CustomerOrderActivityDetailsResult = await CustomerOrderActivityDetailService.GetAsync(args.CustomerOrderActivityId);
+            var CustomerOrderActivityDetailsResult = await CustomerOrderActivityDetailService.GetByCustomerOrderActivityIdAsync(args.CustomerOrderActivityId);
             if (CustomerOrderActivityDetailsResult != null)
             {
                 args.CustomerOrderActivityDetails = CustomerOrderActivityDetailsResult.ToList();
@@ -208,7 +208,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task<bool> CanCloseCustomerOrder(CustomerOrder customerOrder)
         {
-            var documentStatus = StatusDocumentTypeService.GetAsync(documentType.DocumentTypeId).Result.Where(i => i.StatusOrder.Equals(2) || i.StatusOrder.Equals(3));
+            var documentStatus = StatusDocumentTypeService.GetByDocumentTypeIdAsync(documentType.DocumentTypeId).Result.Where(i => i.StatusOrder.Equals(2) || i.StatusOrder.Equals(3));
 
             return Security.IsInRole("Admin", "Customer Order Editor") && documentStatus.Any(i => i.StatusDocumentTypeId.Equals(customerOrder.StatusDocumentTypeId));
         }

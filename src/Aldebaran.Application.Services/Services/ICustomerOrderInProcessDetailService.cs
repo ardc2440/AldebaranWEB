@@ -4,7 +4,7 @@ namespace Aldebaran.Application.Services
 {
     public interface ICustomerOrderInProcessDetailService
     {
-        Task<IEnumerable<CustomerOrderInProcessDetail>> GetAsync(int customerOrderInProcessId, CancellationToken ct = default);
+        Task<IEnumerable<CustomerOrderInProcessDetail>> GetByCustomerOrderInProcessIdAsync(int customerOrderInProcessId, CancellationToken ct = default);
     }
 
 }

@@ -11,7 +11,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task<IEnumerable<CustomerReservationDetail>> GetAsync(int customerReservationId, CancellationToken ct = default)
+        public async Task<IEnumerable<CustomerReservationDetail>> GetByCustomerReservationIdAsync(int customerReservationId, CancellationToken ct = default)
         {
             return await _context.CustomerReservationDetails.AsNoTracking()
                 .Include(i => i.ItemReference.Item.Line)

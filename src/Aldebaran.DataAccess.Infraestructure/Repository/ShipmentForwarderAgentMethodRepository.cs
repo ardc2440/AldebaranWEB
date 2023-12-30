@@ -40,7 +40,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                .FirstOrDefaultAsync(w => w.ShipmentForwarderAgentMethodId == shipmentForwarderAgentMethodId, ct);
         }
 
-        public async Task<IEnumerable<ShipmentForwarderAgentMethod>> GetAsync(int forwarderAgentId, CancellationToken ct = default)
+        public async Task<IEnumerable<ShipmentForwarderAgentMethod>> GetByForwarderAgentIdAsync(int forwarderAgentId, CancellationToken ct = default)
         {
             return await _context.ShipmentForwarderAgentMethods.AsNoTracking()
                 .Include(i => i.ShipmentMethod)

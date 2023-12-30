@@ -70,7 +70,7 @@ namespace Aldebaran.Web.Shared
                 return;
             }
             SelectedCountry = Countries.Single(s => s.CountryId == (int)countryId);
-            Departments = await DepartmentService.GetAsync((int)countryId);
+            Departments = await DepartmentService.GetGetByCountryIdAsyncAsync((int)countryId);
         }
         protected async Task OnDepartmentChange(object departmentId)
         {
@@ -81,7 +81,7 @@ namespace Aldebaran.Web.Shared
                 return;
             }
             SelectedDepartment = Departments.Single(s => s.DepartmentId == (int)departmentId);
-            Cities = await CityService.GetAsync((int)departmentId);
+            Cities = await CityService.GetByDepartmentIdAsync((int)departmentId);
         }
         protected async Task OnCityChange(object cityId)
         {

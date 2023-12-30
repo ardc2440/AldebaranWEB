@@ -81,7 +81,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 areasForAREAID = await AreaService.GetAsync();
                 employeesForEMPLOYEEID = await EmployeeService.GetByAreaAsync(customerOrderActivity.AreaId);
 
-                customerOrderActivityDetails = (await CustomerOrderActivityDetailService.GetAsync(customerOrderActivityId)).ToList();
+                customerOrderActivityDetails = (await CustomerOrderActivityDetailService.GetByCustomerOrderActivityIdAsync(customerOrderActivityId)).ToList();
 
                 title = $"Modificación de Actividades para el Pedido No. {customerOrder.OrderNumber}";
             }

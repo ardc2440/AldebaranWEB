@@ -19,9 +19,9 @@ namespace Aldebaran.Application.Services
             await _repository.DeleteAsync(customerOrderActivityDetailId, ct);
         }
 
-        public async Task<IEnumerable<CustomerOrderActivityDetail>> GetAsync(int customerOrderActivityId, CancellationToken ct = default)
+        public async Task<IEnumerable<CustomerOrderActivityDetail>> GetByCustomerOrderActivityIdAsync(int customerOrderActivityId, CancellationToken ct = default)
         {
-            var data = await _repository.GetAsync(customerOrderActivityId, ct);
+            var data = await _repository.GetByCustomerOrderActivityIdAsync(customerOrderActivityId, ct);
             return _mapper.Map<IEnumerable<CustomerOrderActivityDetail>>(data);
         }
     }

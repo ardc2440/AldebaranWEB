@@ -97,7 +97,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
         protected async Task GetOrderDetails(CustomerOrder args)
         {
-            var customerOrderDetailsResult = await CustomerOrderDetailService.GetAsync(args.CustomerOrderId);
+            var customerOrderDetailsResult = await CustomerOrderDetailService.GetByCustomerOrderIdAsync(args.CustomerOrderId);
             if (customerOrderDetailsResult == null)
                 return;
 
@@ -128,7 +128,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
         protected async Task GetChildInProcessData(CustomerOrdersInProcess args)
         {
-            customerOrderInProcessDetails = await CustomerOrderInProcessDetailService.GetAsync(args.CustomerOrderInProcessId);
+            customerOrderInProcessDetails = await CustomerOrderInProcessDetailService.GetByCustomerOrderInProcessIdAsync(args.CustomerOrderInProcessId);
         }
 
         protected async Task SendToProcess(CustomerOrder args)

@@ -122,7 +122,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         protected async Task GetChildData(CustomerReservation args)
         {
             customerReservation = args;
-            var CustomerReservationDetailsResult = await CustomerReservationDetailService.GetAsync(args.CustomerReservationId);
+            var CustomerReservationDetailsResult = await CustomerReservationDetailService.GetByCustomerReservationIdAsync(args.CustomerReservationId);
             if (CustomerReservationDetailsResult != null)
             {
                 args.CustomerReservationDetails = CustomerReservationDetailsResult.ToList();

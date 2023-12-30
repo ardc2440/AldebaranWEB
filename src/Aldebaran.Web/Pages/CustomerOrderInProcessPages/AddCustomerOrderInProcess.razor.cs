@@ -88,7 +88,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
                 customerOrder = await CustomerOrderService.FindAsync(customerOrderId);
 
-                customerOrder.CustomerOrderDetails = (await CustomerOrderDetailService.GetAsync(customerOrderId)).ToList();
+                customerOrder.CustomerOrderDetails = (await CustomerOrderDetailService.GetByCustomerOrderIdAsync(customerOrderId)).ToList();
 
                 detailsInProcess = await GetDetailsInProcess(customerOrder);
 

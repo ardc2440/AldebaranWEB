@@ -16,7 +16,7 @@ namespace Aldebaran.Application.Services
 
         public async Task<IEnumerable<PurchaseOrderDetail>> GetTransitDetailOrdersAsync(int referenceId, int statusOrder, CancellationToken ct = default)
         {
-            var data = await _repository.GetTransitDetailOrdersAsync(referenceId, statusOrder, ct);
+            var data = await _repository.GetByReferenceIdAndStatusOrderAsync(referenceId, statusOrder, ct);
             return _mapper.Map<IEnumerable<PurchaseOrderDetail>>(data);
         }
     }

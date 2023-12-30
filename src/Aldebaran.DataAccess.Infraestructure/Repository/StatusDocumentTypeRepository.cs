@@ -16,7 +16,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             return await _context.StatusDocumentTypes.AsNoTracking().FirstOrDefaultAsync(f => f.DocumentTypeId == documentTypeId && f.StatusOrder == order, ct);
         }
 
-        public async Task<IEnumerable<StatusDocumentType>> GetAsync(int documentTypeId, CancellationToken ct = default)
+        public async Task<IEnumerable<StatusDocumentType>> GetByDocumentTypeIdAsync(int documentTypeId, CancellationToken ct = default)
         {
             return await _context.StatusDocumentTypes.AsNoTracking()
                 .Where(f => f.DocumentTypeId.Equals(documentTypeId))

@@ -21,9 +21,9 @@ namespace Aldebaran.Application.Services
             return _mapper.Map<City?>(data);
         }
 
-        public async Task<IEnumerable<City>> GetAsync(int departmentId, CancellationToken ct = default)
+        public async Task<IEnumerable<City>> GetByDepartmentIdAsync(int departmentId, CancellationToken ct = default)
         {
-            var data = await _repository.GetAsync(departmentId, ct);
+            var data = await _repository.GetByDepartmentIdAsync(departmentId, ct);
             return _mapper.Map<List<City>>(data);
         }
     }

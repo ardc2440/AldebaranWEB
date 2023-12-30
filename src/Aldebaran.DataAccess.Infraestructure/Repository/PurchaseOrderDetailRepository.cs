@@ -11,7 +11,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task<IEnumerable<PurchaseOrderDetail>> GetTransitDetailOrdersAsync(int referenceId, int statusOrder, CancellationToken ct = default)
+        public async Task<IEnumerable<PurchaseOrderDetail>> GetByReferenceIdAndStatusOrderAsync(int referenceId, int statusOrder, CancellationToken ct = default)
         {
             return await _context.PurchaseOrderDetails.AsNoTracking()
                 .Include(p => p.PurchaseOrder)

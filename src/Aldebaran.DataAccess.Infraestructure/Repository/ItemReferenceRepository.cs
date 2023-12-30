@@ -53,7 +53,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                .ToListAsync(ct);
         }
 
-        public async Task<IEnumerable<ItemReference>> GetAsync(int itemId, CancellationToken ct = default)
+        public async Task<IEnumerable<ItemReference>> GetByItemIdAsync(int itemId, CancellationToken ct = default)
         {
             return await _context.ItemReferences.AsNoTracking()
                .Where(w => w.ItemId == itemId)
@@ -98,7 +98,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .Include(i => i.Item.Line)
                 .Include(i => i.Item.Currency)
                 .Include(i => i.Item.CifMeasureUnit)
-                .Include(i => i.Item.FobMeasureUnit) 
+                .Include(i => i.Item.FobMeasureUnit)
                 .Where(i => i.Item.ItemName.Contains(searchKey) ||
                           i.Item.Line.LineName.Contains(searchKey) ||
                           i.Item.Line.LineCode.Contains(searchKey) ||

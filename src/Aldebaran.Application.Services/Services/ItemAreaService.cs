@@ -25,9 +25,9 @@ namespace Aldebaran.Application.Services
         {
             await _repository.DeleteAsync(areaId, itemId, ct);
         }
-        public async Task<IEnumerable<ItemsArea>> GetAsync(short areaId, CancellationToken ct = default)
+        public async Task<IEnumerable<ItemsArea>> GetByAreaIdAsync(short areaId, CancellationToken ct = default)
         {
-            var data = await _repository.GetAsync(areaId, ct);
+            var data = await _repository.GetByAreaIdAsync(areaId, ct);
             return _mapper.Map<List<ItemsArea>>(data);
         }
     }

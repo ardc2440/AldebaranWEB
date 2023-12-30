@@ -20,7 +20,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             await _context.SaveChangesAsync(ct);
         }
 
-        public async Task<IEnumerable<CustomerOrderActivityDetail>> GetAsync(int customerOrderActivityId, CancellationToken ct = default)
+        public async Task<IEnumerable<CustomerOrderActivityDetail>> GetByCustomerOrderActivityIdAsync(int customerOrderActivityId, CancellationToken ct = default)
         {
             return await _context.CustomerOrderActivityDetails.AsNoTracking()
                 .Include(i => i.ActivityType)

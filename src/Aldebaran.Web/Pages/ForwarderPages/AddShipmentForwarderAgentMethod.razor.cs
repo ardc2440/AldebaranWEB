@@ -36,7 +36,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
         protected override async Task OnInitializedAsync()
         {
             ForwarderAgent = await ForwarderAgentService.FindAsync(FORWARDER_AGENT_ID);
-            var currentShipmentMethodsForAgent = await ShipmentForwarderAgentMethodService.GetAsync(FORWARDER_AGENT_ID);
+            var currentShipmentMethodsForAgent = await ShipmentForwarderAgentMethodService.GetByForwarderAgentIdAsync(FORWARDER_AGENT_ID);
             // Metodos de envio disponibles para seleccion. Metodos de envio excepto los ya seleccionados
             var shipmentMethods = await ShipmentMethodService.GetAsync();
             AvailableShipmentMethodsForSelection = shipmentMethods.Where(w => !currentShipmentMethodsForAgent.Any(x => x.ShipmentMethodId == w.ShipmentMethodId)).ToList();

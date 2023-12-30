@@ -14,17 +14,17 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         public async Task<IEnumerable<AdjustmentDetail>> GetAsync(string searchKey, CancellationToken ct = default)
         {
             return await _context.AdjustmentDetails.AsNoTracking()
-                .Where(i => i.Warehouse.WarehouseName.Equals(searchKey) ||
-                          i.ItemReference.Item.Line.LineName.Equals(searchKey) ||
-                          i.ItemReference.Item.ItemName.Equals(searchKey) ||
-                          i.ItemReference.Item.InternalReference.Equals(searchKey) ||
-                          i.ItemReference.Item.Notes.Equals(searchKey) ||
-                          i.ItemReference.Item.ProviderReference.Equals(searchKey) ||
-                          i.ItemReference.Notes.Equals(searchKey) ||
-                          i.ItemReference.ProviderReferenceCode.Equals(searchKey) ||
-                          i.ItemReference.ProviderReferenceName.Equals(searchKey) ||
-                          i.ItemReference.ReferenceCode.Equals(searchKey) ||
-                          i.ItemReference.ReferenceName.Equals(searchKey))
+                .Where(i => i.Warehouse.WarehouseName.Contains(searchKey) ||
+                          i.ItemReference.Item.Line.LineName.Contains(searchKey) ||
+                          i.ItemReference.Item.ItemName.Contains(searchKey) ||
+                          i.ItemReference.Item.InternalReference.Contains(searchKey) ||
+                          i.ItemReference.Item.Notes.Contains(searchKey) ||
+                          i.ItemReference.Item.ProviderReference.Contains(searchKey) ||
+                          i.ItemReference.Notes.Contains(searchKey) ||
+                          i.ItemReference.ProviderReferenceCode.Contains(searchKey) ||
+                          i.ItemReference.ProviderReferenceName.Contains(searchKey) ||
+                          i.ItemReference.ReferenceCode.Contains(searchKey) ||
+                          i.ItemReference.ReferenceName.Contains(searchKey))
                 .Include(i => i.Adjustment)
                 .Include(i => i.ItemReference.Item.Line)
                 .Include(i => i.Warehouse)

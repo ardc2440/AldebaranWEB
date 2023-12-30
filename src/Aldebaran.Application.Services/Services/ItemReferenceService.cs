@@ -32,9 +32,9 @@ namespace Aldebaran.Application.Services
             return _mapper.Map<ItemReference?>(data);
         }
 
-        public async Task<IEnumerable<ItemReference>> GetAsync(int itemId, CancellationToken ct = default)
+        public async Task<IEnumerable<ItemReference>> GetByItemIdAsync(int itemId, CancellationToken ct = default)
         {
-            var data = await _repository.GetAsync(itemId, ct);
+            var data = await _repository.GetByItemIdAsync(itemId, ct);
             return _mapper.Map<List<ItemReference>>(data);
         }
 
