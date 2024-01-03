@@ -1,7 +1,7 @@
 ﻿using Aldebaran.DataAccess.Entities;
 using EntityFrameworkCore.Triggered;
 
-namespace Aldebaran.DataAccess.Core.Triggers
+namespace Aldebaran.DataAccess.Core.Triggers.Adjustments
 {
     public class AdjustInventoryFromModifiedAdjustmentDetail : IBeforeSaveTrigger<AdjustmentDetail>
     {
@@ -41,13 +41,13 @@ namespace Aldebaran.DataAccess.Core.Triggers
         internal async Task UpdateInventoryValue(int referenceId, int quantity, int operatorInOut, CancellationToken cancellationToken)
         {
             var inventoryEntity = await _context.ItemReferences.FindAsync(new object[] { referenceId }, cancellationToken) ?? throw new ArgumentNullException($"Referencia con id {referenceId} no encontrada");
-            inventoryEntity.InventoryQuantity = inventoryEntity.InventoryQuantity + (quantity * operatorInOut);
+            inventoryEntity.InventoryQuantity = inventoryEntity.InventoryQuantity + quantity * operatorInOut;
         }
 
         internal async Task UpdateWarehouseReferenceValue(short warehouseId, int referenceId, int quantity, int operatorInOut, CancellationToken cancellationToken)
         {
             var warehouseReferenceEntity = await _context.ReferencesWarehouses.FindAsync(new object[] { referenceId, warehouseId }, cancellationToken) ?? throw new ArgumentNullException($"Bodega con id {warehouseId} y referencia {referenceId} no encontrada");
-            warehouseReferenceEntity.Quantity = warehouseReferenceEntity.Quantity + (quantity * operatorInOut);
+            warehouseReferenceEntity.Quantity = warehouseReferenceEntity.Quantity + quantity * operatorInOut;
         }
     }
 }

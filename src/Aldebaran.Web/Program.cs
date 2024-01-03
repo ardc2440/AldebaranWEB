@@ -1,5 +1,5 @@
 using Aldebaran.Application.Services;
-using Aldebaran.DataAccess.Core.Triggers;
+using Aldebaran.DataAccess.Core.Triggers.Adjustments;
 using Aldebaran.DataAccess.Infraestructure.Repository;
 using Aldebaran.Web.Data;
 using Aldebaran.Web.Models;
