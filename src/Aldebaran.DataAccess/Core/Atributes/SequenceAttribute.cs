@@ -1,4 +1,4 @@
-﻿namespace Aldebaran.DataAccess.Core
+﻿namespace Aldebaran.DataAccess.Core.Atributes
 {
     [AttributeUsage(AttributeTargets.Property)]
     public class SequenceAttribute : Attribute

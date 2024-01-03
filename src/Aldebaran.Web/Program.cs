@@ -1,4 +1,5 @@
 using Aldebaran.Application.Services;
+using Aldebaran.DataAccess.Core.Triggers;
 using Aldebaran.DataAccess.Infraestructure.Repository;
 using Aldebaran.Web.Data;
 using Aldebaran.Web.Models;
@@ -47,7 +48,11 @@ builder.Services.AddDbContext<Aldebaran.DataAccess.AldebaranDbContext>(
             .UseSqlServer(builder.Configuration.GetConnectionString("AldebaranDbConnection"))
             .UseTriggers(triggerOptions =>
             {
-                triggerOptions.AddTrigger<Aldebaran.DataAccess.Core.AdjustInventoryFromNewAdjustmentDetailTrigger>();
+                triggerOptions.AddTrigger<AdjustInventoryFromNewAdjustmentDetail>();
+                triggerOptions.AddTrigger<AdjustInventoryFromModifiedAdjustmentDetail>();
+                triggerOptions.AddTrigger<AdjustInventoryFromDeletedAdjustmentDetail>();
+                triggerOptions.AddTrigger<AdjustInventoryFromAdjustmentCancelled>();
+                triggerOptions.AddTrigger<AdjustInventoryFromAdjustmentTypeChanged>();
             });
     });
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>().AddEntityFrameworkStores<ApplicationIdentityDbContext>().AddDefaultTokenProviders();

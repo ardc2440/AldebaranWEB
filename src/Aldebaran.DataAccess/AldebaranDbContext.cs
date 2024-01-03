@@ -1,4 +1,4 @@
-using Aldebaran.DataAccess.Core;
+using Aldebaran.DataAccess.Core.Atributes;
 using Aldebaran.DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
@@ -10,6 +10,9 @@ namespace Aldebaran.DataAccess
     // ****************************************************************************************************
     public class AldebaranDbContext : DbContext
     {
+        public bool ChangeAdjustmentType { get; set; } = false;
+        public short OldAdjustmentTypeId { get; set; }
+
         public AldebaranDbContext()
         {
         }

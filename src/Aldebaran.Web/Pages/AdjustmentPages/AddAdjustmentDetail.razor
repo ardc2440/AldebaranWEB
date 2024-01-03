@@ -16,6 +16,7 @@
                     <RadzenDropDownDataGrid Data="@warehousesForWAREHOUSEID" TextProperty="WarehouseName" ValueProperty="WarehouseId" AllowClear=true
                                             Disabled=@(hasWAREHOUSE_IDValue) Placeholder="Seleccione una bodega" style="display: block; width: 100%" @bind-Value="@adjustmentDetail.WarehouseId" Name="WAREHOUSE_ID" TabIndex="2" />
                     <RadzenRequiredValidator Component="WAREHOUSE_ID" DefaultValue="0" Text="La Bodega es requerida"></RadzenRequiredValidator>
+                    <RadzenNumericRangeValidator Component="WAREHOUSE_ID" Min="1" Text="La Bodega es requerida" />
                 </RadzenColumn>
             </RadzenRow>
             <RadzenRow style="margin-bottom: 1rem">

@@ -1,4 +1,4 @@
-@page "/edit-adjustment/{pAdjustmentId}"
+@page "/edit-adjustment/{AdjustmentId}"
 
 @attribute [Authorize(Roles = "Admin,Adjustment Editor")]
 @using Aldebaran.Web.Resources.LocalizedControls;
@@ -29,7 +29,7 @@
                                     <RadzenLabel Text="Motivo del Ajuste" Component="AdjustmentReason" style="width: 100%" />
                                 </RadzenColumn>
                                 <RadzenColumn SizeMD="9">
-                                    <RadzenDropDownDataGrid Data="@adjustmentReasonsForADJUSTMENTREASONID" TextProperty="AdjustmentReasonName" ValueProperty="AdjustmenReasonId" AllowClear=true
+                                    <RadzenDropDownDataGrid Data="@adjustmentReasonsForADJUSTMENTREASONID" TextProperty="AdjustmentReasonName" ValueProperty="AdjustmentReasonId" AllowClear=true
                                                             Placeholder="Seleccione un motivo" style="display: block; width: 100%" @bind-Value="@adjustment.AdjustmentReasonId" Name="ADJUSTMENT_REASON_ID" TabIndex="1" />
                                     <RadzenRequiredValidator Component="ADJUSTMENT_REASON_ID" DefaultValue="0" Text="El Motivo del Ajuste es requerido "></RadzenRequiredValidator>
                                 </RadzenColumn>

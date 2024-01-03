@@ -32,10 +32,15 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         #endregion
 
-        #region Global Variables
+        #region Parameters
 
         [Parameter]
         public string AdjustmentId { get; set; } = "NoParamInput";
+
+        #endregion
+
+        #region Global Variables
+
         protected DateTime Now { get; set; }
 
         protected bool errorVisible;

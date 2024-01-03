@@ -1,4 +1,4 @@
-using Aldebaran.DataAccess.Core;
+using Aldebaran.DataAccess.Core.Atributes;
 
 namespace Aldebaran.DataAccess.Entities
 {

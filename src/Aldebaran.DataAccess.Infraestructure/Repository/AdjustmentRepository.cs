@@ -115,12 +115,13 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             entity.EmployeeId = adjustment.EmployeeId;
             entity.Notes = adjustment.Notes;
             entity.CreationDate = adjustment.CreationDate;
+            entity.StatusDocumentTypeId = adjustment.StatusDocumentTypeId;
 
             foreach (var item in adjustment.AdjustmentDetails)
             {
                 if (item.AdjustmentDetailId > 0)
                 {
-                    var entityDetail = await _context.AdjustmentDetails.FirstOrDefaultAsync(i => i.AdjustmentDetailId == item.AdjustmentDetailId) ?? throw new KeyNotFoundException($"Dtalle de Ajuste con id {item.AdjustmentDetailId} no existe.");
+                    var entityDetail = await _context.AdjustmentDetails.FirstOrDefaultAsync(i => i.AdjustmentDetailId == item.AdjustmentDetailId, ct) ?? throw new KeyNotFoundException($"Detalle de Ajuste con id {item.AdjustmentDetailId} no existe.");
 
                     entityDetail.Quantity = item.Quantity;
                     entityDetail.ReferenceId = item.ReferenceId;
