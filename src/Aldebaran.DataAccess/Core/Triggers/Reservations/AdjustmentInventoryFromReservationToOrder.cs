@@ -3,11 +3,11 @@ using EntityFrameworkCore.Triggered;
 
 namespace Aldebaran.DataAccess.Core.Triggers.Reservations
 {
-    public class AdjustmentInventoryFromReservationCancelled : InventoryManagementBase, IBeforeSaveTrigger<CustomerReservation>
+    public class AdjustmentInventoryFromReservationToOrder : InventoryManagementBase, IBeforeSaveTrigger<CustomerReservation>
     {
         private readonly AldebaranDbContext _context;
 
-        public AdjustmentInventoryFromReservationCancelled(AldebaranDbContext context) : base(context)
+        public AdjustmentInventoryFromReservationToOrder(AldebaranDbContext context) : base(context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
@@ -18,7 +18,7 @@ namespace Aldebaran.DataAccess.Core.Triggers.Reservations
             {
                 var statusOrder = (await _context.StatusDocumentTypes.FindAsync(new object[] { context.Entity.StatusDocumentTypeId }, cancellationToken))!.StatusOrder;
 
-                if (statusOrder == 3)
+                if (statusOrder == 2)
                 {
                     var detailChanges = context.Entity.GetType()
                      .GetProperties()
