@@ -72,8 +72,11 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                 Employee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id),
                 StatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 1),
                 ReservationDate = DateTime.Today,
+                CreationDate = DateTime.Today,
                 ReservationNumber = "0"
             };
+            customerReservation.StatusDocumentTypeId = customerReservation.StatusDocumentType.StatusDocumentTypeId;
+            customerReservation.EmployeeId = customerReservation.Employee.EmployeeId;
         }
         #endregion
 
@@ -88,9 +91,9 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
                 customerReservation.CustomerReservationDetails = customerReservationDetails;
 
-                await CustomerReservationService.AddAsync(customerReservation);
+                var reservationNumber = await CustomerReservationService.AddAsync(customerReservation);
 
-                await DialogService.Alert($"Reserva de Articulos Guardada Satisfactoriamente con el consecutivo {customerReservation.ReservationNumber}", "Información");
+                await DialogService.Alert($"Reserva de Articulos guardada satisfactoriamente con el consecutivo {reservationNumber}", "Información");
                 NavigationManager.NavigateTo("customer-reservations");
             }
             catch (Exception ex)

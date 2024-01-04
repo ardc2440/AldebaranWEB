@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Aldebaran.DataAccess.Core.Triggers.Adjustments
 {
-    public class AdjustInventoryFromAdjustmentTypeChanged : IBeforeSaveTrigger<Adjustment>
+    public class AdjustInventoryFromAdjustmentTypeChanged : InventoryManagementBase, IBeforeSaveTrigger<Adjustment>
     {
         private readonly AldebaranDbContext _context;
 
-        public AdjustInventoryFromAdjustmentTypeChanged(AldebaranDbContext context)
+        public AdjustInventoryFromAdjustmentTypeChanged(AldebaranDbContext context) : base(context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
@@ -31,14 +31,8 @@ namespace Aldebaran.DataAccess.Core.Triggers.Adjustments
                     _context.ChangeAdjustmentType = true;
 
                     var detail = context.Entity.AdjustmentDetails;
-
-                    var adj = await _context.AdjustmentTypes.FindAsync(new object[] { detailChanges.oldValue! }, cancellationToken);
-
-                    var oldIndicatorInOut = adj!.Operator;
-
-                    adj = await _context.AdjustmentTypes.FindAsync(new object[] { detailChanges.newValue! }, cancellationToken);
-
-                    var newIndicatorInOut = adj!.Operator;
+                    var oldIndicatorInOut = (await _context.AdjustmentTypes.FindAsync(new object[] { detailChanges.oldValue! }, cancellationToken))!.Operator;
+                    var newIndicatorInOut = (await _context.AdjustmentTypes.FindAsync(new object[] { detailChanges.newValue! }, cancellationToken))!.Operator;
 
                     foreach (var kvp in detail)
                     {
@@ -54,29 +48,17 @@ namespace Aldebaran.DataAccess.Core.Triggers.Adjustments
                         PropertyEntry<AdjustmentDetail, int> reference = _context.Entry(kvp).Property(e => e.ReferenceId);
                         PropertyEntry<AdjustmentDetail, int> quantity = _context.Entry(kvp).Property(e => e.Quantity);
 
-                        await UpdateInventoryValue(reference.OriginalValue, quantity.OriginalValue, oldIndicatorInOut * -1, cancellationToken);
-                        await UpdateWarehouseReferenceValue(warehouse.OriginalValue, reference.OriginalValue, quantity.OriginalValue, oldIndicatorInOut * -1, cancellationToken);
+                        await UpdateInventoryQuantity(reference.OriginalValue, quantity.OriginalValue, oldIndicatorInOut * -1, cancellationToken);
+                        await UpdateWarehouseReferenceQuantity(warehouse.OriginalValue, reference.OriginalValue, quantity.OriginalValue, oldIndicatorInOut * -1, cancellationToken);
 
                         if (entry.State == EntityState.Modified || entry.State == EntityState.Unchanged)
                         {
-                            await UpdateInventoryValue(reference.CurrentValue, quantity.CurrentValue, newIndicatorInOut, cancellationToken);
-                            await UpdateWarehouseReferenceValue(warehouse.CurrentValue, reference.CurrentValue, quantity.CurrentValue, newIndicatorInOut, cancellationToken);
+                            await UpdateInventoryQuantity(reference.CurrentValue, quantity.CurrentValue, newIndicatorInOut, cancellationToken);
+                            await UpdateWarehouseReferenceQuantity(warehouse.CurrentValue, reference.CurrentValue, quantity.CurrentValue, newIndicatorInOut, cancellationToken);
                         }
                     }
                 }
             }
-        }
-
-        internal async Task UpdateInventoryValue(int referenceId, int quantity, int operatorInOut, CancellationToken cancellationToken)
-        {
-            var inventoryEntity = await _context.ItemReferences.FindAsync(new object[] { referenceId }, cancellationToken) ?? throw new ArgumentNullException($"Referencia con id {referenceId} no encontrada");
-            inventoryEntity.InventoryQuantity = inventoryEntity.InventoryQuantity + quantity * operatorInOut;
-        }
-
-        internal async Task UpdateWarehouseReferenceValue(short warehouseId, int referenceId, int quantity, int operatorInOut, CancellationToken cancellationToken)
-        {
-            var warehouseReferenceEntity = await _context.ReferencesWarehouses.FindAsync(new object[] { referenceId, warehouseId }, cancellationToken) ?? throw new ArgumentNullException($"Bodega con id {warehouseId} y referencia {referenceId} no encontrada");
-            warehouseReferenceEntity.Quantity = warehouseReferenceEntity.Quantity + quantity * operatorInOut;
         }
     }
 }

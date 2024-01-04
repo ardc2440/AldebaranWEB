@@ -63,7 +63,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
         protected async Task ItemReferenceHandler()
         {
-            await QuantitiesPanel.Refresh(CustomerReservationDetail.ItemReference);
+            await QuantitiesPanel.Refresh(CustomerReservationDetail.ItemReference.ReferenceId);
         }
         #endregion
     }

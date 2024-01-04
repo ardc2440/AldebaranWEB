@@ -117,6 +117,12 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             entity.CreationDate = adjustment.CreationDate;
             entity.StatusDocumentTypeId = adjustment.StatusDocumentTypeId;
 
+            foreach (var item in entity.AdjustmentDetails)
+            {
+                if (!adjustment.AdjustmentDetails.Any(x => x.AdjustmentDetailId == item.AdjustmentDetailId))
+                    _context.AdjustmentDetails.Remove(item);
+            }
+
             foreach (var item in adjustment.AdjustmentDetails)
             {
                 if (item.AdjustmentDetailId > 0)

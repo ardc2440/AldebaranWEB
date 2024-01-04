@@ -76,7 +76,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
                 await CustomerReservationService.UpdateAsync(customerReservation.CustomerReservationId, customerReservation);
 
-                await DialogService.Alert($"Reserva {customerReservation.ReservationNumber} modificada Satisfactoriamente", "Información");
+                await DialogService.Alert($"Reserva {customerReservation.ReservationNumber} modificada satisfactoriamente", "Información");
                 NavigationManager.NavigateTo("customer-reservations");
             }
             catch (Exception ex)

@@ -3,11 +3,11 @@ using EntityFrameworkCore.Triggered;
 
 namespace Aldebaran.DataAccess.Core.Triggers.Adjustments
 {
-    public class AdjustInventoryFromModifiedAdjustmentDetail : IBeforeSaveTrigger<AdjustmentDetail>
+    public class AdjustInventoryFromModifiedAdjustmentDetail : InventoryManagementBase, IBeforeSaveTrigger<AdjustmentDetail>
     {
         private readonly AldebaranDbContext _context;
 
-        public AdjustInventoryFromModifiedAdjustmentDetail(AldebaranDbContext context)
+        public AdjustInventoryFromModifiedAdjustmentDetail(AldebaranDbContext context) : base(context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
@@ -29,25 +29,13 @@ namespace Aldebaran.DataAccess.Core.Triggers.Adjustments
                     var reference = detailChanges.FirstOrDefault(x => x.name.Equals("ReferenceId"));
                     var quantity = detailChanges.FirstOrDefault(x => x.name.Equals("Quantity"));
 
-                    await UpdateInventoryValue((int)(reference.oldValue ?? 0), (int)(quantity.oldValue ?? 0), indicatorInOut * -1, cancellationToken);
-                    await UpdateWarehouseReferenceValue((short)(warehouse.oldValue ?? 0), (int)(reference.oldValue ?? 0), (int)(quantity.oldValue ?? 0), indicatorInOut * -1, cancellationToken);
+                    await UpdateInventoryQuantity((int)(reference.oldValue ?? 0), (int)(quantity.oldValue ?? 0), indicatorInOut * -1, cancellationToken);
+                    await UpdateWarehouseReferenceQuantity((short)(warehouse.oldValue ?? 0), (int)(reference.oldValue ?? 0), (int)(quantity.oldValue ?? 0), indicatorInOut * -1, cancellationToken);
 
-                    await UpdateInventoryValue((int)(reference.newValue ?? 0), (int)(quantity.newValue ?? 0), indicatorInOut, cancellationToken);
-                    await UpdateWarehouseReferenceValue((short)(warehouse.newValue ?? 0), (int)(reference.newValue ?? 0), (int)(quantity.newValue ?? 0), indicatorInOut, cancellationToken);
+                    await UpdateInventoryQuantity((int)(reference.newValue ?? 0), (int)(quantity.newValue ?? 0), indicatorInOut, cancellationToken);
+                    await UpdateWarehouseReferenceQuantity((short)(warehouse.newValue ?? 0), (int)(reference.newValue ?? 0), (int)(quantity.newValue ?? 0), indicatorInOut, cancellationToken);
                 }
             }
-        }
-
-        internal async Task UpdateInventoryValue(int referenceId, int quantity, int operatorInOut, CancellationToken cancellationToken)
-        {
-            var inventoryEntity = await _context.ItemReferences.FindAsync(new object[] { referenceId }, cancellationToken) ?? throw new ArgumentNullException($"Referencia con id {referenceId} no encontrada");
-            inventoryEntity.InventoryQuantity = inventoryEntity.InventoryQuantity + quantity * operatorInOut;
-        }
-
-        internal async Task UpdateWarehouseReferenceValue(short warehouseId, int referenceId, int quantity, int operatorInOut, CancellationToken cancellationToken)
-        {
-            var warehouseReferenceEntity = await _context.ReferencesWarehouses.FindAsync(new object[] { referenceId, warehouseId }, cancellationToken) ?? throw new ArgumentNullException($"Bodega con id {warehouseId} y referencia {referenceId} no encontrada");
-            warehouseReferenceEntity.Quantity = warehouseReferenceEntity.Quantity + quantity * operatorInOut;
         }
     }
 }

@@ -13,8 +13,31 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
 
         public async Task AddAsync(CustomerReservation customerReservation, CancellationToken ct = default)
         {
-            await _context.CustomerReservations.AddAsync(customerReservation, ct);
+            var entity = new CustomerReservation
+            {
+                EmployeeId = customerReservation.EmployeeId,
+                ReservationDate = customerReservation.ReservationDate,
+                ExpirationDate = customerReservation.ExpirationDate,
+                Notes = customerReservation.Notes,
+                StatusDocumentTypeId = customerReservation.StatusDocumentTypeId,
+                CustomerId = customerReservation.CustomerId,
+                CustomerReservationDetails = new List<CustomerReservationDetail>()
+            };
+
+            foreach (var item in customerReservation.CustomerReservationDetails)
+            {
+                entity.CustomerReservationDetails.Add(new CustomerReservationDetail
+                {
+                    Brand = item.Brand,
+                    ReferenceId = item.ReferenceId,
+                    ReservedQuantity = item.ReservedQuantity,
+                    SendToCustomerOrder = item.SendToCustomerOrder
+                });
+            }
+
+            await _context.CustomerReservations.AddAsync(entity, ct);
             await _context.SaveChangesAsync(ct);
+            customerReservation.ReservationNumber = entity.ReservationNumber;
         }
 
         public async Task<IEnumerable<CustomerReservation>> GetAsync(CancellationToken ct = default)
@@ -72,7 +95,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
 
         public async Task UpdateAsync(int customerReservationId, CustomerReservation customerReservation, CancellationToken ct = default)
         {
-            var entity = await _context.CustomerReservations.FirstOrDefaultAsync(x => x.CustomerReservationId == customerReservationId, ct) ?? throw new KeyNotFoundException($"Reserva con id {customerReservationId} no existe.");
+            var entity = await _context.CustomerReservations.Include(i => i.CustomerReservationDetails).FirstOrDefaultAsync(x => x.CustomerReservationId == customerReservationId, ct) ?? throw new KeyNotFoundException($"Reserva con id {customerReservationId} no existe.");
             entity.ExpirationDate = customerReservation.ExpirationDate;
             entity.ReservationDate = customerReservation.ReservationDate;
             entity.CustomerId = customerReservation.CustomerId;
@@ -80,41 +103,37 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             entity.StatusDocumentTypeId = customerReservation.StatusDocumentTypeId;
             entity.CustomerOrderId = customerReservation.CustomerOrderId;
 
-            var entityDetail = await _context.CustomerReservationDetails.Where(x => x.CustomerReservationId.Equals(customerReservationId)).ToListAsync(ct);
-
-            foreach (var item in entityDetail)
-            {
-                if (!customerReservation.CustomerReservationDetails.Any(i => i.CustomerReservationDetailId.Equals(item.CustomerReservationDetailId)))
-                    entityDetail.Remove(item);
-            }
+            var detailDeleted = new List<CustomerReservationDetail>();
 
             foreach (var item in entity.CustomerReservationDetails)
+                if (!customerReservation.CustomerReservationDetails.Any(i => i.CustomerReservationDetailId.Equals(item.CustomerReservationDetailId)))
+                    _context.CustomerReservationDetails.Remove(item);
+
+            foreach (var item in customerReservation.CustomerReservationDetails)
             {
-                if (item.CustomerReservationDetailId.Equals(0))
+                if (item.CustomerReservationDetailId > 0)
                 {
-                    entityDetail.Add(new CustomerReservationDetail()
+                    var detail = entity.CustomerReservationDetails.FirstOrDefault(i => i.CustomerReservationDetailId.Equals(item.CustomerReservationDetailId));
+
+                    if (detail != null)
                     {
-                        Brand = item.Brand,
-                        CustomerReservationId = item.CustomerReservationDetailId,
-                        ReferenceId = item.ReferenceId,
-                        ReservedQuantity = item.ReservedQuantity,
-                        SendToCustomerOrder = item.SendToCustomerOrder
-                    });
+                        detail.Brand = item.Brand;
+                        detail.ReferenceId = item.ReferenceId;
+                        detail.ReservedQuantity = item.ReservedQuantity;
+                        detail.SendToCustomerOrder = item.SendToCustomerOrder;
+                    }
                     continue;
                 }
 
-                var detail = entityDetail.FirstOrDefault(i => i.CustomerReservationDetailId.Equals(item.CustomerReservationDetailId));
-
-                if (detail != null)
+                entity.CustomerReservationDetails.Add(new CustomerReservationDetail()
                 {
-                    detail.Brand = item.Brand;
-                    detail.ReferenceId = item.ReferenceId;
-                    detail.ReservedQuantity = item.ReservedQuantity;
-                    detail.SendToCustomerOrder = item.SendToCustomerOrder;
-                }
+                    Brand = item.Brand,
+                    CustomerReservationId = item.CustomerReservationDetailId,
+                    ReferenceId = item.ReferenceId,
+                    ReservedQuantity = item.ReservedQuantity,
+                    SendToCustomerOrder = item.SendToCustomerOrder
+                });
             }
-
-            entity.CustomerReservationDetails = entityDetail;
 
             await _context.SaveChangesAsync(ct);
         }

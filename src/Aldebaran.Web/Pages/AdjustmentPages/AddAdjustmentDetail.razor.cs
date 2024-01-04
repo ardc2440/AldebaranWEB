@@ -32,12 +32,8 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         [Parameter]
         public int ADJUSTMENT_ID { get; set; }
 
-        bool hasREFERENCE_IDValue;
-
         [Parameter]
         public int REFERENCE_ID { get; set; }
-
-        bool hasWAREHOUSE_IDValue;
 
         [Parameter]
         public short WAREHOUSE_ID { get; set; }
@@ -47,20 +43,15 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         #region Global Variables
 
         protected bool errorVisible;
-
         protected string alertMessage = "No se ha podido Agregar la Referencia";
-
         protected AdjustmentDetail adjustmentDetail;
-
         protected IEnumerable<ItemReference> itemReferencesForREFERENCEID { get; set; } = new List<ItemReference>();
-
         protected IEnumerable<Warehouse> warehousesForWAREHOUSEID;
-
         public ICollection<ItemReference> references;
-
         protected bool isSubmitInProgress;
-
         bool hasADJUSTMENT_IDValue;
+        bool hasWAREHOUSE_IDValue;
+        bool hasREFERENCE_IDValue;
 
         #endregion
 
@@ -100,6 +91,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
             {
                 adjustmentDetail.WarehouseId = hasWAREHOUSE_IDResult;
             }
+
             await base.SetParametersAsync(parameters);
         }
 

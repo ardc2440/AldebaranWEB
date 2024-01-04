@@ -11,8 +11,6 @@ namespace Aldebaran.DataAccess
     public class AldebaranDbContext : DbContext
     {
         public bool ChangeAdjustmentType { get; set; } = false;
-        public short OldAdjustmentTypeId { get; set; }
-
         public AldebaranDbContext()
         {
         }
@@ -161,10 +159,10 @@ namespace Aldebaran.DataAccess
             modelBuilder.ApplyConfiguration(new WarehouseConfiguration());
         }
 
-        public override int SaveChanges()
+        public override async Task<int> SaveChangesAsync(CancellationToken ct = default)
         {
             UpdateSequenceProperties();
-            return base.SaveChanges();
+            return await base.SaveChangesAsync(ct);
         }
 
         private void UpdateSequenceProperties()
@@ -184,7 +182,7 @@ namespace Aldebaran.DataAccess
                     var sequenceAttribute = property.GetCustomAttribute<SequenceAttribute>();
                     var currentValue = property.GetValue(entity) as string;
                     var entityType = Model.FindEntityType(entity.GetType());
-                    var setMethod = dbContext.GetType().GetMethod("SET");
+                    var setMethod = dbContext.GetType().GetMethod("Set", 1, Type.EmptyTypes);
 
                     if (entityType == null) continue;
                     if (sequenceAttribute == null) continue;

@@ -32,20 +32,27 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         protected bool isSubmitInProgress;
         protected CustomerReservationDetail customerReservationDetail;
         protected InventoryQuantities QuantitiesPanel;
-        protected IEnumerable<ItemReference> itemReferencesForREFERENCEID;
+        protected IEnumerable<ItemReference> itemReferencesForREFERENCEID { get; set; } = new List<ItemReference>();
         #endregion
 
         #region Overrides
+
+        protected override async Task OnInitializedAsync()
+        {
+            itemReferencesForREFERENCEID = await ItemReferenceService.GetByStatusAsync(true);
+        }
+
         public override async Task SetParametersAsync(ParameterView parameters)
         {
             customerReservationDetail = new CustomerReservationDetail();
-            itemReferencesForREFERENCEID = await ItemReferenceService.GetByStatusAsync(true);
 
             await base.SetParametersAsync(parameters);
         }
+
         #endregion
 
         #region Events
+
         protected async Task FormSubmit()
         {
             try
@@ -81,6 +88,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             customerReservationDetail.ReferenceId = reference?.ReferenceId ?? 0;
             await QuantitiesPanel.Refresh(reference);
         }
+
         #endregion
     }
 }

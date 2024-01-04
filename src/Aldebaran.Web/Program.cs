@@ -1,5 +1,6 @@
 using Aldebaran.Application.Services;
 using Aldebaran.DataAccess.Core.Triggers.Adjustments;
+using Aldebaran.DataAccess.Core.Triggers.Reservations;
 using Aldebaran.DataAccess.Infraestructure.Repository;
 using Aldebaran.Web.Data;
 using Aldebaran.Web.Models;
@@ -53,6 +54,10 @@ builder.Services.AddDbContext<Aldebaran.DataAccess.AldebaranDbContext>(
                 triggerOptions.AddTrigger<AdjustInventoryFromDeletedAdjustmentDetail>();
                 triggerOptions.AddTrigger<AdjustInventoryFromAdjustmentCancelled>();
                 triggerOptions.AddTrigger<AdjustInventoryFromAdjustmentTypeChanged>();
+                triggerOptions.AddTrigger<AdjustmentInventoryFromDeletedReservationDetail>();
+                triggerOptions.AddTrigger<AdjustmentInventoryFromModifiedReservationDetail>();
+                triggerOptions.AddTrigger<AdjustmentInventoryFromNewReservationDetail>();
+                triggerOptions.AddTrigger<AdjustmentInventoryFromReservationCancelled>();
             });
     });
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>().AddEntityFrameworkStores<ApplicationIdentityDbContext>().AddDefaultTokenProviders();
