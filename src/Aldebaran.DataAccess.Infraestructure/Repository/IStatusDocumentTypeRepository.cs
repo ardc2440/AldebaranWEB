@@ -6,6 +6,8 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
     {
         Task<StatusDocumentType?> FindByDocumentAndOrderAsync(int documentTypeId, int order, CancellationToken ct = default);
         Task<IEnumerable<StatusDocumentType>> GetByDocumentTypeIdAsync(int documentTypeId, CancellationToken ct = default);
+        Task<StatusDocumentType?> FindAsync(int statusDocumentTypeId, CancellationToken ct = default);
+
     }
 
 }

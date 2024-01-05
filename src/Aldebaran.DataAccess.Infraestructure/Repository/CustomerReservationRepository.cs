@@ -90,6 +90,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .Include(i => i.Customer.IdentityType)
                 .Include(i => i.StatusDocumentType.DocumentType)
                 .Include(i => i.Employee.IdentityType)
+                .Include(i => i.CustomerReservationDetails)
                 .FirstOrDefaultAsync(i => i.CustomerReservationId.Equals(customerReservationId), ct);
         }
 

@@ -22,6 +22,11 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .Where(f => f.DocumentTypeId.Equals(documentTypeId))
                 .ToListAsync(ct);
         }
+
+        public async Task<StatusDocumentType?> FindAsync(int statusDocumentTypeId, CancellationToken ct = default)
+        {
+            return await _context.StatusDocumentTypes.AsNoTracking().FirstOrDefaultAsync(f => f.StatusDocumentTypeId == statusDocumentTypeId, ct);
+        }
     }
 
 }

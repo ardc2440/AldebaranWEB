@@ -167,7 +167,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
                     await CustomerReservationService.UpdateAsync(customerReservation.CustomerReservationId, customerReservation);
 
-                    await DialogService.Alert($"Pedido de Reserva de Articulos Guardado Satisfactoriamente con el consecutivo {customerOrder.OrderNumber}", "Información");
+                    await DialogService.Alert($"Pedido de Reserva de Articulos guardado con el consecutivo {customerOrder.OrderNumber}", "Información");
                     NavigationManager.NavigateTo("customer-reservations");
                 }
             }

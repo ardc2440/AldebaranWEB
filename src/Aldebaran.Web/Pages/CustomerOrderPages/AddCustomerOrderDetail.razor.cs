@@ -29,16 +29,20 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected bool isSubmitInProgress;
         protected CustomerOrderDetail customerOrderDetail;
         protected InventoryQuantities quantitiesPanel;
-        protected IEnumerable<ItemReference> itemReferencesForREFERENCEID;
+        protected IEnumerable<ItemReference> itemReferencesForREFERENCEID { get; set; } = new List<ItemReference>();
 
         #endregion
 
         #region Overrides
+
+        protected override async Task OnInitializedAsync()
+        {
+            itemReferencesForREFERENCEID = await ItemReferenceService.GetByStatusAsync(true);
+        }
+
         public override async Task SetParametersAsync(ParameterView parameters)
         {
             customerOrderDetail = new CustomerOrderDetail();
-
-            itemReferencesForREFERENCEID = await ItemReferenceService.GetByStatusAsync(true);
 
             await base.SetParametersAsync(parameters);
         }

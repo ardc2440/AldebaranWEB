@@ -98,7 +98,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
                 customerOrder.CustomerOrderDetails = customerOrderDetails;
 
-                await CustomerOrderService.AddAsync(customerOrder);
+                customerOrder = await CustomerOrderService.AddAsync(customerOrder);
 
                 await DialogService.Alert($"Pedido de Articulos Guardado Satisfactoriamente con el Consecutivo {customerOrder.OrderNumber}", "Información");
                 NavigationManager.NavigateTo("customer-orders");

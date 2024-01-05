@@ -21,6 +21,7 @@
                 <RadzenColumn SizeMD="9">
                     <RadzenNumeric style="display: block; width: 100%" @bind-Value="@CustomerReservationDetail.ReservedQuantity" Name="RESERVED_QUANTITY" Placeholder="Ingrese la cantidad a reservar" />
                     <RadzenRequiredValidator Component="RESERVED_QUANTITY" Text="La Cantidad es Requerida" />
+                    <RadzenNumericRangeValidator Component="RESERVED_QUANTITY" Min="1" Text="La cantidad debe ser mayor a 0" />
                 </RadzenColumn>
             </RadzenRow>
             <RadzenRow>

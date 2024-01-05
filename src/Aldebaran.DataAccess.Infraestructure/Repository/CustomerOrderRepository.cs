@@ -11,10 +11,39 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task<CustomerOrder> AddAsync(CustomerOrder customerOrder, CancellationToken ct = default)
+        public async Task<CustomerOrder?> AddAsync(CustomerOrder customerOrder, CancellationToken ct = default)
         {
-            await _context.CustomerOrders.AddAsync(customerOrder, ct);
+            var entity = new CustomerOrder
+            {
+                CreationDate = customerOrder.CreationDate,
+                CustomerId = customerOrder.CustomerId,
+                CustomerNotes = customerOrder.CustomerNotes,
+                EmployeeId = customerOrder.EmployeeId,
+                OrderDate = customerOrder.OrderDate,
+                EstimatedDeliveryDate = customerOrder.EstimatedDeliveryDate,
+                StatusDocumentTypeId = customerOrder.StatusDocumentTypeId,
+                InternalNotes = customerOrder.InternalNotes,
+                OrderNumber = customerOrder.OrderNumber,
+                CustomerOrderDetails = new List<CustomerOrderDetail>()
+            };
+
+            foreach (var item in customerOrder.CustomerOrderDetails)
+            {
+                entity.CustomerOrderDetails.Add(new CustomerOrderDetail
+                {
+                    Brand = item.Brand,
+                    CustomerOrderId = item.CustomerOrderId,
+                    DeliveredQuantity = item.DeliveredQuantity,
+                    ProcessedQuantity = item.ProcessedQuantity,
+                    RequestedQuantity = item.RequestedQuantity,
+                    ReferenceId = item.ReferenceId
+                });
+            }
+
+            await _context.CustomerOrders.AddAsync(entity, ct);
             await _context.SaveChangesAsync(ct);
+            customerOrder.CustomerOrderId = entity.CustomerOrderId;
+            customerOrder.OrderNumber = entity.OrderNumber;
             return customerOrder;
         }
 
@@ -75,26 +104,22 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
 
         public async Task UpdateAsync(int customerOrderId, CustomerOrder customerOrder, CancellationToken ct = default)
         {
-            var entity = await _context.CustomerOrders.FirstOrDefaultAsync(x => x.CustomerOrderId == customerOrderId, ct) ?? throw new KeyNotFoundException($"Pedido con id {customerOrderId} no existe.");
+            var entity = await _context.CustomerOrders.Include(i => i.CustomerOrderDetails).FirstOrDefaultAsync(x => x.CustomerOrderId == customerOrderId, ct) ?? throw new KeyNotFoundException($"Pedido con id {customerOrderId} no existe.");
             entity.OrderDate = customerOrder.OrderDate;
             entity.EstimatedDeliveryDate = customerOrder.EstimatedDeliveryDate;
             entity.CustomerId = customerOrder.CustomerId;
             entity.InternalNotes = customerOrder.InternalNotes;
             entity.CustomerNotes = customerOrder.CustomerNotes;
 
-            var entityDetail = await _context.CustomerOrderDetails.Where(x => x.CustomerOrderId.Equals(customerOrderId)).ToListAsync(ct);
-
-            foreach (var item in entityDetail)
-            {
-                if (!customerOrder.CustomerOrderDetails.Any(i => i.CustomerOrderDetailId.Equals(item.CustomerOrderDetailId)))
-                    entityDetail.Remove(item);
-            }
-
             foreach (var item in entity.CustomerOrderDetails)
+                if (!customerOrder.CustomerOrderDetails.Any(i => i.CustomerOrderDetailId.Equals(item.CustomerOrderDetailId)))
+                    _context.CustomerOrderDetails.Remove(item);
+
+            foreach (var item in customerOrder.CustomerOrderDetails)
             {
                 if (item.CustomerOrderDetailId.Equals(0))
                 {
-                    entityDetail.Add(new CustomerOrderDetail()
+                    entity.CustomerOrderDetails.Add(new CustomerOrderDetail()
                     {
                         Brand = item.Brand,
                         CustomerOrderId = item.CustomerOrderDetailId,
@@ -106,7 +131,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     continue;
                 }
 
-                var detail = entityDetail.FirstOrDefault(i => i.CustomerOrderDetailId.Equals(item.CustomerOrderDetailId));
+                var detail = entity.CustomerOrderDetails.FirstOrDefault(i => i.CustomerOrderDetailId.Equals(item.CustomerOrderDetailId));
 
                 if (detail != null)
                 {
@@ -117,8 +142,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     detail.DeliveredQuantity = item.DeliveredQuantity;
                 }
             }
-
-            entity.CustomerOrderDetails = entityDetail;
 
             await _context.SaveChangesAsync(ct);
         }

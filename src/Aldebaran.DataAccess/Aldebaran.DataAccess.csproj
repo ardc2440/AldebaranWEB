@@ -30,4 +30,24 @@
 			<DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 		</Compile>
 	</ItemGroup>
+	<ItemGroup>
+	  <Compile Update="Core\Triggers\Orders\AdjustmentInventoryFromDeletedOrderDetail.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
+	  <Compile Update="Core\Triggers\Orders\AdjustmentInventoryFromModifiedOrderDetail.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
+	  <Compile Update="Core\Triggers\Orders\AdjustmentInventoryFromNewOrderDetail.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
+	  <Compile Update="Core\Triggers\Orders\AdjustmentInventoryFromOrderClosed.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
+	  <Compile Update="Core\Triggers\Orders\AdjustmentInventoryFromOrderCancelled.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
+	  <Compile Update="Core\Triggers\Reservations\AdjustmentInventoryFromReservationToOrder.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
+	</ItemGroup>
 </Project>

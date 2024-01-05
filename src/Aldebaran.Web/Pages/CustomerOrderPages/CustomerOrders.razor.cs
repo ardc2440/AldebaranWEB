@@ -70,6 +70,10 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
                 customerOrders = await CustomerOrderService.GetAsync(search);
             }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
             finally
             {
                 isLoadingInProgress = false;
@@ -208,9 +212,12 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task<bool> CanCloseCustomerOrder(CustomerOrder customerOrder)
         {
-            var documentStatus = StatusDocumentTypeService.GetByDocumentTypeIdAsync(documentType.DocumentTypeId).Result.Where(i => i.StatusOrder.Equals(2) || i.StatusOrder.Equals(3));
+            return Security.IsInRole("Admin", "Customer Order Editor") && (customerOrder.StatusDocumentType.StatusOrder == 2 || customerOrder.StatusDocumentType.StatusOrder == 3);
+        }
 
-            return Security.IsInRole("Admin", "Customer Order Editor") && documentStatus.Any(i => i.StatusDocumentTypeId.Equals(customerOrder.StatusDocumentTypeId));
+        protected async Task<bool> CanCancel(CustomerOrder customerOrder)
+        {
+            return Security.IsInRole("Admin", "Customer Order Editor") && (customerOrder.StatusDocumentType.StatusOrder == 1);
         }
 
         protected async Task CloseCustomerOrder(CustomerOrder args)

@@ -58,6 +58,12 @@ builder.Services.AddDbContext<Aldebaran.DataAccess.AldebaranDbContext>(
                 triggerOptions.AddTrigger<AdjustmentInventoryFromModifiedReservationDetail>();
                 triggerOptions.AddTrigger<AdjustmentInventoryFromNewReservationDetail>();
                 triggerOptions.AddTrigger<AdjustmentInventoryFromReservationCancelled>();
+                triggerOptions.AddTrigger<AdjustmentInventoryFromReservationToOrder>();
+                triggerOptions.AddTrigger<AdjustmentInventoryFromDeletedOrderDetail>();
+                triggerOptions.AddTrigger<AdjustmentInventoryFromModifiedOrderDetail>();
+                triggerOptions.AddTrigger<AdjustmentInventoryFromNewOrderDetail>();
+                triggerOptions.AddTrigger<AdjustmentInventoryFromOrderCancelled>();
+                triggerOptions.AddTrigger<AdjustmentInventoryFromOrderClosed>();
             });
     });
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>().AddEntityFrameworkStores<ApplicationIdentityDbContext>().AddDefaultTokenProviders();
