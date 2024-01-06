@@ -86,8 +86,8 @@ namespace Aldebaran.Web.Shared
         {
             itemReferenceInventorys.Clear();
             itemReferenceInventorys.Add(new ItemReferenceInventory() { Type = "Cantidad", Quantity = Reference?.InventoryQuantity ?? 0 });
-            itemReferenceInventorys.Add(new ItemReferenceInventory() { Type = "Pedido", Quantity = Reference?.ReservedQuantity ?? 0 });
-            itemReferenceInventorys.Add(new ItemReferenceInventory() { Type = "Reservado", Quantity = Reference?.OrderedQuantity ?? 0 });
+            itemReferenceInventorys.Add(new ItemReferenceInventory() { Type = "Pedido", Quantity = Reference?.OrderedQuantity ?? 0 });
+            itemReferenceInventorys.Add(new ItemReferenceInventory() { Type = "Reservado", Quantity = Reference?.ReservedQuantity ?? 0 });
 
             await itemReferenceInventorysGrid.Reload();
         }
