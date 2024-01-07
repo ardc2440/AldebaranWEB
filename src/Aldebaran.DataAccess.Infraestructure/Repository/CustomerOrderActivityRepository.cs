@@ -67,7 +67,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
 
         public async Task UpdateAsync(int customerOrderActivityId, CustomerOrderActivity customerOrderActivity, CancellationToken ct = default)
         {
-            var entity = await _context.CustomerOrderActivities.FirstOrDefaultAsync(i => i.CustomerOrderActivityId.Equals(customerOrderActivityId), ct) ?? throw new KeyNotFoundException($"Actividad con id {customerOrderActivityId} no existe."); ;
+            var entity = await _context.CustomerOrderActivities.Include(i => i.CustomerOrderActivityDetails).FirstOrDefaultAsync(i => i.CustomerOrderActivityId.Equals(customerOrderActivityId), ct) ?? throw new KeyNotFoundException($"Actividad con id {customerOrderActivityId} no existe."); ;
 
             entity.ActivityDate = customerOrderActivity.ActivityDate;
             entity.AreaId = customerOrderActivity.AreaId;
@@ -101,7 +101,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             foreach (var item in entity.CustomerOrderActivityDetails)
             {
                 if (!customerOrderActivity.CustomerOrderActivityDetails.Any(i => i.CustomerOrderActivityDetailId == item.CustomerOrderActivityDetailId))
-                    entity.CustomerOrderActivityDetails.Remove(item);
+                    _context.CustomerOrderActivityDetails.Remove(item);
             }
 
             await _context.SaveChangesAsync(ct);

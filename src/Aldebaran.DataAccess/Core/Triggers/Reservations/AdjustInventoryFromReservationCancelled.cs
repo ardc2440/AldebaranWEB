@@ -3,11 +3,11 @@ using EntityFrameworkCore.Triggered;
 
 namespace Aldebaran.DataAccess.Core.Triggers.Reservations
 {
-    public class AdjustmentInventoryFromReservationCancelled : InventoryManagementBase, IBeforeSaveTrigger<CustomerReservation>
+    public class AdjustInventoryFromReservationCancelled : InventoryManagementBase, IBeforeSaveTrigger<CustomerReservation>
     {
         private readonly AldebaranDbContext _context;
 
-        public AdjustmentInventoryFromReservationCancelled(AldebaranDbContext context) : base(context)
+        public AdjustInventoryFromReservationCancelled(AldebaranDbContext context) : base(context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }

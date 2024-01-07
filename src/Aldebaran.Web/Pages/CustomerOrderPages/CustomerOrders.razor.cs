@@ -152,6 +152,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
                     await CustomerOrderService.CancelAsync(customerOrder.CustomerOrderId, cancelStatusDocumentType.StatusDocumentTypeId);
 
+                    customerOrder.StatusDocumentType = cancelStatusDocumentType;
+                    customerOrder.StatusDocumentTypeId = cancelStatusDocumentType.StatusDocumentTypeId;
+
                     dialogResult = new DialogResult { Success = true, Message = "Pedido cancelado correctamente." };
                     await grid0.Reload();
                 }

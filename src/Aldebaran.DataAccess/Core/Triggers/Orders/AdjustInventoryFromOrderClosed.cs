@@ -3,11 +3,11 @@ using EntityFrameworkCore.Triggered;
 
 namespace Aldebaran.DataAccess.Core.Triggers.Reservations
 {
-    public class AdjustmentInventoryFromOrderClosed : InventoryManagementBase, IBeforeSaveTrigger<CustomerOrder>
+    public class AdjustInventoryFromOrderClosed : InventoryManagementBase, IBeforeSaveTrigger<CustomerOrder>
     {
         private readonly AldebaranDbContext _context;
 
-        public AdjustmentInventoryFromOrderClosed(AldebaranDbContext context) : base(context)
+        public AdjustInventoryFromOrderClosed(AldebaranDbContext context) : base(context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
@@ -18,7 +18,7 @@ namespace Aldebaran.DataAccess.Core.Triggers.Reservations
             {
                 var statusOrder = (await _context.StatusDocumentTypes.FindAsync(new object[] { context.Entity.StatusDocumentTypeId }, cancellationToken))!.StatusOrder;
 
-                if (statusOrder == 6)
+                if (statusOrder == 5)
                 {
                     var detailChanges = context.Entity.GetType()
                      .GetProperties()
@@ -28,9 +28,12 @@ namespace Aldebaran.DataAccess.Core.Triggers.Reservations
                     if ((short)(detailChanges.oldValue ?? 0) != (short)(detailChanges.newValue ?? 0))
                     {
                         var indicatorInOut = -1;
-
                         foreach (var item in context.Entity.CustomerOrderDetails)
-                            await UpdateOrderedQuantity(item.ReferenceId, item.RequestedQuantity, indicatorInOut, cancellationToken);
+                        {
+                            var reversedQuantity = item.RequestedQuantity - item.ProcessedQuantity - item.DeliveredQuantity;
+
+                            await UpdateOrderedQuantity(item.ReferenceId, reversedQuantity, indicatorInOut, cancellationToken);
+                        }
                     }
                 }
             }

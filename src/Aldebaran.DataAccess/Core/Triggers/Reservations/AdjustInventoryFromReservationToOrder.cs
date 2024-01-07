@@ -3,22 +3,22 @@ using EntityFrameworkCore.Triggered;
 
 namespace Aldebaran.DataAccess.Core.Triggers.Reservations
 {
-    public class AdjustmentInventoryFromOrderCancelled : InventoryManagementBase, IBeforeSaveTrigger<CustomerOrder>
+    public class AdjustInventoryFromReservationToOrder : InventoryManagementBase, IBeforeSaveTrigger<CustomerReservation>
     {
         private readonly AldebaranDbContext _context;
 
-        public AdjustmentInventoryFromOrderCancelled(AldebaranDbContext context) : base(context)
+        public AdjustInventoryFromReservationToOrder(AldebaranDbContext context) : base(context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task BeforeSave(ITriggerContext<CustomerOrder> context, CancellationToken cancellationToken)
+        public async Task BeforeSave(ITriggerContext<CustomerReservation> context, CancellationToken cancellationToken)
         {
             if (context.ChangeType == ChangeType.Modified)
             {
                 var statusOrder = (await _context.StatusDocumentTypes.FindAsync(new object[] { context.Entity.StatusDocumentTypeId }, cancellationToken))!.StatusOrder;
 
-                if (statusOrder == 5)
+                if (statusOrder == 2)
                 {
                     var detailChanges = context.Entity.GetType()
                      .GetProperties()
@@ -28,12 +28,9 @@ namespace Aldebaran.DataAccess.Core.Triggers.Reservations
                     if ((short)(detailChanges.oldValue ?? 0) != (short)(detailChanges.newValue ?? 0))
                     {
                         var indicatorInOut = -1;
-                        foreach (var item in context.Entity.CustomerOrderDetails)
-                        {
-                            var reversedQuantity = item.RequestedQuantity - item.ProcessedQuantity - item.DeliveredQuantity;
 
-                            await UpdateOrderedQuantity(item.ReferenceId, reversedQuantity, indicatorInOut, cancellationToken);
-                        }
+                        foreach (var item in context.Entity.CustomerReservationDetails)
+                            await UpdateReservedQuantity(item.ReferenceId, item.ReservedQuantity, indicatorInOut, cancellationToken);
                     }
                 }
             }

@@ -148,7 +148,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
 
         public async Task CancelAsync(int customerOrderId, short canceledStatusDocumentId, CancellationToken ct = default)
         {
-            var entity = await _context.CustomerOrders.FirstOrDefaultAsync(x => x.CustomerOrderId == customerOrderId, ct) ?? throw new KeyNotFoundException($"Pedido con id {customerOrderId} no existe.");
+            var entity = await _context.CustomerOrders.Include(i => i.CustomerOrderDetails).FirstOrDefaultAsync(x => x.CustomerOrderId == customerOrderId, ct) ?? throw new KeyNotFoundException($"Pedido con id {customerOrderId} no existe.");
 
             entity.StatusDocumentTypeId = canceledStatusDocumentId;
 

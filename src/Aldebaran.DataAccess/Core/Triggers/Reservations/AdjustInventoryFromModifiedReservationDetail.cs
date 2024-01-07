@@ -3,16 +3,16 @@ using EntityFrameworkCore.Triggered;
 
 namespace Aldebaran.DataAccess.Core.Triggers.Reservations
 {
-    public class AdjustmentInventoryFromModifiedOrderDetail : InventoryManagementBase, IBeforeSaveTrigger<CustomerOrderDetail>
+    public class AdjustInventoryFromModifiedReservationDetail : InventoryManagementBase, IBeforeSaveTrigger<CustomerReservationDetail>
     {
         private readonly AldebaranDbContext _context;
 
-        public AdjustmentInventoryFromModifiedOrderDetail(AldebaranDbContext context) : base(context)
+        public AdjustInventoryFromModifiedReservationDetail(AldebaranDbContext context) : base(context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task BeforeSave(ITriggerContext<CustomerOrderDetail> context, CancellationToken cancellationToken)
+        public async Task BeforeSave(ITriggerContext<CustomerReservationDetail> context, CancellationToken cancellationToken)
         {
             if (context.ChangeType == ChangeType.Modified)
             {
@@ -22,10 +22,10 @@ namespace Aldebaran.DataAccess.Core.Triggers.Reservations
                     .Where(x => x.newValue != x.oldValue);
 
                 var reference = detailChanges.FirstOrDefault(x => x.name.Equals("ReferenceId"));
-                var quantity = detailChanges.FirstOrDefault(x => x.name.Equals("RequestedQuantity"));
+                var quantity = detailChanges.FirstOrDefault(x => x.name.Equals("ReservedQuantity"));
 
-                await UpdateOrderedQuantity((int)(reference.oldValue ?? 0), (int)(quantity.oldValue ?? 0), -1, cancellationToken);
-                await UpdateOrderedQuantity((int)(reference.newValue ?? 0), (int)(quantity.newValue ?? 0), 1, cancellationToken);
+                await UpdateReservedQuantity((int)(reference.oldValue ?? 0), (int)(quantity.oldValue ?? 0), -1, cancellationToken);
+                await UpdateReservedQuantity((int)(reference.newValue ?? 0), (int)(quantity.newValue ?? 0), 1, cancellationToken);
             }
         }
     }
