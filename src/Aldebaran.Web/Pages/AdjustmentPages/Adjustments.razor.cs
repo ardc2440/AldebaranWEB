@@ -123,7 +123,8 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
                     await AdjustmentService.UpdateAsync(adjustment.AdjustmentId, adjustment);
 
-                    dialogResult = new DialogResult { Success = true, Message = "Ajuste eliminado correctamente." };
+                    await DialogService.Alert($"Ajuste cancelado correctamente", "Información");
+
                     await grid0.Reload();
                 }
             }

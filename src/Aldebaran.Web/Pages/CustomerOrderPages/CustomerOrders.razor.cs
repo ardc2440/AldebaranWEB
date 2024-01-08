@@ -125,7 +125,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
                     await CustomerOrderActivityService.DeleteAsync(customerOrderActivity.CustomerOrderActivityId);
 
-                    dialogResult = new DialogResult { Success = true, Message = "Actividad eliminada correctamente." };
+                    await DialogService.Alert($"Actividad eliminada correctamente", "Información");
+
                     await CustomerOrderActivitiesDataGrid.Reload();
                 }
             }
@@ -155,7 +156,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                     customerOrder.StatusDocumentType = cancelStatusDocumentType;
                     customerOrder.StatusDocumentTypeId = cancelStatusDocumentType.StatusDocumentTypeId;
 
-                    dialogResult = new DialogResult { Success = true, Message = "Pedido cancelado correctamente." };
+                    await DialogService.Alert($"Pedido cancelado correctamente", "Información");
+
                     await grid0.Reload();
                 }
             }
@@ -235,7 +237,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
                     await CustomerOrderService.CancelAsync(args.CustomerOrderId, cancelStatusDocumentType.StatusDocumentTypeId);
 
-                    dialogResult = new DialogResult { Success = true, Message = "Pedido cerrado correctamente." };
+                    await DialogService.Alert($"Pedido cancelado correctamente", "Información");
+
                     await grid0.Reload();
                 }
             }
