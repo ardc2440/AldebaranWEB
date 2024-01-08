@@ -1,24 +1,24 @@
 ﻿using Aldebaran.DataAccess.Entities;
 using EntityFrameworkCore.Triggered;
 
-namespace Aldebaran.DataAccess.Core.Triggers.Orders
+namespace Aldebaran.DataAccess.Core.Triggers.OrderInProcesses
 {
-    public class AdjustInventoryFromOrderCancelled : InventoryManagementBase, IBeforeSaveTrigger<CustomerOrder>
+    public class AdjustCustomerOrderDetailFromOrderInProcessCancelled : InventoryManagementBase, IBeforeSaveTrigger<CustomerOrdersInProcess>
     {
         private readonly AldebaranDbContext _context;
 
-        public AdjustInventoryFromOrderCancelled(AldebaranDbContext context) : base(context)
+        public AdjustCustomerOrderDetailFromOrderInProcessCancelled(AldebaranDbContext context) : base(context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task BeforeSave(ITriggerContext<CustomerOrder> context, CancellationToken cancellationToken)
+        public async Task BeforeSave(ITriggerContext<CustomerOrdersInProcess> context, CancellationToken cancellationToken)
         {
             if (context.ChangeType == ChangeType.Modified)
             {
                 var statusOrder = (await _context.StatusDocumentTypes.FindAsync(new object[] { context.Entity.StatusDocumentTypeId }, cancellationToken))!.StatusOrder;
 
-                if (statusOrder == 6)
+                if (statusOrder == 2)
                 {
                     var detailChanges = context.Entity.GetType()
                      .GetProperties()
@@ -27,10 +27,8 @@ namespace Aldebaran.DataAccess.Core.Triggers.Orders
 
                     if ((short)(detailChanges.oldValue ?? 0) != (short)(detailChanges.newValue ?? 0))
                     {
-                        var indicatorInOut = -1;
-
-                        foreach (var item in context.Entity.CustomerOrderDetails)
-                            await UpdateOrderedQuantityAsync(item.ReferenceId, item.RequestedQuantity, indicatorInOut, cancellationToken);
+                        foreach (var item in context.Entity.CustomerOrderInProcessDetails)
+                            await UpdateProcessedQuantityAsync(item.CustomerOrderDetailId, item.ProcessedQuantity, -1, cancellationToken);
                     }
                 }
             }

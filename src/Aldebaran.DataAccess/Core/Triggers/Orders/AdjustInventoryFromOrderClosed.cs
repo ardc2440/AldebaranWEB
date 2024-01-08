@@ -1,7 +1,7 @@
 ﻿using Aldebaran.DataAccess.Entities;
 using EntityFrameworkCore.Triggered;
 
-namespace Aldebaran.DataAccess.Core.Triggers.Reservations
+namespace Aldebaran.DataAccess.Core.Triggers.Orders
 {
     public class AdjustInventoryFromOrderClosed : InventoryManagementBase, IBeforeSaveTrigger<CustomerOrder>
     {

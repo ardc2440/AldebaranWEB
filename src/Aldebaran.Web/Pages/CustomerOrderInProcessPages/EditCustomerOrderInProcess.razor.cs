@@ -114,7 +114,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                                                                                                                                 DELIVERED_QUANTITY = item.CustomerOrderDetail.DeliveredQuantity,
                                                                                                                                 BRAND = item.Brand,
                                                                                                                                 WAREHOUSE_ID = item.WarehouseId,
-                                                                                                                                THIS_QUANTITY = item.ProcessedQuantity
+                                                                                                                                THIS_QUANTITY = item.ProcessedQuantity,
+                                                                                                                                ItemReference = item.CustomerOrderDetail.ItemReference,
+                                                                                                                                CustomerOrderInProcessDetailId = item.CustomerOrderInProcessDetailId
                                                                                                                             }
                                                                                                                             select viewOrderDetail).ToList();
 
@@ -163,13 +165,15 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
             finally { isSubmitInProgress = false; }
         }
 
-        protected async Task<ICollection<CustomerOrderInProcessDetail>> MapDetailsInProcess(ICollection<DetailInProcess> detailsInProcess) => (from item in detailsInProcess
+        protected async Task<ICollection<CustomerOrderInProcessDetail>> MapDetailsInProcess(ICollection<DetailInProcess> detailsInProcess) => (from item in detailsInProcess.Where(i => i.THIS_QUANTITY > 0)
                                                                                                                                                let orderInProcessDetail = new CustomerOrderInProcessDetail()
                                                                                                                                                {
                                                                                                                                                    Brand = item.BRAND,
                                                                                                                                                    CustomerOrderDetailId = item.CUSTOMER_ORDER_DETAIL_ID,
                                                                                                                                                    ProcessedQuantity = item.THIS_QUANTITY,
-                                                                                                                                                   WarehouseId = item.WAREHOUSE_ID
+                                                                                                                                                   WarehouseId = item.WAREHOUSE_ID,
+                                                                                                                                                   CustomerOrderInProcessId = customerOrderInProcess.CustomerOrderInProcessId,
+                                                                                                                                                   CustomerOrderInProcessDetailId = item.CustomerOrderInProcessDetailId
                                                                                                                                                }
                                                                                                                                                select orderInProcessDetail).ToList();
 

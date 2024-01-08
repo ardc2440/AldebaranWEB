@@ -1,4 +1,6 @@
-﻿namespace Aldebaran.Web.Models.ViewModels
+﻿using Aldebaran.Application.Services.Models;
+
+namespace Aldebaran.Web.Models.ViewModels
 {
     public class DetailInProcess
     {
@@ -19,5 +21,9 @@
         public string BRAND { get; set; }
 
         public short WAREHOUSE_ID { get; set; }
+
+        public ItemReference ItemReference { get; set; }
+
+        public int CustomerOrderInProcessDetailId { get; set; }
     }
 }

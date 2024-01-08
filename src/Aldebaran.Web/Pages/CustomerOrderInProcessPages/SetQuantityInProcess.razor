@@ -46,14 +46,14 @@
                     </RadzenColumn>
                 </RadzenFormField>
                 <RadzenFormField Text="Bodega Origen" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
-                    <RadzenDropDownDataGrid Data="@warehousesForWAREHOUSEID" TextProperty="WAREHOUSE_NAME" ValueProperty="WAREHOUSE_ID" AllowClear=true
+                    <RadzenDropDownDataGrid Data="@warehousesForWAREHOUSEID" TextProperty="WarehouseName" ValueProperty="WarehouseId" AllowClear=true
                                             Disabled=@(hasWAREHOUSE_IDValue) Placeholder="Seleccione una bodega" style="display: block; width: 100%" @bind-Value="@detailInProcess.WAREHOUSE_ID" Name="WAREHOUSE_ID" TabIndex="2" />
                     <RadzenNumericRangeValidator Component="WAREHOUSE_ID" Min="1" Text="La Bodega es requerida"></RadzenNumericRangeValidator>
                 </RadzenFormField>
             </RadzenRow>
         </RadzenStack>
         <RadzenRow style="margin-bottom: 1rem">
-            <InventoryQuantities @ref="QuantitiesPanel" />
+            <InventoryQuantities @ref="QuantitiesPanel" Reference="detailInProcess.ItemReference" />
         </RadzenRow>
         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
             <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@isSubmitInProgress" />

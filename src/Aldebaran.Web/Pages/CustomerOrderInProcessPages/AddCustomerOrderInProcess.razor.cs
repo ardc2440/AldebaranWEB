@@ -128,7 +128,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                                                                                                              PROCESSED_QUANTITY = item.ProcessedQuantity,
                                                                                                              DELIVERED_QUANTITY = item.DeliveredQuantity,
                                                                                                              BRAND = item.Brand,
-                                                                                                             THIS_QUANTITY = 0
+                                                                                                             THIS_QUANTITY = 0,
+                                                                                                             ItemReference = item.ItemReference
                                                                                                          }
                                                                                                          select viewOrderDetail).ToList();
 
@@ -182,7 +183,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         protected async Task<ICollection<CustomerOrderInProcessDetail>> MapDetailsInProcess(ICollection<DetailInProcess> detailsInProcess)
         {
             var customerOrderInProcessDetails = new List<CustomerOrderInProcessDetail>();
-            foreach (var details in detailsInProcess)
+            foreach (var details in detailsInProcess.Where(i => i.THIS_QUANTITY > 0))
             {
                 customerOrderInProcessDetails.Add(new CustomerOrderInProcessDetail()
                 {

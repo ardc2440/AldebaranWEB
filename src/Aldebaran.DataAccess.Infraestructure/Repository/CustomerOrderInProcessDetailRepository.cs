@@ -14,7 +14,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         public async Task<IEnumerable<CustomerOrderInProcessDetail>> GetByCustomerOrderInProcessIdAsync(int customerOrderInProcessId, CancellationToken ct)
         {
             return await _context.CustomerOrderInProcessDetails.AsNoTracking()
-                .Include(i => i.CustomerOrderDetail)
+                .Include(i => i.CustomerOrderDetail.ItemReference.Item.Line)
                 .Include(i => i.Warehouse)
                 .Where(i => i.CustomerOrderInProcessId == customerOrderInProcessId)
                 .ToListAsync(ct);
