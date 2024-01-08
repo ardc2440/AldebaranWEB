@@ -31,8 +31,8 @@ namespace Aldebaran.DataAccess.Core.Triggers.Adjustments
 
                         foreach (var item in context.Entity.AdjustmentDetails)
                         {
-                            await UpdateInventoryQuantity(item.ReferenceId, item.Quantity, indicatorInOut, cancellationToken);
-                            await UpdateWarehouseReferenceQuantity(item.WarehouseId, item.ReferenceId, item.Quantity, indicatorInOut, cancellationToken);
+                            await UpdateInventoryQuantityAsync(item.ReferenceId, item.Quantity, indicatorInOut, cancellationToken);
+                            await UpdateWarehouseReferenceQuantityAsync(item.WarehouseId, item.ReferenceId, item.Quantity, indicatorInOut, cancellationToken);
                         }
                     }
                 }

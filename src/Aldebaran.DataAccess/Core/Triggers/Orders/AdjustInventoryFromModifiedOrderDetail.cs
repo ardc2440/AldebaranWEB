@@ -24,8 +24,8 @@ namespace Aldebaran.DataAccess.Core.Triggers.Reservations
                 var reference = detailChanges.FirstOrDefault(x => x.name.Equals("ReferenceId"));
                 var quantity = detailChanges.FirstOrDefault(x => x.name.Equals("RequestedQuantity"));
 
-                await UpdateOrderedQuantity((int)(reference.oldValue ?? 0), (int)(quantity.oldValue ?? 0), -1, cancellationToken);
-                await UpdateOrderedQuantity((int)(reference.newValue ?? 0), (int)(quantity.newValue ?? 0), 1, cancellationToken);
+                await UpdateOrderedQuantityAsync((int)(reference.oldValue ?? 0), (int)(quantity.oldValue ?? 0), -1, cancellationToken);
+                await UpdateOrderedQuantityAsync((int)(reference.newValue ?? 0), (int)(quantity.newValue ?? 0), 1, cancellationToken);
             }
         }
     }

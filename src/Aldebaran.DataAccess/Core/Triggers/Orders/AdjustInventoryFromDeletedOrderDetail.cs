@@ -15,7 +15,7 @@ namespace Aldebaran.DataAccess.Core.Triggers.Reservations
         public async Task BeforeSave(ITriggerContext<CustomerOrderDetail> context, CancellationToken cancellationToken)
         {
             if (context.ChangeType == ChangeType.Deleted)
-                await UpdateOrderedQuantity(context.Entity.ReferenceId, context.Entity.RequestedQuantity, -1, cancellationToken);
+                await UpdateOrderedQuantityAsync(context.Entity.ReferenceId, context.Entity.RequestedQuantity, -1, cancellationToken);
         }
     }
 }

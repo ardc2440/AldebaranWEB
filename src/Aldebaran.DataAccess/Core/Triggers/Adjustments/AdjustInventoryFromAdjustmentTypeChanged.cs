@@ -48,13 +48,13 @@ namespace Aldebaran.DataAccess.Core.Triggers.Adjustments
                         PropertyEntry<AdjustmentDetail, int> reference = _context.Entry(kvp).Property(e => e.ReferenceId);
                         PropertyEntry<AdjustmentDetail, int> quantity = _context.Entry(kvp).Property(e => e.Quantity);
 
-                        await UpdateInventoryQuantity(reference.OriginalValue, quantity.OriginalValue, oldIndicatorInOut * -1, cancellationToken);
-                        await UpdateWarehouseReferenceQuantity(warehouse.OriginalValue, reference.OriginalValue, quantity.OriginalValue, oldIndicatorInOut * -1, cancellationToken);
+                        await UpdateInventoryQuantityAsync(reference.OriginalValue, quantity.OriginalValue, oldIndicatorInOut * -1, cancellationToken);
+                        await UpdateWarehouseReferenceQuantityAsync(warehouse.OriginalValue, reference.OriginalValue, quantity.OriginalValue, oldIndicatorInOut * -1, cancellationToken);
 
                         if (entry.State == EntityState.Modified || entry.State == EntityState.Unchanged)
                         {
-                            await UpdateInventoryQuantity(reference.CurrentValue, quantity.CurrentValue, newIndicatorInOut, cancellationToken);
-                            await UpdateWarehouseReferenceQuantity(warehouse.CurrentValue, reference.CurrentValue, quantity.CurrentValue, newIndicatorInOut, cancellationToken);
+                            await UpdateInventoryQuantityAsync(reference.CurrentValue, quantity.CurrentValue, newIndicatorInOut, cancellationToken);
+                            await UpdateWarehouseReferenceQuantityAsync(warehouse.CurrentValue, reference.CurrentValue, quantity.CurrentValue, newIndicatorInOut, cancellationToken);
                         }
                     }
                 }

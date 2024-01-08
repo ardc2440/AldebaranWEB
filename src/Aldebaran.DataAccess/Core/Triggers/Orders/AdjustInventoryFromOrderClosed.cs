@@ -32,7 +32,7 @@ namespace Aldebaran.DataAccess.Core.Triggers.Reservations
                         {
                             var reversedQuantity = item.RequestedQuantity - item.ProcessedQuantity - item.DeliveredQuantity;
 
-                            await UpdateOrderedQuantity(item.ReferenceId, reversedQuantity, indicatorInOut, cancellationToken);
+                            await UpdateOrderedQuantityAsync(item.ReferenceId, reversedQuantity, indicatorInOut, cancellationToken);
                         }
                     }
                 }

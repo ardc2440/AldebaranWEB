@@ -30,7 +30,7 @@ namespace Aldebaran.DataAccess.Core.Triggers.Reservations
                         var indicatorInOut = -1;
 
                         foreach (var item in context.Entity.CustomerReservationDetails)
-                            await UpdateReservedQuantity(item.ReferenceId, item.ReservedQuantity, indicatorInOut, cancellationToken);
+                            await UpdateReservedQuantityAsync(item.ReferenceId, item.ReservedQuantity, indicatorInOut, cancellationToken);
                     }
                 }
             }
