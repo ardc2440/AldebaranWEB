@@ -14,12 +14,25 @@ namespace Aldebaran.Application.Services
             _mapper = mapper ?? throw new ArgumentNullException(nameof(IMapper));
         }
 
+        public async Task<StatusDocumentType?> FindAsync(int statusDocumentTypeId, CancellationToken ct = default)
+        {
+            var data = await _repository.FindAsync(statusDocumentTypeId, ct);
+            return _mapper.Map<StatusDocumentType?>(data);
+
+        }
+
         public async Task<StatusDocumentType?> FindByDocumentAndOrderAsync(int documentTypeId, int order, CancellationToken ct = default)
         {
             var data = await _repository.FindByDocumentAndOrderAsync(documentTypeId, order, ct);
             return _mapper.Map<StatusDocumentType?>(data);
 
         }
-    }
 
+        public async Task<IEnumerable<StatusDocumentType>> GetByDocumentTypeIdAsync(int documentTypeId, CancellationToken ct = default)
+        {
+            var data = await _repository.GetByDocumentTypeIdAsync(documentTypeId, ct);
+            return _mapper.Map<List<StatusDocumentType>>(data);
+        }
+    }
 }
+

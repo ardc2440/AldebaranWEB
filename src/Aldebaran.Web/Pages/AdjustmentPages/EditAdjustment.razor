@@ -1,6 +1,7 @@
-@page "/edit-adjustment/{pAdjustmentId}"
+@page "/edit-adjustment/{AdjustmentId}"
 
 @attribute [Authorize(Roles = "Admin,Adjustment Editor")]
+@using Aldebaran.Web.Resources.LocalizedControls;
 
 <PageTitle>Modificar Ajuste de Inventario</PageTitle>
 <RadzenCard>
@@ -28,7 +29,7 @@
                                     <RadzenLabel Text="Motivo del Ajuste" Component="AdjustmentReason" style="width: 100%" />
                                 </RadzenColumn>
                                 <RadzenColumn SizeMD="9">
-                                    <RadzenDropDownDataGrid Data="@adjustmentReasonsForADJUSTMENTREASONID" TextProperty="AdjustmentReasonName" ValueProperty="AdjustmenReasonId" AllowClear=true
+                                    <RadzenDropDownDataGrid Data="@adjustmentReasonsForADJUSTMENTREASONID" TextProperty="AdjustmentReasonName" ValueProperty="AdjustmentReasonId" AllowClear=true
                                                             Placeholder="Seleccione un motivo" style="display: block; width: 100%" @bind-Value="@adjustment.AdjustmentReasonId" Name="ADJUSTMENT_REASON_ID" TabIndex="1" />
                                     <RadzenRequiredValidator Component="ADJUSTMENT_REASON_ID" DefaultValue="0" Text="El Motivo del Ajuste es requerido "></RadzenRequiredValidator>
                                 </RadzenColumn>
@@ -62,31 +63,31 @@
                                     </RadzenStack>
                                 </RadzenColumn>
                             </RadzenRow>
-                            <RadzenDataGrid @ref="adjustmentDetailGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                            Data="@adjustmentDetails" TItem="Aldebaran.Application.Services.Models.AdjustmentDetail">
+                            <LocalizedDataGrid @ref="adjustmentDetailGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                               Data="@adjustmentDetails" TItem="Aldebaran.Application.Services.Models.AdjustmentDetail">
                                 <Columns>
                                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AdjustmentDetail" Property="Quantity" Title="Cantidad" Width="100px" />
                                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AdjustmentDetail" Title="Artículo/Referencia">
                                         <Template Context="detail">
                                             <span>(@detail.ItemReference.Item.InternalReference) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName</span>
                                     </Template>
-                                </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AdjustmentDetail" Property="Warehouse.WarehouseName" Title="Bodega" Width="100px">
-                                </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AdjustmentDetail" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center">
-                                    <Template Context="detail">
-                                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
-                                                      Click="@(args => EditRow(detail))" @onclick:stopPropagation="true" title="Modificar cantidad">
-                                        </RadzenButton>
-                                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
-                                                      Shade="Shade.Lighter" Variant="Variant.Flat"
-                                                      Click=@(args => DeleteAdjustmentDetailButtonClick(args, detail)) @onclick:stopPropagation="true" title="Eliminar artículo" />
-                                    </Template>
-                                </RadzenDataGridColumn>
-                            </Columns>
-                        </RadzenDataGrid>
-                    </RadzenStack>
-                </RadzenColumn>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AdjustmentDetail" Property="Warehouse.WarehouseName" Title="Bodega" Width="100px">
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AdjustmentDetail" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center">
+                                        <Template Context="detail">
+                                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                                          Click="@(args => EditRow(detail))" @onclick:stopPropagation="true" title="Modificar cantidad">
+                                            </RadzenButton>
+                                            <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
+                                                          Shade="Shade.Lighter" Variant="Variant.Flat"
+                                                          Click=@(args => DeleteAdjustmentDetailButtonClick(args, detail)) @onclick:stopPropagation="true" title="Eliminar artículo" />
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                </Columns>
+                            </LocalizedDataGrid>
+                        </RadzenStack>
+                    </RadzenColumn>
             </RadzenRow>
             <RadzenRow AlignItems="Radzen.AlignItems.Center">
                 <RadzenColumn Size="12">

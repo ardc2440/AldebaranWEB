@@ -55,11 +55,18 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         public async Task<IEnumerable<Item>> GetAsync(string searchKey, CancellationToken ct = default)
         {
             return await _context.Items.AsNoTracking()
-                .Where(w => w.InternalReference.Contains(searchKey) || w.ItemName.Contains(searchKey) || w.ProviderReference.Contains(searchKey) || w.ProviderItemName.Contains(searchKey) || w.Notes.Contains(searchKey))
                 .Include(i => i.Currency)
                 .Include(i => i.Line)
                 .Include(i => i.CifMeasureUnit)
                 .Include(i => i.FobMeasureUnit)
+                .Where(w => w.InternalReference.Contains(searchKey) ||
+                            w.ItemName.Contains(searchKey) ||
+                            w.ProviderReference.Contains(searchKey) ||
+                            w.ProviderItemName.Contains(searchKey) ||
+                            w.Notes.Contains(searchKey) ||
+                            w.Line.LineName.Equals(searchKey) ||
+                            w.Line.LineCode.Equals(searchKey) ||
+                            w.Currency.CurrencyName.Equals(searchKey))
                 .ToListAsync(ct);
         }
 

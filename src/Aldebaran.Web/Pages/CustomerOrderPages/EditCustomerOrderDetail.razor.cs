@@ -1,49 +1,52 @@
-using Aldebaran.Web.Models.AldebaranDb;
+using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
 using Radzen;
 
 namespace Aldebaran.Web.Pages.CustomerOrderPages
 {
     public partial class EditCustomerOrderDetail
     {
-        [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
-
-        [Inject]
-        protected NavigationManager NavigationManager { get; set; }
-
+        #region Injection
         [Inject]
         protected DialogService DialogService { get; set; }
 
-        [Inject]
-        protected TooltipService TooltipService { get; set; }
+        #endregion
 
-        [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
-
-        [Inject]
-        protected NotificationService NotificationService { get; set; }
-        [Inject]
-        public AldebaranDbService AldebaranDbService { get; set; }
+        #region Parameters
 
         [Parameter]
-        public CustomerOrderDetail customerOrderDetail { get; set; }
+        public CustomerOrderDetail CustomerOrderDetail { get; set; }
 
+        #endregion
+
+        #region Global Variables
         protected bool errorVisible;
         protected string alertMessage;
         protected bool isSubmitInProgress;
-        protected InventoryQuantities QuantitiesPanel;
+        protected InventoryQuantities quantitiesPanel;
 
+        #endregion
+
+        #region Overrides
+
+        public override async Task SetParametersAsync(ParameterView parameters)
+        {
+            CustomerOrderDetail = new CustomerOrderDetail();
+
+            await base.SetParametersAsync(parameters);
+        }
+        #endregion
+
+        #region Events
         protected async Task FormSubmit()
         {
             try
             {
                 errorVisible = false;
                 isSubmitInProgress = true;
-                DialogService.Close(customerOrderDetail);
+                DialogService.Close(CustomerOrderDetail);
             }
             catch (Exception ex)
             {
@@ -61,17 +64,11 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             DialogService.Close(null);
         }
 
-        public override async Task SetParametersAsync(ParameterView parameters)
-        {
-            customerOrderDetail = new CustomerOrderDetail();
-
-            await base.SetParametersAsync(parameters);
-        }
-
         protected async Task ItemReferenceHandler()
         {
-            await QuantitiesPanel.Refresh(customerOrderDetail.ItemReference);
+            await quantitiesPanel.Refresh(CustomerOrderDetail.ItemReference.ReferenceId);
         }
+        #endregion
 
     }
 }

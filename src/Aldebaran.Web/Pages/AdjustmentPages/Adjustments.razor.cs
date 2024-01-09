@@ -1,10 +1,10 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
-using Aldebaran.Web.Models;
+using Aldebaran.Web.Models.ViewModels;
+using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
-using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.AdjustmentPages
 {
@@ -42,7 +42,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected IEnumerable<Adjustment> adjustments;
 
-        protected RadzenDataGrid<Adjustment> grid0;
+        protected LocalizedDataGrid<Adjustment> grid0;
 
         protected DialogResult dialogResult { get; set; }
 
@@ -54,7 +54,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected Adjustment adjustment;
 
-        protected RadzenDataGrid<AdjustmentDetail> AdjustmentDetailsDataGrid;
+        protected LocalizedDataGrid<AdjustmentDetail> AdjustmentDetailsDataGrid;
 
         #endregion
 
@@ -70,7 +70,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
                 documentType = await DocumentTypeService.FindByCodeAsync("A");
 
-                adjustments = await AdjustmentService.GetAsync($"i => i.AdjustmentReason.ADJUSTMENT_REASON_NAME.Contains({search}) || i.AdjustmentType.ADJUSTMENT_TYPE_NAME.Contains({search}) || i.NOTES.Contains({search})");
+                adjustments = await AdjustmentService.GetAsync(search);
             }
             finally
             {
@@ -90,7 +90,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
             await grid0.GoToPage(0);
 
-            adjustments = await AdjustmentService.GetAsync($"i => i.AdjustmentReason.ADJUSTMENT_REASON_NAME.Contains({search}) || i.AdjustmentType.ADJUSTMENT_TYPE_NAME.Contains({search}) || i.NOTES.Contains({search})");
+            adjustments = await AdjustmentService.GetAsync(search);
 
         }
 
@@ -141,7 +141,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         protected async Task GetChildData(Adjustment args)
         {
             adjustment = args;
-            var AdjustmentDetailsResult = await AdjustmentDetailService.GetAsync($@"i => i.AdjustmentId == {args.AdjustmentId}");
+            var AdjustmentDetailsResult = await AdjustmentDetailService.GetByAdjustmentIdAsync(args.AdjustmentId);
             if (AdjustmentDetailsResult != null)
             {
                 args.AdjustmentDetails = AdjustmentDetailsResult.ToList();

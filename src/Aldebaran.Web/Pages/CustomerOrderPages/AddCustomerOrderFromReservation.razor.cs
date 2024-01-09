@@ -1,16 +1,15 @@
-using Aldebaran.Web.Models.AldebaranDb;
+using Aldebaran.Application.Services;
+using Aldebaran.Application.Services.Models;
+using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
 using Radzen;
-using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.CustomerOrderPages
 {
     public partial class AddCustomerOrderFromReservation
     {
-        [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
+        #region Injections
 
         [Inject]
         protected NavigationManager NavigationManager { get; set; }
@@ -19,22 +18,42 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected TooltipService TooltipService { get; set; }
-
-        [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
-
-        [Inject]
-        protected NotificationService NotificationService { get; set; }
-
-        [Inject]
-        public AldebaranDbService AldebaranDbService { get; set; }
-
-        [Inject]
         protected SecurityService Security { get; set; }
 
+        [Inject]
+        protected ICustomerService CustomerService { get; set; }
+
+        [Inject]
+        protected ICustomerReservationService CustomerReservationService { get; set; }
+
+        [Inject]
+        protected IEmployeeService EmployeeService { get; set; }
+
+        [Inject]
+        protected IDocumentTypeService DocumentTypeService { get; set; }
+
+        [Inject]
+        protected IStatusDocumentTypeService StatusDocumentTypeService { get; set; }
+
+        [Inject]
+        protected ICustomerOrderService CustomerOrderService { get; set; }
+
+        [Inject]
+        protected IItemReferenceService ItemReferenceService { get; set; }
+
+        [Inject]
+        protected ICustomerReservationDetailService CustomerReservationDetailService { get; set; }
+
+        #endregion
+
+        #region Parameters
+
         [Parameter]
-        public string pCustomerReservationId { get; set; } = "NoParamInput";
+        public string CustomerReservationId { get; set; } = "NoParamInput";
+
+        #endregion
+
+        #region Global Variables
 
         protected bool errorVisible;
         protected string errorMessage;
@@ -42,12 +61,16 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected CustomerOrder customerOrder;
         protected DocumentType documentType;
         protected ICollection<CustomerOrderDetail> customerOrderDetails;
-        protected RadzenDataGrid<CustomerOrderDetail> customerOrderDetailGrid;
+        protected LocalizedDataGrid<CustomerOrderDetail> customerOrderDetailGrid;
 
         protected IEnumerable<Customer> customersForCUSTOMERID;
         protected IEnumerable<Employee> employeesForEMPLOYEEID;
         protected bool isSubmitInProgress;
         protected bool isLoadingInProgress;
+
+        #endregion
+
+        #region Overrides
 
         protected override async Task OnInitializedAsync()
         {
@@ -57,14 +80,14 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
                 await Task.Yield();
 
-                customersForCUSTOMERID = await AldebaranDbService.GetCustomers();
+                customersForCUSTOMERID = await CustomerService.GetAsync();
 
-                if (!int.TryParse(pCustomerReservationId, out var customerReservationId))
+                if (!int.TryParse(CustomerReservationId, out var customerReservationId))
                     throw new Exception("El Id de Referencia recibido no es valido");
 
-                customerReservation = await AldebaranDbService.GetCustomerReservationByCustomerReservationId(customerReservationId) ?? throw new Exception("No ha seleccionado una Reservacion Valida");
+                customerReservation = await CustomerReservationService.FindAsync(customerReservationId) ?? throw new Exception("No ha seleccionado una Reservacion Valida");
 
-                if (!customerReservation.CustomerReservationDetails.Any(cd => cd.SEND_TO_CUSTOMER_ORDER))
+                if (!customerReservation.CustomerReservationDetails.Any(cd => cd.SendToCustomerOrder))
                     throw new Exception("La reserva seleccionada no posee articulos para incluir en el pedido");
 
                 await ChargeCustomerOrderModel();
@@ -77,25 +100,29 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             finally { isLoadingInProgress = false; }
         }
 
+        #endregion
+
+        #region Events
+
         protected async Task ChargeCustomerOrderModel()
         {
 
             customerOrder = new CustomerOrder()
             {
-                CUSTOMER_NOTES = customerReservation.NOTES,
-                ORDER_DATE = DateTime.Today
+                CustomerNotes = customerReservation.Notes,
+                OrderDate = DateTime.Today
             };
 
-            customerOrder.Customer = await AldebaranDbService.GetCustomerByCustomerId(customerReservation.CUSTOMER_ID);
-            customerOrder.CUSTOMER_ID = customerOrder.Customer.CUSTOMER_ID;
+            customerOrder.Customer = await CustomerService.FindAsync(customerReservation.CustomerId);
+            customerOrder.CustomerId = customerOrder.Customer.CustomerId;
 
-            customerOrder.Employee = await AldebaranDbService.GetLoggedEmployee(Security);
-            customerOrder.EMPLOYEE_ID = customerOrder.Employee.EMPLOYEE_ID;
+            customerOrder.Employee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id);
+            customerOrder.EmployeeId = customerOrder.Employee.EmployeeId;
 
-            documentType = await AldebaranDbService.GetDocumentTypeByCode("P");
+            documentType = await DocumentTypeService.FindByCodeAsync("P");
 
-            customerOrder.StatusDocumentType = await AldebaranDbService.GetStatusDocumentTypeByDocumentAndOrder(documentType, 1);
-            customerOrder.STATUS_DOCUMENT_TYPE_ID = customerOrder.StatusDocumentType.STATUS_DOCUMENT_TYPE_ID;
+            customerOrder.StatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 1);
+            customerOrder.StatusDocumentTypeId = customerOrder.StatusDocumentType.StatusDocumentTypeId;
 
             await ChargeCustomerOrderDetailModel(customerReservation.CustomerReservationDetails);
         }
@@ -104,19 +131,19 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         {
             customerOrderDetails = new List<CustomerOrderDetail>();
 
-            foreach (var customerReservationDetail in customerReservationDetails.Where(cd => cd.SEND_TO_CUSTOMER_ORDER))
+            foreach (var customerReservationDetail in customerReservationDetails.Where(cd => cd.SendToCustomerOrder))
             {
                 customerOrderDetails.Add(new CustomerOrderDetail()
                 {
-                    REFERENCE_ID = customerReservationDetail.REFERENCE_ID,
-                    REQUESTED_QUANTITY = customerReservationDetail.RESERVED_QUANTITY,
-                    BRAND = customerReservationDetail.BRAND
+                    ReferenceId = customerReservationDetail.ReferenceId,
+                    RequestedQuantity = customerReservationDetail.ReservedQuantity,
+                    Brand = customerReservationDetail.Brand
                 });
             }
 
             foreach (var customerOrderDetail in customerOrderDetails)
             {
-                customerOrderDetail.ItemReference = await AldebaranDbService.GetItemReferenceByReferenceId(customerOrderDetail.REFERENCE_ID);
+                customerOrderDetail.ItemReference = await ItemReferenceService.FindAsync(customerOrderDetail.ReferenceId);
             }
         }
 
@@ -130,12 +157,19 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                     throw new Exception("No ha ingresado ninguna referencia");
 
                 customerOrder.CustomerOrderDetails = customerOrderDetails;
-                customerOrder.ORDER_NUMBER = await AldebaranDbService.GetDocumentNumber<CustomerOrder>(customerOrder); ;
 
-                await AldebaranDbService.CreateCustomerOrder(customerOrder, customerReservation);
+                customerOrder = await CustomerOrderService.AddAsync(customerOrder);
 
-                await DialogService.Alert($"Pedido de Reserva de Articulos Guardado Satisfactoriamente con el consecutivo {customerOrder.ORDER_NUMBER}", "Información");
-                NavigationManager.NavigateTo("customer-reservations");
+                if (customerOrder.CustomerOrderId > 0)
+                {
+                    customerReservation.CustomerOrderId = customerOrder.CustomerOrderId;
+                    customerReservation.StatusDocumentTypeId = (await StatusDocumentTypeService.FindByDocumentAndOrderAsync((await DocumentTypeService.FindByCodeAsync("R")).DocumentTypeId, 2)).StatusDocumentTypeId;
+
+                    await CustomerReservationService.UpdateAsync(customerReservation.CustomerReservationId, customerReservation);
+
+                    await DialogService.Alert($"Pedido de Reserva de Articulos guardado con el consecutivo {customerOrder.OrderNumber}", "Información");
+                    NavigationManager.NavigateTo("customer-reservations");
+                }
             }
             catch (Exception ex)
             {
@@ -149,15 +183,16 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         {
             if (await DialogService.Confirm("Está seguro que cancelar la creación del Pedido??", "Confirmar") == true)
             {
-                if (!int.TryParse(pCustomerReservationId, out var customerReservationId))
+                if (!int.TryParse(CustomerReservationId, out var customerReservationId))
                     throw new Exception("El Id de Referencia recibido no es valido");
 
-                var customerReservation = await AldebaranDbService.GetCustomerReservationByCustomerReservationId(customerReservationId) ?? throw new Exception("No ha seleccionado una Reservacion Valida");
+                var customerReservation = await CustomerReservationService.FindAsync(customerReservationId) ?? throw new Exception("No ha seleccionado una Reservacion Valida");
 
-                foreach (var item in customerReservation.CustomerReservationDetails.Where(d => d.SEND_TO_CUSTOMER_ORDER).ToList())
-                    item.SEND_TO_CUSTOMER_ORDER = false;
-
-                _ = await AldebaranDbService.UpdateCustomerReservationDetails(customerReservation.CustomerReservationDetails.Where(d => !d.SEND_TO_CUSTOMER_ORDER).ToList());
+                foreach (var item in customerReservation.CustomerReservationDetails.Where(d => d.SendToCustomerOrder).ToList())
+                {
+                    item.SendToCustomerOrder = false;
+                    await CustomerReservationDetailService.UpdateAsync(item.CustomerReservationDetailId, item);
+                }
 
                 NavigationManager.NavigateTo("customer-reservations");
             }
@@ -165,7 +200,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task AddCustomerOrderDetailButtonClick(MouseEventArgs args)
         {
-            var result = await DialogService.OpenAsync<AddCustomerOrderDetail>("Nueva referencia", new Dictionary<string, object> { { "customerOrderDetails", customerOrderDetails } });
+            var result = await DialogService.OpenAsync<AddCustomerOrderDetail>("Nueva referencia", new Dictionary<string, object> { { "CustomerOrderDetails", customerOrderDetails } });
 
             if (result == null)
                 return;
@@ -189,7 +224,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task EditRow(CustomerOrderDetail args)
         {
-            var result = await DialogService.OpenAsync<EditCustomerOrderDetail>("Actualizar referencia", new Dictionary<string, object> { { "customerOrderDetail", args } });
+            var result = await DialogService.OpenAsync<EditCustomerOrderDetail>("Actualizar referencia", new Dictionary<string, object> { { "CustomerOrderDetail", args } });
             if (result == null)
                 return;
             var detail = (CustomerOrderDetail)result;
@@ -199,5 +234,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
             await customerOrderDetailGrid.Reload();
         }
+
+        #endregion
     }
 }

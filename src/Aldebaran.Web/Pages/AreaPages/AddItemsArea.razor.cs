@@ -43,7 +43,7 @@ namespace Aldebaran.Web.Pages.AreaPages
         {
             ItemArea = new ServiceModel.ItemsArea() { AreaId = AREA_ID };
             Area = await AreaService.FindAsync(AREA_ID);
-            var currentItemsInArea = await ItemAreaService.GetAsync(AREA_ID);
+            var currentItemsInArea = await ItemAreaService.GetByAreaIdAsync(AREA_ID);
             var items = await ItemService.GetAsync();
             // Articulos disponibles para seleccion, Articulos excepto los ya seleccionados
             AvailableItemsForSelection = items.Where(w => !currentItemsInArea.Any(x => x.ItemId == w.ItemId)).ToList();

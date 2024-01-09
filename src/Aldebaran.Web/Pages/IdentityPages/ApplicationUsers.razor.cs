@@ -1,5 +1,4 @@
 using Aldebaran.Web.Models;
-using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Radzen;

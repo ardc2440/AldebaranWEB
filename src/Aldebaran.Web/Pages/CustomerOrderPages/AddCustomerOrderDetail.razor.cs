@@ -1,45 +1,54 @@
-using Aldebaran.Web.Models.AldebaranDb;
+using Aldebaran.Application.Services;
+using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
 using Radzen;
-using ServiceModel = Aldebaran.Application.Services.Models;
 
 namespace Aldebaran.Web.Pages.CustomerOrderPages
 {
     public partial class AddCustomerOrderDetail
     {
-        [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
-
-        [Inject]
-        protected NavigationManager NavigationManager { get; set; }
-
+        #region Injections
         [Inject]
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected TooltipService TooltipService { get; set; }
+        protected IItemReferenceService ItemReferenceService { get; set; }
+        #endregion
 
-        [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
-
-        [Inject]
-        protected NotificationService NotificationService { get; set; }
-        [Inject]
-        public AldebaranDbService AldebaranDbService { get; set; }
-
+        #region Parameters
         [Parameter]
-        public ICollection<CustomerOrderDetail> customerOrderDetails { get; set; }
+        public ICollection<CustomerOrderDetail> CustomerOrderDetails { get; set; }
 
+        #endregion
+
+        #region Global Variables
         protected bool errorVisible;
         protected string alertMessage;
         protected bool isSubmitInProgress;
         protected CustomerOrderDetail customerOrderDetail;
-        protected InventoryQuantities QuantitiesPanel;
-        protected IEnumerable<ServiceModel.ItemReference> itemReferencesForREFERENCEID;
+        protected InventoryQuantities quantitiesPanel;
+        protected IEnumerable<ItemReference> itemReferencesForREFERENCEID { get; set; } = new List<ItemReference>();
 
+        #endregion
+
+        #region Overrides
+
+        protected override async Task OnInitializedAsync()
+        {
+            itemReferencesForREFERENCEID = await ItemReferenceService.GetByStatusAsync(true);
+        }
+
+        public override async Task SetParametersAsync(ParameterView parameters)
+        {
+            customerOrderDetail = new CustomerOrderDetail();
+
+            await base.SetParametersAsync(parameters);
+        }
+        #endregion
+
+        #region Events
         protected async Task FormSubmit()
         {
             try
@@ -47,11 +56,11 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 errorVisible = false;
                 isSubmitInProgress = true;
 
-                if (customerOrderDetails.Any(ad => ad.REFERENCE_ID.Equals(customerOrderDetail.REFERENCE_ID)))
+                if (CustomerOrderDetails.Any(ad => ad.ReferenceId.Equals(customerOrderDetail.ReferenceId)))
                     throw new Exception("La Referencia seleccionada, ya existe dentro de esta reserva.");
 
-                var reference = await AldebaranDbService.GetItemReferences(new Query { Filter = "i=> i.REFERENCE_ID==@0", FilterParameters = new object[] { customerOrderDetail.REFERENCE_ID }, Expand = "Item" });
-                customerOrderDetail.ItemReference = reference.Single();
+                var reference = await ItemReferenceService.FindAsync(customerOrderDetail.ReferenceId);
+                customerOrderDetail.ItemReference = reference;
                 DialogService.Close(customerOrderDetail);
             }
             catch (Exception ex)
@@ -70,21 +79,12 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             DialogService.Close(null);
         }
 
-        protected async Task ItemReferenceHandler(ServiceModel.ItemReference reference)
+        protected async Task ItemReferenceHandler(ItemReference reference)
         {
-            customerOrderDetail.REFERENCE_ID = reference?.ReferenceId ?? 0;
+            customerOrderDetail.ReferenceId = reference?.ReferenceId ?? 0;
 
-            //await QuantitiesPanel.Refresh(reference);
+            await quantitiesPanel.Refresh(reference);
         }
-
-        public override async Task SetParametersAsync(ParameterView parameters)
-        {
-            customerOrderDetail = new CustomerOrderDetail();
-
-            //itemReferencesForREFERENCEID = await AldebaranDbService.GetItemReferences(new Query { Filter = "i => i.IS_ACTIVE && i.Item.IS_ACTIVE", Expand = "Item.Line" });
-
-            await base.SetParametersAsync(parameters);
-        }
-
+        #endregion
     }
 }

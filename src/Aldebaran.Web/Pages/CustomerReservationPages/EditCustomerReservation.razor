@@ -1,11 +1,12 @@
-@page "/edit-customer-reservation/{pCustomerReservationId}"
+@page "/edit-customer-reservation/{CustomerReservationId}"
 
 @attribute [Authorize(Roles = "Admin,Customer Reservation Editor")]
+@using Aldebaran.Web.Resources.LocalizedControls;
 
 <PageTitle>Modificar Reserva de Artículos</PageTitle>
 <RadzenCard>
     <RadzenStack>
-        <RadzenTemplateForm TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservation" Data="@customerReservation" Visible="@(customerReservation != null)" Submit="@FormSubmit">
+        <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerReservation" Data="@customerReservation" Visible="@(customerReservation != null)" Submit="@FormSubmit">
             <RadzenRow AlignItems="AlignItems.Center">
                 <RadzenColumn Size="12">
                     <RadzenText Text="@title" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
@@ -19,14 +20,14 @@
                             <RadzenLabel Text="Fecha de Reserva" Component="RESERVATION_DATE" style="width: 100%" />
                         </RadzenColumn>
                         <RadzenColumn SizeMD="9">
-                            <RadzenDatePicker DateFormat="MM/dd/yyyy" style="display: block; width: 100%" @bind-Value="@customerReservation.RESERVATION_DATE" Name="RESERVATION_DATE" Placeholder="Seleccione la fecha de la reserva" TabIndex="0" />
+                            <RadzenDatePicker DateFormat="MM/dd/yyyy" style="display: block; width: 100%" @bind-Value="@customerReservation.ReservationDate" Name="RESERVATION_DATE" Placeholder="Seleccione la fecha de la reserva" TabIndex="0" />
                             <RadzenRequiredValidator Text="La Fecha de reserva es requerida" Component="RESERVATION_DATE" />
                         </RadzenColumn>
                         <RadzenColumn SizeMD="3">
                             <RadzenLabel Text="Fecha de Expiración de la Reserva" Component="EXPIRATION_DATE" style="width: 100%" />
                         </RadzenColumn>
                         <RadzenColumn SizeMD="9">
-                            <RadzenDatePicker DateFormat="MM/dd/yyyy" style="display: block; width: 100%" @bind-Value="@customerReservation.EXPIRATION_DATE" Name="EXPIRATION_DATE" Placeholder="Seleccione la fecha de expiración la reserva" TabIndex="0" />
+                            <RadzenDatePicker DateFormat="MM/dd/yyyy" style="display: block; width: 100%" @bind-Value="@customerReservation.ExpirationDate" Name="EXPIRATION_DATE" Placeholder="Seleccione la fecha de expiración la reserva" TabIndex="0" />
                             <RadzenRequiredValidator Text="La Fecha de expiración es requerida" Component="EXPIRATION_DATE" />
                         </RadzenColumn>
                         <RadzenRow style="margin-bottom: 1rem">
@@ -34,8 +35,8 @@
                                 <RadzenLabel Text="Cliente" Component="CUSTOMER" style="width: 100%" />
                             </RadzenColumn>
                             <RadzenColumn SizeMD="9">
-                                <RadzenDropDownDataGrid Data="@customersForCUSTOMERID" TextProperty="CUSTOMER_NAME" ValueProperty="CUSTOMER_ID" AllowClear=true
-                                                            Placeholder="Seleccione un cliente" style="display: block; width: 100%" @bind-Value="@customerReservation.CUSTOMER_ID" Name="CUSTOMER_ID" TabIndex="1" />
+                                <RadzenDropDownDataGrid Data="@customersForCUSTOMERID" TextProperty="CustomerName" ValueProperty="CustomerId" AllowClear=true
+                                                            Placeholder="Seleccione un cliente" style="display: block; width: 100%" @bind-Value="@customerReservation.CustomerId" Name="CUSTOMER_ID" TabIndex="1" />
                                 <RadzenRequiredValidator Component="CUSTOMER_ID" DefaultValue="0" Text="El Cliente de la reserva es requerido "></RadzenRequiredValidator>
                             </RadzenColumn>
                         </RadzenRow>
@@ -44,7 +45,7 @@
                                 <RadzenLabel Text="Notas" Component="NOTES" style="width: 100%" />
                             </RadzenColumn>
                             <RadzenColumn SizeMD="9">
-                                <RadzenTextArea style="display: block; width: 100%" @bind-Value="@customerReservation.NOTES" Name="NOTES" Placeholder="Ingrese sus notas sobre la Reserva" TabIndex="3" />
+                                <RadzenTextArea style="display: block; width: 100%" @bind-Value="@customerReservation.Notes" Name="NOTES" Placeholder="Ingrese sus notas sobre la Reserva" TabIndex="3" />
                             </RadzenColumn>
                         </RadzenRow>
                     </RadzenStack>
@@ -58,16 +59,16 @@
                                 </RadzenStack>
                             </RadzenColumn>
                         </RadzenRow>
-                        <RadzenDataGrid @ref="customerReservationDetailGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                        Data="@customerReservationDetails" TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservationDetail">
+                        <LocalizedDataGrid @ref="customerReservationDetailGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                        Data="@customerReservationDetails" TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail">
                             <Columns>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservationDetail" Property="RESERVED_QUANTITY" Title="Cantidad" Width="100px" />
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservationDetail" Title="Artículo/Referencia">
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Property="ReservedQuantity" Title="Cantidad" Width="100px" />
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Title="Artículo/Referencia">
                                     <Template Context="detail">
-                                        <span>(@detail.ItemReference.Item.INTERNAL_REFERENCE) @detail.ItemReference.Item.ITEM_NAME - @detail.ItemReference.REFERENCE_NAME</span>
+                                        <span>(@detail.ItemReference.Item.InternalReference) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName</span>
                                     </Template>
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerReservationDetail" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center">
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center">
                                     <Template Context="detail">
                                         <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
                                                       Click="@(args => EditRow(detail))" @onclick:stopPropagation="true">
@@ -78,7 +79,7 @@
                                     </Template>
                                 </RadzenDataGridColumn>
                             </Columns>
-                        </RadzenDataGrid>
+                        </LocalizedDataGrid>
                     </RadzenStack>
                 </RadzenColumn>
             </RadzenRow>

@@ -9,6 +9,7 @@ namespace Aldebaran.DataAccess.Entities
         public bool EditMode { get; set; }
         public short StatusOrder { get; set; }
         // Reverse navigation
+        public ICollection<CustomerOrdersInProcess> CustomerOrdersInProcesses { get; set; }
         public ICollection<Adjustment> Adjustments { get; set; }
         public ICollection<CustomerOrder> CustomerOrders { get; set; }
         public ICollection<CustomerReservation> CustomerReservations { get; set; }

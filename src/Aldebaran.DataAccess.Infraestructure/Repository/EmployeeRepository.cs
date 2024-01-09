@@ -56,6 +56,15 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
               .ToListAsync(ct);
         }
 
+        public async Task<IEnumerable<Employee>> GetByAreaAsync(short areaId, CancellationToken ct = default)
+        {
+            return await _context.Employees.AsNoTracking()
+              .Include(i => i.Area)
+              .Include(i => i.IdentityType)
+              .Where(i => i.AreaId == areaId)
+              .ToListAsync(ct);
+        }
+
         public async Task<IEnumerable<Employee>> GetAsync(string searchKey, CancellationToken ct = default)
         {
             return await _context.Employees.AsNoTracking()

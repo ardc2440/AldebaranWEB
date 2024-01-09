@@ -1,5 +1,5 @@
 using Aldebaran.Application.Services;
-using Aldebaran.Web.Models;
+using Aldebaran.Web.Models.ViewModels;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
@@ -127,7 +127,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
             {
                 IsLoadingInProgress = true;
                 await Task.Yield();
-                var forwarderAgentsResult = await ForwarderAgentService.GetAsync(args.ForwarderId);
+                var forwarderAgentsResult = await ForwarderAgentService.GetByForwarderIdAsync(args.ForwarderId);
                 args.ForwarderAgents = forwarderAgentsResult.ToList();
             }
             finally
@@ -189,7 +189,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
             {
                 IsLoadingInProgress = true;
                 await Task.Yield();
-                var shipmentForwarderAgentMethodsResult = await ShipmentForwarderAgentMethodService.GetAsync(args.ForwarderAgentId);
+                var shipmentForwarderAgentMethodsResult = await ShipmentForwarderAgentMethodService.GetByForwarderAgentIdAsync(args.ForwarderAgentId);
                 ForwarderAgent.ShipmentForwarderAgentMethods = shipmentForwarderAgentMethodsResult.ToList();
             }
             finally

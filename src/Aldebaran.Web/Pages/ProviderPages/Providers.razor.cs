@@ -1,5 +1,5 @@
 using Aldebaran.Application.Services;
-using Aldebaran.Web.Models;
+using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -132,7 +132,7 @@ namespace Aldebaran.Web.Pages.ProviderPages
             {
                 IsLoadingInProgress = true;
                 await Task.Yield();
-                var providerReferencesResult = await ProviderReferenceService.GetAsync(args.ProviderId);
+                var providerReferencesResult = await ProviderReferenceService.GetByProviderIdAsync(args.ProviderId);
                 args.ProviderReferences = providerReferencesResult.ToList();
             }
             finally

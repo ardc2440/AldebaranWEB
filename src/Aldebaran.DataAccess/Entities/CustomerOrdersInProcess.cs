@@ -10,6 +10,7 @@ namespace Aldebaran.DataAccess.Entities
         public DateTime TransferDatetime { get; set; }
         public int EmployeeRecipientId { get; set; }
         public DateTime CreationDate { get; set; }
+        public short StatusDocumentTypeId { get; set; }
         // Reverse navigation
         public CanceledOrdersInProcess CanceledOrdersInProcess { get; set; }
         public ICollection<CustomerOrderInProcessDetail> CustomerOrderInProcessDetails { get; set; }
@@ -17,6 +18,7 @@ namespace Aldebaran.DataAccess.Entities
         public CustomerOrder CustomerOrder { get; set; }
         public Employee Employee { get; set; }
         public ProcessSatellite ProcessSatellite { get; set; }
+        public StatusDocumentType StatusDocumentType { get; set; }
         public CustomerOrdersInProcess()
         {
             ProcessDate = DateTime.Now;

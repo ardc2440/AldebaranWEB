@@ -1,5 +1,5 @@
 using Aldebaran.Application.Services;
-using Aldebaran.Web.Models;
+using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Utils;
 using Microsoft.AspNetCore.Components;
@@ -152,7 +152,7 @@ namespace Aldebaran.Web.Pages.ItemPages
             {
                 IsLoadingInProgress = true;
                 await Task.Yield();
-                var ItemReferencesResult = await ItemReferenceService.GetAsync(args.ItemId);
+                var ItemReferencesResult = await ItemReferenceService.GetByItemIdAsync(args.ItemId);
                 args.ItemReferences = ItemReferencesResult.ToList();
             }
             finally

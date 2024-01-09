@@ -44,7 +44,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .FirstOrDefaultAsync(w => w.ProviderId == providerId && w.ReferenceId == referenceId, ct);
         }
 
-        public async Task<IEnumerable<ProviderReference>> GetAsync(int providerId, CancellationToken ct = default)
+        public async Task<IEnumerable<ProviderReference>> GetByProviderIdAsync(int providerId, CancellationToken ct = default)
         {
             return await _context.ProviderReferences.AsNoTracking()
                 .Where(w => w.ProviderId == providerId)

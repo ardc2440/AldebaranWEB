@@ -32,9 +32,9 @@ namespace Aldebaran.Application.Services
             return _mapper.Map<ShipmentForwarderAgentMethod?>(data);
         }
 
-        public async Task<IEnumerable<ShipmentForwarderAgentMethod>> GetAsync(int forwarderAgentId, CancellationToken ct = default)
+        public async Task<IEnumerable<ShipmentForwarderAgentMethod>> GetByForwarderAgentIdAsync(int forwarderAgentId, CancellationToken ct = default)
         {
-            var data = await _repository.GetAsync(forwarderAgentId, ct);
+            var data = await _repository.GetByForwarderAgentIdAsync(forwarderAgentId, ct);
             return _mapper.Map<List<ShipmentForwarderAgentMethod>>(data);
         }
 

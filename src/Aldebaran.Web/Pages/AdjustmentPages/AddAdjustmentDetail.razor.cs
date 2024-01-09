@@ -14,30 +14,26 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        public IAdjustmentDetailService AdjustmentDetailService { get; set; }
+        protected IAdjustmentDetailService AdjustmentDetailService { get; set; }
 
         [Inject]
-        public IItemReferenceService ItemReferenceService { get; set; }
+        protected IItemReferenceService ItemReferenceService { get; set; }
 
         [Inject]
-        public IWarehouseService WarehouseService { get; set; }
+        protected IWarehouseService WarehouseService { get; set; }
 
         #endregion
 
         #region Parameters
 
         [Parameter]
-        public ICollection<AdjustmentDetail> adjustmentDetails { get; set; }
+        public ICollection<AdjustmentDetail> AdjustmentDetails { get; set; }
 
         [Parameter]
         public int ADJUSTMENT_ID { get; set; }
 
-        bool hasREFERENCE_IDValue;
-
         [Parameter]
         public int REFERENCE_ID { get; set; }
-
-        bool hasWAREHOUSE_IDValue;
 
         [Parameter]
         public short WAREHOUSE_ID { get; set; }
@@ -47,20 +43,15 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         #region Global Variables
 
         protected bool errorVisible;
-
         protected string alertMessage = "No se ha podido Agregar la Referencia";
-
         protected AdjustmentDetail adjustmentDetail;
-
-        protected IEnumerable<ItemReference> itemReferencesForREFERENCEID;
-
+        protected IEnumerable<ItemReference> itemReferencesForREFERENCEID { get; set; } = new List<ItemReference>();
         protected IEnumerable<Warehouse> warehousesForWAREHOUSEID;
-
         public ICollection<ItemReference> references;
-
         protected bool isSubmitInProgress;
-
         bool hasADJUSTMENT_IDValue;
+        bool hasWAREHOUSE_IDValue;
+        bool hasREFERENCE_IDValue;
 
         #endregion
 
@@ -69,7 +60,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         protected override async Task OnInitializedAsync()
         {
 
-            itemReferencesForREFERENCEID = await ItemReferenceService.GetAsync("i => i.IS_ACTIVE && i.Item.IS_ACTIVE");
+            itemReferencesForREFERENCEID = await ItemReferenceService.GetByStatusAsync(true);
 
             warehousesForWAREHOUSEID = await WarehouseService.GetAsync();
 
@@ -100,6 +91,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
             {
                 adjustmentDetail.WarehouseId = hasWAREHOUSE_IDResult;
             }
+
             await base.SetParametersAsync(parameters);
         }
 
@@ -114,14 +106,14 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
                 errorVisible = false;
                 isSubmitInProgress = true;
 
-                if (adjustmentDetails.Any(ad => ad.ReferenceId.Equals(adjustmentDetail.ReferenceId) && ad.WarehouseId.Equals(adjustmentDetail.WarehouseId)))
+                if (AdjustmentDetails.Any(ad => ad.ReferenceId.Equals(adjustmentDetail.ReferenceId) && ad.WarehouseId.Equals(adjustmentDetail.WarehouseId)))
                     throw new Exception("La Referencia y Bodega seleccionadas, ya existen dentro de este ajuste.");
 
                 adjustmentDetail.Warehouse = await WarehouseService.FindAsync(adjustmentDetail.WarehouseId);
 
-                var reference = await ItemReferenceService.GetAsync($"i=> i.REFERENCE_ID=={adjustmentDetail.ReferenceId}");
+                var reference = await ItemReferenceService.FindAsync(adjustmentDetail.ReferenceId);
 
-                adjustmentDetail.ItemReference = reference.Single();
+                adjustmentDetail.ItemReference = reference;
 
                 DialogService.Close(adjustmentDetail);
             }

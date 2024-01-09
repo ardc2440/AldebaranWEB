@@ -3,14 +3,14 @@
 <PageTitle>Actualizar cliente</PageTitle>
 <RadzenColumn SizeMD=12>
     <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">No se ha podido actualizar el cliente</RadzenAlert>
-    <RadzenTemplateForm TItem="Aldebaran.Web.Models.AldebaranDb.Customer" Data="@customer" Visible="@(customer != null)" Submit="@FormSubmit">
+    <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.Customer" Data="@customer" Visible="@(customer != null)" Submit="@FormSubmit">
         <RadzenStack>
             <RadzenRow AlignItems="Radzen.AlignItems.Start">
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Tipo de documento" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDown Data="@identityTypesForIDENTITYTYPEID" TextProperty="IDENTITY_TYPE_CODE" ValueProperty="IDENTITY_TYPE_ID" AllowClear=true
-                                                    style="display: block; width: 100%" @bind-Value="@customer.IDENTITY_TYPE_ID" Name="IDENTITY_TYPE_ID" AllowFiltering="true" ClearSearchAfterSelection="true"  />
+                            <RadzenDropDown Data="@identityTypesForIDENTITYTYPEID" TextProperty="IdentityTypeCode" ValueProperty="IdentityTypeId" AllowClear=true
+                                                    style="display: block; width: 100%" @bind-Value="@customer.IdentityTypeId" Name="IDENTITY_TYPE_ID" AllowFiltering="true" ClearSearchAfterSelection="true"  />
                         </ChildContent>
                         <Helper>
                             <RadzenRequiredValidator Component="IDENTITY_TYPE_ID" DefaultValue="0" Text="Tipo de documento es requerido" />
@@ -20,7 +20,7 @@
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Número de documento" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@customer.IDENTITY_NUMBER" Name="IDENTITY_NUMBER" />
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@customer.IdentityNumber" Name="IDENTITY_NUMBER" />
                         </ChildContent>
                         <Helper>
                             <RadzenRequiredValidator Component="IDENTITY_NUMBER" Text="IDENTITY_NUMBER is required" />
@@ -30,7 +30,7 @@
             </RadzenRow>
             <RadzenFormField Text="Nombre" Variant="Variant.Text">
                 <ChildContent>
-                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@customer.CUSTOMER_NAME" Name="CUSTOMER_NAME" />
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@customer.CustomerName" Name="CUSTOMER_NAME" />
                 </ChildContent>
                 <Helper>
                     <RadzenRequiredValidator Component="CUSTOMER_NAME" Text="Nombre es requerido" />
@@ -40,7 +40,7 @@
                 <RadzenColumn Size="12" SizeMD="4">
                     <RadzenFormField Text="Teléfono" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@customer.PHONE1" Name="PHONE1" />
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@customer.Phone1" Name="PHONE1" />
                         </ChildContent>
                         <Helper>
                             <RadzenRequiredValidator Component="PHONE1" Text="Teléfono es requerido" />
@@ -50,14 +50,14 @@
                 <RadzenColumn Size="12" SizeMD="4">
                     <RadzenFormField Text="Teléfono opcional" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@customer.PHONE2" Name="PHONE2" />
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@customer.Phone2" Name="PHONE2" />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenColumn>
                 <RadzenColumn Size="12" SizeMD="4">
                     <RadzenFormField Text="Fax" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@customer.FAX" Name="FAX" />
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@customer.Fax" Name="FAX" />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenColumn>
@@ -66,7 +66,7 @@
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Dirección" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@customer.CUSTOMER_ADDRESS" Name="CUSTOMER_ADDRESS" />
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@customer.CustomerAddress" Name="CUSTOMER_ADDRESS" />
                         </ChildContent>
                         <Helper>
                             <RadzenRequiredValidator Component="CUSTOMER_ADDRESS" Text="Dirección es requerida" />
@@ -76,7 +76,7 @@
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Celular" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@customer.CELL_PHONE" Name="CELL_PHONE" />
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@customer.CellPhone" Name="CELL_PHONE" />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenColumn>
@@ -85,21 +85,21 @@
                 <RadzenColumn Size="12" SizeMD="4">
                     <RadzenFormField Text="Correo electrónico" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@customer.EMAIL1" Name="EMAIL1" />
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@customer.Email1" Name="EMAIL1" />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenColumn>
                 <RadzenColumn Size="12" SizeMD="4">
                     <RadzenFormField Text="Correo electrónico opcional" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@customer.EMAIL2" Name="EMAIL2" />
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@customer.Email2" Name="EMAIL2" />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenColumn>
                 <RadzenColumn Size="12" SizeMD="4">
                     <RadzenFormField Text="Correo electrónico opcional" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@customer.EMAIL3" Name="EMAIL3" />
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@customer.Email3" Name="EMAIL3" />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenColumn>
@@ -107,13 +107,13 @@
             <RadzenRow>
                 <RadzenColumn Size="12" style="margin-bottom: -1.5rem;">
                     <RadzenRow style="margin-bottom: 1rem; width:100%">
-                        <RadzenCheckBox @bind-Value="@customer.SEND_EMAIL" Name="SEND_EMAIL" />
+                        <RadzenCheckBox @bind-Value="@customer.SendEmail" Name="SEND_EMAIL" />
                         <RadzenLabel Text="Enviar correo" Component="SEND_EMAIL" />
                     </RadzenRow>
                 </RadzenColumn>
             </RadzenRow>
-            <LocalizationPicker CITY_ID="@customer.CITY_ID" OnChange="LocalizationHandler" />
-            <RadzenRequiredValidator Text="Ubicación requerida" Component="CITY_ID" Style="margin-top: -0.875rem;" />
+            <LocalizationPicker CITY_ID="@customer.CityId" OnChange="LocalizationHandler" />
+            <RadzenRequiredValidator Text="Ubicación requerida" Component="CityId" Style="margin-top: -0.875rem;" />
         </RadzenStack>
         <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
             <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@isSubmitInProgress" />

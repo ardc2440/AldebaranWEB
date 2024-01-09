@@ -1,17 +1,15 @@
-using Aldebaran.Web.Models.AldebaranDb;
+using Aldebaran.Application.Services;
+using Aldebaran.Application.Services.Models;
+using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
 using Radzen;
-using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.CustomerOrderPages
 {
     public partial class AddCustomerOrder
     {
-        [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
-
+        #region Injections
         [Inject]
         protected NavigationManager NavigationManager { get; set; }
 
@@ -19,32 +17,42 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected TooltipService TooltipService { get; set; }
-
-        [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
-
-        [Inject]
-        protected NotificationService NotificationService { get; set; }
-
-        [Inject]
-        public AldebaranDbService AldebaranDbService { get; set; }
-
-        [Inject]
         protected SecurityService Security { get; set; }
 
+        [Inject]
+        protected ICustomerService CustomerService { get; set; }
+
+        [Inject]
+        protected IDocumentTypeService DocumentTypeService { get; set; }
+
+        [Inject]
+        protected IStatusDocumentTypeService StatusDocumentTypeService { get; set; }
+
+        [Inject]
+        protected IEmployeeService EmployeeService { get; set; }
+
+        [Inject]
+        protected ICustomerOrderService CustomerOrderService { get; set; }
+
+        [Inject]
+        protected ICustomerOrderDetailService CustomerOrderDetailService { get; set; }
+
+        #endregion
+
+        #region Global Variables
         protected bool errorVisible;
         protected string errorMessage;
         protected CustomerOrder customerOrder;
         protected DocumentType documentType;
         protected ICollection<CustomerOrderDetail> customerOrderDetails;
-        protected RadzenDataGrid<CustomerOrderDetail> customerOrderDetailGrid;
-
+        protected LocalizedDataGrid<CustomerOrderDetail> customerOrderDetailGrid;
         protected IEnumerable<Customer> customersForCUSTOMERID;
         protected IEnumerable<Employee> employeesForEMPLOYEEID;
         protected bool isSubmitInProgress;
         protected bool isLoadingInProgress;
+        #endregion
 
+        #region Overrides
         protected override async Task OnInitializedAsync()
         {
             try
@@ -53,22 +61,21 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
                 await Task.Yield();
 
-                customersForCUSTOMERID = await AldebaranDbService.GetCustomers(new Query { Expand = "City.Department.Country" });
+                customersForCUSTOMERID = await CustomerService.GetAsync();
 
-                documentType = await AldebaranDbService.GetDocumentTypeByCode("P");
+                documentType = await DocumentTypeService.FindByCodeAsync("P");
 
                 customerOrderDetails = new List<CustomerOrderDetail>();
 
                 customerOrder = new CustomerOrder()
                 {
-                    CUSTOMER_ORDER_ID = 0,
-                    Employee = await AldebaranDbService.GetLoggedEmployee(Security),
-                    StatusDocumentType = await AldebaranDbService.GetStatusDocumentTypeByDocumentAndOrder(documentType, 1),
-                    ORDER_DATE = DateTime.Today,
-                    ORDER_NUMBER = "0"
+                    CustomerOrderId = 0,
+                    Employee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id),
+                    StatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 1),
+                    OrderDate = DateTime.Today
                 };
-                customerOrder.EMPLOYEE_ID = customerOrder.Employee.EMPLOYEE_ID;
-                customerOrder.STATUS_DOCUMENT_TYPE_ID = customerOrder.StatusDocumentType.STATUS_DOCUMENT_TYPE_ID;
+                customerOrder.EmployeeId = customerOrder.Employee.EmployeeId;
+                customerOrder.StatusDocumentTypeId = customerOrder.StatusDocumentType.StatusDocumentTypeId;
             }
             catch (Exception ex)
             {
@@ -77,7 +84,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             }
             finally { isLoadingInProgress = false; }
         }
+        #endregion
 
+        #region Events
         protected async Task FormSubmit()
         {
             try
@@ -88,11 +97,10 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                     throw new Exception("No ha ingresado ninguna referencia");
 
                 customerOrder.CustomerOrderDetails = customerOrderDetails;
-                customerOrder.ORDER_NUMBER = await AldebaranDbService.GetDocumentNumber<CustomerOrder>(customerOrder);
 
-                await AldebaranDbService.CreateCustomerOrder(customerOrder);
+                customerOrder = await CustomerOrderService.AddAsync(customerOrder);
 
-                await DialogService.Alert($"Pedido de Articulos Guardado Satisfactoriamente con el Consecutivo {customerOrder.ORDER_NUMBER}", "Información");
+                await DialogService.Alert($"Pedido de Articulos Guardado Satisfactoriamente con el Consecutivo {customerOrder.OrderNumber}", "Información");
                 NavigationManager.NavigateTo("customer-orders");
             }
             catch (Exception ex)
@@ -111,7 +119,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task AddCustomerOrderDetailButtonClick(MouseEventArgs args)
         {
-            var result = await DialogService.OpenAsync<AddCustomerOrderDetail>("Nueva referencia", new Dictionary<string, object> { { "customerOrderDetails", customerOrderDetails } });
+            var result = await DialogService.OpenAsync<AddCustomerOrderDetail>("Nueva referencia", new Dictionary<string, object> { { "CustomerOrderDetails", customerOrderDetails } });
 
             if (result == null)
                 return;
@@ -123,7 +131,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             await customerOrderDetailGrid.Reload();
         }
 
-        protected async Task DeleteCustomerOrderDetailButtonClick(MouseEventArgs args, CustomerOrderDetail item)
+        protected async Task DeleteCustomerOrderDetailButtonClick(MouseEventArgs arg, CustomerOrderDetail item)
         {
             if (await DialogService.Confirm("Está seguro que desea eliminar esta referencia?", "Confirmar") == true)
             {
@@ -135,7 +143,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task EditRow(CustomerOrderDetail args)
         {
-            var result = await DialogService.OpenAsync<EditCustomerOrderDetail>("Actualizar referencia", new Dictionary<string, object> { { "customerOrderDetail", args } });
+            var result = await DialogService.OpenAsync<EditCustomerOrderDetail>("Actualizar referencia", new Dictionary<string, object> { { "CustomerOrderDetail", args } });
             if (result == null)
                 return;
             var detail = (CustomerOrderDetail)result;
@@ -145,5 +153,6 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
             await customerOrderDetailGrid.Reload();
         }
+        #endregion
     }
 }

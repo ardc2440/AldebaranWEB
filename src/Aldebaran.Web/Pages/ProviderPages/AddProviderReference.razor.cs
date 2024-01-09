@@ -40,7 +40,7 @@ namespace Aldebaran.Web.Pages.ProviderPages
         {
             Provider = await ProviderService.FindAsync(PROVIDER_ID);
             var itemReferences = await ItemReferenceService.GetAsync();
-            var currentReferencesInProvider = await ProviderReferenceService.GetAsync(PROVIDER_ID);
+            var currentReferencesInProvider = await ProviderReferenceService.GetByProviderIdAsync(PROVIDER_ID);
             AvailableItemReferencesForSelection = itemReferences.Where(w => !currentReferencesInProvider.Any(x => x.ReferenceId == w.ReferenceId)).ToList();
             // Referencias disponibles para seleccion, Referencias excepto los ya seleccionados
             ProviderReference = new ServiceModel.ProviderReference

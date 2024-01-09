@@ -1,5 +1,5 @@
 using Aldebaran.Application.Services;
-using Aldebaran.Web.Models;
+using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -80,7 +80,7 @@ namespace Aldebaran.Web.Pages.AreaPages
             {
                 IsLoadingInProgress = true;
                 await Task.Yield();
-                var itemsAreasResult = await ItemAreaService.GetAsync(Area.AreaId);
+                var itemsAreasResult = await ItemAreaService.GetByAreaIdAsync(Area.AreaId);
                 args.ItemsAreas = itemsAreasResult.ToList();
             }
             finally

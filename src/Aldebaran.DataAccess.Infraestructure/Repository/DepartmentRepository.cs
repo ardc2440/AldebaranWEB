@@ -17,7 +17,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .FirstOrDefaultAsync(f => f.DepartmentId == departmentId, ct);
         }
 
-        public async Task<IEnumerable<Department>> GetAsync(int countryId, CancellationToken ct = default)
+        public async Task<IEnumerable<Department>> GetByCountryIdAsync(int countryId, CancellationToken ct = default)
         {
             return await _context.Departments.AsNoTracking()
                 .Include(i => i.Country)

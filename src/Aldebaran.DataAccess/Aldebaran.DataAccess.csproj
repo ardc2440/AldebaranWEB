@@ -7,6 +7,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="Monikers.imagemanifest" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="EntityFrameworkCore.Triggered" Version="3.2.2" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.14" />
 	</ItemGroup>
 
@@ -24,5 +29,25 @@
 		<Compile Update="**\*.cs">
 			<DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 		</Compile>
+	</ItemGroup>
+	<ItemGroup>
+	  <Compile Update="Core\Triggers\Orders\AdjustmentInventoryFromDeletedOrderDetail.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
+	  <Compile Update="Core\Triggers\Orders\AdjustmentInventoryFromModifiedOrderDetail.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
+	  <Compile Update="Core\Triggers\Orders\AdjustmentInventoryFromNewOrderDetail.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
+	  <Compile Update="Core\Triggers\Orders\AdjustmentInventoryFromOrderClosed.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
+	  <Compile Update="Core\Triggers\Orders\AdjustmentInventoryFromOrderCancelled.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
+	  <Compile Update="Core\Triggers\Reservations\AdjustmentInventoryFromReservationToOrder.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
 	</ItemGroup>
 </Project>

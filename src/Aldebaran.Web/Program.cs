@@ -1,4 +1,6 @@
 using Aldebaran.Application.Services;
+using Aldebaran.DataAccess.Core.Triggers.Adjustments;
+using Aldebaran.DataAccess.Core.Triggers.Reservations;
 using Aldebaran.DataAccess.Infraestructure.Repository;
 using Aldebaran.Web.Data;
 using Aldebaran.Web.Models;
@@ -40,10 +42,30 @@ builder.Services.AddDbContext<ApplicationIdentityDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("AldebaranDbConnection"));
 }, ServiceLifetime.Scoped, ServiceLifetime.Scoped);
 
-builder.Services.AddDbContext<Aldebaran.DataAccess.AldebaranDbContext>(options =>
-{
-    options.UseSqlServer(builder.Configuration.GetConnectionString("AldebaranDbConnection"));
-});
+builder.Services.AddDbContext<Aldebaran.DataAccess.AldebaranDbContext>(
+    options =>
+    {
+        options
+            .UseSqlServer(builder.Configuration.GetConnectionString("AldebaranDbConnection"))
+            .UseTriggers(triggerOptions =>
+            {
+                triggerOptions.AddTrigger<AdjustInventoryFromNewAdjustmentDetail>();
+                triggerOptions.AddTrigger<AdjustInventoryFromModifiedAdjustmentDetail>();
+                triggerOptions.AddTrigger<AdjustInventoryFromDeletedAdjustmentDetail>();
+                triggerOptions.AddTrigger<AdjustInventoryFromAdjustmentCancelled>();
+                triggerOptions.AddTrigger<AdjustInventoryFromAdjustmentTypeChanged>();
+                triggerOptions.AddTrigger<AdjustmentInventoryFromDeletedReservationDetail>();
+                triggerOptions.AddTrigger<AdjustmentInventoryFromModifiedReservationDetail>();
+                triggerOptions.AddTrigger<AdjustmentInventoryFromNewReservationDetail>();
+                triggerOptions.AddTrigger<AdjustmentInventoryFromReservationCancelled>();
+                triggerOptions.AddTrigger<AdjustmentInventoryFromReservationToOrder>();
+                triggerOptions.AddTrigger<AdjustmentInventoryFromDeletedOrderDetail>();
+                triggerOptions.AddTrigger<AdjustmentInventoryFromModifiedOrderDetail>();
+                triggerOptions.AddTrigger<AdjustmentInventoryFromNewOrderDetail>();
+                triggerOptions.AddTrigger<AdjustmentInventoryFromOrderCancelled>();
+                triggerOptions.AddTrigger<AdjustmentInventoryFromOrderClosed>();
+            });
+    });
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>().AddEntityFrameworkStores<ApplicationIdentityDbContext>().AddDefaultTokenProviders();
 builder.Services.AddControllers().AddOData(o =>
 {

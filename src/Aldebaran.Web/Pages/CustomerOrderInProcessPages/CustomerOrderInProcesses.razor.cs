@@ -1,18 +1,16 @@
-using Aldebaran.Web.Models;
-using Aldebaran.Web.Models.AldebaranDb;
+using Aldebaran.Application.Services;
+using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Models.ViewModels;
+using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
 using Radzen;
-using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 {
     public partial class CustomerOrderInProcesses
     {
-        [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
+        #region Injections
 
         [Inject]
         protected NavigationManager NavigationManager { get; set; }
@@ -21,59 +19,61 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected TooltipService TooltipService { get; set; }
-
-        [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
-
-        [Inject]
         protected NotificationService NotificationService { get; set; }
-
-        [Inject]
-        public AldebaranDbService AldebaranDbService { get; set; }
 
         [Inject]
         protected SecurityService Security { get; set; }
 
-        protected DialogResult dialogResult { get; set; }
+        [Inject]
+        protected IDocumentTypeService DocumentTypeService { get; set; }
 
-        protected DocumentType documentType { get; set; }
+        [Inject]
+        protected ICustomerOrdersInProcessService CustomerOrdersInProcessService { get; set; }
 
-        protected IEnumerable<Models.AldebaranDb.CustomerOrder> customerOrders;
-        protected IEnumerable<Models.AldebaranDb.CustomerOrderInProcess> customerOrderInProcesses;
-        protected IEnumerable<Models.AldebaranDb.CustomerOrderInProcessDetail> customerOrderInProcessDetails;
-        protected IEnumerable<Models.ViewModels.DetailInProcess> detailInProcesses;
+        [Inject]
+        protected ICustomerOrderService CustomerOrderService { get; set; }
 
-        protected RadzenDataGrid<Models.ViewModels.DetailInProcess> CustomerOrderDetailsDataGrid;
-        protected RadzenDataGrid<Models.AldebaranDb.CustomerOrderInProcess> CustomerOrderInProcessesDataGrid;
-        protected RadzenDataGrid<Models.AldebaranDb.CustomerOrderInProcessDetail> CustomerOrderInProcessDetailDataGrid;
-        protected RadzenDataGrid<Models.AldebaranDb.CustomerOrder> CustomerOrdersGrid;
+        [Inject]
+        protected ICustomerOrderDetailService CustomerOrderDetailService { get; set; }
 
+        [Inject]
+        protected ICustomerOrderInProcessDetailService CustomerOrderInProcessDetailService { get; set; }
+
+        [Inject]
+        protected IStatusDocumentTypeService StatusDocumentTypeService { get; set; }
+
+        #endregion
+
+        #region Global Variables
+
+        protected DialogResult dialogResult;
+        protected DocumentType documentType;
+        protected IEnumerable<CustomerOrder> customerOrders;
+        protected IEnumerable<CustomerOrdersInProcess> customerOrderInProcesses;
+        protected IEnumerable<CustomerOrderInProcessDetail> customerOrderInProcessDetails;
+        protected IEnumerable<DetailInProcess> detailInProcesses;
+        protected LocalizedDataGrid<DetailInProcess> CustomerOrderDetailsDataGrid;
+        protected LocalizedDataGrid<CustomerOrdersInProcess> CustomerOrderInProcessesDataGrid;
+        protected LocalizedDataGrid<CustomerOrderInProcessDetail> CustomerOrderInProcessDetailDataGrid;
+        protected LocalizedDataGrid<CustomerOrder> CustomerOrdersGrid;
         protected string search = "";
         protected bool isLoadingInProgress;
 
-        protected async Task Search(ChangeEventArgs args)
-        {
+        #endregion
 
-            search = $"{args.Value}";
-
-            await CustomerOrdersGrid.GoToPage(0);
-
-            customerOrders = await AldebaranDbService.GetCustomerOrders(new Query { Filter = $@"i => (i.StatusDocumentType.EDIT_MODE.Equals(1) && i.StatusDocumentType.DOCUMENT_TYPE_ID.Equals(@1) && i.StatusDocumentType.STATUS_DOCUMENT_TYPE_NAME.Contains(@0)) || i.Customer.CUSTOMER_NAME.Contains(@0) || i.ORDER_NUMBER.Contains(@0) || i.INTERNAL_NOTES.Contains(@0) || i.CUSTOMER_NOTES.Contains(@0)", FilterParameters = new object[] { search, documentType.DOCUMENT_TYPE_ID }, Expand = "Customer,StatusDocumentType,Employee" });
-
-        }
+        #region Overrides
 
         protected override async Task OnInitializedAsync()
         {
             try
             {
-                documentType = await AldebaranDbService.GetDocumentTypeByCode("P");
+                documentType = await DocumentTypeService.FindByCodeAsync("P");
 
                 isLoadingInProgress = true;
 
                 await Task.Yield();
 
-                customerOrders = await AldebaranDbService.GetCustomerOrders(new Query { Filter = $@"i => (i.StatusDocumentType.EDIT_MODE.Equals(1) && i.StatusDocumentType.DOCUMENT_TYPE_ID.Equals(@1) && i.StatusDocumentType.STATUS_DOCUMENT_TYPE_NAME.Contains(@0)) || i.Customer.CUSTOMER_NAME.Contains(@0) || i.ORDER_NUMBER.Contains(@0) || i.INTERNAL_NOTES.Contains(@0) || i.CUSTOMER_NOTES.Contains(@0)", FilterParameters = new object[] { search, documentType.DOCUMENT_TYPE_ID }, Expand = "Customer,StatusDocumentType,Employee" });
+                customerOrders = (await CustomerOrderService.GetAsync(search)).Where(x => x.StatusDocumentType.EditMode).ToList();
             }
             finally
             {
@@ -82,9 +82,22 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
         }
 
-        protected async Task GetOrderDetails(Models.AldebaranDb.CustomerOrder args)
+        #endregion
+
+        #region Events
+
+        protected async Task Search(ChangeEventArgs args)
         {
-            var customerOrderDetailsResult = await AldebaranDbService.GetCustomerOrderDetails(new Query { Filter = $@"i => i.CUSTOMER_ORDER_ID == {args.CUSTOMER_ORDER_ID}", Expand = "CustomerOrder,ItemReference,ItemReference.Item" });
+            search = $"{args.Value}";
+
+            await CustomerOrdersGrid.GoToPage(0);
+
+            customerOrders = (await CustomerOrderService.GetAsync(search)).Where(x => x.StatusDocumentType.EditMode).ToList();
+        }
+
+        protected async Task GetOrderDetails(CustomerOrder args)
+        {
+            var customerOrderDetailsResult = await CustomerOrderDetailService.GetByCustomerOrderIdAsync(args.CustomerOrderId);
             if (customerOrderDetailsResult == null)
                 return;
 
@@ -94,12 +107,12 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
             {
                 var viewOrderDetail = new DetailInProcess()
                 {
-                    REFERENCE_ID = item.REFERENCE_ID,
-                    CUSTOMER_ORDER_DETAIL_ID = item.CUSTOMER_ORDER_DETAIL_ID,
-                    REFERENCE_DESCRIPTION = $"({item.ItemReference.Item.INTERNAL_REFERENCE}) {item.ItemReference.Item.ITEM_NAME} - {item.ItemReference.REFERENCE_NAME}",
-                    PENDING_QUANTITY = item.REQUESTED_QUANTITY - item.PROCESSED_QUANTITY - item.DELIVERED_QUANTITY,
-                    PROCESSED_QUANTITY = item.PROCESSED_QUANTITY,
-                    DELIVERED_QUANTITY = item.DELIVERED_QUANTITY
+                    REFERENCE_ID = item.ReferenceId,
+                    CUSTOMER_ORDER_DETAIL_ID = item.CustomerOrderDetailId,
+                    REFERENCE_DESCRIPTION = $"({item.ItemReference.Item.InternalReference}) {item.ItemReference.Item.ItemName} - {item.ItemReference.ReferenceName}",
+                    PENDING_QUANTITY = item.RequestedQuantity - item.ProcessedQuantity - item.DeliveredQuantity,
+                    PROCESSED_QUANTITY = item.ProcessedQuantity,
+                    DELIVERED_QUANTITY = item.DeliveredQuantity
                 };
                 detailInProcesses.Add(viewOrderDetail);
             }
@@ -107,64 +120,46 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
             this.detailInProcesses = detailInProcesses;
         }
 
-        protected async Task GetChildData(Models.AldebaranDb.CustomerOrder args)
+        protected async Task GetChildData(CustomerOrder args)
         {
             await GetOrderDetails(args);
-            await GetCustomerOrderInProcesses(args);
+            customerOrderInProcesses = await CustomerOrdersInProcessService.GetByCustomerOrderIdAsync(args.CustomerOrderId);
         }
 
-        protected async Task GetCustomerOrderInProcesses(CustomerOrder args)
+        protected async Task GetChildInProcessData(CustomerOrdersInProcess args)
         {
-            var customerOrderInProcesesResult = await AldebaranDbService.GetCustomerOrderInProcesses(new Query { Filter = $@"i => i.CUSTOMER_ORDER_ID == {args.CUSTOMER_ORDER_ID}" });
-            if (customerOrderInProcesesResult == null)
-                return;
-
-            customerOrderInProcesses = customerOrderInProcesesResult;
+            customerOrderInProcessDetails = await CustomerOrderInProcessDetailService.GetByCustomerOrderInProcessIdAsync(args.CustomerOrderInProcessId);
         }
 
-        protected async Task GetChildInProcessData(Models.AldebaranDb.CustomerOrderInProcess args)
+        protected async Task SendToProcess(CustomerOrder args)
         {
-            var customerOrderInProcesDetailsResult = await AldebaranDbService.GetCustomerOrderInProcessDetails(new Query { Filter = $@"i => i.CUSTOMER_ORDER_IN_PROCESS_ID == {args.CUSTOMER_ORDER_IN_PROCESS_ID}", Expand = "CustomerOrderDetail.ItemReference.Item" });
-            if (customerOrderInProcesDetailsResult == null)
-                return;
-
-            customerOrderInProcessDetails = customerOrderInProcesDetailsResult;
+            NavigationManager.NavigateTo("add-customer-order-in-process/" + args.CustomerOrderId);
         }
 
-        protected async Task SendToProcess(Models.AldebaranDb.CustomerOrder args)
+        protected async Task EditProcessRow(CustomerOrdersInProcess args)
         {
-            NavigationManager.NavigateTo("add-customer-order-in-process/" + args.CUSTOMER_ORDER_ID);
+            NavigationManager.NavigateTo("edit-customer-order-in-process/" + args.CustomerOrderInProcessId);
         }
 
-        protected async Task EditProcessRow(Models.AldebaranDb.CustomerOrderInProcess args)
+        protected async Task<bool> CanEditProcess(CustomerOrdersInProcess customerOrderinProcess)
         {
-            NavigationManager.NavigateTo("edit-customer-order-in-process/" + args.CUSTOMER_ORDER_IN_PROCESS_ID);
+            return Security.IsInRole("Admin", "Customer Order In Process Editor") && customerOrderinProcess.StatusDocumentType.EditMode;
         }
 
-        protected async Task<bool> CanEditProcess(CustomerOrderInProcess customerOrderinProcess)
-        {
-            return Security.IsInRole("Admin", "Customer Order In Process Editor") && customerOrderinProcess.StatusDocumentType.EDIT_MODE;
-        }
-
-        protected async Task CancelCustomerOrderProcess(MouseEventArgs args, Models.AldebaranDb.CustomerOrderInProcess customerOrder)
+        protected async Task CancelCustomerOrderProcess(MouseEventArgs args, CustomerOrdersInProcess customerOrderInProcess)
         {
             try
             {
                 dialogResult = null;
 
-                var inProcessDocumentType = await AldebaranDbService.GetDocumentTypeByCode("T");
-
                 if (await DialogService.Confirm("Esta seguro que desea cancelar este Traslado a Proceso?") == true)
                 {
-                    var cancelStatusDocumentType = await AldebaranDbService.GetStatusDocumentTypeByDocumentAndOrder(inProcessDocumentType, 2);
+                    customerOrderInProcess.StatusDocumentTypeId = (await StatusDocumentTypeService.FindByDocumentAndOrderAsync((await DocumentTypeService.FindByCodeAsync("T")).DocumentTypeId, 2)).StatusDocumentTypeId;
 
-                    var cancelResult = await AldebaranDbService.UpdateCustomerOrderInProgressStatus(customerOrder, cancelStatusDocumentType.STATUS_DOCUMENT_TYPE_ID);
+                    await CustomerOrdersInProcessService.UpdateAsync(customerOrderInProcess.CustomerOrderInProcessId, customerOrderInProcess);
 
-                    if (cancelResult != null)
-                    {
-                        dialogResult = new DialogResult { Success = true, Message = "Traslado a Proceso cancelado correctamente." };
-                        await CustomerOrderInProcessesDataGrid.Reload();
-                    }
+                    dialogResult = new DialogResult { Success = true, Message = "Traslado a Proceso cancelado correctamente." };
+                    await CustomerOrderInProcessesDataGrid.Reload();
                 }
             }
             catch (Exception ex)
@@ -173,9 +168,11 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido cancelar el pedido"
+                    Detail = $"No se ha podido cancelar el pedido. \n\r {ex.InnerException.Message}\n\r{ex.StackTrace}"
                 });
             }
         }
+
+        #endregion
     }
 }

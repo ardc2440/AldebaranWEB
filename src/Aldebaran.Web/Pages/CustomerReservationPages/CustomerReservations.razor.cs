@@ -1,18 +1,16 @@
-using Aldebaran.Web.Models;
-using Aldebaran.Web.Models.AldebaranDb;
+using Aldebaran.Application.Services;
+using Aldebaran.Application.Services.Models;
+using Aldebaran.Web.Models.ViewModels;
+using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
 using Radzen;
-using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.CustomerReservationPages
 {
     public partial class CustomerReservations
     {
-        [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
-
+        #region Injections
         [Inject]
         protected NavigationManager NavigationManager { get; set; }
 
@@ -20,54 +18,49 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected TooltipService TooltipService { get; set; }
-
-        [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
-
-        [Inject]
         protected NotificationService NotificationService { get; set; }
-
-        [Inject]
-        public AldebaranDbService AldebaranDbService { get; set; }
 
         [Inject]
         protected SecurityService Security { get; set; }
 
-        protected IEnumerable<Models.AldebaranDb.CustomerReservation> customerReservations;
+        [Inject]
+        protected IDocumentTypeService DocumentTypeService { get; set; }
 
-        protected RadzenDataGrid<Models.AldebaranDb.CustomerReservation> grid0;
+        [Inject]
+        protected ICustomerReservationService CustomerReservationService { get; set; }
 
-        protected DialogResult dialogResult { get; set; }
+        [Inject]
+        protected IStatusDocumentTypeService StatusDocumentTypeService { get; set; }
 
+        [Inject]
+        protected ICustomerReservationDetailService CustomerReservationDetailService { get; set; }
+
+        #endregion
+
+        #region Global Variables
+        protected IEnumerable<CustomerReservation> customerReservations;
+        protected LocalizedDataGrid<CustomerReservation> grid0;
+        protected DialogResult DialogResult { get; set; }
         protected string search = "";
-
         protected bool isLoadingInProgress;
+        protected DocumentType documentType;
+        protected CustomerReservation customerReservation;
+        protected LocalizedDataGrid<CustomerReservationDetail> CustomerReservationDetailsDataGrid;
 
-        protected DocumentType documentType { get; set; }
+        #endregion
 
-        protected async Task Search(ChangeEventArgs args)
-        {
-
-            search = $"{args.Value}";
-
-            await grid0.GoToPage(0);
-
-            customerReservations = await AldebaranDbService.GetCustomerReservations(new Query { Filter = $@"i => (i.StatusDocumentType.DOCUMENT_TYPE_ID.Equals(@1) && i.StatusDocumentType.STATUS_DOCUMENT_TYPE_NAME.Contains(@0)) || i.Customer.CUSTOMER_NAME.Contains(@0) || i.RESERVATION_NUMBER.Contains(@0) || i.NOTES.Contains(@0)", FilterParameters = new object[] { search, documentType.DOCUMENT_TYPE_ID }, Expand = "Customer,StatusDocumentType,Employee" });
-
-        }
-
+        #region Overrides
         protected override async Task OnInitializedAsync()
         {
             try
             {
-                documentType = await AldebaranDbService.GetDocumentTypeByCode("R");
+                documentType = await DocumentTypeService.FindByCodeAsync("R");
 
                 isLoadingInProgress = true;
 
                 await Task.Yield();
 
-                customerReservations = await AldebaranDbService.GetCustomerReservations(new Query { Filter = $@"i => (i.StatusDocumentType.DOCUMENT_TYPE_ID.Equals(@1) && i.StatusDocumentType.STATUS_DOCUMENT_TYPE_NAME.Contains(@0)) || i.Customer.CUSTOMER_NAME.Contains(@0) || i.RESERVATION_NUMBER.Contains(@0) || i.NOTES.Contains(@0)", FilterParameters = new object[] { search, documentType.DOCUMENT_TYPE_ID }, Expand = "Customer,StatusDocumentType,Employee" });
+                customerReservations = await CustomerReservationService.GetAsync();
             }
             finally
             {
@@ -75,36 +68,44 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             }
 
         }
+        #endregion
 
+        #region Events
+        protected async Task Search(ChangeEventArgs args)
+        {
+
+            search = $"{args.Value}";
+
+            await grid0.GoToPage(0);
+
+            customerReservations = await CustomerReservationService.GetAsync(search);
+
+        }
         protected async Task AddButtonClick(MouseEventArgs args)
         {
             NavigationManager.NavigateTo("add-customer-reservation");
         }
-
-        protected async Task EditRow(Models.AldebaranDb.CustomerReservation args)
+        protected async Task EditRow(CustomerReservation args)
         {
-            NavigationManager.NavigateTo("edit-customer-reservation/" + args.CUSTOMER_RESERVATION_ID);
+            NavigationManager.NavigateTo("edit-customer-reservation/" + args.CustomerReservationId);
         }
 
-        protected async Task CancelCustomerReservation(MouseEventArgs args, Models.AldebaranDb.CustomerReservation customerReservation)
+        protected async Task CancelCustomerReservation(MouseEventArgs arg, CustomerReservation customerReservation)
         {
             try
             {
-                dialogResult = null;
+                DialogResult = null;
 
                 if (await DialogService.Confirm("Esta seguro que desea cancelar esta reserva?") == true)
                 {
                     /* TO DO Agregar Ventana pára el ingreso del motivo de cancelacion de la reserva */
 
-                    var cancelStatusDocumentType = await AldebaranDbService.GetStatusDocumentTypeByDocumentAndOrder(documentType, 3);
+                    var cancelStatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 3);
 
-                    var cancelResult = await AldebaranDbService.UpdateCustomerReservationStatus(customerReservation, cancelStatusDocumentType.STATUS_DOCUMENT_TYPE_ID);
+                    await CustomerReservationService.CancelAsync(customerReservation.CustomerReservationId, cancelStatusDocumentType.StatusDocumentTypeId);
 
-                    if (cancelResult != null)
-                    {
-                        dialogResult = new DialogResult { Success = true, Message = "Reserva cancelada correctamente." };
-                        await grid0.Reload();
-                    }
+                    DialogResult = new DialogResult { Success = true, Message = "Reserva cancelada correctamente." };
+                    await grid0.Reload();
                 }
             }
             catch (Exception ex)
@@ -118,33 +119,30 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             }
         }
 
-        protected Models.AldebaranDb.CustomerReservation customerReservation;
-
-        protected async Task GetChildData(Models.AldebaranDb.CustomerReservation args)
+        protected async Task GetChildData(CustomerReservation args)
         {
             customerReservation = args;
-            var CustomerReservationDetailsResult = await AldebaranDbService.GetCustomerReservationDetails(new Query { Filter = $@"i => i.CUSTOMER_RESERVATION_ID == {args.CUSTOMER_RESERVATION_ID}", Expand = "CustomerReservation,ItemReference,ItemReference.Item" });
+            var CustomerReservationDetailsResult = await CustomerReservationDetailService.GetByCustomerReservationIdAsync(args.CustomerReservationId);
             if (CustomerReservationDetailsResult != null)
             {
                 args.CustomerReservationDetails = CustomerReservationDetailsResult.ToList();
             }
         }
 
-        protected RadzenDataGrid<Models.AldebaranDb.CustomerReservationDetail> CustomerReservationDetailsDataGrid;
-
         protected async Task<bool> CanEdit(CustomerReservation customerReservation)
         {
-            return Security.IsInRole("Admin", "Customer Reservation Editor") && customerReservation.StatusDocumentType.EDIT_MODE;
+            return Security.IsInRole("Admin", "Customer Reservation Editor") && customerReservation.StatusDocumentType.EditMode;
         }
 
         protected async Task<bool> CanSendToCustomerOrder(CustomerReservation customerReservation)
         {
-            return Security.IsInRole("Admin", "Customer Order Editor") && customerReservation.StatusDocumentType.EDIT_MODE;
+            return Security.IsInRole("Admin", "Customer Order Editor") && customerReservation.StatusDocumentType.EditMode;
         }
 
-        protected async Task SendToCustomerOrder(Models.AldebaranDb.CustomerReservation args)
+        protected async Task SendToCustomerOrder(CustomerReservation args)
         {
-            NavigationManager.NavigateTo("send-to-customer-order/" + args.CUSTOMER_RESERVATION_ID);
+            NavigationManager.NavigateTo("send-to-customer-order/" + args.CustomerReservationId);
         }
+        #endregion
     }
 }

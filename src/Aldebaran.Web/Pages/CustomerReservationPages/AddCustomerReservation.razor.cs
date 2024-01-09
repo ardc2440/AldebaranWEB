@@ -1,17 +1,15 @@
-using Aldebaran.Web.Models.AldebaranDb;
+using Aldebaran.Application.Services;
+using Aldebaran.Application.Services.Models;
+using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
 using Radzen;
-using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.CustomerReservationPages
 {
     public partial class AddCustomerReservation
     {
-        [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
-
+        #region Injections
         [Inject]
         protected NavigationManager NavigationManager { get; set; }
 
@@ -19,17 +17,26 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected TooltipService TooltipService { get; set; }
+        protected SecurityService Security { get; set; }
 
         [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
+        protected ICustomerService CustomerService { get; set; }
 
         [Inject]
-        protected NotificationService NotificationService { get; set; }
+        protected IEmployeeService EmployeeService { get; set; }
 
         [Inject]
-        public AldebaranDbService AldebaranDbService { get; set; }
+        protected IDocumentTypeService DocumentTypeService { get; set; }
 
+        [Inject]
+        protected IStatusDocumentTypeService StatusDocumentTypeService { get; set; }
+
+        [Inject]
+        protected ICustomerReservationService CustomerReservationService { get; set; }
+
+        #endregion
+
+        #region Global Variables
         protected bool errorVisible;
 
         protected string errorMessage;
@@ -42,33 +49,38 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
         protected ICollection<CustomerReservationDetail> customerReservationDetails;
 
-        protected RadzenDataGrid<CustomerReservationDetail> customerReservationDetailGrid;
+        protected LocalizedDataGrid<CustomerReservationDetail> customerReservationDetailGrid;
 
         protected bool isSubmitInProgress;
 
         protected DocumentType documentType;
 
-        [Inject]
-        protected SecurityService Security { get; set; }
+        #endregion
 
+        #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            customersForCUSTOMERID = await AldebaranDbService.GetCustomers(new Query { Expand = "City.Department.Country" });
+            customersForCUSTOMERID = await CustomerService.GetAsync();
 
-            documentType = await AldebaranDbService.GetDocumentTypeByCode("R");
+            documentType = await DocumentTypeService.FindByCodeAsync("R");
 
             customerReservationDetails = new List<CustomerReservationDetail>();
 
             customerReservation = new CustomerReservation()
             {
-                CUSTOMER_RESERVATION_ID = 0,
-                Employee = await AldebaranDbService.GetLoggedEmployee(Security),
-                StatusDocumentType = await AldebaranDbService.GetStatusDocumentTypeByDocumentAndOrder(documentType, 1),
-                RESERVATION_DATE = DateTime.Today,
-                RESERVATION_NUMBER = "0"
+                CustomerReservationId = 0,
+                Employee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id),
+                StatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 1),
+                ReservationDate = DateTime.Today,
+                CreationDate = DateTime.Today,
+                ReservationNumber = "0"
             };
+            customerReservation.StatusDocumentTypeId = customerReservation.StatusDocumentType.StatusDocumentTypeId;
+            customerReservation.EmployeeId = customerReservation.Employee.EmployeeId;
         }
+        #endregion
 
+        #region Events
         protected async Task FormSubmit()
         {
             try
@@ -78,11 +90,10 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                     throw new Exception("No ha ingresado ninguna referencia");
 
                 customerReservation.CustomerReservationDetails = customerReservationDetails;
-                customerReservation.RESERVATION_NUMBER = await AldebaranDbService.GetDocumentNumber<CustomerReservation>(customerReservation);
 
-                await AldebaranDbService.CreateCustomerReservation(customerReservation);
+                var reservationNumber = await CustomerReservationService.AddAsync(customerReservation);
 
-                await DialogService.Alert($"Reserva de Articulos Guardada Satisfactoriamente con el consecutivo {customerReservation.RESERVATION_NUMBER}", "Información");
+                await DialogService.Alert($"Reserva de Articulos guardada satisfactoriamente con el consecutivo {reservationNumber}", "Información");
                 NavigationManager.NavigateTo("customer-reservations");
             }
             catch (Exception ex)
@@ -101,7 +112,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
         protected async Task AddCustomerReservationDetailButtonClick(MouseEventArgs args)
         {
-            var result = await DialogService.OpenAsync<AddCustomerReservationDetail>("Nueva referencia", new Dictionary<string, object> { { "customerReservationDetails", customerReservationDetails } });
+            var result = await DialogService.OpenAsync<AddCustomerReservationDetail>("Nueva referencia", new Dictionary<string, object> { { "CustomerReservationDetails", customerReservationDetails } });
 
             if (result == null)
                 return;
@@ -113,7 +124,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             await customerReservationDetailGrid.Reload();
         }
 
-        protected async Task DeleteCustomerReservationDetailButtonClick(MouseEventArgs args, CustomerReservationDetail item)
+        protected async Task DeleteCustomerReservationDetailButtonClick(MouseEventArgs arg, CustomerReservationDetail item)
         {
             if (await DialogService.Confirm("Está seguro que desea eliminar esta referencia?", "Confirmar") == true)
             {
@@ -125,12 +136,12 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
         protected async Task EditRow(CustomerReservationDetail args)
         {
-            var result = await DialogService.OpenAsync<EditCustomerReservationDetail>("Actualizar referencia", new Dictionary<string, object> { { "customerReservationDetail", args } });
+            var result = await DialogService.OpenAsync<EditCustomerReservationDetail>("Actualizar referencia", new Dictionary<string, object> { { "CustomerReservationDetail", args } });
             if (result == null)
                 return;
-            var detail = (CustomerReservationDetail)result;
 
             await customerReservationDetailGrid.Reload();
         }
+        #endregion
     }
 }

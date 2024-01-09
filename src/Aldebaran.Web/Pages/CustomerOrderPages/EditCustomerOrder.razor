@@ -1,11 +1,12 @@
-@page "/edit-customer-order/{pCustomerOrderId}"
+@page "/edit-customer-order/{CustomerOrderId}"
 
 @attribute [Authorize(Roles = "Admin,Customer Order Editor")]
+@using Aldebaran.Web.Resources.LocalizedControls;
 
 <PageTitle>Pedido de Articulos</PageTitle>
 <RadzenCard>
     <RadzenStack>
-        <RadzenTemplateForm TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrder" Data="@customerOrder" Visible="@(customerOrder != null)" Submit="@FormSubmit">
+        <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerOrder" Data="@customerOrder" Visible="@(customerOrder != null)" Submit="@FormSubmit">
             <RadzenRow AlignItems="AlignItems.Center">
                 <RadzenColumn Size="12">
                     <RadzenText Text="@title" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
@@ -19,15 +20,15 @@
                         <RadzenRow style="margin-bottom: 2rem">
                             <RadzenFormField Text="Cliente" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                                 <ChildContent>
-                                    <RadzenDropDownDataGrid Data="@customersForCUSTOMERID" TextProperty="CUSTOMER_NAME" ValueProperty="CUSTOMER_ID" AllowClear=true
-                                                            style="display: block; width: 100%" @bind-Value="@customerOrder.CUSTOMER_ID" Name="CUSTOMER_ID" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true" Placeholder="Seleccione un Cliente">
+                                    <RadzenDropDownDataGrid Data="@customersForCUSTOMERID" TextProperty="CustomerName" ValueProperty="CustomerId" AllowClear=true
+                                                            style="display: block; width: 100%" @bind-Value="@customerOrder.CustomerId" Name="CUSTOMER_ID" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true" Placeholder="Seleccione un Cliente">
                                         <Columns>
-                                            <RadzenDropDownDataGridColumn Property="IdentityType.IDENTITY_TYPE_NAME" Title="Tipo Documento" />
-                                            <RadzenDropDownDataGridColumn Property="IDENTITY_NUMBER" Title="Identificación" />
-                                            <RadzenDropDownDataGridColumn Property="CUSTOMER_NAME" Title="Nombre" />
-                                            <RadzenDropDownDataGridColumn Property="City.CITY_ID" Title="Ubicación">
+                                            <RadzenDropDownDataGridColumn Property="IdentityType.IdentityTypeName" Title="Tipo Documento" />
+                                            <RadzenDropDownDataGridColumn Property="IdentityNumber" Title="Identificación" />
+                                            <RadzenDropDownDataGridColumn Property="CustomerName" Title="Nombre" />
+                                            <RadzenDropDownDataGridColumn Property="City.CityId" Title="Ubicación">
                                                 <Template Context="customer">
-                                                    <span>(@customer.City.Department.Country.COUNTRY_CODE) @customer.City.Department.DEPARTMENT_NAME - @customer.City.CITY_NAME</span>
+                                                    <span>(@customer.City.Department.Country.CountryCode) @customer.City.Department.DepartmentName - @customer.City.CityName</span>
                                                 </Template>
                                             </RadzenDropDownDataGridColumn>
                                         </Columns>
@@ -40,14 +41,14 @@
                             <RadzenLabel Text="Fecha de Pedido" class="fw-bold" style="width: 100%" />
                         </RadzenColumn>
                         <RadzenColumn SizeMD="3">
-                            <RadzenDatePicker DateFormat="MM/dd/yyyy" style="display: block; width: 100%" @bind-Value="@customerOrder.ORDER_DATE" Name="ORDER_DATE" Placeholder="Seleccione la fecha de la pedido" TabIndex="0" />
+                            <RadzenDatePicker DateFormat="MM/dd/yyyy" style="display: block; width: 100%" @bind-Value="@customerOrder.OrderDate" Name="ORDER_DATE" Placeholder="Seleccione la fecha de la pedido" TabIndex="0" />
                             <RadzenRequiredValidator Text="La Fecha de pedido es requerido" Component="ORDER_DATE" />
                         </RadzenColumn>
                         <RadzenColumn SizeMD="3">
                             <RadzenLabel Text="Fecha de Pactada de Entrega" class="fw-bold" style="width: 100%" />
                         </RadzenColumn>
                         <RadzenColumn SizeMD="3">
-                            <RadzenDatePicker DateFormat="MM/dd/yyyy" style="display: block; width: 100%" @bind-Value="@customerOrder.ESTIMATED_DELIVERY_DATE" Name="ESTIMATED_DELIVERY_DATE" Placeholder="Seleccione la fecha de estimada de entrega" TabIndex="0" />
+                            <RadzenDatePicker DateFormat="MM/dd/yyyy" style="display: block; width: 100%" @bind-Value="@customerOrder.EstimatedDeliveryDate" Name="ESTIMATED_DELIVERY_DATE" Placeholder="Seleccione la fecha de estimada de entrega" TabIndex="0" />
                             <RadzenRequiredValidator Text="La Fecha pactada de entrega es requerida" Component="ESTIMATED_DELIVERY_DATE" />
                         </RadzenColumn>
                         <RadzenRow style="margin-bottom: 1rem">
@@ -55,7 +56,7 @@
                                 <RadzenLabel Text="Notas del Cliente" Component="NOTES" class="fw-bold" style="width: 100%" />
                             </RadzenColumn>
                             <RadzenColumn SizeMD="12">
-                                <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerOrder.CUSTOMER_NOTES" Name="CUSTOMER_NOTES" TabIndex="3"/>
+                                <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerOrder.CustomerNotes" Name="CUSTOMER_NOTES" TabIndex="3"/>
                             </RadzenColumn>
                         </RadzenRow>
                         <RadzenRow style="margin-bottom: 1rem">
@@ -63,7 +64,7 @@
                                 <RadzenLabel Text="Notas Internas" Component="NOTES" class="fw-bold" style="width: 100%" />
                             </RadzenColumn>
                             <RadzenColumn SizeMD="12">
-                                <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerOrder.INTERNAL_NOTES" Name="INTERNAL_NOTES" TabIndex="3"/>
+                                <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerOrder.InternalNotes" Name="INTERNAL_NOTES" TabIndex="3"/>
                             </RadzenColumn>
                         </RadzenRow>
                     </RadzenStack>
@@ -77,16 +78,16 @@
                                 </RadzenStack>
                             </RadzenColumn>
                         </RadzenRow>
-                        <RadzenDataGrid @ref="customerOrderDetailGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                        Data="@customerOrderDetails" TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderDetail">
+                        <LocalizedDataGrid @ref="customerOrderDetailGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                        Data="@customerOrderDetails" TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail">
                             <Columns>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderDetail" Property="REQUESTED_QUANTITY" Title="Cantidad" Width="100px" />
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderDetail" Title="Artículo/Referencia">
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Property="RequestedQuantity" Title="Cantidad" Width="100px" />
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Title="Artículo/Referencia">
                                     <Template Context="detail">
-                                        <span>(@detail.ItemReference.Item.INTERNAL_REFERENCE) @detail.ItemReference.Item.ITEM_NAME - @detail.ItemReference.REFERENCE_NAME</span>
+                                        <span>(@detail.ItemReference.Item.InternalReference) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName</span>
                                     </Template>
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderDetail" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center">
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center">
                                     <Template Context="detail">
                                         <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
                                                       Click="@(args => EditRow(detail))" @onclick:stopPropagation="true">
@@ -97,7 +98,7 @@
                                     </Template>
                                 </RadzenDataGridColumn>
                             </Columns>
-                        </RadzenDataGrid>
+                        </LocalizedDataGrid>
                     </RadzenStack>
                 </RadzenColumn>
             </RadzenRow>

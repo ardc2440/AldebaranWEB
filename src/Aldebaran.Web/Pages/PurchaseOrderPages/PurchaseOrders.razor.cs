@@ -1,6 +1,6 @@
 using Aldebaran.Application.Services;
-using Aldebaran.Web.Models;
 using Aldebaran.Web.Models.AldebaranDb;
+using Aldebaran.Web.Models.ViewModels;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;

@@ -1,6 +1,5 @@
 ﻿using Aldebaran.DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Dynamic.Core;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
@@ -12,10 +11,20 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task<IEnumerable<AdjustmentDetail>> GetAsync(string filter, CancellationToken ct = default)
+        public async Task<IEnumerable<AdjustmentDetail>> GetAsync(string searchKey, CancellationToken ct = default)
         {
             return await _context.AdjustmentDetails.AsNoTracking()
-                .Where(filter)
+                .Where(i => i.Warehouse.WarehouseName.Contains(searchKey) ||
+                          i.ItemReference.Item.Line.LineName.Contains(searchKey) ||
+                          i.ItemReference.Item.ItemName.Contains(searchKey) ||
+                          i.ItemReference.Item.InternalReference.Contains(searchKey) ||
+                          i.ItemReference.Item.Notes.Contains(searchKey) ||
+                          i.ItemReference.Item.ProviderReference.Contains(searchKey) ||
+                          i.ItemReference.Notes.Contains(searchKey) ||
+                          i.ItemReference.ProviderReferenceCode.Contains(searchKey) ||
+                          i.ItemReference.ProviderReferenceName.Contains(searchKey) ||
+                          i.ItemReference.ReferenceCode.Contains(searchKey) ||
+                          i.ItemReference.ReferenceName.Contains(searchKey))
                 .Include(i => i.Adjustment)
                 .Include(i => i.ItemReference.Item.Line)
                 .Include(i => i.Warehouse)
@@ -29,6 +38,16 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .Include(i => i.ItemReference.Item.Line)
                 .Include(i => i.Warehouse)
                 .FirstOrDefaultAsync(w => w.AdjustmentDetailId == adjustmentDetailId, ct);
+        }
+
+        public async Task<IEnumerable<AdjustmentDetail>> GetByAdjustmentIdAsync(int adjustmentId, CancellationToken ct = default)
+        {
+            return await _context.AdjustmentDetails.AsNoTracking()
+                .Include(i => i.Adjustment)
+                .Include(i => i.ItemReference.Item.Line)
+                .Include(i => i.Warehouse)
+                .Where(w => w.AdjustmentId == adjustmentId)
+                .ToListAsync(ct);
         }
     }
 

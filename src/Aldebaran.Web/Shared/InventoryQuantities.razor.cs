@@ -1,51 +1,51 @@
-using Aldebaran.Web.Models.AldebaranDb;
+using Aldebaran.Application.Services;
+using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Models.ViewModels;
+using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
-using Radzen;
-using Radzen.Blazor;
 
 namespace Aldebaran.Web.Shared
 {
     public partial class InventoryQuantities
     {
+        #region Injections
         [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
+        public IReferencesWarehouseService ReferencesWarehouseService { get; set; }
+        //public AldebaranDbService AldebaranDbService { get; set; }
 
         [Inject]
-        protected NavigationManager NavigationManager { get; set; }
+        public IItemReferenceService ItemReferenceService { get; set; }
 
         [Inject]
-        protected DialogService DialogService { get; set; }
+        public IPurchaseOrderDetailService PurchaseOrderDetailService { get; set; }
 
         [Inject]
-        protected TooltipService TooltipService { get; set; }
+        public IDocumentTypeService DocumentTypeService { get; set; }
 
         [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
+        public IStatusDocumentTypeService StatusDocumentTypeService { get; set; }
 
-        [Inject]
-        protected NotificationService NotificationService { get; set; }
+        #endregion
 
-        [Inject]
-        protected SecurityService Security { get; set; }
-
-        [Inject]
-        public AldebaranDbService AldebaranDbService { get; set; }
-
+        #region Parameters
         [Parameter]
         public ItemReference Reference { get; set; }
+        #endregion
 
+        #region Global Variables
         protected IEnumerable<ReferencesWarehouse> referencesWarehouses;
-        protected RadzenDataGrid<ReferencesWarehouse> referencesWarehousesGrid;
+        protected LocalizedDataGrid<ReferencesWarehouse> referencesWarehousesGrid;
         protected IEnumerable<GroupPurchaseOrderDetail> totalTransitOrders;
-        protected RadzenDataGrid<GroupPurchaseOrderDetail> totalTransitOrdersGrid;
+        protected LocalizedDataGrid<GroupPurchaseOrderDetail> totalTransitOrdersGrid;
         protected ICollection<ItemReferenceInventory> itemReferenceInventorys;
-        protected RadzenDataGrid<ItemReferenceInventory> itemReferenceInventorysGrid;
+        protected LocalizedDataGrid<ItemReferenceInventory> itemReferenceInventorysGrid;
         protected int inventoryQuantity = 0;
         protected int reservedQuantity = 0;
         protected int orderedQuantity = 0;
 
+        #endregion
+
+        #region MyRegion
         protected override async Task OnInitializedAsync()
         {
             referencesWarehouses = new List<ReferencesWarehouse>();
@@ -53,9 +53,18 @@ namespace Aldebaran.Web.Shared
             itemReferenceInventorys = new List<ItemReferenceInventory>();
         }
 
+        public override async Task SetParametersAsync(ParameterView parameters)
+        {
+            await base.SetParametersAsync(parameters);
+
+            if (Reference == null)
+                return;
+        }
+        #endregion
+
         public async Task Refresh(int reference_id)
         {
-            var reference = await AldebaranDbService.GetItemReferenceByReferenceId(reference_id);
+            var reference = await ItemReferenceService.FindAsync(reference_id);
             await Refresh(reference);
         }
 
@@ -66,32 +75,40 @@ namespace Aldebaran.Web.Shared
 
             Reference = reference;
 
-            await RefreshInventory(reference);
+            await RefreshInventory();
 
-            referencesWarehouses = await AldebaranDbService.GetReferencesWarehouses(new Query { Filter = $@"i => i.REFERENCE_ID == @0", FilterParameters = new object[] { Reference.REFERENCE_ID }, Expand = "Warehouse" });
+            await RefreshWarehouses();
 
-            await referencesWarehousesGrid.Reload();
-
-            this.totalTransitOrders = await AldebaranDbService.GetTotalTransitOrdersPurchaseByReferenceId(Reference.REFERENCE_ID);
-
+            await RefreshTransitOrders();
         }
 
-        public async Task RefreshInventory(ItemReference reference)
+        public async Task RefreshInventory()
         {
             itemReferenceInventorys.Clear();
-            itemReferenceInventorys.Add(new ItemReferenceInventory() { Type = "Cantidad", Quantity = Reference?.INVENTORY_QUANTITY ?? 0 });
-            itemReferenceInventorys.Add(new ItemReferenceInventory() { Type = "Pedido", Quantity = Reference?.RESERVED_QUANTITY ?? 0 });
-            itemReferenceInventorys.Add(new ItemReferenceInventory() { Type = "Reservado", Quantity = Reference?.ORDERED_QUANTITY ?? 0 });
+            itemReferenceInventorys.Add(new ItemReferenceInventory() { Type = "Cantidad", Quantity = Reference?.InventoryQuantity ?? 0 });
+            itemReferenceInventorys.Add(new ItemReferenceInventory() { Type = "Pedido", Quantity = Reference?.ReservedQuantity ?? 0 });
+            itemReferenceInventorys.Add(new ItemReferenceInventory() { Type = "Reservado", Quantity = Reference?.OrderedQuantity ?? 0 });
 
             await itemReferenceInventorysGrid.Reload();
         }
 
-        public override async Task SetParametersAsync(ParameterView parameters)
+        public async Task RefreshWarehouses()
         {
-            await base.SetParametersAsync(parameters);
+            referencesWarehouses = await ReferencesWarehouseService.GetByReferenceIdAsync(Reference.ReferenceId);
 
-            if (Reference == null)
-                return;
+            await referencesWarehousesGrid.Reload();
+        }
+
+        public async Task RefreshTransitOrders()
+        {
+            var documentType = await DocumentTypeService.FindByCodeAsync("O");
+            var statusOrder = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 1);
+
+            var detailInTransit = await PurchaseOrderDetailService.GetTransitDetailOrdersAsync(Reference.ReferenceId, statusOrder.StatusDocumentTypeId);
+
+            totalTransitOrders = detailInTransit.GroupBy(group => group.PurchaseOrder.RequestDate).Select(c => new GroupPurchaseOrderDetail() { Request_Date = c.Key, Quantity = c.Sum(p => p.RequestedQuantity) }).ToList();
+
+            await totalTransitOrdersGrid.Reload();
         }
     }
 }

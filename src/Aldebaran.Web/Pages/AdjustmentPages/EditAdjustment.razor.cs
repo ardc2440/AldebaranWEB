@@ -1,5 +1,6 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
+using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
@@ -18,23 +19,28 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        public IAdjustmentReasonService AdjustmentReasonService { get; set; }
+        protected IAdjustmentReasonService AdjustmentReasonService { get; set; }
 
         [Inject]
-        public IAdjustmentTypeService AdjustmentTypeService { get; set; }
+        protected IAdjustmentTypeService AdjustmentTypeService { get; set; }
 
         [Inject]
-        public IAdjustmentDetailService AdjustmentDetailService { get; set; }
+        protected IAdjustmentDetailService AdjustmentDetailService { get; set; }
 
         [Inject]
-        public IAdjustmentService AdjustmentService { get; set; }
+        protected IAdjustmentService AdjustmentService { get; set; }
+
+        #endregion
+
+        #region Parameters
+
+        [Parameter]
+        public string AdjustmentId { get; set; } = "NoParamInput";
 
         #endregion
 
         #region Global Variables
 
-        [Parameter]
-        public string pAdjustmentId { get; set; } = "NoParamInput";
         protected DateTime Now { get; set; }
 
         protected bool errorVisible;
@@ -51,7 +57,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected ICollection<AdjustmentDetail> adjustmentDetails;
 
-        protected RadzenDataGrid<AdjustmentDetail> adjustmentDetailGrid;
+        protected LocalizedDataGrid<AdjustmentDetail> adjustmentDetailGrid;
 
         protected bool isSubmitInProgress;
 
@@ -73,7 +79,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
             var adjustmentId = 0;
 
-            int.TryParse(pAdjustmentId, out adjustmentId);
+            int.TryParse(AdjustmentId, out adjustmentId);
 
             adjustment = await AdjustmentService.FindAsync(adjustmentId);
 
@@ -137,7 +143,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected async Task EditRow(AdjustmentDetail args)
         {
-            var result = await DialogService.OpenAsync<EditAdjustmentDetail>("Actualizar referencia", new Dictionary<string, object> { { "pAdjustmentDetail", args } });
+            var result = await DialogService.OpenAsync<EditAdjustmentDetail>("Actualizar referencia", new Dictionary<string, object> { { "AdjustmentDetail", args } });
             if (result == null)
                 return;
             var detail = (AdjustmentDetail)result;
@@ -148,7 +154,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected async Task GetChildData(Adjustment args)
         {
-            var AdjustmentDetailsResult = await AdjustmentDetailService.GetAsync($"i => i.AdjustmentId == {args.AdjustmentId}");
+            var AdjustmentDetailsResult = await AdjustmentDetailService.GetByAdjustmentIdAsync(args.AdjustmentId);
             if (AdjustmentDetailsResult != null)
             {
                 adjustmentDetails = AdjustmentDetailsResult.ToList();

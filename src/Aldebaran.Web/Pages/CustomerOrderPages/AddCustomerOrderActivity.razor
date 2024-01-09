@@ -1,11 +1,12 @@
-@page "/add-customer-order-activity/{pCustomerOrderId}"
+@page "/add-customer-order-activity/{CustomerOrderId}"
 
 @attribute [Authorize(Roles = "Admin,Customer Order Activities Editor")]
+@using Aldebaran.Web.Resources.LocalizedControls;
 
 <PageTitle>Pedido de Articulos</PageTitle>
 <RadzenCard>
     <RadzenStack>
-        <RadzenTemplateForm TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderActivity" Data="@customerOrderActivity" Visible="@(customerOrderActivity != null)" Submit="@FormSubmit">
+        <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerOrderActivity" Data="@customerOrderActivity" Visible="@(customerOrderActivity != null)" Submit="@FormSubmit">
             <RadzenRow AlignItems="AlignItems.Center">
                 <RadzenColumn Size="12">
                     <RadzenText Text="@title" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
@@ -19,11 +20,11 @@
                         <RadzenRow style="margin-bottom: 2rem">
                             <RadzenFormField Text="Area" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                                 <ChildContent>
-                                    <RadzenDropDownDataGrid Data="@areasForAREAID" TextProperty="AREA_NAME" ValueProperty="AREA_ID" AllowClear=true Change="@OnAreaChange"
-                                                            style="display: block; width: 100%" @bind-Value="@customerOrderActivity.AREA_ID" Name="AREA_ID" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true" Placeholder="Seleccione un Area">
+                                    <RadzenDropDownDataGrid Data="@areasForAREAID" TextProperty="AreaName" ValueProperty="AreaId" AllowClear=true Change="@OnAreaChange"
+                                                            style="display: block; width: 100%" @bind-Value="@customerOrderActivity.AreaId" Name="AREA_ID" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true" Placeholder="Seleccione un Area">
                                         <Columns>
-                                            <RadzenDropDownDataGridColumn Property="AREA_CODE" Title="Código" />
-                                            <RadzenDropDownDataGridColumn Property="AREA_NAME" Title="Nombre" />
+                                            <RadzenDropDownDataGridColumn Property="AreaCode" Title="Código" />
+                                            <RadzenDropDownDataGridColumn Property="AreaName" Title="Nombre" />
                                         </Columns>
                                     </RadzenDropDownDataGrid>
                                 </ChildContent>
@@ -33,12 +34,12 @@
                         <RadzenRow style="margin-bottom: 2rem">
                             <RadzenFormField Text="Empleado" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                                 <ChildContent>
-                                    <RadzenDropDownDataGrid Data="@employeesForEMPLOYEEID" TextProperty="FULL_NAME" ValueProperty="EMPLOYEE_ID" AllowClear=true
-                                                            style="display: block; width: 100%" @bind-Value="@customerOrderActivity.EMPLOYEE_ID" Name="EMPLOYEE_ID" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true" Placeholder="Seleccione un Empleado">
+                                    <RadzenDropDownDataGrid Data="@employeesForEMPLOYEEID" TextProperty="FullName" ValueProperty="EmployeeId" AllowClear=true
+                                                            style="display: block; width: 100%" @bind-Value="@customerOrderActivity.EmployeeId" Name="EMPLOYEE_ID" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true" Placeholder="Seleccione un Empleado">
                                         <Columns>
-                                            <RadzenDropDownDataGridColumn Property="EMPLOYEE.IdentityType.IDENTITY_TYPE_NAME" Title="Tipo de Identificación" />
-                                            <RadzenDropDownDataGridColumn Property="IDENTITY_NUMBER" Title="Número de Identificación" />
-                                            <RadzenDropDownDataGridColumn Property="FULL_NAME" Title="Nombre Completo" />
+                                            <RadzenDropDownDataGridColumn Property="EMPLOYEE.IdentityType.IdentityTypeName" Title="Tipo de Identificación" />
+                                            <RadzenDropDownDataGridColumn Property="IdentityNumber" Title="Número de Identificación" />
+                                            <RadzenDropDownDataGridColumn Property="FullName" Title="Nombre Completo" />
                                         </Columns>
                                     </RadzenDropDownDataGrid>
                                 </ChildContent>
@@ -49,7 +50,7 @@
                             <RadzenLabel Text="Fecha de la Actividad" class="fw-bold" style="width: 100%" />
                         </RadzenColumn>
                         <RadzenColumn SizeMD="3">
-                            <RadzenDatePicker DateFormat="MM/dd/yyyy" style="display: block; width: 100%" @bind-Value="@customerOrderActivity.ACTIVITY_DATE" Name="ACTIVITY_DATE" Placeholder="Seleccione la fecha de la actividad" TabIndex="0" />
+                            <RadzenDatePicker DateFormat="MM/dd/yyyy" style="display: block; width: 100%" @bind-Value="@customerOrderActivity.ActivityDate" Name="ACTIVITY_DATE" Placeholder="Seleccione la fecha de la actividad" TabIndex="0" />
                             <RadzenRequiredValidator Text="La Fecha de la actividad es requerida" Component="ACTIVITY_DATE" />
                         </RadzenColumn>
                         <RadzenRow style="margin-bottom: 1rem">
@@ -57,7 +58,7 @@
                                 <RadzenLabel Text="Notas" Component="NOTES" class="fw-bold" style="width: 100%" />
                             </RadzenColumn>
                             <RadzenColumn SizeMD="12">
-                                <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerOrderActivity.NOTES" Name="NOTES" TabIndex="3" />
+                                <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerOrderActivity.Notes" Name="NOTES" TabIndex="3" />
                             </RadzenColumn>
                         </RadzenRow>
                     </RadzenStack>
@@ -71,15 +72,15 @@
                                 </RadzenStack>
                             </RadzenColumn>
                         </RadzenRow>
-                        <RadzenDataGrid @ref="customerOrderActivityDetailsGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                        Data="@customerOrderActivityDetails" TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderActivityDetail">
+                        <LocalizedDataGrid @ref="customerOrderActivityDetailsGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                        Data="@customerOrderActivityDetails" TItem="Aldebaran.Application.Services.Models.CustomerOrderActivityDetail">
                             <Columns>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderActivityDetail" Property="ActivityType.ACTIVITY_TYPE_NAME" Title="Tipo de Actividad" Width="100px" />
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderActivityDetail" Property="EmployeeActivity.FULL_NAME" Title="Ejecutor" Width="100px" />
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.CustomerOrderActivityDetail" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center">
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderActivityDetail" Property="ActivityType.ActivityTypeName" Title="Tipo de Actividad" Width="100px" />
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderActivityDetail" Property="EmployeeActivity.FullName" Title="Ejecutor" Width="100px" />
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderActivityDetail" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center">
                                     <Template Context="detail">
                                         <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
-                                                      Click="@(args => EditCustomerOrderActivityDetail(detail))" @onclick:stopPropagation="true">
+                                                      Click="@(args => EditCustomerOrderActivityDetail(args, detail))" @onclick:stopPropagation="true">
                                         </RadzenButton>
                                         <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
                                                       Shade="Shade.Lighter" Variant="Variant.Flat"
@@ -87,7 +88,7 @@
                                     </Template>
                                 </RadzenDataGridColumn>
                             </Columns>
-                        </RadzenDataGrid>
+                        </LocalizedDataGrid>
                     </RadzenStack>
                 </RadzenColumn>
             </RadzenRow>

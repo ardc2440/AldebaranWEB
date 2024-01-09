@@ -1,17 +1,15 @@
-using Aldebaran.Web.Models.AldebaranDb;
+using Aldebaran.Application.Services;
+using Aldebaran.Application.Services.Models;
+using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
 using Radzen;
-using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.CustomerReservationPages
 {
     public partial class SendToCustomerOrder
     {
-        [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
-
+        #region Injections
         [Inject]
         protected NavigationManager NavigationManager { get; set; }
 
@@ -19,17 +17,19 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected TooltipService TooltipService { get; set; }
+        protected ICustomerReservationService CustomerReservationService { get; set; }
 
         [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
+        protected ICustomerReservationDetailService CustomerReservationDetailService { get; set; }
+        #endregion
 
-        [Inject]
-        protected NotificationService NotificationService { get; set; }
+        #region Parameters
+        [Parameter]
+        public string CustomerReservationId { get; set; } = "NoParamInput";
 
-        [Inject]
-        public AldebaranDbService AldebaranDbService { get; set; }
+        #endregion
 
+        #region Global Variables
         protected DateTime Now { get; set; }
 
         protected bool errorVisible;
@@ -38,24 +38,17 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
         protected CustomerReservation customerReservation;
 
-        protected IEnumerable<Customer> customersForCUSTOMERID;
-
         protected ICollection<CustomerReservationDetail> customerReservationDetails;
 
-        protected RadzenDataGrid<CustomerReservationDetail> customerReservationDetailGrid;
+        protected LocalizedDataGrid<CustomerReservationDetail> customerReservationDetailGrid;
 
         protected bool isSubmitInProgress;
         protected string title;
 
-        [Inject]
-        protected SecurityService Security { get; set; }
-
-        [Parameter]
-        public string pCustomerReservationId { get; set; } = "NoParamInput";
-
+        #endregion
+        #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            customersForCUSTOMERID = await AldebaranDbService.GetCustomers();
 
             Now = DateTime.UtcNow.AddDays(-1);
 
@@ -63,27 +56,30 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
             var customerReservationId = 0;
 
-            int.TryParse(pCustomerReservationId, out customerReservationId);
+            int.TryParse(CustomerReservationId, out customerReservationId);
 
-            customerReservation = AldebaranDbService.GetCustomerReservationByCustomerReservationId(customerReservationId).Result;
+            customerReservation = await CustomerReservationService.FindAsync(customerReservationId);
 
-            title = $"Convertir la Reserva No. {customerReservation.RESERVATION_NUMBER} en pedido";
+            title = $"Convertir la Reserva No. {customerReservation.ReservationNumber} en pedido";
 
             await GetChildData(customerReservation);
 
         }
+        #endregion
 
+        #region Events
         protected async Task FormSubmit()
         {
             try
             {
                 isSubmitInProgress = true;
-                if (!customerReservationDetails.Any(d => d.SEND_TO_CUSTOMER_ORDER))
+                if (!customerReservationDetails.Any(d => d.SendToCustomerOrder))
                     throw new Exception("No ha seleccionado ningun artículo para el pedido");
 
-                await AldebaranDbService.UpdateCustomerReservationDetails(customerReservationDetails.Where(d => d.SEND_TO_CUSTOMER_ORDER).ToList());
+                foreach (var item in customerReservationDetails.Where(d => d.SendToCustomerOrder).ToList())
+                    await CustomerReservationDetailService.UpdateAsync(item.CustomerReservationDetailId, item);
 
-                NavigationManager.NavigateTo("add-customer-order-from-reservation/" + customerReservation.CUSTOMER_RESERVATION_ID);
+                NavigationManager.NavigateTo("add-customer-order-from-reservation/" + customerReservation.CustomerReservationId);
             }
             catch (Exception ex)
             {
@@ -101,11 +97,12 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
         protected async Task GetChildData(CustomerReservation args)
         {
-            var customerReservationDetailsResult = await AldebaranDbService.GetCustomerReservationDetails(new Query { Filter = $@"i => i.CUSTOMER_RESERVATION_ID == {args.CUSTOMER_RESERVATION_ID}", Expand = "CustomerReservation, ItemReference, ItemReference.Item" });
+            var customerReservationDetailsResult = await CustomerReservationDetailService.GetByCustomerReservationIdAsync(args.CustomerReservationId);
             if (customerReservationDetailsResult != null)
             {
                 customerReservationDetails = customerReservationDetailsResult.ToList();
             }
         }
+        #endregion
     }
 }

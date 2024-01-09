@@ -1,6 +1,5 @@
 ﻿using Aldebaran.DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Dynamic.Core;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
@@ -14,7 +13,28 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
 
         public async Task AddAsync(Adjustment adjustment, CancellationToken ct = default)
         {
-            await _context.Adjustments.AddAsync(adjustment, ct);
+            var entity = new Adjustment
+            {
+                AdjustmentDate = adjustment.AdjustmentDate,
+                AdjustmentReasonId = adjustment.AdjustmentReasonId,
+                AdjustmentTypeId = adjustment.AdjustmentTypeId,
+                CreationDate = adjustment.CreationDate,
+                EmployeeId = adjustment.EmployeeId,
+                Notes = adjustment.Notes,
+                StatusDocumentTypeId = adjustment.StatusDocumentTypeId,
+                AdjustmentDetails = new List<AdjustmentDetail>()
+            };
+
+            foreach (var item in adjustment.AdjustmentDetails)
+                entity.AdjustmentDetails.Add(new AdjustmentDetail
+                {
+                    Quantity = item.Quantity,
+                    ReferenceId = item.ReferenceId,
+                    WarehouseId = item.WarehouseId,
+                    AdjustmentId = item.AdjustmentId
+                });
+
+            await _context.Adjustments.AddAsync(entity, ct);
             await _context.SaveChangesAsync(ct);
         }
 
@@ -55,15 +75,31 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .ToListAsync(ct);
         }
 
-        public async Task<IEnumerable<Adjustment>> GetAsync(string filter, CancellationToken ct = default)
+        public async Task<IEnumerable<Adjustment>> GetAsync(string searchKey, CancellationToken ct = default)
         {
             return await _context.Adjustments.AsNoTracking()
-                .Where(filter)
+                .Where(i => i.StatusDocumentType.StatusDocumentTypeName.Contains(searchKey) ||
+                          i.Employee.FullName.Contains(searchKey) ||
+                          i.Employee.DisplayName.Contains(searchKey) ||
+                          i.Employee.IdentityNumber.Contains(searchKey) ||
+                          i.Employee.IdentityType.IdentityTypeName.Contains(searchKey) ||
+                          i.Employee.IdentityType.IdentityTypeCode.Contains(searchKey) ||
+                          i.Employee.Area.AreaName.Contains(searchKey) ||
+                          i.Employee.Area.AreaCode.Contains(searchKey) ||
+                          i.Employee.Area.Description.Contains(searchKey) ||
+                          i.StatusDocumentType.StatusDocumentTypeName.Contains(searchKey) ||
+                          i.StatusDocumentType.Notes.Contains(searchKey) ||
+                          i.AdjustmentReason.AdjustmentReasonName.Contains(searchKey) ||
+                          i.AdjustmentReason.AdjustmentReasonNotes.Contains(searchKey) ||
+                          i.AdjustmentType.AdjustmentTypeName.Contains(searchKey) ||
+                          i.Notes.Contains(searchKey) ||
+                          i.AdjustmentDate.ToString().Contains(searchKey) ||
+                          i.CreationDate.ToString().Contains(searchKey))
                 .Include(i => i.StatusDocumentType)
                 .Include(i => i.AdjustmentReason)
                 .Include(i => i.AdjustmentType)
-                .Include(i => i.Employee)
-                .Include(i => i.AdjustmentDetails)
+                .Include(i => i.Employee.IdentityType)
+                .Include(i => i.Employee.Area)
                 .ToListAsync(ct);
         }
 
@@ -71,15 +107,42 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         {
             var entity = await _context.Adjustments
                 .Include(i => i.AdjustmentDetails)
-                .FirstOrDefaultAsync(x => x.AdjustmentId == adjustmentId, ct) ?? throw new KeyNotFoundException($"Transportadora con id {adjustmentId} no existe.");
+                .FirstOrDefaultAsync(x => x.AdjustmentId == adjustmentId, ct) ?? throw new KeyNotFoundException($"Ajuste con id {adjustmentId} no existe.");
 
             entity.AdjustmentDate = adjustment.AdjustmentDate;
             entity.AdjustmentTypeId = adjustment.AdjustmentTypeId;
             entity.AdjustmentReasonId = adjustment.AdjustmentReasonId;
             entity.EmployeeId = adjustment.EmployeeId;
-            entity.AdjustmentDetails = adjustment.AdjustmentDetails;
             entity.Notes = adjustment.Notes;
             entity.CreationDate = adjustment.CreationDate;
+            entity.StatusDocumentTypeId = adjustment.StatusDocumentTypeId;
+
+            foreach (var item in entity.AdjustmentDetails)
+            {
+                if (!adjustment.AdjustmentDetails.Any(x => x.AdjustmentDetailId == item.AdjustmentDetailId))
+                    _context.AdjustmentDetails.Remove(item);
+            }
+
+            foreach (var item in adjustment.AdjustmentDetails)
+            {
+                if (item.AdjustmentDetailId > 0)
+                {
+                    var entityDetail = await _context.AdjustmentDetails.FirstOrDefaultAsync(i => i.AdjustmentDetailId == item.AdjustmentDetailId, ct) ?? throw new KeyNotFoundException($"Detalle de Ajuste con id {item.AdjustmentDetailId} no existe.");
+
+                    entityDetail.Quantity = item.Quantity;
+                    entityDetail.ReferenceId = item.ReferenceId;
+                    entityDetail.WarehouseId = item.WarehouseId;
+                    continue;
+                }
+
+                entity.AdjustmentDetails.Add(new AdjustmentDetail
+                {
+                    Quantity = item.Quantity,
+                    ReferenceId = item.ReferenceId,
+                    WarehouseId = item.WarehouseId,
+                    AdjustmentId = item.AdjustmentId
+                });
+            }
 
             await _context.SaveChangesAsync(ct);
         }

@@ -1,9 +1,12 @@
+using Aldebaran.DataAccess.Core.Atributes;
+
 namespace Aldebaran.DataAccess.Entities
 {
     public class CustomerOrder
     {
         public int CustomerOrderId { get; set; }
         public int CustomerId { get; set; }
+        [Sequence(length: 10)]
         public string OrderNumber { get; set; }
         public DateTime OrderDate { get; set; }
         public DateTime EstimatedDeliveryDate { get; set; }
