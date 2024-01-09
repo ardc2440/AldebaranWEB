@@ -163,7 +163,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
                     await CustomerOrderShipmentService.UpdateAsync(customerOrderShipment.CustomerOrderShipmentId, customerOrderShipment);
 
                     await DialogService.Alert($"Despacho de Pedido cancelado correctamente", "Información");
-                    await CustomerOrderShipmentDataGrid.Reload();
+
+                    await Search(new ChangeEventArgs() { });
                 }
             }
             catch (Exception ex)

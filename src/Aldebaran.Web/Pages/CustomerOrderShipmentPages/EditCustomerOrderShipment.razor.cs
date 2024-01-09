@@ -34,7 +34,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
         protected ICustomerOrderShipmentDetailService CustomerOrderShipmentDetailService { get; set; }
 
         [Inject]
-        protected IShipmentMethodService ShipmentMethodService { get; set; }
+        protected IShippingMethodService ShippingMethodService { get; set; }
 
         [Inject]
         protected IEmployeeService EmployeeService { get; set; }
@@ -58,7 +58,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
         protected ICollection<DetailInProcess> detailsInProcess;
         protected LocalizedDataGrid<DetailInProcess> customerOrderDetailGrid;
         protected IEnumerable<Employee> employeesFOREMPLOYEEID;
-        protected IEnumerable<ShipmentMethod> shippingMethodsFORSHIPPINGMETHODID;
+        protected IEnumerable<ShippingMethod> shippingMethodsFORSHIPPINGMETHODID;
         protected bool isSubmitInProgress;
         protected bool isLoadingInProgress;
         protected string title;
@@ -86,7 +86,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
 
                 detailsInProcess = await GetDetailsInProcess(customerOrderShipment);
 
-                shippingMethodsFORSHIPPINGMETHODID = await ShipmentMethodService.GetAsync();
+                shippingMethodsFORSHIPPINGMETHODID = await ShippingMethodService.GetAsync();
                 employeesFOREMPLOYEEID = await EmployeeService.GetAsync();
 
                 title = $"Modificación del despacho para el Pedido No. {customerOrder.OrderNumber}";

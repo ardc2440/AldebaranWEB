@@ -121,6 +121,8 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
                     adjustment.StatusDocumentTypeId = adjustment.StatusDocumentType.StatusDocumentTypeId;
 
+                    adjustment.AdjustmentDetails = (await AdjustmentDetailService.GetByAdjustmentIdAsync(adjustment.AdjustmentId)).ToList();
+
                     await AdjustmentService.UpdateAsync(adjustment.AdjustmentId, adjustment);
 
                     await DialogService.Alert($"Ajuste cancelado correctamente", "Información");

@@ -136,11 +136,11 @@
                                     <Template Context="detail">
                                         <RadzenButton Icon="assignment_ind" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
                                                       Click="@(args => SendToShipment(detail))" @onclick:stopPropagation="true"
-                                                      Visible="@Security.IsInRole("Admin","Customer Order In Process Editor")" title="Enviar Cantidad a Proceso">
+                                                      Visible="@CanSend(detail)" title="Despachar">
                                         </RadzenButton>
                                         <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
                                                       Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@CanCancel(detail)"
-                                                      Click=@(args => CancelToShipment(detail)) @onclick:stopPropagation="true" title="Cancelar Traslado" />
+                                                      Click=@(args => CancelToShipment(detail)) @onclick:stopPropagation="true" title="Cancelar Despacho" />
                                     </Template>
                                 </RadzenDataGridColumn>
                             </Columns>

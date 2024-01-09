@@ -117,7 +117,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
 
         #region Events
 
-        protected async Task<List<DetailInProcess>> GetDetailsInProcess(CustomerOrder customerOrder) => (from item in customerOrder.CustomerOrderDetails ?? throw new ArgumentException($"The references of Customer Order {customerOrder.OrderNumber}, could not be obtained.")
+        protected async Task<List<DetailInProcess>> GetDetailsInProcess(CustomerOrder customerOrder) => (from item in customerOrder.CustomerOrderDetails.Where(i => i.ProcessedQuantity > 0) ?? throw new ArgumentException($"The references of Customer Order {customerOrder.OrderNumber}, could not be obtained.")
                                                                                                          let viewOrderDetail = new DetailInProcess()
                                                                                                          {
                                                                                                              REFERENCE_ID = item.ReferenceId,
@@ -150,6 +150,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
 
             await customerOrderDetailGrid.Reload();
         }
+
+        protected bool CanSend(DetailInProcess detailInProcess) => detailInProcess.PROCESSED_QUANTITY > 0 && Security.IsInRole("Admin", "Customer Order Shipment Editor");
 
         protected bool CanCancel(DetailInProcess detailInProcess) => detailInProcess.THIS_QUANTITY > 0 && Security.IsInRole("Admin", "Customer Order Shipment Editor");
 

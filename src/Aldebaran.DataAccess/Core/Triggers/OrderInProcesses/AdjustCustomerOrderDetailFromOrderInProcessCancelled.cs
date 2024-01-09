@@ -19,7 +19,7 @@ namespace Aldebaran.DataAccess.Core.Triggers.OrderInProcesses
 
             var statusOrder = (await _context.StatusDocumentTypes.FindAsync(new object[] { context.Entity.StatusDocumentTypeId }, cancellationToken))!.StatusOrder;
 
-            if (statusOrder == 2)
+            if (statusOrder != 2)
                 return;
 
             var detailChanges = context.Entity.GetType()

@@ -152,6 +152,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
             await customerOrderDetailGrid.Reload();
         }
 
+        protected bool CanSend(DetailInProcess detailInProcess) => detailInProcess.PENDING_QUANTITY > 0 && Security.IsInRole("Admin", "Customer Order In Process Editor");
+
         protected bool CanCancel(DetailInProcess detailInProcess) => detailInProcess.THIS_QUANTITY > 0 && Security.IsInRole("Admin", "Customer Order In Process Editor");
 
         protected async Task FormSubmit()
