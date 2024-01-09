@@ -1,9 +1,9 @@
 ﻿using Aldebaran.Web.Models;
+using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using Radzen;
-using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.CustomerPages
 {
@@ -34,10 +34,10 @@ namespace Aldebaran.Web.Pages.CustomerPages
         protected SecurityService Security { get; set; }
 
         protected IEnumerable<Models.AldebaranDb.Customer> customers;
-        protected RadzenDataGrid<Models.AldebaranDb.Customer> grid0;
+        protected LocalizedDataGrid<Models.AldebaranDb.Customer> grid0;
         protected string search = "";
         protected Models.AldebaranDb.Customer customer;
-        protected RadzenDataGrid<Models.AldebaranDb.CustomerContact> CustomerContactsDataGrid;
+        protected LocalizedDataGrid<Models.AldebaranDb.CustomerContact> CustomerContactsDataGrid;
         protected DialogResult dialogResult { get; set; }
         protected bool isLoadingInProgress;
 
