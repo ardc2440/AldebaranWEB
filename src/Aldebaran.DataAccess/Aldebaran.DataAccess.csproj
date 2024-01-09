@@ -34,6 +34,12 @@
 	  <Compile Update="Core\Triggers\CustomerOrderDetailManagementBase.cs">
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>
+	  <Compile Update="Core\Triggers\Shipments\AdjustCustomerOrderDetailFromDeletedOrderShipmentDetail.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
+	  <Compile Update="Core\Triggers\Shipments\AdjustCustomerOrderDetailFromModifiedOrderShipmentDetail.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
 	  <Compile Update="Core\Triggers\Orders\AdjustInventoryFromDeletedOrderDetail.cs">
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>
@@ -52,9 +58,32 @@
 	  <Compile Update="Core\Triggers\Reservations\AdjustInventoryFromReservationToOrder.cs">
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>
+	  <Compile Update="Core\Triggers\Shipments\AdjustCustomerOrderDetailFromNewOrderShipmentDetail.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
+	  <Compile Update="Core\Triggers\Shipments\AdjustCustomerOrderDetailFromOrderShipmentCancelled.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
+	  <Compile Update="Core\Triggers\Shipments\AdjustInventoryFromDeletedOrderShipmentDetail.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
+	  <Compile Update="Core\Triggers\Shipments\AdjustInventoryFromModifiedOrderShipmentDetail.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
+	  <Compile Update="Core\Triggers\Shipments\AdjustInventoryFromNewOrderShipmentDetail.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
+	  <Compile Update="Core\Triggers\Shipments\AdjustInventoryFromOrderShipmentCancelled.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
+	  <Compile Update="Core\Triggers\Shipments\ModifyCustomerOrderFromNewOrderShipment.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
+	  <Compile Update="Core\Triggers\Shipments\ModifyCustomerOrderFromOrderShipmentCancelled.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
 	</ItemGroup>
 	<ItemGroup>
-	  <Folder Include="Core\Triggers\Shipments\" />
 	  <Folder Include="Core\Triggers\Purchases\" />
 	</ItemGroup>
 </Project>

@@ -3,6 +3,7 @@ using Aldebaran.DataAccess.Core.Triggers.Adjustments;
 using Aldebaran.DataAccess.Core.Triggers.OrderInProcesses;
 using Aldebaran.DataAccess.Core.Triggers.Orders;
 using Aldebaran.DataAccess.Core.Triggers.Reservations;
+using Aldebaran.DataAccess.Core.Triggers.Shipments;
 using Aldebaran.DataAccess.Infraestructure.Repository;
 using Aldebaran.Web.Data;
 using Aldebaran.Web.Models;
@@ -76,6 +77,17 @@ builder.Services.AddDbContext<Aldebaran.DataAccess.AldebaranDbContext>(
                 triggerOptions.AddTrigger<AdjustInventoryFromOrderInProcessCancelled>();
                 triggerOptions.AddTrigger<ModifyCustomerOrderFromNewOrderInProcess>();
                 triggerOptions.AddTrigger<ModifyCustomerOrderFromOrderInProcessCancelled>();
+                triggerOptions.AddTrigger<AdjustCustomerOrderDetailFromDeletedOrderShipmentDetail>();
+                triggerOptions.AddTrigger<AdjustCustomerOrderDetailFromModifiedOrderShipmentDetail>();
+                triggerOptions.AddTrigger<AdjustCustomerOrderDetailFromNewOrderShipmentDetail>();
+                triggerOptions.AddTrigger<AdjustCustomerOrderDetailFromOrderShipmentCancelled>();
+                triggerOptions.AddTrigger<AdjustInventoryFromDeletedOrderShipmentDetail>();
+                triggerOptions.AddTrigger<AdjustInventoryFromModifiedOrderShipmentDetail>();
+                triggerOptions.AddTrigger<AdjustInventoryFromNewOrderShipmentDetail>();
+                triggerOptions.AddTrigger<AdjustInventoryFromOrderShipmentCancelled>();
+                triggerOptions.AddTrigger<ModifyCustomerOrderFromNewOrderShipment>();
+                triggerOptions.AddTrigger<ModifyCustomerOrderFromOrderShipmentCancelled>();
+
             });
     });
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>().AddEntityFrameworkStores<ApplicationIdentityDbContext>().AddDefaultTokenProviders();
