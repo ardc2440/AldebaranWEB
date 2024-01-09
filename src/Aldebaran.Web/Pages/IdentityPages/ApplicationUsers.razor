@@ -1,5 +1,6 @@
 @page "/application-users"
 @attribute [Authorize(Roles = "Admin")]
+@using Aldebaran.Web.Resources.LocalizedControls;
 
 <PageTitle>Usuarios</PageTitle>
 <RadzenStack>
@@ -23,7 +24,7 @@
     </RadzenRow>
     <RadzenRow>
         <RadzenColumn SizeMD="12">
-            <RadzenDataGrid @ref="ApplicationUserDataGrid" AllowFiltering="true" AllowPaging="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30}) AllowSorting="true" Data="@users"
+            <LocalizedDataGrid @ref="ApplicationUserDataGrid" AllowFiltering="true" AllowPaging="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30}) AllowSorting="true" Data="@users"
                             TItem="Aldebaran.Web.Models.ApplicationUser" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" AllowGrouping="true" AllowColumnReorder="true">
                 <Columns>
                     <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ApplicationUser" Property="Email" Title="Correo electrónico" />
@@ -55,7 +56,7 @@
                         </Template>
                     </RadzenDataGridColumn>
                 </Columns>
-            </RadzenDataGrid>
+            </LocalizedDataGrid>
         </RadzenColumn>
     </RadzenRow>
 </RadzenStack>

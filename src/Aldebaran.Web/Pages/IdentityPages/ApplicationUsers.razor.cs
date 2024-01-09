@@ -1,9 +1,7 @@
 using Aldebaran.Web.Models;
-using Aldebaran.Web.Models.ViewModels;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Radzen;
-using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.IdentityPages
 {
@@ -34,7 +32,7 @@ namespace Aldebaran.Web.Pages.IdentityPages
         protected TooltipService tooltipService { get; set; }
 
         protected IEnumerable<ApplicationUser> users;
-        protected RadzenDataGrid<ApplicationUser> ApplicationUserDataGrid;
+        protected LocalizedDataGrid<ApplicationUser> ApplicationUserDataGrid;
         protected string error;
         protected bool errorVisible;
         protected DialogResult dialogResult { get; set; }
