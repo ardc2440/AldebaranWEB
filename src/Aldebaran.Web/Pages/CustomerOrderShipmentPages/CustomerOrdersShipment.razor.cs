@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
 
-namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
+namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
 {
-    public partial class CustomerOrderInProcesses
+    public partial class CustomerOrdersShipment
     {
         #region Injections
 
@@ -28,7 +28,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         protected IDocumentTypeService DocumentTypeService { get; set; }
 
         [Inject]
-        protected ICustomerOrdersInProcessService CustomerOrdersInProcessService { get; set; }
+        protected ICustomerOrderShipmentService CustomerOrderShipmentService { get; set; }
 
         [Inject]
         protected ICustomerOrderService CustomerOrderService { get; set; }
@@ -37,7 +37,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         protected ICustomerOrderDetailService CustomerOrderDetailService { get; set; }
 
         [Inject]
-        protected ICustomerOrderInProcessDetailService CustomerOrderInProcessDetailService { get; set; }
+        protected ICustomerOrderShipmentDetailService CustomerOrderShipmentDetailService { get; set; }
 
         [Inject]
         protected IStatusDocumentTypeService StatusDocumentTypeService { get; set; }
@@ -49,12 +49,12 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         protected DialogResult dialogResult;
         protected DocumentType documentType;
         protected IEnumerable<CustomerOrder> customerOrders;
-        protected IEnumerable<CustomerOrdersInProcess> customerOrderInProcesses;
-        protected IEnumerable<CustomerOrderInProcessDetail> customerOrderInProcessDetails;
+        protected IEnumerable<CustomerOrderShipment> customerOrderShipments;
+        protected IEnumerable<CustomerOrderShipmentDetail> customerOrderShipmentDetails;
         protected IEnumerable<DetailInProcess> detailInProcesses;
         protected LocalizedDataGrid<DetailInProcess> CustomerOrderDetailsDataGrid;
-        protected LocalizedDataGrid<CustomerOrdersInProcess> CustomerOrderInProcessesDataGrid;
-        protected LocalizedDataGrid<CustomerOrderInProcessDetail> CustomerOrderInProcessDetailDataGrid;
+        protected LocalizedDataGrid<CustomerOrderShipment> CustomerOrderShipmentDataGrid;
+        protected LocalizedDataGrid<CustomerOrderShipmentDetail> CustomerOrderShipmentDetailDataGrid;
         protected LocalizedDataGrid<CustomerOrder> CustomerOrdersGrid;
         protected string search = "";
         protected bool isLoadingInProgress;
@@ -73,7 +73,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
                 await Task.Yield();
 
-                customerOrders = (await CustomerOrderService.GetAsync(search)).Where(x => x.StatusDocumentType.EditMode).ToList();
+                customerOrders = (await CustomerOrderService.GetAsync(search)).Where(x => x.StatusDocumentType.StatusOrder == 2 || x.StatusDocumentType.StatusOrder == 3).ToList();
             }
             finally
             {
@@ -92,7 +92,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
             await CustomerOrdersGrid.GoToPage(0);
 
-            customerOrders = (await CustomerOrderService.GetAsync(search)).Where(x => x.StatusDocumentType.EditMode).ToList();
+            customerOrders = (await CustomerOrderService.GetAsync(search)).Where(x => x.StatusDocumentType.StatusOrder == 2 || x.StatusDocumentType.StatusOrder == 3).ToList();
         }
 
         protected async Task GetOrderDetails(CustomerOrder args)
@@ -123,30 +123,30 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         protected async Task GetChildData(CustomerOrder args)
         {
             await GetOrderDetails(args);
-            customerOrderInProcesses = await CustomerOrdersInProcessService.GetByCustomerOrderIdAsync(args.CustomerOrderId);
+            customerOrderShipments = await CustomerOrderShipmentService.GetByCustomerOrderIdAsync(args.CustomerOrderId);
         }
 
-        protected async Task GetChildInProcessData(CustomerOrdersInProcess args)
+        protected async Task GetChildShipmentData(CustomerOrderShipment args)
         {
-            customerOrderInProcessDetails = await CustomerOrderInProcessDetailService.GetByCustomerOrderInProcessIdAsync(args.CustomerOrderInProcessId);
+            customerOrderShipmentDetails = await CustomerOrderShipmentDetailService.GetByCustomerOrderShipmentIdAsync(args.CustomerOrderShipmentId);
         }
 
-        protected async Task SendToProcess(CustomerOrder args)
+        protected async Task SendToShipment(CustomerOrder args)
         {
-            NavigationManager.NavigateTo("add-customer-order-in-process/" + args.CustomerOrderId);
+            NavigationManager.NavigateTo("add-customer-order-shipment/" + args.CustomerOrderId);
         }
 
-        protected async Task EditProcessRow(CustomerOrdersInProcess args)
+        protected async Task EditProcessRow(CustomerOrderShipment args)
         {
-            NavigationManager.NavigateTo("edit-customer-order-in-process/" + args.CustomerOrderInProcessId);
+            NavigationManager.NavigateTo("edit-customer-order-shipment/" + args.CustomerOrderShipmentId);
         }
 
-        protected async Task<bool> CanEditProcess(CustomerOrdersInProcess customerOrderinProcess)
+        protected async Task<bool> CanEditProcess(CustomerOrderShipment customerOrderShipment)
         {
-            return Security.IsInRole("Admin", "Customer Order In Process Editor") && customerOrderinProcess.StatusDocumentType.EditMode;
+            return Security.IsInRole("Admin", "Customer Order Shipment Editor") && customerOrderShipment.StatusDocumentType.EditMode;
         }
 
-        protected async Task CancelCustomerOrderProcess(MouseEventArgs args, CustomerOrdersInProcess customerOrderInProcess)
+        protected async Task CancelCustomerOrderShipment(MouseEventArgs args, CustomerOrderShipment customerOrderShipment)
         {
             try
             {
@@ -154,16 +154,16 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
                 if (await DialogService.Confirm("Esta seguro que desea cancelar este Traslado a Proceso?") == true)
                 {
-                    customerOrderInProcess.StatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync((await DocumentTypeService.FindByCodeAsync("T")).DocumentTypeId, 2);
-                    customerOrderInProcess.StatusDocumentTypeId = customerOrderInProcess.StatusDocumentType.StatusDocumentTypeId;
+                    customerOrderShipment.StatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync((await DocumentTypeService.FindByCodeAsync("D")).DocumentTypeId, 2);
+                    customerOrderShipment.StatusDocumentTypeId = customerOrderShipment.StatusDocumentType.StatusDocumentTypeId;
 
-                    var customerOrderInProcessDetail = await CustomerOrderInProcessDetailService.GetByCustomerOrderInProcessIdAsync(customerOrderInProcess.CustomerOrderInProcessId);
-                    customerOrderInProcess.CustomerOrderInProcessDetails = customerOrderInProcessDetail.ToList();
+                    var customerOrderShipmentDetail = await CustomerOrderShipmentDetailService.GetByCustomerOrderShipmentIdAsync(customerOrderShipment.CustomerOrderShipmentId);
+                    customerOrderShipment.CustomerOrderShipmentDetails = customerOrderShipmentDetail.ToList();
 
-                    await CustomerOrdersInProcessService.UpdateAsync(customerOrderInProcess.CustomerOrderInProcessId, customerOrderInProcess);
+                    await CustomerOrderShipmentService.UpdateAsync(customerOrderShipment.CustomerOrderShipmentId, customerOrderShipment);
 
-                    await DialogService.Alert($"Traslado a Proceso cancelado correctamente", "Información");
-                    await CustomerOrderInProcessesDataGrid.Reload();
+                    await DialogService.Alert($"Despacho de Pedido cancelado correctamente", "Información");
+                    await CustomerOrderShipmentDataGrid.Reload();
                 }
             }
             catch (Exception ex)
@@ -172,9 +172,14 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido cancelar el traslado. \n\r {ex.InnerException.Message}\n\r{ex.StackTrace}"
+                    Detail = $"No se ha podido cancelar el despacho. \n\r {ex.InnerException.Message}\n\r{ex.StackTrace}"
                 });
             }
+        }
+
+        public static implicit operator CustomerOrdersShipment(CustomerOrderShipment v)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion

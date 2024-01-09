@@ -1,0 +1,206 @@
+using Aldebaran.Application.Services;
+using Aldebaran.Application.Services.Models;
+using Aldebaran.Web.Models.ViewModels;
+using Aldebaran.Web.Resources.LocalizedControls;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
+using Radzen;
+
+namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
+{
+    public partial class AddCustomerOrderShipment
+    {
+        #region Injections
+
+        [Inject]
+        protected NavigationManager NavigationManager { get; set; }
+
+        [Inject]
+        protected DialogService DialogService { get; set; }
+
+        [Inject]
+        protected SecurityService Security { get; set; }
+
+        [Inject]
+        protected IDocumentTypeService DocumentTypeService { get; set; }
+
+        [Inject]
+        protected IStatusDocumentTypeService StatusDocumentTypeService { get; set; }
+
+        [Inject]
+        protected ICustomerOrderService CustomerOrderService { get; set; }
+
+        [Inject]
+        protected ICustomerOrderDetailService CustomerOrderDetailService { get; set; }
+
+        [Inject]
+        protected IShippingMethodService ShippingMethodService { get; set; }
+
+        [Inject]
+        protected IEmployeeService EmployeeService { get; set; }
+
+        [Inject]
+        protected ICustomerOrderShipmentService CustomerOrderShipmentService { get; set; }
+
+        #endregion
+
+        #region Parameters
+
+        [Parameter]
+        public string CustomerOrderId { get; set; } = "NoParamInput";
+
+        #endregion
+
+        #region Global Variables
+
+        protected bool errorVisible;
+        protected string errorMessage;
+        protected CustomerOrder customerOrder;
+        protected CustomerOrderShipment customerOrderShipment;
+        protected DocumentType documentType;
+        protected DialogResult dialogResult;
+        protected ICollection<DetailInProcess> detailsInProcess;
+        protected LocalizedDataGrid<DetailInProcess> customerOrderDetailGrid;
+        protected bool isSubmitInProgress;
+        protected bool isLoadingInProgress;
+        protected string title;
+        protected IEnumerable<Employee> employeesFOREMPLOYEEID;
+        protected IEnumerable<ShippingMethod> shippingMethodsFORSHIPPINGMETHODID;
+
+        #endregion
+
+        #region Overrides
+
+        protected override async Task OnInitializedAsync()
+        {
+            try
+            {
+                if (!int.TryParse(CustomerOrderId, out var customerOrderId))
+                    throw new Exception("El Id de Pedido recibido no es valido");
+
+                isLoadingInProgress = true;
+
+                await Task.Yield();
+
+                documentType = await DocumentTypeService.FindByCodeAsync("D");
+
+                var customerOrderShipmentStatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 1);
+
+                customerOrder = await CustomerOrderService.FindAsync(customerOrderId);
+
+                customerOrder.CustomerOrderDetails = (await CustomerOrderDetailService.GetByCustomerOrderIdAsync(customerOrderId)).ToList();
+
+                detailsInProcess = await GetDetailsInProcess(customerOrder);
+
+                shippingMethodsFORSHIPPINGMETHODID = await ShippingMethodService.GetAsync();
+                employeesFOREMPLOYEEID = await EmployeeService.GetAsync();
+
+                customerOrderShipment = new CustomerOrderShipment()
+                {
+                    CreationDate = DateTime.Now,
+                    ShippingDate = DateTime.Now,
+                    CustomerOrderId = customerOrder.CustomerOrderId,
+                    StatusDocumentTypeId = customerOrderShipmentStatusDocumentType.StatusDocumentTypeId
+                };
+
+                title = $"Despacho de Artículos para el Pedido No. {customerOrder.OrderNumber}";
+            }
+            catch (Exception ex)
+            {
+                errorMessage = ex.Message;
+                errorVisible = true;
+            }
+            finally { isLoadingInProgress = false; }
+        }
+
+        #endregion
+
+        #region Events
+
+        protected async Task<List<DetailInProcess>> GetDetailsInProcess(CustomerOrder customerOrder) => (from item in customerOrder.CustomerOrderDetails ?? throw new ArgumentException($"The references of Customer Order {customerOrder.OrderNumber}, could not be obtained.")
+                                                                                                         let viewOrderDetail = new DetailInProcess()
+                                                                                                         {
+                                                                                                             REFERENCE_ID = item.ReferenceId,
+                                                                                                             CUSTOMER_ORDER_DETAIL_ID = item.CustomerOrderDetailId,
+                                                                                                             REFERENCE_DESCRIPTION = $"({item.ItemReference.Item.InternalReference}) {item.ItemReference.Item.ItemName} - {item.ItemReference.ReferenceName}",
+                                                                                                             PENDING_QUANTITY = item.RequestedQuantity - item.ProcessedQuantity - item.DeliveredQuantity,
+                                                                                                             PROCESSED_QUANTITY = item.ProcessedQuantity,
+                                                                                                             DELIVERED_QUANTITY = item.DeliveredQuantity,
+                                                                                                             BRAND = item.Brand,
+                                                                                                             THIS_QUANTITY = 0,
+                                                                                                             ItemReference = item.ItemReference
+                                                                                                         }
+                                                                                                         select viewOrderDetail).ToList();
+
+        protected async Task SendToShipment(DetailInProcess args)
+        {
+            if (await DialogService.OpenAsync<SetQuantityShipment>("Cantidad a Despachar", new Dictionary<string, object> { { "DetailInProcess", args } }) != null)
+                await customerOrderDetailGrid.Reload();
+        }
+
+        protected async Task CancelToShipment(DetailInProcess args)
+        {
+            if (await DialogService.Confirm("Está seguro que desea eliminar esta referencia?", "Confirmar") != true)
+            {
+                return;
+            }
+
+            args.PROCESSED_QUANTITY = args.PROCESSED_QUANTITY + args.THIS_QUANTITY;
+            args.THIS_QUANTITY = 0;
+
+            await customerOrderDetailGrid.Reload();
+        }
+
+        protected bool CanCancel(DetailInProcess detailInProcess) => detailInProcess.THIS_QUANTITY > 0 && Security.IsInRole("Admin", "Customer Order Shipment Editor");
+
+        protected async Task FormSubmit()
+        {
+            try
+            {
+                dialogResult = null;
+
+                isSubmitInProgress = true;
+
+                if (!detailsInProcess.Any(x => x.THIS_QUANTITY > 0))
+                    throw new Exception("No ha ingresado ninguna cantidad a trasladar");
+
+                customerOrderShipment.CustomerOrderShipmentDetails = await MapDetailsInProcess(detailsInProcess);
+
+                await CustomerOrderShipmentService.AddAsync(customerOrderShipment);
+
+                await DialogService.Alert($"Despacho Grabado Satisfactoriamente", "Información");
+                NavigationManager.NavigateTo("Shipment-customer-orders");
+            }
+            catch (Exception ex)
+            {
+                errorMessage = ex.Message;
+                errorVisible = true;
+            }
+            finally { isSubmitInProgress = false; }
+        }
+
+        protected async Task<ICollection<CustomerOrderShipmentDetail>> MapDetailsInProcess(ICollection<DetailInProcess> detailsInProcess)
+        {
+            var customerOrderShipmentDetails = new List<CustomerOrderShipmentDetail>();
+            foreach (var details in detailsInProcess.Where(i => i.THIS_QUANTITY > 0))
+            {
+                customerOrderShipmentDetails.Add(new CustomerOrderShipmentDetail()
+                {
+                    CustomerOrderDetailId = details.CUSTOMER_ORDER_DETAIL_ID,
+                    DeliveredQuantity = details.THIS_QUANTITY,
+                    WarehouseId = details.WAREHOUSE_ID
+                });
+            }
+
+            return customerOrderShipmentDetails;
+        }
+
+        protected async Task CancelButtonClick(MouseEventArgs args)
+        {
+            if (await DialogService.Confirm("Está seguro que cancelar la creacion del Despacho??", "Confirmar") == true)
+                NavigationManager.NavigateTo("shipment-customer-orders");
+        }
+
+        #endregion
+    }
+}
