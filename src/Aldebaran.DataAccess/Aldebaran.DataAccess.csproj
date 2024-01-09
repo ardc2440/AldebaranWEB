@@ -53,4 +53,8 @@
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>
 	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Core\Triggers\Shipments\" />
+	  <Folder Include="Core\Triggers\Purchases\" />
+	</ItemGroup>
 </Project>
