@@ -15,35 +15,36 @@ namespace Aldebaran.DataAccess.Core.Triggers.OrderInProcesses
 
         public async Task BeforeSave(ITriggerContext<CustomerOrdersInProcess> context, CancellationToken cancellationToken)
         {
-            if (context.ChangeType == ChangeType.Modified)
-            {
-                var statusOrder = (await _context.StatusDocumentTypes.FindAsync(new object[] { context.Entity.StatusDocumentTypeId }, cancellationToken))!.StatusOrder;
+            if (context.ChangeType != ChangeType.Modified)
+                return;
 
-                if (statusOrder == 2)
-                {
-                    var detailChanges = context.Entity.GetType()
-                     .GetProperties()
-                     .Select(property => (name: property.Name, oldValue: property.GetValue(context.UnmodifiedEntity), newValue: property.GetValue(context.Entity)))
-                     .FirstOrDefault(x => x.newValue != x.oldValue && x.name.Equals("StatusDocumentTypeId"));
+            var statusOrder = (await _context.StatusDocumentTypes.FindAsync(new object[] { context.Entity.StatusDocumentTypeId }, cancellationToken))!.StatusOrder;
 
-                    if ((short)(detailChanges.oldValue ?? 0) != (short)(detailChanges.newValue ?? 0))
-                    {
-                        var documentType = await _context.DocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeCode == "T", cancellationToken);
-                        var statusExcutedCustomerOrderInProcess = await _context.StatusDocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeId == documentType!.DocumentTypeId && i.StatusOrder == 1, cancellationToken);
+            if (statusOrder != 2)
+                return;
 
-                        if (!_context.CustomerOrdersInProcesses.Any(i => i.StatusDocumentTypeId == statusExcutedCustomerOrderInProcess!.StatusDocumentTypeId && i.CustomerOrderInProcessId != context.Entity.CustomerOrderInProcessId))
-                        {
-                            documentType = await _context.DocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeCode == "P", cancellationToken);
-                            var statusPendingCustomerOrder = await _context.StatusDocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeId == documentType!.DocumentTypeId && i.StatusOrder == 1, cancellationToken);
+            var detailChanges = context.Entity.GetType()
+             .GetProperties()
+             .Select(property => (name: property.Name, oldValue: property.GetValue(context.UnmodifiedEntity), newValue: property.GetValue(context.Entity)))
+             .FirstOrDefault(x => x.newValue != x.oldValue && x.name.Equals("StatusDocumentTypeId"));
 
-                            var customerOrder = await _context.CustomerOrders.FirstOrDefaultAsync(i => i.CustomerOrderId == context.Entity.CustomerOrderId, cancellationToken);
+            if ((short)(detailChanges.oldValue ?? 0) == (short)(detailChanges.newValue ?? 0))
+                return;
+            var documentType = await _context.DocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeCode == "T", cancellationToken);
+            var statusExcutedCustomerOrderInProcess = await _context.StatusDocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeId == documentType!.DocumentTypeId && i.StatusOrder == 1, cancellationToken);
 
-                            if (customerOrder!.StatusDocumentTypeId != statusPendingCustomerOrder!.StatusDocumentTypeId)
-                                customerOrder!.StatusDocumentTypeId = statusPendingCustomerOrder!.StatusDocumentTypeId;
-                        }
-                    }
-                }
-            }
+            if (_context.CustomerOrdersInProcesses.Any(i => i.StatusDocumentTypeId == statusExcutedCustomerOrderInProcess!.StatusDocumentTypeId && i.CustomerOrderInProcessId != context.Entity.CustomerOrderInProcessId))
+                return;
+
+            documentType = await _context.DocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeCode == "P", cancellationToken);
+            var statusPendingCustomerOrder = await _context.StatusDocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeId == documentType!.DocumentTypeId && i.StatusOrder == 1, cancellationToken);
+
+            var customerOrder = await _context.CustomerOrders.FirstOrDefaultAsync(i => i.CustomerOrderId == context.Entity.CustomerOrderId, cancellationToken);
+
+            if (customerOrder!.StatusDocumentTypeId == statusPendingCustomerOrder!.StatusDocumentTypeId)
+                return;
+
+            customerOrder!.StatusDocumentTypeId = statusPendingCustomerOrder!.StatusDocumentTypeId;
         }
     }
 }

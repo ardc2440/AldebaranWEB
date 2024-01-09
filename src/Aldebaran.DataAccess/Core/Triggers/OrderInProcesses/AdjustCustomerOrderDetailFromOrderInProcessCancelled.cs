@@ -14,24 +14,24 @@ namespace Aldebaran.DataAccess.Core.Triggers.OrderInProcesses
 
         public async Task BeforeSave(ITriggerContext<CustomerOrdersInProcess> context, CancellationToken cancellationToken)
         {
-            if (context.ChangeType == ChangeType.Modified)
-            {
-                var statusOrder = (await _context.StatusDocumentTypes.FindAsync(new object[] { context.Entity.StatusDocumentTypeId }, cancellationToken))!.StatusOrder;
+            if (context.ChangeType != ChangeType.Modified)
+                return;
 
-                if (statusOrder == 2)
-                {
-                    var detailChanges = context.Entity.GetType()
-                     .GetProperties()
-                     .Select(property => (name: property.Name, oldValue: property.GetValue(context.UnmodifiedEntity), newValue: property.GetValue(context.Entity)))
-                     .FirstOrDefault(x => x.newValue != x.oldValue && x.name.Equals("StatusDocumentTypeId"));
+            var statusOrder = (await _context.StatusDocumentTypes.FindAsync(new object[] { context.Entity.StatusDocumentTypeId }, cancellationToken))!.StatusOrder;
 
-                    if ((short)(detailChanges.oldValue ?? 0) != (short)(detailChanges.newValue ?? 0))
-                    {
-                        foreach (var item in context.Entity.CustomerOrderInProcessDetails)
-                            await UpdateProcessedQuantityAsync(item.CustomerOrderDetailId, item.ProcessedQuantity, -1, cancellationToken);
-                    }
-                }
-            }
+            if (statusOrder == 2)
+                return;
+
+            var detailChanges = context.Entity.GetType()
+             .GetProperties()
+             .Select(property => (name: property.Name, oldValue: property.GetValue(context.UnmodifiedEntity), newValue: property.GetValue(context.Entity)))
+             .FirstOrDefault(x => x.newValue != x.oldValue && x.name.Equals("StatusDocumentTypeId"));
+
+            if ((short)(detailChanges.oldValue ?? 0) == (short)(detailChanges.newValue ?? 0))
+                return;
+
+            foreach (var item in context.Entity.CustomerOrderInProcessDetails)
+                await UpdateProcessedQuantityAsync(item.CustomerOrderDetailId, item.ProcessedQuantity, -1, cancellationToken);
         }
     }
 }

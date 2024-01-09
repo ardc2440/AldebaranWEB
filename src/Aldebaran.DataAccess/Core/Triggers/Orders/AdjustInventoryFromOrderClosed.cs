@@ -14,28 +14,29 @@ namespace Aldebaran.DataAccess.Core.Triggers.Orders
 
         public async Task BeforeSave(ITriggerContext<CustomerOrder> context, CancellationToken cancellationToken)
         {
-            if (context.ChangeType == ChangeType.Modified)
+            if (context.ChangeType != ChangeType.Modified)
+                return;
+
+            var statusOrder = (await _context.StatusDocumentTypes.FindAsync(new object[] { context.Entity.StatusDocumentTypeId }, cancellationToken))!.StatusOrder;
+
+            if (statusOrder != 5)
+                return;
+
+            var detailChanges = context.Entity.GetType()
+             .GetProperties()
+             .Select(property => (name: property.Name, oldValue: property.GetValue(context.UnmodifiedEntity), newValue: property.GetValue(context.Entity)))
+             .FirstOrDefault(x => x.newValue != x.oldValue && x.name.Equals("StatusDocumentTypeId"));
+
+            if ((short)(detailChanges.oldValue ?? 0) == (short)(detailChanges.newValue ?? 0))
+                return;
+
+            var indicatorInOut = -1;
+
+            foreach (var item in context.Entity.CustomerOrderDetails)
             {
-                var statusOrder = (await _context.StatusDocumentTypes.FindAsync(new object[] { context.Entity.StatusDocumentTypeId }, cancellationToken))!.StatusOrder;
+                var reversedQuantity = item.RequestedQuantity - item.ProcessedQuantity - item.DeliveredQuantity;
 
-                if (statusOrder == 5)
-                {
-                    var detailChanges = context.Entity.GetType()
-                     .GetProperties()
-                     .Select(property => (name: property.Name, oldValue: property.GetValue(context.UnmodifiedEntity), newValue: property.GetValue(context.Entity)))
-                     .FirstOrDefault(x => x.newValue != x.oldValue && x.name.Equals("StatusDocumentTypeId"));
-
-                    if ((short)(detailChanges.oldValue ?? 0) != (short)(detailChanges.newValue ?? 0))
-                    {
-                        var indicatorInOut = -1;
-                        foreach (var item in context.Entity.CustomerOrderDetails)
-                        {
-                            var reversedQuantity = item.RequestedQuantity - item.ProcessedQuantity - item.DeliveredQuantity;
-
-                            await UpdateOrderedQuantityAsync(item.ReferenceId, reversedQuantity, indicatorInOut, cancellationToken);
-                        }
-                    }
-                }
+                await UpdateOrderedQuantityAsync(item.ReferenceId, reversedQuantity, indicatorInOut, cancellationToken);
             }
         }
     }

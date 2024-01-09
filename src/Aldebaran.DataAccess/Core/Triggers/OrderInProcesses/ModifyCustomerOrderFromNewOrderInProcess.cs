@@ -15,16 +15,18 @@ namespace Aldebaran.DataAccess.Core.Triggers.OrderInProcesses
 
         public async Task BeforeSave(ITriggerContext<CustomerOrdersInProcess> context, CancellationToken cancellationToken)
         {
-            if (context.ChangeType == ChangeType.Added)
-            {
-                var documentType = await _context.DocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeCode == "P", cancellationToken);
-                var statusInProcessCustomerOrder = await _context.StatusDocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeId == documentType!.DocumentTypeId && i.StatusOrder == 2, cancellationToken);
+            if (context.ChangeType != ChangeType.Added)
+                return;
 
-                var customerOrder = await _context.CustomerOrders.FirstOrDefaultAsync(i => i.CustomerOrderId == context.Entity.CustomerOrderId, cancellationToken);
+            var documentType = await _context.DocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeCode == "P", cancellationToken);
+            var statusInProcessCustomerOrder = await _context.StatusDocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeId == documentType!.DocumentTypeId && i.StatusOrder == 2, cancellationToken);
 
-                if (customerOrder!.StatusDocumentTypeId != statusInProcessCustomerOrder!.StatusDocumentTypeId)
-                    customerOrder!.StatusDocumentTypeId = statusInProcessCustomerOrder!.StatusDocumentTypeId;
-            }
+            var customerOrder = await _context.CustomerOrders.FirstOrDefaultAsync(i => i.CustomerOrderId == context.Entity.CustomerOrderId, cancellationToken);
+
+            if (customerOrder!.StatusDocumentTypeId == statusInProcessCustomerOrder!.StatusDocumentTypeId)
+                return;
+
+            customerOrder!.StatusDocumentTypeId = statusInProcessCustomerOrder!.StatusDocumentTypeId;
         }
     }
 }
