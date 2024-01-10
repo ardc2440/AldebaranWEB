@@ -1,13 +1,13 @@
 ﻿using Aldebaran.DataAccess.Entities;
 using EntityFrameworkCore.Triggered;
 
-namespace Aldebaran.DataAccess.Core.Triggers.Reservations
+namespace Aldebaran.DataAccess.Core.Triggers.Orders
 {
-    public class AdjustmentInventoryFromModifiedOrderDetail : InventoryManagementBase, IBeforeSaveTrigger<CustomerOrderDetail>
+    public class AdjustInventoryFromModifiedOrderDetail : InventoryManagementBase, IBeforeSaveTrigger<CustomerOrderDetail>
     {
         private readonly AldebaranDbContext _context;
 
-        public AdjustmentInventoryFromModifiedOrderDetail(AldebaranDbContext context) : base(context)
+        public AdjustInventoryFromModifiedOrderDetail(AldebaranDbContext context) : base(context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
@@ -24,8 +24,8 @@ namespace Aldebaran.DataAccess.Core.Triggers.Reservations
                 var reference = detailChanges.FirstOrDefault(x => x.name.Equals("ReferenceId"));
                 var quantity = detailChanges.FirstOrDefault(x => x.name.Equals("RequestedQuantity"));
 
-                await UpdateOrderedQuantity((int)(reference.oldValue ?? 0), (int)(quantity.oldValue ?? 0), -1, cancellationToken);
-                await UpdateOrderedQuantity((int)(reference.newValue ?? 0), (int)(quantity.newValue ?? 0), 1, cancellationToken);
+                await UpdateOrderedQuantityAsync((int)(reference.oldValue ?? 0), (int)(quantity.oldValue ?? 0), -1, cancellationToken);
+                await UpdateOrderedQuantityAsync((int)(reference.newValue ?? 0), (int)(quantity.newValue ?? 0), 1, cancellationToken);
             }
         }
     }

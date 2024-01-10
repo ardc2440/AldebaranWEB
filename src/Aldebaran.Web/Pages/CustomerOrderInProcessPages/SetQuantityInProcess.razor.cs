@@ -18,6 +18,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         [Inject]
         protected IWarehouseService WarehouseService { get; set; }
 
+        [Inject]
+        protected IItemReferenceService ItemReferenceService { get; set; }
+
         #endregion
 
         #region Parameters
@@ -58,7 +61,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                 PENDING_QUANTITY = DetailInProcess.PENDING_QUANTITY,
                 PROCESSED_QUANTITY = DetailInProcess.PROCESSED_QUANTITY,
                 REFERENCE_DESCRIPTION = DetailInProcess.REFERENCE_DESCRIPTION,
-                REFERENCE_ID = DetailInProcess.REFERENCE_ID
+                REFERENCE_ID = DetailInProcess.REFERENCE_ID,
+                ItemReference = DetailInProcess.ItemReference
             };
 
             if (detailInProcess.THIS_QUANTITY == 0)

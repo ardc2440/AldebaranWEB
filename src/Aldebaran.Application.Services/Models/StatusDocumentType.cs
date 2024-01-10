@@ -13,6 +13,9 @@ namespace Aldebaran.Application.Services.Models
         public ICollection<CustomerOrder> CustomerOrders { get; set; }
         public ICollection<CustomerReservation> CustomerReservations { get; set; }
         public ICollection<PurchaseOrder> PurchaseOrders { get; set; }
+        public ICollection<CustomerOrdersInProcess> CustomerOrdersInProcesses { get; set; }
+        public ICollection<CustomerOrderShipment> CustomerOrderShipments { get; set; }
+
         public DocumentType DocumentType { get; set; }
         public StatusDocumentType()
         {

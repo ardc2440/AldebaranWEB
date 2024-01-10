@@ -128,7 +128,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                                                                                                              PROCESSED_QUANTITY = item.ProcessedQuantity,
                                                                                                              DELIVERED_QUANTITY = item.DeliveredQuantity,
                                                                                                              BRAND = item.Brand,
-                                                                                                             THIS_QUANTITY = 0
+                                                                                                             THIS_QUANTITY = 0,
+                                                                                                             ItemReference = item.ItemReference
                                                                                                          }
                                                                                                          select viewOrderDetail).ToList();
 
@@ -150,6 +151,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
             await customerOrderDetailGrid.Reload();
         }
+
+        protected bool CanSend(DetailInProcess detailInProcess) => detailInProcess.PENDING_QUANTITY > 0 && Security.IsInRole("Admin", "Customer Order In Process Editor");
 
         protected bool CanCancel(DetailInProcess detailInProcess) => detailInProcess.THIS_QUANTITY > 0 && Security.IsInRole("Admin", "Customer Order In Process Editor");
 
@@ -182,7 +185,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         protected async Task<ICollection<CustomerOrderInProcessDetail>> MapDetailsInProcess(ICollection<DetailInProcess> detailsInProcess)
         {
             var customerOrderInProcessDetails = new List<CustomerOrderInProcessDetail>();
-            foreach (var details in detailsInProcess)
+            foreach (var details in detailsInProcess.Where(i => i.THIS_QUANTITY > 0))
             {
                 customerOrderInProcessDetails.Add(new CustomerOrderInProcessDetail()
                 {

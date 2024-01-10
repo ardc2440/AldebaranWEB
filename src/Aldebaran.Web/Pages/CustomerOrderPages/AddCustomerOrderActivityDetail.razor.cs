@@ -145,11 +145,11 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                     throw new Exception("El tipo de actividad seleccionada, ya existe dentro de esta actividad del pedido.");
 
                 var activityType = await ActivityTypeService.FindAsync(customerOrderActivityDetail.ActivityTypeId);
-                var employeeActivity = await EmployeeService.FindAsync(customerOrderActivityDetail.ActivityEmployeeId);
+                var activityEmployee = await EmployeeService.FindAsync(customerOrderActivityDetail.ActivityEmployeeId);
                 var employee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id);
 
                 customerOrderActivityDetail.ActivityType = activityType;
-                customerOrderActivityDetail.ActivityEmployee = employeeActivity;
+                customerOrderActivityDetail.ActivityEmployee = activityEmployee;
                 customerOrderActivityDetail.Employee_EmployeeId = employee;
                 customerOrderActivityDetail.EmployeeId = employee.EmployeeId;
 

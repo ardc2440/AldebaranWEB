@@ -6,6 +6,7 @@ using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
+using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.CustomerPages
 {

@@ -104,7 +104,10 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
                     await CustomerReservationService.CancelAsync(customerReservation.CustomerReservationId, cancelStatusDocumentType.StatusDocumentTypeId);
 
-                    DialogResult = new DialogResult { Success = true, Message = "Reserva cancelada correctamente." };
+                    customerReservation.StatusDocumentType = cancelStatusDocumentType;
+                    customerReservation.StatusDocumentTypeId = cancelStatusDocumentType.StatusDocumentTypeId;
+
+                    await DialogService.Alert($"Reserva cancelada correctamente", "Información");
                     await grid0.Reload();
                 }
             }

@@ -11,6 +11,8 @@ namespace Aldebaran.Application.Services.Models
         public int EmployeeId { get; set; }
         public DateTime ShippingDate { get; set; }
         public DateTime CreationDate { get; set; }
+        public short StatusDocumentTypeId { get; set; }
+
         // Reverse navigation
         public CanceledOrderShipment CanceledOrderShipment { get; set; }
         public ICollection<CustomerOrderShipmentDetail> CustomerOrderShipmentDetails { get; set; }
@@ -18,6 +20,8 @@ namespace Aldebaran.Application.Services.Models
         public CustomerOrder CustomerOrder { get; set; }
         public Employee Employee { get; set; }
         public ShippingMethod ShippingMethod { get; set; }
+        public StatusDocumentType StatusDocumentType { get; set; }
+
         public CustomerOrderShipment()
         {
             ShippingDate = DateTime.Now;
