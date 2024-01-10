@@ -1,57 +1,97 @@
+using Aldebaran.Application.Services;
+using Aldebaran.Web.Models;
+using Aldebaran.Web.Models.ViewModels;
+using AutoMapper;
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
 using Radzen;
+using ServiceModel = Aldebaran.Application.Services.Models;
 
 namespace Aldebaran.Web.Pages
 {
     public partial class Profile
     {
+        #region Injections
         [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
-
-        [Inject]
-        protected NavigationManager NavigationManager { get; set; }
-
-        [Inject]
-        protected DialogService DialogService { get; set; }
-
-        [Inject]
-        protected TooltipService TooltipService { get; set; }
-
-        [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
-
-        [Inject]
-        protected NotificationService NotificationService { get; set; }
-
-        protected string oldPassword = "";
-        protected string newPassword = "";
-        protected string confirmPassword = "";
-        protected Models.ApplicationUser user;
-        protected string error;
-        protected bool errorVisible;
-        protected bool successVisible;
+        protected ILogger<Profile> Logger { get; set; }
 
         [Inject]
         protected SecurityService Security { get; set; }
 
+        [Inject]
+        protected IMapper Mapper { get; set; }
+
+        [Inject]
+        protected IEmployeeService EmployeeService { get; set; }
+
+        [Inject]
+        protected NotificationService NotificationService { get; set; }
+
+        [Inject]
+        protected DialogService DialogService { get; set; }
+        #endregion
+
+        #region Variables
+        protected string OldPassword = "";
+        protected string NewPassword = "";
+        protected string ConfirmPassword = "";
+        protected string Error;
+        protected bool IsErrorVisible;
+        protected DialogResult DialogResult { get; set; }
+        protected bool IsSubmitInProgress;
+
+        protected ServiceModel.Employee Employee;
+        protected ApplicationUser ApplicationUser;
+        #endregion
+
+        #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            user = await Security.GetUserById($"{Security.User.Id}");
+            ApplicationUser = await Security.GetUserById($"{Security.User.Id}");
+            Employee = await EmployeeService.FindByLoginUserIdAsync(ApplicationUser.Id);
         }
+        #endregion
 
-        protected async Task FormSubmit()
+        #region Events
+        protected async Task EmployeeFormSubmit()
         {
             try
             {
-                await Security.ChangePassword(oldPassword, newPassword);
-                successVisible = true;
+                DialogResult = null;
+                if (await DialogService.Confirm("Está seguro que desea actualizar su información?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar actualización") == true)
+                {
+                    await EmployeeService.UpdateAsync(Employee.EmployeeId, Employee);
+                    DialogResult = new DialogResult { Success = true, Message = "Información actualizada correctamente." };
+                }
             }
             catch (Exception ex)
             {
-                errorVisible = true;
-                error = ex.Message;
+                Logger.LogError(ex, nameof(EmployeeFormSubmit));
+                IsErrorVisible = true;
+                Error = ex.Message;
             }
         }
+        protected async Task ApplicationUserFormSubmit()
+        {
+            try
+            {
+                DialogResult = null;
+                if (await DialogService.Confirm("Está seguro que desea actualizar su contraseña?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar actualización") == true)
+                {
+                    IsErrorVisible = false;
+                    await Security.ChangePassword(OldPassword, NewPassword);
+                    DialogResult = new DialogResult { Success = true, Message = "Contraseña actualizada correctamente." };
+                    OldPassword = "";
+                    NewPassword = "";
+                    ConfirmPassword = "";
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, nameof(ApplicationUserFormSubmit));
+                IsErrorVisible = true;
+                Error = ex.Message;
+            }
+        }
+        #endregion
     }
 }
