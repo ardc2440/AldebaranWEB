@@ -9,6 +9,8 @@ namespace Aldebaran.Web.Pages.CustomerPages
     public partial class EditCustomer
     {
         #region Injections
+        [Inject]
+        protected ILogger<EditCustomer> Logger { get; set; }
 
         [Inject]
         protected DialogService DialogService { get; set; }
@@ -30,10 +32,10 @@ namespace Aldebaran.Web.Pages.CustomerPages
 
         #region Global Variables
 
-        protected bool errorVisible;
-        protected Customer customer;
-        protected IEnumerable<IdentityType> identityTypesForIDENTITYTYPEID;
-        protected bool isSubmitInProgress;
+        protected bool IsErrorVisible;
+        protected Customer Customer;
+        protected IEnumerable<IdentityType> IdentityTypesForSelection = new List<IdentityType>();
+        protected bool IsSubmitInProgress;
 
         #endregion
 
@@ -41,8 +43,8 @@ namespace Aldebaran.Web.Pages.CustomerPages
 
         protected override async Task OnInitializedAsync()
         {
-            customer = await CustomerService.FindAsync(CUSTOMER_ID);
-            identityTypesForIDENTITYTYPEID = await IdentityTypeService.GetAsync();
+            Customer = await CustomerService.FindAsync(CUSTOMER_ID);
+            IdentityTypesForSelection = await IdentityTypeService.GetAsync();
         }
 
         #endregion
@@ -53,23 +55,24 @@ namespace Aldebaran.Web.Pages.CustomerPages
         {
             try
             {
-                isSubmitInProgress = true;
-                await CustomerService.UpdateAsync(CUSTOMER_ID, customer);
+                IsSubmitInProgress = true;
+                await CustomerService.UpdateAsync(CUSTOMER_ID, Customer);
                 DialogService.Close(true);
             }
             catch (Exception ex)
             {
-                errorVisible = true;
+                Logger.LogError(ex, nameof(FormSubmit));
+                IsErrorVisible = true;
             }
             finally
             {
-                isSubmitInProgress = false;
+                IsSubmitInProgress = false;
             }
         }
 
         protected async Task LocalizationHandler(City city)
         {
-            customer.CityId = city?.CityId ?? 0;
+            Customer.CityId = city?.CityId ?? 0;
         }
 
         protected async Task CancelButtonClick(MouseEventArgs args)

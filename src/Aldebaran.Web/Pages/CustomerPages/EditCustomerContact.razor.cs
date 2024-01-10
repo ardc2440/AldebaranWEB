@@ -9,6 +9,8 @@ namespace Aldebaran.Web.Pages.CustomerPages
     public partial class EditCustomerContact
     {
         #region Injections
+        [Inject]
+        protected ILogger<EditCustomerContact> Logger { get; set; }
 
         [Inject]
         protected DialogService DialogService { get; set; }
@@ -36,11 +38,11 @@ namespace Aldebaran.Web.Pages.CustomerPages
 
         #region Global Variables
 
-        protected bool errorVisible;
-        protected CustomerContact customerContact;
-        protected City city;
-        protected Customer customer;
-        protected bool isSubmitInProgress;
+        protected bool IsErrorVisible;
+        protected CustomerContact CustomerContact;
+        protected City CustomerCity;
+        protected Customer Customer;
+        protected bool IsSubmitInProgress;
 
         #endregion
 
@@ -48,9 +50,9 @@ namespace Aldebaran.Web.Pages.CustomerPages
 
         protected override async Task OnInitializedAsync()
         {
-            customerContact = await CustomerContactService.FindAsync(CUSTOMER_CONTACT_ID);
-            customer = await CustomerService.FindAsync(customerContact.CustomerId);
-            city = await CityService.FindAsync(customer.CityId);
+            CustomerContact = await CustomerContactService.FindAsync(CUSTOMER_CONTACT_ID);
+            Customer = await CustomerService.FindAsync(CustomerContact.CustomerId);
+            CustomerCity = await CityService.FindAsync(Customer.CityId);
         }
 
         #endregion
@@ -61,17 +63,18 @@ namespace Aldebaran.Web.Pages.CustomerPages
         {
             try
             {
-                isSubmitInProgress = true;
-                await CustomerContactService.UpdateAsync(CUSTOMER_CONTACT_ID, customerContact);
+                IsSubmitInProgress = true;
+                await CustomerContactService.UpdateAsync(CUSTOMER_CONTACT_ID, CustomerContact);
                 DialogService.Close(true);
             }
             catch (Exception ex)
             {
-                errorVisible = true;
+                Logger.LogError(ex, nameof(FormSubmit));
+                IsErrorVisible = true;
             }
             finally
             {
-                isSubmitInProgress = false;
+                IsSubmitInProgress = false;
             }
         }
 
