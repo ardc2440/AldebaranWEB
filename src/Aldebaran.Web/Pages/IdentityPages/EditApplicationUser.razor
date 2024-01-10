@@ -1,16 +1,15 @@
 @page "/edit-application-user/{Id}"
 @attribute [Authorize]
 
-<PageTitle>Actualizar inicio de sesión</PageTitle>
 <RadzenColumn SizeMD="12">
-    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible" Title="No se ha podido actualizar el inicio de sesión">@error</RadzenAlert>
-    <RadzenTemplateForm TItem="Aldebaran.Web.Models.ApplicationUser" Data="@applicationUser" Visible="@(applicationUser != null)" Submit="@FormSubmit">
+    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@IsErrorVisible" Title="No se ha podido actualizar el inicio de sesión">@Error</RadzenAlert>
+    <RadzenTemplateForm TItem="Aldebaran.Web.Models.ApplicationUser" Data="@ApplicationUser" Visible="@(ApplicationUser != null)" Submit="@FormSubmit">
         <RadzenStack>
             <RadzenRow AlignItems="Radzen.AlignItems.Start">
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Correo electrónico" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="width: 100%" @bind-Value="@(applicationUser.Email)" Name="Email" />
+                            <RadzenTextBox style="width: 100%" @bind-Value="@(ApplicationUser.Email)" Name="Email" />
                         </ChildContent>
                         <Helper>
                             <RadzenRequiredValidator Component="Email" Text="Correo electrónico es requerido" />
@@ -20,7 +19,7 @@
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Nombre de usuario" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="width: 100%" @bind-Value="@(applicationUser.UserName)" Name="UserName" ReadOnly="true" />
+                            <RadzenTextBox style="width: 100%" @bind-Value="@(ApplicationUser.UserName)" Name="UserName" ReadOnly="true" />
                         </ChildContent>
                         <Helper>
                             <RadzenRequiredValidator Component="UserName" Text="Nombre de usuario es requerido" />
@@ -30,14 +29,14 @@
             </RadzenRow>
             <RadzenFormField Text="Roles" Variant="Variant.Text">
                 <ChildContent>
-                    <RadzenDropDown Data="@roles" Multiple="true" style="width: 100%" TextProperty="Name" @bind-Value="@(userRoles)" ValueProperty="Id" Name="Roles" AllowSelectAll="false" AllowClear="true" AllowFiltering="true" ClearSearchAfterSelection="true" />
+                    <RadzenDropDown Data="@ApplicationRoles" Multiple="true" style="width: 100%" TextProperty="Name" @bind-Value="@(UserRoles)" ValueProperty="Id" Name="Roles" AllowSelectAll="false" AllowClear="true" AllowFiltering="true" ClearSearchAfterSelection="true" />
                 </ChildContent>
             </RadzenFormField>
             <RadzenRow AlignItems="Radzen.AlignItems.Start">
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Contraseña" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenPassword @bind-Value="@(applicationUser.Password)" style="display: block; width: 100%" Name="Password" AutoCompleteType="Radzen.Blazor.AutoCompleteType.NewPassword" />
+                            <RadzenPassword @bind-Value="@(ApplicationUser.Password)" style="display: block; width: 100%" Name="Password" AutoCompleteType="Radzen.Blazor.AutoCompleteType.NewPassword" />
                         </ChildContent>
                         <Helper>
                             <RadzenRequiredValidator Component="Email" Text="Contraseña es requerida" />
@@ -47,10 +46,10 @@
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Confirmar contraseña" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenPassword style="display: block; width: 100%" @bind-Value="@(applicationUser.ConfirmPassword)" Name="ConfirmPassword"/>
+                            <RadzenPassword style="display: block; width: 100%" @bind-Value="@(ApplicationUser.ConfirmPassword)" Name="ConfirmPassword"/>
                         </ChildContent>
                         <Helper>
-                            <RadzenCompareValidator Text="Las contraseñas deben coincidir" Component="ConfirmPassword" Value="@applicationUser.Password" style="display: block; width: 100%" />
+                            <RadzenCompareValidator Text="Las contraseñas deben coincidir" Component="ConfirmPassword" Value="@ApplicationUser.Password" style="display: block; width: 100%" />
                         </Helper>
                     </RadzenFormField>
                 </RadzenColumn>
@@ -58,7 +57,7 @@
             <RadzenAlert Shade="Shade.Lighter" Variant="Radzen.Variant.Filled" Size="Radzen.AlertSize.ExtraSmall" AlertStyle="Radzen.AlertStyle.Info" Visible="true" AllowClose="false">Si la contraseña no es ingresada esta no será actualizada</RadzenAlert>
         </RadzenStack>
         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem" style="margin-top:1rem;">
-            <RadzenButton ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@isSubmitInProgress" />
+            <RadzenButton ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />
             <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Click="@CancelClick" Variant="Variant.Flat" />
         </RadzenStack>
     </RadzenTemplateForm>

@@ -1,28 +1,19 @@
+using Aldebaran.Application.Services;
 using Aldebaran.Web.Models;
 using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
 using Radzen;
 
 namespace Aldebaran.Web.Pages.IdentityPages
 {
     public partial class ApplicationUsers
     {
+        #region Injections
         [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
-
-        [Inject]
-        protected NavigationManager NavigationManager { get; set; }
-
+        protected ILogger<ApplicationUsers> Logger { get; set; }
         [Inject]
         protected DialogService DialogService { get; set; }
-
-        [Inject]
-        protected TooltipService TooltipService { get; set; }
-
-        [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
 
         [Inject]
         protected NotificationService NotificationService { get; set; }
@@ -31,66 +22,83 @@ namespace Aldebaran.Web.Pages.IdentityPages
         protected SecurityService Security { get; set; }
 
         [Inject]
-        protected TooltipService tooltipService { get; set; }
+        protected TooltipService TooltipService { get; set; }
 
-        protected IEnumerable<ApplicationUser> users;
+        [Inject]
+        protected IEmployeeService EmployeeService { get; set; }
+        #endregion
+
+        #region Variables
+        protected IEnumerable<ApplicationUser> ApplicationUser;
         protected LocalizedDataGrid<ApplicationUser> ApplicationUserDataGrid;
-        protected string error;
-        protected bool errorVisible;
-        protected DialogResult dialogResult { get; set; }
+        protected bool IsErrorVisible;
+        protected DialogResult DialogResult { get; set; }
+        #endregion
 
-        void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => tooltipService.Open(elementReference, content, options);
+        #region Overrides
         protected override async Task OnInitializedAsync()
         {
             await GetUsers();
         }
+        #endregion
 
+        #region Events
+        void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
         private async Task GetUsers()
         {
             var applicationUsers = await Security.GetUsers();
-            users = applicationUsers;
+            ApplicationUser = applicationUsers;
         }
-
-        protected async Task AddClick()
+        protected async Task AddApplicationUser()
         {
-            dialogResult = null;
+            DialogResult = null;
             var result = await DialogService.OpenAsync<AddApplicationUser>("Nuevo inicio de sesión");
             if (result == true)
             {
-                dialogResult = new DialogResult { Success = true, Message = "Inicio de sesión creado correctamente." };
+                DialogResult = new DialogResult { Success = true, Message = "Inicio de sesión creado correctamente." };
             }
             await GetUsers();
             await ApplicationUserDataGrid.Reload();
         }
-
-        protected async Task EditRow(ApplicationUser user)
+        protected async Task EditApplicationUser(ApplicationUser user)
         {
-            dialogResult = null;
+            DialogResult = null;
             var result = await DialogService.OpenAsync<EditApplicationUser>("Actualizar inicio de sesión", new Dictionary<string, object> { { "Id", user.Id } });
             if (result == true)
             {
-                dialogResult = new DialogResult { Success = true, Message = "Inicio de sesión actualizado correctamente." };
+                DialogResult = new DialogResult { Success = true, Message = "Inicio de sesión actualizado correctamente." };
             }
             await GetUsers();
             await ApplicationUserDataGrid.Reload();
         }
-
-        protected async Task DeleteClick(ApplicationUser user)
+        protected async Task DeleteApplicationUser(ApplicationUser user)
         {
-            dialogResult = null;
-            var confirm = await DialogService.Confirm("Está seguro que desea eliminar este inicio de sesión?");
-            if (confirm == false)
-                return;
             try
             {
+                DialogResult = null;
+                var confirm = await DialogService.Confirm("Está seguro que desea eliminar este inicio de sesión?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación");
+                if (confirm == false)
+                    return;
+
+                // Verificar que el inicio de sesion no esta asociado a un funcionario
+                var employee = await EmployeeService.FindByLoginUserIdAsync(user.Id);
+                if (employee != null)
+                {
+                    DialogResult = new DialogResult { Success = false, Message = $"Inicio de sesión pertenece a un funcionario, elimine primero el funcionario \"({employee.Position}) - {employee.FullName}\" asociado al inicio de sesión y posteriormente proceda con la eliminación del inicio de sesión." };
+                    return;
+                }
+
                 var result = await Security.DeleteUser($"{user.Id}");
                 if (result != null)
                 {
-                    dialogResult = new DialogResult { Success = true, Message = "Inicio de sesión eliminado correctamente." };
+                    DialogResult = new DialogResult { Success = true, Message = "Inicio de sesión eliminado correctamente." };
                 }
+                await GetUsers();
+                await ApplicationUserDataGrid.Reload();
             }
             catch (Exception ex)
             {
+                Logger.LogError(ex, nameof(DeleteApplicationUser));
                 NotificationService.Notify(new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
@@ -98,25 +106,24 @@ namespace Aldebaran.Web.Pages.IdentityPages
                     Detail = $"No se ha podido eliminar el inicio de sesión"
                 });
             }
-            finally
+        }
+        protected async Task LockApplicationUser(ApplicationUser user)
+        {
+            try
             {
+                DialogResult = null;
+                var confirm = await DialogService.Confirm("Desea bloquear el ingreso de este usuario?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación");
+                if (confirm == false)
+                    return;
+
+                await Security.LockUser(user.Id);
+                DialogResult = new DialogResult { Success = true, Message = "Usuario bloqueado correctamente." };
                 await GetUsers();
                 await ApplicationUserDataGrid.Reload();
             }
-        }
-
-        protected async Task LockUserClick(ApplicationUser user)
-        {
-            var confirm = await DialogService.Confirm("Desea bloquear el ingreso de este usuario?");
-            if (confirm == false)
-                return;
-            try
-            {
-                await Security.LockUser(user.Id);
-                dialogResult = new DialogResult { Success = true, Message = "Usuario bloqueado correctamente." };
-            }
             catch (Exception ex)
             {
+                Logger.LogError(ex, nameof(LockApplicationUser));
                 NotificationService.Notify(new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
@@ -124,24 +131,24 @@ namespace Aldebaran.Web.Pages.IdentityPages
                     Detail = $"No se ha podido bloquear el usuario"
                 });
             }
-            finally
+        }
+        protected async Task UnLockApplicationUser(ApplicationUser user)
+        {
+            try
             {
+                DialogResult = null;
+                var confirm = await DialogService.Confirm("Desea desbloquear el ingreso de este usuario?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación");
+                if (confirm == false)
+                    return;
+
+                await Security.UnlockUser(user.Id);
+                DialogResult = new DialogResult { Success = true, Message = "Usuario desbloqueado correctamente." };
                 await GetUsers();
                 await ApplicationUserDataGrid.Reload();
             }
-        }
-        protected async Task UnLockUserClick(ApplicationUser user)
-        {
-            var confirm = await DialogService.Confirm("Desea desbloquear el ingreso de este usuario?");
-            if (confirm == false)
-                return;
-            try
-            {
-                await Security.UnlockUser(user.Id);
-                dialogResult = new DialogResult { Success = true, Message = "Usuario desbloqueado correctamente." };
-            }
             catch (Exception ex)
             {
+                Logger.LogError(ex, nameof(UnLockApplicationUser));
                 NotificationService.Notify(new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
@@ -149,11 +156,7 @@ namespace Aldebaran.Web.Pages.IdentityPages
                     Detail = $"No se ha podido desbloquear el usuario"
                 });
             }
-            finally
-            {
-                await GetUsers();
-                await ApplicationUserDataGrid.Reload();
-            }
         }
+        #endregion
     }
 }

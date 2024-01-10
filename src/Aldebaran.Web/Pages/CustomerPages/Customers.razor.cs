@@ -6,7 +6,6 @@ using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
-using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.CustomerPages
 {
@@ -33,7 +32,7 @@ namespace Aldebaran.Web.Pages.CustomerPages
 
         #endregion
 
-        #region Global Variables
+        #region Variables
 
         protected IEnumerable<Customer> CustomersList;
         protected LocalizedDataGrid<Customer> CustomerDataGrid;
@@ -52,7 +51,6 @@ namespace Aldebaran.Web.Pages.CustomerPages
             try
             {
                 IsLoadingInProgress = true;
-                await Task.Yield();
                 await GetCustomersAsync();
             }
             finally
@@ -103,7 +101,7 @@ namespace Aldebaran.Web.Pages.CustomerPages
             try
             {
                 DialogResult = null;
-                if (await DialogService.Confirm("Está seguro que desea eliminar este cliente?") == true)
+                if (await DialogService.Confirm("Está seguro que desea eliminar este cliente?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
                 {
                     await CustomerService.DeleteAsync(customer.CustomerId);
                     await GetCustomersAsync();
@@ -168,7 +166,7 @@ namespace Aldebaran.Web.Pages.CustomerPages
             try
             {
                 DialogResult = null;
-                if (await DialogService.Confirm("Está seguro que desea eliminar este contacto?") == true)
+                if (await DialogService.Confirm("Está seguro que desea eliminar este contacto?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
                 {
                     await CustomerContactService.DeleteAsync(customerContact.CustomerContactId);
                     await GetCustomerContacts(Customer);

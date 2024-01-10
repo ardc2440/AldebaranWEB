@@ -1,5 +1,6 @@
 @page "/application-roles"
 @attribute [Authorize]
+@using Aldebaran.Web.Resources.LocalizedControls;
 
 <PageTitle>Roles</PageTitle>
 <RadzenStack>
@@ -11,8 +12,8 @@
     <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
     <RadzenRow>
         <RadzenColumn SizeMD="12">
-            <RadzenDataGrid @ref="ApplicationRoleDataGrid" AllowFiltering="true" AllowPaging="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                            AllowSorting="true" Data="@roles" TItem="Aldebaran.Web.Models.ApplicationRole" RowExpand=@GetChildData ExpandMode="Radzen.DataGridExpandMode.Single" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive">
+            <LocalizedDataGrid @ref="ApplicationRoleDataGrid" AllowFiltering="true" AllowPaging="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                            AllowSorting="true" Data="@ApplicationRolesList" TItem="Aldebaran.Web.Models.ApplicationRole" RowExpand=@GetApplicationUsers ExpandMode="Radzen.DataGridExpandMode.Single" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive">
                 <Columns>
                     <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ApplicationRole" Property="Name" Title="Nombre" />
                 </Columns>
@@ -23,8 +24,8 @@
                                 <RadzenText Visible="@(role != null)" Text="Inicios de sesión" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
                             </RadzenColumn>
                         </RadzenRow>
-                        <RadzenDataGrid ColumnWidth="200px" Visible="@(role != null)" @ref=ApplicationUserDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                        Data="@users" TItem="Aldebaran.Web.Models.ApplicationUser" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" AllowGrouping="true" AllowColumnReorder="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" IsLoading="@isLoadingInProgress">
+                        <LocalizedDataGrid ColumnWidth="200px" Visible="@(role != null)" @ref=ApplicationUserDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                        Data="@ApplicationUsers" TItem="Aldebaran.Web.Models.ApplicationUser" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" AllowGrouping="true" AllowColumnReorder="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" IsLoading="@IsLoadingInProgress">
                             <Columns>
                                 <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ApplicationUser" Property="Email" Title="Correo electrónico" />
                                 <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ApplicationUser" Property="UserName" Title="Nombre de usuario" />
@@ -34,10 +35,10 @@
                                     </Template>
                                 </RadzenDataGridColumn>
                             </Columns>
-                        </RadzenDataGrid>
+                        </LocalizedDataGrid>
                     </RadzenStack>
                 </Template>
-            </RadzenDataGrid>
+            </LocalizedDataGrid>
         </RadzenColumn>
     </RadzenRow>
 </RadzenStack>

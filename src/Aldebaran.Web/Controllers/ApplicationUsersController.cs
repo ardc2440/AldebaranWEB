@@ -70,15 +70,23 @@ namespace Aldebaran.Web.Controllers
             }
 
             OnUserDeleted(user);
-
-            var result = await userManager.DeleteAsync(user);
-
-            if (!result.Succeeded)
+            try
             {
-                return IdentityError(result);
-            }
+                var userRoles = await userManager.GetRolesAsync(user);
+                var roleResult = await userManager.RemoveFromRolesAsync(user, userRoles);
+                var userResult = await userManager.DeleteAsync(user);
 
-            return new NoContentResult();
+                if (!userResult.Succeeded || !roleResult.Succeeded)
+                {
+                    return IdentityError(userResult);
+                }
+
+                return new NoContentResult();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = new { ex.Message } });
+            }
         }
 
         partial void OnUserUpdated(ApplicationUser user);

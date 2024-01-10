@@ -1,70 +1,60 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.JSInterop;
 using Radzen;
 
 namespace Aldebaran.Web.Pages.IdentityPages
 {
     public partial class EditApplicationUser
     {
+        #region Injections
         [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
-
-        [Inject]
-        protected NavigationManager NavigationManager { get; set; }
+        protected ILogger<EditApplicationUser> Logger { get; set; }
 
         [Inject]
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected TooltipService TooltipService { get; set; }
-
-        [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
-
-        [Inject]
-        protected NotificationService NotificationService { get; set; }
-
-        [Inject]
-        public AldebaranDbService AldebaranDbService { get; set; }
-
-        [Inject]
         protected SecurityService Security { get; set; }
+        #endregion
 
         [Parameter]
         public string Id { get; set; }
 
-        protected IEnumerable<Models.ApplicationRole> roles;
-        protected Models.ApplicationUser applicationUser;
-        protected IEnumerable<string> userRoles;
-        protected string error;
-        protected bool errorVisible;
-        protected bool isSubmitInProgress;
+        protected IEnumerable<Models.ApplicationRole> ApplicationRoles;
+        protected Models.ApplicationUser ApplicationUser;
+        protected IEnumerable<string> UserRoles = Enumerable.Empty<string>();
+        protected string Error;
+        protected bool IsErrorVisible;
+        protected bool IsSubmitInProgress;
 
+        #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            applicationUser = await Security.GetUserById($"{Id}");
-            userRoles = applicationUser.Roles.Select(role => role.Id);
-            roles = await Security.GetRoles();
+            ApplicationUser = await Security.GetUserById($"{Id}");
+            UserRoles = ApplicationUser.Roles.Select(role => role.Id);
+            ApplicationRoles = await Security.GetRoles();
         }
+        #endregion
 
+        #region Events
         protected async Task FormSubmit()
         {
             try
             {
-                isSubmitInProgress = true;
-                applicationUser.Roles = roles.Where(role => userRoles.Contains(role.Id)).ToList();
-                var result = await Security.UpdateUser($"{Id}", applicationUser);
+                IsSubmitInProgress = true;
+                ApplicationUser.Roles = UserRoles == null ? new List<Models.ApplicationRole>() : ApplicationRoles.Where(role => UserRoles.Contains(role.Id)).ToList();
+                var result = await Security.UpdateUser($"{Id}", ApplicationUser);
                 DialogService.Close(true);
             }
             catch (Exception ex)
             {
-                errorVisible = true;
-                error = ex.Message;
+                Logger.LogError(ex, nameof(FormSubmit));
+                IsErrorVisible = true;
+                Error = ex.Message;
             }
             finally
             {
-                isSubmitInProgress = false;
+                IsSubmitInProgress = false;
             }
         }
 
@@ -72,5 +62,6 @@ namespace Aldebaran.Web.Pages.IdentityPages
         {
             DialogService.Close(null);
         }
+        #endregion
     }
 }
