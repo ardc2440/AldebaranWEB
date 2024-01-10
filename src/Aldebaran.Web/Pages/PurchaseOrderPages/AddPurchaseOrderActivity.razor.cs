@@ -1,81 +1,72 @@
+using Aldebaran.Application.Services;
 using Aldebaran.Web.Models.AldebaranDb;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
 using Radzen;
+using ServiceModel = Aldebaran.Application.Services.Models;
 
 namespace Aldebaran.Web.Pages.PurchaseOrderPages
 {
     public partial class AddPurchaseOrderActivity
     {
-        [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
-
-        [Inject]
-        protected NavigationManager NavigationManager { get; set; }
-
+        #region Injections
         [Inject]
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected TooltipService TooltipService { get; set; }
-
-        [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
-
-        [Inject]
-        protected NotificationService NotificationService { get; set; }
-
-        [Inject]
-        public AldebaranDbService AldebaranDbService { get; set; }
-        [Inject]
         protected SecurityService Security { get; set; }
-        protected bool errorVisible;
-        protected Models.AldebaranDb.PurchaseOrderActivity purchaseOrderActivity;
-        protected IEnumerable<Models.AldebaranDb.Employee> employees;
-        protected bool isSubmitInProgress;
-        protected Employee LoggedEmployee { get; set; }
 
+        [Inject]
+        protected IEmployeeService EmployeeService { get; set; }
+        #endregion
+
+        #region Variables
+        protected bool IsErrorVisible;
+        protected ServiceModel.PurchaseOrderActivity PurchaseOrderActivity;
+        protected IEnumerable<ServiceModel.Employee> Employees;
+        protected bool IsSubmitInProgress;
+        protected ServiceModel.Employee LoggedEmployee { get; set; }
+        #endregion
+
+        #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            LoggedEmployee = (await AldebaranDbService.GetEmployees(new Query { Filter = "i=>i.LOGIN_USER_ID==@0", FilterParameters = new object[] { Security.User.Id } })).Single();
-            purchaseOrderActivity = new Models.AldebaranDb.PurchaseOrderActivity()
+            LoggedEmployee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id);
+            PurchaseOrderActivity = new ServiceModel.PurchaseOrderActivity()
             {
-                EMPLOYEE_ID = LoggedEmployee.EMPLOYEE_ID
+                EmployeeId = LoggedEmployee.EmployeeId
             };
-            employees = await AldebaranDbService.GetEmployees();
+            Employees = await EmployeeService.GetAsync();
         }
+        #endregion
+
+        #region Events
         protected async Task FormSubmit()
         {
             try
             {
-                isSubmitInProgress = true;
-                var employee = await AldebaranDbService.GetEmployees(new Query
-                {
-                    Filter = "i=>i.EMPLOYEE_ID==@0",
-                    FilterParameters = new object[] { purchaseOrderActivity.ACTIVITY_EMPLOYEE_ID },
-                    Expand = "Area"
-                });
-                purchaseOrderActivity.ActivityEmployee = employee.Single();
-                DialogService.Close(purchaseOrderActivity);
+                IsSubmitInProgress = true;
+                DialogService.Close(PurchaseOrderActivity);
             }
             catch (Exception ex)
             {
-                errorVisible = true;
+                IsErrorVisible = true;
             }
             finally
             {
-                isSubmitInProgress = false;
+                IsSubmitInProgress = false;
             }
         }
-
-        protected async Task EmployeeHandler(Employee employee)
+        protected async Task EmployeeHandler(ServiceModel.Employee employee)
         {
-            purchaseOrderActivity.ACTIVITY_EMPLOYEE_ID = employee?.EMPLOYEE_ID ?? 0;
+            PurchaseOrderActivity.ActivityEmployeeId = employee?.EmployeeId ?? 0;
+            PurchaseOrderActivity.ActivityEmployee = PurchaseOrderActivity.ActivityEmployeeId == 0 ? null : Employees.Single(s => s.EmployeeId == PurchaseOrderActivity.ActivityEmployeeId);
+
         }
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
             DialogService.Close(null);
         }
+        #endregion
     }
 }

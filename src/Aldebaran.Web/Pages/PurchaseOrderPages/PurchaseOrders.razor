@@ -1,26 +1,26 @@
 @page "/purchase-orders"
-@page "/purchase-orders/{OrderNumber}"
+@page "/purchase-orders/{PURCHASE_ORDER_ID}"
+@attribute [Authorize(Roles = "Admin,Purchase Order Viwer,Purchase Order Creator,Purchase Order Editor")]
 @using Aldebaran.Web.Resources.LocalizedControls;
-@inject Microsoft.Extensions.Localization.IStringLocalizer<PurchaseOrders> L
+@using ServiceModel = Aldebaran.Application.Services.Models;
 @inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer
 
-@attribute [Authorize]
 <PageTitle>Ordenes de compra</PageTitle>
 <RadzenStack>
-    @if (dialogResult != null && dialogResult.Success)
+    @if (DialogResult != null && DialogResult.Success)
     {
-        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Success">@dialogResult.Message</RadzenAlert>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Success">@DialogResult.Message</RadzenAlert>
     }
-    @if (dialogResult != null && !dialogResult.Success)
+    @if (DialogResult != null && !DialogResult.Success)
     {
-        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger">@dialogResult.Message</RadzenAlert>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger">@DialogResult.Message</RadzenAlert>
     }
     <RadzenRow AlignItems="AlignItems.Center">
-        <RadzenColumn Size="12" SizeMD="6">
+        <RadzenColumn Size="12">
             <RadzenText Text="Ordenes de compra" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
         </RadzenColumn>
-        <RadzenColumn Size="12" SizeMD="6">
-            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+        <RadzenColumn Size="12">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
                 <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddPurchaseOrder" Variant="Variant.Flat" />
             </RadzenStack>
         </RadzenColumn>
@@ -28,47 +28,50 @@
     <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
     <RadzenRow>
         <RadzenColumn SizeMD=12>
-            <LocalizedDataGrid @ref="grid0" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                               Data="@purchaseOrders" TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrder" RowExpand=@GetChildData AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" ExpandMode="Radzen.DataGridExpandMode.Single" AllowGrouping="true" AllowColumnReorder="true">
+            <LocalizedDataGrid @ref="PurchaseOrderGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                               Data="@PurchaseOrdersList" TItem="ServiceModel.PurchaseOrder" RowExpand=@GetChildData AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" ExpandMode="Radzen.DataGridExpandMode.Single" AllowGrouping="true" AllowColumnReorder="true">
                 <Columns>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrder" Property="ORDER_NUMBER" Title="@L["order:order_number"]">
+                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Property="OrderNumber" Title="Número de orden">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrder" Property="CREATION_DATE" Title="@L["order:creation_date"]" Visible="false">
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrder" Property="REQUEST_DATE" Title="@L["order:request_date"]">
+                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Property="CreationDate" Title="Fecha de creación" Visible="false">
                         <Template Context="purchaseOrder">
-                            <span>@purchaseOrder.REQUEST_DATE.ToString(SharedLocalizer["date:format"])</span>
+                            <span>@purchaseOrder.CreationDate.ToString(SharedLocalizer["date:format"])</span>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrder" Property="EXPECTED_RECEIPT_DATE" Title="@L["order:expected_receipt_date"]">
+                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Property="RequestDate" Title="Fecha de solicitud">
                         <Template Context="purchaseOrder">
-                            <span>@purchaseOrder.EXPECTED_RECEIPT_DATE.ToString(SharedLocalizer["date:format"])</span>
+                            <span>@purchaseOrder.RequestDate.ToString(SharedLocalizer["date:format"])</span>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrder" Property="REAL_RECEIPT_DATE" Title="@L["order:real_receipt_date"]">
+                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Property="ExpectedReceiptDate" Title="Fecha esperada de recepción">
                         <Template Context="purchaseOrder">
-                            <span>@purchaseOrder.REAL_RECEIPT_DATE?.ToString(SharedLocalizer["date:format"])</span>
+                            <span>@purchaseOrder.ExpectedReceiptDate.ToString(SharedLocalizer["date:format"])</span>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrder" Property="StatusDocumentType.STATUS_DOCUMENT_TYPE_NAME" Title="@L["order:status"]">
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrder" Property="IMPORT_NUMBER" Title="@L["order:import_number"]" Visible="false">
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrder" Property="EMBARKATION_PORT" Title="@L["order:embarkation_port"]" Visible="false">
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrder" Property="PROFORMA_NUMBER" Title="@L["order:proforma_number"]" Visible="false">
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrder" Property="Provider.PROVIDER_NAME" Title="@L["order:provider_name"]">
+                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Property="RealReceiptDate" Title="Fecha real de recepción">
                         <Template Context="purchaseOrder">
-                            <span>(@purchaseOrder.ForwarderAgent.Forwarder.FORWARDER_NAME) @purchaseOrder.ForwarderAgent.FORWARDER_AGENT_NAME</span>
+                            <span>@purchaseOrder.RealReceiptDate?.ToString(SharedLocalizer["date:format"])</span>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrder" Property="SHIPMENT_FORWARDER_AGENT_METHOD_ID" Title="@L["order:shipment_method_name"]">
+                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Property="StatusDocumentType.StatusDocumentTypeName" Title="Estado">
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Property="ImportNumber" Title="Número de importación" Visible="false">
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Property="EmbarkationPort" Title="Puerto de embarcación" Visible="false">
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Property="ProformaNumber" Title="Número de proforma" Visible="false">
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Property="Provider.ProviderName" Title="Proveedor">
                         <Template Context="purchaseOrder">
-                            <span>@purchaseOrder.ShipmentForwarderAgentMethod.ShipmentMethod.SHIPMENT_METHOD_NAME</span>
+                            <span>(@purchaseOrder.ForwarderAgent.Forwarder.ForwarderName) @purchaseOrder.ForwarderAgent.ForwarderAgentName</span>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrder" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false">
+                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Property="ShipmentForwarderAgentMethodId" Title="Método de envío">
+                        <Template Context="purchaseOrder">
+                            <span>@purchaseOrder.ShipmentForwarderAgentMethod.ShipmentMethod.ShipmentMethodName</span>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false">
                         <Template Context="purchaseOrder">
                             <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
                                           Shade="Shade.Lighter" Variant="Variant.Flat"
@@ -89,26 +92,26 @@
                                         </RadzenColumn>
                                     </RadzenRow>
                                     <LocalizedDataGrid ColumnWidth="200px" Visible="@(purchaseOrder != null)" @ref=PurchaseOrderDetailsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                                       Data="@purchaseOrder?.PurchaseOrderDetails" TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrderDetail">
+                                                       Data="@purchaseOrder?.PurchaseOrderDetails" TItem="ServiceModel.PurchaseOrderDetail">
                                         <Columns>
-                                            <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrderDetail" Property="REQUESTED_QUANTITY" Title="Cantidad solicitada">
+                                            <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Property="RequestedQuantity" Title="Cantidad solicitada">
                                             </RadzenDataGridColumn>
-                                            <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrderDetail" Property="RECEIVED_QUANTITY" Title="Cantidad recibida">
+                                            <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Property="ReceivedQuantity" Title="Cantidad recibida">
                                             </RadzenDataGridColumn>
-                                            <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrderDetail" Property="ItemReference.Item.Line.LINE_NAME" Title="Línea" />
-                                            <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrderDetail" Title="Artículo">
+                                            <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Property="ItemReference.Item.Line.LineName" Title="Línea" />
+                                            <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Title="Artículo">
                                                 <Template Context="detail">
-                                                    <span>(@detail.ItemReference.Item.INTERNAL_REFERENCE) @detail.ItemReference.Item.ITEM_NAME</span>
+                                                    <span>(@detail.ItemReference.Item.InternalReference) @detail.ItemReference.Item.ItemName</span>
                                                 </Template>
                                             </RadzenDataGridColumn>
-                                            <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrderDetail" Title="Referencia">
+                                            <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Title="Referencia">
                                                 <Template Context="detail">
-                                                    <span>(@detail.ItemReference.REFERENCE_CODE) @detail.ItemReference.REFERENCE_NAME</span>
+                                                    <span>(@detail.ItemReference.ReferenceCode) @detail.ItemReference.ReferenceName</span>
                                                 </Template>
                                             </RadzenDataGridColumn>
-                                            <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrderDetail" Property="Warehouse.WAREHOUSE_NAME" Title="Bodega">
+                                            <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Property="Warehouse.WarehouseName" Title="Bodega">
                                             </RadzenDataGridColumn>
-                                            <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrderDetail" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center">
+                                            <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center">
                                                 <Template Context="detail">
                                                     <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="edit" Size="ButtonSize.Medium" Variant="Variant.Flat"
                                                                   Click=@(args => EditPurchaseOrderDetail(detail,purchaseOrder)) @onclick:stopPropagation="true" />
@@ -130,27 +133,27 @@
                                         </RadzenColumn>
                                     </RadzenRow>
                                     <LocalizedDataGrid ColumnWidth="200px" Visible="@(purchaseOrder != null)" @ref=PurchaseOrderActivitiesDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                                       Data="@purchaseOrder?.PurchaseOrderActivities" TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrderActivity">
+                                                       Data="@purchaseOrder?.PurchaseOrderActivities" TItem="ServiceModel.PurchaseOrderActivity">
                                         <Columns>
-                                            <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrderActivity" Title="Creado por" Width="300px">
+                                            <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderActivity" Title="Creado por" Width="300px">
                                                 <Template Context="activity">
-                                                    <span>(@activity.Employee.Area.AREA_NAME) @activity.ActivityEmployee.FULL_NAME</span>
+                                                    <span>(@activity.Employee.Area.AreaName) @activity.ActivityEmployee.FullName</span>
                                                 </Template>
                                             </RadzenDataGridColumn>
 
-                                            <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrderActivity" Title="Responsable" Width="300px">
+                                            <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderActivity" Title="Responsable" Width="300px">
                                                 <Template Context="activity">
-                                                    <span>(@activity.ActivityEmployee.Area.AREA_NAME) @activity.ActivityEmployee.FULL_NAME</span>
+                                                    <span>(@activity.ActivityEmployee.Area.AreaName) @activity.ActivityEmployee.FullName</span>
                                                 </Template>
                                             </RadzenDataGridColumn>
-                                            <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrderActivity" Title="Fecha de ejecución">
+                                            <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderActivity" Title="Fecha de ejecución">
                                                 <Template Context="activity">
-                                                    <span>@activity.EXECUTION_DATE.ToString("MM/dd/yyyy")</span>
+                                                    <span>@activity.ExecutionDate.ToString(SharedLocalizer["date:format"])</span>
                                                 </Template>
                                             </RadzenDataGridColumn>
-                                            <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrderActivity" Property="ACTIVITY_DESCRIPTION" Title="Actividad">
+                                            <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderActivity" Property="ActivityDescription" Title="Actividad">
                                             </RadzenDataGridColumn>
-                                            <RadzenDataGridColumn TItem="Aldebaran.Web.Models.AldebaranDb.PurchaseOrderActivity" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center">
+                                            <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderActivity" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center">
                                                 <Template Context="activity">
                                                     <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="edit" Size="ButtonSize.Medium" Variant="Variant.Flat"
                                                                   Click=@(args => EditPurchaseOrderActivity(activity,purchaseOrder)) @onclick:stopPropagation="true" />

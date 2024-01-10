@@ -1,8 +1,8 @@
+using Aldebaran.Application.Services;
 using Aldebaran.Web.Models.AldebaranDb;
 using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
 using Radzen;
 using ServiceModel = Aldebaran.Application.Services.Models;
 
@@ -10,77 +10,63 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
 {
     public partial class AddPurchaseOrderDetail
     {
-        [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
-
-        [Inject]
-        protected NavigationManager NavigationManager { get; set; }
-
+        #region Injections
         [Inject]
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected TooltipService TooltipService { get; set; }
+        protected IWarehouseService WarehouseService { get; set; }
+        #endregion
 
-        [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
-
-        [Inject]
-        protected NotificationService NotificationService { get; set; }
-
-        [Inject]
-        public AldebaranDbService AldebaranDbService { get; set; }
-
-        [Inject]
-        protected SecurityService Security { get; set; }
-
+        #region Parameters
         [Parameter]
         public IEnumerable<ServiceModel.ItemReference> ProviderItemReferences { get; set; } = new List<ServiceModel.ItemReference>();
+        #endregion
 
-        protected bool errorVisible;
-        protected PurchaseOrderDetail purchaseOrderDetail;
-        protected IEnumerable<Warehouse> warehousesForWAREHOUSEID;
-        protected bool isSubmitInProgress;
-        protected InventoryQuantities QuantitiesPanel;
+        #region Variables
+        protected bool IsErrorVisible;
+        protected ServiceModel.PurchaseOrderDetail PurchaseOrderDetail;
+        protected IEnumerable<ServiceModel.Warehouse> Warehouses;
+        protected bool IsSubmitInProgress;
+        protected InventoryQuantities InventoryQuantitiesPanel;
+        #endregion
 
+        #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            purchaseOrderDetail = new PurchaseOrderDetail();
-            warehousesForWAREHOUSEID = await AldebaranDbService.GetWarehouses();
+            PurchaseOrderDetail = new ServiceModel.PurchaseOrderDetail();
+            Warehouses = await WarehouseService.GetAsync();
         }
+        #endregion
 
+        #region Events
         protected async Task FormSubmit()
         {
             try
             {
-                isSubmitInProgress = true;
-                purchaseOrderDetail.Warehouse = await AldebaranDbService.GetWarehouseByWarehouseId(purchaseOrderDetail.WAREHOUSE_ID);
-                var reference = await AldebaranDbService.GetItemReferences(new Query
-                {
-                    Filter = "i=> i.REFERENCE_ID==@0",
-                    FilterParameters = new object[] { purchaseOrderDetail.REFERENCE_ID },
-                    Expand = "Item.Line"
-                });
-                purchaseOrderDetail.ItemReference = reference.Single();
-                DialogService.Close(purchaseOrderDetail);
+                IsSubmitInProgress = true;
+                PurchaseOrderDetail.Warehouse = Warehouses.Single(s => s.WarehouseId == PurchaseOrderDetail.WarehouseId);
+                DialogService.Close(PurchaseOrderDetail);
             }
             catch (Exception ex)
             {
-                errorVisible = true;
+                IsErrorVisible = true;
             }
             finally
             {
-                isSubmitInProgress = false;
+                IsSubmitInProgress = false;
             }
         }
         protected async Task ItemReferenceHandler(ServiceModel.ItemReference reference)
         {
-            purchaseOrderDetail.REFERENCE_ID = reference?.ReferenceId ?? 0;
-            //await QuantitiesPanel.Refresh(reference);
+            PurchaseOrderDetail.ReferenceId = reference?.ReferenceId ?? 0;
+            PurchaseOrderDetail.ItemReference = PurchaseOrderDetail.ReferenceId == 0 ? null : ProviderItemReferences.Single(s => s.ReferenceId == PurchaseOrderDetail.ReferenceId);
+            await InventoryQuantitiesPanel.Refresh(reference);
         }
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
             DialogService.Close(null);
         }
+        #endregion
     }
 }

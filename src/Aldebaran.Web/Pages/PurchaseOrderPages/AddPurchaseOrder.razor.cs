@@ -1,16 +1,18 @@
+using Aldebaran.Application.Services;
 using Aldebaran.Web.Models.AldebaranDb;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
 using Radzen;
 using Radzen.Blazor;
+using ServiceModel = Aldebaran.Application.Services.Models;
 
 namespace Aldebaran.Web.Pages.PurchaseOrderPages
 {
     public partial class AddPurchaseOrder
     {
+        #region Injections
         [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
+        protected ILogger<AddPurchaseOrder> Logger { get; set; }
 
         [Inject]
         protected NavigationManager NavigationManager { get; set; }
@@ -19,154 +21,173 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected TooltipService TooltipService { get; set; }
-
-        [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
-
-        [Inject]
-        protected NotificationService NotificationService { get; set; }
-
-        [Inject]
         protected SecurityService Security { get; set; }
 
         [Inject]
-        public AldebaranDbService AldebaranDbService { get; set; }
+        protected IProviderService ProviderService { get; set; }
 
-        protected bool errorVisible;
-        protected PurchaseOrder purchaseOrder;
-        protected IEnumerable<Provider> providersForPROVIDERID;
-        protected IEnumerable<ShipmentForwarderAgentMethod> shipmentForwarderAgentMethods;
+        [Inject]
+        protected IEmployeeService EmployeeService { get; set; }
 
-        protected ICollection<PurchaseOrderDetail> purchaseOrderDetails;
-        protected RadzenDataGrid<PurchaseOrderDetail> purchaseOrderDetailGrid;
+        [Inject]
+        protected IDocumentTypeService DocumentTypeService { get; set; }
 
-        protected ICollection<PurchaseOrderActivity> purchaseOrderActivities;
-        protected RadzenDataGrid<PurchaseOrderActivity> purchaseOrderActivityGrid;
-        private bool submitted = false;
-        protected bool isSubmitInProgress;
+        [Inject]
+        protected IStatusDocumentTypeService StatusDocumentTypeService { get; set; }
 
+        [Inject]
+        protected IPurchaseOrderService PurchaseOrderService { get; set; }
+
+        [Inject]
+        protected IProviderReferenceService ProviderReferenceService { get; set; }
+
+        [Inject]
+        protected IShipmentForwarderAgentMethodService ShipmentForwarderAgentMethodService { get; set; }
+
+        #endregion
+
+        #region Variables
+        protected bool IsErrorVisible;
+        protected ServiceModel.PurchaseOrder PurchaseOrder;
+        protected IEnumerable<ServiceModel.Provider> Providers;
+        protected IEnumerable<ServiceModel.ShipmentForwarderAgentMethod> ShipmentForwarderAgentMethods;
+
+        protected ICollection<ServiceModel.PurchaseOrderDetail> PurchaseOrderDetails = new List<ServiceModel.PurchaseOrderDetail>();
+        protected RadzenDataGrid<ServiceModel.PurchaseOrderDetail> PurchaseOrderDetailGrid;
+
+        protected ICollection<ServiceModel.PurchaseOrderActivity> PurchaseOrderActivities = new List<ServiceModel.PurchaseOrderActivity>();
+        protected RadzenDataGrid<ServiceModel.PurchaseOrderActivity> PurchaseOrderActivityGrid;
+        private bool Submitted = false;
+        protected bool IsSubmitInProgress;
+        protected string Error;
+        #endregion
+
+        #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            purchaseOrderDetails = new List<PurchaseOrderDetail>();
-            purchaseOrderActivities = new List<PurchaseOrderActivity>();
-            purchaseOrder = new PurchaseOrder();
-            providersForPROVIDERID = await AldebaranDbService.GetProviders(new Query { Expand = "City.Department.Country" });
+            PurchaseOrder = new ServiceModel.PurchaseOrder { RequestDate = DateTime.Now };
+            Providers = await ProviderService.GetAsync();
         }
+        #endregion
 
-        protected async Task FormSubmit()
-        {
-            try
-            {
-                isSubmitInProgress = true;
-                submitted = true;
-                if (!purchaseOrderDetails.Any())
-                    return;
-                var now = DateTime.UtcNow;
-                // Complementar la orden compra
-                var employee = (await AldebaranDbService.GetEmployees(new Query { Filter = "i=>i.LOGIN_USER_ID==@0", FilterParameters = new object[] { Security.User.Id } })).Single();
-                var documentType = await AldebaranDbService.GetDocumentTypeByCode("O");
-                var statusDocumentType = await AldebaranDbService.GetStatusDocumentTypeByDocumentAndOrder(documentType, 1);
-                purchaseOrder.CREATION_DATE = now;
-                purchaseOrder.EMPLOYEE_ID = employee.EMPLOYEE_ID;
-                purchaseOrder.STATUS_DOCUMENT_TYPE_ID = statusDocumentType.STATUS_DOCUMENT_TYPE_ID;
-                purchaseOrder.PurchaseOrderActivities = purchaseOrderActivities.Select(s => new PurchaseOrderActivity
-                {
-                    EXECUTION_DATE = s.EXECUTION_DATE,
-                    ACTIVITY_DESCRIPTION = s.ACTIVITY_DESCRIPTION,
-                    CREATION_DATE = now,
-                    EMPLOYEE_ID = s.EMPLOYEE_ID,
-                    ACTIVITY_EMPLOYEE_ID = s.ACTIVITY_EMPLOYEE_ID
-                }).ToList();
-                purchaseOrder.PurchaseOrderDetails = purchaseOrderDetails.Select(s => new PurchaseOrderDetail
-                {
-                    REFERENCE_ID = s.REFERENCE_ID,
-                    WAREHOUSE_ID = s.WAREHOUSE_ID,
-                    REQUESTED_QUANTITY = s.REQUESTED_QUANTITY,
-                }).ToList();
-
-                var order = await AldebaranDbService.CreatePurchaseOrder(purchaseOrder);
-                NavigationManager.NavigateTo($"purchase-orders/{order.ORDER_NUMBER}");
-            }
-            catch (Exception ex)
-            {
-                errorVisible = true;
-            }
-            finally
-            {
-                isSubmitInProgress = false;
-            }
-        }
-
+        #region Events
         #region PurchaseOrderDetail
-        protected async Task AddPurchaseOrderDetailButtonClick(MouseEventArgs args)
+        protected async Task AddPurchaseOrderDetail(MouseEventArgs args)
         {
-            var providerReferences = await AldebaranDbService.GetProviderReferences(new Query { Filter = $"@i => i.PROVIDER_ID == @0", FilterParameters = new object[] { PROVIDER_ID } });
-            var providerReferencesIds = new List<int>();
-            foreach (var reference in providerReferences)
-            {
-                if (!purchaseOrderDetails.Any(a => a.REFERENCE_ID == reference.REFERENCE_ID))
-                    providerReferencesIds.Add(reference.REFERENCE_ID);
-            }
-            //Solo las referencias del proveedor, excepto las que ya estan agregadas
-            var itemReferences = await AldebaranDbService.GetItemReferences(new Query { Filter = "i => @0.Contains(i.REFERENCE_ID)", FilterParameters = new object[] { providerReferencesIds }, Expand = "Item.Line" });
+            if (PROVIDER_ID == null)
+                return;
+            var providerReferences = await ProviderReferenceService.GetByProviderIdAsync(PROVIDER_ID.Value);
+            var itemReferences = providerReferences.Select(s => s.ItemReference).ToList();
             var result = await DialogService.OpenAsync<AddPurchaseOrderDetail>("Nueva referencia", new Dictionary<string, object> { { "ProviderItemReferences", itemReferences.ToList() } });
             if (result == null)
                 return;
-            var detail = (PurchaseOrderDetail)result;
-            purchaseOrderDetails.Add(detail);
-            await purchaseOrderDetailGrid.Reload();
-        }
-        protected async Task DeletePurchaseOrderDetailButtonClick(MouseEventArgs args, PurchaseOrderDetail item)
-        {
-            if (await DialogService.Confirm("Está seguro que desea eliminar esta referencia?") == true)
+            var detail = (ServiceModel.PurchaseOrderDetail)result;
+            // Un detalle de orden de compra es unico por referencia y bodega
+            if (PurchaseOrderDetails.Any(a => a.ReferenceId == detail.ReferenceId && a.WarehouseId == detail.WarehouseId))
             {
-                purchaseOrderDetails.Remove(item);
-                await purchaseOrderDetailGrid.Reload();
+                IsErrorVisible = true;
+                Error = "Ya existe una referencia para la misma bodega adicionada a esta orden de compra";
+                return;
+            }
+            PurchaseOrderDetails.Add(detail);
+            await PurchaseOrderDetailGrid.Reload();
+        }
+        protected async Task DeletePurchaseOrderDetail(MouseEventArgs args, ServiceModel.PurchaseOrderDetail item)
+        {
+            if (await DialogService.Confirm("Está seguro que desea eliminar esta referencia?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
+            {
+                PurchaseOrderDetails.Remove(item);
+                await PurchaseOrderDetailGrid.Reload();
             }
         }
         #endregion
 
         #region PurchaseOrderActivity
-        protected async Task AddPurchaseOrderActivityButtonClick(MouseEventArgs args)
+        protected async Task AddPurchaseOrderActivity(MouseEventArgs args)
         {
             var result = await DialogService.OpenAsync<AddPurchaseOrderActivity>("Nueva actividad");
             if (result == null)
                 return;
-            var detail = (PurchaseOrderActivity)result;
-            purchaseOrderActivities.Add(detail);
-            await purchaseOrderActivityGrid.Reload();
+            var detail = (ServiceModel.PurchaseOrderActivity)result;
+            PurchaseOrderActivities.Add(detail);
+            await PurchaseOrderActivityGrid.Reload();
         }
-        protected async Task DeletePurchaseOrderActivityButtonClick(MouseEventArgs args, PurchaseOrderActivity item)
+        protected async Task DeletePurchaseOrderActivity(MouseEventArgs args, ServiceModel.PurchaseOrderActivity item)
         {
-            if (await DialogService.Confirm("Está seguro que desea eliminar esta actividad?") == true)
+            if (await DialogService.Confirm("Está seguro que desea eliminar esta actividad?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
             {
-                purchaseOrderActivities.Remove(item);
-                await purchaseOrderActivityGrid.Reload();
+                PurchaseOrderActivities.Remove(item);
+                await PurchaseOrderActivityGrid.Reload();
             }
         }
         #endregion
 
-        protected async Task AgentForwarderHandler(ForwarderAgent agent)
+        #region PurchaseOrder
+        private int? PROVIDER_ID { get; set; }
+        protected async Task FormSubmit()
         {
-            purchaseOrder.FORWARDER_AGENT_ID = agent?.FORWARDER_AGENT_ID ?? 0;
-            if (purchaseOrder.FORWARDER_AGENT_ID == 0)
+            try
             {
-                shipmentForwarderAgentMethods = new List<ShipmentForwarderAgentMethod>();
+                IsSubmitInProgress = true;
+                Submitted = true;
+                if (!PurchaseOrderDetails.Any())
+                    return;
+                var now = DateTime.UtcNow;
+                // Complementar la orden compra
+                var employee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id);
+                var documentType = await DocumentTypeService.FindByCodeAsync("O");
+                var statusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 1);
+                PurchaseOrder.CreationDate = now;
+                PurchaseOrder.EmployeeId = employee.EmployeeId;
+                PurchaseOrder.StatusDocumentTypeId = statusDocumentType.StatusDocumentTypeId;
+                PurchaseOrder.PurchaseOrderActivities = PurchaseOrderActivities.Select(s => new ServiceModel.PurchaseOrderActivity
+                {
+                    ExecutionDate = s.ExecutionDate,
+                    ActivityDescription = s.ActivityDescription,
+                    CreationDate = now,
+                    EmployeeId = s.EmployeeId,
+                    ActivityEmployeeId = s.ActivityEmployeeId
+                }).ToList();
+                PurchaseOrder.PurchaseOrderDetails = PurchaseOrderDetails.Select(s => new ServiceModel.PurchaseOrderDetail
+                {
+                    ReferenceId = s.ReferenceId,
+                    WarehouseId = s.WarehouseId,
+                    RequestedQuantity = s.RequestedQuantity,
+                }).ToList();
+
+                var result = await PurchaseOrderService.AddAsync(PurchaseOrder);
+                NavigationManager.NavigateTo($"purchase-orders/{result.PurchaseOrderId}");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, nameof(FormSubmit));
+                IsErrorVisible = true;
+                Error = ex.Message;
+            }
+            finally
+            {
+                IsSubmitInProgress = false;
+            }
+        }
+        protected async Task AgentForwarderHandler(ServiceModel.ForwarderAgent agent)
+        {
+            PurchaseOrder.ForwarderAgentId = agent?.ForwarderAgentId ?? 0;
+            if (PurchaseOrder.ForwarderAgentId == 0)
+            {
+                ShipmentForwarderAgentMethods = new List<ServiceModel.ShipmentForwarderAgentMethod>();
                 return;
             }
-            shipmentForwarderAgentMethods = await AldebaranDbService.GetShipmentForwarderAgentMethods(new Query { Filter = "i=>i.FORWARDER_AGENT_ID=@0", FilterParameters = new object[] { purchaseOrder.FORWARDER_AGENT_ID }, Expand = "ShipmentMethod" }); ;
+            ShipmentForwarderAgentMethods = await ShipmentForwarderAgentMethodService.GetByForwarderAgentIdAsync(PurchaseOrder.ForwarderAgentId.Value);
         }
-
-        protected async Task CancelButtonClick(MouseEventArgs args)
+        protected async Task CancelPurchaseOrder(MouseEventArgs args)
         {
             NavigationManager.NavigateTo("purchase-orders");
         }
-
-        protected async Task PROVIDER_IDChange(object providerId)
+        protected async Task ProviderSelectionChange(object providerId)
         {
             PROVIDER_ID = (int)providerId == 0 ? null : (int)providerId;
         }
-        private int? PROVIDER_ID { get; set; }
+        #endregion
+        #endregion
     }
 }

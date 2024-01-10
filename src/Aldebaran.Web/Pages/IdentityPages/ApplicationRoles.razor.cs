@@ -27,7 +27,7 @@ namespace Aldebaran.Web.Pages.IdentityPages
         protected bool IsLoadingInProgress;
         #endregion
 
-        #region Override
+        #region Overrides
         protected override async Task OnInitializedAsync()
         {
             try

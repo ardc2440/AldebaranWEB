@@ -10,7 +10,7 @@ namespace Aldebaran.Application.Services.Models
         public int EmployeeId { get; set; }
         public int ActivityEmployeeId { get; set; }
         public Employee ActivityEmployee { get; set; }
-        public Employee Employee_EmployeeId { get; set; }
+        public Employee Employee { get; set; }
         public PurchaseOrder PurchaseOrder { get; set; }
         public PurchaseOrderActivity()
         {

@@ -10,6 +10,14 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
+
+        public async Task<PurchaseOrder> AddAsync(PurchaseOrder item, CancellationToken ct = default)
+        {
+            await _context.PurchaseOrders.AddAsync(item, ct);
+            await _context.SaveChangesAsync(ct);
+            return item;
+        }
+
         public async Task DeleteAsync(int purchaseOrderId, CancellationToken ct = default)
         {
             var entity = await _context.PurchaseOrders.FirstOrDefaultAsync(x => x.PurchaseOrderId == purchaseOrderId, ct) ?? throw new KeyNotFoundException($"Orden con id {purchaseOrderId} no existe.");
@@ -23,6 +31,20 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 _context.Entry(entity).State = EntityState.Unchanged;
                 throw;
             }
+        }
+
+        public async Task<PurchaseOrder?> FindAsync(int purchaseOrderId, CancellationToken ct = default)
+        {
+            return await _context.PurchaseOrders.AsNoTracking()
+               .Include(i => i.Employee.Area)
+               .Include(i => i.Employee.IdentityType)
+               .Include(i => i.ForwarderAgent.Forwarder)
+               .Include(i => i.Provider.IdentityType)
+               .Include(i => i.ShipmentForwarderAgentMethod.ShipmentMethod)
+               .Include(i => i.ShipmentForwarderAgentMethod.ForwarderAgent)
+               .Include(i => i.StatusDocumentType.DocumentType)
+               .Where(w => w.PurchaseOrderId == purchaseOrderId)
+               .FirstOrDefaultAsync(ct);
         }
 
         public async Task<IEnumerable<PurchaseOrder>> GetAsync(CancellationToken ct = default)
