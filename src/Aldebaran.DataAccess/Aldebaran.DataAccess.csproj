@@ -31,6 +31,12 @@
 		</Compile>
 	</ItemGroup>
 	<ItemGroup>
+	  <Compile Update="Configuration\WarehouseTransferDetailConfiguration.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
+	  <Compile Update="Configuration\WarehouseTransferConfiguration.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
 	  <Compile Update="Core\Triggers\CustomerOrderDetailManagementBase.cs">
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>
@@ -82,8 +88,23 @@
 	  <Compile Update="Core\Triggers\Shipments\ModifyCustomerOrderFromOrderShipmentCancelled.cs">
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>
+	  <Compile Update="Core\Triggers\Transfers\AdjustInventoryFromAdjustmentCancelled.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
+	  <Compile Update="Core\Triggers\Transfers\AdjustInventoryFromDeletedAdjustmentDetail.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
+	  <Compile Update="Core\Triggers\Transfers\AdjustInventoryFromModifiedAdjustmentDetail.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
+	  <Compile Update="Core\Triggers\Transfers\AdjustInventoryFromNewAdjustmentDetail.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
 	</ItemGroup>
 	<ItemGroup>
 	  <Folder Include="Core\Triggers\Purchases\" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\Aldebaran.Infraestructure.Common\Aldebaran.Infraestructure.Common.csproj" />
 	</ItemGroup>
 </Project>

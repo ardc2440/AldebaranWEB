@@ -15,5 +15,4 @@
 			<DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 		</Compile>
 	</ItemGroup>
-
 </Project>

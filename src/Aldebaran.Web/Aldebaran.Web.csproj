@@ -50,4 +50,7 @@
       <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
     </Compile>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Pages\WarehouseTransferPages\" />
+  </ItemGroup>
 </Project>

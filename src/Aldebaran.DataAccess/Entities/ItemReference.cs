@@ -23,6 +23,7 @@ namespace Aldebaran.DataAccess.Entities
         public ICollection<ProviderReference> ProviderReferences { get; set; }
         public ICollection<PurchaseOrderDetail> PurchaseOrderDetails { get; set; }
         public ICollection<ReferencesWarehouse> ReferencesWarehouses { get; set; }
+        public ICollection<WarehouseTransferDetail> WarehouseTransferDetails { get; set; }
         public Item Item { get; set; }
         public ItemReference()
         {

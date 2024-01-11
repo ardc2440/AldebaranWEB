@@ -8,6 +8,8 @@ namespace Aldebaran.DataAccess.Entities
         public string Notes { get; set; }
         public bool EditMode { get; set; }
         public short StatusOrder { get; set; }
+        public DocumentType DocumentType { get; set; }
+
         // Reverse navigation
         public ICollection<CustomerOrderShipment> CustomerOrderShipments { get; set; }
         public ICollection<CustomerOrdersInProcess> CustomerOrdersInProcesses { get; set; }
@@ -15,7 +17,8 @@ namespace Aldebaran.DataAccess.Entities
         public ICollection<CustomerOrder> CustomerOrders { get; set; }
         public ICollection<CustomerReservation> CustomerReservations { get; set; }
         public ICollection<PurchaseOrder> PurchaseOrders { get; set; }
-        public DocumentType DocumentType { get; set; }
+        public ICollection<WarehouseTransfer> WarehouseTransfers { get; set; }
+
         public StatusDocumentType()
         {
             EditMode = true;
