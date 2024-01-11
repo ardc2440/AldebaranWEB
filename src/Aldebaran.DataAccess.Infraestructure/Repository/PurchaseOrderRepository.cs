@@ -21,7 +21,9 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         public async Task DeleteAsync(int purchaseOrderId, CancellationToken ct = default)
         {
             var entity = await _context.PurchaseOrders.FirstOrDefaultAsync(x => x.PurchaseOrderId == purchaseOrderId, ct) ?? throw new KeyNotFoundException($"Orden con id {purchaseOrderId} no existe.");
-            _context.PurchaseOrders.Remove(entity);
+            var documentType = await _context.DocumentTypes.AsNoTracking().FirstAsync(f => f.DocumentTypeCode == "O", ct);
+            var statutsDocumentType = await _context.StatusDocumentTypes.AsNoTracking().FirstAsync(f => f.DocumentTypeId == documentType.DocumentTypeId && f.StatusOrder == 3, ct);
+            entity.StatusDocumentTypeId = statutsDocumentType.StatusDocumentTypeId;
             try
             {
                 await _context.SaveChangesAsync(ct);

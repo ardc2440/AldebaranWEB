@@ -71,10 +71,10 @@
                             <span>@purchaseOrder.ShipmentForwarderAgentMethod.ShipmentMethod.ShipmentMethodName</span>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false">
+                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Purchase Order Editor")">
                         <Template Context="purchaseOrder">
                             <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
-                                          Shade="Shade.Lighter" Variant="Variant.Flat"
+                                          Shade="Shade.Lighter" Variant="Variant.Flat" Visible="purchaseOrder.StatusDocumentType.StatusOrder == 1"
                                           Click=@(args => DeletePurchaseOrder(args, purchaseOrder)) @onclick:stopPropagation="true" />
                         </Template>
                     </RadzenDataGridColumn>
