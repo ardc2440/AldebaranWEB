@@ -1,5 +1,5 @@
 @page "/add-purchase-order"
-@attribute [Authorize(Roles = "Admin,Purchase Order Creator")]
+@attribute [Authorize(Roles = "Admin,Purchase Order Editor")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @using ServiceModel = Aldebaran.Application.Services.Models;
 @inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer
@@ -39,7 +39,7 @@
                         </RadzenFormField>
                         <RadzenFormField Text="Fecha de solicitud" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
-                                <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@PurchaseOrder.RequestDate" Name="RequestDate" Min="@DateTime.Now.AddDays(-1)" Change="()=> PurchaseOrder.ExpectedReceiptDate = PurchaseOrder.ExpectedReceiptDate < PurchaseOrder.RequestDate ? PurchaseOrder.RequestDate : PurchaseOrder.ExpectedReceiptDate" />
+                                <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@PurchaseOrder.RequestDate" Name="RequestDate" Change="()=> PurchaseOrder.ExpectedReceiptDate = PurchaseOrder.ExpectedReceiptDate < PurchaseOrder.RequestDate ? PurchaseOrder.RequestDate : PurchaseOrder.ExpectedReceiptDate" />
                             </ChildContent>
                             <Helper>
                                 <RadzenRequiredValidator Component="RequestDate" Text="Fecha de solicitud es requerida" />
