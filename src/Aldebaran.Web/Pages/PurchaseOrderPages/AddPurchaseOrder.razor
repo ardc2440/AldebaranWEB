@@ -12,7 +12,7 @@
                 <RadzenColumn Size="12">
                     <RadzenText Text="Nueva orden de compra" TextStyle="TextStyle.H3" TagName="TagName.H1" />
                 </RadzenColumn>
-                <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@IsErrorVisible" Title="No se ha podido crear la orden de compra">@Error</RadzenAlert>
+                <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible" Title="No se ha podido crear la orden de compra">@Error</RadzenAlert>
                 </RadzenRow>
                 <RadzenRow AlignItems="AlignItems.Start" Gap="2rem" class="mt-2">
                     <RadzenColumn Size="6">

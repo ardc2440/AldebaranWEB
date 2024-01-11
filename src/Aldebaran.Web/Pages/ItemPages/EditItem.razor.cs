@@ -32,7 +32,7 @@ namespace Aldebaran.Web.Pages.ItemPages
 
         #region Variables
         protected bool IsSubmitInProgress;
-        protected bool ErrorVisible;
+        protected bool IsErrorVisible;
         protected ServiceModel.Item Item;
         protected IEnumerable<ServiceModel.MeasureUnit> MeasureUnits;
         protected IEnumerable<ServiceModel.Currency> Currencies;
@@ -60,7 +60,7 @@ namespace Aldebaran.Web.Pages.ItemPages
             }
             catch (Exception ex)
             {
-                ErrorVisible = true;
+                IsErrorVisible = true;
             }
             finally
             {

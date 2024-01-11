@@ -32,7 +32,7 @@ namespace Aldebaran.Web.Pages.ProviderPages
         protected ServiceModel.ProviderReference ProviderReference;
         protected ServiceModel.Provider Provider;
         protected bool IsSubmitInProgress;
-        protected bool ErrorVisible;
+        protected bool IsErrorVisible;
         #endregion
 
         #region Overrides
@@ -41,8 +41,8 @@ namespace Aldebaran.Web.Pages.ProviderPages
             Provider = await ProviderService.FindAsync(PROVIDER_ID);
             var itemReferences = await ItemReferenceService.GetAsync();
             var currentReferencesInProvider = await ProviderReferenceService.GetByProviderIdAsync(PROVIDER_ID);
-            AvailableItemReferencesForSelection = itemReferences.Where(w => !currentReferencesInProvider.Any(x => x.ReferenceId == w.ReferenceId)).ToList();
             // Referencias disponibles para seleccion, Referencias excepto los ya seleccionados
+            AvailableItemReferencesForSelection = itemReferences.Where(w => !currentReferencesInProvider.Any(x => x.ReferenceId == w.ReferenceId)).ToList();
             ProviderReference = new ServiceModel.ProviderReference
             {
                 ProviderId = PROVIDER_ID
@@ -61,7 +61,7 @@ namespace Aldebaran.Web.Pages.ProviderPages
             }
             catch (Exception ex)
             {
-                ErrorVisible = true;
+                IsErrorVisible = true;
             }
             finally
             {

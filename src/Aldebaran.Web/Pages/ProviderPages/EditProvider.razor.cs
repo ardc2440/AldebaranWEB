@@ -23,7 +23,7 @@ namespace Aldebaran.Web.Pages.ProviderPages
         #endregion
 
         #region Variables
-        protected bool ErrorVisible;
+        protected bool IsErrorVisible;
         protected ServiceModel.Provider Provider;
         protected IEnumerable<ServiceModel.IdentityType> IdentityTypes;
         protected bool IsSubmitInProgress;
@@ -48,7 +48,7 @@ namespace Aldebaran.Web.Pages.ProviderPages
             }
             catch (Exception ex)
             {
-                ErrorVisible = true;
+                IsErrorVisible = true;
             }
             finally
             {

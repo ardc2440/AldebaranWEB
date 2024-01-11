@@ -2,7 +2,7 @@
 @using ServiceModel = Aldebaran.Application.Services.Models;
 
 <RadzenColumn SizeMD=12>
-    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@ErrorVisible">No se ha podido actualizar el agente</RadzenAlert>
+    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">No se ha podido actualizar el agente</RadzenAlert>
     <RadzenTemplateForm TItem="ServiceModel.ForwarderAgent" Data="@ForwarderAgent" Visible="@(ForwarderAgent != null)" Submit="@FormSubmit">
         <RadzenStack>
             <div class="flex-shrink-0">

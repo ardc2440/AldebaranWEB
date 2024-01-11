@@ -16,7 +16,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
         #endregion
 
         #region Variables
-        protected bool ErrorVisible;
+        protected bool IsErrorVisible;
         protected ServiceModel.Forwarder Forwarder;
         protected bool IsSubmitInProgress;
         #endregion
@@ -39,7 +39,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
             }
             catch (Exception ex)
             {
-                ErrorVisible = true;
+                IsErrorVisible = true;
             }
             finally
             {

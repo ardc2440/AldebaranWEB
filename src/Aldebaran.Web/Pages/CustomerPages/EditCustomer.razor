@@ -1,7 +1,7 @@
 @attribute [Authorize(Roles="Admin,Customer Editor")]
 
 <RadzenColumn SizeMD=12>
-    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@IsErrorVisible">No se ha podido actualizar el cliente</RadzenAlert>
+    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">No se ha podido actualizar el cliente</RadzenAlert>
     <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.Customer" Data="@Customer" Visible="@(Customer != null)" Submit="@FormSubmit">
         <RadzenStack>
             <RadzenRow AlignItems="Radzen.AlignItems.Start">
@@ -34,7 +34,7 @@
                 <Helper>
                     <RadzenRequiredValidator Component="CustomerName" Text="Nombre es requerido" />
                 </Helper>
-            </RadzenFormField>           
+            </RadzenFormField>
             <LocalizationPicker CITY_ID="@Customer.CityId" OnChange="LocalizationHandler" />
             <RadzenRequiredValidator Text="Ubicación requerida" Component="CityId" Style="margin-top: -0.875rem;" />
             <RadzenRow AlignItems="Radzen.AlignItems.Start">
