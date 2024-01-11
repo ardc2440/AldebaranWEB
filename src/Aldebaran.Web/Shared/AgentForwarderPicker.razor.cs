@@ -23,8 +23,8 @@ namespace Aldebaran.Web.Shared
         protected bool CollapsedPanel { get; set; } = true;
         protected ServiceModel.Forwarder Forwarder;
         protected ServiceModel.ForwarderAgent ForwarderAgent;
-        protected IEnumerable<ServiceModel.Forwarder> Forwarders;
-        protected IEnumerable<ServiceModel.ForwarderAgent> ForwarderAgents;
+        protected IEnumerable<ServiceModel.Forwarder> Forwarders = new List<ServiceModel.Forwarder>();
+        protected IEnumerable<ServiceModel.ForwarderAgent> ForwarderAgents = new List<ServiceModel.ForwarderAgent>();
         public int? FORWARDER_ID { get; set; }
         public int? FORWARDER_AGENT_ID { get; set; }
         #endregion
@@ -44,7 +44,7 @@ namespace Aldebaran.Web.Shared
             {
                 Forwarder = null;
                 ForwarderAgent = null;
-                ForwarderAgents = null;
+                ForwarderAgents = new List<ServiceModel.ForwarderAgent>();
                 await OnChange.InvokeAsync(null);
                 return;
             }

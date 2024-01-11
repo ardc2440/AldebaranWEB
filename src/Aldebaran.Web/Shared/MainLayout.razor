@@ -40,11 +40,9 @@
         <RadzenStack AlignItems="Radzen.AlignItems.Center" class="rz-py-4 rz-py-lg-6" Style="padding: var(--rz-panel-menu-item-padding); border-bottom: var(--rz-panel-menu-item-border);">
             <RadzenImage Path="images/aldebaran-icon.svg" style="width: 32px;"></RadzenImage>
             <RadzenImage Path="images/aldebaran-text.svg" style="width: 150px;"></RadzenImage>
-            <!--<RadzenText Text="Aldebaran.Web" TextStyle="Radzen.Blazor.TextStyle.Subtitle1" class="rz-mb-0" style="color: var(--rz-sidebar-color);" />-->
         </RadzenStack>
         <RadzenPanelMenu>
             <RadzenPanelMenuItem Text="Home" Path="" />
-
             <RadzenPanelMenuItem Text="Administración" Icon="admin_panel_settings">
                 <RadzenPanelMenuItem Text="Artículos" Path="items" Visible="@Security.IsInRole("Admin","Item Editor","Item Viwer")" />
                 <RadzenPanelMenuItem Text="Artículos por áreas" Path="areas" Visible="@Security.IsInRole("Admin","Area Editor","Area Viwer")" />

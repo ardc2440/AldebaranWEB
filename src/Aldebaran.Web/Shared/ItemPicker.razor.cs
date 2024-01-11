@@ -19,9 +19,9 @@ namespace Aldebaran.Web.Shared
         #region Variables
         public short? LINE_ID { get; set; }
         protected ServiceModel.Line SelectedLine;
-        protected IEnumerable<ServiceModel.Line> Lines;
+        protected IEnumerable<ServiceModel.Line> Lines = new List<ServiceModel.Line>();
         protected ServiceModel.Item SelectedItem;
-        protected IEnumerable<ServiceModel.Item> Items;
+        protected IEnumerable<ServiceModel.Item> Items = new List<ServiceModel.Item>();
         protected bool CollapsedPanel { get; set; } = true;
         bool IsSetParametersEnabled = true;
         #endregion
@@ -53,7 +53,7 @@ namespace Aldebaran.Web.Shared
             if (lineId == null)
             {
                 SelectedLine = null;
-                Items = null;
+                Items = new List<ServiceModel.Item>();
                 SelectedItem = null;
                 await OnChange.InvokeAsync(null);
                 return;
