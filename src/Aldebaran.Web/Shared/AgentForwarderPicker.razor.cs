@@ -1,80 +1,67 @@
+using Aldebaran.Application.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
-using Radzen;
+using ServiceModel = Aldebaran.Application.Services.Models;
 
 namespace Aldebaran.Web.Shared
 {
     public partial class AgentForwarderPicker
     {
+        #region Injections
         [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
-
+        protected IForwarderService ForwarderService { get; set; }
         [Inject]
-        protected NavigationManager NavigationManager { get; set; }
+        protected IForwarderAgentService ForwarderAgentService { get; set; }
+        #endregion
 
-        [Inject]
-        protected DialogService DialogService { get; set; }
-
-        [Inject]
-        protected TooltipService TooltipService { get; set; }
-
-        [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
-
-        [Inject]
-        protected NotificationService NotificationService { get; set; }
-
-        [Inject]
-        protected SecurityService Security { get; set; }
-
-        [Inject]
-        public AldebaranDbService AldebaranDbService { get; set; }
-
+        #region Parameters
         [Parameter]
-        public EventCallback<Models.AldebaranDb.ForwarderAgent> OnChange { get; set; }
+        public EventCallback<ServiceModel.ForwarderAgent> OnChange { get; set; }
+        #endregion
 
+        #region Variables
         protected bool CollapsedPanel { get; set; } = true;
-        protected Models.AldebaranDb.Forwarder forwarder;
-        protected Models.AldebaranDb.ForwarderAgent agent;
-        protected IEnumerable<Models.AldebaranDb.Forwarder> forwarders;
-        protected IEnumerable<Models.AldebaranDb.ForwarderAgent> agents;
+        protected ServiceModel.Forwarder Forwarder;
+        protected ServiceModel.ForwarderAgent ForwarderAgent;
+        protected IEnumerable<ServiceModel.Forwarder> Forwarders;
+        protected IEnumerable<ServiceModel.ForwarderAgent> ForwarderAgents;
         public int? FORWARDER_ID { get; set; }
         public int? FORWARDER_AGENT_ID { get; set; }
+        #endregion
 
+        #region Overrides
         protected override async Task OnInitializedAsync()
         {
             await Task.Yield();
-            forwarders = await AldebaranDbService.GetForwarders(new Query { Expand = "City.Department.Country" });
+            Forwarders = await ForwarderService.GetAsync();
         }
+        #endregion
+
+        #region Events
         protected async Task OnForwarderChange(object forwarderId)
         {
             if (forwarderId == null)
             {
-                forwarder = null;
-                await CleanAgents();
+                Forwarder = null;
+                ForwarderAgent = null;
+                ForwarderAgents = null;
+                await OnChange.InvokeAsync(null);
                 return;
             }
-            forwarder = forwarders.Single(s => s.FORWARDER_ID == (int)forwarderId);
-            agents = await AldebaranDbService.GetForwarderAgents(new Query { Filter = $"i=>i.FORWARDER_ID==@0", FilterParameters = new object[] { forwarderId }, Expand = "City.Department.Country" });
+            Forwarder = Forwarders.Single(s => s.ForwarderId == (int)forwarderId);
+            ForwarderAgents = await ForwarderAgentService.GetByForwarderIdAsync(Forwarder.ForwarderId);
         }
         protected async Task OnForwarderAgentChange(object forwarderAgentId)
         {
             if (forwarderAgentId == null)
             {
-                agent = null;
+                ForwarderAgent = null;
                 await OnChange.InvokeAsync(null);
                 return;
             }
-            agent = agents.Single(s => s.FORWARDER_AGENT_ID == (int)forwarderAgentId);
+            ForwarderAgent = ForwarderAgents.Single(s => s.ForwarderAgentId == (int)forwarderAgentId);
             CollapsedPanel = true;
-            await OnChange.InvokeAsync(agent);
-        }
-        async Task CleanAgents()
-        {
-            agent = null;
-            agents = null;
-            await OnChange.InvokeAsync(null);
+            await OnChange.InvokeAsync(ForwarderAgent);
         }
         protected async Task PanelCollapseToggle(MouseEventArgs args)
         {
@@ -87,5 +74,6 @@ namespace Aldebaran.Web.Shared
             if (Command == "Collapse")
                 CollapsedPanel = true;
         }
+        #endregion
     }
 }

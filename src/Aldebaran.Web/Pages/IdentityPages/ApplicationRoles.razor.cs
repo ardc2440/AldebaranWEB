@@ -1,6 +1,5 @@
 using Aldebaran.Web.Models;
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
 using Radzen;
 using Radzen.Blazor;
 
@@ -8,75 +7,69 @@ namespace Aldebaran.Web.Pages.IdentityPages
 {
     public partial class ApplicationRoles
     {
+        #region Injections
         [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
-
-        [Inject]
-        protected NavigationManager NavigationManager { get; set; }
-
-        [Inject]
-        protected DialogService DialogService { get; set; }
-
-        [Inject]
-        protected TooltipService TooltipService { get; set; }
-
-        [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
-
-        [Inject]
-        protected NotificationService NotificationService { get; set; }
+        protected ILogger<ApplicationRoles> Logger { get; set; }
 
         [Inject]
         protected SecurityService Security { get; set; }
+        #endregion
 
-        protected IEnumerable<ApplicationRole> roles;
+        #region Variables
+        protected IEnumerable<ApplicationRole> ApplicationRolesList;
         protected RadzenDataGrid<ApplicationRole> ApplicationRoleDataGrid;
         protected RadzenDataGrid<ApplicationUser> ApplicationUserDataGrid;
-        protected ApplicationRole role;
-        protected string error;
-        protected bool errorVisible;
+        protected ApplicationRole ApplicationRole;
+        protected string Error;
+        protected bool IsErrorVisible;
         protected string search = "";
-        protected IEnumerable<ApplicationUser> users;
-        protected bool isLoadingInProgress;
+        protected IEnumerable<ApplicationUser> ApplicationUsers;
+        protected bool IsLoadingInProgress;
+        #endregion
 
+        #region Overrides
         protected override async Task OnInitializedAsync()
         {
             try
             {
-                isLoadingInProgress = true;
-
-                await Task.Yield();
-
-                roles = await Security.GetRoles();
+                IsLoadingInProgress = true;
+                await GetApplicationRolesAsync();
             }
             finally
             {
-                isLoadingInProgress = false;
+                IsLoadingInProgress = false;
             }
+        }
+        #endregion
 
+        #region Events
+        async Task GetApplicationRolesAsync(string searchKey = null, CancellationToken ct = default)
+        {
+            await Task.Yield();
+            var roles = await Security.GetRoles();
+
+            ApplicationRolesList = string.IsNullOrEmpty(searchKey) ? roles.OrderBy(o => o.Name) : roles.Where(i => i.Name.Contains(search, StringComparison.InvariantCultureIgnoreCase)).OrderBy(o => o.Name);
         }
         protected async Task Search(ChangeEventArgs args)
         {
             search = $"{args.Value}";
             await ApplicationRoleDataGrid.GoToPage(0);
-            var r = await Security.GetRoles();
-            roles = r.Where(i => i.Name.Contains(search, StringComparison.InvariantCultureIgnoreCase));
+            await GetApplicationRolesAsync(search);
         }
-        protected async Task GetChildData(ApplicationRole args)
+        protected async Task GetApplicationUsers(ApplicationRole args)
         {
-            role = args;
+            ApplicationRole = args;
             try
             {
-                isLoadingInProgress = true;
-
+                IsLoadingInProgress = true;
                 await Task.Yield();
-
-                users = await Security.GetUsersByRole(args.Id);
+                ApplicationUsers = await Security.GetUsersByRole(args.Id);
             }
             finally
             {
-                isLoadingInProgress = false;
-            };
+                IsLoadingInProgress = false;
+            }
         }
+        #endregion
     }
 }

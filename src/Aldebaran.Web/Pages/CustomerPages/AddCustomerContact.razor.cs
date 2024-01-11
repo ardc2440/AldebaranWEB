@@ -9,7 +9,8 @@ namespace Aldebaran.Web.Pages.CustomerPages
     public partial class AddCustomerContact
     {
         #region Injections
-
+        [Inject]
+        protected ILogger<AddCustomerContact> Logger { get; set; }
         [Inject]
         protected DialogService DialogService { get; set; }
         [Inject]
@@ -17,7 +18,7 @@ namespace Aldebaran.Web.Pages.CustomerPages
         [Inject]
         protected ICityService CityService { get; set; }
         [Inject]
-        protected ICustomerContactService CustomerContactService { get; }
+        protected ICustomerContactService CustomerContactService { get; set; }
 
         #endregion
 
@@ -30,11 +31,11 @@ namespace Aldebaran.Web.Pages.CustomerPages
 
         #region Global Variables
 
-        protected bool errorVisible;
-        protected CustomerContact customerContact;
-        protected Customer customer;
-        protected City city;
-        protected bool isSubmitInProgress;
+        protected bool IsErrorVisible;
+        protected CustomerContact CustomerContact;
+        protected Customer Customer;
+        protected City CustomerCity;
+        protected bool IsSubmitInProgress;
 
         #endregion
 
@@ -42,9 +43,9 @@ namespace Aldebaran.Web.Pages.CustomerPages
 
         protected override async Task OnInitializedAsync()
         {
-            customer = await CustomerService.FindAsync(CUSTOMER_ID);
-            city = await CityService.FindAsync(customer.CityId);
-            customerContact = new CustomerContact
+            Customer = await CustomerService.FindAsync(CUSTOMER_ID);
+            CustomerCity = await CityService.FindAsync(Customer.CityId);
+            CustomerContact = new CustomerContact
             {
                 CustomerId = CUSTOMER_ID
             };
@@ -58,17 +59,18 @@ namespace Aldebaran.Web.Pages.CustomerPages
         {
             try
             {
-                isSubmitInProgress = true;
-                await CustomerContactService.AddAsync(customerContact);
+                IsSubmitInProgress = true;
+                await CustomerContactService.AddAsync(CustomerContact);
                 DialogService.Close(true);
             }
             catch (Exception ex)
             {
-                errorVisible = true;
+                Logger.LogError(ex, nameof(FormSubmit));
+                IsErrorVisible = true;
             }
             finally
             {
-                isSubmitInProgress = false;
+                IsSubmitInProgress = false;
             }
         }
 

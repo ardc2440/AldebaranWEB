@@ -1,71 +1,64 @@
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
 using Radzen;
 
 namespace Aldebaran.Web.Pages.IdentityPages
 {
     public partial class AddApplicationUser
     {
+        #region Injections
         [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
-
-        [Inject]
-        protected NavigationManager NavigationManager { get; set; }
+        protected ILogger<AddApplicationUser> Logger { get; set; }
 
         [Inject]
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected TooltipService TooltipService { get; set; }
-
-        [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
-
-        [Inject]
-        protected NotificationService NotificationService { get; set; }
-
-        [Inject]
-        public AldebaranDbService AldebaranDbService { get; set; }
-
-        [Inject]
         protected SecurityService Security { get; set; }
 
-        protected IEnumerable<Models.ApplicationRole> roles;
-        protected Models.ApplicationUser applicationUser;
-        protected IEnumerable<string> userRoles = Enumerable.Empty<string>();
-        protected bool errorVisible;
-        protected string error;
-        protected bool isSubmitInProgress;
+        #endregion
 
+        #region Variables
+        protected IEnumerable<Models.ApplicationRole> ApplicationRoles;
+        protected Models.ApplicationUser ApplicationUser;
+        protected IEnumerable<string> UserRoles = Enumerable.Empty<string>();
+        protected bool IsErrorVisible;
+        protected bool IsSubmitInProgress;
+        protected string Error;
+        #endregion
+
+        #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            applicationUser = new Models.ApplicationUser();
-            roles = await Security.GetRoles();
+            ApplicationUser = new Models.ApplicationUser();
+            ApplicationRoles = await Security.GetRoles();
         }
+        #endregion
 
+        #region Events
         protected async Task FormSubmit()
         {
             try
             {
-                isSubmitInProgress = true;
+                IsSubmitInProgress = true;
                 // verificar que el username no se encuentre ya en uso
                 var users = await Security.GetUsers();
-                if (users.Any(s => s.UserName == applicationUser.UserName.Trim()))
-                    throw new Exception("Ya existe un usuario con el mismo nombre");
-                applicationUser.LockoutEnabled = false;
-                applicationUser.UserName = applicationUser.UserName.Trim();
-                applicationUser.Roles = roles.Where(role => userRoles.Contains(role.Id)).ToList();
-                var result = await Security.CreateUser(applicationUser);
+                if (users.Any(s => string.Compare(s.UserName.Trim(), ApplicationUser.UserName.TrimEnd(), true) == 0))
+                    throw new Exception("Ya existe un usuario con el mismo nombre.");
+                ApplicationUser.LockoutEnabled = false;
+                ApplicationUser.UserName = ApplicationUser.UserName.Trim();
+                ApplicationUser.Roles = ApplicationRoles.Where(role => UserRoles.Contains(role.Id)).ToList();
+                var result = await Security.CreateUser(ApplicationUser);
                 DialogService.Close(true);
             }
             catch (Exception ex)
             {
-                errorVisible = true;
-                error = ex.Message;
+                Logger.LogError(ex, nameof(FormSubmit));
+                IsErrorVisible = true;
+                Error = ex.Message;
             }
             finally
             {
-                isSubmitInProgress = false;
+                IsSubmitInProgress = false;
             }
         }
 
@@ -73,5 +66,6 @@ namespace Aldebaran.Web.Pages.IdentityPages
         {
             DialogService.Close(null);
         }
+        #endregion
     }
 }

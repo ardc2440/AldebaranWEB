@@ -96,7 +96,7 @@ namespace Aldebaran.Web.Pages.ProviderPages
             try
             {
                 DialogResult = null;
-                if (await DialogService.Confirm("Está seguro que desea eliminar este proveedor?") == true)
+                if (await DialogService.Confirm("Está seguro que desea eliminar este proveedor?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
                 {
                     await ProviderService.DeleteAsync(provider.ProviderId);
                     await GetProvidersAsync();
@@ -156,7 +156,7 @@ namespace Aldebaran.Web.Pages.ProviderPages
             try
             {
                 DialogResult = null;
-                if (await DialogService.Confirm("Está seguro que desea eliminar esta referencia del proveedor?") == true)
+                if (await DialogService.Confirm("Está seguro que desea eliminar esta referencia del proveedor?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
                 {
                     await ProviderReferenceService.DeleteAsync(providerReference.ProviderId, providerReference.ReferenceId);
                     await GetProviderReferences(Provider);

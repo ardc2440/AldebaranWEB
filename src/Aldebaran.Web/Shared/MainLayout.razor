@@ -15,10 +15,10 @@
                 <RadzenStack AlignItems="AlignItems.Center" Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End">
                     <RadzenProfileMenu Visible="@Security.IsAuthenticated()" Click="@ProfileMenuClick">
                         <ChildContent>
-                            <RadzenProfileMenuItem Path="profile" Icon="settings" Text="Profile" />
+                            <RadzenProfileMenuItem Path="profile" Icon="settings" Text="Perfil" />
                             <RadzenProfileMenuItem Path="application-users" Icon="person" Text="Usuarios" />
                             <RadzenProfileMenuItem Path="application-roles" Icon="security" Text="Roles" />
-                            <RadzenProfileMenuItem Text="Logout" Value="Logout" Icon="power_settings_new" />
+                            <RadzenProfileMenuItem Text="Cerrar sesión" Value="Logout" Icon="power_settings_new" />
                         </ChildContent>
                         <Template>
                             @Security.User?.Name
@@ -54,7 +54,7 @@
                 <RadzenPanelMenuItem Text="Proveedores" Path="providers" Visible="@Security.IsInRole("Admin","Provider Editor","Provider Viwer")" />
             </RadzenPanelMenuItem>
             <RadzenPanelMenuItem Text="Movimientos de Inventario" Icon="extension">
-                <RadzenPanelMenuItem Text="Ordenes de compra" Path="purchase-orders" />
+                <RadzenPanelMenuItem Text="Ordenes de compra" Path="purchase-orders" Visible=@Security.IsInRole("Admin","Purchase Order Editor", "Purchase Order Viwer") />
                 <RadzenPanelMenuItem Text="Reserva de Artículos" Path="customer-reservations" Visible=@Security.IsInRole("Admin","Customer Reservation Viwer","Customer Reservation Editor","Customer Order Editor") />
                 <RadzenPanelMenuItem Text="Pedido de Artículos" Path="customer-orders" Visible=@Security.IsInRole("Admin","Customer Order Viwer","Customer Order Editor") />
                 <RadzenPanelMenuItem Text="Traslado de Pedidos a Proceso " Path="process-customer-orders" Visible=@Security.IsInRole("Admin","Customer Order In Process Viwer","Customer Order In Process Editor") />

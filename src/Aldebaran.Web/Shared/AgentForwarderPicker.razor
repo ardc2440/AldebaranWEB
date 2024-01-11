@@ -2,7 +2,7 @@
 <RadzenPanel AllowCollapse="false" Collapsed="@CollapsedPanel" Class="rz-mx-auto toggle-panel" Expand=@(() => PanelCollapseChange("Expand")) Collapse=@(() => PanelCollapseChange("Collapse"))>
     <HeaderTemplate>
         <RadzenButton Click="@PanelCollapseToggle" class="@(CollapsedPanel ? "panel-collapsed":"panel-expanded")">
-            @if (forwarder == null || agent == null)
+            @if (Forwarder == null || ForwarderAgent == null)
             {
                 <span>Transportadora</span>
             }
@@ -10,7 +10,7 @@
             {
                 <div class="component-section d-flex flex-column justify-content-start">
                     <span class="component-label">Transportadora</span>
-                    <span>(@forwarder?.FORWARDER_NAME) @agent?.FORWARDER_AGENT_NAME</span>
+                    <span>(@Forwarder?.ForwarderName) @ForwarderAgent?.ForwarderAgentName</span>
                 </div>
             }
         </RadzenButton>
@@ -21,14 +21,14 @@
                 <RadzenColumn Size="12">
                     <RadzenFormField Text="Transportadora" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDownDataGrid Data="@forwarders" TextProperty="FORWARDER_NAME" ValueProperty="FORWARDER_ID" AllowClear=true
-                                                    style="display: block; width: 100%" @bind-Value="FORWARDER_ID" Name="FORWARDER_ID" Change="@OnForwarderChange" AllowFiltering="true" ClearSearchAfterSelection="true">
+                            <RadzenDropDownDataGrid Data="@Forwarders" TextProperty="ForwarderName" ValueProperty="ForwarderId" AllowClear=true
+                                                    style="display: block; width: 100%" @bind-Value="FORWARDER_ID" Name="ForwarderId" Change="@OnForwarderChange" AllowFiltering="true" ClearSearchAfterSelection="true">
                                 <Columns>
-                                    <RadzenDropDownDataGridColumn Property="FORWARDER_NAME" Title="Nombre" />
-                                    <RadzenDropDownDataGridColumn Property="FORWARDER_ADDRESS" Title="Dirección" />
-                                    <RadzenDropDownDataGridColumn Property="City.CITY_ID" Title="Ubicación">
+                                    <RadzenDropDownDataGridColumn Property="ForwarderName" Title="Nombre" />
+                                    <RadzenDropDownDataGridColumn Property="ForwarderAddress" Title="Dirección" />
+                                    <RadzenDropDownDataGridColumn Property="City.CityId" Title="Ubicación">
                                         <Template Context="provider">
-                                            <span>(@provider.City.Department.Country.COUNTRY_CODE) @provider.City.Department.DEPARTMENT_NAME - @provider.City.CITY_NAME</span>
+                                            <span>(@provider.City.Department.Country.CountryCode) @provider.City.Department.DepartmentName - @provider.City.CityName</span>
                                         </Template>
                                     </RadzenDropDownDataGridColumn>
                                 </Columns>
@@ -41,15 +41,15 @@
                 <RadzenColumn Size="12">
                     <RadzenFormField Text="Agente" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDownDataGrid Data="@agents" TextProperty="FORWARDER_AGENT_NAME" ValueProperty="FORWARDER_AGENT_ID" AllowClear=true
-                                                    style="display: block; width: 100%" @bind-Value="FORWARDER_AGENT_ID" Name="FORWARDER_AGENT_ID" Change="@OnForwarderAgentChange" AllowFiltering="true" ClearSearchAfterSelection="true">
+                            <RadzenDropDownDataGrid Data="@ForwarderAgents" TextProperty="ForwarderAgentName" ValueProperty="ForwarderAgentId" AllowClear=true
+                                                    style="display: block; width: 100%" @bind-Value="FORWARDER_AGENT_ID" Name="ForwarderAgentId" Change="@OnForwarderAgentChange" AllowFiltering="true" ClearSearchAfterSelection="true">
                                 <Columns>
-                                    <RadzenDropDownDataGridColumn Property="FORWARDER_AGENT_NAME" Title="Nombre" />
-                                    <RadzenDropDownDataGridColumn Property="FORWARDER_AGENT_ADDRESS" Title="Dirección" />
-                                    <RadzenDropDownDataGridColumn Property="CONTACT" Title="Contacto" />
-                                    <RadzenDropDownDataGridColumn Property="City.CITY_ID" Title="Ubicación">
+                                    <RadzenDropDownDataGridColumn Property="ForwarderAgentName" Title="Nombre" />
+                                    <RadzenDropDownDataGridColumn Property="ForwarderAgentAddress" Title="Dirección" />
+                                    <RadzenDropDownDataGridColumn Property="Contact" Title="Contacto" />
+                                    <RadzenDropDownDataGridColumn Property="City.CityId" Title="Ubicación">
                                         <Template Context="provider">
-                                            <span>(@provider.City.Department.Country.COUNTRY_CODE) @provider.City.Department.DEPARTMENT_NAME - @provider.City.CITY_NAME</span>
+                                            <span>(@provider.City.Department.Country.CountryCode) @provider.City.Department.DepartmentName - @provider.City.CityName</span>
                                         </Template>
                                     </RadzenDropDownDataGridColumn>
                                 </Columns>

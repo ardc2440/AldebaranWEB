@@ -1,9 +1,7 @@
-@inject Microsoft.Extensions.Localization.IStringLocalizer<EmployeePicker> L
 <RadzenPanel AllowCollapse="false" Collapsed="@CollapsedPanel" Class="rz-mx-auto toggle-panel" Expand=@(() => PanelCollapseChange("Expand")) Collapse=@(() => PanelCollapseChange("Collapse"))>
     <HeaderTemplate>
-
         <RadzenButton Click="@PanelCollapseToggle" class="@(CollapsedPanel ? "panel-collapsed":"panel-expanded")">
-            @if (employee == null)
+            @if (Employee == null)
             {
                 <span>Empleado</span>
             }
@@ -11,7 +9,7 @@
             {
                 <div class="component-section d-flex flex-column justify-content-start">
                     <span class="component-label">Empleado</span>
-                    <span>(@employee.Area.AREA_NAME) @employee.FULL_NAME</span>
+                    <span>(@Employee.Area.AreaName) @Employee.FullName</span>
                 </div>
             }
         </RadzenButton>
@@ -22,16 +20,16 @@
                 <RadzenColumn SizeLG="6" SizeXL="6" SizeMD="6" SizeSM="12" SizeXS="12" SizeXX="12">
                     <RadzenFormField Text="Area" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDown Data="@areas" TextProperty="AREA_NAME" ValueProperty="AREA_ID" AllowClear=true
-                                            style="display: block; width: 100%" @bind-Value="AREA_ID" Name="AREA_ID" Change="@OnAreaChange" AllowFiltering="true" ClearSearchAfterSelection="true" />
+                            <RadzenDropDown Data="@Areas" TextProperty="AreaName" ValueProperty="AreaId" AllowClear=true
+                                            style="display: block; width: 100%" @bind-Value="AREA_ID" Name="AreaId" Change="@OnAreaChange" AllowFiltering="true" ClearSearchAfterSelection="true" />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenColumn>
                 <RadzenColumn SizeLG="6" SizeXL="6" SizeMD="6" SizeSM="12" SizeXS="12" SizeXX="12">
                     <RadzenFormField Text="Empleado" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDown Data="@employees" TextProperty="FULL_NAME" ValueProperty="EMPLOYEE_ID" AllowClear=true
-                                            style="display: block; width: 100%" @bind-Value="EMPLOYEE_ID" Name="EMPLOYEE_ID" Change="@OnEmployeeChange" AllowFiltering="true" ClearSearchAfterSelection="true" />
+                            <RadzenDropDown Data="@Employees" TextProperty="FullName" ValueProperty="EmployeeId" AllowClear=true
+                                            style="display: block; width: 100%" @bind-Value="EMPLOYEE_ID" Name="EmployeeId" Change="@OnEmployeeChange" AllowFiltering="true" ClearSearchAfterSelection="true" />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenColumn>

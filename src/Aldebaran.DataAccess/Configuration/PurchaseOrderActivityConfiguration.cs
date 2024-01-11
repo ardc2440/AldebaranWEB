@@ -17,7 +17,7 @@ namespace Aldebaran.DataAccess.Entities
             builder.Property(x => x.ActivityEmployeeId).HasColumnName(@"ACTIVITY_EMPLOYEE_ID").HasColumnType("int").IsRequired();
             // Foreign keys
             builder.HasOne(a => a.ActivityEmployee).WithMany(b => b.PurchaseOrderActivities_ActivityEmployeeId).HasForeignKey(c => c.ActivityEmployeeId).OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_PURCHASE_ORDER_ACTIVITY_ACTIVITY_EMPLOYEE");
-            builder.HasOne(a => a.Employee_EmployeeId).WithMany(b => b.PurchaseOrderActivities_EmployeeId).HasForeignKey(c => c.EmployeeId).OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_PURCHASE_ORDER_ACTIVITY_EMPLOYEE");
+            builder.HasOne(a => a.Employee).WithMany(b => b.PurchaseOrderActivities_EmployeeId).HasForeignKey(c => c.EmployeeId).OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_PURCHASE_ORDER_ACTIVITY_EMPLOYEE");
             builder.HasOne(a => a.PurchaseOrder).WithMany(b => b.PurchaseOrderActivities).HasForeignKey(c => c.PurchaseOrderId).OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_PURCHASE_ORDER_ACTIVITY_PURCHASE_ORDER");
             builder.HasIndex(x => new { x.PurchaseOrderId, x.PurchaseOrderActivityId, x.ExecutionDate }).HasDatabaseName("IND_PURCHASE_ORDERS_ACTIVITIIES_EXECUTION_DATE");
         }

@@ -1,76 +1,81 @@
+using Aldebaran.Application.Services;
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
-using Radzen;
+using ServiceModel = Aldebaran.Application.Services.Models;
 
 namespace Aldebaran.Web.Shared
 {
     public partial class EmployeePicker
     {
+        #region Injections
         [Inject]
-        protected IJSRuntime JSRuntime { get; set; }
-
+        public IAreaService AreaService { get; set; }
         [Inject]
-        protected NavigationManager NavigationManager { get; set; }
+        protected IEmployeeService EmployeeService { get; set; }
+        #endregion
 
-        [Inject]
-        protected DialogService DialogService { get; set; }
-
-        [Inject]
-        protected TooltipService TooltipService { get; set; }
-
-        [Inject]
-        protected ContextMenuService ContextMenuService { get; set; }
-
-        [Inject]
-        protected NotificationService NotificationService { get; set; }
-
-        [Inject]
-        protected SecurityService Security { get; set; }
-
-        [Inject]
-        public AldebaranDbService AldebaranDbService { get; set; }
-
+        #region Parameters
         [Parameter]
         public int? EMPLOYEE_ID { get; set; }
 
         [Parameter]
-        public EventCallback<Models.AldebaranDb.Employee> OnChange { get; set; }
+        public EventCallback<ServiceModel.Employee> OnChange { get; set; }
+        #endregion
 
+        #region Variables
         protected bool CollapsedPanel { get; set; } = true;
         public short? AREA_ID { get; set; }
-        protected IEnumerable<Models.AldebaranDb.Area> areas;
-        protected IEnumerable<Models.AldebaranDb.Employee> employees;
-        protected Models.AldebaranDb.Employee employee;
+        protected IEnumerable<ServiceModel.Area> Areas;
+        protected IEnumerable<ServiceModel.Employee> Employees;
+        protected ServiceModel.Employee Employee;
+        bool IsSetParametersEnabled = true;
+        #endregion
+
+        #region Overrides
         protected override async Task OnInitializedAsync()
         {
             await Task.Yield();
-            areas = await AldebaranDbService.GetAreas();
+            Areas = await AreaService.GetAsync();
         }
+        public override async Task SetParametersAsync(ParameterView parameters)
+        {
+            await base.SetParametersAsync(parameters);
+            if (!IsSetParametersEnabled) return;
+            if (EMPLOYEE_ID == null)
+                return;
+            var selectedEmployee = await EmployeeService.FindAsync(EMPLOYEE_ID.Value);
+            if (selectedEmployee == null)
+                return;
+            await OnAreaChange(selectedEmployee.AreaId);
+            await OnEmployeeChange(selectedEmployee.EmployeeId);
+        }
+        #endregion
+
+        #region Events
         protected async Task OnAreaChange(object areaId)
         {
             EMPLOYEE_ID = null;
             if (areaId == null)
             {
-                employee = null;
-                employees = null;
+                Employee = null;
+                Employees = null;
                 await OnChange.InvokeAsync(null);
                 return;
             }
-            employees = await AldebaranDbService.GetEmployees(new Query { Filter = $"i=>i.AREA_ID==@0", FilterParameters = new object[] { areaId }, Expand = "Area" });
+            Employees = await EmployeeService.GetByAreaAsync((short)areaId);
         }
         protected async Task OnEmployeeChange(object employeeId)
         {
             if (employeeId == null)
             {
-                employee = null;
+                Employee = null;
                 await OnChange.InvokeAsync(null);
                 return;
             }
-            employee = employees.Single(s => s.EMPLOYEE_ID == (int)employeeId);
+            Employee = Employees.Single(s => s.EmployeeId == (int)employeeId);
             CollapsedPanel = true;
-            await OnChange.InvokeAsync(employee);
+            IsSetParametersEnabled = false;
+            await OnChange.InvokeAsync(Employee);
         }
-
         protected async Task PanelCollapseToggle(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
             CollapsedPanel = !CollapsedPanel;
@@ -82,18 +87,7 @@ namespace Aldebaran.Web.Shared
             if (Command == "Collapse")
                 CollapsedPanel = true;
         }
-        public override async Task SetParametersAsync(ParameterView parameters)
-        {
-            if (parameters.TryGetValue<int>("EMPLOYEE_ID", out var hasEMPLOYEE_IDResult))
-            {
-                employee = await AldebaranDbService.GetEmployeeByEmployeeId(hasEMPLOYEE_IDResult);
-                if (employee != null)
-                {
-                    employees = await AldebaranDbService.GetEmployees(new Query { Filter = $"i=>i.AREA_ID==@0", FilterParameters = new object[] { employee.AREA_ID }, Expand = "Area" });
-                    AREA_ID = employee.AREA_ID;
-                }
-            }
-            await base.SetParametersAsync(parameters);
-        }
+        #endregion
+
     }
 }

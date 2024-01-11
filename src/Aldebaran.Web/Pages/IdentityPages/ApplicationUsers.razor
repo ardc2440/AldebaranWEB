@@ -4,13 +4,13 @@
 
 <PageTitle>Usuarios</PageTitle>
 <RadzenStack>
-    @if (dialogResult != null && dialogResult.Success)
+    @if (DialogResult != null && DialogResult.Success)
     {
-        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Success">@dialogResult.Message</RadzenAlert>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Success">@DialogResult.Message</RadzenAlert>
     }
-    @if (dialogResult != null && !dialogResult.Success)
+    @if (DialogResult != null && !DialogResult.Success)
     {
-        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger">@dialogResult.Message</RadzenAlert>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger">@DialogResult.Message</RadzenAlert>
     }
     <RadzenRow AlignItems="AlignItems.Center">
         <RadzenColumn Size="12">
@@ -18,13 +18,13 @@
         </RadzenColumn>
         <RadzenColumn Size="12">
             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
-                <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddClick" Variant="Variant.Flat" />
+                <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddApplicationUser" Variant="Variant.Flat" />
             </RadzenStack>
         </RadzenColumn>
     </RadzenRow>
     <RadzenRow>
         <RadzenColumn SizeMD="12">
-            <LocalizedDataGrid @ref="ApplicationUserDataGrid" AllowFiltering="true" AllowPaging="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30}) AllowSorting="true" Data="@users"
+            <LocalizedDataGrid @ref="ApplicationUserDataGrid" AllowFiltering="true" AllowPaging="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30}) AllowSorting="true" Data="@ApplicationUser"
                             TItem="Aldebaran.Web.Models.ApplicationUser" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" AllowGrouping="true" AllowColumnReorder="true">
                 <Columns>
                     <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ApplicationUser" Property="Email" Title="Correo electrónico" />
@@ -39,19 +39,19 @@
                             @if (user.LockoutEnabled)
                             {
                                 <RadzenButton ButtonStyle="Radzen.ButtonStyle.Success" Icon="lock_open" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Desbloquear", new TooltipOptions(){ Position = TooltipPosition.Left }))"
-                                              Variant="Variant.Flat" Shade="Shade.Lighter" Click="@(() => UnLockUserClick(user))" @onclick:stopPropagation="true" />
+                                              Variant="Variant.Flat" Shade="Shade.Lighter" Click="@(() => UnLockApplicationUser(user))" @onclick:stopPropagation="true" />
                             }
                             else
                             {
                                 <RadzenButton ButtonStyle="Radzen.ButtonStyle.Danger" Icon="lock" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Bloquear", new TooltipOptions(){ Position = TooltipPosition.Left }))"
-                                              Variant="Variant.Flat" Shade="Shade.Lighter" Click="@(() => LockUserClick(user))" @onclick:stopPropagation="true" />
+                                              Variant="Variant.Flat" Shade="Shade.Lighter" Click="@(() => LockApplicationUser(user))" @onclick:stopPropagation="true" />
                             }
                             @if (user.UserName != "sa")
                             {
-                                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRow(user))" @onclick:stopPropagation="true">
+                                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditApplicationUser(user))" @onclick:stopPropagation="true">
                                 </RadzenButton>
                                 <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="close" Size="ButtonSize.Medium"
-                                              Variant="Variant.Flat" Shade="Shade.Lighter" Click="@(() => DeleteClick(user))" @onclick:stopPropagation="true" />
+                                              Variant="Variant.Flat" Shade="Shade.Lighter" Click="@(() => DeleteApplicationUser(user))" @onclick:stopPropagation="true" />
                             }
                         </Template>
                     </RadzenDataGridColumn>

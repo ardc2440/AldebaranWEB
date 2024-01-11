@@ -39,9 +39,16 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     ReferenceId = item.ReferenceId
                 });
             }
-
-            await _context.CustomerOrders.AddAsync(entity, ct);
-            await _context.SaveChangesAsync(ct);
+            try
+            {
+                await _context.CustomerOrders.AddAsync(entity, ct);
+                await _context.SaveChangesAsync(ct);
+            }
+            catch (Exception)
+            {
+                _context.Entry(entity).State = EntityState.Unchanged;
+                throw;
+            }
             customerOrder.CustomerOrderId = entity.CustomerOrderId;
             customerOrder.OrderNumber = entity.OrderNumber;
             return customerOrder;

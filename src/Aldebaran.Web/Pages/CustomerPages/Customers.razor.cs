@@ -1,16 +1,19 @@
 ﻿using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Models.ViewModels;
+using Aldebaran.Web.Pages.AreaPages;
+using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
-using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.CustomerPages
 {
     public partial class Customers
     {
         #region Injections
+        [Inject]
+        protected ILogger<Areas> Logger { get; set; }
 
         [Inject]
         protected DialogService DialogService { get; set; }
@@ -29,15 +32,15 @@ namespace Aldebaran.Web.Pages.CustomerPages
 
         #endregion
 
-        #region Global Variables
+        #region Variables
 
-        protected IEnumerable<Customer> customers;
-        protected RadzenDataGrid<Customer> grid0;
+        protected IEnumerable<Customer> CustomersList;
+        protected LocalizedDataGrid<Customer> CustomerDataGrid;
         protected string search = "";
-        protected Customer customer;
-        protected RadzenDataGrid<CustomerContact> CustomerContactsDataGrid;
-        protected DialogResult dialogResult;
-        protected bool isLoadingInProgress;
+        protected Customer Customer;
+        protected LocalizedDataGrid<CustomerContact> CustomerContactsDataGrid;
+        protected DialogResult DialogResult;
+        protected bool IsLoadingInProgress;
 
         #endregion
 
@@ -47,15 +50,12 @@ namespace Aldebaran.Web.Pages.CustomerPages
         {
             try
             {
-                isLoadingInProgress = true;
-
-                await Task.Yield();
-
-                customers = await CustomerService.GetAsync(search);
+                IsLoadingInProgress = true;
+                await GetCustomersAsync();
             }
             finally
             {
-                isLoadingInProgress = false;
+                IsLoadingInProgress = false;
             }
         }
 
@@ -63,126 +63,125 @@ namespace Aldebaran.Web.Pages.CustomerPages
 
         #region Events
 
+        async Task GetCustomersAsync(string searchKey = null, CancellationToken ct = default)
+        {
+            await Task.Yield();
+            CustomersList = string.IsNullOrEmpty(searchKey) ? await CustomerService.GetAsync(ct) : await CustomerService.GetAsync(searchKey, ct);
+        }
         protected async Task Search(ChangeEventArgs args)
         {
             search = $"{args.Value}";
-            await grid0.GoToPage(0);
-            customers = await CustomerService.GetAsync(search);
+            await CustomerDataGrid.GoToPage(0);
+            await GetCustomersAsync(search);
         }
-
-        protected async Task AddButtonClick(MouseEventArgs args)
+        protected async Task AddCustomer(MouseEventArgs args)
         {
-            dialogResult = null;
+            DialogResult = null;
             var result = await DialogService.OpenAsync<AddCustomer>("Nuevo cliente");
             if (result == true)
             {
-                dialogResult = new DialogResult { Success = true, Message = "Cliente creado correctamente." };
-                customers = await CustomerService.GetAsync(search);
-                await grid0.Reload();
+                DialogResult = new DialogResult { Success = true, Message = "Cliente creado correctamente." };
             }
+            await GetCustomersAsync();
+            await CustomerDataGrid.Reload();
         }
-
-        protected async Task EditRow(Customer args)
+        protected async Task EditCustomer(Customer args)
         {
-            dialogResult = null;
+            DialogResult = null;
             var result = await DialogService.OpenAsync<EditCustomer>("Actualizar cliente", new Dictionary<string, object> { { "CUSTOMER_ID", args.CustomerId } });
             if (result == true)
             {
-                dialogResult = new DialogResult { Success = true, Message = "Cliente actualizado correctamente." };
-                customers = await CustomerService.GetAsync(search);
-                await grid0.Reload();
+                DialogResult = new DialogResult { Success = true, Message = "Cliente actualizado correctamente." };
             }
+            await GetCustomersAsync();
+            await CustomerDataGrid.Reload();
         }
-
-        protected async Task GridDeleteButtonClick(MouseEventArgs args, Customer customer)
+        protected async Task DeleteCustomer(MouseEventArgs args, Customer customer)
         {
             try
             {
-                dialogResult = null;
-                if (await DialogService.Confirm("Está seguro que desea eliminar este cliente?") == true)
+                DialogResult = null;
+                if (await DialogService.Confirm("Está seguro que desea eliminar este cliente?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
                 {
                     await CustomerService.DeleteAsync(customer.CustomerId);
-                    dialogResult = new DialogResult { Success = true, Message = "Cliente eliminado correctamente." };
-                    customers = await CustomerService.GetAsync(search);
-                    await grid0.Reload();
+                    await GetCustomersAsync();
+                    DialogResult = new DialogResult { Success = true, Message = "Cliente eliminado correctamente." };
+                    await CustomerDataGrid.Reload();
                 }
             }
             catch (Exception ex)
             {
+                Logger.LogError(ex, nameof(DeleteCustomer));
                 NotificationService.Notify(new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido eliminar el cliente\n\r{ex.InnerException.Message}\n\r{ex.StackTrace}"
+                    Detail = $"No se ha podido eliminar el cliente"
                 });
             }
         }
 
-        protected async Task GetChildData(Customer args)
+        protected async Task GetCustomerContacts(Customer args)
         {
-            customer = args;
+            Customer = args;
             try
             {
-                isLoadingInProgress = true;
-
+                IsLoadingInProgress = true;
                 await Task.Yield();
                 var CustomerContactsResult = await CustomerContactService.GetByCustomerIdAsync(args.CustomerId);
-                if (CustomerContactsResult != null)
-                {
-                    args.CustomerContacts = CustomerContactsResult.ToList();
-                }
+                args.CustomerContacts = CustomerContactsResult.ToList();
             }
             finally
             {
-                isLoadingInProgress = false;
+                IsLoadingInProgress = false;
             }
         }
 
-        protected async Task CustomerContactsAddButtonClick(MouseEventArgs args, Customer data)
+        protected async Task AddCustomerContact(MouseEventArgs args, Customer data)
         {
-            dialogResult = null;
+            DialogResult = null;
             var result = await DialogService.OpenAsync<AddCustomerContact>("Nuevo contacto", new Dictionary<string, object> { { "CUSTOMER_ID", data.CustomerId } });
             if (result == true)
             {
-                dialogResult = new DialogResult { Success = true, Message = "Contacto creado correctamente." };
+                DialogResult = new DialogResult { Success = true, Message = "Contacto creado correctamente." };
             }
-            await GetChildData(data);
+            await GetCustomerContacts(data);
             await CustomerContactsDataGrid.Reload();
         }
 
-        protected async Task EditChildRow(CustomerContact args, Customer data)
+        protected async Task EditCustomerContact(CustomerContact args, Customer data)
         {
-            dialogResult = null;
+            DialogResult = null;
             var result = await DialogService.OpenAsync<EditCustomerContact>("Actualizar contacto", new Dictionary<string, object> { { "CUSTOMER_CONTACT_ID", args.CustomerContactId } });
             if (result == true)
             {
-                dialogResult = new DialogResult { Success = true, Message = "Contacto actualizado correctamente." };
+                DialogResult = new DialogResult { Success = true, Message = "Contacto actualizado correctamente." };
             }
-            await GetChildData(data);
+            await GetCustomerContacts(data);
             await CustomerContactsDataGrid.Reload();
         }
 
-        protected async Task CustomerContactsDeleteButtonClick(MouseEventArgs args, CustomerContact customerContact)
+        protected async Task DeleteCustomerContact(MouseEventArgs args, CustomerContact customerContact)
         {
             try
             {
-                dialogResult = null;
-                if (await DialogService.Confirm("Está seguro que desea eliminar este contacto?") == true)
+                DialogResult = null;
+                if (await DialogService.Confirm("Está seguro que desea eliminar este contacto?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
                 {
                     await CustomerContactService.DeleteAsync(customerContact.CustomerContactId);
-                    await GetChildData(customer);
-
-                    dialogResult = new DialogResult { Success = true, Message = "Contacto eliminado correctamente." };
+                    await GetCustomerContacts(Customer);
+                    DialogResult = new DialogResult { Success = true, Message = "Contacto eliminado correctamente." };
                     await CustomerContactsDataGrid.Reload();
                 }
             }
             catch (Exception ex)
             {
+                Logger.LogError(ex, nameof(DeleteCustomerContact));
                 NotificationService.Notify(new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido eliminar el contacto\n\r{ex.InnerException.Message}\n\r{ex.StackTrace}"
+                    Detail = $"No se ha podido eliminar el contacto"
                 });
             }
         }

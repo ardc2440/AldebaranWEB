@@ -50,7 +50,6 @@ namespace Aldebaran.Web.Pages.AreaPages
             try
             {
                 IsLoadingInProgress = true;
-                await Task.Yield();
                 await GetAreasAsync();
             }
             finally
