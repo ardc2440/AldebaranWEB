@@ -102,9 +102,6 @@
 	  </Compile>
 	</ItemGroup>
 	<ItemGroup>
-	  <Folder Include="Core\Triggers\Purchases\" />
-	</ItemGroup>
-	<ItemGroup>
 	  <ProjectReference Include="..\Aldebaran.Infraestructure.Common\Aldebaran.Infraestructure.Common.csproj" />
 	</ItemGroup>
 </Project>
