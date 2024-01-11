@@ -41,7 +41,10 @@ namespace Aldebaran.Web.Pages.EmployeePages
             Employee = new ServiceModel.Employee();
             Areas = await AreaService.GetAsync();
             IdentityTypes = await IdentityTypeService.GetAsync();
-            ApplicationUsers = await Security.GetUsers();
+            var users = await Security.GetUsers();
+            var employees = await EmployeeService.GetAsync();
+            var ids = employees.Select(s => s.LoginUserId);
+            ApplicationUsers = users.Where(w => !ids.Contains(w.Id));
         }
         #endregion
 
