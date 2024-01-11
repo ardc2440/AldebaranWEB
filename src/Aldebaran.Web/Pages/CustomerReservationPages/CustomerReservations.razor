@@ -1,6 +1,7 @@
 @page "/customer-reservations"
 @attribute [Authorize(Roles = "Admin,Customer Reservation Viwer,Customer Reservation Editor")]
 @using Aldebaran.Web.Resources.LocalizedControls;
+@inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer
 
 <PageTitle>Reserva de Artículos</PageTitle>
 <RadzenStack>
@@ -13,7 +14,7 @@
         <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger">@DialogResult.Message</RadzenAlert>
     }
     <RadzenRow AlignItems="AlignItems.Center">
-        <RadzenColumn Size="12" >
+        <RadzenColumn Size="12">
             <RadzenText Text="Reserva de Artículos" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
         </RadzenColumn>
         <RadzenColumn Size="12" SizeMD="6">
@@ -26,15 +27,21 @@
     <RadzenRow>
         <RadzenColumn SizeMD=12>
             <LocalizedDataGrid @ref="grid0" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                            ExpandMode="DataGridExpandMode.Single" Data="@customerReservations" TItem="Aldebaran.Application.Services.Models.CustomerReservation" RowExpand=@GetChildData AllowColumnPicking="true" PageSizeText="items per page" PagingSummaryFormat="Page {0} de {1} ({2} items)" IsLoading="@isLoadingInProgress">
+                               ExpandMode="DataGridExpandMode.Single" Data="@customerReservations" TItem="Aldebaran.Application.Services.Models.CustomerReservation" RowExpand=@GetChildData AllowColumnPicking="true" PageSizeText="items per page" PagingSummaryFormat="Page {0} de {1} ({2} items)" IsLoading="@isLoadingInProgress">
                 <Columns>
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservation" Property="ReservationNumber" Title="No. Reserva">
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservation" Property="Customer.CustomerName" Title="Cliente">
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservation" Property="ReservationDate" Title="Fecha Reserva">
+                        <Template Context="customerReservation">
+                            <span>@customerReservation.ReservationDate.ToString(SharedLocalizer["date:format"])</span>
+                        </Template>
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservation" Property="ExpirationDate" Title="Fecha Expiración">
+                        <Template Context="customerReservation">
+                            <span>@customerReservation.ExpirationDate.ToString(SharedLocalizer["date:format"])</span>
+                        </Template>
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservation" Property="StatusDocumentType.StatusDocumentTypeName" Title="Estado">
                     </RadzenDataGridColumn>
@@ -52,7 +59,7 @@
                             </RadzenButton>
                             <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
                                           Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@CanEdit(customerReservation).Result"
-                                          Click=@(args => CancelCustomerReservation(args, customerReservation)) @onclick:stopPropagation="true" title="Cancelar Reserva"/>
+                                          Click=@(args => CancelCustomerReservation(args, customerReservation)) @onclick:stopPropagation="true" title="Cancelar Reserva" />
                         </Template>
                     </RadzenDataGridColumn>
                 </Columns>
@@ -64,7 +71,7 @@
                             </RadzenColumn>
                         </RadzenRow>
                         <LocalizedDataGrid ColumnWidth="200px" Visible="@(customerReservation != null)" @ref=CustomerReservationDetailsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                        ExpandMode="DataGridExpandMode.Single" Data="@customerReservation?.CustomerReservationDetails" TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail">
+                                           ExpandMode="DataGridExpandMode.Single" Data="@customerReservation?.CustomerReservationDetails" TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail">
                             <Columns>
                                 <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Property="ReservedQuantity" Title="Cantidad">
                                 </RadzenDataGridColumn>
