@@ -24,8 +24,8 @@ namespace Aldebaran.Web.Shared
         #region Variables
         protected bool CollapsedPanel { get; set; } = true;
         public short? AREA_ID { get; set; }
-        protected IEnumerable<ServiceModel.Area> Areas;
-        protected IEnumerable<ServiceModel.Employee> Employees;
+        protected IEnumerable<ServiceModel.Area> Areas = new List<ServiceModel.Area>();
+        protected IEnumerable<ServiceModel.Employee> Employees = new List<ServiceModel.Employee>();
         protected ServiceModel.Employee Employee;
         bool IsSetParametersEnabled = true;
         #endregion
@@ -57,7 +57,7 @@ namespace Aldebaran.Web.Shared
             if (areaId == null)
             {
                 Employee = null;
-                Employees = null;
+                Employees = new List<ServiceModel.Employee>();
                 await OnChange.InvokeAsync(null);
                 return;
             }

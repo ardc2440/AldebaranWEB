@@ -26,11 +26,11 @@ namespace Aldebaran.Web.Shared
         public int? COUNTRY_ID { get; set; }
         public int? DEPARTMENT_ID { get; set; }
 
-        protected IEnumerable<ServiceModel.Country> Countries;
+        protected IEnumerable<ServiceModel.Country> Countries = new List<ServiceModel.Country>();
         protected ServiceModel.Country SelectedCountry;
-        protected IEnumerable<ServiceModel.Department> Departments;
+        protected IEnumerable<ServiceModel.Department> Departments = new List<ServiceModel.Department>();
         protected ServiceModel.Department SelectedDepartment;
-        protected IEnumerable<ServiceModel.City> Cities;
+        protected IEnumerable<ServiceModel.City> Cities = new List<ServiceModel.City>();
         protected ServiceModel.City SelectedCity;
         protected bool CollapsedPanel { get; set; } = true;
         bool IsSetParametersEnabled = true;
@@ -110,13 +110,13 @@ namespace Aldebaran.Web.Shared
         void CleanDepartments()
         {
             SelectedDepartment = null;
-            Departments = null;
+            Departments = new List<ServiceModel.Department>();
         }
         async Task CleanCities()
         {
             CITY_ID = null;
             SelectedCity = null;
-            Cities = null;
+            Cities = new List<ServiceModel.City>();
             await OnChange.InvokeAsync(null);
         }
         #endregion
