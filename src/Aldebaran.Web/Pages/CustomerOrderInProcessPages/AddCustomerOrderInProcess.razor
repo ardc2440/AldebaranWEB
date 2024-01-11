@@ -2,6 +2,7 @@
 
 @attribute [Authorize(Roles = "Admin,Customer Order In Process Editor")]
 @using Aldebaran.Web.Resources.LocalizedControls;
+@inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer
 
 <PageTitle>Pedido de Articulos</PageTitle>
 <RadzenCard>
@@ -10,19 +11,21 @@
             <RadzenRow AlignItems="AlignItems.Center">
                 <RadzenColumn Size="12">
                     <RadzenText Text="@title" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
+                    <hr />
                 </RadzenColumn>
-                <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">@errorMessage</RadzenAlert>
+                <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">
+                    @errorMessage
+                </RadzenAlert>
             </RadzenRow>
             <RadzenRow AlignItems="AlignItems.Start" Gap="2rem">
                 <RadzenColumn SizeMD="5">
                     <RadzenStack>
-                        <RadzenRow />
                         <RadzenRow AlignItems="AlignItems.Start" Gap="2rem">
                             <RadzenColumn SizeMD="1" />
                             <RadzenColumn SizeMD="6">
                                 <RadzenStack>
                                     <RadzenColumn SizeMD="3">
-                                        <RadzenLabel Text="Cliente" class="fw-bold" style="width: 100%" />
+                                        <RadzenLabel Text="Cliente:" style="width: 100%" />
                                     </RadzenColumn>
                                     <RadzenColumn SizeMD="3">
                                         <RadzenRow>
@@ -43,35 +46,41 @@
                             <RadzenColumn SizeMD="5">
                                 <RadzenStack>
                                     <RadzenColumn SizeMD="3">
-                                        <RadzenLabel Text="Fecha de Pedido" class="fw-bold" style="width: 100%" />
+                                        <RadzenLabel Text="Fecha de Pedido:" style="width: 100%" />
                                     </RadzenColumn>
                                     <RadzenColumn SizeMD="3">
-                                        <span>@(String.Format("{0:dd/MM/yyyy}", customerOrder.OrderDate)) </span>
+                                        <span>@customerOrder.OrderDate.ToString(@SharedLocalizer["date:format"]) </span>
                                     </RadzenColumn>
                                     <RadzenColumn SizeMD="3">
-                                        <RadzenLabel Text="Fecha Pactada de Entrega" class="fw-bold" style="width: 100%" />
+                                        <RadzenLabel Text="Fecha Pactada de Entrega:" style="width: 100%" />
                                     </RadzenColumn>
                                     <RadzenColumn SizeMD="3">
-                                        <span>@(String.Format("{0:dd/MM/yyyy}", customerOrder.EstimatedDeliveryDate))</span>
+                                        <span>@customerOrder.EstimatedDeliveryDate.ToString(@SharedLocalizer["date:format"])</span>
                                     </RadzenColumn>
                                 </RadzenStack>
                             </RadzenColumn>
                         </RadzenRow>
                         <RadzenCard class="m-3">
-                            <h3 class="h5">Datos del Traslado a Proceso</h3>
+                            <RadzenColumn Size="6">
+                                <RadzenText Text="Datos del Traslado" TextStyle="TextStyle.H5" TagName="TagName.H1" style="margin: 0" />
+                            </RadzenColumn>
                             <RadzenRow style="margin-bottom: 1rem">
-                                <RadzenRow AlignItems="AlignItems.Start" Gap="2rem">
-                                    <RadzenColumn SizeMD="6">
-                                        <RadzenFormField Text="Fecha de Traslado" Variant="Variant.Text" class="fw-bold">
-                                            <RadzenDatePicker @bind-Value="@customerOrderInProcess.TransferDatetime" DateFormat="d" />
-                                        </RadzenFormField>
-                                    </RadzenColumn>
-                                    <RadzenColumn SizeMD="6">
-                                        <RadzenFormField Text="Fecha de Proceso" Variant="Variant.Text" class="fw-bold">
-                                            <RadzenDatePicker @bind-Value="@customerOrderInProcess.ProcessDate" DateFormat="d" />
-                                        </RadzenFormField>
-                                    </RadzenColumn>
-                                </RadzenRow>
+                                <RadzenFormField Text="Fecha de Traslado" Variant="Variant.Text" Style="width: 100%;">
+                                    <ChildContent>
+                                        <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@customerOrderInProcess.TransferDatetime" Name="TransferDatetime" Placeholder="Seleccione la fecha del traslado" TabIndex="0" />
+                                    </ChildContent>
+                                    <Helper>
+                                        <RadzenRequiredValidator Text="La Fecha de pedido es requerida" Component="TransferDatetime" />
+                                    </Helper>
+                                </RadzenFormField>
+                                <RadzenFormField Text="Fecha de Proceso" Variant="Variant.Text" Style="width: 100%;">
+                                    <ChildContent>
+                                        <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@customerOrderInProcess.ProcessDate" Name="ProcessDate" Placeholder="Seleccione la fecha de proceso del traslado" TabIndex="0" />
+                                    </ChildContent>
+                                    <Helper>
+                                        <RadzenRequiredValidator Text="La Fecha de proceso es requerida" Component="ProcessDate" />
+                                    </Helper>
+                                </RadzenFormField>
                                 <RadzenFormField Text="Satelite" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                                     <ChildContent>
                                         <RadzenDropDownDataGrid Data="@processSatellitesFORPROCESSSATELLITEID" TextProperty="ProcessSatelliteName" ValueProperty="ProcessSatelliteId" AllowClear=true
@@ -90,8 +99,10 @@
                                             </Columns>
                                         </RadzenDropDownDataGrid>
                                     </ChildContent>
+                                    <Helper>
+                                        <RadzenNumericRangeValidator Component="PROCESS_SATELLITE_ID" Min="1" Text="El Satellite del proceso es requerido"></RadzenNumericRangeValidator>
+                                    </Helper>
                                 </RadzenFormField>
-                                <RadzenNumericRangeValidator Component="PROCESS_SATELLITE_ID" Min="1" Text="El Satellite del proceso es requerido"></RadzenNumericRangeValidator>
                                 <RadzenFormField Text="Recibido Por" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                                     <ChildContent>
                                         <RadzenDropDownDataGrid Data="@employeesFOREMPLOYEEID" TextProperty="FullName" ValueProperty="EmployeeId" AllowClear=true
@@ -106,8 +117,10 @@
                                             </Columns>
                                         </RadzenDropDownDataGrid>
                                     </ChildContent>
+                                    <Helper>
+                                        <RadzenNumericRangeValidator Component="EMPLOYEE_RECIPIENT_ID" Min="1" Text="El Empleado que recibe el traslado a proceso es requerido"></RadzenNumericRangeValidator>
+                                    </Helper>
                                 </RadzenFormField>
-                                <RadzenNumericRangeValidator Component="EMPLOYEE_RECIPIENT_ID" Min="1" Text="El Empleado que recibe el traslado a proceso es requerido"></RadzenNumericRangeValidator>
                                 <RadzenFormField Text="Notas" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                                     <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerOrderInProcess.Notes" TabIndex="3" />
                                 </RadzenFormField>
@@ -118,11 +131,11 @@
                 <RadzenColumn Size="7">
                     <RadzenStack>
                         <RadzenRow />
-                        <RadzenColumn SizeMD="3">
-                            <RadzenLabel Text="Referencias del Pedido" class="fw-bold" style="width: 100%" />
+                        <RadzenColumn Size="6">
+                            <RadzenText Text="Referencias del Pedido" TextStyle="TextStyle.H5" TagName="TagName.H1" style="margin: 0" />
                         </RadzenColumn>
                         <LocalizedDataGrid @ref="customerOrderDetailGrid" ColumnWidth="200px" AllowFiltering="false" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                        Data="@detailsInProcess" TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess">
+                                           Data="@detailsInProcess" TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess">
                             <Columns>
                                 <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Title="Referencia">
                                     <Template Context="detail">

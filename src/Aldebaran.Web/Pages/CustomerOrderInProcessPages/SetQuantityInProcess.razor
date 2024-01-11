@@ -3,7 +3,9 @@
 <PageTitle>Agregar Referencia al Pedido</PageTitle>
 
 <RadzenColumn SizeMD=12>
-    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">@alertMessage</RadzenAlert>
+    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">
+        @alertMessage
+    </RadzenAlert>
     <RadzenTemplateForm TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Data="@detailInProcess" Visible="@(detailInProcess != null)" Submit="@FormSubmit">
         <RadzenStack style="margin-bottom: 1rem">
             <RadzenRow SizeMD="9">
@@ -14,41 +16,47 @@
                     <span>@detailInProcess.REFERENCE_DESCRIPTION</span>
                 </RadzenColumn>
                 <RadzenColumn SizeMD="3">
-                    <RadzenLabel Text="Marcación Especial" class="fw-bold" style="width: 100%" />
+                    <RadzenLabel Text="Marcación Especial:" style="width: 100%" />
                 </RadzenColumn>
                 <RadzenColumn SizeMD="9">
                     <span>@detailInProcess.BRAND</span>
                 </RadzenColumn>
                 <RadzenColumn SizeMD="5">
-                    <RadzenLabel Text="Cantidad Pendiente" class="fw-bold" style="width: 100%" />
+                    <RadzenLabel Text="Cantidad Pendiente:" style="width: 100%" />
                 </RadzenColumn>
                 <RadzenColumn SizeMD="7">
                     <span>@detailInProcess.PENDING_QUANTITY</span>
                 </RadzenColumn>
                 <RadzenColumn SizeMD="5">
-                    <RadzenLabel Text="Cantidad en proceso" class="fw-bold" style="width: 100%" />
+                    <RadzenLabel Text="Cantidad en proceso:" style="width: 100%" />
                 </RadzenColumn>
                 <RadzenColumn SizeMD="7">
                     <span>@detailInProcess.PROCESSED_QUANTITY</span>
                 </RadzenColumn>
                 <RadzenColumn SizeMD="5">
-                    <RadzenLabel Text="Cantidad Despachada" class="fw-bold" style="width: 100%" />
+                    <RadzenLabel Text="Cantidad Despachada:" style="width: 100%" />
                 </RadzenColumn>
                 <RadzenColumn SizeMD="7">
                     <span>@detailInProcess.DELIVERED_QUANTITY</span>
                 </RadzenColumn>
             </RadzenRow>
             <RadzenRow>
-                <RadzenFormField Text="Enviar en este proceso" Gap="2rem" Variant="Variant.Outlined" Style="width: 100%;">
-                    <RadzenColumn SizeMD="9">
+                <RadzenFormField Text="Enviar en este proceso" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
+                    <ChildContent>
                         <RadzenNumeric style="display: block; width: 100%" @bind-Value="@detailInProcess.THIS_QUANTITY" Name="THIS_QUANTITY" Placeholder="Ingrese la cantidad a trasladar" />
+                    </ChildContent>
+                    <Helper>
                         <RadzenRequiredValidator Component="THIS_QUANTITY" Text="La Cantidad es Requerida" />
-                    </RadzenColumn>
+                    </Helper>
                 </RadzenFormField>
                 <RadzenFormField Text="Bodega Origen" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
-                    <RadzenDropDownDataGrid Data="@warehousesForWAREHOUSEID" TextProperty="WarehouseName" ValueProperty="WarehouseId" AllowClear=true
-                                            Disabled=@(hasWAREHOUSE_IDValue) Placeholder="Seleccione una bodega" style="display: block; width: 100%" @bind-Value="@detailInProcess.WAREHOUSE_ID" Name="WAREHOUSE_ID" TabIndex="2" />
-                    <RadzenNumericRangeValidator Component="WAREHOUSE_ID" Min="1" Text="La Bodega es requerida"></RadzenNumericRangeValidator>
+                    <ChildContent>
+                        <RadzenDropDownDataGrid Data="@warehousesForWAREHOUSEID" TextProperty="WarehouseName" ValueProperty="WarehouseId" AllowClear=true
+                                                Disabled=@(hasWAREHOUSE_IDValue) Placeholder="Seleccione una bodega" style="display: block; width: 100%" @bind-Value="@detailInProcess.WAREHOUSE_ID" Name="WAREHOUSE_ID" TabIndex="2" />
+                    </ChildContent>
+                    <Helper>
+                        <RadzenNumericRangeValidator Component="WAREHOUSE_ID" Min="1" Text="La Bodega es requerida"></RadzenNumericRangeValidator>
+                    </Helper>
                 </RadzenFormField>
             </RadzenRow>
         </RadzenStack>
