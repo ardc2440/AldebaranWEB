@@ -4,6 +4,7 @@ using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
+using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.CustomerOrderPages
 {
@@ -48,6 +49,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected CustomerOrderActivity customerOrderActivity;
         protected CustomerOrder customerOrder;
         protected string title;
+        protected RadzenDropDownDataGrid<short> areasGrid;
+        protected short AreaId { get; set; }
 
         #endregion
 
@@ -71,6 +74,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 };
 
                 areasForAREAID = await AreaService.GetAsync();
+
+                AreaId = 0;
 
                 employeesForEMPLOYEEID = new List<Employee>();
 
@@ -168,22 +173,28 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task OnAreaChange(object areaId)
         {
+            short id = (short)areaId;
 
-            if ((customerOrderActivityDetails.Any()) && (!await DialogService.Confirm("Esta seguro que desea cambiar el área, se borrara el detalle de Tipos de Actividad asociado a esta actividad?") == true))
+            if (!customerOrderActivityDetails.Any())
             {
-                _ = customerOrderActivity.AreaId;
+                AreaId = id;
                 return;
             }
 
-            if (areaId == null)
+            if (await DialogService.Confirm("Esta seguro que desea cambiar el área, se borrara el detalle de Tipos de Actividad asociado a esta actividad?") == true)
             {
                 employeesForEMPLOYEEID = new List<Employee>();
+
+                AreaId = id;
+
                 return;
             }
 
-            customerOrderActivityDetails.Clear();
-            await customerOrderActivityDetailsGrid.Reload();
-            employeesForEMPLOYEEID = await EmployeeService.GetByAreaAsync((short)areaId);
+            customerOrderActivity.AreaId = AreaId;
+            var area = areasForAREAID.First(i => i.AreaId == AreaId);
+            await areasGrid.DataGrid.SelectRow(area, false);
+
+            employeesForEMPLOYEEID = await EmployeeService.GetByAreaAsync(AreaId);
         }
         #endregion
     }

@@ -22,7 +22,7 @@
                     <RadzenStack>
                         <RadzenFormField Text="Area" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
-                                <RadzenDropDownDataGrid Data="@areasForAREAID" TextProperty="AreaName" ValueProperty="AreaId" AllowClear=true Change="@OnAreaChange"
+                                <RadzenDropDownDataGrid @ref="areasGrid" Data="@areasForAREAID" TextProperty="AreaName" ValueProperty="AreaId" AllowClear=false Change="@OnAreaChange"
                                                         style="display: block; width: 100%" @bind-Value="@customerOrderActivity.AreaId" Name="AREA_ID" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true" Placeholder="Seleccione un Area">
                                     <Columns>
                                         <RadzenDropDownDataGridColumn Property="AreaCode" Title="Código" />
