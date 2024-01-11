@@ -32,7 +32,7 @@ namespace Aldebaran.Web.Pages.EmployeePages
         #endregion
 
         #region Variables
-        protected bool ErrorVisible;
+        protected bool IsErrorVisible;
         protected ServiceModel.Employee Employee;
         protected IEnumerable<ServiceModel.Area> Areas;
         protected IEnumerable<ServiceModel.IdentityType> IdentityTypes;
@@ -61,7 +61,7 @@ namespace Aldebaran.Web.Pages.EmployeePages
             }
             catch (Exception ex)
             {
-                ErrorVisible = true;
+                IsErrorVisible = true;
             }
             finally
             {

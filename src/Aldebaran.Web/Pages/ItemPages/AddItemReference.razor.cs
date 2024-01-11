@@ -26,7 +26,7 @@ namespace Aldebaran.Web.Pages.ItemPages
         protected ServiceModel.ItemReference ItemReference;
         protected ServiceModel.Item Item;
         protected bool IsSubmitInProgress;
-        protected bool ErrorVisible;
+        protected bool IsErrorVisible;
         #endregion
 
         #region Overrides
@@ -51,7 +51,7 @@ namespace Aldebaran.Web.Pages.ItemPages
             }
             catch (Exception ex)
             {
-                ErrorVisible = true;
+                IsErrorVisible = true;
             }
             finally
             {

@@ -2,7 +2,7 @@
 @using ServiceModel = Aldebaran.Application.Services.Models;
 
 <RadzenColumn SizeMD=12>
-    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@IsErrorVisible">No se ha podido agregar la referencia</RadzenAlert>
+    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">No se ha podido agregar la referencia</RadzenAlert>
     <RadzenTemplateForm TItem="ServiceModel.PurchaseOrderDetail" Data="@PurchaseOrderDetail" Submit="@FormSubmit">
         <RadzenStack>
             <ReferencePicker OnChange="ItemReferenceHandler" References="ProviderItemReferences" />

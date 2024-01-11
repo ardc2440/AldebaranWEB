@@ -1,7 +1,7 @@
 @attribute [Authorize(Roles="Admin,Customer Editor")]
 
 <RadzenColumn SizeMD=12>
-    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@IsErrorVisible">No se ha podido actualizar el contacto</RadzenAlert>
+    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">No se ha podido actualizar el contacto</RadzenAlert>
     <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerContact" Data="@CustomerContact" Visible="@(CustomerContact != null)" Submit="@FormSubmit">
         <RadzenStack>
             <div class="flex-shrink-0">

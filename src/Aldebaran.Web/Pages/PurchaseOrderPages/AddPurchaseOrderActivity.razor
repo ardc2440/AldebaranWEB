@@ -3,7 +3,7 @@
 @inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer
 
 <RadzenColumn SizeMD=12>
-    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@IsErrorVisible">No se ha podido agregar la actividad</RadzenAlert>
+    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">No se ha podido agregar la actividad</RadzenAlert>
     <RadzenTemplateForm TItem="ServiceModel.PurchaseOrderActivity" Data="@PurchaseOrderActivity" Visible="@(PurchaseOrderActivity != null)" Submit="@FormSubmit">
         <RadzenStack>
             <RadzenFormField Text="Fecha de ejecución" Variant="Variant.Text">

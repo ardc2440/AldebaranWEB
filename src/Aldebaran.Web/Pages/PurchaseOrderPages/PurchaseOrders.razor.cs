@@ -30,8 +30,12 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
 
         [Inject]
         protected IPurchaseOrderActivityService PurchaseOrderActivityService { get; set; }
+
         [Inject]
         protected IPurchaseOrderDetailService PurchaseOrderDetailService { get; set; }
+
+        [Inject]
+        protected SecurityService Security { get; set; }
         #endregion
 
         #region Parameters
@@ -109,27 +113,27 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
 
         protected async Task DeletePurchaseOrder(MouseEventArgs args, ServiceModel.PurchaseOrder purchaseOrder)
         {
-            //try
-            //{
-            //    DialogResult = null;
-            //    if (await DialogService.Confirm("Está seguro que desea eliminar esta orden de compra?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
-            //    {
-            //        await PurchaseOrderService.DeleteAsync(purchaseOrder.PURCHASE_ORDER_ID);
-            //        await GetPurchaseOrdersAsync();
-            //        DialogResult = new DialogResult { Success = true, Message = "Orden de compra ha sido eliminada correctamente." };
-            //        await PurchaseOrderGrid.Reload();
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    Logger.LogError(ex, nameof(DeletePurchaseOrder));
-            //    NotificationService.Notify(new NotificationMessage
-            //    {
-            //        Severity = NotificationSeverity.Error,
-            //        Summary = $"Error",
-            //        Detail = $"No se ha podido eliminar la orden de compra"
-            //    });
-            //}
+            try
+            {
+                DialogResult = null;
+                if (await DialogService.Confirm("Está seguro que desea cancelar esta orden de compra?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar cancelación") == true)
+                {
+                    await PurchaseOrderService.DeleteAsync(purchaseOrder.PurchaseOrderId);
+                    await GetPurchaseOrdersAsync();
+                    DialogResult = new DialogResult { Success = true, Message = "Orden de compra ha sido cancelada correctamente." };
+                    await PurchaseOrderGrid.Reload();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, nameof(DeletePurchaseOrder));
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = $"Error",
+                    Detail = $"No se ha podido cancelar la orden de compra"
+                });
+            }
         }
         #endregion
 
