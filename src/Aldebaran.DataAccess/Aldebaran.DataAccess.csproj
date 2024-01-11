@@ -88,16 +88,16 @@
 	  <Compile Update="Core\Triggers\Shipments\ModifyCustomerOrderFromOrderShipmentCancelled.cs">
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>
-	  <Compile Update="Core\Triggers\Transfers\AdjustInventoryFromAdjustmentCancelled.cs">
+	  <Compile Update="Core\Triggers\Transfers\AdjustWarehouseFromWarehouseTransferCancelled.cs">
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>
-	  <Compile Update="Core\Triggers\Transfers\AdjustInventoryFromDeletedAdjustmentDetail.cs">
+	  <Compile Update="Core\Triggers\Transfers\AdjustWarehouseFromDeletedWarehouseTransferDetail.cs">
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>
-	  <Compile Update="Core\Triggers\Transfers\AdjustInventoryFromModifiedAdjustmentDetail.cs">
+	  <Compile Update="Core\Triggers\Transfers\AdjustWarehouseFromModifiedWarehouseTransferDetail.cs">
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>
-	  <Compile Update="Core\Triggers\Transfers\AdjustInventoryFromNewAdjustmentDetail.cs">
+	  <Compile Update="Core\Triggers\Transfers\AdjustWarehouseFromNewWarehouseTransferDetail.cs">
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>
 	</ItemGroup>

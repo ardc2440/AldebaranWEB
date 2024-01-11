@@ -3,11 +3,11 @@ using EntityFrameworkCore.Triggered;
 
 namespace Aldebaran.DataAccess.Core.Triggers.Transfers
 {
-    public class AdjustInventoryFromWarehouseTransferCancelled : InventoryManagementBase, IBeforeSaveTrigger<WarehouseTransfer>
+    public class AdjustWarehouseFromWarehouseTransferCancelled : InventoryManagementBase, IBeforeSaveTrigger<WarehouseTransfer>
     {
         private readonly AldebaranDbContext _context;
 
-        public AdjustInventoryFromWarehouseTransferCancelled(AldebaranDbContext context) : base(context)
+        public AdjustWarehouseFromWarehouseTransferCancelled(AldebaranDbContext context) : base(context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }

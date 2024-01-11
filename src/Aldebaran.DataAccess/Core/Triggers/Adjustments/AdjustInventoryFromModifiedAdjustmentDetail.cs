@@ -15,10 +15,10 @@ namespace Aldebaran.DataAccess.Core.Triggers.Adjustments
 
         public async Task BeforeSave(ITriggerContext<AdjustmentDetail> context, CancellationToken cancellationToken)
         {
-            if (_context.Events.Get("ChangeWarehousesTransfer", true) == true)
+            if (context.ChangeType != ChangeType.Modified)
                 return;
 
-            if (context.ChangeType != ChangeType.Modified)
+            if (_context.Events.Get("ChangeAdjustmentType", true) == true)
                 return;
 
             var indicatorInOut = (await _context.AdjustmentTypes.FindAsync(new object[] { context.Entity.Adjustment.AdjustmentTypeId }, cancellationToken) ?? throw new ArgumentNullException($"Tipo de ajuste con id {context.Entity.Adjustment.AdjustmentTypeId} no encontrado")).Operator;

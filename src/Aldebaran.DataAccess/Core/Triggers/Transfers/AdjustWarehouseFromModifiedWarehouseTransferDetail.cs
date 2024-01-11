@@ -4,21 +4,22 @@ using EntityFrameworkCore.Triggered;
 
 namespace Aldebaran.DataAccess.Core.Triggers.Transfers
 {
-    public class AdjustInventoryFromModifiedWarehouseTransferDetail : InventoryManagementBase, IBeforeSaveTrigger<WarehouseTransferDetail>
+    public class AdjustWarehouseFromModifiedWarehouseTransferDetail : InventoryManagementBase, IBeforeSaveTrigger<WarehouseTransferDetail>
     {
         private readonly AldebaranDbContext _context;
 
-        public AdjustInventoryFromModifiedWarehouseTransferDetail(AldebaranDbContext context) : base(context)
+        public AdjustWarehouseFromModifiedWarehouseTransferDetail(AldebaranDbContext context) : base(context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public async Task BeforeSave(ITriggerContext<WarehouseTransferDetail> context, CancellationToken cancellationToken)
         {
-            if (_context.Events.Get("ChangeWarehousesTransfer", true) == true)
-                return;
 
             if (context.ChangeType != ChangeType.Modified)
+                return;
+
+            if (_context.Events.Get("ChangeWarehousesTransfer", true) == true)
                 return;
 
             var detailChanges = context.Entity.GetType()
