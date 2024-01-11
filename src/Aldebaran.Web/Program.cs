@@ -2,6 +2,7 @@ using Aldebaran.Application.Services;
 using Aldebaran.DataAccess.Core.Triggers.Adjustments;
 using Aldebaran.DataAccess.Core.Triggers.OrderInProcesses;
 using Aldebaran.DataAccess.Core.Triggers.Orders;
+using Aldebaran.DataAccess.Core.Triggers.Purchases;
 using Aldebaran.DataAccess.Core.Triggers.Reservations;
 using Aldebaran.DataAccess.Core.Triggers.Shipments;
 using Aldebaran.DataAccess.Infraestructure.Repository;
@@ -87,6 +88,7 @@ builder.Services.AddDbContext<Aldebaran.DataAccess.AldebaranDbContext>(
                 triggerOptions.AddTrigger<AdjustInventoryFromOrderShipmentCancelled>();
                 triggerOptions.AddTrigger<ModifyCustomerOrderFromNewOrderShipment>();
                 triggerOptions.AddTrigger<ModifyCustomerOrderFromOrderShipmentCancelled>();
+                triggerOptions.AddTrigger<AdjustInventoryFromConfirmedPurchaseOrder>();
 
             });
     });

@@ -10,7 +10,8 @@ namespace Aldebaran.DataAccess
     // ****************************************************************************************************
     public class AldebaranDbContext : DbContext
     {
-        public bool ChangeAdjustmentType { get; set; } = false;
+        public Dictionary<string, bool> Events = new();
+
         public AldebaranDbContext()
         {
         }
@@ -84,6 +85,9 @@ namespace Aldebaran.DataAccess
         public DbSet<UsersAlarmType> UsersAlarmTypes { get; set; }
         public DbSet<VisualizedAlarm> VisualizedAlarms { get; set; }
         public DbSet<Warehouse> Warehouses { get; set; }
+        public DbSet<WarehouseTransfer> WarehouseTransfers { get; set; }
+        public DbSet<WarehouseTransferDetail> WarehouseTransferDetails { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
 
@@ -157,6 +161,8 @@ namespace Aldebaran.DataAccess
             modelBuilder.ApplyConfiguration(new UsersAlarmTypeConfiguration());
             modelBuilder.ApplyConfiguration(new VisualizedAlarmConfiguration());
             modelBuilder.ApplyConfiguration(new WarehouseConfiguration());
+            modelBuilder.ApplyConfiguration(new WarehouseTransferConfiguration());
+            modelBuilder.ApplyConfiguration(new WarehouseTransferDetailConfiguration());
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken ct = default)

@@ -10,6 +10,9 @@ namespace Aldebaran.DataAccess.Entities
         public ICollection<CustomerOrderShipmentDetail> CustomerOrderShipmentDetails { get; set; }
         public ICollection<PurchaseOrderDetail> PurchaseOrderDetails { get; set; }
         public ICollection<ReferencesWarehouse> ReferencesWarehouses { get; set; }
+        public ICollection<WarehouseTransfer> OriginWarehouseTransfers { get; set; }
+        public ICollection<WarehouseTransfer> DestinationWarehouseTransfers { get; set; }
+
         public Warehouse()
         {
             AdjustmentDetails = new List<AdjustmentDetail>();

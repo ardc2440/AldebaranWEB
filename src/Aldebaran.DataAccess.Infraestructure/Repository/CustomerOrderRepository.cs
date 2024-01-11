@@ -73,9 +73,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .Include(i => i.Employee.IdentityType)
                 .Where(i => i.InternalNotes.Contains(searchKey) ||
                             i.CustomerNotes.Contains(searchKey) ||
-                            i.OrderDate.ToString().Contains(searchKey) ||
-                            i.CreationDate.ToString().Contains(searchKey) ||
-                            i.EstimatedDeliveryDate.ToString().Contains(searchKey) ||
                             i.OrderNumber.Contains(searchKey) ||
                             i.StatusDocumentType.StatusDocumentTypeName.Contains(searchKey) ||
                             i.Employee.FullName.Contains(searchKey) ||

@@ -1,6 +1,7 @@
 @page "/customer-orders"
 @attribute [Authorize(Roles = "Admin,Customer Order Viwer,Customer Order Editor,Customer Order Activities Viwer,Customer Order Activities Editor")]
 @using Aldebaran.Web.Resources.LocalizedControls;
+@inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer ;
 
 <PageTitle>Pedido de Artículos</PageTitle>
 <RadzenStack>
@@ -33,8 +34,14 @@
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="Customer.CustomerName" Title="Cliente">
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="OrderDate" Title="Fecha Pedido">
+                        <Template Context="customerOrder">
+                            <span>@customerOrder.OrderDate.ToString(SharedLocalizer["date:format"])</span>
+                        </Template>
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="EstimatedDeliveryDate" Title="Fecha Estimada Entrega">
+                        <Template Context="customerOrder">
+                            <span>@customerOrder.EstimatedDeliveryDate.ToString(SharedLocalizer["date:format"])</span>
+                        </Template>
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="StatusDocumentType.StatusDocumentTypeName" Title="Estado">
                     </RadzenDataGridColumn>

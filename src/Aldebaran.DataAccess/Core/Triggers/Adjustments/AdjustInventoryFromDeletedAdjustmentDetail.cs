@@ -1,4 +1,5 @@
 ﻿using Aldebaran.DataAccess.Entities;
+using Aldebaran.Infraestructure.Common.Extensions;
 using EntityFrameworkCore.Triggered;
 
 namespace Aldebaran.DataAccess.Core.Triggers.Adjustments
@@ -17,8 +18,9 @@ namespace Aldebaran.DataAccess.Core.Triggers.Adjustments
             if (context.ChangeType != ChangeType.Deleted)
                 return;
 
-            if (_context.ChangeAdjustmentType)
+            if (_context.Events.Get("ChangeAdjustmentType", true) == true)
                 return;
+
             var adjustmentType = await _context.AdjustmentTypes.FindAsync(new object[] { context.Entity.Adjustment.AdjustmentTypeId }, cancellationToken) ?? throw new ArgumentNullException($"Tipo de ajuste con id {context.Entity.Adjustment.AdjustmentTypeId} no encontrado");
 
             await UpdateInventoryQuantityAsync(context.Entity.ReferenceId, context.Entity.Quantity, (adjustmentType.Operator * -1), cancellationToken);

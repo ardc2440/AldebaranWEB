@@ -1,10 +1,10 @@
 ﻿namespace Aldebaran.DataAccess.Core.Triggers
 {
-    public class CustomerOrderDetailManagementBase
+    public class CustomerOrderDetailManagementBase : WarehouseReferenceManagementBase
     {
         private readonly AldebaranDbContext _context;
 
-        public CustomerOrderDetailManagementBase(AldebaranDbContext context)
+        public CustomerOrderDetailManagementBase(AldebaranDbContext context) : base(context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }

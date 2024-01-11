@@ -1,4 +1,5 @@
 ﻿using Aldebaran.DataAccess.Entities;
+using Aldebaran.Infraestructure.Common.Extensions;
 using EntityFrameworkCore.Triggered;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -16,7 +17,7 @@ namespace Aldebaran.DataAccess.Core.Triggers.Adjustments
 
         public async Task BeforeSave(ITriggerContext<Adjustment> context, CancellationToken cancellationToken)
         {
-            _context.ChangeAdjustmentType = false;
+            _context.Events.AddOrUpdate("ChangeAdjustmentType", false);
 
             if (context.ChangeType != ChangeType.Modified)
                 return;
@@ -29,7 +30,7 @@ namespace Aldebaran.DataAccess.Core.Triggers.Adjustments
             if ((short)(detailChanges.oldValue ?? 0) == (short)(detailChanges.newValue ?? 0))
                 return;
 
-            _context.ChangeAdjustmentType = true;
+            _context.Events.AddOrUpdate("ChangeAdjustmentType", true);
 
             var detail = context.Entity.AdjustmentDetails;
             var oldIndicatorInOut = (await _context.AdjustmentTypes.FindAsync(new object[] { detailChanges.oldValue! }, cancellationToken))!.Operator;

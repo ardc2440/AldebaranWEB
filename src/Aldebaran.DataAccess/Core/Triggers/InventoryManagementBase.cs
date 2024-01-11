@@ -32,11 +32,5 @@
             var inventoryEntity = await _context.ItemReferences.FindAsync(new object[] { referenceId }, cancellationToken) ?? throw new ArgumentNullException($"Referencia con id {referenceId} no encontrada");
             inventoryEntity.OrderedQuantity += (quantity * operatorInOut);
         }
-
-        public async Task UpdateWarehouseReferenceQuantityAsync(short warehouseId, int referenceId, int quantity, int operatorInOut, CancellationToken cancellationToken)
-        {
-            var warehouseReferenceEntity = await _context.ReferencesWarehouses.FindAsync(new object[] { referenceId, warehouseId }, cancellationToken) ?? throw new ArgumentNullException($"Bodega con id {warehouseId} y referencia {referenceId} no encontrada");
-            warehouseReferenceEntity.Quantity += (quantity * operatorInOut);
-        }
     }
 }

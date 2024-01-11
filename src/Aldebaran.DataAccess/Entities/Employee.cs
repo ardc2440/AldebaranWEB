@@ -10,6 +10,9 @@ namespace Aldebaran.DataAccess.Entities
         public string FullName { get; set; }
         public string LoginUserId { get; set; }
         public string Position { get; set; }
+        public Area Area { get; set; }
+        public IdentityType IdentityType { get; set; }
+
         // Reverse navigation
         public ICollection<Adjustment> Adjustments { get; set; }
         public ICollection<CanceledCustomerOrder> CanceledCustomerOrders { get; set; }
@@ -35,8 +38,8 @@ namespace Aldebaran.DataAccess.Entities
         public ICollection<PurchaseOrderActivity> PurchaseOrderActivities_EmployeeId { get; set; }
         public ICollection<UsersAlarmType> UsersAlarmTypes { get; set; }
         public ICollection<VisualizedAlarm> VisualizedAlarms { get; set; }
-        public Area Area { get; set; }
-        public IdentityType IdentityType { get; set; }
+        public ICollection<WarehouseTransfer> WarehouseTransfers { get; set; }
+
         public Employee()
         {
             Adjustments = new List<Adjustment>();
