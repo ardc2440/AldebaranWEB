@@ -161,9 +161,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             }
         }
 
-        protected async Task EditCustomerOrderActivityDetail(CustomerOrderActivityDetail args)
+        protected async Task EditCustomerOrderActivityDetail(MouseEventArgs args, CustomerOrderActivityDetail item)
         {
-            var result = await DialogService.OpenAsync<EditCustomerOrderActivityDetail>("Actualizar Tipo de Actividad", new Dictionary<string, object> { { "CustomerOrderActivityDetail", args }, { "CustomerOrderActivityAreaId", customerOrderActivity.AreaId }, { "CustomerOrderActivityDetails", customerOrderActivityDetails } });
+            var result = await DialogService.OpenAsync<EditCustomerOrderActivityDetail>("Actualizar Tipo de Actividad", new Dictionary<string, object> { { "CustomerOrderActivityDetail", item }, { "CustomerOrderActivityAreaId", customerOrderActivity.AreaId }, { "CustomerOrderActivityDetails", customerOrderActivityDetails } });
             if (result == null)
                 return;
 

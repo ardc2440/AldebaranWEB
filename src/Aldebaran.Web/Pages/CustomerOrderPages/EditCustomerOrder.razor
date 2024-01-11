@@ -82,7 +82,7 @@
                                            Data="@customerOrderDetails" TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail">
                             <Columns>
                                 <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Property="RequestedQuantity" Title="Cantidad" Width="100px" />
-                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Title="Artículo/Referencia">
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Title="Referencia">
                                     <Template Context="detail">
                                         <span>(@detail.ItemReference.Item.InternalReference) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName</span>
                                     </Template>

@@ -56,7 +56,7 @@
                         <LocalizedDataGrid ColumnWidth="200px" Visible="@(customerOrder != null)" @ref=CustomerOrderDetailsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                         ExpandMode="DataGridExpandMode.Single" Data="@detailInProcesses" TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess">
                             <Columns>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Title="Artículo/Referencia">
+                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Title="Referencia">
                                     <Template Context="detail">
                                         <span>@detail.REFERENCE_DESCRIPTION</span>
                                     </Template>
@@ -110,7 +110,7 @@
                                         <LocalizedDataGrid ColumnWidth="200px" Visible="@(customerOrder != null)" @ref=CustomerOrderShipmentDetailDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                                            ExpandMode="DataGridExpandMode.Single" Data="@customerOrderShipmentDetails" TItem="Aldebaran.Application.Services.Models.CustomerOrderShipmentDetail">
                                             <Columns>
-                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipmentDetail" Title="Artículo/Referencia">
+                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipmentDetail" Title="Referencia">
                                                     <Template Context="detail">
                                                         <span>(@detail.CustomerOrderDetail.ItemReference.Item.InternalReference) @detail.CustomerOrderDetail.ItemReference.Item.ItemName - @detail.CustomerOrderDetail.ItemReference.ReferenceName</span>
                                                     </Template>

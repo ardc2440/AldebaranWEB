@@ -6,11 +6,14 @@
     <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">Cannot save AdjustmentDetail</RadzenAlert>
     <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Data="@CustomerOrderDetail" Visible="@(CustomerOrderDetail != null)" Submit="@FormSubmit">
         <RadzenStack style="margin-bottom: 1rem">
-            <RadzenFormField onchange="@ItemReferenceHandler()" Text="Referencia" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
-                <ChildContent>
+            <RadzenRow SizeMD="9">
+                <RadzenColumn SizeMD="3">
+                    <RadzenLabel Text="Referencia" Component="REFERENCE" style="width: 100%" />
+                </RadzenColumn>
+                <RadzenColumn onchange="@ItemReferenceHandler()" SizeMD="9">
                     <span>(@CustomerOrderDetail.ItemReference.Item.InternalReference) @CustomerOrderDetail.ItemReference.Item.ItemName - @CustomerOrderDetail.ItemReference.ReferenceName</span>
-                </ChildContent>
-            </RadzenFormField>
+                </RadzenColumn>
+            </RadzenRow>
             <RadzenFormField Text="Cantidad" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                 <ChildContent>
                     <RadzenNumeric style="display: block; width: 100%" @bind-Value="@CustomerOrderDetail.RequestedQuantity" Name="REQUESTED_QUANTITY" Placeholder="Ingrese la cantidad a reservar" />

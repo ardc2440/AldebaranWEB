@@ -123,7 +123,7 @@
                         <LocalizedDataGrid @ref="customerOrderDetailGrid" ColumnWidth="200px" AllowFiltering="false" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                         Data="@detailsInProcess" TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess">
                             <Columns>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Title="Artículo/Referencia">
+                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Title="Referencia">
                                     <Template Context="detail">
                                         <span>(@detail.REFERENCE_DESCRIPTION</span>
                                     </Template>

@@ -83,7 +83,7 @@
                                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderActivityDetail" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center">
                                         <Template Context="detail">
                                             <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
-                                                          Click="@(args => EditCustomerOrderActivityDetail(detail))" @onclick:stopPropagation="true">
+                                                          Click="@(args => EditCustomerOrderActivityDetail(args, detail))" @onclick:stopPropagation="true">
                                             </RadzenButton>
                                             <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
                                                           Shade="Shade.Lighter" Variant="Variant.Flat"

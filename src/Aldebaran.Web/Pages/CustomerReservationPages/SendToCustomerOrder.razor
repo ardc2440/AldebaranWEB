@@ -69,7 +69,7 @@
                                         <RadzenCheckBox @bind-Value="@detail.SendToCustomerOrder" Name="SEND_TO_CUSTOMER_ORDER"></RadzenCheckBox>
                                     </Template>
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn Width="200px" TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Title="Artículo/Referencia">
+                                <RadzenDataGridColumn Width="200px" TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Title="Referencia">
                                     <Template Context="detail">
                                         <span>(@detail.ItemReference.Item.InternalReference) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName</span>
                                     </Template>
