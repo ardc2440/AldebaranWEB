@@ -1,5 +1,4 @@
 using Aldebaran.Application.Services;
-using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -28,6 +27,9 @@ namespace Aldebaran.Web.Pages.AreaPages
         protected SecurityService Security { get; set; }
 
         [Inject]
+        protected TooltipService TooltipService { get; set; }
+
+        [Inject]
         protected IAreaService AreaService { get; set; }
 
         [Inject]
@@ -40,7 +42,6 @@ namespace Aldebaran.Web.Pages.AreaPages
         protected ServiceModel.Area Area;
         protected LocalizedDataGrid<ServiceModel.ItemsArea> ItemsAreasDataGrid;
         protected string search = "";
-        protected DialogResult DialogResult { get; set; }
         protected bool IsLoadingInProgress;
         #endregion
 
@@ -61,6 +62,7 @@ namespace Aldebaran.Web.Pages.AreaPages
         #endregion
 
         #region Events
+        void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
         async Task GetAreasAsync(string searchKey = null, CancellationToken ct = default)
         {
             await Task.Yield();
@@ -89,11 +91,15 @@ namespace Aldebaran.Web.Pages.AreaPages
         }
         protected async Task AddItemArea(MouseEventArgs args, ServiceModel.Area data)
         {
-            DialogResult = null;
             var result = await DialogService.OpenAsync<AddItemsArea>("Agregar artículo", new Dictionary<string, object> { { "AREA_ID", data.AreaId } });
             if (result == true)
             {
-                DialogResult = new DialogResult { Success = true, Message = "Artículo agregado correctamente al área." };
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Summary = "Artículo",
+                    Severity = NotificationSeverity.Success,
+                    Detail = $"Artículo agregado correctamente al área."
+                });
             }
             await GetAreaItems(data);
             await ItemsAreasDataGrid.Reload();
@@ -102,12 +108,16 @@ namespace Aldebaran.Web.Pages.AreaPages
         {
             try
             {
-                DialogResult = null;
                 if (await DialogService.Confirm("Está seguro que desea eliminar este artículo del área?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
                 {
                     await ItemAreaService.DeleteAsync(itemsArea.AreaId, itemsArea.ItemId);
                     await GetAreaItems(Area);
-                    DialogResult = new DialogResult { Success = true, Message = "Artículo eliminado del área correctamente." };
+                    NotificationService.Notify(new NotificationMessage
+                    {
+                        Summary = "Artículo",
+                        Severity = NotificationSeverity.Success,
+                        Detail = $"Artículo eliminado del área correctamente."
+                    });
                     await ItemsAreasDataGrid.Reload();
                 }
             }

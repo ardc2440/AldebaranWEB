@@ -1,5 +1,4 @@
 using Aldebaran.Application.Services;
-using Aldebaran.Web.Models.ViewModels;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -57,7 +56,6 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         protected RadzenDataGrid<ServiceModel.PurchaseOrder> PurchaseOrderGrid;
         protected string search = "";
         protected bool IsLoadingInProgress;
-        protected DialogResult DialogResult { get; set; }
         #endregion
 
         #region Overrides
@@ -86,10 +84,20 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 return;
             if (Action == "edit")
             {
-                DialogResult = new DialogResult { Success = true, Message = $"Orden de compra {purchaseOrder.OrderNumber} ha sido actualizada correctamente." };
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Summary = "Orden de compra",
+                    Severity = NotificationSeverity.Success,
+                    Detail = $"Orden de compra {purchaseOrder.OrderNumber} ha sido actualizada correctamente."
+                });
                 return;
             }
-            DialogResult = new DialogResult { Success = true, Message = $"Orden de compra {purchaseOrder.OrderNumber} ha sido creada correctamente." };
+            NotificationService.Notify(new NotificationMessage
+            {
+                Summary = "Orden de compra",
+                Severity = NotificationSeverity.Success,
+                Detail = $"Orden de compra {purchaseOrder.OrderNumber} ha sido creada correctamente."
+            });
         }
         #endregion
 
@@ -140,12 +148,16 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         {
             try
             {
-                DialogResult = null;
                 if (await DialogService.Confirm("Está seguro que desea cancelar esta orden de compra?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar cancelación") == true)
                 {
                     await PurchaseOrderService.CancelAsync(purchaseOrder.PurchaseOrderId);
                     await GetPurchaseOrdersAsync();
-                    DialogResult = new DialogResult { Success = true, Message = "Orden de compra ha sido cancelada correctamente." };
+                    NotificationService.Notify(new NotificationMessage
+                    {
+                        Summary = "Orden de compra",
+                        Severity = NotificationSeverity.Success,
+                        Detail = $"Orden de compra ha sido cancelada correctamente."
+                    });
                     await PurchaseOrderGrid.Reload();
                 }
             }
@@ -156,7 +168,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido cancelar la orden de compra"
+                    Detail = $"No se ha podido cancelar la orden de compra."
                 });
             }
         }

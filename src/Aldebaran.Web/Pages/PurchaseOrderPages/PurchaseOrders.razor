@@ -8,14 +8,6 @@
 
 <PageTitle>Ordenes de compra</PageTitle>
 <RadzenStack>
-    @if (DialogResult != null && DialogResult.Success)
-    {
-        <RadzenAlert Shade="Shade.Lighter" @bind-Visible="DialogResult.Visible" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Success">@DialogResult.Message</RadzenAlert>
-    }
-    @if (DialogResult != null && !DialogResult.Success)
-    {
-        <RadzenAlert Shade="Shade.Lighter" @bind-Visible="DialogResult.Visible" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger">@DialogResult.Message</RadzenAlert>
-    }
     <RadzenRow AlignItems="AlignItems.Center">
         <RadzenColumn Size="12">
             <RadzenText Text="Ordenes de compra" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
@@ -74,12 +66,12 @@
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Filterable="false" Sortable="false" Width="130px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Purchase Order Editor")">
                         <Template Context="purchaseOrder">
-                            <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="edit" Size="ButtonSize.Medium" Visible="purchaseOrder.StatusDocumentType.EditMode == true" MouseEnter="@(args => ShowTooltip(args,"Actualizar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
-                                          Shade="Shade.Lighter" Variant="Variant.Flat"
-                                          Click=@(args => EditPurchaseOrder(args, purchaseOrder)) @onclick:stopPropagation="true" />
                             <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="done_all" Size="ButtonSize.Medium" Visible="purchaseOrder.StatusDocumentType.EditMode == true" MouseEnter="@(args => ShowTooltip(args,"Confirmar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
                                           Shade="Shade.Lighter" Variant="Variant.Flat"
                                           Click=@(args => ConfirmPurchaseOrder(args, purchaseOrder)) @onclick:stopPropagation="true" />
+                            <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="edit" Size="ButtonSize.Medium" Visible="purchaseOrder.StatusDocumentType.EditMode == true" MouseEnter="@(args => ShowTooltip(args,"Actualizar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
+                                          Shade="Shade.Lighter" Variant="Variant.Flat"
+                                          Click=@(args => EditPurchaseOrder(args, purchaseOrder)) @onclick:stopPropagation="true" />
                             <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Visible="purchaseOrder.StatusDocumentType.EditMode == true" MouseEnter="@(args => ShowTooltip(args,"Cancelar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
                                           Shade="Shade.Lighter" Variant="Variant.Flat"
                                           Click=@(args => CancelPurchaseOrder(args, purchaseOrder)) @onclick:stopPropagation="true" />
@@ -120,7 +112,7 @@
                                             </RadzenDataGridColumn>
                                             <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Visible="@Security.IsInRole("Admin","Purchase Order Editor")">
                                                 <Template Context="detail">
-                                                    <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="edit" Size="ButtonSize.Medium" Variant="Variant.Flat" Visible="purchaseOrder.StatusDocumentType.EditMode == true" MouseEnter="@(args => ShowTooltip(args,"Editar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="edit" Size="ButtonSize.Medium" Variant="Variant.Flat" Visible="purchaseOrder.StatusDocumentType.EditMode == true" MouseEnter="@(args => ShowTooltip(args,"Actualizar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
                                                                   Click=@(args => EditPurchaseOrderDetail(detail,purchaseOrder)) @onclick:stopPropagation="true" />
                                                     <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Shade="Shade.Lighter" Variant="Variant.Flat" Visible="purchaseOrder.StatusDocumentType.EditMode == true" MouseEnter="@(args => ShowTooltip(args,"Eliminar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
                                                                   Click=@(args => DeletePurchaseOrderDetail(args, purchaseOrder, detail)) @onclick:stopPropagation="true" />
@@ -162,7 +154,7 @@
                                             </RadzenDataGridColumn>
                                             <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderActivity" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Visible="@Security.IsInRole("Admin","Purchase Order Activities Editor")">
                                                 <Template Context="activity">
-                                                    <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="edit" Size="ButtonSize.Medium" Variant="Variant.Flat" Visible="purchaseOrder.StatusDocumentType.EditMode == true" MouseEnter="@(args => ShowTooltip(args,"Editar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="edit" Size="ButtonSize.Medium" Variant="Variant.Flat" Visible="purchaseOrder.StatusDocumentType.EditMode == true" MouseEnter="@(args => ShowTooltip(args,"Actualizar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
                                                                   Click=@(args => EditPurchaseOrderActivity(activity,purchaseOrder)) @onclick:stopPropagation="true" />
                                                     <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Shade="Shade.Lighter" Variant="Variant.Flat" Visible="purchaseOrder.StatusDocumentType.EditMode == true" MouseEnter="@(args => ShowTooltip(args,"Eliminar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
                                                                   Click=@(args => DeletePurchaseOrderActivity(args, purchaseOrder, activity)) @onclick:stopPropagation="true" />
@@ -176,7 +168,6 @@
                     </RadzenTabs>
                 </Template>
             </LocalizedDataGrid>
-
         </RadzenColumn>
     </RadzenRow>
 </RadzenStack>

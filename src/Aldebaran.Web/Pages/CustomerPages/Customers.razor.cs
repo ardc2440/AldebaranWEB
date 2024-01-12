@@ -1,6 +1,5 @@
 ﻿using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
-using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Pages.AreaPages;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
@@ -25,6 +24,9 @@ namespace Aldebaran.Web.Pages.CustomerPages
         protected SecurityService Security { get; set; }
 
         [Inject]
+        protected TooltipService TooltipService { get; set; }
+
+        [Inject]
         protected ICustomerService CustomerService { get; set; }
 
         [Inject]
@@ -39,7 +41,6 @@ namespace Aldebaran.Web.Pages.CustomerPages
         protected string search = "";
         protected Customer Customer;
         protected LocalizedDataGrid<CustomerContact> CustomerContactsDataGrid;
-        protected DialogResult DialogResult;
         protected bool IsLoadingInProgress;
 
         #endregion
@@ -62,6 +63,7 @@ namespace Aldebaran.Web.Pages.CustomerPages
         #endregion
 
         #region Events
+        void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
 
         async Task GetCustomersAsync(string searchKey = null, CancellationToken ct = default)
         {
@@ -76,22 +78,30 @@ namespace Aldebaran.Web.Pages.CustomerPages
         }
         protected async Task AddCustomer(MouseEventArgs args)
         {
-            DialogResult = null;
             var result = await DialogService.OpenAsync<AddCustomer>("Nuevo cliente");
             if (result == true)
             {
-                DialogResult = new DialogResult { Success = true, Message = "Cliente creado correctamente." };
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Summary = "Cliente",
+                    Severity = NotificationSeverity.Success,
+                    Detail = $"Cliente creado correctamente."
+                });
             }
             await GetCustomersAsync();
             await CustomerDataGrid.Reload();
         }
         protected async Task EditCustomer(Customer args)
         {
-            DialogResult = null;
             var result = await DialogService.OpenAsync<EditCustomer>("Actualizar cliente", new Dictionary<string, object> { { "CUSTOMER_ID", args.CustomerId } });
             if (result == true)
             {
-                DialogResult = new DialogResult { Success = true, Message = "Cliente actualizado correctamente." };
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Summary = "Cliente",
+                    Severity = NotificationSeverity.Success,
+                    Detail = $"Cliente actualizado correctamente."
+                });
             }
             await GetCustomersAsync();
             await CustomerDataGrid.Reload();
@@ -100,12 +110,16 @@ namespace Aldebaran.Web.Pages.CustomerPages
         {
             try
             {
-                DialogResult = null;
                 if (await DialogService.Confirm("Está seguro que desea eliminar este cliente?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
                 {
                     await CustomerService.DeleteAsync(customer.CustomerId);
                     await GetCustomersAsync();
-                    DialogResult = new DialogResult { Success = true, Message = "Cliente eliminado correctamente." };
+                    NotificationService.Notify(new NotificationMessage
+                    {
+                        Summary = "Cliente",
+                        Severity = NotificationSeverity.Success,
+                        Detail = $"Cliente eliminado correctamente."
+                    });
                     await CustomerDataGrid.Reload();
                 }
             }
@@ -139,11 +153,15 @@ namespace Aldebaran.Web.Pages.CustomerPages
 
         protected async Task AddCustomerContact(MouseEventArgs args, Customer data)
         {
-            DialogResult = null;
             var result = await DialogService.OpenAsync<AddCustomerContact>("Nuevo contacto", new Dictionary<string, object> { { "CUSTOMER_ID", data.CustomerId } });
             if (result == true)
             {
-                DialogResult = new DialogResult { Success = true, Message = "Contacto creado correctamente." };
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Summary = "Contacto",
+                    Severity = NotificationSeverity.Success,
+                    Detail = $"Contacto creado correctamente."
+                });
             }
             await GetCustomerContacts(data);
             await CustomerContactsDataGrid.Reload();
@@ -151,11 +169,15 @@ namespace Aldebaran.Web.Pages.CustomerPages
 
         protected async Task EditCustomerContact(CustomerContact args, Customer data)
         {
-            DialogResult = null;
             var result = await DialogService.OpenAsync<EditCustomerContact>("Actualizar contacto", new Dictionary<string, object> { { "CUSTOMER_CONTACT_ID", args.CustomerContactId } });
             if (result == true)
             {
-                DialogResult = new DialogResult { Success = true, Message = "Contacto actualizado correctamente." };
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Summary = "Contacto",
+                    Severity = NotificationSeverity.Success,
+                    Detail = $"Contacto actualizado correctamente."
+                });
             }
             await GetCustomerContacts(data);
             await CustomerContactsDataGrid.Reload();
@@ -165,12 +187,16 @@ namespace Aldebaran.Web.Pages.CustomerPages
         {
             try
             {
-                DialogResult = null;
                 if (await DialogService.Confirm("Está seguro que desea eliminar este contacto?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
                 {
                     await CustomerContactService.DeleteAsync(customerContact.CustomerContactId);
                     await GetCustomerContacts(Customer);
-                    DialogResult = new DialogResult { Success = true, Message = "Contacto eliminado correctamente." };
+                    NotificationService.Notify(new NotificationMessage
+                    {
+                        Summary = "Contacto",
+                        Severity = NotificationSeverity.Success,
+                        Detail = $"Contacto eliminado correctamente."
+                    });
                     await CustomerContactsDataGrid.Reload();
                 }
             }

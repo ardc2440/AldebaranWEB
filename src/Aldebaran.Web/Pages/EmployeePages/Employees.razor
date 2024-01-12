@@ -5,14 +5,6 @@
 
 <PageTitle>Funcionarios</PageTitle>
 <RadzenStack>
-    @if (DialogResult != null && DialogResult.Success)
-    {
-        <RadzenAlert Shade="Shade.Lighter" @bind-Visible="DialogResult.Visible" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Success">@DialogResult.Message</RadzenAlert>
-    }
-    @if (DialogResult != null && !DialogResult.Success)
-    {
-        <RadzenAlert Shade="Shade.Lighter" @bind-Visible="DialogResult.Visible" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger">@DialogResult.Message</RadzenAlert>
-    }
     <RadzenRow AlignItems="AlignItems.Center">
         <RadzenColumn Size="12">
             <RadzenText Text="Funcionarios" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
@@ -45,10 +37,10 @@
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="ViewModels.EmployeeViewModel" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Employee Editor")">
                         <Template Context="employee">
-                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat"
+                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" MouseEnter="@(args => ShowTooltip(args,"Actualizar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
                                           Size="ButtonSize.Medium" Visible="@Security.IsInRole("Admin","Employee Editor")"
                                           Click="@(args => EditEmployee(employee))" @onclick:stopPropagation="true" />
-                            <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
+                            <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Eliminar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
                                           Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@Security.IsInRole("Admin","Employee Editor")"
                                           Click=@(args => DeleteEmployee(args,employee)) @onclick:stopPropagation="true" />
                         </Template>

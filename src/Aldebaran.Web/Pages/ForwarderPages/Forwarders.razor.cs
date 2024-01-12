@@ -1,5 +1,4 @@
 using Aldebaran.Application.Services;
-using Aldebaran.Web.Models.ViewModels;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
@@ -19,6 +18,9 @@ namespace Aldebaran.Web.Pages.ForwarderPages
 
         [Inject]
         protected NotificationService NotificationService { get; set; }
+
+        [Inject]
+        protected TooltipService TooltipService { get; set; }
 
         [Inject]
         protected SecurityService Security { get; set; }
@@ -42,7 +44,6 @@ namespace Aldebaran.Web.Pages.ForwarderPages
         protected RadzenDataGrid<ServiceModel.ShipmentForwarderAgentMethod> ShipmentForwarderAgentMethodDataGrid;
         protected ServiceModel.ShipmentForwarderAgentMethod ShipmentMethod;
         protected string search = "";
-        protected DialogResult DialogResult { get; set; }
         protected bool IsLoadingInProgress;
         #endregion
 
@@ -62,6 +63,8 @@ namespace Aldebaran.Web.Pages.ForwarderPages
         #endregion
 
         #region Events
+        void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
+
         async Task GetForwardersAsync(string searchKey = null, CancellationToken ct = default)
         {
             await Task.Yield();
@@ -75,22 +78,30 @@ namespace Aldebaran.Web.Pages.ForwarderPages
         }
         protected async Task AddForwarder(MouseEventArgs args)
         {
-            DialogResult = null;
             var result = await DialogService.OpenAsync<AddForwarder>("Nueva transportadora");
             if (result == true)
             {
-                DialogResult = new DialogResult { Success = true, Message = "Transportadora creada correctamente." };
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Summary = "Transportadora",
+                    Severity = NotificationSeverity.Success,
+                    Detail = $"Transportadora creada correctamente."
+                });
             }
             await GetForwardersAsync();
             await ForwardersDataGrid.Reload();
         }
         protected async Task EditForwarder(ServiceModel.Forwarder args)
         {
-            DialogResult = null;
             var result = await DialogService.OpenAsync<EditForwarder>("Actualizar transportadora", new Dictionary<string, object> { { "FORWARDER_ID", args.ForwarderId } });
             if (result == true)
             {
-                DialogResult = new DialogResult { Success = true, Message = "Transportadora actualizada correctamente." };
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Summary = "Transportadora",
+                    Severity = NotificationSeverity.Success,
+                    Detail = $"Transportadora actualizada correctamente."
+                });
             }
             await GetForwardersAsync();
             await ForwardersDataGrid.Reload();
@@ -99,12 +110,16 @@ namespace Aldebaran.Web.Pages.ForwarderPages
         {
             try
             {
-                DialogResult = null;
                 if (await DialogService.Confirm("Está seguro que desea eliminar esta transportadora?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
                 {
                     await ForwarderService.DeleteAsync(forwarder.ForwarderId);
                     await GetForwardersAsync();
-                    DialogResult = new DialogResult { Success = true, Message = "Transportadora eliminada correctamente." };
+                    NotificationService.Notify(new NotificationMessage
+                    {
+                        Summary = "Transportadora",
+                        Severity = NotificationSeverity.Success,
+                        Detail = $"Transportadora eliminada correctamente."
+                    });
                     await ForwardersDataGrid.Reload();
                 }
             }
@@ -137,22 +152,30 @@ namespace Aldebaran.Web.Pages.ForwarderPages
         }
         protected async Task AddForwarderAgent(MouseEventArgs args, ServiceModel.Forwarder data)
         {
-            DialogResult = null;
             var result = await DialogService.OpenAsync<AddForwarderAgent>("Nuevo agente", new Dictionary<string, object> { { "FORWARDER_ID", data.ForwarderId } });
             if (result == true)
             {
-                DialogResult = new DialogResult { Success = true, Message = "Agente creado correctamente." };
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Summary = "Agente",
+                    Severity = NotificationSeverity.Success,
+                    Detail = $"Agente creado correctamente."
+                });
             }
             await GetForwarderAgents(data);
             await ForwarderAgentsDataGrid.Reload();
         }
         protected async Task EditForwarderAgent(ServiceModel.ForwarderAgent args, ServiceModel.Forwarder data)
         {
-            DialogResult = null;
             var result = await DialogService.OpenAsync<EditForwarderAgent>("Actualizar agente", new Dictionary<string, object> { { "FORWARDER_AGENT_ID", args.ForwarderAgentId } });
             if (result == true)
             {
-                DialogResult = new DialogResult { Success = true, Message = "Agente actualizado correctamente." };
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Summary = "Agente",
+                    Severity = NotificationSeverity.Success,
+                    Detail = $"Agente actualizado correctamente."
+                });
             }
             await GetForwarderAgents(data);
             await ForwarderAgentsDataGrid.Reload();
@@ -161,12 +184,16 @@ namespace Aldebaran.Web.Pages.ForwarderPages
         {
             try
             {
-                DialogResult = null;
                 if (await DialogService.Confirm("Está seguro que desea eliminar este agente?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
                 {
                     await ForwarderAgentService.DeleteAsync(forwarderAgent.ForwarderAgentId);
                     await GetForwarderAgents(Forwarder);
-                    DialogResult = new DialogResult { Success = true, Message = "Agente eliminado correctamente." };
+                    NotificationService.Notify(new NotificationMessage
+                    {
+                        Summary = "Agente",
+                        Severity = NotificationSeverity.Success,
+                        Detail = $"Agente eliminado correctamente."
+                    });
                     await ForwarderAgentsDataGrid.Reload();
                 }
             }
@@ -199,11 +226,15 @@ namespace Aldebaran.Web.Pages.ForwarderPages
         }
         protected async Task AddShipmentForwarderAgentMethod(MouseEventArgs args, ServiceModel.ForwarderAgent data)
         {
-            DialogResult = null;
             var result = await DialogService.OpenAsync<AddShipmentForwarderAgentMethod>("Nuevo método de envío", new Dictionary<string, object> { { "FORWARDER_AGENT_ID", data.ForwarderAgentId } });
             if (result == true)
             {
-                DialogResult = new DialogResult { Success = true, Message = "Método de envío creado correctamente." };
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Summary = "Método de envío",
+                    Severity = NotificationSeverity.Success,
+                    Detail = $"Método de envío creado correctamente."
+                });
             }
             await GetShipmentForwarderAgentMethods(data);
             await ForwarderAgentsDataGrid.Reload();
@@ -212,12 +243,16 @@ namespace Aldebaran.Web.Pages.ForwarderPages
         {
             try
             {
-                DialogResult = null;
                 if (await DialogService.Confirm("Está seguro que desea eliminar este método de envío?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
                 {
                     await ShipmentForwarderAgentMethodService.DeleteAsync(shipmentForwarderAgent.ShipmentForwarderAgentMethodId);
                     await GetShipmentForwarderAgentMethods(ForwarderAgent);
-                    DialogResult = new DialogResult { Success = true, Message = "Método de envío eliminado correctamente." };
+                    NotificationService.Notify(new NotificationMessage
+                    {
+                        Summary = "Método de envío",
+                        Severity = NotificationSeverity.Success,
+                        Detail = $"Método de envío eliminado correctamente."
+                    });
                     await ForwarderAgentsDataGrid.Reload();
                 }
             }
@@ -228,7 +263,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido eliminar el método de envío"
+                    Detail = $"No se ha podido eliminar el método de envío."
                 });
             }
         }

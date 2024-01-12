@@ -4,14 +4,6 @@
 
 <PageTitle>Inicios de sesión</PageTitle>
 <RadzenStack>
-    @if (DialogResult != null && DialogResult.Success)
-    {
-        <RadzenAlert Shade="Shade.Lighter" @bind-Visible="DialogResult.Visible" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Success">@DialogResult.Message</RadzenAlert>
-    }
-    @if (DialogResult != null && !DialogResult.Success)
-    {
-        <RadzenAlert Shade="Shade.Lighter" @bind-Visible="DialogResult.Visible" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger">@DialogResult.Message</RadzenAlert>
-    }
     <RadzenRow AlignItems="AlignItems.Center">
         <RadzenColumn Size="12">
             <RadzenText Text="Inicios de sesión" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
@@ -25,7 +17,7 @@
     <RadzenRow>
         <RadzenColumn SizeMD="12">
             <LocalizedDataGrid @ref="ApplicationUserDataGrid" AllowFiltering="true" AllowPaging="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30}) AllowSorting="true" Data="@ApplicationUser"
-                            TItem="Aldebaran.Web.Models.ApplicationUser" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" AllowGrouping="true" AllowColumnReorder="true">
+                               TItem="Aldebaran.Web.Models.ApplicationUser" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" AllowGrouping="true" AllowColumnReorder="true">
                 <Columns>
                     <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ApplicationUser" Property="Email" Title="Correo electrónico" />
                     <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ApplicationUser" Property="UserName" Title="Nombre de usuario" />
@@ -48,9 +40,10 @@
                             }
                             @if (user.UserName != "sa")
                             {
-                                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditApplicationUser(user))" @onclick:stopPropagation="true">
+                                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Actualizar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
+                                              Click="@(args => EditApplicationUser(user))" @onclick:stopPropagation="true">
                                 </RadzenButton>
-                                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="close" Size="ButtonSize.Medium"
+                                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="close" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Eliminar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
                                               Variant="Variant.Flat" Shade="Shade.Lighter" Click="@(() => DeleteApplicationUser(user))" @onclick:stopPropagation="true" />
                             }
                         </Template>

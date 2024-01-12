@@ -5,14 +5,6 @@
 
 <PageTitle>Artículos</PageTitle>
 <RadzenStack>
-    @if (DialogResult != null && DialogResult.Success)
-    {
-        <RadzenAlert Shade="Shade.Lighter" @bind-Visible="DialogResult.Visible" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Success">@DialogResult.Message</RadzenAlert>
-    }
-    @if (DialogResult != null && !DialogResult.Success)
-    {
-        <RadzenAlert Shade="Shade.Lighter" @bind-Visible="DialogResult.Visible" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger">@DialogResult.Message</RadzenAlert>
-    }
     <RadzenRow AlignItems="AlignItems.Center">
         <RadzenColumn Size="12">
             <RadzenText Text="Artículos" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
@@ -31,7 +23,7 @@
     <RadzenRow>
         <RadzenColumn SizeMD=12>
             <LocalizedDataGrid @ref="ItemsDataGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                            Data="@ItemsList" TItem="ServiceModel.Item" RowExpand=@GetItemReferences AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowGrouping="true" AllowColumnReorder="true" Render="@OnItemDataGridRender" IsLoading="@IsLoadingInProgress">
+                               Data="@ItemsList" TItem="ServiceModel.Item" RowExpand=@GetItemReferences AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowGrouping="true" AllowColumnReorder="true" Render="@OnItemDataGridRender" IsLoading="@IsLoadingInProgress">
                 <Columns>
                     <RadzenDataGridColumn TItem="ServiceModel.Item" Property="Line.LineName" Title="Linea" Visible="false">
                     </RadzenDataGridColumn>
@@ -82,9 +74,10 @@
 
                     <RadzenDataGridColumn TItem="ServiceModel.Item" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Item Editor")">
                         <Template Context="item">
-                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditItem(item))" @onclick:stopPropagation="true">
+                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Actualizar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
+                                          Click="@(args => EditItem(item))" @onclick:stopPropagation="true">
                             </RadzenButton>
-                            <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
+                            <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Eliminar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
                                           Shade="Shade.Lighter" Variant="Variant.Flat"
                                           Click=@(args => DeleteItem(args, item)) @onclick:stopPropagation="true" />
                         </Template>
@@ -103,7 +96,7 @@
                             </RadzenColumn>
                         </RadzenRow>
                         <LocalizedDataGrid ColumnWidth="80px" Visible="@(item != null)" @ref=ItemReferencesDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                        Data="@item?.ItemReferences" TItem="ServiceModel.ItemReference" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" AllowGrouping="true" AllowColumnReorder="true">
+                                           Data="@item?.ItemReferences" TItem="ServiceModel.ItemReference" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" AllowGrouping="true" AllowColumnReorder="true">
                             <Columns>
                                 <RadzenDataGridColumn TItem="ServiceModel.ItemReference" Property="ReferenceCode" Title="Referencia">
                                 </RadzenDataGridColumn>
@@ -129,9 +122,10 @@
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="ServiceModel.ItemReference" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Item Editor")">
                                     <Template Context="itemReference">
-                                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditItemReference(itemReference, item))" @onclick:stopPropagation="true">
+                                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Actualizar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
+                                                      Click="@(args => EditItemReference(itemReference, item))" @onclick:stopPropagation="true">
                                         </RadzenButton>
-                                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Shade="Shade.Lighter" Variant="Variant.Flat"
+                                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Shade="Shade.Lighter" Variant="Variant.Flat" MouseEnter="@(args => ShowTooltip(args,"Eliminar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
                                                       Click=@(args => DeleteItemReference(args, itemReference)) @onclick:stopPropagation="true" />
                                     </Template>
                                 </RadzenDataGridColumn>
