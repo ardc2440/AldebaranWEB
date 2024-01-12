@@ -73,7 +73,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 await Task.Yield();
 
                 if (!int.TryParse(CustomerOrderActivityId, out var customerOrderActivityId))
-                    throw new Exception("El Id de Referencia recibido no es valido");
+                    throw new Exception("El Id de actividad recibido no es valido");
 
                 customerOrderActivity = await CustomerOrderActivityService.FindAsync(customerOrderActivityId);
 
@@ -89,7 +89,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
                 customerOrderActivityDetails = (await CustomerOrderActivityDetailService.GetByCustomerOrderActivityIdAsync(customerOrderActivityId)).ToList();
 
-                title = $"modificación de Actividades para el Pedido No. {customerOrder.OrderNumber}";
+                title = $"Modificación de actividades para el Pedido No. {customerOrder.OrderNumber}";
             }
             catch (Exception ex)
             {
@@ -111,7 +111,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 customerOrderActivity.CustomerOrderActivityDetails = customerOrderActivityDetails;
                 await CustomerOrderActivityService.UpdateAsync(customerOrderActivity.CustomerOrderActivityId, customerOrderActivity);
 
-                await DialogService.Alert("Actividad Guardada Satisfactoriamente", "Información");
+                await DialogService.Alert("Actividad guardada satisfactoriamente", "Información");
                 NavigationManager.NavigateTo("customer-orders");
             }
             catch (Exception ex)
@@ -124,7 +124,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
-            if (await DialogService.Confirm("Está seguro que cancelar la creación de la Actividad??", "Confirmar") == true)
+            if (await DialogService.Confirm("Está seguro que desea cancelar la creación de la actividad?", "Confirmar") == true)
                 NavigationManager.NavigateTo("customer-orders");
         }
 
@@ -133,9 +133,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             try
             {
                 if (customerOrderActivity.AreaId == 0)
-                    throw new Exception("No ha seleccionado el Area para la Actividad");
+                    throw new Exception("No ha seleccionado el área para la actividad");
 
-                var result = await DialogService.OpenAsync<AddCustomerOrderActivityDetail>("Nuevo Tipo de Actividad", new Dictionary<string, object> { { "CustomerOrderActivityDetails", customerOrderActivityDetails }, { "CustomerOrderActivityAreaId", customerOrderActivity.AreaId } });
+                var result = await DialogService.OpenAsync<AddCustomerOrderActivityDetail>("Agregar detalle", new Dictionary<string, object> { { "CustomerOrderActivityDetails", customerOrderActivityDetails }, { "CustomerOrderActivityAreaId", customerOrderActivity.AreaId } });
 
                 if (result == null)
                     return;
@@ -159,7 +159,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task DeleteCustomerOrderActivityDetail(MouseEventArgs args, CustomerOrderActivityDetail item)
         {
-            if (await DialogService.Confirm("Está seguro que desea eliminar este Tipo de Actividad?", "Confirmar") == true)
+            if (await DialogService.Confirm("Está seguro que desea eliminar este detalle?", "Confirmar") == true)
             {
                 customerOrderActivityDetails.Remove(item);
 
@@ -169,7 +169,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task EditCustomerOrderActivityDetail(MouseEventArgs args, CustomerOrderActivityDetail item)
         {
-            var result = await DialogService.OpenAsync<EditCustomerOrderActivityDetail>("Actualizar Tipo de Actividad", new Dictionary<string, object> { { "CustomerOrderActivityDetail", item }, { "CustomerOrderActivityAreaId", customerOrderActivity.AreaId }, { "CustomerOrderActivityDetails", customerOrderActivityDetails } });
+            var result = await DialogService.OpenAsync<EditCustomerOrderActivityDetail>("Modificar detalle", new Dictionary<string, object> { { "CustomerOrderActivityDetail", item }, { "CustomerOrderActivityAreaId", customerOrderActivity.AreaId }, { "CustomerOrderActivityDetails", customerOrderActivityDetails } });
             if (result == null)
                 return;
 
@@ -186,7 +186,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 return;
             }
 
-            if (await DialogService.Confirm("Esta seguro que desea cambiar el área, se borrara el detalle de Tipos de Actividad asociado a esta actividad?") == true)
+            if (await DialogService.Confirm("Esta seguro que desea cambiar el área?. se borraran los detalles asociados a esta actividad.") == true)
             {
                 employeesForEMPLOYEEID = new List<Employee>();
 

@@ -10,60 +10,65 @@
         <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerOrder" Data="@customerOrder" Visible="@(customerOrder != null)" Submit="@FormSubmit">
             <RadzenRow AlignItems="AlignItems.Center">
                 <RadzenColumn Size="12">
-                    <RadzenText Text="Crear Pedido de Artículos" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
+                    <RadzenText Text="Crear pedido de artículos" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
                     <hr>
                 </RadzenColumn>
-                <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">@errorMessage</RadzenAlert>
-                </RadzenRow>
-                <RadzenRow AlignItems="AlignItems.Start" Gap="2rem">
-                    <RadzenColumn SizeMD="6">
-                        <RadzenStack>
-                            <RadzenFormField Text="Cliente" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
-                                <ChildContent>
-                                    <RadzenDropDownDataGrid Data="@customersForCUSTOMERID" TextProperty="CustomerName" ValueProperty="CustomerId" AllowClear=true
-                                                            style="display: block; width: 100%" @bind-Value="@customerOrder.CustomerId" Name="CUSTOMER_ID"
-                                                            FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true"
-                                                            Placeholder="Seleccione un Cliente">
-                                        <Columns>
-                                            <RadzenDropDownDataGridColumn Property="IdentityType.IdentityTypeName" Title="Tipo Documento" />
-                                            <RadzenDropDownDataGridColumn Property="IdentityNumber" Title="Identificación" />
-                                            <RadzenDropDownDataGridColumn Property="CustomerName" Title="Nombre" />
-                                            <RadzenDropDownDataGridColumn Property="City.CityId" Title="Ubicación">
-                                                <Template Context="customer">
-                                                    <span>(@customer.City.Department.Country.CountryCode) @customer.City.Department.DepartmentName - @customer.City.CityName</span>
+                <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">
+                    @errorMessage
+                </RadzenAlert>
+            </RadzenRow>
+            <RadzenRow AlignItems="AlignItems.Start" Gap="2rem">
+                <RadzenColumn SizeMD="6">
+                    <RadzenStack>
+                        <RadzenFormField Text="Cliente" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
+                            <ChildContent>
+                                <RadzenDropDownDataGrid Data="@customersForCUSTOMERID" TextProperty="CustomerName" ValueProperty="CustomerId" AllowClear=true
+                                                        style="display: block; width: 100%" @bind-Value="@customerOrder.CustomerId" Name="CUSTOMER_ID"
+                                                        FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true"
+                                                        Placeholder="Seleccione un Cliente" TabIndex="0">
+                                    <Columns>
+                                        <RadzenDropDownDataGridColumn Property="IdentityType.IdentityTypeName" Title="Tipo Documento" />
+                                        <RadzenDropDownDataGridColumn Property="IdentityNumber" Title="Identificación" />
+                                        <RadzenDropDownDataGridColumn Property="CustomerName" Title="Nombre" />
+                                        <RadzenDropDownDataGridColumn Property="City.CityId" Title="Ubicación">
+                                            <Template Context="customer">
+                                                <span>(@customer.City.Department.Country.CountryCode) @customer.City.Department.DepartmentName - @customer.City.CityName</span>
                                             </Template>
                                         </RadzenDropDownDataGridColumn>
                                     </Columns>
                                 </RadzenDropDownDataGrid>
                             </ChildContent>
                             <Helper>
-                                <RadzenRequiredValidator Component="CUSTOMER_ID" DefaultValue="0" Text="El Cliente de la reserva es requerido "></RadzenRequiredValidator>
+                                <RadzenRequiredValidator Component="CUSTOMER_ID" DefaultValue="0" Text="El cliente es requerido "></RadzenRequiredValidator>
                             </Helper>
                         </RadzenFormField>
-                        <RadzenFormField Text="Fecha de Pedido" Variant="Variant.Text" Style="width: 100%;">
+                        <RadzenFormField Text="Fecha de pedido" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
-                                <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@customerOrder.OrderDate" Name="ORDER_DATE" Placeholder="Seleccione la fecha de la pedido" TabIndex="0" />
+                                <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@customerOrder.OrderDate"
+                                                  Name="ORDER_DATE" Placeholder="Seleccione la fecha de pedido" TabIndex="1" />
                             </ChildContent>
                             <Helper>
-                                <RadzenRequiredValidator Text="La Fecha de pedido es requerida" Component="ORDER_DATE" />
+                                <RadzenRequiredValidator Text="La fecha de pedido es requerida" Component="ORDER_DATE" />
                             </Helper>
                         </RadzenFormField>
-                        <RadzenFormField Text="Fecha de Pactada de Entrega" Variant="Variant.Text" Style="width: 100%;">
+                        <RadzenFormField Text="Fecha de pactada de entrega" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
-                                <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@customerOrder.EstimatedDeliveryDate" Name="ESTIMATED_DELIVERY_DATE" Change="()=> customerOrder.EstimatedDeliveryDate = customerOrder.EstimatedDeliveryDate < customerOrder.OrderDate ? customerOrder.OrderDate : customerOrder.EstimatedDeliveryDate" />
+                                <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@customerOrder.EstimatedDeliveryDate"
+                                                  TabIndex="2" Name="ESTIMATED_DELIVERY_DATE" Placeholder="Seleccione la fecha pactada de entrega"
+                                                  Change="()=> customerOrder.EstimatedDeliveryDate = customerOrder.EstimatedDeliveryDate < customerOrder.OrderDate ? customerOrder.OrderDate : customerOrder.EstimatedDeliveryDate" />
                             </ChildContent>
                             <Helper>
                                 <RadzenRequiredValidator Component="ESTIMATED_DELIVERY_DATE" Text="La Fecha pactada de entrega es requerida" />
                             </Helper>
                         </RadzenFormField>
-                        <RadzenFormField Text="Notas del Cliente" Variant="Variant.Text" Style="width: 100%;">
+                        <RadzenFormField Text="Notas del cliente" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
                                 <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerOrder.CustomerNotes" Name="CUSTOMER_NOTES" TabIndex="3" />
                             </ChildContent>
                         </RadzenFormField>
-                        <RadzenFormField Text="Notas Internas" Variant="Variant.Text" Style="width: 100%;">
+                        <RadzenFormField Text="Notas internas" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
-                                <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerOrder.InternalNotes" Name="INTERNAL_NOTES" TabIndex="3" />
+                                <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerOrder.InternalNotes" Name="INTERNAL_NOTES" TabIndex="4" />
                             </ChildContent>
                         </RadzenFormField>
                     </RadzenStack>

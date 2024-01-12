@@ -120,7 +120,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             {
                 dialogResult = null;
 
-                if (await DialogService.Confirm("Esta seguro que desea eliminar esta actividad??") == true)
+                if (await DialogService.Confirm("Está seguro que desea eliminar esta actividad??") == true)
                 {
 
                     await CustomerOrderActivityService.DeleteAsync(customerOrderActivity.CustomerOrderActivityId);
@@ -136,7 +136,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido eliminar la actividad.\n\r{ex.InnerException.Message}\n\r{ex.StackTrace}"
+                    Detail = $"No se ha podido eliminar la actividad.\n\r{ex.InnerException.Message}"
                 });
             }
         }
@@ -147,7 +147,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             {
                 dialogResult = null;
 
-                if (await DialogService.Confirm("Esta seguro que desea cancelar este pedido?") == true)
+                if (await DialogService.Confirm("Está seguro que desea cancelar este pedido?") == true)
                 {
                     var cancelStatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 6);
 
@@ -167,7 +167,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido cancelar el pedido.\n\r{ex.InnerException.Message}\n\r{ex.StackTrace}"
+                    Detail = $"No se ha podido cancelar el pedido.\n\r{ex.InnerException.Message}"
                 });
             }
         }
@@ -231,13 +231,13 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             {
                 dialogResult = null;
 
-                if (await DialogService.Confirm("Esta seguro que desea cerrar este pedido?") == true)
+                if (await DialogService.Confirm("Está seguro que desea cerrar este pedido?") == true)
                 {
                     var cancelStatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 6);
 
                     await CustomerOrderService.CancelAsync(args.CustomerOrderId, cancelStatusDocumentType.StatusDocumentTypeId);
 
-                    await DialogService.Alert($"Pedido cancelado correctamente", "Información");
+                    await DialogService.Alert($"Pedido cerrado correctamente", "Información");
 
                     await grid0.Reload();
                 }
@@ -248,7 +248,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido cerrar el pedido.\n\r{ex.InnerException.Message}\n\r{ex.StackTrace}"
+                    Detail = $"No se ha podido cerrar el pedido.\n\r{ex.InnerException.Message}"
                 });
             }
         }

@@ -81,7 +81,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
                 customerOrderActivityDetails = new List<CustomerOrderActivityDetail>();
 
-                title = $"Actividades para el Pedido No. {customerOrder.OrderNumber}";
+                title = $"Actividades para el pedido No. {customerOrder.OrderNumber}";
             }
             catch (Exception ex)
             {
@@ -102,7 +102,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 customerOrderActivity.CustomerOrderActivityDetails = customerOrderActivityDetails;
                 await CustomerOrderActivityService.AddAsync(customerOrderActivity);
 
-                await DialogService.Alert("Actividad Guardada Satisfactoriamente", "Información");
+                await DialogService.Alert("Actividad guardada satisfactoriamente", "Información");
                 NavigationManager.NavigateTo("customer-orders");
             }
             catch (Exception ex)
@@ -115,7 +115,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
-            if (await DialogService.Confirm("Está seguro que cancelar la creación de la Actividad??", "Confirmar") == true)
+            if (await DialogService.Confirm("Está seguro que desea cancelar la creación de la actividad?", "Confirmar") == true)
                 NavigationManager.NavigateTo("customer-orders");
         }
 
@@ -124,9 +124,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             try
             {
                 if (customerOrderActivity.AreaId == 0)
-                    throw new Exception("No ha seleccionado el Area para la Actividad");
+                    throw new Exception("No ha seleccionado el área para la actividad");
 
-                var result = await DialogService.OpenAsync<AddCustomerOrderActivityDetail>("Nuevo Tipo de Actividad", new Dictionary<string, object> { { "CustomerOrderActivityDetails", customerOrderActivityDetails }, { "CustomerOrderActivityAreaId", customerOrderActivity.AreaId } });
+                var result = await DialogService.OpenAsync<AddCustomerOrderActivityDetail>("Agregar detalle", new Dictionary<string, object> { { "CustomerOrderActivityDetails", customerOrderActivityDetails }, { "CustomerOrderActivityAreaId", customerOrderActivity.AreaId } });
 
                 if (result == null)
                     return;
@@ -150,7 +150,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task DeleteCustomerOrderActivityDetail(MouseEventArgs args, CustomerOrderActivityDetail item)
         {
-            if (await DialogService.Confirm("Está seguro que desea eliminar este Tipo de Actividad?", "Confirmar") == true)
+            if (await DialogService.Confirm("Está seguro que desea eliminar este detalle?", "Confirmar") == true)
             {
                 customerOrderActivityDetails.Remove(item);
 
@@ -160,7 +160,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task EditCustomerOrderActivityDetail(MouseEventArgs args, CustomerOrderActivityDetail item)
         {
-            var result = await DialogService.OpenAsync<EditCustomerOrderActivityDetail>("Actualizar Tipo e Actividad", new Dictionary<string, object> { { "CustomerOrderActivityDetail", item }, { "CustomerOrderActivityAreaId", customerOrderActivity.AreaId }, { "CustomerOrderActivityDetails", customerOrderActivityDetails } });
+            var result = await DialogService.OpenAsync<EditCustomerOrderActivityDetail>("Modificar detalle", new Dictionary<string, object> { { "CustomerOrderActivityDetail", item }, { "CustomerOrderActivityAreaId", customerOrderActivity.AreaId }, { "CustomerOrderActivityDetails", customerOrderActivityDetails } });
             if (result == null)
                 return;
             var detail = (CustomerOrderActivityDetail)result;
@@ -182,7 +182,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                     return;
                 }
 
-                if (await DialogService.Confirm("Esta seguro que desea cambiar el área, se borrara el detalle de Tipos de Actividad asociado a esta actividad?") == true)
+                if (await DialogService.Confirm("Está seguro que desea cambiar el área?. Se borrará los detalles asociados a esta actividad.") == true)
                 {
                     employeesForEMPLOYEEID = new List<Employee>();
 

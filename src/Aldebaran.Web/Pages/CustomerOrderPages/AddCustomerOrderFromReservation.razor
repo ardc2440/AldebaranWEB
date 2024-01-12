@@ -10,7 +10,7 @@
         <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerOrder" Data="@customerOrder" Visible="@(customerOrder != null)" Submit="@FormSubmit">
             <RadzenRow AlignItems="AlignItems.Center">
                 <RadzenColumn Size="12">
-                    <RadzenText Text="Pedido a Partir de una Reserva" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
+                    <RadzenText Text="Pedido a partir de una reserva" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
                     <hr />
                 </RadzenColumn>
                 <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">
@@ -22,7 +22,7 @@
                     <RadzenStack>
                         <RadzenStack>
                             <RadzenColumn SizeMD="3">
-                                <RadzenLabel Text="Cliente" class="fw-bold" style="width: 100%" />
+                                <RadzenLabel Text="Cliente" style="width: 100%" />
                             </RadzenColumn>
                             <RadzenColumn SizeMD="3">
                                 <RadzenRow>
@@ -41,31 +41,34 @@
                         </RadzenStack>
                         <RadzenStack>
                             <RadzenColumn Size="6">
-                                <RadzenText Text="Datos del Pedido" TextStyle="TextStyle.H5" TagName="TagName.H1" style="margin: 0" />
+                                <RadzenText Text="Datos del pedido" TextStyle="TextStyle.H5" TagName="TagName.H1" style="margin: 0" />
                                 <hr />
                             </RadzenColumn>
-                            <RadzenFormField Text="Fecha de Pedido" Variant="Variant.Text" Style="width: 100%;">
+                            <RadzenFormField Text="Fecha de pedido" Variant="Variant.Text" Style="width: 100%;">
                                 <ChildContent>
-                                    <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@customerOrder.OrderDate" Name="ORDER_DATE" Placeholder="Seleccione la fecha de la pedido" TabIndex="0" />
+                                    <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@customerOrder.OrderDate"
+                                    Name="ORDER_DATE" Placeholder="Seleccione la fecha de la pedido" TabIndex="0" />
                                 </ChildContent>
                                 <Helper>
-                                    <RadzenRequiredValidator Text="La Fecha de pedido es requerida" Component="ORDER_DATE" />
+                                    <RadzenRequiredValidator Text="La fecha de pedido es requerida" Component="ORDER_DATE" />
                                 </Helper>
                             </RadzenFormField>
-                            <RadzenFormField Text="Fecha de Pactada de Entrega" Variant="Variant.Text" Style="width: 100%;">
+                            <RadzenFormField Text="Fecha de pactada de entrega" Variant="Variant.Text" Style="width: 100%;">
                                 <ChildContent>
-                                    <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@customerOrder.EstimatedDeliveryDate" Name="ESTIMATED_DELIVERY_DATE" Change="()=> customerOrder.EstimatedDeliveryDate = customerOrder.EstimatedDeliveryDate < customerOrder.OrderDate ? customerOrder.OrderDate : customerOrder.EstimatedDeliveryDate" />
+                                    <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@customerOrder.EstimatedDeliveryDate" TabIndex="1"
+                                                      Placeholder="Seleccione la fecha pactada de entrega" Name="ESTIMATED_DELIVERY_DATE"
+                                                      Change="()=> customerOrder.EstimatedDeliveryDate = customerOrder.EstimatedDeliveryDate < customerOrder.OrderDate ? customerOrder.OrderDate : customerOrder.EstimatedDeliveryDate" />
                                 </ChildContent>
                                 <Helper>
-                                    <RadzenRequiredValidator Component="ESTIMATED_DELIVERY_DATE" Text="La Fecha pactada de entrega es requerida" />
+                                    <RadzenRequiredValidator Component="ESTIMATED_DELIVERY_DATE" Text="La eecha pactada de entrega es requerida" />
                                 </Helper>
                             </RadzenFormField>
-                            <RadzenFormField Text="Notas del Cliente" Variant="Variant.Text" Style="width: 100%;">
+                            <RadzenFormField Text="Notas del cliente" Variant="Variant.Text" Style="width: 100%;">
                                 <ChildContent>
-                                    <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerOrder.CustomerNotes" Name="CUSTOMER_NOTES" TabIndex="3" ReadOnly="true" />
+                                    <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerOrder.CustomerNotes" Name="CUSTOMER_NOTES" TabIndex="2" ReadOnly="true" />
                                 </ChildContent>
                             </RadzenFormField>
-                            <RadzenFormField Text="Notas Internas" Variant="Variant.Text" Style="width: 100%;">
+                            <RadzenFormField Text="Notas internas" Variant="Variant.Text" Style="width: 100%;">
                                 <ChildContent>
                                     <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerOrder.InternalNotes" Name="INTERNAL_NOTES" TabIndex="3" />
                                 </ChildContent>

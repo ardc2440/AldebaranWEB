@@ -16,7 +16,8 @@
             </RadzenRow>
             <RadzenFormField Text="Cantidad" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                 <ChildContent>
-                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@CustomerOrderDetail.RequestedQuantity" Name="REQUESTED_QUANTITY" Placeholder="Ingrese la cantidad a reservar" />
+                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@CustomerOrderDetail.RequestedQuantity" Name="REQUESTED_QUANTITY"
+                                   TabIndex="0" Placeholder="Ingrese la cantidad a reservar" />
                 </ChildContent>
                 <Helper>
                     <RadzenRequiredValidator Component="REQUESTED_QUANTITY" Text="La Cantidad es Requerida" />
@@ -25,7 +26,8 @@
             </RadzenFormField>
             <RadzenFormField Text="Marcación" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                 <ChildContent>
-                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@CustomerOrderDetail.Brand" Name="BRAND" Placeholder="Ingrese la marcación del producto" />
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@CustomerOrderDetail.Brand" Name="BRAND"
+                                   TabIndex="1" Placeholder="Ingrese la marcación del producto" />
                 </ChildContent>
             </RadzenFormField>
         </RadzenStack>

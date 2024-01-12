@@ -172,7 +172,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido cancelar el traslado. \n\r {ex.InnerException.Message}\n\r{ex.StackTrace}"
+                    Detail = $"No se ha podido cancelar el traslado. \n\r {ex.InnerException.Message}"
                 });
             }
         }

@@ -9,26 +9,26 @@
                 <hr />
                 <RadzenFormField Text="Actividad" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                     <ChildContent>
-                        <RadzenDropDownDataGrid Data="@activityTypesForACTIVITY_ID" Title="ACTIVITY_TYPE_NAME" TextProperty="ActivityType.ActivityTypeName" ValueProperty="ActivityTypeId" AllowClear=true
-                                                Disabled=@(hasACTIVITY_TYPE_IDValue) Placeholder="Seleccione un tipo de actividad" style="display: block; width: 100%" @bind-Value="@customerOrderActivityDetail.ActivityTypeId" Name="ACTIVITY_TYPE_ID" TabIndex="2" />
+                        <RadzenDropDown Data="@activityTypesForACTIVITY_ID" Title="ACTIVITY_TYPE_NAME" TextProperty="ActivityType.ActivityTypeName" ValueProperty="ActivityTypeId" AllowClear=true
+                                        AllowFiltering="true" ClearSearchAfterSelection="true" TabIndex="0" Disabled=@(hasACTIVITY_TYPE_IDValue) Placeholder="Seleccione un tipo de actividad" style="display: block; width: 100%" @bind-Value="@customerOrderActivityDetail.ActivityTypeId" Name="ACTIVITY_TYPE_ID"/>
                     </ChildContent>
                     <Helper>
-                        <RadzenRequiredValidator Component="ACTIVITY_TYPE_ID" DefaultValue="0" Text="El Tipo de Actividad es requerida"></RadzenRequiredValidator>
+                        <RadzenRequiredValidator Component="ACTIVITY_TYPE_ID" DefaultValue="0" Text="El tipo de actividad es requerida"></RadzenRequiredValidator>
                     </Helper>
                 </RadzenFormField>
-                <RadzenFormField Text="Empleado" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
+                <RadzenFormField Text="Responsable" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                     <ChildContent>
-                        <RadzenDropDownDataGrid Data="@employeesForACTIVITYEMPLOYEEID" TextProperty="FullName" ValueProperty="EmployeeId" AllowClear=true
-                                                Disabled=@(hasACTIVITY_EMPLOYEE_IDValue) style="display: block; width: 100%" @bind-Value="@customerOrderActivityDetail.ActivityEmployeeId" Name="ACTIVITY_EMPLOYEE_ID" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true" Placeholder="Seleccione un Empleado">
+                        <RadzenDropDownDataGrid Data="@employeesForACTIVITYEMPLOYEEID" TextProperty="FullName" ValueProperty="EmployeeId" AllowClear=true TabIndex="1"
+                                                Disabled=@(hasACTIVITY_EMPLOYEE_IDValue) style="display: block; width: 100%" @bind-Value="@customerOrderActivityDetail.ActivityEmployeeId" Name="ACTIVITY_EMPLOYEE_ID" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true" Placeholder="Seleccione el responsable">
                             <Columns>
-                                <RadzenDropDownDataGridColumn Property="EMPLOYEE.IdentityType.IdentityTypeName" Title="Tipo de Identificación" />
-                                <RadzenDropDownDataGridColumn Property="IdentityNumber" Title="Número de Identificación" />
-                                <RadzenDropDownDataGridColumn Property="FullName" Title="Nombre Completo" />
+                                <RadzenDropDownDataGridColumn Property="EMPLOYEE.IdentityType.IdentityTypeName" Title="Tipo de identificación" />
+                                <RadzenDropDownDataGridColumn Property="IdentityNumber" Title="Número de identificación" />
+                                <RadzenDropDownDataGridColumn Property="FullName" Title="Nombre completo" />
                             </Columns>
                         </RadzenDropDownDataGrid>
                     </ChildContent>
                     <Helper>
-                        <RadzenRequiredValidator Component="ACTIVITY_EMPLOYEE_ID" DefaultValue="0" Text="El Empleado de la actividad es requerido"></RadzenRequiredValidator>
+                        <RadzenRequiredValidator Component="ACTIVITY_EMPLOYEE_ID" DefaultValue="0" Text="El responsable es requerido"></RadzenRequiredValidator>
                     </Helper>
                 </RadzenFormField>
             </RadzenStack>
