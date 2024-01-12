@@ -72,7 +72,7 @@
                     <RadzenDataGridColumn TItem="ServiceModel.Item" Property="Currency.CurrencyName" Title="Moneda" Visible="false">
                     </RadzenDataGridColumn>
 
-                    <RadzenDataGridColumn TItem="ServiceModel.Item" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Item Editor")">
+                    <RadzenDataGridColumn TItem="ServiceModel.Item" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Admin","Item Editor")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                         <Template Context="item">
                             <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Actualizar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
                                           Click="@(args => EditItem(item))" @onclick:stopPropagation="true">
@@ -120,7 +120,7 @@
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="ServiceModel.ItemReference" Property="AlarmMinimumQuantity" Title="Cantidad mínima" Visible="false">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="ServiceModel.ItemReference" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Item Editor")">
+                                <RadzenDataGridColumn TItem="ServiceModel.ItemReference" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Admin","Item Editor")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                                     <Template Context="itemReference">
                                         <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Actualizar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
                                                       Click="@(args => EditItemReference(itemReference, item))" @onclick:stopPropagation="true">

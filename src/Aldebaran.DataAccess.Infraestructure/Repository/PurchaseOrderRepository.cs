@@ -35,6 +35,37 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             }
         }
 
+        public async Task ConfirmAsync(int purchaseOrderId, PurchaseOrder purchaseOrder, CancellationToken ct = default)
+        {
+            var entity = await _context.PurchaseOrders.FirstOrDefaultAsync(x => x.PurchaseOrderId == purchaseOrderId, ct) ?? throw new KeyNotFoundException($"Orden con id {purchaseOrderId} no existe.");
+            entity.RealReceiptDate = purchaseOrder.RealReceiptDate;
+            entity.ImportNumber = purchaseOrder.ImportNumber;
+            entity.EmbarkationPort = purchaseOrder.EmbarkationPort;
+            entity.ProformaNumber = purchaseOrder.ProformaNumber;
+
+            var documentType = await _context.DocumentTypes.AsNoTracking().FirstAsync(f => f.DocumentTypeCode == "O", ct);
+            var statutsDocumentType = await _context.StatusDocumentTypes.AsNoTracking().FirstAsync(f => f.DocumentTypeId == documentType.DocumentTypeId && f.StatusOrder == 2, ct);
+            entity.StatusDocumentTypeId = statutsDocumentType.StatusDocumentTypeId;
+
+            // Details
+            var details = await _context.PurchaseOrderDetails.Where(x => x.PurchaseOrderId == purchaseOrderId).ToListAsync(ct);
+            foreach (var detail in purchaseOrder.PurchaseOrderDetails)
+            {
+                var detailToUpdate = details.FirstOrDefault(f => f.PurchaseOrderDetailId == detail.PurchaseOrderDetailId);
+                if (detailToUpdate != null)
+                    detailToUpdate.ReceivedQuantity = detail.ReceivedQuantity;
+            }
+            try
+            {
+                await _context.SaveChangesAsync(ct);
+            }
+            catch
+            {
+                _context.Entry(entity).State = EntityState.Unchanged;
+                throw;
+            }
+        }
+
         public async Task<PurchaseOrder?> FindAsync(int purchaseOrderId, CancellationToken ct = default)
         {
             return await _context.PurchaseOrders.AsNoTracking()
@@ -82,14 +113,9 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .FirstOrDefaultAsync(x => x.PurchaseOrderId == purchaseOrderId, ct) ?? throw new KeyNotFoundException($"Orden con id {purchaseOrderId} no existe.");
             entity.RequestDate = purchaseOrder.RequestDate;
             entity.ExpectedReceiptDate = purchaseOrder.ExpectedReceiptDate;
-            entity.RealReceiptDate = purchaseOrder.RealReceiptDate;
             entity.ProviderId = purchaseOrder.ProviderId;
             entity.ForwarderAgentId = purchaseOrder.ForwarderAgentId;
             entity.ShipmentForwarderAgentMethodId = purchaseOrder.ShipmentForwarderAgentMethodId;
-            entity.StatusDocumentTypeId = purchaseOrder.StatusDocumentTypeId;
-            entity.ImportNumber = purchaseOrder.ImportNumber;
-            entity.EmbarkationPort = purchaseOrder.EmbarkationPort;
-            entity.ProformaNumber = purchaseOrder.ProformaNumber;
             // Details
             var details = await _context.PurchaseOrderDetails.Where(x => x.PurchaseOrderId == purchaseOrderId).ToListAsync(ct);
             _context.PurchaseOrderDetails.RemoveRange(details);

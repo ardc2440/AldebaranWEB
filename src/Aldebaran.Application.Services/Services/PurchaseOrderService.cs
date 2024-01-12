@@ -28,6 +28,12 @@ namespace Aldebaran.Application.Services
             await _repository.CancelAsync(purchaseOrderId, ct);
         }
 
+        public async Task ConfirmAsync(int purchaseOrderId, PurchaseOrder purchaseOrder, CancellationToken ct = default)
+        {
+            var entity = _mapper.Map<Entities.PurchaseOrder>(purchaseOrder) ?? throw new ArgumentNullException("Orden no puede ser nula.");
+            await _repository.ConfirmAsync(purchaseOrderId, entity, ct);
+        }
+
         public async Task<PurchaseOrder?> FindAsync(int purchaseOrderId, CancellationToken ct = default)
         {
             var data = await _repository.FindAsync(purchaseOrderId, ct);
