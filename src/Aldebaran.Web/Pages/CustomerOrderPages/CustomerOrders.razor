@@ -94,7 +94,8 @@
                                             <RadzenRow Gap="0" AlignItems="AlignItems.Center">
                                                 <RadzenColumn Size="12">
                                                     <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
-                                                        <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddActivityButtonClick" Variant="Variant.Flat" Visible="@Security.IsInRole("Admin","Customer Order Activities Editor")" />
+                                                        <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddActivityButtonClick" Variant="Variant.Flat"
+                                                                      Visible="@CanEditActivities(customerOrder).Result" />
                                                     </RadzenStack>
                                                 </RadzenColumn>
                                             </RadzenRow>
@@ -116,10 +117,10 @@
                                                         <Template Context="customerOrderActivity">
                                                             <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
                                                                           Click="@(args => EditActivityRow(customerOrderActivity))" @onclick:stopPropagation="true"
-                                                                          Visible="@Security.IsInRole("Admin","Customer Order Activities Editor")" title="Modificar Actividad">
+                                                                          Visible="@CanEditActivities(customerOrder).Result" title="Modificar Actividad">
                                                             </RadzenButton>
                                                             <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
-                                                                          Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@Security.IsInRole("Admin","Customer Order Activities Editor")"
+                                                                          Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@CanEditActivities(customerOrder).Result"
                                                                           Click=@(args => DeleteActivity(args, customerOrderActivity)) @onclick:stopPropagation="true" title="Eliminar Actividad" />
                                                         </Template>
                                                     </RadzenDataGridColumn>

@@ -252,6 +252,12 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 });
             }
         }
+
+        protected async Task<bool> CanEditActivities(CustomerOrder customerOrder)
+        {
+            return Security.IsInRole("Admin", "Customer Order Activities Editor") && customerOrder.StatusDocumentType.EditMode;
+        }
+
         #endregion
 
     }

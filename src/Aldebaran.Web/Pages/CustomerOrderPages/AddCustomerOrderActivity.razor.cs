@@ -174,27 +174,34 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected async Task OnAreaChange(object areaId)
         {
             short id = (short)areaId;
-
-            if (!customerOrderActivityDetails.Any())
+            try
             {
-                AreaId = id;
-                return;
-            }
+                if (!customerOrderActivityDetails.Any())
+                {
+                    AreaId = id;
+                    return;
+                }
 
-            if (await DialogService.Confirm("Esta seguro que desea cambiar el área, se borrara el detalle de Tipos de Actividad asociado a esta actividad?") == true)
+                if (await DialogService.Confirm("Esta seguro que desea cambiar el área, se borrara el detalle de Tipos de Actividad asociado a esta actividad?") == true)
+                {
+                    employeesForEMPLOYEEID = new List<Employee>();
+
+                    customerOrderActivityDetails.Clear();
+                    await customerOrderActivityDetailsGrid.Reload();
+
+                    AreaId = id;
+
+                    return;
+                }
+
+                customerOrderActivity.AreaId = AreaId;
+                var area = areasForAREAID.First(i => i.AreaId == AreaId);
+                await areasGrid.DataGrid.SelectRow(area, false);
+            }
+            finally
             {
-                employeesForEMPLOYEEID = new List<Employee>();
-
-                AreaId = id;
-
-                return;
+                employeesForEMPLOYEEID = await EmployeeService.GetByAreaAsync(AreaId);
             }
-
-            customerOrderActivity.AreaId = AreaId;
-            var area = areasForAREAID.First(i => i.AreaId == AreaId);
-            await areasGrid.DataGrid.SelectRow(area, false);
-
-            employeesForEMPLOYEEID = await EmployeeService.GetByAreaAsync(AreaId);
         }
         #endregion
     }
