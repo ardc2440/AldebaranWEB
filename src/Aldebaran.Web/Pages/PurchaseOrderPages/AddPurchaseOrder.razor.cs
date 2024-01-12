@@ -51,12 +51,10 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         protected ServiceModel.PurchaseOrder PurchaseOrder;
         protected IEnumerable<ServiceModel.Provider> Providers;
         protected IEnumerable<ServiceModel.ShipmentForwarderAgentMethod> ShipmentForwarderAgentMethods;
+        protected RadzenDropDownDataGrid<int> ProviderDropDownDataGrid;
 
         protected ICollection<ServiceModel.PurchaseOrderDetail> PurchaseOrderDetails = new List<ServiceModel.PurchaseOrderDetail>();
         protected RadzenDataGrid<ServiceModel.PurchaseOrderDetail> PurchaseOrderDetailGrid;
-
-        protected ICollection<ServiceModel.PurchaseOrderActivity> PurchaseOrderActivities = new List<ServiceModel.PurchaseOrderActivity>();
-        protected RadzenDataGrid<ServiceModel.PurchaseOrderActivity> PurchaseOrderActivityGrid;
         private bool Submitted = false;
         protected bool IsSubmitInProgress;
         protected string Error;
@@ -71,59 +69,8 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         #endregion
 
         #region Events
-        #region PurchaseOrderDetail
-        protected async Task AddPurchaseOrderDetail(MouseEventArgs args)
-        {
-            if (PROVIDER_ID == null)
-                return;
-            var providerReferences = await ProviderReferenceService.GetByProviderIdAsync(PROVIDER_ID.Value);
-            var itemReferences = providerReferences.Select(s => s.ItemReference).ToList();
-            var result = await DialogService.OpenAsync<AddPurchaseOrderDetail>("Nueva referencia", new Dictionary<string, object> { { "ProviderItemReferences", itemReferences.ToList() } });
-            if (result == null)
-                return;
-            var detail = (ServiceModel.PurchaseOrderDetail)result;
-            // Un detalle de orden de compra es unico por referencia y bodega
-            if (PurchaseOrderDetails.Any(a => a.ReferenceId == detail.ReferenceId && a.WarehouseId == detail.WarehouseId))
-            {
-                IsErrorVisible = true;
-                Error = "Ya existe una referencia para la misma bodega adicionada a esta orden de compra";
-                return;
-            }
-            PurchaseOrderDetails.Add(detail);
-            await PurchaseOrderDetailGrid.Reload();
-        }
-        protected async Task DeletePurchaseOrderDetail(MouseEventArgs args, ServiceModel.PurchaseOrderDetail item)
-        {
-            if (await DialogService.Confirm("Está seguro que desea eliminar esta referencia?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
-            {
-                PurchaseOrderDetails.Remove(item);
-                await PurchaseOrderDetailGrid.Reload();
-            }
-        }
-        #endregion
-
-        #region PurchaseOrderActivity
-        protected async Task AddPurchaseOrderActivity(MouseEventArgs args)
-        {
-            var result = await DialogService.OpenAsync<AddPurchaseOrderActivity>("Nueva actividad");
-            if (result == null)
-                return;
-            var detail = (ServiceModel.PurchaseOrderActivity)result;
-            PurchaseOrderActivities.Add(detail);
-            await PurchaseOrderActivityGrid.Reload();
-        }
-        protected async Task DeletePurchaseOrderActivity(MouseEventArgs args, ServiceModel.PurchaseOrderActivity item)
-        {
-            if (await DialogService.Confirm("Está seguro que desea eliminar esta actividad?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
-            {
-                PurchaseOrderActivities.Remove(item);
-                await PurchaseOrderActivityGrid.Reload();
-            }
-        }
-        #endregion
-
         #region PurchaseOrder
-        private int? PROVIDER_ID { get; set; }
+        private int PROVIDER_ID { get; set; }
         protected async Task FormSubmit()
         {
             try
@@ -140,14 +87,6 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 PurchaseOrder.CreationDate = now;
                 PurchaseOrder.EmployeeId = employee.EmployeeId;
                 PurchaseOrder.StatusDocumentTypeId = statusDocumentType.StatusDocumentTypeId;
-                PurchaseOrder.PurchaseOrderActivities = PurchaseOrderActivities.Select(s => new ServiceModel.PurchaseOrderActivity
-                {
-                    ExecutionDate = s.ExecutionDate,
-                    ActivityDescription = s.ActivityDescription,
-                    CreationDate = now,
-                    EmployeeId = s.EmployeeId,
-                    ActivityEmployeeId = s.ActivityEmployeeId
-                }).ToList();
                 PurchaseOrder.PurchaseOrderDetails = PurchaseOrderDetails.Select(s => new ServiceModel.PurchaseOrderDetail
                 {
                     ReferenceId = s.ReferenceId,
@@ -185,7 +124,63 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         }
         protected async Task ProviderSelectionChange(object providerId)
         {
-            PROVIDER_ID = (int)providerId == 0 ? null : (int)providerId;
+            int id = (int)providerId;
+            if (!PurchaseOrderDetails.Any())
+            {
+                PROVIDER_ID = id;
+                return;
+            }
+
+            if (await DialogService.Confirm("Al realizar cambio de proveedor, las referencias agregadas serán borradas, esta seguro que desea cambiar de proveedor?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
+            {
+                PurchaseOrderDetails = new List<ServiceModel.PurchaseOrderDetail>();
+                PROVIDER_ID = id;
+                return;
+            }
+            PurchaseOrder.ProviderId = PROVIDER_ID;
+            var p = Providers.First(p => p.ProviderId == PROVIDER_ID);
+            await ProviderDropDownDataGrid.DataGrid.SelectRow(p, false);
+        }
+        #endregion
+
+        #region PurchaseOrderDetail
+        protected async Task AddPurchaseOrderDetail(MouseEventArgs args)
+        {
+            if (PurchaseOrder.ProviderId == 0)
+                return;
+            var providerReferences = await ProviderReferenceService.GetByProviderIdAsync(PurchaseOrder.ProviderId);
+            var itemReferences = providerReferences.Select(s => s.ItemReference).ToList();
+            var result = await DialogService.OpenAsync<AddPurchaseOrderDetail>("Nueva referencia",
+                new Dictionary<string, object> {
+                    { "ProviderItemReferences", itemReferences.ToList() },
+                    { "PurchaseOrderDetails", PurchaseOrderDetails.ToList() }
+                });
+            if (result == null)
+                return;
+            var detail = (ServiceModel.PurchaseOrderDetail)result;
+            PurchaseOrderDetails.Add(detail);
+            await PurchaseOrderDetailGrid.Reload();
+        }
+        protected async Task DeletePurchaseOrderDetail(MouseEventArgs args, ServiceModel.PurchaseOrderDetail item)
+        {
+            if (await DialogService.Confirm("Está seguro que desea eliminar esta referencia?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
+            {
+                PurchaseOrderDetails.Remove(item);
+                await PurchaseOrderDetailGrid.Reload();
+            }
+        }
+        protected async Task EditPurchaseOrderDetail(MouseEventArgs args, ServiceModel.PurchaseOrderDetail item)
+        {
+            var providerReferences = await ProviderReferenceService.GetByProviderIdAsync(PurchaseOrder.ProviderId);
+            var itemReferences = providerReferences.Select(s => s.ItemReference).ToList();
+            var result = await DialogService.OpenAsync<EditPurchaseOrderDetail>("Actualizar referencia",
+                new Dictionary<string, object> {
+                    { "PurchaseOrderDetail", item },
+                    { "PurchaseOrderDetails", PurchaseOrderDetails.ToList() }
+                });
+            if (result == null)
+                return;
+            await PurchaseOrderDetailGrid.Reload();
         }
         #endregion
         #endregion

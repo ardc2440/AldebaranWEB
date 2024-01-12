@@ -5,14 +5,6 @@
 
 <PageTitle>Clientes</PageTitle>
 <RadzenStack>
-    @if (DialogResult != null && DialogResult.Success)
-    {
-        <RadzenAlert @bind-Visible="DialogResult.Visible" Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Success">@DialogResult.Message</RadzenAlert>
-    }
-    @if (DialogResult != null && !DialogResult.Success)
-    {
-        <RadzenAlert @bind-Visible="DialogResult.Visible" Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger">@DialogResult.Message</RadzenAlert>
-    }
     <RadzenRow AlignItems="AlignItems.Center">
         <RadzenColumn Size="12">
             <RadzenText Text="Clientes" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
@@ -65,7 +57,7 @@
                         <Template Context="customer">
                             <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditCustomer(customer))" @onclick:stopPropagation="true">
                             </RadzenButton>
-                            <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
+                            <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Eliminar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
                                           Shade="Shade.Lighter" Variant="Variant.Flat"
                                           Click=@(args => DeleteCustomer(args, customer)) @onclick:stopPropagation="true" />
                         </Template>
@@ -98,7 +90,7 @@
                                     <Template Context="customerContact">
                                         <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditCustomerContact(customerContact, customer))" @onclick:stopPropagation="true">
                                         </RadzenButton>
-                                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Shade="Shade.Lighter" Variant="Variant.Flat"
+                                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Shade="Shade.Lighter" Variant="Variant.Flat" MouseEnter="@(args => ShowTooltip(args,"Eliminar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
                                                       Click=@(args => DeleteCustomerContact(args, customerContact)) @onclick:stopPropagation="true" />
                                     </Template>
                                 </RadzenDataGridColumn>

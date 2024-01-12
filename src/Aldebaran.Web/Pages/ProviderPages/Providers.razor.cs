@@ -1,5 +1,4 @@
 using Aldebaran.Application.Services;
-using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -25,6 +24,9 @@ namespace Aldebaran.Web.Pages.ProviderPages
         protected SecurityService Security { get; set; }
 
         [Inject]
+        protected TooltipService TooltipService { get; set; }
+
+        [Inject]
         protected IProviderService ProviderService { get; set; }
 
         [Inject]
@@ -37,7 +39,6 @@ namespace Aldebaran.Web.Pages.ProviderPages
         protected ServiceModel.Provider Provider;
         protected LocalizedDataGrid<ServiceModel.ProviderReference> ProviderReferencesDataGrid;
         protected string search = "";
-        protected DialogResult DialogResult { get; set; }
         protected bool IsLoadingInProgress;
 
         #endregion
@@ -58,6 +59,8 @@ namespace Aldebaran.Web.Pages.ProviderPages
         #endregion
 
         #region Events
+        void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
+
         async Task GetProvidersAsync(string searchKey = null, CancellationToken ct = default)
         {
             await Task.Yield();
@@ -71,22 +74,30 @@ namespace Aldebaran.Web.Pages.ProviderPages
         }
         protected async Task AddProvider(MouseEventArgs args)
         {
-            DialogResult = null;
             var result = await DialogService.OpenAsync<AddProvider>("Nuevo proveedor", null);
             if (result == true)
             {
-                DialogResult = new DialogResult { Success = true, Message = "Proveedor creado correctamente." };
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Summary = "Proveedor",
+                    Severity = NotificationSeverity.Success,
+                    Detail = $"Proveedor creado correctamente."
+                });
             }
             await GetProvidersAsync();
             await ProvidersGrid.Reload();
         }
         protected async Task EditProvider(ServiceModel.Provider args)
         {
-            DialogResult = null;
             var result = await DialogService.OpenAsync<EditProvider>("Actualizar proveedor", new Dictionary<string, object> { { "PROVIDER_ID", args.ProviderId } });
             if (result == true)
             {
-                DialogResult = new DialogResult { Success = true, Message = "Proveedor actualizado correctamente." };
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Summary = "Proveedor",
+                    Severity = NotificationSeverity.Success,
+                    Detail = $"Proveedor actualizado correctamente."
+                });
             }
             await GetProvidersAsync();
             await ProvidersGrid.Reload();
@@ -95,12 +106,16 @@ namespace Aldebaran.Web.Pages.ProviderPages
         {
             try
             {
-                DialogResult = null;
                 if (await DialogService.Confirm("Está seguro que desea eliminar este proveedor?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
                 {
                     await ProviderService.DeleteAsync(provider.ProviderId);
                     await GetProvidersAsync();
-                    DialogResult = new DialogResult { Success = true, Message = "Proveedor eliminado correctamente." };
+                    NotificationService.Notify(new NotificationMessage
+                    {
+                        Summary = "Proveedor",
+                        Severity = NotificationSeverity.Success,
+                        Detail = $"Proveedor eliminado correctamente."
+                    });
                     await ProvidersGrid.Reload();
                 }
             }
@@ -142,11 +157,15 @@ namespace Aldebaran.Web.Pages.ProviderPages
         }
         protected async Task AddProviderReference(MouseEventArgs args, ServiceModel.Provider data)
         {
-            DialogResult = null;
             var result = await DialogService.OpenAsync<AddProviderReference>("Agregar referencia", new Dictionary<string, object> { { "PROVIDER_ID", data.ProviderId } });
             if (result == true)
             {
-                DialogResult = new DialogResult { Success = true, Message = "Referencia agregada correctamente al proveedor." };
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Summary = "Referencia",
+                    Severity = NotificationSeverity.Success,
+                    Detail = $"Referencia agregada correctamente al proveedor."
+                });
             }
             await GetProviderReferences(data);
             await ProviderReferencesDataGrid.Reload();
@@ -155,12 +174,16 @@ namespace Aldebaran.Web.Pages.ProviderPages
         {
             try
             {
-                DialogResult = null;
                 if (await DialogService.Confirm("Está seguro que desea eliminar esta referencia del proveedor?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
                 {
                     await ProviderReferenceService.DeleteAsync(providerReference.ProviderId, providerReference.ReferenceId);
                     await GetProviderReferences(Provider);
-                    DialogResult = new DialogResult { Success = true, Message = "Referencia eliminada del proveedor correctamente." };
+                    NotificationService.Notify(new NotificationMessage
+                    {
+                        Summary = "Referencia",
+                        Severity = NotificationSeverity.Success,
+                        Detail = $"Referencia eliminada correctamente al proveedor."
+                    });
                     await ProviderReferencesDataGrid.Reload();
                 }
             }
@@ -171,7 +194,7 @@ namespace Aldebaran.Web.Pages.ProviderPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido eliminar la referencia el proveedor"
+                    Detail = $"No se ha podido eliminar la referencia el proveedor."
                 });
             }
         }

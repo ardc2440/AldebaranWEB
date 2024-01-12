@@ -11,6 +11,44 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
+        public async Task AddAsync(PurchaseOrderDetail purchaseOrder, CancellationToken ct = default)
+        {
+            try
+            {
+                await _context.PurchaseOrderDetails.AddAsync(purchaseOrder, ct);
+                await _context.SaveChangesAsync(ct);
+            }
+            catch (Exception)
+            {
+                _context.Entry(purchaseOrder).State = EntityState.Unchanged;
+                throw;
+            }
+        }
+
+        public async Task DeleteAsync(int purchaseOrderDetailId, CancellationToken ct = default)
+        {
+            var entity = await _context.PurchaseOrderDetails.FirstOrDefaultAsync(x => x.PurchaseOrderDetailId == purchaseOrderDetailId, ct) ?? throw new KeyNotFoundException($"Detalle de la orden de compra con id {purchaseOrderDetailId} no existe.");
+            _context.PurchaseOrderDetails.Remove(entity);
+            try
+            {
+                await _context.SaveChangesAsync(ct);
+            }
+            catch
+            {
+                _context.Entry(entity).State = EntityState.Unchanged;
+                throw;
+            }
+        }
+
+        public async Task<PurchaseOrderDetail?> FindAsync(int purchaseOrderDetailId, CancellationToken ct = default)
+        {
+            return await _context.PurchaseOrderDetails.AsNoTracking()
+                .Include(p => p.PurchaseOrder)
+                .Include(p => p.ItemReference.Item.Line)
+                .Include(p => p.Warehouse)
+                .FirstOrDefaultAsync(p => p.PurchaseOrderDetailId == purchaseOrderDetailId, ct);
+        }
+
         public async Task<IEnumerable<PurchaseOrderDetail>> GetByPurchaseOrderIdAsync(int purchaseOrderId, CancellationToken ct = default)
         {
             return await _context.PurchaseOrderDetails.AsNoTracking()
@@ -29,6 +67,23 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .Include(p => p.Warehouse)
                 .Where(p => p.ReferenceId.Equals(referenceId) && p.PurchaseOrder.StatusDocumentTypeId.Equals(statusOrder))
                 .ToListAsync(ct);
+        }
+
+        public async Task UpdateAsync(int purchaseOrderDetailId, PurchaseOrderDetail purchaseOrder, CancellationToken ct = default)
+        {
+            var entity = await _context.PurchaseOrderDetails.FirstOrDefaultAsync(x => x.PurchaseOrderDetailId == purchaseOrderDetailId, ct) ?? throw new KeyNotFoundException($"Detalle de la orden de compra con id {purchaseOrderDetailId} no existe.");
+            entity.WarehouseId = purchaseOrder.WarehouseId;
+            entity.ReceivedQuantity = purchaseOrder.ReceivedQuantity;
+            entity.RequestedQuantity = purchaseOrder.RequestedQuantity;
+            try
+            {
+                await _context.SaveChangesAsync(ct);
+            }
+            catch (Exception)
+            {
+                _context.Entry(entity).State = EntityState.Unchanged;
+                throw;
+            }
         }
     }
 }

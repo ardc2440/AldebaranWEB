@@ -5,7 +5,6 @@
     <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">No se ha podido actualizar el artículo</RadzenAlert>
     <RadzenTemplateForm TItem="ServiceModel.Item" Data="@Item" Visible="@(Item != null)" Submit="@FormSubmit">
         <RadzenStack>
-            zenStack>
             <RadzenFormField Text="Nombre" Variant="Variant.Text">
                 <ChildContent>
                     <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Item.ItemName" Name="ItemName" />

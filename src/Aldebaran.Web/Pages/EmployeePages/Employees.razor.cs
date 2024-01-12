@@ -1,5 +1,4 @@
 ﻿using Aldebaran.Application.Services;
-using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Resources.LocalizedControls;
 using AutoMapper;
 using Microsoft.AspNetCore.Components;
@@ -25,6 +24,9 @@ namespace Aldebaran.Web.Pages.EmployeePages
         protected SecurityService Security { get; set; }
 
         [Inject]
+        protected TooltipService TooltipService { get; set; }
+
+        [Inject]
         protected IMapper Mapper { get; set; }
 
         [Inject]
@@ -36,7 +38,6 @@ namespace Aldebaran.Web.Pages.EmployeePages
         protected LocalizedDataGrid<ViewModels.EmployeeViewModel> EmployeesGrid;
         protected ViewModels.EmployeeViewModel Employee;
         protected string search = "";
-        protected DialogResult DialogResult { get; set; }
         protected bool IsLoadingInProgress;
         #endregion
 
@@ -56,6 +57,8 @@ namespace Aldebaran.Web.Pages.EmployeePages
         #endregion
 
         #region Events
+        void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
+
         protected async Task Search(ChangeEventArgs args)
         {
             search = $"{args.Value}";
@@ -76,11 +79,15 @@ namespace Aldebaran.Web.Pages.EmployeePages
 
         protected async Task AddEmployee(MouseEventArgs args)
         {
-            DialogResult = null;
             var result = await DialogService.OpenAsync<AddEmployee>("Nuevo Funcionario");
             if (result == true)
             {
-                DialogResult = new DialogResult { Success = true, Message = "Funcionario creado correctamente." };
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Summary = "Funcionario",
+                    Severity = NotificationSeverity.Success,
+                    Detail = $"Funcionario creado correctamente."
+                });
             }
             await GetEmployeesAsync();
             await EmployeesGrid.Reload();
@@ -88,11 +95,15 @@ namespace Aldebaran.Web.Pages.EmployeePages
 
         protected async Task EditEmployee(ViewModels.EmployeeViewModel args)
         {
-            DialogResult = null;
             var result = await DialogService.OpenAsync<EditEmployee>("Actualizar Funcionario", new Dictionary<string, object> { { "EMPLOYEE_ID", args.EmployeeId } });
             if (result == true)
             {
-                DialogResult = new DialogResult { Success = true, Message = "Funcionario actualizado correctamente." };
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Summary = "Funcionario",
+                    Severity = NotificationSeverity.Success,
+                    Detail = $"Funcionario actualizado correctamente."
+                });
             }
             await GetEmployeesAsync();
             await EmployeesGrid.Reload();
@@ -102,12 +113,16 @@ namespace Aldebaran.Web.Pages.EmployeePages
         {
             try
             {
-                DialogResult = null;
                 if (await DialogService.Confirm("Está seguro que desea eliminar este funcionario?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
                 {
                     await EmployeeService.DeleteAsync(employee.EmployeeId);
                     await GetEmployeesAsync();
-                    DialogResult = new DialogResult { Success = true, Message = "Funcionario eliminado correctamente." };
+                    NotificationService.Notify(new NotificationMessage
+                    {
+                        Summary = "Funcionario",
+                        Severity = NotificationSeverity.Success,
+                        Detail = $"Funcionario eliminado correctamente."
+                    });
                     await EmployeesGrid.Reload();
                 }
             }
@@ -118,7 +133,7 @@ namespace Aldebaran.Web.Pages.EmployeePages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido eliminar el cliente"
+                    Detail = $"No se ha podido eliminar el funcionario."
                 });
             }
         }

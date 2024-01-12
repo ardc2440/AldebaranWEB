@@ -5,14 +5,6 @@
 
 <PageTitle>Proveedores</PageTitle>
 <RadzenStack>
-    @if (DialogResult != null && DialogResult.Success)
-    {
-        <RadzenAlert Shade="Shade.Lighter" @bind-Visible="DialogResult.Visible" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Success">@DialogResult.Message</RadzenAlert>
-    }
-    @if (DialogResult != null && !DialogResult.Success)
-    {
-        <RadzenAlert Shade="Shade.Lighter" @bind-Visible="DialogResult.Visible" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger">@DialogResult.Message</RadzenAlert>
-    }
     <RadzenRow AlignItems="AlignItems.Center">
         <RadzenColumn Size="12">
             <RadzenText Text="Proveedores" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
@@ -54,9 +46,10 @@
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="ServiceModel.Provider" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Provider Editor")">
                         <Template Context="provider">
-                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditProvider(provider))" @onclick:stopPropagation="true">
+                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Actualizar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
+                                          Click="@(args => EditProvider(provider))" @onclick:stopPropagation="true">
                             </RadzenButton>
-                            <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
+                            <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Eliminar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
                                           Shade="Shade.Lighter" Variant="Variant.Flat"
                                           Click=@(args => DeleteProvider(args, provider)) @onclick:stopPropagation="true" />
                         </Template>
@@ -105,7 +98,7 @@
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="ServiceModel.ProviderReference" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Provider Editor")">
                                     <Template Context="itemReference">
-                                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Shade="Shade.Lighter" Variant="Variant.Flat"
+                                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Shade="Shade.Lighter" Variant="Variant.Flat" MouseEnter="@(args => ShowTooltip(args,"Eliminar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
                                                       Click=@(args => DeleteProviderReference(args, itemReference)) @onclick:stopPropagation="true" />
                                     </Template>
                                 </RadzenDataGridColumn>

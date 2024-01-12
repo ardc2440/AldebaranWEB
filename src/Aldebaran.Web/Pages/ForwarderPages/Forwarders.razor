@@ -1,18 +1,10 @@
 @page "/forwarders"
-@attribute [Authorize(Roles="Admin,Forwarder Viwer,Forwarder Editor")]
+@attribute [Authorize(Roles = "Admin,Forwarder Viwer,Forwarder Editor")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @using ServiceModel = Aldebaran.Application.Services.Models;
 
 <PageTitle>Transportadoras</PageTitle>
 <RadzenStack>
-    @if (DialogResult != null && DialogResult.Success)
-    {
-        <RadzenAlert Shade="Shade.Lighter" @bind-Visible="DialogResult.Visible" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Success">@DialogResult.Message</RadzenAlert>
-    }
-    @if (DialogResult != null && !DialogResult.Success)
-    {
-        <RadzenAlert Shade="Shade.Lighter" @bind-Visible="DialogResult.Visible" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger">@DialogResult.Message</RadzenAlert>
-    }
     <RadzenRow AlignItems="AlignItems.Center">
         <RadzenColumn Size="12">
             <RadzenText Text="Transportadoras" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
@@ -50,9 +42,10 @@
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="ServiceModel.Forwarder" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Forwarder Editor")">
                         <Template Context="forwarder">
-                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditForwarder(forwarder))" @onclick:stopPropagation="true">
+                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Actualizar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
+                                          Click="@(args => EditForwarder(forwarder))" @onclick:stopPropagation="true">
                             </RadzenButton>
-                            <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
+                            <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Eliminar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
                                           Shade="Shade.Lighter" Variant="Variant.Flat"
                                           Click=@(args => DeleteForwarder(args, forwarder)) @onclick:stopPropagation="true" />
                         </Template>
@@ -71,7 +64,7 @@
                             </RadzenColumn>
                         </RadzenRow>
                         <LocalizedDataGrid ColumnWidth="200px" Visible="@(forwarder != null)" @ref=ForwarderAgentsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                        Data="@forwarder?.ForwarderAgents" RowExpand=@GetShipmentForwarderAgentMethods TItem="ServiceModel.ForwarderAgent" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowColumnReorder="true" IsLoading="@IsLoadingInProgress">
+                                           Data="@forwarder?.ForwarderAgents" RowExpand=@GetShipmentForwarderAgentMethods TItem="ServiceModel.ForwarderAgent" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowColumnReorder="true" IsLoading="@IsLoadingInProgress">
                             <Columns>
                                 <RadzenDataGridColumn TItem="ServiceModel.ForwarderAgent" Property="ForwarderAgentName" Title="Nombre">
                                 </RadzenDataGridColumn>
@@ -96,9 +89,10 @@
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="ServiceModel.ForwarderAgent" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Forwarder Editor")">
                                     <Template Context="forwarderAgent">
-                                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditForwarderAgent(forwarderAgent,forwarder))" @onclick:stopPropagation="true">
+                                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Actualizar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
+                                                      Click="@(args => EditForwarderAgent(forwarderAgent,forwarder))" @onclick:stopPropagation="true">
                                         </RadzenButton>
-                                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Shade="Shade.Lighter" Variant="Variant.Flat"
+                                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Shade="Shade.Lighter" Variant="Variant.Flat" MouseEnter="@(args => ShowTooltip(args,"Eliminar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
                                                       Click=@(args => DeleteForwarderAgent(args, forwarderAgent)) @onclick:stopPropagation="true" />
                                     </Template>
                                 </RadzenDataGridColumn>
@@ -116,7 +110,7 @@
                                         </RadzenColumn>
                                     </RadzenRow>
                                     <LocalizedDataGrid ColumnWidth="200px" Visible="@(ForwarderAgent != null)" @ref=ShipmentForwarderAgentMethodDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                                    Data="@ForwarderAgent?.ShipmentForwarderAgentMethods" TItem="ServiceModel.ShipmentForwarderAgentMethod" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowColumnReorder="true" IsLoading="@IsLoadingInProgress">
+                                                       Data="@ForwarderAgent?.ShipmentForwarderAgentMethods" TItem="ServiceModel.ShipmentForwarderAgentMethod" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowColumnReorder="true" IsLoading="@IsLoadingInProgress">
                                         <Columns>
                                             <RadzenDataGridColumn TItem="ServiceModel.ShipmentForwarderAgentMethod" Property="ShipmentMethod.ShipmentMethodName" Title="Método de envío">
                                             </RadzenDataGridColumn>
@@ -124,7 +118,7 @@
                                             </RadzenDataGridColumn>
                                             <RadzenDataGridColumn TItem="ServiceModel.ShipmentForwarderAgentMethod" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Forwarder Editor")">
                                                 <Template Context="shipmentForwarderAgent">
-                                                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Shade="Shade.Lighter" Variant="Variant.Flat"
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Shade="Shade.Lighter" Variant="Variant.Flat" MouseEnter="@(args => ShowTooltip(args,"Eliminar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
                                                                   Click=@(args => DeleteShipmentForwarderAgentMethod(args, shipmentForwarderAgent)) @onclick:stopPropagation="true" />
                                                 </Template>
                                             </RadzenDataGridColumn>

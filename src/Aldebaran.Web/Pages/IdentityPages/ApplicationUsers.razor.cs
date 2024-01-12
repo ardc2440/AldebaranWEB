@@ -1,6 +1,5 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Web.Models;
-using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
 using Radzen;
@@ -32,7 +31,6 @@ namespace Aldebaran.Web.Pages.IdentityPages
         protected IEnumerable<ApplicationUser> ApplicationUser;
         protected LocalizedDataGrid<ApplicationUser> ApplicationUserDataGrid;
         protected bool IsErrorVisible;
-        protected DialogResult DialogResult { get; set; }
         #endregion
 
         #region Overrides
@@ -51,22 +49,30 @@ namespace Aldebaran.Web.Pages.IdentityPages
         }
         protected async Task AddApplicationUser()
         {
-            DialogResult = null;
             var result = await DialogService.OpenAsync<AddApplicationUser>("Nuevo inicio de sesión");
             if (result == true)
             {
-                DialogResult = new DialogResult { Success = true, Message = "Inicio de sesión creado correctamente." };
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Summary = "Inicio de sesión",
+                    Severity = NotificationSeverity.Success,
+                    Detail = $"Inicio de sesión creado correctamente"
+                });
             }
             await GetUsers();
             await ApplicationUserDataGrid.Reload();
         }
         protected async Task EditApplicationUser(ApplicationUser user)
         {
-            DialogResult = null;
             var result = await DialogService.OpenAsync<EditApplicationUser>("Actualizar inicio de sesión", new Dictionary<string, object> { { "Id", user.Id } });
             if (result == true)
             {
-                DialogResult = new DialogResult { Success = true, Message = "Inicio de sesión actualizado correctamente." };
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Summary = "Inicio de sesión",
+                    Severity = NotificationSeverity.Success,
+                    Detail = $"Inicio de sesión actualizado correctamente"
+                });
             }
             await GetUsers();
             await ApplicationUserDataGrid.Reload();
@@ -75,7 +81,6 @@ namespace Aldebaran.Web.Pages.IdentityPages
         {
             try
             {
-                DialogResult = null;
                 var confirm = await DialogService.Confirm("Está seguro que desea eliminar este inicio de sesión?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación");
                 if (confirm == false)
                     return;
@@ -84,14 +89,24 @@ namespace Aldebaran.Web.Pages.IdentityPages
                 var employee = await EmployeeService.FindByLoginUserIdAsync(user.Id);
                 if (employee != null)
                 {
-                    DialogResult = new DialogResult { Success = false, Message = $"Inicio de sesión pertenece a un funcionario, elimine primero el funcionario \"({employee.Position}) - {employee.FullName}\" asociado al inicio de sesión y posteriormente proceda con la eliminación del inicio de sesión." };
+                    NotificationService.Notify(new NotificationMessage
+                    {
+                        Summary = "Inicio de sesión",
+                        Severity = NotificationSeverity.Success,
+                        Detail = $"Inicio de sesión pertenece a un funcionario, elimine primero el funcionario \"({employee.Position}) - {employee.FullName}\" asociado al inicio de sesión y posteriormente proceda con la eliminación del inicio de sesión."
+                    });
                     return;
                 }
 
                 var result = await Security.DeleteUser($"{user.Id}");
                 if (result != null)
                 {
-                    DialogResult = new DialogResult { Success = true, Message = "Inicio de sesión eliminado correctamente." };
+                    NotificationService.Notify(new NotificationMessage
+                    {
+                        Summary = "Inicio de sesión",
+                        Severity = NotificationSeverity.Success,
+                        Detail = "Inicio de sesión eliminado correctamente."
+                    });
                 }
                 await GetUsers();
                 await ApplicationUserDataGrid.Reload();
@@ -111,13 +126,17 @@ namespace Aldebaran.Web.Pages.IdentityPages
         {
             try
             {
-                DialogResult = null;
                 var confirm = await DialogService.Confirm("Desea bloquear el ingreso de este usuario?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación");
                 if (confirm == false)
                     return;
 
                 await Security.LockUser(user.Id);
-                DialogResult = new DialogResult { Success = true, Message = "Usuario bloqueado correctamente." };
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Summary = "Inicio de sesión",
+                    Severity = NotificationSeverity.Success,
+                    Detail = "Usuario bloqueado correctamente."
+                });
                 await GetUsers();
                 await ApplicationUserDataGrid.Reload();
             }
@@ -128,7 +147,7 @@ namespace Aldebaran.Web.Pages.IdentityPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido bloquear el usuario"
+                    Detail = $"No se ha podido bloquear el usuario."
                 });
             }
         }
@@ -136,13 +155,17 @@ namespace Aldebaran.Web.Pages.IdentityPages
         {
             try
             {
-                DialogResult = null;
                 var confirm = await DialogService.Confirm("Desea desbloquear el ingreso de este usuario?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación");
                 if (confirm == false)
                     return;
 
                 await Security.UnlockUser(user.Id);
-                DialogResult = new DialogResult { Success = true, Message = "Usuario desbloqueado correctamente." };
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Summary = "Inicio de sesión",
+                    Severity = NotificationSeverity.Success,
+                    Detail = "Usuario desbloqueado correctamente."
+                });
                 await GetUsers();
                 await ApplicationUserDataGrid.Reload();
             }
@@ -153,7 +176,7 @@ namespace Aldebaran.Web.Pages.IdentityPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido desbloquear el usuario"
+                    Detail = $"No se ha podido desbloquear el usuario."
                 });
             }
         }

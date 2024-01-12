@@ -16,16 +16,16 @@ namespace Aldebaran.Application.Services
             _mapper = mapper ?? throw new ArgumentNullException(nameof(IMapper));
         }
 
-        public async Task<PurchaseOrder> AddAsync(PurchaseOrder item, CancellationToken ct = default)
+        public async Task<PurchaseOrder> AddAsync(PurchaseOrder purchaseOrder, CancellationToken ct = default)
         {
-            var entity = _mapper.Map<Entities.PurchaseOrder>(item) ?? throw new ArgumentNullException("Orden no puede ser nula.");
+            var entity = _mapper.Map<Entities.PurchaseOrder>(purchaseOrder) ?? throw new ArgumentNullException("Orden no puede ser nula.");
             var result = await _repository.AddAsync(entity, ct);
             return _mapper.Map<PurchaseOrder>(result);
         }
 
-        public async Task DeleteAsync(int purchaseOrderId, CancellationToken ct = default)
+        public async Task CancelAsync(int purchaseOrderId, CancellationToken ct = default)
         {
-            await _repository.DeleteAsync(purchaseOrderId, ct);
+            await _repository.CancelAsync(purchaseOrderId, ct);
         }
 
         public async Task<PurchaseOrder?> FindAsync(int purchaseOrderId, CancellationToken ct = default)
@@ -44,6 +44,12 @@ namespace Aldebaran.Application.Services
         {
             var data = await _repository.GetAsync(searchKey, ct);
             return _mapper.Map<List<PurchaseOrder>>(data);
+        }
+
+        public async Task UpdateAsync(int purchaseOrderId, PurchaseOrder purchaseOrder, CancellationToken ct = default)
+        {
+            var entity = _mapper.Map<Entities.PurchaseOrder>(purchaseOrder) ?? throw new ArgumentNullException("Orden no puede ser nula.");
+            await _repository.UpdateAsync(purchaseOrderId, entity, ct);
         }
     }
 }
