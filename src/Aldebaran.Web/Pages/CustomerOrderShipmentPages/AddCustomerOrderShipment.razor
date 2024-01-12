@@ -4,7 +4,7 @@
 @using Aldebaran.Web.Resources.LocalizedControls;
 @inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer
 
-<PageTitle>Pedido de Articulos</PageTitle>
+<PageTitle>Pedido de artículos</PageTitle>
 <RadzenCard>
     <RadzenStack>
         <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerOrder" Data="@customerOrder" Visible="@(customerOrder != null)" Submit="@FormSubmit">
@@ -47,13 +47,13 @@
                             <RadzenColumn SizeMD="5">
                                 <RadzenStack>
                                     <RadzenColumn SizeMD="3">
-                                        <RadzenLabel Text="Fecha de Pedido" class="fw-bold" style="width: 100%" />
+                                        <RadzenLabel Text="Fecha de pedido" class="fw-bold" style="width: 100%" />
                                     </RadzenColumn>
                                     <RadzenColumn SizeMD="3">
                                         <span>@(customerOrder.OrderDate.ToString(@SharedLocalizer["date:format"])) </span>
                                     </RadzenColumn>
                                     <RadzenColumn SizeMD="3">
-                                        <RadzenLabel Text="Fecha Pactada de Entrega" class="fw-bold" style="width: 100%" />
+                                        <RadzenLabel Text="Fecha pactada de entrega" class="fw-bold" style="width: 100%" />
                                     </RadzenColumn>
                                     <RadzenColumn SizeMD="3">
                                         <span>@(customerOrder.EstimatedDeliveryDate.ToString(@SharedLocalizer["date:format"]))</span>
@@ -63,36 +63,39 @@
                         </RadzenRow>
                         <RadzenCard class="m-3">
                             <RadzenColumn Size="6">
-                                <RadzenText Text="Datos del Despacho" TextStyle="TextStyle.H5" TagName="TagName.H1" style="margin: 0" />
+                                <RadzenText Text="Datos del despacho" TextStyle="TextStyle.H5" TagName="TagName.H1" style="margin: 0" />
                             </RadzenColumn>
                             <RadzenRow style="margin-bottom: 1rem">
-                                <RadzenFormField Text="Fecha de Despacho" Variant="Variant.Text" class="fw-bold">
+                                <RadzenFormField Text="Fecha de despacho" Variant="Variant.Text" class="fw-bold">
                                     <ChildContent>
-                                        <RadzenDatePicker Name="ShippingDate" @bind-Value="@customerOrderShipment.ShippingDate" DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" Placeholder="Seleccione la Fecha del despacho" />
+                                        <RadzenDatePicker Name="ShippingDate" @bind-Value="@customerOrderShipment.ShippingDate" DateFormat="@SharedLocalizer["date:format"]"
+                                                          TabIndex="0" style="display: block; width: 100%" Placeholder="Seleccione la fecha del despacho" />
                                     </ChildContent>
                                     <Helper>
                                         <RadzenRequiredValidator Text="La fecha de despacho es requerida" Component="ShippingDate" />
                                     </Helper>
                                 </RadzenFormField>
-                                <RadzenFormField Text="Número de Guia" Variant="Variant.Text" class="fw-bold">
+                                <RadzenFormField Text="Número de guía" Variant="Variant.Text" class="fw-bold">
                                     <ChildContent>
-                                        <RadzenTextBox @bind-Value="@customerOrderShipment.TrackingNumber" style="display: block; width: 100%" Placeholder="Seleccione la Fecha del despacho" />
+                                        <RadzenTextBox @bind-Value="@customerOrderShipment.TrackingNumber" style="display: block; width: 100%"
+                                                       TabIndex="1" Placeholder="Seleccione la fecha del despacho" />
                                     </ChildContent>
                                 </RadzenFormField>
                                 <RadzenFormField Text="Remisión" Variant="Variant.Text" class="fw-bold">
                                     <ChildContent>
-                                        <RadzenTextBox Name="DELIVERY_NOTE" @bind-Value="@customerOrderShipment.DeliveryNote" style="display: block; width: 100%" Placeholder="Seleccione la Fecha del despacho" />
+                                        <RadzenTextBox Name="DELIVERY_NOTE" @bind-Value="@customerOrderShipment.DeliveryNote" style="display: block; width: 100%"
+                                                       TabIndex="2" Placeholder="Seleccione la fecha del despacho" />
                                     </ChildContent>
                                     <Helper>
                                         <RadzenRequiredValidator Component="DELIVERY_NOTE" Text="La remisión es requerida"></RadzenRequiredValidator>
                                     </Helper>
                                 </RadzenFormField>
-                                <RadzenFormField Text="Método de Envío" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
+                                <RadzenFormField Text="Método de envío" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                                     <ChildContent>
                                         <RadzenDropDownDataGrid Data="@shippingMethodsFORSHIPPINGMETHODID" TextProperty="ShippingMethodName" ValueProperty="ShippingMethodId" AllowClear=true
                                                                 style="display: block; width: 100%" @bind-Value="@customerOrderShipment.ShippingMethodId" Name="SHIPING_METHOD_ID"
                                                                 FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true"
-                                                                Placeholder="Seleccione un Metodo de Envío">
+                                                                TabIndex="3" Placeholder="Seleccione el metodo de envío">
                                             <Columns>
                                                 <RadzenDropDownDataGridColumn Property="ShippingMethodName" Title="Método" />
                                             </Columns>
@@ -106,18 +109,17 @@
                                     <ChildContent>
                                         <RadzenDropDownDataGrid Data="@employeesFOREMPLOYEEID" TextProperty="FullName" ValueProperty="EmployeeId" AllowClear=true
                                                                 style="display: block; width: 100%" @bind-Value="@customerOrderShipment.EmployeeId" Name="EMPLOYEE_ID"
-                                                                FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive"
-                                                                AllowFilteringByAllStringColumns="true"
-                                                                Placeholder="Seleccione un Empleado">
+                                                                FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true"
+                                                                TabIndex="4" Placeholder="Seleccione un empleado">
                                             <Columns>
-                                                <RadzenDropDownDataGridColumn Property="EMPLOYEE.IdentityType.IdentityTypeName" Title="Tipo de Identificación" />
-                                                <RadzenDropDownDataGridColumn Property="IdentityNumber" Title="Número de Identificación" />
-                                                <RadzenDropDownDataGridColumn Property="FullName" Title="Nombre Completo" />
+                                                <RadzenDropDownDataGridColumn Property="EMPLOYEE.IdentityType.IdentityTypeName" Title="Tipo de identificación" />
+                                                <RadzenDropDownDataGridColumn Property="IdentityNumber" Title="Número de identificación" />
+                                                <RadzenDropDownDataGridColumn Property="FullName" Title="Nombre completo" />
                                             </Columns>
                                         </RadzenDropDownDataGrid>
                                     </ChildContent>
                                     <Helper>
-                                        <RadzenNumericRangeValidator Component="EMPLOYEE_ID" Min="1" Text="El Empleado es requerido"></RadzenNumericRangeValidator>
+                                        <RadzenNumericRangeValidator Component="EMPLOYEE_ID" Min="1" Text="El empleado es requerido"></RadzenNumericRangeValidator>
                                     </Helper>
                                 </RadzenFormField>
                                 <RadzenFormField Text="Notas" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">

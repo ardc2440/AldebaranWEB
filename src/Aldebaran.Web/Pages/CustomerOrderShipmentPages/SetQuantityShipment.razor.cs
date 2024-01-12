@@ -83,10 +83,11 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
                 if ((detailInProcess.PROCESSED_QUANTITY + DetailInProcess.THIS_QUANTITY) < detailInProcess.THIS_QUANTITY)
                     throw new Exception("La cantidad de este despacho debe ser menor o igual a la cantidad pendiente del artículo");
 
-                if (await DialogService.Confirm("Está seguro que desea despachar esta cantidad de la referencia?", "Confirmar") == true)
+                if (await DialogService.Confirm("Está seguro que desea despachar esta referencia?", "Confirmar") == true)
                 {
                     DetailInProcess.WAREHOUSE_ID = detailInProcess.WAREHOUSE_ID;
                     DetailInProcess.PROCESSED_QUANTITY = (detailInProcess.PROCESSED_QUANTITY + DetailInProcess.THIS_QUANTITY) - detailInProcess.THIS_QUANTITY;
+                    DetailInProcess.DELIVERED_QUANTITY = (detailInProcess.DELIVERED_QUANTITY - DetailInProcess.THIS_QUANTITY) + detailInProcess.THIS_QUANTITY;
                     DetailInProcess.THIS_QUANTITY = detailInProcess.THIS_QUANTITY;
 
                     DialogService.Close(DetailInProcess);

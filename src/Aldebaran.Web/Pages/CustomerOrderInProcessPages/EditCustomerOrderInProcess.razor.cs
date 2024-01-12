@@ -76,7 +76,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                 await Task.Yield();
 
                 if (!int.TryParse(CustomerOrderInProcessId, out var customerOrderInProcessId))
-                    throw new Exception("El Id de Traslado recibido no es valido");
+                    throw new Exception("El Id de traslado recibido no es valido");
 
                 documentType = await DocumentTypeService.FindByCodeAsync("T");
 
@@ -89,7 +89,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                 processSatellitesFORPROCESSSATELLITEID = await ProcessSatelliteService.GetAsync();
                 employeesFOREMPLOYEEID = await EmployeeService.GetAsync();
 
-                title = $"modificación del Traslado a Proceso para el Pedido No. {customerOrder.OrderNumber}";
+                title = $"Modificación del traslado a proceso para el pedido No. {customerOrder.OrderNumber}";
             }
             catch (Exception ex)
             {
@@ -154,7 +154,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
                 await CustomerOrdersInProcessService.UpdateAsync(customerOrderInProcess.CustomerOrderInProcessId, customerOrderInProcess);
 
-                await DialogService.Alert($"Pedido de Articulos Modificado Satisfactoriamente", "Información");
+                await DialogService.Alert($"Pedido de artículos modificado satisfactoriamente", "Información");
                 NavigationManager.NavigateTo("process-customer-orders");
             }
             catch (Exception ex)
@@ -179,7 +179,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
-            if (await DialogService.Confirm("Está seguro que cancelar la modificación del Traslado??", "Confirmar") == true)
+            if (await DialogService.Confirm("Está seguro que desea cancelar la modificación del traslado??", "Confirmar") == true)
                 NavigationManager.NavigateTo("process-customer-orders");
         }
 

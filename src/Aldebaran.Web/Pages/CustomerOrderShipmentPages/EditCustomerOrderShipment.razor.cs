@@ -76,7 +76,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
                 await Task.Yield();
 
                 if (!int.TryParse(CustomerOrderShipmentId, out var customerOrderShipmentId))
-                    throw new Exception("El Id de Traslado recibido no es valido");
+                    throw new Exception("El Id de despacho recibido no es valido");
 
                 documentType = await DocumentTypeService.FindByCodeAsync("T");
 
@@ -89,7 +89,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
                 shippingMethodsFORSHIPPINGMETHODID = await ShippingMethodService.GetAsync();
                 employeesFOREMPLOYEEID = await EmployeeService.GetAsync();
 
-                title = $"modificación del despacho para el Pedido No. {customerOrder.OrderNumber}";
+                title = $"Modificación del despacho para el Pedido No. {customerOrder.OrderNumber}";
             }
             catch (Exception ex)
             {
@@ -153,7 +153,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
 
                 await CustomerOrderShipmentService.UpdateAsync(customerOrderShipment.CustomerOrderShipmentId, customerOrderShipment);
 
-                await DialogService.Alert($"Pedido de Articulos Modificado Satisfactoriamente", "Información");
+                await DialogService.Alert($"Despacho de artículos modificado satisfactoriamente", "Información");
                 NavigationManager.NavigateTo("process-customer-orders");
             }
             catch (Exception ex)
@@ -177,7 +177,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
 
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
-            if (await DialogService.Confirm("Está seguro que cancelar la modificación del Despacho??", "Confirmar") == true)
+            if (await DialogService.Confirm("Está seguro que desea cancelar la modificación del despacho??", "Confirmar") == true)
                 NavigationManager.NavigateTo("shipment-customer-orders");
         }
 

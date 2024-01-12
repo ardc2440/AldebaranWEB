@@ -152,7 +152,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
             {
                 dialogResult = null;
 
-                if (await DialogService.Confirm("Esta seguro que desea cancelar este Traslado a Proceso?") == true)
+                if (await DialogService.Confirm("Está seguro que desea cancelar este traslado a proceso?") == true)
                 {
                     customerOrderShipment.StatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync((await DocumentTypeService.FindByCodeAsync("D")).DocumentTypeId, 2);
                     customerOrderShipment.StatusDocumentTypeId = customerOrderShipment.StatusDocumentType.StatusDocumentTypeId;
@@ -162,7 +162,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
 
                     await CustomerOrderShipmentService.UpdateAsync(customerOrderShipment.CustomerOrderShipmentId, customerOrderShipment);
 
-                    await DialogService.Alert($"Despacho de Pedido cancelado correctamente", "Información");
+                    await DialogService.Alert($"Despacho de pedido cancelado correctamente", "Información");
 
                     await Search(new ChangeEventArgs() { });
                 }

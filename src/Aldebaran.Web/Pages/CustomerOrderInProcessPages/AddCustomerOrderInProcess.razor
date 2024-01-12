@@ -62,20 +62,22 @@
                         </RadzenRow>
                         <RadzenCard class="m-3">
                             <RadzenColumn Size="6">
-                                <RadzenText Text="Datos del Traslado" TextStyle="TextStyle.H5" TagName="TagName.H1" style="margin: 0" />
+                                <RadzenText Text="Datos del traslado" TextStyle="TextStyle.H5" TagName="TagName.H1" style="margin: 0" />
                             </RadzenColumn>
                             <RadzenRow style="margin-bottom: 1rem">
-                                <RadzenFormField Text="Fecha de Traslado" Variant="Variant.Text" Style="width: 100%;">
+                                <RadzenFormField Text="Fecha de traslado" Variant="Variant.Text" Style="width: 100%;">
                                     <ChildContent>
-                                        <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@customerOrderInProcess.TransferDatetime" Name="TransferDatetime" Placeholder="Seleccione la fecha del traslado" TabIndex="0" />
+                                        <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@customerOrderInProcess.TransferDatetime"
+                                                          Name="TransferDatetime" Placeholder="Seleccione la fecha del traslado" TabIndex="0" />
                                     </ChildContent>
                                     <Helper>
                                         <RadzenRequiredValidator Text="La Fecha de pedido es requerida" Component="TransferDatetime" />
                                     </Helper>
                                 </RadzenFormField>
-                                <RadzenFormField Text="Fecha de Proceso" Variant="Variant.Text" Style="width: 100%;">
+                                <RadzenFormField Text="Fecha de proceso" Variant="Variant.Text" Style="width: 100%;">
                                     <ChildContent>
-                                        <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@customerOrderInProcess.ProcessDate" Name="ProcessDate" Placeholder="Seleccione la fecha de proceso del traslado" TabIndex="0" />
+                                        <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@customerOrderInProcess.ProcessDate"
+                                                          Name="ProcessDate" Placeholder="Seleccione la fecha de proceso" TabIndex="1" />
                                     </ChildContent>
                                     <Helper>
                                         <RadzenRequiredValidator Text="La Fecha de proceso es requerida" Component="ProcessDate" />
@@ -86,7 +88,7 @@
                                         <RadzenDropDownDataGrid Data="@processSatellitesFORPROCESSSATELLITEID" TextProperty="ProcessSatelliteName" ValueProperty="ProcessSatelliteId" AllowClear=true
                                                                 style="display: block; width: 100%" @bind-Value="@customerOrderInProcess.ProcessSatelliteId" Name="PROCESS_SATELLITE_ID"
                                                                 FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true"
-                                                                Placeholder="Seleccione un Satelite">
+                                                                TabIndex="2" Placeholder="Seleccione el satelite">
                                             <Columns>
                                                 <RadzenDropDownDataGridColumn Property="IdentityType.IdentityTypeName" Title="Tipo Documento" />
                                                 <RadzenDropDownDataGridColumn Property="IdentityNumber" Title="Identificación" />
@@ -107,13 +109,12 @@
                                     <ChildContent>
                                         <RadzenDropDownDataGrid Data="@employeesFOREMPLOYEEID" TextProperty="FullName" ValueProperty="EmployeeId" AllowClear=true
                                                                 style="display: block; width: 100%" @bind-Value="@customerOrderInProcess.EmployeeRecipientId" Name="EMPLOYEE_RECIPIENT_ID"
-                                                                FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive"
-                                                                AllowFilteringByAllStringColumns="true"
-                                                                Placeholder="Seleccione un Empleado">
+                                                                FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true"
+                                                                TabIndex="3" Placeholder="Seleccione un Empleado">
                                             <Columns>
-                                                <RadzenDropDownDataGridColumn Property="EMPLOYEE.IdentityType.IdentityTypeName" Title="Tipo de Identificación" />
-                                                <RadzenDropDownDataGridColumn Property="IdentityNumber" Title="Número de Identificación" />
-                                                <RadzenDropDownDataGridColumn Property="FullName" Title="Nombre Completo" />
+                                                <RadzenDropDownDataGridColumn Property="EMPLOYEE.IdentityType.IdentityTypeName" Title="Tipo de identificación" />
+                                                <RadzenDropDownDataGridColumn Property="IdentityNumber" Title="Número de identificación" />
+                                                <RadzenDropDownDataGridColumn Property="FullName" Title="Nombre completo" />
                                             </Columns>
                                         </RadzenDropDownDataGrid>
                                     </ChildContent>
@@ -122,7 +123,7 @@
                                     </Helper>
                                 </RadzenFormField>
                                 <RadzenFormField Text="Notas" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
-                                    <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerOrderInProcess.Notes" TabIndex="3" />
+                                    <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerOrderInProcess.Notes" TabIndex="4" />
                                 </RadzenFormField>
                             </RadzenRow>
                         </RadzenCard>
@@ -132,10 +133,10 @@
                     <RadzenStack>
                         <RadzenRow />
                         <RadzenColumn Size="6">
-                            <RadzenText Text="Referencias del Pedido" TextStyle="TextStyle.H5" TagName="TagName.H1" style="margin: 0" />
+                            <RadzenText Text="Referencias del pedido" TextStyle="TextStyle.H5" TagName="TagName.H1" style="margin: 0" />
                         </RadzenColumn>
-                        <LocalizedDataGrid @ref="customerOrderDetailGrid" ColumnWidth="200px" AllowFiltering="false" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                           Data="@detailsInProcess" TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess">
+                        <LocalizedDataGrid @ref="customerOrderDetailGrid" ColumnWidth="200px" AllowFiltering="false" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true"
+                                           PageSizeOptions=@(new int[]{5, 10, 20, 30}) Data="@detailsInProcess" TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess">
                             <Columns>
                                 <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Title="Referencia">
                                     <Template Context="detail">
@@ -143,9 +144,9 @@
                                     </Template>
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Property="PENDING_QUANTITY" Title="Pendiente" Width="100px" />
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Property="PROCESSED_QUANTITY" Title="En Proceso" Width="100px" />
+                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Property="PROCESSED_QUANTITY" Title="En proceso" Width="100px" />
                                 <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Property="DELIVERED_QUANTITY" Title="Despachado" Width="100px" />
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Property="THIS_QUANTITY" Title="Este Traslado" Width="100px" />
+                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Property="THIS_QUANTITY" Title="Este traslado" Width="100px" />
                                 <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Filterable="false" Sortable="false" Width="110px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
                                     <Template Context="detail">
                                         <RadzenButton Icon="assignment_ind" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
