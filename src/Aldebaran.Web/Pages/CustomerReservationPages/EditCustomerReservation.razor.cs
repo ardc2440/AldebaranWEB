@@ -57,7 +57,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
             customerReservation = await CustomerReservationService.FindAsync(customerReservationId);
 
-            title = $"Modificación de la Reserva No. {customerReservation.ReservationNumber}";
+            title = $"Modificar la Reserva No. {customerReservation.ReservationNumber}";
 
             await GetChildData(customerReservation);
         }

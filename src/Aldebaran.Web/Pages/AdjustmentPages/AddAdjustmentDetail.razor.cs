@@ -30,28 +30,32 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         public ICollection<AdjustmentDetail> AdjustmentDetails { get; set; }
 
         [Parameter]
-        public int ADJUSTMENT_ID { get; set; }
+        public int AdjustmentId { get; set; }
 
         [Parameter]
-        public int REFERENCE_ID { get; set; }
+        public int ReferenceId { get; set; }
 
         [Parameter]
-        public short WAREHOUSE_ID { get; set; }
+        public short WarehouseId { get; set; }
+
+        #endregion
+
+        #region Properties
+
+        protected IEnumerable<ItemReference> ItemReferencesForReferenceId { get; set; } = new List<ItemReference>();
+        protected IEnumerable<Warehouse> WarehousesForWarehouseId { get; set; } = new List<Warehouse>();
 
         #endregion
 
         #region Global Variables
 
         protected bool errorVisible;
-        protected string alertMessage = "No se ha podido Agregar la Referencia";
+        protected string alertMessage = "No se ha podido agregar la referencia";
         protected AdjustmentDetail adjustmentDetail;
-        protected IEnumerable<ItemReference> itemReferencesForREFERENCEID { get; set; } = new List<ItemReference>();
-        protected IEnumerable<Warehouse> warehousesForWAREHOUSEID;
-        public ICollection<ItemReference> references;
         protected bool isSubmitInProgress;
-        bool hasADJUSTMENT_IDValue;
-        bool hasWAREHOUSE_IDValue;
-        bool hasREFERENCE_IDValue;
+        bool hasAdjustmentIdValue;
+        bool hasWarehouseIdValue;
+        bool hasReferenceIdValue;
 
         #endregion
 
@@ -60,9 +64,9 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         protected override async Task OnInitializedAsync()
         {
 
-            itemReferencesForREFERENCEID = await ItemReferenceService.GetByStatusAsync(true);
+            ItemReferencesForReferenceId = await ItemReferenceService.GetByStatusAsync(true);
 
-            warehousesForWAREHOUSEID = await WarehouseService.GetAsync();
+            WarehousesForWarehouseId = await WarehouseService.GetAsync();
 
             adjustmentDetail.Quantity = 0;
         }
@@ -71,23 +75,23 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         {
             adjustmentDetail = new AdjustmentDetail() { Adjustment = null, ItemReference = null, Warehouse = null };
 
-            hasADJUSTMENT_IDValue = parameters.TryGetValue<int>("ADJUSTMENT_ID", out var hasADJUSTMENT_IDResult);
+            hasAdjustmentIdValue = parameters.TryGetValue<int>("AdjustmentId", out var hasADJUSTMENT_IDResult);
 
-            if (hasADJUSTMENT_IDValue)
+            if (hasAdjustmentIdValue)
             {
                 adjustmentDetail.AdjustmentId = hasADJUSTMENT_IDResult;
             }
 
-            hasREFERENCE_IDValue = parameters.TryGetValue<int>("REFERENCE_ID", out var hasREFERENCE_IDResult);
+            hasReferenceIdValue = parameters.TryGetValue<int>("ReferenceId", out var hasREFERENCE_IDResult);
 
-            if (hasREFERENCE_IDValue)
+            if (hasReferenceIdValue)
             {
                 adjustmentDetail.ReferenceId = hasREFERENCE_IDResult;
             }
 
-            hasWAREHOUSE_IDValue = parameters.TryGetValue<short>("WAREHOUSE_ID", out var hasWAREHOUSE_IDResult);
+            hasWarehouseIdValue = parameters.TryGetValue<short>("WarehouseId", out var hasWAREHOUSE_IDResult);
 
-            if (hasWAREHOUSE_IDValue)
+            if (hasWarehouseIdValue)
             {
                 adjustmentDetail.WarehouseId = hasWAREHOUSE_IDResult;
             }

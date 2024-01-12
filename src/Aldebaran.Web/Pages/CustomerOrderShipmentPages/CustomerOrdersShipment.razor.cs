@@ -178,11 +178,6 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
             }
         }
 
-        public static implicit operator CustomerOrdersShipment(CustomerOrderShipment v)
-        {
-            throw new NotImplementedException();
-        }
-
         #endregion
     }
 }

@@ -4,17 +4,21 @@
 
 <PageTitle>Adjustments</PageTitle>
 <RadzenStack>
-    @if (dialogResult != null && dialogResult.Success)
+    @if (DialogResult != null && DialogResult.Success)
     {
-        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Success">@dialogResult.Message</RadzenAlert>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Success">
+            @DialogResult.Message
+        </RadzenAlert>
     }
-    @if (dialogResult != null && !dialogResult.Success)
+    @if (DialogResult != null && !DialogResult.Success)
     {
-        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger">@dialogResult.Message</RadzenAlert>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger">
+            @DialogResult.Message
+        </RadzenAlert>
     }
     <RadzenRow AlignItems="AlignItems.Center">
         <RadzenColumn Size="12">
-            <RadzenText Text="Ajustes de Inventario" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
+            <RadzenText Text="Ajustes de inventario" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
             <hr />
         </RadzenColumn>
         <RadzenColumn Size="12" SizeMD="6">
@@ -29,13 +33,13 @@
             <LocalizedDataGrid @ref="grid0" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                ExpandMode="DataGridExpandMode.Single" Data="@adjustments" TItem="Aldebaran.Application.Services.Models.Adjustment" RowExpand=@GetChildData AllowColumnPicking="true" PageSizeText="items per page" PagingSummaryFormat="Page {0} de {1} ({2} items)" IsLoading="@isLoadingInProgress">
                 <Columns>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Adjustment" Property="AdjustmentDate" Title="Fecha de Ajuste">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Adjustment" Property="AdjustmentDate" Title="Fecha de ajuste">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Adjustment" Property="AdjustmentType.AdjustmentTypeName" Title="Tipo de Ajuste">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Adjustment" Property="AdjustmentType.AdjustmentTypeName" Title="Tipo de ajuste">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Adjustment" Property="AdjustmentReason.AdjustmentReasonName" Title="Motivo del Ajuste">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Adjustment" Property="AdjustmentReason.AdjustmentReasonName" Title="Motivo del ajuste">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Adjustment" Property="Employee.FullName" Title="Usuario Responsable">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Adjustment" Property="Employee.FullName" Title="Usuario aesponsable">
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Adjustment" Property="StatusDocumentType.StatusDocumentTypeName" Title="Estado">
                     </RadzenDataGridColumn>
@@ -45,11 +49,11 @@
                         <Template Context="adjustment">
                             <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
                                           Click="@(args => EditRow(adjustment))" @onclick:stopPropagation="true"
-                                          Visible="@CanEdit(adjustment)" title="Modificar Ajuste">
+                                          Visible="@CanEdit(adjustment)" title="Modificar ajuste">
                             </RadzenButton>
                             <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
                                           Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@CanEdit(adjustment)"
-                                          Click=@(args => GridCancelButtonClick(args, adjustment)) @onclick:stopPropagation="true" title="Cancelar Ajuste" />
+                                          Click=@(args => GridCancelButtonClick(args, adjustment)) @onclick:stopPropagation="true" title="Cancelar ajuste" />
                         </Template>
                     </RadzenDataGridColumn>
                 </Columns>
@@ -57,7 +61,7 @@
                     <RadzenStack Class="rz-my-8">
                         <RadzenRow Gap="0" AlignItems="AlignItems.Center">
                             <RadzenColumn Size="12" SizeMD="6">
-                                <RadzenText Visible="@(adjustment != null)" Text="Referencias del Ajuste" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
+                                <RadzenText Visible="@(adjustment != null)" Text="Referencias del ajuste" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
                             </RadzenColumn>
                         </RadzenRow>
                         <LocalizedDataGrid ColumnWidth="200px" Visible="@(adjustment != null)" @ref=AdjustmentDetailsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})

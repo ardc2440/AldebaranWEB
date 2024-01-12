@@ -10,21 +10,21 @@
             <RadzenRow AlignItems="AlignItems.Start" Gap="2rem">
                 <RadzenFormField Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                     <ChildContent>
-                        <ReferencePicker OnChange="ItemReferenceHandler" References="itemReferencesForREFERENCEID" />
+                        <ReferencePicker OnChange="ItemReferenceHandler" References="ItemReferencesForReferenceId" />
                     </ChildContent>
                     <Helper>
-                        <RadzenRequiredValidator Text="La Referencia es requerida" Component="ReferenceId" />
+                        <RadzenRequiredValidator Text="La referencia es requerida" Component="ReferenceId" />
                     </Helper>
                 </RadzenFormField>
 
                 <RadzenFormField Text="Bodega" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                     <ChildContent>
-                        <RadzenDropDownDataGrid Data="@warehousesForWAREHOUSEID" TextProperty="WarehouseName" ValueProperty="WarehouseId" AllowClear=true
-                                                Disabled=@(hasWAREHOUSE_IDValue) Placeholder="Seleccione una bodega" style="display: block; width: 100%" @bind-Value="@adjustmentDetail.WarehouseId" Name="WAREHOUSE_ID" TabIndex="2" />
+                        <RadzenDropDown Data="@WarehousesForWarehouseId" TextProperty="WarehouseName" ValueProperty="WarehouseId" AllowClear=true Disabled=@(hasWarehouseIdValue)
+                                        style="display: block; width: 100%" @bind-Value="@adjustmentDetail.WarehouseId" Name="WAREHOUSE_ID" AllowFiltering="true" ClearSearchAfterSelection="true" />
                     </ChildContent>
                     <Helper>
-                        <RadzenRequiredValidator Component="WAREHOUSE_ID" DefaultValue="0" Text="La Bodega es requerida"></RadzenRequiredValidator>
-                        <RadzenNumericRangeValidator Component="WAREHOUSE_ID" Min="1" Text="La Bodega es requerida" />
+                        <RadzenRequiredValidator Component="WAREHOUSE_ID" DefaultValue="0" Text="La bodega es requerida"></RadzenRequiredValidator>
+                        <RadzenNumericRangeValidator Component="WAREHOUSE_ID" Min="1" Text="La bodega es requerida" />
                     </Helper>
                 </RadzenFormField>
                 <RadzenFormField Text="Cantidad" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
@@ -36,11 +36,11 @@
                         <RadzenNumericRangeValidator Component="QUANTITY" Min="1" Text="La cantidad debe ser mayor a 0" />
                     </Helper>
                 </RadzenFormField>
-                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
-                    <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@isSubmitInProgress" />
-                    <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
-                </RadzenStack>
             </RadzenRow>
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@isSubmitInProgress" />
+                <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
+            </RadzenStack>
         </RadzenTemplateForm>
     </RadzenStack>
 </RadzenColumn>
