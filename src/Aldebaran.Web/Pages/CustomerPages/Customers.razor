@@ -53,7 +53,7 @@
                             <RadzenCheckBox @bind-Value="@customer.SendEmail" Name="SEND_EMAIL" Disabled="true"></RadzenCheckBox>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="ServiceModel.Customer" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Customer Editor")">
+                    <RadzenDataGridColumn TItem="ServiceModel.Customer" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Admin","Customer Editor")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                         <Template Context="customer">
                             <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditCustomer(customer))" @onclick:stopPropagation="true">
                             </RadzenButton>
@@ -86,7 +86,7 @@
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="ServiceModel.CustomerContact" Property="Email" Title="Correo electrónico">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="ServiceModel.CustomerContact" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Customer Editor")">
+                                <RadzenDataGridColumn TItem="ServiceModel.CustomerContact" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Admin","Customer Editor")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                                     <Template Context="customerContact">
                                         <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditCustomerContact(customerContact, customer))" @onclick:stopPropagation="true">
                                         </RadzenButton>

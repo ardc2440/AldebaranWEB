@@ -40,7 +40,7 @@
                             <span>(@forwarder.City.Department.Country.CountryCode) @forwarder.City.Department.DepartmentName - @forwarder.City.CityName</span>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="ServiceModel.Forwarder" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Forwarder Editor")">
+                    <RadzenDataGridColumn TItem="ServiceModel.Forwarder" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Admin","Forwarder Editor")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                         <Template Context="forwarder">
                             <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Actualizar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
                                           Click="@(args => EditForwarder(forwarder))" @onclick:stopPropagation="true">
@@ -87,7 +87,7 @@
                                         <span>(@forwarderAgent.City.Department.Country.CountryCode) @forwarderAgent.City.Department.DepartmentName - @forwarderAgent.City.CityName</span>
                                     </Template>
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="ServiceModel.ForwarderAgent" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Forwarder Editor")">
+                                <RadzenDataGridColumn TItem="ServiceModel.ForwarderAgent" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Admin","Forwarder Editor")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                                     <Template Context="forwarderAgent">
                                         <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Actualizar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
                                                       Click="@(args => EditForwarderAgent(forwarderAgent,forwarder))" @onclick:stopPropagation="true">
@@ -116,7 +116,7 @@
                                             </RadzenDataGridColumn>
                                             <RadzenDataGridColumn TItem="ServiceModel.ShipmentForwarderAgentMethod" Property="ShipmentMethod.ShipmentMethodNotes" Title="Descripción">
                                             </RadzenDataGridColumn>
-                                            <RadzenDataGridColumn TItem="ServiceModel.ShipmentForwarderAgentMethod" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Forwarder Editor")">
+                                            <RadzenDataGridColumn TItem="ServiceModel.ShipmentForwarderAgentMethod" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Admin","Forwarder Editor")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                                                 <Template Context="shipmentForwarderAgent">
                                                     <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Shade="Shade.Lighter" Variant="Variant.Flat" MouseEnter="@(args => ShowTooltip(args,"Eliminar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
                                                                   Click=@(args => DeleteShipmentForwarderAgentMethod(args, shipmentForwarderAgent)) @onclick:stopPropagation="true" />

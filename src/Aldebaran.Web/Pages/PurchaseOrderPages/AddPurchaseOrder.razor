@@ -83,20 +83,14 @@
                                            Data="@PurchaseOrderDetails" TItem="ServiceModel.PurchaseOrderDetail" AllowColumnResize="true" AllowMultiColumnSorting="true" AllowColumnReorder="true">
                             <Columns>
                                 <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Property="RequestedQuantity" Title="Cantidad solicitada" />
-                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Property="ItemReference.Item.Line.LineName" Title="Línea" />
-                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Title="Artículo">
-                                    <Template Context="detail">
-                                        <span>(@detail.ItemReference.Item.InternalReference) @detail.ItemReference.Item.ItemName</span>
-                                    </Template>
-                                </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Title="Referencia">
                                     <Template Context="detail">
-                                        <span>(@detail.ItemReference.ReferenceCode) @detail.ItemReference.ReferenceName</span>
+                                        <span>(@detail.ItemReference.Item.InternalReference) @detail.ItemReference.Item.ItemName</span> - <span>@detail.ItemReference.ReferenceName</span>
                                     </Template>
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Property="Warehouse.WarehouseName" Title="Bodega">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center">
+                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                                     <Template Context="detail">
                                         <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="edit" Size="ButtonSize.Medium"
                                                       Shade="Shade.Lighter" Variant="Variant.Flat"
@@ -119,8 +113,8 @@
             <RadzenRow AlignItems="Radzen.AlignItems.Center">
                 <RadzenColumn Size="12">
                     <RadzenStack class="m-2" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
-                        <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelPurchaseOrder" />
                         <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelPurchaseOrder" />
                     </RadzenStack>
                 </RadzenColumn>
             </RadzenRow>
