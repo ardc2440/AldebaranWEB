@@ -26,7 +26,7 @@
                             <RadzenCheckBox @bind-Value="@user.LockoutEnabled" Name="LockoutEnabled" Disabled="true"></RadzenCheckBox>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ApplicationUser" Filterable="false" Sortable="false" TextAlign="TextAlign.Right" Width="130px" Pickable="false" Reorderable="false" Frozen="true" Groupable="false">
+                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ApplicationUser" Filterable="false" Sortable="false" TextAlign="TextAlign.Right" Width="130px" Pickable="false" Reorderable="false" Groupable="false" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                         <Template Context="user">
                             @if (user.LockoutEnabled)
                             {

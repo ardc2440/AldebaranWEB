@@ -82,7 +82,7 @@
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="ServiceModel.ItemsArea" Property="Item.CifMeasureUnit.MeasureUnitName" Title="Unidad CIF" Visible="false">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="ServiceModel.ItemsArea" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Area Editor")">
+                                <RadzenDataGridColumn TItem="ServiceModel.ItemsArea" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Admin","Area Editor")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                                     <Template Context="itemsAreaChild">
                                         <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Shade="Shade.Lighter" Variant="Variant.Flat" MouseEnter="@(args => ShowTooltip(args,"Eliminar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
                                                       Click=@(args => DeleteItemArea(args, itemsAreaChild)) @onclick:stopPropagation="true" />

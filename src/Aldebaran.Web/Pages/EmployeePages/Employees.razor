@@ -35,7 +35,7 @@
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="ViewModels.EmployeeViewModel" Property="ApplicationUser.UserName" Title="Inicio de Session">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="ViewModels.EmployeeViewModel" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Frozen="true" Groupable="false" Visible="@Security.IsInRole("Admin","Employee Editor")">
+                    <RadzenDataGridColumn TItem="ViewModels.EmployeeViewModel" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Admin","Employee Editor")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                         <Template Context="employee">
                             <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" MouseEnter="@(args => ShowTooltip(args,"Actualizar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
                                           Size="ButtonSize.Medium" Visible="@Security.IsInRole("Admin","Employee Editor")"

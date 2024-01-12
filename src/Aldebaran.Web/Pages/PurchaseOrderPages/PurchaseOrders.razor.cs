@@ -92,6 +92,16 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 });
                 return;
             }
+            if (Action == "confirm")
+            {
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Summary = "Orden de compra",
+                    Severity = NotificationSeverity.Success,
+                    Detail = $"Orden de compra {purchaseOrder.OrderNumber} ha sido confirmada correctamente."
+                });
+                return;
+            }
             NotificationService.Notify(new NotificationMessage
             {
                 Summary = "Orden de compra",
@@ -275,126 +285,6 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
 
         #region PurchaseOrderDetail
         protected RadzenDataGrid<ServiceModel.PurchaseOrderDetail> PurchaseOrderDetailsDataGrid;
-        protected async Task AddPurchaseOrderDetail(MouseEventArgs args, ServiceModel.PurchaseOrder data)
-        {
-            var providerReferences = await ProviderReferenceService.GetByProviderIdAsync(data.ProviderId);
-            var itemReferences = providerReferences.Select(s => s.ItemReference).ToList();
-            var purchaseOrderDetails = await PurchaseOrderDetailService.GetByPurchaseOrderIdAsync(data.PurchaseOrderId);
-            var result = await DialogService.OpenAsync<AddPurchaseOrderDetail>("Nueva referencia",
-                new Dictionary<string, object> {
-                    { "ProviderItemReferences", itemReferences.ToList() },
-                    { "PurchaseOrderDetails", purchaseOrderDetails.ToList() }
-                });
-            if (result == null)
-                return;
-            var detailResult = (ServiceModel.PurchaseOrderDetail)result;
-            try
-            {
-                var detail = new ServiceModel.PurchaseOrderDetail
-                {
-                    PurchaseOrderId = data.PurchaseOrderId,
-                    ReferenceId = detailResult.ReferenceId,
-                    WarehouseId = detailResult.WarehouseId,
-                    ReceivedQuantity = detailResult.ReceivedQuantity,
-                    RequestedQuantity = detailResult.RequestedQuantity,
-                };
-                await PurchaseOrderDetailService.AddAsync(detail);
-                NotificationService.Notify(new NotificationMessage
-                {
-                    Summary = "Referencia",
-                    Severity = NotificationSeverity.Success,
-                    Detail = $"Referencia ha sido agregada correctamente a la orden {data.OrderNumber}."
-                });
-                await GetChildData(data);
-                await PurchaseOrderDetailsDataGrid.Reload();
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, nameof(AddPurchaseOrderDetail));
-                NotificationService.Notify(new NotificationMessage
-                {
-                    Severity = NotificationSeverity.Error,
-                    Summary = $"Error",
-                    Detail = $"No se ha podido agregar la referencia"
-                });
-            }
-        }
-        protected async Task EditPurchaseOrderDetail(ServiceModel.PurchaseOrderDetail args, ServiceModel.PurchaseOrder data)
-        {
-            var providerReferences = await ProviderReferenceService.GetByProviderIdAsync(PurchaseOrder.ProviderId);
-            var itemReferences = providerReferences.Select(s => s.ItemReference).ToList();
-            var purchaseOrderDetails = await PurchaseOrderDetailService.GetByPurchaseOrderIdAsync(data.PurchaseOrderId);
-            var result = await DialogService.OpenAsync<EditPurchaseOrderDetail>("Actualizar referencia",
-                new Dictionary<string, object> {
-                    { "PURCHASE_ORDER_DETAIL_ID", args.PurchaseOrderDetailId },
-                    { "PurchaseOrderDetails", purchaseOrderDetails.ToList() }
-                });
-            if (result == null)
-                return;
-            var detailResult = (ServiceModel.PurchaseOrderDetail)result;
-            try
-            {
-                await PurchaseOrderDetailService.UpdateAsync(args.PurchaseOrderDetailId, detailResult);
-                NotificationService.Notify(new NotificationMessage
-                {
-                    Summary = "Referencia",
-                    Severity = NotificationSeverity.Success,
-                    Detail = $"Referencia ha sido actualizada correctamente."
-                });
-                await GetChildData(data);
-                await PurchaseOrderDetailsDataGrid.Reload();
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, nameof(EditPurchaseOrderDetail));
-                NotificationService.Notify(new NotificationMessage
-                {
-                    Severity = NotificationSeverity.Error,
-                    Summary = $"Error",
-                    Detail = $"No se ha podido actualizar la referencia"
-                });
-            }
-        }
-        protected async Task DeletePurchaseOrderDetail(MouseEventArgs args, ServiceModel.PurchaseOrder data, ServiceModel.PurchaseOrderDetail purchaseOrderDetail)
-        {
-            var details = await PurchaseOrderDetailService.GetByPurchaseOrderIdAsync(purchaseOrderDetail.PurchaseOrderId);
-            if (details.Count() == 1)
-            {
-                // Al menos debe exisitr una referencia por orden de compra
-                NotificationService.Notify(new NotificationMessage
-                {
-                    Severity = NotificationSeverity.Error,
-                    Summary = $"Error",
-                    Detail = $"No se puede eliminar la referencia, la orden de compra debe contener al menos una de ellas."
-                });
-                return;
-            }
-            if (await DialogService.Confirm("Está seguro que desea eliminar esta referencia?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
-            {
-                try
-                {
-                    await PurchaseOrderDetailService.DeleteAsync(purchaseOrderDetail.PurchaseOrderDetailId);
-                    NotificationService.Notify(new NotificationMessage
-                    {
-                        Summary = "Referencia",
-                        Severity = NotificationSeverity.Success,
-                        Detail = $"Referencia ha sido eliminada correctamente."
-                    });
-                    await GetChildData(data);
-                    await PurchaseOrderDetailsDataGrid.Reload();
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, nameof(DeletePurchaseOrderDetail));
-                    NotificationService.Notify(new NotificationMessage
-                    {
-                        Severity = NotificationSeverity.Error,
-                        Summary = $"Error",
-                        Detail = $"No se ha podido eliminar la referencia"
-                    });
-                }
-            }
-        }
         #endregion
         #endregion
     }
