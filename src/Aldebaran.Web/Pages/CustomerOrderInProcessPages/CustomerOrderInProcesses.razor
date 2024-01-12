@@ -1,6 +1,7 @@
 @page "/process-customer-orders"
 @attribute [Authorize(Roles = "Admin,Customer Order In Process Viwer,Customer Order In Process Editor")]
 @using Aldebaran.Web.Resources.LocalizedControls;
+@inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer ;
 
 <PageTitle>Pedido de Artículos</PageTitle>
 <RadzenStack>
@@ -15,21 +16,28 @@
     <RadzenRow AlignItems="AlignItems.Center">
         <RadzenColumn Size="12" SizeMD="6">
             <RadzenText Text="Traslado de Pedidos de Artículos a Proceso" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
+            <hr />
         </RadzenColumn>
     </RadzenRow>
     <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
     <RadzenRow>
         <RadzenColumn SizeMD=12>
             <LocalizedDataGrid @ref="CustomerOrdersGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                            ExpandMode="DataGridExpandMode.Single" Data="@customerOrders" TItem="Aldebaran.Application.Services.Models.CustomerOrder" RowExpand=@GetChildData AllowColumnPicking="true" PageSizeText="items per page" PagingSummaryFormat="Page {0} de {1} ({2} items)" IsLoading="@isLoadingInProgress">
+                               ExpandMode="DataGridExpandMode.Single" Data="@customerOrders" TItem="Aldebaran.Application.Services.Models.CustomerOrder" RowExpand=@GetChildData AllowColumnPicking="true" PageSizeText="items per page" PagingSummaryFormat="Page {0} de {1} ({2} items)" IsLoading="@isLoadingInProgress">
                 <Columns>
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="OrderNumber" Title="No. Pedido">
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="Customer.CustomerName" Title="Cliente">
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="OrderDate" Title="Fecha Pedido">
+                        <Template Context="customerOrder">
+                            <span>@customerOrder.OrderDate.ToString(SharedLocalizer["date:format"])</span>
+                        </Template>
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="EstimatedDeliveryDate" Title="Fecha Estimada Entrega">
+                        <Template Context="customerOrder">
+                            <span>@customerOrder.EstimatedDeliveryDate.ToString(SharedLocalizer["date:format"])</span>
+                        </Template>
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="StatusDocumentType.StatusDocumentTypeName" Title="Estado">
                     </RadzenDataGridColumn>
@@ -48,83 +56,85 @@
                 </Columns>
                 <Template Context="customerOrder">
                     <RadzenStack Class="rz-my-8">
-                        <RadzenRow Gap="0" AlignItems="AlignItems.Center">
-                            <RadzenColumn Size="12" SizeMD="6">
-                                <RadzenText Visible="@(customerOrder != null)" Text="Referencias del Pedido" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
-                            </RadzenColumn>
-                        </RadzenRow>
-                        <LocalizedDataGrid ColumnWidth="200px" Visible="@(customerOrder != null)" @ref=CustomerOrderDetailsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                        ExpandMode="DataGridExpandMode.Single" Data="@detailInProcesses" TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess">
-                            <Columns>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Title="Artículo/Referencia">
-                                    <Template Context="detail">
-                                        <span>@detail.REFERENCE_DESCRIPTION</span>
-                                    </Template>
-                                </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Property="PENDING_QUANTITY" Title="Pendiente">
-                                </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Property="PROCESSED_QUANTITY" Title="En Proceso">
-                                </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Property="DELIVERED_QUANTITY" Title="Despachado">
-                                </RadzenDataGridColumn>
-                            </Columns>
-                        </LocalizedDataGrid>
-                        <RadzenStack Class="rz-my-8">
-                            <RadzenRow Gap="0" AlignItems="AlignItems.Center">
-                                <RadzenColumn Size="12" SizeMD="6">
-                                    <RadzenText Visible="@(customerOrder != null)" Text="Traslados Realizados a Proceso" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
-                                </RadzenColumn>
-                            </RadzenRow>
-                            <LocalizedDataGrid @ref="CustomerOrderInProcessesDataGrid" ColumnWidth="200px" Visible="@(customerOrderInProcesses != null)" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                            ExpandMode="DataGridExpandMode.Single" Data="@customerOrderInProcesses" RowExpand=@GetChildInProcessData TItem="Aldebaran.Application.Services.Models.CustomerOrdersInProcess">
-                                <Columns>
-                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrdersInProcess" Property="TransferDatetime" Title="Fecha de Traslado">
-                                    </RadzenDataGridColumn>
-                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrdersInProcess" Property="ProcessDate" Title="Fecha de Proceso">
-                                    </RadzenDataGridColumn>
-                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrdersInProcess" Property="ProcessSatellite.ProcessSatelliteName" Title="Satelite">
-                                    </RadzenDataGridColumn>
-                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrdersInProcess" Property="Employee.FullName" Title="Recibido Por">
-                                    </RadzenDataGridColumn>
-                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrdersInProcess" Property="StatusDocumentType.StatusDocumentTypeName" Title="Estado">
-                                    </RadzenDataGridColumn>
-                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrdersInProcess" Filterable="false" Sortable="false" Width="110px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
-                                        <Template Context="customerOrderInProcess">
-                                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
-                                                          Click="@(args => EditProcessRow(customerOrderInProcess))" @onclick:stopPropagation="true"
-                                                          Visible="@CanEditProcess(customerOrderInProcess).Result" title="Modificar Traslado">
-                                            </RadzenButton>
-                                            <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
-                                                          Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@CanEditProcess(customerOrderInProcess).Result"
-                                                          Click=@(args => CancelCustomerOrderProcess(args, customerOrderInProcess)) @onclick:stopPropagation="true" title="Cancelar Traslado" />
+                        <RadzenTabs Visible="@(customerOrder != null)">
+                            <Tabs>
+                                <RadzenTabsItem Text="Referencias del Pedido">
+                                    <LocalizedDataGrid ColumnWidth="200px" Visible="@(customerOrder != null)" @ref=CustomerOrderDetailsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                                       ExpandMode="DataGridExpandMode.Single" Data="@detailInProcesses" TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess">
+                                        <Columns>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Title="Referencia">
+                                                <Template Context="detail">
+                                                    <span>@detail.REFERENCE_DESCRIPTION</span>
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Property="PENDING_QUANTITY" Title="Pendiente">
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Property="PROCESSED_QUANTITY" Title="En Proceso">
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Property="DELIVERED_QUANTITY" Title="Despachado">
+                                            </RadzenDataGridColumn>
+                                        </Columns>
+                                    </LocalizedDataGrid>
+                                </RadzenTabsItem>
+                                <RadzenTabsItem Text="Traslados Realizados a Proceso">
+                                    <LocalizedDataGrid @ref="CustomerOrderInProcessesDataGrid" ColumnWidth="200px" Visible="@(customerOrderInProcesses != null)" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                                       ExpandMode="DataGridExpandMode.Single" Data="@customerOrderInProcesses" RowExpand=@GetChildInProcessData TItem="Aldebaran.Application.Services.Models.CustomerOrdersInProcess">
+                                        <Columns>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrdersInProcess" Property="TransferDatetime" Title="Fecha de Traslado">
+                                                <Template Context="customerOrderInProcess">
+                                                    <span>@customerOrderInProcess.TransferDatetime.ToString(SharedLocalizer["date:format"])</span>
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrdersInProcess" Property="ProcessDate" Title="Fecha de Proceso">
+                                                <Template Context="customerOrderInProcess">
+                                                    <span>@customerOrderInProcess.ProcessDate.ToString(SharedLocalizer["date:format"])</span>
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrdersInProcess" Property="ProcessSatellite.ProcessSatelliteName" Title="Satelite">
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrdersInProcess" Property="Employee.FullName" Title="Recibido Por">
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrdersInProcess" Property="StatusDocumentType.StatusDocumentTypeName" Title="Estado">
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrdersInProcess" Filterable="false" Sortable="false" Width="110px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                                                <Template Context="customerOrderInProcess">
+                                                    <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                                                  Click="@(args => EditProcessRow(customerOrderInProcess))" @onclick:stopPropagation="true"
+                                                                  Visible="@CanEditProcess(customerOrderInProcess).Result" title="Modificar Traslado">
+                                                    </RadzenButton>
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
+                                                                  Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@CanEditProcess(customerOrderInProcess).Result"
+                                                                  Click=@(args => CancelCustomerOrderProcess(args, customerOrderInProcess)) @onclick:stopPropagation="true" title="Cancelar Traslado" />
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                        </Columns>
+                                        <Template Context="CustomerOrderInProcess">
+                                            <RadzenStack Class="rz-my-8">
+                                                <RadzenRow Gap="0" AlignItems="AlignItems.Center">
+                                                    <RadzenColumn Size="12" SizeMD="6">
+                                                        <RadzenText Visible="@(customerOrder != null)" Text="Referencias Incluidas en el Traslado" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
+                                                    </RadzenColumn>
+                                                </RadzenRow>
+                                                <LocalizedDataGrid ColumnWidth="200px" Visible="@(customerOrder != null)" @ref=CustomerOrderInProcessDetailDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                                                   ExpandMode="DataGridExpandMode.Single" Data="@customerOrderInProcessDetails" TItem="Aldebaran.Application.Services.Models.CustomerOrderInProcessDetail">
+                                                    <Columns>
+                                                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderInProcessDetail" Title="Referencia">
+                                                            <Template Context="detail">
+                                                                <span>(@detail.CustomerOrderDetail.ItemReference.Item.InternalReference) @detail.CustomerOrderDetail.ItemReference.Item.ItemName - @detail.CustomerOrderDetail.ItemReference.ReferenceName</span>
+                                                            </Template>
+                                                        </RadzenDataGridColumn>
+                                                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderInProcessDetail" Property="Warehouse.WarehouseName" Title="Bodega">
+                                                        </RadzenDataGridColumn>
+                                                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderInProcessDetail" Property="ProcessedQuantity" Title="Cantidad">
+                                                        </RadzenDataGridColumn>
+                                                    </Columns>
+                                                </LocalizedDataGrid>
+                                            </RadzenStack>
                                         </Template>
-                                    </RadzenDataGridColumn>
-                                </Columns>
-                                <Template Context="CustomerOrderInProcess">
-                                    <RadzenStack Class="rz-my-8">
-                                        <RadzenRow Gap="0" AlignItems="AlignItems.Center">
-                                            <RadzenColumn Size="12" SizeMD="6">
-                                                <RadzenText Visible="@(customerOrder != null)" Text="Referencias Incluidas en el Traslado" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
-                                            </RadzenColumn>
-                                        </RadzenRow>
-                                        <LocalizedDataGrid ColumnWidth="200px" Visible="@(customerOrder != null)" @ref=CustomerOrderInProcessDetailDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                                        ExpandMode="DataGridExpandMode.Single" Data="@customerOrderInProcessDetails" TItem="Aldebaran.Application.Services.Models.CustomerOrderInProcessDetail">
-                                            <Columns>
-                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderInProcessDetail" Title="Artículo/Referencia">
-                                                    <Template Context="detail">
-                                                        <span>(@detail.CustomerOrderDetail.ItemReference.Item.InternalReference) @detail.CustomerOrderDetail.ItemReference.Item.ItemName - @detail.CustomerOrderDetail.ItemReference.ReferenceName</span>
-                                                    </Template>
-                                                </RadzenDataGridColumn>
-                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderInProcessDetail" Property="Warehouse.WarehouseName" Title="Bodega">
-                                                </RadzenDataGridColumn>
-                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderInProcessDetail" Property="ProcessedQuantity" Title="Cantidad">
-                                                </RadzenDataGridColumn>
-                                            </Columns>
-                                        </LocalizedDataGrid>
-                                    </RadzenStack>
-                                </Template>
-                            </LocalizedDataGrid>
-                        </RadzenStack>
+                                    </LocalizedDataGrid>
+                                </RadzenTabsItem>
+                            </Tabs>
+                        </RadzenTabs>
                     </RadzenStack>
                 </Template>
             </LocalizedDataGrid>

@@ -15,6 +15,7 @@
     <RadzenRow AlignItems="AlignItems.Center">
         <RadzenColumn Size="12">
             <RadzenText Text="Ajustes de Inventario" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
+            <hr />
         </RadzenColumn>
         <RadzenColumn Size="12" SizeMD="6">
             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
@@ -26,7 +27,7 @@
     <RadzenRow>
         <RadzenColumn SizeMD=12>
             <LocalizedDataGrid @ref="grid0" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                            ExpandMode="DataGridExpandMode.Single" Data="@adjustments" TItem="Aldebaran.Application.Services.Models.Adjustment" RowExpand=@GetChildData AllowColumnPicking="true" PageSizeText="items per page" PagingSummaryFormat="Page {0} de {1} ({2} items)" IsLoading="@isLoadingInProgress">
+                               ExpandMode="DataGridExpandMode.Single" Data="@adjustments" TItem="Aldebaran.Application.Services.Models.Adjustment" RowExpand=@GetChildData AllowColumnPicking="true" PageSizeText="items per page" PagingSummaryFormat="Page {0} de {1} ({2} items)" IsLoading="@isLoadingInProgress">
                 <Columns>
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Adjustment" Property="AdjustmentDate" Title="Fecha de Ajuste">
                     </RadzenDataGridColumn>
@@ -48,24 +49,23 @@
                             </RadzenButton>
                             <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
                                           Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@CanEdit(adjustment)"
-                                          Click=@(args => GridCancelButtonClick(args, adjustment)) @onclick:stopPropagation="true" title="Cancelar Ajuste"/>
+                                          Click=@(args => GridCancelButtonClick(args, adjustment)) @onclick:stopPropagation="true" title="Cancelar Ajuste" />
                         </Template>
                     </RadzenDataGridColumn>
                 </Columns>
                 <Template Context="adjustment">
-
                     <RadzenStack Class="rz-my-8">
                         <RadzenRow Gap="0" AlignItems="AlignItems.Center">
                             <RadzenColumn Size="12" SizeMD="6">
-                                <RadzenText Visible="@(adjustment != null)" Text="Referencias de Ajuste" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
+                                <RadzenText Visible="@(adjustment != null)" Text="Referencias del Ajuste" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
                             </RadzenColumn>
                         </RadzenRow>
                         <LocalizedDataGrid ColumnWidth="200px" Visible="@(adjustment != null)" @ref=AdjustmentDetailsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                        Data="@adjustment?.AdjustmentDetails" TItem="Aldebaran.Application.Services.Models.AdjustmentDetail">
+                                           Data="@adjustment?.AdjustmentDetails" TItem="Aldebaran.Application.Services.Models.AdjustmentDetail">
                             <Columns>
                                 <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AdjustmentDetail" Property="Quantity" Title="Cantidad">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AdjustmentDetail" Title="Artículo/Referencia">
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AdjustmentDetail" Title="Referencia">
                                     <Template Context="detail">
                                         <span>(@detail.ItemReference.Item.InternalReference) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName</span>
                                     </Template>
