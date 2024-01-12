@@ -45,6 +45,7 @@ namespace Aldebaran.Web.Shared
             var selectedEmployee = await EmployeeService.FindAsync(EMPLOYEE_ID.Value);
             if (selectedEmployee == null)
                 return;
+            AREA_ID = selectedEmployee.AreaId;
             await OnAreaChange(selectedEmployee.AreaId);
             await OnEmployeeChange(selectedEmployee.EmployeeId);
         }

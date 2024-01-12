@@ -246,3 +246,8 @@ a {
             .toggle-panel .rz-panel-titlebar button.invalid {
                 color: var(--rz-form-error-color) !important;
             }
+
+hr {
+    margin-top: 0;
+    margin-bottom: 2rem;
+}

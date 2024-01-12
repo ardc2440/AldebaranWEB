@@ -18,7 +18,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             return item;
         }
 
-        public async Task DeleteAsync(int purchaseOrderId, CancellationToken ct = default)
+        public async Task CancelAsync(int purchaseOrderId, CancellationToken ct = default)
         {
             var entity = await _context.PurchaseOrders.FirstOrDefaultAsync(x => x.PurchaseOrderId == purchaseOrderId, ct) ?? throw new KeyNotFoundException($"Orden con id {purchaseOrderId} no existe.");
             var documentType = await _context.DocumentTypes.AsNoTracking().FirstAsync(f => f.DocumentTypeCode == "O", ct);
@@ -74,6 +74,39 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                .Include(i => i.StatusDocumentType.DocumentType)
                .Where(w => w.OrderNumber.Contains(searchKey) || w.ImportNumber.Contains(searchKey) || w.EmbarkationPort.Contains(searchKey) || w.ProformaNumber.Contains(searchKey))
                .ToListAsync(ct);
+        }
+
+        public async Task UpdateAsync(int purchaseOrderId, PurchaseOrder purchaseOrder, CancellationToken ct = default)
+        {
+            var entity = await _context.PurchaseOrders
+                .FirstOrDefaultAsync(x => x.PurchaseOrderId == purchaseOrderId, ct) ?? throw new KeyNotFoundException($"Orden con id {purchaseOrderId} no existe.");
+            entity.RequestDate = purchaseOrder.RequestDate;
+            entity.ExpectedReceiptDate = purchaseOrder.ExpectedReceiptDate;
+            entity.RealReceiptDate = purchaseOrder.RealReceiptDate;
+            entity.ProviderId = purchaseOrder.ProviderId;
+            entity.ForwarderAgentId = purchaseOrder.ForwarderAgentId;
+            entity.ShipmentForwarderAgentMethodId = purchaseOrder.ShipmentForwarderAgentMethodId;
+            entity.StatusDocumentTypeId = purchaseOrder.StatusDocumentTypeId;
+            entity.ImportNumber = purchaseOrder.ImportNumber;
+            entity.EmbarkationPort = purchaseOrder.EmbarkationPort;
+            entity.ProformaNumber = purchaseOrder.ProformaNumber;
+            // Details
+            var details = await _context.PurchaseOrderDetails.Where(x => x.PurchaseOrderId == purchaseOrderId).ToListAsync(ct);
+            _context.PurchaseOrderDetails.RemoveRange(details);
+            entity.PurchaseOrderDetails = purchaseOrder.PurchaseOrderDetails;
+            // Activities
+            var activities = await _context.PurchaseOrderActivities.Where(x => x.PurchaseOrderId == purchaseOrderId).ToListAsync(ct);
+            _context.PurchaseOrderActivities.RemoveRange(activities);
+            entity.PurchaseOrderActivities = purchaseOrder.PurchaseOrderActivities;
+            try
+            {
+                await _context.SaveChangesAsync(ct);
+            }
+            catch
+            {
+                _context.Entry(entity).State = EntityState.Unchanged;
+                throw;
+            }
         }
     }
 }
