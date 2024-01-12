@@ -10,17 +10,17 @@
             <RadzenRow AlignItems="AlignItems.Start" Gap="2rem">
                 <RadzenFormField Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                     <ChildContent>
-                        <ReferencePicker OnChange="ItemReferenceHandler" References="ItemReferencesForReferenceId" />
+                        <ReferencePicker OnChange="ItemReferenceHandler" References="ItemReferencesForReferenceId"/>
                     </ChildContent>
                     <Helper>
                         <RadzenRequiredValidator Text="La referencia es requerida" Component="ReferenceId" />
                     </Helper>
                 </RadzenFormField>
-
                 <RadzenFormField Text="Bodega" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                     <ChildContent>
                         <RadzenDropDown Data="@WarehousesForWarehouseId" TextProperty="WarehouseName" ValueProperty="WarehouseId" AllowClear=true Disabled=@(hasWarehouseIdValue)
-                                        style="display: block; width: 100%" @bind-Value="@adjustmentDetail.WarehouseId" Name="WAREHOUSE_ID" AllowFiltering="true" ClearSearchAfterSelection="true" />
+                                        style="display: block; width: 100%" @bind-Value="@adjustmentDetail.WarehouseId" Name="WAREHOUSE_ID" Placeholder="Seleccione una bodega"
+                                        AllowFiltering="true" ClearSearchAfterSelection="true" TabIndex="1"/>
                     </ChildContent>
                     <Helper>
                         <RadzenRequiredValidator Component="WAREHOUSE_ID" DefaultValue="0" Text="La bodega es requerida"></RadzenRequiredValidator>
@@ -29,7 +29,7 @@
                 </RadzenFormField>
                 <RadzenFormField Text="Cantidad" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                     <ChildContent>
-                        <RadzenNumeric style="display: block; width: 100%" @bind-Value="@adjustmentDetail.Quantity" Name="QUANTITY" Placeholder="Ingrese la cantidad a ajustar" />
+                        <RadzenNumeric style="display: block; width: 100%" @bind-Value="@adjustmentDetail.Quantity" Name="QUANTITY" Placeholder="Ingrese la cantidad a ajustar" TabIndex="2" />
                     </ChildContent>
                     <Helper>
                         <RadzenRequiredValidator Component="QUANTITY" Text="La Cantidad es requerida" />

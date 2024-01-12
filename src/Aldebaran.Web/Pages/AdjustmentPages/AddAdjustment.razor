@@ -30,8 +30,9 @@
                         </RadzenFormField>
                         <RadzenFormField Text="Motivo del ajuste" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
-                                <RadzenDropDownDataGrid Data="@AdjustmentReasonsForAdjustmentReasonId" TextProperty="AdjustmentReasonName" ValueProperty="AdjustmentReasonId" AllowClear=true
-                                                        Placeholder="Seleccione un motivo" style="display: block; width: 100%" @bind-Value="@adjustment.AdjustmentReasonId" Name="ADJUSTMENT_REASON_ID" TabIndex="1" />
+                                <RadzenDropDown Data="@AdjustmentReasonsForAdjustmentReasonId" TextProperty="AdjustmentReasonName" ValueProperty="AdjustmentReasonId" AllowClear=true
+                                                Placeholder="Seleccione un motivo" style="display: block; width: 100%" @bind-Value="@adjustment.AdjustmentReasonId" Name="ADJUSTMENT_REASON_ID"
+                                                AllowFiltering="true" ClearSearchAfterSelection="true" TabIndex="1" />
                             </ChildContent>
                             <Helper>
                                 <RadzenRequiredValidator Component="ADJUSTMENT_REASON_ID" DefaultValue="0" Text="El motivo del ajuste es requerido "></RadzenRequiredValidator>
@@ -39,8 +40,9 @@
                         </RadzenFormField>
                         <RadzenFormField Text="Tipo de ajuste" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
-                                <RadzenDropDownDataGrid Data="@AdjustmentTypesForAdjustmentTypeId" TextProperty="AdjustmentTypeName" ValueProperty="AdjustmentTypeId" AllowClear=true
-                                                        Placeholder="Seleccione un tipo" style="display: block; width: 100%" @bind-Value="@adjustment.AdjustmentTypeId" Name="ADJUSTMENT_TYPE_ID" TabIndex="2" />
+                                <RadzenDropDown Data="@AdjustmentTypesForAdjustmentTypeId" TextProperty="AdjustmentTypeName" ValueProperty="AdjustmentTypeId" AllowClear=true
+                                                Placeholder="Seleccione un tipo" style="display: block; width: 100%" @bind-Value="@adjustment.AdjustmentTypeId" Name="ADJUSTMENT_TYPE_ID"
+                                                AllowFiltering="true" ClearSearchAfterSelection="true" TabIndex="2" />
                             </ChildContent>
                             <Helper>
                                 <RadzenRequiredValidator Component="ADJUSTMENT_TYPE_ID" DefaultValue="0" Text="El tipo de ajuste es requerido"></RadzenRequiredValidator>
