@@ -115,7 +115,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
             {
                 DialogResult = null;
 
-                if (await DialogService.Confirm("Esta seguro que desea cancelar este ajuste?") == true)
+                if (await DialogService.Confirm("Está seguro que desea cancelar este ajuste?") == true)
                 {
                     adjustment.StatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 2);
 

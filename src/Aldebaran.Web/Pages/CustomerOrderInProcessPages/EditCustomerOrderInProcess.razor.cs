@@ -89,7 +89,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                 processSatellitesFORPROCESSSATELLITEID = await ProcessSatelliteService.GetAsync();
                 employeesFOREMPLOYEEID = await EmployeeService.GetAsync();
 
-                title = $"Modificación del Traslado a Proceso para el Pedido No. {customerOrder.OrderNumber}";
+                title = $"modificación del Traslado a Proceso para el Pedido No. {customerOrder.OrderNumber}";
             }
             catch (Exception ex)
             {

@@ -89,7 +89,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
-            if (await DialogService.Confirm("Está seguro que cancelar la modificación de la Reserva??", "Confirmar") == true)
+            if (await DialogService.Confirm("Está seguro que desea cancelar la modificación de la Reserva?", "Confirmar") == true)
                 NavigationManager.NavigateTo("customer-reservations");
         }
 

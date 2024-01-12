@@ -77,7 +77,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 var customerOrderDetails = await CustomerOrderDetailService.GetByCustomerOrderIdAsync(customerOrder.CustomerOrderId);
                 this.customerOrderDetails = customerOrderDetails.ToList();
 
-                title = $"Modificaciones para el Pedido No. {customerOrder.OrderNumber}";
+                title = $"modificaciónes para el Pedido No. {customerOrder.OrderNumber}";
             }
             catch (Exception ex)
             {
@@ -114,7 +114,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
-            if (await DialogService.Confirm("Está seguro que cancelar la creacion del Pedido??", "Confirmar") == true)
+            if (await DialogService.Confirm("Está seguro que cancelar la creación del Pedido??", "Confirmar") == true)
                 NavigationManager.NavigateTo("customer-orders");
         }
 

@@ -61,7 +61,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                 isSubmitInProgress = true;
 
                 if (CustomerReservationDetails.Any(ad => ad.ReferenceId.Equals(customerReservationDetail.ReferenceId)))
-                    throw new Exception("La Referencia seleccionada, ya existe dentro de esta reserva.");
+                    throw new Exception("La referencia seleccionada ya existe dentro de esta reserva.");
 
                 var reference = await ItemReferenceService.FindAsync(customerReservationDetail.ReferenceId);
                 customerReservationDetail.ItemReference = reference;

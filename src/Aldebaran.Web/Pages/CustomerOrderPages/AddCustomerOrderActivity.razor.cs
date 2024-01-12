@@ -115,7 +115,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
-            if (await DialogService.Confirm("Está seguro que cancelar la creacion de la Actividad??", "Confirmar") == true)
+            if (await DialogService.Confirm("Está seguro que cancelar la creación de la Actividad??", "Confirmar") == true)
                 NavigationManager.NavigateTo("customer-orders");
         }
 

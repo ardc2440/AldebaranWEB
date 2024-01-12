@@ -89,7 +89,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
                 shippingMethodsFORSHIPPINGMETHODID = await ShippingMethodService.GetAsync();
                 employeesFOREMPLOYEEID = await EmployeeService.GetAsync();
 
-                title = $"Modificación del despacho para el Pedido No. {customerOrder.OrderNumber}";
+                title = $"modificación del despacho para el Pedido No. {customerOrder.OrderNumber}";
             }
             catch (Exception ex)
             {

@@ -116,7 +116,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
-            if (await DialogService.Confirm("Está seguro que desea cancelar la creacion del ajuste?", "Confirmar") == true)
+            if (await DialogService.Confirm("Está seguro que desea cancelar la creación del ajuste?", "Confirmar") == true)
                 NavigationManager.NavigateTo("adjustments");
         }
 

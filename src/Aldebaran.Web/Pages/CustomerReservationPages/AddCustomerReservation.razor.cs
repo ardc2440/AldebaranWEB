@@ -93,7 +93,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
                 var reservationNumber = await CustomerReservationService.AddAsync(customerReservation);
 
-                await DialogService.Alert($"Reserva de Articulos guardada satisfactoriamente con el consecutivo {reservationNumber}", "Información");
+                await DialogService.Alert($"Reserva de articulos guardada satisfactoriamente con el consecutivo {reservationNumber}", "Información");
                 NavigationManager.NavigateTo("customer-reservations");
             }
             catch (Exception ex)
@@ -106,13 +106,13 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
-            if (await DialogService.Confirm("Está seguro que cancelar la creacion de la Reserva??", "Confirmar") == true)
+            if (await DialogService.Confirm("Está seguro que desea cancelar la creación de la Reserva?", "Confirmar") == true)
                 NavigationManager.NavigateTo("customer-reservations");
         }
 
         protected async Task AddCustomerReservationDetailButtonClick(MouseEventArgs args)
         {
-            var result = await DialogService.OpenAsync<AddCustomerReservationDetail>("Nueva referencia", new Dictionary<string, object> { { "CustomerReservationDetails", customerReservationDetails } });
+            var result = await DialogService.OpenAsync<AddCustomerReservationDetail>("Agregar referencia", new Dictionary<string, object> { { "CustomerReservationDetails", customerReservationDetails } });
 
             if (result == null)
                 return;
@@ -136,7 +136,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
         protected async Task EditRow(CustomerReservationDetail args)
         {
-            var result = await DialogService.OpenAsync<EditCustomerReservationDetail>("Actualizar referencia", new Dictionary<string, object> { { "CustomerReservationDetail", args } });
+            var result = await DialogService.OpenAsync<EditCustomerReservationDetail>("Modificar referencia", new Dictionary<string, object> { { "CustomerReservationDetail", args } });
             if (result == null)
                 return;
 
