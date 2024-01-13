@@ -1,7 +1,6 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Models.ViewModels;
-using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
@@ -38,10 +37,10 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
         protected bool errorVisible;
         protected string alertMessage;
         protected bool isSubmitInProgress;
-        protected InventoryQuantities QuantitiesPanel;
         protected IEnumerable<Warehouse> warehousesForWAREHOUSEID;
         protected bool hasWAREHOUSE_IDValue;
         protected DetailInProcess detailInProcess;
+        protected ItemReference ItemReference { get; set; }
 
         #endregion
 
@@ -67,6 +66,20 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
 
             if (detailInProcess.THIS_QUANTITY == 0)
                 detailInProcess.THIS_QUANTITY = detailInProcess.PROCESSED_QUANTITY;
+
+            ItemReference = await ItemReferenceService.FindAsync(detailInProcess.REFERENCE_ID);
+        }
+
+        public override async Task SetParametersAsync(ParameterView parameters)
+        {
+            hasWAREHOUSE_IDValue = parameters.TryGetValue<short>("WAREHOUSE_ID", out var hasWAREHOUSE_IDResult);
+
+            if (hasWAREHOUSE_IDValue)
+            {
+                detailInProcess.WAREHOUSE_ID = hasWAREHOUSE_IDResult;
+            }
+
+            await base.SetParametersAsync(parameters);
         }
 
         #endregion
@@ -107,23 +120,6 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
             DialogService.Close(null);
-        }
-
-        public override async Task SetParametersAsync(ParameterView parameters)
-        {
-            hasWAREHOUSE_IDValue = parameters.TryGetValue<short>("WAREHOUSE_ID", out var hasWAREHOUSE_IDResult);
-
-            if (hasWAREHOUSE_IDValue)
-            {
-                detailInProcess.WAREHOUSE_ID = hasWAREHOUSE_IDResult;
-            }
-
-            await base.SetParametersAsync(parameters);
-        }
-
-        protected async Task ItemReferenceHandler()
-        {
-            await QuantitiesPanel.Refresh(detailInProcess.REFERENCE_ID);
         }
 
         #endregion

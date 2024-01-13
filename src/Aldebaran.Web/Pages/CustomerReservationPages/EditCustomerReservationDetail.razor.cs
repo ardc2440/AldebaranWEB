@@ -1,5 +1,5 @@
+using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
-using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
@@ -11,6 +11,9 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         #region Injections
         [Inject]
         protected DialogService DialogService { get; set; }
+
+        [Inject]
+        protected IItemReferenceService ItemReferenceService { get; set; }
         #endregion
 
         #region Parameters
@@ -23,11 +26,16 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         protected bool errorVisible;
         protected string alertMessage;
         protected bool isSubmitInProgress;
-        protected InventoryQuantities QuantitiesPanel;
+        protected ItemReference ItemReference { get; set; }
 
         #endregion
 
         #region Overrides
+        protected override async Task OnInitializedAsync()
+        {
+            ItemReference = await ItemReferenceService.FindAsync(CustomerReservationDetail.ReferenceId);
+        }
+
         public override async Task SetParametersAsync(ParameterView parameters)
         {
             CustomerReservationDetail = new CustomerReservationDetail();
@@ -61,10 +69,6 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             DialogService.Close(null);
         }
 
-        protected async Task ItemReferenceHandler()
-        {
-            await QuantitiesPanel.Refresh(CustomerReservationDetail.ItemReference.ReferenceId);
-        }
         #endregion
     }
 }

@@ -59,8 +59,6 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 if (CustomerOrderDetails.Any(ad => ad.ReferenceId.Equals(customerOrderDetail.ReferenceId)))
                     throw new Exception("La referencia seleccionada ya existe dentro de esta reserva.");
 
-                var reference = await ItemReferenceService.FindAsync(customerOrderDetail.ReferenceId);
-                customerOrderDetail.ItemReference = reference;
                 DialogService.Close(customerOrderDetail);
             }
             catch (Exception ex)
@@ -82,8 +80,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected async Task ItemReferenceHandler(ItemReference reference)
         {
             customerOrderDetail.ReferenceId = reference?.ReferenceId ?? 0;
-
-            await quantitiesPanel.Refresh(reference);
+            customerOrderDetail.ItemReference = customerOrderDetail.ReferenceId == 0 ? null : itemReferencesForREFERENCEID.Single(s => s.ReferenceId == customerOrderDetail.ReferenceId); ; ;
         }
         #endregion
     }

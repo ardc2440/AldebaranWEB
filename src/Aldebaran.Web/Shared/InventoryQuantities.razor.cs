@@ -58,6 +58,7 @@ namespace Aldebaran.Web.Shared
                 await Reset();
                 return;
             }
+
             await RefreshInventory();
             await RefreshWarehouses();
             await RefreshTransitOrders();
@@ -77,24 +78,6 @@ namespace Aldebaran.Web.Shared
         #endregion
 
         #region Events
-        [Obsolete]
-        public async Task Refresh(int reference_id)
-        {
-            //var reference = await ItemReferenceService.FindAsync(reference_id);
-            //await Refresh(reference);
-        }
-        [Obsolete]
-        public async Task Refresh(ItemReference reference)
-        {
-            //if (reference == null)
-            //    return;
-
-            //Reference = reference;
-
-            //await RefreshInventory();
-            //await RefreshWarehouses();
-            //await RefreshTransitOrders();
-        }
 
         async Task RefreshInventory()
         {

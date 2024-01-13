@@ -12,7 +12,7 @@
                 <RadzenColumn SizeMD="3">
                     <RadzenLabel Text="Referencia" class="fw-bold" style="width: 100%" />
                 </RadzenColumn>
-                <RadzenColumn onchange="@ItemReferenceHandler()" SizeMD="9">
+                <RadzenColumn SizeMD="9">
                     <span>@detailInProcess.REFERENCE_DESCRIPTION</span>
                 </RadzenColumn>
                 <RadzenColumn SizeMD="3">
@@ -63,7 +63,7 @@
             </RadzenRow>
         </RadzenStack>
         <RadzenRow style="margin-bottom: 1rem">
-            <InventoryQuantities @ref="QuantitiesPanel" Reference="detailInProcess.ItemReference" />
+            <InventoryQuantities Reference="ItemReference" />
         </RadzenRow>
         <RadzenStack class="my-2" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
             <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@isSubmitInProgress" />
