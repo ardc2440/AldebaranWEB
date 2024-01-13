@@ -100,7 +100,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
                 adjustment.AdjustmentDetails = adjustmentDetails;
                 await AdjustmentService.UpdateAsync(adjustment.AdjustmentId, adjustment);
-                await DialogService.Alert("Ajuste Modificado Satisfactoriamente", "Información");
+                await DialogService.Alert("Ajuste modificado satisfactoriamente", "Información");
                 NavigationManager.NavigateTo("adjustments");
             }
             catch (Exception ex)
@@ -113,13 +113,13 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
-            if (await DialogService.Confirm("Está seguro que cancelar la modificación del Ajuste??", "Confirmar") == true)
+            if (await DialogService.Confirm("Está seguro que desea cancelar la modificación del ajuste?", "Confirmar") == true)
                 NavigationManager.NavigateTo("adjustments");
         }
 
         protected async Task AddAdjustmentDetailButtonClick(MouseEventArgs args)
         {
-            var result = await DialogService.OpenAsync<AddAdjustmentDetail>("Nueva referencia", new Dictionary<string, object> { { "adjustmentDetails", adjustmentDetails } });
+            var result = await DialogService.OpenAsync<AddAdjustmentDetail>("Agregar referencia", new Dictionary<string, object> { { "adjustmentDetails", adjustmentDetails } });
 
             if (result == null)
                 return;
@@ -143,7 +143,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected async Task EditRow(AdjustmentDetail args)
         {
-            var result = await DialogService.OpenAsync<EditAdjustmentDetail>("Actualizar referencia", new Dictionary<string, object> { { "AdjustmentDetail", args } });
+            var result = await DialogService.OpenAsync<EditAdjustmentDetail>("Modificar referencia", new Dictionary<string, object> { { "AdjustmentDetail", args } });
             if (result == null)
                 return;
             var detail = (AdjustmentDetail)result;

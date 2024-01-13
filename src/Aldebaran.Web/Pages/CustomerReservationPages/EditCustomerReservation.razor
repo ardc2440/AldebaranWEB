@@ -11,26 +11,29 @@
             <RadzenRow AlignItems="AlignItems.Center">
                 <RadzenColumn Size="12">
                     <RadzenText Text="@title" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
+                    <hr />
                 </RadzenColumn>
-                <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">@errorMessage</RadzenAlert>
+                <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">
+                    @errorMessage
+                </RadzenAlert>
             </RadzenRow>
             <RadzenRow AlignItems="AlignItems.Start" Gap="2rem">
                 <RadzenColumn SizeMD="6">
                     <RadzenStack>
-                        <RadzenFormField Text="Fecha de Reserva" Variant="Variant.Text" Style="width: 100%;">
+                        <RadzenFormField Text="Fecha de reserva" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
-                                <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@customerReservation.ReservationDate" Name="RESERVATION_DATE" Placeholder="Seleccione la fecha de la reserva" TabIndex="0" />
+                                <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@customerReservation.ReservationDate" Name="RESERVATION_DATE" Placeholder="Seleccione la fecha de reserva" TabIndex="0" />
                             </ChildContent>
                             <Helper>
                                 <RadzenRequiredValidator Text="La Fecha de reserva es requerida" Component="RESERVATION_DATE" />
                             </Helper>
                         </RadzenFormField>
-                        <RadzenFormField Text="Fecha de Expiración de la Reserva" Variant="Variant.Text" Style="width: 100%;">
+                        <RadzenFormField Text="Fecha de expiración de la Reserva" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
-                                <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@customerReservation.ExpirationDate" Name="EXPIRATION_DATE" Placeholder="Seleccione la fecha de expiración la reserva" TabIndex="0" />
+                                <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@customerReservation.ExpirationDate" Name="EXPIRATION_DATE" Placeholder="Seleccione la fecha de expiración" TabIndex="1" />
                             </ChildContent>
                             <Helper>
-                                <RadzenRequiredValidator Text="La Fecha de expiración es requerida" Component="EXPIRATION_DATE" />
+                                <RadzenRequiredValidator Text="La fecha de expiración es requerida" Component="EXPIRATION_DATE" />
                             </Helper>
                         </RadzenFormField>
                         <RadzenFormField Text="Cliente" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
@@ -38,7 +41,7 @@
                                 <RadzenDropDownDataGrid Data="@customersForCUSTOMERID" TextProperty="CustomerName" ValueProperty="CustomerId" AllowClear=true
                                                         style="display: block; width: 100%" @bind-Value="@customerReservation.CustomerId" Name="CUSTOMER_ID"
                                                         FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true"
-                                                        Placeholder="Seleccione un Cliente">
+                                                        Placeholder="Seleccione el cliente" TabIndex="2">
                                     <Columns>
                                         <RadzenDropDownDataGridColumn Property="IdentityType.IdentityTypeName" Title="Tipo Documento" />
                                         <RadzenDropDownDataGridColumn Property="IdentityNumber" Title="Identificación" />
@@ -52,18 +55,21 @@
                                 </RadzenDropDownDataGrid>
                             </ChildContent>
                             <Helper>
-                                <RadzenRequiredValidator Component="CUSTOMER_ID" DefaultValue="0" Text="El Cliente de la reserva es requerido "></RadzenRequiredValidator>
+                                <RadzenRequiredValidator Component="CUSTOMER_ID" DefaultValue="0" Text="El cliente es requerido "></RadzenRequiredValidator>
                             </Helper>
                         </RadzenFormField>
                         <RadzenFormField Text="Notas" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
-                                <RadzenTextArea style="display: block; width: 100%" @bind-Value="@customerReservation.Notes" Name="NOTES" Placeholder="Ingrese sus notas sobre la Reserva" TabIndex="3" />
+                                <RadzenTextArea style="display: block; width: 100%" @bind-Value="@customerReservation.Notes" Name="NOTES" Placeholder="Ingrese sus comentarios" TabIndex="3" />
                             </ChildContent>
                         </RadzenFormField>
                     </RadzenStack>
                 </RadzenColumn>
                 <RadzenColumn Size="6">
                     <RadzenStack>
+                        <RadzenColumn Size="6">
+                            <RadzenText Text="Referencias" TextStyle="TextStyle.H5" TagName="TagName.H1" style="margin: 0" />
+                        </RadzenColumn>
                         <RadzenRow Gap="0" AlignItems="AlignItems.Center">
                             <RadzenColumn Size="12">
                                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
@@ -72,7 +78,7 @@
                             </RadzenColumn>
                         </RadzenRow>
                         <LocalizedDataGrid @ref="customerReservationDetailGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                        Data="@customerReservationDetails" TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail">
+                                           Data="@customerReservationDetails" TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail">
                             <Columns>
                                 <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Property="ReservedQuantity" Title="Cantidad" Width="100px" />
                                 <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Title="Referencia">

@@ -66,7 +66,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 await Task.Yield();
 
                 if (!int.TryParse(CustomerOrderId, out var customerOrderId))
-                    throw new Exception("El Id de Referencia recibido no es valido");
+                    throw new Exception("El Id de pedido recibido no es valido");
 
                 customersForCUSTOMERID = await CustomerService.GetAsync();
 
@@ -77,7 +77,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 var customerOrderDetails = await CustomerOrderDetailService.GetByCustomerOrderIdAsync(customerOrder.CustomerOrderId);
                 this.customerOrderDetails = customerOrderDetails.ToList();
 
-                title = $"Modificaciones para el Pedido No. {customerOrder.OrderNumber}";
+                title = $"Modificar el Pedido No. {customerOrder.OrderNumber}";
             }
             catch (Exception ex)
             {
@@ -96,12 +96,12 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 isSubmitInProgress = true;
 
                 if (!customerOrderDetails.Any())
-                    throw new Exception("No ha ingresado ninguna referencia");
+                    throw new Exception("No há ingresado ninguna referencia");
 
                 customerOrder.CustomerOrderDetails = customerOrderDetails;
                 await CustomerOrderService.UpdateAsync(customerOrder.CustomerOrderId, customerOrder);
 
-                await DialogService.Alert($"Pedido de Articulos Modificado Satisfactoriamente", "Información");
+                await DialogService.Alert($"Pedido {customerOrder.OrderNumber} modificado satisfactoriamente", "Información");
                 NavigationManager.NavigateTo("customer-orders");
             }
             catch (Exception ex)
@@ -114,13 +114,13 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
-            if (await DialogService.Confirm("Está seguro que cancelar la creacion del Pedido??", "Confirmar") == true)
+            if (await DialogService.Confirm("Está seguro que desea cancelar la modificación del pedido?", "Confirmar") == true)
                 NavigationManager.NavigateTo("customer-orders");
         }
 
         protected async Task AddCustomerOrderDetailButtonClick(MouseEventArgs args)
         {
-            var result = await DialogService.OpenAsync<AddCustomerOrderDetail>("Nueva referencia", new Dictionary<string, object> { { "CustomerOrderDetails", customerOrderDetails } });
+            var result = await DialogService.OpenAsync<AddCustomerOrderDetail>("Agregar referencia", new Dictionary<string, object> { { "CustomerOrderDetails", customerOrderDetails } });
 
             if (result == null)
                 return;
@@ -144,7 +144,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task EditRow(CustomerOrderDetail args)
         {
-            var result = await DialogService.OpenAsync<EditCustomerOrderDetail>("Actualizar referencia", new Dictionary<string, object> { { "CustomerOrderDetail", args } });
+            var result = await DialogService.OpenAsync<EditCustomerOrderDetail>("Modificar referencia", new Dictionary<string, object> { { "CustomerOrderDetail", args } });
             if (result == null)
                 return;
             var detail = (CustomerOrderDetail)result;

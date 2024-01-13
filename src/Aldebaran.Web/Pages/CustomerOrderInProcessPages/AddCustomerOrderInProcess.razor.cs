@@ -76,7 +76,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
             try
             {
                 if (!int.TryParse(CustomerOrderId, out var customerOrderId))
-                    throw new Exception("El Id de Pedido recibido no es valido");
+                    throw new Exception("El Id de pedido recibido no es valido");
 
                 isLoadingInProgress = true;
 
@@ -104,7 +104,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                     StatusDocumentTypeId = customerOrderInProgressStatusDocumentType.StatusDocumentTypeId
                 };
 
-                title = $"Traslado a Proceso para el Pedido No. {customerOrder.OrderNumber}";
+                title = $"Traslado a proceso para el pedido No. {customerOrder.OrderNumber}";
             }
             catch (Exception ex)
             {
@@ -135,7 +135,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
         protected async Task SendToProcess(DetailInProcess args)
         {
-            if (await DialogService.OpenAsync<SetQuantityInProcess>("Cantidad a Trasladar", new Dictionary<string, object> { { "DetailInProcess", args } }) != null)
+            if (await DialogService.OpenAsync<SetQuantityInProcess>("Cantidad a trasladar", new Dictionary<string, object> { { "DetailInProcess", args } }) != null)
                 await customerOrderDetailGrid.Reload();
         }
 
@@ -171,7 +171,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
                 await CustomerOrdersInProcessService.AddAsync(customerOrderInProcess);
 
-                await DialogService.Alert($"Traslado a Proceso Grabado Satisfactoriamente", "Información");
+                await DialogService.Alert($"Traslado a proceso grabado satisfactoriamente", "Información");
                 NavigationManager.NavigateTo("process-customer-orders");
             }
             catch (Exception ex)
@@ -201,7 +201,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
-            if (await DialogService.Confirm("Está seguro que cancelar la creacion del Traslado??", "Confirmar") == true)
+            if (await DialogService.Confirm("Está seguro que desea cancelar la creación del traslado??", "Confirmar") == true)
                 NavigationManager.NavigateTo("process-customer-orders");
         }
 

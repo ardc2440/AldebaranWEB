@@ -96,10 +96,8 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             {
                 DialogResult = null;
 
-                if (await DialogService.Confirm("Esta seguro que desea cancelar esta reserva?") == true)
+                if (await DialogService.Confirm("Está seguro que desea cancelar esta reserva?") == true)
                 {
-                    /* TO DO Agregar Ventana pára el ingreso del motivo de cancelacion de la reserva */
-
                     var cancelStatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 3);
 
                     await CustomerReservationService.CancelAsync(customerReservation.CustomerReservationId, cancelStatusDocumentType.StatusDocumentTypeId);

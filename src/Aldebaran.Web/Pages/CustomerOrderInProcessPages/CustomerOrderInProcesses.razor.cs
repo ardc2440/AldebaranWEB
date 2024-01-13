@@ -152,7 +152,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
             {
                 dialogResult = null;
 
-                if (await DialogService.Confirm("Esta seguro que desea cancelar este Traslado a Proceso?") == true)
+                if (await DialogService.Confirm("Está seguro que desea cancelar este traslado a proceso?") == true)
                 {
                     customerOrderInProcess.StatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync((await DocumentTypeService.FindByCodeAsync("T")).DocumentTypeId, 2);
                     customerOrderInProcess.StatusDocumentTypeId = customerOrderInProcess.StatusDocumentType.StatusDocumentTypeId;
@@ -162,7 +162,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
                     await CustomerOrdersInProcessService.UpdateAsync(customerOrderInProcess.CustomerOrderInProcessId, customerOrderInProcess);
 
-                    await DialogService.Alert($"Traslado a Proceso cancelado correctamente", "Información");
+                    await DialogService.Alert($"Traslado a proceso cancelado correctamente", "Información");
                     await CustomerOrderInProcessesDataGrid.Reload();
                 }
             }
@@ -172,7 +172,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido cancelar el traslado. \n\r {ex.InnerException.Message}\n\r{ex.StackTrace}"
+                    Detail = $"No se há podido cancelar el traslado. \n\r {ex.InnerException.Message}"
                 });
             }
         }

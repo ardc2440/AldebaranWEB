@@ -76,7 +76,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
             try
             {
                 if (!int.TryParse(CustomerOrderId, out var customerOrderId))
-                    throw new Exception("El Id de Pedido recibido no es valido");
+                    throw new Exception("El Id de pedido recibido no es valido");
 
                 isLoadingInProgress = true;
 
@@ -103,7 +103,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
                     StatusDocumentTypeId = customerOrderShipmentStatusDocumentType.StatusDocumentTypeId
                 };
 
-                title = $"Despacho de Artículos para el Pedido No. {customerOrder.OrderNumber}";
+                title = $"Despacho de artículos para el pedido No. {customerOrder.OrderNumber}";
             }
             catch (Exception ex)
             {
@@ -170,7 +170,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
 
                 await CustomerOrderShipmentService.AddAsync(customerOrderShipment);
 
-                await DialogService.Alert($"Despacho Grabado Satisfactoriamente", "Información");
+                await DialogService.Alert($"Despacho grabado satisfactoriamente", "Información");
                 NavigationManager.NavigateTo("Shipment-customer-orders");
             }
             catch (Exception ex)
@@ -199,7 +199,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
 
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
-            if (await DialogService.Confirm("Está seguro que cancelar la creacion del Despacho??", "Confirmar") == true)
+            if (await DialogService.Confirm("Está seguro que cancelar la creación del despacho??", "Confirmar") == true)
                 NavigationManager.NavigateTo("shipment-customer-orders");
         }
 

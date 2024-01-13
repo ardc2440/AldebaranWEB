@@ -44,7 +44,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected LocalizedDataGrid<Adjustment> grid0;
 
-        protected DialogResult dialogResult { get; set; }
+        protected DialogResult DialogResult { get; set; }
 
         protected string search = "";
 
@@ -113,9 +113,9 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         {
             try
             {
-                dialogResult = null;
+                DialogResult = null;
 
-                if (await DialogService.Confirm("Esta seguro que desea cancelar este ajuste?") == true)
+                if (await DialogService.Confirm("Está seguro que desea cancelar este ajuste?") == true)
                 {
                     adjustment.StatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 2);
 

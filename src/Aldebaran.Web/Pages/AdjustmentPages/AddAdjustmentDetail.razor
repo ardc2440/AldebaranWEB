@@ -8,32 +8,39 @@
     <RadzenStack>
         <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.AdjustmentDetail" Data="@adjustmentDetail" Visible="@(adjustmentDetail != null)" Submit="@FormSubmit">
             <RadzenRow AlignItems="AlignItems.Start" Gap="2rem">
-                <ReferencePicker OnChange="ItemReferenceHandler" References="itemReferencesForREFERENCEID" />
-                <RadzenRequiredValidator Text="La Referencia es requerida" Component="ReferenceId" />
-                <RadzenFormField Text="Bodega" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
+                <RadzenFormField Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                     <ChildContent>
-                        <RadzenDropDownDataGrid Data="@warehousesForWAREHOUSEID" TextProperty="WarehouseName" ValueProperty="WarehouseId" AllowClear=true
-                                                Disabled=@(hasWAREHOUSE_IDValue) Placeholder="Seleccione una bodega" style="display: block; width: 100%" @bind-Value="@adjustmentDetail.WarehouseId" Name="WAREHOUSE_ID" TabIndex="2" />
+                        <ReferencePicker OnChange="ItemReferenceHandler" References="ItemReferencesForReferenceId"/>
                     </ChildContent>
                     <Helper>
-                        <RadzenRequiredValidator Component="WAREHOUSE_ID" DefaultValue="0" Text="La Bodega es requerida"></RadzenRequiredValidator>
-                        <RadzenNumericRangeValidator Component="WAREHOUSE_ID" Min="1" Text="La Bodega es requerida" />
+                        <RadzenRequiredValidator Text="La referencia es requerida" Component="ReferenceId" />
+                    </Helper>
+                </RadzenFormField>
+                <RadzenFormField Text="Bodega" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
+                    <ChildContent>
+                        <RadzenDropDown Data="@WarehousesForWarehouseId" TextProperty="WarehouseName" ValueProperty="WarehouseId" AllowClear=true Disabled=@(hasWarehouseIdValue)
+                                        style="display: block; width: 100%" @bind-Value="@adjustmentDetail.WarehouseId" Name="WAREHOUSE_ID" Placeholder="Seleccione una bodega"
+                                        AllowFiltering="true" ClearSearchAfterSelection="true" TabIndex="1"/>
+                    </ChildContent>
+                    <Helper>
+                        <RadzenRequiredValidator Component="WAREHOUSE_ID" DefaultValue="0" Text="La bodega es requerida"></RadzenRequiredValidator>
+                        <RadzenNumericRangeValidator Component="WAREHOUSE_ID" Min="1" Text="La bodega es requerida" />
                     </Helper>
                 </RadzenFormField>
                 <RadzenFormField Text="Cantidad" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                     <ChildContent>
-                        <RadzenNumeric style="display: block; width: 100%" @bind-Value="@adjustmentDetail.Quantity" Name="QUANTITY" Placeholder="Ingrese la cantidad a ajustar" />
+                        <RadzenNumeric style="display: block; width: 100%" @bind-Value="@adjustmentDetail.Quantity" Name="QUANTITY" Placeholder="Ingrese la cantidad a ajustar" TabIndex="2" />
                     </ChildContent>
                     <Helper>
                         <RadzenRequiredValidator Component="QUANTITY" Text="La Cantidad es requerida" />
                         <RadzenNumericRangeValidator Component="QUANTITY" Min="1" Text="La cantidad debe ser mayor a 0" />
                     </Helper>
                 </RadzenFormField>
-                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
-                    <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@isSubmitInProgress" />
-                    <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
-                </RadzenStack>
             </RadzenRow>
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@isSubmitInProgress" />
+                <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
+            </RadzenStack>
         </RadzenTemplateForm>
     </RadzenStack>
 </RadzenColumn>

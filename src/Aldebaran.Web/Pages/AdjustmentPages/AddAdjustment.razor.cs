@@ -47,28 +47,21 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         #endregion
 
+        #region Properties
+        protected DateTime Now { get; set; }
+        protected IEnumerable<AdjustmentReason> AdjustmentReasonsForAdjustmentReasonId { get; set; }
+        protected IEnumerable<AdjustmentType> AdjustmentTypesForAdjustmentTypeId { get; set; }
+        protected ICollection<AdjustmentDetail> AdjustmentDetails { get; set; }
+
+        #endregion
+
         #region Global Variables
 
-        protected DateTime Now { get; set; }
-
         protected bool errorVisible;
-
         protected string errorMessage;
-
         protected Adjustment adjustment;
-
-        protected IEnumerable<AdjustmentReason> adjustmentReasonsForADJUSTMENTREASONID;
-
-        protected IEnumerable<AdjustmentType> adjustmentTypesForADJUSTMENTTYPEID;
-
-        protected IEnumerable<Employee> employeesForEMPLOYEEID;
-
-        protected ICollection<AdjustmentDetail> adjustmentDetails;
-
         protected LocalizedDataGrid<AdjustmentDetail> adjustmentDetailGrid;
-
         protected bool isSubmitInProgress;
-
         protected DocumentType documentType;
 
         #endregion
@@ -77,17 +70,15 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected override async Task OnInitializedAsync()
         {
-            adjustmentReasonsForADJUSTMENTREASONID = await AdjustmentReasonService.GetAsync();
+            AdjustmentReasonsForAdjustmentReasonId = await AdjustmentReasonService.GetAsync();
 
-            adjustmentTypesForADJUSTMENTTYPEID = await AdjustmentTypeService.GetAsync();
+            AdjustmentTypesForAdjustmentTypeId = await AdjustmentTypeService.GetAsync();
 
             Now = DateTime.UtcNow.AddDays(-1);
 
-            adjustmentDetails = new List<AdjustmentDetail>();
+            AdjustmentDetails = new List<AdjustmentDetail>();
 
-            var adjustmentId = 0;
-
-            int.TryParse(pAdjustmentId, out adjustmentId);
+            _ = int.TryParse(pAdjustmentId, out int adjustmentId);
 
             adjustment = new Adjustment() { AdjustmentReason = null, AdjustmentType = null, Employee = null, StatusDocumentType = null };
 
@@ -98,7 +89,6 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
             adjustment.Employee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id);
             adjustment.EmployeeId = adjustment.Employee.EmployeeId;
-
         }
         #endregion
 
@@ -108,12 +98,12 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
             try
             {
                 isSubmitInProgress = true;
-                if (!adjustmentDetails.Any())
-                    throw new Exception("No ha ingresado ninguna referencia");
+                if (!AdjustmentDetails.Any())
+                    throw new Exception("No há ingresado ninguna referencia");
 
-                adjustment.AdjustmentDetails = adjustmentDetails;
+                adjustment.AdjustmentDetails = AdjustmentDetails;
                 await AdjustmentService.AddAsync(adjustment);
-                await DialogService.Alert("Ajuste Guardado Satisfactoriamente", "Información");
+                await DialogService.Alert("Ajuste guardado satisfactoriamente", "Información");
                 NavigationManager.NavigateTo("adjustments");
             }
             catch (Exception ex)
@@ -126,20 +116,20 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
-            if (await DialogService.Confirm("Está seguro que cancelar la creacion del Ajuste??", "Confirmar") == true)
+            if (await DialogService.Confirm("Está seguro que desea cancelar la creación del ajuste?", "Confirmar") == true)
                 NavigationManager.NavigateTo("adjustments");
         }
 
         protected async Task AddAdjustmentDetailButtonClick(MouseEventArgs args)
         {
-            var result = await DialogService.OpenAsync<AddAdjustmentDetail>("Nueva referencia", new Dictionary<string, object> { { "AdjustmentDetails", adjustmentDetails } });
+            var result = await DialogService.OpenAsync<AddAdjustmentDetail>("Agregar referencia", new Dictionary<string, object> { { "AdjustmentDetails", AdjustmentDetails } });
 
             if (result == null)
                 return;
 
             var detail = (AdjustmentDetail)result;
 
-            adjustmentDetails.Add(detail);
+            AdjustmentDetails.Add(detail);
 
             await adjustmentDetailGrid.Reload();
         }
@@ -148,7 +138,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         {
             if (await DialogService.Confirm("Está seguro que desea eliminar esta referencia?", "Confirmar") == true)
             {
-                adjustmentDetails.Remove(item);
+                AdjustmentDetails.Remove(item);
 
                 await adjustmentDetailGrid.Reload();
             }
@@ -156,13 +146,13 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected async Task EditRow(AdjustmentDetail args)
         {
-            var result = await DialogService.OpenAsync<EditAdjustmentDetail>("Actualizar referencia", new Dictionary<string, object> { { "pAdjustmentDetail", args } });
+            var result = await DialogService.OpenAsync<EditAdjustmentDetail>("Modificar referencia", new Dictionary<string, object> { { "AdjustmentDetail", args } });
             if (result == null)
                 return;
             var detail = (AdjustmentDetail)result;
 
-            adjustmentDetails.Remove(args);
-            adjustmentDetails.Add(detail);
+            AdjustmentDetails.Remove(args);
+            AdjustmentDetails.Add(detail);
 
             await adjustmentDetailGrid.Reload();
         }

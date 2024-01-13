@@ -94,13 +94,13 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 isSubmitInProgress = true;
 
                 if (!customerOrderDetails.Any())
-                    throw new Exception("No ha ingresado ninguna referencia");
+                    throw new Exception("No há ingresado ninguna referencia");
 
                 customerOrder.CustomerOrderDetails = customerOrderDetails;
 
                 customerOrder = await CustomerOrderService.AddAsync(customerOrder);
 
-                await DialogService.Alert($"Pedido de Articulos Guardado Satisfactoriamente con el Consecutivo {customerOrder.OrderNumber}", "Información");
+                await DialogService.Alert($"Pedido de artículos guardado satisfactoriamente con el consecutivo {customerOrder.OrderNumber}", "Información");
                 NavigationManager.NavigateTo("customer-orders");
             }
             catch (Exception ex)
@@ -113,13 +113,13 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
-            if (await DialogService.Confirm("Está seguro que cancelar la creacion del Pedido??", "Confirmar") == true)
+            if (await DialogService.Confirm("Está seguro que desea cancelar la creación del pedido?", "Confirmar") == true)
                 NavigationManager.NavigateTo("customer-orders");
         }
 
         protected async Task AddCustomerOrderDetailButtonClick(MouseEventArgs args)
         {
-            var result = await DialogService.OpenAsync<AddCustomerOrderDetail>("Nueva referencia", new Dictionary<string, object> { { "CustomerOrderDetails", customerOrderDetails } });
+            var result = await DialogService.OpenAsync<AddCustomerOrderDetail>("Agregar referencia", new Dictionary<string, object> { { "CustomerOrderDetails", customerOrderDetails } });
 
             if (result == null)
                 return;
@@ -143,7 +143,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task EditRow(CustomerOrderDetail args)
         {
-            var result = await DialogService.OpenAsync<EditCustomerOrderDetail>("Actualizar referencia", new Dictionary<string, object> { { "CustomerOrderDetail", args } });
+            var result = await DialogService.OpenAsync<EditCustomerOrderDetail>("Modificar referencia", new Dictionary<string, object> { { "CustomerOrderDetail", args } });
             if (result == null)
                 return;
             var detail = (CustomerOrderDetail)result;

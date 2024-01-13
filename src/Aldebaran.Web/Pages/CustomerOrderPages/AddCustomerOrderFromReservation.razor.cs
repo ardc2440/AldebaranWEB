@@ -83,12 +83,12 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 customersForCUSTOMERID = await CustomerService.GetAsync();
 
                 if (!int.TryParse(CustomerReservationId, out var customerReservationId))
-                    throw new Exception("El Id de Referencia recibido no es valido");
+                    throw new Exception("El Id de referencia recibido no es valido");
 
                 customerReservation = await CustomerReservationService.FindAsync(customerReservationId) ?? throw new Exception("No ha seleccionado una Reservacion Valida");
 
                 if (!customerReservation.CustomerReservationDetails.Any(cd => cd.SendToCustomerOrder))
-                    throw new Exception("La reserva seleccionada no posee articulos para incluir en el pedido");
+                    throw new Exception("La reserva seleccionada no posee artículos para incluir en el pedido");
 
                 await ChargeCustomerOrderModel();
             }
@@ -167,7 +167,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
                     await CustomerReservationService.UpdateAsync(customerReservation.CustomerReservationId, customerReservation);
 
-                    await DialogService.Alert($"Pedido de Reserva de Articulos guardado con el consecutivo {customerOrder.OrderNumber}", "Información");
+                    await DialogService.Alert($"Pedido guardado con el consecutivo {customerOrder.OrderNumber}", "Información");
                     NavigationManager.NavigateTo("customer-reservations");
                 }
             }
@@ -181,12 +181,12 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
-            if (await DialogService.Confirm("Está seguro que cancelar la creación del Pedido??", "Confirmar") == true)
+            if (await DialogService.Confirm("Está seguro que desea cancelar la creación del Pedido?", "Confirmar") == true)
             {
                 if (!int.TryParse(CustomerReservationId, out var customerReservationId))
-                    throw new Exception("El Id de Referencia recibido no es valido");
+                    throw new Exception("El Id de referencia recibido no es valido");
 
-                var customerReservation = await CustomerReservationService.FindAsync(customerReservationId) ?? throw new Exception("No ha seleccionado una Reservacion Valida");
+                var customerReservation = await CustomerReservationService.FindAsync(customerReservationId) ?? throw new Exception("No ha seleccionado una reservacion valida");
 
                 foreach (var item in customerReservation.CustomerReservationDetails.Where(d => d.SendToCustomerOrder).ToList())
                 {
@@ -200,7 +200,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task AddCustomerOrderDetailButtonClick(MouseEventArgs args)
         {
-            var result = await DialogService.OpenAsync<AddCustomerOrderDetail>("Nueva referencia", new Dictionary<string, object> { { "CustomerOrderDetails", customerOrderDetails } });
+            var result = await DialogService.OpenAsync<AddCustomerOrderDetail>("Agregar referencia", new Dictionary<string, object> { { "CustomerOrderDetails", customerOrderDetails } });
 
             if (result == null)
                 return;
@@ -224,7 +224,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task EditRow(CustomerOrderDetail args)
         {
-            var result = await DialogService.OpenAsync<EditCustomerOrderDetail>("Actualizar referencia", new Dictionary<string, object> { { "CustomerOrderDetail", args } });
+            var result = await DialogService.OpenAsync<EditCustomerOrderDetail>("Modificar referencia", new Dictionary<string, object> { { "CustomerOrderDetail", args } });
             if (result == null)
                 return;
             var detail = (CustomerOrderDetail)result;

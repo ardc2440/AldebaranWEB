@@ -46,6 +46,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         protected string title;
 
         #endregion
+
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
@@ -74,7 +75,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             {
                 isSubmitInProgress = true;
                 if (!customerReservationDetails.Any(d => d.SendToCustomerOrder))
-                    throw new Exception("No ha seleccionado ningun artículo para el pedido");
+                    throw new Exception("No ha seleccionado ningúna referencia para el pedido");
 
                 foreach (var item in customerReservationDetails.Where(d => d.SendToCustomerOrder).ToList())
                     await CustomerReservationDetailService.UpdateAsync(item.CustomerReservationDetailId, item);
@@ -91,7 +92,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
-            if (await DialogService.Confirm("Está seguro que cancelar el envio a Pedido de la Reserva??", "Confirmar") == true)
+            if (await DialogService.Confirm("Está seguro que desea cancelar el envío a pedido de la reserva??", "Confirmar") == true)
                 NavigationManager.NavigateTo("customer-reservations");
         }
 
