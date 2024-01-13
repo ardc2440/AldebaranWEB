@@ -6,14 +6,8 @@
     <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">@alertMessage</RadzenAlert>
         <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Data="@customerReservationDetail" Visible="@(customerReservationDetail != null)" Submit="@FormSubmit">
             <RadzenStack style="margin-bottom: 1rem">
-                <RadzenFormField Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
-                    <ChildContent>
-                        <ReferencePicker OnChange="ItemReferenceHandler" References="itemReferencesForREFERENCEID" />
-                    </ChildContent>
-                    <Helper>
-                        <RadzenRequiredValidator Text="La referencia es requerida" Component="ReferenceId" />
-                    </Helper>
-                </RadzenFormField>
+                <ReferencePicker OnChange="ItemReferenceHandler" References="itemReferencesForREFERENCEID" />
+                <RadzenRequiredValidator Text="La referencia es requerida" Component="ReferenceId" />
                 <RadzenFormField Text="Cantidad" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                     <ChildContent>
                         <RadzenNumeric style="display: block; width: 100%" @bind-Value="@customerReservationDetail.ReservedQuantity" Name="RESERVED_QUANTITY" Placeholder="Ingrese la cantidad a reservar" TabIndex="1" />
@@ -32,7 +26,7 @@
             <RadzenRow style="margin-bottom: 1rem">
                 <InventoryQuantities @ref="QuantitiesPanel" Reference="customerReservationDetail.ItemReference" />
             </RadzenRow>
-            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+            <RadzenStack class="my-2" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
                 <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@isSubmitInProgress" />
                 <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
             </RadzenStack>
