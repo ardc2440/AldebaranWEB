@@ -251,3 +251,7 @@ hr {
     margin-top: 0;
     margin-bottom: 2rem;
 }
+
+.no-header table thead{
+    display:none;
+}

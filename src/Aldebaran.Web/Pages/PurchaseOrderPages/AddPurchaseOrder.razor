@@ -13,22 +13,24 @@
                     <RadzenText Text="Nueva orden de compra" TextStyle="TextStyle.H3" TagName="TagName.H1" />
                     <hr />
                 </RadzenColumn>
-                <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible" Title="No se ha podido crear la orden de compra">@Error</RadzenAlert>
-                </RadzenRow>
-                <RadzenRow AlignItems="AlignItems.Start" Gap="2rem" class="mt-2">
-                    <RadzenColumn Size="6">
-                        <RadzenStack>
-                            <RadzenFormField Text="Proveedor" Variant="Variant.Text" Style="width: 100%;">
-                                <ChildContent>
-                                    <RadzenDropDownDataGrid @ref="ProviderDropDownDataGrid" Data="@Providers" TextProperty="ProviderName" ValueProperty="ProviderId" AllowClear=false
-                                                            style="display: block; width: 100%" @bind-Value="@PurchaseOrder.ProviderId" Name="ProviderId" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true" Change="@ProviderSelectionChange">
-                                        <Columns>
-                                            <RadzenDropDownDataGridColumn Property="ProviderCode" Title="Código" />
-                                            <RadzenDropDownDataGridColumn Property="ProviderName" Title="Nombre" />
-                                            <RadzenDropDownDataGridColumn Property="ContactPerson" Title="Contacto" />
-                                            <RadzenDropDownDataGridColumn Property="City.CityId" Title="Ubicación">
-                                                <Template Context="provider">
-                                                    <span>(@provider.City.Department.Country.CountryCode) @provider.City.Department.DepartmentName - @provider.City.CityName</span>
+                <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible" Title="No se ha podido crear la orden de compra">
+                    @Error
+                </RadzenAlert>
+            </RadzenRow>
+            <RadzenRow AlignItems="AlignItems.Start" Gap="2rem" class="mt-2">
+                <RadzenColumn Size="6">
+                    <RadzenStack>
+                        <RadzenFormField Text="Proveedor" Variant="Variant.Text" Style="width: 100%;">
+                            <ChildContent>
+                                <RadzenDropDownDataGrid @ref="ProviderDropDownDataGrid" Data="@Providers" TextProperty="ProviderName" ValueProperty="ProviderId" AllowClear=false
+                                                        style="display: block; width: 100%" @bind-Value="@PurchaseOrder.ProviderId" Name="ProviderId" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true" Change="@ProviderSelectionChange">
+                                    <Columns>
+                                        <RadzenDropDownDataGridColumn Property="ProviderCode" Title="Código" />
+                                        <RadzenDropDownDataGridColumn Property="ProviderName" Title="Nombre" />
+                                        <RadzenDropDownDataGridColumn Property="ContactPerson" Title="Contacto" />
+                                        <RadzenDropDownDataGridColumn Property="City.CityId" Title="Ubicación">
+                                            <Template Context="provider">
+                                                <span>(@provider.City.Department.Country.CountryCode) @provider.City.Department.DepartmentName - @provider.City.CityName</span>
                                             </Template>
                                         </RadzenDropDownDataGridColumn>
                                     </Columns>
@@ -69,50 +71,52 @@
                     </RadzenStack>
                 </RadzenColumn>
                 <RadzenColumn Size="6">
-                    <RadzenText Text="Referencias" TextStyle="TextStyle.H5" TagName="TagName.H1"   />
                     <RadzenStack>
-                        <RadzenRow Gap="0" AlignItems="AlignItems.Center">
-                            <RadzenColumn Size="12">
-                                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
-                                    <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddPurchaseOrderDetail" Disabled="PurchaseOrder.ProviderId==0" />
-                                </RadzenStack>
-                                <RadzenRequiredValidator Component="ProviderId" Text="Es requerido seleccionar un proveedor para adicionar detalles a la orden de compra." DefaultValue="0"></RadzenRequiredValidator>
-                            </RadzenColumn>
-                        </RadzenRow>
-                        <LocalizedDataGrid @ref="PurchaseOrderDetailGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                           Data="@PurchaseOrderDetails" TItem="ServiceModel.PurchaseOrderDetail" AllowColumnResize="true" AllowMultiColumnSorting="true" AllowColumnReorder="true">
-                            <Columns>
-                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Property="RequestedQuantity" Title="Cantidad solicitada" />
-                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Title="Referencia">
-                                    <Template Context="detail">
-                                        <span>(@detail.ItemReference.Item.InternalReference) @detail.ItemReference.Item.ItemName</span> - <span>@detail.ItemReference.ReferenceName</span>
-                                    </Template>
-                                </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Property="Warehouse.WarehouseName" Title="Bodega">
-                                </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
-                                    <Template Context="detail">
-                                        <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="edit" Size="ButtonSize.Medium"
-                                                      Shade="Shade.Lighter" Variant="Variant.Flat"
-                                                      Click=@(args => EditPurchaseOrderDetail(args, detail)) @onclick:stopPropagation="true" />
-                                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
-                                                      Shade="Shade.Lighter" Variant="Variant.Flat"
-                                                      Click=@(args => DeletePurchaseOrderDetail(args, detail)) @onclick:stopPropagation="true" />
-                                    </Template>
-                                </RadzenDataGridColumn>
-                            </Columns>
-                        </LocalizedDataGrid>
+                        <RadzenText Text="Referencias" TextStyle="TextStyle.H5" TagName="TagName.H1"   />
+                        <RadzenStack>
+                            <RadzenRow Gap="0" AlignItems="AlignItems.Center">
+                                <RadzenColumn Size="12">
+                                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
+                                        <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddPurchaseOrderDetail" Disabled="PurchaseOrder.ProviderId==0" />
+                                    </RadzenStack>
+                                    <RadzenRequiredValidator Component="ProviderId" Text="Es requerido seleccionar un proveedor para adicionar detalles a la orden de compra." DefaultValue="0"></RadzenRequiredValidator>
+                                </RadzenColumn>
+                            </RadzenRow>
+                            <LocalizedDataGrid @ref="PurchaseOrderDetailGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                               Data="@PurchaseOrderDetails" TItem="ServiceModel.PurchaseOrderDetail" AllowColumnResize="true" AllowMultiColumnSorting="true" AllowColumnReorder="true">
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Property="RequestedQuantity" Title="Cantidad solicitada" />
+                                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Title="Referencia">
+                                        <Template Context="detail">
+                                            <span>(@detail.ItemReference.Item.InternalReference) @detail.ItemReference.Item.ItemName</span> - <span>@detail.ItemReference.ReferenceName</span>
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Property="Warehouse.WarehouseName" Title="Bodega">
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                                        <Template Context="detail">
+                                            <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="edit" Size="ButtonSize.Medium"
+                                                          Shade="Shade.Lighter" Variant="Variant.Flat"
+                                                          Click=@(args => EditPurchaseOrderDetail(args, detail)) @onclick:stopPropagation="true" />
+                                            <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
+                                                          Shade="Shade.Lighter" Variant="Variant.Flat"
+                                                          Click=@(args => DeletePurchaseOrderDetail(args, detail)) @onclick:stopPropagation="true" />
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                </Columns>
+                            </LocalizedDataGrid>
+                        </RadzenStack>
+                        @if (!PurchaseOrderDetails.Any() && Submitted)
+                        {
+                            <div class="rz-message rz-messages-error">Es requerido ingresar al menos una referencia.</div>
+                        }
                     </RadzenStack>
-                    @if (!PurchaseOrderDetails.Any() && Submitted)
-                    {
-                        <div class="rz-message rz-messages-error">Es requerido ingresar al menos una referencia.</div>
-                    }
                 </RadzenColumn>
             </RadzenRow>
 
             <RadzenRow AlignItems="Radzen.AlignItems.Center">
                 <RadzenColumn Size="12">
-                    <RadzenStack class="m-2" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                    <RadzenStack class="my-2" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
                         <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />
                         <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelPurchaseOrder" />
                     </RadzenStack>

@@ -59,7 +59,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                .Include(p => p.ActivityEmployee.IdentityType)
                .Include(p => p.Employee.Area)
                .Include(p => p.Employee.IdentityType)
-               .Where(p => p.PurchaseOrderId.Equals(purchaseOrderId))
+               .Where(p => p.PurchaseOrderId == purchaseOrderId)
                .ToListAsync(ct);
         }
 

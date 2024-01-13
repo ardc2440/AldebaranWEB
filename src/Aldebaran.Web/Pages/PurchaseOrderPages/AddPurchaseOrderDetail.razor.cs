@@ -1,6 +1,5 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Web.Models.AldebaranDb;
-using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
@@ -30,8 +29,8 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         protected ServiceModel.PurchaseOrderDetail PurchaseOrderDetail;
         protected IEnumerable<ServiceModel.Warehouse> Warehouses;
         protected bool IsSubmitInProgress;
-        protected InventoryQuantities InventoryQuantitiesPanel;
         protected string Error;
+        protected ServiceModel.ItemReference ItemReference;
         #endregion
 
         #region Overrides
@@ -71,7 +70,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         {
             PurchaseOrderDetail.ReferenceId = reference?.ReferenceId ?? 0;
             PurchaseOrderDetail.ItemReference = PurchaseOrderDetail.ReferenceId == 0 ? null : ProviderItemReferences.Single(s => s.ReferenceId == PurchaseOrderDetail.ReferenceId);
-            await InventoryQuantitiesPanel.Refresh(reference);
+            ItemReference = reference;
         }
         protected async Task CancelButtonClick(MouseEventArgs args)
         {

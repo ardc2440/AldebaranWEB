@@ -55,7 +55,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .Include(p => p.PurchaseOrder)
                 .Include(p => p.ItemReference.Item.Line)
                 .Include(p => p.Warehouse)
-                .Where(p => p.PurchaseOrderId.Equals(purchaseOrderId))
+                .Where(p => p.PurchaseOrderId == purchaseOrderId)
                 .ToListAsync(ct);
         }
 
@@ -65,7 +65,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .Include(p => p.PurchaseOrder)
                 .Include(p => p.ItemReference.Item.Line)
                 .Include(p => p.Warehouse)
-                .Where(p => p.ReferenceId.Equals(referenceId) && p.PurchaseOrder.StatusDocumentTypeId.Equals(statusOrder))
+                .Where(p => p.ReferenceId == referenceId && p.PurchaseOrder.StatusDocumentTypeId == statusOrder)
                 .ToListAsync(ct);
         }
 

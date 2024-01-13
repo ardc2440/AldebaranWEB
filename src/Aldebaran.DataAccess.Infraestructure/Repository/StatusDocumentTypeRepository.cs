@@ -19,7 +19,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         public async Task<IEnumerable<StatusDocumentType>> GetByDocumentTypeIdAsync(int documentTypeId, CancellationToken ct = default)
         {
             return await _context.StatusDocumentTypes.AsNoTracking()
-                .Where(f => f.DocumentTypeId.Equals(documentTypeId))
+                .Where(f => f.DocumentTypeId == documentTypeId)
                 .ToListAsync(ct);
         }
 

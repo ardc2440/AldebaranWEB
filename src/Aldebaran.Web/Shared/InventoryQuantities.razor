@@ -1,52 +1,53 @@
-@page "/inventory-quantities"
 @using Aldebaran.Web.Models.ViewModels;
-@inject Microsoft.Extensions.Localization.IStringLocalizer<InventoryQuantities> L
 @using Aldebaran.Web.Resources.LocalizedControls;
+@inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer
 
 <RadzenPanel Class="rz-mx-auto toggle-panel">
-    <RadzenRow>
-        <RadzenLabel Text="Inventario" class="fw-bold" style="width: 100%" />
-    </RadzenRow>
-    <RadzenStack style="margin-bottom: 1rem">
-        <RadzenRow AlignItems="AlignItems.Start" Gap="2rem">
-            <RadzenColumn SizeMD="6">
-                <RadzenCard Variant="Variant.Filled" Class="rz-my-5 rz-mx-auto" Style="max-width: 420px">
-                    <RadzenColumn SizeMD="3">
-                        <RadzenLabel class="fw-bold" Text="En Bodega" Component="REFERENCE" style="width: 100%" />
-                    </RadzenColumn>
-                    <LocalizedDataGrid @ref="referencesWarehousesGrid" ColumnWidth="200px" AllowFiltering="false" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="false" AllowSorting="false" ShowPagingSummary="false" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                    Data="@referencesWarehouses" TItem="Aldebaran.Application.Services.Models.ReferencesWarehouse">
-                        <Columns>
-                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.ReferencesWarehouse" Property="Warehouse.WarehouseName" Title="Bodega" Width="100px" />
-                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.ReferencesWarehouse" Property="Quantity" Title="Cantidad" Width="100px" />
-                        </Columns>
-                    </LocalizedDataGrid>
-                    <RadzenColumn SizeMD="3">
-                        <RadzenLabel class="fw-bold" Text="En Tránsito" Component="REFERENCE" style="width: 100%" />
-                    </RadzenColumn>
-                    <LocalizedDataGrid @ref="totalTransitOrdersGrid" ColumnWidth="200px" AllowFiltering="false" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="false" AllowSorting="false" ShowPagingSummary="false" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                    Data="@totalTransitOrders" TItem="GroupPurchaseOrderDetail">
-                        <Columns>
-                            <RadzenDataGridColumn TItem="GroupPurchaseOrderDetail" Property="Request_Date" Title="Fecha Est." Width="100px" />
-                            <RadzenDataGridColumn TItem="GroupPurchaseOrderDetail" Property="Quantity" Title="Cantidad" Width="100px" />
-                        </Columns>
-                    </LocalizedDataGrid>
-                </RadzenCard>
-            </RadzenColumn>
-            <RadzenColumn SizeMD="6">
-                <RadzenCard Variant="Variant.Filled" Class="rz-my-5 rz-mx-auto" Style="max-width: 420px">
-                    <RadzenColumn SizeMD="3">
-                        <RadzenLabel class="fw-bold" Text="Disponible" Component="REFERENCE" style="width: 100%" />
-                    </RadzenColumn>
-                    <LocalizedDataGrid @ref="itemReferenceInventorysGrid" ColumnWidth="200px" AllowFiltering="false" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="false" AllowSorting="false" ShowPagingSummary="false" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                    Data="@itemReferenceInventorys" TItem="ItemReferenceInventory">
-                        <Columns>
-                            <RadzenDataGridColumn TItem="ItemReferenceInventory" Property="Type" Title="" Width="100px" />
-                            <RadzenDataGridColumn TItem="ItemReferenceInventory" Property="Quantity" Title="" Width="100px" />
-                        </Columns>
-                    </LocalizedDataGrid>
-                </RadzenCard>
-            </RadzenColumn>
+    <RadzenStack style="margin: 1rem 0; gap:0.5rem">
+        <RadzenRow>
+            <RadzenLabel Text="Inventario" class="text-primary-color" Style="font-size: 16px;" />
         </RadzenRow>
+        <RadzenCard Variant="Variant.Filled" Class="rz-my-0 rz-mx-auto mt-0">
+            <RadzenRow AlignItems="AlignItems.Start" Gap="2rem">
+                <RadzenColumn SizeMD="6" class="d-flex flex-column gap-3">
+                    <RadzenRow Style="gap:0">
+                        <RadzenLabel Text="En bodega" />
+                        <LocalizedDataGrid @ref="ReferencesWarehouseGrid" AllowFiltering="false" AllowPaging="false" AllowSorting="false" ShowPagingSummary="false"
+                                           Data="@ReferencesWarehouses" TItem="Aldebaran.Application.Services.Models.ReferencesWarehouse">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.ReferencesWarehouse" Property="Warehouse.WarehouseName" Title="Bodega" Width="50%" />
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.ReferencesWarehouse" Property="Quantity" Title="Cantidad" Width="50%" />
+                            </Columns>
+                        </LocalizedDataGrid>
+                    </RadzenRow>
+                    <RadzenRow Style="gap:0">
+                        <RadzenLabel Text="En tránsito" />
+                        <LocalizedDataGrid @ref="GroupPurchaseOrderDetailGrid" AllowFiltering="false" AllowPaging="false" AllowSorting="false" ShowPagingSummary="false"
+                                           Data="@GroupPurchaseOrderDetails" TItem="GroupPurchaseOrderDetail">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="GroupPurchaseOrderDetail" Property="Request_Date" Title="Fecha Est." Width="50%">
+                                    <Template Context="detail">
+                                        <span>@detail.Request_Date.ToString(SharedLocalizer["date:format"])</span>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="GroupPurchaseOrderDetail" Property="Quantity" Title="Cantidad" Width="50%" />
+                            </Columns>
+                        </LocalizedDataGrid>
+                    </RadzenRow>
+                </RadzenColumn>
+                <RadzenColumn SizeMD="6" class="d-flex flex-column gap-3">
+                    <RadzenRow Style="gap:0">
+                        <RadzenLabel Text="Disponible" />
+                        <LocalizedDataGrid @ref="ItemReferenceInventoryGrid" AllowFiltering="false" AllowPaging="false" AllowSorting="false" ShowPagingSummary="false" class="no-header"
+                                           Data="@ItemReferenceInventories" TItem="ItemReferenceInventory">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="ItemReferenceInventory" Property="Type" Title="" Width="50%" />
+                                <RadzenDataGridColumn TItem="ItemReferenceInventory" Property="Quantity" Title="" Width="50%" />
+                            </Columns>
+                        </LocalizedDataGrid>
+                    </RadzenRow>
+                </RadzenColumn>
+            </RadzenRow>
+        </RadzenCard>
     </RadzenStack>
 </RadzenPanel>
