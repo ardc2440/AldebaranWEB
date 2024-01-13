@@ -1,5 +1,4 @@
 using Aldebaran.Application.Services;
-using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
@@ -11,6 +10,9 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
     {
         #region Injections
         [Inject]
+        protected ILogger<EditPurchaseOrderDetail> Logger { get; set; }
+
+        [Inject]
         protected DialogService DialogService { get; set; }
 
         [Inject]
@@ -19,33 +21,41 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         [Inject]
         protected IPurchaseOrderDetailService PurchaseOrderDetailService { get; set; }
 
+        [Inject]
+        protected IItemReferenceService ItemReferenceService { get; set; }
+
         #endregion
 
         #region Parameters
         [Parameter]
         public IEnumerable<ServiceModel.PurchaseOrderDetail> PurchaseOrderDetails { get; set; } = new List<ServiceModel.PurchaseOrderDetail>();
         [Parameter]
-        public int PURCHASE_ORDER_DETAIL_ID { get; set; }
+        public int? PURCHASE_ORDER_DETAIL_ID { get; set; }
+        [Parameter]
+        public ServiceModel.PurchaseOrderDetail PurchaseOrderDetail { get; set; }
         #endregion
 
         #region Variables
         protected bool IsErrorVisible;
         protected IEnumerable<ServiceModel.Warehouse> Warehouses;
-        protected ServiceModel.PurchaseOrderDetail PurchaseOrderDetail;
         protected bool IsSubmitInProgress;
-        protected InventoryQuantities InventoryQuantitiesPanel;
         protected string Error;
         protected short WarehouseId;
         protected int RequestedQuantity;
+        protected ServiceModel.ItemReference ItemReference;
         #endregion
 
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
             Warehouses = await WarehouseService.GetAsync();
-            PurchaseOrderDetail = await PurchaseOrderDetailService.FindAsync(PURCHASE_ORDER_DETAIL_ID);
+            if (PURCHASE_ORDER_DETAIL_ID == null && PurchaseOrderDetail == null)
+                throw new ArgumentNullException($"{nameof(PURCHASE_ORDER_DETAIL_ID)} y {nameof(PurchaseOrderDetail)} no pueden ser nulos.");
+            if (PURCHASE_ORDER_DETAIL_ID != null)
+                PurchaseOrderDetail = await PurchaseOrderDetailService.FindAsync(PURCHASE_ORDER_DETAIL_ID.Value);
             WarehouseId = PurchaseOrderDetail.WarehouseId;
             RequestedQuantity = PurchaseOrderDetail.RequestedQuantity;
+            ItemReference = await ItemReferenceService.FindAsync(PurchaseOrderDetail.ReferenceId);
         }
         #endregion
 
