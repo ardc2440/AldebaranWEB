@@ -34,16 +34,24 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     AdjustmentId = item.AdjustmentId
                 });
 
-            await _context.Adjustments.AddAsync(entity, ct);
-            await _context.SaveChangesAsync(ct);
+            try
+            {
+                await _context.Adjustments.AddAsync(entity, ct);
+                await _context.SaveChangesAsync(ct);
+            }
+            catch
+            {
+                _context.Entry(entity).State = EntityState.Unchanged;
+                throw;
+            }
         }
 
         public async Task DeleteAsync(int adjustmentId, CancellationToken ct = default)
         {
             var entity = await _context.Adjustments.FirstOrDefaultAsync(x => x.AdjustmentId == adjustmentId, ct) ?? throw new KeyNotFoundException($"Ajuste con id {adjustmentId} no existe.");
-            _context.Adjustments.Remove(entity);
             try
             {
+                _context.Adjustments.Remove(entity);
                 await _context.SaveChangesAsync(ct);
             }
             catch
@@ -144,7 +152,15 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 });
             }
 
-            await _context.SaveChangesAsync(ct);
+            try
+            {
+                await _context.SaveChangesAsync(ct);
+            }
+            catch
+            {
+                _context.Entry(entity).State = EntityState.Unchanged;
+                throw;
+            }
         }
     }
 

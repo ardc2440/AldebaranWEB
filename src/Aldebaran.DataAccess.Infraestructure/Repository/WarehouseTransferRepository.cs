@@ -71,8 +71,16 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 }, ct);
             }
 
-            await _context.WarehouseTransfers.AddAsync(entity, ct);
-            await _context.SaveChangesAsync(ct);
+            try
+            {
+                await _context.WarehouseTransfers.AddAsync(entity, ct);
+                await _context.SaveChangesAsync(ct);
+            }
+            catch (Exception)
+            {
+                _context.Entry(entity).State = EntityState.Unchanged;
+                throw;
+            }
 
             return entity;
         }
@@ -108,7 +116,16 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 }, ct);
             }
 
-            await _context.SaveChangesAsync(ct);
+            try
+            {
+                await _context.SaveChangesAsync(ct);
+            }
+            catch (Exception)
+            {
+                _context.Entry(entity).State = EntityState.Unchanged;
+                throw;
+            }
+
             return entity;
         }
     }

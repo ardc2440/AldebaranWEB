@@ -147,7 +147,15 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 }
             }
 
-            await _context.SaveChangesAsync(ct);
+            try
+            {
+                await _context.SaveChangesAsync(ct);
+            }
+            catch (Exception)
+            {
+                _context.Entry(entity).State = EntityState.Unchanged;
+                throw;
+            }
         }
 
         public async Task CancelAsync(int customerOrderId, short canceledStatusDocumentId, CancellationToken ct = default)
@@ -156,7 +164,15 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
 
             entity.StatusDocumentTypeId = canceledStatusDocumentId;
 
-            await _context.SaveChangesAsync(ct);
+            try
+            {
+                await _context.SaveChangesAsync(ct);
+            }
+            catch (Exception)
+            {
+                _context.Entry(entity).State = EntityState.Unchanged;
+                throw;
+            }
         }
     }
 

@@ -38,8 +38,17 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 });
             }
 
-            await _context.CustomerOrderShipments.AddAsync(entity, ct);
-            await _context.SaveChangesAsync(ct);
+            try
+            {
+                await _context.CustomerOrderShipments.AddAsync(entity, ct);
+                await _context.SaveChangesAsync(ct);
+            }
+            catch (Exception)
+            {
+                _context.Entry(entity).State = EntityState.Unchanged;
+                throw;
+            }
+
             customerOrderShipment.CustomerOrderShipmentId = entity.CustomerOrderShipmentId;
         }
 
@@ -96,7 +105,15 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     _context.CustomerOrderShipmentDetails.Remove(item);
             }
 
-            await _context.SaveChangesAsync(ct);
+            try
+            {
+                await _context.SaveChangesAsync(ct);
+            }
+            catch (Exception)
+            {
+                _context.Entry(entity).State = EntityState.Unchanged;
+                throw;
+            }
         }
 
         public async Task<CustomerOrderShipment?> FindAsync(int customerOrderShipmentId, CancellationToken ct = default)

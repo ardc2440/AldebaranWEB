@@ -15,9 +15,16 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         {
             var entity = await _context.CustomerOrderActivityDetails.FirstOrDefaultAsync(i => i.CustomerOrderActivityDetailId.Equals(customerOrderActivityDetailId), ct) ?? throw new KeyNotFoundException($"Detalle de Actividad con id {customerOrderActivityDetailId} no existe."); ;
 
-            _context.CustomerOrderActivityDetails.Remove(entity);
-
-            await _context.SaveChangesAsync(ct);
+            try
+            {
+                _context.CustomerOrderActivityDetails.Remove(entity);
+                await _context.SaveChangesAsync(ct);
+            }
+            catch
+            {
+                _context.Entry(entity).State = EntityState.Unchanged;
+                throw;
+            }
         }
 
         public async Task<IEnumerable<CustomerOrderActivityDetail>> GetByCustomerOrderActivityIdAsync(int customerOrderActivityId, CancellationToken ct = default)

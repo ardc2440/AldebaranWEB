@@ -15,9 +15,16 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         {
             var entity = await _context.CustomerOrderActivities.FirstOrDefaultAsync(i => i.CustomerOrderActivityId.Equals(customerOrderActivityId), ct) ?? throw new KeyNotFoundException($"Actividad con id {customerOrderActivityId} no existe."); ;
 
-            _context.CustomerOrderActivities.Remove(entity);
-
-            await _context.SaveChangesAsync(ct);
+            try
+            {
+                _context.CustomerOrderActivities.Remove(entity);
+                await _context.SaveChangesAsync(ct);
+            }
+            catch
+            {
+                _context.Entry(entity).State = EntityState.Unchanged;
+                throw;
+            }
         }
 
         public async Task<IEnumerable<CustomerOrderActivity>> GetByCustomerOrderIdAsync(int customerOrderId, CancellationToken ct = default)
@@ -52,9 +59,16 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 entity.CustomerOrderActivityDetails.Add(entityDetail);
             }
 
-            _context.CustomerOrderActivities.Add(entity);
-
-            await _context.SaveChangesAsync(ct);
+            try
+            {
+                _context.CustomerOrderActivities.Add(entity);
+                await _context.SaveChangesAsync(ct);
+            }
+            catch
+            {
+                _context.Entry(entity).State = EntityState.Unchanged;
+                throw;
+            }
         }
 
         public async Task<CustomerOrderActivity?> FindAsync(int customerOrderActivityId, CancellationToken ct)
@@ -104,7 +118,15 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     _context.CustomerOrderActivityDetails.Remove(item);
             }
 
-            await _context.SaveChangesAsync(ct);
+            try
+            {
+                await _context.SaveChangesAsync(ct);
+            }
+            catch
+            {
+                _context.Entry(entity).State = EntityState.Unchanged;
+                throw;
+            }
         }
     }
 
