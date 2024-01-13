@@ -2,8 +2,8 @@
 
 <PageTitle>Modificar Referencia del Ajuste</PageTitle>
 <RadzenColumn SizeMD=12>
-    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">
-        @alertMessage
+    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">
+        @Error
     </RadzenAlert>
     <RadzenStack>
         <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.AdjustmentDetail" Data="@adjustmentDetail" Visible="@(adjustmentDetail != null)" Submit="@FormSubmit">
@@ -13,7 +13,7 @@
                         <RadzenLabel Text="Referencia" Component="REFERENCE" style="width: 100%" />
                     </RadzenColumn>
                     <RadzenColumn SizeMD="9">
-                        <span>(@adjustmentDetail.ItemReference.Item.InternalReference) @adjustmentDetail.ItemReference.Item.ItemName - @adjustmentDetail.ItemReference.ReferenceName</span>
+                        <span>(@adjustmentDetail.ItemReference.Item.Line.LineName) @adjustmentDetail.ItemReference.Item.ItemName - @adjustmentDetail.ItemReference.ReferenceName</span>
                     </RadzenColumn>
                 </RadzenRow>
                 <RadzenRow style="margin-bottom: 1rem">
@@ -34,8 +34,11 @@
                     </Helper>
                 </RadzenFormField>
             </RadzenStack>
+            <RadzenRow style="margin-bottom: 1rem">
+                <InventoryQuantities Reference="ItemReference" />
+            </RadzenRow>
             <RadzenStack class="my-2" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
-                <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@isSubmitInProgress" />
+                <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@IsSubmitInProgress" />
                 <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
             </RadzenStack>
         </RadzenTemplateForm>

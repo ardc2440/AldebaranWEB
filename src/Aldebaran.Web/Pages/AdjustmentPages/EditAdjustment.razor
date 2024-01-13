@@ -7,71 +7,73 @@
 <PageTitle>Modificar Ajuste de Inventario</PageTitle>
 <RadzenCard>
     <RadzenStack>
-        <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.Adjustment" Data="@adjustment" Visible="@(adjustment != null)" Submit="@FormSubmit">
+        <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.Adjustment" Data="@adjustment" Visible="@(adjustment != null)" Submit="@FormSubmit" InvalidSubmit="()=>Submitted=true">
             <RadzenRow AlignItems="AlignItems.Center">
                 <RadzenColumn Size="12">
                     <RadzenText Text="Modificar ajuste de inventario" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
                     <hr />
                 </RadzenColumn>
-                <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">@errorMessage</RadzenAlert>
-                </RadzenRow>
-                <RadzenRow AlignItems="AlignItems.Start" Gap="2rem">
-                    <RadzenColumn SizeMD="6">
-                        <RadzenStack>
-                            <RadzenFormField Text="Fecha del ajuste" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
-                                <ChildContent>
-                                    <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@adjustment.AdjustmentDate" Name="ADJUSTMENT_DATE" Placeholder="Seleccione la fecha del ajuste" TabIndex="0" />
-                                </ChildContent>
-                                <Helper>
-                                    <RadzenRequiredValidator Text="La fecha del ajuste es requerida" Component="ADJUSTMENT_DATE" />
-                                </Helper>
-                            </RadzenFormField>
-                            <RadzenFormField Text="Motivo del ajuste" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
-                                <ChildContent>
-                                    <RadzenDropDown Data="@adjustmentReasonsForADJUSTMENTREASONID" TextProperty="AdjustmentReasonName" ValueProperty="AdjustmentReasonId" AllowClear=true
-                                                    Placeholder="Seleccione un motivo" style="display: block; width: 100%" @bind-Value="@adjustment.AdjustmentReasonId" Name="ADJUSTMENT_REASON_ID"
-                                                    AllowFiltering="true" ClearSearchAfterSelection="true" TabIndex="1" />
-                                </ChildContent>
-                                <Helper>
-                                    <RadzenRequiredValidator Component="ADJUSTMENT_REASON_ID" DefaultValue="0" Text="El motivo del ajuste es requerido "></RadzenRequiredValidator>
-                                </Helper>
-                            </RadzenFormField>
-                            <RadzenFormField Text="Tipo de ajuste" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
-                                <ChildContent>
-                                    <RadzenDropDown Data="@adjustmentTypesForADJUSTMENTTYPEID" TextProperty="AdjustmentTypeName" ValueProperty="AdjustmentTypeId" AllowClear=true
-                                                    Placeholder="Seleccione un tipo" style="display: block; width: 100%" @bind-Value="@adjustment.AdjustmentTypeId" Name="ADJUSTMENT_TYPE_ID"
-                                                    AllowFiltering="true" ClearSearchAfterSelection="true" TabIndex="2" />
-                                </ChildContent>
-                                <Helper>
-                                    <RadzenRequiredValidator Component="ADJUSTMENT_TYPE_ID" DefaultValue="0" Text="El tipo de ajuste es requerido"></RadzenRequiredValidator>
-                                </Helper>
-                            </RadzenFormField>
-                            <RadzenFormField Text="Notas" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
-                                <ChildContent>
-                                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@adjustment.Notes" Name="NOTES" Placeholder="Ingrese sus comentarios" TabIndex="3" />
-                                </ChildContent>
-                            </RadzenFormField>
-                        </RadzenStack>
-                    </RadzenColumn>
-                    <RadzenColumn Size="6">
-                        <RadzenStack>
-                            <RadzenColumn Size="6">
-                                <RadzenText Text="Referencias" TextStyle="TextStyle.H5" TagName="TagName.H1" style="margin: 0" />
+                <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@IsErrorVisible" Title="No se ha podido actualizar el ajuste de inventario">
+                    @Error
+                </RadzenAlert>
+            </RadzenRow>
+            <RadzenRow AlignItems="AlignItems.Start" Gap="2rem">
+                <RadzenColumn SizeMD="6">
+                    <RadzenStack>
+                        <RadzenFormField Text="Fecha del ajuste" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
+                            <ChildContent>
+                                <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@adjustment.AdjustmentDate" Name="ADJUSTMENT_DATE" Placeholder="Seleccione la fecha del ajuste" TabIndex="0" />
+                            </ChildContent>
+                            <Helper>
+                                <RadzenRequiredValidator Text="La fecha del ajuste es requerida" Component="ADJUSTMENT_DATE" />
+                            </Helper>
+                        </RadzenFormField>
+                        <RadzenFormField Text="Motivo del ajuste" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
+                            <ChildContent>
+                                <RadzenDropDown Data="@adjustmentReasonsForADJUSTMENTREASONID" TextProperty="AdjustmentReasonName" ValueProperty="AdjustmentReasonId" AllowClear=true
+                                                Placeholder="Seleccione un motivo" style="display: block; width: 100%" @bind-Value="@adjustment.AdjustmentReasonId" Name="ADJUSTMENT_REASON_ID"
+                                                AllowFiltering="true" ClearSearchAfterSelection="true" TabIndex="1" />
+                            </ChildContent>
+                            <Helper>
+                                <RadzenRequiredValidator Component="ADJUSTMENT_REASON_ID" DefaultValue="0" Text="El motivo del ajuste es requerido "></RadzenRequiredValidator>
+                            </Helper>
+                        </RadzenFormField>
+                        <RadzenFormField Text="Tipo de ajuste" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
+                            <ChildContent>
+                                <RadzenDropDown Data="@adjustmentTypesForADJUSTMENTTYPEID" TextProperty="AdjustmentTypeName" ValueProperty="AdjustmentTypeId" AllowClear=true
+                                                Placeholder="Seleccione un tipo" style="display: block; width: 100%" @bind-Value="@adjustment.AdjustmentTypeId" Name="ADJUSTMENT_TYPE_ID"
+                                                AllowFiltering="true" ClearSearchAfterSelection="true" TabIndex="2" />
+                            </ChildContent>
+                            <Helper>
+                                <RadzenRequiredValidator Component="ADJUSTMENT_TYPE_ID" DefaultValue="0" Text="El tipo de ajuste es requerido"></RadzenRequiredValidator>
+                            </Helper>
+                        </RadzenFormField>
+                        <RadzenFormField Text="Notas" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
+                            <ChildContent>
+                                <RadzenTextBox style="display: block; width: 100%" @bind-Value="@adjustment.Notes" Name="NOTES" Placeholder="Ingrese sus comentarios" TabIndex="3" />
+                            </ChildContent>
+                        </RadzenFormField>
+                    </RadzenStack>
+                </RadzenColumn>
+                <RadzenColumn Size="6">
+                    <RadzenStack>
+                        <RadzenColumn Size="6">
+                            <RadzenText Text="Referencias" TextStyle="TextStyle.H5" TagName="TagName.H1" style="margin: 0" />
+                        </RadzenColumn>
+                        <RadzenRow Gap="0" AlignItems="AlignItems.Center">
+                            <RadzenColumn Size="12">
+                                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
+                                    <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddAdjustmentDetailButtonClick" />
+                                </RadzenStack>
                             </RadzenColumn>
-                            <RadzenRow Gap="0" AlignItems="AlignItems.Center">
-                                <RadzenColumn Size="12">
-                                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
-                                        <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddAdjustmentDetailButtonClick" />
-                                    </RadzenStack>
-                                </RadzenColumn>
-                            </RadzenRow>
-                            <LocalizedDataGrid @ref="adjustmentDetailGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                               Data="@adjustmentDetails" TItem="Aldebaran.Application.Services.Models.AdjustmentDetail">
-                                <Columns>
-                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AdjustmentDetail" Property="Quantity" Title="Cantidad" Width="100px" />
-                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AdjustmentDetail" Title="Referencia">
-                                        <Template Context="detail">
-                                            <span>(@detail.ItemReference.Item.InternalReference) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName</span>
+                        </RadzenRow>
+                        <LocalizedDataGrid @ref="adjustmentDetailGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                           Data="@adjustmentDetails" TItem="Aldebaran.Application.Services.Models.AdjustmentDetail">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AdjustmentDetail" Property="Quantity" Title="Cantidad" Width="100px" />
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AdjustmentDetail" Title="Referencia">
+                                    <Template Context="detail">
+                                        <span>(@detail.ItemReference.Item.Line.LineName) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName</span>
                                     </Template>
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AdjustmentDetail" Property="Warehouse.WarehouseName" Title="Bodega" Width="100px">
@@ -94,7 +96,7 @@
             <RadzenRow AlignItems="Radzen.AlignItems.Center">
                 <RadzenColumn Size="12">
                     <RadzenStack class="my-2" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
-                        <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@isSubmitInProgress" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@IsSubmitInProgress" />
                         <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
                     </RadzenStack>
                 </RadzenColumn>

@@ -49,8 +49,8 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         #region Global Variables
 
-        protected bool errorVisible;
-        protected string alertMessage = "No se há podido agregar la referencia";
+        protected bool IsErrorVisible;
+        protected string Error = "No se há podido agregar la referencia";
         protected AdjustmentDetail adjustmentDetail;
         protected bool isSubmitInProgress;
         bool hasAdjustmentIdValue;
@@ -107,7 +107,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         {
             try
             {
-                errorVisible = false;
+                IsErrorVisible = false;
                 isSubmitInProgress = true;
 
                 if (AdjustmentDetails.Any(ad => ad.ReferenceId.Equals(adjustmentDetail.ReferenceId) && ad.WarehouseId.Equals(adjustmentDetail.WarehouseId)))
@@ -115,16 +115,12 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
                 adjustmentDetail.Warehouse = await WarehouseService.FindAsync(adjustmentDetail.WarehouseId);
 
-                var reference = await ItemReferenceService.FindAsync(adjustmentDetail.ReferenceId);
-
-                adjustmentDetail.ItemReference = reference;
-
                 DialogService.Close(adjustmentDetail);
             }
             catch (Exception ex)
             {
-                alertMessage = ex.Message;
-                errorVisible = true;
+                Error = ex.Message;
+                IsErrorVisible = true;
             }
             finally
             {
@@ -140,6 +136,8 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         protected async Task ItemReferenceHandler(ItemReference reference)
         {
             adjustmentDetail.ReferenceId = reference?.ReferenceId ?? 0;
+            adjustmentDetail.ItemReference = adjustmentDetail.ReferenceId == 0 ? null : ItemReferencesForReferenceId.Single(s => s.ReferenceId == adjustmentDetail.ReferenceId);
+
         }
 
         #endregion

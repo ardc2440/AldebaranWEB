@@ -4,13 +4,15 @@ using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
-using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.AdjustmentPages
 {
     public partial class EditAdjustment
     {
         #region Injections
+
+        [Inject]
+        protected ILogger<AddAdjustment> Logger { get; set; }
 
         [Inject]
         protected NavigationManager NavigationManager { get; set; }
@@ -43,25 +45,16 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected DateTime Now { get; set; }
 
-        protected bool errorVisible;
-
-        protected string errorMessage;
-
+        protected bool IsErrorVisible;
         protected Adjustment adjustment;
-
         protected IEnumerable<AdjustmentReason> adjustmentReasonsForADJUSTMENTREASONID;
-
         protected IEnumerable<AdjustmentType> adjustmentTypesForADJUSTMENTTYPEID;
-
         protected IEnumerable<Employee> employeesForEMPLOYEEID;
-
         protected ICollection<AdjustmentDetail> adjustmentDetails;
-
         protected LocalizedDataGrid<AdjustmentDetail> adjustmentDetailGrid;
-
-        protected bool isSubmitInProgress;
-
-        protected RadzenPanelMenu panelMenu;
+        private bool Submitted = false;
+        protected bool IsSubmitInProgress;
+        protected string Error;
 
         #endregion
 
@@ -69,17 +62,15 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected override async Task OnInitializedAsync()
         {
+            if (AdjustmentId == null)
+                NavigationManager.NavigateTo("adjustments");
+            var valid = int.TryParse(AdjustmentId, out var adjustmentId);
+            if (!valid)
+                NavigationManager.NavigateTo("purchase-orders");
+
             adjustmentReasonsForADJUSTMENTREASONID = await AdjustmentReasonService.GetAsync();
-
             adjustmentTypesForADJUSTMENTTYPEID = await AdjustmentTypeService.GetAsync();
-
-            Now = DateTime.UtcNow.AddDays(-1);
-
             adjustmentDetails = new List<AdjustmentDetail>();
-
-            var adjustmentId = 0;
-
-            int.TryParse(AdjustmentId, out adjustmentId);
 
             adjustment = await AdjustmentService.FindAsync(adjustmentId);
 
@@ -94,21 +85,21 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         {
             try
             {
-                isSubmitInProgress = true;
+                IsSubmitInProgress = true;
                 if (!adjustmentDetails.Any())
                     throw new Exception("No ha ingresado ninguna referencia");
 
                 adjustment.AdjustmentDetails = adjustmentDetails;
                 await AdjustmentService.UpdateAsync(adjustment.AdjustmentId, adjustment);
-                await DialogService.Alert("Ajuste modificado satisfactoriamente", "Información");
-                NavigationManager.NavigateTo("adjustments");
+                NavigationManager.NavigateTo($"adjustments/edit/{adjustment.AdjustmentId}");
             }
             catch (Exception ex)
             {
-                errorMessage = ex.Message;
-                errorVisible = true;
+                Logger.LogError(ex, nameof(FormSubmit));
+                IsErrorVisible = true;
+                Error = ex.Message;
             }
-            finally { isSubmitInProgress = false; }
+            finally { IsSubmitInProgress = false; }
         }
 
         protected async Task CancelButtonClick(MouseEventArgs args)

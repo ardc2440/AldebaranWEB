@@ -48,17 +48,15 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         public AdjustmentDetail adjustmentDetail { get; set; }
 
-        protected bool errorVisible;
+        protected bool IsErrorVisible;
 
-        protected string alertMessage;
+        protected string Error;
 
-        protected bool isSubmitInProgress;
-
-        protected IEnumerable<ItemReference> itemReferencesForREFERENCEID;
-
-        protected IEnumerable<Warehouse> warehousesForWAREHOUSEID;
+        protected bool IsSubmitInProgress;
 
         bool hasADJUSTMENT_IDValue;
+
+        protected ItemReference ItemReference { get; set; }
 
         #endregion
 
@@ -78,9 +76,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
                 WarehouseId = AdjustmentDetail.WarehouseId
             };
 
-            itemReferencesForREFERENCEID = await ItemReferenceService.GetByStatusAsync(true);
-
-            warehousesForWAREHOUSEID = await WarehouseService.GetAsync();
+            ItemReference = await ItemReferenceService.FindAsync(adjustmentDetail.ReferenceId);
         }
 
         public override async Task SetParametersAsync(ParameterView parameters)
@@ -118,18 +114,18 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         {
             try
             {
-                errorVisible = false;
-                isSubmitInProgress = true;
+                IsErrorVisible = false;
+                IsSubmitInProgress = true;
                 DialogService.Close(adjustmentDetail);
             }
             catch (Exception ex)
             {
-                alertMessage = ex.Message;
-                errorVisible = true;
+                Error = ex.Message;
+                IsErrorVisible = true;
             }
             finally
             {
-                isSubmitInProgress = false;
+                IsSubmitInProgress = false;
             }
         }
 

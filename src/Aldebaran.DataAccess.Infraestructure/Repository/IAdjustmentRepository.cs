@@ -4,8 +4,8 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
     public interface IAdjustmentRepository
     {
-        Task AddAsync(Adjustment adjustment, CancellationToken ct = default);
-        Task DeleteAsync(int adjustmentId, CancellationToken ct = default);
+        Task<Adjustment> AddAsync(Adjustment adjustment, CancellationToken ct = default);
+        Task CancelAsync(int adjustmentId, CancellationToken ct = default);
         Task<Adjustment?> FindAsync(int adjustmentId, CancellationToken ct = default);
         Task<IEnumerable<Adjustment>> GetAsync(CancellationToken ct = default);
         Task<IEnumerable<Adjustment>> GetAsync(string searchKey, CancellationToken ct = default);

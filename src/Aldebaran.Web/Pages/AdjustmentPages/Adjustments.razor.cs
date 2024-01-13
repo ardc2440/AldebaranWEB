@@ -14,25 +14,20 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         [Inject]
         protected NavigationManager NavigationManager { get; set; }
-
         [Inject]
         protected DialogService DialogService { get; set; }
-
         [Inject]
         protected NotificationService NotificationService { get; set; }
-
+        [Inject]
+        protected TooltipService TooltipService { get; set; }
         [Inject]
         protected IDocumentTypeService DocumentTypeService { get; set; }
-
         [Inject]
         protected IAdjustmentService AdjustmentService { get; set; }
-
         [Inject]
         protected IStatusDocumentTypeService StatusDocumentTypeService { get; set; }
-
         [Inject]
         protected IAdjustmentDetailService AdjustmentDetailService { get; set; }
-
         [Inject]
         protected SecurityService Security { get; set; }
 
@@ -41,20 +36,23 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         #region Global Variables
 
         protected IEnumerable<Adjustment> adjustments;
+        protected IEnumerable<AdjustmentDetail> adjustmentDetails;
 
-        protected LocalizedDataGrid<Adjustment> grid0;
-
+        protected LocalizedDataGrid<Adjustment> AdjustmentsGrid;
         protected DialogResult DialogResult { get; set; }
-
         protected string search = "";
-
         protected bool isLoadingInProgress;
-
         protected DocumentType documentType;
-
         protected Adjustment adjustment;
 
-        protected LocalizedDataGrid<AdjustmentDetail> AdjustmentDetailsDataGrid;
+        #endregion
+
+        #region Parameters
+
+        [Parameter]
+        public string ADJUSTMENT_ID { get; set; } = null;
+        [Parameter]
+        public string Action { get; set; } = null;
 
         #endregion
 
@@ -65,69 +63,101 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
             try
             {
                 isLoadingInProgress = true;
-
                 await Task.Yield();
-
                 documentType = await DocumentTypeService.FindByCodeAsync("A");
-
-                adjustments = await AdjustmentService.GetAsync(search);
+                await GetAdjustmentsAsync();
+                await DialogResultResolver();
             }
             finally
             {
                 isLoadingInProgress = false;
             }
-
         }
 
         #endregion
 
         #region Events
+        async Task DialogResultResolver(CancellationToken ct = default)
+        {
+            if (ADJUSTMENT_ID == null)
+                return;
+
+            var valid = int.TryParse(ADJUSTMENT_ID, out var adjustmentId);
+            if (!valid)
+                return;
+
+            var adjustment = await AdjustmentService.FindAsync(adjustmentId, ct);
+            if (adjustment == null)
+                return;
+
+            if (Action == "edit")
+            {
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Summary = "Ajuste de inventario",
+                    Severity = NotificationSeverity.Success,
+                    Detail = $"El ajuste ha sido actualizada correctamente."
+                });
+                return;
+            }
+
+            NotificationService.Notify(new NotificationMessage
+            {
+                Summary = "Ajuste de inventario",
+                Severity = NotificationSeverity.Success,
+                Detail = $"El ajuste ha sido creada correctamente."
+            });
+        }
+
+        async Task GetAdjustmentsAsync(string searchKey = null, CancellationToken ct = default)
+        {
+            await Task.Yield();
+            adjustments = string.IsNullOrEmpty(searchKey) ? await AdjustmentService.GetAsync(ct) : await AdjustmentService.GetAsync(searchKey, ct);
+        }
+
+        void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
 
         protected async Task Search(ChangeEventArgs args)
         {
-
             search = $"{args.Value}";
-
-            await grid0.GoToPage(0);
-
-            adjustments = await AdjustmentService.GetAsync(search);
-
+            await AdjustmentsGrid.GoToPage(0);
+            await GetAdjustmentsAsync(search);
         }
 
-        protected async Task AddButtonClick(MouseEventArgs args)
+        protected async Task AddAdjustmentClick(MouseEventArgs args)
         {
             NavigationManager.NavigateTo("add-adjustment");
         }
 
-        protected async Task EditRow(Adjustment args)
+        protected async Task EditAdjustment(Adjustment args)
         {
             NavigationManager.NavigateTo("edit-adjustment/" + args.AdjustmentId);
         }
 
-        protected bool CanEdit(Adjustment args)
+        protected bool CanEditAdjustment(Adjustment args)
         {
             return Security.IsInRole("Admin", "Adjustment Editor") && args.StatusDocumentType.EditMode;
         }
 
-        protected async Task GridCancelButtonClick(MouseEventArgs args, Adjustment adjustment)
+        protected async Task CancelAdjustmentClick(MouseEventArgs args, Adjustment adjustment)
         {
             try
             {
                 DialogResult = null;
-
                 if (await DialogService.Confirm("Está seguro que desea cancelar este ajuste?") == true)
                 {
                     adjustment.StatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 2);
-
                     adjustment.StatusDocumentTypeId = adjustment.StatusDocumentType.StatusDocumentTypeId;
-
                     adjustment.AdjustmentDetails = (await AdjustmentDetailService.GetByAdjustmentIdAsync(adjustment.AdjustmentId)).ToList();
-
-                    await AdjustmentService.UpdateAsync(adjustment.AdjustmentId, adjustment);
-
-                    await DialogService.Alert($"Ajuste cancelado correctamente", "Información");
-
-                    await grid0.Reload();
+                    await AdjustmentService.CancelAsync(adjustment.AdjustmentId);
+                    await GetAdjustmentsAsync();
+                    NotificationService.Notify(new NotificationMessage
+                    {
+                        Summary = "Ajuste de inventario",
+                        Severity = NotificationSeverity.Success,
+                        Detail = $"Ajuste de inventario ha sido cancelado correctamente."
+                    });
+                    await AdjustmentsGrid.Reload();
                 }
             }
             catch (Exception ex)
@@ -144,9 +174,13 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         protected async Task GetChildData(Adjustment args)
         {
             adjustment = args;
+
             var AdjustmentDetailsResult = await AdjustmentDetailService.GetByAdjustmentIdAsync(args.AdjustmentId);
+
             if (AdjustmentDetailsResult != null)
             {
+                adjustmentDetails = AdjustmentDetailsResult.ToList();
+
                 args.AdjustmentDetails = AdjustmentDetailsResult.ToList();
             }
         }

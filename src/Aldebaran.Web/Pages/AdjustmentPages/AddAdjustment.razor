@@ -7,14 +7,14 @@
 <PageTitle>Nuevo Ajuste de Inventario</PageTitle>
 <RadzenCard>
     <RadzenStack>
-        <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.Adjustment" Data="@adjustment" Visible="@(adjustment != null)" Submit="@FormSubmit">
+        <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.Adjustment" Data="@adjustment" Visible="@(adjustment != null)" Submit="@FormSubmit" InvalidSubmit="()=>Submitted=true">
             <RadzenRow AlignItems="AlignItems.Center">
                 <RadzenColumn Size="12">
                     <RadzenText Text="Crear ajuste de inventario" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
                     <hr />
                 </RadzenColumn>
-                <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">
-                    @errorMessage
+                <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible" Title="No se ha podido crear el ajuste de inventario">
+                    @Error
                 </RadzenAlert>
             </RadzenRow>
             <RadzenRow AlignItems="AlignItems.Start" Gap="2rem">
@@ -73,7 +73,7 @@
                                 <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AdjustmentDetail" Property="Quantity" Title="Cantidad" Width="100px" />
                                 <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AdjustmentDetail" Title="Referencia">
                                     <Template Context="detail">
-                                        <span>(@detail.ItemReference.Item.InternalReference) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName</span>
+                                        <span>(@detail.ItemReference.Item.Line.LineName) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName</span>
                                     </Template>
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AdjustmentDetail" Property="Warehouse.WarehouseName" Title="Bodega" Width="100px">
@@ -81,11 +81,11 @@
                                 <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AdjustmentDetail" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center">
                                     <Template Context="detail">
                                         <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
-                                                      Click="@(args => EditRow(detail))" @onclick:stopPropagation="true" title="Modificar">
+                                                      Click="@(args => EditRow(detail))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Modificar", new TooltipOptions(){ Position = TooltipPosition.Left }))">
                                         </RadzenButton>
                                         <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
                                                       Shade="Shade.Lighter" Variant="Variant.Flat"
-                                                      Click=@(args => DeleteAdjustmentDetailButtonClick(args, detail)) @onclick:stopPropagation="true" title="Eliminar" />
+                                                      Click=@(args => DeleteAdjustmentDetailButtonClick(args, detail)) @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Eliminar", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
                                     </Template>
                                 </RadzenDataGridColumn>
                             </Columns>
@@ -96,7 +96,7 @@
             <RadzenRow AlignItems="Radzen.AlignItems.Center">
                 <RadzenColumn Size="12">
                     <RadzenStack class="my-2" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
-                        <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@isSubmitInProgress" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@IsSubmitInProgress" />
                         <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
                     </RadzenStack>
                 </RadzenColumn>

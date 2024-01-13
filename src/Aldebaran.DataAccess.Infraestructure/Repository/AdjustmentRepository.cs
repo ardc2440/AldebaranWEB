@@ -11,7 +11,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task AddAsync(Adjustment adjustment, CancellationToken ct = default)
+        public async Task<Adjustment> AddAsync(Adjustment adjustment, CancellationToken ct = default)
         {
             var entity = new Adjustment
             {
@@ -38,6 +38,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             {
                 await _context.Adjustments.AddAsync(entity, ct);
                 await _context.SaveChangesAsync(ct);
+                return entity;
             }
             catch
             {
@@ -46,12 +47,14 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             }
         }
 
-        public async Task DeleteAsync(int adjustmentId, CancellationToken ct = default)
+        public async Task CancelAsync(int adjustmentId, CancellationToken ct = default)
         {
             var entity = await _context.Adjustments.FirstOrDefaultAsync(x => x.AdjustmentId == adjustmentId, ct) ?? throw new KeyNotFoundException($"Ajuste con id {adjustmentId} no existe.");
+            var documentType = await _context.DocumentTypes.AsNoTracking().FirstAsync(f => f.DocumentTypeCode == "A", ct);
+            var statutsDocumentType = await _context.StatusDocumentTypes.AsNoTracking().FirstAsync(f => f.DocumentTypeId == documentType.DocumentTypeId && f.StatusOrder == 2, ct);
+            entity.StatusDocumentTypeId = statutsDocumentType.StatusDocumentTypeId;
             try
             {
-                _context.Adjustments.Remove(entity);
                 await _context.SaveChangesAsync(ct);
             }
             catch

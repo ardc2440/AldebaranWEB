@@ -12,31 +12,27 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         #region Injections
 
         [Inject]
+        protected ILogger<AddAdjustment> Logger { get; set; }
+        [Inject]
         protected NavigationManager NavigationManager { get; set; }
-
         [Inject]
         protected DialogService DialogService { get; set; }
-
         [Inject]
         protected IAdjustmentReasonService AdjustmentReasonService { get; set; }
-
         [Inject]
         protected IAdjustmentTypeService AdjustmentTypeService { get; set; }
-
         [Inject]
         protected IDocumentTypeService DocumentTypeService { get; set; }
-
         [Inject]
         protected IStatusDocumentTypeService StatusDocumentTypeService { get; set; }
-
         [Inject]
         protected IEmployeeService EmployeeService { get; set; }
-
         [Inject]
         protected SecurityService Security { get; set; }
-
         [Inject]
         protected IAdjustmentService AdjustmentService { get; set; }
+        [Inject]
+        protected TooltipService TooltipService { get; set; }
 
         #endregion
 
@@ -48,7 +44,6 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         #endregion
 
         #region Properties
-        protected DateTime Now { get; set; }
         protected IEnumerable<AdjustmentReason> AdjustmentReasonsForAdjustmentReasonId { get; set; }
         protected IEnumerable<AdjustmentType> AdjustmentTypesForAdjustmentTypeId { get; set; }
         protected ICollection<AdjustmentDetail> AdjustmentDetails { get; set; }
@@ -57,12 +52,13 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         #region Global Variables
 
-        protected bool errorVisible;
-        protected string errorMessage;
+        protected bool IsErrorVisible;
         protected Adjustment adjustment;
         protected LocalizedDataGrid<AdjustmentDetail> adjustmentDetailGrid;
-        protected bool isSubmitInProgress;
         protected DocumentType documentType;
+        private bool Submitted = false;
+        protected bool IsSubmitInProgress;
+        protected string Error;
 
         #endregion
 
@@ -71,47 +67,40 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         protected override async Task OnInitializedAsync()
         {
             AdjustmentReasonsForAdjustmentReasonId = await AdjustmentReasonService.GetAsync();
-
             AdjustmentTypesForAdjustmentTypeId = await AdjustmentTypeService.GetAsync();
-
-            Now = DateTime.UtcNow.AddDays(-1);
-
             AdjustmentDetails = new List<AdjustmentDetail>();
-
             _ = int.TryParse(pAdjustmentId, out int adjustmentId);
-
             adjustment = new Adjustment() { AdjustmentReason = null, AdjustmentType = null, Employee = null, StatusDocumentType = null };
-
             documentType = await DocumentTypeService.FindByCodeAsync("A");
-
             adjustment.StatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 1);
             adjustment.StatusDocumentTypeId = adjustment.StatusDocumentType.StatusDocumentTypeId;
-
             adjustment.Employee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id);
             adjustment.EmployeeId = adjustment.Employee.EmployeeId;
         }
         #endregion
 
         #region Events
+        void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
+
         protected async Task FormSubmit()
         {
             try
             {
-                isSubmitInProgress = true;
+                IsSubmitInProgress = true;
                 if (!AdjustmentDetails.Any())
                     throw new Exception("No há ingresado ninguna referencia");
 
                 adjustment.AdjustmentDetails = AdjustmentDetails;
-                await AdjustmentService.AddAsync(adjustment);
-                await DialogService.Alert("Ajuste guardado satisfactoriamente", "Información");
-                NavigationManager.NavigateTo("adjustments");
+                var result = await AdjustmentService.AddAsync(adjustment);
+                NavigationManager.NavigateTo($"adjustments/{result.AdjustmentId}");
             }
             catch (Exception ex)
             {
-                errorMessage = ex.Message;
-                errorVisible = true;
+                Logger.LogError(ex, nameof(FormSubmit));
+                IsErrorVisible = true;
+                Error = ex.Message;
             }
-            finally { isSubmitInProgress = false; }
+            finally { IsSubmitInProgress = false; }
         }
 
         protected async Task CancelButtonClick(MouseEventArgs args)
@@ -128,9 +117,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
                 return;
 
             var detail = (AdjustmentDetail)result;
-
             AdjustmentDetails.Add(detail);
-
             await adjustmentDetailGrid.Reload();
         }
 
@@ -139,7 +126,6 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
             if (await DialogService.Confirm("Está seguro que desea eliminar esta referencia?", "Confirmar") == true)
             {
                 AdjustmentDetails.Remove(item);
-
                 await adjustmentDetailGrid.Reload();
             }
         }

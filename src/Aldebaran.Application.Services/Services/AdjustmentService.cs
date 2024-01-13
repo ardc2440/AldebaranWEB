@@ -15,15 +15,16 @@ namespace Aldebaran.Application.Services
             _mapper = mapper ?? throw new ArgumentNullException(nameof(IMapper));
         }
 
-        public async Task AddAsync(Adjustment adjustment, CancellationToken ct = default)
+        public async Task<Adjustment> AddAsync(Adjustment adjustment, CancellationToken ct = default)
         {
             var entity = _mapper.Map<Entities.Adjustment>(adjustment) ?? throw new ArgumentNullException("Ajuste no puede ser nulo.");
-            await _repository.AddAsync(entity, ct);
+            var result = await _repository.AddAsync(entity, ct);
+            return _mapper.Map<Adjustment>(result);
         }
 
-        public async Task DeleteAsync(int adjustmentId, CancellationToken ct = default)
+        public async Task CancelAsync(int adjustmentId, CancellationToken ct = default)
         {
-            await _repository.DeleteAsync(adjustmentId, ct);
+            await _repository.CancelAsync(adjustmentId, ct);
         }
 
         public async Task<Adjustment?> FindAsync(int adjustmentId, CancellationToken ct = default)
