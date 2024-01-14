@@ -1,4 +1,6 @@
 @page "/shipment-customer-orders"
+@page "/shipment-customer-orders/{CUSTOMER_ORDER_SHIPMENT_ID}"
+@page "/shipment-customer-orders/{Action}/{CUSTOMER_ORDER_SHIPMENT_ID}"
 @attribute [Authorize(Roles = "Admin,Customer Order Shipment Viwer,Customer Order Shipment Editor")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer ;
@@ -68,7 +70,9 @@
                                         <Columns>
                                             <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Title="Referencia">
                                                 <Template Context="detail">
-                                                    <span>@detail.REFERENCE_DESCRIPTION</span>
+                                                    <RadzenLabel MouseEnter="@(args => ShowTooltip(args,detail.REFERENCE_DESCRIPTION, new TooltipOptions(){ Position = TooltipPosition.Left }))">
+                                                        @detail.REFERENCE_DESCRIPTION
+                                                    </RadzenLabel>
                                                 </Template>
                                             </RadzenDataGridColumn>
                                             <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Property="PENDING_QUANTITY" Title="Pendiente">
@@ -101,11 +105,11 @@
                                                 <Template Context="customerOrderShipment">
                                                     <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
                                                                   Click="@(args => EditProcessRow(customerOrderShipment))" @onclick:stopPropagation="true"
-                                                                  Visible="@CanEditProcess(customerOrderShipment).Result" title="Modificar despacho">
+                                                                  Visible="@CanEditProcess(customerOrderShipment).Result" MouseEnter="@(args => ShowTooltip(args,"Actualizar", new TooltipOptions(){ Position = TooltipPosition.Left }))">
                                                     </RadzenButton>
                                                     <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
                                                                   Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@CanEditProcess(customerOrderShipment).Result"
-                                                                  Click=@(args => CancelCustomerOrderShipment(args, customerOrderShipment)) @onclick:stopPropagation="true" title="Cancelar despacho" />
+                                                                  Click=@(args => CancelCustomerOrderShipment(args, customerOrderShipment)) @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Cancelar", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
                                                 </Template>
                                             </RadzenDataGridColumn>
                                         </Columns>
@@ -121,7 +125,9 @@
                                                     <Columns>
                                                         <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipmentDetail" Title="Referencia">
                                                             <Template Context="detail">
-                                                                <span>(@detail.CustomerOrderDetail.ItemReference.Item.InternalReference) @detail.CustomerOrderDetail.ItemReference.Item.ItemName - @detail.CustomerOrderDetail.ItemReference.ReferenceName</span>
+                                                                <RadzenLabel MouseEnter="@(args => ShowTooltip(args,GetReferenceHint(@detail.CustomerOrderDetail.ItemReference).Result, new TooltipOptions(){ Position = TooltipPosition.Left }))">
+                                                                    (@detail.CustomerOrderDetail.ItemReference.Item.Line.LineName) @detail.CustomerOrderDetail.ItemReference.Item.ItemName - @detail.CustomerOrderDetail.ItemReference.ReferenceName
+                                                                </RadzenLabel>
                                                             </Template>
                                                         </RadzenDataGridColumn>
                                                         <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipmentDetail" Property="Warehouse.WarehouseName" Title="Bodega">

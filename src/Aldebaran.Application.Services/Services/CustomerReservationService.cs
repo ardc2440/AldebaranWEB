@@ -15,11 +15,11 @@ namespace Aldebaran.Application.Services
             _mapper = mapper ?? throw new ArgumentNullException(nameof(IMapper));
         }
 
-        public async Task<string> AddAsync(CustomerReservation customerReservation, CancellationToken ct = default)
+        public async Task<CustomerReservation> AddAsync(CustomerReservation customerReservation, CancellationToken ct = default)
         {
             var entity = _mapper.Map<Entities.CustomerReservation>(customerReservation) ?? throw new ArgumentNullException("Reserva no puede ser nula.");
-            await _repository.AddAsync(entity, ct);
-            return entity.ReservationNumber;
+            var result = await _repository.AddAsync(entity, ct);
+            return _mapper.Map<CustomerReservation>(result);
         }
 
         public async Task<IEnumerable<CustomerReservation>> GetAsync(CancellationToken ct = default)

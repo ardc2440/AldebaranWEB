@@ -42,10 +42,10 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         #region Global Variables
 
-        protected bool errorVisible;
-        protected string alertMessage;
-        protected bool isSubmitInProgress;
-        protected bool isLoadingInProgress;
+        protected bool IsErrorVisible;
+        protected string Error;
+        protected bool IsSubmitInProgress;
+        protected bool IsLoadingInProgress;
         protected IEnumerable<Employee> employeesForACTIVITYEMPLOYEEID;
         protected IEnumerable<ActivityTypesArea> activityTypesForACTIVITY_ID;
         bool hasCUSTOMER_ORDER_ACTIVITY_IDValue;
@@ -60,7 +60,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         {
             try
             {
-                isLoadingInProgress = true;
+                IsLoadingInProgress = true;
 
                 await Task.Yield();
 
@@ -75,10 +75,10 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             }
             catch (Exception ex)
             {
-                alertMessage = ex.Message;
-                errorVisible = true;
+                Error = ex.Message;
+                IsErrorVisible = true;
             }
-            finally { isLoadingInProgress = false; }
+            finally { IsLoadingInProgress = false; }
         }
 
         public override async Task SetParametersAsync(ParameterView parameters)
@@ -124,8 +124,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         {
             try
             {
-                errorVisible = false;
-                isSubmitInProgress = true;
+                IsErrorVisible = false;
+                IsSubmitInProgress = true;
 
                 if (CustomerOrderActivityDetails.Any(ad => ad.ActivityTypeId.Equals(CustomerOrderActivityDetail.ActivityTypeId) && !ad.ActivityEmployeeId.Equals(CustomerOrderActivityDetail.ActivityEmployeeId)))
                     throw new Exception("El tipo de actividad seleccionada, ya existe dentro de esta actividad.");
@@ -136,12 +136,12 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             }
             catch (Exception ex)
             {
-                alertMessage = ex.Message;
-                errorVisible = true;
+                Error = ex.Message;
+                IsErrorVisible = true;
             }
             finally
             {
-                isSubmitInProgress = false;
+                IsSubmitInProgress = false;
             }
         }
 

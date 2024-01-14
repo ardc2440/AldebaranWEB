@@ -41,13 +41,25 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         [Inject]
         protected ICustomerOrderActivityDetailService CustomerOrderActivityDetailService { get; set; }
 
+        [Inject]
+        protected TooltipService TooltipService { get; set; }
+
+        #endregion
+
+        #region Parameters
+
+        [Parameter]
+        public string CUSTOMER_ORDER_ID { get; set; } = null;
+        [Parameter]
+        public string Action { get; set; } = null;
+
         #endregion
 
         #region Global Variables
         protected DialogResult dialogResult;
         protected DocumentType documentType;
         protected IEnumerable<CustomerOrder> customerOrders;
-        protected LocalizedDataGrid<CustomerOrder> grid0;
+        protected LocalizedDataGrid<CustomerOrder> CustomerOrdersGrid;
         protected CustomerOrder customerOrder;
         protected CustomerOrderActivity customerOrderActivity;
         protected LocalizedDataGrid<CustomerOrderDetail> CustomerOrderDetailsDataGrid;
@@ -63,12 +75,11 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             try
             {
                 documentType = await DocumentTypeService.FindByCodeAsync("P");
-
                 isLoadingInProgress = true;
-
                 await Task.Yield();
 
-                customerOrders = await CustomerOrderService.GetAsync(search);
+                await GetCustomerOrdersAsync();
+                await DialogResultResolver();
             }
             catch (Exception ex)
             {
@@ -83,15 +94,79 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         #endregion
 
         #region Events
+
+        protected async Task<string> GetReferenceHint(ItemReference reference) => $"({reference.Item.Line.LineName}) {reference.Item.ItemName} - {reference.ReferenceName}";
+
+        async Task DialogResultResolver(CancellationToken ct = default)
+        {
+            if (CUSTOMER_ORDER_ID == null)
+                return;
+
+            var valid = int.TryParse(CUSTOMER_ORDER_ID, out var customerOrderId);
+            if (!valid)
+                return;
+
+            var customerOrder = await CustomerOrderService.FindAsync(customerOrderId, ct);
+            if (customerOrder == null)
+                return;
+
+            if (Action == "edit")
+            {
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Summary = "Pedido de artículos",
+                    Severity = NotificationSeverity.Success,
+                    Detail = $"El pedido {customerOrder.OrderNumber} ha sido actualizado correctamente."
+                });
+                return;
+            }
+
+            if (Action == "create-activity")
+            {
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Summary = "Pedido de artículos",
+                    Severity = NotificationSeverity.Success,
+                    Detail = $"La actividad para el pedido {customerOrder.OrderNumber} ha sido creada correctamente."
+                });
+                return;
+            }
+
+            if (Action == "edit-activity")
+            {
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Summary = "Pedido de artículos",
+                    Severity = NotificationSeverity.Success,
+                    Detail = $"La actividad para el pedido {customerOrder.OrderNumber} ha sido actualizada correctamente."
+                });
+                return;
+            }
+
+            NotificationService.Notify(new NotificationMessage
+            {
+                Summary = "Pedido de artículos",
+                Severity = NotificationSeverity.Success,
+                Detail = $"El pedido ha sido creado correctamente, con el consecutivo {customerOrder.OrderNumber}."
+            });
+        }
+
+        void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
+
+        async Task GetCustomerOrdersAsync(string searchKey = null, CancellationToken ct = default)
+        {
+            await Task.Yield();
+            customerOrders = string.IsNullOrEmpty(searchKey) ? await CustomerOrderService.GetAsync(ct) : await CustomerOrderService.GetAsync(searchKey, ct);
+        }
+
         protected async Task Search(ChangeEventArgs args)
         {
 
             search = $"{args.Value}";
 
-            await grid0.GoToPage(0);
+            await CustomerOrdersGrid.GoToPage(0);
 
-            customerOrders = await CustomerOrderService.GetAsync(search);
-
+            await GetCustomerOrdersAsync(search);
         }
 
         protected async Task AddButtonClick(MouseEventArgs args)
@@ -125,7 +200,16 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
                     await CustomerOrderActivityService.DeleteAsync(customerOrderActivity.CustomerOrderActivityId);
 
-                    await DialogService.Alert($"Actividad eliminada correctamente", "Información");
+                    var customerOrder = await CustomerOrderService.FindAsync(customerOrderActivity.CustomerOrderId);
+
+                    await GetCustomerOrderActivitiesAsync(customerOrder);
+
+                    NotificationService.Notify(new NotificationMessage
+                    {
+                        Summary = "Actividad de pedido",
+                        Severity = NotificationSeverity.Success,
+                        Detail = $"La Actividad del pedido ha sido eliminada correctamente."
+                    });
 
                     await CustomerOrderActivitiesDataGrid.Reload();
                 }
@@ -153,12 +237,16 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
                     await CustomerOrderService.CancelAsync(customerOrder.CustomerOrderId, cancelStatusDocumentType.StatusDocumentTypeId);
 
-                    customerOrder.StatusDocumentType = cancelStatusDocumentType;
-                    customerOrder.StatusDocumentTypeId = cancelStatusDocumentType.StatusDocumentTypeId;
+                    await GetCustomerOrdersAsync();
 
-                    await DialogService.Alert($"Pedido cancelado correctamente", "Información");
+                    NotificationService.Notify(new NotificationMessage
+                    {
+                        Summary = "Pedido de artículos",
+                        Severity = NotificationSeverity.Success,
+                        Detail = $"El pedido ha sido cancelado correctamente."
+                    });
 
-                    await grid0.Reload();
+                    await CustomerOrdersGrid.Reload();
                 }
             }
             catch (Exception ex)
@@ -181,7 +269,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             }
         }
 
-        protected async Task GetOrderActivities(CustomerOrder args)
+        protected async Task GetCustomerOrderActivitiesAsync(CustomerOrder args)
         {
             var CustomerOrderActivitiesResult = await CustomerOrderActivityService.GetByCustomerOrderIdAsync(args.CustomerOrderId);
             if (CustomerOrderActivitiesResult != null)
@@ -207,7 +295,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
             await GetOrderDetails(args);
 
-            await GetOrderActivities(args);
+            await GetCustomerOrderActivitiesAsync(args);
         }
 
         protected async Task<bool> CanEdit(CustomerOrder customerOrder)
@@ -237,9 +325,16 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
                     await CustomerOrderService.CancelAsync(args.CustomerOrderId, cancelStatusDocumentType.StatusDocumentTypeId);
 
-                    await DialogService.Alert($"Pedido cerrado correctamente", "Información");
+                    await GetCustomerOrdersAsync();
 
-                    await grid0.Reload();
+                    NotificationService.Notify(new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Success,
+                        Summary = $"Pedido de artículos",
+                        Detail = $"El pedido No. {args.OrderNumber} ha sido cerrado correctamente."
+                    });
+
+                    await CustomerOrdersGrid.Reload();
                 }
             }
             catch (Exception ex)

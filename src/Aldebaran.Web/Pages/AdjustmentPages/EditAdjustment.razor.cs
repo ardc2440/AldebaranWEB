@@ -32,6 +32,9 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         [Inject]
         protected IAdjustmentService AdjustmentService { get; set; }
 
+        [Inject]
+        protected TooltipService TooltipService { get; set; }
+
         #endregion
 
         #region Parameters
@@ -45,13 +48,13 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected DateTime Now { get; set; }
 
-        protected bool IsErrorVisible;
         protected Adjustment adjustment;
         protected IEnumerable<AdjustmentReason> adjustmentReasonsForADJUSTMENTREASONID;
         protected IEnumerable<AdjustmentType> adjustmentTypesForADJUSTMENTTYPEID;
         protected IEnumerable<Employee> employeesForEMPLOYEEID;
         protected ICollection<AdjustmentDetail> adjustmentDetails;
         protected LocalizedDataGrid<AdjustmentDetail> adjustmentDetailGrid;
+        protected bool IsErrorVisible;
         private bool Submitted = false;
         protected bool IsSubmitInProgress;
         protected string Error;
@@ -81,10 +84,15 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         #region Events
 
+        void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
+
+        protected async Task<string> GetReferenceHint(ItemReference reference) => $"({reference.Item.Line.LineName}) {reference.Item.ItemName} - {reference.ReferenceName}";
+
         protected async Task FormSubmit()
         {
             try
             {
+                Submitted = true;
                 IsSubmitInProgress = true;
                 if (!adjustmentDetails.Any())
                     throw new Exception("No ha ingresado ninguna referencia");
@@ -134,7 +142,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected async Task EditRow(AdjustmentDetail args)
         {
-            var result = await DialogService.OpenAsync<EditAdjustmentDetail>("Modificar referencia", new Dictionary<string, object> { { "AdjustmentDetail", args } });
+            var result = await DialogService.OpenAsync<EditAdjustmentDetail>("Actualizar referencia", new Dictionary<string, object> { { "AdjustmentDetail", args } });
             if (result == null)
                 return;
             var detail = (AdjustmentDetail)result;

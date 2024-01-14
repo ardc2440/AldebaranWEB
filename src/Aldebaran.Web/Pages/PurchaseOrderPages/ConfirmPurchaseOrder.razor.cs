@@ -170,6 +170,9 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         #endregion
 
         #region PurchaseOrderDetail
+
+        protected async Task<string> GetReferenceHint(ServiceModel.ItemReference reference) => $"({reference.Item.Line.LineName}) {reference.Item.ItemName} - {reference.ReferenceName}";
+
         protected async Task AddPurchaseOrderDetail(MouseEventArgs args)
         {
             if (PurchaseOrder.ProviderId == 0)

@@ -20,6 +20,9 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         protected SecurityService Security { get; set; }
 
         [Inject]
+        protected TooltipService TooltipService { get; set; }
+
+        [Inject]
         protected ICustomerService CustomerService { get; set; }
 
         [Inject]
@@ -37,23 +40,17 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         #endregion
 
         #region Global Variables
-        protected bool errorVisible;
-
-        protected string errorMessage;
 
         protected CustomerReservation customerReservation;
-
         protected IEnumerable<Customer> customersForCUSTOMERID;
-
         protected IEnumerable<Employee> employeesForEMPLOYEEID;
-
         protected ICollection<CustomerReservationDetail> customerReservationDetails;
-
         protected LocalizedDataGrid<CustomerReservationDetail> customerReservationDetailGrid;
-
-        protected bool isSubmitInProgress;
-
         protected DocumentType documentType;
+        protected bool IsErrorVisible;
+        private bool Submitted = false;
+        protected bool IsSubmitInProgress;
+        protected string Error;
 
         #endregion
 
@@ -81,27 +78,30 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         #endregion
 
         #region Events
+        void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
+
+        protected async Task<string> GetReferenceHint(ItemReference reference) => $"({reference.Item.Line.LineName}) {reference.Item.ItemName} - {reference.ReferenceName}";
+
         protected async Task FormSubmit()
         {
             try
             {
-                isSubmitInProgress = true;
+                IsSubmitInProgress = true;
                 if (!customerReservationDetails.Any())
                     throw new Exception("No ha ingresado ninguna referencia");
 
                 customerReservation.CustomerReservationDetails = customerReservationDetails;
 
-                var reservationNumber = await CustomerReservationService.AddAsync(customerReservation);
+                var result = await CustomerReservationService.AddAsync(customerReservation);
 
-                await DialogService.Alert($"Reserva de articulos guardada satisfactoriamente con el consecutivo {reservationNumber}", "Información");
-                NavigationManager.NavigateTo("customer-reservations");
+                NavigationManager.NavigateTo($"customer-reservations/{result.CustomerReservationId}");
             }
             catch (Exception ex)
             {
-                errorMessage = ex.Message;
-                errorVisible = true;
+                Error = ex.Message;
+                IsErrorVisible = true;
             }
-            finally { isSubmitInProgress = false; }
+            finally { IsSubmitInProgress = false; }
         }
 
         protected async Task CancelButtonClick(MouseEventArgs args)
@@ -136,7 +136,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
         protected async Task EditRow(CustomerReservationDetail args)
         {
-            var result = await DialogService.OpenAsync<EditCustomerReservationDetail>("Modificar referencia", new Dictionary<string, object> { { "CustomerReservationDetail", args } });
+            var result = await DialogService.OpenAsync<EditCustomerReservationDetail>("Actualizar referencia", new Dictionary<string, object> { { "CustomerReservationDetail", args } });
             if (result == null)
                 return;
 

@@ -39,7 +39,7 @@
                         <Template Context="adjustment">
                             <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
                                           Click="@(args => EditAdjustment(adjustment))" @onclick:stopPropagation="true"
-                                          Visible="@CanEditAdjustment(adjustment)" MouseEnter="@(args => ShowTooltip(args,"Modificar", new TooltipOptions(){ Position = TooltipPosition.Left }))">
+                                          Visible="@CanEditAdjustment(adjustment)" MouseEnter="@(args => ShowTooltip(args,"Actualizar", new TooltipOptions(){ Position = TooltipPosition.Left }))">
                             </RadzenButton>
                             <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
                                           Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@CanEditAdjustment(adjustment)"
@@ -61,10 +61,12 @@
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AdjustmentDetail" Property="ItemReference.ReferenceName" Title="Referencia">
                                     <Template Context="detail">
-                                        <span>(@detail.ItemReference.Item.Line.LineName) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName</span>
+                                        <RadzenLabel MouseEnter="@(args => ShowTooltip(args,GetReferenceHint(@detail.ItemReference).Result, new TooltipOptions(){ Position = TooltipPosition.Left }))">
+                                            (@detail.ItemReference.Item.Line.LineName) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName
+                                        </RadzenLabel>
                                     </Template>
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AdjustmentDetail" Property="Warehouse.WarehouseName" Title="Bodega">
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AdjustmentDetail" Context="detail" Property="Warehouse.WarehouseName" Title="Bodega">
                                 </RadzenDataGridColumn>
                             </Columns>
                         </LocalizedDataGrid>

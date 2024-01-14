@@ -25,6 +25,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
         protected SecurityService Security { get; set; }
 
         [Inject]
+        protected TooltipService TooltipService { get; set; }
+
+        [Inject]
         protected IDocumentTypeService DocumentTypeService { get; set; }
 
         [Inject]
@@ -41,6 +44,15 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
 
         [Inject]
         protected IStatusDocumentTypeService StatusDocumentTypeService { get; set; }
+
+        #endregion
+
+        #region Parameters
+
+        [Parameter]
+        public string CUSTOMER_ORDER_SHIPMENT_ID { get; set; } = null;
+        [Parameter]
+        public string Action { get; set; } = null;
 
         #endregion
 
@@ -73,18 +85,61 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
 
                 await Task.Yield();
 
-                customerOrders = (await CustomerOrderService.GetAsync(search)).Where(x => x.StatusDocumentType.StatusOrder == 2 || x.StatusDocumentType.StatusOrder == 3).ToList();
+                await GetCustomerOrderShipmentAsync();
+                await DialogResultResolver();
             }
             finally
             {
                 isLoadingInProgress = false;
             }
-
         }
 
         #endregion
 
         #region Events
+
+        async Task DialogResultResolver(CancellationToken ct = default)
+        {
+            if (CUSTOMER_ORDER_SHIPMENT_ID == null)
+                return;
+
+            var valid = int.TryParse(CUSTOMER_ORDER_SHIPMENT_ID, out var customerOrderShipmentId);
+            if (!valid)
+                return;
+
+            var customerOrderShipment = await CustomerOrderShipmentService.FindAsync(customerOrderShipmentId, ct);
+            if (customerOrderShipment == null)
+                return;
+
+            if (Action == "edit")
+            {
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Summary = "Despacho de artículos",
+                    Severity = NotificationSeverity.Success,
+                    Detail = $"El despacho ha sido actualizado correctamente."
+                });
+                return;
+            }
+
+            NotificationService.Notify(new NotificationMessage
+            {
+                Summary = "Despacho de artículos",
+                Severity = NotificationSeverity.Success,
+                Detail = $"El despacho ha sido creado correctamente."
+            });
+        }
+
+        async Task GetCustomerOrderShipmentAsync(string searchKey = null, CancellationToken ct = default)
+        {
+            await Task.Yield();
+            var orders = string.IsNullOrEmpty(searchKey) ? await CustomerOrderService.GetAsync(ct) : await CustomerOrderService.GetAsync(searchKey, ct);
+            customerOrders = orders.Where(x => x.StatusDocumentType.StatusOrder == 2 || x.StatusDocumentType.StatusOrder == 3);
+        }
+
+        void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
+
+        protected async Task<string> GetReferenceHint(ItemReference reference) => $"({reference.Item.Line.LineName}) {reference.Item.ItemName} - {reference.ReferenceName}";
 
         protected async Task Search(ChangeEventArgs args)
         {
@@ -92,7 +147,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
 
             await CustomerOrdersGrid.GoToPage(0);
 
-            customerOrders = (await CustomerOrderService.GetAsync(search)).Where(x => x.StatusDocumentType.StatusOrder == 2 || x.StatusDocumentType.StatusOrder == 3).ToList();
+            await GetCustomerOrderShipmentAsync(search);
         }
 
         protected async Task GetOrderDetails(CustomerOrder args)
@@ -109,7 +164,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
                 {
                     REFERENCE_ID = item.ReferenceId,
                     CUSTOMER_ORDER_DETAIL_ID = item.CustomerOrderDetailId,
-                    REFERENCE_DESCRIPTION = $"({item.ItemReference.Item.InternalReference}) {item.ItemReference.Item.ItemName} - {item.ItemReference.ReferenceName}",
+                    REFERENCE_DESCRIPTION = $"({item.ItemReference.Item.Line.LineName}) {item.ItemReference.Item.ItemName} - {item.ItemReference.ReferenceName}",
                     PENDING_QUANTITY = item.RequestedQuantity - item.ProcessedQuantity - item.DeliveredQuantity,
                     PROCESSED_QUANTITY = item.ProcessedQuantity,
                     DELIVERED_QUANTITY = item.DeliveredQuantity

@@ -7,14 +7,14 @@
 <PageTitle>Pedido de Articulos</PageTitle>
 <RadzenCard>
     <RadzenStack>
-        <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerOrder" Data="@customerOrder" Visible="@(customerOrder != null)" Submit="@FormSubmit">
+        <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerOrder" Data="@customerOrder" Visible="@(customerOrder != null)" Submit="@FormSubmit" InvalidSubmit="()=>Submitted=true">
             <RadzenRow AlignItems="AlignItems.Center">
                 <RadzenColumn Size="12">
                     <RadzenText Text="@title" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
                     <hr />
                 </RadzenColumn>
-                <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">
-                    @errorMessage
+                <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">
+                    @Error
                 </RadzenAlert>
             </RadzenRow>
             <RadzenRow AlignItems="AlignItems.Start" Gap="2rem">
@@ -25,7 +25,7 @@
                             <RadzenColumn SizeMD="6">
                                 <RadzenStack>
                                     <RadzenColumn SizeMD="3">
-                                        <RadzenLabel Text="Cliente:" style="width: 100%" />
+                                        <RadzenLabel Text="Cliente:" class="text-primary-color" Style="font-size: 16px;" />
                                     </RadzenColumn>
                                     <RadzenColumn SizeMD="3">
                                         <RadzenRow>
@@ -46,13 +46,13 @@
                             <RadzenColumn SizeMD="5">
                                 <RadzenStack>
                                     <RadzenColumn SizeMD="3">
-                                        <RadzenLabel Text="Fecha de Pedido:" style="width: 100%" />
+                                        <RadzenLabel Text="Fecha de Pedido:" class="text-primary-color" Style="font-size: 16px;" />
                                     </RadzenColumn>
                                     <RadzenColumn SizeMD="3">
                                         <span>@customerOrder.OrderDate.ToString(@SharedLocalizer["date:format"]) </span>
                                     </RadzenColumn>
                                     <RadzenColumn SizeMD="3">
-                                        <RadzenLabel Text="Fecha Pactada de Entrega:" style="width: 100%" />
+                                        <RadzenLabel Text="Fecha Pactada de Entrega:" class="text-primary-color" Style="font-size: 16px;" />
                                     </RadzenColumn>
                                     <RadzenColumn SizeMD="3">
                                         <span>@customerOrder.EstimatedDeliveryDate.ToString(@SharedLocalizer["date:format"])</span>
@@ -140,7 +140,9 @@
                             <Columns>
                                 <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Title="Referencia">
                                     <Template Context="detail">
-                                        <span>(@detail.REFERENCE_DESCRIPTION</span>
+                                        <RadzenLabel MouseEnter="@(args => ShowTooltip(args,detail.REFERENCE_DESCRIPTION, new TooltipOptions(){ Position = TooltipPosition.Left }))">
+                                            @detail.REFERENCE_DESCRIPTION
+                                        </RadzenLabel>
                                     </Template>
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Property="PENDING_QUANTITY" Title="Pendiente" Width="100px" />
@@ -151,11 +153,11 @@
                                     <Template Context="detail">
                                         <RadzenButton Icon="assignment_ind" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
                                                       Click="@(args => SendToProcess(detail))" @onclick:stopPropagation="true"
-                                                      Visible="@CanSend(detail)" title="Enviar Cantidad a Proceso">
+                                                      Visible="@CanSend(detail)" MouseEnter="@(args => ShowTooltip(args,"Enviar a proceso", new TooltipOptions(){ Position = TooltipPosition.Left }))">
                                         </RadzenButton>
                                         <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
                                                       Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@CanCancel(detail)"
-                                                      Click=@(args => CancelToProcess(detail)) @onclick:stopPropagation="true" title="Cancelar Traslado" />
+                                                      Click=@(args => CancelToProcess(detail)) @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Eliminar", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
                                     </Template>
                                 </RadzenDataGridColumn>
                             </Columns>
@@ -166,7 +168,7 @@
             <RadzenRow AlignItems="Radzen.AlignItems.Center">
                 <RadzenColumn Size="12">
                     <RadzenStack class="my-2" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
-                        <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@isSubmitInProgress" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@IsSubmitInProgress" />
                         <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
                     </RadzenStack>
                 </RadzenColumn>

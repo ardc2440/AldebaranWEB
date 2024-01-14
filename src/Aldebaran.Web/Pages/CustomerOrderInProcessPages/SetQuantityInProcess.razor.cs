@@ -34,13 +34,14 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
         #region Global Variables
 
-        protected bool errorVisible;
-        protected string alertMessage;
-        protected bool isSubmitInProgress;
         protected IEnumerable<Warehouse> warehousesForWAREHOUSEID;
         protected bool hasWAREHOUSE_IDValue;
         protected DetailInProcess detailInProcess;
         protected ItemReference ItemReference { get; set; }
+        protected bool IsErrorVisible;
+        private readonly bool Submitted = false;
+        protected bool IsSubmitInProgress;
+        protected string Error;
 
         #endregion
 
@@ -89,8 +90,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         {
             try
             {
-                errorVisible = false;
-                isSubmitInProgress = true;
+                IsErrorVisible = false;
+                IsSubmitInProgress = true;
 
                 if ((detailInProcess.PENDING_QUANTITY + DetailInProcess.THIS_QUANTITY) < detailInProcess.THIS_QUANTITY)
                     throw new Exception("La cantidad de este traslado debe ser menor o igual a la cantidad pendiente del artículo");
@@ -106,12 +107,12 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
             }
             catch (Exception ex)
             {
-                alertMessage = ex.Message;
-                errorVisible = true;
+                Error = ex.Message;
+                IsErrorVisible = true;
             }
             finally
             {
-                isSubmitInProgress = false;
+                IsSubmitInProgress = false;
             }
         }
 

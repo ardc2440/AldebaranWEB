@@ -25,9 +25,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         #endregion
 
         #region Global Variables
-        protected bool errorVisible;
-        protected string alertMessage;
-        protected bool isSubmitInProgress;
+        protected bool IsErrorVisible;
+        protected string Error;
+        protected bool IsSubmitInProgress;
         protected ItemReference ItemReference { get; set; }
 
         #endregion
@@ -51,18 +51,18 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         {
             try
             {
-                errorVisible = false;
-                isSubmitInProgress = true;
+                IsErrorVisible = false;
+                IsSubmitInProgress = true;
                 DialogService.Close(CustomerOrderDetail);
             }
             catch (Exception ex)
             {
-                alertMessage = ex.Message;
-                errorVisible = true;
+                Error = ex.Message;
+                IsErrorVisible = true;
             }
             finally
             {
-                isSubmitInProgress = false;
+                IsSubmitInProgress = false;
             }
         }
 

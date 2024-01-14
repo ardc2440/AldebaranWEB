@@ -10,6 +10,10 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
     public partial class EditCustomerOrder
     {
         #region Injections
+
+        [Inject]
+        protected ILogger<AddCustomerOrder> Logger { get; set; }
+
         [Inject]
         protected NavigationManager NavigationManager { get; set; }
 
@@ -34,6 +38,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         [Inject]
         protected ICustomerOrderDetailService CustomerOrderDetailService { get; set; }
 
+        [Inject]
+        protected TooltipService TooltipService { get; set; }
+
         #endregion
 
         #region Parameters
@@ -43,17 +50,18 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         #endregion
 
         #region Global Variables
-        protected bool errorVisible;
-        protected string errorMessage;
+        protected bool IsErrorVisible;
+        protected string Error;
         protected CustomerOrder customerOrder;
         protected DocumentType documentType;
         protected ICollection<CustomerOrderDetail> customerOrderDetails;
         protected LocalizedDataGrid<CustomerOrderDetail> customerOrderDetailGrid;
         protected IEnumerable<Customer> customersForCUSTOMERID;
         protected IEnumerable<Employee> employeesForEMPLOYEEID;
-        protected bool isSubmitInProgress;
-        protected bool isLoadingInProgress;
+        protected bool IsSubmitInProgress;
+        protected bool IsLoadingInProgress;
         protected string title;
+        protected bool Submitted = false;
         #endregion
 
         #region Overrides
@@ -61,7 +69,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         {
             try
             {
-                isLoadingInProgress = true;
+                IsLoadingInProgress = true;
 
                 await Task.Yield();
 
@@ -77,39 +85,46 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 var customerOrderDetails = await CustomerOrderDetailService.GetByCustomerOrderIdAsync(customerOrder.CustomerOrderId);
                 this.customerOrderDetails = customerOrderDetails.ToList();
 
-                title = $"Modificar el Pedido No. {customerOrder.OrderNumber}";
+                title = $"Actualizar el Pedido No. {customerOrder.OrderNumber}";
             }
             catch (Exception ex)
             {
-                errorMessage = ex.Message;
-                errorVisible = true;
+                Error = ex.Message;
+                IsErrorVisible = true;
             }
-            finally { isLoadingInProgress = false; }
+            finally { IsLoadingInProgress = false; }
         }
         #endregion
 
         #region Events
+
+        protected async Task<string> GetReferenceHint(ItemReference reference) => $"({reference.Item.Line.LineName}) {reference.Item.ItemName} - {reference.ReferenceName}";
+
+        void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
+
         protected async Task FormSubmit()
         {
             try
             {
-                isSubmitInProgress = true;
+                Submitted = true;
+
+                IsSubmitInProgress = true;
 
                 if (!customerOrderDetails.Any())
-                    throw new Exception("No há ingresado ninguna referencia");
+                    throw new Exception("No ha ingresado ninguna referencia");
 
                 customerOrder.CustomerOrderDetails = customerOrderDetails;
                 await CustomerOrderService.UpdateAsync(customerOrder.CustomerOrderId, customerOrder);
 
-                await DialogService.Alert($"Pedido {customerOrder.OrderNumber} modificado satisfactoriamente", "Información");
-                NavigationManager.NavigateTo("customer-orders");
+                NavigationManager.NavigateTo($"customer-orders/edit/{customerOrder.CustomerOrderId}");
             }
             catch (Exception ex)
             {
-                errorMessage = ex.Message;
-                errorVisible = true;
+                Logger.LogError(ex, nameof(FormSubmit));
+                IsErrorVisible = true;
+                Error = ex.Message;
             }
-            finally { isSubmitInProgress = false; }
+            finally { IsSubmitInProgress = false; }
         }
 
         protected async Task CancelButtonClick(MouseEventArgs args)
@@ -144,7 +159,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task EditRow(CustomerOrderDetail args)
         {
-            var result = await DialogService.OpenAsync<EditCustomerOrderDetail>("Modificar referencia", new Dictionary<string, object> { { "CustomerOrderDetail", args } });
+            var result = await DialogService.OpenAsync<EditCustomerOrderDetail>("Actualizar referencia", new Dictionary<string, object> { { "CustomerOrderDetail", args } });
             if (result == null)
                 return;
             var detail = (CustomerOrderDetail)result;

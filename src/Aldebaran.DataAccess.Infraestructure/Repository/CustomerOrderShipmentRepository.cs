@@ -11,7 +11,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task AddAsync(CustomerOrderShipment customerOrderShipment, CancellationToken ct)
+        public async Task<CustomerOrderShipment> AddAsync(CustomerOrderShipment customerOrderShipment, CancellationToken ct)
         {
             var entity = new CustomerOrderShipment
             {
@@ -49,7 +49,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 throw;
             }
 
-            customerOrderShipment.CustomerOrderShipmentId = entity.CustomerOrderShipmentId;
+            return entity;
         }
 
         public async Task<IEnumerable<CustomerOrderShipment>> GetByCustomerOrderIdAsync(int customerOrderId, CancellationToken ct)

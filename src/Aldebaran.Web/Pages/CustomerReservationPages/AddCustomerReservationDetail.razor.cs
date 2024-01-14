@@ -27,11 +27,13 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         #endregion
 
         #region Global Variables
-        protected bool errorVisible;
-        protected string alertMessage;
-        protected bool isSubmitInProgress;
+
         protected CustomerReservationDetail customerReservationDetail;
         protected InventoryQuantities QuantitiesPanel;
+        protected bool IsErrorVisible;
+        private readonly bool Submitted = false;
+        protected bool IsSubmitInProgress;
+        protected string Error;
         protected IEnumerable<ItemReference> itemReferencesForREFERENCEID { get; set; } = new List<ItemReference>();
         #endregion
 
@@ -57,8 +59,8 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         {
             try
             {
-                errorVisible = false;
-                isSubmitInProgress = true;
+                IsErrorVisible = false;
+                IsSubmitInProgress = true;
 
                 if (CustomerReservationDetails.Any(ad => ad.ReferenceId.Equals(customerReservationDetail.ReferenceId)))
                     throw new Exception("La referencia seleccionada ya existe dentro de esta reserva.");
@@ -67,12 +69,12 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             }
             catch (Exception ex)
             {
-                alertMessage = ex.Message;
-                errorVisible = true;
+                Error = ex.Message;
+                IsErrorVisible = true;
             }
             finally
             {
-                isSubmitInProgress = false;
+                IsSubmitInProgress = false;
             }
         }
 

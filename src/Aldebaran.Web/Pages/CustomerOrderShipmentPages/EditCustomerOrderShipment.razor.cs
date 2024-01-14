@@ -22,6 +22,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
         protected SecurityService Security { get; set; }
 
         [Inject]
+        protected TooltipService TooltipService { get; set; }
+
+        [Inject]
         protected IDocumentTypeService DocumentTypeService { get; set; }
 
         [Inject]
@@ -50,8 +53,6 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
 
         #region Global Variables
 
-        protected bool errorVisible;
-        protected string errorMessage;
         protected CustomerOrder customerOrder;
         protected CustomerOrderShipment customerOrderShipment;
         protected DocumentType documentType;
@@ -59,9 +60,12 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
         protected LocalizedDataGrid<DetailInProcess> customerOrderDetailGrid;
         protected IEnumerable<Employee> employeesFOREMPLOYEEID;
         protected IEnumerable<ShippingMethod> shippingMethodsFORSHIPPINGMETHODID;
-        protected bool isSubmitInProgress;
         protected bool isLoadingInProgress;
         protected string title;
+        protected bool IsErrorVisible;
+        private bool Submitted = false;
+        protected bool IsSubmitInProgress;
+        protected string Error;
 
         #endregion
 
@@ -93,8 +97,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
             }
             catch (Exception ex)
             {
-                errorMessage = ex.Message;
-                errorVisible = true;
+                Error = ex.Message;
+                IsErrorVisible = true;
             }
             finally { isLoadingInProgress = false; }
         }
@@ -102,6 +106,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
         #endregion
 
         #region Events
+        void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
+
+        protected async Task<string> GetReferenceHint(ItemReference reference) => $"({reference.Item.Line.LineName}) {reference.Item.ItemName} - {reference.ReferenceName}";
 
         protected async Task<List<DetailInProcess>> GetDetailsInProcess(CustomerOrderShipment customerOrderShipment) => (from item in await CustomerOrderShipmentDetailService.GetByCustomerOrderShipmentIdAsync(customerOrderShipment.CustomerOrderShipmentId) ?? throw new ArgumentException("The references of Customer Order Shipment, could not be obtained.")
                                                                                                                          let viewOrderDetail = new DetailInProcess()
@@ -144,7 +151,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
         {
             try
             {
-                isSubmitInProgress = true;
+                IsSubmitInProgress = true;
 
                 if (!detailsInProcess.Any(x => x.THIS_QUANTITY > 0))
                     throw new Exception("No ha ingresado ninguna cantidad a despachar");
@@ -153,15 +160,14 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
 
                 await CustomerOrderShipmentService.UpdateAsync(customerOrderShipment.CustomerOrderShipmentId, customerOrderShipment);
 
-                await DialogService.Alert($"Despacho de artículos modificado satisfactoriamente", "Información");
-                NavigationManager.NavigateTo("process-customer-orders");
+                NavigationManager.NavigateTo($"process-customer-orders/edit/{customerOrderShipment.CustomerOrderShipmentId}");
             }
             catch (Exception ex)
             {
-                errorMessage = ex.Message;
-                errorVisible = true;
+                Error = ex.Message;
+                IsErrorVisible = true;
             }
-            finally { isSubmitInProgress = false; }
+            finally { IsSubmitInProgress = false; }
         }
 
         protected async Task<ICollection<CustomerOrderShipmentDetail>> MapDetailsInProcess(ICollection<DetailInProcess> detailsInProcess) => (from item in detailsInProcess.Where(i => i.THIS_QUANTITY > 0)

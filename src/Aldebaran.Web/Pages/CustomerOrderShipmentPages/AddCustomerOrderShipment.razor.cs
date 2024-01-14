@@ -22,6 +22,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
         protected SecurityService Security { get; set; }
 
         [Inject]
+        protected TooltipService TooltipService { get; set; }
+
+        [Inject]
         protected IDocumentTypeService DocumentTypeService { get; set; }
 
         [Inject]
@@ -53,19 +56,20 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
 
         #region Global Variables
 
-        protected bool errorVisible;
-        protected string errorMessage;
         protected CustomerOrder customerOrder;
         protected CustomerOrderShipment customerOrderShipment;
         protected DocumentType documentType;
         protected DialogResult dialogResult;
         protected ICollection<DetailInProcess> detailsInProcess;
         protected LocalizedDataGrid<DetailInProcess> customerOrderDetailGrid;
-        protected bool isSubmitInProgress;
         protected bool isLoadingInProgress;
         protected string title;
         protected IEnumerable<Employee> employeesFOREMPLOYEEID;
         protected IEnumerable<ShippingMethod> shippingMethodsFORSHIPPINGMETHODID;
+        protected bool IsErrorVisible;
+        private bool Submitted = false;
+        protected bool IsSubmitInProgress;
+        protected string Error;
 
         #endregion
 
@@ -107,8 +111,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
             }
             catch (Exception ex)
             {
-                errorMessage = ex.Message;
-                errorVisible = true;
+                Error = ex.Message;
+                IsErrorVisible = true;
             }
             finally { isLoadingInProgress = false; }
         }
@@ -116,6 +120,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
         #endregion
 
         #region Events
+        void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
+
+        protected async Task<string> GetReferenceHint(ItemReference reference) => $"({reference.Item.Line.LineName}) {reference.Item.ItemName} - {reference.ReferenceName}";
 
         protected async Task<List<DetailInProcess>> GetDetailsInProcess(CustomerOrder customerOrder) => (from item in customerOrder.CustomerOrderDetails.Where(i => i.ProcessedQuantity > 0) ?? throw new ArgumentException($"The references of Customer Order {customerOrder.OrderNumber}, could not be obtained.")
                                                                                                          let viewOrderDetail = new DetailInProcess()
@@ -161,24 +168,23 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
             {
                 dialogResult = null;
 
-                isSubmitInProgress = true;
+                IsSubmitInProgress = true;
 
                 if (!detailsInProcess.Any(x => x.THIS_QUANTITY > 0))
                     throw new Exception("No ha ingresado ninguna cantidad a trasladar");
 
                 customerOrderShipment.CustomerOrderShipmentDetails = await MapDetailsInProcess(detailsInProcess);
 
-                await CustomerOrderShipmentService.AddAsync(customerOrderShipment);
+                var result = await CustomerOrderShipmentService.AddAsync(customerOrderShipment);
 
-                await DialogService.Alert($"Despacho grabado satisfactoriamente", "Información");
-                NavigationManager.NavigateTo("Shipment-customer-orders");
+                NavigationManager.NavigateTo($"Shipment-customer-orders/{result.CustomerOrderShipmentId}");
             }
             catch (Exception ex)
             {
-                errorMessage = ex.Message;
-                errorVisible = true;
+                Error = ex.Message;
+                IsErrorVisible = true;
             }
-            finally { isSubmitInProgress = false; }
+            finally { IsSubmitInProgress = false; }
         }
 
         protected async Task<ICollection<CustomerOrderShipmentDetail>> MapDetailsInProcess(ICollection<DetailInProcess> detailsInProcess)

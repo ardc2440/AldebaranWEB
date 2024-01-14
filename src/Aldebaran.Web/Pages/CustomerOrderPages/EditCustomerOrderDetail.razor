@@ -1,9 +1,11 @@
 @attribute [Authorize(Roles = "Admin,Customer Order Editor")]
 
-<PageTitle>Modificar Referencia del Pedido</PageTitle>
+<PageTitle>Actualizar Referencia del Pedido</PageTitle>
 
 <RadzenColumn SizeMD=12>
-    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">Cannot save AdjustmentDetail</RadzenAlert>
+    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">
+        @Error
+    </RadzenAlert>
     <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Data="@CustomerOrderDetail" Visible="@(CustomerOrderDetail != null)" Submit="@FormSubmit">
         <RadzenStack style="margin-bottom: 1rem">
             <RadzenRow SizeMD="9">
@@ -11,7 +13,7 @@
                     <RadzenLabel Text="Referencia" Component="REFERENCE" style="width: 100%" />
                 </RadzenColumn>
                 <RadzenColumn SizeMD="9">
-                    <span>(@CustomerOrderDetail.ItemReference.Item.InternalReference) @CustomerOrderDetail.ItemReference.Item.ItemName - @CustomerOrderDetail.ItemReference.ReferenceName</span>
+                    <span>(@CustomerOrderDetail.ItemReference.Item.Line.LineName) @CustomerOrderDetail.ItemReference.Item.ItemName - @CustomerOrderDetail.ItemReference.ReferenceName</span>
                 </RadzenColumn>
             </RadzenRow>
             <RadzenFormField Text="Cantidad" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
@@ -35,7 +37,7 @@
             <InventoryQuantities Reference="ItemReference" />
         </RadzenRow>
         <RadzenStack class="my-2" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
-            <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@isSubmitInProgress" />
+            <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@IsSubmitInProgress" />
             <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
         </RadzenStack>
     </RadzenTemplateForm>

@@ -17,6 +17,9 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         protected DialogService DialogService { get; set; }
 
         [Inject]
+        protected TooltipService TooltipService { get; set; }
+
+        [Inject]
         protected ICustomerService CustomerService { get; set; }
 
         [Inject]
@@ -33,15 +36,18 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         #endregion
 
         #region Global Variables
+
         protected DateTime Now { get; set; }
-        protected bool errorVisible;
-        protected string errorMessage;
         protected CustomerReservation customerReservation;
         protected IEnumerable<Customer> customersForCUSTOMERID;
         protected ICollection<CustomerReservationDetail> customerReservationDetails;
         protected LocalizedDataGrid<CustomerReservationDetail> customerReservationDetailGrid;
-        protected bool isSubmitInProgress;
         protected string title;
+        protected bool IsErrorVisible;
+        private bool Submitted = false;
+        protected bool IsSubmitInProgress;
+        protected string Error;
+
         #endregion
 
         #region Overrides
@@ -57,18 +63,23 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
             customerReservation = await CustomerReservationService.FindAsync(customerReservationId);
 
-            title = $"Modificar la Reserva No. {customerReservation.ReservationNumber}";
+            title = $"Actualizar la Reserva No. {customerReservation.ReservationNumber}";
 
             await GetChildData(customerReservation);
         }
         #endregion
 
         #region Events
+
+        void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
+
+        protected async Task<string> GetReferenceHint(ItemReference reference) => $"({reference.Item.Line.LineName}) {reference.Item.ItemName} - {reference.ReferenceName}";
+
         protected async Task FormSubmit()
         {
             try
             {
-                isSubmitInProgress = true;
+                IsSubmitInProgress = true;
                 if (!customerReservationDetails.Any())
                     throw new Exception("No ha ingresado ninguna referencia");
 
@@ -76,15 +87,14 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
                 await CustomerReservationService.UpdateAsync(customerReservation.CustomerReservationId, customerReservation);
 
-                await DialogService.Alert($"Reserva {customerReservation.ReservationNumber} modificada satisfactoriamente", "Información");
-                NavigationManager.NavigateTo("customer-reservations");
+                NavigationManager.NavigateTo($"customer-reservations/edit/{customerReservation.CustomerReservationId}");
             }
             catch (Exception ex)
             {
-                errorMessage = ex.Message;
-                errorVisible = true;
+                Error = ex.Message;
+                IsErrorVisible = true;
             }
-            finally { isSubmitInProgress = false; }
+            finally { IsSubmitInProgress = false; }
         }
 
         protected async Task CancelButtonClick(MouseEventArgs args)

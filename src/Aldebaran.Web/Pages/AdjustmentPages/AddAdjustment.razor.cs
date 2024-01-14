@@ -52,10 +52,10 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         #region Global Variables
 
-        protected bool IsErrorVisible;
         protected Adjustment adjustment;
         protected LocalizedDataGrid<AdjustmentDetail> adjustmentDetailGrid;
         protected DocumentType documentType;
+        protected bool IsErrorVisible;
         private bool Submitted = false;
         protected bool IsSubmitInProgress;
         protected string Error;
@@ -82,13 +82,16 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         #region Events
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
 
+        protected async Task<string> GetReferenceHint(ItemReference reference) => $"({reference.Item.Line.LineName}) {reference.Item.ItemName} - {reference.ReferenceName}";
+
         protected async Task FormSubmit()
         {
             try
             {
+                Submitted = true;
                 IsSubmitInProgress = true;
                 if (!AdjustmentDetails.Any())
-                    throw new Exception("No há ingresado ninguna referencia");
+                    throw new Exception("No ha ingresado ninguna referencia");
 
                 adjustment.AdjustmentDetails = AdjustmentDetails;
                 var result = await AdjustmentService.AddAsync(adjustment);
@@ -132,7 +135,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected async Task EditRow(AdjustmentDetail args)
         {
-            var result = await DialogService.OpenAsync<EditAdjustmentDetail>("Modificar referencia", new Dictionary<string, object> { { "AdjustmentDetail", args } });
+            var result = await DialogService.OpenAsync<EditAdjustmentDetail>("Actualizar referencia", new Dictionary<string, object> { { "AdjustmentDetail", args } });
             if (result == null)
                 return;
             var detail = (AdjustmentDetail)result;

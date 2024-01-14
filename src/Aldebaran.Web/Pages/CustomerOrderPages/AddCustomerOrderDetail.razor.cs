@@ -24,9 +24,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         #endregion
 
         #region Global Variables
-        protected bool errorVisible;
-        protected string alertMessage;
-        protected bool isSubmitInProgress;
+        protected bool IsErrorVisible;
+        protected string Error;
+        protected bool IsSubmitInProgress;
         protected CustomerOrderDetail customerOrderDetail;
         protected InventoryQuantities quantitiesPanel;
         protected IEnumerable<ItemReference> itemReferencesForREFERENCEID { get; set; } = new List<ItemReference>();
@@ -53,8 +53,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         {
             try
             {
-                errorVisible = false;
-                isSubmitInProgress = true;
+                IsErrorVisible = false;
+                IsSubmitInProgress = true;
 
                 if (CustomerOrderDetails.Any(ad => ad.ReferenceId.Equals(customerOrderDetail.ReferenceId)))
                     throw new Exception("La referencia seleccionada ya existe dentro de esta reserva.");
@@ -63,12 +63,12 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             }
             catch (Exception ex)
             {
-                alertMessage = ex.Message;
-                errorVisible = true;
+                Error = ex.Message;
+                IsErrorVisible = true;
             }
             finally
             {
-                isSubmitInProgress = false;
+                IsSubmitInProgress = false;
             }
         }
 
@@ -80,7 +80,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected async Task ItemReferenceHandler(ItemReference reference)
         {
             customerOrderDetail.ReferenceId = reference?.ReferenceId ?? 0;
-            customerOrderDetail.ItemReference = customerOrderDetail.ReferenceId == 0 ? null : itemReferencesForREFERENCEID.Single(s => s.ReferenceId == customerOrderDetail.ReferenceId); ; ;
+            customerOrderDetail.ItemReference = customerOrderDetail.ReferenceId == 0 ? null : itemReferencesForREFERENCEID.Single(s => s.ReferenceId == customerOrderDetail.ReferenceId);
         }
         #endregion
     }

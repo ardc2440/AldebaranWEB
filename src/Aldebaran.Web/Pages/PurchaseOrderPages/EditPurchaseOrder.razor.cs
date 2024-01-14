@@ -24,6 +24,9 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         protected SecurityService Security { get; set; }
 
         [Inject]
+        protected TooltipService TooltipService { get; set; }
+
+        [Inject]
         protected IProviderService ProviderService { get; set; }
 
         [Inject]
@@ -87,6 +90,9 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         #endregion
 
         #region Events
+
+        void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
+
         #region PurchaseOrder
         private int PROVIDER_ID { get; set; }
         protected async Task FormSubmit()
@@ -156,6 +162,9 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         #endregion
 
         #region PurchaseOrderDetail
+
+        protected async Task<string> GetReferenceHint(ServiceModel.ItemReference reference) => $"({reference.Item.Line.LineName}) {reference.Item.ItemName} - {reference.ReferenceName}";
+
         protected async Task AddPurchaseOrderDetail(MouseEventArgs args)
         {
             if (PurchaseOrder.ProviderId == 0)

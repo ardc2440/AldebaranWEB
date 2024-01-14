@@ -11,7 +11,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task AddAsync(CustomerReservation customerReservation, CancellationToken ct = default)
+        public async Task<CustomerReservation> AddAsync(CustomerReservation customerReservation, CancellationToken ct = default)
         {
             var entity = new CustomerReservation
             {
@@ -45,7 +45,8 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 _context.Entry(entity).State = EntityState.Unchanged;
                 throw;
             }
-            customerReservation.ReservationNumber = entity.ReservationNumber;
+
+            return entity;
         }
 
         public async Task<IEnumerable<CustomerReservation>> GetAsync(CancellationToken ct = default)

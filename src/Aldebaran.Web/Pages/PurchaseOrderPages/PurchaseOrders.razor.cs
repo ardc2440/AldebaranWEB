@@ -113,6 +113,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
 
         #region Events
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
+
         #region PurchaseOrder
         async Task GetPurchaseOrdersAsync(string searchKey = null, CancellationToken ct = default)
         {
@@ -185,6 +186,9 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         #endregion
 
         #region PurchaseOrderActivity
+
+        protected async Task<string> GetReferenceHint(ServiceModel.ItemReference reference) => $"({reference.Item.Line.LineName}) {reference.Item.ItemName} - {reference.ReferenceName}";
+
         protected RadzenDataGrid<ServiceModel.PurchaseOrderActivity> PurchaseOrderActivitiesDataGrid;
         protected async Task AddPurchaseOrderActivity(MouseEventArgs args, ServiceModel.PurchaseOrder data)
         {

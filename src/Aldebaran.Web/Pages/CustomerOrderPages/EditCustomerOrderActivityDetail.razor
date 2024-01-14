@@ -1,44 +1,46 @@
 @attribute [Authorize(Roles = "Admin,Customer Order Activity Editor")]
 
-<PageTitle>Modificar Tipo de Actividad</PageTitle>
+<PageTitle>Actualizar Tipo de Actividad</PageTitle>
 
 <RadzenColumn SizeMD=12>
-    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">@alertMessage</RadzenAlert>
-        <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerOrderActivityDetail" Data="@CustomerOrderActivityDetail" Visible="@(CustomerOrderActivityDetail != null)" Submit="@FormSubmit">
-            <RadzenStack style="margin-bottom: 1rem">
-                <hr />
-                <RadzenFormField Text="Actividad" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
-                    <ChildContent>
-                        <RadzenDropDownDataGrid Data="@activityTypesForACTIVITY_ID" Title="ACTIVITY_TYPE_NAME" TextProperty="ActivityType.ActivityTypeName" ValueProperty="ActivityTypeId" AllowClear=true
-                                                Disabled=@(hasACTIVITY_TYPE_IDValue) Placeholder="Seleccione un tipo de actividad" style="display: block; width: 100%"
-                                                @bind-Value="@CustomerOrderActivityDetail.ActivityTypeId" Name="ACTIVITY_TYPE_ID" TabIndex="0" />
-                    </ChildContent>
-                    <Helper>
-                        <RadzenRequiredValidator Component="ACTIVITY_TYPE_ID" DefaultValue="0" Text="El Tipo de Actividad es requerida"></RadzenRequiredValidator>
-                    </Helper>
-                </RadzenFormField>
-                <RadzenFormField Text="Responsable" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
-                    <ChildContent>
-                        <RadzenDropDownDataGrid Data="@employeesForACTIVITYEMPLOYEEID" TextProperty="FullName" ValueProperty="EmployeeId" AllowClear=true TabIndex="1"
-                                                Disabled=@(hasACTIVITY_EMPLOYEE_IDValue) style="display: block; width: 100%" @bind-Value="@CustomerOrderActivityDetail.ActivityEmployeeId"
-                                                Name="ACTIVITY_EMPLOYEE_ID" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true"
-                                                Placeholder="Seleccione un responsable">
-                            <Columns>
-                                <RadzenDropDownDataGridColumn Property="EMPLOYEE.IdentityType.IdentityTypeName" Title="Tipo de identificación" />
-                                <RadzenDropDownDataGridColumn Property="IdentityNumber" Title="Número de identificación" />
-                                <RadzenDropDownDataGridColumn Property="FullName" Title="Nombre completo" />
-                            </Columns>
-                        </RadzenDropDownDataGrid>
-                    </ChildContent>
-                    <Helper>
-                        <RadzenRequiredValidator Component="ACTIVITY_EMPLOYEE_ID" DefaultValue="0" Text="El responsable es requerido"></RadzenRequiredValidator>
-                    </Helper>
-                </RadzenFormField>
-            </RadzenStack>
-            <RadzenStack class="my-2" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
-                <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@isSubmitInProgress" />
-                <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
-            </RadzenStack>
-        </RadzenTemplateForm>
-    </RadzenColumn>
+    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">
+        @Error
+    </RadzenAlert>
+    <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerOrderActivityDetail" Data="@CustomerOrderActivityDetail" Visible="@(CustomerOrderActivityDetail != null)" Submit="@FormSubmit">
+        <RadzenStack style="margin-bottom: 1rem">
+            <hr />
+            <RadzenFormField Text="Actividad" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
+                <ChildContent>
+                    <RadzenDropDownDataGrid Data="@activityTypesForACTIVITY_ID" Title="ACTIVITY_TYPE_NAME" TextProperty="ActivityType.ActivityTypeName" ValueProperty="ActivityTypeId" AllowClear=true
+                                            Disabled=@(hasACTIVITY_TYPE_IDValue) Placeholder="Seleccione un tipo de actividad" style="display: block; width: 100%"
+                                            @bind-Value="@CustomerOrderActivityDetail.ActivityTypeId" Name="ACTIVITY_TYPE_ID" TabIndex="0" />
+                </ChildContent>
+                <Helper>
+                    <RadzenRequiredValidator Component="ACTIVITY_TYPE_ID" DefaultValue="0" Text="El Tipo de Actividad es requerida"></RadzenRequiredValidator>
+                </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Responsable" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
+                <ChildContent>
+                    <RadzenDropDownDataGrid Data="@employeesForACTIVITYEMPLOYEEID" TextProperty="FullName" ValueProperty="EmployeeId" AllowClear=true TabIndex="1"
+                                            Disabled=@(hasACTIVITY_EMPLOYEE_IDValue) style="display: block; width: 100%" @bind-Value="@CustomerOrderActivityDetail.ActivityEmployeeId"
+                                            Name="ACTIVITY_EMPLOYEE_ID" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true"
+                                            Placeholder="Seleccione un responsable">
+                        <Columns>
+                            <RadzenDropDownDataGridColumn Property="EMPLOYEE.IdentityType.IdentityTypeName" Title="Tipo de identificación" />
+                            <RadzenDropDownDataGridColumn Property="IdentityNumber" Title="Número de identificación" />
+                            <RadzenDropDownDataGridColumn Property="FullName" Title="Nombre completo" />
+                        </Columns>
+                    </RadzenDropDownDataGrid>
+                </ChildContent>
+                <Helper>
+                    <RadzenRequiredValidator Component="ACTIVITY_EMPLOYEE_ID" DefaultValue="0" Text="El responsable es requerido"></RadzenRequiredValidator>
+                </Helper>
+            </RadzenFormField>
+        </RadzenStack>
+        <RadzenStack class="my-2" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+            <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@IsSubmitInProgress" />
+            <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
+        </RadzenStack>
+    </RadzenTemplateForm>
+</RadzenColumn>
 

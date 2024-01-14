@@ -50,9 +50,9 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         #region Global Variables
 
         protected bool IsErrorVisible;
-        protected string Error = "No se há podido agregar la referencia";
+        protected string Error = "No se hapodido agregar la referencia";
         protected AdjustmentDetail adjustmentDetail;
-        protected bool isSubmitInProgress;
+        protected bool IsSubmitInProgress;
         bool hasAdjustmentIdValue;
         bool hasWarehouseIdValue;
         bool hasReferenceIdValue;
@@ -108,7 +108,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
             try
             {
                 IsErrorVisible = false;
-                isSubmitInProgress = true;
+                IsSubmitInProgress = true;
 
                 if (AdjustmentDetails.Any(ad => ad.ReferenceId.Equals(adjustmentDetail.ReferenceId) && ad.WarehouseId.Equals(adjustmentDetail.WarehouseId)))
                     throw new Exception("La referencia y bodega seleccionadas, ya existen dentro de este ajuste.");
@@ -124,7 +124,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
             }
             finally
             {
-                isSubmitInProgress = false;
+                IsSubmitInProgress = false;
             }
         }
 

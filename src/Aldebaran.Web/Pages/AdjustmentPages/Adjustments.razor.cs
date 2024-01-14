@@ -77,6 +77,9 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         #endregion
 
         #region Events
+
+        protected async Task<string> GetReferenceHint(ItemReference reference) => $"({reference.Item.Line.LineName}) {reference.Item.ItemName} - {reference.ReferenceName}";
+
         async Task DialogResultResolver(CancellationToken ct = default)
         {
             if (ADJUSTMENT_ID == null)
@@ -96,7 +99,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
                 {
                     Summary = "Ajuste de inventario",
                     Severity = NotificationSeverity.Success,
-                    Detail = $"El ajuste ha sido actualizada correctamente."
+                    Detail = $"El ajuste ha sido actualizado correctamente."
                 });
                 return;
             }
@@ -149,14 +152,17 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
                     adjustment.StatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 2);
                     adjustment.StatusDocumentTypeId = adjustment.StatusDocumentType.StatusDocumentTypeId;
                     adjustment.AdjustmentDetails = (await AdjustmentDetailService.GetByAdjustmentIdAsync(adjustment.AdjustmentId)).ToList();
+
                     await AdjustmentService.CancelAsync(adjustment.AdjustmentId);
-                    await GetAdjustmentsAsync();
+                    await GetAdjustmentsAsync(search);
+
                     NotificationService.Notify(new NotificationMessage
                     {
                         Summary = "Ajuste de inventario",
                         Severity = NotificationSeverity.Success,
                         Detail = $"Ajuste de inventario ha sido cancelado correctamente."
                     });
+
                     await AdjustmentsGrid.Reload();
                 }
             }

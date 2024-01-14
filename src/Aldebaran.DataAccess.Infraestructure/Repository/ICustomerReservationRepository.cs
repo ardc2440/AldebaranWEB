@@ -4,7 +4,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
     public interface ICustomerReservationRepository
     {
-        Task AddAsync(CustomerReservation customerReservation, CancellationToken ct = default);
+        Task<CustomerReservation> AddAsync(CustomerReservation customerReservation, CancellationToken ct = default);
         Task<IEnumerable<CustomerReservation>> GetAsync(CancellationToken ct = default);
         Task<IEnumerable<CustomerReservation>> GetAsync(string searchKey, CancellationToken ct = default);
         Task<CustomerReservation?> FindAsync(int customerReservationId, CancellationToken ct = default);

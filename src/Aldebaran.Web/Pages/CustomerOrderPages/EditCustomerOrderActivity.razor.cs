@@ -14,6 +14,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         #region Injections
 
         [Inject]
+        protected ILogger<AddCustomerOrder> Logger { get; set; }
+
+        [Inject]
         protected NavigationManager NavigationManager { get; set; }
 
         [Inject]
@@ -34,6 +37,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         [Inject]
         protected ICustomerOrderService CustomerOrderService { get; set; }
 
+        [Inject]
+        protected TooltipService TooltipService { get; set; }
+
         #endregion
 
         #region Parameters
@@ -45,18 +51,19 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         #region Global Variables
 
-        protected bool errorVisible;
-        protected string errorMessage;
+        protected bool IsErrorVisible;
+        protected string Error;
         protected ICollection<CustomerOrderActivityDetail> customerOrderActivityDetails;
         protected LocalizedDataGrid<CustomerOrderActivityDetail> customerOrderActivityDetailsGrid;
         protected IEnumerable<Area> areasForAREAID;
         protected IEnumerable<Employee> employeesForEMPLOYEEID;
-        protected bool isSubmitInProgress;
-        protected bool isLoadingInProgress;
+        protected bool IsSubmitInProgress;
+        protected bool IsLoadingInProgress;
         protected CustomerOrderActivity customerOrderActivity;
         protected CustomerOrder customerOrder;
         protected string title;
         protected RadzenDropDownDataGrid<short> areasGrid;
+        protected bool Submitted = false;
 
         protected short AreaId { get; set; }
 
@@ -68,7 +75,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         {
             try
             {
-                isLoadingInProgress = true;
+
+                IsLoadingInProgress = true;
 
                 await Task.Yield();
 
@@ -93,33 +101,38 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             }
             catch (Exception ex)
             {
-                errorMessage = ex.Message;
-                errorVisible = true;
+                Error = ex.Message;
+                IsErrorVisible = true;
             }
-            finally { isLoadingInProgress = false; }
+            finally { IsLoadingInProgress = false; }
         }
 
         #endregion
 
         #region Events
+
+        void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
+
         protected async Task FormSubmit()
         {
             try
             {
-                isSubmitInProgress = true;
+                Submitted = true;
+
+                IsSubmitInProgress = true;
 
                 customerOrderActivity.CustomerOrderActivityDetails = customerOrderActivityDetails;
                 await CustomerOrderActivityService.UpdateAsync(customerOrderActivity.CustomerOrderActivityId, customerOrderActivity);
 
-                await DialogService.Alert("Actividad guardada satisfactoriamente", "Información");
-                NavigationManager.NavigateTo("customer-orders");
+                NavigationManager.NavigateTo($"customer-orders/edit-activity/{customerOrderActivity.CustomerOrderId}");
             }
             catch (Exception ex)
             {
-                errorMessage = ex.Message;
-                errorVisible = true;
+                Logger.LogError(ex, nameof(FormSubmit));
+                IsErrorVisible = true;
+                Error = ex.Message;
             }
-            finally { isSubmitInProgress = false; }
+            finally { IsSubmitInProgress = false; }
         }
 
         protected async Task CancelButtonClick(MouseEventArgs args)
@@ -148,12 +161,12 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             }
             catch (Exception ex)
             {
-                errorMessage = ex.Message;
-                errorVisible = true;
+                Error = ex.Message;
+                IsErrorVisible = true;
             }
             finally
             {
-                isSubmitInProgress = false;
+                IsSubmitInProgress = false;
             }
         }
 
@@ -169,7 +182,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task EditCustomerOrderActivityDetail(MouseEventArgs args, CustomerOrderActivityDetail item)
         {
-            var result = await DialogService.OpenAsync<EditCustomerOrderActivityDetail>("Modificar detalle", new Dictionary<string, object> { { "CustomerOrderActivityDetail", item }, { "CustomerOrderActivityAreaId", customerOrderActivity.AreaId }, { "CustomerOrderActivityDetails", customerOrderActivityDetails } });
+            var result = await DialogService.OpenAsync<EditCustomerOrderActivityDetail>("Actualizar detalle", new Dictionary<string, object> { { "CustomerOrderActivityDetail", item }, { "CustomerOrderActivityAreaId", customerOrderActivity.AreaId }, { "CustomerOrderActivityDetails", customerOrderActivityDetails } });
             if (result == null)
                 return;
 
@@ -189,6 +202,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             if (await DialogService.Confirm("Esta seguro que desea cambiar el área?. se borraran los detalles asociados a esta actividad.") == true)
             {
                 employeesForEMPLOYEEID = new List<Employee>();
+
+                customerOrderActivityDetails.Clear();
+                await customerOrderActivityDetailsGrid.Reload();
 
                 AreaId = id;
 

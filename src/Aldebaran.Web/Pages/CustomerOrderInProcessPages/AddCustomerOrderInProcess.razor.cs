@@ -22,6 +22,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         protected SecurityService Security { get; set; }
 
         [Inject]
+        protected TooltipService TooltipService { get; set; }
+
+        [Inject]
         protected IDocumentTypeService DocumentTypeService { get; set; }
 
         [Inject]
@@ -53,19 +56,20 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
         #region Global Variables
 
-        protected bool errorVisible;
-        protected string errorMessage;
         protected CustomerOrder customerOrder;
         protected CustomerOrdersInProcess customerOrderInProcess;
         protected DocumentType documentType;
         protected DialogResult dialogResult;
         protected ICollection<DetailInProcess> detailsInProcess;
         protected LocalizedDataGrid<DetailInProcess> customerOrderDetailGrid;
-        protected bool isSubmitInProgress;
         protected bool isLoadingInProgress;
         protected string title;
         protected IEnumerable<Employee> employeesFOREMPLOYEEID;
         protected IEnumerable<ProcessSatellite> processSatellitesFORPROCESSSATELLITEID;
+        protected bool IsErrorVisible;
+        private bool Submitted = false;
+        protected bool IsSubmitInProgress;
+        protected string Error;
 
         #endregion
 
@@ -108,8 +112,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
             }
             catch (Exception ex)
             {
-                errorMessage = ex.Message;
-                errorVisible = true;
+                Error = ex.Message;
+                IsErrorVisible = true;
             }
             finally { isLoadingInProgress = false; }
         }
@@ -117,6 +121,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         #endregion
 
         #region Events
+        void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
+
+        protected async Task<string> GetReferenceHint(ItemReference reference) => $"({reference.Item.Line.LineName}) {reference.Item.ItemName} - {reference.ReferenceName}";
 
         protected async Task<List<DetailInProcess>> GetDetailsInProcess(CustomerOrder customerOrder) => (from item in customerOrder.CustomerOrderDetails ?? throw new ArgumentException($"The references of Customer Order {customerOrder.OrderNumber}, could not be obtained.")
                                                                                                          let viewOrderDetail = new DetailInProcess()
@@ -162,24 +169,23 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
             {
                 dialogResult = null;
 
-                isSubmitInProgress = true;
+                IsSubmitInProgress = true;
 
                 if (!detailsInProcess.Any(x => x.THIS_QUANTITY > 0))
                     throw new Exception("No ha ingresado ninguna cantidad a trasladar");
 
                 customerOrderInProcess.CustomerOrderInProcessDetails = await MapDetailsInProcess(detailsInProcess);
 
-                await CustomerOrdersInProcessService.AddAsync(customerOrderInProcess);
+                var result = await CustomerOrdersInProcessService.AddAsync(customerOrderInProcess);
 
-                await DialogService.Alert($"Traslado a proceso grabado satisfactoriamente", "Información");
-                NavigationManager.NavigateTo("process-customer-orders");
+                NavigationManager.NavigateTo($"process-customer-orders/{result.CustomerOrderInProcessId}");
             }
             catch (Exception ex)
             {
-                errorMessage = ex.Message;
-                errorVisible = true;
+                Error = ex.Message;
+                IsErrorVisible = true;
             }
-            finally { isSubmitInProgress = false; }
+            finally { IsSubmitInProgress = false; }
         }
 
         protected async Task<ICollection<CustomerOrderInProcessDetail>> MapDetailsInProcess(ICollection<DetailInProcess> detailsInProcess)

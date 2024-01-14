@@ -12,6 +12,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         #region Injections
 
         [Inject]
+        protected ILogger<AddCustomerOrder> Logger { get; set; }
+
+        [Inject]
         protected NavigationManager NavigationManager { get; set; }
 
         [Inject]
@@ -44,6 +47,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         [Inject]
         protected ICustomerReservationDetailService CustomerReservationDetailService { get; set; }
 
+        [Inject]
+        protected TooltipService TooltipService { get; set; }
+
         #endregion
 
         #region Parameters
@@ -55,8 +61,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         #region Global Variables
 
-        protected bool errorVisible;
-        protected string errorMessage;
+        protected bool IsErrorVisible;
+        protected string Error;
         protected CustomerReservation customerReservation;
         protected CustomerOrder customerOrder;
         protected DocumentType documentType;
@@ -65,8 +71,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected IEnumerable<Customer> customersForCUSTOMERID;
         protected IEnumerable<Employee> employeesForEMPLOYEEID;
-        protected bool isSubmitInProgress;
-        protected bool isLoadingInProgress;
+        protected bool IsSubmitInProgress;
+        protected bool IsLoadingInProgress;
+        protected bool Submitted = false;
 
         #endregion
 
@@ -76,7 +83,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         {
             try
             {
-                isLoadingInProgress = true;
+                IsLoadingInProgress = true;
 
                 await Task.Yield();
 
@@ -94,15 +101,19 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             }
             catch (Exception ex)
             {
-                errorMessage = ex.Message;
-                errorVisible = true;
+                Error = ex.Message;
+                IsErrorVisible = true;
             }
-            finally { isLoadingInProgress = false; }
+            finally { IsLoadingInProgress = false; }
         }
 
         #endregion
 
         #region Events
+
+        protected async Task<string> GetReferenceHint(ItemReference reference) => $"({reference.Item.Line.LineName}) {reference.Item.ItemName} - {reference.ReferenceName}";
+
+        void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
 
         protected async Task ChargeCustomerOrderModel()
         {
@@ -151,7 +162,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         {
             try
             {
-                isSubmitInProgress = true;
+                Submitted = true;
+                IsSubmitInProgress = true;
 
                 if (!customerOrderDetails.Any())
                     throw new Exception("No ha ingresado ninguna referencia");
@@ -167,34 +179,43 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
                     await CustomerReservationService.UpdateAsync(customerReservation.CustomerReservationId, customerReservation);
 
-                    await DialogService.Alert($"Pedido guardado con el consecutivo {customerOrder.OrderNumber}", "Información");
-                    NavigationManager.NavigateTo("customer-reservations");
+                    NavigationManager.NavigateTo($"customer-reservations/create-order/{customerReservation.CustomerReservationId}");
                 }
             }
             catch (Exception ex)
             {
-                errorMessage = ex.Message;
-                errorVisible = true;
+                Logger.LogError(ex, nameof(FormSubmit));
+                IsErrorVisible = true;
+                Error = ex.Message;
             }
-            finally { isSubmitInProgress = false; }
+            finally { IsSubmitInProgress = false; }
         }
 
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
-            if (await DialogService.Confirm("Está seguro que desea cancelar la creación del Pedido?", "Confirmar") == true)
+            try
             {
-                if (!int.TryParse(CustomerReservationId, out var customerReservationId))
-                    throw new Exception("El Id de referencia recibido no es valido");
-
-                var customerReservation = await CustomerReservationService.FindAsync(customerReservationId) ?? throw new Exception("No ha seleccionado una reservacion valida");
-
-                foreach (var item in customerReservation.CustomerReservationDetails.Where(d => d.SendToCustomerOrder).ToList())
+                if (await DialogService.Confirm("Está seguro que desea cancelar la creación del Pedido?", "Confirmar") == true)
                 {
-                    item.SendToCustomerOrder = false;
-                    await CustomerReservationDetailService.UpdateAsync(item.CustomerReservationDetailId, item);
-                }
+                    if (!int.TryParse(CustomerReservationId, out var customerReservationId))
+                        throw new Exception("El Id de referencia recibido no es valido");
 
-                NavigationManager.NavigateTo("customer-reservations");
+                    var customerReservation = await CustomerReservationService.FindAsync(customerReservationId) ?? throw new Exception("No ha seleccionado una reservacion valida");
+
+                    foreach (var item in customerReservation.CustomerReservationDetails.Where(d => d.SendToCustomerOrder).ToList())
+                    {
+                        item.SendToCustomerOrder = false;
+                        await CustomerReservationDetailService.UpdateAsync(item.CustomerReservationDetailId, item);
+                    }
+
+                    NavigationManager.NavigateTo($"customer-reservations/cancel-order/{customerReservation.CustomerReservationId}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, nameof(FormSubmit));
+                IsErrorVisible = true;
+                Error = ex.Message;
             }
         }
 
@@ -224,7 +245,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task EditRow(CustomerOrderDetail args)
         {
-            var result = await DialogService.OpenAsync<EditCustomerOrderDetail>("Modificar referencia", new Dictionary<string, object> { { "CustomerOrderDetail", args } });
+            var result = await DialogService.OpenAsync<EditCustomerOrderDetail>("Actualizar referencia", new Dictionary<string, object> { { "CustomerOrderDetail", args } });
             if (result == null)
                 return;
             var detail = (CustomerOrderDetail)result;

@@ -15,10 +15,11 @@ namespace Aldebaran.Application.Services
             _mapper = mapper ?? throw new ArgumentNullException(nameof(IMapper));
         }
 
-        public async Task AddAsync(CustomerOrderShipment customerOrderShipment, CancellationToken ct = default)
+        public async Task<CustomerOrderShipment> AddAsync(CustomerOrderShipment customerOrderShipment, CancellationToken ct = default)
         {
             var data = _mapper.Map<Entities.CustomerOrderShipment>(customerOrderShipment);
-            await _repository.AddAsync(data, ct);
+            var result = await _repository.AddAsync(data, ct);
+            return _mapper.Map<CustomerOrderShipment>(result);
         }
 
         public async Task<IEnumerable<CustomerOrderShipment>> GetByCustomerOrderIdAsync(int customerOrderId, CancellationToken ct = default)

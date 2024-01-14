@@ -11,7 +11,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task AddAsync(CustomerOrdersInProcess customerOrdersInProcess, CancellationToken ct)
+        public async Task<CustomerOrdersInProcess> AddAsync(CustomerOrdersInProcess customerOrdersInProcess, CancellationToken ct)
         {
             var entity = new CustomerOrdersInProcess
             {
@@ -42,13 +42,14 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             {
                 await _context.CustomerOrdersInProcesses.AddAsync(entity, ct);
                 await _context.SaveChangesAsync(ct);
+
+                return entity;
             }
             catch (Exception)
             {
                 _context.Entry(entity).State = EntityState.Unchanged;
                 throw;
             }
-            customerOrdersInProcess.CustomerOrderInProcessId = entity.CustomerOrderInProcessId;
         }
 
         public async Task<IEnumerable<CustomerOrdersInProcess>> GetByCustomerOrderIdAsync(int customerOrderId, CancellationToken ct)
