@@ -86,12 +86,14 @@ namespace Aldebaran.Web.Shared
             ItemReferenceInventories.Add(new ItemReferenceInventory() { Type = "Pedido", Quantity = Reference?.OrderedQuantity ?? 0 });
             ItemReferenceInventories.Add(new ItemReferenceInventory() { Type = "Reservado", Quantity = Reference?.ReservedQuantity ?? 0 });
             ItemReferenceInventories.Add(new ItemReferenceInventory() { Type = "En Proceso", Quantity = Reference?.WorkInProcessQuantity ?? 0 });
-            await ItemReferenceInventoryGrid.Reload();
+            if (ItemReferenceInventoryGrid != null)
+                await ItemReferenceInventoryGrid.Reload();
         }
         async Task RefreshWarehouses()
         {
             ReferencesWarehouses = await ReferencesWarehouseService.GetByReferenceIdAsync(Reference.ReferenceId);
-            await ReferencesWarehouseGrid.Reload();
+            if (ReferencesWarehouseGrid != null)
+                await ReferencesWarehouseGrid.Reload();
         }
         async Task RefreshTransitOrders()
         {
@@ -99,7 +101,8 @@ namespace Aldebaran.Web.Shared
             var statusOrder = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 1);
             var detailInTransit = await PurchaseOrderDetailService.GetTransitDetailOrdersAsync(Reference.ReferenceId, statusOrder.StatusDocumentTypeId);
             GroupPurchaseOrderDetails = detailInTransit.GroupBy(group => group.PurchaseOrder.RequestDate).Select(c => new GroupPurchaseOrderDetail() { Request_Date = c.Key, Quantity = c.Sum(p => p.RequestedQuantity) });
-            await GroupPurchaseOrderDetailGrid.Reload();
+            if (GroupPurchaseOrderDetailGrid != null)
+                await GroupPurchaseOrderDetailGrid.Reload();
         }
         #endregion
     }
