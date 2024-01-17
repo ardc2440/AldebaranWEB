@@ -143,7 +143,7 @@ namespace Aldebaran.Web.Pages.ItemPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido eliminar el artículo"
+                    Detail = $"No se ha podido eliminar el artículo.\n {ex.Message}"
                 });
             }
         }
@@ -229,7 +229,7 @@ namespace Aldebaran.Web.Pages.ItemPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido eliminar la referencia."
+                    Detail = $"No se ha podido eliminar la referencia.\n {ex.Message}"
                 });
             }
         }

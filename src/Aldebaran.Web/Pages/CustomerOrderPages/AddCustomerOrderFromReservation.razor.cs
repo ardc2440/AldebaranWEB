@@ -248,10 +248,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             var result = await DialogService.OpenAsync<EditCustomerOrderDetail>("Actualizar referencia", new Dictionary<string, object> { { "CustomerOrderDetail", args } });
             if (result == null)
                 return;
-            var detail = (CustomerOrderDetail)result;
 
-            customerOrderDetails.Remove(args);
-            customerOrderDetails.Add(detail);
+            args.RequestedQuantity = result.RequestedQuantity;
+            args.Brand = result.Brand;
 
             await customerOrderDetailGrid.Reload();
         }

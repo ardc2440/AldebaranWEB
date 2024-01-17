@@ -66,7 +66,14 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
             };
 
             if (detailInProcess.THIS_QUANTITY == 0)
+            {
                 detailInProcess.THIS_QUANTITY = detailInProcess.PENDING_QUANTITY;
+            }
+            else
+            {
+                if (detailInProcess.THIS_QUANTITY > detailInProcess.PROCESSED_QUANTITY)
+                    detailInProcess.THIS_QUANTITY = detailInProcess.PROCESSED_QUANTITY;
+            }
 
             ItemReference = await ItemReferenceService.FindAsync(detailInProcess.REFERENCE_ID);
         }
@@ -100,6 +107,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                 {
                     DetailInProcess.WAREHOUSE_ID = detailInProcess.WAREHOUSE_ID;
                     DetailInProcess.PENDING_QUANTITY = (detailInProcess.PENDING_QUANTITY + DetailInProcess.THIS_QUANTITY) - detailInProcess.THIS_QUANTITY;
+                    DetailInProcess.PROCESSED_QUANTITY = (detailInProcess.PROCESSED_QUANTITY - DetailInProcess.THIS_QUANTITY) + detailInProcess.THIS_QUANTITY;
                     DetailInProcess.THIS_QUANTITY = detailInProcess.THIS_QUANTITY;
 
                     DialogService.Close(DetailInProcess);

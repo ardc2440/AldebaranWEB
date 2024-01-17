@@ -140,6 +140,9 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             if (result == null)
                 return;
 
+            args.ReservedQuantity = result.ReservedQuantity;
+            args.Brand = result.Brand;
+
             await customerReservationDetailGrid.Reload();
         }
         #endregion

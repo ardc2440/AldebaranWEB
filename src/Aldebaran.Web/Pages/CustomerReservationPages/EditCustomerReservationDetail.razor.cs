@@ -28,6 +28,8 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         private readonly bool Submitted = false;
         protected bool IsSubmitInProgress;
         protected string Error;
+        protected CustomerReservationDetail customerReservationDetail { get; set; }
+
         protected ItemReference ItemReference { get; set; }
 
         #endregion
@@ -35,6 +37,18 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
+            customerReservationDetail = new CustomerReservationDetail
+            {
+                Brand = CustomerReservationDetail.Brand,
+                CustomerReservationDetailId = CustomerReservationDetail.CustomerReservationDetailId,
+                ReferenceId = CustomerReservationDetail.ReferenceId,
+                ItemReference = CustomerReservationDetail.ItemReference,
+                ReservedQuantity = CustomerReservationDetail.ReservedQuantity,
+                CustomerReservation = CustomerReservationDetail.CustomerReservation,
+                SendToCustomerOrder = CustomerReservationDetail.SendToCustomerOrder,
+                CustomerReservationId = CustomerReservationDetail.CustomerReservationId
+            };
+
             ItemReference = await ItemReferenceService.FindAsync(CustomerReservationDetail.ReferenceId);
         }
 
@@ -53,7 +67,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             {
                 IsErrorVisible = false;
                 IsSubmitInProgress = true;
-                DialogService.Close(CustomerReservationDetail);
+                DialogService.Close(customerReservationDetail);
             }
             catch (Exception ex)
             {

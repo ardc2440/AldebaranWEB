@@ -128,7 +128,7 @@ namespace Aldebaran.Web.Pages.AreaPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido eliminar el artículo del área"
+                    Detail = $"No se ha podido eliminar el artículo del área \n {ex.Message}"
                 });
             }
         }

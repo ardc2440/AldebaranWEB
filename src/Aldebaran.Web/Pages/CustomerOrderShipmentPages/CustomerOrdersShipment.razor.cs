@@ -228,7 +228,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido cancelar el despacho. \n\r {ex.InnerException.Message}"
+                    Detail = $"No se ha podido cancelar el despacho. \n {ex.Message}"
                 });
             }
         }

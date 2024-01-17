@@ -172,7 +172,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido eliminar el ajuste"
+                    Detail = $"No se ha podido eliminar el ajuste \n {ex.Message}"
                 });
             }
         }

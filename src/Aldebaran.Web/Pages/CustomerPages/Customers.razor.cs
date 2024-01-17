@@ -130,7 +130,7 @@ namespace Aldebaran.Web.Pages.CustomerPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido eliminar el cliente"
+                    Detail = $"No se ha podido eliminar el cliente.\n {ex.Message}"
                 });
             }
         }
@@ -207,7 +207,7 @@ namespace Aldebaran.Web.Pages.CustomerPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido eliminar el contacto"
+                    Detail = $"No se ha podido eliminar el contacto.\n {ex.Message}"
                 });
             }
         }

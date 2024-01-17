@@ -15,9 +15,6 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected IWarehouseService WarehouseService { get; set; }
-
-        [Inject]
         protected IItemReferenceService ItemReferenceService { get; set; }
 
         #endregion
@@ -27,15 +24,10 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
         [Parameter]
         public DetailInProcess DetailInProcess { get; set; }
 
-        [Parameter]
-        public short WAREHOUSE_ID { get; set; }
-
         #endregion
 
         #region Global Variables
 
-        protected IEnumerable<Warehouse> warehousesForWAREHOUSEID;
-        protected bool hasWAREHOUSE_IDValue;
         protected DetailInProcess detailInProcess;
         protected ItemReference ItemReference { get; set; }
         protected bool IsErrorVisible;
@@ -49,14 +41,12 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
 
         protected override async Task OnInitializedAsync()
         {
-            warehousesForWAREHOUSEID = await WarehouseService.GetAsync();
 
             detailInProcess = new DetailInProcess()
             {
                 CUSTOMER_ORDER_DETAIL_ID = DetailInProcess.CUSTOMER_ORDER_DETAIL_ID,
                 DELIVERED_QUANTITY = DetailInProcess.DELIVERED_QUANTITY,
                 BRAND = DetailInProcess.BRAND,
-                WAREHOUSE_ID = DetailInProcess.WAREHOUSE_ID,
                 THIS_QUANTITY = DetailInProcess.THIS_QUANTITY,
                 PENDING_QUANTITY = DetailInProcess.PENDING_QUANTITY,
                 PROCESSED_QUANTITY = DetailInProcess.PROCESSED_QUANTITY,
@@ -71,18 +61,6 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
             ItemReference = await ItemReferenceService.FindAsync(detailInProcess.REFERENCE_ID);
         }
 
-        public override async Task SetParametersAsync(ParameterView parameters)
-        {
-            hasWAREHOUSE_IDValue = parameters.TryGetValue<short>("WAREHOUSE_ID", out var hasWAREHOUSE_IDResult);
-
-            if (hasWAREHOUSE_IDValue)
-            {
-                detailInProcess.WAREHOUSE_ID = hasWAREHOUSE_IDResult;
-            }
-
-            await base.SetParametersAsync(parameters);
-        }
-
         #endregion
 
         #region Events
@@ -95,11 +73,10 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
                 IsSubmitInProgress = true;
 
                 if ((detailInProcess.PROCESSED_QUANTITY + DetailInProcess.THIS_QUANTITY) < detailInProcess.THIS_QUANTITY)
-                    throw new Exception("La cantidad de este despacho debe ser menor o igual a la cantidad pendiente del artículo");
+                    throw new Exception("La cantidad de este despacho debe ser menor o igual a la cantidad en proceso del artículo");
 
                 if (await DialogService.Confirm("Está seguro que desea despachar esta referencia?", "Confirmar") == true)
                 {
-                    DetailInProcess.WAREHOUSE_ID = detailInProcess.WAREHOUSE_ID;
                     DetailInProcess.PROCESSED_QUANTITY = (detailInProcess.PROCESSED_QUANTITY + DetailInProcess.THIS_QUANTITY) - detailInProcess.THIS_QUANTITY;
                     DetailInProcess.DELIVERED_QUANTITY = (detailInProcess.DELIVERED_QUANTITY - DetailInProcess.THIS_QUANTITY) + detailInProcess.THIS_QUANTITY;
                     DetailInProcess.THIS_QUANTITY = detailInProcess.THIS_QUANTITY;

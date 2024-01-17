@@ -220,7 +220,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido eliminar la actividad.\n\r{ex.InnerException.Message}"
+                    Detail = $"No se ha podido eliminar la actividad.\n {ex.Message}"
                 });
             }
         }
@@ -255,7 +255,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido cancelar el pedido.\n\r{ex.InnerException.Message}"
+                    Detail = $"No se ha podido cancelar el pedido.\n {ex.Message}"
                 });
             }
         }
@@ -343,7 +343,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido cerrar el pedido.\n\r{ex.InnerException.Message}"
+                    Detail = $"No se ha podido cerrar el pedido.\n {ex.Message}"
                 });
             }
         }

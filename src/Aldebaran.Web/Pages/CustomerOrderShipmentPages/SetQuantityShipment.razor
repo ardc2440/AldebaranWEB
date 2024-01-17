@@ -49,18 +49,7 @@
                     <Helper>
                         <RadzenRequiredValidator Component="THIS_QUANTITY" Text="La cantidad es requerida" />
                     </Helper>
-                </RadzenFormField>
-                <RadzenFormField Text="Bodega origen" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
-                    <ChildContent>
-                        <RadzenDropDown Data="@warehousesForWAREHOUSEID" TextProperty="WarehouseName" ValueProperty="WarehouseId" AllowClear=true
-                                        Disabled=@(hasWAREHOUSE_IDValue) Placeholder="Seleccione una bodega" style="display: block; width: 100%"
-                                        AllowFiltering="true" ClearSearchAfterSelection="true" @bind-Value="@detailInProcess.WAREHOUSE_ID" TabIndex="2"
-                                        Name="WAREHOUSE_ID" />
-                    </ChildContent>
-                    <Helper>
-                        <RadzenNumericRangeValidator Component="WAREHOUSE_ID" Min="1" Text="La bodega es requerida"></RadzenNumericRangeValidator>
-                    </Helper>
-                </RadzenFormField>
+                </RadzenFormField>                
             </RadzenRow>
         </RadzenStack>
         <RadzenRow style="margin-bottom: 1rem">

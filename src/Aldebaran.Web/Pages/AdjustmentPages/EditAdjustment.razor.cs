@@ -148,6 +148,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
             var detail = (AdjustmentDetail)result;
 
             args.Quantity = detail.Quantity;
+
             await adjustmentDetailGrid.Reload();
         }
 

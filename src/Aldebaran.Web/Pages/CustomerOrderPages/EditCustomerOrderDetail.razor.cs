@@ -29,12 +29,24 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected string Error;
         protected bool IsSubmitInProgress;
         protected ItemReference ItemReference { get; set; }
+        protected CustomerOrderDetail customerOrderDetail { get; set; }
 
         #endregion
 
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
+            customerOrderDetail = new CustomerOrderDetail
+            {
+                CustomerOrderId = CustomerOrderDetail.CustomerOrderId,
+                CustomerOrderDetailId = CustomerOrderDetail.CustomerOrderId,
+                CustomerOrder = CustomerOrderDetail.CustomerOrder,
+                Brand = CustomerOrderDetail.Brand,
+                ItemReference = CustomerOrderDetail.ItemReference,
+                ReferenceId = CustomerOrderDetail.ReferenceId,
+                RequestedQuantity = CustomerOrderDetail.RequestedQuantity
+            };
+
             ItemReference = await ItemReferenceService.FindAsync(CustomerOrderDetail.ReferenceId);
         }
 
@@ -53,7 +65,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             {
                 IsErrorVisible = false;
                 IsSubmitInProgress = true;
-                DialogService.Close(CustomerOrderDetail);
+                DialogService.Close(customerOrderDetail);
             }
             catch (Exception ex)
             {

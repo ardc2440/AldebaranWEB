@@ -133,7 +133,7 @@ namespace Aldebaran.Web.Pages.EmployeePages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido eliminar el funcionario."
+                    Detail = $"No se ha podido eliminar el funcionario.\n {ex.Message}"
                 });
             }
         }

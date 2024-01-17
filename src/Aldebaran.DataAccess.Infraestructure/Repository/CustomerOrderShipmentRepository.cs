@@ -31,9 +31,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             {
                 entity.CustomerOrderShipmentDetails.Add(new CustomerOrderShipmentDetail
                 {
-                    CustomerOrderShipmentId = item.CustomerOrderShipmentId,
                     DeliveredQuantity = item.DeliveredQuantity,
-                    WarehouseId = item.WarehouseId,
                     CustomerOrderDetailId = item.CustomerOrderDetailId
                 });
             }
@@ -58,6 +56,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .Include(i => i.CustomerOrder)
                 .Include(i => i.Employee)
                 .Include(i => i.StatusDocumentType)
+                .Include(i => i.ShippingMethod)
                 .Where(i => i.CustomerOrderId == customerOrderId)
                 .ToListAsync(ct);
         }
@@ -83,7 +82,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     var detail = entity.CustomerOrderShipmentDetails.FirstOrDefault(i => i.CustomerOrderShipmentDetailId == item.CustomerOrderShipmentDetailId);
                     if (detail != null)
                     {
-                        detail.WarehouseId = item.WarehouseId;
                         detail.DeliveredQuantity = item.DeliveredQuantity;
                         detail.CustomerOrderDetailId = item.CustomerOrderDetailId;
                     }
@@ -92,10 +90,8 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
 
                 entity.CustomerOrderShipmentDetails.Add(new CustomerOrderShipmentDetail()
                 {
-                    CustomerOrderShipmentId = item.CustomerOrderShipmentId,
                     CustomerOrderDetailId = item.CustomerOrderDetailId,
-                    DeliveredQuantity = item.DeliveredQuantity,
-                    WarehouseId = item.WarehouseId
+                    DeliveredQuantity = item.DeliveredQuantity
                 });
             }
 

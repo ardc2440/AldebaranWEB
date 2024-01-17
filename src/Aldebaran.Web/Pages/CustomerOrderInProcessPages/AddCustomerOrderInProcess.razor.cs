@@ -125,20 +125,23 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
         protected async Task<string> GetReferenceHint(ItemReference reference) => $"({reference.Item.Line.LineName}) {reference.Item.ItemName} - {reference.ReferenceName}";
 
-        protected async Task<List<DetailInProcess>> GetDetailsInProcess(CustomerOrder customerOrder) => (from item in customerOrder.CustomerOrderDetails ?? throw new ArgumentException($"The references of Customer Order {customerOrder.OrderNumber}, could not be obtained.")
-                                                                                                         let viewOrderDetail = new DetailInProcess()
-                                                                                                         {
-                                                                                                             REFERENCE_ID = item.ReferenceId,
-                                                                                                             CUSTOMER_ORDER_DETAIL_ID = item.CustomerOrderDetailId,
-                                                                                                             REFERENCE_DESCRIPTION = $"({item.ItemReference.Item.InternalReference}) {item.ItemReference.Item.ItemName} - {item.ItemReference.ReferenceName}",
-                                                                                                             PENDING_QUANTITY = item.RequestedQuantity - item.ProcessedQuantity - item.DeliveredQuantity,
-                                                                                                             PROCESSED_QUANTITY = item.ProcessedQuantity,
-                                                                                                             DELIVERED_QUANTITY = item.DeliveredQuantity,
-                                                                                                             BRAND = item.Brand,
-                                                                                                             THIS_QUANTITY = 0,
-                                                                                                             ItemReference = item.ItemReference
-                                                                                                         }
-                                                                                                         select viewOrderDetail).ToList();
+        protected async Task<List<DetailInProcess>> GetDetailsInProcess(CustomerOrder customerOrder)
+        {
+            return (from item in customerOrder.CustomerOrderDetails ?? throw new ArgumentException($"The references of Customer Order {customerOrder.OrderNumber}, could not be obtained.")
+                    let viewOrderDetail = new DetailInProcess()
+                    {
+                        REFERENCE_ID = item.ReferenceId,
+                        CUSTOMER_ORDER_DETAIL_ID = item.CustomerOrderDetailId,
+                        REFERENCE_DESCRIPTION = $"({item.ItemReference.Item.InternalReference}) {item.ItemReference.Item.ItemName} - {item.ItemReference.ReferenceName}",
+                        PENDING_QUANTITY = item.RequestedQuantity - item.ProcessedQuantity - item.DeliveredQuantity,
+                        PROCESSED_QUANTITY = item.ProcessedQuantity,
+                        DELIVERED_QUANTITY = item.DeliveredQuantity,
+                        BRAND = item.Brand,
+                        THIS_QUANTITY = 0,
+                        ItemReference = item.ItemReference
+                    }
+                    select viewOrderDetail).ToList();
+        }
 
         protected async Task SendToProcess(DetailInProcess args)
         {
@@ -153,7 +156,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                 return;
             }
 
-            args.PENDING_QUANTITY = args.PENDING_QUANTITY + args.THIS_QUANTITY;
+            args.PENDING_QUANTITY += args.THIS_QUANTITY;
+            args.PROCESSED_QUANTITY -= args.THIS_QUANTITY;
+            args.WAREHOUSE_ID = 0;
             args.THIS_QUANTITY = 0;
 
             await customerOrderDetailGrid.Reload();

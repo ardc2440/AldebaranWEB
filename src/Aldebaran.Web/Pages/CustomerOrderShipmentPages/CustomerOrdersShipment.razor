@@ -84,7 +84,7 @@
                                         </Columns>
                                     </LocalizedDataGrid>
                                 </RadzenTabsItem>
-                                <RadzenTabsItem Text="Traslados realizados a proceso">
+                                <RadzenTabsItem Text="Despachos realizados al cliente">
                                     <LocalizedDataGrid @ref="CustomerOrderShipmentDataGrid" ColumnWidth="200px" Visible="@(customerOrderShipments != null)" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                                        ExpandMode="DataGridExpandMode.Single" Data="@customerOrderShipments" RowExpand=@GetChildShipmentData TItem="Aldebaran.Application.Services.Models.CustomerOrderShipment">
                                         <Columns>
@@ -95,9 +95,9 @@
                                             </RadzenDataGridColumn>
                                             <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipment" Property="TrackingNumber" Title="Número de rastreo">
                                             </RadzenDataGridColumn>
-                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipment" Property="ShippingMethod.ShippingMethodName" Title="Satelite">
+                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipment" Property="ShippingMethod.ShippingMethodName" Title="Método de envio">
                                             </RadzenDataGridColumn>
-                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipment" Property="Employee.FullName" Title="Recibido por">
+                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipment" Property="Employee.FullName" Title="Responsable">
                                             </RadzenDataGridColumn>
                                             <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipment" Property="StatusDocumentType.StatusDocumentTypeName" Title="Estado">
                                             </RadzenDataGridColumn>
@@ -130,9 +130,7 @@
                                                                 </RadzenLabel>
                                                             </Template>
                                                         </RadzenDataGridColumn>
-                                                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipmentDetail" Property="Warehouse.WarehouseName" Title="Bodega">
-                                                        </RadzenDataGridColumn>
-                                                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipmentDetail" Property="ProcessedQuantity" Title="Cantidad">
+                                                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipmentDetail" Property="DeliveredQuantity" Title="Cantidad despachada">
                                                         </RadzenDataGridColumn>
                                                     </Columns>
                                                 </LocalizedDataGrid>

@@ -725,7 +725,7 @@ SELECT @DOCUMENT_TYPE_ID  = DOCUMENT_TYPE_ID  FROM DOCUMENT_TYPES WHERE DOCUMENT
 
 INSERT INTO STATUS_DOCUMENT_TYPES (STATUS_DOCUMENT_TYPE_NAME, DOCUMENT_TYPE_ID, NOTES, EDIT_MODE,STATUS_ORDER) VALUES ('Pendiente', @DOCUMENT_TYPE_ID, 'Orden de Compra que se encuentra en tránsito desde el proveedor hacia las bodegas de Promos', 1,1)
 INSERT INTO STATUS_DOCUMENT_TYPES (STATUS_DOCUMENT_TYPE_NAME, DOCUMENT_TYPE_ID, NOTES, EDIT_MODE,STATUS_ORDER) VALUES ('Confirmada', @DOCUMENT_TYPE_ID, 'Orden de Compra que se encuentra recibida en las bodegas de Promos, con las cantidades confirmadas y afectadas en el inventario', 0,2)
-INSERT INTO STATUS_DOCUMENT_TYPES (STATUS_DOCUMENT_TYPE_NAME, DOCUMENT_TYPE_ID, NOTES, EDIT_MODE,STATUS_ORDER) VALUES ('Anulada', @DOCUMENT_TYPE_ID, 'Orden de Compra que se cancela por razones del cliente o del proveedor, la mercancia solicitada no llegará a las bodegas de Promos', 0,3)
+INSERT INTO STATUS_DOCUMENT_TYPES (STATUS_DOCUMENT_TYPE_NAME, DOCUMENT_TYPE_ID, NOTES, EDIT_MODE,STATUS_ORDER) VALUES ('Cancelada', @DOCUMENT_TYPE_ID, 'Orden de Compra que se cancela por razones del cliente o del proveedor, la mercancia solicitada no llegará a las bodegas de Promos', 0,3)
 
 SELECT @DOCUMENT_TYPE_ID  = DOCUMENT_TYPE_ID  FROM DOCUMENT_TYPES WHERE DOCUMENT_TYPE_CODE = 'P'
 

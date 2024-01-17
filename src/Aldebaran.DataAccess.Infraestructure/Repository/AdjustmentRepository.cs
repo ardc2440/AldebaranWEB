@@ -1,4 +1,5 @@
 ﻿using Aldebaran.DataAccess.Entities;
+using Aldebaran.Infraestructure.Common.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
@@ -37,6 +38,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             try
             {
                 await _context.Adjustments.AddAsync(entity, ct);
+                _context.Events.AddOrUpdate("ChangeAdjustmentType", false);
                 await _context.SaveChangesAsync(ct);
                 return entity;
             }
@@ -55,6 +57,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             entity.StatusDocumentTypeId = statutsDocumentType.StatusDocumentTypeId;
             try
             {
+                _context.Events.AddOrUpdate("ChangeAdjustmentType", false);
                 await _context.SaveChangesAsync(ct);
             }
             catch
@@ -157,6 +160,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
 
             try
             {
+                _context.Events.AddOrUpdate("ChangeAdjustmentType", false);
                 await _context.SaveChangesAsync(ct);
             }
             catch

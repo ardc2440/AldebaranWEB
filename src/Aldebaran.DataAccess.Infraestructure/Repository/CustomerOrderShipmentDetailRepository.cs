@@ -15,7 +15,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         {
             return await _context.CustomerOrderShipmentDetails.AsNoTracking()
                 .Include(i => i.CustomerOrderDetail.ItemReference.Item.Line)
-                .Include(i => i.Warehouse)
                 .Where(i => i.CustomerOrderShipmentId == customerOrderShipmentId)
                 .ToListAsync(ct);
         }

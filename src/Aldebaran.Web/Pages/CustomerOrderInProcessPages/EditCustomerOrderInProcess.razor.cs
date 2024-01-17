@@ -66,6 +66,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         private bool Submitted = false;
         protected bool IsSubmitInProgress;
         protected string Error;
+        internal const string quantitiesError = "Esta referencia, ya posee artículos despachados al cliente. \n\r" +
+                                                "Para poder cancelar su cantidad, debe cancelar todos los despachos realizados para el pedido.";
 
         #endregion
 
@@ -109,34 +111,53 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
         protected async Task<string> GetReferenceHint(ItemReference reference) => $"({reference.Item.Line.LineName}) {reference.Item.ItemName} - {reference.ReferenceName}";
 
-        protected async Task<List<DetailInProcess>> GetDetailsInProcess(CustomerOrdersInProcess customerOrderInProcess) => (from item in await CustomerOrderInProcessDetailService.GetByCustomerOrderInProcessIdAsync(customerOrderInProcess.CustomerOrderInProcessId) ?? throw new ArgumentException("The references of Customer Order In Process, could not be obtained.")
-                                                                                                                            let viewOrderDetail = new DetailInProcess()
-                                                                                                                            {
-                                                                                                                                REFERENCE_ID = item.CustomerOrderDetail.ReferenceId,
-                                                                                                                                CUSTOMER_ORDER_DETAIL_ID = item.CustomerOrderDetailId,
-                                                                                                                                REFERENCE_DESCRIPTION = $"({item.CustomerOrderDetail.ItemReference.Item.InternalReference}) {item.CustomerOrderDetail.ItemReference.Item.ItemName} - {item.CustomerOrderDetail.ItemReference.ReferenceName}",
-                                                                                                                                PENDING_QUANTITY = item.CustomerOrderDetail.RequestedQuantity - item.CustomerOrderDetail.ProcessedQuantity - item.CustomerOrderDetail.DeliveredQuantity,
-                                                                                                                                PROCESSED_QUANTITY = item.CustomerOrderDetail.ProcessedQuantity,
-                                                                                                                                DELIVERED_QUANTITY = item.CustomerOrderDetail.DeliveredQuantity,
-                                                                                                                                BRAND = item.Brand,
-                                                                                                                                WAREHOUSE_ID = item.WarehouseId,
-                                                                                                                                THIS_QUANTITY = item.ProcessedQuantity,
-                                                                                                                                ItemReference = item.CustomerOrderDetail.ItemReference,
-                                                                                                                                CustomerOrderInProcessDetailId = item.CustomerOrderInProcessDetailId
-                                                                                                                            }
-                                                                                                                            select viewOrderDetail).ToList();
+        protected async Task<List<DetailInProcess>> GetDetailsInProcess(CustomerOrdersInProcess customerOrderInProcess)
+        {
+            return (from item in await CustomerOrderInProcessDetailService.GetByCustomerOrderInProcessIdAsync(customerOrderInProcess.CustomerOrderInProcessId) ?? throw new ArgumentException("The references of Customer Order In Process, could not be obtained.")
+                    let viewOrderDetail = new DetailInProcess()
+                    {
+                        REFERENCE_ID = item.CustomerOrderDetail.ReferenceId,
+                        CUSTOMER_ORDER_DETAIL_ID = item.CustomerOrderDetailId,
+                        REFERENCE_DESCRIPTION = $"({item.CustomerOrderDetail.ItemReference.Item.InternalReference}) {item.CustomerOrderDetail.ItemReference.Item.ItemName} - {item.CustomerOrderDetail.ItemReference.ReferenceName}",
+                        PENDING_QUANTITY = item.CustomerOrderDetail.RequestedQuantity - item.CustomerOrderDetail.ProcessedQuantity - item.CustomerOrderDetail.DeliveredQuantity,
+                        PROCESSED_QUANTITY = item.CustomerOrderDetail.ProcessedQuantity,
+                        DELIVERED_QUANTITY = item.CustomerOrderDetail.DeliveredQuantity,
+                        BRAND = item.Brand,
+                        WAREHOUSE_ID = item.WarehouseId,
+                        THIS_QUANTITY = item.ProcessedQuantity,
+                        ItemReference = item.CustomerOrderDetail.ItemReference,
+                        CustomerOrderInProcessDetailId = item.CustomerOrderInProcessDetailId
+                    }
+                    select viewOrderDetail).ToList();
+        }
 
         protected async Task SendToProcess(DetailInProcess args)
         {
+            if (args.PROCESSED_QUANTITY < args.THIS_QUANTITY)
+            {
+                Error = quantitiesError;
+                IsErrorVisible = true;
+                return;
+            }
+
             if (await DialogService.OpenAsync<SetQuantityInProcess>("Cantidad a Trasladar", new Dictionary<string, object> { { "DetailInProcess", args } }) != null)
                 await customerOrderDetailGrid.Reload();
         }
 
         protected async Task CancelToProcess(DetailInProcess args)
         {
+            if (args.PROCESSED_QUANTITY < args.THIS_QUANTITY)
+            {
+                Error = quantitiesError;
+                IsErrorVisible = true;
+                return;
+            }
+
             if (await DialogService.Confirm("Está seguro que desea eliminar esta referencia?", "Confirmar") != true) return;
 
-            args.PENDING_QUANTITY = args.PENDING_QUANTITY + args.THIS_QUANTITY;
+            args.PENDING_QUANTITY += args.THIS_QUANTITY;
+            args.PROCESSED_QUANTITY -= args.THIS_QUANTITY;
+            args.WAREHOUSE_ID = 0;
             args.THIS_QUANTITY = 0;
 
             await customerOrderDetailGrid.Reload();
@@ -166,17 +187,20 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
             finally { IsSubmitInProgress = false; }
         }
 
-        protected async Task<ICollection<CustomerOrderInProcessDetail>> MapDetailsInProcess(ICollection<DetailInProcess> detailsInProcess) => (from item in detailsInProcess.Where(i => i.THIS_QUANTITY > 0)
-                                                                                                                                               let orderInProcessDetail = new CustomerOrderInProcessDetail()
-                                                                                                                                               {
-                                                                                                                                                   Brand = item.BRAND,
-                                                                                                                                                   CustomerOrderDetailId = item.CUSTOMER_ORDER_DETAIL_ID,
-                                                                                                                                                   ProcessedQuantity = item.THIS_QUANTITY,
-                                                                                                                                                   WarehouseId = item.WAREHOUSE_ID,
-                                                                                                                                                   CustomerOrderInProcessId = customerOrderInProcess.CustomerOrderInProcessId,
-                                                                                                                                                   CustomerOrderInProcessDetailId = item.CustomerOrderInProcessDetailId
-                                                                                                                                               }
-                                                                                                                                               select orderInProcessDetail).ToList();
+        protected async Task<ICollection<CustomerOrderInProcessDetail>> MapDetailsInProcess(ICollection<DetailInProcess> detailsInProcess)
+        {
+            return (from item in detailsInProcess.Where(i => i.THIS_QUANTITY > 0)
+                    let orderInProcessDetail = new CustomerOrderInProcessDetail()
+                    {
+                        Brand = item.BRAND,
+                        CustomerOrderDetailId = item.CUSTOMER_ORDER_DETAIL_ID,
+                        ProcessedQuantity = item.THIS_QUANTITY,
+                        WarehouseId = item.WAREHOUSE_ID,
+                        CustomerOrderInProcessId = customerOrderInProcess.CustomerOrderInProcessId,
+                        CustomerOrderInProcessDetailId = item.CustomerOrderInProcessDetailId
+                    }
+                    select orderInProcessDetail).ToList();
+        }
 
         protected async Task CancelButtonClick(MouseEventArgs args)
         {

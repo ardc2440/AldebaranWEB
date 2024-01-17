@@ -101,7 +101,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
 
             foreach (var item in entity.CustomerOrderInProcessDetails)
             {
-                if (!customerOrdersInProcess.CustomerOrderInProcessDetails.Any(i => i.CustomerOrderInProcessId == item.CustomerOrderInProcessId))
+                if (!customerOrdersInProcess.CustomerOrderInProcessDetails.Any(i => i.CustomerOrderInProcessDetailId == item.CustomerOrderInProcessDetailId))
                     _context.CustomerOrderInProcessDetails.Remove(item);
             }
 

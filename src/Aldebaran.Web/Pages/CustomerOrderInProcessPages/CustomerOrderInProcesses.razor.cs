@@ -70,6 +70,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         protected LocalizedDataGrid<CustomerOrder> CustomerOrdersGrid;
         protected string search = "";
         protected bool isLoadingInProgress;
+        protected bool IsErrorVisible = false;
+        protected string Error = "";
 
         #endregion
 
@@ -110,6 +112,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
         async Task DialogResultResolver(CancellationToken ct = default)
         {
+            IsErrorVisible = false;
+
             if (CUSTOMER_ORDER_IN_PROCESS_ID == null)
                 return;
 
@@ -206,14 +210,28 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         {
             try
             {
+                IsErrorVisible = false;
+
                 dialogResult = null;
+
+                var customerOrderInProcessDetail = await CustomerOrderInProcessDetailService.GetByCustomerOrderInProcessIdAsync(customerOrderInProcess.CustomerOrderInProcessId);
+
+                foreach (var item in customerOrderInProcessDetail)
+                {
+                    var detail = detailInProcesses.FirstOrDefault(i => i.CUSTOMER_ORDER_DETAIL_ID == item.CustomerOrderDetailId);
+
+                    if (detail.PROCESSED_QUANTITY < item.ProcessedQuantity)
+                    {
+                        throw new Exception("Este traslado posee artículos despachados al cliente. \n\r" +
+                                "Para poder cancelarlo, antes debe cancelar todos los despachos realizados para el pedido.");
+                    }
+                }
 
                 if (await DialogService.Confirm("Está seguro que desea cancelar este traslado a proceso?") == true)
                 {
                     customerOrderInProcess.StatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync((await DocumentTypeService.FindByCodeAsync("T")).DocumentTypeId, 2);
                     customerOrderInProcess.StatusDocumentTypeId = customerOrderInProcess.StatusDocumentType.StatusDocumentTypeId;
 
-                    var customerOrderInProcessDetail = await CustomerOrderInProcessDetailService.GetByCustomerOrderInProcessIdAsync(customerOrderInProcess.CustomerOrderInProcessId);
                     customerOrderInProcess.CustomerOrderInProcessDetails = customerOrderInProcessDetail.ToList();
 
                     await CustomerOrdersInProcessService.UpdateAsync(customerOrderInProcess.CustomerOrderInProcessId, customerOrderInProcess);
@@ -231,12 +249,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
             }
             catch (Exception ex)
             {
-                NotificationService.Notify(new NotificationMessage
-                {
-                    Severity = NotificationSeverity.Error,
-                    Summary = $"Error",
-                    Detail = $"No se ha podido cancelar el traslado. \n\r {ex.InnerException.Message}"
-                });
+                Error = ex.Message;
+                IsErrorVisible = true;
             }
         }
 

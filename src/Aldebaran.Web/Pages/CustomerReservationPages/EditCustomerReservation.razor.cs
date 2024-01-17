@@ -130,12 +130,12 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         protected async Task EditRow(CustomerReservationDetail args)
         {
             var result = await DialogService.OpenAsync<EditCustomerReservationDetail>("Actualizar referencia", new Dictionary<string, object> { { "CustomerReservationDetail", args } });
+
             if (result == null)
                 return;
-            var detail = (CustomerReservationDetail)result;
 
-            customerReservationDetails.Remove(args);
-            customerReservationDetails.Add(detail);
+            args.ReservedQuantity = result.ReservedQuantity;
+            args.Brand = result.Brand;
 
             await customerReservationDetailGrid.Reload();
         }

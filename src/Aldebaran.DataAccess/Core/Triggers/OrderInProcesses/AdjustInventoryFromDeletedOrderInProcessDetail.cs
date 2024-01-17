@@ -1,5 +1,6 @@
 ﻿using Aldebaran.DataAccess.Entities;
 using EntityFrameworkCore.Triggered;
+using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Core.Triggers.OrderInProcesses
 {
@@ -16,10 +17,12 @@ namespace Aldebaran.DataAccess.Core.Triggers.OrderInProcesses
         {
             if (context.ChangeType == ChangeType.Deleted)
             {
-                await UpdateWorkInProcessQuantityAsync(context.Entity.CustomerOrderDetail.ReferenceId, context.Entity.ProcessedQuantity, -1, cancellationToken);
-                await UpdateInventoryQuantityAsync(context.Entity.CustomerOrderDetail.ReferenceId, context.Entity.ProcessedQuantity, 1, cancellationToken);
-                await UpdateOrderedQuantityAsync(context.Entity.CustomerOrderDetail.ReferenceId, context.Entity.ProcessedQuantity, 1, cancellationToken);
-                await UpdateWarehouseReferenceQuantityAsync(context.Entity.WarehouseId, context.Entity.CustomerOrderDetail.ReferenceId, context.Entity.ProcessedQuantity, 1, cancellationToken);
+                var customerDetail = await _context.CustomerOrderDetails.FirstOrDefaultAsync(i => i.CustomerOrderDetailId == context.Entity.CustomerOrderDetailId, cancellationToken);
+
+                await UpdateWorkInProcessQuantityAsync(customerDetail!.ReferenceId, context.Entity.ProcessedQuantity, -1, cancellationToken);
+                await UpdateInventoryQuantityAsync(customerDetail!.ReferenceId, context.Entity.ProcessedQuantity, 1, cancellationToken);
+                await UpdateOrderedQuantityAsync(customerDetail!.ReferenceId, context.Entity.ProcessedQuantity, 1, cancellationToken);
+                await UpdateWarehouseReferenceQuantityAsync(context.Entity.WarehouseId, customerDetail!.ReferenceId, context.Entity.ProcessedQuantity, 1, cancellationToken);
             }
         }
     }

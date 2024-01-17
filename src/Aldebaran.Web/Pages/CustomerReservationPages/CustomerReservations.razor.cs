@@ -206,7 +206,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido cancelar la reserva"
+                    Detail = $"No se ha podido cancelar la reserva.\n {ex.Message}"
                 });
             }
         }

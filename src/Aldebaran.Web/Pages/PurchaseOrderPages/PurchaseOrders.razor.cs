@@ -179,7 +179,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido cancelar la orden de compra."
+                    Detail = $"No se ha podido cancelar la orden de compra.\n {ex.Message}"
                 });
             }
         }
@@ -224,7 +224,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido agregar la actividad"
+                    Detail = $"No se ha podido agregar la actividad.\n {ex.Message}"
                 });
             }
         }
@@ -253,7 +253,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido actualizar la actividad"
+                    Detail = $"No se ha podido actualizar la actividad.\n {ex.Message}"
                 });
             }
         }
@@ -280,7 +280,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                     {
                         Severity = NotificationSeverity.Error,
                         Summary = $"Error",
-                        Detail = $"No se ha podido eliminar la actividad"
+                        Detail = $"No se ha podido eliminar la actividad.\n {ex.Message}"
                     });
                 }
             }

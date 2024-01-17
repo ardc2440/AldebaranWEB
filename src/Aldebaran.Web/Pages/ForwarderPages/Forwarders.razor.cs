@@ -130,7 +130,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido eliminar la transportadora"
+                    Detail = $"No se ha podido eliminar la transportadora.\n {ex.Message}"
                 });
             }
         }
@@ -204,7 +204,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido eliminar el agente"
+                    Detail = $"No se ha podido eliminar el agente.\n {ex.Message}"
                 });
             }
         }
@@ -263,7 +263,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido eliminar el método de envío."
+                    Detail = $"No se ha podido eliminar el método de envío.\n {ex.Message}"
                 });
             }
         }

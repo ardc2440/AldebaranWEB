@@ -12,6 +12,9 @@
             <RadzenText Text="Traslado de artículos a proceso" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
             <hr />
         </RadzenColumn>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">
+            @Error
+        </RadzenAlert>
     </RadzenRow>
     <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
     <RadzenRow>

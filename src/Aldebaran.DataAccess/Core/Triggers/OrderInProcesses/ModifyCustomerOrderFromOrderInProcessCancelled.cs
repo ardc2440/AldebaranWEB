@@ -30,12 +30,22 @@ namespace Aldebaran.DataAccess.Core.Triggers.OrderInProcesses
 
             if ((short)(detailChanges.oldValue ?? 0) == (short)(detailChanges.newValue ?? 0))
                 return;
+
+            /* Verify if exists CustomerOrderInProcess in Executed State for this CustomerOrder */
             var documentType = await _context.DocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeCode == "T", cancellationToken);
             var statusExcutedCustomerOrderInProcess = await _context.StatusDocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeId == documentType!.DocumentTypeId && i.StatusOrder == 1, cancellationToken);
 
             if (_context.CustomerOrdersInProcesses.Any(i => i.StatusDocumentTypeId == statusExcutedCustomerOrderInProcess!.StatusDocumentTypeId && i.CustomerOrderInProcessId != context.Entity.CustomerOrderInProcessId))
                 return;
 
+            /* Verify if exists CustomerOrderShipmente in Executed State for this CustomerOrder */
+            documentType = await _context.DocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeCode == "D", cancellationToken);
+            statusExcutedCustomerOrderInProcess = await _context.StatusDocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeId == documentType!.DocumentTypeId && i.StatusOrder == 1, cancellationToken);
+
+            if (_context.CustomerOrderShipments.Any(i => i.StatusDocumentTypeId == statusExcutedCustomerOrderInProcess!.StatusDocumentTypeId))
+                return;
+
+            /* If not exists CustomerOrderShipmente or CustomerOrderInProcess, change de CustomerOrder State */
             documentType = await _context.DocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeCode == "P", cancellationToken);
             var statusPendingCustomerOrder = await _context.StatusDocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeId == documentType!.DocumentTypeId && i.StatusOrder == 1, cancellationToken);
 
