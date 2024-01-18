@@ -12,7 +12,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         #region Injections
 
         [Inject]
-        protected ILogger<AddAdjustment> Logger { get; set; }
+        protected ILogger<EditAdjustment> Logger { get; set; }
 
         [Inject]
         protected NavigationManager NavigationManager { get; set; }

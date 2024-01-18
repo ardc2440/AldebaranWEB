@@ -38,9 +38,6 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         #region Parameters
 
-        [Parameter]
-        public string pAdjustmentId { get; set; } = "NoParamInput";
-
         #endregion
 
         #region Properties
@@ -69,7 +66,6 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
             AdjustmentReasonsForAdjustmentReasonId = await AdjustmentReasonService.GetAsync();
             AdjustmentTypesForAdjustmentTypeId = await AdjustmentTypeService.GetAsync();
             AdjustmentDetails = new List<AdjustmentDetail>();
-            _ = int.TryParse(pAdjustmentId, out int adjustmentId);
             adjustment = new Adjustment() { AdjustmentReason = null, AdjustmentType = null, Employee = null, StatusDocumentType = null };
             documentType = await DocumentTypeService.FindByCodeAsync("A");
             adjustment.StatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 1);
