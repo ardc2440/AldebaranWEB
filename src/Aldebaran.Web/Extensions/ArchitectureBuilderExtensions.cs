@@ -5,6 +5,7 @@ using Aldebaran.DataAccess.Core.Triggers.Orders;
 using Aldebaran.DataAccess.Core.Triggers.Purchases;
 using Aldebaran.DataAccess.Core.Triggers.Reservations;
 using Aldebaran.DataAccess.Core.Triggers.Shipments;
+using Aldebaran.DataAccess.Core.Triggers.Transfers;
 using Aldebaran.DataAccess.Infraestructure.Repository;
 using Aldebaran.Web.Data;
 using Aldebaran.Web.Models;
@@ -127,6 +128,11 @@ namespace Aldebaran.Web.Extensions
                 triggerOptions.AddTrigger<ModifyCustomerOrderFromNewOrderShipment>();
                 triggerOptions.AddTrigger<ModifyCustomerOrderFromOrderShipmentCancelled>();
                 triggerOptions.AddTrigger<AdjustInventoryFromConfirmedPurchaseOrder>();
+                triggerOptions.AddTrigger<AdjustWarehouseFromDeletedWarehouseTransferDetail>();
+                triggerOptions.AddTrigger<AdjustWarehouseFromModifiedWarehouseTransferDetail>();
+                triggerOptions.AddTrigger<AdjustWarehouseFromNewWarehouseTransferDetail>();
+                triggerOptions.AddTrigger<AdjustWarehouseFromWarehousesModified>();
+                triggerOptions.AddTrigger<AdjustWarehouseFromWarehouseTransferCancelled>();
             });
             return dbContextBuilder;
         }
@@ -202,6 +208,8 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IUsersAlarmTypeRepository, UsersAlarmTypeRepository>();
             services.AddTransient<IVisualizedAlarmRepository, VisualizedAlarmRepository>();
             services.AddTransient<IWarehouseRepository, WarehouseRepository>();
+            services.AddTransient<IWarehouseTransferRepository, WarehouseTransferRepository>();
+            services.AddTransient<IWarehouseTransferDetailRepository, WarehouseTransferDetailRepository>();
             #endregion
             // Services
             #region Services
@@ -270,6 +278,8 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IUsersAlarmTypeService, UsersAlarmTypeService>();
             services.AddTransient<IVisualizedAlarmService, VisualizedAlarmService>();
             services.AddTransient<IWarehouseService, WarehouseService>();
+            services.AddTransient<IWarehouseTransferService, WarehouseTransferService>();
+            services.AddTransient<IWarehouseTransferDetailService, WarehouseTransferDetailService>();
             #endregion
 
             return services;

@@ -11,7 +11,24 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task<WarehouseTransfer?> FindAsync(short warehouseTransferId, CancellationToken ct = default)
+        public async Task CancelAsync(int warehouseTransferId, CancellationToken ct = default)
+        {
+            var entity = await _context.WarehouseTransfers.FirstOrDefaultAsync(x => x.WarehouseTransferId == warehouseTransferId, ct) ?? throw new KeyNotFoundException($"Traslado con id {warehouseTransferId} no existe.");
+            var documentType = await _context.DocumentTypes.AsNoTracking().FirstAsync(f => f.DocumentTypeCode == "B", ct);
+            var statutsDocumentType = await _context.StatusDocumentTypes.AsNoTracking().FirstAsync(f => f.DocumentTypeId == documentType.DocumentTypeId && f.StatusOrder == 2, ct);
+            entity.StatusDocumentTypeId = statutsDocumentType.StatusDocumentTypeId;
+            try
+            {
+                await _context.SaveChangesAsync(ct);
+            }
+            catch
+            {
+                _context.Entry(entity).State = EntityState.Unchanged;
+                throw;
+            }
+        }
+
+        public async Task<WarehouseTransfer?> FindAsync(int warehouseTransferId, CancellationToken ct = default)
         {
             return await _context.WarehouseTransfers.AsNoTracking()
                 .Include(i => i.OrigenWarehouse)

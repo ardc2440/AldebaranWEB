@@ -2,7 +2,7 @@
 {
     public class WarehouseTransfer
     {
-        public int WarhouseTransferId { get; set; }
+        public int WarehouseTransferId { get; set; }
         public DateTime TransferDate { get; set; }
         public int EmployeeId { get; set; }
         public short OrigenWarehouseId { get; set; }

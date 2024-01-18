@@ -15,6 +15,10 @@ namespace Aldebaran.Application.Services
             _mapper = mapper ?? throw new ArgumentNullException(nameof(IMapper));
         }
 
+        public async Task CancelAsync(int warehouseTransferId, CancellationToken ct = default)
+        {
+            await _repository.CancelAsync(warehouseTransferId, ct);
+        }
         public async Task<WarehouseTransfer?> AddAsync(WarehouseTransfer warehouseTransfer, CancellationToken ct = default)
         {
             var data = _mapper.Map<Entities.WarehouseTransfer>(warehouseTransfer);
@@ -23,7 +27,7 @@ namespace Aldebaran.Application.Services
             return _mapper.Map<WarehouseTransfer>(data);
         }
 
-        public async Task<WarehouseTransfer?> FindAsync(short warehouseTransferId, CancellationToken ct = default)
+        public async Task<WarehouseTransfer?> FindAsync(int warehouseTransferId, CancellationToken ct = default)
         {
             var data = await _repository.FindAsync(warehouseTransferId, ct);
             return _mapper.Map<WarehouseTransfer?>(data);
