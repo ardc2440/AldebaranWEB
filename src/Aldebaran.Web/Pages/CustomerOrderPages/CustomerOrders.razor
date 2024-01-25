@@ -1,7 +1,7 @@
 @page "/customer-orders"
 @page "/customer-orders/{CUSTOMER_ORDER_ID}"
 @page "/customer-orders/{Action}/{CUSTOMER_ORDER_ID}"
-@attribute [Authorize(Roles = "Admin,Customer Order Viwer,Customer Order Editor,Customer Order Activities Viwer,Customer Order Activities Editor")]
+@attribute [Authorize(Roles = "Admin,Customer Order Viewer,Customer Order Editor,Customer Order Activities Viewer,Customer Order Activities Editor")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer ;
 
@@ -84,7 +84,7 @@
                                         </Columns>
                                     </LocalizedDataGrid>
                                 </RadzenTabsItem>
-                                <RadzenStack Visible="@Security.IsInRole("Admin","Customer Order Activities Viwer","Customer Order Activities Editor")">
+                                <RadzenStack Visible="@Security.IsInRole("Admin","Customer Order Activities Viewer","Customer Order Activities Editor")">
                                     <RadzenTabsItem Text="Actividades del pedido">
                                         <RadzenStack>
                                             <RadzenRow Gap="0" AlignItems="AlignItems.Center">

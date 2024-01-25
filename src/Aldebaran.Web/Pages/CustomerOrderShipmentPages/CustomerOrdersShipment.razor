@@ -1,7 +1,7 @@
 @page "/shipment-customer-orders"
 @page "/shipment-customer-orders/{CUSTOMER_ORDER_SHIPMENT_ID}"
 @page "/shipment-customer-orders/{Action}/{CUSTOMER_ORDER_SHIPMENT_ID}"
-@attribute [Authorize(Roles = "Admin,Customer Order Shipment Viwer,Customer Order Shipment Editor")]
+@attribute [Authorize(Roles = "Admin,Customer Order Shipment Viewer,Customer Order Shipment Editor")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer ;
 

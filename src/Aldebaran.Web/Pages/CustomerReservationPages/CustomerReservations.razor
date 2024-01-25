@@ -1,7 +1,7 @@
 @page "/customer-reservations"
 @page "/customer-reservations/{CUSTOMER_RESERVATION_ID}"
 @page "/customer-reservations/{Action}/{CUSTOMER_RESERVATION_ID}"
-@attribute [Authorize(Roles = "Admin,Customer Reservation Viwer,Customer Reservation Editor")]
+@attribute [Authorize(Roles = "Admin,Customer Reservation Viewer,Customer Reservation Editor")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer
 

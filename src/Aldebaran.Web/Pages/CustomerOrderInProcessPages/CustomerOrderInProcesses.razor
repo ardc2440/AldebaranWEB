@@ -1,7 +1,7 @@
 @page "/process-customer-orders"
 @page "/process-customer-orders/{CUSTOMER_ORDER_IN_PROCESS_ID}"
 @page "/process-customer-orders/{Action}/{CUSTOMER_ORDER_IN_PROCESS_ID}"
-@attribute [Authorize(Roles = "Admin,Customer Order In Process Viwer,Customer Order In Process Editor")]
+@attribute [Authorize(Roles = "Admin,Customer Order In Process Viewer,Customer Order In Process Editor")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer ;
 
