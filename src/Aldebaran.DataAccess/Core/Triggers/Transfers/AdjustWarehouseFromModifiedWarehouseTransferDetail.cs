@@ -33,10 +33,10 @@ namespace Aldebaran.DataAccess.Core.Triggers.Transfers
             var reference = detailChanges.FirstOrDefault(x => x.name.Equals("ReferenceId"));
             var quantity = detailChanges.FirstOrDefault(x => x.name.Equals("Quantity"));
 
-            await UpdateWarehouseReferenceQuantityAsync(warehouseTransfer!.OrigenWarehouseId, (int)(reference.oldValue ?? 0), (int)(quantity.oldValue ?? 0), 1, cancellationToken);
+            await UpdateWarehouseReferenceQuantityAsync(warehouseTransfer!.OriginWarehouseId, (int)(reference.oldValue ?? 0), (int)(quantity.oldValue ?? 0), 1, cancellationToken);
             await UpdateWarehouseReferenceQuantityAsync(warehouseTransfer!.DestinationWarehouseId, (int)(reference.oldValue ?? 0), (int)(quantity.oldValue ?? 0), -1, cancellationToken);
 
-            await UpdateWarehouseReferenceQuantityAsync(warehouseTransfer!.OrigenWarehouseId, (int)(reference.newValue ?? 0), (int)(quantity.newValue ?? 0), -1, cancellationToken);
+            await UpdateWarehouseReferenceQuantityAsync(warehouseTransfer!.OriginWarehouseId, (int)(reference.newValue ?? 0), (int)(quantity.newValue ?? 0), -1, cancellationToken);
             await UpdateWarehouseReferenceQuantityAsync(warehouseTransfer!.DestinationWarehouseId, (int)(reference.newValue ?? 0), (int)(quantity.newValue ?? 0), 1, cancellationToken);
         }
     }

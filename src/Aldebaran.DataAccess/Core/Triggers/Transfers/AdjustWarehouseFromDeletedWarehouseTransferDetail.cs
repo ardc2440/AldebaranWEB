@@ -25,7 +25,7 @@ namespace Aldebaran.DataAccess.Core.Triggers.Transfers
 
             var warehouseTransfer = await _context.WarehouseTransfers.FirstOrDefaultAsync(i => i.WarehouseTransferId == context.Entity.WarehouseTransferId, cancellationToken);
 
-            await UpdateWarehouseReferenceQuantityAsync(warehouseTransfer!.OrigenWarehouseId, context.Entity.ReferenceId, context.Entity.Quantity, 1, cancellationToken);
+            await UpdateWarehouseReferenceQuantityAsync(warehouseTransfer!.OriginWarehouseId, context.Entity.ReferenceId, context.Entity.Quantity, 1, cancellationToken);
             await UpdateWarehouseReferenceQuantityAsync(warehouseTransfer!.DestinationWarehouseId, context.Entity.ReferenceId, context.Entity.Quantity, -1, cancellationToken);
         }
     }

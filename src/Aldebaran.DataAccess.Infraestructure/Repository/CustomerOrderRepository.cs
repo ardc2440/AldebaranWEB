@@ -116,7 +116,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             entity.CustomerNotes = customerOrder.CustomerNotes;
 
             foreach (var item in entity.CustomerOrderDetails)
-                if (!customerOrder.CustomerOrderDetails.Any(i => i.CustomerOrderDetailId.Equals(item.CustomerOrderDetailId)))
+                if (!customerOrder.CustomerOrderDetails.Any(i => i.CustomerOrderDetailId == item.CustomerOrderDetailId))
                     _context.CustomerOrderDetails.Remove(item);
 
             foreach (var item in customerOrder.CustomerOrderDetails)
@@ -135,7 +135,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     continue;
                 }
 
-                var detail = entity.CustomerOrderDetails.FirstOrDefault(i => i.CustomerOrderDetailId.Equals(item.CustomerOrderDetailId));
+                var detail = entity.CustomerOrderDetails.FirstOrDefault(i => i.CustomerOrderDetailId == item.CustomerOrderDetailId);
 
                 if (detail != null)
                 {

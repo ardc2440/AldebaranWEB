@@ -127,7 +127,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 IsErrorVisible = false;
                 IsSubmitInProgress = true;
 
-                if (CustomerOrderActivityDetails.Any(ad => ad.ActivityTypeId.Equals(CustomerOrderActivityDetail.ActivityTypeId) && !ad.ActivityEmployeeId.Equals(CustomerOrderActivityDetail.ActivityEmployeeId)))
+                if (CustomerOrderActivityDetails.Any(ad => ad.ActivityTypeId == CustomerOrderActivityDetail.ActivityTypeId && !(ad.ActivityEmployeeId == CustomerOrderActivityDetail.ActivityEmployeeId)))
                     throw new Exception("El tipo de actividad seleccionada, ya existe dentro de esta actividad.");
 
                 var activityType = await ActivityTypeService.FindAsync(CustomerOrderActivityDetail.ActivityTypeId);

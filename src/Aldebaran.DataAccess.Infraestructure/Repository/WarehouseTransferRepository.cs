@@ -31,7 +31,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         public async Task<WarehouseTransfer?> FindAsync(int warehouseTransferId, CancellationToken ct = default)
         {
             return await _context.WarehouseTransfers.AsNoTracking()
-                .Include(i => i.OrigenWarehouse)
+                .Include(i => i.OriginWarehouse)
                 .Include(i => i.DestinationWarehouse)
                 .Include(i => i.Employee)
                 .Include(i => i.StatusDocumentType)
@@ -41,7 +41,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         public async Task<IEnumerable<WarehouseTransfer>> GetAsync(CancellationToken ct = default)
         {
             return await _context.WarehouseTransfers.AsNoTracking()
-                .Include(i => i.OrigenWarehouse)
+                .Include(i => i.OriginWarehouse)
                 .Include(i => i.DestinationWarehouse)
                 .Include(i => i.Employee)
                 .Include(i => i.StatusDocumentType)
@@ -51,7 +51,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         public async Task<IEnumerable<WarehouseTransfer>> GetAsync(string search, CancellationToken ct = default)
         {
             return await _context.WarehouseTransfers.AsNoTracking()
-                .Include(i => i.OrigenWarehouse)
+                .Include(i => i.OriginWarehouse)
                 .Include(i => i.DestinationWarehouse)
                 .Include(i => i.Employee)
                 .Include(i => i.StatusDocumentType)
@@ -60,7 +60,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                           i.Nationalization.Contains(search) ||
                           i.StatusDocumentType.StatusDocumentTypeName.Contains(search) ||
                           i.DestinationWarehouse.WarehouseName.Contains(search) ||
-                          i.OrigenWarehouse.WarehouseName.Contains(search) ||
+                          i.OriginWarehouse.WarehouseName.Contains(search) ||
                           i.Employee.FullName.Contains(search))
                 .ToListAsync(ct);
         }
@@ -72,7 +72,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 WarehouseTransferDetails = new List<WarehouseTransferDetail>(),
                 TransferDate = warehouseTransfer.TransferDate,
                 DestinationWarehouseId = warehouseTransfer.DestinationWarehouseId,
-                OrigenWarehouseId = warehouseTransfer.OrigenWarehouseId,
+                OriginWarehouseId = warehouseTransfer.OriginWarehouseId,
                 StatusDocumentTypeId = warehouseTransfer.StatusDocumentTypeId,
                 EmployeeId = warehouseTransfer.EmployeeId,
                 Nationalization = warehouseTransfer.Nationalization,
@@ -107,7 +107,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             var entity = await _context.WarehouseTransfers.Include(i => i.WarehouseTransferDetails).FirstOrDefaultAsync(i => i.WarehouseTransferId == warehouseTransferId, ct) ?? throw new KeyNotFoundException($"Traslado con id {warehouseTransferId} no existe.");
 
             entity.TransferDate = warehouseTransfer.TransferDate;
-            entity.OrigenWarehouseId = warehouseTransfer.OrigenWarehouseId;
+            entity.OriginWarehouseId = warehouseTransfer.OriginWarehouseId;
             entity.DestinationWarehouseId = warehouseTransfer.DestinationWarehouseId;
             entity.StatusDocumentTypeId = warehouseTransfer.StatusDocumentTypeId;
             entity.EmployeeId = warehouseTransfer.EmployeeId;

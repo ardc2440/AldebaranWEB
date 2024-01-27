@@ -28,7 +28,7 @@ namespace Aldebaran.DataAccess.Core.Triggers.Transfers
             var originChanges = context.Entity.GetType()
              .GetProperties()
              .Select(property => (name: property.Name, oldValue: property.GetValue(context.UnmodifiedEntity), newValue: property.GetValue(context.Entity)))
-             .FirstOrDefault(x => x.newValue != x.oldValue && x.name.Equals("OrigenWarehouseId"));
+             .FirstOrDefault(x => x.newValue != x.oldValue && x.name.Equals("OriginWarehouseId"));
 
             var destinationChanges = context.Entity.GetType()
              .GetProperties()

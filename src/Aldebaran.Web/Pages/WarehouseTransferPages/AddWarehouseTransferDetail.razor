@@ -1,0 +1,33 @@
+@attribute [Authorize(Roles = "Admin,Transfer Warehouses Editor")]
+
+<PageTitle>Agregar Referencia al Traslado</PageTitle>
+<RadzenColumn SizeMD=12>
+    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">
+        @Error
+    </RadzenAlert>
+    <RadzenStack>
+        <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.WarehouseTransferDetail" Data="@warehouseTransferDetail" Visible="@(warehouseTransferDetail != null)" Submit="@FormSubmit">
+            <RadzenRow AlignItems="AlignItems.Start" Gap="2rem">
+                <ReferencePicker OnChange="ItemReferenceHandler" References="ItemReferencesForReferenceId" />
+                <RadzenRequiredValidator Text="La referencia es requerida" Component="ReferenceId" />               
+                <RadzenFormField Text="Cantidad" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
+                    <ChildContent>
+                        <RadzenNumeric style="display: block; width: 100%" @bind-Value="@warehouseTransferDetail.Quantity" Name="QUANTITY" Placeholder="Ingrese la cantidad a trasladar" TabIndex="2" />
+                    </ChildContent>
+                    <Helper>
+                        <RadzenRequiredValidator Component="QUANTITY" Text="La Cantidad es requerida" />
+                        <RadzenNumericRangeValidator Component="QUANTITY" Min="1" Text="La cantidad debe ser mayor a 0" />
+                    </Helper>
+                </RadzenFormField>
+            </RadzenRow>
+            <RadzenRow style="margin-bottom: 1rem">
+                <InventoryQuantities Reference="warehouseTransferDetail.ItemReference" />
+            </RadzenRow>
+            <RadzenStack class="my-2" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@IsSubmitInProgress" />
+                <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
+            </RadzenStack>
+        </RadzenTemplateForm>
+    </RadzenStack>
+</RadzenColumn>
+

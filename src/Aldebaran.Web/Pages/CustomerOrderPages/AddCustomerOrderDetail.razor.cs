@@ -56,7 +56,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 IsErrorVisible = false;
                 IsSubmitInProgress = true;
 
-                if (CustomerOrderDetails.Any(ad => ad.ReferenceId.Equals(customerOrderDetail.ReferenceId)))
+                if (CustomerOrderDetails.Any(ad => ad.ReferenceId == customerOrderDetail.ReferenceId))
                     throw new Exception("La referencia seleccionada ya existe dentro de esta reserva.");
 
                 DialogService.Close(customerOrderDetail);

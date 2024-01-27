@@ -32,7 +32,7 @@ namespace Aldebaran.DataAccess.Core.Triggers.Transfers
 
             foreach (var item in context.Entity.WarehouseTransferDetails)
             {
-                await UpdateWarehouseReferenceQuantityAsync(context.Entity.OrigenWarehouseId, item.ReferenceId, item.Quantity, 1, cancellationToken);
+                await UpdateWarehouseReferenceQuantityAsync(context.Entity.OriginWarehouseId, item.ReferenceId, item.Quantity, 1, cancellationToken);
                 await UpdateWarehouseReferenceQuantityAsync(context.Entity.DestinationWarehouseId, item.ReferenceId, item.Quantity, -1, cancellationToken);
             }
         }

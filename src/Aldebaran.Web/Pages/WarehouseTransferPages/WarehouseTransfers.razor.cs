@@ -132,51 +132,6 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
             NavigationManager.NavigateTo("add-warehouse-transfer");
         }
 
-        protected async Task EditWarehouseTransfer(WarehouseTransfer args)
-        {
-            NavigationManager.NavigateTo("edit-warehouse-transfer/" + args.WarehouseTransferId);
-        }
-
-        protected bool CanEditWarehouseTransfer(WarehouseTransfer args)
-        {
-            return Security.IsInRole("Admin", "Transfer Warehouses Editor") && args.StatusDocumentType.EditMode;
-        }
-
-        protected async Task CancelWhareHouseTransferClick(MouseEventArgs args, WarehouseTransfer warehouseTransfer)
-        {
-            try
-            {
-                DialogResult = null;
-                if (await DialogService.Confirm("Está seguro que desea cancelar este traslado?") == true)
-                {
-                    warehouseTransfer.StatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 2);
-                    warehouseTransfer.StatusDocumentTypeId = warehouseTransfer.StatusDocumentType.StatusDocumentTypeId;
-                    warehouseTransfer.WarehouseTransferDetails = (await WarehouseTransferDetailService.GetByWarehouseTransferIdAsync(warehouseTransfer.WarehouseTransferId)).ToList();
-
-                    await WarehouseTransferService.CancelAsync(warehouseTransfer.WarehouseTransferId);
-                    await GetWarehousetransferssAsync(search);
-
-                    NotificationService.Notify(new NotificationMessage
-                    {
-                        Summary = "Traslado entre bodegas",
-                        Severity = NotificationSeverity.Success,
-                        Detail = $"Traslado ha sido cancelado correctamente."
-                    });
-
-                    await WarehouseTransfersGrid.Reload();
-                }
-            }
-            catch (Exception ex)
-            {
-                NotificationService.Notify(new NotificationMessage
-                {
-                    Severity = NotificationSeverity.Error,
-                    Summary = $"Error",
-                    Detail = $"No se ha podido eliminar el traslado \n {ex.Message}"
-                });
-            }
-        }
-
         protected async Task GetChildData(WarehouseTransfer args)
         {
             warehouseTransfer = args;

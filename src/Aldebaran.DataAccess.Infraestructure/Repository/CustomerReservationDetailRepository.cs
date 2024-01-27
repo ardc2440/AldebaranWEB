@@ -15,13 +15,13 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         {
             return await _context.CustomerReservationDetails.AsNoTracking()
                 .Include(i => i.ItemReference.Item.Line)
-                .Where(i => i.CustomerReservationId.Equals(customerReservationId))
+                .Where(i => i.CustomerReservationId == customerReservationId)
                 .ToListAsync(ct);
         }
 
         public async Task UpdateAsync(int customerReservationDetailId, CustomerReservationDetail customerReservationDetail, CancellationToken ct = default)
         {
-            var entity = _context.CustomerReservationDetails.FirstOrDefault(i => i.CustomerReservationDetailId.Equals(customerReservationDetailId)) ?? throw new KeyNotFoundException($"Detalle de Reserva con id {customerReservationDetailId} no existe.");
+            var entity = _context.CustomerReservationDetails.FirstOrDefault(i => i.CustomerReservationDetailId == customerReservationDetailId) ?? throw new KeyNotFoundException($"Detalle de Reserva con id {customerReservationDetailId} no existe.");
 
             entity.Brand = customerReservationDetail.Brand;
             entity.ReferenceId = customerReservationDetail.ReferenceId;

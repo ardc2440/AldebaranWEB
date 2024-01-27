@@ -13,7 +13,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
 
         public async Task DeleteAsync(int customerOrderActivityId, CancellationToken ct = default)
         {
-            var entity = await _context.CustomerOrderActivities.FirstOrDefaultAsync(i => i.CustomerOrderActivityId.Equals(customerOrderActivityId), ct) ?? throw new KeyNotFoundException($"Actividad con id {customerOrderActivityId} no existe."); ;
+            var entity = await _context.CustomerOrderActivities.FirstOrDefaultAsync(i => i.CustomerOrderActivityId == customerOrderActivityId, ct) ?? throw new KeyNotFoundException($"Actividad con id {customerOrderActivityId} no existe."); ;
 
             try
             {
@@ -81,7 +81,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
 
         public async Task UpdateAsync(int customerOrderActivityId, CustomerOrderActivity customerOrderActivity, CancellationToken ct = default)
         {
-            var entity = await _context.CustomerOrderActivities.Include(i => i.CustomerOrderActivityDetails).FirstOrDefaultAsync(i => i.CustomerOrderActivityId.Equals(customerOrderActivityId), ct) ?? throw new KeyNotFoundException($"Actividad con id {customerOrderActivityId} no existe."); ;
+            var entity = await _context.CustomerOrderActivities.Include(i => i.CustomerOrderActivityDetails).FirstOrDefaultAsync(i => i.CustomerOrderActivityId == customerOrderActivityId, ct) ?? throw new KeyNotFoundException($"Actividad con id {customerOrderActivityId} no existe."); ;
 
             entity.ActivityDate = customerOrderActivity.ActivityDate;
             entity.AreaId = customerOrderActivity.AreaId;

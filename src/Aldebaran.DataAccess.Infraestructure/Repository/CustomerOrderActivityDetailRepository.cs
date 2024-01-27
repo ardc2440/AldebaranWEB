@@ -13,7 +13,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
 
         public async Task DeleteAsync(int customerOrderActivityDetailId, CancellationToken ct = default)
         {
-            var entity = await _context.CustomerOrderActivityDetails.FirstOrDefaultAsync(i => i.CustomerOrderActivityDetailId.Equals(customerOrderActivityDetailId), ct) ?? throw new KeyNotFoundException($"Detalle de Actividad con id {customerOrderActivityDetailId} no existe."); ;
+            var entity = await _context.CustomerOrderActivityDetails.FirstOrDefaultAsync(i => i.CustomerOrderActivityDetailId == customerOrderActivityDetailId, ct) ?? throw new KeyNotFoundException($"Detalle de Actividad con id {customerOrderActivityDetailId} no existe."); ;
 
             try
             {

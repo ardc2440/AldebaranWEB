@@ -34,18 +34,7 @@
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransfer" Property="StatusDocumentType.StatusDocumentTypeName" Title="Estado">
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransfer" Property="Notes" Title="Notas" Visible="false">
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransfer" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
-                        <Template Context="warehouseTransfer">
-                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
-                                          Click="@(args => EditWarehouseTransfer(warehouseTransfer))" @onclick:stopPropagation="true"
-                                          Visible="@CanEditWarehouseTransfer(warehouseTransfer)" MouseEnter="@(args => ShowTooltip(args,"Actualizar", new TooltipOptions(){ Position = TooltipPosition.Left }))">
-                            </RadzenButton>
-                            <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
-                                          Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@CanEditWarehouseTransfer(warehouseTransfer)"
-                                          Click=@(args => CancelWhareHouseTransferClick(args, warehouseTransfer)) @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Cancelar", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
-                        </Template>
-                    </RadzenDataGridColumn>
+                    </RadzenDataGridColumn>                    
                 </Columns>
                 <Template Context="warehouseTransfer">
                     <RadzenStack Class="rz-my-8">

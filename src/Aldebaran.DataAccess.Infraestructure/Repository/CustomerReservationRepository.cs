@@ -100,7 +100,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .Include(i => i.StatusDocumentType.DocumentType)
                 .Include(i => i.Employee.IdentityType)
                 .Include(i => i.CustomerReservationDetails)
-                .FirstOrDefaultAsync(i => i.CustomerReservationId.Equals(customerReservationId), ct);
+                .FirstOrDefaultAsync(i => i.CustomerReservationId == customerReservationId, ct);
         }
 
         public async Task UpdateAsync(int customerReservationId, CustomerReservation customerReservation, CancellationToken ct = default)
@@ -116,14 +116,14 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             var detailDeleted = new List<CustomerReservationDetail>();
 
             foreach (var item in entity.CustomerReservationDetails)
-                if (!customerReservation.CustomerReservationDetails.Any(i => i.CustomerReservationDetailId.Equals(item.CustomerReservationDetailId)))
+                if (!customerReservation.CustomerReservationDetails.Any(i => i.CustomerReservationDetailId == item.CustomerReservationDetailId))
                     _context.CustomerReservationDetails.Remove(item);
 
             foreach (var item in customerReservation.CustomerReservationDetails)
             {
                 if (item.CustomerReservationDetailId > 0)
                 {
-                    var detail = entity.CustomerReservationDetails.FirstOrDefault(i => i.CustomerReservationDetailId.Equals(item.CustomerReservationDetailId));
+                    var detail = entity.CustomerReservationDetails.FirstOrDefault(i => i.CustomerReservationDetailId == item.CustomerReservationDetailId);
 
                     if (detail != null)
                     {
