@@ -140,7 +140,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                 NotificationService.Notify(new NotificationMessage
                 {
                     Summary = "Pedido de artículos a partir de la reserva",
-                    Severity = NotificationSeverity.Success,
+                    Severity = NotificationSeverity.Info,
                     Detail = $"la creación del pedido para la reserva No. {customerReservation.ReservationNumber} ha sido cancelada correctamente. Sus detalles continuan disponibles para un nuevo proceso."
                 });
                 return;

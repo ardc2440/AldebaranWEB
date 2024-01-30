@@ -47,7 +47,7 @@
                             <RadzenFormField Text="Fecha de pedido" Variant="Variant.Text" Style="width: 100%;">
                                 <ChildContent>
                                     <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@customerOrder.OrderDate"
-                                    Name="ORDER_DATE" Placeholder="Seleccione la fecha de la pedido" TabIndex="0" ReadOnly="true"/>
+                                    Name="ORDER_DATE" Placeholder="Seleccione la fecha de la pedido" TabIndex="0" />
                                 </ChildContent>
                                 <Helper>
                                     <RadzenRequiredValidator Text="La fecha de pedido es requerida" Component="ORDER_DATE" />
@@ -56,7 +56,7 @@
                             <RadzenFormField Text="Fecha de pactada de entrega" Variant="Variant.Text" Style="width: 100%;">
                                 <ChildContent>
                                     <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@customerOrder.EstimatedDeliveryDate" TabIndex="1"
-                                                      Placeholder="Seleccione la fecha pactada de entrega" Name="ESTIMATED_DELIVERY_DATE" ReadOnly="true"
+                                                      Placeholder="Seleccione la fecha pactada de entrega" Name="ESTIMATED_DELIVERY_DATE" 
                                                       Change="()=> customerOrder.EstimatedDeliveryDate = customerOrder.EstimatedDeliveryDate < customerOrder.OrderDate ? customerOrder.OrderDate : customerOrder.EstimatedDeliveryDate" />
                                 </ChildContent>
                                 <Helper>
@@ -65,7 +65,7 @@
                             </RadzenFormField>
                             <RadzenFormField Text="Notas del cliente" Variant="Variant.Text" Style="width: 100%;">
                                 <ChildContent>
-                                    <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerOrder.CustomerNotes" Name="CUSTOMER_NOTES" TabIndex="2" />
+                                    <RadzenTextArea Disabled="true" Multilie="true" style="display: block; width: 100%" @bind-Value="@customerOrder.CustomerNotes" Name="CUSTOMER_NOTES" TabIndex="2" />
                                 </ChildContent>
                             </RadzenFormField>
                             <RadzenFormField Text="Notas internas" Variant="Variant.Text" Style="width: 100%;">
