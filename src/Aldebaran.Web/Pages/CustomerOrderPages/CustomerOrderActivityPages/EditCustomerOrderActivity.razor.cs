@@ -7,7 +7,7 @@ using Radzen;
 using Radzen.Blazor;
 using System.Linq.Dynamic.Core;
 
-namespace Aldebaran.Web.Pages.CustomerOrderPages
+namespace Aldebaran.Web.Pages.CustomerOrderPages.CustomerOrderActivityPages
 {
     public partial class EditCustomerOrderActivity
     {

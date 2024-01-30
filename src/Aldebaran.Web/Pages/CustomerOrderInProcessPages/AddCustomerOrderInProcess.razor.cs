@@ -103,10 +103,13 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                 {
                     CreationDate = DateTime.Now,
                     CustomerOrderId = customerOrder.CustomerOrderId,
+                    Employee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id),
                     ProcessDate = DateTime.Today,
                     TransferDatetime = DateTime.Today,
                     StatusDocumentTypeId = customerOrderInProgressStatusDocumentType.StatusDocumentTypeId
                 };
+
+                customerOrderInProcess.EmployeeId = customerOrderInProcess.Employee.EmployeeId;
 
                 title = $"Traslado a proceso para el pedido No. {customerOrder.OrderNumber}";
             }

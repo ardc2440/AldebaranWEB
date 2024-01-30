@@ -92,23 +92,12 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
             var adjustment = await AdjustmentService.FindAsync(adjustmentId, ct);
             if (adjustment == null)
                 return;
-
-            if (Action == "edit")
-            {
-                NotificationService.Notify(new NotificationMessage
-                {
-                    Summary = "Ajuste de inventario",
-                    Severity = NotificationSeverity.Success,
-                    Detail = $"El ajuste ha sido actualizado correctamente."
-                });
-                return;
-            }
-
+            
             NotificationService.Notify(new NotificationMessage
             {
                 Summary = "Ajuste de inventario",
                 Severity = NotificationSeverity.Success,
-                Detail = $"El ajuste ha sido creada correctamente."
+                Detail = $"El ajuste ha sido creado correctamente con el consecutivo {adjustmentId}."
             });
         }
 
@@ -130,51 +119,6 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         protected async Task AddAdjustmentClick(MouseEventArgs args)
         {
             NavigationManager.NavigateTo("add-adjustment");
-        }
-
-        protected async Task EditAdjustment(Adjustment args)
-        {
-            NavigationManager.NavigateTo("edit-adjustment/" + args.AdjustmentId);
-        }
-
-        protected bool CanEditAdjustment(Adjustment args)
-        {
-            return Security.IsInRole("Admin", "Adjustment Editor") && args.StatusDocumentType.EditMode;
-        }
-
-        protected async Task CancelAdjustmentClick(MouseEventArgs args, Adjustment adjustment)
-        {
-            try
-            {
-                DialogResult = null;
-                if (await DialogService.Confirm("Está seguro que desea cancelar este ajuste?") == true)
-                {
-                    adjustment.StatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 2);
-                    adjustment.StatusDocumentTypeId = adjustment.StatusDocumentType.StatusDocumentTypeId;
-                    adjustment.AdjustmentDetails = (await AdjustmentDetailService.GetByAdjustmentIdAsync(adjustment.AdjustmentId)).ToList();
-
-                    await AdjustmentService.CancelAsync(adjustment.AdjustmentId);
-                    await GetAdjustmentsAsync(search);
-
-                    NotificationService.Notify(new NotificationMessage
-                    {
-                        Summary = "Ajuste de inventario",
-                        Severity = NotificationSeverity.Success,
-                        Detail = $"Ajuste de inventario ha sido cancelado correctamente."
-                    });
-
-                    await AdjustmentsGrid.Reload();
-                }
-            }
-            catch (Exception ex)
-            {
-                NotificationService.Notify(new NotificationMessage
-                {
-                    Severity = NotificationSeverity.Error,
-                    Summary = $"Error",
-                    Detail = $"No se ha podido eliminar el ajuste \n {ex.Message}"
-                });
-            }
         }
 
         protected async Task GetChildData(Adjustment args)

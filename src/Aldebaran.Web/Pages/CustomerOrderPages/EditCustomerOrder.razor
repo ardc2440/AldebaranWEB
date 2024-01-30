@@ -20,9 +20,9 @@
             <RadzenRow AlignItems="AlignItems.Start" Gap="2rem">
                 <RadzenColumn SizeMD="6">
                     <RadzenStack>
-                        <RadzenFormField Text="Cliente" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
+                        <RadzenFormField Text="Cliente" Gap="2rem" Variant="Variant.Text" Style="width: 100%;" >
                             <ChildContent>
-                                <RadzenDropDownDataGrid Data="@customersForCUSTOMERID" TextProperty="CustomerName" ValueProperty="CustomerId" AllowClear=true TabIndex="0"
+                                <RadzenDropDownDataGrid Data="@customersForCUSTOMERID" TextProperty="CustomerName" ValueProperty="CustomerId" AllowClear=true TabIndex="0" Disabled="true"
                                                         style="display: block; width: 100%" @bind-Value="@customerOrder.CustomerId" Name="CUSTOMER_ID" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true" Placeholder="Seleccione el cliente">
                                     <Columns>
                                         <RadzenDropDownDataGridColumn Property="IdentityType.IdentityTypeName" Title="Tipo Documento" />
@@ -43,7 +43,7 @@
                         <RadzenFormField Text="Fecha de pedido" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
                                 <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@customerOrder.OrderDate"
-                                                  Name="ORDER_DATE" Placeholder="Seleccione la fecha de la pedido" TabIndex="1" />
+                                                  Name="ORDER_DATE" Placeholder="Seleccione la fecha de la pedido" TabIndex="1" Disabled="true" />
                             </ChildContent>
                             <Helper>
                                 <RadzenRequiredValidator Text="La Fecha de pedido es requerida" Component="ORDER_DATE" />
@@ -52,7 +52,7 @@
                         <RadzenFormField Text="Fecha de Pactada de Entrega" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
                                 <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@customerOrder.EstimatedDeliveryDate"
-                                                  Name="ESTIMATED_DELIVERY_DATE" Placeholder="Seleccione la fecha pactada de entrega" TabIndex="2"
+                                                  Name="ESTIMATED_DELIVERY_DATE" Placeholder="Seleccione la fecha pactada de entrega" TabIndex="2" Disabled="true"
                                                   Change="()=> customerOrder.EstimatedDeliveryDate = customerOrder.EstimatedDeliveryDate < customerOrder.OrderDate ? customerOrder.OrderDate : customerOrder.EstimatedDeliveryDate" />
                             </ChildContent>
                             <Helper>
@@ -61,7 +61,7 @@
                         </RadzenFormField>
                         <RadzenFormField Text="Notas del cliente" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
-                                <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerOrder.CustomerNotes" Name="CUSTOMER_NOTES" TabIndex="3" />
+                                <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerOrder.CustomerNotes" Name="CUSTOMER_NOTES" TabIndex="3" Disabled="true" />
                             </ChildContent>
                         </RadzenFormField>
                         <RadzenFormField Text="Notas internas" Variant="Variant.Text" Style="width: 100%;">
@@ -75,14 +75,7 @@
                     <RadzenStack>
                         <RadzenColumn Size="6">
                             <RadzenText Text="Referencias" TextStyle="TextStyle.H5" TagName="TagName.H1" style="margin: 0" />
-                        </RadzenColumn>
-                        <RadzenRow Gap="0" AlignItems="AlignItems.Center">
-                            <RadzenColumn Size="12">
-                                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
-                                    <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddCustomerOrderDetailButtonClick" />
-                                </RadzenStack>
-                            </RadzenColumn>
-                        </RadzenRow>
+                        </RadzenColumn>                        
                         <LocalizedDataGrid @ref="customerOrderDetailGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                            Data="@customerOrderDetails" TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail">
                             <Columns>
@@ -98,10 +91,7 @@
                                     <Template Context="detail">
                                         <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
                                                       Click="@(args => EditRow(detail))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Actualizar", new TooltipOptions(){ Position = TooltipPosition.Left }))">
-                                        </RadzenButton>
-                                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
-                                                      Shade="Shade.Lighter" Variant="Variant.Flat"
-                                                      Click=@(args => DeleteCustomerOrderDetailButtonClick(args, detail)) @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Eliminar", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                                        </RadzenButton>                                        
                                     </Template>
                                 </RadzenDataGridColumn>
                             </Columns>

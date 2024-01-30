@@ -17,6 +17,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             {
                 CustomerOrderId = customerOrdersInProcess.CustomerOrderId,
                 EmployeeRecipientId = customerOrdersInProcess.EmployeeRecipientId,
+                EmployeeId = customerOrdersInProcess.EmployeeId,
                 Notes = customerOrdersInProcess.Notes,
                 ProcessDate = customerOrdersInProcess.ProcessDate,
                 CreationDate = customerOrdersInProcess.CreationDate,
@@ -56,6 +57,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         {
             return await _context.CustomerOrdersInProcesses.AsNoTracking()
                 .Include(i => i.CustomerOrder)
+                .Include(i => i.EmployeeRecipient)
                 .Include(i => i.Employee)
                 .Include(i => i.ProcessSatellite)
                 .Include(i => i.StatusDocumentType)
@@ -71,6 +73,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             entity.ProcessDate = customerOrdersInProcess.ProcessDate;
             entity.CustomerOrderId = customerOrdersInProcess.CustomerOrderId;
             entity.EmployeeRecipientId = customerOrdersInProcess.EmployeeRecipientId;
+            entity.EmployeeId = customerOrdersInProcess.EmployeeId;
             entity.StatusDocumentTypeId = customerOrdersInProcess.StatusDocumentTypeId;
             entity.Notes = customerOrdersInProcess.Notes;
 
@@ -120,6 +123,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         {
             return await _context.CustomerOrdersInProcesses.AsNoTracking()
                 .Include(i => i.CustomerOrder)
+                .Include(i => i.EmployeeRecipient)
                 .Include(i => i.Employee)
                 .Include(i => i.ProcessSatellite)
                 .Include(i => i.StatusDocumentType)

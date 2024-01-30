@@ -102,31 +102,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             if (await DialogService.Confirm("Está seguro que desea cancelar la modificación de la Reserva?", "Confirmar") == true)
                 NavigationManager.NavigateTo("customer-reservations");
         }
-
-        protected async Task AddCustomerReservationDetailButtonClick(MouseEventArgs args)
-        {
-            var result = await DialogService.OpenAsync<AddCustomerReservationDetail>("Nueva referencia", new Dictionary<string, object> { { "CustomerReservationDetails", customerReservationDetails } });
-
-            if (result == null)
-                return;
-
-            var detail = (CustomerReservationDetail)result;
-
-            customerReservationDetails.Add(detail);
-
-            await customerReservationDetailGrid.Reload();
-        }
-
-        protected async Task DeleteCustomerReservationDetailButtonClick(MouseEventArgs args, CustomerReservationDetail item)
-        {
-            if (await DialogService.Confirm("Está seguro que desea eliminar esta referencia?", "Confirmar") == true)
-            {
-                customerReservationDetails.Remove(item);
-
-                await customerReservationDetailGrid.Reload();
-            }
-        }
-
+        
         protected async Task EditRow(CustomerReservationDetail args)
         {
             var result = await DialogService.OpenAsync<EditCustomerReservationDetail>("Actualizar referencia", new Dictionary<string, object> { { "CustomerReservationDetail", args } });

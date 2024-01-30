@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
 
-namespace Aldebaran.Web.Pages.CustomerOrderPages
+namespace Aldebaran.Web.Pages.CustomerOrderPages.CustomerOrderActivityPages
 {
     public partial class AddCustomerOrderActivityDetail
     {

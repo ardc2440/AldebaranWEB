@@ -132,31 +132,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             if (await DialogService.Confirm("Está seguro que desea cancelar la modificación del pedido?", "Confirmar") == true)
                 NavigationManager.NavigateTo("customer-orders");
         }
-
-        protected async Task AddCustomerOrderDetailButtonClick(MouseEventArgs args)
-        {
-            var result = await DialogService.OpenAsync<AddCustomerOrderDetail>("Agregar referencia", new Dictionary<string, object> { { "CustomerOrderDetails", customerOrderDetails } });
-
-            if (result == null)
-                return;
-
-            var detail = (CustomerOrderDetail)result;
-
-            customerOrderDetails.Add(detail);
-
-            await customerOrderDetailGrid.Reload();
-        }
-
-        protected async Task DeleteCustomerOrderDetailButtonClick(MouseEventArgs args, CustomerOrderDetail item)
-        {
-            if (await DialogService.Confirm("Está seguro que desea eliminar esta referencia?", "Confirmar") == true)
-            {
-                customerOrderDetails.Remove(item);
-
-                await customerOrderDetailGrid.Reload();
-            }
-        }
-
+        
         protected async Task EditRow(CustomerOrderDetail args)
         {
             var result = await DialogService.OpenAsync<EditCustomerOrderDetail>("Actualizar referencia", new Dictionary<string, object> { { "CustomerOrderDetail", args } });

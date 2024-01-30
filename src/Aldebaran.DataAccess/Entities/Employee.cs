@@ -26,7 +26,8 @@ namespace Aldebaran.DataAccess.Entities
         public ICollection<CustomerOrderActivityDetail> CustomerOrderActivityDetails_ActivityEmployeeId { get; set; }
         public ICollection<CustomerOrderActivityDetail> CustomerOrderActivityDetails_EmployeeId { get; set; }
         public ICollection<CustomerOrderShipment> CustomerOrderShipments { get; set; }
-        public ICollection<CustomerOrdersInProcess> CustomerOrdersInProcesses { get; set; }
+        public ICollection<CustomerOrdersInProcess> CustomerOrdersInProcessesEmployeeRecipt { get; set; }
+        public ICollection<CustomerOrdersInProcess> CustomerOrdersInProcessesEmployee { get; set; }
         public ICollection<CustomerReservation> CustomerReservations { get; set; }
         public ICollection<ModifiedCustomerOrder> ModifiedCustomerOrders { get; set; }
         public ICollection<ModifiedCustomerReservation> ModifiedCustomerReservations { get; set; }
@@ -54,7 +55,8 @@ namespace Aldebaran.DataAccess.Entities
             CustomerOrderActivityDetails_EmployeeId = new List<CustomerOrderActivityDetail>();
             CustomerOrderShipments = new List<CustomerOrderShipment>();
             CustomerOrders = new List<CustomerOrder>();
-            CustomerOrdersInProcesses = new List<CustomerOrdersInProcess>();
+            CustomerOrdersInProcessesEmployee = new List<CustomerOrdersInProcess>();
+            CustomerOrdersInProcessesEmployeeRecipt = new List<CustomerOrdersInProcess>();
             CustomerReservations = new List<CustomerReservation>();
             ModifiedCustomerOrders = new List<ModifiedCustomerOrder>();
             ModifiedCustomerReservations = new List<ModifiedCustomerReservation>();
