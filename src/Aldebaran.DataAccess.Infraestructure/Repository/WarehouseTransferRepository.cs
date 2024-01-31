@@ -70,6 +70,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             var entity = new WarehouseTransfer
             {
                 WarehouseTransferDetails = new List<WarehouseTransferDetail>(),
+                CreationDate = DateTime.Now,
                 TransferDate = warehouseTransfer.TransferDate,
                 DestinationWarehouseId = warehouseTransfer.DestinationWarehouseId,
                 OriginWarehouseId = warehouseTransfer.OriginWarehouseId,
@@ -80,64 +81,18 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             };
 
             foreach (var item in warehouseTransfer.WarehouseTransferDetails)
-            {
-                await _context.WarehouseTransferDetails.AddAsync(new WarehouseTransferDetail
+                entity.WarehouseTransferDetails.Add(new WarehouseTransferDetail
                 {
                     ReferenceId = item.ReferenceId,
                     Quantity = item.Quantity
-                }, ct);
-            }
+                });
 
             try
             {
                 await _context.WarehouseTransfers.AddAsync(entity, ct);
                 await _context.SaveChangesAsync(ct);
             }
-            catch (Exception)
-            {
-                _context.Entry(entity).State = EntityState.Unchanged;
-                throw;
-            }
-
-            return entity;
-        }
-
-        public async Task<WarehouseTransfer?> UpdateAsync(int warehouseTransferId, WarehouseTransfer warehouseTransfer, CancellationToken ct = default)
-        {
-            var entity = await _context.WarehouseTransfers.Include(i => i.WarehouseTransferDetails).FirstOrDefaultAsync(i => i.WarehouseTransferId == warehouseTransferId, ct) ?? throw new KeyNotFoundException($"Traslado con id {warehouseTransferId} no existe.");
-
-            entity.TransferDate = warehouseTransfer.TransferDate;
-            entity.OriginWarehouseId = warehouseTransfer.OriginWarehouseId;
-            entity.DestinationWarehouseId = warehouseTransfer.DestinationWarehouseId;
-            entity.StatusDocumentTypeId = warehouseTransfer.StatusDocumentTypeId;
-            entity.EmployeeId = warehouseTransfer.EmployeeId;
-            entity.Notes = warehouseTransfer.Notes;
-            entity.Nationalization = warehouseTransfer.Nationalization;
-
-            foreach (var item in warehouseTransfer.WarehouseTransferDetails)
-            {
-                if (item.WarehouseTransferDetailId > 0)
-                {
-                    var entityDetail = await _context.WarehouseTransferDetails.FindAsync(new object[] { item.WarehouseTransferDetailId });
-                    entityDetail!.ReferenceId = item.ReferenceId;
-                    entityDetail!.Quantity = item.Quantity;
-
-                    continue;
-                }
-
-                await _context.WarehouseTransferDetails.AddAsync(new WarehouseTransferDetail
-                {
-                    ReferenceId = item.ReferenceId,
-                    Quantity = item.Quantity,
-                    WarehouseTransferId = entity.WarehouseTransferId
-                }, ct);
-            }
-
-            try
-            {
-                await _context.SaveChangesAsync(ct);
-            }
-            catch (Exception)
+            catch (Exception ex)
             {
                 _context.Entry(entity).State = EntityState.Unchanged;
                 throw;

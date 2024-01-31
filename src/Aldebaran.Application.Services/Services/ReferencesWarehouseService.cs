@@ -14,6 +14,12 @@ namespace Aldebaran.Application.Services
             _mapper = mapper ?? throw new ArgumentNullException(nameof(IMapper));
         }
 
+        public async Task<ReferencesWarehouse?> GetByReferenceAndWarehouseIdAsync(int referenceId, short warehouseId, CancellationToken ct = default)
+        {
+            var data = await _repository.GetByReferenceAndWarehouseIdAsync(referenceId, warehouseId, ct);
+            return _mapper.Map<ReferencesWarehouse>(data);
+        }
+
         public async Task<IEnumerable<ReferencesWarehouse>> GetByReferenceIdAsync(int referenceId, CancellationToken ct = default)
         {
             var data = await _repository.GetByReferenceIdAsync(referenceId, ct);

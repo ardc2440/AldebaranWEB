@@ -22,7 +22,7 @@
                     <RadzenStack>
                         <RadzenFormField Text="Fecha del traslado" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
-                                <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@warehouseTransfer.TransferDate" Name="ADJUSTMENT_DATE" Placeholder="Seleccione la fecha del ajuste" TabIndex="0" />
+                                <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@warehouseTransfer.TransferDate" Name="ADJUSTMENT_DATE" Placeholder="Seleccione la fecha del traslado" TabIndex="0" />
                             </ChildContent>
                             <Helper>
                                 <RadzenRequiredValidator Text="La fecha del traslado es requerida" Component="ADJUSTMENT_DATE" />
@@ -36,6 +36,7 @@
                             </ChildContent>
                             <Helper>
                                 <RadzenRequiredValidator Component="OriginWarehouse" DefaultValue="0" Text="La bodega origen es requerida"></RadzenRequiredValidator>
+                                <RadzenNumericRangeValidator Component="OriginWarehouse" Min="1" Text="La bodega origen es requerida"></RadzenNumericRangeValidator>
                             </Helper>
                         </RadzenFormField>
                         <RadzenFormField Text="Bodega destino" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
@@ -46,6 +47,8 @@
                             </ChildContent>
                             <Helper>
                                 <RadzenRequiredValidator Component="DestinationWarehouse" DefaultValue="0" Text="La bodega destino es requerida"></RadzenRequiredValidator>
+                                <RadzenNumericRangeValidator Component="DestinationWarehouse" Min="1" Text="La bodega destino es requerida"></RadzenNumericRangeValidator>
+                                <RadzenCompareValidator Component="DestinationWarehouse" Visible="@(warehouseTransfer.DestinationWarehouseId>0)" Value="@warehouseTransfer.OriginWarehouseId" Text="La bodega destino debe ser diferente a la bodega origen" Operator="CompareOperator.NotEqual" />
                             </Helper>
                         </RadzenFormField>
                         <RadzenFormField Text="Nacionalización" Variant="Variant.Text" Style="width: 100%;">

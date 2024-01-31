@@ -11,6 +11,14 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
+        public async Task<ReferencesWarehouse?> GetByReferenceAndWarehouseIdAsync(int referenceId, short warehouseId, CancellationToken ct = default)
+        {
+            return await _context.ReferencesWarehouses.AsNoTracking()
+                .Include(x => x.ItemReference.Item.Line)
+                .Include(x => x.Warehouse)
+                .FirstOrDefaultAsync(x => x.ReferenceId == referenceId && x.WarehouseId == warehouseId, ct);
+        }
+
         public async Task<IEnumerable<ReferencesWarehouse>> GetByReferenceIdAsync(int referenceId, CancellationToken ct = default)
         {
             return await _context.ReferencesWarehouses.AsNoTracking()

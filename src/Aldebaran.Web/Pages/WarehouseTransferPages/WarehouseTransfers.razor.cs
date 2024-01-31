@@ -99,7 +99,7 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
                 {
                     Summary = "Traslado entre bodegas",
                     Severity = NotificationSeverity.Success,
-                    Detail = $"El traslado ha sido actualizado correctamente."
+                    Detail = $"El traslado ha sido actualizado correctamente con el consecutivo {warehouseTransferId}."
                 });
                 return;
             }

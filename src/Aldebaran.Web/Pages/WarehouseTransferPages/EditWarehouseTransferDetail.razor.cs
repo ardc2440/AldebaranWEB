@@ -18,6 +18,8 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
 
         [Inject]
         protected IItemReferenceService ItemReferenceService { get; set; }
+        [Inject]
+        protected IReferencesWarehouseService ReferencesWarehouseService { get; set; }
 
         #endregion
 
@@ -25,6 +27,9 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
 
         [Parameter]
         public WarehouseTransferDetail WarehouseTransferDetail { get; set; }
+
+        [Parameter]
+        public WarehouseTransfer warehouseTransfer { get; set; }
 
         [Parameter]
         public int WAREHOUSE_TRANSFER_ID { get; set; }
@@ -63,7 +68,7 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
                 WarehouseTransferDetailId = WarehouseTransferDetail.WarehouseTransferDetailId,
                 WarehouseTransferId = WarehouseTransferDetail.WarehouseTransferId,
                 Quantity = WarehouseTransferDetail.Quantity,
-                ReferenceId = WarehouseTransferDetail.ReferenceId             
+                ReferenceId = WarehouseTransferDetail.ReferenceId
             };
 
             ItemReference = await ItemReferenceService.FindAsync(WarehouseTransferDetail.ReferenceId);
@@ -86,7 +91,7 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
             {
                 warehouseTransferDetail.ReferenceId = hasREFERENCE_IDResult;
             }
-                      
+
             await base.SetParametersAsync(parameters);
         }
 
@@ -100,6 +105,12 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
             {
                 IsErrorVisible = false;
                 IsSubmitInProgress = true;
+
+                var msg = await ValidateOriginQuantities();
+
+                if (!String.IsNullOrEmpty(msg))
+                    throw new Exception(msg);
+
                 DialogService.Close(warehouseTransferDetail);
             }
             catch (Exception ex)
@@ -111,6 +122,21 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
             {
                 IsSubmitInProgress = false;
             }
+        }
+
+        private async Task<string> ValidateOriginQuantities()
+        {
+            var msg = String.Empty;
+
+            var referenceWareouse = await ReferencesWarehouseService.GetByReferenceAndWarehouseIdAsync(warehouseTransferDetail.ReferenceId, warehouseTransfer.OriginWarehouseId);
+
+            if (referenceWareouse == null)
+                msg = $"La referencia seleccionada no existe en la bodega de origen.";
+
+            if (referenceWareouse.Quantity < warehouseTransferDetail.Quantity)
+                msg = $"La cantidad ingresada supera la existencia dentro de la bodega origen.";
+
+            return msg;
         }
 
         protected async Task CancelButtonClick(MouseEventArgs args)

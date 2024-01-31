@@ -44,14 +44,6 @@ namespace Aldebaran.Application.Services
             var data = await _repository.GetAsync(search, ct);
             return _mapper.Map<List<WarehouseTransfer>>(data);
         }
-
-        public async Task<WarehouseTransfer?> UpdateAsync(int warehouseTransferId, WarehouseTransfer warehouseTransfer, CancellationToken ct = default)
-        {
-            var data = _mapper.Map<Entities.WarehouseTransfer>(warehouseTransfer);
-            data = await _repository.UpdateAsync(warehouseTransferId, data, ct);
-
-            return _mapper.Map<WarehouseTransfer>(data);
-        }
     }
 
 }

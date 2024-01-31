@@ -16,8 +16,8 @@ namespace Aldebaran.DataAccess.Core.Triggers.Transfers
         public async Task BeforeSave(ITriggerContext<WarehouseTransferDetail> context, CancellationToken cancellationToken)
         {
             if (context.ChangeType == ChangeType.Added)
-            {
-                var warehouseTransfer = await _context.WarehouseTransfers.FirstOrDefaultAsync(i => i.WarehouseTransferId == context.Entity.WarehouseTransferId, cancellationToken);
+            {                
+                var warehouseTransfer = _context.WarehouseTransfers.Local.FirstOrDefault();
 
                 await UpdateWarehouseReferenceQuantityAsync(warehouseTransfer!.OriginWarehouseId, context.Entity.ReferenceId, context.Entity.Quantity, -1, cancellationToken);
                 await UpdateWarehouseReferenceQuantityAsync(warehouseTransfer!.DestinationWarehouseId, context.Entity.ReferenceId, context.Entity.Quantity, 1, cancellationToken);

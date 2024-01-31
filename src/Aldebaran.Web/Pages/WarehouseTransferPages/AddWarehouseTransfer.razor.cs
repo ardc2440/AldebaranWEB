@@ -1,13 +1,14 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Resources.LocalizedControls;
+using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
 
 namespace Aldebaran.Web.Pages.WarehouseTransferPages
 {
-    public partial class AddWarehouseTransfer    
+    public partial class AddWarehouseTransfer
     {
         #region Injections
 
@@ -39,7 +40,7 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
         #endregion
 
         #region Properties
-        protected IEnumerable<Warehouse> WarehousesForWarehouseId{ get; set; }
+        protected IEnumerable<Warehouse> WarehousesForWarehouseId { get; set; }
         protected ICollection<WarehouseTransferDetail> WarehouseTransferDetails { get; set; }
 
         #endregion
@@ -58,17 +59,17 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
 
         #region Overrides
 
-        //protected override async Task OnInitializedAsync()
-        //{
-        //    WarehousesForWarehouseId = await WarehouseService.GetAsync();
-        //    WarehouseTransferDetails = new List<WarehouseTransferDetail>();
-        //    warehouseTransfer = new WarehouseTransfer() ;
-        //    documentType = await DocumentTypeService.FindByCodeAsync("B");
-        //    warehouseTransfer.StatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 1);
-        //    warehouseTransfer.StatusDocumentTypeId = warehouseTransfer.StatusDocumentType.StatusDocumentTypeId;
-        //    warehouseTransfer.Employee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id);
-        //    warehouseTransfer.EmployeeId = warehouseTransfer.Employee.EmployeeId;
-        //}
+        protected override async Task OnInitializedAsync()
+        {
+            WarehousesForWarehouseId = await WarehouseService.GetAsync();
+            WarehouseTransferDetails = new List<WarehouseTransferDetail>();
+            warehouseTransfer = new WarehouseTransfer();
+            documentType = await DocumentTypeService.FindByCodeAsync("B");
+            warehouseTransfer.StatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 1);
+            warehouseTransfer.StatusDocumentTypeId = warehouseTransfer.StatusDocumentType.StatusDocumentTypeId;
+            warehouseTransfer.Employee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id);
+            warehouseTransfer.EmployeeId = warehouseTransfer.Employee.EmployeeId;
+        }
         #endregion
 
         #region Events
@@ -84,7 +85,7 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
                 IsSubmitInProgress = true;
                 if (!WarehouseTransferDetails.Any())
                     throw new Exception("No ha ingresado ninguna referencia");
-
+                
                 warehouseTransfer.WarehouseTransferDetails = WarehouseTransferDetails;
                 var result = await WarehouseTransferService.AddAsync(warehouseTransfer);
                 NavigationManager.NavigateTo($"warehouse-transfers/{result.WarehouseTransferId}");
@@ -97,7 +98,7 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
             }
             finally { IsSubmitInProgress = false; }
         }
-
+        
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
             if (await DialogService.Confirm("Está seguro que desea cancelar la creación del traslado?", "Confirmar") == true)
@@ -106,14 +107,14 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
 
         protected async Task AddWarehouseTransferDetail(MouseEventArgs args)
         {
-            var result = await DialogService.OpenAsync<AddWarehouseTransferDetail>("Agregar referencia", new Dictionary<string, object> { { "WarehouseTransferDetails", WarehouseTransferDetails } });
+            var result = await DialogService.OpenAsync<AddWarehouseTransferDetail>("Agregar referencia", new Dictionary<string, object> { { "WarehouseTransferDetails", WarehouseTransferDetails }, { "warehouseTransfer", warehouseTransfer } });
 
             if (result == null)
                 return;
 
             var detail = (WarehouseTransferDetail)result;
             WarehouseTransferDetails.Add(detail);
-            
+
             await warehouseTransferDetailGrid.Reload();
         }
 
@@ -128,11 +129,11 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
 
         protected async Task EditWarehouseTransferDetail(WarehouseTransferDetail args)
         {
-            var result = await DialogService.OpenAsync<EditWarehouseTransferDetail>("Actualizar referencia", new Dictionary<string, object> { { "WarehouseTransferDetail", args } });
-            
+            var result = await DialogService.OpenAsync<EditWarehouseTransferDetail>("Actualizar referencia", new Dictionary<string, object> { { "WarehouseTransferDetail", args }, { "warehouseTransfer", warehouseTransfer } });
+
             if (result == null)
                 return;
-                       
+
             args.Quantity = result.Quantity;
 
             await warehouseTransferDetailGrid.Reload();

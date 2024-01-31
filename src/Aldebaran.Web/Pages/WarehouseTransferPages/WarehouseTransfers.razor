@@ -4,11 +4,11 @@
 @attribute [Authorize(Roles = "Admin,Transfer Warehouses Editor,Transfer Warehouses Viwer")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 
-<PageTitle>Adjustments</PageTitle>
+<PageTitle>Traslados</PageTitle>
 <RadzenStack>
     <RadzenRow AlignItems="AlignItems.Center">
         <RadzenColumn Size="12">
-            <RadzenText Text="Ajustes de inventario" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
+            <RadzenText Text="Traslado entre bodegas" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
             <hr />
         </RadzenColumn>
         <RadzenColumn Size="12" SizeMD="6">
@@ -27,7 +27,7 @@
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransfer" Property="Nationalization" Title="Nacionalización">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransfer" Property="OrigenWarehouse.WarehouseName" Title="Bodega origen">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransfer" Property="OriginWarehouse.WarehouseName" Title="Bodega origen">
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransfer" Property="DestinationWarehouse.WarehouseName" Title="Bodega destino">
                     </RadzenDataGridColumn>

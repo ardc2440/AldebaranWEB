@@ -73,6 +73,8 @@ namespace Aldebaran.Application.Services.Mappings
             CreateMap<UsersAlarmType, Entities.UsersAlarmType>().ReverseMap();
             CreateMap<VisualizedAlarm, Entities.VisualizedAlarm>().ReverseMap();
             CreateMap<Warehouse, Entities.Warehouse>().ReverseMap();
+            CreateMap<WarehouseTransfer, Entities.WarehouseTransfer>().ReverseMap();
+            CreateMap<WarehouseTransferDetail, Entities.WarehouseTransferDetail>().ReverseMap();
         }
     }
 }
