@@ -11,8 +11,9 @@
             <hr />
             <RadzenFormField Text="Actividad" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                 <ChildContent>
-                    <RadzenDropDown Data="@activityTypesForACTIVITY_ID" Title="ACTIVITY_TYPE_NAME" TextProperty="ActivityType.ActivityTypeName" ValueProperty="ActivityTypeId" AllowClear=true
-                                    AllowFiltering="true" ClearSearchAfterSelection="true" TabIndex="0" Disabled=@(hasACTIVITY_TYPE_IDValue) Placeholder="Seleccione un tipo de actividad" style="display: block; width: 100%" @bind-Value="@customerOrderActivityDetail.ActivityTypeId" Name="ACTIVITY_TYPE_ID" />
+                    <RadzenDropDown Data="@activityTypesForACTIVITY_ID" Title="ACTIVITY_TYPE_NAME" TextProperty="ActivityType.ActivityTypeName" ValueProperty="ActivityTypeId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    AllowFiltering="true" ClearSearchAfterSelection="true" TabIndex="0" Disabled=@(hasACTIVITY_TYPE_IDValue) Placeholder="Seleccione un tipo de actividad" style="display: block; width: 100%" @bind-Value="@customerOrderActivityDetail.ActivityTypeId" Name="ACTIVITY_TYPE_ID">
+                    </RadzenDropDown>
                 </ChildContent>
                 <Helper>
                     <RadzenRequiredValidator Component="ACTIVITY_TYPE_ID" DefaultValue="0" Text="El tipo de actividad es requerida"></RadzenRequiredValidator>

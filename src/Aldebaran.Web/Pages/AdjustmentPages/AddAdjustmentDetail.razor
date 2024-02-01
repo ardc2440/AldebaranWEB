@@ -12,7 +12,7 @@
                 <RadzenRequiredValidator Text="La referencia es requerida" Component="ReferenceId" />
                 <RadzenFormField Text="Bodega" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                     <ChildContent>
-                        <RadzenDropDown Data="@WarehousesForWarehouseId" TextProperty="WarehouseName" ValueProperty="WarehouseId" AllowClear=true Disabled=@(hasWarehouseIdValue)
+                        <RadzenDropDown Data="@WarehousesForWarehouseId" TextProperty="WarehouseName" ValueProperty="WarehouseId" AllowClear=true Disabled=@(hasWarehouseIdValue) FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                         style="display: block; width: 100%" @bind-Value="@adjustmentDetail.WarehouseId" Name="WAREHOUSE_ID" Placeholder="Seleccione una bodega"
                                         AllowFiltering="true" ClearSearchAfterSelection="true" TabIndex="1" />
                     </ChildContent>

@@ -26,9 +26,9 @@
                                                         style="display: block; width: 100%" @bind-Value="@customerOrder.CustomerId" Name="CUSTOMER_ID" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true" Placeholder="Seleccione el cliente">
                                     <Columns>
                                         <RadzenDropDownDataGridColumn Property="IdentityType.IdentityTypeName" Title="Tipo Documento" />
-                                        <RadzenDropDownDataGridColumn Property="IdentityNumber" Title="Identificación" />
+                                        <RadzenDropDownDataGridColumn Property="IdentityNumber" Title="Identificaciï¿½n" />
                                         <RadzenDropDownDataGridColumn Property="CustomerName" Title="Nombre" />
-                                        <RadzenDropDownDataGridColumn Property="City.CityId" Title="Ubicación">
+                                        <RadzenDropDownDataGridColumn Property="City.CityId" Title="Ubicaciï¿½n">
                                             <Template Context="customer">
                                                 <span>(@customer.City.Department.Country.CountryCode) @customer.City.Department.DepartmentName - @customer.City.CityName</span>
                                             </Template>
@@ -61,12 +61,12 @@
                         </RadzenFormField>
                         <RadzenFormField Text="Notas del cliente" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
-                                <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerOrder.CustomerNotes" Name="CUSTOMER_NOTES" TabIndex="3" Disabled="true" />
+                                <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerOrder.CustomerNotes" Name="CUSTOMER_NOTES" TabIndex="3" Disabled="true" Rows="3" MaxLength="250" />
                             </ChildContent>
                         </RadzenFormField>
                         <RadzenFormField Text="Notas internas" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
-                                <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerOrder.InternalNotes" Name="INTERNAL_NOTES" TabIndex="4" />
+                                <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerOrder.InternalNotes" Name="INTERNAL_NOTES" TabIndex="4" Rows="3" MaxLength="250" />
                             </ChildContent>
                         </RadzenFormField>
                     </RadzenStack>

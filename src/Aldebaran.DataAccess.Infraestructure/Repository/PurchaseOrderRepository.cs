@@ -1,4 +1,5 @@
 ﻿using Aldebaran.DataAccess.Entities;
+using Aldebaran.DataAccess.Infraestructure.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
@@ -18,19 +19,29 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             return item;
         }
 
-        public async Task CancelAsync(int purchaseOrderId, CancellationToken ct = default)
+        public async Task CancelAsync(int purchaseOrderId, Reason reason, CancellationToken ct = default)
         {
             var entity = await _context.PurchaseOrders.FirstOrDefaultAsync(x => x.PurchaseOrderId == purchaseOrderId, ct) ?? throw new KeyNotFoundException($"Orden con id {purchaseOrderId} no existe.");
             var documentType = await _context.DocumentTypes.AsNoTracking().FirstAsync(f => f.DocumentTypeCode == "O", ct);
             var statutsDocumentType = await _context.StatusDocumentTypes.AsNoTracking().FirstAsync(f => f.DocumentTypeId == documentType.DocumentTypeId && f.StatusOrder == 3, ct);
             entity.StatusDocumentTypeId = statutsDocumentType.StatusDocumentTypeId;
+
+            var reasonEntity = new CanceledPurchaseOrder
+            {
+                PurchaseOrderId = purchaseOrderId,
+                CancellationReasonId = reason.CancellationReasonId,
+                EmployeeId = reason.EmployeeId,
+                CancellationDate = reason.Date
+            };
             try
             {
+                _context.CanceledPurchaseOrders.Add(reasonEntity);
                 await _context.SaveChangesAsync(ct);
             }
             catch
             {
                 _context.Entry(entity).State = EntityState.Unchanged;
+                _context.Entry(reasonEntity).State = EntityState.Unchanged;
                 throw;
             }
         }

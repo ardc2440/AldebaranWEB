@@ -53,9 +53,8 @@ namespace Aldebaran.Web.Shared
             if (lineId == null)
             {
                 SelectedLine = null;
-                Items = new List<ServiceModel.Item>();
-                SelectedItem = null;
-                await OnChange.InvokeAsync(null);
+                CleanItems();
+                await OnItemChange(null);
                 return;
             }
             SelectedLine = Lines.Single(s => s.LineId == (short)lineId);
@@ -77,6 +76,11 @@ namespace Aldebaran.Web.Shared
         protected async Task PanelCollapseToggle(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
             CollapsedPanel = !CollapsedPanel;
+        }
+        void CleanItems()
+        {
+            Items = new List<ServiceModel.Item>();
+            ITEM_ID = null;
         }
         protected void PanelCollapseChange(string Command)
         {

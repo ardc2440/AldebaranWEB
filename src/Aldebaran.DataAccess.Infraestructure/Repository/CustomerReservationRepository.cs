@@ -1,4 +1,5 @@
 ﻿using Aldebaran.DataAccess.Entities;
+using Aldebaran.DataAccess.Infraestructure.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
@@ -156,14 +157,21 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             }
         }
 
-        public async Task CancelAsync(int customerReservationId, short canceledStatusDocumentId, CancellationToken ct = default)
+        public async Task CancelAsync(int customerReservationId, short canceledStatusDocumentId, Reason reason, CancellationToken ct = default)
         {
             var entity = await _context.CustomerReservations.FirstOrDefaultAsync(x => x.CustomerReservationId == customerReservationId, ct) ?? throw new KeyNotFoundException($"Reserva con id {customerReservationId} no existe.");
-
             entity.StatusDocumentTypeId = canceledStatusDocumentId;
 
+            var reasonEntity = new CanceledCustomerReservation
+            {
+                CustomerReservationId = customerReservationId,
+                CancellationReasonId = reason.CancellationReasonId,
+                EmployeeId = reason.EmployeeId,
+                CancellationDate = reason.Date
+            };
             try
             {
+                _context.CanceledCustomerReservations.Add(reasonEntity);
                 await _context.SaveChangesAsync(ct);
             }
             catch (Exception)

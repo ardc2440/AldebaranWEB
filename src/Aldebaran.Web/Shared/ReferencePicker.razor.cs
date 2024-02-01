@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using NuGet.Configuration;
 using Radzen;
 using ServiceModel = Aldebaran.Application.Services.Models;
 
@@ -62,11 +63,8 @@ namespace Aldebaran.Web.Shared
             if (lineId == null)
             {
                 SelectedLine = null;
-                Items = new List<ServiceModel.Item>();
-                SelectedItem = null;
-                ItemReferences = new List<ServiceModel.ItemReference>();
-                SelectedItemReference = null;
-                await OnChange.InvokeAsync(null);
+                CleanItems();                
+                await OnItemChange(null);
                 return;
             }
             SelectedLine = Lines.Single(s => s.LineId == (short)lineId);
@@ -77,9 +75,8 @@ namespace Aldebaran.Web.Shared
             if (itemId == null)
             {
                 SelectedItem = null;
-                ItemReferences = new List<ServiceModel.ItemReference>();
-                SelectedItemReference = null;
-                await OnChange.InvokeAsync(null);
+                CleanReferences();
+                await OnReferenceChange(null);
                 return;
             }
             SelectedItem = Items.Single(s => s.ItemId == (int)itemId);
@@ -101,6 +98,16 @@ namespace Aldebaran.Web.Shared
         protected async Task PanelCollapseToggle(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
             CollapsedPanel = !CollapsedPanel;
+        }
+        void CleanItems()
+        {
+            Items = new List<ServiceModel.Item>();
+            ITEM_ID = null;
+        }
+        void CleanReferences()
+        {
+            ItemReferences = new List<ServiceModel.ItemReference>();
+            REFERENCE_ID = null;
         }
         void PanelCollapseChange(string Command)
         {

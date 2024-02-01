@@ -1,4 +1,4 @@
-﻿using Aldebaran.Application.Services.Models;
+using Aldebaran.Application.Services.Models;
 using AutoMapper;
 using Entities = Aldebaran.DataAccess.Entities;
 
@@ -75,6 +75,7 @@ namespace Aldebaran.Application.Services.Mappings
             CreateMap<Warehouse, Entities.Warehouse>().ReverseMap();
             CreateMap<WarehouseTransfer, Entities.WarehouseTransfer>().ReverseMap();
             CreateMap<WarehouseTransferDetail, Entities.WarehouseTransferDetail>().ReverseMap();
+            CreateMap<Reason, DataAccess.Infraestructure.Models.Reason>().ReverseMap();
         }
     }
 }

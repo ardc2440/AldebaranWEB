@@ -1,4 +1,4 @@
-@attribute [Authorize(Roles="Admin,Forwarder Editor")]
+@attribute [Authorize(Roles = "Admin,Forwarder Editor")]
 @using ServiceModel = Aldebaran.Application.Services.Models;
 
 <RadzenColumn SizeMD=12>
@@ -7,7 +7,7 @@
         <RadzenStack>
             <RadzenFormField Text="Nombre" Variant="Variant.Text">
                 <ChildContent>
-                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Forwarder.ForwarderName" Name="ForwarderName" />
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Forwarder.ForwarderName" Name="ForwarderName" MaxLength="50" />
                 </ChildContent>
                 <Helper>
                     <RadzenRequiredValidator Component="ForwarderName" Text="Nombre es requerido" />
@@ -15,7 +15,7 @@
             </RadzenFormField>
             <RadzenFormField Text="Teléfono" Variant="Variant.Text">
                 <ChildContent>
-                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Forwarder.Phone1" Name="Phone1" />
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Forwarder.Phone1" Name="Phone1" MaxLength="20" />
                 </ChildContent>
                 <Helper>
                     <RadzenRequiredValidator Component="Phone1" Text="Teléfono es requerido" />
@@ -23,19 +23,19 @@
             </RadzenFormField>
             <RadzenFormField Text="Teléfono opcional" Variant="Variant.Text">
                 <ChildContent>
-                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Forwarder.Phone2" Name="Phone2" />
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Forwarder.Phone2" Name="Phone2" MaxLength="20" />
                 </ChildContent>
             </RadzenFormField>
             <RadzenFormField Text="Fax" Variant="Variant.Text">
                 <ChildContent>
-                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Forwarder.Fax" Name="Fax" />
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Forwarder.Fax" Name="Fax" MaxLength="22" />
                 </ChildContent>
             </RadzenFormField>
             <LocalizationPicker OnChange="LocalizationHandler" />
             <RadzenRequiredValidator Text="Ubicación requerida" Component="CityId" Style="margin-top: -0.875rem;" />
             <RadzenFormField Text="Dirección" Variant="Variant.Text">
                 <ChildContent>
-                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Forwarder.ForwarderAddress" Name="ForwarderAddress" />
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Forwarder.ForwarderAddress" Name="ForwarderAddress" MaxLength="52" />
                 </ChildContent>
                 <Helper>
                     <RadzenRequiredValidator Component="ForwarderAddress" Text="Dirección es requerida" />
@@ -43,12 +43,12 @@
             </RadzenFormField>
             <RadzenFormField Text="Correo electrónico" Variant="Variant.Text">
                 <ChildContent>
-                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Forwarder.Mail1" Name="Mail1" />
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Forwarder.Mail1" Name="Mail1" MaxLength="30" />
                 </ChildContent>
             </RadzenFormField>
             <RadzenFormField Text="Correo electrónico opcional" Variant="Variant.Text">
                 <ChildContent>
-                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Forwarder.Mail2" Name="Mail2" />
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Forwarder.Mail2" Name="Mail2" MaxLength="30" />
                 </ChildContent>
             </RadzenFormField>
         </RadzenStack>

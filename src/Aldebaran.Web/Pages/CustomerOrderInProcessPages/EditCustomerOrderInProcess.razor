@@ -69,8 +69,8 @@
                                 <RadzenFormField Text="Fecha del traslado" Variant="Variant.Text" Style="width: 100%;">
                                     <ChildContent>
                                         <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%"
-                                        @bind-Value="@customerOrderInProcess.TransferDatetime" Name="TransferDatetime" Placeholder="Seleccione la fecha del traslado"
-                                        TabIndex="0" />
+                                                          @bind-Value="@customerOrderInProcess.TransferDatetime" Name="TransferDatetime" Placeholder="Seleccione la fecha del traslado"
+                                                          TabIndex="0" />
                                     </ChildContent>
                                     <Helper>
                                         <RadzenRequiredValidator Text="La fecha de pedido es requerida" Component="TransferDatetime" />
@@ -79,8 +79,8 @@
                                 <RadzenFormField Text="Fecha de proceso" Variant="Variant.Text" Style="width: 100%;">
                                     <ChildContent>
                                         <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%"
-                                        @bind-Value="@customerOrderInProcess.ProcessDate" Name="ProcessDate" Placeholder="Seleccione la fecha de proceso"
-                                        TabIndex="1" />
+                                                          @bind-Value="@customerOrderInProcess.ProcessDate" Name="ProcessDate" Placeholder="Seleccione la fecha de proceso"
+                                                          TabIndex="1" />
                                     </ChildContent>
                                     <Helper>
                                         <RadzenRequiredValidator Text="La fecha de proceso es requerida" Component="ProcessDate" />
@@ -126,7 +126,7 @@
                                     </Helper>
                                 </RadzenFormField>
                                 <RadzenFormField Text="Notas" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
-                                    <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerOrderInProcess.Notes" TabIndex="4" />
+                                    <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerOrderInProcess.Notes" TabIndex="4" Rows="3" MaxLength="250" />
                                 </RadzenFormField>
                             </RadzenRow>
                         </RadzenCard>

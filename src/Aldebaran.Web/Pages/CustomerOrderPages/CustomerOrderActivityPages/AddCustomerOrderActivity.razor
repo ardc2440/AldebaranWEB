@@ -54,7 +54,7 @@
                         <RadzenFormField Text="Fecha de la actividad" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
                                 <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@customerOrderActivity.ActivityDate"
-                                TabIndex="2" Name="ACTIVITY_DATE" />
+                                                  TabIndex="2" Name="ACTIVITY_DATE" />
                             </ChildContent>
                             <Helper>
                                 <RadzenRequiredValidator Component="ACTIVITY_DATE" Text="La fecha de la actividad es requerida" />
@@ -62,7 +62,7 @@
                         </RadzenFormField>
                         <RadzenFormField Text="Notas" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
-                                <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerOrderActivity.Notes" Name="NOTES" TabIndex="3" />
+                                <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerOrderActivity.Notes" Name="NOTES" TabIndex="3" Rows="3" MaxLength="250" />
                             </ChildContent>
                         </RadzenFormField>
                     </RadzenStack>

@@ -77,12 +77,12 @@
                                 </RadzenFormField>
                                 <RadzenFormField Text="Número de guia" Variant="Variant.Text" class="fw-bold">
                                     <ChildContent>
-                                        <RadzenTextBox @bind-Value="@customerOrderShipment.TrackingNumber" TabIndex="1" />
+                                        <RadzenTextBox @bind-Value="@customerOrderShipment.TrackingNumber" TabIndex="1" MaxLength="15" />
                                     </ChildContent>
                                 </RadzenFormField>
                                 <RadzenFormField Text="Remisión" Variant="Variant.Text" class="fw-bold">
                                     <ChildContent>
-                                        <RadzenTextBox Name="DELIVERY_NOTE" @bind-Value="@customerOrderShipment.DeliveryNote" TabIndex="2" />
+                                        <RadzenTextBox Name="DELIVERY_NOTE" @bind-Value="@customerOrderShipment.DeliveryNote" TabIndex="2" MaxLength="15" />
                                     </ChildContent>
                                     <Helper>
                                         <RadzenRequiredValidator Component="DELIVERY_NOTE" Text="La remisión es requerida"></RadzenRequiredValidator>
@@ -90,14 +90,11 @@
                                 </RadzenFormField>
                                 <RadzenFormField Text="Método de envío" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                                     <ChildContent>
-                                        <RadzenDropDownDataGrid Data="@shippingMethodsFORSHIPPINGMETHODID" TextProperty="ShippingMethodName" ValueProperty="ShippingMethodId" AllowClear=true
-                                                                style="display: block; width: 100%" @bind-Value="@customerOrderShipment.ShippingMethodId" Name="SHIPING_METHOD_ID"
-                                                                FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true"
-                                                                TabIndex="3" Placeholder="Seleccione el método de envío">
-                                            <Columns>
-                                                <RadzenDropDownDataGridColumn Property="ShippingMethodName" Title="Método" />
-                                            </Columns>
-                                        </RadzenDropDownDataGrid>
+                                        <RadzenDropDown Data="@shippingMethodsFORSHIPPINGMETHODID" TextProperty="ShippingMethodName" ValueProperty="ShippingMethodId" AllowClear=true
+                                                        style="display: block; width: 100%" @bind-Value="@customerOrderShipment.ShippingMethodId" Name="SHIPING_METHOD_ID"
+                                                        FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true"
+                                                        TabIndex="3" Placeholder="Seleccione el método de envío">
+                                        </RadzenDropDown>
                                     </ChildContent>
                                     <Helper>
                                         <RadzenNumericRangeValidator Component="SHIPING_METHOD_ID" Min="1" Text="El método de envio es requerido"></RadzenNumericRangeValidator>
@@ -123,7 +120,7 @@
                                 </RadzenFormField>
                                 <RadzenFormField Text="Notas" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                                     <ChildContent>
-                                        <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerOrderShipment.Notes" TabIndex="5" />
+                                        <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerOrderShipment.Notes" TabIndex="5" Rows="3" MaxLength="250" />
                                     </ChildContent>
                                 </RadzenFormField>
                             </RadzenRow>

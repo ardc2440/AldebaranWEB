@@ -2,6 +2,7 @@ using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Resources.LocalizedControls;
+using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
@@ -195,22 +196,17 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             {
                 dialogResult = null;
 
-                if (await DialogService.Confirm("Está seguro que desea eliminar esta actividad??") == true)
+                if (await DialogService.Confirm("Está seguro que desea eliminar esta actividad?") == true)
                 {
-
                     await CustomerOrderActivityService.DeleteAsync(customerOrderActivity.CustomerOrderActivityId);
-
                     var customerOrder = await CustomerOrderService.FindAsync(customerOrderActivity.CustomerOrderId);
-
                     await GetCustomerOrderActivitiesAsync(customerOrder);
-
                     NotificationService.Notify(new NotificationMessage
                     {
                         Summary = "Actividad de pedido",
                         Severity = NotificationSeverity.Success,
                         Detail = $"La Actividad del pedido ha sido eliminada correctamente."
                     });
-
                     await CustomerOrderActivitiesDataGrid.Reload();
                 }
             }
@@ -230,24 +226,21 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             try
             {
                 dialogResult = null;
+                var reasonResult = await DialogService.OpenAsync<CancellationReasonDialog>("Confirmar cancelación", new Dictionary<string, object> { { "DOCUMENT_TYPE_CODE", "P" }, { "TITLE", "Está seguro que desea cancelar este pedido?" } });
+                if (reasonResult == null)
+                    return;
+                var reason = (Reason)reasonResult;
 
-                if (await DialogService.Confirm("Está seguro que desea cancelar este pedido?") == true)
+                var cancelStatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 6);
+                await CustomerOrderService.CancelAsync(customerOrder.CustomerOrderId, cancelStatusDocumentType.StatusDocumentTypeId, reason);
+                await GetCustomerOrdersAsync();
+                NotificationService.Notify(new NotificationMessage
                 {
-                    var cancelStatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 6);
-
-                    await CustomerOrderService.CancelAsync(customerOrder.CustomerOrderId, cancelStatusDocumentType.StatusDocumentTypeId);
-
-                    await GetCustomerOrdersAsync();
-
-                    NotificationService.Notify(new NotificationMessage
-                    {
-                        Summary = "Pedido de artículos",
-                        Severity = NotificationSeverity.Success,
-                        Detail = $"El pedido ha sido cancelado correctamente."
-                    });
-
-                    await CustomerOrdersGrid.Reload();
-                }
+                    Summary = "Pedido de artículos",
+                    Severity = NotificationSeverity.Success,
+                    Detail = $"El pedido ha sido cancelado correctamente."
+                });
+                await CustomerOrdersGrid.Reload();
             }
             catch (Exception ex)
             {
@@ -318,24 +311,21 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             try
             {
                 dialogResult = null;
+                var reasonResult = await DialogService.OpenAsync<CancellationReasonDialog>("Confirmar cancelación", new Dictionary<string, object> { { "DOCUMENT_TYPE_CODE", "P" }, { "TITLE", "Está seguro que desea cerrar este pedido?" } });
+                if (reasonResult == null)
+                    return;
+                var reason = (Reason)reasonResult;
 
-                if (await DialogService.Confirm("Está seguro que desea cerrar este pedido?") == true)
+                var cancelStatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 6);
+                await CustomerOrderService.CancelAsync(args.CustomerOrderId, cancelStatusDocumentType.StatusDocumentTypeId, reason);
+                await GetCustomerOrdersAsync();
+                NotificationService.Notify(new NotificationMessage
                 {
-                    var cancelStatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 6);
-
-                    await CustomerOrderService.CancelAsync(args.CustomerOrderId, cancelStatusDocumentType.StatusDocumentTypeId);
-
-                    await GetCustomerOrdersAsync();
-
-                    NotificationService.Notify(new NotificationMessage
-                    {
-                        Severity = NotificationSeverity.Success,
-                        Summary = $"Pedido de artículos",
-                        Detail = $"El pedido No. {args.OrderNumber} ha sido cerrado correctamente."
-                    });
-
-                    await CustomerOrdersGrid.Reload();
-                }
+                    Severity = NotificationSeverity.Success,
+                    Summary = $"Pedido de artículos",
+                    Detail = $"El pedido No. {args.OrderNumber} ha sido cerrado correctamente."
+                });
+                await CustomerOrdersGrid.Reload();
             }
             catch (Exception ex)
             {

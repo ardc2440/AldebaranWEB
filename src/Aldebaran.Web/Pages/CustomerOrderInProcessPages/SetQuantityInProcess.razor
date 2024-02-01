@@ -52,9 +52,10 @@
                 </RadzenFormField>
                 <RadzenFormField Text="Bodega origen" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                     <ChildContent>
-                        <RadzenDropDown Data="@warehousesForWAREHOUSEID" TextProperty="WarehouseName" ValueProperty="WarehouseId" AllowClear=true AllowFiltering="true"
+                        <RadzenDropDown Data="@warehousesForWAREHOUSEID" TextProperty="WarehouseName" ValueProperty="WarehouseId" AllowClear=true AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                         Disabled=@(hasWAREHOUSE_IDValue) Placeholder="Seleccione una bodega" style="display: block; width: 100%" TabIndex="1"
-                                        ClearSearchAfterSelection="true" @bind-Value="@detailInProcess.WAREHOUSE_ID" Name="WAREHOUSE_ID"/>
+                                        ClearSearchAfterSelection="true" @bind-Value="@detailInProcess.WAREHOUSE_ID" Name="WAREHOUSE_ID">
+                        </RadzenDropDown>
                     </ChildContent>
                     <Helper>
                         <RadzenNumericRangeValidator Component="WAREHOUSE_ID" Min="1" Text="La Bodega es requerida"></RadzenNumericRangeValidator>

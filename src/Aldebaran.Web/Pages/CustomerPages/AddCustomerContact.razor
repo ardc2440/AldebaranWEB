@@ -1,4 +1,4 @@
-@attribute [Authorize(Roles="Admin,Customer Editor")]
+@attribute [Authorize(Roles = "Admin,Customer Editor")]
 
 <RadzenColumn SizeMD=12>
     <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">No se ha podido crear el contacto</RadzenAlert>
@@ -18,14 +18,14 @@
                 <RadzenColumn SizeLG="3" SizeXL="3" SizeMD="3" SizeSM="12" SizeXX="12" SizeXS="12">
                     <RadzenFormField Text="Tratamiento" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@CustomerContact.Title" Name="Title" Placeholder="Sr. Sra." />
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@CustomerContact.Title" Name="Title" Placeholder="Sr. Sra." MaxLength="20" />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenColumn>
                 <RadzenColumn SizeLG="9" SizeXL="9" SizeMD="9" SizeSM="12" SizeXX="12" SizeXS="12">
                     <RadzenFormField Text="Nombre" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@CustomerContact.CustomerContactName" Name="CustomerContactName" />
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@CustomerContact.CustomerContactName" Name="CustomerContactName" MaxLength="50" />
                         </ChildContent>
                         <Helper>
                             <RadzenRequiredValidator Component="CustomerContactName" Text="Nombre es requerido" />
@@ -37,14 +37,14 @@
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Teléfono" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@CustomerContact.Phone" Name="Phone" />
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@CustomerContact.Phone" Name="Phone" MaxLength="15" />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenColumn>
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Correo electrónico" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@CustomerContact.Email" Name="Email" />
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@CustomerContact.Email" Name="Email" MaxLength="30" />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenColumn>

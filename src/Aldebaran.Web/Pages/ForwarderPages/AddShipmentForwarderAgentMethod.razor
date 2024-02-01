@@ -1,4 +1,4 @@
-@attribute [Authorize(Roles="Admin,Forwarder Editor")]
+@attribute [Authorize(Roles = "Admin,Forwarder Editor")]
 @using ServiceModel = Aldebaran.Application.Services.Models;
 
 <RadzenColumn SizeMD=12>
@@ -17,16 +17,12 @@
             </div>
             <RadzenFormField Text="Método de envío" Variant="Variant.Text">
                 <ChildContent>
-                    <RadzenDropDownDataGrid Data="@AvailableShipmentMethodsForSelection" TextProperty="ShipmentMethodName" ValueProperty="ShipmentMethodId" AllowClear=true
-                                            style="display: block; width: 100%" @bind-Value="@ShipmentForwarderAgentMethod.ShipmentMethodId" Name="ShipmentMethodId">
-                        <Columns>
-                            <RadzenDropDownDataGridColumn Property="ShipmentMethodName" Title="Nombre" />
-                            <RadzenDropDownDataGridColumn Property="ShipmentMethodNotes" Title="Descripción" />
-                        </Columns>
-                    </RadzenDropDownDataGrid>
+                    <RadzenDropDown Data="@AvailableShipmentMethodsForSelection" TextProperty="ShipmentMethodName" ValueProperty="ShipmentMethodId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    style="display: block; width: 100%" @bind-Value="@ShipmentForwarderAgentMethod.ShipmentMethodId" Name="ShipmentMethodId">
+                    </RadzenDropDown>
                 </ChildContent>
                 <Helper>
-                    <RadzenRequiredValidator Component="ShipmentMethodId" DefaultValue="0" Text="Método de envío es requerido" />
+                    <RadzenNumericRangeValidator Component="ShipmentMethodId" Min="1" Text="Método de envío es requerido" />
                 </Helper>
             </RadzenFormField>
         </RadzenStack>

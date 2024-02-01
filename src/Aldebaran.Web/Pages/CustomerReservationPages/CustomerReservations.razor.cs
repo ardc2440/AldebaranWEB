@@ -2,6 +2,7 @@ using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Resources.LocalizedControls;
+using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
@@ -178,27 +179,26 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             try
             {
                 DialogResult = null;
+                var reasonResult = await DialogService.OpenAsync<CancellationReasonDialog>("Confirmar cancelación", new Dictionary<string, object> { { "DOCUMENT_TYPE_CODE", "R" }, { "TITLE", "Está seguro que desea cancelar esta reserva?" } });
+                if (reasonResult == null)
+                    return;
+                var reason = (Reason)reasonResult;
+                var cancelStatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 3);
+                await CustomerReservationService.CancelAsync(customerReservation.CustomerReservationId, cancelStatusDocumentType.StatusDocumentTypeId, reason);
 
-                if (await DialogService.Confirm("Está seguro que desea cancelar esta reserva?") == true)
+                customerReservation.StatusDocumentType = cancelStatusDocumentType;
+                customerReservation.StatusDocumentTypeId = cancelStatusDocumentType.StatusDocumentTypeId;
+
+                await GetCustomerReservationAsync(search);
+
+                NotificationService.Notify(new NotificationMessage
                 {
-                    var cancelStatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 3);
+                    Summary = "Reserva de artículos",
+                    Severity = NotificationSeverity.Success,
+                    Detail = $"La reserva No. {customerReservation.ReservationNumber}, ha sido cancelada correctamente."
+                });
 
-                    await CustomerReservationService.CancelAsync(customerReservation.CustomerReservationId, cancelStatusDocumentType.StatusDocumentTypeId);
-
-                    customerReservation.StatusDocumentType = cancelStatusDocumentType;
-                    customerReservation.StatusDocumentTypeId = cancelStatusDocumentType.StatusDocumentTypeId;
-
-                    await GetCustomerReservationAsync(search);
-
-                    NotificationService.Notify(new NotificationMessage
-                    {
-                        Summary = "Reserva de artículos",
-                        Severity = NotificationSeverity.Success,
-                        Detail = $"La reserva No. {customerReservation.ReservationNumber}, ha sido cancelada correctamente."
-                    });
-
-                    await CustomerReservationGrid.Reload();
-                }
+                await CustomerReservationGrid.Reload();
             }
             catch (Exception ex)
             {

@@ -20,7 +20,7 @@
                 <RadzenColumn SizeLG="6" SizeXL="6" SizeMD="6" SizeSM="12" SizeXS="12" SizeXX="12">
                     <RadzenFormField Text="Area" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDown Data="@Areas" TextProperty="AreaName" ValueProperty="AreaId" AllowClear=true
+                            <RadzenDropDown Data="@Areas" TextProperty="AreaName" ValueProperty="AreaId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                             style="display: block; width: 100%" @bind-Value="AREA_ID" Name="AreaId" Change="@OnAreaChange" AllowFiltering="true" ClearSearchAfterSelection="true" />
                         </ChildContent>
                     </RadzenFormField>
@@ -28,7 +28,7 @@
                 <RadzenColumn SizeLG="6" SizeXL="6" SizeMD="6" SizeSM="12" SizeXS="12" SizeXX="12">
                     <RadzenFormField Text="Empleado" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDown Data="@Employees" TextProperty="FullName" ValueProperty="EmployeeId" AllowClear=true
+                            <RadzenDropDown Data="@Employees" TextProperty="FullName" ValueProperty="EmployeeId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                             style="display: block; width: 100%" @bind-Value="EMPLOYEE_ID" Name="EmployeeId" Change="@OnEmployeeChange" AllowFiltering="true" ClearSearchAfterSelection="true" />
                         </ChildContent>
                     </RadzenFormField>
