@@ -54,7 +54,7 @@
                         <RadzenFormField Text="Fecha de pactada de entrega" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
                                 <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@customerOrder.EstimatedDeliveryDate"
-                                                  TabIndex="2" Name="ESTIMATED_DELIVERY_DATE" Placeholder="Seleccione la fecha pactada de entrega"
+                                                  TabIndex="2" Name="ESTIMATED_DELIVERY_DATE" Placeholder="Seleccione la fecha pactada de entrega" Min="@customerOrder.OrderDate"
                                                   Change="()=> customerOrder.EstimatedDeliveryDate = customerOrder.EstimatedDeliveryDate < customerOrder.OrderDate ? customerOrder.OrderDate : customerOrder.EstimatedDeliveryDate" />
                             </ChildContent>
                             <Helper>
