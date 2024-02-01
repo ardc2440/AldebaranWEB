@@ -1,4 +1,5 @@
 using Aldebaran.Application.Services;
+using Aldebaran.Web.Shared;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -159,18 +160,19 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         {
             try
             {
-                if (await DialogService.Confirm("Está seguro que desea cancelar esta orden de compra?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar cancelación") == true)
+                var reasonResult = await DialogService.OpenAsync<CancellationReasonDialog>("Confirmar cancelación", new Dictionary<string, object> { { "DOCUMENT_TYPE_CODE", "O" }, { "TITLE", "Está seguro que desea cancelar esta orden de compra?" } });
+                if (reasonResult == null)
+                    return;
+                var reason = (ServiceModel.Reason)reasonResult;
+                await PurchaseOrderService.CancelAsync(purchaseOrder.PurchaseOrderId, reason);
+                await GetPurchaseOrdersAsync();
+                NotificationService.Notify(new NotificationMessage
                 {
-                    await PurchaseOrderService.CancelAsync(purchaseOrder.PurchaseOrderId);
-                    await GetPurchaseOrdersAsync();
-                    NotificationService.Notify(new NotificationMessage
-                    {
-                        Summary = "Orden de compra",
-                        Severity = NotificationSeverity.Success,
-                        Detail = $"Orden de compra ha sido cancelada correctamente."
-                    });
-                    await PurchaseOrderGrid.Reload();
-                }
+                    Summary = "Orden de compra",
+                    Severity = NotificationSeverity.Success,
+                    Detail = $"Orden de compra ha sido cancelada correctamente."
+                });
+                await PurchaseOrderGrid.Reload();
             }
             catch (Exception ex)
             {

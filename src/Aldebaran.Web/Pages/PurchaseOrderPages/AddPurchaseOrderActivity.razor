@@ -18,7 +18,7 @@
             <RadzenRequiredValidator Text="Empleado requerido" Component="EmployeeId" />
             <RadzenFormField Text="Descripción" Variant="Variant.Text">
                 <ChildContent>
-                    <RadzenTextArea style="display: block; width: 100%" @bind-Value="@PurchaseOrderActivity.ActivityDescription" Name="ActivityDescription" Rows="3" />
+                    <RadzenTextArea style="display: block; width: 100%" @bind-Value="@PurchaseOrderActivity.ActivityDescription" Name="ActivityDescription" Rows="3" MaxLength="500" />
                 </ChildContent>
                 <Helper>
                     <RadzenRequiredValidator Component="ActivityDescription" Text="Descripción es requerida" />

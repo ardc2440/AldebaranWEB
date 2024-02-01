@@ -30,7 +30,7 @@
                         </RadzenFormField>
                         <RadzenFormField Text="Motivo del ajuste" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
-                                <RadzenDropDown Data="@AdjustmentReasonsForAdjustmentReasonId" TextProperty="AdjustmentReasonName" ValueProperty="AdjustmentReasonId" AllowClear=true
+                                <RadzenDropDown Data="@AdjustmentReasonsForAdjustmentReasonId" TextProperty="AdjustmentReasonName" ValueProperty="AdjustmentReasonId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                                 Placeholder="Seleccione un motivo" style="display: block; width: 100%" @bind-Value="@adjustment.AdjustmentReasonId" Name="ADJUSTMENT_REASON_ID"
                                                 AllowFiltering="true" ClearSearchAfterSelection="true" TabIndex="1" />
                             </ChildContent>
@@ -40,7 +40,7 @@
                         </RadzenFormField>
                         <RadzenFormField Text="Tipo de ajuste" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
-                                <RadzenDropDown Data="@AdjustmentTypesForAdjustmentTypeId" TextProperty="AdjustmentTypeName" ValueProperty="AdjustmentTypeId" AllowClear=true
+                                <RadzenDropDown Data="@AdjustmentTypesForAdjustmentTypeId" TextProperty="AdjustmentTypeName" ValueProperty="AdjustmentTypeId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                                 Placeholder="Seleccione un tipo" style="display: block; width: 100%" @bind-Value="@adjustment.AdjustmentTypeId" Name="ADJUSTMENT_TYPE_ID"
                                                 AllowFiltering="true" ClearSearchAfterSelection="true" TabIndex="2" />
                             </ChildContent>
@@ -50,7 +50,7 @@
                         </RadzenFormField>
                         <RadzenFormField Text="Notas" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
-                                <RadzenTextBox style="display: block; width: 100%" @bind-Value="@adjustment.Notes" Name="NOTES" Placeholder="Ingrese sus comentarios" TabIndex="3" />
+                                <RadzenTextBox style="display: block; width: 100%" @bind-Value="@adjustment.Notes" Name="NOTES" Placeholder="Ingrese sus comentarios" TabIndex="3" MaxLength="250" />
                             </ChildContent>
                         </RadzenFormField>
                     </RadzenStack>

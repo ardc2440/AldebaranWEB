@@ -35,7 +35,7 @@
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Bodega" Variant="Variant.Text" Style="width:100%">
                         <ChildContent>
-                            <RadzenDropDown Data="@Warehouses" TextProperty="WarehouseName" ValueProperty="WarehouseId" AllowClear=true
+                            <RadzenDropDown Data="@Warehouses" TextProperty="WarehouseName" ValueProperty="WarehouseId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                             style="display: block; width: 100%" @bind-Value="@PurchaseOrderDetail.WarehouseId" Name="WarehouseId" />
                         </ChildContent>
                         <Helper>

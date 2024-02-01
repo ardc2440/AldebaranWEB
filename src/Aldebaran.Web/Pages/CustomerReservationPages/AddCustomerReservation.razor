@@ -30,7 +30,7 @@
                         </RadzenFormField>
                         <RadzenFormField Text="Fecha de expiración" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
-                                <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@customerReservation.ExpirationDate" Name="EXPIRATION_DATE" Placeholder="Seleccione la fecha de expiración" TabIndex="1" />
+                                <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@customerReservation.ExpirationDate" Name="EXPIRATION_DATE" Placeholder="Seleccione la fecha de expiración" TabIndex="1" Min="@customerReservation.ReservationDate" />
                             </ChildContent>
                             <Helper>
                                 <RadzenRequiredValidator Text="La fecha de expiración es requerida" Component="EXPIRATION_DATE" />
@@ -60,7 +60,7 @@
                         </RadzenFormField>
                         <RadzenFormField Text="Notas" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
-                                <RadzenTextArea style="display: block; width: 100%" @bind-Value="@customerReservation.Notes" Name="NOTES" Placeholder="Ingrese sus comentarios" TabIndex="3" />
+                                <RadzenTextArea style="display: block; width: 100%" @bind-Value="@customerReservation.Notes" Name="NOTES" Placeholder="Ingrese sus comentarios" TabIndex="3" Rows="3" MaxLength="250" />
                             </ChildContent>
                         </RadzenFormField>
                     </RadzenStack>

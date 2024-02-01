@@ -8,6 +8,7 @@
     RenderFragment RenderBase() => builder => { base.BuildRenderTree(builder); };
     protected override void OnInitialized()
     {
+        base.FilterCaseSensitivity = FilterCaseSensitivity.CaseInsensitive;
         base.AllColumnsText = L["grid:all_columns_text"];
         base.AndOperatorText = L["grid:and_operator_text"];
         base.ApplyFilterText = L["grid:apply_filter_text"];

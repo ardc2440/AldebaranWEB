@@ -9,7 +9,7 @@
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Tipo de documento" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDown Data="@IdentityTypes" TextProperty="IdentityTypeCode" ValueProperty="IdentityTypeId" AllowClear=true
+                            <RadzenDropDown Data="@IdentityTypes" TextProperty="IdentityTypeCode" ValueProperty="IdentityTypeId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                             style="display: block; width: 100%" @bind-Value="@Employee.IdentityTypeId" Name="IdentityTypeId" AllowFiltering="true" ClearSearchAfterSelection="true" />
                         </ChildContent>
                         <Helper>
@@ -20,7 +20,7 @@
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Número de documento" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Employee.IdentityNumber" Name="IdentityNumber" />
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Employee.IdentityNumber" Name="IdentityNumber" MaxLength="15" />
                         </ChildContent>
                         <Helper>
                             <RadzenRequiredValidator Component="IdentityNumber" Text="Número de documento es requerido" />
@@ -32,7 +32,7 @@
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Nombre para Mostrar" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Employee.DisplayName" Name="DisplayName" />
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Employee.DisplayName" Name="DisplayName" MaxLength="50" />
                         </ChildContent>
                         <Helper>
                             <RadzenRequiredValidator Component="DisplayName" Text="El nombre para mostrar es requerido" />
@@ -42,7 +42,7 @@
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Nombre Completo" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Employee.FullName" Name="FullName" />
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Employee.FullName" Name="FullName" MaxLength="50" />
                         </ChildContent>
                         <Helper>
                             <RadzenRequiredValidator Component="FullName" Text="El nombre completo es requerido" />
@@ -54,8 +54,8 @@
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Area" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDownDataGrid Data="@Areas" TextProperty="AreaName" ValueProperty="AreaId" AllowClear=true
-                                                    style="display: block; width: 100%" @bind-Value="@Employee.AreaId" Name="AreaId" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true" Placeholder="Seleccione un área">
+                            <RadzenDropDownDataGrid Data="@Areas" TextProperty="AreaName" ValueProperty="AreaId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                    style="display: block; width: 100%" @bind-Value="@Employee.AreaId" Name="AreaId" AllowFilteringByAllStringColumns="true" Placeholder="Seleccione un área">
                                 <Columns>
                                     <RadzenDropDownDataGridColumn Property="AreaCode" Title="Código" />
                                     <RadzenDropDownDataGridColumn Property="AreaName" Title="Nombre" />
@@ -70,7 +70,7 @@
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Cargo" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Employee.Position" Name="Position" />
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Employee.Position" Name="Position" MaxLength="30" />
                         </ChildContent>
                         <Helper>
                             <RadzenRequiredValidator Component="Position" Text="El cargo es requerido" />
@@ -82,8 +82,8 @@
                 <RadzenColumn Size="12">
                     <RadzenFormField Text="Inicio de Sesión" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDownDataGrid Data="@ApplicationUsers" TextProperty="UserName" ValueProperty="Id" AllowClear=true
-                                                    style="display: block; width: 100%" @bind-Value="@Employee.LoginUserId" Name="LoginUserId" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true">
+                            <RadzenDropDownDataGrid Data="@ApplicationUsers" TextProperty="UserName" ValueProperty="Id" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                    style="display: block; width: 100%" @bind-Value="@Employee.LoginUserId" Name="LoginUserId" AllowFilteringByAllStringColumns="true">
                                 <Columns>
                                     <RadzenDropDownDataGridColumn Property="UserName" Title="Nombre de usuario" />
                                     <RadzenDropDownDataGridColumn Property="Email" Title="Correo electrónico" />

@@ -66,7 +66,7 @@ namespace Aldebaran.Web.Shared
             {
                 SelectedCountry = null;
                 CleanDepartments();
-                await CleanCities();
+                await OnDepartmentChange(null);
                 return;
             }
             SelectedCountry = Countries.Single(s => s.CountryId == (int)countryId);
@@ -77,7 +77,8 @@ namespace Aldebaran.Web.Shared
             if (departmentId == null)
             {
                 SelectedDepartment = null;
-                await CleanCities();
+                CleanCities();
+                await OnCityChange(null);
                 return;
             }
             SelectedDepartment = Departments.Single(s => s.DepartmentId == (int)departmentId);
@@ -109,15 +110,13 @@ namespace Aldebaran.Web.Shared
         }
         void CleanDepartments()
         {
-            SelectedDepartment = null;
             Departments = new List<ServiceModel.Department>();
+            DEPARTMENT_ID = null;
         }
-        async Task CleanCities()
+        void CleanCities()
         {
-            CITY_ID = null;
-            SelectedCity = null;
             Cities = new List<ServiceModel.City>();
-            await OnChange.InvokeAsync(null);
+            CITY_ID = null;
         }
         #endregion
     }

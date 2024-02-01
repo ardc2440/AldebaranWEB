@@ -21,7 +21,7 @@
             </RadzenFormField>
             <RadzenFormField Text="Marcación" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                 <ChildContent>
-                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@customerReservationDetail.Brand" Name="BRAND" Placeholder="Ingrese la marcación del producto" TabIndex="2" />
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@customerReservationDetail.Brand" Name="BRAND" Placeholder="Ingrese la marcación del producto" TabIndex="2" MaxLength="250" />
                 </ChildContent>
             </RadzenFormField>
         </RadzenStack>

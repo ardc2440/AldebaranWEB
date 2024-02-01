@@ -9,7 +9,7 @@
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Tipo de documento" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDown Data="@IdentityTypes" TextProperty="IdentityTypeCode" ValueProperty="IdentityTypeId" AllowClear=true
+                            <RadzenDropDown Data="@IdentityTypes" TextProperty="IdentityTypeCode" ValueProperty="IdentityTypeId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                             style="display: block; width: 100%" @bind-Value="@Provider.IdentityTypeId" Name="IdentityTypeId" AllowFiltering="true" ClearSearchAfterSelection="true" />
                         </ChildContent>
                         <Helper>
@@ -20,7 +20,7 @@
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Número de documento" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Provider.IdentityNumber" Name="IdentityNumber" />
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Provider.IdentityNumber" Name="IdentityNumber" MaxLength="15" />
                         </ChildContent>
                         <Helper>
                             <RadzenRequiredValidator Component="IdentityNumber" Text="Número de documento es requerido" />
@@ -32,7 +32,7 @@
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Código" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Provider.ProviderCode" Name="ProviderCode" />
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Provider.ProviderCode" Name="ProviderCode" MaxLength="10" />
                         </ChildContent>
                         <Helper>
                             <RadzenRequiredValidator Component="ProviderCode" Text="Código es requerido" />
@@ -42,7 +42,7 @@
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Nombre" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Provider.ProviderName" Name="ProviderName" />
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Provider.ProviderName" Name="ProviderName" MaxLength="50" />
                         </ChildContent>
                         <Helper>
                             <RadzenRequiredValidator Component="ProviderName" Text="Nombre es requerido" />
@@ -54,14 +54,14 @@
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Teléfono" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Provider.Phone" Name="Phone" />
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Provider.Phone" Name="Phone" MaxLength="20" />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenColumn>
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Dirección" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Provider.ProviderAddress" Name="ProviderAddress" />
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Provider.ProviderAddress" Name="ProviderAddress" MaxLength="80" />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenColumn>
@@ -70,21 +70,21 @@
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Correo electrónico" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Provider.Email" Name="Email" />
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Provider.Email" Name="Email" MaxLength="30" />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenColumn>
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Fax" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Provider.Fax" Name="Fax" />
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Provider.Fax" Name="Fax" MaxLength="22" />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenColumn>
             </RadzenRow>
             <RadzenFormField Text="Contacto" Variant="Variant.Text">
                 <ChildContent>
-                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Provider.ContactPerson" Name="ContactPerson" />
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Provider.ContactPerson" Name="ContactPerson" MaxLength="50" />
                 </ChildContent>
             </RadzenFormField>
             <LocalizationPicker OnChange="LocalizationHandler" CITY_ID="Provider.CityId" />

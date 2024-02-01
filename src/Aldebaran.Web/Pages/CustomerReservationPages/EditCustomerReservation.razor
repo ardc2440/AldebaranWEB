@@ -38,7 +38,7 @@
                         </RadzenFormField>
                         <RadzenFormField Text="Cliente" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
-                                <RadzenDropDownDataGrid Data="@customersForCUSTOMERID" TextProperty="CustomerName" ValueProperty="CustomerId" AllowClear=true
+                                <RadzenDropDownDataGrid Data="@customersForCUSTOMERID" TextProperty="CustomerName" ValueProperty="CustomerId" AllowClear=true 
                                                         style="display: block; width: 100%" @bind-Value="@customerReservation.CustomerId" Name="CUSTOMER_ID"
                                                         FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true"
                                                         Placeholder="Seleccione el cliente" TabIndex="2" Disabled="true">
@@ -60,7 +60,7 @@
                         </RadzenFormField>
                         <RadzenFormField Text="Notas" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
-                                <RadzenTextArea style="display: block; width: 100%" @bind-Value="@customerReservation.Notes" Name="NOTES" Placeholder="Ingrese sus comentarios" TabIndex="3" />
+                                <RadzenTextArea style="display: block; width: 100%" @bind-Value="@customerReservation.Notes" Name="NOTES" Placeholder="Ingrese sus comentarios" TabIndex="3" Rows="3" MaxLength="250" />
                             </ChildContent>
                         </RadzenFormField>
                     </RadzenStack>

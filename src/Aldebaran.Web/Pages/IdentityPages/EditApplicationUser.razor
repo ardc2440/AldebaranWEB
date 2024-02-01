@@ -9,7 +9,7 @@
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Correo electrónico" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="width: 100%" @bind-Value="@(ApplicationUser.Email)" Name="Email" />
+                            <RadzenTextBox style="width: 100%" @bind-Value="@(ApplicationUser.Email)" Name="Email" MaxLength="250"/>
                         </ChildContent>
                         <Helper>
                             <RadzenRequiredValidator Component="Email" Text="Correo electrónico es requerido" />
@@ -17,9 +17,9 @@
                     </RadzenFormField>
                 </RadzenColumn>
                 <RadzenColumn Size="12" SizeMD="6">
-                    <RadzenFormField Text="Nombre de usuario" Variant="Variant.Text" Style="width: 100%;">
+                    <RadzenFormField Text="Nombre de usuario" Variant="Variant.Text" Style="width: 100%;"> 
                         <ChildContent>
-                            <RadzenTextBox style="width: 100%" @bind-Value="@(ApplicationUser.UserName)" Name="UserName" ReadOnly="true" />
+                            <RadzenTextBox style="width: 100%" @bind-Value="@(ApplicationUser.UserName)" Name="UserName" ReadOnly="true" MaxLength="250"/>
                         </ChildContent>
                         <Helper>
                             <RadzenRequiredValidator Component="UserName" Text="Nombre de usuario es requerido" />
@@ -29,7 +29,7 @@
             </RadzenRow>
             <RadzenFormField Text="Roles" Variant="Variant.Text">
                 <ChildContent>
-                    <RadzenDropDown Data="@ApplicationRoles" Multiple="true" style="width: 100%" TextProperty="Name" @bind-Value="@(UserRoles)" ValueProperty="Id" Name="Roles" AllowSelectAll="false" AllowClear="true" AllowFiltering="true" ClearSearchAfterSelection="true" />
+                        <RadzenDropDown Data="@ApplicationRoles" Multiple="true" style="width: 100%" TextProperty="Name" @bind-Value="@(UserRoles)" ValueProperty="Id" Name="Roles" AllowSelectAll="false" AllowClear="true" AllowFiltering="true" ClearSearchAfterSelection="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" />
                 </ChildContent>
             </RadzenFormField>
             <RadzenRow AlignItems="Radzen.AlignItems.Start">
@@ -39,7 +39,7 @@
                             <RadzenPassword @bind-Value="@(ApplicationUser.Password)" style="display: block; width: 100%" Name="Password" AutoCompleteType="Radzen.Blazor.AutoCompleteType.NewPassword" />
                         </ChildContent>
                         <Helper>
-                            <RadzenRequiredValidator Component="Email" Text="Contraseña es requerida" />
+                            <RadzenRequiredValidator Component="Password" Text="Contraseña es requerida" />
                         </Helper>
                     </RadzenFormField>
                 </RadzenColumn>

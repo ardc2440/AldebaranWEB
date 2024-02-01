@@ -22,8 +22,8 @@
                     <RadzenStack>
                         <RadzenFormField Text="Proveedor" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
-                                <RadzenDropDownDataGrid @ref="ProviderDropDownDataGrid" Data="@Providers" TextProperty="ProviderName" ValueProperty="ProviderId" AllowClear=false
-                                                        style="display: block; width: 100%" @bind-Value="@PurchaseOrder.ProviderId" Name="ProviderId" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true" Change="@ProviderSelectionChange">
+                                <RadzenDropDownDataGrid @ref="ProviderDropDownDataGrid" Data="@Providers" TextProperty="ProviderName" ValueProperty="ProviderId" AllowClear=false FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                        style="display: block; width: 100%" @bind-Value="@PurchaseOrder.ProviderId" Name="ProviderId" AllowFilteringByAllStringColumns="true" Change="@ProviderSelectionChange">
                                     <Columns>
                                         <RadzenDropDownDataGridColumn Property="ProviderCode" Title="Código" />
                                         <RadzenDropDownDataGridColumn Property="ProviderName" Title="Nombre" />
@@ -60,7 +60,7 @@
                         <RadzenRequiredValidator Text="Transportadora requerida" Component="ForwarderAgentId" />
                         <RadzenFormField Text="Método de envío" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
-                                <RadzenDropDown Data="@ShipmentForwarderAgentMethods" TextProperty="ShipmentMethod.ShipmentMethodName" ValueProperty="ShipmentForwarderAgentMethodId" AllowClear=true
+                                <RadzenDropDown Data="@ShipmentForwarderAgentMethods" TextProperty="ShipmentMethod.ShipmentMethodName" ValueProperty="ShipmentForwarderAgentMethodId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                                 style="display: block; width: 100%" @bind-Value="@PurchaseOrder.ShipmentForwarderAgentMethodId" Name="ShipmentForwarderAgentMethodId">
                                 </RadzenDropDown>
                             </ChildContent>

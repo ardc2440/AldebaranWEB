@@ -20,7 +20,7 @@
                 <RadzenColumn SizeLG="4" SizeXL="4" SizeMD="4" SizeSM="12" SizeXS="12" SizeXX="12">
                     <RadzenFormField Text="Pais" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDown Data="@Countries" TextProperty="CountryName" ValueProperty="CountryId" AllowClear=true
+                            <RadzenDropDown Data="@Countries" TextProperty="CountryName" ValueProperty="CountryId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                             style="display: block; width: 100%" @bind-Value="COUNTRY_ID" Name="CountryId" Change="@OnCountryChange" AllowFiltering="true" ClearSearchAfterSelection="true" />
                         </ChildContent>
                     </RadzenFormField>
@@ -28,7 +28,7 @@
                 <RadzenColumn SizeLG="4" SizeXL="4" SizeMD="4" SizeSM="12" SizeXS="12" SizeXX="12">
                     <RadzenFormField Text="Departamento" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDown Data="@Departments" TextProperty="DepartmentName" ValueProperty="DepartmentId" AllowClear=true
+                            <RadzenDropDown Data="@Departments" TextProperty="DepartmentName" ValueProperty="DepartmentId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                             style="display: block; width: 100%" @bind-Value="DEPARTMENT_ID" Name="DepartmentId" Change="@OnDepartmentChange" AllowFiltering="true" ClearSearchAfterSelection="true" />
                         </ChildContent>
                     </RadzenFormField>
@@ -36,7 +36,7 @@
                 <RadzenColumn SizeLG="4" SizeXL="4" SizeMD="4" SizeSM="12" SizeXS="12" SizeXX="12">
                     <RadzenFormField Text="Ciudad" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDown Data="@Cities" TextProperty="CityName" ValueProperty="CityId" AllowClear=true
+                            <RadzenDropDown Data="@Cities" TextProperty="CityName" ValueProperty="CityId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                             style="display: block; width: 100%" @bind-Value="CITY_ID" Name="CityId" Change="@OnCityChange" AllowFiltering="true" ClearSearchAfterSelection="true" />
                         </ChildContent>
                     </RadzenFormField>

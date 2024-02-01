@@ -7,7 +7,7 @@
         <RadzenStack>
             <RadzenFormField Text="Nombre" Variant="Variant.Text">
                 <ChildContent>
-                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Item.ItemName" Name="ItemName" />
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Item.ItemName" Name="ItemName" MaxLength="50" />
                 </ChildContent>
                 <Helper>
                     <RadzenRequiredValidator Component="ItemName" Text="Nombre es requerido" />
@@ -17,7 +17,7 @@
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Referencia interna" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Item.InternalReference" Name="InternalReference" />
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Item.InternalReference" Name="InternalReference" MaxLength="10" />
                         </ChildContent>
                         <Helper>
                             <RadzenRequiredValidator Component="InternalReference" Text="Referencia interna es requerida" />
@@ -43,13 +43,9 @@
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Línea" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDownDataGrid Data="@Lines" TextProperty="LineName" ValueProperty="LineId" AllowClear=true
+                            <RadzenDropDown Data="@Lines" TextProperty="LineName" ValueProperty="LineId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                                     style="display: block; width: 100%" @bind-Value="@Item.LineId" Name="LineId">
-                                <Columns>
-                                    <RadzenDropDownDataGridColumn Property="LineCode" Title="Código" />
-                                    <RadzenDropDownDataGridColumn Property="LineName" Title="Nombre" />
-                                </Columns>
-                            </RadzenDropDownDataGrid>
+                            </RadzenDropDown>
                         </ChildContent>
                         <Helper>
                             <RadzenNumericRangeValidator Component="LineId" Min="1" Text="Línea es requerida" />
@@ -59,12 +55,9 @@
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Moneda" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDownDataGrid Data="@Currencies" TextProperty="CurrencyName" ValueProperty="CurrencyId" AllowClear=true
+                            <RadzenDropDown Data="@Currencies" TextProperty="CurrencyName" ValueProperty="CurrencyId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                                     style="display: block; width: 100%" @bind-Value="@Item.CurrencyId" Name="CurrencyId">
-                                <Columns>
-                                    <RadzenDropDownDataGridColumn Property="CurrencyName" Title="Nombre" />
-                                </Columns>
-                            </RadzenDropDownDataGrid>
+                            </RadzenDropDown>
                         </ChildContent>
                         <Helper>
                             <RadzenNumericRangeValidator Component="CurrencyId" Min="1" Text="Moneda es requerida" />
@@ -98,7 +91,7 @@
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Referencia del proveedor" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Item.ProviderReference" Name="ProviderReference" />
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Item.ProviderReference" Name="ProviderReference" MaxLength="27" />
                         </ChildContent>
                         <Helper>
                             <RadzenRequiredValidator Component="ProviderReference" Text="Referencia del proveedor es requerida" />
@@ -108,7 +101,7 @@
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Nombre del artículo en el proveedor" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Item.ProviderItemName" Name="ProviderItemName" />
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Item.ProviderItemName" Name="ProviderItemName" MaxLength="50"/>
                         </ChildContent>
                         <Helper>
                             <RadzenRequiredValidator Component="ProviderItemName" Text="Nombre es requerido" />
@@ -120,12 +113,9 @@
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Unidad FOB" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDownDataGrid Data="@MeasureUnits" TextProperty="MeasureUnitName" ValueProperty="MeasureUnitId" AllowClear=true
+                            <RadzenDropDown Data="@MeasureUnits" TextProperty="MeasureUnitName" ValueProperty="MeasureUnitId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                                     style="display: block; width: 100%" @bind-Value="@Item.FobMeasureUnitId" Name="FobMeasureUnitId">
-                                <Columns>
-                                    <RadzenDropDownDataGridColumn Property="MeasureUnitName" Title="Nombre" />
-                                </Columns>
-                            </RadzenDropDownDataGrid>
+                            </RadzenDropDown>
                         </ChildContent>
                         <Helper>
                             <RadzenNumericRangeValidator Component="FobMeasureUnitId" Min="1" Text="Unidad FOB es requerida" />
@@ -147,12 +137,9 @@
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Unidad CIF" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDownDataGrid Data="@MeasureUnits" TextProperty="MeasureUnitName" ValueProperty="MeasureUnitId" AllowClear=true
+                            <RadzenDropDown Data="@MeasureUnits" TextProperty="MeasureUnitName" ValueProperty="MeasureUnitId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                                     style="display: block; width: 100%" @bind-Value="@Item.CifMeasureUnitId" Name="CifMeasureUnitId">
-                                <Columns>
-                                    <RadzenDropDownDataGridColumn Property="MeasureUnitName" Title="Nombre" />
-                                </Columns>
-                            </RadzenDropDownDataGrid>
+                            </RadzenDropDown>
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenColumn>
@@ -180,7 +167,7 @@
             </RadzenRow>
             <RadzenFormField Text="Notas" Variant="Variant.Text">
                 <ChildContent>
-                    <RadzenTextArea style="display: block; width: 100%" @bind-Value="@Item.Notes" Name="Notes" Rows="3"></RadzenTextArea>
+                    <RadzenTextArea style="display: block; width: 100%" @bind-Value="@Item.Notes" Name="Notes" Rows="3" MaxLength="250"></RadzenTextArea>
                 </ChildContent>
             </RadzenFormField>
         </RadzenStack>

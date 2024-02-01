@@ -20,7 +20,7 @@
                 <RadzenColumn SizeLG="6" SizeXL="6" SizeMD="6" SizeSM="12" SizeXS="12" SizeXX="12">
                     <RadzenFormField Text="Linea" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDown Data="@Lines" TextProperty="LineName" ValueProperty="LineId" AllowClear=true
+                            <RadzenDropDown Data="@Lines" TextProperty="LineName" ValueProperty="LineId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                             style="display: block; width: 100%" @bind-Value="LINE_ID" Name="LineId" Change="@OnLineChange" AllowFiltering="true" ClearSearchAfterSelection="true" />
                         </ChildContent>
                     </RadzenFormField>
@@ -28,7 +28,7 @@
                 <RadzenColumn SizeLG="6" SizeXL="6" SizeMD="6" SizeSM="12" SizeXS="12" SizeXX="12">
                     <RadzenFormField Text="Árticulo" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDown Data="@Items" TextProperty="ItemName" ValueProperty="ItemId" AllowClear=true
+                            <RadzenDropDown Data="@Items" TextProperty="ItemName" ValueProperty="ItemId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                             style="display: block; width: 100%" @bind-Value="ITEM_ID" Name="ItemId" Change="@OnItemChange" AllowFiltering="true" ClearSearchAfterSelection="true" />
                         </ChildContent>
                     </RadzenFormField>

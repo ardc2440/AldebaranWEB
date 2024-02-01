@@ -20,7 +20,7 @@
                 <RadzenColumn SizeLG="4" SizeXL="4" SizeMD="4" SizeSM="12" SizeXS="12" SizeXX="12">
                     <RadzenFormField Text="Linea" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDown Data="@Lines" TextProperty="LineName" ValueProperty="LineId" AllowClear=true
+                            <RadzenDropDown Data="@Lines" TextProperty="LineName" ValueProperty="LineId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                             style="display: block; width: 100%" @bind-Value="LINE_ID" Name="LineId" Change="@OnLineChange" AllowFiltering="true" ClearSearchAfterSelection="true" />
                         </ChildContent>
                     </RadzenFormField>
@@ -28,7 +28,7 @@
                 <RadzenColumn SizeLG="4" SizeXL="4" SizeMD="4" SizeSM="12" SizeXS="12" SizeXX="12">
                     <RadzenFormField Text="Artículo" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDown Data="@Items" TextProperty="ItemName" ValueProperty="ItemId" AllowClear=true
+                            <RadzenDropDown Data="@Items" TextProperty="ItemName" ValueProperty="ItemId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                             style="display: block; width: 100%" @bind-Value="ITEM_ID" Name="ItemId" Change="@OnItemChange" AllowFiltering="true" ClearSearchAfterSelection="true" />
                         </ChildContent>
                     </RadzenFormField>
@@ -36,7 +36,7 @@
                 <RadzenColumn SizeLG="4" SizeXL="4" SizeMD="4" SizeSM="12" SizeXS="12" SizeXX="12">
                     <RadzenFormField Text="Referencia" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDown Data="@ItemReferences" TextProperty="ReferenceName" ValueProperty="ReferenceId" AllowClear=true
+                            <RadzenDropDown Data="@ItemReferences" TextProperty="ReferenceName" ValueProperty="ReferenceId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                             style="display: block; width: 100%" @bind-Value="REFERENCE_ID" Name="ReferenceId" Change="@OnReferenceChange" AllowFiltering="true" ClearSearchAfterSelection="true" />
                         </ChildContent>
                     </RadzenFormField>
