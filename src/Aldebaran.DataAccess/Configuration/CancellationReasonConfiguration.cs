@@ -6,7 +6,7 @@ namespace Aldebaran.DataAccess.Entities
     {
         public void Configure(EntityTypeBuilder<CancellationReason> builder)
         {
-            builder.ToTable("CANCELLATION_REASONS", "dbo");
+            builder.ToTable("cancellation_reasons", "dbo");
             builder.HasKey(x => x.CancellationReasonId).HasName("PK_CANCELLATION_REASON").IsClustered();
             builder.Property(x => x.CancellationReasonId).HasColumnName(@"CANCELLATION_REASON_ID").HasColumnType("smallint").IsRequired().ValueGeneratedOnAdd().UseIdentityColumn();
             builder.Property(x => x.CancellationReasonName).HasColumnName(@"CANCELLATION_REASON_NAME").HasColumnType("varchar(30)").IsRequired().IsUnicode(false).HasMaxLength(30);
