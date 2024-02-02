@@ -29,7 +29,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             var reasonEntity = new CanceledPurchaseOrder
             {
                 PurchaseOrderId = purchaseOrderId,
-                CancellationReasonId = reason.CancellationReasonId,
+                CancellationReasonId = reason.ReasonId,
                 EmployeeId = reason.EmployeeId,
                 CancellationDate = reason.Date
             };
