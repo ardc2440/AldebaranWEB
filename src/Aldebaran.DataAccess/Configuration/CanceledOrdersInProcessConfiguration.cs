@@ -6,7 +6,7 @@ namespace Aldebaran.DataAccess.Entities
     {
         public void Configure(EntityTypeBuilder<CanceledOrdersInProcess> builder)
         {
-            builder.ToTable("CANCELED_ORDERS_IN_PROCESS", "dbo");
+            builder.ToTable("canceled_orders_in_process", "dbo");
             builder.HasKey(x => x.CustomerOrderInProcessId).HasName("PK_CANCELED_CUSTOMER_ORDER_IN_PROCESS").IsClustered();
             builder.Property(x => x.CustomerOrderInProcessId).HasColumnName(@"CUSTOMER_ORDER_IN_PROCESS_ID").HasColumnType("int").IsRequired().ValueGeneratedNever();
             builder.Property(x => x.CancellationReasonId).HasColumnName(@"CANCELLATION_REASON_ID").HasColumnType("smallint").IsRequired();
