@@ -2,6 +2,7 @@ using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Resources.LocalizedControls;
+using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
@@ -207,20 +208,25 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
             {
                 dialogResult = null;
 
-                if (await DialogService.Confirm("Está seguro que desea cancelar este traslado a proceso?") == true)
+                var reasonResult = await DialogService.OpenAsync<CancellationReasonDialog>("Confirmar cancelación", new Dictionary<string, object> { { "DOCUMENT_TYPE_CODE", "D" }, { "TITLE", "Está seguro que desea cancelar este traslado a proceso?" } });
+                if (reasonResult == null)
+                    return;
+
+                var reason = (Reason)reasonResult;
+
+                var statusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync((await DocumentTypeService.FindByCodeAsync("D")).DocumentTypeId, 2);
+
+                await CustomerOrderShipmentService.CancelAsync(customerOrderShipment.CustomerOrderShipmentId, statusDocumentType.StatusDocumentTypeId, reason);
+                await GetCustomerOrderShipmentAsync(search);
+
+                NotificationService.Notify(new NotificationMessage
                 {
-                    customerOrderShipment.StatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync((await DocumentTypeService.FindByCodeAsync("D")).DocumentTypeId, 2);
-                    customerOrderShipment.StatusDocumentTypeId = customerOrderShipment.StatusDocumentType.StatusDocumentTypeId;
+                    Summary = "Traslado a proceso",
+                    Severity = NotificationSeverity.Success,
+                    Detail = $"El despacho ha sido cancelado correctamente."
+                });
 
-                    var customerOrderShipmentDetail = await CustomerOrderShipmentDetailService.GetByCustomerOrderShipmentIdAsync(customerOrderShipment.CustomerOrderShipmentId);
-                    customerOrderShipment.CustomerOrderShipmentDetails = customerOrderShipmentDetail.ToList();
-
-                    await CustomerOrderShipmentService.UpdateAsync(customerOrderShipment.CustomerOrderShipmentId, customerOrderShipment);
-
-                    await DialogService.Alert($"Despacho de pedido cancelado correctamente", "Información");
-
-                    await Search(new ChangeEventArgs() { });
-                }
+                await CustomerOrderShipmentDataGrid.Reload();
             }
             catch (Exception ex)
             {

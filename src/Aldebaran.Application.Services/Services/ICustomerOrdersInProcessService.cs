@@ -8,7 +8,6 @@ namespace Aldebaran.Application.Services
         Task<IEnumerable<CustomerOrdersInProcess>> GetByCustomerOrderIdAsync(int customerOrderId, CancellationToken ct = default);
         Task UpdateAsync(int customerOrderInProcessId, CustomerOrdersInProcess customerOrderInProcess, CancellationToken ct = default);
         Task<CustomerOrdersInProcess?> FindAsync(int customerOrderInProcessId, CancellationToken ct = default);
-
+        Task CancelAsync(int customerOrderInProcessId, short canceledStatusDocumentId, Reason reason, CancellationToken ct = default);
     }
-
 }

@@ -2,6 +2,7 @@ using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Resources.LocalizedControls;
+using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
@@ -227,25 +228,24 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                     }
                 }
 
-                if (await DialogService.Confirm("Está seguro que desea cancelar este traslado a proceso?") == true)
+                var reasonResult = await DialogService.OpenAsync<CancellationReasonDialog>("Confirmar cancelación", new Dictionary<string, object> { { "DOCUMENT_TYPE_CODE", "T" }, { "TITLE", "Está seguro que desea cancelar este traslado a proceso?" } });
+                if (reasonResult == null)
+                    return;
+
+                var reason = (Reason)reasonResult;
+
+                var statusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync((await DocumentTypeService.FindByCodeAsync("T")).DocumentTypeId, 2);                
+                await CustomerOrdersInProcessService.CancelAsync(customerOrderInProcess.CustomerOrderInProcessId, statusDocumentType.StatusDocumentTypeId, reason);
+                await GetCustomerOrderInProcessAsync(search);
+
+                NotificationService.Notify(new NotificationMessage
                 {
-                    customerOrderInProcess.StatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync((await DocumentTypeService.FindByCodeAsync("T")).DocumentTypeId, 2);
-                    customerOrderInProcess.StatusDocumentTypeId = customerOrderInProcess.StatusDocumentType.StatusDocumentTypeId;
+                    Summary = "Traslado a proceso",
+                    Severity = NotificationSeverity.Success,
+                    Detail = $"El traslado a proceso ha sido cancelado correctamente."
+                });
 
-                    customerOrderInProcess.CustomerOrderInProcessDetails = customerOrderInProcessDetail.ToList();
-
-                    await CustomerOrdersInProcessService.UpdateAsync(customerOrderInProcess.CustomerOrderInProcessId, customerOrderInProcess);
-                    await GetCustomerOrderInProcessAsync(search);
-
-                    NotificationService.Notify(new NotificationMessage
-                    {
-                        Summary = "Traslado a proceso",
-                        Severity = NotificationSeverity.Success,
-                        Detail = $"El traslado a proceso ha sido cancelado correctamente."
-                    });
-
-                    await CustomerOrderInProcessesDataGrid.Reload();
-                }
+                await CustomerOrderInProcessesDataGrid.Reload();
             }
             catch (Exception ex)
             {
