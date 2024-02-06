@@ -6,7 +6,7 @@ namespace Aldebaran.DataAccess.Entities
     {
         public void Configure(EntityTypeBuilder<CloseCustomerOrderReason> builder)
         {
-            builder.ToTable("CLOSE_CUSTOMER_ORDER_REASONS", "dbo");
+            builder.ToTable("close_customer_order_reasons", "dbo");
             builder.HasKey(x => x.CloseCustomerOrderReasonId).HasName("PK_CLOSE_CUSTOMER_ORDER_REASON").IsClustered();
             builder.Property(x => x.CloseCustomerOrderReasonId).HasColumnName(@"CLOSE_CUSTOMER_ORDER_REASON_ID").HasColumnType("smallint").IsRequired().ValueGeneratedOnAdd().UseIdentityColumn();
             builder.Property(x => x.CloseReasonName).HasColumnName(@"CLOSE_REASON_NAME").HasColumnType("varchar(30)").IsRequired().IsUnicode(false).HasMaxLength(30);

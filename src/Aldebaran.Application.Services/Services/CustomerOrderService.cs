@@ -45,11 +45,19 @@ namespace Aldebaran.Application.Services
             await _repository.CancelAsync(customerOrderId, canceledStatusDocumentId, mapReason, ct);
         }
 
+        public async Task CloseAsync(int customerOrderId, short closedStatusDocumentId, Reason reason, CancellationToken ct = default)
+        {
+            var mapReason = _mapper.Map<DataAccess.Infraestructure.Models.Reason>(reason);
+            await _repository.CloseAsync(customerOrderId, closedStatusDocumentId, mapReason, ct);
+        }
+
         public async Task UpdateAsync(int customerOrderId, CustomerOrder customerOrder, CancellationToken ct = default)
         {
-            var entity = _mapper.Map<Entities.CustomerOrder>(customerOrder) ?? throw new ArgumentNullException("Reserva no puede ser nula.");
+            var entity = _mapper.Map<Entities.CustomerOrder>(customerOrder) ?? throw new ArgumentNullException("Pedido no puede ser nulo.");
             await _repository.UpdateAsync(customerOrderId, entity, ct);
         }
+
+
     }
 
 }

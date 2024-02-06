@@ -4,16 +4,16 @@ using Microsoft.AspNetCore.Components.Web;
 using Radzen;
 using ServiceModel = Aldebaran.Application.Services.Models;
 
-namespace Aldebaran.Web.Shared
+namespace Aldebaran.Web.Pages.CustomerOrderPages
 {
-    public partial class CancellationReasonDialog
+    public partial class CloseCustomerOrderReasonDialog
     {
         #region Injections
         [Inject]
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected ICancellationReasonService CancellationReasonService { get; set; }
+        protected ICloseCustomerOrderReasonService CloseCustomerOrderReasonService { get; set; }
 
         [Inject]
         protected IEmployeeService EmployeeService { get; set; }
@@ -23,8 +23,6 @@ namespace Aldebaran.Web.Shared
         #endregion
 
         #region Parameters
-        [Parameter]
-        public string DOCUMENT_TYPE_CODE { get; set; }
 
         [Parameter]
         public string TITLE { get; set; }
@@ -35,17 +33,17 @@ namespace Aldebaran.Web.Shared
         private bool Submitted = false;
         protected bool IsSubmitInProgress;
         private bool IsErrorVisible;
-        protected ServiceModel.CancellationReason CancellationReason { get; set; }
-        protected IEnumerable<ServiceModel.CancellationReason> CancellationReasons = new List<ServiceModel.CancellationReason>();
+        protected ServiceModel.CloseCustomerOrderReason CloseCustomerOrderReason { get; set; }
+        protected IEnumerable<ServiceModel.CloseCustomerOrderReason> CloseCustomerOrderReasons = new List<ServiceModel.CloseCustomerOrderReason>();
         #endregion
 
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
             await Task.Yield();
-            CancellationReason = new ServiceModel.CancellationReason();
-            CancellationReasons = await CancellationReasonService.GetAsync(DOCUMENT_TYPE_CODE);
-            IsErrorVisible = !CancellationReasons.Any();
+            CloseCustomerOrderReason = new ServiceModel.CloseCustomerOrderReason();
+            CloseCustomerOrderReasons = await CloseCustomerOrderReasonService.GetAsync();
+            IsErrorVisible = !CloseCustomerOrderReasons.Any();
         }
         #endregion
 
@@ -56,10 +54,10 @@ namespace Aldebaran.Web.Shared
             {
                 IsSubmitInProgress = true;
                 Submitted = true;
-                if (CancellationReason.CancellationReasonId == 0)
+                if (CloseCustomerOrderReason.CloseCustomerOrderReasonId == 0)
                     return;
                 var employee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id);
-                var reason = new ServiceModel.Reason { EmployeeId = employee.EmployeeId, ReasonId = CancellationReason.CancellationReasonId };
+                var reason = new ServiceModel.Reason { EmployeeId = employee.EmployeeId, ReasonId = CloseCustomerOrderReason.CloseCustomerOrderReasonId };
                 DialogService.Close(reason);
             }
             finally

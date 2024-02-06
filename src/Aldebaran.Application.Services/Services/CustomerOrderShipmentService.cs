@@ -39,6 +39,12 @@ namespace Aldebaran.Application.Services
             var data = await _repository.FindAsync(customerOrderShipmentId, ct);
             return _mapper.Map<CustomerOrderShipment?>(data);
         }
+
+        public async Task CancelAsync(int customerOrderShipmentId, short canceledStatusDocumentId, Reason reason, CancellationToken ct = default)
+        {
+            var mapReason = _mapper.Map<DataAccess.Infraestructure.Models.Reason>(reason);
+            await _repository.CancelAsync(customerOrderShipmentId, canceledStatusDocumentId, mapReason, ct);
+        }
     }
 
 }

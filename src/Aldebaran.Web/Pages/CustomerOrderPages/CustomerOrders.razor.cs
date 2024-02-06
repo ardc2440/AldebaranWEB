@@ -310,14 +310,17 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         {
             try
             {
+                if ((await CustomerOrderDetailService.GetByCustomerOrderIdAsync(args.CustomerOrderId)).Any(i => i.ProcessedQuantity > 0))
+                    throw new Exception("Existen cantidades en proceso, no se puede cerrar el pedido");
+
                 dialogResult = null;
-                var reasonResult = await DialogService.OpenAsync<CancellationReasonDialog>("Confirmar cancelación", new Dictionary<string, object> { { "DOCUMENT_TYPE_CODE", "P" }, { "TITLE", "Está seguro que desea cerrar este pedido?" } });
+                var reasonResult = await DialogService.OpenAsync<CloseCustomerOrderReasonDialog>("Confirmar cierre de pedido", new Dictionary<string, object> { { "TITLE", "Está seguro que desea cerrar este pedido?" } });
                 if (reasonResult == null)
                     return;
                 var reason = (Reason)reasonResult;
 
-                var cancelStatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 6);
-                await CustomerOrderService.CancelAsync(args.CustomerOrderId, cancelStatusDocumentType.StatusDocumentTypeId, reason);
+                var closeStatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 5);
+                await CustomerOrderService.CloseAsync(args.CustomerOrderId, closeStatusDocumentType.StatusDocumentTypeId, reason);
                 await GetCustomerOrdersAsync();
                 NotificationService.Notify(new NotificationMessage
                 {

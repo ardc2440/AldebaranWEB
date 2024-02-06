@@ -6,7 +6,7 @@ namespace Aldebaran.DataAccess.Entities
     {
         public void Configure(EntityTypeBuilder<CanceledOrderShipment> builder)
         {
-            builder.ToTable("CANCELED_ORDER_SHIPMENT", "dbo");
+            builder.ToTable("canceled_order_shipment", "dbo");
             builder.HasKey(x => x.CustomerOrderShipmentId).HasName("PK_CANCELED_CUSTOMER_ORDER_SHIPMENT").IsClustered();
             builder.Property(x => x.CustomerOrderShipmentId).HasColumnName(@"CUSTOMER_ORDER_SHIPMENT_ID").HasColumnType("int").IsRequired().ValueGeneratedNever();
             builder.Property(x => x.CancellationReasonId).HasColumnName(@"CANCELLATION_REASON_ID").HasColumnType("smallint").IsRequired();

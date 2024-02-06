@@ -6,7 +6,7 @@ namespace Aldebaran.DataAccess.Entities
     {
         public void Configure(EntityTypeBuilder<ClosedCustomerOrder> builder)
         {
-            builder.ToTable("CLOSED_CUSTOMER_ORDERS", "dbo");
+            builder.ToTable("closed_customer_orders", "dbo");
             builder.HasKey(x => x.ClosedCustomerOrderId).HasName("PK_CLOSED_CUSTOMER_ORDER").IsClustered();
             builder.Property(x => x.ClosedCustomerOrderId).HasColumnName(@"CLOSED_CUSTOMER_ORDER_ID").HasColumnType("int").IsRequired().ValueGeneratedOnAdd().UseIdentityColumn();
             builder.Property(x => x.CustomerOrderId).HasColumnName(@"CUSTOMER_ORDER_ID").HasColumnType("int").IsRequired();

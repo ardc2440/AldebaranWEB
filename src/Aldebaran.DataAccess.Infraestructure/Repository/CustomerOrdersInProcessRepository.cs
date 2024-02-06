@@ -1,4 +1,5 @@
 ﻿using Aldebaran.DataAccess.Entities;
+using Aldebaran.DataAccess.Infraestructure.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
@@ -129,5 +130,30 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .Include(i => i.StatusDocumentType)
                 .FirstOrDefaultAsync(i => i.CustomerOrderInProcessId == customerOrderInProcessId, ct);
         }
+
+        public async Task CancelAsync(int customerOrderInProcessId, short canceledStatusDocumentId, Reason reason, CancellationToken ct = default)
+        {
+            var entity = await _context.CustomerOrdersInProcesses.Include(i => i.CustomerOrderInProcessDetails).FirstOrDefaultAsync(x => x.CustomerOrderInProcessId == customerOrderInProcessId, ct) ?? throw new KeyNotFoundException($"Traslado con id {customerOrderInProcessId} no existe.");
+            entity.StatusDocumentTypeId = canceledStatusDocumentId;
+
+            var reasonEntity = new CanceledOrdersInProcess
+            {
+                CustomerOrderInProcessId = customerOrderInProcessId,
+                CancellationReasonId = reason.ReasonId,
+                EmployeeId = reason.EmployeeId,
+                CancellationDate = reason.Date
+            };
+            try
+            {
+                _context.CanceledOrdersInProcesses.Add(reasonEntity);
+                await _context.SaveChangesAsync(ct);
+            }
+            catch (Exception)
+            {
+                _context.Entry(entity).State = EntityState.Unchanged;
+                throw;
+            }
+        }
     }
+
 }

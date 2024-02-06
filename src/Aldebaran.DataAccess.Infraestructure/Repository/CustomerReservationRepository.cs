@@ -165,7 +165,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             var reasonEntity = new CanceledCustomerReservation
             {
                 CustomerReservationId = customerReservationId,
-                CancellationReasonId = reason.CancellationReasonId,
+                CancellationReasonId = reason.ReasonId,
                 EmployeeId = reason.EmployeeId,
                 CancellationDate = reason.Date
             };
