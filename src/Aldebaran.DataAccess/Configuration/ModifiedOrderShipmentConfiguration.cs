@@ -6,7 +6,7 @@ namespace Aldebaran.DataAccess.Entities
     {
         public void Configure(EntityTypeBuilder<ModifiedOrderShipment> builder)
         {
-            builder.ToTable("MODIFIED_ORDER_SHIPMENT", "dbo");
+            builder.ToTable("modified_order_shipment", "dbo");
             builder.HasKey(x => x.ModifiedCustomerShipmentId).HasName("PK_MODIFIED_CUSTOMER_ORDER_SHIPMENT").IsClustered();
             builder.Property(x => x.ModifiedCustomerShipmentId).HasColumnName(@"MODIFIED_CUSTOMER_SHIPMENT_ID").HasColumnType("int").IsRequired().ValueGeneratedOnAdd().UseIdentityColumn();
             builder.Property(x => x.CustomerOrderShipmentId).HasColumnName(@"CUSTOMER_ORDER_SHIPMENT_ID").HasColumnType("int").IsRequired();

@@ -2,6 +2,7 @@ using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Resources.LocalizedControls;
+using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
@@ -160,10 +161,13 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
                 if (!detailsInProcess.Any(x => x.THIS_QUANTITY > 0))
                     throw new Exception("No ha ingresado ninguna cantidad a despachar");
 
+                var reasonResult = await DialogService.OpenAsync<ModificationReasonDialog>("Confirmar modificación", new Dictionary<string, object> { { "DOCUMENT_TYPE_CODE", "D" }, { "TITLE", "Está seguro que desea actualizar este pedido?" } });
+                if (reasonResult == null)
+                    return;
+                var reason = (Reason)reasonResult;
+
                 customerOrderShipment.CustomerOrderShipmentDetails = await MapDetailsInProcess(detailsInProcess);
-
-                await CustomerOrderShipmentService.UpdateAsync(customerOrderShipment.CustomerOrderShipmentId, customerOrderShipment);
-
+                await CustomerOrderShipmentService.UpdateAsync(customerOrderShipment.CustomerOrderShipmentId, customerOrderShipment, reason);
                 NavigationManager.NavigateTo($"shipment-customer-orders/edit/{customerOrderShipment.CustomerOrderShipmentId}");
             }
             catch (Exception ex)

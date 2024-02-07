@@ -62,7 +62,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .ToListAsync(ct);
         }
 
-        public async Task UpdateAsync(int customerOrderShipmentId, CustomerOrderShipment customerOrderShipment, CancellationToken ct)
+        public async Task UpdateAsync(int customerOrderShipmentId, CustomerOrderShipment customerOrderShipment, Reason reason, CancellationToken ct)
         {
             var entity = await _context.CustomerOrderShipments.Include(i => i.CustomerOrderShipmentDetails).FirstOrDefaultAsync(x => x.CustomerOrderShipmentId == customerOrderShipmentId, ct) ?? throw new KeyNotFoundException($"Despacho de pedido con id {customerOrderShipmentId} no existe.");
 
@@ -102,13 +102,22 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     _context.CustomerOrderShipmentDetails.Remove(item);
             }
 
+            var reasonEntity = new ModifiedOrderShipment
+            {
+                CustomerOrderShipmentId = customerOrderShipmentId,
+                ModificationReasonId = reason.ReasonId,
+                EmployeeId = reason.EmployeeId,
+                ModificationDate = reason.Date
+            };
             try
             {
+                _context.ModifiedOrderShipments.Add(reasonEntity);
                 await _context.SaveChangesAsync(ct);
             }
             catch (Exception)
             {
                 _context.Entry(entity).State = EntityState.Unchanged;
+                _context.Entry(reasonEntity).State = EntityState.Unchanged;
                 throw;
             }
         }
@@ -143,6 +152,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             catch (Exception)
             {
                 _context.Entry(entity).State = EntityState.Unchanged;
+                _context.Entry(reasonEntity).State = EntityState.Unchanged;
                 throw;
             }
         }

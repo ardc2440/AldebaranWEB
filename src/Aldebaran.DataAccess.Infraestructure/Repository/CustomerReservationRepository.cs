@@ -146,9 +146,10 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 });
             }
 
+            ModifiedCustomerReservation? reasonEntity = null;
             if (reason != null)
             {
-                var reasonEntity = new ModifiedCustomerReservation
+                reasonEntity = new ModifiedCustomerReservation
                 {
                     CustomerReservationId = customerReservationId,
                     ModificationReasonId = reason.ReasonId,
@@ -164,6 +165,8 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             catch (Exception)
             {
                 _context.Entry(entity).State = EntityState.Unchanged;
+                if (reasonEntity != null)
+                    _context.Entry(reasonEntity).State = EntityState.Unchanged;
                 throw;
             }
         }
