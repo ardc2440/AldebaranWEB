@@ -118,7 +118,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                .ToListAsync(ct);
         }
 
-        public async Task UpdateAsync(int purchaseOrderId, PurchaseOrder purchaseOrder, CancellationToken ct = default)
+        public async Task UpdateAsync(int purchaseOrderId, PurchaseOrder purchaseOrder, Reason reason, CancellationToken ct = default)
         {
             var entity = await _context.PurchaseOrders
                 .FirstOrDefaultAsync(x => x.PurchaseOrderId == purchaseOrderId, ct) ?? throw new KeyNotFoundException($"Orden con id {purchaseOrderId} no existe.");
@@ -135,13 +135,23 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             var activities = await _context.PurchaseOrderActivities.Where(x => x.PurchaseOrderId == purchaseOrderId).ToListAsync(ct);
             _context.PurchaseOrderActivities.RemoveRange(activities);
             entity.PurchaseOrderActivities = purchaseOrder.PurchaseOrderActivities;
+
+            var reasonEntity = new ModifiedPurchaseOrder
+            {
+                PurchaseOrderId = purchaseOrderId,
+                ModificationReasonId = reason.ReasonId,
+                EmployeeId = reason.EmployeeId,
+                ModificationDate = reason.Date
+            };
             try
             {
+                _context.ModifiedPurchaseOrders.Add(reasonEntity);
                 await _context.SaveChangesAsync(ct);
             }
             catch
             {
                 _context.Entry(entity).State = EntityState.Unchanged;
+                _context.Entry(reasonEntity).State = EntityState.Unchanged;
                 throw;
             }
         }

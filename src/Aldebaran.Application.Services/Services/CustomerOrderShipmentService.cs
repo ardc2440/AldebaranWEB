@@ -28,10 +28,11 @@ namespace Aldebaran.Application.Services
             return _mapper.Map<IEnumerable<CustomerOrderShipment>>(data);
         }
 
-        public async Task UpdateAsync(int customerOrderShipmentId, CustomerOrderShipment customerOrderShipment, CancellationToken ct = default)
+        public async Task UpdateAsync(int customerOrderShipmentId, CustomerOrderShipment customerOrderShipment, Reason reason, CancellationToken ct = default)
         {
             var data = _mapper.Map<Entities.CustomerOrderShipment>(customerOrderShipment);
-            await _repository.UpdateAsync(customerOrderShipmentId, data, ct);
+            var mapReason = _mapper.Map<DataAccess.Infraestructure.Models.Reason>(reason);
+            await _repository.UpdateAsync(customerOrderShipmentId, data, mapReason, ct);
         }
 
         public async Task<CustomerOrderShipment?> FindAsync(int customerOrderShipmentId, CancellationToken ct = default)

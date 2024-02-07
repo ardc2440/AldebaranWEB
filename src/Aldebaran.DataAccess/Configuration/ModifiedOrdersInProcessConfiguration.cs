@@ -6,7 +6,7 @@ namespace Aldebaran.DataAccess.Entities
     {
         public void Configure(EntityTypeBuilder<ModifiedOrdersInProcess> builder)
         {
-            builder.ToTable("MODIFIED_ORDERS_IN_PROCESS", "dbo");
+            builder.ToTable("modified_orders_in_process", "dbo");
             builder.HasKey(x => x.ModifiedCustomerOrderInProcessId).HasName("PK_MODIFIED_CUSTOMER_ORDER_IN_PROCESS").IsClustered();
             builder.Property(x => x.ModifiedCustomerOrderInProcessId).HasColumnName(@"MODIFIED_CUSTOMER_ORDER_IN_PROCESS_ID").HasColumnType("int").IsRequired().ValueGeneratedOnAdd().UseIdentityColumn();
             builder.Property(x => x.CustomerOrderInProcessId).HasColumnName(@"CUSTOMER_ORDER_IN_PROCESS_ID").HasColumnType("int").IsRequired();

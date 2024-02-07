@@ -7,7 +7,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
     {
         Task<CustomerOrdersInProcess> AddAsync(CustomerOrdersInProcess customerOrdersInProcess, CancellationToken ct);
         Task<IEnumerable<CustomerOrdersInProcess>> GetByCustomerOrderIdAsync(int customerOrderId, CancellationToken ct);
-        Task UpdateAsync(int customerOrderInProcessId, CustomerOrdersInProcess customerOrdersInProcess, CancellationToken ct);
+        Task UpdateAsync(int customerOrderInProcessId, CustomerOrdersInProcess customerOrdersInProcess, Reason reason, CancellationToken ct);
         Task<CustomerOrdersInProcess?> FindAsync(int customerOrderInProcessId, CancellationToken ct = default);
         Task CancelAsync(int customerOrderInProcessId, short canceledStatusDocumentId, Reason reason, CancellationToken ct = default);
     }

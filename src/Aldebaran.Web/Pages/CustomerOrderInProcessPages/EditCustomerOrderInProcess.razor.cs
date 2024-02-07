@@ -2,6 +2,7 @@ using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Resources.LocalizedControls;
+using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
@@ -170,12 +171,16 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
             try
             {
                 IsSubmitInProgress = true;
-
                 if (!detailsInProcess.Any(x => x.THIS_QUANTITY > 0)) throw new Exception("No ha ingresado ninguna cantidad a trasladar");
 
-                customerOrderInProcess.CustomerOrderInProcessDetails = await MapDetailsInProcess(detailsInProcess);
+                var reasonResult = await DialogService.OpenAsync<ModificationReasonDialog>("Confirmar modificación", new Dictionary<string, object> { { "DOCUMENT_TYPE_CODE", "T" }, { "TITLE", "Está seguro que desea actualizar este pedido?" } });
+                if (reasonResult == null)
+                    return;
 
-                await CustomerOrdersInProcessService.UpdateAsync(customerOrderInProcess.CustomerOrderInProcessId, customerOrderInProcess);
+                var reason = (Reason)reasonResult;
+
+                customerOrderInProcess.CustomerOrderInProcessDetails = await MapDetailsInProcess(detailsInProcess);
+                await CustomerOrdersInProcessService.UpdateAsync(customerOrderInProcess.CustomerOrderInProcessId, customerOrderInProcess, reason);
 
                 NavigationManager.NavigateTo($"process-customer-orders/edit/{customerOrderInProcess.CustomerOrderInProcessId}");
             }

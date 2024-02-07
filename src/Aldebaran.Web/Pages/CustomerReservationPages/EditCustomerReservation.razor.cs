@@ -1,6 +1,7 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Resources.LocalizedControls;
+using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
@@ -83,9 +84,13 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                 if (!customerReservationDetails.Any())
                     throw new Exception("No ha ingresado ninguna referencia");
 
-                customerReservation.CustomerReservationDetails = customerReservationDetails;
+                var reasonResult = await DialogService.OpenAsync<ModificationReasonDialog>("Confirmar modificación", new Dictionary<string, object> { { "DOCUMENT_TYPE_CODE", "R" }, { "TITLE", "Está seguro que desea actualizar esta reserva?" } });
+                if (reasonResult == null)
+                    return;
+                var reason = (Reason)reasonResult;
 
-                await CustomerReservationService.UpdateAsync(customerReservation.CustomerReservationId, customerReservation);
+                customerReservation.CustomerReservationDetails = customerReservationDetails;
+                await CustomerReservationService.UpdateAsync(customerReservation.CustomerReservationId, customerReservation, reason);
 
                 NavigationManager.NavigateTo($"customer-reservations/edit/{customerReservation.CustomerReservationId}");
             }
@@ -102,7 +107,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             if (await DialogService.Confirm("Está seguro que desea cancelar la modificación de la Reserva?", "Confirmar") == true)
                 NavigationManager.NavigateTo("customer-reservations");
         }
-        
+
         protected async Task EditRow(CustomerReservationDetail args)
         {
             var result = await DialogService.OpenAsync<EditCustomerReservationDetail>("Actualizar referencia", new Dictionary<string, object> { { "CustomerReservationDetail", args } });

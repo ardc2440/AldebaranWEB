@@ -1,6 +1,7 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Resources.LocalizedControls;
+using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
@@ -107,14 +108,17 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             try
             {
                 Submitted = true;
-
                 IsSubmitInProgress = true;
-
                 if (!customerOrderDetails.Any())
                     throw new Exception("No ha ingresado ninguna referencia");
 
+                var reasonResult = await DialogService.OpenAsync<ModificationReasonDialog>("Confirmar modificación", new Dictionary<string, object> { { "DOCUMENT_TYPE_CODE", "P" }, { "TITLE", "Está seguro que desea actualizar este pedido?" } });
+                if (reasonResult == null)
+                    return;
+
+                var reason = (Reason)reasonResult;
                 customerOrder.CustomerOrderDetails = customerOrderDetails;
-                await CustomerOrderService.UpdateAsync(customerOrder.CustomerOrderId, customerOrder);
+                await CustomerOrderService.UpdateAsync(customerOrder.CustomerOrderId, customerOrder, reason);
 
                 NavigationManager.NavigateTo($"customer-orders/edit/{customerOrder.CustomerOrderId}");
             }
@@ -132,7 +136,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             if (await DialogService.Confirm("Está seguro que desea cancelar la modificación del pedido?", "Confirmar") == true)
                 NavigationManager.NavigateTo("customer-orders");
         }
-        
+
         protected async Task EditRow(CustomerOrderDetail args)
         {
             var result = await DialogService.OpenAsync<EditCustomerOrderDetail>("Actualizar referencia", new Dictionary<string, object> { { "CustomerOrderDetail", args } });

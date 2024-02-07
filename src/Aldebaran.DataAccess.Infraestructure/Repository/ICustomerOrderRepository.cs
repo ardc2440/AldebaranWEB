@@ -11,6 +11,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         Task<CustomerOrder?> FindAsync(int customerOrderId, CancellationToken ct = default);
         Task CancelAsync(int customerOrderId, short canceledStatusDocumentId, Reason reason, CancellationToken ct = default);
         Task CloseAsync(int customerOrderId, short closedStatusDocumentId, Reason reason, CancellationToken ct = default);
-        Task UpdateAsync(int customerOrderId, CustomerOrder customerOrder, CancellationToken ct = default);
+        Task UpdateAsync(int customerOrderId, CustomerOrder customerOrder, Reason reason, CancellationToken ct = default);
     }
 }

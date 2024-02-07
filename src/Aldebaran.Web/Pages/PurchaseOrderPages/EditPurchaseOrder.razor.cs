@@ -1,5 +1,7 @@
 using Aldebaran.Application.Services;
+using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Models.AldebaranDb;
+using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
@@ -103,6 +105,12 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 Submitted = true;
                 if (!PurchaseOrderDetails.Any())
                     return;
+
+                var reasonResult = await DialogService.OpenAsync<ModificationReasonDialog>("Confirmar modificación", new Dictionary<string, object> { { "DOCUMENT_TYPE_CODE", "O" }, { "TITLE", "Está seguro que desea actualizar esta orden de compra?" } });
+                if (reasonResult == null)
+                    return;
+
+                var reason = (Reason)reasonResult;
                 var now = DateTime.UtcNow;
                 // Complementar la orden compra
                 PurchaseOrder.PurchaseOrderDetails = PurchaseOrderDetails.Select(s => new ServiceModel.PurchaseOrderDetail
@@ -112,7 +120,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                     RequestedQuantity = s.RequestedQuantity,
                 }).ToList();
 
-                await PurchaseOrderService.UpdateAsync(PurchaseOrder.PurchaseOrderId, PurchaseOrder);
+                await PurchaseOrderService.UpdateAsync(PurchaseOrder.PurchaseOrderId, PurchaseOrder, reason);
                 NavigationManager.NavigateTo($"purchase-orders/edit/{PurchaseOrder.PurchaseOrderId}");
             }
             catch (Exception ex)

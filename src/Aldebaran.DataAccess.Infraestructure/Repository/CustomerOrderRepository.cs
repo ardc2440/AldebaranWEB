@@ -107,7 +107,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .FirstOrDefaultAsync(i => i.CustomerOrderId.Equals(customerOrderId), ct);
         }
 
-        public async Task UpdateAsync(int customerOrderId, CustomerOrder customerOrder, CancellationToken ct = default)
+        public async Task UpdateAsync(int customerOrderId, CustomerOrder customerOrder, Reason reason, CancellationToken ct = default)
         {
             var entity = await _context.CustomerOrders.Include(i => i.CustomerOrderDetails).FirstOrDefaultAsync(x => x.CustomerOrderId == customerOrderId, ct) ?? throw new KeyNotFoundException($"Pedido con id {customerOrderId} no existe.");
             entity.OrderDate = customerOrder.OrderDate;
@@ -148,13 +148,22 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 }
             }
 
+            var reasonEntity = new ModifiedCustomerOrder
+            {
+                CustomerOrderId = customerOrderId,
+                ModificationReasonId = reason.ReasonId,
+                EmployeeId = reason.EmployeeId,
+                ModificationDate = reason.Date
+            };
             try
             {
+                _context.ModifiedCustomerOrders.Add(reasonEntity);
                 await _context.SaveChangesAsync(ct);
             }
             catch (Exception)
             {
                 _context.Entry(entity).State = EntityState.Unchanged;
+                _context.Entry(reasonEntity).State = EntityState.Unchanged;
                 throw;
             }
         }
@@ -178,6 +187,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             catch (Exception)
             {
                 _context.Entry(entity).State = EntityState.Unchanged;
+                _context.Entry(reasonEntity).State = EntityState.Unchanged;
                 throw;
             }
         }
@@ -201,6 +211,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             catch (Exception)
             {
                 _context.Entry(entity).State = EntityState.Unchanged;
+                _context.Entry(reasonEntity).State = EntityState.Unchanged;
                 throw;
             }
         }
