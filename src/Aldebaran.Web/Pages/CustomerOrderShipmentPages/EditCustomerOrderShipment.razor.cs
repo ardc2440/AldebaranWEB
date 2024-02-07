@@ -161,7 +161,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
                 if (!detailsInProcess.Any(x => x.THIS_QUANTITY > 0))
                     throw new Exception("No ha ingresado ninguna cantidad a despachar");
 
-                var reasonResult = await DialogService.OpenAsync<ModificationReasonDialog>("Confirmar modificación", new Dictionary<string, object> { { "DOCUMENT_TYPE_CODE", "D" }, { "TITLE", "Está seguro que desea actualizar este pedido?" } });
+                var reasonResult = await DialogService.OpenAsync<ModificationReasonDialog>("Confirmar modificación", new Dictionary<string, object> { { "DOCUMENT_TYPE_CODE", "D" }, { "TITLE", "Está seguro que desea actualizar este despacho?" } });
                 if (reasonResult == null)
                     return;
                 var reason = (Reason)reasonResult;
