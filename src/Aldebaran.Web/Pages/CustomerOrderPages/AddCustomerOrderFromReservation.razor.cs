@@ -177,7 +177,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                     customerReservation.CustomerOrderId = customerOrder.CustomerOrderId;
                     customerReservation.StatusDocumentTypeId = (await StatusDocumentTypeService.FindByDocumentAndOrderAsync((await DocumentTypeService.FindByCodeAsync("R")).DocumentTypeId, 2)).StatusDocumentTypeId;
 
-                    await CustomerReservationService.UpdateAsync(customerReservation.CustomerReservationId, customerReservation);
+                    await CustomerReservationService.UpdateAsync(customerReservation.CustomerReservationId, customerReservation, null);
 
                     NavigationManager.NavigateTo($"customer-reservations/create-order/{customerReservation.CustomerReservationId}");
                 }
@@ -218,7 +218,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 Error = ex.Message;
             }
         }
-       
+
         protected async Task EditRow(CustomerOrderDetail args)
         {
             var result = await DialogService.OpenAsync<EditCustomerOrderDetail>("Actualizar referencia", new Dictionary<string, object> { { "CustomerOrderDetail", args } });

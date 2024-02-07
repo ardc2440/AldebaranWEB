@@ -104,7 +104,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .FirstOrDefaultAsync(i => i.CustomerReservationId == customerReservationId, ct);
         }
 
-        public async Task UpdateAsync(int customerReservationId, CustomerReservation customerReservation, CancellationToken ct = default)
+        public async Task UpdateAsync(int customerReservationId, CustomerReservation customerReservation, Reason? reason, CancellationToken ct = default)
         {
             var entity = await _context.CustomerReservations.Include(i => i.CustomerReservationDetails).FirstOrDefaultAsync(x => x.CustomerReservationId == customerReservationId, ct) ?? throw new KeyNotFoundException($"Reserva con id {customerReservationId} no existe.");
             entity.ExpirationDate = customerReservation.ExpirationDate;
@@ -146,6 +146,17 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 });
             }
 
+            if (reason != null)
+            {
+                var reasonEntity = new ModifiedCustomerReservation
+                {
+                    CustomerReservationId = customerReservationId,
+                    ModificationReasonId = reason.ReasonId,
+                    EmployeeId = reason.EmployeeId,
+                    ModificationDate = reason.Date
+                };
+                _context.ModifiedCustomerReservations.Add(reasonEntity);
+            }
             try
             {
                 await _context.SaveChangesAsync(ct);
@@ -177,6 +188,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             catch (Exception)
             {
                 _context.Entry(entity).State = EntityState.Unchanged;
+                _context.Entry(reasonEntity).State = EntityState.Unchanged;
                 throw;
             }
         }
