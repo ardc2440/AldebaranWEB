@@ -53,10 +53,11 @@ namespace Aldebaran.Application.Services
             return _mapper.Map<List<PurchaseOrder>>(data);
         }
 
-        public async Task UpdateAsync(int purchaseOrderId, PurchaseOrder purchaseOrder, CancellationToken ct = default)
+        public async Task UpdateAsync(int purchaseOrderId, PurchaseOrder purchaseOrder, Reason reason, CancellationToken ct = default)
         {
             var entity = _mapper.Map<Entities.PurchaseOrder>(purchaseOrder) ?? throw new ArgumentNullException("Orden no puede ser nula.");
-            await _repository.UpdateAsync(purchaseOrderId, entity, ct);
+            var mapReason = _mapper.Map<DataAccess.Infraestructure.Models.Reason>(reason);
+            await _repository.UpdateAsync(purchaseOrderId, entity, mapReason, ct);
         }
     }
 }

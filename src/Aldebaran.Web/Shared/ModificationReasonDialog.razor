@@ -1,25 +1,25 @@
 ﻿@using ServiceModel = Aldebaran.Application.Services.Models;
 
 <RadzenStack Gap="1rem">
-    @if (!CancellationReasons.Any())
+    @if (!ModificationReasons.Any())
     {
-        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="IsErrorVisible" >
-            Motivos de cancelación no encontrados!!!
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="IsErrorVisible">
+            Motivos de modificación no encontrados!!!
         </RadzenAlert>
     }
-    <RadzenTemplateForm TItem="ServiceModel.CancellationReason" Data="@CancellationReason" Visible="@CancellationReasons.Any()" Submit="@FormSubmit" InvalidSubmit="()=>Submitted=true">
+    <RadzenTemplateForm TItem="ServiceModel.ModificationReason" Data="@ModificationReason" Visible="@ModificationReasons.Any()" Submit="@FormSubmit" InvalidSubmit="()=>Submitted=true">
         <div class="component-section d-flex flex-column justify-content-start">
             <span>@TITLE</span>
         </div>
         <RadzenRow AlignItems="AlignItems.Center" class="my-4">
-            <RadzenFormField Text="Motivo de cancelación" Variant="Variant.Text" Style="width: 100%;">
+            <RadzenFormField Text="Motivo de modificación" Variant="Variant.Text" Style="width: 100%;">
                 <ChildContent>
-                    <RadzenDropDown Data="@CancellationReasons" TextProperty="CancellationReasonName" ValueProperty="CancellationReasonId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                    style="display: block; width: 100%" @bind-Value="@CancellationReason.CancellationReasonId" Name="CancellationReasonName">
+                    <RadzenDropDown Data="@ModificationReasons" TextProperty="ModificationReasonName" ValueProperty="ModificationReasonId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    style="display: block; width: 100%" @bind-Value="@ModificationReason.ModificationReasonId" Name="ModificationReasonName">
                     </RadzenDropDown>
                 </ChildContent>
                 <Helper>
-                    <RadzenNumericRangeValidator Component="CancellationReasonName" Min="1" Text="Motivo de cancelación es requerido" />
+                    <RadzenNumericRangeValidator Component="ModificationReasonName" Min="1" Text="Motivo de modificación es requerido" />
                 </Helper>
             </RadzenFormField>
         </RadzenRow>
