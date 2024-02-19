@@ -14,6 +14,7 @@ namespace Aldebaran.DataAccess.Entities
             // Foreign keys
             builder.HasOne(a => a.ItemReference).WithMany(b => b.ReferencesWarehouses).HasForeignKey(c => c.ReferenceId).OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_ITEM_ITEM_WAREHOUSE_ITEM_REFERENCE");
             builder.HasOne(a => a.Warehouse).WithMany(b => b.ReferencesWarehouses).HasForeignKey(c => c.WarehouseId).OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_ITEM_WAREHOUSE_WAREHOUSE");
+            builder.ToTable(tb => tb.HasTrigger("TRGINSERTREXISTENCIAS"));
         }
     }
 }

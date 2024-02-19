@@ -29,6 +29,8 @@ namespace Aldebaran.DataAccess.Entities
             builder.HasIndex(x => x.ReferenceName).HasDatabaseName("IND_REFERENCES_REFERENCE_NAME");
             builder.HasIndex(x => new { x.ItemId, x.ReferenceCode }).HasDatabaseName("UQ_REFERENCE_CODE").IsUnique();
             builder.HasIndex(x => new { x.ItemId, x.ReferenceName }).HasDatabaseName("UQ_REFERENCE_NAME").IsUnique();
+            builder.ToTable(tb => tb.HasTrigger("TRGINSERTRITEMSXCOLOR"));
+            builder.ToTable(tb => tb.HasTrigger("TRGINSERTREFERENCESWAREHOUSE")); 
         }
     }
 }
