@@ -58,6 +58,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .Include(i => i.Employee)
                 .Include(i => i.StatusDocumentType)
                 .Include(i => i.ShippingMethod)
+                .Include(i => i.CustomerOrderShipmentDetails)
                 .Where(i => i.CustomerOrderId == customerOrderId)
                 .ToListAsync(ct);
         }

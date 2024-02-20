@@ -5,12 +5,11 @@
 @using Aldebaran.Web.Resources.LocalizedControls;
 @inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer ;
 
-<PageTitle>Pedido de Artículos</PageTitle>
+<PageTitle>Traslado de artículos a proceso</PageTitle>
 <RadzenStack>
     <RadzenRow AlignItems="AlignItems.Center">
         <RadzenColumn Size="12" SizeMD="6">
             <RadzenText Text="Traslado de artículos a proceso" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
-            <hr />
         </RadzenColumn>
         <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">
             @Error

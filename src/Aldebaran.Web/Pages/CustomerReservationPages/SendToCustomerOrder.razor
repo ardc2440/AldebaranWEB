@@ -4,7 +4,7 @@
 @using Aldebaran.Web.Resources.LocalizedControls;
 @inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer
 
-<PageTitle>Convertir Reserva en Pedido</PageTitle>
+<PageTitle>Convertir reserva en Pedido</PageTitle>
 <RadzenCard>
     <RadzenStack>
         <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerReservation" Data="@customerReservation" Visible="@(customerReservation != null)" Submit="@FormSubmit" InvalidSubmit="()=>Submitted=true">
@@ -20,62 +20,61 @@
             <RadzenRow AlignItems="AlignItems.Start" Gap="2rem">
                 <RadzenColumn SizeMD="6">
                     <RadzenStack>
-                        <RadzenRow AlignItems="AlignItems.Start" Gap="2rem">
-                            <RadzenColumn SizeMD="1" />
+                        <RadzenRow AlignItems="AlignItems.Start" Gap="2rem" class="m-3">
                             <RadzenColumn SizeMD="6">
                                 <RadzenStack>
-                                    <RadzenColumn SizeMD="3">
-                                        <RadzenLabel Text="Cliente" class="text-primary-color" Style="font-size: 16px;" />
-                                    </RadzenColumn>
-                                    <RadzenColumn SizeMD="3">
-                                        <RadzenRow>
-                                            <span>@customerReservation.Customer.CustomerName</span>
-                                        </RadzenRow>
-                                        <RadzenRow>
-                                            <span>@customerReservation.Customer.CustomerAddress</span>
-                                        </RadzenRow>
-                                        <RadzenRow>
+                                    <div class="flex-shrink-0">
+                                        <div class="text-primary-color" style="font-size: 16px">
+                                            <RadzenLabel Text="Cliente: " Style="font-weight: bold" />
+                                            <RadzenLabel Text="@customerReservation.Customer.CustomerName" />
+                                        </div>
+                                        <div class="text-secondary-color">
+                                            <RadzenLabel Text="Teléfono: " />
                                             <span>@customerReservation.Customer.Phone1</span>
-                                        </RadzenRow>
-                                        <RadzenRow>
+                                        </div>
+                                        <div class="text-secondary-color">
+                                            <RadzenLabel Text="Correo: " />
                                             <span>@customerReservation.Customer.Email1</span>
-                                        </RadzenRow>
-                                        <RadzenRow>
-                                            <span>@customerReservation.Customer.CustomerAddress, (@customerReservation.Customer.City.Department.Country.CountryCode) @customerReservation.Customer.City.Department.DepartmentName - @customerReservation.Customer.City.CityName </span>
-                                        </RadzenRow>
-                                    </RadzenColumn>
+                                        </div>
+                                        <div class="text-secondary-color">
+                                            <RadzenLabel Text="Dirección: " />
+                                            <span>@customerReservation.Customer.CustomerAddress</span>
+                                        </div>
+                                        <div class="text-secondary-color">
+                                            <span>(@customerReservation.Customer.City.Department.Country.CountryCode) @customerReservation.Customer.City.Department.DepartmentName - @customerReservation.Customer.City.CityName </span>
+                                        </div>
+                                    </div>
                                 </RadzenStack>
                             </RadzenColumn>
-                            <RadzenColumn SizeMD="5">
-                                <RadzenStack>
-                                    <RadzenColumn SizeMD="3">
-                                        <RadzenLabel Text="Fecha de reserva:" class="text-primary-color" Style="font-size: 16px;" />
-                                    </RadzenColumn>
-                                    <RadzenColumn SizeMD="3">
+                            <RadzenColumn SizeMD="6">
+                                <div class="flex-shrink-0">
+                                    <div class="text-primary-color" style="font-size: 16px">
+                                        <RadzenLabel Text="Fecha de reserva:" />
+                                    </div>
+                                    <div class="text-secondary-color">
                                         <span>@customerReservation.ReservationDate.ToString(@SharedLocalizer["date:format"]) </span>
-                                    </RadzenColumn>
-                                    <RadzenColumn SizeMD="3">
-                                        <RadzenLabel Text="Fecha de expiración:" class="text-primary-color" Style="font-size: 16px;" />
-                                    </RadzenColumn>
-                                    <RadzenColumn SizeMD="3">
+                                    </div>
+                                    <div class="text-primary-color" style="font-size: 16px">
+                                        <RadzenLabel Text="Fecha de expiración:" />
+                                    </div>
+                                    <div class="text-secondary-color">
                                         <span>@customerReservation.ExpirationDate.ToString(@SharedLocalizer["date:format"])</span>
-                                    </RadzenColumn>
-                                </RadzenStack>
+                                    </div>
+                                </div>
                             </RadzenColumn>
                         </RadzenRow>
-                        <RadzenRow />
-                        <RadzenFormField Text="Notas" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
-                            <ChildContent>
-                                <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerReservation.Notes" Name="NOTES" ReadOnly="true" Rows="3" />
-                            </ChildContent>
-                        </RadzenFormField>
+                        <RadzenRow AlignItems="AlignItems.Start" Gap="2rem" class="m-3">
+                            <RadzenFormField Text="Notas" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
+                                <ChildContent>
+                                    <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerReservation.Notes" Name="NOTES" ReadOnly="true" Rows="3" />
+                                </ChildContent>
+                            </RadzenFormField>
+                        </RadzenRow>
                     </RadzenStack>
                 </RadzenColumn>
                 <RadzenColumn Size="6">
+                    <RadzenText Text="Referencias" TextStyle="TextStyle.H5" TagName="TagName.H1"   />
                     <RadzenStack>
-                        <RadzenRow Gap="0" AlignItems="AlignItems.Start">
-                            <RadzenLabel Text="Referencias" class="fw-bold" style="width: 100%" />
-                        </RadzenRow>
                         <LocalizedDataGrid @ref="customerReservationDetailGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                            Data="@customerReservationDetails" TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail">
                             <Columns>
