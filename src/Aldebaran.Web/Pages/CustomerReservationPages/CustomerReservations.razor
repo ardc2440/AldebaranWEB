@@ -41,7 +41,7 @@
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservation" Property="Notes" Title="Notas" Visible="false">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservation" Filterable="false" Sortable="false" Width="130px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservation" Filterable="false" Sortable="false" Width="164px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                         <Template Context="customerReservation">
                             <RadzenButton Icon="assignment_turned_in" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
                                           Click="@(args => SendToCustomerOrder(customerReservation))" @onclick:stopPropagation="true"
@@ -54,6 +54,8 @@
                             <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
                                           Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@CanEdit(customerReservation).Result"
                                           Click=@(args => CancelCustomerReservation(args, customerReservation)) @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Cancelar", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                            <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="file_download" Size="ButtonSize.Medium"
+                                          Shade="Shade.Lighter" Variant="Variant.Flat" Click="@(args => DownloadAsync(args, customerReservation))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Descargar", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
                         </Template>
                     </RadzenDataGridColumn>
                 </Columns>

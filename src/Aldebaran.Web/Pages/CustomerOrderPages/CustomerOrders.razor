@@ -43,7 +43,7 @@
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="InternalNotes" Title="Notas internas" Visible="false">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Filterable="false" Sortable="false" Width="110px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Filterable="false" Sortable="false" Width="164px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                         <Template Context="customerOrder">
                             <RadzenButton Icon="done_all" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
                                           Click="@(args => CloseCustomerOrder(customerOrder))" @onclick:stopPropagation="true"

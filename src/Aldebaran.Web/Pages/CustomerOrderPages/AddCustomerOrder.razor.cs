@@ -108,7 +108,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
                 if (!customerOrderDetails.Any())
                     throw new Exception("No ha ingresado ninguna referencia");
-                if (await DialogService.Confirm("Está seguro que desea crear este pedido de artículos??", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar creación") == true)
+                if (await DialogService.Confirm("Está seguro que desea crear este pedido de artículos?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar creación") == true)
                 {
                     customerOrder.CustomerOrderDetails = customerOrderDetails;
                     customerOrder = await CustomerOrderService.AddAsync(customerOrder);

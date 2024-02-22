@@ -7,19 +7,16 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using Radzen;
 
-namespace Aldebaran.Web.Pages.CustomerOrderPages
+namespace Aldebaran.Web.Pages.CustomerReservationPages
 {
-    public partial class CustomerOrderSummary
+    public partial class CustomerReservationSummary
     {
         #region Injections
         [Inject]
-        protected ICustomerOrderService CustomerOrderService { get; set; }
+        protected ICustomerReservationService CustomerReservationService { get; set; }
 
         [Inject]
-        protected ICustomerOrderShipmentService CustomerOrderShipmentService { get; set; }
-
-        [Inject]
-        protected ICustomerOrderDetailService CustomerOrderDetailService { get; set; }
+        protected ICustomerReservationDetailService CustomerReservationDetailService { get; set; }
 
         [Inject]
         protected IPdfService PdfService { get; set; }
@@ -45,18 +42,16 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         #endregion
 
         #region Variables
-        protected CustomerOrder CustomerOrder;
-        protected IEnumerable<CustomerOrderDetail> CustomerOrderDetails;
-        protected IEnumerable<CustomerOrderShipment> CustomerOrderShipments;
+        protected CustomerReservation CustomerReservation;
+        protected IEnumerable<CustomerReservationDetail> CustomerReservationDetails;
         private bool IsBusy = false;
         #endregion
 
         #region Override
         protected override async Task OnInitializedAsync()
         {
-            CustomerOrder = await CustomerOrderService.FindAsync(Id);
-            CustomerOrderDetails = await CustomerOrderDetailService.GetByCustomerOrderIdAsync(Id);
-            CustomerOrderShipments = await CustomerOrderShipmentService.GetByCustomerOrderIdAsync(Id);
+            CustomerReservation = await CustomerReservationService.FindAsync(Id);
+            CustomerReservationDetails = await CustomerReservationDetailService.GetByCustomerReservationIdAsync(Id);
         }
         #endregion
 
@@ -65,9 +60,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         async Task Download(MouseEventArgs args)
         {
             IsBusy = true;
-            var html = await JSRuntime.InvokeAsync<string>("getContent", "customer-order-summary");
+            var html = await JSRuntime.InvokeAsync<string>("getContent", "customer-reservation-summary");
             var pdfBytes = await PdfService.GetBytes(html);
-            await JSRuntime.InvokeVoidAsync("downloadFile", "Pedidos.pdf", "application/pdf", Convert.ToBase64String(pdfBytes));
+            await JSRuntime.InvokeVoidAsync("downloadFile", "Reserva.pdf", "application/pdf", Convert.ToBase64String(pdfBytes));
             IsBusy = false;
         }
         #endregion
@@ -75,10 +70,10 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         async Task Notify(MouseEventArgs args)
         {
             IsBusy = true;
-            var html = await JSRuntime.InvokeAsync<string>("getContent", "customer-order-summary");
+            var html = await JSRuntime.InvokeAsync<string>("getContent", "customer-reservation-summary");
             var pdfBytes = await PdfService.GetBytes(html);
             string pdfBase64 = Convert.ToBase64String(pdfBytes);
-            string[] emails = { CustomerOrder.Customer.Email1, CustomerOrder.Customer.Email2, CustomerOrder.Customer.Email3 };
+            string[] emails = { CustomerReservation.Customer.Email1, CustomerReservation.Customer.Email2, CustomerReservation.Customer.Email3 };
 
             var message = new MessageModel
             {
@@ -96,7 +91,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                         new MessageModel.EnvelopeBody.MediaContent
                         {
                             ContentType = "application/pdf",
-                            FileName="Pedidos.pdf",
+                            FileName="Reserva.pdf",
                             Hash= pdfBase64
                         }
                     }
@@ -112,18 +107,6 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             DialogService.Close(false);
         }
         #endregion
-        static string GetOrderStatus(CustomerOrderDetail detail)
-        {
-            if (detail.DeliveredQuantity == 0 && detail.ProcessedQuantity == 0)
-                return "Pendiente";
-            if (detail.ProcessedQuantity > 0)
-                return "En proceso";
-            if (detail.DeliveredQuantity < detail.RequestedQuantity)
-                return "Parcialmente atentido";
-            if (detail.DeliveredQuantity == detail.RequestedQuantity && detail.ProcessedQuantity == 0)
-                return "Totalmente atentido";
-            return null;
-        }
         #endregion
     }
 }
