@@ -36,6 +36,7 @@ namespace Aldebaran.DataAccess.Entities
             builder.HasIndex(x => x.ItemName).HasDatabaseName("IND_ITEMS_NAME");
             builder.HasIndex(x => x.InternalReference).HasDatabaseName("UQ_INTERNAL_REF").IsUnique();
             builder.HasIndex(x => x.ItemName).HasDatabaseName("UQ_ITEM_NAME").IsUnique();
+            builder.ToTable(tb => tb.HasTrigger("TRGINSERTRITEMS"));
         }
     }
 }

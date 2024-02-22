@@ -173,7 +173,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                 IsSubmitInProgress = true;
                 if (!detailsInProcess.Any(x => x.THIS_QUANTITY > 0)) throw new Exception("No ha ingresado ninguna cantidad a trasladar");
 
-                var reasonResult = await DialogService.OpenAsync<ModificationReasonDialog>("Confirmar modificación", new Dictionary<string, object> { { "DOCUMENT_TYPE_CODE", "T" }, { "TITLE", "Está seguro que desea actualizar este pedido?" } });
+                var reasonResult = await DialogService.OpenAsync<ModificationReasonDialog>("Confirmar modificación", new Dictionary<string, object> { { "DOCUMENT_TYPE_CODE", "T" }, { "TITLE", "Está seguro que desea actualizar este traslado?" } });
                 if (reasonResult == null)
                     return;
 

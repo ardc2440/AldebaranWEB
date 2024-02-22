@@ -17,6 +17,7 @@ namespace Aldebaran.DataAccess.Entities
             builder.Property(x => x.Quantity).HasColumnName(@"QUANTITY").HasColumnType("int").IsRequired(false);
             // Foreign keys
             builder.HasOne(a => a.Item).WithMany(b => b.Packagings).HasForeignKey(c => c.ItemId).OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_PACKAGING_ITEMS");
+            builder.ToTable(tb => tb.HasTrigger("TRGINSERTREMBALAJES"));
         }
     }
 }

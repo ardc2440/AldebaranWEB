@@ -15,6 +15,7 @@ namespace Aldebaran.DataAccess.Entities
             builder.Property(x => x.IsActive).HasColumnName(@"IS_ACTIVE").HasColumnType("bit").IsRequired();
             builder.HasIndex(x => x.LineCode).HasDatabaseName("UQ_LINE_CODE").IsUnique();
             builder.HasIndex(x => x.LineName).HasDatabaseName("UQ_LINE_NAME").IsUnique();
+            builder.ToTable(tb => tb.HasTrigger("TRGINSERTRLINEAS"));            
         }
     }
 }

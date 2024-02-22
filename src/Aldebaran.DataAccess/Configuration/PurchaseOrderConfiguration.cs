@@ -32,6 +32,7 @@ namespace Aldebaran.DataAccess.Entities
             builder.HasIndex(x => x.RequestDate).HasDatabaseName("IND_PURCHASE_ORDERS_REQUEST_DATE");
             builder.HasIndex(x => x.StatusDocumentTypeId).HasDatabaseName("IND_PURCHASE_ORDERS_STATUS_DOCUMENT");
             builder.HasIndex(x => x.OrderNumber).HasDatabaseName("UQ_PURCHASE_ORDER_ORDER_NUMBER").IsUnique();
+            builder.ToTable(tb => tb.HasTrigger("TRGINSERTSTRANSITO_ORDERS"));
         }
     }
 }

@@ -20,6 +20,7 @@ namespace Aldebaran.DataAccess.Entities
             builder.HasOne(a => a.Employee).WithMany(b => b.PurchaseOrderActivities_EmployeeId).HasForeignKey(c => c.EmployeeId).OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_PURCHASE_ORDER_ACTIVITY_EMPLOYEE");
             builder.HasOne(a => a.PurchaseOrder).WithMany(b => b.PurchaseOrderActivities).HasForeignKey(c => c.PurchaseOrderId).OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_PURCHASE_ORDER_ACTIVITY_PURCHASE_ORDER");
             builder.HasIndex(x => new { x.PurchaseOrderId, x.PurchaseOrderActivityId, x.ExecutionDate }).HasDatabaseName("IND_PURCHASE_ORDERS_ACTIVITIIES_EXECUTION_DATE");
+            builder.ToTable(tb => tb.HasTrigger("TRGINSERTSTRANSITO_ACTIVITIES"));
         }
     }
 }

@@ -11,6 +11,7 @@ namespace Aldebaran.DataAccess.Entities
             builder.Property(x => x.CurrencyId).HasColumnName(@"CURRENCY_ID").HasColumnType("smallint").IsRequired().ValueGeneratedOnAdd().UseIdentityColumn();
             builder.Property(x => x.CurrencyName).HasColumnName(@"CURRENCY_NAME").HasColumnType("varchar(30)").IsRequired().IsUnicode(false).HasMaxLength(30);
             builder.HasIndex(x => x.CurrencyName).HasDatabaseName("UQ_MONEDAS_NOMBRE").IsUnique();
+            builder.ToTable(tb => tb.HasTrigger("TRGINSERTRMONEDAS"));
         }
     }
 }
