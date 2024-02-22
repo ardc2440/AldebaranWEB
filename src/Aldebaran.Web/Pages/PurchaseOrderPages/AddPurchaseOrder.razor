@@ -71,48 +71,46 @@
                     </RadzenStack>
                 </RadzenColumn>
                 <RadzenColumn Size="6">
+                    <RadzenText Text="Referencias" TextStyle="TextStyle.H5" TagName="TagName.H1"   />
                     <RadzenStack>
-                        <RadzenText Text="Referencias" TextStyle="TextStyle.H5" TagName="TagName.H1"   />
-                        <RadzenStack>
-                            <RadzenRow Gap="0" AlignItems="AlignItems.Center">
-                                <RadzenColumn Size="12">
-                                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
-                                        <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddPurchaseOrderDetail" Disabled="PurchaseOrder.ProviderId==0" />
-                                    </RadzenStack>
-                                    <RadzenRequiredValidator Component="ProviderId" Text="Es requerido seleccionar un proveedor para adicionar detalles a la orden de compra." DefaultValue="0"></RadzenRequiredValidator>
-                                </RadzenColumn>
-                            </RadzenRow>
-                            <LocalizedDataGrid @ref="PurchaseOrderDetailGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                               Data="@PurchaseOrderDetails" TItem="ServiceModel.PurchaseOrderDetail" AllowColumnResize="true" AllowMultiColumnSorting="true" AllowColumnReorder="true">
-                                <Columns>
-                                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Property="RequestedQuantity" Title="Cantidad solicitada" />
-                                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Title="Referencia">
-                                        <Template Context="detail">
-                                            <RadzenLabel MouseEnter="@(args => ShowTooltip(args,GetReferenceHint(@detail.ItemReference).Result, new TooltipOptions(){ Position = TooltipPosition.Left }))">
-                                                (@detail.ItemReference.Item.Line.LineName) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName
-                                            </RadzenLabel>
-                                        </Template>
-                                    </RadzenDataGridColumn>
-                                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Property="Warehouse.WarehouseName" Title="Bodega">
-                                    </RadzenDataGridColumn>
-                                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
-                                        <Template Context="detail">
-                                            <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="edit" Size="ButtonSize.Medium"
-                                                          Shade="Shade.Lighter" Variant="Variant.Flat"
-                                                          Click=@(args => EditPurchaseOrderDetail(args, detail)) @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Actualizar", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
-                                            <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
-                                                          Shade="Shade.Lighter" Variant="Variant.Flat"
-                                                          Click=@(args => DeletePurchaseOrderDetail(args, detail)) @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Eliminar", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
-                                        </Template>
-                                    </RadzenDataGridColumn>
-                                </Columns>
-                            </LocalizedDataGrid>
-                        </RadzenStack>
-                        @if (!PurchaseOrderDetails.Any() && Submitted)
-                        {
-                            <div class="rz-message rz-messages-error">Es requerido ingresar al menos una referencia.</div>
-                        }
+                        <RadzenRow Gap="0" AlignItems="AlignItems.Center">
+                            <RadzenColumn Size="12">
+                                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
+                                    <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddPurchaseOrderDetail" Disabled="PurchaseOrder.ProviderId==0" />
+                                </RadzenStack>
+                                <RadzenRequiredValidator Component="ProviderId" Text="Es requerido seleccionar un proveedor para adicionar detalles a la orden de compra." DefaultValue="0"></RadzenRequiredValidator>
+                            </RadzenColumn>
+                        </RadzenRow>
+                        <LocalizedDataGrid @ref="PurchaseOrderDetailGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                           Data="@PurchaseOrderDetails" TItem="ServiceModel.PurchaseOrderDetail" AllowColumnResize="true" AllowMultiColumnSorting="true" AllowColumnReorder="true">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Property="RequestedQuantity" Title="Cantidad solicitada" />
+                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Title="Referencia">
+                                    <Template Context="detail">
+                                        <RadzenLabel MouseEnter="@(args => ShowTooltip(args,GetReferenceHint(@detail.ItemReference).Result, new TooltipOptions(){ Position = TooltipPosition.Left }))">
+                                            (@detail.ItemReference.Item.Line.LineName) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName
+                                        </RadzenLabel>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Property="Warehouse.WarehouseName" Title="Bodega">
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                                    <Template Context="detail">
+                                        <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="edit" Size="ButtonSize.Medium"
+                                                      Shade="Shade.Lighter" Variant="Variant.Flat"
+                                                      Click=@(args => EditPurchaseOrderDetail(args, detail)) @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Actualizar", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
+                                                      Shade="Shade.Lighter" Variant="Variant.Flat"
+                                                      Click=@(args => DeletePurchaseOrderDetail(args, detail)) @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Eliminar", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                                    </Template>
+                                </RadzenDataGridColumn>
+                            </Columns>
+                        </LocalizedDataGrid>
                     </RadzenStack>
+                    @if (!PurchaseOrderDetails.Any() && Submitted)
+                    {
+                        <div class="rz-message rz-messages-error">Es requerido ingresar al menos una referencia.</div>
+                    }
                 </RadzenColumn>
             </RadzenRow>
 

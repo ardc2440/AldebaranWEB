@@ -115,11 +115,11 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 var reasonResult = await DialogService.OpenAsync<ModificationReasonDialog>("Confirmar modificación", new Dictionary<string, object> { { "DOCUMENT_TYPE_CODE", "P" }, { "TITLE", "Está seguro que desea actualizar este pedido?" } });
                 if (reasonResult == null)
                     return;
-
                 var reason = (Reason)reasonResult;
                 customerOrder.CustomerOrderDetails = customerOrderDetails;
                 await CustomerOrderService.UpdateAsync(customerOrder.CustomerOrderId, customerOrder, reason);
 
+                var result = await DialogService.OpenAsync<CustomerOrderSummary>(null, new Dictionary<string, object> { { "Id", customerOrder.CustomerOrderId }, { "NotificationTemplateName", "Customer:PurchaseOrder:Update" } }, options: new DialogOptions { ShowTitle = false, ShowClose = false, CloseDialogOnEsc = false, CloseDialogOnOverlayClick = false, Width = "800px" });
                 NavigationManager.NavigateTo($"customer-orders/edit/{customerOrder.CustomerOrderId}");
             }
             catch (Exception ex)

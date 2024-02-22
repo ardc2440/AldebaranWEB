@@ -108,13 +108,14 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
                 if (!customerOrderDetails.Any())
                     throw new Exception("No ha ingresado ninguna referencia");
+                if (await DialogService.Confirm("Está seguro que desea crear este pedido de artículos?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar creación") == true)
+                {
+                    customerOrder.CustomerOrderDetails = customerOrderDetails;
+                    customerOrder = await CustomerOrderService.AddAsync(customerOrder);
 
-                customerOrder.CustomerOrderDetails = customerOrderDetails;
-
-                customerOrder = await CustomerOrderService.AddAsync(customerOrder);
-
-                NavigationManager.NavigateTo($"customer-orders/{customerOrder.CustomerOrderId}");
-
+                    var result = await DialogService.OpenAsync<CustomerOrderSummary>(null, new Dictionary<string, object> { { "Id", customerOrder.CustomerOrderId }, { "NotificationTemplateName", "Customer:PurchaseOrder:New" } }, options: new DialogOptions { ShowTitle = false, ShowClose = false, CloseDialogOnEsc = false, CloseDialogOnOverlayClick = false, Width = "800px" });
+                    NavigationManager.NavigateTo($"customer-orders/{customerOrder.CustomerOrderId}");
+                }
             }
             catch (Exception ex)
             {

@@ -4,7 +4,7 @@
 @using Aldebaran.Web.Resources.LocalizedControls;
 @inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer
 
-<PageTitle>Nueva Reserva de Articulos</PageTitle>
+<PageTitle>Nueva reserva de artículos</PageTitle>
 <RadzenCard>
     <RadzenStack>
         <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerReservation" Data="@customerReservation" Visible="@(customerReservation != null)" Submit="@FormSubmit" InvalidSubmit="()=>Submitted=true">

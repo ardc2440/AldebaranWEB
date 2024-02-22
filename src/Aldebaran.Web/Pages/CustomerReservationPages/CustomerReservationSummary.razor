@@ -1,0 +1,91 @@
+﻿@inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer
+
+<RadzenStack>
+    <RadzenRow AlignItems="AlignItems.Start">
+        <RadzenColumn Size="8">
+            @if (CustomerReservation != null)
+            {
+                <RadzenCard style="max-height:350px; overflow-y:auto">
+                    <div id="customer-reservation-summary">
+                        <div class="report">
+                            <h2>Reserva</h2>
+                            <table class="border-top">
+                                <tbody>
+                                    <tr>
+                                        <td colspan="2">Cliente: @CustomerReservation.Customer.CustomerName</td>
+                                        <td>Tel: @CustomerReservation.Customer.Phone1</td>
+                                        <td>Fax: @CustomerReservation.Customer.Fax</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2">
+                                            Dirección: @CustomerReservation.Customer.CustomerAddress <br />
+                                            (@CustomerReservation.Customer.City.Department.Country.CountryCode) @CustomerReservation.Customer.City.Department.DepartmentName - @CustomerReservation.Customer.City.CityName
+                                        </td>
+                                        <td colspan="2">
+                                            @CustomerReservation.Customer.IdentityType.IdentityTypeCode: @CustomerReservation.Customer.IdentityNumber
+                                        </td>
+                                    </tr>
+                                    <tr class="border border-bottom-0 emphasys">
+                                        <td colspan="2">Reserva: @CustomerReservation.ReservationNumber</td>
+                                        <td colspan="2">Fecha de creación: @CustomerReservation.CreationDate.ToString("dd/MM/yyyy hh:mm:ss t")</td>
+                                    </tr>
+                                    <tr class="border border-top-0 emphasys">
+                                        <td colspan="4">Fecha de reserva: @CustomerReservation.ReservationDate.ToString("dd/MM/yyyy")</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="4">
+                                            Observaciones internas: <br />
+                                            @if (!string.IsNullOrEmpty(CustomerReservation.Notes))
+                                            {
+                                                @CustomerReservation.Notes
+                                            }
+                                            else
+                                            {
+                                                <span>&nbsp;</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Referencia</th>
+                                        <th>Marcación</th>
+                                        <th>Cantidad</th>
+                                        <th>Enviado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var detail in CustomerReservationDetails)
+                                    {
+                                        <tr>
+                                            <td>@detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName</td>
+                                            <td>@detail.Brand</td>
+                                            <td>@detail.ReservedQuantity</td>
+                                            <td>@(detail.SendToCustomerOrder? "Si": "No")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </RadzenCard>
+            }
+        </RadzenColumn>
+        <RadzenColumn Size="4">
+            <div class="d-flex flex-column gap-4 flex-shrink-0">
+                <div>
+                    <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="save" Text="Guardar PDF" Click="@Download" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@IsBusy" />
+                </div>
+                <div>
+                    <p>Desea enviar un correo al cliente con el detalle de la reserva?</p>
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Start" JustifyContent="JustifyContent.Left" Gap="0.5rem">
+                        <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Si" Variant="Variant.Flat" BusyText="Procesando" Click="@Notify" IsBusy="@IsBusy" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Light" Text="No" Variant="Variant.Flat" Click="@CancelNotify" IsBusy="@IsBusy" />
+                    </RadzenStack>
+                </div>
+            </div>
+        </RadzenColumn>
+    </RadzenRow>
+</RadzenStack>

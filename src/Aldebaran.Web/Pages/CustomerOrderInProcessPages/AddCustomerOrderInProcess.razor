@@ -4,7 +4,7 @@
 @using Aldebaran.Web.Resources.LocalizedControls;
 @inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer
 
-<PageTitle>Pedido de Articulos</PageTitle>
+<PageTitle>Traslado a proceso</PageTitle>
 <RadzenCard>
     <RadzenStack>
         <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerOrder" Data="@customerOrder" Visible="@(customerOrder != null)" Submit="@FormSubmit" InvalidSubmit="()=>Submitted=true">
@@ -18,53 +18,56 @@
                 </RadzenAlert>
             </RadzenRow>
             <RadzenRow AlignItems="AlignItems.Start" Gap="2rem">
-                <RadzenColumn SizeMD="5">
+                <RadzenColumn SizeMD="6">
                     <RadzenStack>
-                        <RadzenRow AlignItems="AlignItems.Start" Gap="2rem">
-                            <RadzenColumn SizeMD="1" />
+                        <RadzenRow AlignItems="AlignItems.Start" Gap="2rem" class="m-3">
                             <RadzenColumn SizeMD="6">
                                 <RadzenStack>
-                                    <RadzenColumn SizeMD="3">
-                                        <RadzenLabel Text="Cliente:" class="text-primary-color" Style="font-size: 16px;" />
-                                    </RadzenColumn>
-                                    <RadzenColumn SizeMD="3">
-                                        <RadzenRow>
-                                            <span>@customerOrder.Customer.CustomerName</span>
-                                        </RadzenRow>
-                                        <RadzenRow>
+                                    <div class="flex-shrink-0">
+                                        <div class="text-primary-color" style="font-size: 16px">
+                                            <RadzenLabel Text="Cliente: " Style="font-weight: bold" />
+                                            <RadzenLabel Text="@customerOrder.Customer.CustomerName" />
+                                        </div>
+                                        <div class="text-secondary-color">
+                                            <RadzenLabel Text="Teléfono: " />
                                             <span>@customerOrder.Customer.Phone1</span>
-                                        </RadzenRow>
-                                        <RadzenRow>
+                                        </div>
+                                        <div class="text-secondary-color">
+                                            <RadzenLabel Text="Correo: " />
                                             <span>@customerOrder.Customer.Email1</span>
-                                        </RadzenRow>
-                                        <RadzenRow>
-                                            <span>@customerOrder.Customer.CustomerAddress, (@customerOrder.Customer.City.Department.Country.CountryCode) @customerOrder.Customer.City.Department.DepartmentName - @customerOrder.Customer.City.CityName </span>
-                                        </RadzenRow>
-                                    </RadzenColumn>
+                                        </div>
+                                        <div class="text-secondary-color">
+                                            <RadzenLabel Text="Dirección: " />
+                                            <span>@customerOrder.Customer.CustomerAddress</span>
+                                        </div>
+                                        <div class="text-secondary-color">
+                                            <span>(@customerOrder.Customer.City.Department.Country.CountryCode) @customerOrder.Customer.City.Department.DepartmentName - @customerOrder.Customer.City.CityName </span>
+                                        </div>
+                                    </div>
                                 </RadzenStack>
                             </RadzenColumn>
-                            <RadzenColumn SizeMD="5">
-                                <RadzenStack>
-                                    <RadzenColumn SizeMD="3">
-                                        <RadzenLabel Text="Fecha de Pedido:" class="text-primary-color" Style="font-size: 16px;" />
-                                    </RadzenColumn>
-                                    <RadzenColumn SizeMD="3">
+                            <RadzenColumn SizeMD="6">
+                                <div class="flex-shrink-0">
+                                    <div class="text-primary-color" style="font-size: 16px">
+                                        <RadzenLabel Text="Fecha de pedido:" />
+                                    </div>
+                                    <div class="text-secondary-color">
                                         <span>@customerOrder.OrderDate.ToString(@SharedLocalizer["date:format"]) </span>
-                                    </RadzenColumn>
-                                    <RadzenColumn SizeMD="3">
-                                        <RadzenLabel Text="Fecha Pactada de Entrega:" class="text-primary-color" Style="font-size: 16px;" />
-                                    </RadzenColumn>
-                                    <RadzenColumn SizeMD="3">
+                                    </div>
+                                    <div class="text-primary-color" style="font-size: 16px">
+                                        <RadzenLabel Text="Fecha pactada de entrega:" />
+                                    </div>
+                                    <div class="text-secondary-color">
                                         <span>@customerOrder.EstimatedDeliveryDate.ToString(@SharedLocalizer["date:format"])</span>
-                                    </RadzenColumn>
-                                </RadzenStack>
+                                    </div>
+                                </div>
                             </RadzenColumn>
                         </RadzenRow>
                         <RadzenCard class="m-3">
-                            <RadzenColumn Size="6">
+                            <RadzenRow class="mb-3">
                                 <RadzenText Text="Datos del traslado" TextStyle="TextStyle.H5" TagName="TagName.H1" style="margin: 0" />
-                            </RadzenColumn>
-                            <RadzenRow style="margin-bottom: 1rem">
+                            </RadzenRow>
+                            <RadzenRow>
                                 <RadzenFormField Text="Fecha de traslado" Variant="Variant.Text" Style="width: 100%;">
                                     <ChildContent>
                                         <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@customerOrderInProcess.TransferDatetime"
@@ -90,8 +93,11 @@
                                                                 FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true"
                                                                 TabIndex="2" Placeholder="Seleccione el satelite">
                                             <Columns>
-                                                <RadzenDropDownDataGridColumn Property="IdentityType.IdentityTypeName" Title="Tipo Documento" />
-                                                <RadzenDropDownDataGridColumn Property="IdentityNumber" Title="Identificación" />
+                                                <RadzenDropDownDataGridColumn Property="IdentityType.IdentityTypeName" Title="Documento">
+                                                    <Template Context="satellite">
+                                                        <span>@satellite.IdentityType.IdentityTypeCode.Trim(). @satellite.IdentityNumber</span>
+                                                    </Template>
+                                                </RadzenDropDownDataGridColumn>
                                                 <RadzenDropDownDataGridColumn Property="ProcessSatelliteName" Title="Nombre" />
                                                 <RadzenDropDownDataGridColumn Property="City.CityId" Title="Ubicación">
                                                     <Template Context="satellite">
@@ -112,8 +118,11 @@
                                                                 FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true"
                                                                 TabIndex="3" Placeholder="Seleccione un Empleado">
                                             <Columns>
-                                                <RadzenDropDownDataGridColumn Property="EMPLOYEE.IdentityType.IdentityTypeName" Title="Tipo de identificación" />
-                                                <RadzenDropDownDataGridColumn Property="IdentityNumber" Title="Número de identificación" />
+                                                <RadzenDropDownDataGridColumn Property="EMPLOYEE.IdentityType.IdentityTypeName" Title="Documento">
+                                                    <Template Context="employee">
+                                                        <span>@employee.IdentityType.IdentityTypeCode.Trim(). @employee.IdentityNumber</span>
+                                                    </Template>
+                                                </RadzenDropDownDataGridColumn>
                                                 <RadzenDropDownDataGridColumn Property="FullName" Title="Nombre completo" />
                                             </Columns>
                                         </RadzenDropDownDataGrid>
@@ -129,12 +138,9 @@
                         </RadzenCard>
                     </RadzenStack>
                 </RadzenColumn>
-                <RadzenColumn Size="7">
+                <RadzenColumn Size="6">
+                    <RadzenText Text="Referencias" TextStyle="TextStyle.H5" TagName="TagName.H1"   />
                     <RadzenStack>
-                        <RadzenRow />
-                        <RadzenColumn Size="6">
-                            <RadzenText Text="Referencias del pedido" TextStyle="TextStyle.H5" TagName="TagName.H1" style="margin: 0" />
-                        </RadzenColumn>
                         <LocalizedDataGrid @ref="customerOrderDetailGrid" ColumnWidth="200px" AllowFiltering="false" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true"
                                            PageSizeOptions=@(new int[]{5, 10, 20, 30}) Data="@detailsInProcess" TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess">
                             <Columns>

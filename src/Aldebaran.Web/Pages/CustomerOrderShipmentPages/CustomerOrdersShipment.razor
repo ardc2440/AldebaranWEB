@@ -5,7 +5,7 @@
 @using Aldebaran.Web.Resources.LocalizedControls;
 @inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer ;
 
-<PageTitle>Pedido de Artículos</PageTitle>
+<PageTitle>Despacho de artículos procesados</PageTitle>
 <RadzenStack>
     @if (dialogResult != null && dialogResult.Success)
     {
@@ -22,7 +22,6 @@
     <RadzenRow AlignItems="AlignItems.Center">
         <RadzenColumn Size="12" SizeMD="6">
             <RadzenText Text="Despacho de artículos procesados" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
-            <hr />
         </RadzenColumn>
     </RadzenRow>
     <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
