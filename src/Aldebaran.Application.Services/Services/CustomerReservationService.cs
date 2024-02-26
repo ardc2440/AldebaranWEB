@@ -52,6 +52,12 @@ namespace Aldebaran.Application.Services
             var mapReason = _mapper.Map<DataAccess.Infraestructure.Models.Reason?>(reason);
             await _repository.UpdateAsync(customerReservationId, entity, mapReason, ct);
         }
+
+        public async Task<IEnumerable<CustomerReservation>> GetExpiredReservationsAsync(CancellationToken ct = default)
+        {
+            var data = await _repository.GetExpiredReservationsAsync(ct);
+            return _mapper.Map<IEnumerable<CustomerReservation>>(data);
+        }
     }
 
 }

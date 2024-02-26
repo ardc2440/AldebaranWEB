@@ -1208,3 +1208,29 @@ INSERT INTO PROCESS_SATELLITES (PROCESS_SATELLITE_NAME, PROCESS_SATELLITE_ADDRES
 INSERT INTO PROCESS_SATELLITES (PROCESS_SATELLITE_NAME, PROCESS_SATELLITE_ADDRESS, IDENTITY_TYPE_ID, IDENTITY_NUMBER, PHONE, CITY_ID, LEGAL_REPRESENTATIVE, IS_ACTIVE) VALUES ('Etipress S.A', 'Cra 39 B nº 17-98', (SELECT IDENTITY_TYPE_ID FROM identity_types WHERE IDENTITY_TYPE_CODE = 'CC'), '800.174.904', '2443592', (SELECT CITY_ID FROM cities WHERE CITY_NAME = 'Bogotá, D.C.'), 'Gustavo Ramirez', 1);
 GO
 
+/* Populate notification Settings */
+SET IDENTITY_INSERT [dbo].[notification_provider_settings] ON
+GO
+INSERT [dbo].[notification_provider_settings] ([NOTIFICATION_PROVIDER_SETTING_ID], [SUBJECT], [SETTINGS], [ENABLED]) VALUES (1, N'Sales', N'{
+  "mail_server": "outlook.office365.com",
+  "port": "587",
+  "sender_name": "Toyota Financial Services",
+  "sender_email": "simulador@toyotacredito.com.co",
+  "password": "/ScE3Jd25JFSVOeUXE8u0w6qnQBHVY6aBQm7LwiXZMg=",
+  "secure_socket_option": "StartTls"
+}', 1)
+GO
+SET IDENTITY_INSERT [dbo].[notification_provider_settings] OFF
+GO
+SET IDENTITY_INSERT [dbo].[notification_templates] ON 
+GO
+INSERT [dbo].[notification_templates] ([NOTIFICATION_TEMPLATE_ID], [NAME], [SUBJECT], [MESSAGE]) VALUES (1, N'Customer:PurchaseOrder:New', N'Confirmación de pedido: ¡Gracias por su compra!', N'<p>Nos complace informarle que hemos recibido su pedido con éxito. Adjunto a este correo encontrará un archivo PDF con los detalles de su compra.</p>')
+INSERT [dbo].[notification_templates] ([NOTIFICATION_TEMPLATE_ID], [NAME], [SUBJECT], [MESSAGE]) VALUES (2, N'Customer:PurchaseOrder:Update', N'Actualización de pedido: Cambios realizados', N'<p>Queremos informarle que se han realizado algunos cambios en su pedido. Adjunto a este correo encontrará un archivo PDF con los detalles de su compra.</p>')
+INSERT [dbo].[notification_templates] ([NOTIFICATION_TEMPLATE_ID], [NAME], [SUBJECT], [MESSAGE]) VALUES (3, N'Customer:PurchaseOrder:Forwarding', N'Reenvío: Detalles de compra', N'<p>Hemos recibido su solicitud de reenvío de los detalles de su pedido. Adjunto a este correo encontrará un archivo PDF con los detalles de su compra.</p>')
+-- Reserva
+INSERT [dbo].[notification_templates] ([NOTIFICATION_TEMPLATE_ID], [NAME], [SUBJECT], [MESSAGE]) VALUES (4, N'Customer:Reservation:New', N'Confirmación de reserva: ¡Gracias por su reserva!', N'<p>Nos complace informarle que hemos recibido su reserva con éxito. Adjunto a este correo encontrará un archivo PDF con los detalles de su reserva.</p>')
+INSERT [dbo].[notification_templates] ([NOTIFICATION_TEMPLATE_ID], [NAME], [SUBJECT], [MESSAGE]) VALUES (5, N'Customer:Reservation:Update', N'Actualización de reserva: Cambios realizados', N'<p>Queremos informarle que se han realizado algunos cambios en su reserva. Adjunto a este correo encontrará un archivo PDF con los detalles de su reserva.</p>')
+INSERT [dbo].[notification_templates] ([NOTIFICATION_TEMPLATE_ID], [NAME], [SUBJECT], [MESSAGE]) VALUES (6, N'Customer:Reservation:Forwarding', N'Reenvío: Detalles de reserva', N'<p>Hemos recibido su solicitud de reenvío de los detalles de su reserva. Adjunto a este correo encontrará un archivo PDF con los detalles de su reserva.</p>')
+GO
+SET IDENTITY_INSERT [dbo].[notification_templates] OFF
+GO

@@ -25,9 +25,9 @@
                         <LocalizedDataGrid @ref="GroupPurchaseOrderDetailGrid" AllowFiltering="false" AllowPaging="false" AllowSorting="false" ShowPagingSummary="false"
                                            Data="@GroupPurchaseOrderDetails" TItem="GroupPurchaseOrderDetail">
                             <Columns>
-                                <RadzenDataGridColumn TItem="GroupPurchaseOrderDetail" Property="Request_Date" Title="Fecha Est." Width="50%">
+                                <RadzenDataGridColumn TItem="GroupPurchaseOrderDetail" Property="ExpectedReceiptDate" Title="Fecha Est." Width="50%">
                                     <Template Context="detail">
-                                        <span>@detail.Request_Date.ToString(SharedLocalizer["date:format"])</span>
+                                        <span>@detail.ExpectedReceiptDate.ToString(SharedLocalizer["date:format"])</span>
                                     </Template>
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="GroupPurchaseOrderDetail" Property="Quantity" Title="Cantidad" Width="50%" />

@@ -48,6 +48,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
         [Parameter]
         public string CUSTOMER_RESERVATION_ID { get; set; } = null;
+
         [Parameter]
         public string Action { get; set; } = null;
 

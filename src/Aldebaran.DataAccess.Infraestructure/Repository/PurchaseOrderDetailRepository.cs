@@ -59,13 +59,13 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .ToListAsync(ct);
         }
 
-        public async Task<IEnumerable<PurchaseOrderDetail>> GetByReferenceIdAndStatusOrderAsync(int referenceId, int statusOrder, CancellationToken ct = default)
+        public async Task<IEnumerable<PurchaseOrderDetail>> GetByReferenceIdAndStatusOrderAsync(int statusOrder, int? referenceId = null, CancellationToken ct = default)
         {
             return await _context.PurchaseOrderDetails.AsNoTracking()
                 .Include(p => p.PurchaseOrder)
                 .Include(p => p.ItemReference.Item.Line)
                 .Include(p => p.Warehouse)
-                .Where(p => p.ReferenceId == referenceId && p.PurchaseOrder.StatusDocumentTypeId == statusOrder)
+                .Where(p => (p.ReferenceId == referenceId || !referenceId.HasValue) && p.PurchaseOrder.StatusDocumentTypeId == statusOrder)
                 .ToListAsync(ct);
         }
 

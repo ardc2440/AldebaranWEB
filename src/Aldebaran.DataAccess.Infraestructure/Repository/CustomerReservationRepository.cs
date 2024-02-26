@@ -60,6 +60,17 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .ToListAsync(ct);
         }
 
+        public async Task<IEnumerable<CustomerReservation>> GetExpiredReservationsAsync(CancellationToken ct = default)
+        {
+            return await _context.CustomerReservations.AsNoTracking()
+                .Include(i => i.Customer.City.Department.Country)
+                .Include(i => i.Customer.IdentityType)
+                .Include(i => i.StatusDocumentType.DocumentType)
+                .Include(i => i.Employee.IdentityType)
+                .Where(i=> i.ExpirationDate.Date <= DateTime.Today && i.StatusDocumentType.StatusOrder == 1)
+                .ToListAsync(ct);
+        }
+
         public async Task<IEnumerable<CustomerReservation>> GetAsync(string searchKey, CancellationToken ct = default)
         {
             return await _context.CustomerReservations.AsNoTracking()

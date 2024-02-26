@@ -99,8 +99,8 @@ namespace Aldebaran.Web.Shared
         {
             var documentType = await DocumentTypeService.FindByCodeAsync("O");
             var statusOrder = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 1);
-            var detailInTransit = await PurchaseOrderDetailService.GetTransitDetailOrdersAsync(Reference.ReferenceId, statusOrder.StatusDocumentTypeId);
-            GroupPurchaseOrderDetails = detailInTransit.GroupBy(group => group.PurchaseOrder.RequestDate).Select(c => new GroupPurchaseOrderDetail() { Request_Date = c.Key, Quantity = c.Sum(p => p.RequestedQuantity) });
+            var detailInTransit = await PurchaseOrderDetailService.GetTransitDetailOrdersAsync(statusOrder.StatusDocumentTypeId, Reference.ReferenceId);
+            GroupPurchaseOrderDetails = detailInTransit.GroupBy(group => group.PurchaseOrder.ExpectedReceiptDate).Select(c => new GroupPurchaseOrderDetail() { ExpectedReceiptDate = c.Key, Quantity = c.Sum(p => p.RequestedQuantity) });
             if (GroupPurchaseOrderDetailGrid != null)
                 await GroupPurchaseOrderDetailGrid.Reload();
         }

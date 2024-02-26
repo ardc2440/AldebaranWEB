@@ -30,6 +30,9 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         [Parameter]
         public string CustomerReservationId { get; set; } = "NoParamInput";
 
+        [Parameter]
+        public string Action { get; set; } = null;
+
         #endregion
 
         #region Global Variables
@@ -60,6 +63,8 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
             customerReservation = await CustomerReservationService.FindAsync(customerReservationId);
 
+            await SetPresentation();
+
             title = $"Convertir la Reserva No. {customerReservation.ReservationNumber} en pedido";
 
             await GetChildData(customerReservation);
@@ -68,6 +73,15 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         #endregion
 
         #region Events
+
+        async Task SetPresentation(CancellationToken ct = default)
+        {
+            if (Action == "view")
+            {
+                
+                return;
+            }
+        }
 
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
 
