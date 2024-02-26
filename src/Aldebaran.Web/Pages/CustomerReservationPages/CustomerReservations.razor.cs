@@ -212,6 +212,20 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             }
         }
 
+        protected async Task DownloadAsync(MouseEventArgs arg, CustomerReservation customerReservation)
+        {
+            var result = await DialogService.OpenAsync<CustomerReservationSummary>(null, new Dictionary<string, object> { { "Id", customerReservation.CustomerReservationId }, { "NotificationTemplateName", "Customer:Reservation:Forwarding" } }, options: new DialogOptions { ShowTitle = false, ShowClose = false, CloseDialogOnEsc = false, CloseDialogOnOverlayClick = false, Width = "800px" });
+            var dialogResult = (bool)result;
+            if (dialogResult)
+            {
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = $"Notificación",
+                    Detail = $"Se ha enviado un correo al cliente con el detalle de la reserva."
+                });
+            }
+        }
         protected async Task GetChildData(CustomerReservation args)
         {
             customerReservation = args;

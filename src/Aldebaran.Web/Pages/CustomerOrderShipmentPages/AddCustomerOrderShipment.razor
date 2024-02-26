@@ -11,62 +11,63 @@
             <RadzenRow AlignItems="AlignItems.Center">
                 <RadzenColumn Size="12">
                     <RadzenText Text="@title" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
-                    <hr />
                 </RadzenColumn>
                 <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">
                     @Error
                 </RadzenAlert>
             </RadzenRow>
             <RadzenRow AlignItems="AlignItems.Start" Gap="2rem">
-                <RadzenColumn SizeMD="5">
+                <RadzenColumn SizeMD="6">
                     <RadzenStack>
-                        <RadzenRow />
-                        <RadzenRow AlignItems="AlignItems.Start" Gap="2rem">
-                            <RadzenColumn SizeMD="1" />
+                        <RadzenRow AlignItems="AlignItems.Start" Gap="2rem" class="m-3">
                             <RadzenColumn SizeMD="6">
                                 <RadzenStack>
-                                    <RadzenColumn SizeMD="3">
-                                        <RadzenLabel Text="Cliente" class="text-primary-color" Style="font-size: 16px;" />
-                                    </RadzenColumn>
-                                    <RadzenColumn SizeMD="3">
-                                        <RadzenRow>
-                                            <span>@customerOrder.Customer.CustomerName</span>
-                                        </RadzenRow>
-                                        <RadzenRow>
+                                    <div class="flex-shrink-0">
+                                        <div class="text-primary-color" style="font-size: 16px">
+                                            <RadzenLabel Text="Cliente: " Style="font-weight: bold" />
+                                            <RadzenLabel Text="@customerOrder.Customer.CustomerName" />
+                                        </div>
+                                        <div class="text-secondary-color">
+                                            <RadzenLabel Text="Teléfono: " />
                                             <span>@customerOrder.Customer.Phone1</span>
-                                        </RadzenRow>
-                                        <RadzenRow>
+                                        </div>
+                                        <div class="text-secondary-color">
+                                            <RadzenLabel Text="Correo: " />
                                             <span>@customerOrder.Customer.Email1</span>
-                                        </RadzenRow>
-                                        <RadzenRow>
-                                            <span>@customerOrder.Customer.CustomerAddress, (@customerOrder.Customer.City.Department.Country.CountryCode) @customerOrder.Customer.City.Department.DepartmentName - @customerOrder.Customer.City.CityName </span>
-                                        </RadzenRow>
-                                    </RadzenColumn>
+                                        </div>
+                                        <div class="text-secondary-color">
+                                            <RadzenLabel Text="Dirección: " />
+                                            <span>@customerOrder.Customer.CustomerAddress</span>
+                                        </div>
+                                        <div class="text-secondary-color">
+                                            <span>(@customerOrder.Customer.City.Department.Country.CountryCode) @customerOrder.Customer.City.Department.DepartmentName - @customerOrder.Customer.City.CityName </span>
+                                        </div>
+                                    </div>
                                 </RadzenStack>
                             </RadzenColumn>
-                            <RadzenColumn SizeMD="5">
-                                <RadzenStack>
-                                    <RadzenColumn SizeMD="3">
-                                        <RadzenLabel Text="Fecha de pedido" class="text-primary-color" Style="font-size: 16px;" />
-                                    </RadzenColumn>
-                                    <RadzenColumn SizeMD="3">
-                                        <span>@(customerOrder.OrderDate.ToString(@SharedLocalizer["date:format"])) </span>
-                                    </RadzenColumn>
-                                    <RadzenColumn SizeMD="3">
-                                        <RadzenLabel Text="Fecha pactada de entrega" class="text-primary-color" Style="font-size: 16px;" />
-                                    </RadzenColumn>
-                                    <RadzenColumn SizeMD="3">
-                                        <span>@(customerOrder.EstimatedDeliveryDate.ToString(@SharedLocalizer["date:format"]))</span>
-                                    </RadzenColumn>
-                                </RadzenStack>
+                            <RadzenColumn SizeMD="6">
+                                <div class="flex-shrink-0">
+                                    <div class="text-primary-color" style="font-size: 16px">
+                                        <RadzenLabel Text="Fecha de pedido:" />
+                                    </div>
+                                    <div class="text-secondary-color">
+                                        <span>@customerOrder.OrderDate.ToString(@SharedLocalizer["date:format"]) </span>
+                                    </div>
+                                    <div class="text-primary-color" style="font-size: 16px">
+                                        <RadzenLabel Text="Fecha pactada de entrega:" />
+                                    </div>
+                                    <div class="text-secondary-color">
+                                        <span>@customerOrder.EstimatedDeliveryDate.ToString(@SharedLocalizer["date:format"])</span>
+                                    </div>
+                                </div>
                             </RadzenColumn>
                         </RadzenRow>
                         <RadzenCard class="m-3">
-                            <RadzenColumn Size="6">
+                            <RadzenRow class="mb-3">
                                 <RadzenText Text="Datos del despacho" TextStyle="TextStyle.H5" TagName="TagName.H1" style="margin: 0" />
-                            </RadzenColumn>
-                            <RadzenRow style="margin-bottom: 1rem">
-                                <RadzenFormField Text="Fecha de despacho" Variant="Variant.Text" class="fw-bold">
+                            </RadzenRow>
+                            <RadzenRow class="mb-3">
+                                <RadzenFormField Text="Fecha de despacho" Variant="Variant.Text" Style="width: 100%;">
                                     <ChildContent>
                                         <RadzenDatePicker Name="ShippingDate" @bind-Value="@customerOrderShipment.ShippingDate" DateFormat="@SharedLocalizer["date:format"]"
                                                           TabIndex="0" style="display: block; width: 100%" Placeholder="Seleccione la fecha del despacho" />
@@ -75,21 +76,29 @@
                                         <RadzenRequiredValidator Text="La fecha de despacho es requerida" Component="ShippingDate" />
                                     </Helper>
                                 </RadzenFormField>
-                                <RadzenFormField Text="Número de guía" Variant="Variant.Text" class="fw-bold">
-                                    <ChildContent>
-                                        <RadzenTextBox @bind-Value="@customerOrderShipment.TrackingNumber" style="display: block; width: 100%"
-                                                       TabIndex="1" MaxLength="15" />
-                                    </ChildContent>
-                                </RadzenFormField>
-                                <RadzenFormField Text="Remisión" Variant="Variant.Text" class="fw-bold">
-                                    <ChildContent>
-                                        <RadzenTextBox Name="DELIVERY_NOTE" @bind-Value="@customerOrderShipment.DeliveryNote" style="display: block; width: 100%"
-                                                       TabIndex="2" MaxLength="15" />
-                                    </ChildContent>
-                                    <Helper>
-                                        <RadzenRequiredValidator Component="DELIVERY_NOTE" Text="La remisión es requerida"></RadzenRequiredValidator>
-                                    </Helper>
-                                </RadzenFormField>
+                            </RadzenRow>
+                            <RadzenRow class="mb-3">
+                                <RadzenColumn SizeMD="6">
+                                    <RadzenFormField Text="Número de guía" Variant="Variant.Text" Style="width: 100%;">
+                                        <ChildContent>
+                                            <RadzenTextBox @bind-Value="@customerOrderShipment.TrackingNumber" style="display: block; width: 100%"
+                                                           TabIndex="1" MaxLength="15" />
+                                        </ChildContent>
+                                    </RadzenFormField>
+                                </RadzenColumn>
+                                <RadzenColumn SizeMD="6">
+                                    <RadzenFormField Text="Remisión" Variant="Variant.Text" Style="width: 100%;">
+                                        <ChildContent>
+                                            <RadzenTextBox Name="DELIVERY_NOTE" @bind-Value="@customerOrderShipment.DeliveryNote" style="display: block; width: 100%"
+                                                           TabIndex="2" MaxLength="15" />
+                                        </ChildContent>
+                                        <Helper>
+                                            <RadzenRequiredValidator Component="DELIVERY_NOTE" Text="La remisión es requerida"></RadzenRequiredValidator>
+                                        </Helper>
+                                    </RadzenFormField>
+                                </RadzenColumn>
+                            </RadzenRow>
+                            <RadzenRow class="mb-3">
                                 <RadzenFormField Text="Método de envío" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                                     <ChildContent>
                                         <RadzenDropDown Data="@shippingMethodsFORSHIPPINGMETHODID" TextProperty="ShippingMethodName" ValueProperty="ShippingMethodId" AllowClear=true
@@ -102,6 +111,8 @@
                                         <RadzenNumericRangeValidator Component="SHIPING_METHOD_ID" Min="1" Text="El método de envio es requerido"></RadzenNumericRangeValidator>
                                     </Helper>
                                 </RadzenFormField>
+                            </RadzenRow>
+                            <RadzenRow class="mb-3">
                                 <RadzenFormField Text="Despachado Por" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                                     <ChildContent>
                                         <RadzenDropDownDataGrid Data="@employeesFOREMPLOYEEID" TextProperty="FullName" ValueProperty="EmployeeId" AllowClear=true
@@ -119,6 +130,8 @@
                                         <RadzenNumericRangeValidator Component="EMPLOYEE_ID" Min="1" Text="El empleado es requerido"></RadzenNumericRangeValidator>
                                     </Helper>
                                 </RadzenFormField>
+                            </RadzenRow>
+                            <RadzenRow class="mb-3">
                                 <RadzenFormField Text="Notas" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                                     <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerOrderShipment.Notes" TabIndex="3" Rows="3" MaxLength="250" />
                                 </RadzenFormField>
@@ -126,9 +139,8 @@
                         </RadzenCard>
                     </RadzenStack>
                 </RadzenColumn>
-                <RadzenColumn Size="7">
+                <RadzenColumn Size="6">
                     <RadzenStack>
-                        <RadzenRow />
                         <RadzenColumn Size="6">
                             <RadzenText Text="Referencias del Pedido" TextStyle="TextStyle.H5" TagName="TagName.H1" style="margin: 0" />
                         </RadzenColumn>

@@ -7,6 +7,7 @@ using Aldebaran.DataAccess.Core.Triggers.Reservations;
 using Aldebaran.DataAccess.Core.Triggers.Shipments;
 using Aldebaran.DataAccess.Core.Triggers.Transfers;
 using Aldebaran.DataAccess.Infraestructure.Repository;
+using Aldebaran.Infraestructure.Core.Queue;
 using Aldebaran.Web.Data;
 using Aldebaran.Web.Models;
 using Aldebaran.Web.Resources;
@@ -17,7 +18,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.OData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OData.ModelBuilder;
+using Polly;
 using Radzen;
+using Notificator = Aldebaran.Application.Services.Notificator;
 
 namespace Aldebaran.Web.Extensions
 {
@@ -28,6 +31,8 @@ namespace Aldebaran.Web.Extensions
             ArgumentNullException.ThrowIfNull(builder);
             var services = builder.Services;
             var configuration = builder.Configuration;
+            var amqpConnection = configuration.GetConnectionString("RabbitMqConnection") ?? throw new KeyNotFoundException("RabbitMqConnection");
+            var dbConnection = configuration.GetConnectionString("AldebaranDbConnection") ?? throw new KeyNotFoundException("AldebaranDbConnection");
 
             // Add services to the container.
             services.AddRazorPages();
@@ -36,17 +41,14 @@ namespace Aldebaran.Web.Extensions
                 o.MaximumReceiveMessageSize = 10 * 1024 * 1024;
             });
             // Data context
-            services.AddDbContext<DataAccess.AldebaranDbContext>(options =>
-            {
-                options.UseSqlServer(configuration.GetConnectionString("AldebaranDbConnection")).AddTriggers();
-            }, ServiceLifetime.Scoped, ServiceLifetime.Scoped);
+            services.AddDbContext<DataAccess.AldebaranDbContext>(options => { options.UseSqlServer(dbConnection).AddTriggers(); }, ServiceLifetime.Scoped, ServiceLifetime.Scoped);
             // Identity context
-            builder.Services.AddDbContext<ApplicationIdentityDbContext>(options =>
-            {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("AldebaranDbConnection"));
-            }, ServiceLifetime.Scoped, ServiceLifetime.Scoped);
+            builder.Services.AddDbContext<ApplicationIdentityDbContext>(options => { options.UseSqlServer(dbConnection); }, ServiceLifetime.Scoped, ServiceLifetime.Scoped);
             builder.Services.AddIdentity<ApplicationUser, ApplicationRole>().AddEntityFrameworkStores<ApplicationIdentityDbContext>().AddDefaultTokenProviders();
             builder.Services.AddScoped<AuthenticationStateProvider, ApplicationAuthenticationStateProvider>();
+            // Temp: Este contexto es el viejo de radzen una vez se estabilice el sistema este dbcontext deberia desaparacer y por ende tambien esta conexion
+            services.AddDbContext<AldebaranDbContext>(options => { options.UseSqlServer(dbConnection); }, ServiceLifetime.Scoped, ServiceLifetime.Scoped);
+            services.AddScoped<AldebaranDbService>();
             // Configuration
             builder.Services.AddControllers().AddOData(o =>
             {
@@ -58,6 +60,25 @@ namespace Aldebaran.Web.Extensions
                 oDataBuilder.EntitySet<ApplicationRole>("ApplicationRoles");
                 o.AddRouteComponents("odata/Identity", oDataBuilder.GetEdmModel()).Count().Filter().OrderBy().Expand().Select().SetMaxTop(null).TimeZone = TimeZoneInfo.Utc;
             });
+            // RabbitMq
+            services.AddSingleton(sp =>
+            {
+                return Policy.Handle<Exception>()
+                    .WaitAndRetry(10, _ => TimeSpan.FromSeconds(5), (ex, ts) =>
+                    {
+                        Console.WriteLine($"Resilience Error [{ex.Message}] since [{ts.TotalSeconds}] sec using connection [{amqpConnection}]");
+                    })
+                    .Execute(() =>
+                    {
+                        var factory = new RabbitMQ.Client.ConnectionFactory()
+                        {
+                            Uri = new Uri(amqpConnection),
+                            DispatchConsumersAsync = true
+                        };
+                        var conn = factory.CreateConnection();
+                        return conn;
+                    });
+            });
             services.AddHttpClient("Aldebaran.Web").AddHeaderPropagation(o => o.Headers.Add("Cookie"));
             services.AddHeaderPropagation(o => o.Headers.Add("Cookie"));
             // Auth
@@ -68,20 +89,15 @@ namespace Aldebaran.Web.Extensions
             builder.Services.AddTransient<ISharedStringLocalizer, SharedStringLocalizer>();
             builder.Services.AddTransient<IExportHelper, ExportHelper>();
             builder.Services.AddSingleton(AutoMapperConfiguration.Configure());
+            builder.Services.AddTransient<IPdfService, PdfSharpCoreService>();
             // Logging
             builder.Logging.ClearProviders();
             builder.Logging.SetMinimumLevel(LogLevel.Trace);
             // Radzen
             services.AddScoped<DialogService>();
-            services.AddScoped<NotificationService>();
+            services.AddScoped<Radzen.NotificationService>();
             services.AddScoped<TooltipService>();
             services.AddScoped<ContextMenuService>();
-            // Temp
-            services.AddDbContext<AldebaranDbContext>(options =>
-            {
-                options.UseSqlServer(configuration.GetConnectionString("AldebaranDbConnection"));
-            }, ServiceLifetime.Scoped, ServiceLifetime.Scoped);
-            services.AddScoped<AldebaranDbService>();
 
             services.AddScoped<SecurityService>();
             return services;
@@ -210,6 +226,8 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IWarehouseRepository, WarehouseRepository>();
             services.AddTransient<IWarehouseTransferRepository, WarehouseTransferRepository>();
             services.AddTransient<IWarehouseTransferDetailRepository, WarehouseTransferDetailRepository>();
+            services.AddTransient<INotificationProviderSettingsRepository, NotificationProviderSettingsRepository>();
+            services.AddTransient<INotificationTemplateRepository, NotificationTemplateRepository>();
             #endregion
             // Services
             #region Services
@@ -281,7 +299,9 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IWarehouseTransferService, WarehouseTransferService>();
             services.AddTransient<IWarehouseTransferDetailService, WarehouseTransferDetailService>();
             #endregion
-
+            services.AddTransient<IQueue, RabbitQueue>();
+            services.AddTransient<IQueueSettings, QueueSettings>();
+            services.AddTransient<Notificator.INotificationService, Notificator.NotificationService>();
             return services;
         }
     }

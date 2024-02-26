@@ -1,5 +1,6 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
+using Aldebaran.Web.Pages.CustomerOrderPages;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -90,11 +91,14 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                 if (!customerReservationDetails.Any())
                     throw new Exception("No ha ingresado ninguna referencia");
 
-                customerReservation.CustomerReservationDetails = customerReservationDetails;
+                if (await DialogService.Confirm("Está seguro que desea crear este pedido de artículos?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar creación") == true)
+                {
+                    customerReservation.CustomerReservationDetails = customerReservationDetails;
+                    customerReservation = await CustomerReservationService.AddAsync(customerReservation);
 
-                var result = await CustomerReservationService.AddAsync(customerReservation);
-
-                NavigationManager.NavigateTo($"customer-reservations/{result.CustomerReservationId}");
+                    var result = await DialogService.OpenAsync<CustomerReservationSummary>(null, new Dictionary<string, object> { { "Id", customerReservation.CustomerReservationId }, { "NotificationTemplateName", "Customer:Reservation:New" } }, options: new DialogOptions { ShowTitle = false, ShowClose = false, CloseDialogOnEsc = false, CloseDialogOnOverlayClick = false, Width = "800px" });
+                    NavigationManager.NavigateTo($"customer-reservations/{customerReservation.CustomerReservationId}");
+                }
             }
             catch (Exception ex)
             {

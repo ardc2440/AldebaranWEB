@@ -1,6 +1,5 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace Aldebaran.Infraestructure.Common.Extensions
 {
@@ -14,38 +13,6 @@ namespace Aldebaran.Infraestructure.Common.Extensions
         /// Valor por defecto para cifrar y descifrar una cadena de caracteres
         /// </summary>
         private const string Salt = "30811BF8E9DD44198EAB8301636B612C";
-
-        /// <summary>
-        /// Método de extensión que reemplaza etiquetas en una cadena con valores proporcionados en un diccionario.
-        /// </summary>
-        /// <param name="value">La cadena en la que se realizará el reemplazo de etiquetas.</param>
-        /// <param name="wildcard">El carácter que indica el comienzo de una etiqueta.</param>
-        /// <param name="tags">Diccionario que contiene las etiquetas y sus valores de reemplazo.</param>
-        /// <returns>Una cadena con las etiquetas reemplazadas por sus valores correspondientes.</returns>
-        /// <example>
-        /// Ejemplo de uso:
-        /// <code>
-        /// string template = "Hola, #nombre!";
-        /// var dictionary = new Dictionary<string, string> { { "nombre", "Juan" } };
-        /// string resultado = template.ToRender('#', dictionary);
-        /// Console.WriteLine(resultado); // Salida esperada: "Hola, Juan!"
-        /// </code>
-        /// </example>
-        public static string ToRender(this string value, char wildcard, Dictionary<string, string> tags)
-        {
-            // Define una expresión regular que busca el carácter de comodín seguido de una palabra (\w+).
-            Regex re = new($@"\{wildcard}(\w+)", RegexOptions.Compiled);
-            // Reemplaza cada coincidencia encontrada por su valor correspondiente en el diccionario de etiquetas.
-            string output = re.Replace(value, match =>
-            {
-                var key = match.Groups[1].Value;
-                if (tags.ContainsKey(key))
-                    return tags[match.Groups[1].Value];
-                return $"{wildcard}{key}";
-            });
-            // Retorna la cadena resultante después de realizar todos los reemplazos.
-            return output;
-        }
 
         /// <summary>
         /// Permite cifrar con una llave una cadena de caracteres
@@ -79,7 +46,6 @@ namespace Aldebaran.Infraestructure.Common.Extensions
             Buffer.BlockCopy(decryptedContent, 0, result, iv.Length, decryptedContent.Length);
             return Convert.ToBase64String(result);
         }
-
         /// <summary>
         /// Permite descifrar con una llave una cadena de caracteres
         /// </summary>

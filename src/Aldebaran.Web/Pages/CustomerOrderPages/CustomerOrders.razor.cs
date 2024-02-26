@@ -252,7 +252,20 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 });
             }
         }
-
+        protected async Task DownloadAsync(MouseEventArgs arg, CustomerOrder customerOrder)
+        {
+            var result = await DialogService.OpenAsync<CustomerOrderSummary>(null, new Dictionary<string, object> { { "Id", customerOrder.CustomerOrderId }, { "NotificationTemplateName", "Customer:PurchaseOrder:Forwarding" } }, options: new DialogOptions { ShowTitle = false, ShowClose = false, CloseDialogOnEsc = false, CloseDialogOnOverlayClick = false, Width = "800px" });
+            var dialogResult = (bool)result;
+            if (dialogResult)
+            {
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = $"Notificación",
+                    Detail = $"Se ha enviado un correo al cliente con el detalle del pedido."
+                });
+            }
+        }
         protected async Task GetOrderDetails(CustomerOrder args)
         {
             var CustomerOrderDetailsResult = await CustomerOrderDetailService.GetByCustomerOrderIdAsync(args.CustomerOrderId);

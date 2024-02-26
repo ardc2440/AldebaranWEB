@@ -65,7 +65,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
             await SetPresentation();
 
-            title = $"Convertir la Reserva No. {customerReservation.ReservationNumber} en pedido";
+            title = $"Convertir la reserva No. {customerReservation.ReservationNumber} en pedido";
 
             await GetChildData(customerReservation);
 

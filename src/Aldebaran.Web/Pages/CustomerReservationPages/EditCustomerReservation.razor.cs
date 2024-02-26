@@ -88,10 +88,9 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                 if (reasonResult == null)
                     return;
                 var reason = (Reason)reasonResult;
-
                 customerReservation.CustomerReservationDetails = customerReservationDetails;
                 await CustomerReservationService.UpdateAsync(customerReservation.CustomerReservationId, customerReservation, reason);
-
+                var result = await DialogService.OpenAsync<CustomerReservationSummary>(null, new Dictionary<string, object> { { "Id", customerReservation.CustomerReservationId }, { "NotificationTemplateName", "Customer:Reservation:Update" } }, options: new DialogOptions { ShowTitle = false, ShowClose = false, CloseDialogOnEsc = false, CloseDialogOnOverlayClick = false, Width = "800px" });
                 NavigationManager.NavigateTo($"customer-reservations/edit/{customerReservation.CustomerReservationId}");
             }
             catch (Exception ex)

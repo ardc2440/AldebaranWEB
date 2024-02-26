@@ -87,6 +87,8 @@ namespace Aldebaran.DataAccess
         public DbSet<Warehouse> Warehouses { get; set; }
         public DbSet<WarehouseTransfer> WarehouseTransfers { get; set; }
         public DbSet<WarehouseTransferDetail> WarehouseTransferDetails { get; set; }
+        public DbSet<NotificationProviderSetting> NotificationProviderSettings { get; set; }
+        public DbSet<NotificationTemplate> NotificationTemplates { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -163,6 +165,8 @@ namespace Aldebaran.DataAccess
             modelBuilder.ApplyConfiguration(new WarehouseConfiguration());
             modelBuilder.ApplyConfiguration(new WarehouseTransferConfiguration());
             modelBuilder.ApplyConfiguration(new WarehouseTransferDetailConfiguration());
+            modelBuilder.ApplyConfiguration(new NotificationProviderSettingConfiguration());
+            modelBuilder.ApplyConfiguration(new NotificationTemplateConfiguration());
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken ct = default)

@@ -4,7 +4,7 @@
 @using Aldebaran.Web.Resources.LocalizedControls;
 @inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer
 
-<PageTitle>Pedido de Articulos</PageTitle>
+<PageTitle>Modificación del traslado a proceso</PageTitle>
 <RadzenCard>
     <RadzenStack>
         <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerOrder" Data="@customerOrder" Visible="@(customerOrder != null)" Submit="@FormSubmit" InvalidSubmit="()=>Submitted=true">
@@ -18,7 +18,7 @@
                 </RadzenAlert>
             </RadzenRow>
             <RadzenRow AlignItems="AlignItems.Start" Gap="2rem">
-                <RadzenColumn SizeMD="5">
+                <RadzenColumn SizeMD="6">
                     <RadzenStack>
                         <RadzenRow />
                         <RadzenRow AlignItems="AlignItems.Start" Gap="2rem">
@@ -132,7 +132,7 @@
                         </RadzenCard>
                     </RadzenStack>
                 </RadzenColumn>
-                <RadzenColumn Size="7">
+                <RadzenColumn Size="6">
                     <RadzenStack>
                         <RadzenRow />
                         <RadzenColumn Size="6">
