@@ -6,7 +6,7 @@ namespace Aldebaran.DataAccess.Entities
     {
         public void Configure(EntityTypeBuilder<AlarmMessage> builder)
         {
-            builder.ToTable("ALARM_MESSAGES", "dbo");
+            builder.ToTable("alarm_messages", "dbo");
             builder.HasKey(x => x.AlarmMessageId).HasName("PK_ALARM_MESSAGE").IsClustered();
             builder.Property(x => x.AlarmMessageId).HasColumnName(@"ALARM_MESSAGE_ID").HasColumnType("int").IsRequired().ValueGeneratedOnAdd().UseIdentityColumn();
             builder.Property(x => x.AlarmTypeId).HasColumnName(@"ALARM_TYPE_ID").HasColumnType("smallint").IsRequired();

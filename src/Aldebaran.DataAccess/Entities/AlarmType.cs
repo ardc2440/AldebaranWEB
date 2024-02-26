@@ -9,16 +9,14 @@ namespace Aldebaran.DataAccess.Entities
         public bool IsManualMessage { get; set; }
         public string TableName { get; set; }
         public string FieldName { get; set; }
-        // Reverse navigation
-        public ICollection<Alarm> Alarms { get; set; }
+        // Reverse navigation        
         public ICollection<AlarmMessage> AlarmMessages { get; set; }
         public ICollection<UsersAlarmType> UsersAlarmTypes { get; set; }
         public DocumentType DocumentType { get; set; }
         public AlarmType()
         {
             IsManualMessage = false;
-            AlarmMessages = new List<AlarmMessage>();
-            Alarms = new List<Alarm>();
+            AlarmMessages = new List<AlarmMessage>();            
             UsersAlarmTypes = new List<UsersAlarmType>();
         }
     }
