@@ -46,6 +46,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         private bool Submitted = false;
         protected bool IsSubmitInProgress;
         protected string Error;
+        protected bool readOnly=false;
 
         #endregion
 
@@ -63,9 +64,9 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
             customerReservation = await CustomerReservationService.FindAsync(customerReservationId);
 
+           title = $"Convertir la reserva No. {customerReservation.ReservationNumber} en pedido";
+            
             await SetPresentation();
-
-            title = $"Convertir la reserva No. {customerReservation.ReservationNumber} en pedido";
 
             await GetChildData(customerReservation);
 
@@ -78,7 +79,9 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         {
             if (Action == "view")
             {
-                
+                readOnly = true;
+                title = $"Consultar la reserva No. {customerReservation.ReservationNumber}";
+
                 return;
             }
         }
@@ -113,6 +116,11 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         {
             if (await DialogService.Confirm("Está seguro que desea cancelar el envío a pedido de la reserva??", "Confirmar") == true)
                 NavigationManager.NavigateTo("customer-reservations");
+        }
+
+        protected async Task CloseButtonClick(MouseEventArgs args)
+        {
+            NavigationManager.NavigateTo("");
         }
 
         protected async Task GetChildData(CustomerReservation args)

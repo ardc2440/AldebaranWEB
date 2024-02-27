@@ -80,7 +80,7 @@
                         <LocalizedDataGrid @ref="customerReservationDetailGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                            Data="@customerReservationDetails" TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail">
                             <Columns>
-                                <RadzenDataGridColumn Width="70px" TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Property="SendToCustomerOrder" Title="Confirmar">
+                                <RadzenDataGridColumn Visible="@(!readOnly)" Width="70px" TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Property="SendToCustomerOrder" Title="Confirmar">
                                     <Template Context="detail">
                                         <RadzenCheckBox @bind-Value="@detail.SendToCustomerOrder" Name="SEND_TO_CUSTOMER_ORDER" MouseEnter="@(args => ShowTooltip(args,"Enviar a pedido", new TooltipOptions(){ Position = TooltipPosition.Left }))"></RadzenCheckBox>
                                     </Template>
@@ -101,8 +101,9 @@
             <RadzenRow AlignItems="Radzen.AlignItems.Center">
                 <RadzenColumn Size="12">
                     <RadzenStack class="my-2" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
-                        <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Generar Pedido" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@IsSubmitInProgress" />
-                        <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
+                        <RadzenButton Visible="@(!readOnly)" ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Generar Pedido" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@IsSubmitInProgress" />
+                        <RadzenButton Visible="@(!readOnly)" ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
+                        <RadzenButton Visible="@readOnly" ButtonStyle="ButtonStyle.Light" Text="Cerrar" Variant="Variant.Flat" Click="@CloseButtonClick" />
                     </RadzenStack>
                 </RadzenColumn>
             </RadzenRow>

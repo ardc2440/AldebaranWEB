@@ -3,7 +3,7 @@ namespace Aldebaran.Application.Services.Models
     public class Alarm
     {
         public int AlarmId { get; set; }
-        public short AlarmMessageId { get; set; }
+        public int AlarmMessageId { get; set; }
         public DateTime CreationDate { get; set; }
         public DateTime ExecutionDate { get; set; }
         public int DocumentId { get; set; }
