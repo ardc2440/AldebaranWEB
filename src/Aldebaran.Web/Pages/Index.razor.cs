@@ -1,14 +1,12 @@
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
 using Radzen;
-using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Application.Services;
-using DocumentFormat.OpenXml.Wordprocessing;
 using Humanizer;
 using Aldebaran.Infraestructure.Common.Extensions;
 using Microsoft.CodeAnalysis;
 using Aldebaran.Application.Services.Models;
+using Aldebaran.Web.Models.ViewModels;
 
 namespace Aldebaran.Web.Pages
 {
@@ -35,7 +33,22 @@ namespace Aldebaran.Web.Pages
         public ICustomerReservationService CustomerReservationService { get; set; }
 
         [Inject]
+        public IAlarmService AlarmService { get; set; }
+
+        [Inject]
+        public IVisualizedAlarmService VisualizedAlarmService { get; set; }
+
+        [Inject]
+        public IEmployeeService EmployeeService { get; set; }
+
+        [Inject]
         protected TooltipService TooltipService { get; set; }
+
+        [Inject]
+        protected SecurityService Security { get; set; }
+
+        [Inject]
+        protected DialogService DialogService { get; set; }
 
         #endregion
 
@@ -51,35 +64,55 @@ namespace Aldebaran.Web.Pages
         protected LocalizedDataGrid<OutOfStockArticle> outOfStockArticlesGrid;
         protected IEnumerable<CustomerReservation> expiredReservations = new List<CustomerReservation>();
         protected LocalizedDataGrid<CustomerReservation> expiredReservationsGrid;
+        protected IEnumerable<Models.ViewModels.Alarm> alarms = new List<Models.ViewModels.Alarm>();
+        protected LocalizedDataGrid<Models.ViewModels.Alarm> alarmsGrid;
 
         protected int pageSize = 7;
+        protected Employee employee;
 
         #endregion
 
         #region Overrides
         public override async Task SetParametersAsync(ParameterView parameters)
         {
+            employee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id);
+
+            RefreshData();
+        }
+
+        private async void RefreshData()
+        {
             var detailInTransit = await GetDetailInTransitAsync();
+            
             await RefreshMinimumQuantitiesAsync(detailInTransit);
             await RefreshItemsOutOfStokAsync(detailInTransit);
-            await ExpiredReservationsAsync();
-            //await RefreshWarehouses();
-            //await RefreshTransitOrders();
+            await RefreshExpiredReservationsAsync();
+            await RefreshAlarms();
+
+            ReloadGrids();
             StateHasChanged();
+        }
+
+        private async void ReloadGrids()
+        {
+            if (minimumQuantityArticlesGrid != null)
+                await minimumQuantityArticlesGrid.Reload();
+            if (outOfStockArticlesGrid != null)
+                await outOfStockArticlesGrid.Reload();
+            if (expiredReservationsGrid != null)
+                await expiredReservationsGrid.Reload();
+            if (alarmsGrid != null)
+                await alarmsGrid.Reload();
         }
 
         async Task Reset()
         {
-
             minimumQuantityArticles = new List<MinimumQuantityArticle>();
             outOfStockArticles = new List<OutOfStockArticle>();
             expiredReservations = new List<CustomerReservation>();
+            alarms = new List<Models.ViewModels.Alarm>();
 
-            //ItemReferenceInventories = new List<ItemReferenceInventory>();
-            await minimumQuantityArticlesGrid.Reload();
-            await outOfStockArticlesGrid.Reload();
-            await expiredReservationsGrid.Reload();
-            //await ItemReferenceInventoryGrid.Reload();
+            ReloadGrids();
         }
         #endregion
 
@@ -97,14 +130,17 @@ namespace Aldebaran.Web.Pages
             }
         }
 
+        async Task RefreshAlarms()
+        {
+            var alarmList = await AlarmService.GetByEmployeeIdAsync(employee.EmployeeId);
+            alarms = await new Models.ViewModels.Alarm().GetAlarmsListAsync(alarmList, AlarmService);
+        }
+
         async Task RefreshItemsOutOfStokAsync(IEnumerable<PurchaseOrderDetail> detailInTransit)
         {
             var itemReferences = await ItemReferenceService.GetAllReferencesOutOfStock();
 
             outOfStockArticles = await OutOfStockArticle.GetOutOfStockArticleListAsync(itemReferences, detailInTransit);
-
-            if (outOfStockArticlesGrid != null)
-                await outOfStockArticlesGrid.Reload();
         }
 
         async Task RefreshMinimumQuantitiesAsync(IEnumerable<PurchaseOrderDetail> detailInTransit)
@@ -112,9 +148,6 @@ namespace Aldebaran.Web.Pages
             var itemReferences = await ItemReferenceService.GetAllReferencesWithMinimumQuantity();
 
             minimumQuantityArticles = await MinimumQuantityArticle.GetMinimuQuantityArticleListAsync(itemReferences, detailInTransit);
-
-            if (minimumQuantityArticlesGrid != null)
-                await minimumQuantityArticlesGrid.Reload();
         }
 
         async Task<IEnumerable<PurchaseOrderDetail>> GetDetailInTransitAsync()
@@ -124,12 +157,9 @@ namespace Aldebaran.Web.Pages
             return await PurchaseOrderDetailService.GetTransitDetailOrdersAsync(statusOrder.StatusDocumentTypeId);
         }
 
-        async Task ExpiredReservationsAsync()
+        async Task RefreshExpiredReservationsAsync()
         {
             expiredReservations = await CustomerReservationService.GetExpiredReservationsAsync();
-
-            if (expiredReservationsGrid != null)
-                await expiredReservationsGrid.Reload();
         }
 
         protected async Task OpenCustomerReservation(CustomerReservation args)
@@ -138,7 +168,15 @@ namespace Aldebaran.Web.Pages
         }
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
 
-        #endregion
+        protected async Task DisableAlarm(Models.ViewModels.Alarm args)
+        {
+            if (await DialogService.Confirm("Desea marcar esta alarma como leída?. No volverá a salir en su Home", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Marcar alarma leída") == true)
+            {
+                await VisualizedAlarmService.AddAsync(new VisualizedAlarm { AlarmId = args.AlarmId, EmployeeId = employee.EmployeeId });
+                RefreshData();
+            }
+        }
 
+        #endregion
     }
 }
