@@ -65,7 +65,7 @@
                     <RadzenStack Class="rz-my-8">
                         <RadzenTabs Visible="@(customerOrder != null)">
                             <Tabs>
-                                <RadzenTabsItem Text="Referencias del Pedido">
+                                <RadzenTabsItem Text="Referencias del pedido">
                                     <LocalizedDataGrid ColumnWidth="200px" Visible="@(customerOrder != null)" @ref=CustomerOrderDetailsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                                        ExpandMode="DataGridExpandMode.Single" Data="@customerOrder?.CustomerOrderDetails" TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail">
                                         <Columns>
@@ -144,6 +144,40 @@
                                         </RadzenStack>
                                     </RadzenTabsItem>
                                 </RadzenStack>
+                                <RadzenTabsItem Text="Alarmas para el pedido">
+                                    <RadzenStack>
+                                        <RadzenRow Gap="0" AlignItems="AlignItems.Center">
+                                            <RadzenColumn Size="12">
+                                                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
+                                                    <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddAlarmButtonClick" Variant="Variant.Flat"
+                                                                  Visible="@CanEdit(customerOrder).Result" />
+                                                </RadzenStack>
+                                            </RadzenColumn>
+                                        </RadzenRow>
+                                        <LocalizedDataGrid ColumnWidth="200px" Visible="@(customerOrder != null)" @ref=CustomerOrderDetailsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                                           ExpandMode="DataGridExpandMode.Single" Data="@alarms" TItem="Aldebaran.Application.Services.Models.Alarm">
+                                            <Columns>
+                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Alarm" Property="CreationDate" Title="Fecha creación" Width="50%">
+                                                    <Template Context="alarm">
+                                                        <span>@alarm.CreationDate.ToString(SharedLocalizer["date:format"])</span>
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Alarm" Property="ExecutionDate" Title="Fecha activación" Width="50%">
+                                                    <Template Context="alarm">
+                                                        <span>@alarm.ExecutionDate.ToString(SharedLocalizer["date:format"])</span>
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Alarm" Property="AlarmMessage" Title="Mensaje" Width="80%"></RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Alarm" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                                                    <Template Context="alarm">
+                                                        <RadzenButton Icon="assignment_turned_in" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => DisableAlarm(alarm))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Marcar alarma como leída", new TooltipOptions(){ Position = TooltipPosition.Left }))">
+                                                        </RadzenButton>
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                            </Columns>
+                                        </LocalizedDataGrid>
+                                    </RadzenStack>
+                                </RadzenTabsItem>
                             </Tabs>
                         </RadzenTabs>
                     </RadzenStack>

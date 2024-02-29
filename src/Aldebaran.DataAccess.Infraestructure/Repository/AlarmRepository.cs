@@ -21,6 +21,20 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                                                                                           k.AlarmTypeId == i.AlarmMessage.AlarmTypeId))
                             .ToListAsync(ct);
         }
+
+        public async Task<Alarm> AddAsync(Alarm item, CancellationToken ct = default)
+        {
+            await _context.Alarms.AddAsync(item, ct);
+            await _context.SaveChangesAsync(ct);
+            return item;
+        }
+
+        public async Task<Alarm> RemoveAsync(Alarm item, CancellationToken ct = default)
+        {
+            _context.Alarms.Remove(item);
+            await _context.SaveChangesAsync(ct);
+            return item;
+        }
     }
 
 }

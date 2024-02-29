@@ -45,6 +45,11 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         [Inject]
         protected TooltipService TooltipService { get; set; }
 
+
+        [Inject]
+        protected IAlarmService AlarmService { get; set; }
+
+
         #endregion
 
         #region Parameters
@@ -61,8 +66,10 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected DocumentType documentType;
         protected IEnumerable<CustomerOrder> customerOrders;
         protected LocalizedDataGrid<CustomerOrder> CustomerOrdersGrid;
+        protected IEnumerable<Application.Services.Models.Alarm> alarms;
+        protected LocalizedDataGrid<Application.Services.Models.Alarm> alarmsGrid;
         protected CustomerOrder customerOrder;
-        protected CustomerOrderActivity customerOrderActivity;
+        protected CustomerOrderActivity customerOrderActivity;        
         protected LocalizedDataGrid<CustomerOrderDetail> CustomerOrderDetailsDataGrid;
         protected LocalizedDataGrid<CustomerOrderActivity> CustomerOrderActivitiesDataGrid;
         protected LocalizedDataGrid<CustomerOrderActivityDetail> CustomerOrderActivityDetailsDataGrid;
@@ -183,6 +190,11 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected async Task AddActivityButtonClick(MouseEventArgs args)
         {
             NavigationManager.NavigateTo("add-customer-order-activity/" + customerOrder.CustomerOrderId);
+        }
+
+        protected async Task AddAlarmButtonClick(MouseEventArgs args)
+        {
+            NavigationManager.NavigateTo("add-customer-order-alarm/" + customerOrder.CustomerOrderId);
         }
 
         protected async Task EditActivityRow(CustomerOrderActivity args)
