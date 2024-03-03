@@ -1,0 +1,45 @@
+﻿@using ServiceModel = Aldebaran.Application.Services.Models;
+@using Aldebaran.Web.Resources.LocalizedControls;
+@inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer
+
+<RadzenStack Gap="1rem">
+    @if (!alarmMessages.Any())
+    {
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="IsErrorVisible">
+            Alarmas no encontradas para el tipo de documento!!!
+        </RadzenAlert>
+    }
+    <RadzenTemplateForm TItem="ServiceModel.Alarm" Data="@alarm" Visible="@alarmMessages.Any()" Submit="@FormSubmit" InvalidSubmit="()=>Submitted=true">
+        <div class="component-section d-flex flex-column justify-content-start">
+            <span>@Title</span>
+        </div>
+        <RadzenRow AlignItems="AlignItems.Center" class="my-4">
+            <RadzenFormField Text="Mensaje" Variant="Variant.Text" Style="width: 100%;">
+                <ChildContent>
+                    <RadzenDropDown Data="@alarmMessages" TextProperty="Message" ValueProperty="AlarmMessageId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    style="display: block; width: 100%" @bind-Value="@alarm.AlarmMessageId" Name="AlarmMessage">
+                    </RadzenDropDown>
+                </ChildContent>
+                <Helper>
+                    <RadzenNumericRangeValidator Component="AlarmMessage" Min="1" Text="Mensaje de la alarma es requerido" />
+                </Helper>
+            </RadzenFormField>
+
+            <RadzenFormField Text="Fecha de activación" Variant="Variant.Text" Style="width: 100%;">
+                <ChildContent>
+                    <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@alarm.ExecutionDate"
+                                      TabIndex="2" Name="EXECUTION_DATE" Placeholder="Seleccione la fecha de activación" />
+                </ChildContent>
+                <Helper>
+                    <RadzenRequiredValidator Text="La fecha de pedido es requerida" Component="EXECUTION_DATE" />
+                </Helper>
+            </RadzenFormField>
+        </RadzenRow>
+        <div class="mt-2">
+            <div class="rz-dialog-confirm-buttons">
+                <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Text="Crear" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" class="rz-button rz-button-md rz-variant-filled rz-primary rz-shade-default" />
+                <RadzenButton ButtonStyle="ButtonStyle.Light" Text="No" Variant="Variant.Flat" Click="@Cancel" class="rz-button rz-button-md rz-variant-filled rz-secondary rz-shade-default" />
+            </div>
+        </div>
+    </RadzenTemplateForm>
+</RadzenStack>

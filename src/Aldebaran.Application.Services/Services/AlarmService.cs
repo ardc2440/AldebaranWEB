@@ -1,4 +1,5 @@
 ﻿using Aldebaran.Application.Services.Models;
+using Entities = Aldebaran.DataAccess.Entities;
 using Aldebaran.DataAccess.Infraestructure.Repository;
 using AutoMapper;
 
@@ -28,6 +29,12 @@ namespace Aldebaran.Application.Services
         public async Task<IEnumerable<Alarm>> GetByEmployeeIdAsync(int employeeId, CancellationToken ct = default)
         {
             var data = await _repository.GetByEmployeeIdAsync(employeeId, ct);
+            return _mapper.Map<List<Alarm>>(data);
+        }
+
+        public async Task<IEnumerable<Alarm>> GetByDocumentIdAsync(int documentTypeId, int documentId, CancellationToken ct = default) 
+        {
+            var data = await _repository.GetByDocumentIdAsync(documentTypeId, documentId, ct);
             return _mapper.Map<List<Alarm>>(data);
         }
 
@@ -76,6 +83,17 @@ namespace Aldebaran.Application.Services
             return purchaseOrderNumber;
         }
 
+        public async Task<Alarm> AddAsync(Alarm alarm, CancellationToken ct = default)
+        {
+            var entity = _mapper.Map<Entities.Alarm>(alarm) ?? throw new ArgumentNullException("Alarma no puede ser nula.");
+            var result = await _repository.AddAsync(entity, ct);
+            return _mapper.Map<Alarm>(result);
+        }
+
+        public async Task DisableAsync(int alarmId, CancellationToken ct = default)
+        {
+            await _repository.DisableAsync(alarmId, ct);
+        }
     }
 
 }

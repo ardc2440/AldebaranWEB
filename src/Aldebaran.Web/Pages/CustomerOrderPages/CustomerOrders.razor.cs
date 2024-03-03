@@ -66,15 +66,17 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected DocumentType documentType;
         protected IEnumerable<CustomerOrder> customerOrders;
         protected LocalizedDataGrid<CustomerOrder> CustomerOrdersGrid;
-        protected IEnumerable<Application.Services.Models.Alarm> alarms;
-        protected LocalizedDataGrid<Application.Services.Models.Alarm> alarmsGrid;
         protected CustomerOrder customerOrder;
-        protected CustomerOrderActivity customerOrderActivity;        
+        protected CustomerOrderActivity customerOrderActivity;
         protected LocalizedDataGrid<CustomerOrderDetail> CustomerOrderDetailsDataGrid;
         protected LocalizedDataGrid<CustomerOrderActivity> CustomerOrderActivitiesDataGrid;
         protected LocalizedDataGrid<CustomerOrderActivityDetail> CustomerOrderActivityDetailsDataGrid;
         protected string search = "";
         protected bool isLoadingInProgress;
+
+        protected IEnumerable<Application.Services.Models.Alarm> alarms;
+        protected LocalizedDataGrid<Application.Services.Models.Alarm> alarmsGrid;
+
         #endregion
 
         #region Override
@@ -190,11 +192,6 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected async Task AddActivityButtonClick(MouseEventArgs args)
         {
             NavigationManager.NavigateTo("add-customer-order-activity/" + customerOrder.CustomerOrderId);
-        }
-
-        protected async Task AddAlarmButtonClick(MouseEventArgs args)
-        {
-            NavigationManager.NavigateTo("add-customer-order-alarm/" + customerOrder.CustomerOrderId);
         }
 
         protected async Task EditActivityRow(CustomerOrderActivity args)
@@ -314,6 +311,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             await GetOrderDetails(args);
 
             await GetCustomerOrderActivitiesAsync(args);
+
+            await GetCustomerOrderAlarmsAsync(args);
         }
 
         protected async Task<bool> CanEdit(CustomerOrder customerOrder)
@@ -370,6 +369,92 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         {
             return Security.IsInRole("Admin", "Customer Order Activities Editor") && customerOrder.StatusDocumentType.EditMode;
         }
+
+
+        #region Alarms
+
+        protected async Task<bool> CanEditAlarm(bool alarm, int statusOrder)
+        {
+            if (!alarm)
+                return false;
+
+            int[] validStatusOrder = { 1, 2, 3 };
+            return Security.IsInRole("Admin", "Customer Order Editor") && validStatusOrder.Contains(statusOrder);
+        }
+
+        protected async Task DisableAlarm(Application.Services.Models.Alarm alarm)
+        {
+            try
+            {
+                dialogResult = null;
+
+                if (await DialogService.Confirm("Está seguro que desea desactivar esta alarma?") == true)
+                {
+                    await AlarmService.DisableAsync(alarm.AlarmId);
+
+                    alarm.IsActive = false;
+                    NotificationService.Notify(new NotificationMessage
+                    {
+                        Summary = "Alarma de pedido",
+                        Severity = NotificationSeverity.Success,
+                        Detail = $"La alarma ha sido desactivada correctamente."
+                    });
+
+                    await alarmsGrid.Reload();
+                }
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = $"Error",
+                    Detail = $"No se ha podido desactivar la alarma.\n {ex.Message}"
+                });
+            }
+        }
+
+        protected async Task GetCustomerOrderAlarmsAsync(CustomerOrder args)
+        {
+            var CustomerOrderAlarmsResult = await AlarmService.GetByDocumentIdAsync(documentType.DocumentTypeId, args.CustomerOrderId);
+            if (CustomerOrderAlarmsResult != null)
+            {
+                alarms = CustomerOrderAlarmsResult.ToList();
+            }
+        }
+
+        protected async Task AddAlarmButtonClick(MouseEventArgs args)
+        {
+            try
+            {
+                dialogResult = null;
+                var alarmResult = await DialogService.OpenAsync<AlarmDialog>("Crear alarma para pedido", new Dictionary<string, object> { { "Title", "Creación de alarma" }, { "DocumentTypeId", documentType.DocumentTypeId },{ "DocumentId", customerOrder.CustomerOrderId} });
+                
+                if (alarmResult == null)
+                    return;
+                                
+                await GetCustomerOrderAlarmsAsync(customerOrder);
+
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = $"Alarma para pedido de artículos",
+                    Detail = $"La alarma para el pedido No. {customerOrder.OrderNumber} ha sido creada correctamente."
+                });
+                await alarmsGrid.Reload();
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = $"Error",
+                    Detail = $"No se ha podido crear la alarma.\n {ex.Message}"
+                });
+            }
+        }
+
+        #endregion
 
         #endregion
 
