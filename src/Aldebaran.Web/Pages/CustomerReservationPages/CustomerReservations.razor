@@ -61,30 +61,77 @@
                 </Columns>
                 <Template Context="customerReservation">
                     <RadzenStack Class="rz-my-8">
-                        <RadzenRow Gap="0" AlignItems="AlignItems.Center">
-                            <RadzenColumn Size="12" SizeMD="6">
-                                <RadzenText Visible="@(customerReservation != null)" Text="Referencias de la reserva" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
-                            </RadzenColumn>
-                        </RadzenRow>
-                        <LocalizedDataGrid ColumnWidth="200px" Visible="@(customerReservation != null)" @ref=CustomerReservationDetailsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                           ExpandMode="DataGridExpandMode.Single" Data="@customerReservation?.CustomerReservationDetails" TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail">
-                            <Columns>
-                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Property="ReservedQuantity" Title="Cantidad">
-                                </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Title="Referencia">
-                                    <Template Context="detail">
-                                        <RadzenLabel MouseEnter="@(args => ShowTooltip(args,GetReferenceHint(@detail.ItemReference).Result, new TooltipOptions(){ Position = TooltipPosition.Left }))">
-                                            (@detail.ItemReference.Item.Line.LineName) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName
-                                        </RadzenLabel>
-                                    </Template>
-                                </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Property="SendToCustomerOrder" Title="Agregar al pedido" Visible="false">
-                                    <Template Context="detail">
-                                        <RadzenCheckBox @bind-Value="@detail.SendToCustomerOrder" Name="SEND_TO_CUSTOMER_ORDER" Disabled="true"></RadzenCheckBox>
-                                    </Template>
-                                </RadzenDataGridColumn>
-                            </Columns>
-                        </LocalizedDataGrid>
+                        <RadzenTabs Visible="@(customerReservation != null)">
+                            <Tabs>
+                                <RadzenTabsItem Text="Referencias de la reserva">
+                                    <LocalizedDataGrid ColumnWidth="200px" Visible="@(customerReservation != null)" @ref=CustomerReservationDetailsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                                       ExpandMode="DataGridExpandMode.Single" Data="@customerReservation?.CustomerReservationDetails" TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail">
+                                        <Columns>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Property="ReservedQuantity" Title="Cantidad">
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Title="Referencia">
+                                                <Template Context="detail">
+                                                    <RadzenLabel MouseEnter="@(args => ShowTooltip(args,GetReferenceHint(@detail.ItemReference).Result, new TooltipOptions(){ Position = TooltipPosition.Left }))">
+                                                        (@detail.ItemReference.Item.Line.LineName) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName
+                                                    </RadzenLabel>
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Property="SendToCustomerOrder" Title="Agregar al pedido" Visible="false">
+                                                <Template Context="detail">
+                                                    <RadzenCheckBox @bind-Value="@detail.SendToCustomerOrder" Name="SEND_TO_CUSTOMER_ORDER" Disabled="true"></RadzenCheckBox>
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                        </Columns>
+                                    </LocalizedDataGrid>
+                                </RadzenTabsItem>
+                                <RadzenTabsItem Text="Alarmas para la reserva">
+                                    <RadzenStack>
+                                        <RadzenRow Gap="0" AlignItems="AlignItems.Center">
+                                            <RadzenColumn Size="12">
+                                                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
+                                                    <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddAlarmButtonClick" Variant="Variant.Flat"
+                                                                  Visible="@CanEdit(customerReservation).Result" />
+                                                </RadzenStack>
+                                            </RadzenColumn>
+                                        </RadzenRow>
+                                        <LocalizedDataGrid ColumnWidth="200px" Visible="@(customerReservation != null)" @ref=alarmsGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                                           ExpandMode="DataGridExpandMode.Single" Data="@alarms" TItem="Aldebaran.Application.Services.Models.Alarm">
+                                            <Columns>
+                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Alarm" Property="CreationDate" Title="Fecha creación" Width="40%">
+                                                    <Template Context="alarm">
+                                                        <span>@alarm.CreationDate.ToString(SharedLocalizer["date:format"])</span>
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Alarm" Property="ExecutionDate" Title="Fecha activación" Width="40%">
+                                                    <Template Context="alarm">
+                                                        <span>@alarm.ExecutionDate.ToString(SharedLocalizer["date:format"])</span>
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Alarm" Property="AlarmMessage.Message" Title="Mensaje" Width="100%"></RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Alarm" Property="IsActive" Title="Estado" Width="20%">
+                                                    <Template Context="alarm">
+                                                        @if (alarm.IsActive)
+                                                        {
+                                                            <span>Activa</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span>Inactiva</span>
+                                                        }
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Alarm" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                                                    <Template Context="alarm">
+                                                        <RadzenButton Icon="assignment_turned_in" ButtonStyle="ButtonStyle.Light" Visible="@CanEditAlarm(alarm.IsActive, customerReservation.StatusDocumentType.StatusOrder).Result" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => DisableAlarm(alarm))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Desactivar alarma", new TooltipOptions(){ Position = TooltipPosition.Left }))">
+                                                        </RadzenButton>
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                            </Columns>
+                                        </LocalizedDataGrid>
+                                    </RadzenStack>
+                                </RadzenTabsItem>
+                            </Tabs>
+                        </RadzenTabs>
                     </RadzenStack>
                 </Template>
             </LocalizedDataGrid>

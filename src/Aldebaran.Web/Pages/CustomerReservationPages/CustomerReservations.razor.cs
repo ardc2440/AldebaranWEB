@@ -42,6 +42,9 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         [Inject]
         protected ICustomerOrderService CustomerOrderService { get; set; }
 
+        [Inject]
+        protected IAlarmService AlarmService { get; set; }
+
         #endregion
 
         #region Parameters
@@ -55,6 +58,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         #endregion
 
         #region Global Variables
+        protected DialogResult dialogResult;
         protected IEnumerable<CustomerReservation> customerReservations;
         protected LocalizedDataGrid<CustomerReservation> CustomerReservationGrid;
         protected DialogResult DialogResult { get; set; }
@@ -63,6 +67,9 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         protected DocumentType documentType;
         protected CustomerReservation customerReservation;
         protected LocalizedDataGrid<CustomerReservationDetail> CustomerReservationDetailsDataGrid;
+
+        protected IEnumerable<Application.Services.Models.Alarm> alarms;
+        protected LocalizedDataGrid<Application.Services.Models.Alarm> alarmsGrid;
 
         #endregion
 
@@ -234,6 +241,8 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             {
                 args.CustomerReservationDetails = CustomerReservationDetailsResult.ToList();
             }
+
+            await GetCustomerReservationAlarmsAsync(args);
         }
 
         protected async Task<bool> CanEdit(CustomerReservation customerReservation)
@@ -250,6 +259,94 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         {
             NavigationManager.NavigateTo("send-to-customer-order/" + args.CustomerReservationId);
         }
+
+
+        #region Alarms
+
+        protected async Task<bool> CanEditAlarm(bool alarm, int statusOrder)
+        {
+            if (!alarm)
+                return false;
+
+            int[] validStatusOrder = { 1, 2, 3 };
+            return Security.IsInRole("Admin", "Customer Order Editor") && validStatusOrder.Contains(statusOrder);
+        }
+
+        protected async Task DisableAlarm(Application.Services.Models.Alarm alarm)
+        {
+            try
+            {
+                dialogResult = null;
+
+                if (await DialogService.Confirm("Está seguro que desea desactivar esta alarma?") == true)
+                {
+                    await AlarmService.DisableAsync(alarm.AlarmId);
+
+                    alarm.IsActive = false;
+                    NotificationService.Notify(new NotificationMessage
+                    {
+                        Summary = "Alarma de pedido",
+                        Severity = NotificationSeverity.Success,
+                        Detail = $"La alarma ha sido desactivada correctamente."
+                    });
+
+                    await alarmsGrid.Reload();
+                }
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = $"Error",
+                    Detail = $"No se ha podido desactivar la alarma.\n {ex.Message}"
+                });
+            }
+        }
+
+        protected async Task GetCustomerReservationAlarmsAsync(CustomerReservation args)
+        {
+            var CustomerOrderAlarmsResult = await AlarmService.GetByDocumentIdAsync(documentType.DocumentTypeId, args.CustomerReservationId);
+            if (CustomerOrderAlarmsResult != null)
+            {
+                alarms = CustomerOrderAlarmsResult.ToList();
+            }
+        }
+
+        protected async Task AddAlarmButtonClick(MouseEventArgs args)
+        {
+            try
+            {
+                dialogResult = null;
+                var alarmResult = await DialogService.OpenAsync<AlarmDialog>("Crear alarma para reserva", new Dictionary<string, object> { { "Title", "Creación de alarma" }, { "DocumentTypeId", documentType.DocumentTypeId }, { "DocumentId", customerReservation.CustomerReservationId } });
+
+                if (alarmResult == null)
+                    return;
+
+                await GetCustomerReservationAlarmsAsync(customerReservation);
+
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = $"Alarma para reserva de artículos",
+                    Detail = $"La alarma para la reserva No. {customerReservation.ReservationNumber} ha sido creada correctamente."
+                });
+                await alarmsGrid.Reload();
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = $"Error",
+                    Detail = $"No se ha podido crear la alarma.\n {ex.Message}"
+                });
+            }
+        }
+
+        #endregion
+
+
         #endregion
     }
 }
