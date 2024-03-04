@@ -65,7 +65,7 @@
                     <RadzenStack Class="rz-my-8">
                         <RadzenTabs Visible="@(customerOrder != null)">
                             <Tabs>
-                                <RadzenTabsItem Text="Referencias del pedido">
+                                <RadzenTabsItem Text="Referencias">
                                     <LocalizedDataGrid ColumnWidth="200px" Visible="@(customerOrder != null)" @ref=CustomerOrderDetailsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                                        ExpandMode="DataGridExpandMode.Single" Data="@customerOrder?.CustomerOrderDetails" TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail">
                                         <Columns>
@@ -86,7 +86,7 @@
                                     </LocalizedDataGrid>
                                 </RadzenTabsItem>
                                 <RadzenStack Visible="@Security.IsInRole("Admin","Customer Order Activities Viewer","Customer Order Activities Editor")">
-                                    <RadzenTabsItem Text="Actividades del pedido">
+                                    <RadzenTabsItem Text="Actividades">
                                         <RadzenStack>
                                             <RadzenRow Gap="0" AlignItems="AlignItems.Center">
                                                 <RadzenColumn Size="12">
@@ -144,7 +144,7 @@
                                         </RadzenStack>
                                     </RadzenTabsItem>
                                 </RadzenStack>
-                                <RadzenTabsItem Text="Alarmas para el pedido">
+                                <RadzenTabsItem Text="Alarmas">
                                     <RadzenStack>
                                         <RadzenRow Gap="0" AlignItems="AlignItems.Center">
                                             <RadzenColumn Size="12">

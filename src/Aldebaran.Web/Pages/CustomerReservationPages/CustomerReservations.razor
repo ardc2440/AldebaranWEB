@@ -63,7 +63,7 @@
                     <RadzenStack Class="rz-my-8">
                         <RadzenTabs Visible="@(customerReservation != null)">
                             <Tabs>
-                                <RadzenTabsItem Text="Referencias de la reserva">
+                                <RadzenTabsItem Text="Referencias">
                                     <LocalizedDataGrid ColumnWidth="200px" Visible="@(customerReservation != null)" @ref=CustomerReservationDetailsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                                        ExpandMode="DataGridExpandMode.Single" Data="@customerReservation?.CustomerReservationDetails" TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail">
                                         <Columns>
@@ -84,7 +84,7 @@
                                         </Columns>
                                     </LocalizedDataGrid>
                                 </RadzenTabsItem>
-                                <RadzenTabsItem Text="Alarmas para la reserva">
+                                <RadzenTabsItem Text="Alarmas">
                                     <RadzenStack>
                                         <RadzenRow Gap="0" AlignItems="AlignItems.Center">
                                             <RadzenColumn Size="12">

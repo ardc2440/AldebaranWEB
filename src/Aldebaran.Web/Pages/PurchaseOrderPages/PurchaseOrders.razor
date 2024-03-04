@@ -145,6 +145,53 @@
                                     </LocalizedDataGrid>
                                 </RadzenStack>
                             </RadzenTabsItem>
+                            <RadzenTabsItem Text="Alarmas">
+                                <RadzenStack>
+                                    <RadzenRow Gap="0" AlignItems="AlignItems.Center">
+                                        <RadzenColumn Size="12">
+                                            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
+                                                <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddAlarmButtonClick" Variant="Variant.Flat"
+                                                              Visible="purchaseOrder.StatusDocumentType.EditMode == true" />
+                                            </RadzenStack>
+                                        </RadzenColumn>
+                                    </RadzenRow>
+                                    <LocalizedDataGrid ColumnWidth="200px" Visible="@(purchaseOrder != null)" @ref=alarmsGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                                       ExpandMode="DataGridExpandMode.Single" Data="@alarms" TItem="Aldebaran.Application.Services.Models.Alarm">
+                                        <Columns>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Alarm" Property="CreationDate" Title="Fecha creación" Width="40%">
+                                                <Template Context="alarm">
+                                                    <span>@alarm.CreationDate.ToString(SharedLocalizer["date:format"])</span>
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Alarm" Property="ExecutionDate" Title="Fecha activación" Width="40%">
+                                                <Template Context="alarm">
+                                                    <span>@alarm.ExecutionDate.ToString(SharedLocalizer["date:format"])</span>
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Alarm" Property="AlarmMessage.Message" Title="Mensaje" Width="100%"></RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Alarm" Property="IsActive" Title="Estado" Width="20%">
+                                                <Template Context="alarm">
+                                                    @if (alarm.IsActive)
+                                                    {
+                                                        <span>Activa</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span>Inactiva</span>
+                                                    }
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Alarm" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                                                <Template Context="alarm">
+                                                    <RadzenButton Icon="assignment_turned_in" ButtonStyle="ButtonStyle.Light" Visible="@CanEditAlarm(alarm.IsActive, purchaseOrder.StatusDocumentType.StatusOrder).Result" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => DisableAlarm(alarm))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Desactivar alarma", new TooltipOptions(){ Position = TooltipPosition.Left }))">
+                                                    </RadzenButton>
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                        </Columns>
+                                    </LocalizedDataGrid>
+                                </RadzenStack>
+                            </RadzenTabsItem>
+
                         </Tabs>
                     </RadzenTabs>
                 </Template>

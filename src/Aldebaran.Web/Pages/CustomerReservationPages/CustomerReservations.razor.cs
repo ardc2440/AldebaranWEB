@@ -268,7 +268,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             if (!alarm)
                 return false;
 
-            int[] validStatusOrder = { 1, 2, 3 };
+            int[] validStatusOrder = { 1 };
             return Security.IsInRole("Admin", "Customer Order Editor") && validStatusOrder.Contains(statusOrder);
         }
 

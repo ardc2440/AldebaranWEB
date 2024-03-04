@@ -1,4 +1,6 @@
 using Aldebaran.Application.Services;
+using Aldebaran.Web.Models.ViewModels;
+using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Shared;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Components;
@@ -42,6 +44,13 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
 
         [Inject]
         protected SecurityService Security { get; set; }
+
+        [Inject]
+        protected IAlarmService AlarmService { get; set; }
+
+        [Inject]
+        protected IDocumentTypeService DocumentTypeService { get; set; }
+
         #endregion
 
         #region Parameters
@@ -52,11 +61,17 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         #endregion
 
         #region Variables
+        protected DialogResult dialogResult;
         protected ServiceModel.PurchaseOrder PurchaseOrder;
         protected IEnumerable<ServiceModel.PurchaseOrder> PurchaseOrdersList;
         protected RadzenDataGrid<ServiceModel.PurchaseOrder> PurchaseOrderGrid;
         protected string search = "";
         protected bool IsLoadingInProgress;
+
+        protected ServiceModel.DocumentType documentType;
+        protected IEnumerable<ServiceModel.Alarm> alarms;
+        protected LocalizedDataGrid<ServiceModel.Alarm> alarmsGrid;
+
         #endregion
 
         #region Overrides
@@ -65,6 +80,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
             try
             {
                 IsLoadingInProgress = true;
+                documentType = await DocumentTypeService.FindByCodeAsync("O");
                 await GetPurchaseOrdersAsync();
                 await DialogResultResolver();
             }
@@ -142,6 +158,8 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 args.PurchaseOrderDetails = details.ToList();
                 var activities = await PurchaseOrderActivityService.GetByPurchaseOrderIdAsync(args.PurchaseOrderId);
                 args.PurchaseOrderActivities = activities.ToList();
+
+                await GetPurchaseOrderAlarmsAsync(args);
             }
             finally
             {
@@ -292,6 +310,92 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         #region PurchaseOrderDetail
         protected RadzenDataGrid<ServiceModel.PurchaseOrderDetail> PurchaseOrderDetailsDataGrid;
         #endregion
+
+        #region Alarms
+
+        protected async Task<bool> CanEditAlarm(bool alarm, int statusOrder)
+        {
+            if (!alarm)
+                return false;
+
+            int[] validStatusOrder = { 1 };
+            return Security.IsInRole("Admin", "Customer Order Editor") && validStatusOrder.Contains(statusOrder);
+        }
+
+        protected async Task DisableAlarm(Application.Services.Models.Alarm alarm)
+        {
+            try
+            {
+                dialogResult = null;
+
+                if (await DialogService.Confirm("Está seguro que desea desactivar esta alarma?") == true)
+                {
+                    await AlarmService.DisableAsync(alarm.AlarmId);
+
+                    alarm.IsActive = false;
+                    NotificationService.Notify(new NotificationMessage
+                    {
+                        Summary = "Alarma de pedido",
+                        Severity = NotificationSeverity.Success,
+                        Detail = $"La alarma ha sido desactivada correctamente."
+                    });
+
+                    await alarmsGrid.Reload();
+                }
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = $"Error",
+                    Detail = $"No se ha podido desactivar la alarma.\n {ex.Message}"
+                });
+            }
+        }
+
+        protected async Task GetPurchaseOrderAlarmsAsync(ServiceModel.PurchaseOrder args)
+        {
+            var CustomerOrderAlarmsResult = await AlarmService.GetByDocumentIdAsync(documentType.DocumentTypeId, args.PurchaseOrderId);
+            if (CustomerOrderAlarmsResult != null)
+            {
+                alarms = CustomerOrderAlarmsResult.ToList();
+            }
+        }
+
+        protected async Task AddAlarmButtonClick(MouseEventArgs args)
+        {
+            try
+            {
+                dialogResult = null;
+                var alarmResult = await DialogService.OpenAsync<AlarmDialog>("Crear alarma para pedido", new Dictionary<string, object> { { "Title", "Creación de alarma" }, { "DocumentTypeId", documentType.DocumentTypeId }, { "DocumentId", PurchaseOrder.PurchaseOrderId } });
+
+                if (alarmResult == null)
+                    return;
+
+                await GetPurchaseOrderAlarmsAsync(PurchaseOrder);
+
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = $"Alarma para orden de compra",
+                    Detail = $"La alarma para la orden de compra No. {PurchaseOrder.OrderNumber} ha sido creada correctamente."
+                });
+                await alarmsGrid.Reload();
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = $"Error",
+                    Detail = $"No se ha podido crear la alarma.\n {ex.Message}"
+                });
+            }
+        }
+
+        #endregion
+
         #endregion
     }
 }
