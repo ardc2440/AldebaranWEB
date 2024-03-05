@@ -7,7 +7,9 @@ using Aldebaran.DataAccess.Core.Triggers.Reservations;
 using Aldebaran.DataAccess.Core.Triggers.Shipments;
 using Aldebaran.DataAccess.Core.Triggers.Transfers;
 using Aldebaran.DataAccess.Infraestructure.Repository;
+using Aldebaran.Infraestructure.Core.Model;
 using Aldebaran.Infraestructure.Core.Queue;
+using Aldebaran.Infraestructure.Core.Ssh;
 using Aldebaran.Web.Data;
 using Aldebaran.Web.Models;
 using Aldebaran.Web.Resources;
@@ -50,6 +52,7 @@ namespace Aldebaran.Web.Extensions
             services.AddDbContext<AldebaranDbContext>(options => { options.UseSqlServer(dbConnection); }, ServiceLifetime.Scoped, ServiceLifetime.Scoped);
             services.AddScoped<AldebaranDbService>();
             // Configuration
+            services.Configure<FtpSettings>(configuration.GetSection("FtpSettings"));
             builder.Services.AddControllers().AddOData(o =>
             {
                 var oDataBuilder = new ODataConventionModelBuilder();
@@ -302,6 +305,7 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IQueue, RabbitQueue>();
             services.AddTransient<IQueueSettings, QueueSettings>();
             services.AddTransient<Notificator.INotificationService, Notificator.NotificationService>();
+            services.AddTransient<IFtpClient, FtpClient>();
             return services;
         }
     }
