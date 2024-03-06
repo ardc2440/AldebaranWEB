@@ -31,6 +31,7 @@ namespace Aldebaran.Infraestructure.Core.Queue
         private string? ConsumerTag;
 
         private readonly string QueueName;
+        private const int MaxNotificationAttempts = 5;
         public RabbitQueue(IConnection connection, ILogger<RabbitQueue> logger, IQueueSettings queueSettings)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(IConnection));
@@ -121,26 +122,26 @@ namespace Aldebaran.Infraestructure.Core.Queue
                         iretries++;
                         using (var channel2 = Connection.CreateModel())
                         {
-                            var queueName2 = QueueName + ((iretries > 10) ? "-dead-letter" : string.Empty);
-                            if (iretries > 10)
+                            var queueName2 = QueueName + ((iretries >= MaxNotificationAttempts) ? "-dead-letter" : string.Empty);
+                            channel2.QueueDeclare(queue: queueName2,
+                                                      durable: true,
+                                                      exclusive: false,
+                                                      autoDelete: false,
+                                                      arguments: null);
+                            var bproperties = channel2.CreateBasicProperties();
+                            bproperties.Headers = new Dictionary<string, object>
                             {
-                                channel2.QueueDeclare(queue: queueName2,
-                                                          durable: true,
-                                                          exclusive: false,
-                                                          autoDelete: false,
-                                                          arguments: null);
-                                var bproperties = channel2.CreateBasicProperties();
-                                bproperties.Headers = new Dictionary<string, object>
-                                {
-                                    ["x-retries"] = iretries
-                                };
-                                channel2.BasicPublish(exchange: string.Empty,
-                                                 routingKey: queueName2,
-                                                 basicProperties: bproperties,
-                                                 body: Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(request)));
-                                channel.BasicAck(deliveryTag: ea.DeliveryTag,
-                                         multiple: false);
-                            }
+                                ["x-retries"] = iretries,
+                                ["x-exception"] = ex.Message
+                            };
+                            if (queueName2 == QueueName)
+                                await Task.Delay(TimeSpan.FromMinutes(1));
+                            channel2.BasicPublish(exchange: string.Empty,
+                                             routingKey: queueName2,
+                                             basicProperties: bproperties,
+                                             body: Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(request)));
+                            channel.BasicAck(deliveryTag: ea.DeliveryTag,
+                                     multiple: false);
                         }
                     }
                     catch (Exception ex2)

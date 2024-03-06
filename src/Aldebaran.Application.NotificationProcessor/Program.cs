@@ -9,6 +9,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Polly;
+using Serilog;
+using Serilog.Events;
+using Serilog.Sinks.MSSqlServer;
+using System.Data;
 
 // Variables
 var builder = Host.CreateApplicationBuilder(args);
@@ -21,13 +25,29 @@ var configuration = new ConfigurationBuilder()
             .AddEnvironmentVariables()
             .Build();
 var amqpConnection = configuration.GetConnectionString("RabbitMqConnection") ?? throw new KeyNotFoundException("RabbitMqConnection");
+var dbConnection = configuration.GetConnectionString("LogDbConnection") ?? throw new KeyNotFoundException("AldebaranDbConnection");
 
 // Logging
-services.AddLogging(loggingBuilder =>
+builder.Logging.ClearProviders();
+builder.Logging.SetMinimumLevel(LogLevel.Trace);
+builder.Logging.AddSerilog();
+
+Log.Logger = new LoggerConfiguration()
+.ReadFrom.Configuration(configuration)
+.MinimumLevel.Information()
+.Enrich.FromLogContext()
+.Enrich.WithProperty("Source", "NotificationProcessor")
+.WriteTo.MSSqlServer(dbConnection, sinkOptions: new MSSqlServerSinkOptions
 {
-    loggingBuilder.ClearProviders();
-    loggingBuilder.SetMinimumLevel(LogLevel.Trace);
-});
+    TableName = "logs",
+    SchemaName = "log"
+}, restrictedToMinimumLevel: LogEventLevel.Information, columnOptions: new ColumnOptions
+{
+    AdditionalColumns = new SqlColumn[]
+    {
+        new SqlColumn{ DataType= SqlDbType.NVarChar, ColumnName="Source", DataLength=100 }
+    }
+}).CreateLogger();
 
 // Connections
 // RabbitMq
