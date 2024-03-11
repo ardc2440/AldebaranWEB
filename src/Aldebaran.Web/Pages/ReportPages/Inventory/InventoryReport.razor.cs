@@ -1,5 +1,4 @@
-﻿using Aldebaran.Application.Services;
-using Aldebaran.Web.Pages.PurchaseOrderPages;
+﻿using Aldebaran.Web.Pages.PurchaseOrderPages;
 using Aldebaran.Web.Pages.ReportPages.Inventory.Components;
 using Aldebaran.Web.Pages.ReportPages.Inventory.ViewModel;
 using Microsoft.AspNetCore.Components;
@@ -20,9 +19,6 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
 
         [Inject]
         protected IPdfService PdfService { get; set; }
-
-        [Inject]
-        protected IItemReferenceService ItemReferenceService { get; set; }
 
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
@@ -355,7 +351,6 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
                     }
                 }
             };
-            Filter = new InventoryFilter { ItemReferences = (await ItemReferenceService.GetAsync()).Take(8).ToList() };
         }
         #endregion
 
