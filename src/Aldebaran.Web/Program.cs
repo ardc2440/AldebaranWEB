@@ -1,4 +1,8 @@
 using Aldebaran.Web.Extensions;
+using Serilog;
+using Serilog.Events;
+using Serilog.Sinks.MSSqlServer;
+using System.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 ConfigureServices(builder);
@@ -10,6 +14,30 @@ static void ConfigureServices(WebApplicationBuilder builder)
 {
     builder.AddArchitecture();
     builder.AddInfraestructure();
+
+    var configuration = builder.Configuration;
+    var dbConnection = configuration.GetConnectionString("AldebaranDbConnection") ?? throw new KeyNotFoundException("AldebaranDbConnection");
+    // Logging
+    builder.Logging.ClearProviders();
+    builder.Logging.SetMinimumLevel(LogLevel.Trace);
+    builder.Logging.AddSerilog();
+
+    Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(configuration)
+    .MinimumLevel.Information()
+    .Enrich.FromLogContext()
+    .Enrich.WithProperty("Source", "Aldebaran.Web")
+    .WriteTo.MSSqlServer(dbConnection, sinkOptions: new MSSqlServerSinkOptions
+    {
+        TableName = "logs",
+        SchemaName = "log"
+    }, restrictedToMinimumLevel: LogEventLevel.Information, columnOptions: new ColumnOptions
+    {
+        AdditionalColumns = new SqlColumn[]
+        {
+            new SqlColumn{ DataType= SqlDbType.NVarChar, ColumnName="Source", DataLength=100 }
+        }
+    }).CreateLogger();
 }
 static void Configure(WebApplication app)
 {

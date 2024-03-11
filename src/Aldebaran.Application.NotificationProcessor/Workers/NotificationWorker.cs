@@ -60,6 +60,7 @@ namespace Aldebaran.Application.NotificationProcessor.Workers
                     catch (Exception ex)
                     {
                         _logger.LogError(ex, "NotificationWorker Service");
+                        throw;
                     }
                 }
             });
