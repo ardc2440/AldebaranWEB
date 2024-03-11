@@ -3,8 +3,42 @@
     color: #323130 !important;
     line-height: 1.42857143 !important;
 }
+
     .report * {
         font-size: 12px !important;
+    }
+
+    .report .text-left {
+        text-align: left !important;
+    }
+
+    .report .text-center {
+        text-align: center !important;
+    }
+
+    .report .mb-0 {
+        margin-bottom: 0 !important;
+    }
+
+    .report .mb-1 {
+        margin-bottom: 0.5rem !important;
+    }
+
+    .report .mt-0 {
+        margin-top: 0 !important;
+    }
+
+    .report .mt-1 {
+        margin-top: 0.5rem !important;
+    }
+
+    .report .mt-2 {
+        margin-top: 1rem !important;
+    }
+
+    .report p.title {
+        background: #f5f5f5;
+        padding: 0.25rem;
     }
 
     .report b {
@@ -40,6 +74,15 @@
         margin-top: 0 !important;
     }
 
+    .report h3 {
+        text-align: center !important;
+        font-size: 18px !important;
+        margin-bottom: 0.5rem !important;
+        font-weight: 500 !important;
+        line-height: 1.2 !important;
+        margin-top: 0 !important;
+    }
+
     .report table {
         width: 100% !important;
         margin-bottom: 5px !important;
@@ -47,9 +90,17 @@
         caption-side: bottom !important;
     }
 
+        .report table.striped tbody tr:nth-of-type(odd) {
+            background: #f5f5f5;
+        }
+
         .report table td {
             padding: 2px 4px !important;
         }
+
+            .report table td.freeze {
+                border-right: 1px solid #dee2e6;
+            }
 
         .report table td {
             vertical-align: top !important;
@@ -85,6 +136,25 @@
 
             .report table thead tr th {
                 text-align: left !important;
-                padding: 0px 5px !important;
+                padding: 0px 4px !important;
                 font-size: 12px !important;
+                vertical-align: top !important;
             }
+
+    .report .filters {
+        text-align: right;
+    }
+        .report .filters .title {
+            font-weight: 500;
+            margin: 0;
+            padding: 0;
+            margin-top: 0.5rem;
+        }
+        .report .filters .type {
+            font-style: italic;
+            font-weight: 400;
+        }
+        .report .filters p {
+            margin: 0;
+            padding: 0;
+        }

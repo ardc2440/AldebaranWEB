@@ -175,7 +175,7 @@ a {
 }
 
 .text-primary-color {
-    color: var(--rz-primary);
+    color: var(--rz-primary) !important;
 }
 
 .text-secondary-color {
@@ -252,6 +252,31 @@ hr {
     margin-bottom: 2rem;
 }
 
-.no-header table thead{
-    display:none;
+.no-header table thead {
+    display: none;
+}
+
+li.rz-multiselect-item.rz-state-disabled {
+    opacity: initial;
+    font-size: 1.075em;
+    color: var(--rz-primary);
+}
+
+    li.rz-multiselect-item.rz-state-disabled .rz-chkbox {
+        display: none;
+    }
+
+span.rz-dropdown-label.rz-inputtext {
+    line-height: 2em;
+}
+
+.rz-button.rz-secondary.rz-shade-default:hover {
+    background: transparent !important;
+}
+
+.rz-button.text-primary-color:hover {
+    filter: brightness(80%);
+}
+.rz-button.text-decoration-underline span.rz-button-text {
+    text-decoration: underline !important;
 }

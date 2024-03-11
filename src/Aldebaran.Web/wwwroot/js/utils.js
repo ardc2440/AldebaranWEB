@@ -13,6 +13,20 @@
     win.document.close();
     win.print();
 }
+async function readMoreToggle(id, val) {
+    var toggleLink = document.getElementById(id);
+    var readMoreElements = document.querySelectorAll('.read-more');
+    readMoreElements.forEach(function (element) {
+        if (val !== undefined) {
+            element.style.display = val ? 'inline' : 'none';
+            toggleLink.textContent = val ? 'Ver menos' : 'Ver más';
+        } else {
+            element.style.display = (element.style.display === 'none') ? 'inline' : 'none';
+            toggleLink.textContent = (element.style.display === 'none') ? 'Ver más' : 'Ver menos';
+        }
+    });    
+    //toggleLink.textContent = (toggleLink.textContent === 'Ver más') ? 'Ver menos' : 'Ver más';
+}
 async function downloadFile(fileName, type, content) {
     const byteArray = Uint8Array.from(atob(content), c => c.charCodeAt(0));
     const blob = new Blob([byteArray], { type: type });

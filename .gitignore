@@ -151,7 +151,7 @@ UpgradeLog*.htm
 
 # Temp files when opening LibreOffice on ubuntu
 .~lock.*
- 
+
 # svn
 .svn
 
@@ -165,7 +165,6 @@ UpgradeLog*.htm
 **/App_Data/*.mdf
 **/App_Data/*.ldf
 **/App_Data/*.sdf
-
 
 #LightSwitch generated files
 GeneratedArtifacts/
@@ -214,7 +213,6 @@ project.lock.json
 # Output folder used by Webpack or other FE stuff
 **/node_modules/*
 
-
 # SpecFlow specific
 *.feature.cs
 *.feature.xlsx.*
@@ -230,3 +228,5 @@ project.lock.json
 debug
 bin
 obj
+
+**/logs/*

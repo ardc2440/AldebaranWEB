@@ -43,6 +43,9 @@
 	<data name="date:format" xml:space="preserve">
 		<value>MM/dd/yyyy</value>
 	</data>
+	<data name="datetime:format" xml:space="preserve">
+		<value>MM/dd/yyyy hh:mm:ss tt</value>
+	</data>
 	<data name="grid:all_columns_text" xml:space="preserve">
 		<value>Todas las columnas</value>
 	</data>
