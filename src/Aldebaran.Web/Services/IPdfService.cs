@@ -2,6 +2,6 @@
 {
     public interface IPdfService
     {
-        Task<byte[]> GetBytes(string content);
+        Task<byte[]> GetBytes(string content, bool landscape = false);
     }
 }

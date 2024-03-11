@@ -377,7 +377,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
         {
             IsBusy = true;
             var html = await JSRuntime.InvokeAsync<string>("getContent", "inventory-report-container");
-            var pdfBytes = await PdfService.GetBytes(html);
+            var pdfBytes = await PdfService.GetBytes(html, true);
             await JSRuntime.InvokeVoidAsync("downloadFile", "Inventario.pdf", "application/pdf", Convert.ToBase64String(pdfBytes));
             IsBusy = false;
         }

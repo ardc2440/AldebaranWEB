@@ -5,7 +5,7 @@ namespace Aldebaran.Web
 {
     public class PdfSharpCoreService : IPdfService
     {
-        public async Task<byte[]> GetBytes(string content)
+        public async Task<byte[]> GetBytes(string content, bool landscape = false)
         {
             // Iniciar una instancia de Chromium a través de PuppeteerSharp
             await new BrowserFetcher().DownloadAsync();
@@ -19,6 +19,7 @@ namespace Aldebaran.Web
             var pdfBytes = await page.PdfDataAsync(new PdfOptions
             {
                 Format = PaperFormat.A4,
+                Landscape = landscape,
                 PrintBackground = true,
                 MarginOptions = new MarginOptions
                 {
