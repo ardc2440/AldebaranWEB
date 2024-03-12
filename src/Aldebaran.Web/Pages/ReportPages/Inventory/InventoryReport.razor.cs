@@ -1,5 +1,4 @@
-﻿using Aldebaran.Web.Pages.PurchaseOrderPages;
-using Aldebaran.Web.Pages.ReportPages.Inventory.Components;
+﻿using Aldebaran.Web.Pages.ReportPages.Inventory.Components;
 using Aldebaran.Web.Pages.ReportPages.Inventory.ViewModel;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -12,7 +11,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
     {
         #region Injections
         [Inject]
-        protected ILogger<AddPurchaseOrder> Logger { get; set; }
+        protected ILogger<InventoryReport> Logger { get; set; }
 
         [Inject]
         protected DialogService DialogService { get; set; }
@@ -26,14 +25,14 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
 
         #region Variables
         protected InventoryFilter Filter;
-        protected InventontoryViewModel ViewModel;
+        protected InventoryViewModel ViewModel;
         private bool IsBusy = false;
         #endregion
 
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            ViewModel = new InventontoryViewModel
+            ViewModel = new InventoryViewModel
             {
                 Lines = new List<InventoryLine>
                 {
