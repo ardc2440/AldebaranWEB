@@ -7,11 +7,11 @@ using Radzen;
 
 namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
 {
-    public partial class ReferenceMovement
+    public partial class ReferenceMovementReport
     {
         #region Injections
         [Inject]
-        protected ILogger<ReferenceMovement> Logger { get; set; }
+        protected ILogger<ReferenceMovementReport> Logger { get; set; }
 
         [Inject]
         protected DialogService DialogService { get; set; }

@@ -7,11 +7,11 @@ using Radzen;
 
 namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
 {
-    public partial class InProcessInventory
+    public partial class InProcessInventoryReport
     {
         #region Injections
         [Inject]
-        protected ILogger<InProcessInventory> Logger { get; set; }
+        protected ILogger<InProcessInventoryReport> Logger { get; set; }
 
         [Inject]
         protected DialogService DialogService { get; set; }
