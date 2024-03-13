@@ -1,10 +1,10 @@
-﻿@page "/report/inprocess-inventory"
+﻿@page "/report/reference-movement"
 @inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer
 
 <RadzenStack Style="gap:0.3em">
     <RadzenRow AlignItems="AlignItems.Start">
         <RadzenColumn Size="12">
-            <RadzenText Text="Reporte de inventario en proceso" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
+            <RadzenText Text="Reporte de movimientos de artículos" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
         </RadzenColumn>
     </RadzenRow>
     <RadzenRow AlignItems="AlignItems.Start" class="mb-2">
@@ -42,12 +42,12 @@
     <RadzenRow AlignItems="AlignItems.Start">
         <RadzenColumn Size="12">
             <RadzenCard style="min-height:600px; overflow-y:auto">
-                <div id="inprocess-inventory-report-container">
+                <div id="inventory-movement-report-container">
                     <div class="report">
                         <table>
                             <tr>
                                 <td width="50%">
-                                    <h2 class="text-left mb-0">Inventario en proceso</h2>
+                                    <h2 class="text-left mb-0">Movimientos de artículos</h2>
                                     <span class="mb-1">@DateTime.Now.ToString(SharedLocalizer["datetime:format"])</span>
                                 </td>
                                 <td width="50%">
@@ -67,46 +67,47 @@
                                 </td>
                             </tr>
                         </table>
-                        <div class="border mt-1">
-                            @foreach (var item in ViewModel.Items)
+                        <div class="mt-1 border">
+                            @foreach (var line in ViewModel.Lines)
                             {
-                                <p class="title">Artículo: (@item.InternalReference) @item.ItemName</p>
-                                <table class="edged" style="margin-bottom: 0 !important;margin:0">
-                                    <thead>
-                                        <tr>
-                                            <th width="40%">Referencia</th>
-                                            <th width="20%">En proceso</th>
-                                            @foreach (var warehouse in UniqueWarehouses.OrderBy(o => o.WarehouseId))
-                                            {
-                                                <th width="20%">@warehouse.WarehouseName</th>
-                                            }
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var reference in item.References)
-                                        {
+                                <p class="title" style="font-weight:600;">Línea: @line.LineName</p>
+                                @foreach (var item in line.Items)
+                                {
+                                    <p class="title" style="padding-left: 1em;">Artículo: @item.ItemName</p>
+                                    <table class="edged" style="margin-bottom: 0 !important;margin:0">
+                                        <thead>
                                             <tr>
-                                                <td width="40%">@reference.ReferenceName</td>
-                                                <td width="20%">@reference.InProcessAmount</td>
-                                                @foreach (var warehouse in UniqueWarehouses.OrderBy(o => o.WarehouseId))
-                                                {
-                                                    {
-                                                        var ws = reference.Warehouses.FirstOrDefault(w => w.WarehouseId == warehouse.WarehouseId);
-                                                        if (ws == null)
-                                                        {
-                                                            <td width="20%">0</td>
-                                                        }
-                                                        else
-                                                        {
-                                                            <td width="20%">@ws.Amount.ToString("N0")</td>
-                                                        }
-                                                    }
-                                                }
+                                                <th width="40%" style="padding-left: 1.5em !important;">Referencia</th>
+                                                <th width="15%" class="border-gray border-left-1">Cantidad Solicitada</th>
+                                                <th width="15%" class="border-gray border-left-1">Cantidad Reservada</th>
+                                                <th width="30%" colspan="2" style="text-align: center !important;" class="border-gray border-left-1">Existencias</th>
                                             </tr>
-                                        }
-                                    </tbody>
-                                </table>
-
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var reference in item.References)
+                                            {
+                                                <tr>
+                                                    <td width="40%" style="padding-left: 1.5em !important;">@reference.ReferenceName</td>
+                                                    <td width="15%" class="border-gray border-left-1">@reference.RequestedQuantity.ToString("N0")</td>
+                                                    <td width="15%" class="border-gray border-left-1">@reference.ReservedQuantity.ToString("N0")</td>
+                                                    <td width="30%" colspan="2" style="padding: 0 !important;" class="border-gray border-left-1">
+                                                        <table class="edged" style="text-align: center !important;margin:0 !important">
+                                                            <tbody>
+                                                                @foreach (var warehouse in reference.Warehouses)
+                                                                {
+                                                                    <tr>
+                                                                        <td width="50%" style="text-align:left" class="bold">@warehouse.WarehouseName</td>
+                                                                        <td width="50%" style="text-align:center" class="border-gray border-left-1">@warehouse.Amount.ToString("N0")</td>
+                                                                    </tr>
+                                                                }
+                                                            </tbody>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                }
                             }
                         </div>
                     </div>
