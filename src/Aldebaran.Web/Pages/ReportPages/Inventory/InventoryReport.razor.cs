@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using Radzen;
+using System.Collections;
 
 namespace Aldebaran.Web.Pages.ReportPages.Inventory
 {
@@ -155,7 +156,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
         {
             var inventoryPurchaseOrders = new List<InventoryPurchaseOrder>();
 
-            var warehouses = await WarehouseService.GetAsync();
+            var warehouses = await WarehouseService.GetAsync(ct);
 
             var purchaseOrdersActivity = await PurchaseOrderService.GetTransitByReferenceId(referenceId, ct);
 
@@ -183,13 +184,25 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
                         Date = date,
                         Total = detail.RequestedQuantity,
                         Warehouse = warehouse.WarehouseName,
-                        Activity = new List<InventoryActivity>()
+                        Activity = (await GetInventoryActivities(activities, ct)).ToList(),
                     };
                 }
             }
             return inventoryPurchaseOrders;
         }
 
+        public async Task<IEnumerable<InventoryActivity>> GetInventoryActivities(IEnumerable<PurchaseOrderActivity> activities, CancellationToken ct = default)
+        {
+            var invetoryActivityList = new List<InventoryActivity>();
+
+            foreach (var activity in activities)
+            {
+                invetoryActivityList.Add(new InventoryActivity { Date = activity.ExecutionDate, Description = activity.ActivityDescription });
+            }
+
+            return invetoryActivityList;
+
+        }
 
         #endregion
     }
