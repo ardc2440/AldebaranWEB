@@ -118,6 +118,15 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                .ToListAsync(ct);
         }
 
+        public async Task<IEnumerable<PurchaseOrder>> GetTransitByReferenceId(int referenceId, CancellationToken ct = default)
+        {
+            return await _context.PurchaseOrders.AsNoTracking()
+               .Include(i => i.PurchaseOrderDetails)
+               .Include(i => i.PurchaseOrderActivities)
+               .Where(w => w.StatusDocumentType.StatusOrder == 1 && _context.PurchaseOrderDetails.AsNoTracking().Any(d => d.PurchaseOrderId == w.PurchaseOrderId && d.ReferenceId == referenceId))
+               .ToListAsync(ct);
+        }
+
         public async Task UpdateAsync(int purchaseOrderId, PurchaseOrder purchaseOrder, Reason reason, CancellationToken ct = default)
         {
             var entity = await _context.PurchaseOrders

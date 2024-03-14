@@ -4,6 +4,8 @@ namespace Aldebaran.DataAccess.Entities
     {
         public short WarehouseId { get; set; }
         public string WarehouseName { get; set; }
+        public short WarehouseCode { get; set; }
+
         // Reverse navigation
         public ICollection<AdjustmentDetail> AdjustmentDetails { get; set; }
         public ICollection<CustomerOrderInProcessDetail> CustomerOrderInProcessDetails { get; set; }

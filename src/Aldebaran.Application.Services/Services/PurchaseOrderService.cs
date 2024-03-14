@@ -59,5 +59,11 @@ namespace Aldebaran.Application.Services
             var mapReason = _mapper.Map<DataAccess.Infraestructure.Models.Reason>(reason);
             await _repository.UpdateAsync(purchaseOrderId, entity, mapReason, ct);
         }
+
+        public async Task<IEnumerable<PurchaseOrder>> GetTransitByReferenceId(int referenceId, CancellationToken ct = default)
+        {
+            var data = await _repository.GetTransitByReferenceId(referenceId, ct);
+            return _mapper.Map<List<PurchaseOrder>>(data);
+        }
     }
 }

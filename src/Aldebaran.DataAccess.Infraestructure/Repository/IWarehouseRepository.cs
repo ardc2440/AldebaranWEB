@@ -6,7 +6,8 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
     {
         Task<List<Warehouse>> GetAsync(CancellationToken ct = default);
         Task<List<Warehouse>> GetAsync(string searchKey, CancellationToken ct = default);
-        Task<Warehouse?> FindAsync(int wareHouseId, CancellationToken ct = default);
+        Task<Warehouse?> FindAsync(short warehouseId, CancellationToken ct = default);
+        Task<Warehouse?> FindByCodeAsync(short warehouseId, CancellationToken ct = default);
     }
 
 }

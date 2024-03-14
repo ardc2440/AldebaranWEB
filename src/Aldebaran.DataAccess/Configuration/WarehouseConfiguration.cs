@@ -10,7 +10,9 @@ namespace Aldebaran.DataAccess.Entities
             builder.HasKey(x => x.WarehouseId).HasName("PK_WAREHOUSE").IsClustered();
             builder.Property(x => x.WarehouseId).HasColumnName(@"WAREHOUSE_ID").HasColumnType("smallint").IsRequired().ValueGeneratedOnAdd().UseIdentityColumn();
             builder.Property(x => x.WarehouseName).HasColumnName(@"WAREHOUSE_NAME").HasColumnType("varchar(30)").IsRequired().IsUnicode(false).HasMaxLength(30);
+            builder.Property(x => x.WarehouseCode).HasColumnName(@"WAREHOUSE_CODE").HasColumnType("smallint").IsRequired();
             builder.HasIndex(x => x.WarehouseName).HasDatabaseName("UQ_WAREHOUSE_NAME").IsUnique();
+            builder.HasIndex(x => x.WarehouseCode).HasDatabaseName("UQ_WAREHOUSE_CODE").IsUnique();
         }
     }
 }

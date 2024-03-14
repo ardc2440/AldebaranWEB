@@ -109,7 +109,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .ToListAsync(ct);
         }
 
-        public async Task<IEnumerable<ItemReference>> GetAllReferencesWithMinimumQuantity(CancellationToken ct = default) 
+        public async Task<IEnumerable<ItemReference>> GetAllReferencesWithMinimumQuantity(CancellationToken ct = default)
         {
             return await _context.ItemReferences.AsNoTracking()
                 .Include(i => i.Item.Line)
@@ -125,6 +125,14 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .ToListAsync(ct);
         }
 
+        public async Task<IEnumerable<ItemReference>> GetInventoryReportReferences(short? lineId = null, int? itemId = null, int? referenceId = null, CancellationToken ct = default)
+        {
+            return await _context.ItemReferences.AsNoTracking()
+                .Include(i => i.Item.Line)
+                .Where(i => (i.Item.ItemId == itemId || itemId == null) &&
+                            (i.Item.Line.LineId == lineId || lineId == null) &&
+                            (i.ReferenceId == referenceId || referenceId == null))
+                .ToListAsync(ct);
+        }
     }
-
 }

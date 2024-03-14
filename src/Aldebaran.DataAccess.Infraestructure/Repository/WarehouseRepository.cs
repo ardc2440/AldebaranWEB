@@ -24,10 +24,16 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .ToListAsync(ct);
         }
 
-        public async Task<Warehouse?> FindAsync(int wareHouseId, CancellationToken ct = default)
+        public async Task<Warehouse?> FindAsync(short warehouseId, CancellationToken ct = default)
         {
             return await _context.Warehouses.AsNoTracking()
-                .FirstOrDefaultAsync(i => i.WarehouseId == wareHouseId);
+                .FirstOrDefaultAsync(i => i.WarehouseId == warehouseId);
+        }
+
+        public async Task<Warehouse?> FindByCodeAsync(short warehouseCode, CancellationToken ct = default)
+        {
+            return await _context.Warehouses.AsNoTracking()
+                .FirstOrDefaultAsync(i => i.WarehouseCode == warehouseCode);
         }
     }
 

@@ -26,11 +26,18 @@ namespace Aldebaran.Application.Services
             return _mapper.Map<List<Warehouse>>(data);
         }
 
-        public async Task<Warehouse?> FindAsync(int wareHouseId, CancellationToken ct = default)
+        public async Task<Warehouse?> FindAsync(short warehouseId, CancellationToken ct = default)
         {
-            var data = await _repository.FindAsync(wareHouseId, ct);
+            var data = await _repository.FindAsync(warehouseId, ct);
             return _mapper.Map<Warehouse?>(data);
         }
+
+        public async Task<Warehouse?> FindByCodeAsync(short warehouseCode, CancellationToken ct = default)
+        {
+            var data = await _repository.FindByCodeAsync(warehouseCode, ct);
+            return _mapper.Map<Warehouse?>(data);
+        }
+
     }
 
 }
