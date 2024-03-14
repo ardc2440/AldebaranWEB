@@ -155,7 +155,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages.CustomerOrderActivityPages
             }
         }
 
-        protected async Task DeleteCustomerOrderActivityDetail(MouseEventArgs args, CustomerOrderActivityDetail item)
+        protected async Task DeleteCustomerOrderActivityDetail(CustomerOrderActivityDetail item)
         {
             if (await DialogService.Confirm("Está seguro que desea eliminar este detalle?", "Confirmar") == true)
             {
@@ -165,7 +165,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages.CustomerOrderActivityPages
             }
         }
 
-        protected async Task EditCustomerOrderActivityDetail(MouseEventArgs args, CustomerOrderActivityDetail item)
+        protected async Task EditCustomerOrderActivityDetail(CustomerOrderActivityDetail item)
         {
             var result = await DialogService.OpenAsync<EditCustomerOrderActivityDetail>("Actualizar detalle", new Dictionary<string, object> { { "CustomerOrderActivityDetail", item }, { "CustomerOrderActivityAreaId", customerOrderActivity.AreaId }, { "CustomerOrderActivityDetails", customerOrderActivityDetails } });
             if (result == null)

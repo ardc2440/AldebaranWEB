@@ -175,7 +175,7 @@ namespace Aldebaran.Web.Pages.ItemPages
                 IsLoadingInProgress = false;
             }
         }
-        protected async Task AddItemReference(MouseEventArgs args, ServiceModel.Item data)
+        protected async Task AddItemReference(ServiceModel.Item data)
         {
             var result = await DialogService.OpenAsync<AddItemReference>("Nueva referencia", new Dictionary<string, object> { { "ITEM_ID", data.ItemId } });
             if (result == true)

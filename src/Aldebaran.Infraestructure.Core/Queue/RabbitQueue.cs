@@ -19,7 +19,7 @@ namespace Aldebaran.Infraestructure.Core.Queue
         /// <summary>
         /// Channel de consumo de mensajes
         /// </summary>
-        private IModel channel;
+        private IModel? channel;
         /// <summary>
         /// Dependencia de Logger
         /// </summary>
@@ -88,24 +88,29 @@ namespace Aldebaran.Infraestructure.Core.Queue
             {
                 if (disposedValue == true)
                     throw new ObjectDisposedException(nameof(RabbitQueue));
-                var body = ea.Body.ToArray();
+                byte[] body = ea.Body.ToArray();
                 var request = JsonConvert.DeserializeObject<TModel>(Encoding.UTF8.GetString(body));
                 try
                 {
-                    var headers = ea?.BasicProperties?.Headers ?? new Dictionary<string, object>();
+                    IDictionary<string, object> headers = ea.BasicProperties?.Headers ?? new Dictionary<string, object>();
                     var headersBuilder = new Dictionary<string, string>();
                     foreach (var kv in headers)
                     {
+#pragma warning disable CS8604 // Possible null reference argument.
                         var value = (kv.Value as byte[] != null)
                             ? Encoding.UTF8.GetString(kv.Value as byte[])
                             : kv.Value.ToString();
                         headersBuilder.Add(kv.Key, value);
                     }
+#pragma warning restore CS8604 // Possible null reference argument.
+#pragma warning disable CS8601 // Possible null reference assignment.
                     var msn = new QueueMessage<TModel>
                     {
                         Message = request,
                         Metadata = headersBuilder
                     };
+#pragma warning restore CS8601 // Possible null reference assignment.
+
                     await code(msn);
                     channel.BasicAck(deliveryTag: ea.DeliveryTag,
                                     multiple: false);
@@ -116,33 +121,31 @@ namespace Aldebaran.Infraestructure.Core.Queue
                     try
                     {
                         //En caso de suceder un error al procesar el mensaje de la cola, se dispondra en una cola de fallidos
-                        var headers = ea?.BasicProperties?.Headers ?? new Dictionary<string, object>();
+                        var headers = ea.BasicProperties?.Headers ?? new Dictionary<string, object>();
                         var iretries = default(int);
-                        _ = headers.TryGetValue("x-retries", out object oretries) && int.TryParse(oretries.ToString(), out iretries);
+                        _ = headers.TryGetValue("x-retries", out object? oretries) && int.TryParse(oretries?.ToString(), out iretries);
                         iretries++;
-                        using (var channel2 = Connection.CreateModel())
+                        using var channel2 = Connection.CreateModel();
+                        var queueName2 = QueueName + ((iretries >= MaxNotificationAttempts) ? "-dead-letter" : string.Empty);
+                        channel2.QueueDeclare(queue: queueName2,
+                                                  durable: true,
+                                                  exclusive: false,
+                                                  autoDelete: false,
+                                                  arguments: null);
+                        var bproperties = channel2.CreateBasicProperties();
+                        bproperties.Headers = new Dictionary<string, object>
                         {
-                            var queueName2 = QueueName + ((iretries >= MaxNotificationAttempts) ? "-dead-letter" : string.Empty);
-                            channel2.QueueDeclare(queue: queueName2,
-                                                      durable: true,
-                                                      exclusive: false,
-                                                      autoDelete: false,
-                                                      arguments: null);
-                            var bproperties = channel2.CreateBasicProperties();
-                            bproperties.Headers = new Dictionary<string, object>
-                            {
-                                ["x-retries"] = iretries,
-                                ["x-exception"] = ex.Message
-                            };
-                            if (queueName2 == QueueName)
-                                await Task.Delay(TimeSpan.FromMinutes(1));
-                            channel2.BasicPublish(exchange: string.Empty,
-                                             routingKey: queueName2,
-                                             basicProperties: bproperties,
-                                             body: Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(request)));
-                            channel.BasicAck(deliveryTag: ea.DeliveryTag,
-                                     multiple: false);
-                        }
+                            ["x-retries"] = iretries,
+                            ["x-exception"] = ex.Message
+                        };
+                        if (queueName2 == QueueName)
+                            await Task.Delay(TimeSpan.FromMinutes(1));
+                        channel2.BasicPublish(exchange: string.Empty,
+                                         routingKey: queueName2,
+                                         basicProperties: bproperties,
+                                         body: Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(request)));
+                        channel.BasicAck(deliveryTag: ea.DeliveryTag,
+                                 multiple: false);
                     }
                     catch (Exception ex2)
                     {
@@ -185,6 +188,7 @@ namespace Aldebaran.Infraestructure.Core.Queue
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
         #endregion
     }

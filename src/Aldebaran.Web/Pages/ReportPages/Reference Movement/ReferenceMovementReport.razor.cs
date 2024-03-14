@@ -34,33 +34,33 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
         {
             ViewModel = new ReferenceMovementViewModel
             {
-                Lines = new List<ReferenceMovementLine>
+                Lines = new List<ReferenceMovementViewModel.Line>
                 {
-                    new ReferenceMovementLine
+                    new ReferenceMovementViewModel.Line
                     {
                         LineCode="001",
                         LineName="Boligrafos",
-                        Items= new List<ReferenceMovementItem> {
-                            new ReferenceMovementItem {
+                        Items= new List<ReferenceMovementViewModel.Item> {
+                            new ReferenceMovementViewModel.Item {
                                 InternalReference="ADVANT 2",
                                 ItemName="Mina ADVANT 2-1",
-                                References = new List<ReferenceMovementReference>
+                                References = new List<ReferenceMovementViewModel.Reference>
                                 {
-                                    new ReferenceMovementReference
+                                    new ReferenceMovementViewModel.Reference
                                     {
                                         ReferenceCode="001",
                                         ReferenceName="Rojo",
                                         RequestedQuantity=1,
                                         ReservedQuantity=100,
-                                        Warehouses = new List<ReferenceMovementWarehouse>
+                                        Warehouses = new List<ReferenceMovementViewModel.Warehouse>
                                         {
-                                            new ReferenceMovementWarehouse
+                                            new ReferenceMovementViewModel.Warehouse
                                             {
                                                 WarehouseId=1,
                                                 WarehouseName="Local",
                                                 Amount=30000
                                             },
-                                            new ReferenceMovementWarehouse
+                                            new ReferenceMovementViewModel.Warehouse
                                             {
                                                 WarehouseId=2,
                                                 WarehouseName="Zona Franca",
@@ -68,21 +68,21 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
                                             }
                                         }
                                     },
-                                    new ReferenceMovementReference
+                                    new ReferenceMovementViewModel.Reference
                                     {
                                         ReferenceCode="002",
                                         ReferenceName="Azul",
                                         RequestedQuantity=45,
                                         ReservedQuantity=235,
-                                        Warehouses = new List<ReferenceMovementWarehouse>
+                                        Warehouses = new List<ReferenceMovementViewModel.Warehouse>
                                         {
-                                            new ReferenceMovementWarehouse
+                                            new ReferenceMovementViewModel.Warehouse
                                             {
                                                 WarehouseId=1,
                                                 WarehouseName="Local",
                                                 Amount=18500
                                             },
-                                            new ReferenceMovementWarehouse
+                                            new ReferenceMovementViewModel.Warehouse
                                             {
                                                 WarehouseId=2,
                                                 WarehouseName="Zona Franca",
@@ -90,15 +90,15 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
                                             }
                                         }
                                     },
-                                    new ReferenceMovementReference
+                                    new ReferenceMovementViewModel.Reference
                                     {
                                         ReferenceCode="003",
                                         ReferenceName="Amarillo",
                                         RequestedQuantity=27,
                                         ReservedQuantity=185,
-                                        Warehouses = new List<ReferenceMovementWarehouse>
+                                        Warehouses = new List<ReferenceMovementViewModel.Warehouse>
                                         {
-                                            new ReferenceMovementWarehouse
+                                            new ReferenceMovementViewModel.Warehouse
                                             {
                                                 WarehouseId=1,
                                                 WarehouseName="Local",
@@ -108,21 +108,21 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
                                     }
                                 }
                             },
-                            new ReferenceMovementItem
+                            new ReferenceMovementViewModel.Item
                             {
                                 InternalReference="ADVANT 3",
                                 ItemName="Mina ADVANT 3-1",
-                                References = new List<ReferenceMovementReference>
+                                References = new List<ReferenceMovementViewModel.Reference>
                                 {
-                                    new ReferenceMovementReference
+                                    new ReferenceMovementViewModel.Reference
                                     {
                                         ReferenceCode="004",
                                         ReferenceName="Plateado",
                                         RequestedQuantity=86,
                                         ReservedQuantity=79,
-                                        Warehouses = new List<ReferenceMovementWarehouse>
+                                        Warehouses = new List<ReferenceMovementViewModel.Warehouse>
                                         {
-                                            new ReferenceMovementWarehouse
+                                            new ReferenceMovementViewModel.Warehouse
                                             {
                                                 WarehouseId=1,
                                                 WarehouseName="Zona Franca",
@@ -134,31 +134,31 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
                             }
                         }
                     },
-                    new ReferenceMovementLine
+                    new ReferenceMovementViewModel.Line
                     {
                         LineCode="002",
                         LineName="Mugs",
-                        Items= new List<ReferenceMovementItem> {
-                             new ReferenceMovementItem {
+                        Items= new List<ReferenceMovementViewModel.Item> {
+                             new ReferenceMovementViewModel.Item {
                                 InternalReference="MUG",
                                 ItemName="Mug con kit",
-                                References = new List<ReferenceMovementReference>
+                                References = new List<ReferenceMovementViewModel.Reference>
                                 {
-                                    new ReferenceMovementReference
+                                    new ReferenceMovementViewModel.Reference
                                     {
                                         ReferenceCode="007",
                                         ReferenceName="Negro",
                                         RequestedQuantity=1,
                                         ReservedQuantity=100,
-                                        Warehouses = new List<ReferenceMovementWarehouse>
+                                        Warehouses = new List<ReferenceMovementViewModel.Warehouse>
                                         {
-                                            new ReferenceMovementWarehouse
+                                            new ReferenceMovementViewModel.Warehouse
                                             {
                                                 WarehouseId=1,
                                                 WarehouseName="Local",
                                                 Amount=4500
                                             },
-                                            new ReferenceMovementWarehouse
+                                            new ReferenceMovementViewModel.Warehouse
                                             {
                                                 WarehouseId=2,
                                                 WarehouseName="Zona Franca",

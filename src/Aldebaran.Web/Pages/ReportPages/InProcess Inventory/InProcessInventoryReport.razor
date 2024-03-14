@@ -68,45 +68,59 @@
                             </tr>
                         </table>
                         <div class="border mt-1">
-                            @foreach (var item in ViewModel.Items)
+                            @foreach (var line in ViewModel.Lines)
                             {
-                                <p class="title">Artículo: (@item.InternalReference) @item.ItemName</p>
-                                <table class="edged" style="margin-bottom: 0 !important;margin:0">
-                                    <thead>
-                                        <tr>
-                                            <th width="40%">Referencia</th>
-                                            <th width="20%">En proceso</th>
-                                            @foreach (var warehouse in UniqueWarehouses.OrderBy(o => o.WarehouseId))
-                                            {
-                                                <th width="20%">@warehouse.WarehouseName</th>
-                                            }
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var reference in item.References)
-                                        {
-                                            <tr>
-                                                <td width="40%">@reference.ReferenceName</td>
-                                                <td width="20%">@reference.InProcessAmount</td>
-                                                @foreach (var warehouse in UniqueWarehouses.OrderBy(o => o.WarehouseId))
-                                                {
-                                                    {
-                                                        var ws = reference.Warehouses.FirstOrDefault(w => w.WarehouseId == warehouse.WarehouseId);
-                                                        if (ws == null)
-                                                        {
-                                                            <td width="20%">0</td>
-                                                        }
-                                                        else
-                                                        {
-                                                            <td width="20%">@ws.Amount.ToString("N0")</td>
-                                                        }
-                                                    }
-                                                }
-                                            </tr>
-                                        }
-                                    </tbody>
-                                </table>
+                                <p class="title border-bottom-1">Línea: @line.LineCode  - @line.LineName</p>
 
+                                @for (int i = 0; i < line.Items.Count(); i++)
+                                {
+                                    var item = line.Items[i];
+                                    <div style="padding: 0.75em !important;">
+                                        <h3 class='text-left m-0 @(i>0?"border-top-1":"")' style='@(i>0?"margin-top: 1em !important;padding-top: 1em;":"")'>
+                                            @item.ItemName
+                                        </h3>
+                                        <p class="m-0">
+                                            Referencia interna:: @item.InternalReference
+                                        </p>
+                                    </div>
+                                    <div style="margin: 0.5em 0 0.5em 0; padding: 0 0.75em !important;">
+                                        <table class="striped border-top-1" style="margin-bottom: 0 !important;margin:0">
+                                            <thead>
+                                                <tr>
+                                                    <th width="40%">Referencia</th>
+                                                    <th width="20%">En proceso</th>
+                                                    @foreach (var warehouse in UniqueWarehouses.OrderBy(o => o.WarehouseId))
+                                                    {
+                                                        <th width="20%">@warehouse.WarehouseName</th>
+                                                    }
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var reference in item.References)
+                                                {
+                                                    <tr>
+                                                        <td width="40%">@reference.ReferenceName</td>
+                                                        <td width="20%">@reference.InProcessAmount</td>
+                                                        @foreach (var warehouse in UniqueWarehouses.OrderBy(o => o.WarehouseId))
+                                                        {
+                                                            {
+                                                                var ws = reference.Warehouses.FirstOrDefault(w => w.WarehouseId == warehouse.WarehouseId);
+                                                                if (ws == null)
+                                                                {
+                                                                    <td width="20%">0</td>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <td width="20%">@ws.Amount.ToString("N0")</td>
+                                                                }
+                                                            }
+                                                        }
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                }
                             }
                         </div>
                     </div>

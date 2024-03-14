@@ -135,65 +135,57 @@
             vertical-align: top !important;
         }
 
-        .report table .border {
-            border: 1px solid #dee2e6 !important;
-        }
+    .report .border {
+        border: 1px solid #dee2e6 !important;
+    }
 
-        .report table .border-left-1 {
-            border-style: solid !important;
-            border-left-width: 1px !important;
-        }
+    .report .border-left-1 {
+        border-left: 1px solid #dee2e6 !important;
+    }
 
-        .report table .border-top-1 {
-            border-style: solid !important;
-            border-top-width: 1px !important;
-        }
+    .report .border-top-1 {
+        border-top: 1px solid #dee2e6 !important;
+    }
 
-        .report table .border-bottom-1 {
-            border-style: solid !important;
-            border-bottom-width: 1px !important;
-        }
+    .report .border-bottom-1 {
+        border-bottom: 1px solid #dee2e6 !important;
+    }
 
-        .report table .border-right-1 {
-            border-style: solid !important;
-            border-right-width: 1px !important;
-        }
+    .report .border-right-1 {
+        border-right: 1px solid #dee2e6 !important;
+    }
 
-        .report table .border-gray {
-            border-color: #dee2e6 !important;
-        }
+    .report .border-bottom-0 {
+        border-bottom: 0 !important;
+    }
 
-        .report table .border-bottom-0 {
-            border-bottom: 0 !important;
-        }
+    .report .border-top-0 {
+        border-top: 0 !important;
+    }
 
-        .report table .border-top-0 {
-            border-top: 0 !important;
-        }
+    .report .border-top {
+        border-top: 1px solid #dee2e6 !important;
+    }
 
-        .report table .border-top {
-            border-top: 1px solid #dee2e6 !important;
-        }
+    .report .border-2 {
+        border-width: 2px !important;
+    }
 
-        .report table .border-2 {
-            border-width: 2px !important;
-        }
+    .report table tr.emphasys {
+        background: #f7f7f7;
+    }
 
-        .report table tr.emphasys {
-            background: #f7f7f7;
-        }
+    .report table thead tr {
+        border-bottom: 1px solid #dee2e6 !important;
+    }
 
-        .report table thead tr {
-            border-bottom: 1px solid #dee2e6 !important;
+        .report table thead tr th {
+            text-align: left !important;
+            padding: 0px 4px !important;
+            font-size: 12px !important;
+            vertical-align: top !important;
+            font-weight: 600 !important;
         }
-
-            .report table thead tr th {
-                text-align: left !important;
-                padding: 0px 4px !important;
-                font-size: 12px !important;
-                vertical-align: top !important;
-                font-weight: 600 !important;
-            }
 
     .report .filters {
         text-align: right;

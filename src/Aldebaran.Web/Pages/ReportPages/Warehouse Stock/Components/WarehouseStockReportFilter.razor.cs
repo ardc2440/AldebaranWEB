@@ -1,12 +1,12 @@
 ﻿using Aldebaran.Application.Services.Models;
-using Aldebaran.Web.Pages.ReportPages.Reference_Movement.ViewModel;
+using Aldebaran.Web.Pages.ReportPages.Warehouse_Stock.ViewModel;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
 
-namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement.Components
+namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Stock.Components
 {
-    public partial class ReferenceMovementReportFilter
+    public partial class WarehouseStockReportFilter
     {
         #region Injections
         [Inject]
@@ -15,7 +15,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement.Components
 
         #region Parameters
         [Parameter]
-        public ReferenceMovementFilter Filter { get; set; } = new();
+        public WarehouseStockFilter Filter { get; set; } = new();
         #endregion
 
         #region Variables
@@ -26,7 +26,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement.Components
 
         protected override async Task OnInitializedAsync()
         {
-            Filter ??= new ReferenceMovementFilter();
+            Filter ??= new WarehouseStockFilter();
         }
         #region Events
         protected async Task FormSubmit()

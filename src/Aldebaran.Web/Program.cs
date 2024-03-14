@@ -45,7 +45,7 @@ static void ConfigureServices(WebApplicationBuilder builder)
     {
         AdditionalColumns = new SqlColumn[]
         {
-            new SqlColumn{ DataType= SqlDbType.NVarChar, ColumnName="Source", DataLength=100 }
+            new() { DataType= SqlDbType.NVarChar, ColumnName="Source", DataLength=100 }
         }
     }).CreateLogger();
 }

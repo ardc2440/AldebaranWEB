@@ -26,7 +26,7 @@ namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
         #region Variables
         protected InProcessInventoryFilter Filter;
         protected InProcessInventoryViewModel ViewModel;
-        List<InProcessWarehouse> UniqueWarehouses = new List<InProcessWarehouse>();
+        List<InProcessInventoryViewModel.Warehouse> UniqueWarehouses = new List<InProcessInventoryViewModel.Warehouse>();
         private bool IsBusy = false;
         #endregion
 
@@ -35,64 +35,72 @@ namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
         {
             ViewModel = new InProcessInventoryViewModel
             {
-                Items = new List<InProcessItem>
+                Lines = new List<InProcessInventoryViewModel.Line>
                 {
-                    new InProcessItem
+                    new InProcessInventoryViewModel.Line
                     {
-                        InternalReference ="001",
-                        ItemName="ADVANT 2-1",
-                        References = new List<InProcessReference>
+                        LineCode="001",
+                        LineName = "Importados",
+                        Items = new List<InProcessInventoryViewModel.Item>
                         {
-                            new InProcessReference
+                            new InProcessInventoryViewModel.Item
                             {
-                                ReferenceName="Azul",
-                                InProcessAmount=24,
-                                Warehouses = new List<InProcessWarehouse>
+                                InternalReference ="001",
+                                ItemName="ADVANT 2-1",
+                                References = new List<InProcessInventoryViewModel.Reference>
                                 {
-                                    new InProcessWarehouse { WarehouseId=1, WarehouseName="Local", Amount=10000 },
-                                    new InProcessWarehouse { WarehouseId=2, WarehouseName="Zona franca", Amount=10000 },
+                                    new InProcessInventoryViewModel.Reference
+                                    {
+                                        ReferenceName="Azul",
+                                        InProcessAmount=24,
+                                        Warehouses = new List<InProcessInventoryViewModel.Warehouse>
+                                        {
+                                            new InProcessInventoryViewModel.Warehouse { WarehouseId=1, WarehouseName="Local", Amount=10000 },
+                                            new InProcessInventoryViewModel.Warehouse { WarehouseId=2, WarehouseName="Zona franca", Amount=10000 },
+                                        }
+                                    },
+                                    new InProcessInventoryViewModel.Reference
+                                    {
+                                        ReferenceName="Rojo metalico",
+                                        InProcessAmount=98,
+                                        Warehouses = new List<InProcessInventoryViewModel.Warehouse>
+                                        {
+                                            new InProcessInventoryViewModel.Warehouse { WarehouseId=1, WarehouseName="Local", Amount=15000 },
+                                        }
+                                    }
                                 }
                             },
-                            new InProcessReference
+                            new InProcessInventoryViewModel.Item
                             {
-                                ReferenceName="Rojo metalico",
-                                InProcessAmount=98,
-                                Warehouses = new List<InProcessWarehouse>
+                                InternalReference ="003",
+                                ItemName="ARIA",
+                                References = new List<InProcessInventoryViewModel.Reference>
                                 {
-                                    new InProcessWarehouse { WarehouseId=1, WarehouseName="Local", Amount=15000 },
-                                }
-                            }
-                        }
-                    },
-                    new InProcessItem
-                    {
-                        InternalReference ="003",
-                        ItemName="ARIA",
-                        References = new List<InProcessReference>
-                        {
-                            new InProcessReference
-                            {
-                                ReferenceName="Amarillo",
-                                InProcessAmount=24,
-                                Warehouses = new List<InProcessWarehouse>
-                                {
-                                    new InProcessWarehouse { WarehouseId=2, WarehouseName="Zona franca", Amount=10000 },
-                                }
-                            },
-                            new InProcessReference
-                            {
-                                ReferenceName="Negro",
-                                InProcessAmount=98,
-                                Warehouses = new List<InProcessWarehouse>
-                                {
-                                    new InProcessWarehouse { WarehouseId=1, WarehouseName="Local", Amount=15000 },
+                                    new InProcessInventoryViewModel.Reference
+                                    {
+                                        ReferenceName="Amarillo",
+                                        InProcessAmount=24,
+                                        Warehouses = new List<InProcessInventoryViewModel.Warehouse>
+                                        {
+                                            new InProcessInventoryViewModel.Warehouse { WarehouseId=2, WarehouseName="Zona franca", Amount=10000 },
+                                        }
+                                    },
+                                    new InProcessInventoryViewModel.Reference
+                                    {
+                                        ReferenceName="Negro",
+                                        InProcessAmount=98,
+                                        Warehouses = new List<InProcessInventoryViewModel.Warehouse>
+                                        {
+                                            new InProcessInventoryViewModel.Warehouse { WarehouseId=1, WarehouseName="Local", Amount=15000 },
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                 }
             };
-            UniqueWarehouses = ViewModel.Items
+            UniqueWarehouses = ViewModel.Lines.SelectMany(s => s.Items)
                 .SelectMany(item => item.References.SelectMany(reference => reference.Warehouses))
                 .DistinctBy(w => w.WarehouseId)
                 .ToList();

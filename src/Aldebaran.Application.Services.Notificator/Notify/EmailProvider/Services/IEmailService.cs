@@ -29,6 +29,6 @@ namespace Aldebaran.Application.Services.Notificator.Services
         /// <param name="attachments">Lista de archivos adjuntos</param>
         /// <param name="ct">Token de cancelacion</param>
         /// <returns></returns>
-        Task SendAsync(string? subject, string body, string[] to, string[] cc, string[] bcc, Models.Attachment[]? attachments, CancellationToken ct = default);
+        Task SendAsync(string? subject, string body, string[]? to, string[]? cc, string[]? bcc, Models.Attachment[]? attachments, CancellationToken ct = default);
     }
 }

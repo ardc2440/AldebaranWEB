@@ -6,7 +6,7 @@ namespace Aldebaran.Application.Services.Models
     public class ActivityType
     {
         public short ActivityTypeId { get; set; }
-        public string ActivityTypeName { get; set; }
+        public string ActivityTypeName { get; set; } = null!;
         // Reverse navigation
         public ICollection<ActivityTypesArea> ActivityTypesAreas { get; set; }
         public ICollection<CustomerOrderActivityDetail> CustomerOrderActivityDetails { get; set; }

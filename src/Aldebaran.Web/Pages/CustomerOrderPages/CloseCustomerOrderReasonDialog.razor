@@ -7,7 +7,7 @@
             Motivos de cierre no encontrados!!!
         </RadzenAlert>
     } 
-    <RadzenTemplateForm TItem="ServiceModel.CloseCustomerOrderReason" Data="@CloseCustomerOrderReason" Visible="@CloseCustomerOrderReasons.Any()" Submit="@FormSubmit">
+    <RadzenTemplateForm TItem="ServiceModel.CloseCustomerOrderReason" Data="@CloseCustomerOrderReason" Visible="@CloseCustomerOrderReasons.Any()" Submit="@FormSubmit" InvalidSubmit="()=>Submitted=true">
         <div class="component-section d-flex flex-column justify-content-start">
             <span>@TITLE</span>
         </div>

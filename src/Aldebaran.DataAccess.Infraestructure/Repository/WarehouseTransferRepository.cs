@@ -92,7 +92,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 await _context.WarehouseTransfers.AddAsync(entity, ct);
                 await _context.SaveChangesAsync(ct);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 _context.Entry(entity).State = EntityState.Unchanged;
                 throw;

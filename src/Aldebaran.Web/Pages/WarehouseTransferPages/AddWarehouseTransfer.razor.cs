@@ -1,7 +1,6 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Resources.LocalizedControls;
-using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
@@ -85,7 +84,7 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
                 IsSubmitInProgress = true;
                 if (!WarehouseTransferDetails.Any())
                     throw new Exception("No ha ingresado ninguna referencia");
-                
+
                 warehouseTransfer.WarehouseTransferDetails = WarehouseTransferDetails;
                 var result = await WarehouseTransferService.AddAsync(warehouseTransfer);
                 NavigationManager.NavigateTo($"warehouse-transfers/{result.WarehouseTransferId}");
@@ -98,7 +97,7 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
             }
             finally { IsSubmitInProgress = false; }
         }
-        
+
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
             if (await DialogService.Confirm("Está seguro que desea cancelar la creación del traslado?", "Confirmar") == true)
@@ -118,7 +117,7 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
             await warehouseTransferDetailGrid.Reload();
         }
 
-        protected async Task DeleteWarehouseTransferDetail(MouseEventArgs args, WarehouseTransferDetail item)
+        protected async Task DeleteWarehouseTransferDetail(WarehouseTransferDetail item)
         {
             if (await DialogService.Confirm("Está seguro que desea eliminar esta referencia?", "Confirmar") == true)
             {

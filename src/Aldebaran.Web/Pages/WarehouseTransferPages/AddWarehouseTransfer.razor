@@ -96,7 +96,7 @@
                                         </RadzenButton>
                                         <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
                                                       Shade="Shade.Lighter" Variant="Variant.Flat"
-                                                      Click=@(args => DeleteWarehouseTransferDetail(args, detail)) @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Eliminar", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                                                      Click=@(args => DeleteWarehouseTransferDetail(detail)) @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Eliminar", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
                                     </Template>
                                 </RadzenDataGridColumn>
                             </Columns>

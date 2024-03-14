@@ -6,7 +6,7 @@
     <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">
         @Error
     </RadzenAlert>
-    <RadzenTemplateForm TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Data="@detailInProcess" Visible="@(detailInProcess != null)" Submit="@FormSubmit">
+    <RadzenTemplateForm TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Data="@detailInProcess" Visible="@(detailInProcess != null)" Submit="@FormSubmit" InvalidSubmit="()=>Submitted=true">
         <RadzenStack style="margin-bottom: 1rem">
             <RadzenRow SizeMD="9">
                 <RadzenColumn SizeMD="3">

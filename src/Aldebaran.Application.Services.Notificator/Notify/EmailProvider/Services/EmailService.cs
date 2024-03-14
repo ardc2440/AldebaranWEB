@@ -9,7 +9,7 @@ namespace Aldebaran.Application.Services.Notificator.Services
         /// <summary>
         /// Servidor de correos
         /// </summary>
-        private string MailServer;
+        private string? MailServer;
         /// <summary>
         /// Puerto del servidor de correos
         /// </summary>
@@ -21,15 +21,15 @@ namespace Aldebaran.Application.Services.Notificator.Services
         /// <summary>
         /// Correo del remitente
         /// </summary>
-        private string SenderEmail;
+        private string? SenderEmail;
         /// <summary>
         /// Contraseña del remitente
         /// </summary>
-        private string Password;
+        private string? Password;
         /// <summary>
         /// Nombre del remitente
         /// </summary>
-        private string SenderName;
+        private string? SenderName;
         /// <summary>
         /// Establece las variables de configuracion necesarias para el envio del correo
         /// </summary>
@@ -63,7 +63,7 @@ namespace Aldebaran.Application.Services.Notificator.Services
         /// <param name="attachments">Lista de archivos adjuntos</param>
         /// <param name="ct">Token de cancelacion</param>
         /// <returns></returns>
-        public async Task SendAsync(string? subject, string body, string[] to, string[] cc, string[] bcc, Models.Attachment[]? attachments, CancellationToken ct = default)
+        public async Task SendAsync(string? subject, string body, string[]? to, string[]? cc, string[]? bcc, Models.Attachment[]? attachments, CancellationToken ct = default)
         {
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress(SenderName, SenderEmail));
