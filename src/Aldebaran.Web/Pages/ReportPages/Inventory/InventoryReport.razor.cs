@@ -179,13 +179,13 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
                         continue;
                     }
 
-                    inventoryPurchaseOrder = new InventoryPurchaseOrder
+                    inventoryPurchaseOrders.Add (new InventoryPurchaseOrder
                     {
                         Date = date,
                         Total = detail.RequestedQuantity,
                         Warehouse = warehouse.WarehouseName,
                         Activity = (await GetInventoryActivities(activities, ct)).ToList(),
-                    };
+                    });
                 }
             }
             return inventoryPurchaseOrders;
