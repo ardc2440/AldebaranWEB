@@ -6,9 +6,9 @@
     <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">
         @Error
     </RadzenAlert>
-    <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Data="@customerReservationDetail" Visible="@(customerReservationDetail != null)" Submit="@FormSubmit">
+    <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Data="@customerReservationDetail" Visible="@(customerReservationDetail != null)" Submit="@FormSubmit" InvalidSubmit="()=>Submitted=true">
         <RadzenStack style="margin-bottom: 1rem">
-            <ReferencePicker OnChange="ItemReferenceHandler" References="itemReferencesForREFERENCEID" />
+            <ReferencePicker OnChange="ItemReferenceHandler" References="ItemReferencesForREFERENCEID" />
             <RadzenRequiredValidator Text="La referencia es requerida" Component="ReferenceId" />
             <RadzenFormField Text="Cantidad" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                 <ChildContent>

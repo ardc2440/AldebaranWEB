@@ -66,6 +66,8 @@ namespace Aldebaran.Application.Services.Notificator.EmailProvider
         {
             var subject = message.Body.Subject;
             var body = message.Body.Message;
+            if (string.IsNullOrEmpty(body))
+                throw new ArgumentException("Message cannot be null or empty");
             var to = message.Header.ReceiverUrn;
             var cc = message.Header.ReceiverUrnCc;
             var bcc = message.Header.ReceiverUrnBcc;

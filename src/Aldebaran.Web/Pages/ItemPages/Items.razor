@@ -91,7 +91,7 @@
                             </RadzenColumn>
                             <RadzenColumn Size="12" Visible="@Security.IsInRole("Admin","Item Editor")">
                                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
-                                    <RadzenButton Visible="@(item != null)" Icon="add_circle_outline" Text="Nuevo" Click=@(args => AddItemReference(args,item)) />
+                                    <RadzenButton Visible="@(item != null)" Icon="add_circle_outline" Text="Nuevo" Click=@(args => AddItemReference(item)) />
                                 </RadzenStack>
                             </RadzenColumn>
                         </RadzenRow>

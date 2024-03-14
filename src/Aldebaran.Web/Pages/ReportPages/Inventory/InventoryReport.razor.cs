@@ -16,7 +16,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
     {
         #region Injections
         [Inject]
-        protected ILogger<AddPurchaseOrder> Logger { get; set; }
+        protected ILogger<InventoryReport> Logger { get; set; }
 
         [Inject]
         protected DialogService DialogService { get; set; }
@@ -48,7 +48,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
         #region Variables
 
         protected InventoryFilter Filter;
-        protected InventontoryViewModel ViewModel;
+        protected InventoryViewModel ViewModel;
         private bool IsBusy = false;
 
         #endregion
@@ -56,7 +56,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            ViewModel = new InventontoryViewModel
+            ViewModel = new InventoryViewModel
             {
                 Lines = new List<InventoryLine>()
             };

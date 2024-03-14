@@ -1,6 +1,5 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
-using Aldebaran.Web.Pages.CustomerOrderPages;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -128,7 +127,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             await customerReservationDetailGrid.Reload();
         }
 
-        protected async Task DeleteCustomerReservationDetailButtonClick(MouseEventArgs arg, CustomerReservationDetail item)
+        protected async Task DeleteCustomerReservationDetailButtonClick(CustomerReservationDetail item)
         {
             if (await DialogService.Confirm("Está seguro que desea eliminar esta referencia?", "Confirmar") == true)
             {

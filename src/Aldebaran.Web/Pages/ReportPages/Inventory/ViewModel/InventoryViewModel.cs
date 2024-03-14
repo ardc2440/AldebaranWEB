@@ -1,6 +1,6 @@
 ﻿namespace Aldebaran.Web.Pages.ReportPages.Inventory.ViewModel
 {
-    public class InventontoryViewModel
+    public class InventoryViewModel
     {
         public List<InventoryLine> Lines { get; set; }
     }

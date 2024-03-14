@@ -39,7 +39,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         protected DetailInProcess detailInProcess;
         protected ItemReference ItemReference { get; set; }
         protected bool IsErrorVisible;
-        private readonly bool Submitted = false;
+        private bool Submitted = false;
         protected bool IsSubmitInProgress;
         protected string Error;
 

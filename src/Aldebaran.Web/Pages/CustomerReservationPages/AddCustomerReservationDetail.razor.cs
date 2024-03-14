@@ -31,17 +31,17 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         protected CustomerReservationDetail customerReservationDetail;
         protected InventoryQuantities QuantitiesPanel;
         protected bool IsErrorVisible;
-        private readonly bool Submitted = false;
+        private bool Submitted = false;
         protected bool IsSubmitInProgress;
         protected string Error;
-        protected IEnumerable<ItemReference> itemReferencesForREFERENCEID { get; set; } = new List<ItemReference>();
+        protected IEnumerable<ItemReference> ItemReferencesForREFERENCEID { get; set; } = new List<ItemReference>();
         #endregion
 
         #region Overrides
 
         protected override async Task OnInitializedAsync()
         {
-            itemReferencesForREFERENCEID = await ItemReferenceService.GetByStatusAsync(true);
+            ItemReferencesForREFERENCEID = await ItemReferenceService.GetByStatusAsync(true);
         }
 
         public override async Task SetParametersAsync(ParameterView parameters)
@@ -62,7 +62,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                 IsErrorVisible = false;
                 IsSubmitInProgress = true;
 
-                if (CustomerReservationDetails.Any(ad => ad.ReferenceId==customerReservationDetail.ReferenceId))
+                if (CustomerReservationDetails.Any(ad => ad.ReferenceId == customerReservationDetail.ReferenceId))
                     throw new Exception("La referencia seleccionada ya existe dentro de esta reserva.");
 
                 DialogService.Close(customerReservationDetail);
@@ -86,7 +86,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         protected async Task ItemReferenceHandler(ItemReference reference)
         {
             customerReservationDetail.ReferenceId = reference?.ReferenceId ?? 0;
-            customerReservationDetail.ItemReference = customerReservationDetail.ReferenceId == 0 ? null : itemReferencesForREFERENCEID.Single(s => s.ReferenceId == customerReservationDetail.ReferenceId); ;
+            customerReservationDetail.ItemReference = customerReservationDetail.ReferenceId == 0 ? null : ItemReferencesForREFERENCEID.Single(s => s.ReferenceId == customerReservationDetail.ReferenceId); ;
         }
 
         #endregion

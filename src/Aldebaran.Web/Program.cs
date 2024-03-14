@@ -3,6 +3,7 @@ using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.MSSqlServer;
 using System.Data;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 ConfigureServices(builder);
@@ -14,6 +15,15 @@ static void ConfigureServices(WebApplicationBuilder builder)
 {
     builder.AddArchitecture();
     builder.AddInfraestructure();
+
+    var cultureInfo = new CultureInfo("es-ES");
+    NumberFormatInfo numberFormatInfo = (NumberFormatInfo)cultureInfo.NumberFormat.Clone();
+    numberFormatInfo.NumberGroupSeparator = ".";
+    cultureInfo.NumberFormat = numberFormatInfo;
+
+    CultureInfo.CurrentCulture = cultureInfo;
+    CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+    CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 
     var configuration = builder.Configuration;
     var dbConnection = configuration.GetConnectionString("AldebaranDbConnection") ?? throw new KeyNotFoundException("AldebaranDbConnection");
@@ -35,7 +45,7 @@ static void ConfigureServices(WebApplicationBuilder builder)
     {
         AdditionalColumns = new SqlColumn[]
         {
-            new SqlColumn{ DataType= SqlDbType.NVarChar, ColumnName="Source", DataLength=100 }
+            new() { DataType= SqlDbType.NVarChar, ColumnName="Source", DataLength=100 }
         }
     }).CreateLogger();
 }

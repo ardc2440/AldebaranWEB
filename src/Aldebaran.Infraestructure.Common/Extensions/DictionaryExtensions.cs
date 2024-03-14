@@ -8,8 +8,7 @@
     {
         public static void AddOrUpdate<T, K>(this Dictionary<T, K> dict, T key, K value)
         {
-            if (dict == null)
-                dict = new Dictionary<T, K>();
+            dict ??= new Dictionary<T, K>();
             if (dict.ContainsKey(key))
             {
                 dict[key] = value;

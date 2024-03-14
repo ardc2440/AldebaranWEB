@@ -8,9 +8,9 @@ namespace Aldebaran.Application.Services.Models
         public short WarehouseId { get; set; }
         public int? ReceivedQuantity { get; set; }
         public int RequestedQuantity { get; set; }
-        public ItemReference ItemReference { get; set; }
-        public PurchaseOrder PurchaseOrder { get; set; }
-        public Warehouse Warehouse { get; set; }
+        public ItemReference ItemReference { get; set; } = null!;
+        public PurchaseOrder PurchaseOrder { get; set; } = null!;
+        public Warehouse Warehouse { get; set; } = null!;
         public PurchaseOrderDetail()
         {
             ReceivedQuantity = 0;

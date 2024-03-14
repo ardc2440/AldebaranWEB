@@ -1,0 +1,128 @@
+﻿@page "/report/reference-movement"
+@inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer
+
+<RadzenStack Style="gap:0.3em">
+    <RadzenRow AlignItems="AlignItems.Start">
+        <RadzenColumn Size="12">
+            <RadzenText Text="Reporte de movimientos de artículos" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenRow AlignItems="AlignItems.Start" class="mb-2">
+        <RadzenColumn Size="6">
+            <div class="rz-text-align-left d-flex gap-3">
+                <RadzenButton Variant="Variant.Text" Icon="filter_alt" Click="@OpenFilters" Text="Filtros" ButtonStyle="ButtonStyle.Secondary" class="text-primary-color p-0 pb-1" />
+                @if (Filter != null && Filter.ItemReferences.Any())
+                {
+                    <RadzenButton Variant="Variant.Text" Click="@RemoveFilters" Text="Limpiar filtros" ButtonStyle="ButtonStyle.Secondary" class="text-decoration-underline p-0 pb-1" />
+                }
+            </div>
+            <div class="component-section d-flex flex-column justify-content-start text-secondary-color">
+                @if (Filter != null)
+                {
+                    <p class="component-label m-0 pt-2 fw-bold">Referencias: </p>
+                    @for (int i = 0; i < Filter.ItemReferences.Count(); i++)
+                    {
+                        <span class='@(i>=2 ? "read-more" : "")' style='@(i>=2 ? "display: none" : "")'>(@Filter.ItemReferences[i].Item.Line.LineName) @Filter.ItemReferences[i].Item.ItemName - @Filter.ItemReferences[i].ReferenceName</span>
+                    }
+                    @if (Filter.ItemReferences.Count() > 2)
+                    {
+                        <div>
+                            <a href="javascript:;" id="toggleLink" @onclick="ToggleReadMore">Ver más</a>
+                        </div>
+                    }
+                }
+            </div>
+        </RadzenColumn>
+        <RadzenColumn Size="6" class="align-self-end">
+            <div class="d-flex flex-row justify-content-end align-items-end">
+                <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="save" Text="Guardar PDF" Click="@Download" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@IsBusy" />
+            </div>
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenRow AlignItems="AlignItems.Start">
+        <RadzenColumn Size="12">
+            <RadzenCard style="min-height:600px; overflow-y:auto">
+                <div id="inventory-movement-report-container">
+                    <div class="report">
+                        <table>
+                            <tr>
+                                <td width="50%">
+                                    <h2 class="text-left mb-0">Movimientos de artículos</h2>
+                                    <span class="mb-1">@DateTime.Now.ToString(SharedLocalizer["datetime:format"])</span>
+                                </td>
+                                <td width="50%">
+                                    @if (Filter != null)
+                                    {
+                                        <div class="filters">
+                                            <div class="title">Filtros:</div>
+                                            <div>
+                                                <div class="type">Referencias: </div>
+                                                @for (int i = 0; i < Filter.ItemReferences.Count(); i++)
+                                                {
+                                                    <p>(@Filter.ItemReferences[i].Item.Line.LineName) @Filter.ItemReferences[i].Item.ItemName - @Filter.ItemReferences[i].ReferenceName</p>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                </td>
+                            </tr>
+                        </table>
+                        <div class="mt-1 border">
+                            @foreach (var line in ViewModel.Lines)
+                            {
+                                <p class="title">Línea: @line.LineName</p>
+                                @for (int i = 0; i < line.Items.Count(); i++)
+                                {
+                                    var item = line.Items[i];
+                                    <div style="padding: 0.75em !important;">
+                                        <h3 class='text-left m-0 @(i>0?"border-top-1":"")' style='@(i>0?"margin-top: 1em !important;padding-top: 1em;":"")'>
+                                            @item.ItemName
+                                        </h3>
+                                        <p class="m-0">
+                                            Referencia interna: @item.InternalReference
+                                        </p>
+                                    </div>
+                                    <div style="margin: 0.5em 0 0.5em 0; padding: 0 0.75em !important;">
+                                        <table class="striped edged border-top-1" style="margin-bottom: 0 !important;margin:0">
+                                            <thead>
+                                                <tr>
+                                                    <th width="40%" style="padding-left: 1.5em !important;">Referencia</th>
+                                                    <th width="15%" class="border-left-1">Cantidad Solicitada</th>
+                                                    <th width="15%" class="border-left-1">Cantidad Reservada</th>
+                                                    <th width="30%" colspan="2" style="text-align: center !important;" class="border-left-1">Existencias</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var reference in item.References)
+                                                {
+                                                    <tr>
+                                                        <td width="40%" style="padding-left: 1.5em !important;">@reference.ReferenceName</td>
+                                                        <td width="15%" class="border-left-1">@reference.RequestedQuantity.ToString("N0")</td>
+                                                        <td width="15%" class="border-left-1">@reference.ReservedQuantity.ToString("N0")</td>
+                                                        <td width="30%" colspan="2" style="padding: 0 !important;" class="border-left-1">
+                                                            <table class="edged" style="text-align: center !important;margin:0 !important">
+                                                                <tbody>
+                                                                    @foreach (var warehouse in reference.Warehouses)
+                                                                    {
+                                                                        <tr style="background:#fff !important">
+                                                                            <td width="50%" style="text-align:left" class="bold">@warehouse.WarehouseName</td>
+                                                                            <td width="50%" style="text-align:center" class="border-left-1">@warehouse.Amount.ToString("N0")</td>
+                                                                        </tr>
+                                                                    }
+                                                                </tbody>
+                                                            </table>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+            </RadzenCard>
+        </RadzenColumn>
+    </RadzenRow>
+</RadzenStack>

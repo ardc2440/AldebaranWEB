@@ -24,7 +24,12 @@
                     {
                         <span class='@(i>=2 ? "read-more" : "")' style='@(i>=2 ? "display: none" : "")'>(@Filter.ItemReferences[i].Item.Line.LineName) @Filter.ItemReferences[i].Item.ItemName - @Filter.ItemReferences[i].ReferenceName</span>
                     }
-                    <a href="javascript:;" id="toggleLink" @onclick="ToggleReadMore">Ver más</a>
+                    @if (Filter.ItemReferences.Count() > 2)
+                    {
+                        <div>
+                            <a href="javascript:;" id="toggleLink" @onclick="ToggleReadMore">Ver más</a>
+                        </div>
+                    }
                 }
             </div>
         </RadzenColumn>
@@ -81,8 +86,8 @@
                                                         <tr>
                                                             <th colspan="3">
                                                                 <div style="padding-bottom:0.5rem !important">
-                                                                    <h3 class="text-left mb-0">@item.ItemName</h3>
-                                                                    <p>
+                                                                    <h3 class="text-left m-0">@item.ItemName</h3>
+                                                                    <p class="m-0">
                                                                         Referencia interna: @item.InternalReference
                                                                     </p>
                                                                 </div>
@@ -94,11 +99,11 @@
                                                             </th>
                                                             <th width="33%">
                                                                 <b>DISPONIBLE</b>
-                                                                <p><small>Total para la venta</small></p>
+                                                                <p class="m-0"><small>Total para la venta</small></p>
                                                             </th>
                                                             <th width="33%">
                                                                 <b>ZONA FRANCA</b>
-                                                                <p><small>Entrega aprx 4-5 dias</small></p>
+                                                                <p class="m-0"><small>Entrega aprx 4-5 dias</small></p>
                                                             </th>
                                                         </tr>
                                                     </thead>
@@ -124,7 +129,7 @@
                                                 <table class="striped">
                                                     <thead>
                                                         <tr>
-                                                            <th colspan="3">
+                                                            <th colspan="4" width="100%">
                                                                 <div style="padding-bottom:0.5rem !important">
                                                                     <h3 class="text-left mb-0">ARTICULOS EN TRANSITO</h3>
                                                                 </div>

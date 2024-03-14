@@ -6,20 +6,20 @@
     <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">
         @Error
     </RadzenAlert>
-    <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Data="@customerReservationDetail" Visible="@(CustomerReservationDetail != null)" Submit="@FormSubmit">
+    <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Data="@CustomerReservationDetailData" Visible="@(CustomerReservationDetail != null)" Submit="@FormSubmit" InvalidSubmit="()=>Submitted=true">
         <RadzenStack style="margin-bottom: 1rem">
             <RadzenRow SizeMD="9">
                 <RadzenColumn SizeMD="3">
                     <RadzenLabel Text="Referencia" Component="REFERENCE" style="width: 100%" />
                 </RadzenColumn>
                 <RadzenColumn SizeMD="9">
-                    <span>(@customerReservationDetail.ItemReference.Item.Line.LineName) @customerReservationDetail.ItemReference.Item.ItemName - @customerReservationDetail.ItemReference.ReferenceName</span>
+                    <span>(@CustomerReservationDetailData.ItemReference.Item.Line.LineName) @CustomerReservationDetailData.ItemReference.Item.ItemName - @CustomerReservationDetailData.ItemReference.ReferenceName</span>
                 </RadzenColumn>
             </RadzenRow>
 
             <RadzenFormField Text="Cantidad" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                 <ChildContent>
-                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@customerReservationDetail.ReservedQuantity" Name="RESERVED_QUANTITY" Placeholder="Ingrese la cantidad a reservar" TabIndex="1" />
+                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@CustomerReservationDetailData.ReservedQuantity" Name="RESERVED_QUANTITY" Placeholder="Ingrese la cantidad a reservar" TabIndex="1" />
                 </ChildContent>
                 <Helper>
                     <RadzenRequiredValidator Component="RESERVED_QUANTITY" Text="La cantidad es requerida" />
@@ -28,7 +28,7 @@
             </RadzenFormField>
             <RadzenFormField Text="Marcación" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                 <ChildContent>
-                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@customerReservationDetail.Brand" Name="BRAND" Placeholder="Ingrese la marcación del producto" TabIndex="2" MaxLength="250" />
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@CustomerReservationDetailData.Brand" Name="BRAND" Placeholder="Ingrese la marcación del producto" TabIndex="2" MaxLength="250" />
                 </ChildContent>
             </RadzenFormField>
         </RadzenStack>

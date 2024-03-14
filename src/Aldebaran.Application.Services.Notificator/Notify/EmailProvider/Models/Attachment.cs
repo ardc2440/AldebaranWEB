@@ -8,14 +8,14 @@
         /// <summary>
         /// Nombre del archivl
         /// </summary>
-        public string FileName { get; set; }
+        public string FileName { get; set; } = null!;
         /// <summary>
         /// Tipo de archivo
         /// </summary>
-        public string ContentType { get; set; }
+        public string ContentType { get; set; } = null!;
         /// <summary>
         /// Hash del archivo
         /// </summary>
-        public string Hash { get; set; }
+        public string Hash { get; set; } = null!;
     }
 }

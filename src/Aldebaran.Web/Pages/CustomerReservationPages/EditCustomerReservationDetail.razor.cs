@@ -25,10 +25,10 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         #region Global Variables
 
         protected bool IsErrorVisible;
-        private readonly bool Submitted = false;
+        private bool Submitted = false;
         protected bool IsSubmitInProgress;
         protected string Error;
-        protected CustomerReservationDetail customerReservationDetail { get; set; }
+        protected CustomerReservationDetail CustomerReservationDetailData { get; set; }
 
         protected ItemReference ItemReference { get; set; }
 
@@ -37,7 +37,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            customerReservationDetail = new CustomerReservationDetail
+            CustomerReservationDetailData = new CustomerReservationDetail
             {
                 Brand = CustomerReservationDetail.Brand,
                 CustomerReservationDetailId = CustomerReservationDetail.CustomerReservationDetailId,
@@ -67,7 +67,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             {
                 IsErrorVisible = false;
                 IsSubmitInProgress = true;
-                DialogService.Close(customerReservationDetail);
+                DialogService.Close(CustomerReservationDetailData);
             }
             catch (Exception ex)
             {

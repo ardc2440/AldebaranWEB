@@ -62,6 +62,9 @@
             </RadzenPanelMenuItem>
             <RadzenPanelMenuItem Text="Reportes" Icon="summarize">
                 <RadzenPanelMenuItem Text="Inventario" Path="report/inventory" Visible=@Security.IsInRole("Admin","Report Viewer") />
+                <RadzenPanelMenuItem Text="Inventario en proceso" Path="report/inprocess-inventory" Visible=@Security.IsInRole("Admin","Report Viewer") />
+                <RadzenPanelMenuItem Text="Movimientos de artículos" Path="report/reference-movement" Visible=@Security.IsInRole("Admin","Report Viewer") />
+                <RadzenPanelMenuItem Text="Existencias en bodega" Path="report/warehouse-stock" Visible=@Security.IsInRole("Admin","Report Viewer") />
             </RadzenPanelMenuItem>
         </RadzenPanelMenu>
         <RadzenStack AlignItems="Radzen.AlignItems.Center" Gap="0" class="rz-py-4 rz-py-lg-6" Style="padding: var(--rz-panel-menu-item-padding);">

@@ -1,12 +1,9 @@
-using Microsoft.AspNetCore.Components;
-using Radzen;
-using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Application.Services;
-using Humanizer;
-using Aldebaran.Infraestructure.Common.Extensions;
-using Microsoft.CodeAnalysis;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Models.ViewModels;
+using Aldebaran.Web.Resources.LocalizedControls;
+using Microsoft.AspNetCore.Components;
+using Radzen;
 
 namespace Aldebaran.Web.Pages
 {
@@ -73,27 +70,26 @@ namespace Aldebaran.Web.Pages
         #endregion
 
         #region Overrides
-        public override async Task SetParametersAsync(ParameterView parameters)
+        protected override async Task OnInitializedAsync()
         {
+            await Task.Yield();
             employee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id);
-
-            RefreshData();
+            await RefreshData();
         }
-
-        private async void RefreshData()
+        async Task RefreshData()
         {
             var detailInTransit = await GetDetailInTransitAsync();
-            
+
             await RefreshMinimumQuantitiesAsync(detailInTransit);
             await RefreshItemsOutOfStokAsync(detailInTransit);
             await RefreshExpiredReservationsAsync();
             await RefreshAlarms();
 
-            ReloadGrids();
+            await ReloadGrids();
             StateHasChanged();
         }
 
-        private async void ReloadGrids()
+        private async Task ReloadGrids()
         {
             if (minimumQuantityArticlesGrid != null)
                 await minimumQuantityArticlesGrid.Reload();
@@ -104,18 +100,7 @@ namespace Aldebaran.Web.Pages
             if (alarmsGrid != null)
                 await alarmsGrid.Reload();
         }
-
-        async Task Reset()
-        {
-            minimumQuantityArticles = new List<MinimumQuantityArticle>();
-            outOfStockArticles = new List<OutOfStockArticle>();
-            expiredReservations = new List<CustomerReservation>();
-            alarms = new List<Models.ViewModels.Alarm>();
-
-            ReloadGrids();
-        }
         #endregion
-
 
         #region Events
         void OnResize(RadzenSplitterResizeEventArgs args)
@@ -173,7 +158,7 @@ namespace Aldebaran.Web.Pages
             if (await DialogService.Confirm("Desea marcar esta alarma como leída?. No volverá a salir en su Home", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Marcar alarma leída") == true)
             {
                 await VisualizedAlarmService.AddAsync(new VisualizedAlarm { AlarmId = args.AlarmId, EmployeeId = employee.EmployeeId });
-                RefreshData();
+                await RefreshData();
             }
         }
 
