@@ -118,7 +118,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                .ToListAsync(ct);
         }
 
-        public async Task<IEnumerable<PurchaseOrder>> GetTransitByReferenceId(int referenceId, CancellationToken ct = default)
+        public async Task<IEnumerable<PurchaseOrder>> GetTransitByReferenceIdAsync(int referenceId, CancellationToken ct = default)
         {
             return await _context.PurchaseOrders.AsNoTracking()
                .Include(i => i.PurchaseOrderDetails)

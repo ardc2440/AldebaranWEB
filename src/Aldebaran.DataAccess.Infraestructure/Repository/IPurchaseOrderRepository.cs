@@ -12,6 +12,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         Task CancelAsync(int purchaseOrderId, Reason reason, CancellationToken ct = default);
         Task ConfirmAsync(int purchaseOrderId, PurchaseOrder purchaseOrder, CancellationToken ct = default);
         Task UpdateAsync(int purchaseOrderId, PurchaseOrder purchaseOrder, Reason reason, CancellationToken ct = default);
-        Task<IEnumerable<PurchaseOrder>> GetTransitByReferenceId(int referenceId, CancellationToken ct = default);
+        Task<IEnumerable<PurchaseOrder>> GetTransitByReferenceIdAsync(int referenceId, CancellationToken ct = default);
     }
 }

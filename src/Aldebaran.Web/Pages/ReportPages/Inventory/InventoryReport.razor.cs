@@ -61,9 +61,9 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
                 Lines = new List<InventoryLine>()
             };
 
-            var references = await ItemReferenceService.GetInventoryReportReferences();
+            var references = await ItemReferenceService.GetReportsReferences();
 
-            ViewModel.Lines = (await GetLines(references)).ToList();
+            ViewModel.Lines = (await GetLinesAsync(references)).ToList();
         }
         #endregion
 
@@ -101,31 +101,31 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
         #endregion
 
         #region Fill Data Report
-        protected async Task<IEnumerable<InventoryLine>> GetLines(IEnumerable<ItemReference> references, CancellationToken ct = default)
+        protected async Task<IEnumerable<InventoryLine>> GetLinesAsync(IEnumerable<ItemReference> references, CancellationToken ct = default)
         {
             var lines = new List<InventoryLine>();
 
             foreach (var line in references.Select(s => s.Item.Line).DistinctBy(d => d.LineId))
             {
-                lines.Add(new InventoryLine { LineName = line.LineName, Items = (await GetItemsPerLine(references, line.LineId, ct)).ToList() });
+                lines.Add(new InventoryLine { LineName = line.LineName, Items = (await GetItemsPerLineAsync(references, line.LineId, ct)).ToList() });
             }
 
             return lines;
         }
 
-        protected async Task<IEnumerable<InventoryItem>> GetItemsPerLine(IEnumerable<ItemReference> references, short lineId, CancellationToken ct = default)
+        protected async Task<IEnumerable<InventoryItem>> GetItemsPerLineAsync(IEnumerable<ItemReference> references, short lineId, CancellationToken ct = default)
         {
             var items = new List<InventoryItem>();
 
             foreach (var item in references.Select(s => s.Item).Where(w => w.LineId == lineId && w.IsActive && w.IsExternalInventory).DistinctBy(d => d.ItemId))
             {
-                items.Add(new InventoryItem { InternalReference = item.InternalReference, ItemName = item.ItemName, InventoryReferences = (await GetReferencesPerItem(references, item.ItemId, ct)).ToList() });
+                items.Add(new InventoryItem { InternalReference = item.InternalReference, ItemName = item.ItemName, InventoryReferences = (await GetReferencesPerItemAsync(references, item.ItemId, ct)).ToList() });
             }
 
             return items;
         }
 
-        protected async Task<IEnumerable<InventoryReference>> GetReferencesPerItem(IEnumerable<ItemReference> references, int itemId, CancellationToken ct = default)
+        protected async Task<IEnumerable<InventoryReference>> GetReferencesPerItemAsync(IEnumerable<ItemReference> references, int itemId, CancellationToken ct = default)
         {
             var inventoryReferences = new List<InventoryReference>();
 
@@ -135,15 +135,15 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
                 {
                     ReferenceName = reference.ReferenceName,
                     AvailableAmount = reference.InventoryQuantity - reference.ReservedQuantity - reference.OrderedQuantity,
-                    FreeZone = await GetFreeZoneReference(reference.ReferenceId, ct),
-                    PurchaseOrders = (await GetPurchaseOrderPerReference(reference.ReferenceId, ct)).ToList()
+                    FreeZone = await GetFreeZoneReferenceAsync(reference.ReferenceId, ct),
+                    PurchaseOrders = (await GetPurchaseOrderPerReferenceAsync(reference.ReferenceId, ct)).ToList()
                 });
             }
 
             return inventoryReferences;
         }
 
-        protected async Task<int> GetFreeZoneReference(int referenceId, CancellationToken ct = default)
+        protected async Task<int> GetFreeZoneReferenceAsync(int referenceId, CancellationToken ct = default)
         {
             var freeZoneWarehouse = await WarehouseService.FindByCodeAsync(2, ct);
 
@@ -152,13 +152,13 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
             return referenceWarehouse.Quantity;
         }
 
-        protected async Task<IEnumerable<InventoryPurchaseOrder>> GetPurchaseOrderPerReference(int referenceId, CancellationToken ct = default)
+        protected async Task<IEnumerable<InventoryPurchaseOrder>> GetPurchaseOrderPerReferenceAsync(int referenceId, CancellationToken ct = default)
         {
             var inventoryPurchaseOrders = new List<InventoryPurchaseOrder>();
 
             var warehouses = await WarehouseService.GetAsync(ct);
 
-            var purchaseOrdersActivity = await PurchaseOrderService.GetTransitByReferenceId(referenceId, ct);
+            var purchaseOrdersActivity = await PurchaseOrderService.GetTransitByReferenceIdAsync(referenceId, ct);
 
             foreach (var purchaseOrder in purchaseOrdersActivity)
             {
@@ -184,14 +184,14 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
                         Date = date,
                         Total = detail.RequestedQuantity,
                         Warehouse = warehouse.WarehouseName,
-                        Activity = (await GetInventoryActivities(activities, ct)).ToList(),
+                        Activity = (await GetInventoryActivitiesAsync(activities, ct)).ToList(),
                     });
                 }
             }
             return inventoryPurchaseOrders;
         }
 
-        public async Task<IEnumerable<InventoryActivity>> GetInventoryActivities(IEnumerable<PurchaseOrderActivity> activities, CancellationToken ct = default)
+        public async Task<IEnumerable<InventoryActivity>> GetInventoryActivitiesAsync(IEnumerable<PurchaseOrderActivity> activities, CancellationToken ct = default)
         {
             var invetoryActivityList = new List<InventoryActivity>();
 
