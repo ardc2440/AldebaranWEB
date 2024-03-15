@@ -69,105 +69,117 @@
                         </table>
                         <table class="mt-1">
                             <tbody>
-                                @foreach (var line in ViewModel.Lines)
+                                @if (ViewModel != null)
                                 {
-                                    <tr>
-                                        <td width="100%" class="border" style="padding:0 !important">
-                                            <p class="title">@line.LineName</p>
-                                        </td>
-                                    </tr>
-                                    @for (int i = 0; i < line.Items.Count; i++)
+                                    @foreach (var line in ViewModel.Lines)
                                     {
-                                        var item = line.Items[i];
                                         <tr>
-                                            <td width="100%" class="border m-0 p-0">
-                                                <table class="edged m-0">
-                                                    <thead>
-                                                        <tr>
-                                                            <td colspan="3" width="50%">
-                                                                <div style="padding-bottom:0.5rem !important">
-                                                                    <h3 class="text-left m-0">@item.ItemName</h3>
-                                                                    <p class="m-0">
-                                                                        Referencia interna: @item.InternalReference
-                                                                    </p>
-                                                                </div>
-                                                            </td>
-                                                            <td colspan="4" width="50%"  class="border-left-1">
-                                                                <div style="padding-bottom:0.5rem !important">
-                                                                    <h3 class="text-left mb-0">ARTICULOS EN TRANSITO</h3>
-                                                                </div>
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th width="20%">
-                                                                <b>Referencia</b>
-                                                            </th>
-                                                            <th width="15%">
-                                                                <b>DISPONIBLE</b>
-                                                                <p class="m-0"><small>Total para la venta</small></p>
-                                                            </th>
-                                                            <th width="15%">
-                                                                <b>ZONA FRANCA</b>
-                                                                <p class="m-0"><small>Entrega aprx 4-5 dias</small></p>
-                                                            </th>
-                                                            <th width="10%" class="border-left-1">
-                                                                <b>Fecha</b>
-                                                            </th>
-                                                            <th width="10%">
-                                                                <b>Bodega</b>
-                                                            </th>
-                                                            <th width="10%">
-                                                                <b>Total</b>
-                                                            </th>
-                                                            <th width="20%">
-                                                                <b>Actividades</b>
-                                                            </th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        @for (int r = 0; r < item.References.Count; r++)
-                                                        {
-                                                            var reference = item.References[r];
-                                                            var odd = (r+1) % 2 != 0;
-                                                            <tr style='@(odd?"background: #f5f5f5;":"")'>
-                                                                <td width="20%" rowspan="@(reference.PurchaseOrders.Count()+1)">
-                                                                    @reference.ReferenceName
-                                                                </td>
-                                                                <td width="15%" rowspan="@(reference.PurchaseOrders.Count()+1)">
-                                                                    @reference.AvailableAmount.ToString("N0")
-                                                                </td>
-                                                                <td width="15%" rowspan="@(reference.PurchaseOrders.Count()+1)">
-                                                                    @reference.FreeZone.ToString("N0")
-                                                                </td>
-                                                            </tr>
-
-                                                            @for (int p = 0; p < reference.PurchaseOrders.Count(); p++)
-                                                            {
-                                                                var purchaseOrder = reference.PurchaseOrders[p];
-                                                                <tr style='@(odd?"background: #f5f5f5;":"")'>
-                                                                    <td width="10%" class="border-left-1">@purchaseOrder.Date.ToString(SharedLocalizer["date:format"])</td>
-                                                                    <td width="10%">@purchaseOrder.Warehouse</td>
-                                                                    <td width="10%">@purchaseOrder.Total.ToString("N0")</td>
-                                                                    <td width="20%">
-                                                                        @foreach (var purchaseOrderActivity in purchaseOrder.Activities)
-                                                                        {
-                                                                            <p>@purchaseOrderActivity.Date</p>
-                                                                            <p>@purchaseOrderActivity.Description</p>
-                                                                        }
-                                                                    </td>
-                                                                </tr>
-                                                            }
-
-                                                        }
-                                                    </tbody>
-                                                </table>
+                                            <td width="100%" class="border" style="padding:0 !important">
+                                                <p class="title">@line.LineName</p>
                                             </td>
                                         </tr>
+                                        @for (int i = 0; i < line.Items.Count; i++)
+                                        {
+                                            var item = line.Items[i];
+                                            <tr>
+                                                <td width="100%" class="border m-0 p-0">
+                                                    <table class="edged m-0">
+                                                        <thead>
+                                                            <tr>
+                                                                <td colspan="3" width="50%">
+                                                                    <div style="padding-bottom:0.5rem !important">
+                                                                        <h3 class="text-left m-0">@item.ItemName</h3>
+                                                                        <p class="m-0">
+                                                                            Referencia interna: @item.InternalReference
+                                                                        </p>
+                                                                    </div>
+                                                                </td>
+                                                                <td colspan="4" width="50%" class="border-left-1">
+                                                                    <div style="padding-bottom:0.5rem !important">
+                                                                        <h3 class="text-left mb-0">ARTICULOS EN TRANSITO</h3>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th width="20%">
+                                                                    <b>Referencia</b>
+                                                                </th>
+                                                                <th width="15%">
+                                                                    <b>DISPONIBLE</b>
+                                                                    <p class="m-0"><small>Total para la venta</small></p>
+                                                                </th>
+                                                                <th width="15%">
+                                                                    <b>ZONA FRANCA</b>
+                                                                    <p class="m-0"><small>Entrega aprx 4-5 dias</small></p>
+                                                                </th>
+                                                                <th width="10%" class="border-left-1">
+                                                                    <b>Fecha</b>
+                                                                </th>
+                                                                <th width="10%">
+                                                                    <b>Bodega</b>
+                                                                </th>
+                                                                <th width="10%">
+                                                                    <b>Total</b>
+                                                                </th>
+                                                                <th width="20%">
+                                                                    <b>Actividades</b>
+                                                                </th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @for (int r = 0; r < item.References.Count; r++)
+                                                            {
+                                                                var reference = item.References[r];
+                                                                var odd = (r + 1) % 2 != 0;
+                                                                <tr style='@(odd?"background: #f5f5f5;":"")'>
+                                                                    <td width="20%" rowspan="@(reference.PurchaseOrders.Any()?reference.PurchaseOrders.Count()+1: 2)">
+                                                                        @reference.ReferenceName
+                                                                    </td>
+                                                                    <td width="15%" rowspan="@(reference.PurchaseOrders.Any()?reference.PurchaseOrders.Count()+1: 2)">
+                                                                        @reference.AvailableAmount.ToString("N0")
+                                                                    </td>
+                                                                    <td width="15%" rowspan="@(reference.PurchaseOrders.Any()?reference.PurchaseOrders.Count()+1: 2)">
+                                                                        @reference.FreeZone.ToString("N0")
+                                                                    </td>
+                                                                </tr>
 
-                                    }
+                                                                @if (!reference.PurchaseOrders.Any())
+                                                                {
+                                                                    <tr style='@(odd?"background: #f5f5f5;":"")'>
+                                                                        <td width="10%" class="border-left-1"></td>
+                                                                        <td width="10%"></td>
+                                                                        <td width="10%"></td>
+                                                                        <td width="20%"></td>
+                                                                    </tr>
+                                                                }
 
-                                    <!-- items-->
-                                    @* @foreach (var item in line.Items)
+                                                                @for (int p = 0; p < reference.PurchaseOrders.Count(); p++)
+                                                                {
+                                                                    var purchaseOrder = reference.PurchaseOrders[p];
+                                                                    <tr style='@(odd?"background: #f5f5f5;":"")'>
+                                                                        <td width="10%" class="border-left-1">@purchaseOrder.Date.ToString(SharedLocalizer["date:format"])</td>
+                                                                        <td width="10%">@purchaseOrder.Warehouse</td>
+                                                                        <td width="10%">@purchaseOrder.Total.ToString("N0")</td>
+                                                                        <td width="20%">
+                                                                            @foreach (var purchaseOrderActivity in purchaseOrder.Activities)
+                                                                            {
+                                                                                <p>@purchaseOrderActivity.Date</p>
+                                                                                <p>@purchaseOrderActivity.Description</p>
+                                                                            }
+                                                                        </td>
+                                                                    </tr>
+                                                                }
+
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+
+                                        }
+
+                                        <!-- items-->
+                                        @* @foreach (var item in line.Items)
                                 {
                                 <tr>
                                 <td width="50%" class="border" style="padding:0.75em !important">
@@ -261,6 +273,7 @@
                                 </td>
                                 </tr>
                                 } *@
+                                    }
                                 }
                             </tbody>
                         </table>

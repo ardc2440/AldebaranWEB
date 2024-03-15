@@ -68,43 +68,46 @@
                             </tr>
                         </table>
                         <div class="mt-1 border">
-                            @foreach (var warehouse in ViewModel.Warehouses)
+                            @if (ViewModel != null)
                             {
-                                <p class="title border-bottom-1">Bodega: @warehouse.WarehouseName</p>
-                                @foreach (var line in warehouse.Lines)
+                                @foreach (var warehouse in ViewModel.Warehouses)
                                 {
-                                    <p class="title border-bottom-1" style="padding-left: 1.5em;">Línea: @line.LineCode  - @line.LineName</p>
-                                    @foreach (var item in line.Items)
+                                    <p class="title border-bottom-1">Bodega: @warehouse.WarehouseName</p>
+                                    @foreach (var line in warehouse.Lines)
                                     {
-                                        <div style="padding: 0.75rem 0 0 1.5em !important;">
-                                            <h3 class="text-left m-0">@item.ItemName</h3>
-                                            <p class="m-0">
-                                                Referencia interna:: @item.InternalReference
-                                            </p>
-                                        </div>
-                                        <div style="margin: 0.5em 1.5em 0 1.5em;">
-                                            <table class="striped border-top-1">
-                                                <thead>
-                                                    <tr>
-                                                        <th width="20%">Código</th>
-                                                        <th width="30%" class="border-left-1">Referencia</th>
-                                                        <th width="30%" class="border-left-1">Referencia proveedor</th>
-                                                        <th width="20%" class="border-left-1">Disponible</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @foreach (var reference in item.References)
-                                                    {
+                                        <p class="title border-bottom-1" style="padding-left: 1.5em;">Línea: @line.LineCode  - @line.LineName</p>
+                                        @foreach (var item in line.Items)
+                                        {
+                                            <div style="padding: 0.75rem 0 0 1.5em !important;">
+                                                <h3 class="text-left m-0">@item.ItemName</h3>
+                                                <p class="m-0">
+                                                    Referencia interna:: @item.InternalReference
+                                                </p>
+                                            </div>
+                                            <div style="margin: 0.5em 1.5em 0 1.5em;">
+                                                <table class="striped border-top-1">
+                                                    <thead>
                                                         <tr>
-                                                            <td width="20%">@reference.ReferenceCode</td>
-                                                            <td width="30%" class="border-left-1">@reference.ReferenceName</td>
-                                                            <td width="30%" class="border-left-1">@reference.ProviderReferenceName</td>
-                                                            <td width="20%" class="border-left-1">@reference.AvailableAmount.ToString("N0")</td>
+                                                            <th width="20%">Código</th>
+                                                            <th width="30%" class="border-left-1">Referencia</th>
+                                                            <th width="30%" class="border-left-1">Referencia proveedor</th>
+                                                            <th width="20%" class="border-left-1">Disponible</th>
                                                         </tr>
-                                                    }
-                                                </tbody>
-                                            </table>
-                                        </div>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach (var reference in item.References)
+                                                        {
+                                                            <tr>
+                                                                <td width="20%">@reference.ReferenceCode</td>
+                                                                <td width="30%" class="border-left-1">@reference.ReferenceName</td>
+                                                                <td width="30%" class="border-left-1">@reference.ProviderReferenceName</td>
+                                                                <td width="20%" class="border-left-1">@reference.AvailableAmount.ToString("N0")</td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        }
                                     }
                                 }
                             }

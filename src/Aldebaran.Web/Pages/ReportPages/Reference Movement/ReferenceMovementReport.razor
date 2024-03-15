@@ -68,55 +68,58 @@
                             </tr>
                         </table>
                         <div class="mt-1 border">
-                            @foreach (var line in ViewModel.Lines)
+                            @if (ViewModel != null)
                             {
-                                <p class="title">Línea: @line.LineName</p>
-                                @for (int i = 0; i < line.Items.Count(); i++)
+                                @foreach (var line in ViewModel.Lines)
                                 {
-                                    var item = line.Items[i];
-                                    <div style="padding: 0.75em !important;">
-                                        <h3 class='text-left m-0 @(i>0?"border-top-1":"")' style='@(i>0?"margin-top: 1em !important;padding-top: 1em;":"")'>
-                                            @item.ItemName
-                                        </h3>
-                                        <p class="m-0">
-                                            Referencia interna: @item.InternalReference
-                                        </p>
-                                    </div>
-                                    <div style="margin: 0.5em 0 0.5em 0; padding: 0 0.75em !important;">
-                                        <table class="striped edged border-top-1" style="margin-bottom: 0 !important;margin:0">
-                                            <thead>
-                                                <tr>
-                                                    <th width="40%" style="padding-left: 1.5em !important;">Referencia</th>
-                                                    <th width="15%" class="border-left-1">Cantidad Solicitada</th>
-                                                    <th width="15%" class="border-left-1">Cantidad Reservada</th>
-                                                    <th width="30%" colspan="2" style="text-align: center !important;" class="border-left-1">Existencias</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach (var reference in item.References)
-                                                {
+                                    <p class="title">Línea: @line.LineName</p>
+                                    @for (int i = 0; i < line.Items.Count(); i++)
+                                    {
+                                        var item = line.Items[i];
+                                        <div style="padding: 0.75em !important;">
+                                            <h3 class='text-left m-0 @(i>0?"border-top-1":"")' style='@(i>0?"margin-top: 1em !important;padding-top: 1em;":"")'>
+                                                @item.ItemName
+                                            </h3>
+                                            <p class="m-0">
+                                                Referencia interna: @item.InternalReference
+                                            </p>
+                                        </div>
+                                        <div style="margin: 0.5em 0 0.5em 0; padding: 0 0.75em !important;">
+                                            <table class="striped edged border-top-1" style="margin-bottom: 0 !important;margin:0">
+                                                <thead>
                                                     <tr>
-                                                        <td width="40%" style="padding-left: 1.5em !important;">@reference.ReferenceName</td>
-                                                        <td width="15%" class="border-left-1">@reference.RequestedQuantity.ToString("N0")</td>
-                                                        <td width="15%" class="border-left-1">@reference.ReservedQuantity.ToString("N0")</td>
-                                                        <td width="30%" colspan="2" style="padding: 0 !important;" class="border-left-1">
-                                                            <table class="edged" style="text-align: center !important;margin:0 !important">
-                                                                <tbody>
-                                                                    @foreach (var warehouse in reference.Warehouses)
-                                                                    {
-                                                                        <tr style="background:#fff !important">
-                                                                            <td width="50%" style="text-align:left" class="bold">@warehouse.WarehouseName</td>
-                                                                            <td width="50%" style="text-align:center" class="border-left-1">@warehouse.Amount.ToString("N0")</td>
-                                                                        </tr>
-                                                                    }
-                                                                </tbody>
-                                                            </table>
-                                                        </td>
+                                                        <th width="40%" style="padding-left: 1.5em !important;">Referencia</th>
+                                                        <th width="15%" class="border-left-1">Cantidad Solicitada</th>
+                                                        <th width="15%" class="border-left-1">Cantidad Reservada</th>
+                                                        <th width="30%" colspan="2" style="text-align: center !important;" class="border-left-1">Existencias</th>
                                                     </tr>
-                                                }
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var reference in item.References)
+                                                    {
+                                                        <tr>
+                                                            <td width="40%" style="padding-left: 1.5em !important;">@reference.ReferenceName</td>
+                                                            <td width="15%" class="border-left-1">@reference.RequestedQuantity.ToString("N0")</td>
+                                                            <td width="15%" class="border-left-1">@reference.ReservedQuantity.ToString("N0")</td>
+                                                            <td width="30%" colspan="2" style="padding: 0 !important;" class="border-left-1">
+                                                                <table class="edged" style="text-align: center !important;margin:0 !important">
+                                                                    <tbody>
+                                                                        @foreach (var warehouse in reference.Warehouses)
+                                                                        {
+                                                                            <tr style="background:#fff !important">
+                                                                                <td width="50%" style="text-align:left" class="bold">@warehouse.WarehouseName</td>
+                                                                                <td width="50%" style="text-align:center" class="border-left-1">@warehouse.Amount.ToString("N0")</td>
+                                                                            </tr>
+                                                                        }
+                                                                    </tbody>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    }
                                 }
                             }
                         </div>
