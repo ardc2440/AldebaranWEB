@@ -1,4 +1,6 @@
-﻿using Aldebaran.Web.Pages.ReportPages.Warehouse_Stock.Components;
+﻿using Aldebaran.Application.Services;
+using Aldebaran.Application.Services.Models;
+using Aldebaran.Web.Pages.ReportPages.Warehouse_Stock.Components;
 using Aldebaran.Web.Pages.ReportPages.Warehouse_Stock.ViewModel;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
@@ -20,6 +22,9 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Stock
 
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
+
+        [Inject]
+        protected IReferencesWarehouseService ReferencesWarehouseService { get; set; }
         #endregion
 
         #region Variables
@@ -33,136 +38,10 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Stock
         {
             ViewModel = new WarehouseStockViewModel()
             {
-                Warehouses = new List<WarehouseStockViewModel.Warehouse>
-                {
-                    new WarehouseStockViewModel.Warehouse
-                    {
-                        WarehouseId = 1,
-                        WarehouseName = "Local",
-                        Lines = new List<WarehouseStockViewModel.Line>
-                        {
-                            new WarehouseStockViewModel.Line
-                            {
-                                LineCode="001",
-                                LineName = "Importados",
-                                Items = new List<WarehouseStockViewModel.Item>
-                                {
-                                    new WarehouseStockViewModel.Item
-                                    {
-                                        InternalReference ="00110-01",
-                                        ItemName="HOT PORTAMINA",
-                                        References = new List<WarehouseStockViewModel.Reference>
-                                        {
-                                            new WarehouseStockViewModel.Reference
-                                            {
-                                                ReferenceCode="00001",
-                                                ReferenceName="Blanco",
-                                                ProviderReferenceName="White",
-                                                AvailableAmount=200
-                                            },
-                                            new WarehouseStockViewModel.Reference
-                                            {
-                                                ReferenceCode="00002",
-                                                ReferenceName="Rojo",
-                                                ProviderReferenceName="Red",
-                                                AvailableAmount=180
-                                            },
-                                            new WarehouseStockViewModel.Reference
-                                            {
-                                                ReferenceCode="00003",
-                                                ReferenceName="Verde",
-                                                ProviderReferenceName="Green",
-                                                AvailableAmount=180
-                                            },
-                                            new WarehouseStockViewModel.Reference
-                                            {
-                                                ReferenceCode="00004",
-                                                ReferenceName="Amarillo",
-                                                ProviderReferenceName="Yellow",
-                                                AvailableAmount=180
-                                            },
-                                            new WarehouseStockViewModel.Reference
-                                            {
-                                                ReferenceCode="00005",
-                                                ReferenceName="Negro",
-                                                ProviderReferenceName="Black",
-                                                AvailableAmount=180
-                                            },
-                                            new WarehouseStockViewModel.Reference
-                                            {
-                                                ReferenceCode="00006",
-                                                ReferenceName="Naranja",
-                                                ProviderReferenceName="Orange",
-                                                AvailableAmount=180
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    new WarehouseStockViewModel.Warehouse
-                    {
-                        WarehouseId = 2,
-                        WarehouseName = "Zona Franca",
-                        Lines = new List<WarehouseStockViewModel.Line>
-                        {
-                            new WarehouseStockViewModel.Line
-                            {
-                                LineCode="001",
-                                LineName = "Importados",
-                                Items = new List<WarehouseStockViewModel.Item>
-                                {
-                                    new WarehouseStockViewModel.Item
-                                    {
-                                        InternalReference ="AA973-1-01",
-                                        ItemName="LACE",
-                                        References = new List<WarehouseStockViewModel.Reference>
-                                        {
-                                            new WarehouseStockViewModel.Reference
-                                            {
-                                                ReferenceCode="00001",
-                                                ReferenceName="Blanco",
-                                                ProviderReferenceName="White",
-                                                AvailableAmount=-20
-                                            },
-                                            new WarehouseStockViewModel.Reference
-                                            {
-                                                ReferenceCode="00002",
-                                                ReferenceName="Rojo",
-                                                ProviderReferenceName="Red",
-                                                AvailableAmount=156783
-                                            }
-                                        }
-                                    },
-                                    new WarehouseStockViewModel.Item
-                                    {
-                                        InternalReference ="AA8986-01",
-                                        ItemName="MERCURIO",
-                                        References = new List<WarehouseStockViewModel.Reference>
-                                        {
-                                            new WarehouseStockViewModel.Reference
-                                            {
-                                                ReferenceCode="00001",
-                                                ReferenceName="Blanco",
-                                                ProviderReferenceName="White",
-                                                AvailableAmount=-20
-                                            },
-                                            new WarehouseStockViewModel.Reference
-                                            {
-                                                ReferenceCode="00002",
-                                                ReferenceName="Rojo",
-                                                ProviderReferenceName="Red",
-                                                AvailableAmount=156783
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                Warehouses = new List<WarehouseStockViewModel.Warehouse>()
             };
+
+            ViewModel.Warehouses = (await GetReportWarehousesAsync()).ToList();
         }
         #endregion
 
@@ -198,5 +77,81 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Stock
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink");
         }
         #endregion
+
+        #region Fill Data Report
+
+        protected async Task<IEnumerable<WarehouseStockViewModel.Warehouse>> GetReportWarehousesAsync(CancellationToken ct = default)
+        {
+            var warehousesList = new List<WarehouseStockViewModel.Warehouse>();
+
+            var referenceWarehouses = await ReferencesWarehouseService.GetAllAsync(ct);
+
+            foreach (var warehouse in referenceWarehouses.Select(s => s.Warehouse).DistinctBy(d => d.WarehouseId).OrderBy(o=>o.WarehouseName))
+            {
+                warehousesList.Add(new WarehouseStockViewModel.Warehouse
+                {
+                    WarehouseId = warehouse.WarehouseId,
+                    WarehouseName = warehouse.WarehouseName,
+                    Lines = (await GetReporLinesAsync(referenceWarehouses, warehouse.WarehouseId, ct)).ToList()
+                });
+            }
+
+            return warehousesList;
+        }
+
+        protected async Task<IEnumerable<WarehouseStockViewModel.Line>> GetReporLinesAsync(IEnumerable<ReferencesWarehouse> referenceWarehouses, short warehouseId, CancellationToken ct = default)
+        {
+            var lines = new List<WarehouseStockViewModel.Line>();
+
+            foreach (var line in referenceWarehouses.Where(w => w.WarehouseId == warehouseId && w.ItemReference.Item.IsActive && w.ItemReference.IsActive).Select(s => s.ItemReference.Item.Line).DistinctBy(l => l.LineId).OrderBy(o=>o.LineName))
+            {
+                lines.Add(new WarehouseStockViewModel.Line
+                {
+                    LineName = line.LineName,
+                    LineCode = line.LineCode,
+                    Items = (await GetReportItemsByLineIdAsync(referenceWarehouses, warehouseId, line.LineId, ct)).ToList()
+                });
+            }
+
+            return lines;
+        }
+
+        protected async Task<IEnumerable<WarehouseStockViewModel.Item>> GetReportItemsByLineIdAsync(IEnumerable<ReferencesWarehouse> referenceWarehouses, short warehouseId, short lineId, CancellationToken ct = default)
+        {
+            var items = new List<WarehouseStockViewModel.Item>();
+
+            foreach (var item in referenceWarehouses.Where(w => w.ItemReference.Item.LineId == lineId && w.ItemReference.Item.IsActive && w.WarehouseId == warehouseId).Select(s => s.ItemReference.Item).DistinctBy(l => l.ItemId).OrderBy(o=>o.ItemName))
+            {
+                items.Add(new WarehouseStockViewModel.Item
+                {
+                    InternalReference = item.InternalReference,
+                    ItemName = item.ItemName,
+                    References = (await GetReferencesByItemIdAsync(referenceWarehouses, warehouseId, item.ItemId, ct)).ToList()
+                });
+            }
+
+            return items;
+        }
+
+        protected async Task<IEnumerable<WarehouseStockViewModel.Reference>> GetReferencesByItemIdAsync(IEnumerable<ReferencesWarehouse> referenceWarehouses, short warehouseId, int itemId, CancellationToken ct = default)
+        {
+            var reportReferences = new List<WarehouseStockViewModel.Reference>();
+
+            foreach (var reference in referenceWarehouses.Where(w => w.ItemReference.ItemId == itemId && w.WarehouseId == warehouseId && w.ItemReference.IsActive).OrderBy(o=>o.ItemReference.ReferenceCode))
+            {
+                reportReferences.Add(new WarehouseStockViewModel.Reference
+                {
+                    ReferenceName = reference.ItemReference.ReferenceName,
+                    AvailableAmount = reference.Quantity,
+                    ProviderReferenceName = reference.ItemReference.ProviderReferenceName,
+                    ReferenceCode = reference.ItemReference.ReferenceCode                    
+                }); ;
+            }
+
+            return reportReferences;
+        }
+
+        #endregion
+
     }
 }

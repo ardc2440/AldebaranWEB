@@ -61,7 +61,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
                 Lines = new List<InventoryLine>()
             };
 
-            var references = await ItemReferenceService.GetReportsReferences();
+            var references = await ItemReferenceService.GetReportsReferences(isExternalInventory:true);
 
             ViewModel.Lines = (await GetLinesAsync(references)).ToList();
         }
@@ -105,7 +105,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
         {
             var lines = new List<InventoryLine>();
 
-            foreach (var line in references.Select(s => s.Item.Line).DistinctBy(d => d.LineId))
+            foreach (var line in references.Select(s => s.Item.Line).DistinctBy(d => d.LineId).OrderBy(o=>o.LineName))
             {
                 lines.Add(new InventoryLine { LineName = line.LineName, Items = (await GetItemsPerLineAsync(references, line.LineId, ct)).ToList() });
             }
@@ -117,7 +117,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
         {
             var items = new List<InventoryItem>();
 
-            foreach (var item in references.Select(s => s.Item).Where(w => w.LineId == lineId && w.IsActive && w.IsExternalInventory).DistinctBy(d => d.ItemId))
+            foreach (var item in references.Select(s => s.Item).Where(w => w.LineId == lineId && w.IsActive && w.IsExternalInventory).DistinctBy(d => d.ItemId).OrderBy(o=>o.ItemName))
             {
                 items.Add(new InventoryItem { InternalReference = item.InternalReference, ItemName = item.ItemName, InventoryReferences = (await GetReferencesPerItemAsync(references, item.ItemId, ct)).ToList() });
             }
@@ -129,7 +129,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
         {
             var inventoryReferences = new List<InventoryReference>();
 
-            foreach (var reference in references.Where(w => w.ItemId == itemId && w.IsActive))
+            foreach (var reference in references.Where(w => w.ItemId == itemId && w.IsActive).OrderBy(o=>o.ReferenceCode))
             {
                 inventoryReferences.Add(new InventoryReference
                 {
@@ -160,7 +160,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
 
             var purchaseOrdersActivity = await PurchaseOrderService.GetTransitByReferenceIdAsync(referenceId, ct);
 
-            foreach (var purchaseOrder in purchaseOrdersActivity)
+            foreach (var purchaseOrder in purchaseOrdersActivity.OrderBy(o=>o.OrderNumber))
             {
                 var details = purchaseOrder.PurchaseOrderDetails;
                 var activities = purchaseOrder.PurchaseOrderActivities;
@@ -195,13 +195,12 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
         {
             var invetoryActivityList = new List<InventoryActivity>();
 
-            foreach (var activity in activities)
+            foreach (var activity in activities.OrderBy(o=>o.ExecutionDate))
             {
                 invetoryActivityList.Add(new InventoryActivity { Date = activity.ExecutionDate, Description = activity.ActivityDescription });
             }
 
             return invetoryActivityList;
-
         }
 
         #endregion

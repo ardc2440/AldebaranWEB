@@ -1,4 +1,6 @@
-﻿using Aldebaran.Web.Pages.ReportPages.Reference_Movement.Components;
+﻿using Aldebaran.Application.Services;
+using Aldebaran.Application.Services.Models;
+using Aldebaran.Web.Pages.ReportPages.Reference_Movement.Components;
 using Aldebaran.Web.Pages.ReportPages.Reference_Movement.ViewModel;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -21,6 +23,13 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
 
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
+
+        [Inject]
+        protected IItemReferenceService ItemReferenceService { get; set; }
+
+        [Inject]
+        protected IReferencesWarehouseService ReferencesWarehouseService { get; set; }
+
         #endregion
 
         #region Variables
@@ -31,147 +40,13 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
 
         #region Overrides
         protected override async Task OnInitializedAsync()
-        {
+        {           
             ViewModel = new ReferenceMovementViewModel
             {
-                Lines = new List<ReferenceMovementViewModel.Line>
-                {
-                    new ReferenceMovementViewModel.Line
-                    {
-                        LineCode="001",
-                        LineName="Boligrafos",
-                        Items= new List<ReferenceMovementViewModel.Item> {
-                            new ReferenceMovementViewModel.Item {
-                                InternalReference="ADVANT 2",
-                                ItemName="Mina ADVANT 2-1",
-                                References = new List<ReferenceMovementViewModel.Reference>
-                                {
-                                    new ReferenceMovementViewModel.Reference
-                                    {
-                                        ReferenceCode="001",
-                                        ReferenceName="Rojo",
-                                        RequestedQuantity=1,
-                                        ReservedQuantity=100,
-                                        Warehouses = new List<ReferenceMovementViewModel.Warehouse>
-                                        {
-                                            new ReferenceMovementViewModel.Warehouse
-                                            {
-                                                WarehouseId=1,
-                                                WarehouseName="Local",
-                                                Amount=30000
-                                            },
-                                            new ReferenceMovementViewModel.Warehouse
-                                            {
-                                                WarehouseId=2,
-                                                WarehouseName="Zona Franca",
-                                                Amount=20350
-                                            }
-                                        }
-                                    },
-                                    new ReferenceMovementViewModel.Reference
-                                    {
-                                        ReferenceCode="002",
-                                        ReferenceName="Azul",
-                                        RequestedQuantity=45,
-                                        ReservedQuantity=235,
-                                        Warehouses = new List<ReferenceMovementViewModel.Warehouse>
-                                        {
-                                            new ReferenceMovementViewModel.Warehouse
-                                            {
-                                                WarehouseId=1,
-                                                WarehouseName="Local",
-                                                Amount=18500
-                                            },
-                                            new ReferenceMovementViewModel.Warehouse
-                                            {
-                                                WarehouseId=2,
-                                                WarehouseName="Zona Franca",
-                                                Amount=0
-                                            }
-                                        }
-                                    },
-                                    new ReferenceMovementViewModel.Reference
-                                    {
-                                        ReferenceCode="003",
-                                        ReferenceName="Amarillo",
-                                        RequestedQuantity=27,
-                                        ReservedQuantity=185,
-                                        Warehouses = new List<ReferenceMovementViewModel.Warehouse>
-                                        {
-                                            new ReferenceMovementViewModel.Warehouse
-                                            {
-                                                WarehouseId=1,
-                                                WarehouseName="Local",
-                                                Amount=3871
-                                            }
-                                        }
-                                    }
-                                }
-                            },
-                            new ReferenceMovementViewModel.Item
-                            {
-                                InternalReference="ADVANT 3",
-                                ItemName="Mina ADVANT 3-1",
-                                References = new List<ReferenceMovementViewModel.Reference>
-                                {
-                                    new ReferenceMovementViewModel.Reference
-                                    {
-                                        ReferenceCode="004",
-                                        ReferenceName="Plateado",
-                                        RequestedQuantity=86,
-                                        ReservedQuantity=79,
-                                        Warehouses = new List<ReferenceMovementViewModel.Warehouse>
-                                        {
-                                            new ReferenceMovementViewModel.Warehouse
-                                            {
-                                                WarehouseId=1,
-                                                WarehouseName="Zona Franca",
-                                                Amount=578
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    new ReferenceMovementViewModel.Line
-                    {
-                        LineCode="002",
-                        LineName="Mugs",
-                        Items= new List<ReferenceMovementViewModel.Item> {
-                             new ReferenceMovementViewModel.Item {
-                                InternalReference="MUG",
-                                ItemName="Mug con kit",
-                                References = new List<ReferenceMovementViewModel.Reference>
-                                {
-                                    new ReferenceMovementViewModel.Reference
-                                    {
-                                        ReferenceCode="007",
-                                        ReferenceName="Negro",
-                                        RequestedQuantity=1,
-                                        ReservedQuantity=100,
-                                        Warehouses = new List<ReferenceMovementViewModel.Warehouse>
-                                        {
-                                            new ReferenceMovementViewModel.Warehouse
-                                            {
-                                                WarehouseId=1,
-                                                WarehouseName="Local",
-                                                Amount=4500
-                                            },
-                                            new ReferenceMovementViewModel.Warehouse
-                                            {
-                                                WarehouseId=2,
-                                                WarehouseName="Zona Franca",
-                                                Amount=20350
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                Lines = new List<ReferenceMovementViewModel.Line>()
             };
+
+            ViewModel.Lines = (await GetReporLinesAsync()).ToList();
         }
         #endregion
 
@@ -207,5 +82,87 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink");
         }
         #endregion
+
+        #region Fill Data Report
+
+        protected async Task<IEnumerable<ReferenceMovementViewModel.Line>> GetReporLinesAsync(CancellationToken ct = default)
+        {
+            var lines = new List<ReferenceMovementViewModel.Line>();
+
+            var references = await ItemReferenceService.GetReportsReferences(ct:ct);
+
+            foreach (var line in references.Select(s => s.Item.Line).DistinctBy(l => l.LineId).OrderBy(o=>o.LineName))
+            {
+                lines.Add(new ReferenceMovementViewModel.Line
+                {
+                    LineName = line.LineName,
+                    LineCode = line.LineCode,
+                    Items = (await GetReportItemsByLineIdAsync(references, line.LineId, ct)).ToList()
+                });
+            }
+
+            return lines;
+        }
+
+        protected async Task<IEnumerable<ReferenceMovementViewModel.Item>> GetReportItemsByLineIdAsync(IEnumerable<ItemReference> references, short lineId, CancellationToken ct = default)
+        {
+            var items = new List<ReferenceMovementViewModel.Item>();
+
+            foreach (var item in references.Where(w => w.Item.LineId == lineId).Select(s => s.Item).DistinctBy(l => l.ItemId).OrderBy(o=>o.ItemName))
+            {
+                items.Add(new ReferenceMovementViewModel.Item
+                {
+                    InternalReference = item.InternalReference,
+                    ItemName = item.ItemName,
+                    References = (await GetReferencesByItemIdAsync(references, item.ItemId, ct)).ToList()
+                });
+            }
+
+            return items;
+        }
+
+        protected async Task<IEnumerable<ReferenceMovementViewModel.Reference>> GetReferencesByItemIdAsync(IEnumerable<ItemReference> references, int itemId, CancellationToken ct = default)
+        {
+            var reportReferences = new List<ReferenceMovementViewModel.Reference>();
+
+            foreach (var reference in references.Where(w => w.ItemId == itemId).OrderBy(o=>o.ReferenceCode))
+            {
+                reportReferences.Add(new ReferenceMovementViewModel.Reference
+                {
+                    ReferenceName = reference.ReferenceName,
+                    RequestedQuantity = reference.OrderedQuantity,
+                    ReservedQuantity = reference.ReservedQuantity,
+                    ReferenceCode = reference.ReferenceCode,                    
+                    Warehouses = (await GetWarehousesByReferenceIdAsync(reference.ReferenceId, ct)).ToList()
+
+                }); ;
+            }
+
+            return reportReferences;
+        }
+
+        protected async Task<IEnumerable<ReferenceMovementViewModel.Warehouse>> GetWarehousesByReferenceIdAsync(int referenceId, CancellationToken ct = default)
+        {
+            var warehouses = new List<ReferenceMovementViewModel.Warehouse>();
+
+            var referenceWarehouses = await ReferencesWarehouseService.GetByReferenceIdAsync(referenceId, ct);
+
+            foreach (var warehouse in referenceWarehouses.OrderBy(o=>o.Warehouse.WarehouseName))
+            {
+                warehouses.Add(new ReferenceMovementViewModel.Warehouse
+                {
+                    WarehouseId = warehouse.WarehouseId,
+                    Amount = warehouse.Quantity,
+                    WarehouseName = warehouse.Warehouse.WarehouseName,
+                });
+
+            }
+
+            return warehouses;
+
+        }
+
+        #endregion
+
     }
 }

@@ -90,6 +90,7 @@ namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink");
         }
 
+        #endregion
 
         #region Fill Data Report
 
@@ -97,9 +98,9 @@ namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
         {
             var lines = new List<InProcessInventoryViewModel.Line>();
 
-            var references = await ItemReferenceService.GetReportsReferences();
+            var references = await ItemReferenceService.GetReportsReferences(isExternalInventory:true,ct:ct);
 
-            foreach (var line in references.Select(s => s.Item.Line).DistinctBy(l => l.LineId))
+            foreach (var line in references.Select(s => s.Item.Line).DistinctBy(l => l.LineId).OrderBy(o=>o.LineName))
             {
                 lines.Add(new InProcessInventoryViewModel.Line
                 {
@@ -116,7 +117,7 @@ namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
         {
             var items = new List<InProcessInventoryViewModel.Item>();
 
-            foreach (var item in references.Where(w => w.Item.LineId == lineId).Select(s => s.Item).DistinctBy(l => l.ItemId))
+            foreach (var item in references.Where(w => w.Item.LineId == lineId).Select(s => s.Item).DistinctBy(l => l.ItemId).OrderBy(o=>o.ItemName))
             {
                 items.Add(new InProcessInventoryViewModel.Item
                 {
@@ -133,7 +134,7 @@ namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
         {
             var reportReferences = new List<InProcessInventoryViewModel.Reference>();
 
-            foreach (var reference in references.Where(w => w.ItemId == itemId))
+            foreach (var reference in references.Where(w => w.ItemId == itemId).OrderBy(o=>o.ReferenceCode))
             {
                 reportReferences.Add(new InProcessInventoryViewModel.Reference
                 {
@@ -153,7 +154,7 @@ namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
 
             var referenceWarehouses = await ReferencesWarehouseService.GetByReferenceIdAsync(referenceId, ct);
 
-            foreach (var warehouse in referenceWarehouses)
+            foreach (var warehouse in referenceWarehouses.OrderBy(o=>o.Warehouse.WarehouseName))
             {
                 warehouses.Add(new InProcessInventoryViewModel.Warehouse 
                 {
@@ -170,6 +171,6 @@ namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
 
         #endregion
 
-        #endregion
+        
     }
 }
