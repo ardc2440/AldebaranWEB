@@ -41,7 +41,11 @@
     }
 
     .report .m-0 {
-        margin: 0;
+        margin: 0 !important;
+    }
+
+    .report .p-0 {
+        padding: 0 !important;
     }
 
     .report p.title {

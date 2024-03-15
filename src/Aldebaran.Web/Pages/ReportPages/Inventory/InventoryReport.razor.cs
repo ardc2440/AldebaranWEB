@@ -1,14 +1,11 @@
 ﻿using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
-using Aldebaran.Web.Models.ViewModels;
-using Aldebaran.Web.Pages.PurchaseOrderPages;
 using Aldebaran.Web.Pages.ReportPages.Inventory.Components;
 using Aldebaran.Web.Pages.ReportPages.Inventory.ViewModel;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using Radzen;
-using System.Collections;
 
 namespace Aldebaran.Web.Pages.ReportPages.Inventory
 {
@@ -44,7 +41,6 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
 
         #endregion
 
-
         #region Variables
 
         protected InventoryFilter Filter;
@@ -56,14 +52,11 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
+            var references = await ItemReferenceService.GetReportsReferences();
             ViewModel = new InventoryViewModel
             {
-                Lines = new List<InventoryLine>()
+                Lines = (await GetLinesAsync(references)).ToList()
             };
-
-            var references = await ItemReferenceService.GetReportsReferences(isExternalInventory:true);
-
-            ViewModel.Lines = (await GetLinesAsync(references)).ToList();
         }
         #endregion
 
@@ -101,37 +94,37 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
         #endregion
 
         #region Fill Data Report
-        protected async Task<IEnumerable<InventoryLine>> GetLinesAsync(IEnumerable<ItemReference> references, CancellationToken ct = default)
+        protected async Task<IEnumerable<InventoryViewModel.Line>> GetLinesAsync(IEnumerable<ItemReference> references, CancellationToken ct = default)
         {
-            var lines = new List<InventoryLine>();
+            var lines = new List<InventoryViewModel.Line>();
 
             foreach (var line in references.Select(s => s.Item.Line).DistinctBy(d => d.LineId).OrderBy(o=>o.LineName))
             {
-                lines.Add(new InventoryLine { LineName = line.LineName, Items = (await GetItemsPerLineAsync(references, line.LineId, ct)).ToList() });
+                lines.Add(new InventoryViewModel.Line { LineName = line.LineName, Items = (await GetItemsPerLineAsync(references, line.LineId, ct)).ToList() });
             }
 
             return lines;
         }
 
-        protected async Task<IEnumerable<InventoryItem>> GetItemsPerLineAsync(IEnumerable<ItemReference> references, short lineId, CancellationToken ct = default)
+        protected async Task<IEnumerable<InventoryViewModel.Item>> GetItemsPerLineAsync(IEnumerable<ItemReference> references, short lineId, CancellationToken ct = default)
         {
-            var items = new List<InventoryItem>();
+            var items = new List<InventoryViewModel.Item>();
 
             foreach (var item in references.Select(s => s.Item).Where(w => w.LineId == lineId && w.IsActive && w.IsExternalInventory).DistinctBy(d => d.ItemId).OrderBy(o=>o.ItemName))
             {
-                items.Add(new InventoryItem { InternalReference = item.InternalReference, ItemName = item.ItemName, InventoryReferences = (await GetReferencesPerItemAsync(references, item.ItemId, ct)).ToList() });
+                items.Add(new InventoryViewModel.Item { InternalReference = item.InternalReference, ItemName = item.ItemName, References = (await GetReferencesPerItemAsync(references, item.ItemId, ct)).ToList() });
             }
 
             return items;
         }
 
-        protected async Task<IEnumerable<InventoryReference>> GetReferencesPerItemAsync(IEnumerable<ItemReference> references, int itemId, CancellationToken ct = default)
+        protected async Task<IEnumerable<InventoryViewModel.Reference>> GetReferencesPerItemAsync(IEnumerable<ItemReference> references, int itemId, CancellationToken ct = default)
         {
-            var inventoryReferences = new List<InventoryReference>();
+            var inventoryReferences = new List<InventoryViewModel.Reference>();
 
             foreach (var reference in references.Where(w => w.ItemId == itemId && w.IsActive).OrderBy(o=>o.ReferenceCode))
             {
-                inventoryReferences.Add(new InventoryReference
+                inventoryReferences.Add(new InventoryViewModel.Reference
                 {
                     ReferenceName = reference.ReferenceName,
                     AvailableAmount = reference.InventoryQuantity - reference.ReservedQuantity - reference.OrderedQuantity,
@@ -152,9 +145,9 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
             return referenceWarehouse.Quantity;
         }
 
-        protected async Task<IEnumerable<InventoryPurchaseOrder>> GetPurchaseOrderPerReferenceAsync(int referenceId, CancellationToken ct = default)
+        protected async Task<IEnumerable<InventoryViewModel.PurchaseOrder>> GetPurchaseOrderPerReferenceAsync(int referenceId, CancellationToken ct = default)
         {
-            var inventoryPurchaseOrders = new List<InventoryPurchaseOrder>();
+            var inventoryPurchaseOrders = new List<InventoryViewModel.PurchaseOrder>();
 
             var warehouses = await WarehouseService.GetAsync(ct);
 
@@ -179,30 +172,17 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
                         continue;
                     }
 
-                    inventoryPurchaseOrders.Add (new InventoryPurchaseOrder
+                    inventoryPurchaseOrders.Add(new InventoryViewModel.PurchaseOrder
                     {
                         Date = date,
                         Total = detail.RequestedQuantity,
                         Warehouse = warehouse.WarehouseName,
-                        Activity = (await GetInventoryActivitiesAsync(activities, ct)).ToList(),
+                        Activities = activities.Select(s => new InventoryViewModel.Activity { Date = s.ExecutionDate, Description = s.ActivityDescription }).ToList()
                     });
                 }
             }
             return inventoryPurchaseOrders;
         }
-
-        public async Task<IEnumerable<InventoryActivity>> GetInventoryActivitiesAsync(IEnumerable<PurchaseOrderActivity> activities, CancellationToken ct = default)
-        {
-            var invetoryActivityList = new List<InventoryActivity>();
-
-            foreach (var activity in activities.OrderBy(o=>o.ExecutionDate))
-            {
-                invetoryActivityList.Add(new InventoryActivity { Date = activity.ExecutionDate, Description = activity.ActivityDescription });
-            }
-
-            return invetoryActivityList;
-        }
-
         #endregion
     }
 }
