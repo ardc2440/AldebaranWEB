@@ -12,6 +12,10 @@
         border: 1px solid #dee2e6 !important;
     }
 
+    .report .no-border {
+        border: 0px !important;
+    }
+
     .report .text-left {
         text-align: left !important;
     }

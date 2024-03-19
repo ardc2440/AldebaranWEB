@@ -1,4 +1,3 @@
-using Aldebaran.Application.Services;
 using Microsoft.AspNetCore.Components;
 using Radzen;
 using ServiceModel = Aldebaran.Application.Services.Models;
@@ -7,72 +6,66 @@ namespace Aldebaran.Web.Shared
 {
     public partial class MultiReferencePicker
     {
-        #region Injections
-        [Inject]
-        protected IItemReferenceService ItemReferenceService { get; set; }
-        #endregion
-
         #region Parameters
         [Parameter]
         public bool ReadOnly { get; set; } = false;
         [Parameter]
         public EventCallback<List<ServiceModel.ItemReference>> OnChange { get; set; }
-        [Parameter]
-        public List<int> SELECTED_REFERENCES { get; set; } = new List<int>();
         #endregion
 
         #region Variables
         public List<ServiceModel.ItemReference> AvailableItemReferencesForSelection { get; set; }
-
-        protected List<ServiceModel.Line> Lines = new List<ServiceModel.Line>();
-        protected List<short> SelectedLineIds = new List<short>();
-
-        List<GroupItemData> Items = new List<GroupItemData>();
-        protected List<int> SelectedItemIds = new List<int>();
-
         List<GroupReferenceData> References = new List<GroupReferenceData>();
+        List<GroupItemData> Items = new List<GroupItemData>();
+
+        protected List<short> SelectedLineIds = new List<short>();
+        protected List<int> SelectedItemIds = new List<int>();
         protected List<int> SelectedReferenceIds = new List<int>();
         protected List<ServiceModel.ItemReference> SelectedReferences = new List<ServiceModel.ItemReference>();
-
         protected bool CollapsedPanel { get; set; } = true;
-        bool IsSetParametersEnabled = true;
         #endregion
 
         #region Overrides
-        protected override async Task OnInitializedAsync()
+        public void SetAvailableItemReferencesForSelection(List<ServiceModel.ItemReference> references)
         {
-            await Task.Yield();
-            AvailableItemReferencesForSelection = (await ItemReferenceService.GetAsync()).ToList();
-            Lines = AvailableItemReferencesForSelection.Select(s => s.Item.Line).DistinctBy(d => d.LineId).ToList();
+            CleanLines();
+            CleanItems();
+            CleanReferences();
+            AvailableItemReferencesForSelection = references;
+            CollapsedPanel = (references?.Any()) != true;
         }
-        public override async Task SetParametersAsync(ParameterView parameters)
+        public void SetSelectedItemReferences(List<int> referenceIds)
         {
-            await base.SetParametersAsync(parameters);
-            if (!IsSetParametersEnabled) return;
-            if (SELECTED_REFERENCES == null || !SELECTED_REFERENCES.Any())
-                return;
+            if (AvailableItemReferencesForSelection?.Any() == true && referenceIds?.Any() == true)
+            {
+                var selectedLines = AvailableItemReferencesForSelection.Where(w => referenceIds.Contains(w.ReferenceId)).Select(s => s.Item.Line).DistinctBy(d => d.LineId).ToList();
+                var selectedItems = AvailableItemReferencesForSelection.Where(w => referenceIds.Contains(w.ReferenceId)).Select(s => s.Item).DistinctBy(d => d.ItemId).ToList();
+                var selectedReferences = AvailableItemReferencesForSelection.Where(w => referenceIds.Contains(w.ReferenceId)).ToList();
 
-            var selectedLines = AvailableItemReferencesForSelection.Where(w => SELECTED_REFERENCES.Contains(w.ReferenceId)).Select(s => s.Item.Line).DistinctBy(d => d.LineId).ToList();
-            var selectedItems = AvailableItemReferencesForSelection.Where(w => SELECTED_REFERENCES.Contains(w.ReferenceId)).Select(s => s.Item).DistinctBy(d => d.ItemId).ToList();
-            var selectedReferences = AvailableItemReferencesForSelection.Where(w => SELECTED_REFERENCES.Contains(w.ReferenceId)).ToList();
-
-            SelectedLineIds = selectedLines.Select(s => s.LineId).Distinct().ToList();
-            await OnLineChange();
-            SelectedItemIds = selectedItems.Select(s => s.ItemId).Distinct().ToList();
-            await OnItemChange();
-            SelectedReferenceIds = selectedReferences.Select(s => s.ReferenceId).Distinct().ToList();
-            await OnReferenceChange();
-            CollapsedPanel = true;
+                SelectedLineIds = selectedLines.Select(s => s.LineId).Distinct().ToList();
+                OnLineChange();
+                SelectedItemIds = selectedItems.Select(s => s.ItemId).Distinct().ToList();
+                OnItemChange();
+                SelectedReferenceIds = selectedReferences.Select(s => s.ReferenceId).Distinct().ToList();
+                OnReferenceChange();
+                CollapsedPanel = false;
+            }
+            else
+            {
+                CleanLines();
+                CleanItems();
+                CleanReferences();
+            }
         }
         #endregion
 
         #region Events
-        protected async Task OnLineChange()
+        protected void OnLineChange()
         {
             if (SelectedLineIds == null || !SelectedLineIds.Any())
             {
                 CleanItems();
-                await OnItemChange();
+                OnItemChange();
                 return;
             }
 
@@ -91,12 +84,12 @@ namespace Aldebaran.Web.Shared
                     ItemName = x.ItemName
                 }))).ToList();
         }
-        protected async Task OnItemChange()
+        protected void OnItemChange()
         {
             if (SelectedItemIds == null || !SelectedItemIds.Any())
             {
                 CleanReferences();
-                await OnReferenceChange();
+                OnReferenceChange();
                 return;
             }
 
@@ -118,20 +111,23 @@ namespace Aldebaran.Web.Shared
                     FullReferenceName = $"{x.Item.ItemName} - {x.ReferenceName}"
                 }))).ToList();
         }
-        protected async Task OnReferenceChange()
+        protected void OnReferenceChange()
         {
             if (SelectedReferenceIds == null || !SelectedReferenceIds.Any())
             {
-                await OnChange.InvokeAsync(null);
+                OnChange.InvokeAsync(null);
                 return;
             }
             SelectedReferences = AvailableItemReferencesForSelection.Where(w => SelectedReferenceIds.Contains(w.ReferenceId)).ToList();
-            IsSetParametersEnabled = false;
-            await OnChange.InvokeAsync(SelectedReferences);
+            OnChange.InvokeAsync(SelectedReferences);
         }
         protected async Task PanelCollapseToggle(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
             CollapsedPanel = !CollapsedPanel;
+        }
+        void CleanLines()
+        {
+            SelectedLineIds = new List<short>();
         }
         void CleanItems()
         {

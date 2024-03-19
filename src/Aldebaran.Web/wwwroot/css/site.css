@@ -277,6 +277,15 @@ span.rz-dropdown-label.rz-inputtext {
 .rz-button.text-primary-color:hover {
     filter: brightness(80%);
 }
+
 .rz-button.text-decoration-underline span.rz-button-text {
     text-decoration: underline !important;
 }
+
+.component-section .component-section-item {
+    padding-top: 0 !important;
+}
+
+    .component-section .component-section-item:first-child {
+        padding-top: 0.5rem !important;
+    }
