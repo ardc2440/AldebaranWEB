@@ -169,31 +169,34 @@
                                     var adjustment = ViewModel.Adjustments[x];
                                     <table class="@(x>0?"border-top-1":"")">
                                         <thead>
-                                            <tr class="no-border">
-                                                <td width="34%">
+                                            <tr>
+                                                <td colspan="4" width="100%">
                                                     <span class="bold">Número: </span>@adjustment.AdjustmentId
                                                 </td>
-                                                <td colspan="2" width="66">
-                                                    <span class="bold">Fecha de creación: </span>@adjustment.CreationDate.ToString(SharedLocalizer["datetime:format"])
-                                                </td>
                                             </tr>
-                                            <tr class="no-border">
-                                                <td width="34%">
-                                                    <span class="bold">Fecha del ajuste: </span>@adjustment.AdjustmentDate.ToString(SharedLocalizer["datetime:format"])
+                                            <tr>
+                                                <td width="25%">
+                                                    <span class="bold">Fecha de creación: </span><br />
+                                                    @adjustment.CreationDate.ToString(SharedLocalizer["datetime:format"])
                                                 </td>
-                                                <td width="33%">
+                                                <td width="25%">
+                                                    <span class="bold">Fecha del ajuste: </span><br />
+                                                    @adjustment.AdjustmentDate.ToString(SharedLocalizer["datetime:format"])
+                                                </td>
+                                                <td width="25%">
                                                     <span class="bold">Tipo de ajuste: </span>@adjustment.AdjustmentType
                                                 </td>
-                                                <td width="33%">
+                                                <td width="25%">
                                                     <span class="bold">Motivo del ajuste: </span>@adjustment.AdjustmentReason
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td width="34%">
+                                                <td width="25%">
                                                     <span class="bold">Empleado: </span>@adjustment.Employee
                                                 </td>
-                                                <td colspan="2" width="66%">
-                                                    <span class="bold">Observaciones: </span>@adjustment.Notes
+                                                <td colspan="3" width="75%">
+                                                    <span class="bold">Observaciones: </span> <br />
+                                                    @adjustment.Notes
                                                 </td>
                                             </tr>
                                         </thead>
@@ -201,14 +204,14 @@
                                             @foreach (var warehouse in adjustment.Warehouses)
                                             {
                                                 <tr>
-                                                    <td colspan="3" style="padding:0 !important">
+                                                    <td colspan="4" style="padding:0 !important">
                                                         <p class="title border-bottom-1">Bodega: @warehouse.WarehouseName</p>
                                                     </td>
                                                 </tr>
                                                 @foreach (var line in warehouse.Lines)
                                                 {
                                                     <tr>
-                                                        <td colspan="3" style="padding:0 !important">
+                                                        <td colspan="4" style="padding:0 !important">
                                                             <p class="title border-bottom-1" style="padding-left: 1em;">Línea: @line.LineCode  - @line.LineName</p>
                                                         </td>
                                                     </tr>
@@ -216,7 +219,7 @@
                                                     {
                                                         var item = line.Items[i];
                                                         <tr>
-                                                            <td colspan="3" style="padding:0 !important">
+                                                            <td colspan="4" style="padding:0 !important">
                                                                 <div style="padding: 0.75rem 0 0 1em !important;">
                                                                     <h3 class="text-left m-0 @(i>0?"border-top-1":"")" style="@(i>0?"margin-top: 1em !important;padding-top: 1em;":"")">
                                                                         @item.ItemName

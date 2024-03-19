@@ -289,3 +289,7 @@ span.rz-dropdown-label.rz-inputtext {
     .component-section .component-section-item:first-child {
         padding-top: 0.5rem !important;
     }
+
+.transform-none {
+    transform: none !important;
+}

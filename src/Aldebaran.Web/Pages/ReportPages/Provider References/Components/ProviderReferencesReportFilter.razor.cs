@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Radzen;
 using Radzen.Blazor;
 
-namespace Aldebaran.Web.Pages.ReportPages.Provider_References.Component
+namespace Aldebaran.Web.Pages.ReportPages.Provider_References.Components
 {
     public partial class ProviderReferencesReportFilter
     {

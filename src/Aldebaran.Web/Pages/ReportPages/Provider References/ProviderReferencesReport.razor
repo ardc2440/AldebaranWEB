@@ -81,30 +81,30 @@
                                     @foreach (var provider in ViewModel.Providers)
                                     {
                                         <thead>
-                                            <tr class="no-border">
-                                                <td width="20%">
+                                            <tr>
+                                                <td colspan="2" width="50%">
                                                     <span class="bold">Código: </span>@provider.ProviderCode
                                                 </td>
-                                                <td colspan="4" width="80">
+                                                <td colspan="2" width="50%">
                                                     <span class="bold">Nombre: </span>@provider.ProviderName
                                                 </td>
                                             </tr>
-                                            <tr class="no-border">
-                                                <td colspan="3" width="60%">
+                                            <tr>
+                                                <td colspan="2" width="50%">
                                                     <span class="bold">Dirección: </span>@provider.ProviderAddress
                                                 </td>
-                                                <td width="20%">
+                                                <td width="25%">
                                                     <span class="bold">Teléfono: </span>@provider.Phone
                                                 </td>
-                                                <td width="20%">
+                                                <td width="25%">
                                                     <span class="bold">Fax: </span>@provider.Fax
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td colspan="3" width="60%">
+                                                <td colspan="2" width="50%">
                                                     <span class="bold">Correo electrónico: </span>@provider.Email
                                                 </td>
-                                                <td colspan="2" width="40%">
+                                                <td colspan="2" width="50%">
                                                     <span class="bold">Contacto: </span>@provider.ContactPerson
                                                 </td>
                                             </tr>
@@ -113,7 +113,7 @@
                                             @foreach (var line in provider.Lines)
                                             {
                                                 <tr>
-                                                    <td colspan="5" style="padding:0 !important">
+                                                    <td colspan="4" style="padding:0 !important">
                                                         <p class="title border-bottom-1" style="padding-left: 1em;">Línea: @line.LineCode  - @line.LineName</p>
                                                     </td>
                                                 </tr>
@@ -121,7 +121,7 @@
                                                 {
                                                     var item = line.Items[i];
                                                     <tr>
-                                                        <td colspan="5">
+                                                        <td colspan="4">
                                                             <div style="padding: 0.75rem 0 0 1.5em !important;">
                                                                 <h3 class='text-left m-0 @(i>0?"border-top-1":"")' style='@(i>0?"margin-top: 1em !important;padding-top: 1em;":"")'>
                                                                     @item.ItemName

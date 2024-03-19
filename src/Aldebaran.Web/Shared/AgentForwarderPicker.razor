@@ -22,7 +22,7 @@
                     <RadzenFormField Text="Transportadora" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
                             <RadzenDropDownDataGrid Data="@Forwarders" TextProperty="ForwarderName" ValueProperty="ForwarderId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                                    style="display: block; width: 100%" @bind-Value="FORWARDER_ID" Name="ForwarderId" Change="@OnForwarderChange" AllowFiltering="true" ClearSearchAfterSelection="true">
+                                                    style="display: block; width: 100%" @bind-Value="FORWARDER_ID" Name="ForwarderId" Change="@OnForwarderChange" AllowFiltering="true">
                                 <Columns>
                                     <RadzenDropDownDataGridColumn Property="ForwarderName" Title="Nombre" />
                                     <RadzenDropDownDataGridColumn Property="ForwarderAddress" Title="Dirección" />
@@ -42,7 +42,7 @@
                     <RadzenFormField Text="Agente" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
                             <RadzenDropDownDataGrid Data="@ForwarderAgents" TextProperty="ForwarderAgentName" ValueProperty="ForwarderAgentId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                                    style="display: block; width: 100%" @bind-Value="FORWARDER_AGENT_ID" Name="ForwarderAgentId" Change="@OnForwarderAgentChange" AllowFiltering="true" ClearSearchAfterSelection="true">
+                                                    style="display: block; width: 100%" @bind-Value="FORWARDER_AGENT_ID" Name="ForwarderAgentId" Change="@OnForwarderAgentChange" AllowFiltering="true">
                                 <Columns>
                                     <RadzenDropDownDataGridColumn Property="ForwarderAgentName" Title="Nombre" />
                                     <RadzenDropDownDataGridColumn Property="ForwarderAgentAddress" Title="Dirección" />
