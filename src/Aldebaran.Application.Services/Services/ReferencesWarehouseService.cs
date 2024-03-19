@@ -25,6 +25,13 @@ namespace Aldebaran.Application.Services
             var data = await _repository.GetByReferenceIdAsync(referenceId, ct);
             return _mapper.Map<IEnumerable<ReferencesWarehouse>>(data);
         }
+
+        public async Task<IEnumerable<ReferencesWarehouse>> GetAllAsync(CancellationToken ct = default)
+        {
+            var data = await _repository.GetAllAsync(ct);
+            return _mapper.Map<IEnumerable<ReferencesWarehouse>>(data);
+        }
+
     }
 
 }

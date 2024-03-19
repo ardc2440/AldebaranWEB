@@ -14,6 +14,6 @@ namespace Aldebaran.Application.Services
         Task<IEnumerable<ItemReference>> GetByStatusAsync(bool isActive, CancellationToken ct = default);
         Task<IEnumerable<ItemReference>> GetAllReferencesWithMinimumQuantity(CancellationToken ct = default);
         Task<IEnumerable<ItemReference>> GetAllReferencesOutOfStock(CancellationToken ct = default);
-        Task<IEnumerable<ItemReference>> GetReportsReferences(short? lineId = null, int? itemId = null, int? referenceId = null, CancellationToken ct = default);
+        Task<IEnumerable<ItemReference>> GetReportsReferences(short? lineId = null, int? itemId = null, int? referenceId = null, bool? isExternalInventory = null, CancellationToken ct = default);
     }
 }

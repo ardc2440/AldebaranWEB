@@ -125,11 +125,11 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .ToListAsync(ct);
         }
 
-        public async Task<IEnumerable<ItemReference>> GetReportsReferences(short? lineId = null, int? itemId = null, int? referenceId = null, CancellationToken ct = default)
+        public async Task<IEnumerable<ItemReference>> GetReportsReferences(short? lineId = null, int? itemId = null, int? referenceId = null, bool? isExternalInventory = null, CancellationToken ct = default)
         {
             return await _context.ItemReferences.AsNoTracking()
                 .Include(i => i.Item.Line)
-                .Where(i => i.IsActive && i.Item.IsActive && i.Item.IsExternalInventory && 
+                .Where(i => i.IsActive && i.Item.IsActive && (i.Item.IsExternalInventory || isExternalInventory == null) && 
                             (i.Item.ItemId == itemId || itemId == null) &&
                             (i.Item.Line.LineId == lineId || lineId == null) &&
                             (i.ReferenceId == referenceId || referenceId == null))

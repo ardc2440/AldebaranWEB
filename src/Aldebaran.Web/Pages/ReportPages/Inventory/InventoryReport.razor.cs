@@ -98,7 +98,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
         {
             var lines = new List<InventoryViewModel.Line>();
 
-            foreach (var line in references.Select(s => s.Item.Line).DistinctBy(d => d.LineId))
+            foreach (var line in references.Select(s => s.Item.Line).DistinctBy(d => d.LineId).OrderBy(o=>o.LineName))
             {
                 lines.Add(new InventoryViewModel.Line { LineName = line.LineName, Items = (await GetItemsPerLineAsync(references, line.LineId, ct)).ToList() });
             }
@@ -110,7 +110,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
         {
             var items = new List<InventoryViewModel.Item>();
 
-            foreach (var item in references.Select(s => s.Item).Where(w => w.LineId == lineId && w.IsActive && w.IsExternalInventory).DistinctBy(d => d.ItemId))
+            foreach (var item in references.Select(s => s.Item).Where(w => w.LineId == lineId && w.IsActive && w.IsExternalInventory).DistinctBy(d => d.ItemId).OrderBy(o=>o.ItemName))
             {
                 items.Add(new InventoryViewModel.Item { InternalReference = item.InternalReference, ItemName = item.ItemName, References = (await GetReferencesPerItemAsync(references, item.ItemId, ct)).ToList() });
             }
@@ -122,7 +122,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
         {
             var inventoryReferences = new List<InventoryViewModel.Reference>();
 
-            foreach (var reference in references.Where(w => w.ItemId == itemId && w.IsActive))
+            foreach (var reference in references.Where(w => w.ItemId == itemId && w.IsActive).OrderBy(o=>o.ReferenceCode))
             {
                 inventoryReferences.Add(new InventoryViewModel.Reference
                 {
@@ -153,7 +153,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
 
             var purchaseOrdersActivity = await PurchaseOrderService.GetTransitByReferenceIdAsync(referenceId, ct);
 
-            foreach (var purchaseOrder in purchaseOrdersActivity)
+            foreach (var purchaseOrder in purchaseOrdersActivity.OrderBy(o=>o.OrderNumber))
             {
                 var details = purchaseOrder.PurchaseOrderDetails;
                 var activities = purchaseOrder.PurchaseOrderActivities;

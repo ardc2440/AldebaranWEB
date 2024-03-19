@@ -6,6 +6,7 @@ namespace Aldebaran.Application.Services
     {
         Task<IEnumerable<ReferencesWarehouse>> GetByReferenceIdAsync(int referenceId, CancellationToken ct = default);
         Task<ReferencesWarehouse?> GetByReferenceAndWarehouseIdAsync(int referenceId, short warehouseId, CancellationToken ct = default);
+        Task<IEnumerable<ReferencesWarehouse>> GetAllAsync(CancellationToken ct = default);
     }
 
 }
