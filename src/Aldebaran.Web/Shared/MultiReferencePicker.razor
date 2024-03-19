@@ -26,7 +26,7 @@
                     <RadzenFormField Text="Linea" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
                             <RadzenDropDown Data="@AvailableItemReferencesForSelection?.Select(s => s.Item.Line).DistinctBy(d => d.LineId).ToList()" MaxSelectedLabels="2" TextProperty="LineName" ValueProperty="LineId" SelectedItemsText="líneas seleccionadas" Chips="true" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Multiple="true" Disabled="@ReadOnly"
-                                            style="display: block; width: 100%" @bind-Value="SelectedLineIds" Name="LineId" Change="@OnLineChange" AllowFiltering="true" ClearSearchAfterSelection="true">
+                                            style="display: block; width: 100%" @bind-Value="SelectedLineIds" Name="LineId" Change="@OnLineChange" AllowFiltering="true" ClearSearchAfterSelection="true" AllowSelectAll="true">
 
                                 <Template>
                                     @(context?.LineName ?? null)
@@ -40,7 +40,7 @@
                     <RadzenFormField Text="Artículo" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
                             <RadzenDropDown Data="@Items" MaxSelectedLabels="2" TextProperty="ItemName" ValueProperty="ItemId" SelectedItemsText="artículos seleccionados" Chips="true" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Multiple="true" Disabled="@ReadOnly"
-                                            style="display: block; width: 100%" DisabledProperty="IsGroup" @bind-Value="SelectedItemIds" Name="ItemId" Change="@OnItemChange" AllowFiltering="true" ClearSearchAfterSelection="true">
+                                            style="display: block; width: 100%" DisabledProperty="IsGroup" @bind-Value="SelectedItemIds" Name="ItemId" Change="@OnItemChange" AllowFiltering="true" ClearSearchAfterSelection="true" AllowSelectAll="true">
                                 <Template>
                                     @(context?.LineName ?? context?.ItemName)
                                 </Template>
@@ -52,7 +52,7 @@
                     <RadzenFormField Text="Referencia" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
                             <RadzenDropDown Data="@References" MaxSelectedLabels="2" ValueProperty="ReferenceId" TextProperty="FullReferenceName" SelectedItemsText="referencias seleccionadas" Chips="true" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Multiple="true" Disabled="@ReadOnly"
-                                            style="display: block; width: 100%" DisabledProperty="IsGroup" @bind-Value="SelectedReferenceIds" Name="ReferenceId" Change="@OnReferenceChange" AllowFiltering="true" ClearSearchAfterSelection="true">
+                                            style="display: block; width: 100%" DisabledProperty="IsGroup" @bind-Value="SelectedReferenceIds" Name="ReferenceId" Change="@OnReferenceChange" AllowFiltering="true" ClearSearchAfterSelection="true" AllowSelectAll="true">
                                 <Template>
                                     @(context?.ReferenceName ?? $"{context?.LineName} - {context?.ItemName}")
                                 </Template>

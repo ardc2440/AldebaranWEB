@@ -75,16 +75,16 @@
                                     <p class="title border-bottom-1">Bodega: @warehouse.WarehouseName</p>
                                     @foreach (var line in warehouse.Lines)
                                     {
-                                        <p class="title border-bottom-1" style="padding-left: 1.5em;">Línea: @line.LineCode  - @line.LineName</p>
+                                        <p class="title border-bottom-1" style="padding-left: 1em;">Línea: @line.LineCode  - @line.LineName</p>
                                         @foreach (var item in line.Items)
                                         {
-                                            <div style="padding: 0.75rem 0 0 1.5em !important;">
+                                            <div style="padding: 0.75rem 0 0 1em !important;">
                                                 <h3 class="text-left m-0">@item.ItemName</h3>
                                                 <p class="m-0">
                                                     Referencia interna:: @item.InternalReference
                                                 </p>
                                             </div>
-                                            <div style="margin: 0.5em 1.5em 0 1.5em;">
+                                            <div style="margin: 0.5em 1.5em 0 1em;">
                                                 <table class="striped border-top-1">
                                                     <thead>
                                                         <tr>
