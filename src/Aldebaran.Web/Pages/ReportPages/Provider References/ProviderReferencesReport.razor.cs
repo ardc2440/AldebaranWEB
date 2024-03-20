@@ -63,6 +63,41 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References
         #endregion
 
         #region Events
+        
+        async Task OpenFilters()
+        {
+            var result = await DialogService.OpenAsync<ProviderReferencesReportFilter>("Filtrar reporte de referencias del proveedor", parameters: new Dictionary<string, object> { { "Filter", Filter } }, options: new DialogOptions { Width = "800px" });
+            if (result == null)
+                return;
+            Filter = (ProviderReferencesFilter)result;
+            //Todo: Aplicar filtro de refenrecias al ViewModel
+            await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
+        }
+        async Task RemoveFilters()
+        {
+            if (await DialogService.Confirm("Está seguro que desea eliminar los filtros establecidos?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
+            {
+                Filter = null;
+                //Todo: Remover filtro de refenrecias al ViewModel
+                await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
+            }
+        }
+        async Task Download()
+        {
+            IsBusy = true;
+            var html = await JSRuntime.InvokeAsync<string>("getContent", "provider-references-report-container");
+            var pdfBytes = await PdfService.GetBytes(html, true);
+            await JSRuntime.InvokeVoidAsync("downloadFile", "Referencias del proveedor.pdf", "application/pdf", Convert.ToBase64String(pdfBytes));
+            IsBusy = false;
+        }
+        async Task ToggleReadMore()
+        {
+            await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink");
+        }
+
+        #endregion
+
+        #region Fill Data Report
 
         async Task<List<ProviderReferencesViewModel.Provider>> GetProviderReferenceListAsync(CancellationToken ct = default)
         {
@@ -122,46 +157,16 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References
             var referencesWarehouse = providerReferences.FirstOrDefault(w => w.ReferenceId == referenceId).ItemReference.ReferencesWarehouses;
 
             var result = (from warehouseReference in referencesWarehouse
-                    select (new ProviderReferencesViewModel.Warehouse 
-                    { 
-                        WarehouseId = warehouseReference.WarehouseId,
-                        WarehouseName = warehouses.FirstOrDefault(f=>f.WarehouseId== warehouseReference.WarehouseId).WarehouseName,
-                        Amount= warehouseReference.Quantity,
-                    })).ToList();
+                          select (new ProviderReferencesViewModel.Warehouse
+                          {
+                              WarehouseId = warehouseReference.WarehouseId,
+                              WarehouseName = warehouses.FirstOrDefault(f => f.WarehouseId == warehouseReference.WarehouseId).WarehouseName,
+                              Amount = warehouseReference.Quantity,
+                          })).ToList();
 
             return result;
         }
 
-        async Task OpenFilters()
-        {
-            var result = await DialogService.OpenAsync<ProviderReferencesReportFilter>("Filtrar reporte de referencias del proveedor", parameters: new Dictionary<string, object> { { "Filter", Filter } }, options: new DialogOptions { Width = "800px" });
-            if (result == null)
-                return;
-            Filter = (ProviderReferencesFilter)result;
-            //Todo: Aplicar filtro de refenrecias al ViewModel
-            await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
-        }
-        async Task RemoveFilters()
-        {
-            if (await DialogService.Confirm("Está seguro que desea eliminar los filtros establecidos?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
-            {
-                Filter = null;
-                //Todo: Remover filtro de refenrecias al ViewModel
-                await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
-            }
-        }
-        async Task Download()
-        {
-            IsBusy = true;
-            var html = await JSRuntime.InvokeAsync<string>("getContent", "provider-references-report-container");
-            var pdfBytes = await PdfService.GetBytes(html, true);
-            await JSRuntime.InvokeVoidAsync("downloadFile", "Referencias del proveedor.pdf", "application/pdf", Convert.ToBase64String(pdfBytes));
-            IsBusy = false;
-        }
-        async Task ToggleReadMore()
-        {
-            await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink");
-        }
         #endregion
     }
 }
