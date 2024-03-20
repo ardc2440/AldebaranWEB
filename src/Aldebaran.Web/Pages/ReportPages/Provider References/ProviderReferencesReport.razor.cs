@@ -1,7 +1,11 @@
-﻿using Aldebaran.Web.Pages.ReportPages.Provider_References.Component;
+﻿using Aldebaran.Application.Services;
+using Aldebaran.Application.Services.Models;
+using Aldebaran.Web.Pages.ReportPages.Provider_References.Component;
 using Aldebaran.Web.Pages.ReportPages.Provider_References.ViewModel;
 using Aldebaran.Web.Pages.ReportPages.Warehouse_Stock;
+using DocumentFormat.OpenXml.Drawing.Charts;
 using Microsoft.AspNetCore.Components;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.JSInterop;
 using Radzen;
 
@@ -21,161 +25,99 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References
 
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
+
+        [Inject]
+        protected IProviderReferenceService ProviderReferenceService { get; set; }
+
+        [Inject]
+        protected IReferencesWarehouseService ReferencesWarehouseService { get; set; }
         #endregion
 
         #region Variables
         protected ProviderReferencesFilter Filter;
         protected ProviderReferencesViewModel ViewModel;
         private bool IsBusy = false;
+        protected IEnumerable<ProviderReference> providerReferences { get; set; }
         #endregion
 
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
+            providerReferences = await ProviderReferenceService.GetProviderReferecesReport();
+
             ViewModel = new ProviderReferencesViewModel()
             {
-                Providers = new List<ProviderReferencesViewModel.Provider> {
-                    new ProviderReferencesViewModel.Provider
-                    {
-                        ProviderCode="JLING",
-                        ProviderName= "JLING S.A.",
-                        ContactPerson="Javier Linares",
-                        Email="javierl@gmlsoftware.com",
-                        Fax="651421123174",
-                        Phone="3168849474",
-                        ProviderAddress="Cra 83 13-50 Bogota, Colombia",
-                        Lines = new List<ProviderReferencesViewModel.Line>
-                        {
-                            new ProviderReferencesViewModel.Line
-                            {
-                                LineCode="001",
-                                LineName = "Importados",
-                                Items = new List<ProviderReferencesViewModel.Item>
-                                {
-                                    new ProviderReferencesViewModel.Item
-                                    {
-                                        InternalReference ="00110-01",
-                                        ItemName="HOT PORTAMINA",
-                                        References = new List<ProviderReferencesViewModel.Reference>
-                                        {
-                                            new ProviderReferencesViewModel.Reference
-                                            {
-                                                ReferenceCode="00001",
-                                                ReferenceName="Blanco",
-                                                ProviderReferenceName="White",
-                                                AvailableAmount=200,
-                                                ConfirmedAmount=80,
-                                                ReservedAmount=200
-                                            },
-                                            new ProviderReferencesViewModel.Reference
-                                            {
-                                                ReferenceCode="00002",
-                                                ReferenceName="Rojo",
-                                                ProviderReferenceName="Red",
-                                                AvailableAmount=180,
-                                                ConfirmedAmount=80,
-                                                ReservedAmount=200
-                                            },
-                                            new ProviderReferencesViewModel.Reference
-                                            {
-                                                ReferenceCode="00003",
-                                                ReferenceName="Verde",
-                                                ProviderReferenceName="Green",
-                                                AvailableAmount=180,
-                                                ConfirmedAmount=80,
-                                                ReservedAmount=200
-                                            },
-                                            new ProviderReferencesViewModel.Reference
-                                            {
-                                                ReferenceCode="00004",
-                                                ReferenceName="Amarillo",
-                                                ProviderReferenceName="Yellow",
-                                                AvailableAmount=180,
-                                                ConfirmedAmount=80,
-                                                ReservedAmount=200
-                                            },
-                                            new ProviderReferencesViewModel.Reference
-                                            {
-                                                ReferenceCode="00005",
-                                                ReferenceName="Negro",
-                                                ProviderReferenceName="Black",
-                                                AvailableAmount=180,
-                                                ConfirmedAmount=80,
-                                                ReservedAmount=200
-                                            },
-                                            new ProviderReferencesViewModel.Reference
-                                            {
-                                                ReferenceCode="00006",
-                                                ReferenceName="Naranja",
-                                                ProviderReferenceName="Orange",
-                                                AvailableAmount=180,
-                                                ConfirmedAmount=80,
-                                                ReservedAmount=200
-                                            }
-                                        }
-                                    },
-                                    new ProviderReferencesViewModel.Item
-                                    {
-                                         InternalReference ="AA973-1-01",
-                                        ItemName="LACE",
-                                        References = new List<ProviderReferencesViewModel.Reference>
-                                        {
-                                            new ProviderReferencesViewModel.Reference
-                                            {
-                                                ReferenceCode="00001",
-                                                ReferenceName="Blanco",
-                                                ProviderReferenceName="White",
-                                                AvailableAmount=-20,
-                                                ConfirmedAmount=80,
-                                                ReservedAmount=200
-                                            },
-                                            new ProviderReferencesViewModel.Reference
-                                            {
-                                                ReferenceCode="00002",
-                                                ReferenceName="Rojo",
-                                                ProviderReferenceName="Red",
-                                                AvailableAmount=156783,
-                                                ConfirmedAmount=80,
-                                                ReservedAmount=200
-                                            }
-                                        }
-                                    },
-                                    new ProviderReferencesViewModel.Item
-                                    {
-                                        InternalReference ="AA8986-01",
-                                        ItemName="MERCURIO",
-                                        References = new List<ProviderReferencesViewModel.Reference>
-                                        {
-                                            new ProviderReferencesViewModel.Reference
-                                            {
-                                                ReferenceCode="00001",
-                                                ReferenceName="Blanco",
-                                                ProviderReferenceName="White",
-                                                AvailableAmount=-20,
-                                                ConfirmedAmount=80,
-                                                ReservedAmount=200
-                                            },
-                                            new ProviderReferencesViewModel.Reference
-                                            {
-                                                ReferenceCode="00002",
-                                                ReferenceName="Rojo",
-                                                ProviderReferenceName="Red",
-                                                AvailableAmount=156783,
-                                                ConfirmedAmount=80,
-                                                ReservedAmount=200
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                Providers = await GetProviderReferenceListAsync()
             };
         }
         #endregion
 
         #region Events
+
+        async Task<List<ProviderReferencesViewModel.Provider>> GetProviderReferenceListAsync(CancellationToken ct = default)
+        {
+            return (from provider in providerReferences.Select(s => s.Provider).DistinctBy(d => d.ProviderId)
+                    select (new ProviderReferencesViewModel.Provider
+                    {
+                        ContactPerson = provider.ContactPerson,
+                        Email = provider.Email,
+                        Fax = provider.Fax,
+                        Phone = provider.Phone,
+                        ProviderAddress = provider.ProviderAddress,
+                        ProviderCode = provider.ProviderCode,
+                        ProviderName = provider.ProviderName,
+                        Lines = GetProviderLines(provider.ProviderId, ct).Result
+                    })).ToList();
+        }
+
+        async Task<List<ProviderReferencesViewModel.Line>> GetProviderLines(int providerId, CancellationToken ct = default)
+        {
+            return (from line in providerReferences.Where(w => w.ProviderId == providerId).Select(s => s.ItemReference.Item.Line).DistinctBy(d => d.LineId)
+                    select (new ProviderReferencesViewModel.Line
+                    {
+                        LineCode = line.LineCode,
+                        LineName = line.LineName,
+                        Items = GetLineItems(providerId, line.LineId, ct).Result
+                    })).ToList();
+        }
+
+        async Task<List<ProviderReferencesViewModel.Item>> GetLineItems(int providerId, short lineId, CancellationToken ct = default)
+        {
+            return (from item in providerReferences.Where(w => w.ProviderId == providerId && w.ItemReference.Item.LineId == lineId).Select(s => s.ItemReference.Item).DistinctBy(d => d.ItemId)
+                    select (new ProviderReferencesViewModel.Item
+                    {
+                        InternalReference = item.InternalReference,
+                        ItemName = item.ItemName,
+                        References = GetItemReferences(providerId, item.ItemId, ct).Result
+                    })).ToList();
+        }
+
+        async Task<List<ProviderReferencesViewModel.Reference>> GetItemReferences(int providerId, int itemId, CancellationToken ct = default)
+        {
+            return (from reference in providerReferences.Where(w => w.ProviderId == providerId && w.ItemReference.ItemId == itemId).Select(s => s.ItemReference).DistinctBy(d => d.ReferenceId)
+                    select (new ProviderReferencesViewModel.Reference
+                    {
+                        ReferenceName = reference.ReferenceName,
+                        ReferenceCode = reference.ReferenceCode,
+                        ProviderReferenceName = reference.ProviderReferenceName,
+                        AvailableAmount = reference.InventoryQuantity,
+                        ConfirmedAmount = reference.OrderedQuantity,
+                        ReservedAmount = reference.ReservedQuantity,
+                        Warehouses = GetReferenceWarehouses(reference.ReferenceId, ct)
+                    })).ToList();
+        }
+
+        async Task<List<ProviderReferencesViewModel.Warehouse>> GetReferenceWarehouses(int referenceId, CancellationToken ct = default)
+        {
+            return (from warehouseReference in (await ReferencesWarehouseService.GetByReferenceIdAsync(referenceId,ct)).Where(w=>w.Quantity!=0)
+                    select (new ProviderReferencesViewModel.Warehouse 
+                    { 
+                        WarehouseId = warehouseReference.WarehouseId,
+                        WarehouseName = warehouseReference.Warehouse.WarehouseName,
+                        Amount= warehouseReference.Quantity,
+                    })).Tolist();
+        }
+
         async Task OpenFilters()
         {
             var result = await DialogService.OpenAsync<ProviderReferencesReportFilter>("Filtrar reporte de referencias del proveedor", parameters: new Dictionary<string, object> { { "Filter", Filter } }, options: new DialogOptions { Width = "800px" });
