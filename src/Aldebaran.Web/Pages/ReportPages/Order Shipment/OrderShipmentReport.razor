@@ -19,7 +19,7 @@
             <div class="component-section d-flex flex-column justify-content-start text-secondary-color">
                 @if (Filter != null)
                 {
-                    @if (Filter.OrderNumber != null)
+                    @if (!string.IsNullOrEmpty(Filter.OrderNumber))
                     {
                         <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
                             <p class="component-label m-0 fw-bold">Número de la orden: </p>
@@ -29,7 +29,7 @@
                     @if (Filter.CreationDate != null)
                     {
                         <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
-                            <p class="component-label m-0 fw-bold">Fecha del creación: </p>
+                            <p class="component-label m-0 fw-bold">Fecha de creación: </p>
                             <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.CreationDate.Value.ToString(SharedLocalizer["date:format"])</span>
                         </div>
                     }
@@ -152,7 +152,7 @@
                                         <div class="filters">
                                             <div class="title">Filtros:</div>
                                             <div>
-                                                @if (Filter.OrderNumber != null)
+                                                @if (!string.IsNullOrEmpty(Filter.OrderNumber))
                                                 {
                                                     <div>
                                                         <div class="type" style="display:inline-block">Número del orden: </div>
@@ -162,7 +162,7 @@
                                                 @if (Filter.CreationDate != null)
                                                 {
                                                     <div>
-                                                        <div class="type" style="display:inline-block">Fecha del creación: </div>
+                                                        <div class="type" style="display:inline-block">Fecha de creación: </div>
                                                         <span>@Filter.CreationDate.Value.ToString(SharedLocalizer["date:format"])</span>
                                                     </div>
                                                 }
@@ -364,7 +364,7 @@
                                                                     @item.ItemName
                                                                 </h3>
                                                                 <p class="m-0">
-                                                                    Referencia interna:: @item.InternalReference
+                                                                    Referencia interna: @item.InternalReference
                                                                 </p>
                                                             </div>
                                                             <div style="margin: 0.5em 1.5em 0 1em;">

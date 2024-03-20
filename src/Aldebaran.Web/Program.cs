@@ -16,12 +16,16 @@ static void ConfigureServices(WebApplicationBuilder builder)
     builder.AddArchitecture();
     builder.AddInfraestructure();
 
-    var cultureInfo = new CultureInfo("es-ES");
+    var cultureInfo = new CultureInfo("es-CO");
     NumberFormatInfo numberFormatInfo = (NumberFormatInfo)cultureInfo.NumberFormat.Clone();
     numberFormatInfo.NumberGroupSeparator = ".";
     cultureInfo.NumberFormat = numberFormatInfo;
 
+    Thread.CurrentThread.CurrentCulture = cultureInfo;
+    Thread.CurrentThread.CurrentUICulture = cultureInfo;
+
     CultureInfo.CurrentCulture = cultureInfo;
+    CultureInfo.CurrentUICulture = cultureInfo;
     CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
     CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 
