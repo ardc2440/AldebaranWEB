@@ -193,6 +193,15 @@
                                                         @reservation.Status
                                                     </td>
                                                 </tr>
+                                                @if (!string.IsNullOrEmpty(reservation.Notes))
+                                                {
+                                                    <tr>
+                                                        <td colspan="5" width="100%">
+                                                            <span class="bold">Observaciones: </span><br />
+                                                            @reservation.Notes
+                                                        </td>
+                                                    </tr>
+                                                }
                                                 <tr class="emphasys bold">
                                                     <td width="20%">
                                                         Referencia interna

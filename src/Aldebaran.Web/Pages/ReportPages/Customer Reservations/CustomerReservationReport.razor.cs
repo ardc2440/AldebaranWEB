@@ -51,6 +51,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Reservations
                                 ReservationDate = DateTime.Now.AddDays(1),
                                 ReservationNumber = "0000018345",
                                 Status = "Vencida",
+                                Notes = "Atendido por Viviana Mora",
                                 Items = new List<CustomerReservationViewModel.Item>
                                 {
                                     new CustomerReservationViewModel.Item
