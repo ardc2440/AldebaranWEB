@@ -35,6 +35,14 @@
             public int ConfirmedAmount { get; set; }
             public int ReservedAmount { get; set; }
             public int AvailableAmount { get; set; }
+            public List<Warehouse> Warehouses { get; set; }
+        }
+
+        public class Warehouse
+        {
+            public short WarehouseId { get; set; }
+            public string WarehouseName { get; set; }
+            public int Amount { get; set; }
         }
     }
 }

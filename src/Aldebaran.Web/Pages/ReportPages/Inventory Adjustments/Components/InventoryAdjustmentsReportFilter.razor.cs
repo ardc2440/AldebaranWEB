@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
 
-namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments.Componentes
+namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments.Components
 {
     public partial class InventoryAdjustmentsReportFilter
     {

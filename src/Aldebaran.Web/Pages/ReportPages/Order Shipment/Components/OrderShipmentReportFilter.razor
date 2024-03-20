@@ -1,0 +1,186 @@
+﻿@using ViewModel = Aldebaran.Web.Pages.ReportPages.Order_Shipment.ViewModel;
+@inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer
+
+<RadzenColumn SizeMD=12>
+    <RadzenTemplateForm TItem="ViewModel.OrderShipmentFilter" Data="Filter" Submit="@FormSubmit">
+        <RadzenRow style="margin-bottom: 1rem">
+            <RadzenColumn Size="6">
+                <RadzenStack>
+                    <RadzenFormField Text="Número de la orden" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Filter.OrderNumber" Name="OrderNumber" />
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+            <RadzenColumn Size="6">
+                <RadzenStack>
+                    <RadzenFormField Text="Fecha de creación" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.CreationDate" Name="CreationDate" AllowClear=true />
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow style="margin-bottom: 1rem">
+            <RadzenColumn Size="4">
+                <RadzenStack>
+                    <RadzenFormField Text="Fecha de solicitud" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.RequestDate" Name="RequestDate" AllowClear=true />
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+            <RadzenColumn Size="4">
+                <RadzenStack>
+                    <RadzenFormField Text="Fecha esperada de recepción" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.ExpectedReceiptDate" Name="ExpectedReceiptDate" AllowClear=true />
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+            <RadzenColumn Size="4">
+                <RadzenStack>
+                    <RadzenFormField Text="Fecha real de recepción" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.RealReceiptDate" Name="RealReceiptDate" AllowClear=true />
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow style="margin-bottom: 1rem">
+            <RadzenColumn Size="4">
+                <RadzenStack>
+                    <RadzenFormField Text="Número de importación" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Filter.ImportNumber" Name="ImportNumber" />
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+            <RadzenColumn Size="4">
+                <RadzenStack>
+                    <RadzenFormField Text="Puerto de embarque" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Filter.EmbarkationPort" Name="EmbarkationPort" />
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+            <RadzenColumn Size="4">
+                <RadzenStack>
+                    <RadzenFormField Text="Número de proforma" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Filter.ProformaNumber" Name="ProformaNumber" />
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow style="margin-bottom: 1rem">
+            <RadzenColumn Size="6">
+                <RadzenStack>
+                    <RadzenFormField Text="Proveedor" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenDropDownDataGrid @ref="providersDropdown" Data="@Providers" TextProperty="ProviderName" ValueProperty="ProviderId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                    style="display: block; width: 100%" @bind-Value="@Filter.ProviderId" Name="ProviderId" AllowFilteringByAllStringColumns="true">
+                                <Columns>
+                                    <RadzenDropDownDataGridColumn Property="ProviderCode" Title="Código" />
+                                    <RadzenDropDownDataGridColumn Property="ProviderName" Title="Nombre" />
+                                    <RadzenDropDownDataGridColumn Property="ContactPerson" Title="Contacto" />
+                                    <RadzenDropDownDataGridColumn Property="City.CityId" Title="Ubicación">
+                                        <Template Context="provider">
+                                            <span>(@provider.City.Department.Country.CountryCode) @provider.City.Department.DepartmentName - @provider.City.CityName</span>
+                                        </Template>
+                                    </RadzenDropDownDataGridColumn>
+                                </Columns>
+                            </RadzenDropDownDataGrid>
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+            <RadzenColumn Size="6">
+                <RadzenStack>
+                    <RadzenFormField Text="Bodega de llegada" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenDropDown Data="@Warehouses" TextProperty="WarehouseName" ValueProperty="WarehouseId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            style="display: block; width: 100%" @bind-Value="@Filter.WarehouseId" Name="WarehouseId">
+                            </RadzenDropDown>
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+
+        <RadzenRow style="margin-bottom: 1rem">
+            <RadzenColumn Size="4">
+                <RadzenStack>
+                    <RadzenFormField Text="Transportadora" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenDropDownDataGrid @ref="forwardersDropdown" Data="@Forwarders" TextProperty="ForwarderName" ValueProperty="ForwarderId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                    style="display: block; width: 100%" @bind-Value="ForwarderId" Name="ForwarderId" Change="@OnForwarderChange" AllowFiltering="true">
+                                <Columns>
+                                    <RadzenDropDownDataGridColumn Property="ForwarderName" Title="Nombre" />
+                                    <RadzenDropDownDataGridColumn Property="ForwarderAddress" Title="Dirección" />
+                                    <RadzenDropDownDataGridColumn Property="City.CityId" Title="Ubicación">
+                                        <Template Context="provider">
+                                            <span>(@provider.City.Department.Country.CountryCode) @provider.City.Department.DepartmentName - @provider.City.CityName</span>
+                                        </Template>
+                                    </RadzenDropDownDataGridColumn>
+                                </Columns>
+                            </RadzenDropDownDataGrid>
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+            <RadzenColumn Size="4">
+                <RadzenStack>
+                    <RadzenFormField Text="Agente" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenDropDownDataGrid @ref="forwarderAgentsDropdown" Data="@ForwarderAgents" TextProperty="ForwarderAgentName" ValueProperty="ForwarderAgentId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                    style="display: block; width: 100%" @bind-Value="ForwarderAgentId" Name="ForwarderAgentId" Change="@OnForwarderAgentChange" AllowFiltering="true" >
+                                <Columns>
+                                    <RadzenDropDownDataGridColumn Property="ForwarderAgentName" Title="Nombre" />
+                                    <RadzenDropDownDataGridColumn Property="ForwarderAgentAddress" Title="Dirección" />
+                                    <RadzenDropDownDataGridColumn Property="Contact" Title="Contacto" />
+                                    <RadzenDropDownDataGridColumn Property="City.CityId" Title="Ubicación">
+                                        <Template Context="provider">
+                                            <span>(@provider.City.Department.Country.CountryCode) @provider.City.Department.DepartmentName - @provider.City.CityName</span>
+                                        </Template>
+                                    </RadzenDropDownDataGridColumn>
+                                </Columns>
+                            </RadzenDropDownDataGrid>
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+            <RadzenColumn Size="4">
+                <RadzenStack>
+                    <RadzenFormField Text="Método de envío" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenDropDown @ref="shipmentMethodsDropdown" Data="@ShipmentMethods" TextProperty="ShipmentMethodName" ValueProperty="ShipmentMethodId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            style="display: block; width: 100%" @bind-Value="@ShipmentMethodId" Name="ShipmentMethodId">
+                            </RadzenDropDown>
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+
+        <RadzenRow style="margin-bottom: 1rem">
+            <MultiReferencePicker @ref="referencePicker" OnChange="ItemReferenceHandler"></MultiReferencePicker>
+        </RadzenRow>
+        @if (ValidationError)
+        {
+            <div class="rz-message rz-messages-error">Debe seleccionar al menos un filtro</div>
+        }
+        <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+            <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="filter_alt" Text="Filtrar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />
+            <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
+        </RadzenStack>
+    </RadzenTemplateForm>
+</RadzenColumn>

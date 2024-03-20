@@ -1,4 +1,4 @@
-﻿using Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments.Componentes;
+﻿using Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments.Components;
 using Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments.ViewModel;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
