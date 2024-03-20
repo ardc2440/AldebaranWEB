@@ -65,7 +65,22 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References
                                                 ProviderReferenceName="White",
                                                 AvailableAmount=200,
                                                 ConfirmedAmount=80,
-                                                ReservedAmount=200
+                                                ReservedAmount=200,
+                                                Warehouses = new List<ProviderReferencesViewModel.Warehouse>
+                                                {
+                                                    new ProviderReferencesViewModel.Warehouse
+                                                    {
+                                                        WarehouseId=1,
+                                                        WarehouseName="Local",
+                                                        Amount=150
+                                                    },
+                                                    new ProviderReferencesViewModel.Warehouse
+                                                    {
+                                                        WarehouseId=2,
+                                                        WarehouseName="Zona Franca",
+                                                        Amount=50
+                                                    }
+                                                }
                                             },
                                             new ProviderReferencesViewModel.Reference
                                             {
@@ -74,7 +89,16 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References
                                                 ProviderReferenceName="Red",
                                                 AvailableAmount=180,
                                                 ConfirmedAmount=80,
-                                                ReservedAmount=200
+                                                ReservedAmount=70,
+                                                Warehouses = new List<ProviderReferencesViewModel.Warehouse>
+                                                {
+                                                    new ProviderReferencesViewModel.Warehouse
+                                                    {
+                                                        WarehouseId=1,
+                                                        WarehouseName="Local",
+                                                        Amount=70
+                                                    }
+                                                }
                                             },
                                             new ProviderReferencesViewModel.Reference
                                             {

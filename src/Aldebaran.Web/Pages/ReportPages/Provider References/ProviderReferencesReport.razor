@@ -149,9 +149,34 @@
                                                                                 <td width="20%">@reference.ReferenceCode</td>
                                                                                 <td width="30%" class="border-left-1">@reference.ReferenceName</td>
                                                                                 <td width="20%" class="border-left-1">@reference.ProviderReferenceName</td>
-                                                                                <td width="10%" class="border-left-1">@reference.ConfirmedAmount.ToString("N0")</td>
-                                                                                <td width="10%" class="border-left-1">@reference.ReservedAmount.ToString("N0")</td>
-                                                                                <td width="10%" class="border-left-1">@reference.AvailableAmount.ToString("N0")</td>
+                                                                                <td width="10%" class="border-left-1">@(reference.ConfirmedAmount == 0 ? "" : reference.ConfirmedAmount.ToString("N0"))</td>
+                                                                                <td width="10%" class="border-left-1">@(reference.ReservedAmount == 0 ? "" : reference.ReservedAmount.ToString("N0"))</td>
+                                                                                <td width="10%" class="border-left-1">
+                                                                                    @(reference.AvailableAmount == 0 ? "" : reference.AvailableAmount.ToString("N0"))
+                                                                                    @if (reference.Warehouses?.Any() == true)
+                                                                                    {
+                                                                                        <div>
+                                                                                            <table class="edged mt-1 full no-color">
+                                                                                                <thead>
+                                                                                                    <tr>
+                                                                                                        <th width="50%" class="bold">Bodega</th>
+                                                                                                        <th width="50%">Cantidad</th>
+                                                                                                    </tr>
+                                                                                                </thead>
+                                                                                                <tbody>
+                                                                                                    @foreach (var warehouse in reference.Warehouses)
+                                                                                                    {
+                                                                                                        <tr>
+                                                                                                            <td width="50%">@warehouse.WarehouseName</td>
+                                                                                                            <td width="50%">@(warehouse.Amount == 0 ? "" : warehouse.Amount.ToString("N0"))</td>
+                                                                                                        </tr>
+                                                                                                    }
+                                                                                                </tbody>
+                                                                                            </table>
+                                                                                            
+                                                                                        </div>
+                                                                                    }
+                                                                                </td>
                                                                             </tr>
                                                                         }
                                                                     </tbody>
