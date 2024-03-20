@@ -63,6 +63,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .Include(i => i.ItemReference.Item.Line)
                 .Include(i => i.Provider.City.Department.Country)
                 .Include(i => i.Provider.IdentityType)
+                .Include(i => i.ItemReference.ReferencesWarehouses)
                 .ToListAsync(ct);
         }
 

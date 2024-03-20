@@ -1,13 +1,17 @@
 ﻿using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
-using Aldebaran.Web.Pages.ReportPages.Provider_References.Component;
+using Aldebaran.Web.Pages.ReportPages.Provider_References.Components;
 using Aldebaran.Web.Pages.ReportPages.Provider_References.ViewModel;
 using Aldebaran.Web.Pages.ReportPages.Warehouse_Stock;
 using DocumentFormat.OpenXml.Drawing.Charts;
+using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Office2013.Word;
+using Humanizer;
 using Microsoft.AspNetCore.Components;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.JSInterop;
 using Radzen;
+using System.Collections.Generic;
 
 namespace Aldebaran.Web.Pages.ReportPages.Provider_References
 {
@@ -31,6 +35,9 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References
 
         [Inject]
         protected IReferencesWarehouseService ReferencesWarehouseService { get; set; }
+
+        [Inject]
+        protected IWarehouseService WarehouseService { get; set; }
         #endregion
 
         #region Variables
@@ -38,12 +45,15 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References
         protected ProviderReferencesViewModel ViewModel;
         private bool IsBusy = false;
         protected IEnumerable<ProviderReference> providerReferences { get; set; }
+        protected IEnumerable<Warehouse> warehouses { get; set; }
+
         #endregion
 
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
             providerReferences = await ProviderReferenceService.GetProviderReferecesReport();
+            warehouses = await WarehouseService.GetAsync();
 
             ViewModel = new ProviderReferencesViewModel()
             {
@@ -103,19 +113,23 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References
                         AvailableAmount = reference.InventoryQuantity,
                         ConfirmedAmount = reference.OrderedQuantity,
                         ReservedAmount = reference.ReservedQuantity,
-                        Warehouses = GetReferenceWarehouses(reference.ReferenceId, ct)
+                        Warehouses = GetReferenceWarehouses(reference.ReferenceId, ct).Result
                     })).ToList();
         }
 
         async Task<List<ProviderReferencesViewModel.Warehouse>> GetReferenceWarehouses(int referenceId, CancellationToken ct = default)
         {
-            return (from warehouseReference in (await ReferencesWarehouseService.GetByReferenceIdAsync(referenceId,ct)).Where(w=>w.Quantity!=0)
+            var referencesWarehouse = providerReferences.FirstOrDefault(w => w.ReferenceId == referenceId).ItemReference.ReferencesWarehouses;
+
+            var result = (from warehouseReference in referencesWarehouse
                     select (new ProviderReferencesViewModel.Warehouse 
                     { 
                         WarehouseId = warehouseReference.WarehouseId,
-                        WarehouseName = warehouseReference.Warehouse.WarehouseName,
+                        WarehouseName = warehouses.FirstOrDefault(f=>f.WarehouseId== warehouseReference.WarehouseId).WarehouseName,
                         Amount= warehouseReference.Quantity,
-                    })).Tolist();
+                    })).ToList();
+
+            return result;
         }
 
         async Task OpenFilters()
