@@ -22,7 +22,6 @@
             public List<Item> Items { get; set; }
             public int Total => Items?.SelectMany(w => w.References).Sum(w => w.Amount) ?? 0;
         }
-
         public class Item
         {
             public string InternalReference { get; set; }
@@ -36,7 +35,6 @@
             public string ReferenceName { get; set; }
             public int Amount { get; set; }
             public decimal Price { get; set; }
-
         }
     }
 }

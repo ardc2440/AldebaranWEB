@@ -74,12 +74,12 @@
                                 </td>
                             </tr>
                         </table>
-                        <div class="mt-1 border">
+                        <div class="mt-1">
                             @if (ViewModel != null)
                             {
-                                <table>
-                                    @foreach (var provider in ViewModel.Providers)
-                                    {
+                                @foreach (var provider in ViewModel.Providers)
+                                {
+                                    <table class="edged">
                                         <thead>
                                             <tr>
                                                 <td colspan="2" width="50%">
@@ -114,32 +114,36 @@
                                             {
                                                 <tr>
                                                     <td colspan="4" style="padding:0 !important">
-                                                        <p class="title border-bottom-1" style="padding-left: 1em;">Línea: @line.LineCode  - @line.LineName</p>
+                                                        <p class="title" style="padding-left: 1em;">Línea: @line.LineCode  - @line.LineName</p>
                                                     </td>
                                                 </tr>
                                                 @for (int i = 0; i < line.Items.Count(); i++)
                                                 {
                                                     var item = line.Items[i];
-                                                    <tr>
-                                                        <td colspan="4">
-                                                            <div style="padding: 0.75rem 0 0 1.5em !important;">
-                                                                <h3 class='text-left m-0 @(i>0?"border-top-1":"")' style='@(i>0?"margin-top: 1em !important;padding-top: 1em;":"")'>
+                                                    <tr class="no-border">
+                                                        <td colspan="4" class="no-border" style="padding:0 !important">
+                                                            <div style="padding: 1em 1em 0 1em !important;">
+                                                                @if (i > 0)
+                                                                {
+                                                                    <hr class="mb-2" />
+                                                                }
+                                                                <h3 class="text-left m-0">
                                                                     @item.ItemName
                                                                 </h3>
                                                                 <p class="m-0">
                                                                     Referencia interna: @item.InternalReference
                                                                 </p>
                                                             </div>
-                                                            <div style="margin: 0.5em 1.5em 0 1.5em;">
-                                                                <table class="striped border-top-1">
+                                                            <div style="margin: 1em;">
+                                                                <table class="striped edged">
                                                                     <thead>
                                                                         <tr>
                                                                             <th width="20%">Código</th>
-                                                                            <th width="30%" class="border-left-1">Referencia</th>
-                                                                            <th width="20%" class="border-left-1">Referencia proveedor</th>
-                                                                            <th width="10%" class="border-left-1">Comprometido</th>
-                                                                            <th width="10%" class="border-left-1">Reservado</th>
-                                                                            <th width="10%" class="border-left-1">Existente</th>
+                                                                            <th width="30%">Referencia</th>
+                                                                            <th width="20%">Referencia proveedor</th>
+                                                                            <th width="10%">Comprometido</th>
+                                                                            <th width="10%">Reservado</th>
+                                                                            <th width="10%">Existente</th>
                                                                         </tr>
                                                                     </thead>
                                                                     <tbody>
@@ -147,11 +151,11 @@
                                                                         {
                                                                             <tr>
                                                                                 <td width="20%">@reference.ReferenceCode</td>
-                                                                                <td width="30%" class="border-left-1">@reference.ReferenceName</td>
-                                                                                <td width="20%" class="border-left-1">@reference.ProviderReferenceName</td>
-                                                                                <td width="10%" class="border-left-1">@(reference.ConfirmedAmount == 0 ? "" : reference.ConfirmedAmount.ToString("N0"))</td>
-                                                                                <td width="10%" class="border-left-1">@(reference.ReservedAmount == 0 ? "" : reference.ReservedAmount.ToString("N0"))</td>
-                                                                                <td width="10%" class="border-left-1">
+                                                                                <td width="30%">@reference.ReferenceName</td>
+                                                                                <td width="20%">@reference.ProviderReferenceName</td>
+                                                                                <td width="10%">@(reference.ConfirmedAmount == 0 ? "" : reference.ConfirmedAmount.ToString("N0"))</td>
+                                                                                <td width="10%">@(reference.ReservedAmount == 0 ? "" : reference.ReservedAmount.ToString("N0"))</td>
+                                                                                <td width="10%">
                                                                                     @(reference.AvailableAmount == 0 ? "" : reference.AvailableAmount.ToString("N0"))
                                                                                     @if (reference.Warehouses?.Any() == true)
                                                                                     {
@@ -187,8 +191,8 @@
                                                 }
                                             }
                                         </tbody>
-                                    }
-                                </table>
+                                    </table>
+                                }
                             }
                         </div>
                     </div>
