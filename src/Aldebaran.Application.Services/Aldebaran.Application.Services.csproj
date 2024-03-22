@@ -18,4 +18,9 @@
 			<DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 		</Compile>
 	</ItemGroup>
+	<ItemGroup>
+	  <Compile Update="Models\InventoryAdjustmentReport.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
+	</ItemGroup>
 </Project>

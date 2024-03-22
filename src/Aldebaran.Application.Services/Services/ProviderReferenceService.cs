@@ -37,6 +37,11 @@ namespace Aldebaran.Application.Services
             var data = await _repository.GetByProviderIdAsync(providerId, ct);
             return _mapper.Map<List<ProviderReference>>(data);
         }
+        public async Task<IEnumerable<ProviderReference>> GetProviderReferecesReport(CancellationToken ct = default)
+        {
+            var data = await _repository.GetProviderReferecesReport(ct);
+            return _mapper.Map<List<ProviderReference>>(data);
+        }
     }
 
 }

@@ -57,6 +57,16 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .ToListAsync(ct);
         }
 
+        public async Task<IEnumerable<ProviderReference>> GetProviderReferecesReport(CancellationToken ct = default)
+        {
+            return await _context.ProviderReferences.AsNoTracking()
+                .Include(i => i.ItemReference.Item.Line)
+                .Include(i => i.Provider.City.Department.Country)
+                .Include(i => i.Provider.IdentityType)
+                .Include(i => i.ItemReference.ReferencesWarehouses)
+                .ToListAsync(ct);
+        }
+
     }
 
 }

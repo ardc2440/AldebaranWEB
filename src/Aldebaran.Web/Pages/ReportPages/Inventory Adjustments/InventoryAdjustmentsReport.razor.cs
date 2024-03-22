@@ -1,8 +1,12 @@
-﻿using Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments.Components;
+﻿using Aldebaran.Application.Services;
+using Aldebaran.Application.Services.Models;
+using Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments.Components;
 using Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments.ViewModel;
 using Microsoft.AspNetCore.Components;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.JSInterop;
 using Radzen;
+using System.Collections.Generic;
 
 namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
 {
@@ -20,222 +24,136 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
 
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
+
+        [Inject]
+        protected IAdjustmentService AdjustmentService { get; set; }
+
+        [Inject]
+        protected IWarehouseService WarehouseService { get; set; }
+
+        [Inject]
+        protected IAdjustmentDetailService AdjustmentDetailService { get; set; }
+
+        [Inject]
+        protected IItemReferenceService ItemReferenceService { get; set; }
+
+        [Inject]
+        protected IInventoryAdjustmentReportService InventoryAdjustmentReportService { get; set; }
         #endregion
 
         #region Variables
         protected InventoryAdjustmentsFilter Filter;
         protected InventoryAdjustmentsViewModel ViewModel;
+        protected IEnumerable<InventoryAdjustmentReport> dataReport;
         private bool IsBusy = false;
+
+
         #endregion
 
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
+            dataReport = await InventoryAdjustmentReportService.GetInventoryAdjustmentReportDataAsync();
+
             ViewModel = new InventoryAdjustmentsViewModel()
             {
-                Adjustments = new List<InventoryAdjustmentsViewModel.Adjustment>
-                {
-                    new InventoryAdjustmentsViewModel.Adjustment
-                    {
-                        AdjustmentId=15738,
-                        AdjustmentDate = DateTime.Now.AddDays(-10),
-                        CreationDate = DateTime.Now,
-                        AdjustmentType="Entrada",
-                        AdjustmentReason="Devolucion",
-                        Employee="Javier Linares",
-                        Notes="Cliente con pedido #98859",
-                        Warehouses = new List<InventoryAdjustmentsViewModel.Warehouse>
-                        {
-                            new InventoryAdjustmentsViewModel.Warehouse
-                            {
-                                WarehouseId = 1,
-                                WarehouseName = "Local",
-                                Lines = new List<InventoryAdjustmentsViewModel.Line>
-                                {
-                                    new InventoryAdjustmentsViewModel.Line
-                                    {
-                                        LineCode="001",
-                                        LineName = "Importados",
-                                        Items = new List<InventoryAdjustmentsViewModel.Item>
-                                        {
-                                            new InventoryAdjustmentsViewModel.Item
-                                            {
-                                                InternalReference ="00110-01",
-                                                ItemName="HOT PORTAMINA",
-                                                References = new List<InventoryAdjustmentsViewModel.Reference>
-                                                {
-                                                    new InventoryAdjustmentsViewModel.Reference
-                                                    {
-                                                        ReferenceCode="00001",
-                                                        ReferenceName="Blanco",
-                                                        AvailableAmount=200
-                                                    },
-                                                    new InventoryAdjustmentsViewModel.Reference
-                                                    {
-                                                        ReferenceCode="00002",
-                                                        ReferenceName="Rojo",
-                                                        AvailableAmount=180
-                                                    },
-                                                    new InventoryAdjustmentsViewModel.Reference
-                                                    {
-                                                        ReferenceCode="00003",
-                                                        ReferenceName="Verde",
-                                                        AvailableAmount=180
-                                                    },
-                                                    new InventoryAdjustmentsViewModel.Reference
-                                                    {
-                                                        ReferenceCode="00004",
-                                                        ReferenceName="Amarillo",
-                                                        AvailableAmount=180
-                                                    },
-                                                    new InventoryAdjustmentsViewModel.Reference
-                                                    {
-                                                        ReferenceCode="00005",
-                                                        ReferenceName="Negro",
-                                                        AvailableAmount=180
-                                                    },
-                                                    new InventoryAdjustmentsViewModel.Reference
-                                                    {
-                                                        ReferenceCode="00006",
-                                                        ReferenceName="Naranja",
-                                                        AvailableAmount=180
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            },
-                            new InventoryAdjustmentsViewModel.Warehouse
-                            {
-                                WarehouseId = 2,
-                                WarehouseName = "Zona Franca",
-                                Lines = new List<InventoryAdjustmentsViewModel.Line>
-                                {
-                                    new InventoryAdjustmentsViewModel.Line
-                                    {
-                                        LineCode="001",
-                                        LineName = "Importados",
-                                        Items = new List<InventoryAdjustmentsViewModel.Item>
-                                        {
-                                            new InventoryAdjustmentsViewModel.Item
-                                            {
-                                                InternalReference ="AA973-1-01",
-                                                ItemName="LACE",
-                                                References = new List<InventoryAdjustmentsViewModel.Reference>
-                                                {
-                                                    new InventoryAdjustmentsViewModel.Reference
-                                                    {
-                                                        ReferenceCode="00001",
-                                                        ReferenceName="Blanco",
-                                                        AvailableAmount=-20
-                                                    },
-                                                    new InventoryAdjustmentsViewModel.Reference
-                                                    {
-                                                        ReferenceCode="00002",
-                                                        ReferenceName="Rojo",
-                                                        AvailableAmount=156783
-                                                    }
-                                                }
-                                            },
-                                            new InventoryAdjustmentsViewModel.Item
-                                            {
-                                                InternalReference ="AA8986-01",
-                                                ItemName="MERCURIO",
-                                                References = new List<InventoryAdjustmentsViewModel.Reference>
-                                                {
-                                                    new InventoryAdjustmentsViewModel.Reference
-                                                    {
-                                                        ReferenceCode="00001",
-                                                        ReferenceName="Blanco",
-                                                        AvailableAmount=-20
-                                                    },
-                                                    new InventoryAdjustmentsViewModel.Reference
-                                                    {
-                                                        ReferenceCode="00002",
-                                                        ReferenceName="Rojo",
-                                                        AvailableAmount=156783
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    new InventoryAdjustmentsViewModel.Adjustment
-                    {
-                        AdjustmentId=145812,
-                        AdjustmentDate = DateTime.Now.AddDays(-8),
-                        CreationDate = DateTime.Now,
-                        AdjustmentType="Salida",
-                        AdjustmentReason="Devolucion",
-                        Employee="Andres Diaz",
-                        Notes=null,
-                        Warehouses = new List<InventoryAdjustmentsViewModel.Warehouse>
-                        {
-                            new InventoryAdjustmentsViewModel.Warehouse
-                            {
-                                WarehouseId = 2,
-                                WarehouseName = "Zona Franca",
-                                Lines = new List<InventoryAdjustmentsViewModel.Line>
-                                {
-                                    new InventoryAdjustmentsViewModel.Line
-                                    {
-                                        LineCode="001",
-                                        LineName = "Importados",
-                                        Items = new List<InventoryAdjustmentsViewModel.Item>
-                                        {
-                                            new InventoryAdjustmentsViewModel.Item
-                                            {
-                                                InternalReference ="AA973-1-01",
-                                                ItemName="LACE",
-                                                References = new List<InventoryAdjustmentsViewModel.Reference>
-                                                {
-                                                    new InventoryAdjustmentsViewModel.Reference
-                                                    {
-                                                        ReferenceCode="00001",
-                                                        ReferenceName="Blanco",
-                                                        AvailableAmount=-20
-                                                    },
-                                                    new InventoryAdjustmentsViewModel.Reference
-                                                    {
-                                                        ReferenceCode="00002",
-                                                        ReferenceName="Rojo",
-                                                        AvailableAmount=156783
-                                                    }
-                                                }
-                                            },
-                                            new InventoryAdjustmentsViewModel.Item
-                                            {
-                                                InternalReference ="AA8986-01",
-                                                ItemName="MERCURIO",
-                                                References = new List<InventoryAdjustmentsViewModel.Reference>
-                                                {
-                                                    new InventoryAdjustmentsViewModel.Reference
-                                                    {
-                                                        ReferenceCode="00001",
-                                                        ReferenceName="Blanco",
-                                                        AvailableAmount=-20
-                                                    },
-                                                    new InventoryAdjustmentsViewModel.Reference
-                                                    {
-                                                        ReferenceCode="00002",
-                                                        ReferenceName="Rojo",
-                                                        AvailableAmount=156783
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                Adjustments = (await GetAdjustmentsAsync()).ToList()
             };
         }
+        #endregion
+
+        #region Fill Data Report
+
+        async Task<List<InventoryAdjustmentsViewModel.Adjustment>> GetAdjustmentsAsync(CancellationToken ct = default)
+        {
+            var adjustments = new List<InventoryAdjustmentsViewModel.Adjustment>();
+
+            foreach (var adjustment in dataReport.Select(s => new { s.AdjustmentDate, s.AdjustmentId, s.AdjustmentReason, s.AdjustmentType, s.CreationDate, s.Employee, s.Notes }).DistinctBy(d => d.AdjustmentId))
+            {
+                adjustments.Add(new InventoryAdjustmentsViewModel.Adjustment
+                {
+                    AdjustmentDate = adjustment.AdjustmentDate,
+                    AdjustmentId = adjustment.AdjustmentId,
+                    AdjustmentReason = adjustment.AdjustmentReason,
+                    AdjustmentType = adjustment.AdjustmentType,
+                    CreationDate = adjustment.CreationDate,
+                    Employee = adjustment.Employee,
+                    Notes = adjustment.Notes,
+                    Warehouses = await GetAdjustmentsAsync(adjustment.AdjustmentId, ct)
+                });
+            }
+
+            return adjustments;
+        }
+
+        async Task<List<InventoryAdjustmentsViewModel.Warehouse>> GetAdjustmentsAsync(int adjustmentId, CancellationToken ct = default)
+        {
+            var warehouses = new List<InventoryAdjustmentsViewModel.Warehouse>();
+
+            foreach (var warehouse in dataReport.Where(w => w.AdjustmentId == adjustmentId).Select(s => new { s.WarehouseId, s.WarehouseName }).DistinctBy(d => d.WarehouseId))
+            {
+                warehouses.Add(new InventoryAdjustmentsViewModel.Warehouse
+                {
+                    WarehouseId = warehouse.WarehouseId,
+                    WarehouseName = warehouse.WarehouseName,
+                    Lines = await GetWarehouseLines(adjustmentId, warehouse.WarehouseId, ct)
+                });
+            }
+
+            return warehouses;
+        }
+
+        async Task<List<InventoryAdjustmentsViewModel.Line>> GetWarehouseLines(int adjustmentId, int warehouseId, CancellationToken ct = default)
+        {
+            var reportLines = new List<InventoryAdjustmentsViewModel.Line>();
+
+            foreach (var line in dataReport.Where(w => w.AdjustmentId == adjustmentId && w.WarehouseId == warehouseId).Select(s => new { s.LineCode, s.LineName }).DistinctBy(d => d.LineCode))
+            {
+                reportLines.Add(new InventoryAdjustmentsViewModel.Line
+                {
+                    LineCode = line.LineCode,
+                    LineName = line.LineName,
+                    Items = await GetLineItems(adjustmentId, warehouseId, line.LineCode, ct)
+                }); ;
+            }
+
+            return reportLines.DistinctBy(d => d.LineCode).ToList();
+        }
+
+        async Task<List<InventoryAdjustmentsViewModel.Item>> GetLineItems(int adjustmentId, int warehouseId, string lineCode, CancellationToken ct = default)
+        {
+            var reportItems = new List<InventoryAdjustmentsViewModel.Item>();
+
+            foreach (var item in dataReport.Where(w => w.AdjustmentId == adjustmentId && w.WarehouseId == warehouseId && w.LineCode.Equals(lineCode)).Select(s => new { s.ItemName, s.InternalReference }).DistinctBy(d => new { d.ItemName, d.InternalReference }))
+            {
+                reportItems.Add(new InventoryAdjustmentsViewModel.Item
+                {
+                    ItemName = item.ItemName,
+                    InternalReference = item.InternalReference,
+                    References = await GetItemReferences(adjustmentId, warehouseId, item.ItemName, ct)
+                }); ; ;
+            }
+
+            return reportItems.DistinctBy(d => d.ItemName).ToList();
+        }
+
+        async Task<List<InventoryAdjustmentsViewModel.Reference>> GetItemReferences(int adjustmentId, int warehouseId, string itemName, CancellationToken ct = default)
+        {
+            var reportReferences = new List<InventoryAdjustmentsViewModel.Reference>();
+
+            foreach (var reference in dataReport.Where(w => w.AdjustmentId == adjustmentId && w.WarehouseId == warehouseId && w.ItemName.Equals(itemName)).Select(s => new { s.ReferenceName, s.ReferenceCode, s.AvailableAmount }).DistinctBy(d => new { d.ReferenceCode }))
+            {
+                reportReferences.Add(new InventoryAdjustmentsViewModel.Reference
+                {
+                    ReferenceName = reference.ReferenceName,
+                    ReferenceCode = reference.ReferenceCode,
+                    AvailableAmount = reference.AvailableAmount
+                });
+            }
+
+            return reportReferences;
+        }
+
         #endregion
 
         #region Events
