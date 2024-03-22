@@ -1652,7 +1652,6 @@ CREATE INDEX IND_MODIFIED_CUSTOMER_ORDER_DATE ON MODIFIED_CUSTOMER_ORDERS (MODIF
 CREATE INDEX IND_MODIFIED_PURCHASE_ORDER_DATE ON MODIFIED_PURCHASE_ORDERS (MODIFICATION_DATE);  
 GO
 
-
 /* Triggers */
 
 /* Crea la referencia para tdas las bodegas, con saldoen 0 */
@@ -1682,4 +1681,24 @@ BEGIN
 		SET @IDREG = @IDREG+1
 	END
 END
+GO
+
+/* Reports Stored Procedures*/
+CREATE OR ALTER PROCEDURE SP_GET_INVENTORY_ADJUSTMENT_REPORT
+AS
+BEGIN
+	SELECT a.ADJUSTMENT_ID AdjustmentId, a.ADJUSTMENT_DATE AdjustmentDate, a.CREATION_DATE CreationDate, b.ADJUSTMENT_TYPE_NAME AdjustmentType, c.ADJUSTMENT_REASON_NAME AdjustmentReason, 
+		   d.FULL_NAME Employee, ISNULL(a.Notes, '') Notes, f.WAREHOUSE_ID WarehouseId, f.WAREHOUSE_NAME WarehouseName, i.LINE_CODE LineCode, i.LINE_NAME LineName, h.INTERNAL_REFERENCE InternalReference, 
+		   h.ITEM_NAME ItemName, g.REFERENCE_CODE ReferenceCode, g.REFERENCE_NAME ReferenceName, e.QUANTITY AvailableAmount
+	  FROM Adjustments a
+	  JOIN adjustment_types b ON b.ADJUSTMENT_TYPE_ID = a.ADJUSTMENT_TYPE_ID 
+	  JOIN adjustment_reasons c on c.ADJUSTMENT_REASON_ID = a.ADJUSTMENT_REASON_ID
+	  JOIN employees d ON d.EMPLOYEE_ID = a.EMPLOYEE_ID 
+	  JOIN adjustment_details e ON e.ADJUSTMENT_ID = a.ADJUSTMENT_ID
+	  JOIN warehouses f ON f.WAREHOUSE_ID = E.WAREHOUSE_ID
+	  JOIN item_references g ON g.REFERENCE_ID = e.REFERENCE_ID
+	  JOIN items h on h.ITEM_ID = g.ITEM_ID
+	  JOIN lines i ON i.LINE_ID = h.LINE_ID
+	 ORDER BY 1
+END 
 GO
