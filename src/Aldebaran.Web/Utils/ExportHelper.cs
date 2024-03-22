@@ -2,6 +2,7 @@
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel;
 using System.Globalization;
 using System.Reflection;
 using System.Text;
@@ -20,12 +21,14 @@ namespace Aldebaran.Web.Utils
                 var row = new List<string>();
                 foreach (var column in columns)
                 {
-                    var valueX = GetValue(item, column.Key);
+                    var valueX = GetValue(item, column.Name);
                     row.Add($"{Convert.ToString(valueX, CultureInfo.InvariantCulture)}".Trim());
                 }
                 sb.AppendLine(string.Join(",", row.ToArray()));
             }
-            return new FileStreamResult(new MemoryStream(UTF8Encoding.Default.GetBytes($"{string.Join(",", columns.Select(c => c.Key))}{System.Environment.NewLine}{sb.ToString()}")), "text/csv")
+
+            var flatData = $"{string.Join(",", columns.Select(c => c.DisplayName ?? c.Name))}{System.Environment.NewLine}{sb.ToString()}";
+            return new FileStreamResult(new MemoryStream(UTF8Encoding.Default.GetBytes(flatData)), "text/csv")
             {
                 FileDownloadName = (!string.IsNullOrEmpty(fileName) ? fileName : "Export") + ".csv"
             };
@@ -60,7 +63,7 @@ namespace Aldebaran.Web.Utils
                 {
                     headerRow.Append(new Cell()
                     {
-                        CellValue = new CellValue(column.Key),
+                        CellValue = new CellValue(column.DisplayName ?? column.Name),
                         DataType = new EnumValue<CellValues>(CellValues.String)
                     });
                 }
@@ -73,14 +76,14 @@ namespace Aldebaran.Web.Utils
 
                     foreach (var column in columns)
                     {
-                        var value = GetValue(item, column.Key);
+                        var value = GetValue(item, column.Name);
                         var stringValue = $"{value}".Trim();
 
                         var cell = new Cell();
 
-                        var underlyingType = column.Value.IsGenericType &&
-                            column.Value.GetGenericTypeDefinition() == typeof(Nullable<>) ?
-                            Nullable.GetUnderlyingType(column.Value) : column.Value;
+                        var underlyingType = column.Type.IsGenericType &&
+                            column.Type.GetGenericTypeDefinition() == typeof(Nullable<>) ?
+                            Nullable.GetUnderlyingType(column.Type) : column.Type;
 
                         var typeCode = Type.GetTypeCode(underlyingType);
 
@@ -134,14 +137,19 @@ namespace Aldebaran.Web.Utils
         }
 
         #region Utils
+        static string GetDisplayNameOrDefault(PropertyInfo property)
+        {
+            var attr = property.GetCustomAttribute<DisplayNameAttribute>();
+            return attr?.DisplayName;
+        }
         static object GetValue(object target, string name)
         {
             return target.GetType().GetProperty(name).GetValue(target);
         }
-        static IEnumerable<KeyValuePair<string, Type>> GetProperties(Type type)
+        static IEnumerable<PropertyDetail> GetProperties(Type type)
         {
             return type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                    .Where(p => p.CanRead && IsSimpleType(p.PropertyType)).Select(p => new KeyValuePair<string, Type>(p.Name, p.PropertyType));
+                    .Where(p => p.CanRead && IsSimpleType(p.PropertyType)).Select(p => new PropertyDetail { Name = p.Name, DisplayName = GetDisplayNameOrDefault(p), Type = p.PropertyType });
         }
         static bool IsSimpleType(Type type)
         {
@@ -298,5 +306,11 @@ namespace Aldebaran.Web.Utils
         }
         #endregion
 
+        class PropertyDetail
+        {
+            public string DisplayName { get; set; }
+            public string Name { get; set; }
+            public Type Type { get; set; }
+        }
     }
 }
