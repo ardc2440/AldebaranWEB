@@ -1,6 +1,5 @@
 ﻿using Aldebaran.DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
-using System.Xml.Linq;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {

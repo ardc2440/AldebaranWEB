@@ -1,5 +1,4 @@
 ﻿using Aldebaran.Application.Services;
-using DocumentFormat.OpenXml.Office2010.Word;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;

@@ -2,6 +2,7 @@
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Pages.ReportPages.Inventory.Components;
 using Aldebaran.Web.Pages.ReportPages.Inventory.ViewModel;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
@@ -25,19 +26,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
         protected IJSRuntime JSRuntime { get; set; }
 
         [Inject]
-        protected IItemReferenceService ItemReferenceService { get; set; }
-
-        [Inject]
-        protected IWarehouseService WarehouseService { get; set; }
-
-        [Inject]
-        protected IReferencesWarehouseService ReferencesWarehouseService { get; set; }
-
-        [Inject]
-        protected IPurchaseOrderService PurchaseOrderService { get; set; }
-
-        [Inject]
-        protected IPurchaseOrderActivityService PurchaseOrderActivityService { get; set; }
+        protected IInventoryReportService InventoryReportService { get; set; }
 
         #endregion
 
@@ -47,15 +36,18 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
         protected InventoryViewModel ViewModel;
         private bool IsBusy = false;
 
+        private IEnumerable<Application.Services.Models.InventoryReport> dataReport { get; set; }
+
         #endregion
 
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            var references = await ItemReferenceService.GetReportsReferences();
+            dataReport = await InventoryReportService.GetInventoryReportDataAsync();
+
             ViewModel = new InventoryViewModel
             {
-                Lines = (await GetLinesAsync(references)).ToList()
+                Lines = (await GetLinesAsync()).ToList()
             };
         }
         #endregion
@@ -94,41 +86,42 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
         #endregion
 
         #region Fill Data Report
-        protected async Task<IEnumerable<InventoryViewModel.Line>> GetLinesAsync(IEnumerable<ItemReference> references, CancellationToken ct = default)
+        protected async Task<IEnumerable<InventoryViewModel.Line>> GetLinesAsync(CancellationToken ct = default)
         {
             var lines = new List<InventoryViewModel.Line>();
 
-            foreach (var line in references.Select(s => s.Item.Line).DistinctBy(d => d.LineId).OrderBy(o=>o.LineName))
+            foreach (var line in dataReport.Select(s => new { s.LineId, s.LineName }).DistinctBy(d => d.LineId).OrderBy(o => o.LineName))
             {
-                lines.Add(new InventoryViewModel.Line { LineName = line.LineName, Items = (await GetItemsPerLineAsync(references, line.LineId, ct)).ToList() });
+                lines.Add(new InventoryViewModel.Line { LineName = line.LineName, Items = (await GetItemsPerLineAsync(line.LineId, ct)).ToList() });
             }
 
             return lines;
         }
 
-        protected async Task<IEnumerable<InventoryViewModel.Item>> GetItemsPerLineAsync(IEnumerable<ItemReference> references, short lineId, CancellationToken ct = default)
+        protected async Task<IEnumerable<InventoryViewModel.Item>> GetItemsPerLineAsync(short lineId, CancellationToken ct = default)
         {
             var items = new List<InventoryViewModel.Item>();
 
-            foreach (var item in references.Select(s => s.Item).Where(w => w.LineId == lineId && w.IsActive && w.IsExternalInventory).DistinctBy(d => d.ItemId).OrderBy(o=>o.ItemName))
+            foreach (var item in dataReport.Where(w => w.LineId == lineId).Select(s => new { s.ItemId, s.ItemName, s.InternalReference }).DistinctBy(d => d.ItemId).OrderBy(o => o.ItemName))
             {
-                items.Add(new InventoryViewModel.Item { InternalReference = item.InternalReference, ItemName = item.ItemName, References = (await GetReferencesPerItemAsync(references, item.ItemId, ct)).ToList() });
+                items.Add(new InventoryViewModel.Item { InternalReference = item.InternalReference, ItemName = item.ItemName, References = (await GetReferencesPerItemAsync(item.ItemId, ct)).ToList() });
             }
 
             return items;
         }
 
-        protected async Task<IEnumerable<InventoryViewModel.Reference>> GetReferencesPerItemAsync(IEnumerable<ItemReference> references, int itemId, CancellationToken ct = default)
+        protected async Task<IEnumerable<InventoryViewModel.Reference>> GetReferencesPerItemAsync(int itemId, CancellationToken ct = default)
         {
             var inventoryReferences = new List<InventoryViewModel.Reference>();
 
-            foreach (var reference in references.Where(w => w.ItemId == itemId && w.IsActive).OrderBy(o=>o.ReferenceCode))
+            foreach (var reference in dataReport.Where(w => w.ItemId == itemId).Select(s => new { s.ReferenceId, s.ReferenceName, s.AvailableAmount, s.FreeZone }).DistinctBy(d => d.ReferenceId).OrderBy(o => o.ReferenceName))
+            //references.Where(w => w.ItemId == itemId && w.IsActive).OrderBy(o=>o.ReferenceCode))
             {
                 inventoryReferences.Add(new InventoryViewModel.Reference
                 {
                     ReferenceName = reference.ReferenceName,
-                    AvailableAmount = reference.InventoryQuantity - reference.ReservedQuantity - reference.OrderedQuantity,
-                    FreeZone = await GetFreeZoneReferenceAsync(reference.ReferenceId, ct),
+                    AvailableAmount = reference.AvailableAmount,
+                    FreeZone = reference.FreeZone,
                     PurchaseOrders = (await GetPurchaseOrderPerReferenceAsync(reference.ReferenceId, ct)).ToList()
                 });
             }
@@ -136,51 +129,23 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
             return inventoryReferences;
         }
 
-        protected async Task<int> GetFreeZoneReferenceAsync(int referenceId, CancellationToken ct = default)
-        {
-            var freeZoneWarehouse = await WarehouseService.FindByCodeAsync(2, ct);
-
-            var referenceWarehouse = await ReferencesWarehouseService.GetByReferenceAndWarehouseIdAsync(referenceId, freeZoneWarehouse.WarehouseId, ct);
-
-            return referenceWarehouse.Quantity;
-        }
-
         protected async Task<IEnumerable<InventoryViewModel.PurchaseOrder>> GetPurchaseOrderPerReferenceAsync(int referenceId, CancellationToken ct = default)
         {
             var inventoryPurchaseOrders = new List<InventoryViewModel.PurchaseOrder>();
 
-            var warehouses = await WarehouseService.GetAsync(ct);
-
-            var purchaseOrdersActivity = await PurchaseOrderService.GetTransitByReferenceIdAsync(referenceId, ct);
-
-            foreach (var purchaseOrder in purchaseOrdersActivity.OrderBy(o=>o.OrderNumber))
+            foreach (var purchaseOrder in dataReport.Where(w => w.ReferenceId == referenceId && w.PurchaseOrderId > 0).Select(s => new { s.PurchaseOrderId, s.OrderDate, s.Warehouse, s.Total })
+                                            .DistinctBy(d => d.PurchaseOrderId).OrderBy(o => o.OrderDate))
             {
-                var details = purchaseOrder.PurchaseOrderDetails;
-                var activities = purchaseOrder.PurchaseOrderActivities;
-
-                var date = purchaseOrder.ExpectedReceiptDate;
-
-                foreach (var detail in details.Where(w => w.ReferenceId == referenceId))
+                inventoryPurchaseOrders.Add(new InventoryViewModel.PurchaseOrder
                 {
-                    var warehouse = warehouses.FirstOrDefault(f => f.WarehouseId == detail.WarehouseId);
-
-                    var inventoryPurchaseOrder = inventoryPurchaseOrders.FirstOrDefault(f => f.Date == date && f.Warehouse == warehouse.WarehouseName);
-
-                    if (inventoryPurchaseOrder != null)
-                    {
-                        inventoryPurchaseOrder.Total += detail.RequestedQuantity;
-                        continue;
-                    }
-
-                    inventoryPurchaseOrders.Add(new InventoryViewModel.PurchaseOrder
-                    {
-                        Date = date,
-                        Total = detail.RequestedQuantity,
-                        Warehouse = warehouse.WarehouseName,
-                        Activities = activities.Select(s => new InventoryViewModel.Activity { Date = s.ExecutionDate, Description = s.ActivityDescription }).ToList()
-                    });
-                }
+                    Date = purchaseOrder.OrderDate,
+                    Total = purchaseOrder.Total,
+                    Warehouse = purchaseOrder.Warehouse,
+                    Activities = dataReport.Where(w => w.PurchaseOrderId == purchaseOrder.PurchaseOrderId && w.Description.Trim().Length > 0)
+                                    .Select(s => new InventoryViewModel.Activity { Date = s.ActivityDate, Description = s.Description }).ToList()
+                });
             }
+
             return inventoryPurchaseOrders;
         }
         #endregion

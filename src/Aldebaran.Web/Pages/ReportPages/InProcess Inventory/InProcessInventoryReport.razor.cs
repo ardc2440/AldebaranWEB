@@ -1,8 +1,6 @@
 ﻿using Aldebaran.Application.Services;
-using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Pages.ReportPages.InProcess_Inventory.Components;
 using Aldebaran.Web.Pages.ReportPages.InProcess_Inventory.ViewModel;
-using DocumentFormat.OpenXml.ExtendedProperties;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
@@ -26,10 +24,7 @@ namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
         protected IJSRuntime JSRuntime { get; set; }
 
         [Inject]
-        protected IItemReferenceService ItemReferenceService { get; set; }
-
-        [Inject]
-        protected IReferencesWarehouseService ReferencesWarehouseService { get; set; }
+        protected IInProcessInventoryReportService InProcessInventoryReportService { get; set; }
 
         #endregion
 
@@ -38,18 +33,19 @@ namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
         protected InProcessInventoryViewModel ViewModel;
         List<InProcessInventoryViewModel.Warehouse> UniqueWarehouses = new List<InProcessInventoryViewModel.Warehouse>();
         private bool IsBusy = false;
+        private IEnumerable<Aldebaran.Application.Services.Models.InProcessInventoryReport> dataReport;
+
         #endregion
 
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
+            dataReport = await InProcessInventoryReportService.GetInProcessInventoryReportDataAsync();
+
             ViewModel = new InProcessInventoryViewModel
             {
-                Lines = new List<InProcessInventoryViewModel.Line>()
+                Lines = await GetReporLinesAsync()
             };
-
-            ViewModel.Lines = (await GetReporLinesAsync()).ToList();
-
 
             UniqueWarehouses = ViewModel.Lines.SelectMany(s => s.Items)
                 .SelectMany(item => item.References.SelectMany(reference => reference.Warehouses))
@@ -94,53 +90,51 @@ namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
 
         #region Fill Data Report
 
-        protected async Task<IEnumerable<InProcessInventoryViewModel.Line>> GetReporLinesAsync(CancellationToken ct = default)
+        protected async Task<List<InProcessInventoryViewModel.Line>> GetReporLinesAsync(CancellationToken ct = default)
         {
             var lines = new List<InProcessInventoryViewModel.Line>();
 
-            var references = await ItemReferenceService.GetReportsReferences(isExternalInventory:true,ct:ct);
-
-            foreach (var line in references.Select(s => s.Item.Line).DistinctBy(l => l.LineId).OrderBy(o=>o.LineName))
+            foreach (var line in dataReport.Select(s => new { s.LineName, s.LineCode }).DistinctBy(d => d.LineCode))
             {
                 lines.Add(new InProcessInventoryViewModel.Line
                 {
                     LineName = line.LineName,
                     LineCode = line.LineCode,
-                    Items = (await GetReportItemsByLineIdAsync(references, line.LineId, ct)).ToList()
+                    Items = (await GetReportItemsByLineIdAsync(line.LineCode, ct)).ToList()
                 });
             }
 
             return lines;
         }
 
-        protected async Task<IEnumerable<InProcessInventoryViewModel.Item>> GetReportItemsByLineIdAsync(IEnumerable<ItemReference> references, short lineId, CancellationToken ct = default)
+        protected async Task<List<InProcessInventoryViewModel.Item>> GetReportItemsByLineIdAsync(string lineCode, CancellationToken ct = default)
         {
             var items = new List<InProcessInventoryViewModel.Item>();
 
-            foreach (var item in references.Where(w => w.Item.LineId == lineId).Select(s => s.Item).DistinctBy(l => l.ItemId).OrderBy(o=>o.ItemName))
+            foreach (var item in dataReport.Where(w=>w.LineCode.Equals(lineCode)).Select(s=>new { s.InternalReference, s.ItemName}).DistinctBy(d=>d.ItemName))
             {
                 items.Add(new InProcessInventoryViewModel.Item
                 {
                     InternalReference = item.InternalReference,
                     ItemName = item.ItemName,
-                    References = (await GetReferencesByItemIdAsync(references, item.ItemId, ct)).ToList()
+                    References = (await GetReferencesByItemIdAsync(item.ItemName, ct)).ToList()
                 });
             }
 
             return items;
         }
 
-        protected async Task<IEnumerable<InProcessInventoryViewModel.Reference>> GetReferencesByItemIdAsync(IEnumerable<ItemReference> references, int itemId, CancellationToken ct = default)
+        protected async Task<List<InProcessInventoryViewModel.Reference>> GetReferencesByItemIdAsync(string itemName, CancellationToken ct = default)
         {
             var reportReferences = new List<InProcessInventoryViewModel.Reference>();
 
-            foreach (var reference in references.Where(w => w.ItemId == itemId).OrderBy(o=>o.ReferenceCode))
+            foreach (var reference in dataReport.Where(w => w.ItemName.Equals(itemName)).Select(s=> new { s.ReferenceName, s.InProcessAmount}).DistinctBy(d=>d.ReferenceName).OrderBy(o => o.ReferenceName))
             {
                 reportReferences.Add(new InProcessInventoryViewModel.Reference
                 {
                     ReferenceName = reference.ReferenceName,
-                    InProcessAmount = reference.WorkInProcessQuantity,
-                    Warehouses = (await GetWarehousesByReferenceIdAsync(reference.ReferenceId, ct)).ToList()
+                    InProcessAmount = reference.InProcessAmount,
+                    Warehouses = (await GetWarehousesByReferenceIdAsync(reference.ReferenceName, ct)).ToList()
 
                 }); ;
             }
@@ -148,29 +142,27 @@ namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
             return reportReferences;
         }
 
-        protected async Task<IEnumerable<InProcessInventoryViewModel.Warehouse>> GetWarehousesByReferenceIdAsync(int referenceId, CancellationToken ct = default)
-        { 
+        protected async Task<List<InProcessInventoryViewModel.Warehouse>> GetWarehousesByReferenceIdAsync(string referenceName, CancellationToken ct = default)
+        {
             var warehouses = new List<InProcessInventoryViewModel.Warehouse>();
 
-            var referenceWarehouses = await ReferencesWarehouseService.GetByReferenceIdAsync(referenceId, ct);
-
-            foreach (var warehouse in referenceWarehouses.OrderBy(o=>o.Warehouse.WarehouseName))
+            foreach (var warehouse in dataReport.Where(w=>w.ReferenceName.Equals(referenceName)).Select(s=>new { s.WarehouseId, s.WarehouseName, s.Amount}).OrderBy(o=>o.WarehouseName))
             {
-                warehouses.Add(new InProcessInventoryViewModel.Warehouse 
+                warehouses.Add(new InProcessInventoryViewModel.Warehouse
                 {
                     WarehouseId = warehouse.WarehouseId,
-                    Amount = warehouse.Quantity,
-                    WarehouseName = warehouse.Warehouse.WarehouseName,
+                    Amount = warehouse.Amount,
+                    WarehouseName = warehouse.WarehouseName,
                 });
 
             }
 
             return warehouses;
-        
+
         }
 
         #endregion
 
-        
+
     }
 }

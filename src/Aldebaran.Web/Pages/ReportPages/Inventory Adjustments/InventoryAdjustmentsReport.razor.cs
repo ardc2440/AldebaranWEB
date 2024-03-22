@@ -3,10 +3,8 @@ using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments.Components;
 using Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments.ViewModel;
 using Microsoft.AspNetCore.Components;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.JSInterop;
 using Radzen;
-using System.Collections.Generic;
 
 namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
 {
@@ -24,19 +22,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
 
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
-
-        [Inject]
-        protected IAdjustmentService AdjustmentService { get; set; }
-
-        [Inject]
-        protected IWarehouseService WarehouseService { get; set; }
-
-        [Inject]
-        protected IAdjustmentDetailService AdjustmentDetailService { get; set; }
-
-        [Inject]
-        protected IItemReferenceService ItemReferenceService { get; set; }
-
+               
         [Inject]
         protected IInventoryAdjustmentReportService InventoryAdjustmentReportService { get; set; }
         #endregion

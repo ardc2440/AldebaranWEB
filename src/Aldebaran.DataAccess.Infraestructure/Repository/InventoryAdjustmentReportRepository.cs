@@ -1,10 +1,5 @@
 ﻿using Aldebaran.DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
@@ -16,7 +11,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        async Task<IEnumerable<InventoryAdjustmentReport>> IInventoryAdjustmentReportRepository.GetInventoryAdjustmentReportDataAsync(CancellationToken ct = default)
+        public async Task<IEnumerable<InventoryAdjustmentReport>> GetInventoryAdjustmentReportDataAsync(CancellationToken ct = default)
         {
             return await _context.Set<InventoryAdjustmentReport>().ToListAsync(ct);            
         }

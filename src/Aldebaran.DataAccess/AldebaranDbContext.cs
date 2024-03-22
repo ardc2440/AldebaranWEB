@@ -174,6 +174,20 @@ namespace Aldebaran.DataAccess
                     iar.HasNoKey();
                     iar.ToSqlQuery($"EXEC SP_GET_INVENTORY_ADJUSTMENT_REPORT");
                 });
+
+            modelBuilder.Entity<InProcessInventoryReport>(
+                iar =>
+                {
+                    iar.HasNoKey();
+                    iar.ToSqlQuery($"EXEC SP_GET_IN_PROCESS_INVENTORY_REPORT");
+                });
+
+            modelBuilder.Entity<InventoryReport>(
+                iar =>
+                {
+                    iar.HasNoKey();
+                    iar.ToSqlQuery($"EXEC SP_GET_INVENTORY_REPORT");
+                });
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken ct = default)

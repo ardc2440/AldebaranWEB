@@ -20,5 +20,14 @@
 	  <Compile Update="Models\Reason.cs">
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>
+	  <Compile Update="Repository\IdentityTypeRepository - Copia.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
+	  <Compile Update="Repository\IInProcessInventoryReportRepository.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
+	  <Compile Update="Repository\InventoryAdjustmentReportRepository - Copia.cs">
+	    <DependentUpon>IInProcessInventoryReportRepository.cs</DependentUpon>
+	  </Compile>
 	</ItemGroup>
 </Project>

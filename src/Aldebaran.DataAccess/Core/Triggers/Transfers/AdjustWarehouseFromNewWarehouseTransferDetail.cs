@@ -1,6 +1,5 @@
 ﻿using Aldebaran.DataAccess.Entities;
 using EntityFrameworkCore.Triggered;
-using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Core.Triggers.Transfers
 {

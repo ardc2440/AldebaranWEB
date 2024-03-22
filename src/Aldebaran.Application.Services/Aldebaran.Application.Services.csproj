@@ -22,5 +22,14 @@
 	  <Compile Update="Models\InventoryAdjustmentReport.cs">
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>
+	  <Compile Update="Models\InventoryReport.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
+	  <Compile Update="Services\IInProcessInventoryReportService.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
+	  <Compile Update="Services\InventoryAdjustmentReportService - Copia.cs">
+	    <DependentUpon>IInProcessInventoryReportService.cs</DependentUpon>
+	  </Compile>
 	</ItemGroup>
 </Project>

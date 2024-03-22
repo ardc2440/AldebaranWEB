@@ -3,15 +3,9 @@ using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Pages.ReportPages.Provider_References.Components;
 using Aldebaran.Web.Pages.ReportPages.Provider_References.ViewModel;
 using Aldebaran.Web.Pages.ReportPages.Warehouse_Stock;
-using DocumentFormat.OpenXml.Drawing.Charts;
-using DocumentFormat.OpenXml.Office2010.Excel;
-using DocumentFormat.OpenXml.Office2013.Word;
-using Humanizer;
 using Microsoft.AspNetCore.Components;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.JSInterop;
 using Radzen;
-using System.Collections.Generic;
 
 namespace Aldebaran.Web.Pages.ReportPages.Provider_References
 {
