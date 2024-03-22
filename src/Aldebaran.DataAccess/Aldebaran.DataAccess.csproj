@@ -100,6 +100,9 @@
 	  <Compile Update="Core\Triggers\Transfers\AdjustWarehouseFromNewWarehouseTransferDetail.cs">
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>
+	  <Compile Update="Entities\InventoryAdjustmentReport.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\Aldebaran.Infraestructure.Common\Aldebaran.Infraestructure.Common.csproj" />

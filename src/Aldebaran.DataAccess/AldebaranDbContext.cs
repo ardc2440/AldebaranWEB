@@ -167,6 +167,13 @@ namespace Aldebaran.DataAccess
             modelBuilder.ApplyConfiguration(new WarehouseTransferDetailConfiguration());
             modelBuilder.ApplyConfiguration(new NotificationProviderSettingConfiguration());
             modelBuilder.ApplyConfiguration(new NotificationTemplateConfiguration());
+
+            modelBuilder.Entity<InventoryAdjustmentReport>(
+                iar => 
+                { 
+                    iar.HasNoKey();
+                    iar.ToSqlQuery($"EXEC SP_GET_INVENTORY_ADJUSTMENT_REPORT");
+                });
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken ct = default)

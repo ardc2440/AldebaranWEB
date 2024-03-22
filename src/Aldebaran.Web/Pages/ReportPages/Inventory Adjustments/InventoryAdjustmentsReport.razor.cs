@@ -37,20 +37,23 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
         [Inject]
         protected IItemReferenceService ItemReferenceService { get; set; }
 
+        [Inject]
+        protected IInventoryAdjustmentReportService InventoryAdjustmentReportService { get; set; }
         #endregion
 
         #region Variables
         protected InventoryAdjustmentsFilter Filter;
         protected InventoryAdjustmentsViewModel ViewModel;
-        protected IEnumerable<Warehouse> warehouses;
-        protected IEnumerable<ItemReference> itemReferences;
+        protected IEnumerable<InventoryAdjustmentReport> dataReport;
         private bool IsBusy = false;
+
+
         #endregion
 
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            warehouses = await WarehouseService.GetAsync();
+            dataReport = await InventoryAdjustmentReportService.GetInventoryAdjustmentReportDataAsync();
 
             ViewModel = new InventoryAdjustmentsViewModel()
             {
@@ -65,100 +68,87 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
         {
             var adjustments = new List<InventoryAdjustmentsViewModel.Adjustment>();
 
-            foreach (var adjustment in await AdjustmentService.GetAsync(ct))
+            foreach (var adjustment in dataReport.Select(s => new { s.AdjustmentDate, s.AdjustmentId, s.AdjustmentReason, s.AdjustmentType, s.CreationDate, s.Employee, s.Notes }).DistinctBy(d => d.AdjustmentId))
             {
                 adjustments.Add(new InventoryAdjustmentsViewModel.Adjustment
                 {
                     AdjustmentDate = adjustment.AdjustmentDate,
                     AdjustmentId = adjustment.AdjustmentId,
-                    AdjustmentReason = adjustment.AdjustmentReason.AdjustmentReasonName,
-                    AdjustmentType = adjustment.AdjustmentType.AdjustmentTypeName,
+                    AdjustmentReason = adjustment.AdjustmentReason,
+                    AdjustmentType = adjustment.AdjustmentType,
                     CreationDate = adjustment.CreationDate,
-                    Employee = adjustment.Employee.FullName,
+                    Employee = adjustment.Employee,
                     Notes = adjustment.Notes,
-                    Warehouses = await GetAdjustmentsAsync(adjustment, ct)
+                    Warehouses = await GetAdjustmentsAsync(adjustment.AdjustmentId, ct)
                 });
             }
 
             return adjustments;
         }
 
-        async Task<List<InventoryAdjustmentsViewModel.Warehouse>> GetAdjustmentsAsync(Adjustment adjustment, CancellationToken ct = default)
+        async Task<List<InventoryAdjustmentsViewModel.Warehouse>> GetAdjustmentsAsync(int adjustmentId, CancellationToken ct = default)
         {
             var warehouses = new List<InventoryAdjustmentsViewModel.Warehouse>();
 
-            foreach (var warehouseId in adjustment.AdjustmentDetails.DistinctBy(d => d.WarehouseId).Select(s => s.WarehouseId))
+            foreach (var warehouse in dataReport.Where(w => w.AdjustmentId == adjustmentId).Select(s => new { s.WarehouseId, s.WarehouseName }).DistinctBy(d => d.WarehouseId))
             {
-                var warehouse = await WarehouseService.FindAsync(warehouseId, ct);
-
                 warehouses.Add(new InventoryAdjustmentsViewModel.Warehouse
                 {
                     WarehouseId = warehouse.WarehouseId,
                     WarehouseName = warehouse.WarehouseName,
-                    Lines = await GetWarehouseLines(adjustment, warehouse.WarehouseId, ct)
+                    Lines = await GetWarehouseLines(adjustmentId, warehouse.WarehouseId, ct)
                 });
             }
 
             return warehouses;
         }
 
-        async Task<List<InventoryAdjustmentsViewModel.Line>> GetWarehouseLines(Adjustment adjustment, int warehouseId, CancellationToken ct = default)
+        async Task<List<InventoryAdjustmentsViewModel.Line>> GetWarehouseLines(int adjustmentId, int warehouseId, CancellationToken ct = default)
         {
             var reportLines = new List<InventoryAdjustmentsViewModel.Line>();
 
-            var adjustmentDetailbyWarehouse = adjustment.AdjustmentDetails.Where(w => w.WarehouseId == warehouseId);
-
-            foreach (var referenceId in adjustmentDetailbyWarehouse.DistinctBy(d => d.ReferenceId).Select(s => s.ReferenceId))
+            foreach (var line in dataReport.Where(w => w.AdjustmentId == adjustmentId && w.WarehouseId == warehouseId).Select(s => new { s.LineCode, s.LineName }).DistinctBy(d => d.LineCode))
             {
-                var referece = await ItemReferenceService.FindAsync(referenceId, ct);
-
                 reportLines.Add(new InventoryAdjustmentsViewModel.Line
                 {
-                    LineCode = referece.Item.Line.LineCode,
-                    LineName = referece.Item.Line.LineName,
-                    Items = await GetLineItems(adjustmentDetailbyWarehouse, ct)
+                    LineCode = line.LineCode,
+                    LineName = line.LineName,
+                    Items = await GetLineItems(adjustmentId, warehouseId, line.LineCode, ct)
                 }); ;
             }
 
             return reportLines.DistinctBy(d => d.LineCode).ToList();
         }
 
-        async Task<List<InventoryAdjustmentsViewModel.Item>> GetLineItems(IEnumerable<AdjustmentDetail> adjustmentDetails, CancellationToken ct = default)
+        async Task<List<InventoryAdjustmentsViewModel.Item>> GetLineItems(int adjustmentId, int warehouseId, string lineCode, CancellationToken ct = default)
         {
             var reportItems = new List<InventoryAdjustmentsViewModel.Item>();
 
-            foreach (var referenceId in adjustmentDetails.DistinctBy(d => d.ReferenceId).Select(s => s.ReferenceId))
+            foreach (var item in dataReport.Where(w => w.AdjustmentId == adjustmentId && w.WarehouseId == warehouseId && w.LineCode.Equals(lineCode)).Select(s => new { s.ItemName, s.InternalReference }).DistinctBy(d => new { d.ItemName, d.InternalReference }))
             {
-                var referece = await ItemReferenceService.FindAsync(referenceId, ct);
-
                 reportItems.Add(new InventoryAdjustmentsViewModel.Item
                 {
-                    ItemName = referece.Item.ItemName,
-                    InternalReference = referece.Item.InternalReference,
-                    References = await GetItemReferences(adjustmentDetails, referece.ItemId, ct)
+                    ItemName = item.ItemName,
+                    InternalReference = item.InternalReference,
+                    References = await GetItemReferences(adjustmentId, warehouseId, item.ItemName, ct)
                 }); ; ;
             }
 
             return reportItems.DistinctBy(d => d.ItemName).ToList();
         }
 
-        async Task<List<InventoryAdjustmentsViewModel.Reference>> GetItemReferences(IEnumerable<AdjustmentDetail> adjustmentDetails, int itemId, CancellationToken ct = default)
+        async Task<List<InventoryAdjustmentsViewModel.Reference>> GetItemReferences(int adjustmentId, int warehouseId, string itemName, CancellationToken ct = default)
         {
             var reportReferences = new List<InventoryAdjustmentsViewModel.Reference>();
 
-            foreach (var adjustmentDetail in adjustmentDetails)
+            foreach (var reference in dataReport.Where(w => w.AdjustmentId == adjustmentId && w.WarehouseId == warehouseId && w.ItemName.Equals(itemName)).Select(s => new { s.ReferenceName, s.ReferenceCode, s.AvailableAmount }).DistinctBy(d => new { d.ReferenceCode }))
             {
-                var referece = await ItemReferenceService.FindAsync(adjustmentDetail.ReferenceId, ct);
-
-                if (referece.ItemId == itemId)
+                reportReferences.Add(new InventoryAdjustmentsViewModel.Reference
                 {
-                    reportReferences.Add(new InventoryAdjustmentsViewModel.Reference
-                    {
-                        ReferenceName = referece.ReferenceName,
-                        ReferenceCode = referece.ReferenceCode,
-                        AvailableAmount = adjustmentDetail.Quantity
-                    });
-                }
+                    ReferenceName = reference.ReferenceName,
+                    ReferenceCode = reference.ReferenceCode,
+                    AvailableAmount = reference.AvailableAmount
+                });
             }
 
             return reportReferences;
