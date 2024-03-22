@@ -8,7 +8,7 @@
         </RadzenColumn>
     </RadzenRow>
     <RadzenRow AlignItems="AlignItems.Start" class="mb-2">
-        <RadzenColumn SizeXL="10" SizeLG="10" SizeMD="12" SizeSM="12" SizeXS="12" SizeXX="12">
+        <RadzenColumn SizeXL="8" SizeLG="8" SizeMD="12" SizeSM="12" SizeXS="12" SizeXX="12">
             <div class="rz-text-align-left d-flex gap-3">
                 <RadzenButton Variant="Variant.Text" Icon="filter_alt" Click="@OpenFilters" Text="Filtros" ButtonStyle="ButtonStyle.Secondary" class="text-primary-color p-0 pb-1" />
                 @if (Filter != null)
@@ -80,10 +80,14 @@
                 }
             </div>
         </RadzenColumn>
-        <RadzenColumn SizeXL="2" SizeLG="2" SizeMD="12" SizeSM="12" SizeXS="12" SizeXX="12" class="align-self-end">
-            <div class="d-flex flex-row justify-content-end align-items-end">
+        <RadzenColumn SizeXL="4" SizeLG="4" SizeMD="12" SizeSM="12" SizeXS="12" SizeXX="12" class="align-self-end">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.End" JustifyContent="JustifyContent.End" Gap="0.5rem">
                 <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="save" Text="Guardar PDF" Click="@Download" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@IsBusy" />
-            </div>
+                <RadzenSplitButton Icon="get_app" Text="Exportar" Click="@ExportClick" Variant="Variant.Flat" Shade="Shade.Lighter">
+                    <RadzenSplitButtonItem Text="Excel" Value="xlsx" />
+                    <RadzenSplitButtonItem Text="CSV" Value="csv" />
+                </RadzenSplitButton>
+            </RadzenStack>
         </RadzenColumn>
     </RadzenRow>
     <RadzenRow AlignItems="AlignItems.Start">

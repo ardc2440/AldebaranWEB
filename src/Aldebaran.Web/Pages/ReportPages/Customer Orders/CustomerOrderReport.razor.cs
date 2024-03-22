@@ -4,6 +4,8 @@ using Aldebaran.Web.Pages.ReportPages.Customer_Orders.ViewModel;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Radzen;
+using Radzen.Blazor;
+using System.Text.Encodings.Web;
 
 namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders
 {
@@ -24,6 +26,9 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders
 
         [Inject]
         protected IReferencesWarehouseService ReferencesWarehouseService { get; set; }
+
+        [Inject]
+        protected NavigationManager NavigationManager { get; set; }
         #endregion
 
         #region Variables
@@ -2296,6 +2301,18 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders
             var pdfBytes = await PdfService.GetBytes(html, true);
             await JSRuntime.InvokeVoidAsync("downloadFile", "Ordenes por cliente.pdf", "application/pdf", Convert.ToBase64String(pdfBytes));
             IsBusy = false;
+        }
+        async Task ExportClick(RadzenSplitButtonItem args)
+        {
+            if (args?.Value == "csv")
+            {
+                NavigationManager.NavigateTo($"export/aldebarandb/customer-order/csv(fileName='{UrlEncoder.Default.Encode("Ordenes por cliente")}')", true);
+            }
+
+            if (args == null || args.Value == "xlsx")
+            {
+                NavigationManager.NavigateTo($"export/AldebaranDb/customer-order/excel(fileName='{UrlEncoder.Default.Encode("Ordenes por cliente")}')", true);
+            }
         }
         async Task ToggleReadMore()
         {
