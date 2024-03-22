@@ -12,8 +12,8 @@
         border: 1px solid #dee2e6 !important;
     }
 
-    .report .no-border {
-        border: 0px !important;
+    .report .font-size-2x * {
+        font-size: 16px !important;
     }
 
     .report .text-left {
@@ -32,6 +32,10 @@
         margin-bottom: 0.5rem !important;
     }
 
+    .report .mb-2 {
+        margin-bottom: 1rem !important;
+    }
+
     .report .mt-0 {
         margin-top: 0 !important;
     }
@@ -46,6 +50,30 @@
 
     .report .m-0 {
         margin: 0 !important;
+    }
+
+    .report .pb-0 {
+        padding-bottom: 0 !important;
+    }
+
+    .report .pb-1 {
+        padding-bottom: 0.5rem !important;
+    }
+
+    .report .pb-2 {
+        padding-bottom: 1rem !important;
+    }
+
+    .report .pt-0 {
+        padding-top: 0 !important;
+    }
+
+    .report .pt-1 {
+        padding-top: 0.5rem !important;
+    }
+
+    .report .pt-2 {
+        padding-top: 1rem !important;
     }
 
     .report .p-0 {
@@ -128,7 +156,7 @@
             background: #fff !important;
         }
 
-        .report table.edged > tbody > tr {
+        /* .report table.edged > tbody > tr {
             border-bottom: 1px solid #dee2e6 !important;
         }
 
@@ -137,7 +165,12 @@
             }
 
         .report table.edged.full, .report table.edged.full td, .report table.edged.full th {
-            border: 1px solid #dee2e6 !important;
+            border: 1px solid #dee2e6;
+        }*/
+        .report table.edged,
+        .report table.edged > tbody > tr > td, .report table.edged > tr > td,
+        .report table.edged > thead > tr > th, .report table.edged > tr > th {
+            border: 1px solid #dee2e6;
         }
 
         .report table td {
@@ -192,8 +225,16 @@
         background: #f7f7f7;
     }
 
+    .report table tr.emphasys-2x {
+        background: #d9d9d9 !important;
+    }
+
+    .report table tr.emphasys-3x {
+        background: #bdbdbd !important;
+    }
+
     .report table thead tr {
-        border-bottom: 1px solid #dee2e6 !important;
+        /*border-bottom: 1px solid #dee2e6 !important;*/
     }
 
         .report table thead tr th {
@@ -224,3 +265,7 @@
             margin: 0;
             padding: 0;
         }
+
+    .report .no-border, .report .no-border > * {
+        border: 0px !important;
+    }

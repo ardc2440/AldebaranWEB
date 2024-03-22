@@ -260,15 +260,15 @@
                                 </td>
                             </tr>
                         </table>
-                        <div class="mt-1 border">
+                        <div class="mt-1">
                             @if (ViewModel != null)
                             {
                                 @for (int o = 0; o < ViewModel.Orders.Count(); o++)
                                 {
                                     var order = ViewModel.Orders[o];
-                                    <table class="@(o>0?"border-top-1":"")">
+                                    <table class="edged">
                                         <thead>
-                                            <tr>
+                                            <tr class="emphasys-2x font-size-2x">
                                                 <td colspan="4" width="100%">
                                                     <span class="bold">Número: </span>@order.OrderNumber
                                                 </td>
@@ -351,7 +351,7 @@
                                             {
                                                 <tr>
                                                     <td colspan="5" width="100%" style="padding:0 !important">
-                                                        <p class="title border-bottom-1" style="padding-left: 1em;">Línea: @line.LineCode  - @line.LineName</p>
+                                                        <p class="title" style="padding-left: 1em;">Línea: @line.LineCode  - @line.LineName</p>
                                                     </td>
                                                 </tr>
                                                 @for (int i = 0; i < line.Items.Count(); i++)
@@ -359,23 +359,27 @@
                                                     var item = line.Items[i];
                                                     <tr>
                                                         <td colspan="5" width="100%" style="padding:0 !important">
-                                                            <div style="padding: 0.75rem 0 0 1em !important;">
-                                                                <h3 class="text-left m-0 @(i>0?"border-top-1":"")" style="@(i>0?"margin-top: 1em !important;padding-top: 1em;":"")">
+                                                            <div style="padding: 1em 1em 0 1em !important;">
+                                                                @if (i > 0)
+                                                                {
+                                                                    <hr class="mb-2" />
+                                                                }
+                                                                <h3 class="text-left m-0">
                                                                     @item.ItemName
                                                                 </h3>
                                                                 <p class="m-0">
                                                                     Referencia interna: @item.InternalReference
                                                                 </p>
                                                             </div>
-                                                            <div style="margin: 0.5em 1.5em 0 1em;">
-                                                                <table class="striped border-top-1">
+                                                            <div style="margin: 1em;">
+                                                                <table class="striped edged">
                                                                     <thead>
                                                                         <tr>
                                                                             <th width="30%">Código</th>
-                                                                            <th width="40%" class="border-left-1">Referencia</th>
-                                                                            <th width="10%" class="border-left-1">Cantidad</th>
-                                                                            <th width="10%" class="border-left-1">Peso</th>
-                                                                            <th width="10%" class="border-left-1">Volumen</th>
+                                                                            <th width="40%">Referencia</th>
+                                                                            <th width="10%">Cantidad</th>
+                                                                            <th width="10%">Peso</th>
+                                                                            <th width="10%">Volumen</th>
                                                                         </tr>
                                                                     </thead>
                                                                     <tbody>
@@ -383,10 +387,10 @@
                                                                         {
                                                                             <tr>
                                                                                 <td width="30%">@reference.ReferenceCode</td>
-                                                                                <td width="40%" class="border-left-1">@reference.ReferenceName</td>
-                                                                                <td width="10%" class="border-left-1">@reference.Amount.ToString("N0")</td>
-                                                                                <td width="10%" class="border-left-1">@(reference.Weight == 0 ? "" : reference.Weight.ToString("N0"))</td>
-                                                                                <td width="10%" class="border-left-1">@(reference.Volume == 0 ? "" : reference.Volume.ToString("N0"))</td>
+                                                                                <td width="40%">@reference.ReferenceName</td>
+                                                                                <td width="10%">@reference.Amount.ToString("N0")</td>
+                                                                                <td width="10%">@(reference.Weight == 0 ? "" : reference.Weight.ToString("N0"))</td>
+                                                                                <td width="10%">@(reference.Volume == 0 ? "" : reference.Volume.ToString("N0"))</td>
                                                                             </tr>
                                                                         }
                                                                     </tbody>

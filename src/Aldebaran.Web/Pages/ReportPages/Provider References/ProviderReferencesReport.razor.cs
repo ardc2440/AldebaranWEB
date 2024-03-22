@@ -193,6 +193,324 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References
                                 }
                             }
                         }
+                    },
+                    new ProviderReferencesViewModel.Provider
+                    {
+                        ProviderCode="JLING",
+                        ProviderName= "JLING S.A.",
+                        ContactPerson="Javier Linares",
+                        Email="javierl@gmlsoftware.com",
+                        Fax="651421123174",
+                        Phone="3168849474",
+                        ProviderAddress="Cra 83 13-50 Bogota, Colombia",
+                        Lines = new List<ProviderReferencesViewModel.Line>
+                        {
+                            new ProviderReferencesViewModel.Line
+                            {
+                                LineCode="001",
+                                LineName = "Importados",
+                                Items = new List<ProviderReferencesViewModel.Item>
+                                {
+                                    new ProviderReferencesViewModel.Item
+                                    {
+                                        InternalReference ="00110-01",
+                                        ItemName="HOT PORTAMINA",
+                                        References = new List<ProviderReferencesViewModel.Reference>
+                                        {
+                                            new ProviderReferencesViewModel.Reference
+                                            {
+                                                ReferenceCode="00001",
+                                                ReferenceName="Blanco",
+                                                ProviderReferenceName="White",
+                                                AvailableAmount=200,
+                                                ConfirmedAmount=80,
+                                                ReservedAmount=200,
+                                                Warehouses = new List<ProviderReferencesViewModel.Warehouse>
+                                                {
+                                                    new ProviderReferencesViewModel.Warehouse
+                                                    {
+                                                        WarehouseId=1,
+                                                        WarehouseName="Local",
+                                                        Amount=150
+                                                    },
+                                                    new ProviderReferencesViewModel.Warehouse
+                                                    {
+                                                        WarehouseId=2,
+                                                        WarehouseName="Zona Franca",
+                                                        Amount=50
+                                                    }
+                                                }
+                                            },
+                                            new ProviderReferencesViewModel.Reference
+                                            {
+                                                ReferenceCode="00002",
+                                                ReferenceName="Rojo",
+                                                ProviderReferenceName="Red",
+                                                AvailableAmount=180,
+                                                ConfirmedAmount=80,
+                                                ReservedAmount=70,
+                                                Warehouses = new List<ProviderReferencesViewModel.Warehouse>
+                                                {
+                                                    new ProviderReferencesViewModel.Warehouse
+                                                    {
+                                                        WarehouseId=1,
+                                                        WarehouseName="Local",
+                                                        Amount=70
+                                                    }
+                                                }
+                                            },
+                                            new ProviderReferencesViewModel.Reference
+                                            {
+                                                ReferenceCode="00003",
+                                                ReferenceName="Verde",
+                                                ProviderReferenceName="Green",
+                                                AvailableAmount=180,
+                                                ConfirmedAmount=80,
+                                                ReservedAmount=200
+                                            },
+                                            new ProviderReferencesViewModel.Reference
+                                            {
+                                                ReferenceCode="00004",
+                                                ReferenceName="Amarillo",
+                                                ProviderReferenceName="Yellow",
+                                                AvailableAmount=180,
+                                                ConfirmedAmount=80,
+                                                ReservedAmount=200
+                                            },
+                                            new ProviderReferencesViewModel.Reference
+                                            {
+                                                ReferenceCode="00005",
+                                                ReferenceName="Negro",
+                                                ProviderReferenceName="Black",
+                                                AvailableAmount=180,
+                                                ConfirmedAmount=80,
+                                                ReservedAmount=200
+                                            },
+                                            new ProviderReferencesViewModel.Reference
+                                            {
+                                                ReferenceCode="00006",
+                                                ReferenceName="Naranja",
+                                                ProviderReferenceName="Orange",
+                                                AvailableAmount=180,
+                                                ConfirmedAmount=80,
+                                                ReservedAmount=200
+                                            }
+                                        }
+                                    },
+                                    new ProviderReferencesViewModel.Item
+                                    {
+                                         InternalReference ="AA973-1-01",
+                                        ItemName="LACE",
+                                        References = new List<ProviderReferencesViewModel.Reference>
+                                        {
+                                            new ProviderReferencesViewModel.Reference
+                                            {
+                                                ReferenceCode="00001",
+                                                ReferenceName="Blanco",
+                                                ProviderReferenceName="White",
+                                                AvailableAmount=-20,
+                                                ConfirmedAmount=80,
+                                                ReservedAmount=200
+                                            },
+                                            new ProviderReferencesViewModel.Reference
+                                            {
+                                                ReferenceCode="00002",
+                                                ReferenceName="Rojo",
+                                                ProviderReferenceName="Red",
+                                                AvailableAmount=156783,
+                                                ConfirmedAmount=80,
+                                                ReservedAmount=200
+                                            }
+                                        }
+                                    },
+                                    new ProviderReferencesViewModel.Item
+                                    {
+                                        InternalReference ="AA8986-01",
+                                        ItemName="MERCURIO",
+                                        References = new List<ProviderReferencesViewModel.Reference>
+                                        {
+                                            new ProviderReferencesViewModel.Reference
+                                            {
+                                                ReferenceCode="00001",
+                                                ReferenceName="Blanco",
+                                                ProviderReferenceName="White",
+                                                AvailableAmount=-20,
+                                                ConfirmedAmount=80,
+                                                ReservedAmount=200
+                                            },
+                                            new ProviderReferencesViewModel.Reference
+                                            {
+                                                ReferenceCode="00002",
+                                                ReferenceName="Rojo",
+                                                ProviderReferenceName="Red",
+                                                AvailableAmount=156783,
+                                                ConfirmedAmount=80,
+                                                ReservedAmount=200
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    new ProviderReferencesViewModel.Provider
+                    {
+                        ProviderCode="JLING",
+                        ProviderName= "JLING S.A.",
+                        ContactPerson="Javier Linares",
+                        Email="javierl@gmlsoftware.com",
+                        Fax="651421123174",
+                        Phone="3168849474",
+                        ProviderAddress="Cra 83 13-50 Bogota, Colombia",
+                        Lines = new List<ProviderReferencesViewModel.Line>
+                        {
+                            new ProviderReferencesViewModel.Line
+                            {
+                                LineCode="001",
+                                LineName = "Importados",
+                                Items = new List<ProviderReferencesViewModel.Item>
+                                {
+                                    new ProviderReferencesViewModel.Item
+                                    {
+                                        InternalReference ="00110-01",
+                                        ItemName="HOT PORTAMINA",
+                                        References = new List<ProviderReferencesViewModel.Reference>
+                                        {
+                                            new ProviderReferencesViewModel.Reference
+                                            {
+                                                ReferenceCode="00001",
+                                                ReferenceName="Blanco",
+                                                ProviderReferenceName="White",
+                                                AvailableAmount=200,
+                                                ConfirmedAmount=80,
+                                                ReservedAmount=200,
+                                                Warehouses = new List<ProviderReferencesViewModel.Warehouse>
+                                                {
+                                                    new ProviderReferencesViewModel.Warehouse
+                                                    {
+                                                        WarehouseId=1,
+                                                        WarehouseName="Local",
+                                                        Amount=150
+                                                    },
+                                                    new ProviderReferencesViewModel.Warehouse
+                                                    {
+                                                        WarehouseId=2,
+                                                        WarehouseName="Zona Franca",
+                                                        Amount=50
+                                                    }
+                                                }
+                                            },
+                                            new ProviderReferencesViewModel.Reference
+                                            {
+                                                ReferenceCode="00002",
+                                                ReferenceName="Rojo",
+                                                ProviderReferenceName="Red",
+                                                AvailableAmount=180,
+                                                ConfirmedAmount=80,
+                                                ReservedAmount=70,
+                                                Warehouses = new List<ProviderReferencesViewModel.Warehouse>
+                                                {
+                                                    new ProviderReferencesViewModel.Warehouse
+                                                    {
+                                                        WarehouseId=1,
+                                                        WarehouseName="Local",
+                                                        Amount=70
+                                                    }
+                                                }
+                                            },
+                                            new ProviderReferencesViewModel.Reference
+                                            {
+                                                ReferenceCode="00003",
+                                                ReferenceName="Verde",
+                                                ProviderReferenceName="Green",
+                                                AvailableAmount=180,
+                                                ConfirmedAmount=80,
+                                                ReservedAmount=200
+                                            },
+                                            new ProviderReferencesViewModel.Reference
+                                            {
+                                                ReferenceCode="00004",
+                                                ReferenceName="Amarillo",
+                                                ProviderReferenceName="Yellow",
+                                                AvailableAmount=180,
+                                                ConfirmedAmount=80,
+                                                ReservedAmount=200
+                                            },
+                                            new ProviderReferencesViewModel.Reference
+                                            {
+                                                ReferenceCode="00005",
+                                                ReferenceName="Negro",
+                                                ProviderReferenceName="Black",
+                                                AvailableAmount=180,
+                                                ConfirmedAmount=80,
+                                                ReservedAmount=200
+                                            },
+                                            new ProviderReferencesViewModel.Reference
+                                            {
+                                                ReferenceCode="00006",
+                                                ReferenceName="Naranja",
+                                                ProviderReferenceName="Orange",
+                                                AvailableAmount=180,
+                                                ConfirmedAmount=80,
+                                                ReservedAmount=200
+                                            }
+                                        }
+                                    },
+                                    new ProviderReferencesViewModel.Item
+                                    {
+                                         InternalReference ="AA973-1-01",
+                                        ItemName="LACE",
+                                        References = new List<ProviderReferencesViewModel.Reference>
+                                        {
+                                            new ProviderReferencesViewModel.Reference
+                                            {
+                                                ReferenceCode="00001",
+                                                ReferenceName="Blanco",
+                                                ProviderReferenceName="White",
+                                                AvailableAmount=-20,
+                                                ConfirmedAmount=80,
+                                                ReservedAmount=200
+                                            },
+                                            new ProviderReferencesViewModel.Reference
+                                            {
+                                                ReferenceCode="00002",
+                                                ReferenceName="Rojo",
+                                                ProviderReferenceName="Red",
+                                                AvailableAmount=156783,
+                                                ConfirmedAmount=80,
+                                                ReservedAmount=200
+                                            }
+                                        }
+                                    },
+                                    new ProviderReferencesViewModel.Item
+                                    {
+                                        InternalReference ="AA8986-01",
+                                        ItemName="MERCURIO",
+                                        References = new List<ProviderReferencesViewModel.Reference>
+                                        {
+                                            new ProviderReferencesViewModel.Reference
+                                            {
+                                                ReferenceCode="00001",
+                                                ReferenceName="Blanco",
+                                                ProviderReferenceName="White",
+                                                AvailableAmount=-20,
+                                                ConfirmedAmount=80,
+                                                ReservedAmount=200
+                                            },
+                                            new ProviderReferencesViewModel.Reference
+                                            {
+                                                ReferenceCode="00002",
+                                                ReferenceName="Rojo",
+                                                ProviderReferenceName="Red",
+                                                AvailableAmount=156783,
+                                                ConfirmedAmount=80,
+                                                ReservedAmount=200
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             };

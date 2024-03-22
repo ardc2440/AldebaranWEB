@@ -153,9 +153,9 @@
                                 @for (int c = 0; c < ViewModel.Customers.Count(); c++)
                                 {
                                     var customer = ViewModel.Customers[c];
-                                    <table class="edged full">
+                                    <table class="edged">
                                         <thead>
-                                            <tr>
+                                            <tr class="emphasys-3x font-size-2x no-border">
                                                 <td colspan="3" width="60%">
                                                     <span class="bold">Cliente: </span>@customer.CustomerName
                                                 </td>
@@ -171,7 +171,7 @@
                                             @for (int r = 0; r < customer.Reservations.Count(); r++)
                                             {
                                                 var reservation = customer.Reservations[r];
-                                                <tr>
+                                                <tr class="emphasys-2x no-border">
                                                     <td width="20%">
                                                         <span class="bold">Reserva: </span><br />
                                                         @reservation.ReservationNumber
