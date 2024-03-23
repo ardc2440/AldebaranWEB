@@ -23,31 +23,24 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References
 
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
-
+        
         [Inject]
-        protected IProviderReferenceService ProviderReferenceService { get; set; }
-
-        [Inject]
-        protected IReferencesWarehouseService ReferencesWarehouseService { get; set; }
-
-        [Inject]
-        protected IWarehouseService WarehouseService { get; set; }
+        protected IProviderReferenceReportService ProviderReferenceReportService { get; set; }
         #endregion
 
         #region Variables
         protected ProviderReferencesFilter Filter;
         protected ProviderReferencesViewModel ViewModel;
         private bool IsBusy = false;
-        protected IEnumerable<ProviderReference> providerReferences { get; set; }
-        protected IEnumerable<Warehouse> warehouses { get; set; }
+
+        protected IEnumerable<ProviderReferenceReport> DataReport { get; set; }
 
         #endregion
 
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            providerReferences = await ProviderReferenceService.GetProviderReferecesReport();
-            warehouses = await WarehouseService.GetAsync();
+            DataReport = await ProviderReferenceReportService.GetProviderReferenceReportDataAsync();
 
             ViewModel = new ProviderReferencesViewModel()
             {
@@ -95,7 +88,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References
 
         async Task<List<ProviderReferencesViewModel.Provider>> GetProviderReferenceListAsync(CancellationToken ct = default)
         {
-            return (from provider in providerReferences.Select(s => s.Provider).DistinctBy(d => d.ProviderId)
+            return (from provider in DataReport.Select(s => new { s.ProviderId, s.ContactPerson, s.Email, s.Fax, s.Phone, s.ProviderAddress, s.ProviderCode, s.ProviderName})
+                                        .DistinctBy(d=>d.ProviderId).OrderBy(o=>o.ProviderName)
                     select (new ProviderReferencesViewModel.Provider
                     {
                         ContactPerson = provider.ContactPerson,
@@ -111,7 +105,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References
 
         async Task<List<ProviderReferencesViewModel.Line>> GetProviderLines(int providerId, CancellationToken ct = default)
         {
-            return (from line in providerReferences.Where(w => w.ProviderId == providerId).Select(s => s.ItemReference.Item.Line).DistinctBy(d => d.LineId)
+            return (from line in DataReport.Where(w => w.ProviderId == providerId).Select(s => new {s.LineId, s.LineCode,s.LineName}).DistinctBy(s=>s.LineId).OrderBy(o=>o.LineName)                    
                     select (new ProviderReferencesViewModel.Line
                     {
                         LineCode = line.LineCode,
@@ -122,7 +116,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References
 
         async Task<List<ProviderReferencesViewModel.Item>> GetLineItems(int providerId, short lineId, CancellationToken ct = default)
         {
-            return (from item in providerReferences.Where(w => w.ProviderId == providerId && w.ItemReference.Item.LineId == lineId).Select(s => s.ItemReference.Item).DistinctBy(d => d.ItemId)
+            return (from item in DataReport.Where(w => w.ProviderId == providerId && w.LineId == lineId).Select(s => new { s.ItemId, s.ItemName, s.InternalReference}).DistinctBy(d => d.ItemId).OrderBy(o=>o.ItemName)
                     select (new ProviderReferencesViewModel.Item
                     {
                         InternalReference = item.InternalReference,
@@ -133,29 +127,29 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References
 
         async Task<List<ProviderReferencesViewModel.Reference>> GetItemReferences(int providerId, int itemId, CancellationToken ct = default)
         {
-            return (from reference in providerReferences.Where(w => w.ProviderId == providerId && w.ItemReference.ItemId == itemId).Select(s => s.ItemReference).DistinctBy(d => d.ReferenceId)
+            return (from reference in DataReport.Where(w => w.ProviderId == providerId && w.ItemId == itemId).Select(s => new { s.ReferenceId, s.ReferenceName, s.ReferenceCode, s.ProviderReferenceName, s.AvailableAmount, s.ConfirmedAmount, s.ReservedAmount})
+                                          .DistinctBy(d => d.ReferenceId).OrderBy(o=>o.ReferenceName)
                     select (new ProviderReferencesViewModel.Reference
                     {
                         ReferenceName = reference.ReferenceName,
                         ReferenceCode = reference.ReferenceCode,
                         ProviderReferenceName = reference.ProviderReferenceName,
-                        AvailableAmount = reference.InventoryQuantity,
-                        ConfirmedAmount = reference.OrderedQuantity,
-                        ReservedAmount = reference.ReservedQuantity,
+                        AvailableAmount = reference.AvailableAmount,
+                        ConfirmedAmount = reference.ConfirmedAmount,
+                        ReservedAmount = reference.ReservedAmount,
                         Warehouses = GetReferenceWarehouses(reference.ReferenceId, ct).Result
                     })).ToList();
         }
 
         async Task<List<ProviderReferencesViewModel.Warehouse>> GetReferenceWarehouses(int referenceId, CancellationToken ct = default)
         {
-            var referencesWarehouse = providerReferences.FirstOrDefault(w => w.ReferenceId == referenceId).ItemReference.ReferencesWarehouses;
-
-            var result = (from warehouseReference in referencesWarehouse
+            var result = (from warehouseReference in DataReport.Where(w=>w.ReferenceId==referenceId).Select(s=> new { s.WarehouseId, s.WarehouseName, s.Amount})
+                                                        .DistinctBy(d=>d.WarehouseId).OrderBy(o=>o.WarehouseName) 
                           select (new ProviderReferencesViewModel.Warehouse
                           {
                               WarehouseId = warehouseReference.WarehouseId,
-                              WarehouseName = warehouses.FirstOrDefault(f => f.WarehouseId == warehouseReference.WarehouseId).WarehouseName,
-                              Amount = warehouseReference.Quantity,
+                              WarehouseName = warehouseReference.WarehouseName,
+                              Amount = warehouseReference.Amount,
                           })).ToList();
 
             return result;

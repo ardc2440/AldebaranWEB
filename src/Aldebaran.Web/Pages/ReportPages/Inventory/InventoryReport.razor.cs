@@ -36,14 +36,14 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
         protected InventoryViewModel ViewModel;
         private bool IsBusy = false;
 
-        private IEnumerable<Application.Services.Models.InventoryReport> dataReport { get; set; }
+        private IEnumerable<Application.Services.Models.InventoryReport> DataReport { get; set; }
 
         #endregion
 
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            dataReport = await InventoryReportService.GetInventoryReportDataAsync();
+            DataReport = await InventoryReportService.GetInventoryReportDataAsync();
 
             ViewModel = new InventoryViewModel
             {
@@ -90,7 +90,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
         {
             var lines = new List<InventoryViewModel.Line>();
 
-            foreach (var line in dataReport.Select(s => new { s.LineId, s.LineName }).DistinctBy(d => d.LineId).OrderBy(o => o.LineName))
+            foreach (var line in DataReport.Select(s => new { s.LineId, s.LineName }).DistinctBy(d => d.LineId).OrderBy(o => o.LineName))
             {
                 lines.Add(new InventoryViewModel.Line { LineName = line.LineName, Items = (await GetItemsPerLineAsync(line.LineId, ct)).ToList() });
             }
@@ -102,7 +102,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
         {
             var items = new List<InventoryViewModel.Item>();
 
-            foreach (var item in dataReport.Where(w => w.LineId == lineId).Select(s => new { s.ItemId, s.ItemName, s.InternalReference }).DistinctBy(d => d.ItemId).OrderBy(o => o.ItemName))
+            foreach (var item in DataReport.Where(w => w.LineId == lineId).Select(s => new { s.ItemId, s.ItemName, s.InternalReference }).DistinctBy(d => d.ItemId).OrderBy(o => o.ItemName))
             {
                 items.Add(new InventoryViewModel.Item { InternalReference = item.InternalReference, ItemName = item.ItemName, References = (await GetReferencesPerItemAsync(item.ItemId, ct)).ToList() });
             }
@@ -114,7 +114,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
         {
             var inventoryReferences = new List<InventoryViewModel.Reference>();
 
-            foreach (var reference in dataReport.Where(w => w.ItemId == itemId).Select(s => new { s.ReferenceId, s.ReferenceName, s.AvailableAmount, s.FreeZone }).DistinctBy(d => d.ReferenceId).OrderBy(o => o.ReferenceName))
+            foreach (var reference in DataReport.Where(w => w.ItemId == itemId).Select(s => new { s.ReferenceId, s.ReferenceName, s.AvailableAmount, s.FreeZone }).DistinctBy(d => d.ReferenceId).OrderBy(o => o.ReferenceName))
             //references.Where(w => w.ItemId == itemId && w.IsActive).OrderBy(o=>o.ReferenceCode))
             {
                 inventoryReferences.Add(new InventoryViewModel.Reference
@@ -133,7 +133,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
         {
             var inventoryPurchaseOrders = new List<InventoryViewModel.PurchaseOrder>();
 
-            foreach (var purchaseOrder in dataReport.Where(w => w.ReferenceId == referenceId && w.PurchaseOrderId > 0).Select(s => new { s.PurchaseOrderId, s.OrderDate, s.Warehouse, s.Total })
+            foreach (var purchaseOrder in DataReport.Where(w => w.ReferenceId == referenceId && w.PurchaseOrderId > 0).Select(s => new { s.PurchaseOrderId, s.OrderDate, s.Warehouse, s.Total })
                                             .DistinctBy(d => d.PurchaseOrderId).OrderBy(o => o.OrderDate))
             {
                 inventoryPurchaseOrders.Add(new InventoryViewModel.PurchaseOrder
@@ -141,7 +141,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
                     Date = purchaseOrder.OrderDate,
                     Total = purchaseOrder.Total,
                     Warehouse = purchaseOrder.Warehouse,
-                    Activities = dataReport.Where(w => w.PurchaseOrderId == purchaseOrder.PurchaseOrderId && w.Description.Trim().Length > 0)
+                    Activities = DataReport.Where(w => w.PurchaseOrderId == purchaseOrder.PurchaseOrderId && w.Description.Trim().Length > 0)
                                     .Select(s => new InventoryViewModel.Activity { Date = s.ActivityDate, Description = s.Description }).ToList()
                 });
             }

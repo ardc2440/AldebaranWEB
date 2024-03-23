@@ -1756,3 +1756,24 @@ BEGIN
 
 END
 GO
+
+CREATE OR ALTER PROCEDURE SP_GET_PROVIDER_REFERENCE_REPORT
+AS
+BEGIN
+
+	SELECT a.PROVIDER_ID ProviderId, a.PROVIDER_CODE PoviderCode, a.PROVIDER_NAME ProviderName, a.PROVIDER_ADDRESS ProviderAddress, a.PHONE, a.FAX, a.EMAIL, a.CONTACT_PERSON ContactPerson,
+		   e.LINE_ID LineId, e.LINE_CODE LineCode, e.LINE_NAME LineName, d.ITEM_ID ItemId, d.INTERNAL_REFERENCE InternalReference, d.ITEM_NAME ItemName, c.REFERENCE_ID ReferenceId,
+		   c.REFERENCE_CODE ReferenceCode, c.REFERENCE_NAME ReferenceName, C.PROVIDER_REFERENCE_NAME ProviderReferenceName, c.ORDERED_QUANTITY ConfirmedAmount, c.RESERVED_QUANTITY ReservedAmount,
+		   c.INVENTORY_QUANTITY AvailableAmount, f.QUANTITY Amount, g.WAREHOUSE_ID, g.WAREHOUSE_NAME 
+	  FROM providers a
+	  JOIN provider_references b ON b.PROVIDER_ID = a.PROVIDER_ID
+	  JOIN item_references c ON c.REFERENCE_ID = b.REFERENCE_ID 
+	  JOIN items d ON d.ITEM_ID = c.ITEM_ID
+	  JOIN lines e ON e.LINE_ID = d.LINE_ID
+	  JOIN references_warehouse f ON f.REFERENCE_ID = c.REFERENCE_ID
+	  JOIN warehouses g ON g.WAREHOUSE_ID = f.WAREHOUSE_ID
+	 ORDER BY a.PROVIDER_ID
+
+END
+GO
+

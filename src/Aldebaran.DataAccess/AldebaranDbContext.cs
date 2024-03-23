@@ -188,6 +188,13 @@ namespace Aldebaran.DataAccess
                     iar.HasNoKey();
                     iar.ToSqlQuery($"EXEC SP_GET_INVENTORY_REPORT");
                 });
+
+            modelBuilder.Entity<ProviderReferenceReport>(
+                iar =>
+                {
+                    iar.HasNoKey();
+                    iar.ToSqlQuery($"EXEC SP_GET_PROVIDER_REFERENCE_REPORT");
+                });
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken ct = default)

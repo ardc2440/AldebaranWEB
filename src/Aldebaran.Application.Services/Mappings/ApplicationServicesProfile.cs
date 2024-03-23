@@ -76,9 +76,10 @@ namespace Aldebaran.Application.Services.Mappings
             CreateMap<WarehouseTransfer, Entities.WarehouseTransfer>().ReverseMap();
             CreateMap<WarehouseTransferDetail, Entities.WarehouseTransferDetail>().ReverseMap();
             CreateMap<Reason, DataAccess.Infraestructure.Models.Reason>().ReverseMap();
-            CreateMap<InventoryAdjustmentReport, Entities.InventoryAdjustmentReport >().ReverseMap();
+            CreateMap<InventoryAdjustmentReport, Entities.InventoryAdjustmentReport>().ReverseMap();
             CreateMap<InProcessInventoryReport, Entities.InProcessInventoryReport>().ReverseMap();
             CreateMap<InventoryReport, Entities.InventoryReport>().ReverseMap();
+            CreateMap<ProviderReferenceReport, Entities.ProviderReferenceReport>().ReverseMap();
         }
     }
 }
