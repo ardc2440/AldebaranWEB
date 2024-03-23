@@ -35,7 +35,7 @@
         }
         public class Shipment
         {
-            public DateTime CreationDate { get; set; }
+            public DateTime ShipmentDate { get; set; }
             public string DeliveryNote { get; set; }
             public string TrackingNumber { get; set; }
             public string ShipmentMethodName { get; set; }

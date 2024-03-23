@@ -4,7 +4,7 @@
 <RadzenStack Style="gap:0.3em">
     <RadzenRow AlignItems="AlignItems.Start">
         <RadzenColumn Size="12">
-            <RadzenText Text="Reporte de ordenes por cliente" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
+            <RadzenText Text="Reporte de pedidos por cliente" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
         </RadzenColumn>
     </RadzenRow>
     <RadzenRow AlignItems="AlignItems.Start" class="mb-2">
@@ -98,7 +98,7 @@
                         <table>
                             <tr>
                                 <td width="50%">
-                                    <h2 class="text-left mb-0">Ordenes por cliente</h2>
+                                    <h2 class="text-left mb-0">Pedidos por cliente</h2>
                                     <span class="mb-1">@DateTime.Now.ToString(SharedLocalizer["datetime:format"])</span>
                                 </td>
                                 <td width="50%">
@@ -285,7 +285,7 @@
                                                                                         {
                                                                                             <hr class="mt-2 mb-2" />
                                                                                         }
-                                                                                        <span class="bold">Fecha: </span>@shipment.CreationDate
+                                                                                        <span class="bold">Fecha: </span>@shipment.ShipmentDate
                                                                                     </td>
                                                                                 </tr>
                                                                                 <tr class="no-border">

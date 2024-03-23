@@ -1806,3 +1806,98 @@ BEGIN
 END 
 GO
 
+CREATE OR ALTER PROCEDURE SP_GET_CUSTOMER_ORDER_REPORT
+AS
+BEGIN		
+	DECLARE @FinishedStatus TABLE (STATUS_DOCUMENT_TYPE_ID INT)
+
+	INSERT INTO @FinishedStatus
+		 SELECT STATUS_DOCUMENT_TYPE_ID
+		   FROM status_document_types a
+		   JOIN document_types b ON b.DOCUMENT_TYPE_ID = a.DOCUMENT_TYPE_ID
+		  WHERE DOCUMENT_TYPE_CODE = 'P' AND STATUS_ORDER IN (5,6)
+
+	DECLARE @CustomerOrders TABLE 
+		( CustomerId INT, 
+		  CustomerName VARCHAR(50), 
+		  Phone VARCHAR(70), 
+		  Fax VARCHAR(20),
+		  OrderId INT, 
+		  OrderNumber VARCHAR(20), 
+		  OrderCreationDate DATE, 
+		  OrderDate DATE, 
+		  EstimatedDeliveryDate DATE, 
+		  OrderStatus VARCHAR(30), 
+		  InternalNotes VARCHAR(250), 
+		  CustomerNotes VARCHAR(250), 
+		  OrderDetailId INT,
+		  OrderDetailItemReference VARCHAR(30), 
+		  OrderDetailItemName VARCHAR(30), 
+		  OrderDetailReferenceCode VARCHAR(30), 
+		  OrderDetailReferenceName VARCHAR(30),
+		  OrderDetailAmount INT, 
+		  DeliveredAmount INT, 
+		  InProcessAmount INT, 
+		  DetailStatus VARCHAR(30))
+
+	DECLARE @ShippingOrders TABLE
+		( CustomerOrderDetailId INT, 
+		  ShipmentId INT, 
+		  ShipmentDate DATE, 
+		  DeliveryNote VARCHAR(30), 
+		  TrackingNumber VARCHAR(30), 
+		  ShipmentMethodName VARCHAR(30), 
+		  Notes VARCHAR(250), 
+		  ShipmentDetailId INT, 
+		  ShipmentDetailItemReference VARCHAR(30), 
+		  ShipmentDetailItemName VARCHAR(30), 
+		  ShipmentDetailReferenceCode VARCHAR(30), 
+		  ShipmentDetailReferenceName VARCHAR(30), 
+		  ShipmentDetailAmount INT)
+
+	INSERT INTO @CustomerOrders
+		 SELECT b.CUSTOMER_ID CustomerId, b.CUSTOMER_NAME CustomerName, (ISNULL(b.CELL_PHONE+', ','')+ISNULL(b.PHONE2+', ','')+ISNULL(b.PHONE1,'')) Phone, ISNULL(b.FAX,'') Fax,
+	 			a.CUSTOMER_ORDER_ID OrderId, a.ORDER_NUMBER OrderNumber, a.CREATION_DATE OrderCreationDate, a.ORDER_DATE OrderDate, a.ESTIMATED_DELIVERY_DATE EstimatedDeliveryDate, 
+				c.STATUS_DOCUMENT_TYPE_NAME OrderStatus, ISNULL(a.INTERNAL_NOTES,'') InternalNotes, ISNULL(a.CUSTOMER_NOTES,'') CustomerNotes, D.CUSTOMER_ORDER_DETAIL_ID OrderDetailId,
+				f.INTERNAL_REFERENCE OrderDetailItemReference, f.ITEM_NAME OrderDetailItemName, e.REFERENCE_CODE OrderDetailReferenceCode, e.REFERENCE_NAME OrderDetailReferenceName,
+				d.REQUESTED_QUANTITY OrderDetailAmount, d.DELIVERED_QUANTITY DeliveredAmount, d.PROCESSED_QUANTITY InProcessAmount, 
+				CASE 
+					WHEN EXISTS (SELECT 1 FROM @FinishedStatus WHERE STATUS_DOCUMENT_TYPE_ID = a.STATUS_DOCUMENT_TYPE_ID) THEN 
+						c.STATUS_DOCUMENT_TYPE_NAME
+			 		WHEN d.DELIVERED_QUANTITY = 0 and d.PROCESSED_QUANTITY = 0 THEN 
+					 'Pendiente'
+					WHEN d.DELIVERED_QUANTITY = d.REQUESTED_QUANTITY THEN 
+					 'Totalmente atendido'
+					ELSE	
+					 'Parcialmente atendido'
+				END DetailStatus 
+		   FROM customer_orders a
+		   JOIN customers b ON b.CUSTOMER_ID = a.CUSTOMER_ID 
+		   JOIN status_document_types c ON c.STATUS_DOCUMENT_TYPE_ID = a.STATUS_DOCUMENT_TYPE_ID
+		   JOIN customer_order_details d ON d.CUSTOMER_ORDER_ID = a.CUSTOMER_ORDER_ID
+		   JOIN item_references e ON e.REFERENCE_ID = d.REFERENCE_ID
+		   JOIN items f ON f.ITEM_ID = e.ITEM_ID
+
+	INSERT INTO @ShippingOrders
+		 SELECT c.CUSTOMER_ORDER_DETAIL_ID, A.CUSTOMER_ORDER_SHIPMENT_ID ShipmentId, a.SHIPPING_DATE ShipmentDate, a.DELIVERY_NOTE DeliveryNote, a.TRACKING_NUMBER TrackingNumber, f.SHIPPING_METHOD_NAME ShipmentMethodName, 
+	 			ISNULL(a.NOTES, '') Notes, b.CUSTOMER_ORDER_SHIPMENT_ID ShipmentDetailId, e.INTERNAL_REFERENCE ShipmentDetailItemReference, e.ITEM_NAME ShipmentDetailItemName, 
+	 			d.REFERENCE_CODE ShipmentDetailReferenceCode, d.REFERENCE_NAME ShipmentDetailReferenceName, b.DELIVERED_QUANTITY ShipmentDetailAmount
+		   FROM customer_order_shipments a
+		   JOIN customer_order_shipment_details b ON b.CUSTOMER_ORDER_SHIPMENT_ID = a.CUSTOMER_ORDER_SHIPMENT_ID
+		   JOIN customer_order_details c ON c.CUSTOMER_ORDER_DETAIL_ID = b.CUSTOMER_ORDER_DETAIL_ID  
+		   JOIN item_references d ON d.REFERENCE_ID = c.REFERENCE_ID
+		   JOIN items e ON e.ITEM_ID = d.ITEM_ID
+		   JOIN shipping_methods f ON f.SHIPPING_METHOD_ID = a.SHIPPING_METHOD_ID 
+
+	SELECT a.CustomerId, a.CustomerName, a.Phone, a.Fax, a.OrderId, a.OrderNumber, a.OrderCreationDate, a.OrderDate, a.EstimatedDeliveryDate, a.OrderStatus, a.InternalNotes, a.CustomerNotes, a.OrderDetailId, a.
+		   OrderDetailItemReference, a.OrderDetailItemName, a.OrderDetailReferenceCode, a.OrderDetailReferenceName, a.OrderDetailAmount, a.DeliveredAmount, a.InProcessAmount, a.DetailStatus, 
+		   ISNULL(b.ShipmentId,'') ShipmentId, ISNULL(b.ShipmentDate,'') ShipmentDate, ISNULL(b.DeliveryNote,'') DeliveryNote, ISNULL(b.TrackingNumber,'') TrackingNumber, 
+		   ISNULL(b.ShipmentMethodName,'') ShipmentMethodName, ISNULL(b.Notes,'') Notes, ISNULL(b.ShipmentDetailId,'') ShipmentDetailId, ISNULL(b.ShipmentDetailItemReference,'') ShipmentDetailItemReference, 
+		   ISNULL(b.ShipmentDetailItemName,'') ShipmentDetailItemName, ISNULL(b.ShipmentDetailReferenceCode,'') ShipmentDetailReferenceCode, ISNULL(b.ShipmentDetailReferenceName,'') ShipmentDetailReferenceName, 
+		   ISNULL(b.ShipmentDetailAmount,'') ShipmentDetailAmount
+	  FROM @CustomerOrders a
+	  LEFT OUTER JOIN @ShippingOrders b ON b.CustomerOrderDetailId = a.OrderDetailId
+
+END 
+GO
+
