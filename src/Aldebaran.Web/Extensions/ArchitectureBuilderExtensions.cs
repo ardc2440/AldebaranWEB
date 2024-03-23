@@ -306,6 +306,7 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IWarehouseTransferService, WarehouseTransferService>();
             services.AddTransient<IWarehouseTransferDetailService, WarehouseTransferDetailService>();
             services.AddTransient<IInventoryAdjustmentReportService, InventoryAdjustmentReportService>();
+            services.AddTransient<IInProcessInventoryReportService, InProcessInventoryReportService>();
             services.AddTransient<IInventoryReportService, InventoryReportService>();
             #endregion
             services.AddTransient<IQueue, RabbitQueue>();
