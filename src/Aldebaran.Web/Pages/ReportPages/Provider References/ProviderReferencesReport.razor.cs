@@ -13,7 +13,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References
     {
         #region Injections
         [Inject]
-        protected ILogger<WarehouseStockReport> Logger { get; set; }
+        protected ILogger<ProviderReferencesReport> Logger { get; set; }
 
         [Inject]
         protected DialogService DialogService { get; set; }

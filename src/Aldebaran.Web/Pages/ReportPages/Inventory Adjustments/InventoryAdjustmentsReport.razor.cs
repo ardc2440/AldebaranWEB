@@ -22,7 +22,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
 
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
-               
+
         [Inject]
         protected IInventoryAdjustmentReportService InventoryAdjustmentReportService { get; set; }
         #endregion
@@ -100,10 +100,10 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
         async static Task<List<InventoryAdjustmentsViewModel.Line>> GetWarehouseLines(List<InventoryAdjustmentReport> data, int adjustmentId, int warehouseId, CancellationToken ct = default)
         {
             var reportLines = new List<InventoryAdjustmentsViewModel.Line>();
-            var uniqueLines = data.Where(w => w.AdjustmentId == adjustmentId && w.WarehouseId == warehouseId).Select(s => new { s.LineCode, s.LineName }).DistinctBy(d => d.LineCode);
+            var uniqueLines = data.Where(w => w.AdjustmentId == adjustmentId && w.WarehouseId == warehouseId).Select(s => new { s.LineId, s.LineCode, s.LineName }).DistinctBy(d => d.LineId).OrderBy(o => o.LineName);
             foreach (var line in uniqueLines)
             {
-                var items = await GetLineItems(data, adjustmentId, warehouseId, line.LineCode, ct);
+                var items = await GetLineItems(data, adjustmentId, warehouseId, line.LineId, ct);
                 reportLines.Add(new InventoryAdjustmentsViewModel.Line
                 {
                     LineCode = line.LineCode,
@@ -114,13 +114,14 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
             return reportLines.DistinctBy(d => d.LineCode).ToList();
         }
 
-        async static Task<List<InventoryAdjustmentsViewModel.Item>> GetLineItems(List<InventoryAdjustmentReport> data, int adjustmentId, int warehouseId, string lineCode, CancellationToken ct = default)
+        async static Task<List<InventoryAdjustmentsViewModel.Item>> GetLineItems(List<InventoryAdjustmentReport> data, int adjustmentId, int warehouseId, short lineId, CancellationToken ct = default)
         {
             var reportItems = new List<InventoryAdjustmentsViewModel.Item>();
-            var uniqueItems = data.Where(w => w.AdjustmentId == adjustmentId && w.WarehouseId == warehouseId && w.LineCode.Equals(lineCode)).Select(s => new { s.ItemName, s.InternalReference }).DistinctBy(d => new { d.ItemName, d.InternalReference });
-            foreach (var item in uniqueItems)
+
+            foreach (var item in data.Where(w => w.AdjustmentId == adjustmentId && w.WarehouseId == warehouseId && w.LineId == lineId).Select(s => new { s.ItemId, s.ItemName, s.InternalReference })
+                                    .DistinctBy(d => d.ItemId).OrderBy(o => o.ItemName))
             {
-                var references = await GetItemReferences(data, adjustmentId, warehouseId, item.ItemName, ct);
+                var references = await GetItemReferences(data, adjustmentId, warehouseId, item.ItemId, ct);
                 reportItems.Add(new InventoryAdjustmentsViewModel.Item
                 {
                     ItemName = item.ItemName,
@@ -128,13 +129,16 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
                     References = references
                 });
             }
+
             return reportItems.DistinctBy(d => d.ItemName).ToList();
         }
 
-        async static Task<List<InventoryAdjustmentsViewModel.Reference>> GetItemReferences(List<InventoryAdjustmentReport> data, int adjustmentId, int warehouseId, string itemName, CancellationToken ct = default)
+        async static Task<List<InventoryAdjustmentsViewModel.Reference>> GetItemReferences(List<InventoryAdjustmentReport> data, int adjustmentId, int warehouseId, int itemId, CancellationToken ct = default)
         {
             var reportReferences = new List<InventoryAdjustmentsViewModel.Reference>();
-            foreach (var reference in data.Where(w => w.AdjustmentId == adjustmentId && w.WarehouseId == warehouseId && w.ItemName.Equals(itemName)).Select(s => new { s.ReferenceName, s.ReferenceCode, s.AvailableAmount }).DistinctBy(d => new { d.ReferenceCode }))
+
+            foreach (var reference in data.Where(w => w.AdjustmentId == adjustmentId && w.WarehouseId == warehouseId && w.ItemId == itemId).Select(s => new { s.ReferenceId, s.ReferenceName, s.ReferenceCode, s.AvailableAmount })
+                                        .DistinctBy(d => d.ReferenceName).OrderBy(o=>o.ReferenceName))
             {
                 reportReferences.Add(new InventoryAdjustmentsViewModel.Reference
                 {
@@ -143,6 +147,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
                     AvailableAmount = reference.AvailableAmount
                 });
             }
+
             return reportReferences;
         }
 

@@ -25,10 +25,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
         protected IJSRuntime JSRuntime { get; set; }
 
         [Inject]
-        protected IItemReferenceService ItemReferenceService { get; set; }
-
-        [Inject]
-        protected IReferencesWarehouseService ReferencesWarehouseService { get; set; }
+        protected IReferenceMovementReportService ReferenceMovementReportService { get; set; }
 
         #endregion
 
@@ -36,17 +33,18 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
         protected ReferenceMovementFilter Filter;
         protected ReferenceMovementViewModel ViewModel;
         private bool IsBusy = false;
+        private IEnumerable<Application.Services.Models.ReferenceMovementReport> DataReport { get; set; }
         #endregion
 
         #region Overrides
         protected override async Task OnInitializedAsync()
-        {           
+        {
+            DataReport = await ReferenceMovementReportService.GetReferenceMovementReportDataAsync();
+
             ViewModel = new ReferenceMovementViewModel
             {
-                Lines = new List<ReferenceMovementViewModel.Line>()
+                Lines = (await GetReporLinesAsync()).ToList()
             };
-
-            ViewModel.Lines = (await GetReporLinesAsync()).ToList();
         }
         #endregion
 
@@ -89,50 +87,51 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
         {
             var lines = new List<ReferenceMovementViewModel.Line>();
 
-            var references = await ItemReferenceService.GetReportsReferences(ct:ct);
-
-            foreach (var line in references.Select(s => s.Item.Line).DistinctBy(l => l.LineId).OrderBy(o=>o.LineName))
+            foreach (var line in DataReport.Select(s => new {s.LineId, s.LineName, s.LineCode })
+                                    .DistinctBy(d => d.LineId).OrderBy(o => o.LineName))
             {
                 lines.Add(new ReferenceMovementViewModel.Line
                 {
                     LineName = line.LineName,
                     LineCode = line.LineCode,
-                    Items = (await GetReportItemsByLineIdAsync(references, line.LineId, ct)).ToList()
+                    Items = (await GetReportItemsByLineIdAsync(line.LineId, ct)).ToList()
                 });
             }
 
             return lines;
         }
 
-        protected async Task<IEnumerable<ReferenceMovementViewModel.Item>> GetReportItemsByLineIdAsync(IEnumerable<ItemReference> references, short lineId, CancellationToken ct = default)
+        protected async Task<IEnumerable<ReferenceMovementViewModel.Item>> GetReportItemsByLineIdAsync(short lineId, CancellationToken ct = default)
         {
             var items = new List<ReferenceMovementViewModel.Item>();
 
-            foreach (var item in references.Where(w => w.Item.LineId == lineId).Select(s => s.Item).DistinctBy(l => l.ItemId).OrderBy(o=>o.ItemName))
+            foreach (var item in DataReport.Where(w => w.LineId == lineId).Select(s => new { s.ItemId, s.InternalReference, s.ItemName})
+                                    .DistinctBy(d => d.ItemId).OrderBy(o => o.ItemName))
             {
                 items.Add(new ReferenceMovementViewModel.Item
                 {
                     InternalReference = item.InternalReference,
                     ItemName = item.ItemName,
-                    References = (await GetReferencesByItemIdAsync(references, item.ItemId, ct)).ToList()
+                    References = (await GetReferencesByItemIdAsync(item.ItemId, ct)).ToList()
                 });
             }
 
             return items;
         }
 
-        protected async Task<IEnumerable<ReferenceMovementViewModel.Reference>> GetReferencesByItemIdAsync(IEnumerable<ItemReference> references, int itemId, CancellationToken ct = default)
+        protected async Task<IEnumerable<ReferenceMovementViewModel.Reference>> GetReferencesByItemIdAsync(int itemId, CancellationToken ct = default)
         {
             var reportReferences = new List<ReferenceMovementViewModel.Reference>();
 
-            foreach (var reference in references.Where(w => w.ItemId == itemId).OrderBy(o=>o.ReferenceCode))
+            foreach (var reference in DataReport.Where(w => w.ItemId == itemId).Select(s=>new { s.ReferenceId, s.ReferenceName, s.RequestedQuantity, s.ReservedQuantity, s.ReferenceCode})
+                                        .DistinctBy(d=>d.ReferenceId).OrderBy(o => o.ReferenceName))
             {
                 reportReferences.Add(new ReferenceMovementViewModel.Reference
                 {
                     ReferenceName = reference.ReferenceName,
-                    RequestedQuantity = reference.OrderedQuantity,
+                    RequestedQuantity = reference.RequestedQuantity,
                     ReservedQuantity = reference.ReservedQuantity,
-                    ReferenceCode = reference.ReferenceCode,                    
+                    ReferenceCode = reference.ReferenceCode,
                     Warehouses = (await GetWarehousesByReferenceIdAsync(reference.ReferenceId, ct)).ToList()
 
                 }); ;
@@ -145,15 +144,14 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
         {
             var warehouses = new List<ReferenceMovementViewModel.Warehouse>();
 
-            var referenceWarehouses = await ReferencesWarehouseService.GetByReferenceIdAsync(referenceId, ct);
-
-            foreach (var warehouse in referenceWarehouses.OrderBy(o=>o.Warehouse.WarehouseName))
+            foreach (var warehouse in DataReport.Where(w=>w.ReferenceId==referenceId).Select(s=>new { s.WarehouseId, s.Amount, s.WarehouseName})
+                                        .DistinctBy(d=>d.WarehouseId).OrderBy(o => o.WarehouseName))
             {
                 warehouses.Add(new ReferenceMovementViewModel.Warehouse
                 {
                     WarehouseId = warehouse.WarehouseId,
-                    Amount = warehouse.Quantity,
-                    WarehouseName = warehouse.Warehouse.WarehouseName,
+                    Amount = warehouse.Amount,
+                    WarehouseName = warehouse.WarehouseName,
                 });
 
             }

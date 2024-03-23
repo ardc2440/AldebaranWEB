@@ -1688,8 +1688,8 @@ CREATE OR ALTER PROCEDURE SP_GET_INVENTORY_ADJUSTMENT_REPORT
 AS
 BEGIN
 	SELECT a.ADJUSTMENT_ID AdjustmentId, a.ADJUSTMENT_DATE AdjustmentDate, a.CREATION_DATE CreationDate, b.ADJUSTMENT_TYPE_NAME AdjustmentType, c.ADJUSTMENT_REASON_NAME AdjustmentReason, 
-		   d.FULL_NAME Employee, ISNULL(a.Notes, '') Notes, f.WAREHOUSE_ID WarehouseId, f.WAREHOUSE_NAME WarehouseName, i.LINE_CODE LineCode, i.LINE_NAME LineName, h.INTERNAL_REFERENCE InternalReference, 
-		   h.ITEM_NAME ItemName, g.REFERENCE_CODE ReferenceCode, g.REFERENCE_NAME ReferenceName, e.QUANTITY AvailableAmount
+		   d.FULL_NAME Employee, ISNULL(a.Notes, '') Notes, f.WAREHOUSE_ID WarehouseId, f.WAREHOUSE_NAME WarehouseName, i.LINE_ID LineId, i.LINE_CODE LineCode, i.LINE_NAME LineName, h.ITEM_ID ItemId, 
+		   h.INTERNAL_REFERENCE InternalReference, h.ITEM_NAME ItemName, g.REFERENCE_ID ReferenceId, g.REFERENCE_CODE ReferenceCode, g.REFERENCE_NAME ReferenceName, e.QUANTITY AvailableAmount
 	  FROM Adjustments a
 	  JOIN adjustment_types b ON b.ADJUSTMENT_TYPE_ID = a.ADJUSTMENT_TYPE_ID 
 	  JOIN adjustment_reasons c on c.ADJUSTMENT_REASON_ID = a.ADJUSTMENT_REASON_ID
@@ -1706,8 +1706,8 @@ GO
 CREATE OR ALTER PROCEDURE SP_GET_IN_PROCESS_INVENTORY_REPORT
 AS
 BEGIN
-	SELECT l.LINE_CODE LineCode, l.LINE_NAME LineName, i.INTERNAL_REFERENCE InternalReference, i.ITEM_NAME ItemName, r.REFERENCE_NAME ReferenceName, r.WORK_IN_PROCESS_QUANTITY InProcessAmount,
-		   w.WAREHOUSE_ID WarehouseId, w.WAREHOUSE_NAME WarehouseName, rw.QUANTITY Amount
+	SELECT l.LINE_ID LineId, l.LINE_CODE LineCode, l.LINE_NAME LineName, i.ITEM_ID ItemId, i.INTERNAL_REFERENCE InternalReference, i.ITEM_NAME ItemName, r.REFERENCE_ID ReferenceId, r.REFERENCE_NAME ReferenceName, 
+		   r.WORK_IN_PROCESS_QUANTITY InProcessAmount, w.WAREHOUSE_ID WarehouseId, w.WAREHOUSE_NAME WarehouseName, rw.QUANTITY Amount
 	  FROM Lines l
 	  JOIN Items i ON I.LINE_ID = l.LINE_ID
 	  JOIN item_references r ON r.ITEM_ID = i.ITEM_ID
@@ -1761,10 +1761,10 @@ CREATE OR ALTER PROCEDURE SP_GET_PROVIDER_REFERENCE_REPORT
 AS
 BEGIN
 
-	SELECT a.PROVIDER_ID ProviderId, a.PROVIDER_CODE PoviderCode, a.PROVIDER_NAME ProviderName, a.PROVIDER_ADDRESS ProviderAddress, a.PHONE, a.FAX, a.EMAIL, a.CONTACT_PERSON ContactPerson,
+	SELECT a.PROVIDER_ID ProviderId, a.PROVIDER_CODE ProviderCode, a.PROVIDER_NAME ProviderName, a.PROVIDER_ADDRESS ProviderAddress, a.PHONE, a.FAX, a.EMAIL, a.CONTACT_PERSON ContactPerson,
 		   e.LINE_ID LineId, e.LINE_CODE LineCode, e.LINE_NAME LineName, d.ITEM_ID ItemId, d.INTERNAL_REFERENCE InternalReference, d.ITEM_NAME ItemName, c.REFERENCE_ID ReferenceId,
-		   c.REFERENCE_CODE ReferenceCode, c.REFERENCE_NAME ReferenceName, C.PROVIDER_REFERENCE_NAME ProviderReferenceName, c.ORDERED_QUANTITY ConfirmedAmount, c.RESERVED_QUANTITY ReservedAmount,
-		   c.INVENTORY_QUANTITY AvailableAmount, f.QUANTITY Amount, g.WAREHOUSE_ID, g.WAREHOUSE_NAME 
+		   c.REFERENCE_CODE ReferenceCode, c.REFERENCE_NAME ReferenceName, ISNULL(C.PROVIDER_REFERENCE_NAME, '') ProviderReferenceName, c.ORDERED_QUANTITY ConfirmedAmount, c.RESERVED_QUANTITY ReservedAmount,
+		   c.INVENTORY_QUANTITY AvailableAmount, f.QUANTITY Amount, g.WAREHOUSE_ID WarehouseId, g.WAREHOUSE_NAME WarehouseName
 	  FROM providers a
 	  JOIN provider_references b ON b.PROVIDER_ID = a.PROVIDER_ID
 	  JOIN item_references c ON c.REFERENCE_ID = b.REFERENCE_ID 
@@ -1775,5 +1775,34 @@ BEGIN
 	 ORDER BY a.PROVIDER_ID
 
 END
+GO
+
+CREATE OR ALTER PROCEDURE SP_GET_REFERENCE_MOVEMENT_REPORT
+AS
+BEGIN	
+	SELECT c.LINE_ID LineId, c.LINE_CODE LineCode, c.LINE_NAME LineName, b.ITEM_ID ItemId, b.INTERNAL_REFERENCE InternalReference, b.ITEM_NAME ItemName, a.REFERENCE_ID ReferenceId, 
+		   a.REFERENCE_CODE ReferenceCode, a.REFERENCE_NAME ReferenceName, a.RESERVED_QUANTITY ReservedQuantity, a.ORDERED_QUANTITY RequestedQuantity, e.WAREHOUSE_ID WarehouseId,
+		   e.WAREHOUSE_NAME, d.QUANTITY Amount
+	  FROM item_references a
+	  JOIN items b ON b.ITEM_ID = a.ITEM_ID AND b.IS_EXTERNAL_INVENTORY = 1 and b.IS_ACTIVE = 1
+	  JOIN lines c ON c.LINE_ID = b.LINE_ID
+	  JOIN references_warehouse d ON d.REFERENCE_ID = a.REFERENCE_ID
+	  JOIN warehouses e ON e.WAREHOUSE_ID = d.WAREHOUSE_ID
+	 WHERE a.IS_ACTIVE = 1
+END 
+GO
+
+CREATE OR ALTER PROCEDURE SP_GET_WAREHOUSE_STOCK_REPORT
+AS
+BEGIN	
+	SELECT b.WAREHOUSE_ID WarehouseId, b.WAREHOUSE_NAME WarehouseName, e.LINE_ID LineId, e.LINE_CODE LineCode, e.LINE_NAME LineName, d.ITEM_ID ItemId, d.INTERNAL_REFERENCE InternalReference, 
+		   d.ITEM_NAME ItemName, c.REFERENCE_ID ReferenceId, c.REFERENCE_CODE ReferenceCode, c.REFERENCE_NAME ReferenceName, ISNULL(c.PROVIDER_REFERENCE_NAME, '') ProviderReferenceName, 
+		   a.QUANTITY AvailableAmount
+	  FROM references_warehouse a
+	  JOIN warehouses b ON b.WAREHOUSE_ID = a.WAREHOUSE_ID
+	  JOIN item_references c ON c.REFERENCE_ID = a.REFERENCE_ID AND c.IS_ACTIVE = 1
+	  JOIN items d ON d.ITEM_ID = c.ITEM_ID and d.IS_ACTIVE = 1
+	  JOIN lines e ON e.LINE_ID = d.LINE_ID	  
+END 
 GO
 

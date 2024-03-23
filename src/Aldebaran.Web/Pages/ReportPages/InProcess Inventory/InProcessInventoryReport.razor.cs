@@ -94,47 +94,47 @@ namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
         {
             var lines = new List<InProcessInventoryViewModel.Line>();
 
-            foreach (var line in DataReport.Select(s => new { s.LineName, s.LineCode }).DistinctBy(d => d.LineCode))
+            foreach (var line in DataReport.Select(s => new { s.LineId, s.LineName, s.LineCode }).DistinctBy(d => d.LineId))
             {
                 lines.Add(new InProcessInventoryViewModel.Line
                 {
                     LineName = line.LineName,
                     LineCode = line.LineCode,
-                    Items = (await GetReportItemsByLineIdAsync(line.LineCode, ct)).ToList()
+                    Items = (await GetReportItemsByLineIdAsync(line.LineId, ct)).ToList()
                 });
             }
 
             return lines;
         }
 
-        protected async Task<List<InProcessInventoryViewModel.Item>> GetReportItemsByLineIdAsync(string lineCode, CancellationToken ct = default)
+        protected async Task<List<InProcessInventoryViewModel.Item>> GetReportItemsByLineIdAsync(short lineId, CancellationToken ct = default)
         {
             var items = new List<InProcessInventoryViewModel.Item>();
 
-            foreach (var item in DataReport.Where(w=>w.LineCode.Equals(lineCode)).Select(s=>new { s.InternalReference, s.ItemName}).DistinctBy(d=>d.ItemName))
+            foreach (var item in DataReport.Where(w=>w.LineId == lineId).Select(s=>new { s.ItemId, s.InternalReference, s.ItemName}).DistinctBy(d=>d.ItemId))
             {
                 items.Add(new InProcessInventoryViewModel.Item
                 {
                     InternalReference = item.InternalReference,
                     ItemName = item.ItemName,
-                    References = (await GetReferencesByItemIdAsync(item.ItemName, ct)).ToList()
+                    References = (await GetReferencesByItemIdAsync(item.ItemId, ct)).ToList()
                 });
             }
 
             return items;
         }
 
-        protected async Task<List<InProcessInventoryViewModel.Reference>> GetReferencesByItemIdAsync(string itemName, CancellationToken ct = default)
+        protected async Task<List<InProcessInventoryViewModel.Reference>> GetReferencesByItemIdAsync(int itemId, CancellationToken ct = default)
         {
             var reportReferences = new List<InProcessInventoryViewModel.Reference>();
 
-            foreach (var reference in DataReport.Where(w => w.ItemName.Equals(itemName)).Select(s=> new { s.ReferenceName, s.InProcessAmount}).DistinctBy(d=>d.ReferenceName).OrderBy(o => o.ReferenceName))
+            foreach (var reference in DataReport.Where(w => w.ItemId == itemId).Select(s=> new { s.ReferenceId, s.ReferenceName, s.InProcessAmount}).DistinctBy(d=>d.ReferenceId).OrderBy(o => o.ReferenceName))
             {
                 reportReferences.Add(new InProcessInventoryViewModel.Reference
                 {
                     ReferenceName = reference.ReferenceName,
                     InProcessAmount = reference.InProcessAmount,
-                    Warehouses = (await GetWarehousesByReferenceIdAsync(reference.ReferenceName, ct)).ToList()
+                    Warehouses = (await GetWarehousesByReferenceIdAsync(reference.ReferenceId, ct)).ToList()
 
                 }); ;
             }
@@ -142,11 +142,11 @@ namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
             return reportReferences;
         }
 
-        protected async Task<List<InProcessInventoryViewModel.Warehouse>> GetWarehousesByReferenceIdAsync(string referenceName, CancellationToken ct = default)
+        protected async Task<List<InProcessInventoryViewModel.Warehouse>> GetWarehousesByReferenceIdAsync(int referenceId, CancellationToken ct = default)
         {
             var warehouses = new List<InProcessInventoryViewModel.Warehouse>();
 
-            foreach (var warehouse in DataReport.Where(w=>w.ReferenceName.Equals(referenceName)).Select(s=>new { s.WarehouseId, s.WarehouseName, s.Amount}).OrderBy(o=>o.WarehouseName))
+            foreach (var warehouse in DataReport.Where(w=>w.ReferenceId == referenceId).Select(s=>new { s.WarehouseId, s.WarehouseName, s.Amount}).OrderBy(o=>o.WarehouseName))
             {
                 warehouses.Add(new InProcessInventoryViewModel.Warehouse
                 {
