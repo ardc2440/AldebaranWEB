@@ -239,6 +239,7 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IWarehouseStockReportRepository, WarehouseStockReportRepository>();
             services.AddTransient<ICustomerOrderReportRepository, CustomerOrderReportRepository>();
             services.AddTransient<ICustomerReservationReportRepository, CustomerReservationReportRepository>();
+            services.AddTransient<IOrderShipmentReportRepository, OrderShipmentReportRepository>();
 
             #endregion
             // Services
@@ -318,6 +319,7 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IWarehouseStockReportService, WarehouseStockReportService>();
             services.AddTransient<ICustomerOrderReportService, CustomerOrderReportService>();
             services.AddTransient<ICustomerReservationReportService, CustomerReservationReportService>();
+            services.AddTransient<IOrderShipmentReportService, OrderShipmentReportService>();
 
             #endregion
             services.AddTransient<IQueue, RabbitQueue>();

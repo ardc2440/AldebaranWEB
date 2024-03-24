@@ -1918,3 +1918,29 @@ BEGIN
 END 
 GO
 
+CREATE OR ALTER PROCEDURE SP_GET_ORDER_SHIPMENT_REPORT
+AS 
+BEGIN 
+	SELECT a.PURCHASE_ORDER_ID OrderId, a.ORDER_NUMBER OrderNumber, a.CREATION_DATE CreationDate, a.REQUEST_DATE RequestDate, a.EXPECTED_RECEIPT_DATE ExpectedReceiptDate, c.PROVIDER_NAME ProviderName,  
+	       ISNULL(a.IMPORT_NUMBER, '') ImportNumber, e.SHIPMENT_METHOD_NAME ShipmentMethodName, a.EMBARKATION_PORT EmbarkationPort, a.PROFORMA_NUMBER ProformaNumber, g.FORWARDER_NAME ForwarderName, 
+		   (ISNULL(g.PHONE2+', ','')+ISNULL(g.PHONE1,'')) ForwarderPhone, g.FAX ForwarderFax, SUBSTRING(RTRIM((ISNULL(g.MAIL1+', ','')+ISNULL(g.MAIL2+', ',''))),1,LEN(RTRIM((ISNULL(g.MAIL1+', ','')+ISNULL(g.MAIL2+', ',''))))-1) ForwarderEmail,
+		   f.FORWARDER_AGENT_NAME ForwarderAgentName, (ISNULL(f.PHONE2+', ','')+ISNULL(f.PHONE1,'')) AgentPhone, f.FAX AgentFax, 
+		   SUBSTRING(RTRIM((ISNULL(f.EMAIL1+', ','')+ISNULL(f.EMAIL2+', ',''))),1,LEN(RTRIM((ISNULL(g.MAIL1+', ','')+ISNULL(g.MAIL2+', ',''))))-1) AgentEmail, 
+		   i.WAREHOUSE_ID WarehouseId, i.WAREHOUSE_NAME WarehouseName, l.LINE_ID LineId, l.LINE_CODE LineCode, l.LINE_NAME LineName, k.ITEM_ID ItemId, k.ITEM_NAME ItemName, k.INTERNAL_REFERENCE InternalReference, 
+		   j.REFERENCE_CODE ReferenceCode, j.REFERENCE_NAME ReferenceName, h.REQUESTED_QUANTITY Amount, k.WEIGHT * h.REQUESTED_QUANTITY Weigth, k.VOLUME * h.REQUESTED_QUANTITY Volume
+	  FROM purchase_orders a
+	  JOIN status_document_types b ON b.STATUS_DOCUMENT_TYPE_ID = a.STATUS_DOCUMENT_TYPE_ID
+	  JOIN providers c ON c.PROVIDER_ID = a.PROVIDER_ID
+	  JOIN shipment_forwarder_agent_methods d ON d.SHIPMENT_FORWARDER_AGENT_METHOD_ID = a.SHIPMENT_FORWARDER_AGENT_METHOD_ID
+      JOIN shipment_methods e ON e.SHIPMENT_METHOD_ID = d.SHIPMENT_METHOD_ID
+	  JOIN forwarder_agents f ON f.FORWARDER_AGENT_ID = a.FORWARDER_AGENT_ID
+	  JOIN forwarders g ON g.FORWARDER_ID = f.FORWARDER_ID
+	  JOIN purchase_order_details h ON h.PURCHASE_ORDER_ID = a.PURCHASE_ORDER_ID
+	  JOIN warehouses i ON i.WAREHOUSE_ID = h.WAREHOUSE_ID
+	  JOIN item_references j ON j.REFERENCE_ID = h.REFERENCE_ID
+	  JOIN items k ON k.ITEM_ID = j.ITEM_ID
+	  JOIN lines l ON l.LINE_ID = k.LINE_ID
+     WHERE b.STATUS_ORDER = 1
+END 
+GO
+

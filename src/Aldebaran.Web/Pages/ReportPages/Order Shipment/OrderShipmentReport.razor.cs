@@ -1,6 +1,9 @@
-﻿using Aldebaran.Web.Pages.ReportPages.Order_Shipment.Components;
+﻿using Aldebaran.Application.Services;
+using Aldebaran.Web.Pages.ReportPages.Order_Shipment.Components;
 using Aldebaran.Web.Pages.ReportPages.Order_Shipment.ViewModel;
+using DocumentFormat.OpenXml.ExtendedProperties;
 using Microsoft.AspNetCore.Components;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.JSInterop;
 using Radzen;
 
@@ -20,307 +23,27 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment
 
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
+
+        [Inject]
+        protected IOrderShipmentReportService OrderShipmentReportService { get; set; }
         #endregion
 
         #region Variables
         protected OrderShipmentFilter Filter;
         protected OrderShipmentViewModel ViewModel;
         private bool IsBusy = false;
+
+        private IEnumerable<Application.Services.Models.OrderShipmentReport> DataReport { get; set; }
         #endregion
 
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
+            DataReport = await OrderShipmentReportService.GetOrderShipmentReportDataAsync();
+
             ViewModel = new OrderShipmentViewModel()
             {
-                Orders = new List<OrderShipmentViewModel.Order>
-                {
-                    new OrderShipmentViewModel.Order
-                    {
-                        OrderNumber="14457",
-                        CreationDate = DateTime.Now,
-                        RequestDate = DateTime.Now,
-                        ExpectedReceiptDate = DateTime.Now,
-                        RealReceiptDate = DateTime.Now,
-                        ProviderName = "JLinG",
-                        Forwarder = new OrderShipmentViewModel.Forwarder
-                        {
-                            ForwarderName = "DHL",
-                            Phone ="3214668850",
-                            Fax="24353134",
-                            Email="info@dhl.com"
-                        },
-                        ForwarderAgent = new OrderShipmentViewModel.ForwarderAgent
-                        {
-                            ForwarderAgentName = "Javier Linares",
-                            Phone = "3168849474",
-                            Fax="546573157",
-                            Email="javierl@dhl.com"
-                        },
-                        ImportNumber="13245636",
-                        ShipmentMethodName="Transporte Aéreo",
-                        EmbarkationPort="Xiamen",
-                        ProformaNumber="TUMP-5033+5045/19",
-                        ArrivalWarehouse = "Local",
-                        Lines = new List<OrderShipmentViewModel.Line>
-                                {
-                                    new OrderShipmentViewModel.Line
-                                    {
-                                        LineCode="001",
-                                        LineName = "Importados",
-                                        Items = new List<OrderShipmentViewModel.Item>
-                                        {
-                                            new OrderShipmentViewModel.Item
-                                            {
-                                                InternalReference ="00110-01",
-                                                ItemName="HOT PORTAMINA",
-                                                References = new List<OrderShipmentViewModel.Reference>
-                                                {
-                                                    new OrderShipmentViewModel.Reference
-                                                    {
-                                                        ReferenceCode="00001",
-                                                        ReferenceName="Blanco",
-                                                        Amount=200,
-                                                        Volume=0,
-                                                        Weight=200,
-                                                    },
-                                                    new OrderShipmentViewModel.Reference
-                                                    {
-                                                        ReferenceCode="00002",
-                                                        ReferenceName="Rojo",
-                                                        Amount=180,
-                                                        Volume=120,
-                                                        Weight=3500,
-                                                    },
-                                                    new OrderShipmentViewModel.Reference
-                                                    {
-                                                        ReferenceCode="00003",
-                                                        ReferenceName="Verde",
-                                                        Amount=180,
-                                                        Volume=546,
-                                                        Weight=0,
-                                                    },
-                                                    new OrderShipmentViewModel.Reference
-                                                    {
-                                                        ReferenceCode="00004",
-                                                        ReferenceName="Amarillo",
-                                                        Amount=180,
-                                                        Volume=483,
-                                                        Weight=789,
-                                                    },
-                                                    new OrderShipmentViewModel.Reference
-                                                    {
-                                                        ReferenceCode="00005",
-                                                        ReferenceName="Negro",
-                                                        Amount=180,
-                                                        Volume=0,
-                                                        Weight=0,
-                                                    },
-                                                    new OrderShipmentViewModel.Reference
-                                                    {
-                                                        ReferenceCode="00006",
-                                                        ReferenceName="Naranja",
-                                                        Amount=180,
-                                                        Volume=23452,
-                                                        Weight=4567,
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                    },
-                    new OrderShipmentViewModel.Order
-                    {
-                        OrderNumber="14457",
-                        CreationDate = DateTime.Now,
-                        RequestDate = DateTime.Now,
-                        ExpectedReceiptDate = DateTime.Now,
-                        RealReceiptDate = DateTime.Now,
-                        ProviderName = "JLinG",
-                        Forwarder = new OrderShipmentViewModel.Forwarder
-                        {
-                            ForwarderName = "DHL",
-                            Phone ="3214668850",
-                            Fax="24353134",
-                            Email="info@dhl.com"
-                        },
-                        ForwarderAgent = new OrderShipmentViewModel.ForwarderAgent
-                        {
-                            ForwarderAgentName = "Javier Linares",
-                            Phone = "3168849474",
-                            Fax="546573157",
-                            Email="javierl@dhl.com"
-                        },
-                        ImportNumber="13245636",
-                        ShipmentMethodName="Transporte Aéreo",
-                        EmbarkationPort="Xiamen",
-                        ProformaNumber="TUMP-5033+5045/19",
-                        ArrivalWarehouse = "Zona Franca",
-                        Lines = new List<OrderShipmentViewModel.Line>
-                                {
-                                    new OrderShipmentViewModel.Line
-                                    {
-                                        LineCode="001",
-                                        LineName = "Importados",
-                                        Items = new List<OrderShipmentViewModel.Item>
-                                        {
-                                            new OrderShipmentViewModel.Item
-                                            {
-                                                InternalReference ="00110-01",
-                                                ItemName="HOT PORTAMINA",
-                                                References = new List<OrderShipmentViewModel.Reference>
-                                                {
-                                                    new OrderShipmentViewModel.Reference
-                                                    {
-                                                        ReferenceCode="00001",
-                                                        ReferenceName="Blanco",
-                                                        Amount=200,
-                                                        Volume=0,
-                                                        Weight=200,
-                                                    },
-                                                    new OrderShipmentViewModel.Reference
-                                                    {
-                                                        ReferenceCode="00002",
-                                                        ReferenceName="Rojo",
-                                                        Amount=180,
-                                                        Volume=120,
-                                                        Weight=3500,
-                                                    },
-                                                    new OrderShipmentViewModel.Reference
-                                                    {
-                                                        ReferenceCode="00003",
-                                                        ReferenceName="Verde",
-                                                        Amount=180,
-                                                        Volume=546,
-                                                        Weight=0,
-                                                    },
-                                                    new OrderShipmentViewModel.Reference
-                                                    {
-                                                        ReferenceCode="00004",
-                                                        ReferenceName="Amarillo",
-                                                        Amount=180,
-                                                        Volume=483,
-                                                        Weight=789,
-                                                    },
-                                                    new OrderShipmentViewModel.Reference
-                                                    {
-                                                        ReferenceCode="00005",
-                                                        ReferenceName="Negro",
-                                                        Amount=180,
-                                                        Volume=0,
-                                                        Weight=0,
-                                                    },
-                                                    new OrderShipmentViewModel.Reference
-                                                    {
-                                                        ReferenceCode="00006",
-                                                        ReferenceName="Naranja",
-                                                        Amount=180,
-                                                        Volume=23452,
-                                                        Weight=4567,
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                    },
-                    new OrderShipmentViewModel.Order
-                    {
-                        OrderNumber="14457",
-                        CreationDate = DateTime.Now,
-                        RequestDate = DateTime.Now,
-                        ExpectedReceiptDate = DateTime.Now,
-                        RealReceiptDate = DateTime.Now,
-                        ProviderName = "JLinG",
-                        Forwarder = new OrderShipmentViewModel.Forwarder
-                        {
-                            ForwarderName = "DHL",
-                            Phone ="3214668850",
-                            Fax="24353134",
-                            Email="info@dhl.com"
-                        },
-                        ForwarderAgent = new OrderShipmentViewModel.ForwarderAgent
-                        {
-                            ForwarderAgentName = "Javier Linares",
-                            Phone = "3168849474",
-                            Fax="546573157",
-                            Email="javierl@dhl.com"
-                        },
-                        ImportNumber="13245636",
-                        ShipmentMethodName="Transporte Aéreo",
-                        EmbarkationPort="Xiamen",
-                        ProformaNumber="TUMP-5033+5045/19",
-                        ArrivalWarehouse = "Local",
-                        Lines = new List<OrderShipmentViewModel.Line>
-                                {
-                                    new OrderShipmentViewModel.Line
-                                    {
-                                        LineCode="001",
-                                        LineName = "Importados",
-                                        Items = new List<OrderShipmentViewModel.Item>
-                                        {
-                                            new OrderShipmentViewModel.Item
-                                            {
-                                                InternalReference ="00110-01",
-                                                ItemName="HOT PORTAMINA",
-                                                References = new List<OrderShipmentViewModel.Reference>
-                                                {
-                                                    new OrderShipmentViewModel.Reference
-                                                    {
-                                                        ReferenceCode="00001",
-                                                        ReferenceName="Blanco",
-                                                        Amount=200,
-                                                        Volume=0,
-                                                        Weight=200,
-                                                    },
-                                                    new OrderShipmentViewModel.Reference
-                                                    {
-                                                        ReferenceCode="00002",
-                                                        ReferenceName="Rojo",
-                                                        Amount=180,
-                                                        Volume=120,
-                                                        Weight=3500,
-                                                    },
-                                                    new OrderShipmentViewModel.Reference
-                                                    {
-                                                        ReferenceCode="00003",
-                                                        ReferenceName="Verde",
-                                                        Amount=180,
-                                                        Volume=546,
-                                                        Weight=0,
-                                                    },
-                                                    new OrderShipmentViewModel.Reference
-                                                    {
-                                                        ReferenceCode="00004",
-                                                        ReferenceName="Amarillo",
-                                                        Amount=180,
-                                                        Volume=483,
-                                                        Weight=789,
-                                                    },
-                                                    new OrderShipmentViewModel.Reference
-                                                    {
-                                                        ReferenceCode="00005",
-                                                        ReferenceName="Negro",
-                                                        Amount=180,
-                                                        Volume=0,
-                                                        Weight=0,
-                                                    },
-                                                    new OrderShipmentViewModel.Reference
-                                                    {
-                                                        ReferenceCode="00006",
-                                                        ReferenceName="Naranja",
-                                                        Amount=180,
-                                                        Volume=23452,
-                                                        Weight=4567,
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                    }
-                }
+                Orders = await GetOrdersAsync()
             };
         }
         #endregion
@@ -356,6 +79,127 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment
         {
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink");
         }
+        #endregion
+
+        #region Fill Data Report
+
+        async Task<List<OrderShipmentViewModel.Order>> GetOrdersAsync(CancellationToken ct = default)
+        {
+            var orders = new List<OrderShipmentViewModel.Order>();
+
+            foreach (var order in DataReport.Select(s => new { s.OrderId, s.OrderNumber, s.CreationDate, s.RequestDate, s.ExpectedReceiptDate, s.RealReceiptDate, s.ProviderName, s.ImportNumber, s.ShipmentMethodName, s.EmbarkationPort, s.ProformaNumber, s.ArrivalWarehouse, s.ForwarderName, s.ForwarderEmail, s.ForwarderFax, s.ForwarderPhone, s.ForwarderAgentName, s.AgentPhone, s.AgentFax, s.AgentEmail })
+                                    .DistinctBy(d => d.OrderId)
+                                    .OrderBy(o => o.OrderNumber))
+            {
+                orders.Add(new OrderShipmentViewModel.Order
+                {
+                    OrderNumber = order.OrderNumber,
+                    CreationDate = order.CreationDate,
+                    RequestDate = order.RequestDate,
+                    ExpectedReceiptDate = order.ExpectedReceiptDate,
+                    ProviderName = order.ProviderName,
+                    Forwarder = new OrderShipmentViewModel.Forwarder
+                    {
+                        ForwarderName = order.ForwarderName,
+                        Phone = order.ForwarderPhone,
+                        Fax = order.ForwarderFax,
+                        Email = order.ForwarderEmail
+                    },
+                    ForwarderAgent = new OrderShipmentViewModel.ForwarderAgent
+                    {
+                        ForwarderAgentName = order.ForwarderAgentName,
+                        Phone = order.AgentPhone,
+                        Fax = order.AgentFax,
+                        Email = order.AgentEmail
+                    },
+                    ImportNumber = order.ImportNumber,
+                    ShipmentMethodName = order.ShipmentMethodName,
+                    EmbarkationPort = order.EmbarkationPort,
+                    ProformaNumber = order.ProformaNumber,
+                    Warehouses = await GetOrderWarehousesAsync(order.OrderId, ct)
+                });
+            }
+
+            return orders;
+        }
+
+        async Task<List<OrderShipmentViewModel.Warehouse>> GetOrderWarehousesAsync(int orderId, CancellationToken ct = default)
+        {
+            var warehouses = new List<OrderShipmentViewModel.Warehouse>();
+
+            foreach (var warehouse in DataReport.Where(w => w.OrderId == orderId).Select(s => new { s.WarehouseId, s.WarehouseName })
+                                        .DistinctBy(d => d.WarehouseId)
+                                        .OrderBy(o => o.WarehouseName))
+            {
+                warehouses.Add(new OrderShipmentViewModel.Warehouse
+                {
+                    WarehouseId = warehouse.WarehouseId,
+                    WarehouseName = warehouse.WarehouseName,
+                    Lines = await GetOrderLinesAsync(orderId, warehouse.WarehouseId, ct)
+                });
+            }
+
+            return warehouses;
+        }
+
+        async Task<List<OrderShipmentViewModel.Line>> GetOrderLinesAsync(int orderId, short warehouseId, CancellationToken ct = default)
+        {
+            var lines = new List<OrderShipmentViewModel.Line>();
+
+            foreach (var line in DataReport.Where(w => w.OrderId == orderId && w.WarehouseId == warehouseId).Select(s => new { s.LineId, s.LineName, s.LineCode })
+                                    .DistinctBy(d => d.LineId)
+                                    .OrderBy(o => o.LineName))
+            {
+                lines.Add(new OrderShipmentViewModel.Line
+                {
+                    LineName = line.LineName,
+                    LineCode = line.LineCode,
+                    Items = await GetLineItemsAsync(orderId, line.LineId, ct)
+                });
+            }
+
+            return lines;
+        }
+
+        async Task<List<OrderShipmentViewModel.Item>> GetLineItemsAsync(int orderId, int lineId, CancellationToken ct = default)
+        {
+            var items = new List<OrderShipmentViewModel.Item>();
+
+            foreach (var item in DataReport.Where(w => w.OrderId == orderId && w.LineId == lineId).Select(s => new { s.ItemId, s.ItemName, s.InternalReference })
+                                    .DistinctBy(d => d.ItemId)
+                                    .OrderBy(o => o.ItemName))
+            {
+                items.Add(new OrderShipmentViewModel.Item
+                {
+                    InternalReference = item.InternalReference,
+                    ItemName = item.ItemName,
+                    References = await GetItemReferencesAsync(orderId, item.ItemId, ct)
+                });
+            }
+
+            return items;
+        }
+
+        async Task<List<OrderShipmentViewModel.Reference>> GetItemReferencesAsync(int orderId, int itemId, CancellationToken ct = default)
+        {
+            var references = new List<OrderShipmentViewModel.Reference>();
+
+            foreach (var reference in DataReport.Where(w => w.OrderId == orderId && w.ItemId == itemId).Select(s => new { s.ReferenceCode, s.ReferenceName, s.Amount, s.Volume, s.Weight })
+                                            .OrderBy(o => o.ReferenceName))
+            {
+                references.Add(new OrderShipmentViewModel.Reference
+                {
+                    ReferenceCode = reference.ReferenceCode,
+                    ReferenceName = reference.ReferenceName,
+                    Amount = reference.Amount,
+                    Weight = reference.Weight,
+                    Volume = reference.Volume
+                });
+            }
+
+            return references;
+        }
+
         #endregion
     }
 }
