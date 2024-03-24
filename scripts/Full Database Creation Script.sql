@@ -1901,3 +1901,20 @@ BEGIN
 END 
 GO
 
+CREATE OR ALTER PROCEDURE SP_GET_CUSTOMER_RESERVATION_REPORT
+AS 
+BEGIN 
+
+	SELECT a.CUSTOMER_ID CustomerId, a.CUSTOMER_NAME CustomerName, (ISNULL(a.CELL_PHONE+', ','')+ISNULL(a.PHONE2+', ','')+ISNULL(a.PHONE1,'')) Phone, ISNULL(a.FAX,'') Fax,
+	       b.CUSTOMER_RESERVATION_ID ReservationId, b.RESERVATION_NUMBER ReservationNumber, b.CREATION_DATE CreationDate, b.RESERVATION_DATE ReservationDate, b.EXPIRATION_DATE ExpirationDate, c.STATUS_DOCUMENT_TYPE_NAME Status, ISNULL(b.NOTES,'') Notes,
+		   f.ITEM_ID ItemId, f.INTERNAL_REFERENCE InternalReference, f.ITEM_NAME ItemName, e.REFERENCE_CODE ReferenceCode, e.REFERENCE_NAME ReferenceName, d.RESERVED_QUANTITY Amount, 0.0 Price 
+	  FROM Customers a
+	  JOIN customer_reservations b on b.CUSTOMER_ID = a.CUSTOMER_ID
+	  JOIN status_document_types c ON c.STATUS_DOCUMENT_TYPE_ID = b.STATUS_DOCUMENT_TYPE_ID 
+	  JOIN customer_reservation_details d ON d.CUSTOMER_RESERVATION_ID = b.CUSTOMER_RESERVATION_ID
+	  JOIN item_references e ON e.REFERENCE_ID = d.REFERENCE_ID
+	  JOIN items f ON f.ITEM_ID = e.ITEM_ID
+
+END 
+GO
+

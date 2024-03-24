@@ -4,6 +4,7 @@ using Aldebaran.Web.Pages.ReportPages.Customer_Reservations.ViewModel;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Radzen;
+using static Aldebaran.Web.Pages.ReportPages.Customer_Reservations.ViewModel.CustomerReservationViewModel;
 
 namespace Aldebaran.Web.Pages.ReportPages.Customer_Reservations
 {
@@ -23,356 +24,24 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Reservations
         protected IJSRuntime JSRuntime { get; set; }
 
         [Inject]
-        protected IReferencesWarehouseService ReferencesWarehouseService { get; set; }
+        protected ICustomerReservationReportService CustomerReservationReportService { get; set; }
         #endregion
 
         #region Variables
         protected CustomerReservationFilter Filter;
         protected CustomerReservationViewModel ViewModel;
         private bool IsBusy = false;
+        private IEnumerable<Application.Services.Models.CustomerReservationReport> DataReport { get; set; }
         #endregion
 
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
+            DataReport = await CustomerReservationReportService.GetCustomerReservationReportDataAsync();
+
             ViewModel = new CustomerReservationViewModel
             {
-                Customers = new List<CustomerReservationViewModel.Customer> {
-                    new CustomerReservationViewModel.Customer {
-                        CustomerName = "Javier Linares",
-                        Phone = "3168849474",
-                        Fax = "12435643",
-                        Reservations = new List<CustomerReservationViewModel.Reservation>
-                        {
-                            new CustomerReservationViewModel.Reservation
-                            {
-                                CreationDate = DateTime.Now,
-                                ExpirationDate = DateTime.Now.AddDays(30),
-                                ReservationDate = DateTime.Now.AddDays(1),
-                                ReservationNumber = "0000018345",
-                                Status = "Vencida",
-                                Notes = "Atendido por Viviana Mora",
-                                Items = new List<CustomerReservationViewModel.Item>
-                                {
-                                    new CustomerReservationViewModel.Item
-                                    {
-                                        InternalReference="5000SM",
-                                        ItemName="GILDAN CAMISETA T-SHIRT",
-                                        References= new List<CustomerReservationViewModel.Reference>
-                                        {
-                                            new CustomerReservationViewModel.Reference
-                                            {
-                                                ReferenceCode="032",
-                                                ReferenceName="AZUL MARINO",
-                                                Amount=358,
-                                                Price=0
-                                            },
-                                            new CustomerReservationViewModel.Reference
-                                            {
-                                                ReferenceCode="027",
-                                                ReferenceName="Negro",
-                                                Amount=25,
-                                                Price=15024581
-                                            }
-                                        }
-                                    },
-                                    new CustomerReservationViewModel.Item
-                                    {
-                                        InternalReference="VA-316",
-                                        ItemName="Trolley Morral Backpack",
-                                        References= new List<CustomerReservationViewModel.Reference>
-                                        {
-                                            new CustomerReservationViewModel.Reference
-                                            {
-                                                ReferenceCode=null,
-                                                ReferenceName="Blanco",
-                                                Amount=2342,
-                                                Price=0
-                                            },
-                                            new CustomerReservationViewModel.Reference
-                                            {
-                                                ReferenceCode=string.Empty,
-                                                ReferenceName="Silver",
-                                                Amount=0,
-                                                Price=0
-                                            }
-                                        }
-                                    }
-                                }
-                            },
-                            new CustomerReservationViewModel.Reservation
-                            {
-                                CreationDate = DateTime.Now,
-                                ExpirationDate = DateTime.Now.AddDays(30),
-                                ReservationDate = DateTime.Now.AddDays(1),
-                                ReservationNumber = "0000018788",
-                                Status = "Anulada",
-                                Items = new List<CustomerReservationViewModel.Item>
-                                {
-                                    new CustomerReservationViewModel.Item
-                                    {
-                                        InternalReference="OF-97",
-                                        ItemName="Miniset de escritorio",
-                                        References= new List<CustomerReservationViewModel.Reference>
-                                        {
-                                            new CustomerReservationViewModel.Reference
-                                            {
-                                                ReferenceCode="877",
-                                                ReferenceName="Blanco transparente",
-                                                Amount=87,
-                                                Price=789445647
-                                            },
-                                            new CustomerReservationViewModel.Reference
-                                            {
-                                                ReferenceCode="027",
-                                                ReferenceName="Negro",
-                                                Amount=25,
-                                                Price=15024581
-                                            }
-                                        }
-                                    },
-                                    new CustomerReservationViewModel.Item
-                                    {
-                                        InternalReference="PM MU-63",
-                                        ItemName="Botilito de aluminio 400ml",
-                                        References= new List<CustomerReservationViewModel.Reference>
-                                        {
-                                            new CustomerReservationViewModel.Reference
-                                            {
-                                                ReferenceCode="877",
-                                                ReferenceName="Blanco transparente",
-                                                Amount=87,
-                                                Price=789445647
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    new CustomerReservationViewModel.Customer {
-                        CustomerName = "Andres Diaz",
-                        Phone = "3168849474",
-                        Fax = "12435643",
-                        Reservations = new List<CustomerReservationViewModel.Reservation>
-                        {
-                            new CustomerReservationViewModel.Reservation
-                            {
-                                CreationDate = DateTime.Now,
-                                ExpirationDate = DateTime.Now.AddDays(30),
-                                ReservationDate = DateTime.Now.AddDays(1),
-                                ReservationNumber = "0000018345",
-                                Status = "Vencida",
-                                Items = new List<CustomerReservationViewModel.Item>
-                                {
-                                    new CustomerReservationViewModel.Item
-                                    {
-                                        InternalReference="5000SM",
-                                        ItemName="GILDAN CAMISETA T-SHIRT",
-                                        References= new List<CustomerReservationViewModel.Reference>
-                                        {
-                                            new CustomerReservationViewModel.Reference
-                                            {
-                                                ReferenceCode="032",
-                                                ReferenceName="AZUL MARINO",
-                                                Amount=358,
-                                                Price=0
-                                            },
-                                            new CustomerReservationViewModel.Reference
-                                            {
-                                                ReferenceCode="027",
-                                                ReferenceName="Negro",
-                                                Amount=25,
-                                                Price=15024581
-                                            }
-                                        }
-                                    },
-                                    new CustomerReservationViewModel.Item
-                                    {
-                                        InternalReference="VA-316",
-                                        ItemName="Trolley Morral Backpack",
-                                        References= new List<CustomerReservationViewModel.Reference>
-                                        {
-                                            new CustomerReservationViewModel.Reference
-                                            {
-                                                ReferenceCode=null,
-                                                ReferenceName="Blanco",
-                                                Amount=2342,
-                                                Price=0
-                                            },
-                                            new CustomerReservationViewModel.Reference
-                                            {
-                                                ReferenceCode=string.Empty,
-                                                ReferenceName="Silver",
-                                                Amount=0,
-                                                Price=0
-                                            }
-                                        }
-                                    }
-                                }
-                            },
-                            new CustomerReservationViewModel.Reservation
-                            {
-                                CreationDate = DateTime.Now,
-                                ExpirationDate = DateTime.Now.AddDays(30),
-                                ReservationDate = DateTime.Now.AddDays(1),
-                                ReservationNumber = "0000018788",
-                                Status = "Anulada",
-                                Items = new List<CustomerReservationViewModel.Item>
-                                {
-                                    new CustomerReservationViewModel.Item
-                                    {
-                                        InternalReference="OF-97",
-                                        ItemName="Miniset de escritorio",
-                                        References= new List<CustomerReservationViewModel.Reference>
-                                        {
-                                            new CustomerReservationViewModel.Reference
-                                            {
-                                                ReferenceCode="877",
-                                                ReferenceName="Blanco transparente",
-                                                Amount=87,
-                                                Price=789445647
-                                            },
-                                            new CustomerReservationViewModel.Reference
-                                            {
-                                                ReferenceCode="027",
-                                                ReferenceName="Negro",
-                                                Amount=25,
-                                                Price=15024581
-                                            }
-                                        }
-                                    },
-                                    new CustomerReservationViewModel.Item
-                                    {
-                                        InternalReference="PM MU-63",
-                                        ItemName="Botilito de aluminio 400ml",
-                                        References= new List<CustomerReservationViewModel.Reference>
-                                        {
-                                            new CustomerReservationViewModel.Reference
-                                            {
-                                                ReferenceCode="877",
-                                                ReferenceName="Blanco transparente",
-                                                Amount=87,
-                                                Price=789445647
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    new CustomerReservationViewModel.Customer {
-                        CustomerName = "Claudia Ardila",
-                        Phone = "3168849474",
-                        Fax = "12435643",
-                        Reservations = new List<CustomerReservationViewModel.Reservation>
-                        {
-                            new CustomerReservationViewModel.Reservation
-                            {
-                                CreationDate = DateTime.Now,
-                                ExpirationDate = DateTime.Now.AddDays(30),
-                                ReservationDate = DateTime.Now.AddDays(1),
-                                ReservationNumber = "0000018345",
-                                Status = "Vencida",
-                                Items = new List<CustomerReservationViewModel.Item>
-                                {
-                                    new CustomerReservationViewModel.Item
-                                    {
-                                        InternalReference="5000SM",
-                                        ItemName="GILDAN CAMISETA T-SHIRT",
-                                        References= new List<CustomerReservationViewModel.Reference>
-                                        {
-                                            new CustomerReservationViewModel.Reference
-                                            {
-                                                ReferenceCode="032",
-                                                ReferenceName="AZUL MARINO",
-                                                Amount=358,
-                                                Price=0
-                                            },
-                                            new CustomerReservationViewModel.Reference
-                                            {
-                                                ReferenceCode="027",
-                                                ReferenceName="Negro",
-                                                Amount=25,
-                                                Price=15024581
-                                            }
-                                        }
-                                    },
-                                    new CustomerReservationViewModel.Item
-                                    {
-                                        InternalReference="VA-316",
-                                        ItemName="Trolley Morral Backpack",
-                                        References= new List<CustomerReservationViewModel.Reference>
-                                        {
-                                            new CustomerReservationViewModel.Reference
-                                            {
-                                                ReferenceCode=null,
-                                                ReferenceName="Blanco",
-                                                Amount=2342,
-                                                Price=0
-                                            },
-                                            new CustomerReservationViewModel.Reference
-                                            {
-                                                ReferenceCode=string.Empty,
-                                                ReferenceName="Silver",
-                                                Amount=0,
-                                                Price=0
-                                            }
-                                        }
-                                    }
-                                }
-                            },
-                            new CustomerReservationViewModel.Reservation
-                            {
-                                CreationDate = DateTime.Now,
-                                ExpirationDate = DateTime.Now.AddDays(30),
-                                ReservationDate = DateTime.Now.AddDays(1),
-                                ReservationNumber = "0000018788",
-                                Status = "Anulada",
-                                Items = new List<CustomerReservationViewModel.Item>
-                                {
-                                    new CustomerReservationViewModel.Item
-                                    {
-                                        InternalReference="OF-97",
-                                        ItemName="Miniset de escritorio",
-                                        References= new List<CustomerReservationViewModel.Reference>
-                                        {
-                                            new CustomerReservationViewModel.Reference
-                                            {
-                                                ReferenceCode="877",
-                                                ReferenceName="Blanco transparente",
-                                                Amount=87,
-                                                Price=789445647
-                                            },
-                                            new CustomerReservationViewModel.Reference
-                                            {
-                                                ReferenceCode="027",
-                                                ReferenceName="Negro",
-                                                Amount=25,
-                                                Price=15024581
-                                            }
-                                        }
-                                    },
-                                    new CustomerReservationViewModel.Item
-                                    {
-                                        InternalReference="PM MU-63",
-                                        ItemName="Botilito de aluminio 400ml",
-                                        References= new List<CustomerReservationViewModel.Reference>
-                                        {
-                                            new CustomerReservationViewModel.Reference
-                                            {
-                                                ReferenceCode="877",
-                                                ReferenceName="Blanco transparente",
-                                                Amount=87,
-                                                Price=789445647
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                Customers = await GetCustomersAsync()
             };
         }
         #endregion
@@ -408,6 +77,92 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Reservations
         {
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink");
         }
+        #endregion
+
+        #region Fill Data Report
+
+        async Task<List<Customer>> GetCustomersAsync(CancellationToken ct = default)
+        {
+            var customers = new List<Customer>();
+
+            foreach (var customer in DataReport.Select(s => new { s.CustomerId, s.CustomerName, s.Phone, s.Fax })
+                                        .DistinctBy(d => d.CustomerId)
+                                        .OrderBy(o => o.CustomerName))
+            {
+                customers.Add(new Customer
+                {
+                    CustomerName = customer.CustomerName,
+                    Fax = customer.Fax,
+                    Phone = customer.Phone,
+                    Reservations = await GetCustomerReservationsAsync(customer.CustomerId, ct)
+                }); ;
+            }
+
+            return customers;
+        }
+
+        async Task<List<Reservation>> GetCustomerReservationsAsync(int customerId, CancellationToken ct = default)
+        {
+            var reservations = new List<Reservation>();
+
+            foreach (var reservation in DataReport.Where(w => w.CustomerId == customerId).Select(s => new { s.ReservationId, s.ReservationNumber, s.CreationDate, s.ReservationDate, s.ExpirationDate, s.Status, s.Notes })
+                                            .DistinctBy(d => d.ReservationId)
+                                            .OrderBy(o => o.ReservationNumber))
+            {
+                reservations.Add(new Reservation
+                {
+                    ReservationNumber = reservation.ReservationNumber,
+                    CreationDate = reservation.CreationDate,
+                    ExpirationDate = reservation.ExpirationDate,
+                    Notes = reservation.Notes,
+                    ReservationDate = reservation.ReservationDate,
+                    Status = reservation.Status,
+                    Items = await GetReservationItemsAsync(reservation.ReservationId, ct)
+                });
+            }
+
+            return reservations;
+        }
+
+        async Task<List<Item>> GetReservationItemsAsync(int reservationId, CancellationToken ct = default)
+        {
+            var items = new List<Item>();
+
+            foreach (var item in DataReport.Where(w => w.ReservationId == reservationId).Select(s => new { s.ItemId, s.InternalReference, s.ItemName })
+                                    .DistinctBy(d => d.ItemId)
+                                    .OrderBy(o => o.ItemName))
+            {
+                items.Add(new Item
+                {
+                    ItemName = item.ItemName,
+                    InternalReference = item.InternalReference,
+                    References = await GetItemReferencesAsync(reservationId, item.ItemId, ct)
+                });
+            }
+
+            return items;
+        }
+
+        async Task<List<Reference>> GetItemReferencesAsync(int reservationId, int itemId, CancellationToken ct = default)
+        {
+            var references = new List<Reference>();
+
+            foreach (var reference in DataReport.Where(w => w.ReservationId == reservationId && w.ItemId == itemId)
+                                        .Select(s => new { s.ReferenceCode, s.ReferenceName, s.Amount, s.Price })
+                                        .OrderBy(o => o.ReferenceName))
+            {
+                references.Add(new Reference
+                {
+                    ReferenceCode = reference.ReferenceCode,
+                    ReferenceName = reference.ReferenceName,
+                    Price = reference.Price,
+                    Amount = reference.Amount
+                });
+            }
+
+            return references;
+        }
+
         #endregion
     }
 }
