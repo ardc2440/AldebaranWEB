@@ -83,6 +83,7 @@ namespace Aldebaran.Application.Services.Mappings
             CreateMap<ReferenceMovementReport, Entities.ReferenceMovementReport>().ReverseMap();
             CreateMap<WarehouseStockReport, Entities.WarehouseStockReport>().ReverseMap();
             CreateMap<CustomerOrderReport, Entities.CustomerOrderReport>().ReverseMap();
+            CreateMap<CustomerReservationReport, Entities.CustomerReservationReport>().ReverseMap();
         }
     }
 }

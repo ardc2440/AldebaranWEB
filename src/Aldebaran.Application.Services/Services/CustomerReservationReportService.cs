@@ -1,0 +1,28 @@
+﻿using Aldebaran.Application.Services.Models;
+using Aldebaran.DataAccess.Infraestructure.Repository;
+using AutoMapper;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Aldebaran.Application.Services
+{
+    public class CustomerReservationReportService : ICustomerReservationReportService
+    {
+        private readonly ICustomerReservationReportRepository _repository;
+        private readonly IMapper _mapper;
+
+        public CustomerReservationReportService(ICustomerReservationReportRepository repository, IMapper mapper)
+        {
+            _repository = repository ?? throw new ArgumentNullException(nameof(ICustomerReservationReportRepository));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(IMapper));
+        }
+        public async Task<IEnumerable<CustomerReservationReport>> GetCustomerReservationReportDataAsync(CancellationToken ct = default)
+        {
+            var data = await _repository.GetCustomerReservationReportDataAsync(ct);
+            return _mapper.Map<IEnumerable<CustomerReservationReport>>(data);
+        }
+    }
+}

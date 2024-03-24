@@ -215,6 +215,13 @@ namespace Aldebaran.DataAccess
                     iar.HasNoKey();
                     iar.ToSqlQuery($"EXEC SP_GET_CUSTOMER_ORDER_REPORT");
                 });
+
+            modelBuilder.Entity<CustomerReservationReport>(
+                iar =>
+                {
+                    iar.HasNoKey();
+                    iar.ToSqlQuery($"EXEC SP_GET_CUSTOMER_RESERVATION_REPORT");
+                });
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken ct = default)
