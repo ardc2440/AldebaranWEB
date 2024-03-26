@@ -1,5 +1,5 @@
-﻿using Aldebaran.Application.Services;
-using Aldebaran.Application.Services.Models;
+﻿using Aldebaran.Application.Services.Models;
+using Aldebaran.Application.Services.Reports;
 using Aldebaran.Web.Pages.ReportPages.Reference_Movement.Components;
 using Aldebaran.Web.Pages.ReportPages.Reference_Movement.ViewModel;
 using Microsoft.AspNetCore.Components;
@@ -33,7 +33,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
         protected ReferenceMovementFilter Filter;
         protected ReferenceMovementViewModel ViewModel;
         private bool IsBusy = false;
-        private IEnumerable<Application.Services.Models.ReferenceMovementReport> DataReport { get; set; }
+        private IEnumerable<Application.Services.Models.Reports.ReferenceMovementReport> DataReport { get; set; }
         #endregion
 
         #region Overrides

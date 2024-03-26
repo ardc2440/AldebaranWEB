@@ -1,7 +1,6 @@
-﻿using Aldebaran.Application.Services;
+﻿using Aldebaran.Application.Services.Reports;
 using Aldebaran.Web.Pages.ReportPages.Customer_Orders.Components;
 using Aldebaran.Web.Pages.ReportPages.Customer_Orders.ViewModel;
-using DocumentFormat.OpenXml.ExtendedProperties;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Radzen;
@@ -37,7 +36,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders
         protected CustomerOrderViewModel ViewModel;
         private bool IsBusy = false;
 
-        protected IEnumerable<Application.Services.Models.CustomerOrderReport> DataReport { get; set; }
+        protected IEnumerable<Application.Services.Models.Reports.CustomerOrderReport> DataReport { get; set; }
         #endregion
 
         #region Overrides

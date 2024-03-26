@@ -23,7 +23,7 @@
 	  <Compile Update="Repository\IdentityTypeRepository - Copia.cs">
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>
-	  <Compile Update="Repository\IInProcessInventoryReportRepository.cs">
+	  <Compile Update="Repository\Reports\IInProcessInventoryReportRepository.cs">
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>
 	  <Compile Update="Repository\InventoryAdjustmentReportRepository - Copia.cs">

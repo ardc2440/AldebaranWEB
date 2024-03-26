@@ -1,4 +1,5 @@
 ﻿using Aldebaran.Application.Services;
+using Aldebaran.Application.Services.Reports;
 using Aldebaran.DataAccess.Core.Triggers.Adjustments;
 using Aldebaran.DataAccess.Core.Triggers.OrderInProcesses;
 using Aldebaran.DataAccess.Core.Triggers.Orders;
@@ -7,6 +8,7 @@ using Aldebaran.DataAccess.Core.Triggers.Reservations;
 using Aldebaran.DataAccess.Core.Triggers.Shipments;
 using Aldebaran.DataAccess.Core.Triggers.Transfers;
 using Aldebaran.DataAccess.Infraestructure.Repository;
+using Aldebaran.DataAccess.Infraestructure.Repository.Reports;
 using Aldebaran.Infraestructure.Core.Model;
 using Aldebaran.Infraestructure.Core.Queue;
 using Aldebaran.Infraestructure.Core.Ssh;

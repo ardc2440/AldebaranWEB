@@ -1,4 +1,4 @@
-﻿using Aldebaran.Application.Services;
+﻿using Aldebaran.Application.Services.Reports;
 using Aldebaran.Web.Pages.ReportPages.Order_Shipment.Components;
 using Aldebaran.Web.Pages.ReportPages.Order_Shipment.ViewModel;
 using Microsoft.AspNetCore.Components;
@@ -31,7 +31,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment
         protected OrderShipmentViewModel ViewModel;
         private bool IsBusy = false;
 
-        private IEnumerable<Application.Services.Models.OrderShipmentReport> DataReport { get; set; }
+        private IEnumerable<Application.Services.Models.Reports.OrderShipmentReport> DataReport { get; set; }
         #endregion
 
         #region Overrides

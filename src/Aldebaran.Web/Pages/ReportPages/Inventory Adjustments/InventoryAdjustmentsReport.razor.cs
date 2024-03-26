@@ -1,5 +1,5 @@
-﻿using Aldebaran.Application.Services;
-using Aldebaran.Application.Services.Models;
+﻿using Aldebaran.Application.Services.Models.Reports;
+using Aldebaran.Application.Services.Reports;
 using Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments.Components;
 using Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments.ViewModel;
 using Microsoft.AspNetCore.Components;

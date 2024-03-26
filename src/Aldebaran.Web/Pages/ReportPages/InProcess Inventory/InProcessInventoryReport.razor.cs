@@ -1,4 +1,4 @@
-﻿using Aldebaran.Application.Services;
+﻿using Aldebaran.Application.Services.Reports;
 using Aldebaran.Web.Pages.ReportPages.InProcess_Inventory.Components;
 using Aldebaran.Web.Pages.ReportPages.InProcess_Inventory.ViewModel;
 using Microsoft.AspNetCore.Components;
@@ -33,7 +33,7 @@ namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
         protected InProcessInventoryViewModel ViewModel;
         List<InProcessInventoryViewModel.Warehouse> UniqueWarehouses = new List<InProcessInventoryViewModel.Warehouse>();
         private bool IsBusy = false;
-        private IEnumerable<Aldebaran.Application.Services.Models.InProcessInventoryReport> DataReport { get; set; }
+        private IEnumerable<Aldebaran.Application.Services.Models.Reports.InProcessInventoryReport> DataReport { get; set; }
 
         #endregion
 

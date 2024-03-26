@@ -1,5 +1,5 @@
-﻿using Aldebaran.Application.Services;
-using Aldebaran.Application.Services.Models;
+﻿using Aldebaran.Application.Services.Models.Reports;
+using Aldebaran.Application.Services.Reports;
 using Aldebaran.Web.Pages.ReportPages.Provider_References.Components;
 using Aldebaran.Web.Pages.ReportPages.Provider_References.ViewModel;
 using Aldebaran.Web.Pages.ReportPages.Warehouse_Stock;

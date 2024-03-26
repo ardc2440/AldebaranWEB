@@ -1,5 +1,6 @@
 using Aldebaran.DataAccess.Core.Atributes;
 using Aldebaran.DataAccess.Entities;
+using Aldebaran.DataAccess.Entities.Reports;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 

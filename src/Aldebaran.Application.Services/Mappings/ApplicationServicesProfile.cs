@@ -1,4 +1,5 @@
 using Aldebaran.Application.Services.Models;
+using Aldebaran.Application.Services.Models.Reports;
 using AutoMapper;
 using Entities = Aldebaran.DataAccess.Entities;
 
@@ -76,15 +77,15 @@ namespace Aldebaran.Application.Services.Mappings
             CreateMap<WarehouseTransfer, Entities.WarehouseTransfer>().ReverseMap();
             CreateMap<WarehouseTransferDetail, Entities.WarehouseTransferDetail>().ReverseMap();
             CreateMap<Reason, DataAccess.Infraestructure.Models.Reason>().ReverseMap();
-            CreateMap<InventoryAdjustmentReport, Entities.InventoryAdjustmentReport>().ReverseMap();
-            CreateMap<InProcessInventoryReport, Entities.InProcessInventoryReport>().ReverseMap();
-            CreateMap<InventoryReport, Entities.InventoryReport>().ReverseMap();
-            CreateMap<ProviderReferenceReport, Entities.ProviderReferenceReport>().ReverseMap();
-            CreateMap<ReferenceMovementReport, Entities.ReferenceMovementReport>().ReverseMap();
-            CreateMap<WarehouseStockReport, Entities.WarehouseStockReport>().ReverseMap();
-            CreateMap<CustomerOrderReport, Entities.CustomerOrderReport>().ReverseMap();
-            CreateMap<CustomerReservationReport, Entities.CustomerReservationReport>().ReverseMap();
-            CreateMap<OrderShipmentReport, Entities.OrderShipmentReport>().ReverseMap();
+            CreateMap<InventoryAdjustmentReport, Entities.Reports.InventoryAdjustmentReport>().ReverseMap();
+            CreateMap<InProcessInventoryReport, Entities.Reports.InProcessInventoryReport>().ReverseMap();
+            CreateMap<InventoryReport, Entities.Reports.InventoryReport>().ReverseMap();
+            CreateMap<ProviderReferenceReport, Entities.Reports.ProviderReferenceReport>().ReverseMap();
+            CreateMap<ReferenceMovementReport, Entities.Reports.ReferenceMovementReport>().ReverseMap();
+            CreateMap<WarehouseStockReport, Entities.Reports.WarehouseStockReport>().ReverseMap();
+            CreateMap<CustomerOrderReport, Entities.Reports.CustomerOrderReport>().ReverseMap();
+            CreateMap<CustomerReservationReport, Entities.Reports.CustomerReservationReport>().ReverseMap();
+            CreateMap<OrderShipmentReport, Entities.Reports.OrderShipmentReport>().ReverseMap();
         }
     }
 }

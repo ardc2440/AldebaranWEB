@@ -19,13 +19,13 @@
 		</Compile>
 	</ItemGroup>
 	<ItemGroup>
-	  <Compile Update="Models\InventoryAdjustmentReport.cs">
+	  <Compile Update="Models\Reports\InventoryAdjustmentReport.cs">
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>
-	  <Compile Update="Models\InventoryReport.cs">
+	  <Compile Update="Models\Reports\InventoryReport.cs">
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>
-	  <Compile Update="Services\IInProcessInventoryReportService.cs">
+	  <Compile Update="Services\Reports\IInProcessInventoryReportService.cs">
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>
 	  <Compile Update="Services\InventoryAdjustmentReportService - Copia.cs">

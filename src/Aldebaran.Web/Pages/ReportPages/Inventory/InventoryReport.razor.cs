@@ -1,5 +1,4 @@
-﻿using Aldebaran.Application.Services;
-using Aldebaran.Application.Services.Models;
+﻿using Aldebaran.Application.Services.Reports;
 using Aldebaran.Web.Pages.ReportPages.Inventory.Components;
 using Aldebaran.Web.Pages.ReportPages.Inventory.ViewModel;
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
@@ -36,7 +35,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
         protected InventoryViewModel ViewModel;
         private bool IsBusy = false;
 
-        private IEnumerable<Application.Services.Models.InventoryReport> DataReport { get; set; }
+        private IEnumerable<Application.Services.Models.Reports.InventoryReport> DataReport { get; set; }
 
         #endregion
 
@@ -141,12 +140,26 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
                     Date = purchaseOrder.OrderDate,
                     Total = purchaseOrder.Total,
                     Warehouse = purchaseOrder.Warehouse,
-                    Activities = DataReport.Where(w => w.PurchaseOrderId == purchaseOrder.PurchaseOrderId && w.Description.Trim().Length > 0)
-                                    .Select(s => new InventoryViewModel.Activity { Date = s.ActivityDate, Description = s.Description }).ToList()
+                    Activities = await GetOrderActivitiesAsync(purchaseOrder.PurchaseOrderId, ct)
                 });
             }
 
             return inventoryPurchaseOrders;
+        }
+
+        protected async Task<List<InventoryViewModel.Activity>> GetOrderActivitiesAsync(int purchaseOrderId, CancellationToken ct = default)
+        {
+            var activities = new List<InventoryViewModel.Activity>();
+
+            foreach (var item in DataReport.Where(w => w.PurchaseOrderId == purchaseOrderId && w.Description != null && w.Description.Trim().Length > 0)
+                                        .Select(s => new InventoryViewModel.Activity
+                                        {
+                                            Date = s.ActivityDate,
+                                            Description = s.Description
+                                        }))            
+                activities.Add(item);                    
+
+            return activities;
         }
         #endregion
     }

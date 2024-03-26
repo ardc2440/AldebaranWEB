@@ -1,4 +1,4 @@
-﻿using Aldebaran.Application.Services;
+﻿using Aldebaran.Application.Services.Reports;
 using Aldebaran.Web.Pages.ReportPages.Customer_Reservations.Components;
 using Aldebaran.Web.Pages.ReportPages.Customer_Reservations.ViewModel;
 using Microsoft.AspNetCore.Components;
@@ -31,7 +31,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Reservations
         protected CustomerReservationFilter Filter;
         protected CustomerReservationViewModel ViewModel;
         private bool IsBusy = false;
-        private IEnumerable<Application.Services.Models.CustomerReservationReport> DataReport { get; set; }
+        private IEnumerable<Application.Services.Models.Reports.CustomerReservationReport> DataReport { get; set; }
         #endregion
 
         #region Overrides

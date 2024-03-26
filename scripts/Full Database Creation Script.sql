@@ -1688,7 +1688,7 @@ CREATE OR ALTER PROCEDURE SP_GET_INVENTORY_ADJUSTMENT_REPORT
 AS
 BEGIN
 	SELECT a.ADJUSTMENT_ID AdjustmentId, a.ADJUSTMENT_DATE AdjustmentDate, a.CREATION_DATE CreationDate, b.ADJUSTMENT_TYPE_NAME AdjustmentType, c.ADJUSTMENT_REASON_NAME AdjustmentReason, 
-		   d.FULL_NAME Employee, ISNULL(a.Notes, '') Notes, f.WAREHOUSE_ID WarehouseId, f.WAREHOUSE_NAME WarehouseName, i.LINE_ID LineId, i.LINE_CODE LineCode, i.LINE_NAME LineName, h.ITEM_ID ItemId, 
+		   d.FULL_NAME Employee, a.Notes, f.WAREHOUSE_ID WarehouseId, f.WAREHOUSE_NAME WarehouseName, i.LINE_ID LineId, i.LINE_CODE LineCode, i.LINE_NAME LineName, h.ITEM_ID ItemId, 
 		   h.INTERNAL_REFERENCE InternalReference, h.ITEM_NAME ItemName, g.REFERENCE_ID ReferenceId, g.REFERENCE_CODE ReferenceCode, g.REFERENCE_NAME ReferenceName, e.QUANTITY AvailableAmount
 	  FROM Adjustments a
 	  JOIN adjustment_types b ON b.ADJUSTMENT_TYPE_ID = a.ADJUSTMENT_TYPE_ID 
@@ -1744,8 +1744,8 @@ BEGIN
 
 	SELECT c.LINE_ID LineId, c.LINE_NAME LineName, b.INTERNAL_REFERENCE InternalReference, b.ITEM_NAME ItemName, b.ITEM_ID ItemId, a.REFERENCE_NAME ReferenceName, 
 		   (a.INVENTORY_QUANTITY - a.RESERVED_QUANTITY - a.ORDERED_QUANTITY) AvailableAmount, 
-		   d.QUANTITY FreeZone, a.REFERENCE_ID ReferenceId, ISNULL(e.EXPECTED_RECEIPT_DATE,'') OrderDate, ISNULL(e.WAREHOUSE_NAME,'') Warehouse, ISNULL(e.REQUESTED_QUANTITY,'') Total, 
-		   ISNULL(e.PURCHASE_ORDER_ID,'') PurchaseOrderId, ISNULL(e.EXECUTION_DATE,GETDATE()) ActivityDate, ISNULL(e.ACTIVITY_DESCRIPTION,'') Description
+		   d.QUANTITY FreeZone, a.REFERENCE_ID ReferenceId, e.EXPECTED_RECEIPT_DATE OrderDate, e.WAREHOUSE_NAME Warehouse, e.REQUESTED_QUANTITY Total, 
+		   e.PURCHASE_ORDER_ID PurchaseOrderId, e.EXECUTION_DATE ActivityDate, e.ACTIVITY_DESCRIPTION Description
 	  FROM item_references a 
 	  JOIN items b ON b.ITEM_ID = a.ITEM_ID AND b.IS_ACTIVE = 1 And b.IS_EXTERNAL_INVENTORY = 1
 	  JOIN lines c ON c.LINE_ID = b.LINE_ID
@@ -1763,7 +1763,7 @@ BEGIN
 
 	SELECT a.PROVIDER_ID ProviderId, a.PROVIDER_CODE ProviderCode, a.PROVIDER_NAME ProviderName, a.PROVIDER_ADDRESS ProviderAddress, a.PHONE, a.FAX, a.EMAIL, a.CONTACT_PERSON ContactPerson,
 		   e.LINE_ID LineId, e.LINE_CODE LineCode, e.LINE_NAME LineName, d.ITEM_ID ItemId, d.INTERNAL_REFERENCE InternalReference, d.ITEM_NAME ItemName, c.REFERENCE_ID ReferenceId,
-		   c.REFERENCE_CODE ReferenceCode, c.REFERENCE_NAME ReferenceName, ISNULL(C.PROVIDER_REFERENCE_NAME, '') ProviderReferenceName, c.ORDERED_QUANTITY ConfirmedAmount, c.RESERVED_QUANTITY ReservedAmount,
+		   c.REFERENCE_CODE ReferenceCode, c.REFERENCE_NAME ReferenceName, C.PROVIDER_REFERENCE_NAME ProviderReferenceName, c.ORDERED_QUANTITY ConfirmedAmount, c.RESERVED_QUANTITY ReservedAmount,
 		   c.INVENTORY_QUANTITY AvailableAmount, f.QUANTITY Amount, g.WAREHOUSE_ID WarehouseId, g.WAREHOUSE_NAME WarehouseName
 	  FROM providers a
 	  JOIN provider_references b ON b.PROVIDER_ID = a.PROVIDER_ID
@@ -1782,7 +1782,7 @@ AS
 BEGIN	
 	SELECT c.LINE_ID LineId, c.LINE_CODE LineCode, c.LINE_NAME LineName, b.ITEM_ID ItemId, b.INTERNAL_REFERENCE InternalReference, b.ITEM_NAME ItemName, a.REFERENCE_ID ReferenceId, 
 		   a.REFERENCE_CODE ReferenceCode, a.REFERENCE_NAME ReferenceName, a.RESERVED_QUANTITY ReservedQuantity, a.ORDERED_QUANTITY RequestedQuantity, e.WAREHOUSE_ID WarehouseId,
-		   e.WAREHOUSE_NAME, d.QUANTITY Amount
+		   e.WAREHOUSE_NAME WarehouseName, d.QUANTITY Amount
 	  FROM item_references a
 	  JOIN items b ON b.ITEM_ID = a.ITEM_ID AND b.IS_EXTERNAL_INVENTORY = 1 and b.IS_ACTIVE = 1
 	  JOIN lines c ON c.LINE_ID = b.LINE_ID
@@ -1796,7 +1796,7 @@ CREATE OR ALTER PROCEDURE SP_GET_WAREHOUSE_STOCK_REPORT
 AS
 BEGIN	
 	SELECT b.WAREHOUSE_ID WarehouseId, b.WAREHOUSE_NAME WarehouseName, e.LINE_ID LineId, e.LINE_CODE LineCode, e.LINE_NAME LineName, d.ITEM_ID ItemId, d.INTERNAL_REFERENCE InternalReference, 
-		   d.ITEM_NAME ItemName, c.REFERENCE_ID ReferenceId, c.REFERENCE_CODE ReferenceCode, c.REFERENCE_NAME ReferenceName, ISNULL(c.PROVIDER_REFERENCE_NAME, '') ProviderReferenceName, 
+		   d.ITEM_NAME ItemName, c.REFERENCE_ID ReferenceId, c.REFERENCE_CODE ReferenceCode, c.REFERENCE_NAME ReferenceName, c.PROVIDER_REFERENCE_NAME ProviderReferenceName, 
 		   a.QUANTITY AvailableAmount
 	  FROM references_warehouse a
 	  JOIN warehouses b ON b.WAREHOUSE_ID = a.WAREHOUSE_ID
@@ -1856,9 +1856,9 @@ BEGIN
 		  ShipmentDetailAmount INT)
 
 	INSERT INTO @CustomerOrders
-		 SELECT b.CUSTOMER_ID CustomerId, b.CUSTOMER_NAME CustomerName, (ISNULL(b.CELL_PHONE+', ','')+ISNULL(b.PHONE2+', ','')+ISNULL(b.PHONE1,'')) Phone, ISNULL(b.FAX,'') Fax,
+		 SELECT b.CUSTOMER_ID CustomerId, b.CUSTOMER_NAME CustomerName, (ISNULL(b.CELL_PHONE+', ','')+ISNULL(b.PHONE2+', ','')+ISNULL(b.PHONE1,'')) Phone, b.FAX Fax,
 	 			a.CUSTOMER_ORDER_ID OrderId, a.ORDER_NUMBER OrderNumber, a.CREATION_DATE OrderCreationDate, a.ORDER_DATE OrderDate, a.ESTIMATED_DELIVERY_DATE EstimatedDeliveryDate, 
-				c.STATUS_DOCUMENT_TYPE_NAME OrderStatus, ISNULL(a.INTERNAL_NOTES,'') InternalNotes, ISNULL(a.CUSTOMER_NOTES,'') CustomerNotes, D.CUSTOMER_ORDER_DETAIL_ID OrderDetailId,
+				c.STATUS_DOCUMENT_TYPE_NAME OrderStatus, a.INTERNAL_NOTES InternalNotes, a.CUSTOMER_NOTES CustomerNotes, D.CUSTOMER_ORDER_DETAIL_ID OrderDetailId,
 				f.INTERNAL_REFERENCE OrderDetailItemReference, f.ITEM_NAME OrderDetailItemName, e.REFERENCE_CODE OrderDetailReferenceCode, e.REFERENCE_NAME OrderDetailReferenceName,
 				d.REQUESTED_QUANTITY OrderDetailAmount, d.DELIVERED_QUANTITY DeliveredAmount, d.PROCESSED_QUANTITY InProcessAmount, 
 				CASE 
@@ -1880,7 +1880,7 @@ BEGIN
 
 	INSERT INTO @ShippingOrders
 		 SELECT c.CUSTOMER_ORDER_DETAIL_ID, A.CUSTOMER_ORDER_SHIPMENT_ID ShipmentId, a.SHIPPING_DATE ShipmentDate, a.DELIVERY_NOTE DeliveryNote, a.TRACKING_NUMBER TrackingNumber, f.SHIPPING_METHOD_NAME ShipmentMethodName, 
-	 			ISNULL(a.NOTES, '') Notes, b.CUSTOMER_ORDER_SHIPMENT_ID ShipmentDetailId, e.INTERNAL_REFERENCE ShipmentDetailItemReference, e.ITEM_NAME ShipmentDetailItemName, 
+	 			a.NOTES Notes, b.CUSTOMER_ORDER_SHIPMENT_ID ShipmentDetailId, e.INTERNAL_REFERENCE ShipmentDetailItemReference, e.ITEM_NAME ShipmentDetailItemName, 
 	 			d.REFERENCE_CODE ShipmentDetailReferenceCode, d.REFERENCE_NAME ShipmentDetailReferenceName, b.DELIVERED_QUANTITY ShipmentDetailAmount
 		   FROM customer_order_shipments a
 		   JOIN customer_order_shipment_details b ON b.CUSTOMER_ORDER_SHIPMENT_ID = a.CUSTOMER_ORDER_SHIPMENT_ID
@@ -1891,10 +1891,10 @@ BEGIN
 
 	SELECT a.CustomerId, a.CustomerName, a.Phone, a.Fax, a.OrderId, a.OrderNumber, a.OrderCreationDate, a.OrderDate, a.EstimatedDeliveryDate, a.OrderStatus, a.InternalNotes, a.CustomerNotes, a.OrderDetailId, a.
 		   OrderDetailItemReference, a.OrderDetailItemName, a.OrderDetailReferenceCode, a.OrderDetailReferenceName, a.OrderDetailAmount, a.DeliveredAmount, a.InProcessAmount, a.DetailStatus, 
-		   ISNULL(b.ShipmentId,'') ShipmentId, ISNULL(b.ShipmentDate,'') ShipmentDate, ISNULL(b.DeliveryNote,'') DeliveryNote, ISNULL(b.TrackingNumber,'') TrackingNumber, 
-		   ISNULL(b.ShipmentMethodName,'') ShipmentMethodName, ISNULL(b.Notes,'') Notes, ISNULL(b.ShipmentDetailId,'') ShipmentDetailId, ISNULL(b.ShipmentDetailItemReference,'') ShipmentDetailItemReference, 
-		   ISNULL(b.ShipmentDetailItemName,'') ShipmentDetailItemName, ISNULL(b.ShipmentDetailReferenceCode,'') ShipmentDetailReferenceCode, ISNULL(b.ShipmentDetailReferenceName,'') ShipmentDetailReferenceName, 
-		   ISNULL(b.ShipmentDetailAmount,'') ShipmentDetailAmount
+		   b.ShipmentId ShipmentId, b.ShipmentDate ShipmentDate, b.DeliveryNote DeliveryNote, b.TrackingNumber TrackingNumber, 
+		   b.ShipmentMethodName ShipmentMethodName, b.Notes Notes, b.ShipmentDetailId ShipmentDetailId, b.ShipmentDetailItemReference ShipmentDetailItemReference, 
+		   b.ShipmentDetailItemName ShipmentDetailItemName, b.ShipmentDetailReferenceCode ShipmentDetailReferenceCode, b.ShipmentDetailReferenceName ShipmentDetailReferenceName, 
+		   b.ShipmentDetailAmount ShipmentDetailAmount
 	  FROM @CustomerOrders a
 	  LEFT OUTER JOIN @ShippingOrders b ON b.CustomerOrderDetailId = a.OrderDetailId
 
@@ -1905,9 +1905,9 @@ CREATE OR ALTER PROCEDURE SP_GET_CUSTOMER_RESERVATION_REPORT
 AS 
 BEGIN 
 
-	SELECT a.CUSTOMER_ID CustomerId, a.CUSTOMER_NAME CustomerName, (ISNULL(a.CELL_PHONE+', ','')+ISNULL(a.PHONE2+', ','')+ISNULL(a.PHONE1,'')) Phone, ISNULL(a.FAX,'') Fax,
+	SELECT a.CUSTOMER_ID CustomerId, a.CUSTOMER_NAME CustomerName, (ISNULL(a.CELL_PHONE+', ','')+ISNULL(a.PHONE2+', ','')+ISNULL(a.PHONE1,'')) Phone, a.FAX Fax,
 	       b.CUSTOMER_RESERVATION_ID ReservationId, b.RESERVATION_NUMBER ReservationNumber, b.CREATION_DATE CreationDate, b.RESERVATION_DATE ReservationDate, b.EXPIRATION_DATE ExpirationDate, c.STATUS_DOCUMENT_TYPE_NAME Status, ISNULL(b.NOTES,'') Notes,
-		   f.ITEM_ID ItemId, f.INTERNAL_REFERENCE InternalReference, f.ITEM_NAME ItemName, e.REFERENCE_CODE ReferenceCode, e.REFERENCE_NAME ReferenceName, d.RESERVED_QUANTITY Amount, 0.0 Price 
+		   f.ITEM_ID ItemId, f.INTERNAL_REFERENCE InternalReference, f.ITEM_NAME ItemName, e.REFERENCE_CODE ReferenceCode, e.REFERENCE_NAME ReferenceName, d.RESERVED_QUANTITY Amount
 	  FROM Customers a
 	  JOIN customer_reservations b on b.CUSTOMER_ID = a.CUSTOMER_ID
 	  JOIN status_document_types c ON c.STATUS_DOCUMENT_TYPE_ID = b.STATUS_DOCUMENT_TYPE_ID 
@@ -1922,12 +1922,12 @@ CREATE OR ALTER PROCEDURE SP_GET_ORDER_SHIPMENT_REPORT
 AS 
 BEGIN 
 	SELECT a.PURCHASE_ORDER_ID OrderId, a.ORDER_NUMBER OrderNumber, a.CREATION_DATE CreationDate, a.REQUEST_DATE RequestDate, a.EXPECTED_RECEIPT_DATE ExpectedReceiptDate, c.PROVIDER_NAME ProviderName,  
-	       ISNULL(a.IMPORT_NUMBER, '') ImportNumber, e.SHIPMENT_METHOD_NAME ShipmentMethodName, a.EMBARKATION_PORT EmbarkationPort, a.PROFORMA_NUMBER ProformaNumber, g.FORWARDER_NAME ForwarderName, 
+	       a.IMPORT_NUMBER ImportNumber, e.SHIPMENT_METHOD_NAME ShipmentMethodName, a.EMBARKATION_PORT EmbarkationPort, a.PROFORMA_NUMBER ProformaNumber, g.FORWARDER_NAME ForwarderName, 
 		   (ISNULL(g.PHONE2+', ','')+ISNULL(g.PHONE1,'')) ForwarderPhone, g.FAX ForwarderFax, SUBSTRING(RTRIM((ISNULL(g.MAIL1+', ','')+ISNULL(g.MAIL2+', ',''))),1,LEN(RTRIM((ISNULL(g.MAIL1+', ','')+ISNULL(g.MAIL2+', ',''))))-1) ForwarderEmail,
 		   f.FORWARDER_AGENT_NAME ForwarderAgentName, (ISNULL(f.PHONE2+', ','')+ISNULL(f.PHONE1,'')) AgentPhone, f.FAX AgentFax, 
 		   SUBSTRING(RTRIM((ISNULL(f.EMAIL1+', ','')+ISNULL(f.EMAIL2+', ',''))),1,LEN(RTRIM((ISNULL(g.MAIL1+', ','')+ISNULL(g.MAIL2+', ',''))))-1) AgentEmail, 
 		   i.WAREHOUSE_ID WarehouseId, i.WAREHOUSE_NAME WarehouseName, l.LINE_ID LineId, l.LINE_CODE LineCode, l.LINE_NAME LineName, k.ITEM_ID ItemId, k.ITEM_NAME ItemName, k.INTERNAL_REFERENCE InternalReference, 
-		   j.REFERENCE_CODE ReferenceCode, j.REFERENCE_NAME ReferenceName, h.REQUESTED_QUANTITY Amount, k.WEIGHT * h.REQUESTED_QUANTITY Weigth, k.VOLUME * h.REQUESTED_QUANTITY Volume
+		   j.REFERENCE_CODE ReferenceCode, j.REFERENCE_NAME ReferenceName, h.REQUESTED_QUANTITY Amount, k.WEIGHT * h.REQUESTED_QUANTITY Weight, k.VOLUME * h.REQUESTED_QUANTITY Volume
 	  FROM purchase_orders a
 	  JOIN status_document_types b ON b.STATUS_DOCUMENT_TYPE_ID = a.STATUS_DOCUMENT_TYPE_ID
 	  JOIN providers c ON c.PROVIDER_ID = a.PROVIDER_ID
@@ -1943,4 +1943,3 @@ BEGIN
      WHERE b.STATUS_ORDER = 1
 END 
 GO
-
