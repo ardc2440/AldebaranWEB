@@ -4,6 +4,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository.Reports
 {
     public interface IInventoryReportRepository
     {
-        Task<IEnumerable<InventoryReport>> GetInventoryReportDataAsync(CancellationToken ct = default);
+        Task<IEnumerable<InventoryReport>> GetInventoryReportDataAsync(string referenceIdsFilter, CancellationToken ct = default);
     }
 }

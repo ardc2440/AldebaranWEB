@@ -42,23 +42,41 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            DataReport = await InventoryReportService.GetInventoryReportDataAsync();
 
+            DataReport = await InventoryReportService.GetInventoryReportDataAsync("");
+
+            await RedrawReport();
+            
+        }
+        #endregion
+
+        #region Events
+
+        async Task RedrawReport()
+        {
             ViewModel = new InventoryViewModel
             {
                 Lines = (await GetLinesAsync()).ToList()
             };
         }
-        #endregion
 
-        #region Events
         async Task OpenFilters()
         {
             var result = await DialogService.OpenAsync<InventoryReportFilter>("Filtrar reporte de inventario", parameters: new Dictionary<string, object> { { "Filter", Filter } }, options: new DialogOptions { Width = "800px" });
             if (result == null)
                 return;
+
             Filter = (InventoryFilter)result;
-            //Todo: Aplicar filtro de refenrecias al ViewModel
+
+            var referenceIdsFilter = "";
+
+            if (Filter.ItemReferences.Count > 0)
+                referenceIdsFilter = String.Join(",", Filter.ItemReferences.Select(s=>s.ReferenceId));
+
+            DataReport = await InventoryReportService.GetInventoryReportDataAsync(referenceIdsFilter);
+
+            await RedrawReport();
+
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
         }
         async Task RemoveFilters()
@@ -66,10 +84,15 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
             if (await DialogService.Confirm("Está seguro que desea eliminar los filtros establecidos?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
             {
                 Filter = null;
-                //Todo: Remover filtro de refenrecias al ViewModel
+
+                DataReport = await InventoryReportService.GetInventoryReportDataAsync("");
+
+                await RedrawReport();
+
                 await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
             }
         }
+
         async Task Download(MouseEventArgs args)
         {
             IsBusy = true;
@@ -156,8 +179,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
                                         {
                                             Date = s.ActivityDate,
                                             Description = s.Description
-                                        }))            
-                activities.Add(item);                    
+                                        }))
+                activities.Add(item);
 
             return activities;
         }
