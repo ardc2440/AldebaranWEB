@@ -34,7 +34,6 @@
             public string ReferenceCode { get; set; }
             public string ReferenceName { get; set; }
             public int Amount { get; set; }
-            public decimal Price { get; set; }
         }
     }
 }

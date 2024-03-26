@@ -1,9 +1,7 @@
 ﻿using Aldebaran.Application.Services;
 using Aldebaran.Web.Pages.ReportPages.Order_Shipment.Components;
 using Aldebaran.Web.Pages.ReportPages.Order_Shipment.ViewModel;
-using DocumentFormat.OpenXml.ExtendedProperties;
 using Microsoft.AspNetCore.Components;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.JSInterop;
 using Radzen;
 
@@ -87,7 +85,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment
         {
             var orders = new List<OrderShipmentViewModel.Order>();
 
-            foreach (var order in DataReport.Select(s => new { s.OrderId, s.OrderNumber, s.CreationDate, s.RequestDate, s.ExpectedReceiptDate, s.RealReceiptDate, s.ProviderName, s.ImportNumber, s.ShipmentMethodName, s.EmbarkationPort, s.ProformaNumber, s.ArrivalWarehouse, s.ForwarderName, s.ForwarderEmail, s.ForwarderFax, s.ForwarderPhone, s.ForwarderAgentName, s.AgentPhone, s.AgentFax, s.AgentEmail })
+            foreach (var order in DataReport.Select(s => new { s.OrderId, s.OrderNumber, s.CreationDate, s.RequestDate, s.ExpectedReceiptDate, s.ProviderName, s.ImportNumber, s.ShipmentMethodName, s.EmbarkationPort, s.ProformaNumber, s.ForwarderName, s.ForwarderEmail, s.ForwarderFax, s.ForwarderPhone, s.ForwarderAgentName, s.AgentPhone, s.AgentFax, s.AgentEmail })
                                     .DistinctBy(d => d.OrderId)
                                     .OrderBy(o => o.OrderNumber))
             {

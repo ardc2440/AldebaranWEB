@@ -148,14 +148,13 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Reservations
             var references = new List<Reference>();
 
             foreach (var reference in DataReport.Where(w => w.ReservationId == reservationId && w.ItemId == itemId)
-                                        .Select(s => new { s.ReferenceCode, s.ReferenceName, s.Amount, s.Price })
+                                        .Select(s => new { s.ReferenceCode, s.ReferenceName, s.Amount })
                                         .OrderBy(o => o.ReferenceName))
             {
                 references.Add(new Reference
                 {
                     ReferenceCode = reference.ReferenceCode,
                     ReferenceName = reference.ReferenceName,
-                    Price = reference.Price,
                     Amount = reference.Amount
                 });
             }

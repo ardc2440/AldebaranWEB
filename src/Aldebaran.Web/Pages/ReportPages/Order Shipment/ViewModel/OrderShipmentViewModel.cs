@@ -1,6 +1,4 @@
-﻿using DocumentFormat.OpenXml.Office2021.MipLabelMetaData;
-
-namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment.ViewModel
+﻿namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment.ViewModel
 {
     public class OrderShipmentViewModel
     {
@@ -10,7 +8,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment.ViewModel
             public string OrderNumber { get; set; }
             public DateTime CreationDate { get; set; }
             public DateTime RequestDate { get; set; }
-            public DateTime ExpectedReceiptDate { get; set; }            
+            public DateTime ExpectedReceiptDate { get; set; }
             public string ProviderName { get; set; }
             public Forwarder Forwarder { get; set; }
             public ForwarderAgent ForwarderAgent { get; set; }
@@ -19,7 +17,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment.ViewModel
             public string EmbarkationPort { get; set; }
             public string ProformaNumber { get; set; }
             public List<Warehouse> Warehouses { get; set; }
-            
+
         }
         public class Forwarder
         {
@@ -37,7 +35,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment.ViewModel
         }
 
         public class Warehouse
-        { 
+        {
             public short WarehouseId { get; set; }
             public string WarehouseName { get; set; }
             public List<Line> Lines { get; set; }

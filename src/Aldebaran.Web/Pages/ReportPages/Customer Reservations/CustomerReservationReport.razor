@@ -206,7 +206,7 @@
                                                     <td width="20%">
                                                         Referencia interna
                                                     </td>
-                                                    <td width="20%">
+                                                    <td colspan="2" width="40%">
                                                         Nombre
                                                     </td>
                                                     <td width="20%">
@@ -215,9 +215,6 @@
                                                     <td width="20%">
                                                         Cantidad
                                                     </td>
-                                                    <td width="20%">
-                                                        Precio
-                                                    </td>
                                                 </tr>
                                                 @foreach (var item in reservation.Items)
                                                 {
@@ -225,18 +222,17 @@
                                                     {
                                                         <tr>
                                                             <td width="20%">@item.InternalReference</td>
-                                                            <td width="20%">@item.ItemName</td>
+                                                            <td colspan="2" width="40%">@item.ItemName</td>
                                                             <td width="20%">@(string.IsNullOrEmpty(reference.ReferenceCode) ? string.Empty : $"{reference.ReferenceCode} - ")@reference.ReferenceName</td>
                                                             <td width="20%">@(reference.Amount.ToString("N0"))</td>
-                                                            <td width="20%">@(reference.Price == 0 ? "" : reference.Price.ToString("C"))</td>
                                                         </tr>
                                                     }
                                                 }
                                                 <tr class="emphasys">
-                                                    <td colspan="3" class="bold" width="60%" style="text-align:right">
+                                                    <td colspan="4" class="bold" width="80%" style="text-align:right">
                                                         Total reserva:
                                                     </td>
-                                                    <td colspan="2" width="40%" style="text-align:left">
+                                                    <td width="20%" style="text-align:left">
                                                         @reservation.Total.ToString("N0")
                                                     </td>
                                                 </tr>

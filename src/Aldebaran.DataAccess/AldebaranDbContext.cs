@@ -169,8 +169,8 @@ namespace Aldebaran.DataAccess
             modelBuilder.ApplyConfiguration(new NotificationTemplateConfiguration());
 
             modelBuilder.Entity<InventoryAdjustmentReport>(
-                iar => 
-                { 
+                iar =>
+                {
                     iar.HasNoKey();
                     iar.ToSqlQuery($"EXEC SP_GET_INVENTORY_ADJUSTMENT_REPORT");
                 });

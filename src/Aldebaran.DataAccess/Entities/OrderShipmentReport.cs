@@ -7,12 +7,12 @@
         public DateTime CreationDate { get; set; }
         public DateTime RequestDate { get; set; }
         public DateTime ExpectedReceiptDate { get; set; }
-        public string ProviderName { get; set; }
+        public string? ProviderName { get; set; }
         public string ImportNumber { get; set; }
         public string ShipmentMethodName { get; set; }
         public string EmbarkationPort { get; set; }
         public string ProformaNumber { get; set; }
-        
+
         public string ForwarderName { get; set; }
         public string ForwarderPhone { get; set; }
         public string ForwarderFax { get; set; }

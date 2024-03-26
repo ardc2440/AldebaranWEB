@@ -5,11 +5,11 @@
         public int ProviderId { get; set; }
         public string ProviderCode { get; set; }
         public string ProviderName { get; set; }
-        public string ProviderAddress { get; set; }
-        public string Phone { get; set; }
-        public string Fax { get; set; }
-        public string Email { get; set; }
-        public string ContactPerson { get; set; }
+        public string? ProviderAddress { get; set; }
+        public string? Phone { get; set; }
+        public string? Fax { get; set; }
+        public string? Email { get; set; }
+        public string? ContactPerson { get; set; }
 
         public short LineId { get; set; }
         public string LineCode { get; set; }
