@@ -61,21 +61,21 @@ namespace Aldebaran.Application.Services
             var data = await _repository.GetByStatusAsync(isActive, ct);
             return _mapper.Map<List<ItemReference>>(data);
         }
-        public async Task<IEnumerable<ItemReference>> GetAllReferencesWithMinimumQuantity(CancellationToken ct = default)
+        public async Task<IEnumerable<ItemReference>> GetAllReferencesWithMinimumQuantityAsync(CancellationToken ct = default)
         {
-            var data = await _repository.GetAllReferencesWithMinimumQuantity(ct);
+            var data = await _repository.GetAllReferencesWithMinimumQuantityAsync(ct);
             return _mapper.Map<List<ItemReference>>(data);
         }
 
-        public async Task<IEnumerable<ItemReference>> GetAllReferencesOutOfStock(CancellationToken ct = default)
+        public async Task<IEnumerable<ItemReference>> GetAllReferencesOutOfStockAsync(CancellationToken ct = default)
         {
-            var data = await _repository.GetAllReferencesOutOfStock(ct);
+            var data = await _repository.GetAllReferencesOutOfStockAsync(ct);
             return _mapper.Map<List<ItemReference>>(data);
         }
 
-        public async Task<IEnumerable<ItemReference>> GetReportsReferences(short? lineId = null, int? itemId = null, int? referenceId = null, bool? isExternalInventory = null, CancellationToken ct = default)
+        public async Task<IEnumerable<ItemReference>> GetReportsReferencesAsync(bool? isExternalInventory = null, CancellationToken ct = default)
         {
-            var data = await _repository.GetReportsReferences(lineId, itemId, referenceId, isExternalInventory, ct);
+            var data = await _repository.GetReportsReferencesAsync(isExternalInventory, ct);
             return _mapper.Map<List<ItemReference>>(data);
         }
     }

@@ -123,14 +123,14 @@ namespace Aldebaran.Web.Pages
 
         async Task RefreshItemsOutOfStokAsync(IEnumerable<PurchaseOrderDetail> detailInTransit)
         {
-            var itemReferences = await ItemReferenceService.GetAllReferencesOutOfStock();
+            var itemReferences = await ItemReferenceService.GetAllReferencesOutOfStockAsync();
 
             outOfStockArticles = await OutOfStockArticle.GetOutOfStockArticleListAsync(itemReferences, detailInTransit);
         }
 
         async Task RefreshMinimumQuantitiesAsync(IEnumerable<PurchaseOrderDetail> detailInTransit)
         {
-            var itemReferences = await ItemReferenceService.GetAllReferencesWithMinimumQuantity();
+            var itemReferences = await ItemReferenceService.GetAllReferencesWithMinimumQuantityAsync();
 
             minimumQuantityArticles = await MinimumQuantityArticle.GetMinimuQuantityArticleListAsync(itemReferences, detailInTransit);
         }
