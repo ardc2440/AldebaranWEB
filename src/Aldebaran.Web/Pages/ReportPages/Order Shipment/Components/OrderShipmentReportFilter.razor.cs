@@ -68,7 +68,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment.Components
         protected override async Task OnInitializedAsync()
         {
             Filter ??= new OrderShipmentFilter();
-            var references = (await ItemReferenceService.GetAsync()).ToList();
+            var references = (await ItemReferenceService.GetReportsReferencesAsync()).ToList();
             AvailableItemReferencesForSelection = references;
             referencePicker.SetAvailableItemReferencesForSelection(AvailableItemReferencesForSelection);
             Providers = (await ProviderService.GetAsync()).ToList();

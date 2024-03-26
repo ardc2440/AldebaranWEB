@@ -34,7 +34,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement.Components
         protected override async Task OnInitializedAsync()
         {
             Filter ??= new ReferenceMovementFilter();
-            var references = (await ItemReferenceService.GetAsync()).ToList();
+            var references = (await ItemReferenceService.GetReportsReferencesAsync()).ToList();
             AvailableItemReferencesForSelection = references;
             referencePicker.SetAvailableItemReferencesForSelection(AvailableItemReferencesForSelection);
         }

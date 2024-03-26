@@ -33,7 +33,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory.Components
         protected override async Task OnInitializedAsync()
         {
             Filter ??= new InventoryFilter();
-            var references = (await ItemReferenceService.GetAsync()).ToList();
+            var references = (await ItemReferenceService.GetReportsReferencesAsync(isReferenceActive: true, isItemActive: true, isExternalInventory: true)).ToList();
             AvailableItemReferencesForSelection = references;
             referencePicker.SetAvailableItemReferencesForSelection(AvailableItemReferencesForSelection);
         }

@@ -48,7 +48,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Reservations.Components
         protected override async Task OnInitializedAsync()
         {
             Filter ??= new CustomerReservationFilter();
-            var references = (await ItemReferenceService.GetAsync()).ToList();
+            var references = (await ItemReferenceService.GetReportsReferencesAsync()).ToList(); 
             AvailableItemReferencesForSelection = references;
             referencePicker.SetAvailableItemReferencesForSelection(AvailableItemReferencesForSelection);
             var documentType = await DocumentTypeService.FindByCodeAsync("R");

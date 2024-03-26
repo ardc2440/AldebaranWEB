@@ -47,7 +47,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments.Components
         protected override async Task OnInitializedAsync()
         {
             Filter ??= new InventoryAdjustmentsFilter();
-            var references = (await ItemReferenceService.GetAsync()).ToList();
+            var references = (await ItemReferenceService.GetReportsReferencesAsync()).ToList();
             AvailableItemReferencesForSelection = references;
             referencePicker.SetAvailableItemReferencesForSelection(AvailableItemReferencesForSelection);
             Employees = (await EmployeeService.GetAsync()).ToList();

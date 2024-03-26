@@ -49,7 +49,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities.Components
         protected override async Task OnInitializedAsync()
         {
             Filter ??= new CustomerOrderActivityFilter();
-            var references = (await ItemReferenceService.GetAsync()).ToList();
+            var references = (await ItemReferenceService.GetReportsReferencesAsync()).ToList();
             AvailableItemReferencesForSelection = references;
             referencePicker.SetAvailableItemReferencesForSelection(AvailableItemReferencesForSelection);
             var documentType = await DocumentTypeService.FindByCodeAsync("O");

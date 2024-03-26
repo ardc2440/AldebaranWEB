@@ -34,7 +34,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Stock.Components
         protected override async Task OnInitializedAsync()
         {
             Filter ??= new WarehouseStockFilter();
-            var references = (await ItemReferenceService.GetAsync()).ToList();
+            var references = (await ItemReferenceService.GetReportsReferencesAsync()).ToList();
             AvailableItemReferencesForSelection = references;
             referencePicker.SetAvailableItemReferencesForSelection(AvailableItemReferencesForSelection);
         }
