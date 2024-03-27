@@ -14,6 +14,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="Models\AldebaranDb\Forwarder.cs~RF1dbd8670.TMP" />
+    <None Remove="Monikers.imagemanifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <content Include="Monikers.imagemanifest">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </content>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.editorconfig" Link=".editorconfig" />
