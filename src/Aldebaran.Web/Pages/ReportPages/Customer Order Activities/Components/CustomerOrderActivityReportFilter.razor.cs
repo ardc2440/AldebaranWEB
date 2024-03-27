@@ -1,7 +1,6 @@
 ﻿using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities.ViewModel;
-using Aldebaran.Web.Pages.ReportPages.Customer_Orders.ViewModel;
 using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;

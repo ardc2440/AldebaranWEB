@@ -31,24 +31,15 @@
             public int DeliveredAmount { get; set; }
             public int InProcessAmount { get; set; }
             public string Status { get; set; }
-            public List<Shipment> Shipments { get; set; }
+            public List<Activity> Activities { get; set; }
         }
-        public class Shipment
+        public class Activity
         {
             public DateTime CreationDate { get; set; }
-            public string DeliveryNote { get; set; }
-            public string TrackingNumber { get; set; }
-            public string ShipmentMethodName { get; set; }
+            public string AreaName { get; set; }
+            public string EmployeeName { get; set; }
             public string Notes { get; set; }
-            public List<ShipmentReference> References { get; set; }
-        }
-        public class ShipmentReference
-        {
-            public string ItemReference { get; set; }
-            public string ItemName { get; set; }
-            public string ReferenceCode { get; set; }
-            public string ReferenceName { get; set; }
-            public int Amount { get; set; }
+            public string Status { get; set; }
         }
     }
 }

@@ -80,25 +80,21 @@
                 }
             </div>
         </RadzenColumn>
-        <RadzenColumn SizeXL="4" SizeLG="4" SizeMD="12" SizeSM="12" SizeXS="12" SizeXX="12" class="align-self-end">
-            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.End" JustifyContent="JustifyContent.End" Gap="0.5rem">
+        <RadzenColumn Size="4" class="align-self-end">
+            <div class="d-flex flex-row justify-content-end align-items-end">
                 <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="save" Text="Guardar PDF" Click="@Download" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@IsBusy" />
-                <RadzenSplitButton Icon="get_app" Text="Exportar" Click="@ExportClick" Variant="Variant.Flat" Shade="Shade.Lighter">
-                    <RadzenSplitButtonItem Text="Excel" Value="xlsx" />
-                    <RadzenSplitButtonItem Text="CSV" Value="csv" />
-                </RadzenSplitButton>
-            </RadzenStack>
+            </div>
         </RadzenColumn>
     </RadzenRow>
     <RadzenRow AlignItems="AlignItems.Start">
         <RadzenColumn Size="12">
             <RadzenCard style="min-height:600px; overflow-y:auto">
-                <div id="customer-order-report-container">
+                <div id="customer-order-activity-report-container">
                     <div class="report">
                         <table>
                             <tr>
                                 <td width="50%">
-                                    <h2 class="text-left mb-0">Ordenes por cliente</h2>
+                                    <h2 class="text-left mb-0">Actividades de pedidos</h2>
                                     <span class="mb-1">@DateTime.Now.ToString(SharedLocalizer["datetime:format"])</span>
                                 </td>
                                 <td width="50%">
@@ -224,7 +220,7 @@
                                                 @for (int r = 0; r < order.References.Count(); r++)
                                                 {
                                                     var reference = order.References[r];
-                                                    @if (r == 0 || order.References[r - 1].Shipments?.Any() == true)
+                                                    @if (r == 0 || order.References[r - 1].Activities?.Any() == true)
                                                     {
                                                         <tr class="emphasys bold">
                                                             <td width="10%">
@@ -261,7 +257,7 @@
                                                         <td width="10%">@reference.Status</td>
                                                     </tr>
 
-                                                    @if (reference.Shipments?.Any() == true)
+                                                    @if (reference.Activities?.Any() == true)
                                                     {
                                                         <tr>
                                                             <td colspan="10" width="100%" style="padding:0 !important">
@@ -270,64 +266,38 @@
                                                                         <thead>
                                                                             <tr class="no-border">
                                                                                 <th colspan="4" class="bold" width="100%" style="padding:0.2em !important; font-size:1.5em !important">
-                                                                                    Entregas realizadas
+                                                                                    Actividades realizadas
                                                                                     <hr class="mb-1" />
                                                                                 </th>
                                                                             </tr>
                                                                         </thead>
                                                                         <tbody>
-                                                                            @for (int s = 0; s < reference.Shipments.Count(); s++)
+                                                                            @for (int s = 0; s < reference.Activities.Count(); s++)
                                                                             {
-                                                                                var shipment = reference.Shipments[s];
+                                                                                var activity = reference.Activities[s];
                                                                                 <tr class="no-border">
                                                                                     <td colspan="4" width="100%">
                                                                                         @if (s > 0)
                                                                                         {
                                                                                             <hr class="mt-2 mb-2" />
                                                                                         }
-                                                                                        <span class="bold">Fecha: </span>@shipment.CreationDate
+                                                                                        <span class="bold">Fecha: </span>@activity.CreationDate
                                                                                     </td>
                                                                                 </tr>
                                                                                 <tr class="no-border">
-                                                                                    <td width="25%">
-                                                                                        <span class="bold">Remisión: </span>@shipment.DeliveryNote
+                                                                                    <td colspan="2" width="50%">
+                                                                                        <span class="bold">Area: </span>@activity.AreaName
                                                                                     </td>
-                                                                                    <td width="25%">
-                                                                                        <span class="bold">Guía: </span>@shipment.TrackingNumber
-                                                                                    </td>
-                                                                                    <td colspan="2" width="25%">
-                                                                                        <span class="bold">Método de envío: </span>@shipment.ShipmentMethodName
+                                                                                    <td colspan="2" width="50%">
+                                                                                        <span class="bold">Funcionario: </span>@activity.EmployeeName
                                                                                     </td>
                                                                                 </tr>
                                                                                 <tr class="no-border">
-                                                                                    <td colspan="4" width="100%" class="pb-2">
+                                                                                    <td colspan="4" width="100%">
                                                                                         <span class="bold">Observaciones: </span><br />
-                                                                                        @shipment.Notes
+                                                                                        @activity.Notes
                                                                                     </td>
                                                                                 </tr>
-                                                                                <tr class="emphasys bold">
-                                                                                    <td width="25%">
-                                                                                        Referencia interna
-                                                                                    </td>
-                                                                                    <td width="25%">
-                                                                                        Nombre
-                                                                                    </td>
-                                                                                    <td width="25%">
-                                                                                        Referencia
-                                                                                    </td>
-                                                                                    <td width="25%">
-                                                                                        Cantidad
-                                                                                    </td>
-                                                                                </tr>
-                                                                                @foreach (var shipmentReference in shipment.References)
-                                                                                {
-                                                                                    <tr>
-                                                                                        <td width="25%">@shipmentReference.ItemReference</td>
-                                                                                        <td width="25%">@shipmentReference.ItemName</td>
-                                                                                        <td width="25%">@(string.IsNullOrEmpty(shipmentReference.ReferenceCode) ? string.Empty : $"{shipmentReference.ReferenceCode} - ")@shipmentReference.ReferenceName</td>
-                                                                                        <td width="25%">@(shipmentReference.Amount.ToString("N0"))</td>
-                                                                                    </tr>
-                                                                                }
                                                                             }
                                                                         </tbody>
                                                                     </table>
