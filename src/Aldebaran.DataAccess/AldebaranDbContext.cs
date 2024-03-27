@@ -176,14 +176,9 @@ namespace Aldebaran.DataAccess
                     iar.ToSqlQuery($"EXEC SP_GET_INVENTORY_ADJUSTMENT_REPORT");
                 });
 
-            modelBuilder.Entity<InProcessInventoryReport>(
-                iar =>
-                {
-                    iar.HasNoKey();
-                    iar.ToSqlQuery($"EXEC SP_GET_IN_PROCESS_INVENTORY_REPORT");
-                });
+            modelBuilder.Entity<InProcessInventoryReport>(iar => { iar.HasNoKey(); });
 
-            modelBuilder.Entity<InventoryReport>(iar => { iar.HasNoKey();});
+            modelBuilder.Entity<InventoryReport>(iar => { iar.HasNoKey(); });
 
             modelBuilder.Entity<ProviderReferenceReport>(
                 iar =>

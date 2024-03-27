@@ -1704,8 +1704,19 @@ END
 GO
 
 CREATE OR ALTER PROCEDURE SP_GET_IN_PROCESS_INVENTORY_REPORT
+	@ReferenceIds VARCHAR(MAX)
 AS
 BEGIN
+	DECLARE @FilterReferences TABLE (ReferenceId INT)
+	
+	IF LEN(RTRIM(@ReferenceIds)) > 0
+		INSERT INTO @FilterReferences
+			 SELECT value FROM STRING_SPLIT(@ReferenceIds,',')
+	ELSE
+		INSERT INTO @FilterReferences
+			 SELECT REFERENCE_ID 
+			   FROM item_references
+
 	SELECT l.LINE_ID LineId, l.LINE_CODE LineCode, l.LINE_NAME LineName, i.ITEM_ID ItemId, i.INTERNAL_REFERENCE InternalReference, i.ITEM_NAME ItemName, r.REFERENCE_ID ReferenceId, r.REFERENCE_NAME ReferenceName, 
 		   r.WORK_IN_PROCESS_QUANTITY InProcessAmount, w.WAREHOUSE_ID WarehouseId, w.WAREHOUSE_NAME WarehouseName, rw.QUANTITY Amount
 	  FROM Lines l
@@ -1716,6 +1727,7 @@ BEGIN
 	 WHERE i.IS_ACTIVE=1
 	   AND i.IS_EXTERNAL_INVENTORY=1
 	   AND r.IS_ACTIVE=1
+	   AND EXISTS (SELECT 1 FROM @FilterReferences fr WHERE fr.ReferenceId = r.REFERENCE_ID)  
 END
 GO
 

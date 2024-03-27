@@ -42,21 +42,19 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-
-            DataReport = await InventoryReportService.GetInventoryReportDataAsync("");
-
-            await RedrawReport();
-            
+            await RedrawReport();            
         }
         #endregion
 
         #region Events
 
-        async Task RedrawReport()
+        async Task RedrawReport(string filter = "", CancellationToken ct = default)
         {
+            DataReport = await InventoryReportService.GetInventoryReportDataAsync(filter,ct);
+
             ViewModel = new InventoryViewModel
             {
-                Lines = (await GetLinesAsync()).ToList()
+                Lines = (await GetLinesAsync(ct)).ToList()
             };
         }
 
@@ -72,10 +70,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
 
             if (Filter.ItemReferences.Count > 0)
                 referenceIdsFilter = String.Join(",", Filter.ItemReferences.Select(s=>s.ReferenceId));
-
-            DataReport = await InventoryReportService.GetInventoryReportDataAsync(referenceIdsFilter);
-
-            await RedrawReport();
+                        
+            await RedrawReport(referenceIdsFilter);
 
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
         }
@@ -84,9 +80,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
             if (await DialogService.Confirm("Está seguro que desea eliminar los filtros establecidos?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
             {
                 Filter = null;
-
-                DataReport = await InventoryReportService.GetInventoryReportDataAsync("");
-
+                                
                 await RedrawReport();
 
                 await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);

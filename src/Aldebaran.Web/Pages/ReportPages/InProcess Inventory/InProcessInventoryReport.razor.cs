@@ -39,13 +39,8 @@ namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
 
         #region Overrides
         protected override async Task OnInitializedAsync()
-        {
-            DataReport = await InProcessInventoryReportService.GetInProcessInventoryReportDataAsync();
-
-            ViewModel = new InProcessInventoryViewModel
-            {
-                Lines = await GetReporLinesAsync()
-            };
+        {            
+            await RedrawReport();
 
             UniqueWarehouses = ViewModel.Lines.SelectMany(s => s.Items)
                 .SelectMany(item => item.References.SelectMany(reference => reference.Warehouses))
@@ -55,13 +50,32 @@ namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
         #endregion
 
         #region Events
+
+        protected async Task RedrawReport(string filter="",CancellationToken ct =default)
+        {
+            DataReport = await InProcessInventoryReportService.GetInProcessInventoryReportDataAsync(filter);
+
+            ViewModel = new InProcessInventoryViewModel
+            {
+                Lines = await GetReporLinesAsync()
+            };
+        }
+
         async Task OpenFilters()
         {
             var result = await DialogService.OpenAsync<InProcessInventoryReportFilter>("Filtrar reporte de inventario", parameters: new Dictionary<string, object> { { "Filter", Filter } }, options: new DialogOptions { Width = "800px" });
             if (result == null)
                 return;
+
             Filter = (InProcessInventoryFilter)result;
-            //Todo: Aplicar filtro de refenrecias al ViewModel
+
+            var referenceIdsFilter = "";
+
+            if (Filter.ItemReferences.Count > 0)
+                referenceIdsFilter = String.Join(",", Filter.ItemReferences.Select(s => s.ReferenceId));
+
+            await RedrawReport(referenceIdsFilter);
+
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
         }
         async Task RemoveFilters()
@@ -69,7 +83,9 @@ namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
             if (await DialogService.Confirm("Está seguro que desea eliminar los filtros establecidos?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
             {
                 Filter = null;
-                //Todo: Remover filtro de refenrecias al ViewModel
+                                
+                await RedrawReport();
+
                 await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
             }
         }
@@ -111,7 +127,7 @@ namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
         {
             var items = new List<InProcessInventoryViewModel.Item>();
 
-            foreach (var item in DataReport.Where(w=>w.LineId == lineId).Select(s=>new { s.ItemId, s.InternalReference, s.ItemName}).DistinctBy(d=>d.ItemId))
+            foreach (var item in DataReport.Where(w => w.LineId == lineId).Select(s => new { s.ItemId, s.InternalReference, s.ItemName }).DistinctBy(d => d.ItemId))
             {
                 items.Add(new InProcessInventoryViewModel.Item
                 {
@@ -128,7 +144,7 @@ namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
         {
             var reportReferences = new List<InProcessInventoryViewModel.Reference>();
 
-            foreach (var reference in DataReport.Where(w => w.ItemId == itemId).Select(s=> new { s.ReferenceId, s.ReferenceName, s.InProcessAmount}).DistinctBy(d=>d.ReferenceId).OrderBy(o => o.ReferenceName))
+            foreach (var reference in DataReport.Where(w => w.ItemId == itemId).Select(s => new { s.ReferenceId, s.ReferenceName, s.InProcessAmount }).DistinctBy(d => d.ReferenceId).OrderBy(o => o.ReferenceName))
             {
                 reportReferences.Add(new InProcessInventoryViewModel.Reference
                 {
@@ -146,7 +162,7 @@ namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
         {
             var warehouses = new List<InProcessInventoryViewModel.Warehouse>();
 
-            foreach (var warehouse in DataReport.Where(w=>w.ReferenceId == referenceId).Select(s=>new { s.WarehouseId, s.WarehouseName, s.Amount}).OrderBy(o=>o.WarehouseName))
+            foreach (var warehouse in DataReport.Where(w => w.ReferenceId == referenceId).Select(s => new { s.WarehouseId, s.WarehouseName, s.Amount }).OrderBy(o => o.WarehouseName))
             {
                 warehouses.Add(new InProcessInventoryViewModel.Warehouse
                 {

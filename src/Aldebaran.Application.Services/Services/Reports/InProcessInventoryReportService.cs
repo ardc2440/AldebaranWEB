@@ -15,9 +15,9 @@ namespace Aldebaran.Application.Services.Reports
             _mapper = mapper ?? throw new ArgumentNullException(nameof(IMapper));
         }
 
-        public async Task<IEnumerable<InProcessInventoryReport>> GetInProcessInventoryReportDataAsync(CancellationToken ct = default)
+        public async Task<IEnumerable<InProcessInventoryReport>> GetInProcessInventoryReportDataAsync(string referenceIdsFilter, CancellationToken ct = default)
         {
-            var data = await _repository.GetInProcessInventoryReportDataAsync(ct);
+            var data = await _repository.GetInProcessInventoryReportDataAsync(referenceIdsFilter, ct);
             return _mapper.Map<IEnumerable<InProcessInventoryReport>>(data);
         }
     }

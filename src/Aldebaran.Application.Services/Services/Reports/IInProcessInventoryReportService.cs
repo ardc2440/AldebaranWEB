@@ -4,6 +4,6 @@ namespace Aldebaran.Application.Services.Reports
 {
     public interface IInProcessInventoryReportService
     {
-        Task<IEnumerable<InProcessInventoryReport>> GetInProcessInventoryReportDataAsync(CancellationToken ct = default);
+        Task<IEnumerable<InProcessInventoryReport>> GetInProcessInventoryReportDataAsync(string referenceIdsFilter = "", CancellationToken ct = default);
     }
 }
