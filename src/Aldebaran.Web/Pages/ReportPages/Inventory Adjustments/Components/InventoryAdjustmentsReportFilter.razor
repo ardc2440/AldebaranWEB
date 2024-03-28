@@ -17,7 +17,7 @@
                 <RadzenStack>
                     <RadzenFormField Text="Fecha de creación" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.CreationDate" Name="CreationDate" AllowClear=true />
+                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.CreationDateFrom" Name="CreationDate" AllowClear=true />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenStack>
@@ -28,7 +28,7 @@
                 <RadzenStack>
                     <RadzenFormField Text="Fecha del ajuste" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.AdjustmentDate" Name="AdjustmentDate" AllowClear=true />
+                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.AdjustmentDateFrom" Name="AdjustmentDate" AllowClear=true />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenStack>

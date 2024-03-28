@@ -11,9 +11,9 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository.Reports
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task<IEnumerable<InventoryAdjustmentReport>> GetInventoryAdjustmentReportDataAsync(CancellationToken ct = default)
+        public async Task<IEnumerable<InventoryAdjustmentReport>> GetInventoryAdjustmentReportDataAsync(string filter, CancellationToken ct = default)
         {
-            return await _context.Set<InventoryAdjustmentReport>().ToListAsync(ct);
+            return await _context.Set<InventoryAdjustmentReport>().FromSqlRaw($"EXEC SP_GET_INVENTORY_ADJUSTMENT_REPORT {filter}").ToListAsync(ct);
         }
     }
 }

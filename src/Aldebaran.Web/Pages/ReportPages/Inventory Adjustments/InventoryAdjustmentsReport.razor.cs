@@ -3,6 +3,7 @@ using Aldebaran.Application.Services.Reports;
 using Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments.Components;
 using Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments.ViewModel;
 using Microsoft.AspNetCore.Components;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.JSInterop;
 using Radzen;
 
@@ -32,26 +33,23 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
         protected InventoryAdjustmentsViewModel ViewModel;
         private bool IsBusy = false;
 
+        private IEnumerable<InventoryAdjustmentReport> DataReport { get; set; }
+
         #endregion
 
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            var dataReport = await InventoryAdjustmentReportService.GetInventoryAdjustmentReportDataAsync();
-
-            ViewModel = new InventoryAdjustmentsViewModel()
-            {
-                Adjustments = (await GetAdjustmentsAsync(dataReport.ToList())).ToList()
-            };
+            await RedrawReportAsync();            
         }
         #endregion
 
         #region Fill Data Report
 
-        async static Task<List<InventoryAdjustmentsViewModel.Adjustment>> GetAdjustmentsAsync(List<InventoryAdjustmentReport> data, CancellationToken ct = default)
+        async Task<List<InventoryAdjustmentsViewModel.Adjustment>> GetAdjustmentsAsync(CancellationToken ct = default)
         {
             var adjustments = new List<InventoryAdjustmentsViewModel.Adjustment>();
-            var uniqueAdjustments = data.Select(s => new
+            var uniqueAdjustments = DataReport.Select(s => new
             {
                 s.AdjustmentDate,
                 s.AdjustmentId,
@@ -61,9 +59,10 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
                 s.Employee,
                 s.Notes
             }).DistinctBy(d => d.AdjustmentId);
+
             foreach (var adjustment in uniqueAdjustments)
             {
-                var warehouses = await GetAdjustmentsAsync(data, adjustment.AdjustmentId, ct);
+                var warehouses = await GetAdjustmentsAsync(adjustment.AdjustmentId, ct);
                 adjustments.Add(new InventoryAdjustmentsViewModel.Adjustment
                 {
                     AdjustmentDate = adjustment.AdjustmentDate,
@@ -80,13 +79,13 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
             return adjustments;
         }
 
-        async static Task<List<InventoryAdjustmentsViewModel.Warehouse>> GetAdjustmentsAsync(List<InventoryAdjustmentReport> data, int adjustmentId, CancellationToken ct = default)
+        async Task<List<InventoryAdjustmentsViewModel.Warehouse>> GetAdjustmentsAsync(int adjustmentId, CancellationToken ct = default)
         {
             var warehouses = new List<InventoryAdjustmentsViewModel.Warehouse>();
-            var uniqueWarehouses = data.Where(w => w.AdjustmentId == adjustmentId).Select(s => new { s.WarehouseId, s.WarehouseName }).DistinctBy(d => d.WarehouseId);
+            var uniqueWarehouses = DataReport.Where(w => w.AdjustmentId == adjustmentId).Select(s => new { s.WarehouseId, s.WarehouseName }).DistinctBy(d => d.WarehouseId);
             foreach (var warehouse in uniqueWarehouses)
             {
-                var lines = await GetWarehouseLines(data, adjustmentId, warehouse.WarehouseId, ct);
+                var lines = await GetWarehouseLines(adjustmentId, warehouse.WarehouseId, ct);
                 warehouses.Add(new InventoryAdjustmentsViewModel.Warehouse
                 {
                     WarehouseId = warehouse.WarehouseId,
@@ -97,13 +96,13 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
             return warehouses;
         }
 
-        async static Task<List<InventoryAdjustmentsViewModel.Line>> GetWarehouseLines(List<InventoryAdjustmentReport> data, int adjustmentId, int warehouseId, CancellationToken ct = default)
+        async Task<List<InventoryAdjustmentsViewModel.Line>> GetWarehouseLines(int adjustmentId, int warehouseId, CancellationToken ct = default)
         {
             var reportLines = new List<InventoryAdjustmentsViewModel.Line>();
-            var uniqueLines = data.Where(w => w.AdjustmentId == adjustmentId && w.WarehouseId == warehouseId).Select(s => new { s.LineId, s.LineCode, s.LineName }).DistinctBy(d => d.LineId).OrderBy(o => o.LineName);
+            var uniqueLines = DataReport.Where(w => w.AdjustmentId == adjustmentId && w.WarehouseId == warehouseId).Select(s => new { s.LineId, s.LineCode, s.LineName }).DistinctBy(d => d.LineId).OrderBy(o => o.LineName);
             foreach (var line in uniqueLines)
             {
-                var items = await GetLineItems(data, adjustmentId, warehouseId, line.LineId, ct);
+                var items = await GetLineItems( adjustmentId, warehouseId, line.LineId, ct);
                 reportLines.Add(new InventoryAdjustmentsViewModel.Line
                 {
                     LineCode = line.LineCode,
@@ -114,14 +113,14 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
             return reportLines.DistinctBy(d => d.LineCode).ToList();
         }
 
-        async static Task<List<InventoryAdjustmentsViewModel.Item>> GetLineItems(List<InventoryAdjustmentReport> data, int adjustmentId, int warehouseId, short lineId, CancellationToken ct = default)
+        async Task<List<InventoryAdjustmentsViewModel.Item>> GetLineItems(int adjustmentId, int warehouseId, short lineId, CancellationToken ct = default)
         {
             var reportItems = new List<InventoryAdjustmentsViewModel.Item>();
 
-            foreach (var item in data.Where(w => w.AdjustmentId == adjustmentId && w.WarehouseId == warehouseId && w.LineId == lineId).Select(s => new { s.ItemId, s.ItemName, s.InternalReference })
+            foreach (var item in DataReport.Where(w => w.AdjustmentId == adjustmentId && w.WarehouseId == warehouseId && w.LineId == lineId).Select(s => new { s.ItemId, s.ItemName, s.InternalReference })
                                     .DistinctBy(d => d.ItemId).OrderBy(o => o.ItemName))
             {
-                var references = await GetItemReferences(data, adjustmentId, warehouseId, item.ItemId, ct);
+                var references = await GetItemReferences(adjustmentId, warehouseId, item.ItemId, ct);
                 reportItems.Add(new InventoryAdjustmentsViewModel.Item
                 {
                     ItemName = item.ItemName,
@@ -133,11 +132,11 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
             return reportItems.DistinctBy(d => d.ItemName).ToList();
         }
 
-        async static Task<List<InventoryAdjustmentsViewModel.Reference>> GetItemReferences(List<InventoryAdjustmentReport> data, int adjustmentId, int warehouseId, int itemId, CancellationToken ct = default)
+        async Task<List<InventoryAdjustmentsViewModel.Reference>> GetItemReferences(int adjustmentId, int warehouseId, int itemId, CancellationToken ct = default)
         {
             var reportReferences = new List<InventoryAdjustmentsViewModel.Reference>();
 
-            foreach (var reference in data.Where(w => w.AdjustmentId == adjustmentId && w.WarehouseId == warehouseId && w.ItemId == itemId).Select(s => new { s.ReferenceId, s.ReferenceName, s.ReferenceCode, s.AvailableAmount })
+            foreach (var reference in DataReport.Where(w => w.AdjustmentId == adjustmentId && w.WarehouseId == warehouseId && w.ItemId == itemId).Select(s => new { s.ReferenceId, s.ReferenceName, s.ReferenceCode, s.AvailableAmount })
                                         .DistinctBy(d => d.ReferenceName).OrderBy(o=>o.ReferenceName))
             {
                 reportReferences.Add(new InventoryAdjustmentsViewModel.Reference
@@ -154,21 +153,65 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
         #endregion
 
         #region Events
+
+        async Task RedrawReportAsync(string filter = "", CancellationToken ct = default)
+        {
+            DataReport = await InventoryAdjustmentReportService.GetInventoryAdjustmentReportDataAsync(filter, ct);
+
+            ViewModel = new InventoryAdjustmentsViewModel()
+            {
+                Adjustments = await GetAdjustmentsAsync(ct)
+            };
+        }
+
         async Task OpenFilters()
         {
             var result = await DialogService.OpenAsync<InventoryAdjustmentsReportFilter>("Filtrar reporte de ajustes de inventario", parameters: new Dictionary<string, object> { { "Filter", Filter } }, options: new DialogOptions { Width = "800px" });
             if (result == null)
                 return;
             Filter = (InventoryAdjustmentsFilter)result;
-            //Todo: Aplicar filtro de refenrecias al ViewModel
+
+            await RedrawReportAsync(await SetReportFiterAsync(Filter));
+
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
         }
+
+        async Task<string> SetReportFiterAsync(InventoryAdjustmentsFilter filter, CancellationToken ct = default)
+        {
+            var filterResult = string.Empty;
+                        
+            if (filter.CreationDateFrom.HasValue)               
+                filterResult += $"@CreationDateFrom = '{(DateTime)filter.CreationDateFrom:yyyyMMdd}', @CreationDateTo = '{(DateTime)filter.CreationDateTo:yyyyMMdd}'";
+
+            if (filter.AdjustmentDateFrom.HasValue)
+                filterResult += (!filterResult.IsNullOrEmpty()?", ":"")+$"@AdjustmentDateFrom = '{(DateTime)filter.AdjustmentDateFrom:yyyyMMdd}', @AdjustmentDateTo = '{(DateTime)filter.AdjustmentDateTo:yyyyMMdd}'";
+
+            if (filter.AdjustmentId.HasValue)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "")+ $"@AdjustmentId = {filter.AdjustmentId}";
+
+            if (filter.EmployeeId.HasValue)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@EmployeeId = {filter.EmployeeId}";
+
+            if (filter.ItemReferences.Count > 0)                
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReferenceIds = '{String.Join(",", Filter.ItemReferences.Select(s => s.ReferenceId))}'";
+
+            if (filter.AdjustmentReasonId.HasValue)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@AdjustmentReasonId = {filter.AdjustmentReasonId}";
+
+            if (filter.AdjustmentTypeId.HasValue)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@AdjustmentTypeId = {filter.AdjustmentTypeId}";
+                        
+            return filterResult;
+        }
+
         async Task RemoveFilters()
         {
             if (await DialogService.Confirm("Está seguro que desea eliminar los filtros establecidos?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
             {
                 Filter = null;
-                //Todo: Remover filtro de refenrecias al ViewModel
+                
+                await RedrawReportAsync();
+
                 await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
             }
         }

@@ -1685,8 +1685,27 @@ GO
 
 /* Reports Stored Procedures*/
 CREATE OR ALTER PROCEDURE SP_GET_INVENTORY_ADJUSTMENT_REPORT
+	@AdjustmentId INT = NULL,
+	@AdjustmentDateFrom DATE = NULL,
+	@AdjustmentDateTo DATE = NULL,
+	@CreationDateFrom DATE = NULL,
+	@CreationDateTo DATE = NULL,
+	@AdjustmentTypeId SMALLINT = NULL,
+    @AdjustmentReasonId SMALLINT = NULL,
+	@EmployeeId INT = NULL,
+	@ReferenceIds VARCHAR(MAX) = ''
 AS
 BEGIN
+	DECLARE @FilterReferences TABLE (ReferenceId INT)
+	
+	IF LEN(RTRIM(@ReferenceIds)) > 0
+		INSERT INTO @FilterReferences
+			 SELECT value FROM STRING_SPLIT(@ReferenceIds,',')
+	ELSE
+		INSERT INTO @FilterReferences
+			 SELECT REFERENCE_ID 
+			   FROM item_references
+
 	SELECT a.ADJUSTMENT_ID AdjustmentId, a.ADJUSTMENT_DATE AdjustmentDate, a.CREATION_DATE CreationDate, b.ADJUSTMENT_TYPE_NAME AdjustmentType, c.ADJUSTMENT_REASON_NAME AdjustmentReason, 
 		   d.FULL_NAME Employee, a.Notes, f.WAREHOUSE_ID WarehouseId, f.WAREHOUSE_NAME WarehouseName, i.LINE_ID LineId, i.LINE_CODE LineCode, i.LINE_NAME LineName, h.ITEM_ID ItemId, 
 		   h.INTERNAL_REFERENCE InternalReference, h.ITEM_NAME ItemName, g.REFERENCE_ID ReferenceId, g.REFERENCE_CODE ReferenceCode, g.REFERENCE_NAME ReferenceName, e.QUANTITY AvailableAmount
@@ -1699,7 +1718,13 @@ BEGIN
 	  JOIN item_references g ON g.REFERENCE_ID = e.REFERENCE_ID
 	  JOIN items h on h.ITEM_ID = g.ITEM_ID
 	  JOIN lines i ON i.LINE_ID = h.LINE_ID
-	 ORDER BY 1
+     WHERE EXISTS (SELECT 1 FROM @FilterReferences fr WHERE fr.ReferenceId = g.REFERENCE_ID)
+	   AND (a.ADJUSTMENT_ID = @AdjustmentId OR @AdjustmentId IS NULL)
+	   AND (a.ADJUSTMENT_DATE BETWEEN @AdjustmentDateFrom AND @AdjustmentDateTo OR @AdjustmentDateFrom IS NULL)
+	   AND (a.CREATION_DATE BETWEEN @CreationDateFrom AND @CreationDateTo OR @CreationDateFrom IS NULL)
+	   AND (a.ADJUSTMENT_TYPE_ID = @AdjustmentTypeId OR @AdjustmentTypeId IS NULL)
+	   AND (a.ADJUSTMENT_REASON_ID = @AdjustmentReasonId OR @AdjustmentReasonId IS NULL)
+	   AND (a.EMPLOYEE_ID = @EmployeeId OR @EmployeeId IS NULL)	 
 END 
 GO
 

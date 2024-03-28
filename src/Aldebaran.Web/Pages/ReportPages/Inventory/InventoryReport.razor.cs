@@ -42,13 +42,13 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            await RedrawReport();            
+            await RedrawReportAsync();            
         }
         #endregion
 
         #region Events
 
-        async Task RedrawReport(string filter = "", CancellationToken ct = default)
+        async Task RedrawReportAsync(string filter = "", CancellationToken ct = default)
         {
             DataReport = await InventoryReportService.GetInventoryReportDataAsync(filter,ct);
 
@@ -71,7 +71,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
             if (Filter.ItemReferences.Count > 0)
                 referenceIdsFilter = String.Join(",", Filter.ItemReferences.Select(s=>s.ReferenceId));
                         
-            await RedrawReport(referenceIdsFilter);
+            await RedrawReportAsync(referenceIdsFilter);
 
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
         }
@@ -81,7 +81,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
             {
                 Filter = null;
                                 
-                await RedrawReport();
+                await RedrawReportAsync();
 
                 await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
             }

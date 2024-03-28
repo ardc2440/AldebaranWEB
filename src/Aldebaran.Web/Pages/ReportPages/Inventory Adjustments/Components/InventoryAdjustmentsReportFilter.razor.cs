@@ -70,8 +70,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments.Components
             {
                 IsSubmitInProgress = true;
                 // Si no se han incluido filtros, mostrar mensaje de error
-                if (Filter.AdjustmentId == null && Filter.CreationDate == null &&
-                    Filter.AdjustmentDate == null && Filter.AdjustmentTypeId == null && Filter.AdjustmentReasonId == null &&
+                if (Filter.AdjustmentId == null && Filter.CreationDateFrom == null &&
+                    Filter.AdjustmentDateFrom == null && Filter.AdjustmentTypeId == null && Filter.AdjustmentReasonId == null &&
                     Filter.EmployeeId == null && SelectedReferences.Any() == false)
                 {
                     ValidationError = true;

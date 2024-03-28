@@ -40,7 +40,7 @@ namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
         #region Overrides
         protected override async Task OnInitializedAsync()
         {            
-            await RedrawReport();
+            await RedrawReportAsync();
 
             UniqueWarehouses = ViewModel.Lines.SelectMany(s => s.Items)
                 .SelectMany(item => item.References.SelectMany(reference => reference.Warehouses))
@@ -51,7 +51,7 @@ namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
 
         #region Events
 
-        protected async Task RedrawReport(string filter="",CancellationToken ct =default)
+        protected async Task RedrawReportAsync(string filter="",CancellationToken ct =default)
         {
             DataReport = await InProcessInventoryReportService.GetInProcessInventoryReportDataAsync(filter);
 
@@ -74,7 +74,7 @@ namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
             if (Filter.ItemReferences.Count > 0)
                 referenceIdsFilter = String.Join(",", Filter.ItemReferences.Select(s => s.ReferenceId));
 
-            await RedrawReport(referenceIdsFilter);
+            await RedrawReportAsync(referenceIdsFilter);
 
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
         }
@@ -84,7 +84,7 @@ namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
             {
                 Filter = null;
                                 
-                await RedrawReport();
+                await RedrawReportAsync();
 
                 await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
             }
