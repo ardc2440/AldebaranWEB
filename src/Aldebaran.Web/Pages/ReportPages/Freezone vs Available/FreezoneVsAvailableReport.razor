@@ -1,0 +1,131 @@
+﻿@page "/report/freezone-vs-available"
+@inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer
+
+<RadzenStack Style="gap:0.3em">
+    <RadzenRow AlignItems="AlignItems.Start">
+        <RadzenColumn Size="12">
+            <RadzenText Text="Reporte de Zona franca vs. Disponible" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenRow AlignItems="AlignItems.Start" class="mb-2">
+        <RadzenColumn Size="6">
+            <div class="rz-text-align-left d-flex gap-3">
+                <RadzenButton Variant="Variant.Text" Icon="filter_alt" Click="@OpenFilters" Text="Filtros" ButtonStyle="ButtonStyle.Secondary" class="text-primary-color p-0 pb-1" />
+                @if (Filter != null && Filter.ItemReferences.Any())
+                {
+                    <RadzenButton Variant="Variant.Text" Click="@RemoveFilters" Text="Limpiar filtros" ButtonStyle="ButtonStyle.Secondary" class="text-decoration-underline p-0 pb-1" />
+                }
+            </div>
+            <div class="component-section d-flex flex-column justify-content-start text-secondary-color">
+                @if (Filter != null)
+                {
+                    <p class="component-label m-0 pt-2 fw-bold">Referencias: </p>
+                    @for (int i = 0; i < Filter.ItemReferences.Count(); i++)
+                    {
+                        <span class='@(i>=2 ? "read-more" : "")' style='@(i>=2 ? "display: none" : "")'>(@Filter.ItemReferences[i].Item.Line.LineName) @Filter.ItemReferences[i].Item.ItemName - @Filter.ItemReferences[i].ReferenceName</span>
+                    }
+                    @if (Filter.ItemReferences.Count() > 2)
+                    {
+                        <div>
+                            <a href="javascript:;" id="toggleLink" @onclick="ToggleReadMore">Ver más</a>
+                        </div>
+                    }
+                }
+            </div>
+        </RadzenColumn>
+        <RadzenColumn Size="6" class="align-self-end">
+            <div class="d-flex flex-row justify-content-end align-items-end">
+                <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="save" Text="Guardar PDF" Click="@Download" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@IsBusy" />
+            </div>
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenRow AlignItems="AlignItems.Start">
+        <RadzenColumn Size="12">
+            <RadzenCard style="min-height:600px; overflow-y:auto">
+                <div id="freezone-report-container">
+                    <div class="report">
+                        <table class="mt-1">
+                            <tr>
+                                <td width="50%">
+                                    <h2 class="text-left mb-0">Zona franca vs. Disponible</h2>
+                                    <span class="mb-1">@DateTime.Now.ToString(SharedLocalizer["datetime:format"])</span>
+                                </td>
+                                <td width="50%">
+                                    @if (Filter != null)
+                                    {
+                                        <div class="filters">
+                                            <div class="title">Filtros:</div>
+                                            <div>
+                                                <div class="type">Referencias: </div>
+                                                @for (int i = 0; i < Filter.ItemReferences.Count(); i++)
+                                                {
+                                                    <p>(@Filter.ItemReferences[i].Item.Line.LineName) @Filter.ItemReferences[i].Item.ItemName - @Filter.ItemReferences[i].ReferenceName</p>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                </td>
+                            </tr>
+                        </table>
+                        <div class="mt-1">
+                            @if (ViewModel != null)
+                            {
+                                <table class="edged">
+                                    <tbody>
+                                        @foreach (var line in ViewModel.Lines)
+                                        {
+                                            <tr>
+                                                <td colspan="4" style="padding:0 !important">
+                                                    <p class="title" style="padding-left: 1em;">Línea: @line.LineCode  - @line.LineName</p>
+                                                </td>
+                                            </tr>
+                                            @for (int i = 0; i < line.Items.Count(); i++)
+                                            {
+                                                var item = line.Items[i];
+                                                <tr>
+                                                    <td colspan="4" style="padding:0 !important">
+                                                        <div style="padding: 1em 1em 0 1em !important;">
+                                                            <h3 class="text-left m-0">
+                                                                @item.ItemName
+                                                            </h3>
+                                                            <p class="m-0">
+                                                                Referencia interna: @item.InternalReference
+                                                            </p>
+                                                        </div>
+                                                        <div style="margin: 1em;">
+                                                            <table class="striped edged">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th colspan="4" width="40%">Referencia</th>
+                                                                        <th colspan="2" width="20%">Cantidad</th>
+                                                                        <th colspan="2" width="20%">Zona franca</th>
+                                                                        <th colspan="2" width="20%">Diferencia</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    @foreach (var reference in item.References)
+                                                                    {
+                                                                        <tr>
+                                                                            <td colspan="4" width="40%">@(string.IsNullOrEmpty(reference.ReferenceCode) ? string.Empty : $"{reference.ReferenceCode} - ")@reference.ReferenceName</td>
+                                                                            <td colspan="2" width="20%">@reference.AvailableAmount.ToString("N0")</td>
+                                                                            <td colspan="2" width="20%">@reference.FreeZone.ToString("N0")</td>
+                                                                            <td colspan="2" width="20%">@reference.Difference.ToString("N0")</td>
+                                                                        </tr>
+                                                                    }
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </RadzenCard>
+        </RadzenColumn>
+    </RadzenRow>
+</RadzenStack>
