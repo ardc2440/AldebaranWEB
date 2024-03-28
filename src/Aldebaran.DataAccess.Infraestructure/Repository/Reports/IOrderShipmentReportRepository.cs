@@ -4,6 +4,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository.Reports
 {
     public interface IOrderShipmentReportRepository
     {
-        Task<IEnumerable<OrderShipmentReport>> GetOrderShipmentReportDataAsync(CancellationToken ct = default);
+        Task<IEnumerable<OrderShipmentReport>> GetOrderShipmentReportDataAsync(string filter = "", CancellationToken ct = default);
     }
 }

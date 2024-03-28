@@ -56,7 +56,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Reservations
 
         }
 
-        async Task<string> SetReportFiterAsync(CustomerReservationFilter filter, CancellationToken ct = default)
+        async Task<string> SetReportFilterAsync(CustomerReservationFilter filter, CancellationToken ct = default)
         {
             var filterResult = string.Empty;
 
@@ -67,7 +67,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Reservations
                 filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReservationDateFrom = '{(DateTime)filter.ReservationDateFrom:yyyyMMdd}', @ReservationDateTo = '{(DateTime)filter.ReservationDateTo:yyyyMMdd}'";
 
             if (!filter.ReservationNumber.IsNullOrEmpty())
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReservationNumber = {filter.ReservationNumber}";
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReservationNumber = '{filter.ReservationNumber}'";
 
             if (filter.StatusDocumentTypeId.HasValue)
                 filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@StatusDocumentTypeId = {filter.StatusDocumentTypeId}";
@@ -87,7 +87,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Reservations
                 return;
             Filter = (CustomerReservationFilter)result;
 
-            await RedrawReportAsync(await SetReportFiterAsync(Filter));
+            await RedrawReportAsync(await SetReportFilterAsync(Filter));
 
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
         }

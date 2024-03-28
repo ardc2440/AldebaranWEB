@@ -15,9 +15,9 @@ namespace Aldebaran.Application.Services.Reports
             _mapper = mapper ?? throw new ArgumentNullException(nameof(IMapper));
         }
 
-        public async Task<IEnumerable<OrderShipmentReport>> GetOrderShipmentReportDataAsync(CancellationToken ct = default)
+        public async Task<IEnumerable<OrderShipmentReport>> GetOrderShipmentReportDataAsync(string filter, CancellationToken ct = default)
         {
-            var data = await _repository.GetOrderShipmentReportDataAsync(ct);
+            var data = await _repository.GetOrderShipmentReportDataAsync(filter, ct);
             return _mapper.Map<IEnumerable<OrderShipmentReport>>(data);
         }
     }

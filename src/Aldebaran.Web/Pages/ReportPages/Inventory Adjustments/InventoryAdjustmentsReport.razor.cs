@@ -171,12 +171,12 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
                 return;
             Filter = (InventoryAdjustmentsFilter)result;
 
-            await RedrawReportAsync(await SetReportFiterAsync(Filter));
+            await RedrawReportAsync(await SetReportFilterAsync(Filter));
 
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
         }
 
-        async Task<string> SetReportFiterAsync(InventoryAdjustmentsFilter filter, CancellationToken ct = default)
+        async Task<string> SetReportFilterAsync(InventoryAdjustmentsFilter filter, CancellationToken ct = default)
         {
             var filterResult = string.Empty;
                         

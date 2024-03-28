@@ -5,9 +5,12 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment.ViewModel
     public class OrderShipmentFilter : ICloneable
     {
         public string OrderNumber { get; set; }
-        public DateTime? CreationDate { get; set; }
-        public DateTime? RequestDate { get; set; }
-        public DateTime? ExpectedReceiptDate { get; set; }
+        public DateTime? CreationDateFrom { get; set; }
+        public DateTime? CreationDateTo { get; set; } = DateTime.Now;
+        public DateTime? RequestDateFrom { get; set; }
+        public DateTime? RequestDateTo { get; set; } = DateTime.Now;
+        public DateTime? ExpectedReceiptDateFrom { get; set; }
+        public DateTime? ExpectedReceiptDateTo{ get; set; } = DateTime.Now;
         public DateTime? RealReceiptDate { get; set; }
         public string ImportNumber { get; set; }
         public string EmbarkationPort { get; set; }

@@ -11,9 +11,9 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository.Reports
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task<IEnumerable<OrderShipmentReport>> GetOrderShipmentReportDataAsync(CancellationToken ct = default)
+        public async Task<IEnumerable<OrderShipmentReport>> GetOrderShipmentReportDataAsync(string filter, CancellationToken ct = default)
         {
-            return await _context.Set<OrderShipmentReport>().ToListAsync(ct);
+            return await _context.Set<OrderShipmentReport>().FromSqlRaw($"EXEC SP_GET_ORDER_SHIPMENT_REPORT {filter}").ToListAsync(ct);
         }
     }
 }

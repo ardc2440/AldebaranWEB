@@ -174,7 +174,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders
             };
         }
 
-        async Task<string> SetReportFiterAsync(CustomerOrderFilter filter, CancellationToken ct = default)
+        async Task<string> SetReportFilterAsync(CustomerOrderFilter filter, CancellationToken ct = default)
         {
             var filterResult = string.Empty;
 
@@ -188,7 +188,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders
                 filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@EstimatedDeliveryDateFrom = '{(DateTime)filter.EstimatedDeliveryDateFrom:yyyyMMdd}', @EstimatedDeliveryDateTo = '{(DateTime)filter.EstimatedDeliveryDateTo:yyyyMMdd}'";
 
             if (!filter.OrderNumber.IsNullOrEmpty())
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@OrderNumber = {filter.OrderNumber}";
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@OrderNumber = '{filter.OrderNumber}'";
 
             if (filter.StatusDocumentTypeId.HasValue)
                 filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@StatusDocumentTypeId = {filter.StatusDocumentTypeId}";
@@ -209,7 +209,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders
                 return;
             Filter = (CustomerOrderFilter)result;
 
-            await RedrawReportAsync(await SetReportFiterAsync(Filter));
+            await RedrawReportAsync(await SetReportFilterAsync(Filter));
 
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
         }

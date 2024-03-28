@@ -1,7 +1,9 @@
 ﻿using Aldebaran.Application.Services.Reports;
+using Aldebaran.Web.Pages.ReportPages.Customer_Orders.ViewModel;
 using Aldebaran.Web.Pages.ReportPages.Order_Shipment.Components;
 using Aldebaran.Web.Pages.ReportPages.Order_Shipment.ViewModel;
 using Microsoft.AspNetCore.Components;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.JSInterop;
 using Radzen;
 
@@ -37,31 +39,88 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            DataReport = await OrderShipmentReportService.GetOrderShipmentReportDataAsync();
+            await RedrawReportAsync();
+        }
+        #endregion
+
+        #region Events
+        async Task RedrawReportAsync(string filter = "", CancellationToken ct= default)
+        {
+            DataReport = await OrderShipmentReportService.GetOrderShipmentReportDataAsync(filter, ct);
 
             ViewModel = new OrderShipmentViewModel()
             {
                 Orders = await GetOrdersAsync()
             };
         }
-        #endregion
 
-        #region Events
+        async Task<string> SetReportFilterAsync(OrderShipmentFilter filter, CancellationToken ct = default)
+        {
+            var filterResult = string.Empty;
+
+            if (filter.CreationDateFrom.HasValue)
+                filterResult += $"@CreationDateFrom = '{(DateTime)filter.CreationDateFrom:yyyyMMdd}', @CreationDateTo = '{(DateTime)filter.CreationDateTo:yyyyMMdd}'";
+
+            if (filter.RequestDateFrom.HasValue)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@RequestDateFrom = '{(DateTime)filter.RequestDateFrom:yyyyMMdd}', @RequestDateTo = '{(DateTime)filter.RequestDateTo:yyyyMMdd}'";
+
+            if (filter.ExpectedReceiptDateFrom.HasValue)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ExpectedReceiptDateFrom = '{(DateTime)filter.ExpectedReceiptDateFrom:yyyyMMdd}', @ExpectedReceiptDateTo = '{(DateTime)filter.ExpectedReceiptDateTo:yyyyMMdd}'";
+
+            if (!filter.OrderNumber.IsNullOrEmpty())
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@OrderNumber = '{filter.OrderNumber}'";
+
+            if (!filter.ImportNumber.IsNullOrEmpty())
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ImportNumber = '{filter.ImportNumber}'";
+
+            if (filter.ItemReferences.Count > 0)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReferenceIds = '{String.Join(",", Filter.ItemReferences.Select(s => s.ReferenceId))}'";
+
+            if (!filter.EmbarkationPort.IsNullOrEmpty())
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@EmbarkationPort = '{filter.EmbarkationPort}'";
+
+            if (!filter.ProformaNumber.IsNullOrEmpty())
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ProformaNumber = '{filter.ProformaNumber}'";
+
+            if (filter.ProviderId.HasValue)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ProviderId = {filter.ProviderId}";
+
+            if (filter.ForwarderId.HasValue)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ForwarderId = {filter.ForwarderId}";
+
+            if (filter.ForwarderAgentId.HasValue)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ForwarderAgentId = {filter.ForwarderAgentId}";
+
+            if (filter.ShipmentMethodId.HasValue)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ShipmentMethodId = {filter.ShipmentMethodId}";
+
+            if (filter.WarehouseId.HasValue)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@WarehouseId = {filter.WarehouseId}";
+
+            return filterResult;
+        }
+
         async Task OpenFilters()
         {
             var result = await DialogService.OpenAsync<OrderShipmentReportFilter>("Filtrar reporte de ordenes en tránsito", parameters: new Dictionary<string, object> { { "Filter", (OrderShipmentFilter)Filter?.Clone() } }, options: new DialogOptions { Width = "800px" });
             if (result == null)
                 return;
             Filter = (OrderShipmentFilter)result;
-            //Todo: Aplicar filtro de refenrecias al ViewModel
+
+            await RedrawReportAsync(await SetReportFilterAsync(Filter));
+
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
         }
+
+
         async Task RemoveFilters()
         {
             if (await DialogService.Confirm("Está seguro que desea eliminar los filtros establecidos?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
             {
                 Filter = null;
-                //Todo: Remover filtro de refenrecias al ViewModel
+
+                await RedrawReportAsync();
+
                 await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
             }
         }

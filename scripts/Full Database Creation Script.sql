@@ -2020,8 +2020,35 @@ END
 GO
 
 CREATE OR ALTER PROCEDURE SP_GET_ORDER_SHIPMENT_REPORT
+	@OrderNumber VARCHAR(10) = NULL,
+	@CreationDateFrom DATE = NULL,
+	@CreationDateTo DATE = NULL,
+	@RequestDateFrom DATE = NULL,
+	@RequestDateTo DATE = NULL,
+	@ExpectedReceiptDateFrom DATE = NULL,
+	@ExpectedReceiptDateTo DATE = NULL,	
+	@ReferenceIds VARCHAR(MAX) = '',
+	@ImportNumber VARCHAR(30) = NULL,
+ 	@EmbarkationPort VARCHAR(30) = NULL,
+ 	@ProformaNumber VARCHAR(30) = NULL,
+ 	@ProviderId INT = NULL,
+ 	@ForwarderId INT = NULL,
+ 	@ForwarderAgentId INT = NULL,
+ 	@ShipmentMethodId INT = NULL,
+ 	@WarehouseId INT = NULL
 AS 
 BEGIN 
+
+	DECLARE @FilterReferences TABLE (ReferenceId INT)
+	
+	IF LEN(RTRIM(@ReferenceIds)) > 0
+		INSERT INTO @FilterReferences
+			 SELECT value FROM STRING_SPLIT(@ReferenceIds,',')
+	ELSE
+		INSERT INTO @FilterReferences
+			 SELECT REFERENCE_ID 
+			   FROM item_references
+
 	SELECT a.PURCHASE_ORDER_ID OrderId, a.ORDER_NUMBER OrderNumber, a.CREATION_DATE CreationDate, a.REQUEST_DATE RequestDate, a.EXPECTED_RECEIPT_DATE ExpectedReceiptDate, c.PROVIDER_NAME ProviderName,  
 	       a.IMPORT_NUMBER ImportNumber, e.SHIPMENT_METHOD_NAME ShipmentMethodName, a.EMBARKATION_PORT EmbarkationPort, a.PROFORMA_NUMBER ProformaNumber, g.FORWARDER_NAME ForwarderName, 
 		   (ISNULL(g.PHONE2+', ','')+ISNULL(g.PHONE1,'')) ForwarderPhone, g.FAX ForwarderFax, SUBSTRING(RTRIM((ISNULL(g.MAIL1+', ','')+ISNULL(g.MAIL2+', ',''))),1,LEN(RTRIM((ISNULL(g.MAIL1+', ','')+ISNULL(g.MAIL2+', ',''))))-1) ForwarderEmail,
@@ -2042,5 +2069,18 @@ BEGIN
 	  JOIN items k ON k.ITEM_ID = j.ITEM_ID
 	  JOIN lines l ON l.LINE_ID = k.LINE_ID
      WHERE b.STATUS_ORDER = 1
+	   AND EXISTS (SELECT 1 FROM @FilterReferences fr WHERE fr.ReferenceId = j.REFERENCE_ID)
+	   AND (a.CREATION_DATE BETWEEN @CreationDateFrom AND @CreationDateTo OR @CreationDateFrom IS NULL)
+	   AND (a.REQUEST_DATE BETWEEN @RequestDateFrom AND @RequestDateTo OR @RequestDateFrom IS NULL)
+	   AND (a.EXPECTED_RECEIPT_DATE BETWEEN @ExpectedReceiptDateFrom AND @ExpectedReceiptDateTo OR @ExpectedReceiptDateFrom IS NULL)
+	   AND (a.IMPORT_NUMBER LIKE '%'+@ImportNumber+'%' OR @ImportNumber IS NULL)
+ 	   AND (a.EMBARKATION_PORT LIKE '%'+@EmbarkationPort+'%' or @EmbarkationPort IS NULL)
+ 	   AND (a.PROFORMA_NUMBER LIKE '%'+@ProformaNumber+'%' OR @ProformaNumber IS NULL)
+ 	   AND (a.PROVIDER_ID = @ProviderId OR @ProviderId IS NULL)
+ 	   AND (g.FORWARDER_ID = @ForwarderId OR @ForwarderId IS NULL)
+ 	   AND (a.FORWARDER_AGENT_ID = @ForwarderAgentId OR @ForwarderAgentId IS NULL)
+ 	   AND (e.SHIPMENT_METHOD_ID = @ShipmentMethodId OR @ShipmentMethodId IS NULL)
+ 	   AND (i.WAREHOUSE_ID = @WarehouseId OR @WarehouseId IS NULL)
+	   AND (a.ORDER_NUMBER LIKE '%'+@OrderNumber+'%' OR @OrderNumber IS NULL)
 END 
 GO

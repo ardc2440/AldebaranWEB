@@ -120,7 +120,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment.Components
             {
                 IsSubmitInProgress = true;
                 // Si no se han incluido filtros, mostrar mensaje de error
-                if (string.IsNullOrEmpty(Filter.OrderNumber) && Filter.CreationDate == null && Filter.RequestDate == null && Filter.ExpectedReceiptDate == null && Filter.RealReceiptDate == null &&
+                if (string.IsNullOrEmpty(Filter.OrderNumber) && Filter.CreationDateFrom == null && Filter.RequestDateFrom == null && Filter.ExpectedReceiptDateFrom == null && Filter.RealReceiptDate == null &&
                     string.IsNullOrEmpty(Filter.ImportNumber) && string.IsNullOrEmpty(Filter.EmbarkationPort) && string.IsNullOrEmpty(Filter.ProformaNumber) &&
                     Filter.ProviderId == null && ForwarderId == null && ForwarderAgentId == null && ShipmentMethodId == null &&
                     Filter.WarehouseId == null && SelectedReferences.Any() == false)

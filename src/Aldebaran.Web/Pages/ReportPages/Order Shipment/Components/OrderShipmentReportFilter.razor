@@ -17,7 +17,7 @@
                 <RadzenStack>
                     <RadzenFormField Text="Fecha de creación" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.CreationDate" Name="CreationDate" AllowClear=true />
+                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.CreationDateFrom" Name="CreationDate" AllowClear=true />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenStack>
@@ -28,7 +28,7 @@
                 <RadzenStack>
                     <RadzenFormField Text="Fecha de solicitud" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.RequestDate" Name="RequestDate" AllowClear=true />
+                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.RequestDateFrom" Name="RequestDate" AllowClear=true />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenStack>
@@ -37,7 +37,7 @@
                 <RadzenStack>
                     <RadzenFormField Text="Fecha esperada de recepción" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.ExpectedReceiptDate" Name="ExpectedReceiptDate" AllowClear=true />
+                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.ExpectedReceiptDateFrom" Name="ExpectedReceiptDate" AllowClear=true />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenStack>
