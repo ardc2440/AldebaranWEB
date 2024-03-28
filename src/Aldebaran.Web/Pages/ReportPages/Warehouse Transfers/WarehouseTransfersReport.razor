@@ -1,0 +1,214 @@
+﻿@page "/report/warehouse-transfers"
+@inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer
+
+<RadzenStack Style="gap:0.3em">
+    <RadzenRow AlignItems="AlignItems.Start">
+        <RadzenColumn Size="12">
+            <RadzenText Text="Reporte de traslados entre bodegas" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenRow AlignItems="AlignItems.Start" class="mb-2">
+        <RadzenColumn Size="6">
+            <div class="rz-text-align-left d-flex gap-3">
+                <RadzenButton Variant="Variant.Text" Icon="filter_alt" Click="@OpenFilters" Text="Filtros" ButtonStyle="ButtonStyle.Secondary" class="text-primary-color p-0 pb-1" />
+                @if (Filter != null)
+                {
+                    <RadzenButton Variant="Variant.Text" Click="@RemoveFilters" Text="Limpiar filtros" ButtonStyle="ButtonStyle.Secondary" class="text-decoration-underline p-0 pb-1" />
+                }
+            </div>
+            <div class="component-section d-flex flex-column justify-content-start text-secondary-color">
+                @if (Filter != null)
+                {
+                    @if (Filter.SourceWarehouseId != null && Filter.SourceWarehouse != null)
+                    {
+                        <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
+                            <p class="component-label m-0 fw-bold">Bodega de origen: </p>
+                            <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.SourceWarehouse.WarehouseName</span>
+                        </div>
+                    }
+                    @if (Filter.TargetWarehouseId != null && Filter.TargetWarehouse != null)
+                    {
+                        <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
+                            <p class="component-label m-0 fw-bold">Bodega destino: </p>
+                            <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.TargetWarehouse.WarehouseName</span>
+                        </div>
+                    }
+                    @if (Filter.AdjustmentDate != null)
+                    {
+                        <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
+                            <p class="component-label m-0 fw-bold">Fecha de ajuste: </p>
+                            <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.AdjustmentDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(Filter.NationalizationNumber))
+                    {
+                        <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
+                            <p class="component-label m-0 fw-bold">Número de nacionalización: </p>
+                            <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.NationalizationNumber</span>
+                        </div>
+                    }
+                    <div class="component-section d-flex flex-column justify-content-start pt-2">
+                        @if (Filter.ItemReferences.Any())
+                        {
+                            <p class="component-label m-0 fw-bold">Referencias: </p>
+                            @for (int i = 0; i < Filter.ItemReferences.Count(); i++)
+                            {
+                                <span class="@(i>=2 ? "read-more" : "")" style="@(i>=2 ? "display: none" : "")">(@Filter.ItemReferences[i].Item.Line.LineName) @Filter.ItemReferences[i].Item.ItemName - @Filter.ItemReferences[i].ReferenceName</span>
+                            }
+                            @if (Filter.ItemReferences.Count() > 2)
+                            {
+                                <div>
+                                    <a href="javascript:;" id="toggleLink" @onclick="ToggleReadMore">Ver más</a>
+                                </div>
+                            }
+                        }
+                    </div>
+                }
+            </div>
+        </RadzenColumn>
+        <RadzenColumn Size="6" class="align-self-end">
+            <div class="d-flex flex-row justify-content-end align-items-end">
+                <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="save" Text="Guardar PDF" Click="@Download" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@IsBusy" />
+            </div>
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenRow AlignItems="AlignItems.Start">
+        <RadzenColumn Size="12">
+            <RadzenCard style="min-height:600px; overflow-y:auto">
+                <div id="warehouse-transfer-report-container">
+                    <div class="report">
+                        <table>
+                            <tr>
+                                <td width="50%">
+                                    <h2 class="text-left mb-0">Translados entre bodegas</h2>
+                                    <span class="mb-1">@DateTime.Now.ToString(SharedLocalizer["datetime:format"])</span>
+                                </td>
+                                <td width="50%">
+                                    @if (Filter != null)
+                                    {
+                                        <div class="filters">
+                                            <div class="title">Filtros:</div>
+                                            <div>
+                                                @if (Filter.SourceWarehouseId != null && Filter.SourceWarehouse != null)
+                                                {
+                                                    <div>
+                                                        <div class="type" style="display:inline-block">Bodega de origen: </div>
+                                                        <span>@Filter.SourceWarehouse.WarehouseName</span>
+                                                    </div>
+                                                }
+                                                @if (Filter.TargetWarehouseId != null && Filter.TargetWarehouse != null)
+                                                {
+                                                    <div>
+                                                        <div class="type" style="display:inline-block">Bodega destino: </div>
+                                                        <span>@Filter.TargetWarehouse.WarehouseName</span>
+                                                    </div>
+                                                }
+                                                @if (Filter.AdjustmentDate != null)
+                                                {
+                                                    <div>
+                                                        <div class="type" style="display:inline-block">Fecha de ajuste: </div>
+                                                        <span>@Filter.AdjustmentDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                                                    </div>
+                                                }
+                                                @if (!string.IsNullOrEmpty(Filter.NationalizationNumber))
+                                                {
+                                                    <div>
+                                                        <div class="type" style="display:inline-block">Número de nacionalización: </div>
+                                                        <span>@Filter.NationalizationNumber</span>
+                                                    </div>
+                                                }
+                                                @if (Filter.ItemReferences.Any())
+                                                {
+                                                    <div>
+                                                        <div class="type">Referencias: </div>
+                                                        @for (int i = 0; i < Filter.ItemReferences.Count(); i++)
+                                                        {
+                                                            <p>(@Filter.ItemReferences[i].Item.Line.LineName) @Filter.ItemReferences[i].Item.ItemName - @Filter.ItemReferences[i].ReferenceName</p>
+                                                        }
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                </td>
+                            </tr>
+                        </table>
+                        <div class="mt-1">
+                            @if (ViewModel != null)
+                            {
+                                @foreach (var warehouse in ViewModel.WarehouseTransfers)
+                                {
+                                    <table class="edged">
+                                        <thead>
+                                            <tr class="emphasys-3x font-size-2x no-border">
+                                                <td colspan="2" width="20%">
+                                                    <span class="bold">Fecha: </span>@warehouse.Date
+                                                </td>
+                                                <td colspan="3" width="30%">
+                                                    <span class="bold">Bodega de origen: </span>@warehouse.SourceWarehouseName
+                                                </td>
+                                                <td colspan="5" width="50%">
+                                                    <span class="bold">Bodega destino: </span>@warehouse.TargetWarehouseName
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="10" width="100%">
+                                                    <span class="bold">Motivo: </span>@warehouse.Reason
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="5" width="50%">
+                                                    <span class="bold">Fecha de registro: </span>@warehouse.RegistrationDate
+                                                </td>
+                                                <td colspan="5" width="50%">
+                                                    <span class="bold">Número de nacionalización: </span>@warehouse.NationalizationNumber
+                                                </td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td colspan="10" width="100%">
+                                                    <div style="margin: 1em;">
+                                                        <table class="striped edged">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th width="20%" colspan="2">Referencia interna</th>
+                                                                    <th width="30%" colspan="3">Nombre</th>
+                                                                    <th width="30%" colspan="3">Referencia</th>
+                                                                    <th width="20%" colspan="2">Cantidad</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @foreach (var reference in warehouse.References)
+                                                                {
+                                                                    <tr>
+                                                                        <td width="20%" colspan="2">@reference.ItemReference</td>
+                                                                        <td width="30%" colspan="3">@reference.ItemName</td>
+                                                                        <td width="30%" colspan="3">@(string.IsNullOrEmpty(reference.ReferenceCode) ? string.Empty : $"{reference.ReferenceCode} - ")@reference.ReferenceName</td>
+                                                                        <td width="20%" colspan="2">@(reference.Amount.ToString("N0"))</td>
+                                                                    </tr>
+                                                                }
+                                                                <tr class="emphasys">
+                                                                    <td colspan="8" width="80%" class="bold" style="text-align:right">
+                                                                        Total:
+                                                                    </td>
+                                                                    <td colspan="2" width="20%" style="text-align:left">
+                                                                        @warehouse.Total.ToString("N0")
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+            </RadzenCard>
+        </RadzenColumn>
+    </RadzenRow>
+</RadzenStack>

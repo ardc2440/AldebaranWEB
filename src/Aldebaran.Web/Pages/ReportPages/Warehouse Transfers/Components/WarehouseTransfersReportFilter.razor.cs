@@ -1,28 +1,19 @@
 ﻿using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
-using Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities.ViewModel;
+using Aldebaran.Web.Pages.ReportPages.Warehouse_Transfers.ViewModel;
 using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
-using Radzen.Blazor;
-
-namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities.Components
+namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Transfers.Components
 {
-    public partial class CustomerOrderActivityReportFilter
+    public partial class WarehouseTransfersReportFilter
     {
         #region Injections
         [Inject]
         protected IItemReferenceService ItemReferenceService { get; set; }
-
         [Inject]
-        protected IStatusDocumentTypeService StatusDocumentTypeService { get; set; }
-
-        [Inject]
-        protected ICustomerService CustomerService { get; set; }
-
-        [Inject]
-        protected IDocumentTypeService DocumentTypeService { get; set; }
+        protected IWarehouseService WarehouseService { get; set; }
 
         [Inject]
         protected DialogService DialogService { get; set; }
@@ -30,30 +21,28 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities.Components
 
         #region Parameters
         [Parameter]
-        public CustomerOrderActivityFilter Filter { get; set; } = new();
+        public WarehouseTransfersFilter Filter { get; set; } = new();
         #endregion
 
         #region Variables
         protected bool IsErrorVisible;
         protected bool IsSubmitInProgress;
-        protected RadzenDropDownDataGrid<int?> customerDropdown;
         protected List<ItemReference> SelectedReferences = new();
         protected List<ItemReference> AvailableItemReferencesForSelection = new();
+        protected List<Warehouse> Warehouses = new();
         protected MultiReferencePicker referencePicker;
-        protected List<StatusDocumentType> StatusDocumentTypes = new();
-        protected List<Customer> Customers = new();
         protected bool ValidationError = false;
+        protected short? SourceWarehouseId;
+        protected short? TargetWarehouseId;
         #endregion
 
         protected override async Task OnInitializedAsync()
         {
-            Filter ??= new CustomerOrderActivityFilter();
+            Filter ??= new WarehouseTransfersFilter();
             var references = (await ItemReferenceService.GetReportsReferencesAsync()).ToList();
             AvailableItemReferencesForSelection = references;
             referencePicker.SetAvailableItemReferencesForSelection(AvailableItemReferencesForSelection);
-            var documentType = await DocumentTypeService.FindByCodeAsync("O");
-            StatusDocumentTypes = (await StatusDocumentTypeService.GetByDocumentTypeIdAsync(documentType.DocumentTypeId)).ToList();
-            Customers = (await CustomerService.GetAsync()).ToList();
+            Warehouses = (await WarehouseService.GetAsync()).ToList();
         }
         protected bool FirstRender = true;
         public override async Task SetParametersAsync(ParameterView parameters)
@@ -64,6 +53,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities.Components
             {
                 referencePicker.SetSelectedItemReferences(Filter.ItemReferences.Select(s => s.ReferenceId).ToList());
             }
+
             FirstRender = false;
             StateHasChanged();
         }
@@ -74,15 +64,17 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities.Components
             {
                 IsSubmitInProgress = true;
                 // Si no se han incluido filtros, mostrar mensaje de error
-                if (Filter.CreationDate == null && Filter.OrderDate == null && Filter.EstimatedDeliveryDate == null && string.IsNullOrEmpty(Filter.OrderNumber) &&
-                    Filter.StatusDocumentTypeId == null && Filter.CustomerId == null && SelectedReferences.Any() == false)
+                if (string.IsNullOrEmpty(Filter.NationalizationNumber) && Filter.AdjustmentDate == null &&
+                    SourceWarehouseId == null && TargetWarehouseId == null && SelectedReferences.Any() == false)
                 {
                     ValidationError = true;
                     return;
                 }
-                Filter.OrderNumber = string.IsNullOrEmpty(Filter.OrderNumber) ? null : Filter.OrderNumber;
-                Filter.StatusDocumentType = Filter.StatusDocumentTypeId != null ? StatusDocumentTypes.FirstOrDefault(s => s.StatusDocumentTypeId == Filter.StatusDocumentTypeId.Value) : null;
-                Filter.Customer = Filter.CustomerId != null ? Customers.FirstOrDefault(s => s.CustomerId == Filter.CustomerId.Value) : null;
+                Filter.TargetWarehouseId = TargetWarehouseId;
+                Filter.TargetWarehouse = Filter.TargetWarehouseId != null ? Warehouses.FirstOrDefault(s => s.WarehouseId == Filter.TargetWarehouseId.Value) : null;
+                Filter.SourceWarehouseId = SourceWarehouseId;
+                Filter.SourceWarehouse = Filter.SourceWarehouseId != null ? Warehouses.FirstOrDefault(s => s.WarehouseId == Filter.SourceWarehouseId.Value) : null;
+                Filter.NationalizationNumber = string.IsNullOrEmpty(Filter.NationalizationNumber) ? null : Filter.NationalizationNumber;
                 Filter.ItemReferences = SelectedReferences;
                 DialogService.Close(Filter);
             }

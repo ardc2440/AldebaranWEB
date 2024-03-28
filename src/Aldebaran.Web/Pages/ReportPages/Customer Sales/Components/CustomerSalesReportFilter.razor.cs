@@ -1,15 +1,15 @@
 ﻿using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
-using Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities.ViewModel;
+using Aldebaran.Web.Pages.ReportPages.Customer_Sales.ViewModel;
 using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
 using Radzen.Blazor;
 
-namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities.Components
+namespace Aldebaran.Web.Pages.ReportPages.Customer_Sales.Components
 {
-    public partial class CustomerOrderActivityReportFilter
+    public partial class CustomerSalesReportFilter
     {
         #region Injections
         [Inject]
@@ -30,7 +30,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities.Components
 
         #region Parameters
         [Parameter]
-        public CustomerOrderActivityFilter Filter { get; set; } = new();
+        public CustomerSalesFilter Filter { get; set; } = new();
         #endregion
 
         #region Variables
@@ -47,7 +47,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities.Components
 
         protected override async Task OnInitializedAsync()
         {
-            Filter ??= new CustomerOrderActivityFilter();
+            Filter ??= new CustomerSalesFilter();
             var references = (await ItemReferenceService.GetReportsReferencesAsync()).ToList();
             AvailableItemReferencesForSelection = references;
             referencePicker.SetAvailableItemReferencesForSelection(AvailableItemReferencesForSelection);
