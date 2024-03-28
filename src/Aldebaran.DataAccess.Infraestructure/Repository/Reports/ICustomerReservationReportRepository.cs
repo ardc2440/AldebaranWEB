@@ -4,6 +4,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository.Reports
 {
     public interface ICustomerReservationReportRepository
     {
-        Task<IEnumerable<CustomerReservationReport>> GetCustomerReservationReportDataAsync(CancellationToken ct = default);
+        Task<IEnumerable<CustomerReservationReport>> GetCustomerReservationReportDataAsync(string filter = "", CancellationToken ct = default);
     }
 }

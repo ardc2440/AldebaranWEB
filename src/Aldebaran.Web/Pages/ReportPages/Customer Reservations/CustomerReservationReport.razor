@@ -26,18 +26,18 @@
                             <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.ReservationNumber</span>
                         </div>
                     }
-                    @if (Filter.CreationDate != null)
+                    @if (Filter.CreationDateFrom != null)
                     {
                         <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
                             <p class="component-label m-0 fw-bold">Fecha de creación: </p>
-                            <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.CreationDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                            <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.CreationDateFrom.Value.ToString(SharedLocalizer["date:format"])</span>
                         </div>
                     }
-                    @if (Filter.ReservationDate != null)
+                    @if (Filter.ReservationDateFrom != null)
                     {
                         <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
                             <p class="component-label m-0 fw-bold">Fecha de reserva: </p>
-                            <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.ReservationDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                            <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.ReservationDateFrom.Value.ToString(SharedLocalizer["date:format"])</span>
                         </div>
                     }
                     @if (Filter.StatusDocumentTypeId != null && Filter.StatusDocumentType != null)
@@ -103,18 +103,18 @@
                                                         <span>@Filter.ReservationNumber</span>
                                                     </div>
                                                 }
-                                                @if (Filter.CreationDate != null)
+                                                @if (Filter.CreationDateFrom != null)
                                                 {
                                                     <div>
                                                         <div class="type" style="display:inline-block">Fecha de creación: </div>
-                                                        <span>@Filter.CreationDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                                                        <span>@Filter.CreationDateFrom.Value.ToString(SharedLocalizer["date:format"])</span>
                                                     </div>
                                                 }
-                                                @if (Filter.ReservationDate != null)
+                                                @if (Filter.ReservationDateFrom != null)
                                                 {
                                                     <div>
                                                         <div class="type" style="display:inline-block">Fecha de reserva: </div>
-                                                        <span>@Filter.ReservationDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                                                        <span>@Filter.ReservationDateFrom.Value.ToString(SharedLocalizer["date:format"])</span>
                                                     </div>
                                                 }
                                                 @if (Filter.StatusDocumentTypeId != null && Filter.StatusDocumentType != null)

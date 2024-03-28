@@ -1857,7 +1857,7 @@ END
 GO
 
 CREATE OR ALTER PROCEDURE SP_GET_CUSTOMER_ORDER_REPORT
-	@OrderNumber INT = NULL,
+	@OrderNumber VARCHAR(10) = NULL,
 	@CreationDateFrom DATE = NULL,
 	@CreationDateTo DATE = NULL,
 	@OrderDateFrom DATE = NULL,
@@ -1948,7 +1948,7 @@ BEGIN
 		   JOIN item_references e ON e.REFERENCE_ID = d.REFERENCE_ID
 		   JOIN items f ON f.ITEM_ID = e.ITEM_ID
 		  WHERE EXISTS (SELECT 1 FROM @FilterReferences fr WHERE fr.ReferenceId = e.REFERENCE_ID)
-		    AND (a.ORDER_NUMBER = @OrderNumber OR @OrderNumber IS NULL)
+		    AND (a.ORDER_NUMBER LIKE '%'+@OrderNumber+'%' OR @OrderNumber IS NULL)
 			AND (a.CREATION_DATE BETWEEN @CreationDateFrom AND @CreationDateTo OR @CreationDateFrom IS NULL)
 			AND (a.ORDER_DATE BETWEEN @OrderDateFrom AND @OrderDateTo OR @OrderDateFrom IS NULL)
 			AND (a.ESTIMATED_DELIVERY_DATE BETWEEN @EstimatedDeliveryDateFrom AND @EstimatedDeliveryDateTo OR @EstimatedDeliveryDateFrom IS NULL)
@@ -1980,8 +1980,26 @@ END
 GO
 
 CREATE OR ALTER PROCEDURE SP_GET_CUSTOMER_RESERVATION_REPORT
+	@ReservationNumber VARCHAR(10) = NULL,
+	@CreationDateFrom DATE = NULL,
+	@CreationDateTo DATE = NULL,
+	@ReservationDateFrom DATE = NULL,
+	@ReservationDateTo DATE = NULL,
+	@StatusDocumentTypeId SMALLINT = NULL,
+    @CustomerId INT = NULL,
+	@ReferenceIds VARCHAR(MAX) = ''
 AS 
 BEGIN 
+
+	DECLARE @FilterReferences TABLE (ReferenceId INT)
+	
+	IF LEN(RTRIM(@ReferenceIds)) > 0
+		INSERT INTO @FilterReferences
+			 SELECT value FROM STRING_SPLIT(@ReferenceIds,',')
+	ELSE
+		INSERT INTO @FilterReferences
+			 SELECT REFERENCE_ID 
+			   FROM item_references
 
 	SELECT a.CUSTOMER_ID CustomerId, a.CUSTOMER_NAME CustomerName, (ISNULL(a.CELL_PHONE+', ','')+ISNULL(a.PHONE2+', ','')+ISNULL(a.PHONE1,'')) Phone, a.FAX Fax,
 	       b.CUSTOMER_RESERVATION_ID ReservationId, b.RESERVATION_NUMBER ReservationNumber, b.CREATION_DATE CreationDate, b.RESERVATION_DATE ReservationDate, b.EXPIRATION_DATE ExpirationDate, c.STATUS_DOCUMENT_TYPE_NAME Status, ISNULL(b.NOTES,'') Notes,
@@ -1992,7 +2010,12 @@ BEGIN
 	  JOIN customer_reservation_details d ON d.CUSTOMER_RESERVATION_ID = b.CUSTOMER_RESERVATION_ID
 	  JOIN item_references e ON e.REFERENCE_ID = d.REFERENCE_ID
 	  JOIN items f ON f.ITEM_ID = e.ITEM_ID
-
+	 WHERE EXISTS (SELECT 1 FROM @FilterReferences fr WHERE fr.ReferenceId = e.REFERENCE_ID)
+       AND (b.RESERVATION_NUMBER LIKE '%'+@ReservationNumber+'%' OR @ReservationNumber IS NULL)
+       AND (b.CREATION_DATE BETWEEN @CreationDateFrom AND @CreationDateTo OR @CreationDateFrom IS NULL)
+       AND (b.RESERVATION_DATE BETWEEN @ReservationDateFrom AND @ReservationDateTo OR @ReservationDateFrom IS NULL)
+       AND (b.STATUS_DOCUMENT_TYPE_ID = @StatusDocumentTypeId OR @StatusDocumentTypeId IS NULL)
+	   AND (a.CUSTOMER_ID = @CustomerId OR @CustomerId IS NULL)
 END 
 GO
 

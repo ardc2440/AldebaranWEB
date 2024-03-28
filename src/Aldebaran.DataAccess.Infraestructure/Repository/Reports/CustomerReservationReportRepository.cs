@@ -10,9 +10,9 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository.Reports
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
-        public async Task<IEnumerable<CustomerReservationReport>> GetCustomerReservationReportDataAsync(CancellationToken ct = default)
+        public async Task<IEnumerable<CustomerReservationReport>> GetCustomerReservationReportDataAsync(string filter, CancellationToken ct = default)
         {
-            return await _context.Set<CustomerReservationReport>().ToListAsync(ct);
+            return await _context.Set<CustomerReservationReport>().FromSqlRaw($"EXEC SP_GET_CUSTOMER_RESERVATION_REPORT {filter}").ToListAsync(ct);
         }
     }
 }

@@ -19,9 +19,9 @@ namespace Aldebaran.Application.Services.Reports
             _repository = repository ?? throw new ArgumentNullException(nameof(ICustomerReservationReportRepository));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(IMapper));
         }
-        public async Task<IEnumerable<CustomerReservationReport>> GetCustomerReservationReportDataAsync(CancellationToken ct = default)
+        public async Task<IEnumerable<CustomerReservationReport>> GetCustomerReservationReportDataAsync(string filter, CancellationToken ct = default)
         {
-            var data = await _repository.GetCustomerReservationReportDataAsync(ct);
+            var data = await _repository.GetCustomerReservationReportDataAsync(filter, ct);
             return _mapper.Map<IEnumerable<CustomerReservationReport>>(data);
         }
     }

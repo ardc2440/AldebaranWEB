@@ -74,7 +74,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Reservations.Components
             {
                 IsSubmitInProgress = true;
                 // Si no se han incluido filtros, mostrar mensaje de error
-                if (Filter.CreationDate == null && Filter.ReservationDate == null && string.IsNullOrEmpty(Filter.ReservationNumber) &&
+                if (Filter.CreationDateFrom == null && Filter.ReservationDateFrom == null && string.IsNullOrEmpty(Filter.ReservationNumber) &&
                     Filter.StatusDocumentTypeId == null && Filter.CustomerId == null && SelectedReferences.Any() == false)
                 {
                     ValidationError = true;

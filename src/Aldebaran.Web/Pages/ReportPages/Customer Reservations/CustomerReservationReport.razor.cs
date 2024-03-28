@@ -1,7 +1,9 @@
 ﻿using Aldebaran.Application.Services.Reports;
+using Aldebaran.Web.Pages.ReportPages.Customer_Orders.ViewModel;
 using Aldebaran.Web.Pages.ReportPages.Customer_Reservations.Components;
 using Aldebaran.Web.Pages.ReportPages.Customer_Reservations.ViewModel;
 using Microsoft.AspNetCore.Components;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.JSInterop;
 using Radzen;
 using static Aldebaran.Web.Pages.ReportPages.Customer_Reservations.ViewModel.CustomerReservationViewModel;
@@ -37,23 +39,56 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Reservations
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            DataReport = await CustomerReservationReportService.GetCustomerReservationReportDataAsync();
+            await RedrawReportAsync();
+        }
+        #endregion
+
+        #region Events
+
+        async Task RedrawReportAsync(string filter = "", CancellationToken ct = default)
+        {
+            DataReport = await CustomerReservationReportService.GetCustomerReservationReportDataAsync(filter, ct);
 
             ViewModel = new CustomerReservationViewModel
             {
                 Customers = await GetCustomersAsync()
             };
-        }
-        #endregion
 
-        #region Events
+        }
+
+        async Task<string> SetReportFiterAsync(CustomerReservationFilter filter, CancellationToken ct = default)
+        {
+            var filterResult = string.Empty;
+
+            if (filter.CreationDateFrom.HasValue)
+                filterResult += $"@CreationDateFrom = '{(DateTime)filter.CreationDateFrom:yyyyMMdd}', @CreationDateTo = '{(DateTime)filter.CreationDateTo:yyyyMMdd}'";
+
+            if (filter.ReservationDateFrom .HasValue)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReservationDateFrom = '{(DateTime)filter.ReservationDateFrom:yyyyMMdd}', @ReservationDateTo = '{(DateTime)filter.ReservationDateTo:yyyyMMdd}'";
+
+            if (!filter.ReservationNumber.IsNullOrEmpty())
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReservationNumber = {filter.ReservationNumber}";
+
+            if (filter.StatusDocumentTypeId.HasValue)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@StatusDocumentTypeId = {filter.StatusDocumentTypeId}";
+
+            if (filter.ItemReferences.Count > 0)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReferenceIds = '{String.Join(",", Filter.ItemReferences.Select(s => s.ReferenceId))}'";
+
+            if (filter.CustomerId.HasValue)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@CustomerId = {filter.CustomerId}";
+
+            return filterResult;
+        }
         async Task OpenFilters()
         {
             var result = await DialogService.OpenAsync<CustomerReservationReportFilter>("Filtrar reporte de reservas por cliente", parameters: new Dictionary<string, object> { { "Filter", (CustomerReservationFilter)Filter?.Clone() } }, options: new DialogOptions { Width = "800px" });
             if (result == null)
                 return;
             Filter = (CustomerReservationFilter)result;
-            //Todo: Aplicar filtro de refenrecias al ViewModel
+
+            await RedrawReportAsync(await SetReportFiterAsync(Filter));
+
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
         }
         async Task RemoveFilters()
@@ -61,7 +96,9 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Reservations
             if (await DialogService.Confirm("Está seguro que desea eliminar los filtros establecidos?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
             {
                 Filter = null;
-                //Todo: Remover filtro de refenrecias al ViewModel
+
+                await RedrawReportAsync();
+
                 await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
             }
         }

@@ -170,48 +170,14 @@ namespace Aldebaran.DataAccess
             modelBuilder.ApplyConfiguration(new NotificationTemplateConfiguration());
 
             modelBuilder.Entity<InventoryAdjustmentReport>(iar => { iar.HasNoKey(); });
-
             modelBuilder.Entity<InProcessInventoryReport>(iar => { iar.HasNoKey(); });
-
             modelBuilder.Entity<InventoryReport>(iar => { iar.HasNoKey(); });
-
             modelBuilder.Entity<CustomerOrderReport>(iar => { iar.HasNoKey(); });
-
-            modelBuilder.Entity<ProviderReferenceReport>(
-                iar =>
-                {
-                    iar.HasNoKey();
-                    iar.ToSqlQuery($"EXEC SP_GET_PROVIDER_REFERENCE_REPORT");
-                });
-
-            modelBuilder.Entity<ReferenceMovementReport>(
-                iar =>
-                {
-                    iar.HasNoKey();
-                    iar.ToSqlQuery($"EXEC SP_GET_REFERENCE_MOVEMENT_REPORT");
-                });
-
-            modelBuilder.Entity<WarehouseStockReport>(
-                iar =>
-                {
-                    iar.HasNoKey();
-                    iar.ToSqlQuery($"EXEC SP_GET_WAREHOUSE_STOCK_REPORT");
-                });
-            
-            modelBuilder.Entity<CustomerReservationReport>(
-                iar =>
-                {
-                    iar.HasNoKey();
-                    iar.ToSqlQuery($"EXEC SP_GET_CUSTOMER_RESERVATION_REPORT");
-                });
-
-            modelBuilder.Entity<OrderShipmentReport>(
-                iar =>
-                {
-                    iar.HasNoKey();
-                    iar.ToSqlQuery($"EXEC SP_GET_ORDER_SHIPMENT_REPORT");
-                }
-                );
+            modelBuilder.Entity<CustomerReservationReport>(iar => { iar.HasNoKey(); });
+            modelBuilder.Entity<ProviderReferenceReport>(iar => { iar.HasNoKey(); });
+            modelBuilder.Entity<ReferenceMovementReport>(iar => { iar.HasNoKey(); });
+            modelBuilder.Entity<WarehouseStockReport>(iar => { iar.HasNoKey(); });
+            modelBuilder.Entity<OrderShipmentReport>(iar => { iar.HasNoKey(); });
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken ct = default)
