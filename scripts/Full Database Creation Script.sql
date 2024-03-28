@@ -1808,8 +1808,20 @@ END
 GO
 
 CREATE OR ALTER PROCEDURE SP_GET_PROVIDER_REFERENCE_REPORT
+	@ProviderId INT = NULL,
+	@ReferenceIds VARCHAR(MAX) = '' 
 AS
 BEGIN
+
+	DECLARE @FilterReferences TABLE (ReferenceId INT)
+	
+	IF LEN(RTRIM(@ReferenceIds)) > 0
+		INSERT INTO @FilterReferences
+			 SELECT value FROM STRING_SPLIT(@ReferenceIds,',')
+	ELSE
+		INSERT INTO @FilterReferences
+			 SELECT REFERENCE_ID 
+			   FROM item_references
 
 	SELECT a.PROVIDER_ID ProviderId, a.PROVIDER_CODE ProviderCode, a.PROVIDER_NAME ProviderName, a.PROVIDER_ADDRESS ProviderAddress, a.PHONE, a.FAX, a.EMAIL, a.CONTACT_PERSON ContactPerson,
 		   e.LINE_ID LineId, e.LINE_CODE LineCode, e.LINE_NAME LineName, d.ITEM_ID ItemId, d.INTERNAL_REFERENCE InternalReference, d.ITEM_NAME ItemName, c.REFERENCE_ID ReferenceId,
@@ -1822,6 +1834,8 @@ BEGIN
 	  JOIN lines e ON e.LINE_ID = d.LINE_ID
 	  JOIN references_warehouse f ON f.REFERENCE_ID = c.REFERENCE_ID
 	  JOIN warehouses g ON g.WAREHOUSE_ID = f.WAREHOUSE_ID
+	 WHERE EXISTS (SELECT 1 FROM @FilterReferences fr WHERE fr.ReferenceId = c.REFERENCE_ID)
+	   AND (a.PROVIDER_ID = @ProviderId OR @ProviderId IS NULL)
 	 ORDER BY a.PROVIDER_ID
 
 END

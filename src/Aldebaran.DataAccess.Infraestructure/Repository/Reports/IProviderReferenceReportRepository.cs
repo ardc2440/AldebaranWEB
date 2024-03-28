@@ -9,6 +9,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository.Reports
 {
     public interface IProviderReferenceReportRepository
     {
-        Task<IEnumerable<ProviderReferenceReport>> GetProviderReferenceReportDataAsync(CancellationToken ct = default);
+        Task<IEnumerable<ProviderReferenceReport>> GetProviderReferenceReportDataAsync(string filter = "", CancellationToken ct = default);
     }
 }

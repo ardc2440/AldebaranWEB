@@ -16,9 +16,9 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository.Reports
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task<IEnumerable<ProviderReferenceReport>> GetProviderReferenceReportDataAsync(CancellationToken ct)
+        public async Task<IEnumerable<ProviderReferenceReport>> GetProviderReferenceReportDataAsync(string filter, CancellationToken ct)
         {
-            return await _context.Set<ProviderReferenceReport>().ToListAsync(ct);
+            return await _context.Set<ProviderReferenceReport>().FromSqlRaw($"EXEC SP_GET_PROVIDER_REFERENCE_REPORT {filter}").ToListAsync(ct);
         }
     }
 }

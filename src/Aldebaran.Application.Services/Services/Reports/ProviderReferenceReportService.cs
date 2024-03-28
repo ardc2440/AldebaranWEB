@@ -16,9 +16,9 @@ namespace Aldebaran.Application.Services.Reports
             _mapper = mapper ?? throw new ArgumentNullException(nameof(IMapper));
         }
 
-        public async Task<IEnumerable<ProviderReferenceReport>> GetProviderReferenceReportDataAsync(CancellationToken ct = default)
+        public async Task<IEnumerable<ProviderReferenceReport>> GetProviderReferenceReportDataAsync(string filter, CancellationToken ct = default)
         {
-            var data = await _repository.GetProviderReferenceReportDataAsync(ct);
+            var data = await _repository.GetProviderReferenceReportDataAsync(filter, ct);
             return _mapper.Map<IEnumerable<ProviderReferenceReport>>(data);
         }
     }
