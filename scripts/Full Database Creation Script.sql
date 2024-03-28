@@ -1857,15 +1857,35 @@ END
 GO
 
 CREATE OR ALTER PROCEDURE SP_GET_CUSTOMER_ORDER_REPORT
+	@OrderNumber INT = NULL,
+	@CreationDateFrom DATE = NULL,
+	@CreationDateTo DATE = NULL,
+	@OrderDateFrom DATE = NULL,
+	@OrderDateTo DATE = NULL,
+	@EstimatedDeliveryDateFrom DATE = NULL,
+	@EstimatedDeliveryDateTo DATE = NULL,
+	@StatusDocumentTypeId SMALLINT = NULL,
+    @CustomerId INT = NULL,
+	@ReferenceIds VARCHAR(MAX) = ''
 AS
 BEGIN		
 	DECLARE @FinishedStatus TABLE (STATUS_DOCUMENT_TYPE_ID INT)
-
+	
 	INSERT INTO @FinishedStatus
 		 SELECT STATUS_DOCUMENT_TYPE_ID
 		   FROM status_document_types a
 		   JOIN document_types b ON b.DOCUMENT_TYPE_ID = a.DOCUMENT_TYPE_ID
 		  WHERE DOCUMENT_TYPE_CODE = 'P' AND STATUS_ORDER IN (5,6)
+
+	DECLARE @FilterReferences TABLE (ReferenceId INT)
+	
+	IF LEN(RTRIM(@ReferenceIds)) > 0
+		INSERT INTO @FilterReferences
+			 SELECT value FROM STRING_SPLIT(@ReferenceIds,',')
+	ELSE
+		INSERT INTO @FilterReferences
+			 SELECT REFERENCE_ID 
+			   FROM item_references
 
 	DECLARE @CustomerOrders TABLE 
 		( CustomerId INT, 
@@ -1927,6 +1947,13 @@ BEGIN
 		   JOIN customer_order_details d ON d.CUSTOMER_ORDER_ID = a.CUSTOMER_ORDER_ID
 		   JOIN item_references e ON e.REFERENCE_ID = d.REFERENCE_ID
 		   JOIN items f ON f.ITEM_ID = e.ITEM_ID
+		  WHERE EXISTS (SELECT 1 FROM @FilterReferences fr WHERE fr.ReferenceId = e.REFERENCE_ID)
+		    AND (a.ORDER_NUMBER = @OrderNumber OR @OrderNumber IS NULL)
+			AND (a.CREATION_DATE BETWEEN @CreationDateFrom AND @CreationDateTo OR @CreationDateFrom IS NULL)
+			AND (a.ORDER_DATE BETWEEN @OrderDateFrom AND @OrderDateTo OR @OrderDateFrom IS NULL)
+			AND (a.ESTIMATED_DELIVERY_DATE BETWEEN @EstimatedDeliveryDateFrom AND @EstimatedDeliveryDateTo OR @EstimatedDeliveryDateFrom IS NULL)
+			AND (a.STATUS_DOCUMENT_TYPE_ID = @StatusDocumentTypeId OR @StatusDocumentTypeId IS NULL)
+			AND (A.CUSTOMER_ID = @CustomerId OR @CustomerId IS NULL)
 
 	INSERT INTO @ShippingOrders
 		 SELECT c.CUSTOMER_ORDER_DETAIL_ID, A.CUSTOMER_ORDER_SHIPMENT_ID ShipmentId, a.SHIPPING_DATE ShipmentDate, a.DELIVERY_NOTE DeliveryNote, a.TRACKING_NUMBER TrackingNumber, f.SHIPPING_METHOD_NAME ShipmentMethodName, 
@@ -1938,7 +1965,8 @@ BEGIN
 		   JOIN item_references d ON d.REFERENCE_ID = c.REFERENCE_ID
 		   JOIN items e ON e.ITEM_ID = d.ITEM_ID
 		   JOIN shipping_methods f ON f.SHIPPING_METHOD_ID = a.SHIPPING_METHOD_ID 
-
+		  WHERE EXISTS (SELECT 1 FROM @CustomerOrders co WHERE co.OrderId = a.CUSTOMER_ORDER_ID)
+		  
 	SELECT a.CustomerId, a.CustomerName, a.Phone, a.Fax, a.OrderId, a.OrderNumber, a.OrderCreationDate, a.OrderDate, a.EstimatedDeliveryDate, a.OrderStatus, a.InternalNotes, a.CustomerNotes, a.OrderDetailId, a.
 		   OrderDetailItemReference, a.OrderDetailItemName, a.OrderDetailReferenceCode, a.OrderDetailReferenceName, a.OrderDetailAmount, a.DeliveredAmount, a.InProcessAmount, a.DetailStatus, 
 		   b.ShipmentId ShipmentId, b.ShipmentDate ShipmentDate, b.DeliveryNote DeliveryNote, b.TrackingNumber TrackingNumber, 
@@ -1946,7 +1974,7 @@ BEGIN
 		   b.ShipmentDetailItemName ShipmentDetailItemName, b.ShipmentDetailReferenceCode ShipmentDetailReferenceCode, b.ShipmentDetailReferenceName ShipmentDetailReferenceName, 
 		   b.ShipmentDetailAmount ShipmentDetailAmount
 	  FROM @CustomerOrders a
-	  LEFT OUTER JOIN @ShippingOrders b ON b.CustomerOrderDetailId = a.OrderDetailId
+	  LEFT OUTER JOIN @ShippingOrders b ON b.CustomerOrderDetailId = a.OrderDetailId	 
 
 END 
 GO

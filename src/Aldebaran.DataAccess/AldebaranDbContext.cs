@@ -169,16 +169,13 @@ namespace Aldebaran.DataAccess
             modelBuilder.ApplyConfiguration(new NotificationProviderSettingConfiguration());
             modelBuilder.ApplyConfiguration(new NotificationTemplateConfiguration());
 
-            modelBuilder.Entity<InventoryAdjustmentReport>(
-                iar =>
-                {
-                    iar.HasNoKey();
-                    iar.ToSqlQuery($"EXEC SP_GET_INVENTORY_ADJUSTMENT_REPORT");
-                });
+            modelBuilder.Entity<InventoryAdjustmentReport>(iar => { iar.HasNoKey(); });
 
             modelBuilder.Entity<InProcessInventoryReport>(iar => { iar.HasNoKey(); });
 
             modelBuilder.Entity<InventoryReport>(iar => { iar.HasNoKey(); });
+
+            modelBuilder.Entity<CustomerOrderReport>(iar => { iar.HasNoKey(); });
 
             modelBuilder.Entity<ProviderReferenceReport>(
                 iar =>
@@ -200,13 +197,7 @@ namespace Aldebaran.DataAccess
                     iar.HasNoKey();
                     iar.ToSqlQuery($"EXEC SP_GET_WAREHOUSE_STOCK_REPORT");
                 });
-            modelBuilder.Entity<CustomerOrderReport>(
-                iar =>
-                {
-                    iar.HasNoKey();
-                    iar.ToSqlQuery($"EXEC SP_GET_CUSTOMER_ORDER_REPORT");
-                });
-
+            
             modelBuilder.Entity<CustomerReservationReport>(
                 iar =>
                 {

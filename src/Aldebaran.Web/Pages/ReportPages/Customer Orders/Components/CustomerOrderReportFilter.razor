@@ -17,7 +17,7 @@
                 <RadzenStack>
                     <RadzenFormField Text="Fecha de creación" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.CreationDate" Name="CreationDate" AllowClear=true />
+                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.CreationDateFrom" Name="CreationDate" AllowClear=true />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenStack>
@@ -26,7 +26,7 @@
                 <RadzenStack>
                     <RadzenFormField Text="Fecha de la orden" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.OrderDate" Name="OrderDate" AllowClear=true />
+                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.OrderDateFrom" Name="OrderDate" AllowClear=true />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenStack>
@@ -37,7 +37,7 @@
                 <RadzenStack>
                     <RadzenFormField Text="Fecha estimada de entrega" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.EstimatedDeliveryDate" Name="EstimatedDeliveryDate" AllowClear=true />
+                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.EstimatedDeliveryDateFrom" Name="EstimatedDeliveryDate" AllowClear=true />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenStack>

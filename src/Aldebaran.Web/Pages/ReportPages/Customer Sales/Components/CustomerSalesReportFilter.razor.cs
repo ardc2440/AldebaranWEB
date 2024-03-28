@@ -51,7 +51,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Sales.Components
             var references = (await ItemReferenceService.GetReportsReferencesAsync()).ToList();
             AvailableItemReferencesForSelection = references;
             referencePicker.SetAvailableItemReferencesForSelection(AvailableItemReferencesForSelection);
-            var documentType = await DocumentTypeService.FindByCodeAsync("O");
+            var documentType = await DocumentTypeService.FindByCodeAsync("P");
             StatusDocumentTypes = (await StatusDocumentTypeService.GetByDocumentTypeIdAsync(documentType.DocumentTypeId)).ToList();
             Customers = (await CustomerService.GetAsync()).ToList();
         }

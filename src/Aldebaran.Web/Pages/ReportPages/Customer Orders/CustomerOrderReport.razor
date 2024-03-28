@@ -26,25 +26,25 @@
                             <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.OrderNumber</span>
                         </div>
                     }
-                    @if (Filter.CreationDate != null)
+                    @if (Filter.CreationDateFrom != null)
                     {
                         <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
                             <p class="component-label m-0 fw-bold">Fecha de creación: </p>
-                            <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.CreationDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                            <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.CreationDateFrom.Value.ToString(SharedLocalizer["date:format"])</span>
                         </div>
                     }
-                    @if (Filter.OrderDate != null)
+                    @if (Filter.OrderDateFrom != null)
                     {
                         <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
                             <p class="component-label m-0 fw-bold">Fecha de la orden: </p>
-                            <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.OrderDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                            <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.OrderDateFrom.Value.ToString(SharedLocalizer["date:format"])</span>
                         </div>
                     }
-                    @if (Filter.EstimatedDeliveryDate != null)
+                    @if (Filter.EstimatedDeliveryDateFrom != null)
                     {
                         <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
                             <p class="component-label m-0 fw-bold">Fecha estimada de entrega: </p>
-                            <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.EstimatedDeliveryDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                            <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.EstimatedDeliveryDateFrom.Value.ToString(SharedLocalizer["date:format"])</span>
                         </div>
                     }
                     @if (Filter.StatusDocumentTypeId != null && Filter.StatusDocumentType != null)
@@ -114,25 +114,25 @@
                                                         <span>@Filter.OrderNumber</span>
                                                     </div>
                                                 }
-                                                @if (Filter.CreationDate != null)
+                                                @if (Filter.CreationDateFrom != null)
                                                 {
                                                     <div>
                                                         <div class="type" style="display:inline-block">Fecha de creación: </div>
-                                                        <span>@Filter.CreationDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                                                        <span>@Filter.CreationDateFrom.Value.ToString(SharedLocalizer["date:format"])</span>
                                                     </div>
                                                 }
-                                                @if (Filter.OrderDate != null)
+                                                @if (Filter.OrderDateFrom != null)
                                                 {
                                                     <div>
                                                         <div class="type" style="display:inline-block">Fecha de la orden: </div>
-                                                        <span>@Filter.OrderDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                                                        <span>@Filter.OrderDateFrom.Value.ToString(SharedLocalizer["date:format"])</span>
                                                     </div>
                                                 }
-                                                @if (Filter.EstimatedDeliveryDate != null)
+                                                @if (Filter.EstimatedDeliveryDateFrom != null)
                                                 {
                                                     <div>
                                                         <div class="type" style="display:inline-block">Fecha estimada de entrega: </div>
-                                                        <span>@Filter.EstimatedDeliveryDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                                                        <span>@Filter.EstimatedDeliveryDateFrom.Value.ToString(SharedLocalizer["date:format"])</span>
                                                     </div>
                                                 }
                                                 @if (Filter.StatusDocumentTypeId != null && Filter.StatusDocumentType != null)
