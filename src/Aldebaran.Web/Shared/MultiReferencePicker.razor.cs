@@ -72,7 +72,7 @@ namespace Aldebaran.Web.Shared
             var selectedLines = AvailableItemReferencesForSelection.Where(w => SelectedLineIds.Contains(w.Item.LineId)).Select(s => s.Item.Line).DistinctBy(d => d.LineId).ToList();
             var itemBySelectedLines = AvailableItemReferencesForSelection.Where(w => SelectedLineIds.Contains(w.Item.LineId)).Select(s => s.Item).DistinctBy(w => w.ItemId).ToList();
 
-            Items = itemBySelectedLines
+            Items = itemBySelectedLines.OrderBy(o => o.Line.LineName).ThenBy(o => o.ItemName)
                 .GroupBy(g => g.LineId)
                 .SelectMany(s => new GroupItemData[] {
                     new() {
@@ -97,7 +97,7 @@ namespace Aldebaran.Web.Shared
             var selectedItems = AvailableItemReferencesForSelection.Where(w => SelectedItemIds.Contains(w.ItemId)).Select(s => s.Item).DistinctBy(d => d.ItemId).ToList();
             var referencesBySelectedItems = AvailableItemReferencesForSelection.Where(w => SelectedItemIds.Contains(w.Item.ItemId)).DistinctBy(d => d.ReferenceId).ToList();
 
-            References = referencesBySelectedItems
+            References = referencesBySelectedItems.OrderBy(o => o.Item.ItemName).ThenBy(o => o.ReferenceName)
                 .GroupBy(g => new { g.Item.LineId, g.Item.ItemId })
                 .SelectMany(s => new GroupReferenceData[] {
                      new () {

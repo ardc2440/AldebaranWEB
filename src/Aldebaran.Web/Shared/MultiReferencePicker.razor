@@ -25,7 +25,7 @@
                 <RadzenColumn SizeLG="4" SizeXL="4" SizeMD="4" SizeSM="12" SizeXS="12" SizeXX="12">
                     <RadzenFormField Text="Linea" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDown Data="@AvailableItemReferencesForSelection?.Select(s => s.Item.Line).DistinctBy(d => d.LineId).ToList()" MaxSelectedLabels="2" TextProperty="LineName" ValueProperty="LineId" SelectedItemsText="líneas seleccionadas" Chips="true" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Multiple="true" Disabled="@ReadOnly"
+                            <RadzenDropDown Data="@AvailableItemReferencesForSelection?.Select(s => s.Item.Line).DistinctBy(d => d.LineId).ToList().OrderBy(o=>o.LineName)" MaxSelectedLabels="2" TextProperty="LineName" ValueProperty="LineId" SelectedItemsText="líneas seleccionadas" Chips="true" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Multiple="true" Disabled="@ReadOnly"
                                             style="display: block; width: 100%" @bind-Value="SelectedLineIds" Name="LineId" Change="@OnLineChange" AllowFiltering="true" ClearSearchAfterSelection="true" AllowSelectAll="true">
 
                                 <Template>
@@ -54,7 +54,7 @@
                             <RadzenDropDown Data="@References" MaxSelectedLabels="2" ValueProperty="ReferenceId" TextProperty="FullReferenceName" SelectedItemsText="referencias seleccionadas" Chips="true" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Multiple="true" Disabled="@ReadOnly"
                                             style="display: block; width: 100%" DisabledProperty="IsGroup" @bind-Value="SelectedReferenceIds" Name="ReferenceId" Change="@OnReferenceChange" AllowFiltering="true" ClearSearchAfterSelection="true" AllowSelectAll="true">
                                 <Template>
-                                    @(context?.ReferenceName ?? $"{context?.LineName} - {context?.ItemName}")
+                                    @(context?.ReferenceName ?? $"{context?.ItemName}")
                                 </Template>
                             </RadzenDropDown>
                         </ChildContent>

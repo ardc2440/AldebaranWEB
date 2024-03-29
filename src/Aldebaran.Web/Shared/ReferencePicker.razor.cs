@@ -36,13 +36,13 @@ namespace Aldebaran.Web.Shared
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            Lines = References.Select(s => s.Item.Line).GroupBy(g => g.LineId).Select(s => s.First());
+            Lines = References.Select(s => s.Item.Line).GroupBy(g => g.LineId).Select(s => s.First()).OrderBy(o => o.LineName);
         }
         public override async Task SetParametersAsync(ParameterView parameters)
         {
             await base.SetParametersAsync(parameters);
             if (!IsSetParametersEnabled) return;
-            Lines = References.Select(s => s.Item.Line).GroupBy(g => g.LineId).Select(s => s.First());
+            Lines = References.Select(s => s.Item.Line).GroupBy(g => g.LineId).Select(s => s.First()).OrderBy(o => o.LineName);
             if (REFERENCE_ID == null)
                 return;
             var selectedReference = References.Where(w => w.ReferenceId == REFERENCE_ID).FirstOrDefault();
@@ -62,12 +62,12 @@ namespace Aldebaran.Web.Shared
             if (lineId == null)
             {
                 SelectedLine = null;
-                CleanItems();                
+                CleanItems();
                 await OnItemChange(null);
                 return;
             }
             SelectedLine = Lines.Single(s => s.LineId == (short)lineId);
-            Items = References.Where(w => w.Item.LineId == (short)lineId).Select(s => s.Item).DistinctBy(w => w.ItemId);
+            Items = References.Where(w => w.Item.LineId == (short)lineId).Select(s => s.Item).DistinctBy(w => w.ItemId).OrderBy(o => o.ItemName);
         }
         protected async Task OnItemChange(object itemId)
         {
@@ -79,7 +79,7 @@ namespace Aldebaran.Web.Shared
                 return;
             }
             SelectedItem = Items.Single(s => s.ItemId == (int)itemId);
-            ItemReferences = References.Where(w => w.ItemId == (int)itemId).Select(s => s);
+            ItemReferences = References.Where(w => w.ItemId == (int)itemId).Select(s => s).OrderBy(o => o.ReferenceName);
         }
         protected async Task OnReferenceChange(object referenceId)
         {
