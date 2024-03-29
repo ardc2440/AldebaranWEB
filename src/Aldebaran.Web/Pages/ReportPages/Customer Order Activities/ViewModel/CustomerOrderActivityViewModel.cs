@@ -20,6 +20,7 @@
             public string InternalNotes { get; set; }
             public string CustomerNotes { get; set; }
             public List<Reference> References { get; set; }
+            public List<Activity> Activities { get; set; }
         }
         public class Reference
         {
@@ -31,7 +32,6 @@
             public int DeliveredAmount { get; set; }
             public int InProcessAmount { get; set; }
             public string Status { get; set; }
-            public List<Activity> Activities { get; set; }
         }
         public class Activity
         {

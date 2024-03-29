@@ -69,34 +69,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
                                         Amount=358,
                                         DeliveredAmount=100,
                                         InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-1),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-3),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
+                                        Status="Entrega parcial"
                                     },
                                     new CustomerOrderActivityViewModel.Reference
                                     {
@@ -107,34 +80,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
                                         Amount=358,
                                         DeliveredAmount=100,
                                         InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-1),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-3),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
+                                        Status="Entrega parcial"
                                     },
                                     new CustomerOrderActivityViewModel.Reference
                                     {
@@ -145,10 +91,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
                                         Amount=358,
                                         DeliveredAmount=100,
                                         InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                        }
+                                        Status="Entrega parcial"
                                     },
                                     new CustomerOrderActivityViewModel.Reference
                                     {
@@ -159,19 +102,35 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
                                         Amount=358,
                                         DeliveredAmount=100,
                                         InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
+                                        Status="Entrega parcial"
                                     },
+                                },
+                                Activities = new List<CustomerOrderActivityViewModel.Activity>
+                                {
+                                    new CustomerOrderActivityViewModel.Activity
+                                    {
+                                        CreationDate = DateTime.Now,
+                                        AreaName="Analisis de inventario",
+                                        EmployeeName="Javier Linares",
+                                        Notes="Cliente recogera el pedido",
+                                        Status="Entregado"
+                                    },
+                                    new CustomerOrderActivityViewModel.Activity
+                                    {
+                                        CreationDate = DateTime.Now.AddDays(-1),
+                                        AreaName="Analisis de inventario",
+                                        EmployeeName="Javier Linares",
+                                        Notes="Cliente recogera el pedido",
+                                        Status="Entregado"
+                                    },
+                                    new CustomerOrderActivityViewModel.Activity
+                                    {
+                                        CreationDate = DateTime.Now.AddDays(-3),
+                                        AreaName="Analisis de inventario",
+                                        EmployeeName="Javier Linares",
+                                        Notes="Cliente recogera el pedido",
+                                        Status="Entregado"
+                                    }
                                 }
                             },
                             new CustomerOrderActivityViewModel.Order
@@ -194,34 +153,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
                                         Amount=358,
                                         DeliveredAmount=100,
                                         InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-1),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-3),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
+                                        Status="Entrega parcial"
                                     },
                                     new CustomerOrderActivityViewModel.Reference
                                     {
@@ -232,34 +164,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
                                         Amount=358,
                                         DeliveredAmount=100,
                                         InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-1),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-3),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
+                                        Status="Entrega parcial"
                                     },
                                     new CustomerOrderActivityViewModel.Reference
                                     {
@@ -270,10 +175,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
                                         Amount=358,
                                         DeliveredAmount=100,
                                         InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                        }
+                                        Status="Entrega parcial"
                                     },
                                     new CustomerOrderActivityViewModel.Reference
                                     {
@@ -284,19 +186,35 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
                                         Amount=358,
                                         DeliveredAmount=100,
                                         InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
+                                        Status="Entrega parcial"
                                     },
+                                },
+                                Activities = new List<CustomerOrderActivityViewModel.Activity>
+                                {
+                                    new CustomerOrderActivityViewModel.Activity
+                                    {
+                                        CreationDate = DateTime.Now,
+                                        AreaName="Analisis de inventario",
+                                        EmployeeName="Javier Linares",
+                                        Notes="Cliente recogera el pedido",
+                                        Status="Entregado"
+                                    },
+                                    new CustomerOrderActivityViewModel.Activity
+                                    {
+                                        CreationDate = DateTime.Now.AddDays(-1),
+                                        AreaName="Analisis de inventario",
+                                        EmployeeName="Javier Linares",
+                                        Notes="Cliente recogera el pedido",
+                                        Status="Entregado"
+                                    },
+                                    new CustomerOrderActivityViewModel.Activity
+                                    {
+                                        CreationDate = DateTime.Now.AddDays(-3),
+                                        AreaName="Analisis de inventario",
+                                        EmployeeName="Javier Linares",
+                                        Notes="Cliente recogera el pedido",
+                                        Status="Entregado"
+                                    }
                                 }
                             },
                         }
@@ -327,34 +245,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
                                         Amount=358,
                                         DeliveredAmount=100,
                                         InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-1),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-3),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
+                                        Status="Entrega parcial"
                                     },
                                     new CustomerOrderActivityViewModel.Reference
                                     {
@@ -365,34 +256,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
                                         Amount=358,
                                         DeliveredAmount=100,
                                         InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-1),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-3),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
+                                        Status="Entrega parcial"
                                     },
                                     new CustomerOrderActivityViewModel.Reference
                                     {
@@ -403,10 +267,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
                                         Amount=358,
                                         DeliveredAmount=100,
                                         InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                        }
+                                        Status="Entrega parcial"
                                     },
                                     new CustomerOrderActivityViewModel.Reference
                                     {
@@ -417,19 +278,35 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
                                         Amount=358,
                                         DeliveredAmount=100,
                                         InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
+                                        Status="Entrega parcial"
                                     },
+                                },
+                                Activities = new List<CustomerOrderActivityViewModel.Activity>
+                                {
+                                    new CustomerOrderActivityViewModel.Activity
+                                    {
+                                        CreationDate = DateTime.Now,
+                                        AreaName="Analisis de inventario",
+                                        EmployeeName="Javier Linares",
+                                        Notes="Cliente recogera el pedido",
+                                        Status="Entregado"
+                                    },
+                                    new CustomerOrderActivityViewModel.Activity
+                                    {
+                                        CreationDate = DateTime.Now.AddDays(-1),
+                                        AreaName="Analisis de inventario",
+                                        EmployeeName="Javier Linares",
+                                        Notes="Cliente recogera el pedido",
+                                        Status="Entregado"
+                                    },
+                                    new CustomerOrderActivityViewModel.Activity
+                                    {
+                                        CreationDate = DateTime.Now.AddDays(-3),
+                                        AreaName="Analisis de inventario",
+                                        EmployeeName="Javier Linares",
+                                        Notes="Cliente recogera el pedido",
+                                        Status="Entregado"
+                                    }
                                 }
                             },
                             new CustomerOrderActivityViewModel.Order
@@ -452,34 +329,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
                                         Amount=358,
                                         DeliveredAmount=100,
                                         InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-1),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-3),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
+                                        Status="Entrega parcial"
                                     },
                                     new CustomerOrderActivityViewModel.Reference
                                     {
@@ -490,34 +340,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
                                         Amount=358,
                                         DeliveredAmount=100,
                                         InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-1),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-3),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
+                                        Status="Entrega parcial"
                                     },
                                     new CustomerOrderActivityViewModel.Reference
                                     {
@@ -528,10 +351,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
                                         Amount=358,
                                         DeliveredAmount=100,
                                         InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                        }
+                                        Status="Entrega parcial"
                                     },
                                     new CustomerOrderActivityViewModel.Reference
                                     {
@@ -542,19 +362,35 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
                                         Amount=358,
                                         DeliveredAmount=100,
                                         InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
+                                        Status="Entrega parcial"
                                     },
+                                },
+                                Activities = new List<CustomerOrderActivityViewModel.Activity>
+                                {
+                                    new CustomerOrderActivityViewModel.Activity
+                                    {
+                                        CreationDate = DateTime.Now,
+                                        AreaName="Analisis de inventario",
+                                        EmployeeName="Javier Linares",
+                                        Notes="Cliente recogera el pedido",
+                                        Status="Entregado"
+                                    },
+                                    new CustomerOrderActivityViewModel.Activity
+                                    {
+                                        CreationDate = DateTime.Now.AddDays(-1),
+                                        AreaName="Analisis de inventario",
+                                        EmployeeName="Javier Linares",
+                                        Notes="Cliente recogera el pedido",
+                                        Status="Entregado"
+                                    },
+                                    new CustomerOrderActivityViewModel.Activity
+                                    {
+                                        CreationDate = DateTime.Now.AddDays(-3),
+                                        AreaName="Analisis de inventario",
+                                        EmployeeName="Javier Linares",
+                                        Notes="Cliente recogera el pedido",
+                                        Status="Entregado"
+                                    }
                                 }
                             },
                         }
@@ -585,34 +421,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
                                         Amount=358,
                                         DeliveredAmount=100,
                                         InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-1),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-3),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
+                                        Status="Entrega parcial"
                                     },
                                     new CustomerOrderActivityViewModel.Reference
                                     {
@@ -623,34 +432,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
                                         Amount=358,
                                         DeliveredAmount=100,
                                         InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-1),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-3),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
+                                        Status="Entrega parcial"
                                     },
                                     new CustomerOrderActivityViewModel.Reference
                                     {
@@ -661,10 +443,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
                                         Amount=358,
                                         DeliveredAmount=100,
                                         InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                        }
+                                        Status="Entrega parcial"
                                     },
                                     new CustomerOrderActivityViewModel.Reference
                                     {
@@ -675,19 +454,35 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
                                         Amount=358,
                                         DeliveredAmount=100,
                                         InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
+                                        Status="Entrega parcial"
                                     },
+                                },
+                                Activities = new List<CustomerOrderActivityViewModel.Activity>
+                                {
+                                    new CustomerOrderActivityViewModel.Activity
+                                    {
+                                        CreationDate = DateTime.Now,
+                                        AreaName="Analisis de inventario",
+                                        EmployeeName="Javier Linares",
+                                        Notes="Cliente recogera el pedido",
+                                        Status="Entregado"
+                                    },
+                                    new CustomerOrderActivityViewModel.Activity
+                                    {
+                                        CreationDate = DateTime.Now.AddDays(-1),
+                                        AreaName="Analisis de inventario",
+                                        EmployeeName="Javier Linares",
+                                        Notes="Cliente recogera el pedido",
+                                        Status="Entregado"
+                                    },
+                                    new CustomerOrderActivityViewModel.Activity
+                                    {
+                                        CreationDate = DateTime.Now.AddDays(-3),
+                                        AreaName="Analisis de inventario",
+                                        EmployeeName="Javier Linares",
+                                        Notes="Cliente recogera el pedido",
+                                        Status="Entregado"
+                                    }
                                 }
                             },
                             new CustomerOrderActivityViewModel.Order
@@ -710,34 +505,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
                                         Amount=358,
                                         DeliveredAmount=100,
                                         InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-1),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-3),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
+                                        Status="Entrega parcial"
                                     },
                                     new CustomerOrderActivityViewModel.Reference
                                     {
@@ -748,34 +516,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
                                         Amount=358,
                                         DeliveredAmount=100,
                                         InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-1),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-3),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
+                                        Status="Entrega parcial"
                                     },
                                     new CustomerOrderActivityViewModel.Reference
                                     {
@@ -786,10 +527,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
                                         Amount=358,
                                         DeliveredAmount=100,
                                         InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                        }
+                                        Status="Entrega parcial"
                                     },
                                     new CustomerOrderActivityViewModel.Reference
                                     {
@@ -800,19 +538,35 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
                                         Amount=358,
                                         DeliveredAmount=100,
                                         InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
+                                        Status="Entrega parcial"
                                     },
+                                },
+                                Activities = new List<CustomerOrderActivityViewModel.Activity>
+                                {
+                                    new CustomerOrderActivityViewModel.Activity
+                                    {
+                                        CreationDate = DateTime.Now,
+                                        AreaName="Analisis de inventario",
+                                        EmployeeName="Javier Linares",
+                                        Notes="Cliente recogera el pedido",
+                                        Status="Entregado"
+                                    },
+                                    new CustomerOrderActivityViewModel.Activity
+                                    {
+                                        CreationDate = DateTime.Now.AddDays(-1),
+                                        AreaName="Analisis de inventario",
+                                        EmployeeName="Javier Linares",
+                                        Notes="Cliente recogera el pedido",
+                                        Status="Entregado"
+                                    },
+                                    new CustomerOrderActivityViewModel.Activity
+                                    {
+                                        CreationDate = DateTime.Now.AddDays(-3),
+                                        AreaName="Analisis de inventario",
+                                        EmployeeName="Javier Linares",
+                                        Notes="Cliente recogera el pedido",
+                                        Status="Entregado"
+                                    }
                                 }
                             },
                         }
@@ -843,34 +597,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
                                         Amount=358,
                                         DeliveredAmount=100,
                                         InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-1),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-3),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
+                                        Status="Entrega parcial"
                                     },
                                     new CustomerOrderActivityViewModel.Reference
                                     {
@@ -881,34 +608,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
                                         Amount=358,
                                         DeliveredAmount=100,
                                         InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-1),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-3),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
+                                        Status="Entrega parcial"
                                     },
                                     new CustomerOrderActivityViewModel.Reference
                                     {
@@ -919,10 +619,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
                                         Amount=358,
                                         DeliveredAmount=100,
                                         InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                        }
+                                        Status="Entrega parcial"
                                     },
                                     new CustomerOrderActivityViewModel.Reference
                                     {
@@ -933,19 +630,35 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
                                         Amount=358,
                                         DeliveredAmount=100,
                                         InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
+                                        Status="Entrega parcial"
                                     },
+                                },
+                                Activities = new List<CustomerOrderActivityViewModel.Activity>
+                                {
+                                    new CustomerOrderActivityViewModel.Activity
+                                    {
+                                        CreationDate = DateTime.Now,
+                                        AreaName="Analisis de inventario",
+                                        EmployeeName="Javier Linares",
+                                        Notes="Cliente recogera el pedido",
+                                        Status="Entregado"
+                                    },
+                                    new CustomerOrderActivityViewModel.Activity
+                                    {
+                                        CreationDate = DateTime.Now.AddDays(-1),
+                                        AreaName="Analisis de inventario",
+                                        EmployeeName="Javier Linares",
+                                        Notes="Cliente recogera el pedido",
+                                        Status="Entregado"
+                                    },
+                                    new CustomerOrderActivityViewModel.Activity
+                                    {
+                                        CreationDate = DateTime.Now.AddDays(-3),
+                                        AreaName="Analisis de inventario",
+                                        EmployeeName="Javier Linares",
+                                        Notes="Cliente recogera el pedido",
+                                        Status="Entregado"
+                                    }
                                 }
                             },
                             new CustomerOrderActivityViewModel.Order
@@ -968,34 +681,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
                                         Amount=358,
                                         DeliveredAmount=100,
                                         InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-1),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-3),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
+                                        Status="Entrega parcial"
                                     },
                                     new CustomerOrderActivityViewModel.Reference
                                     {
@@ -1006,34 +692,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
                                         Amount=358,
                                         DeliveredAmount=100,
                                         InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-1),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-3),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
+                                        Status="Entrega parcial"
                                     },
                                     new CustomerOrderActivityViewModel.Reference
                                     {
@@ -1044,10 +703,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
                                         Amount=358,
                                         DeliveredAmount=100,
                                         InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                        }
+                                        Status="Entrega parcial"
                                     },
                                     new CustomerOrderActivityViewModel.Reference
                                     {
@@ -1058,19 +714,35 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
                                         Amount=358,
                                         DeliveredAmount=100,
                                         InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
+                                        Status="Entrega parcial"
                                     },
+                                },
+                                Activities = new List<CustomerOrderActivityViewModel.Activity>
+                                {
+                                    new CustomerOrderActivityViewModel.Activity
+                                    {
+                                        CreationDate = DateTime.Now,
+                                        AreaName="Analisis de inventario",
+                                        EmployeeName="Javier Linares",
+                                        Notes="Cliente recogera el pedido",
+                                        Status="Entregado"
+                                    },
+                                    new CustomerOrderActivityViewModel.Activity
+                                    {
+                                        CreationDate = DateTime.Now.AddDays(-1),
+                                        AreaName="Analisis de inventario",
+                                        EmployeeName="Javier Linares",
+                                        Notes="Cliente recogera el pedido",
+                                        Status="Entregado"
+                                    },
+                                    new CustomerOrderActivityViewModel.Activity
+                                    {
+                                        CreationDate = DateTime.Now.AddDays(-3),
+                                        AreaName="Analisis de inventario",
+                                        EmployeeName="Javier Linares",
+                                        Notes="Cliente recogera el pedido",
+                                        Status="Entregado"
+                                    }
                                 }
                             },
                         }
