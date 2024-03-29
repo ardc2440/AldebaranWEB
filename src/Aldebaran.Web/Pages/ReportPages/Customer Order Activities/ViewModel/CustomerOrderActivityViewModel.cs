@@ -20,6 +20,7 @@
             public string InternalNotes { get; set; }
             public string CustomerNotes { get; set; }
             public List<Reference> References { get; set; }
+            public List<Activity> Activities { get; set; }
         }
         public class Reference
         {
@@ -40,6 +41,13 @@
             public string EmployeeName { get; set; }
             public string Notes { get; set; }
             public string Status { get; set; }
+            public List<ActivityDetail> ActivityDetail { get;set; }
+        }
+
+        public class ActivityDetail
+        {
+            public string ActivityType { get; set; }
+            public string EmployeeName { get; set; }
         }
     }
 }
