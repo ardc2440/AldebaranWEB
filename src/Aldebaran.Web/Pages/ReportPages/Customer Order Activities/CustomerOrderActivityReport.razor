@@ -300,11 +300,33 @@
                                                                                         </td>
                                                                                     </tr>
                                                                                     <tr class="no-border">
-                                                                                        <td colspan="4" width="100%">
+                                                                                        <td colspan="4" width="100%" class="@(activity.Details?.Any()==true?"pb-1":"")">
                                                                                             <span class="bold">Observaciones: </span><br />
                                                                                             @activity.Notes
                                                                                         </td>
                                                                                     </tr>
+                                                                                    @if (activity.Details?.Any() == true)
+                                                                                    {
+                                                                                        <tr class="emphasys bold">
+                                                                                            <td width="25%">
+                                                                                                Tipo de actividad
+                                                                                            </td>
+                                                                                            <td width="25%">
+                                                                                                Funcionario
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                        @foreach (var activityDetail in activity.Details)
+                                                                                        {
+                                                                                            <tr>
+                                                                                                <td width="25%">
+                                                                                                    @activityDetail.ActivityTypeName
+                                                                                                </td>
+                                                                                                <td width="25%">
+                                                                                                    @activityDetail.EmployeeName
+                                                                                                </td>
+                                                                                            </tr>
+                                                                                        }
+                                                                                    }
                                                                                 }
                                                                             </tbody>
                                                                         </table>

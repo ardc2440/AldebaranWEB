@@ -113,7 +113,20 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
                                         AreaName="Analisis de inventario",
                                         EmployeeName="Javier Linares",
                                         Notes="Cliente recogera el pedido",
-                                        Status="Entregado"
+                                        Status="Entregado",
+                                        Details = new List<CustomerOrderActivityViewModel.ActivityDetail>
+                                        {
+                                            new CustomerOrderActivityViewModel.ActivityDetail
+                                            {
+                                                ActivityTypeName="Logo pendiente",
+                                                EmployeeName="Javier Linares"
+                                            },
+                                            new CustomerOrderActivityViewModel.ActivityDetail
+                                            {
+                                                ActivityTypeName="Falta color de tinta",
+                                                EmployeeName="Javier Linares"
+                                            }
+                                        }
                                     },
                                     new CustomerOrderActivityViewModel.Activity
                                     {
@@ -121,7 +134,20 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
                                         AreaName="Analisis de inventario",
                                         EmployeeName="Javier Linares",
                                         Notes="Cliente recogera el pedido",
-                                        Status="Entregado"
+                                        Status="Entregado",
+                                        Details = new List<CustomerOrderActivityViewModel.ActivityDetail>
+                                        {
+                                            new CustomerOrderActivityViewModel.ActivityDetail
+                                            {
+                                                ActivityTypeName="Logo pendiente",
+                                                EmployeeName="Javier Linares"
+                                            },
+                                            new CustomerOrderActivityViewModel.ActivityDetail
+                                            {
+                                                ActivityTypeName="Falta color de tinta",
+                                                EmployeeName="Javier Linares"
+                                            }
+                                        }
                                     },
                                     new CustomerOrderActivityViewModel.Activity
                                     {

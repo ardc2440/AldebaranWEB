@@ -40,6 +40,12 @@
             public string EmployeeName { get; set; }
             public string Notes { get; set; }
             public string Status { get; set; }
+            public List<ActivityDetail> Details { get; set; }
+        }
+        public class ActivityDetail
+        {
+            public string ActivityTypeName { get; set; }
+            public string EmployeeName { get; set; }
         }
     }
 }
