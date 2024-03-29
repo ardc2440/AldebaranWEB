@@ -92,52 +92,68 @@
                             </tr>
                         </table>
                         <div class="mt-1 border">
+                            @if (IsLoadingData)
+                            {
+                                <div class="loading-container">
+                                    <RadzenIcon Icon="refresh" />
+                                    <span>@SharedLocalizer["report:loading-text"]</span>
+                                </div>
+                            }
                             @if (ViewModel != null)
                             {
-                                @foreach (var warehouse in ViewModel.Warehouses)
+                                @if (ViewModel.Warehouses?.Any() == true)
                                 {
-                                    <p class="title border-bottom-1">Bodega: @warehouse.WarehouseName</p>
-                                    @foreach (var line in warehouse.Lines)
+                                    @foreach (var warehouse in ViewModel.Warehouses)
                                     {
-                                        <p class="title border-bottom-1" style="padding-left: 1em;">Línea: @line.LineCode  - @line.LineName</p>                                        
-                                        @for (int i = 0; i < line.Items.Count(); i++)
+                                        <p class="title border-bottom-1">Bodega: @warehouse.WarehouseName</p>
+                                        @foreach (var line in warehouse.Lines)
                                         {
-                                            var item = line.Items[i];
-                                            <div style="padding: 1em 1em 0 1em !important;">
-                                                @if (i > 0)
-                                                {
-                                                    <hr class="mb-2" />
-                                                }
-                                                <h3 class="text-left m-0">@item.ItemName</h3>
-                                                <p class="m-0">
-                                                    Referencia interna: @item.InternalReference
-                                                </p>
-                                            </div>
-                                            <div style="margin: 1em;">
-                                                <table class="striped edged">
-                                                    <thead>
-                                                        <tr>
-                                                            <th width="20%">Código</th>
-                                                            <th width="30%">Referencia</th>
-                                                            <th width="30%">Referencia proveedor</th>
-                                                            <th width="20%">Disponible</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        @foreach (var reference in item.References)
-                                                        {
+                                            <p class="title border-bottom-1" style="padding-left: 1em;">Línea: @line.LineCode  - @line.LineName</p>
+                                            @for (int i = 0; i < line.Items.Count(); i++)
+                                            {
+                                                var item = line.Items[i];
+                                                <div style="padding: 1em 1em 0 1em !important;">
+                                                    @if (i > 0)
+                                                    {
+                                                        <hr class="mb-2" />
+                                                    }
+                                                    <h3 class="text-left m-0">@item.ItemName</h3>
+                                                    <p class="m-0">
+                                                        Referencia interna: @item.InternalReference
+                                                    </p>
+                                                </div>
+                                                <div style="margin: 1em;">
+                                                    <table class="striped edged">
+                                                        <thead>
                                                             <tr>
-                                                                <td width="20%">@reference.ReferenceCode</td>
-                                                                <td width="30%">@reference.ReferenceName</td>
-                                                                <td width="30%">@reference.ProviderReferenceName</td>
-                                                                <td width="20%">@reference.AvailableAmount.ToString("N0")</td>
+                                                                <th width="20%">Código</th>
+                                                                <th width="30%">Referencia</th>
+                                                                <th width="30%">Referencia proveedor</th>
+                                                                <th width="20%">Disponible</th>
                                                             </tr>
-                                                        }
-                                                    </tbody>
-                                                </table>
-                                            </div>
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach (var reference in item.References)
+                                                            {
+                                                                <tr>
+                                                                    <td width="20%">@reference.ReferenceCode</td>
+                                                                    <td width="30%">@reference.ReferenceName</td>
+                                                                    <td width="30%">@reference.ProviderReferenceName</td>
+                                                                    <td width="20%">@reference.AvailableAmount.ToString("N0")</td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            }
                                         }
                                     }
+                                }
+                                else
+                                {
+                                    <div class="no-data-container">
+                                        <h4>@SharedLocalizer["report:no-data"]</h4>
+                                    </div>
                                 }
                             }
                         </div>

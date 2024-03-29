@@ -11,7 +11,7 @@
         <RadzenColumn Size="6">
             <div class="rz-text-align-left d-flex gap-3">
                 <RadzenButton Variant="Variant.Text" Icon="filter_alt" Click="@OpenFilters" Text="Filtros" ButtonStyle="ButtonStyle.Secondary" class="text-primary-color p-0 pb-1" />
-                @if (Filter != null && Filter.ItemReferences.Any())
+                @if (Filter != null)
                 {
                     <RadzenButton Variant="Variant.Text" Click="@RemoveFilters" Text="Limpiar filtros" ButtonStyle="ButtonStyle.Secondary" class="text-decoration-underline p-0 pb-1" />
                 }
@@ -19,17 +19,22 @@
             <div class="component-section d-flex flex-column justify-content-start text-secondary-color">
                 @if (Filter != null)
                 {
-                    <p class="component-label m-0 pt-2 fw-bold">Referencias: </p>
-                    @for (int i = 0; i < Filter.ItemReferences.Count(); i++)
-                    {
-                        <span class='@(i>=2 ? "read-more" : "")' style='@(i>=2 ? "display: none" : "")'>(@Filter.ItemReferences[i].Item.Line.LineName) @Filter.ItemReferences[i].Item.ItemName - @Filter.ItemReferences[i].ReferenceName</span>
-                    }
-                    @if (Filter.ItemReferences.Count() > 2)
-                    {
-                        <div>
-                            <a href="javascript:;" id="toggleLink" @onclick="ToggleReadMore">Ver más</a>
-                        </div>
-                    }
+                    <div class="component-section d-flex flex-column justify-content-start pt-2">
+                        @if (Filter.ItemReferences.Any())
+                        {
+                            <p class="component-label m-0 fw-bold">Referencias: </p>
+                            @for (int i = 0; i < Filter.ItemReferences.Count(); i++)
+                            {
+                                <span class="@(i>=2 ? "read-more" : "")" style="@(i>=2 ? "display: none" : "")">(@Filter.ItemReferences[i].Item.Line.LineName) @Filter.ItemReferences[i].Item.ItemName - @Filter.ItemReferences[i].ReferenceName</span>
+                            }
+                            @if (Filter.ItemReferences.Count() > 2)
+                            {
+                                <div>
+                                    <a href="javascript:;" id="toggleLink" @onclick="ToggleReadMore">Ver más</a>
+                                </div>
+                            }
+                        }
+                    </div>
                 }
             </div>
         </RadzenColumn>
@@ -56,10 +61,15 @@
                                         <div class="filters">
                                             <div class="title">Filtros:</div>
                                             <div>
-                                                <div class="type">Referencias: </div>
-                                                @for (int i = 0; i < Filter.ItemReferences.Count(); i++)
+                                                @if (Filter.ItemReferences.Any())
                                                 {
-                                                    <p>(@Filter.ItemReferences[i].Item.Line.LineName) @Filter.ItemReferences[i].Item.ItemName - @Filter.ItemReferences[i].ReferenceName</p>
+                                                    <div>
+                                                        <div class="type">Referencias: </div>
+                                                        @for (int i = 0; i < Filter.ItemReferences.Count(); i++)
+                                                        {
+                                                            <p>(@Filter.ItemReferences[i].Item.Line.LineName) @Filter.ItemReferences[i].Item.ItemName - @Filter.ItemReferences[i].ReferenceName</p>
+                                                        }
+                                                    </div>
                                                 }
                                             </div>
                                         </div>
@@ -68,65 +78,82 @@
                             </tr>
                         </table>
                         <div class="border mt-1">
+                            @if (IsLoadingData)
+                            {
+                                <div class="loading-container">
+                                    <RadzenIcon Icon="refresh" />
+                                    <span>@SharedLocalizer["report:loading-text"]</span>
+                                </div>
+                            }
+
                             @if (ViewModel != null)
                             {
-                                @foreach (var line in ViewModel.Lines)
+                                @if (ViewModel.Lines?.Any() == true)
                                 {
-                                    <p class="title border-bottom-1">Línea: @line.LineCode  - @line.LineName</p>
-
-                                    @for (int i = 0; i < line.Items.Count(); i++)
+                                    @foreach (var line in ViewModel.Lines)
                                     {
-                                        var item = line.Items[i];
-                                        <div style="padding: 1em 1em 0 1em !important;">
-                                            @if (i > 0)
-                                            {
-                                                <hr class="mb-2" />
-                                            }
-                                            <h3 class='text-left m-0'>
-                                                @item.ItemName
-                                            </h3>
-                                            <p class="m-0">
-                                                Referencia interna: @item.InternalReference
-                                            </p>
-                                        </div>
-                                        <div style="margin: 1em;">
-                                            <table class="striped edged" style="margin-bottom: 0 !important;margin:0">
-                                                <thead>
-                                                    <tr>
-                                                        <th width="40%">Referencia</th>
-                                                        <th width="20%">En proceso</th>
-                                                        @foreach (var warehouse in UniqueWarehouses.OrderBy(o => o.WarehouseId))
-                                                        {
-                                                            <th width="20%">Bodega @warehouse.WarehouseName</th>
-                                                        }
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @foreach (var reference in item.References)
-                                                    {
+                                        <p class="title border-bottom-1">Línea: @line.LineCode  - @line.LineName</p>
+
+                                        @for (int i = 0; i < line.Items.Count(); i++)
+                                        {
+                                            var item = line.Items[i];
+                                            <div style="padding: 1em 1em 0 1em !important;">
+                                                @if (i > 0)
+                                                {
+                                                    <hr class="mb-2" />
+                                                }
+                                                <h3 class='text-left m-0'>
+                                                    @item.ItemName
+                                                </h3>
+                                                <p class="m-0">
+                                                    Referencia interna: @item.InternalReference
+                                                </p>
+                                            </div>
+                                            <div style="margin: 1em;">
+                                                <table class="striped edged" style="margin-bottom: 0 !important;margin:0">
+                                                    <thead>
                                                         <tr>
-                                                            <td width="40%">@reference.ReferenceName</td>
-                                                            <td width="20%">@reference.InProcessAmount</td>
+                                                            <th width="40%">Referencia</th>
+                                                            <th width="20%">En proceso</th>
                                                             @foreach (var warehouse in UniqueWarehouses.OrderBy(o => o.WarehouseId))
                                                             {
-                                                                {
-                                                                    var ws = reference.Warehouses.FirstOrDefault(w => w.WarehouseId == warehouse.WarehouseId);
-                                                                    if (ws == null)
-                                                                    {
-                                                                        <td width="20%">0</td>
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <td width="20%">@ws.Amount.ToString("N0")</td>
-                                                                    }
-                                                                }
+                                                                <th width="20%">Bodega @warehouse.WarehouseName</th>
                                                             }
                                                         </tr>
-                                                    }
-                                                </tbody>
-                                            </table>
-                                        </div>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach (var reference in item.References)
+                                                        {
+                                                            <tr>
+                                                                <td width="40%">@reference.ReferenceName</td>
+                                                                <td width="20%">@reference.InProcessAmount</td>
+                                                                @foreach (var warehouse in UniqueWarehouses.OrderBy(o => o.WarehouseId))
+                                                                {
+                                                                    {
+                                                                        var ws = reference.Warehouses.FirstOrDefault(w => w.WarehouseId == warehouse.WarehouseId);
+                                                                        if (ws == null)
+                                                                        {
+                                                                            <td width="20%">0</td>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <td width="20%">@ws.Amount.ToString("N0")</td>
+                                                                        }
+                                                                    }
+                                                                }
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        }
                                     }
+                                }
+                                else
+                                {
+                                    <div class="no-data-container">
+                                        <h4>@SharedLocalizer["report:no-data"]</h4>
+                                    </div>
                                 }
                             }
                         </div>

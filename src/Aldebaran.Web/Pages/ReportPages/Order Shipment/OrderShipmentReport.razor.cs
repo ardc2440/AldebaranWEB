@@ -30,7 +30,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment
         protected OrderShipmentFilter Filter;
         protected OrderShipmentViewModel ViewModel;
         private bool IsBusy = false;
-
+        private readonly bool IsLoadingData = false;
         private IEnumerable<Application.Services.Models.Reports.OrderShipmentReport> DataReport { get; set; }
         #endregion
 

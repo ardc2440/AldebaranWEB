@@ -134,75 +134,91 @@
                             </tr>
                         </table>
                         <div class="mt-1">
+                            @if (IsLoadingData)
+                            {
+                                <div class="loading-container">
+                                    <RadzenIcon Icon="refresh" />
+                                    <span>@SharedLocalizer["report:loading-text"]</span>
+                                </div>
+                            }
                             @if (ViewModel != null)
                             {
-                                @foreach (var warehouse in ViewModel.WarehouseTransfers)
+                                @if (ViewModel.WarehouseTransfers?.Any() == true)
                                 {
-                                    <table class="edged">
-                                        <thead>
-                                            <tr class="emphasys-3x font-size-2x no-border">
-                                                <td colspan="2" width="20%">
-                                                    <span class="bold">Fecha: </span>@warehouse.Date
-                                                </td>
-                                                <td colspan="3" width="30%">
-                                                    <span class="bold">Bodega de origen: </span>@warehouse.SourceWarehouseName
-                                                </td>
-                                                <td colspan="5" width="50%">
-                                                    <span class="bold">Bodega destino: </span>@warehouse.TargetWarehouseName
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td colspan="10" width="100%">
-                                                    <span class="bold">Motivo: </span>@warehouse.Reason
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td colspan="5" width="50%">
-                                                    <span class="bold">Fecha de registro: </span>@warehouse.RegistrationDate
-                                                </td>
-                                                <td colspan="5" width="50%">
-                                                    <span class="bold">Número de nacionalización: </span>@warehouse.NationalizationNumber
-                                                </td>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td colspan="10" width="100%">
-                                                    <div style="margin: 1em;">
-                                                        <table class="striped edged">
-                                                            <thead>
-                                                                <tr>
-                                                                    <th width="20%" colspan="2">Referencia interna</th>
-                                                                    <th width="30%" colspan="3">Nombre</th>
-                                                                    <th width="30%" colspan="3">Referencia</th>
-                                                                    <th width="20%" colspan="2">Cantidad</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                @foreach (var reference in warehouse.References)
-                                                                {
+                                    @foreach (var warehouse in ViewModel.WarehouseTransfers)
+                                    {
+                                        <table class="edged">
+                                            <thead>
+                                                <tr class="emphasys-3x font-size-2x no-border">
+                                                    <td colspan="2" width="20%">
+                                                        <span class="bold">Fecha: </span>@warehouse.Date
+                                                    </td>
+                                                    <td colspan="3" width="30%">
+                                                        <span class="bold">Bodega de origen: </span>@warehouse.SourceWarehouseName
+                                                    </td>
+                                                    <td colspan="5" width="50%">
+                                                        <span class="bold">Bodega destino: </span>@warehouse.TargetWarehouseName
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="10" width="100%">
+                                                        <span class="bold">Motivo: </span>@warehouse.Reason
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="5" width="50%">
+                                                        <span class="bold">Fecha de registro: </span>@warehouse.RegistrationDate
+                                                    </td>
+                                                    <td colspan="5" width="50%">
+                                                        <span class="bold">Número de nacionalización: </span>@warehouse.NationalizationNumber
+                                                    </td>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td colspan="10" width="100%">
+                                                        <div style="margin: 1em;">
+                                                            <table class="striped edged">
+                                                                <thead>
                                                                     <tr>
-                                                                        <td width="20%" colspan="2">@reference.ItemReference</td>
-                                                                        <td width="30%" colspan="3">@reference.ItemName</td>
-                                                                        <td width="30%" colspan="3">@(string.IsNullOrEmpty(reference.ReferenceCode) ? string.Empty : $"{reference.ReferenceCode} - ")@reference.ReferenceName</td>
-                                                                        <td width="20%" colspan="2">@(reference.Amount.ToString("N0"))</td>
+                                                                        <th width="20%" colspan="2">Referencia interna</th>
+                                                                        <th width="30%" colspan="3">Nombre</th>
+                                                                        <th width="30%" colspan="3">Referencia</th>
+                                                                        <th width="20%" colspan="2">Cantidad</th>
                                                                     </tr>
-                                                                }
-                                                                <tr class="emphasys">
-                                                                    <td colspan="8" width="80%" class="bold" style="text-align:right">
-                                                                        Total:
-                                                                    </td>
-                                                                    <td colspan="2" width="20%" style="text-align:left">
-                                                                        @warehouse.Total.ToString("N0")
-                                                                    </td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                                                </thead>
+                                                                <tbody>
+                                                                    @foreach (var reference in warehouse.References)
+                                                                    {
+                                                                        <tr>
+                                                                            <td width="20%" colspan="2">@reference.ItemReference</td>
+                                                                            <td width="30%" colspan="3">@reference.ItemName</td>
+                                                                            <td width="30%" colspan="3">@(string.IsNullOrEmpty(reference.ReferenceCode) ? string.Empty : $"{reference.ReferenceCode} - ")@reference.ReferenceName</td>
+                                                                            <td width="20%" colspan="2">@(reference.Amount.ToString("N0"))</td>
+                                                                        </tr>
+                                                                    }
+                                                                    <tr class="emphasys">
+                                                                        <td colspan="8" width="80%" class="bold" style="text-align:right">
+                                                                            Total:
+                                                                        </td>
+                                                                        <td colspan="2" width="20%" style="text-align:left">
+                                                                            @warehouse.Total.ToString("N0")
+                                                                        </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="no-data-container">
+                                        <h4>@SharedLocalizer["report:no-data"]</h4>
+                                    </div>
                                 }
                             }
                         </div>

@@ -31,6 +31,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Reservations
         protected CustomerReservationFilter Filter;
         protected CustomerReservationViewModel ViewModel;
         private bool IsBusy = false;
+        private readonly bool IsLoadingData = false;
         private IEnumerable<Application.Services.Models.Reports.CustomerReservationReport> DataReport { get; set; }
         #endregion
 

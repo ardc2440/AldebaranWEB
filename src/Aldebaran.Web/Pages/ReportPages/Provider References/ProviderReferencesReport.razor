@@ -11,7 +11,7 @@
         <RadzenColumn Size="6">
             <div class="rz-text-align-left d-flex gap-3">
                 <RadzenButton Variant="Variant.Text" Icon="filter_alt" Click="@OpenFilters" Text="Filtros" ButtonStyle="ButtonStyle.Secondary" class="text-primary-color p-0 pb-1" />
-                @if (Filter != null && Filter.ItemReferences.Any())
+                @if (Filter != null)
                 {
                     <RadzenButton Variant="Variant.Text" Click="@RemoveFilters" Text="Limpiar filtros" ButtonStyle="ButtonStyle.Secondary" class="text-decoration-underline p-0 pb-1" />
                 }
@@ -92,123 +92,139 @@
                             </tr>
                         </table>
                         <div class="mt-1">
+                            @if (IsLoadingData)
+                            {
+                                <div class="loading-container">
+                                    <RadzenIcon Icon="refresh" />
+                                    <span>@SharedLocalizer["report:loading-text"]</span>
+                                </div>
+                            }
                             @if (ViewModel != null)
                             {
-                                @foreach (var provider in ViewModel.Providers)
+                                @if (ViewModel.Providers?.Any() == true)
                                 {
-                                    <table class="edged">
-                                        <thead>
-                                            <tr>
-                                                <td colspan="2" width="50%">
-                                                    <span class="bold">Código: </span>@provider.ProviderCode
-                                                </td>
-                                                <td colspan="2" width="50%">
-                                                    <span class="bold">Nombre: </span>@provider.ProviderName
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td colspan="2" width="50%">
-                                                    <span class="bold">Dirección: </span>@provider.ProviderAddress
-                                                </td>
-                                                <td width="25%">
-                                                    <span class="bold">Teléfono: </span>@provider.Phone
-                                                </td>
-                                                <td width="25%">
-                                                    <span class="bold">Fax: </span>@provider.Fax
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td colspan="2" width="50%">
-                                                    <span class="bold">Correo electrónico: </span>@provider.Email
-                                                </td>
-                                                <td colspan="2" width="50%">
-                                                    <span class="bold">Contacto: </span>@provider.ContactPerson
-                                                </td>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach (var line in provider.Lines)
-                                            {
+                                    @foreach (var provider in ViewModel.Providers)
+                                    {
+                                        <table class="edged">
+                                            <thead>
                                                 <tr>
-                                                    <td colspan="4" style="padding:0 !important">
-                                                        <p class="title" style="padding-left: 1em;">Línea: @line.LineCode  - @line.LineName</p>
+                                                    <td colspan="2" width="50%">
+                                                        <span class="bold">Código: </span>@provider.ProviderCode
+                                                    </td>
+                                                    <td colspan="2" width="50%">
+                                                        <span class="bold">Nombre: </span>@provider.ProviderName
                                                     </td>
                                                 </tr>
-                                                @for (int i = 0; i < line.Items.Count(); i++)
+                                                <tr>
+                                                    <td colspan="2" width="50%">
+                                                        <span class="bold">Dirección: </span>@provider.ProviderAddress
+                                                    </td>
+                                                    <td width="25%">
+                                                        <span class="bold">Teléfono: </span>@provider.Phone
+                                                    </td>
+                                                    <td width="25%">
+                                                        <span class="bold">Fax: </span>@provider.Fax
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="2" width="50%">
+                                                        <span class="bold">Correo electrónico: </span>@provider.Email
+                                                    </td>
+                                                    <td colspan="2" width="50%">
+                                                        <span class="bold">Contacto: </span>@provider.ContactPerson
+                                                    </td>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var line in provider.Lines)
                                                 {
-                                                    var item = line.Items[i];
-                                                    <tr class="no-border">
-                                                        <td colspan="4" class="no-border" style="padding:0 !important">
-                                                            <div style="padding: 1em 1em 0 1em !important;">
-                                                                @if (i > 0)
-                                                                {
-                                                                    <hr class="mb-2" />
-                                                                }
-                                                                <h3 class="text-left m-0">
-                                                                    @item.ItemName
-                                                                </h3>
-                                                                <p class="m-0">
-                                                                    Referencia interna: @item.InternalReference
-                                                                </p>
-                                                            </div>
-                                                            <div style="margin: 1em;">
-                                                                <table class="striped edged">
-                                                                    <thead>
-                                                                        <tr>
-                                                                            <th width="20%">Código</th>
-                                                                            <th width="30%">Referencia</th>
-                                                                            <th width="20%">Referencia proveedor</th>
-                                                                            <th width="10%">Comprometido</th>
-                                                                            <th width="10%">Reservado</th>
-                                                                            <th width="10%">Existente</th>
-                                                                        </tr>
-                                                                    </thead>
-                                                                    <tbody>
-                                                                        @foreach (var reference in item.References)
-                                                                        {
-                                                                            <tr>
-                                                                                <td width="20%">@reference.ReferenceCode</td>
-                                                                                <td width="30%">@reference.ReferenceName</td>
-                                                                                <td width="20%">@reference.ProviderReferenceName</td>
-                                                                                <td width="10%">@(reference.ConfirmedAmount == 0 ? "" : reference.ConfirmedAmount.ToString("N0"))</td>
-                                                                                <td width="10%">@(reference.ReservedAmount == 0 ? "" : reference.ReservedAmount.ToString("N0"))</td>
-                                                                                <td width="10%">
-                                                                                    @(reference.AvailableAmount == 0 ? "" : reference.AvailableAmount.ToString("N0"))
-                                                                                    @if (reference.Warehouses?.Any() == true)
-                                                                                    {
-                                                                                        <div>
-                                                                                            <table class="edged mt-1 full no-color">
-                                                                                                <thead>
-                                                                                                    <tr>
-                                                                                                        <th width="50%" class="bold">Bodega</th>
-                                                                                                        <th width="50%">Cantidad</th>
-                                                                                                    </tr>
-                                                                                                </thead>
-                                                                                                <tbody>
-                                                                                                    @foreach (var warehouse in reference.Warehouses)
-                                                                                                    {
-                                                                                                        <tr>
-                                                                                                            <td width="50%">@warehouse.WarehouseName</td>
-                                                                                                            <td width="50%">@(warehouse.Amount == 0 ? "" : warehouse.Amount.ToString("N0"))</td>
-                                                                                                        </tr>
-                                                                                                    }
-                                                                                                </tbody>
-                                                                                            </table>
-
-                                                                                        </div>
-                                                                                    }
-                                                                                </td>
-                                                                            </tr>
-                                                                        }
-                                                                    </tbody>
-                                                                </table>
-                                                            </div>
+                                                    <tr>
+                                                        <td colspan="4" style="padding:0 !important">
+                                                            <p class="title" style="padding-left: 1em;">Línea: @line.LineCode  - @line.LineName</p>
                                                         </td>
                                                     </tr>
+                                                    @for (int i = 0; i < line.Items.Count(); i++)
+                                                    {
+                                                        var item = line.Items[i];
+                                                        <tr class="no-border">
+                                                            <td colspan="4" class="no-border" style="padding:0 !important">
+                                                                <div style="padding: 1em 1em 0 1em !important;">
+                                                                    @if (i > 0)
+                                                                    {
+                                                                        <hr class="mb-2" />
+                                                                    }
+                                                                    <h3 class="text-left m-0">
+                                                                        @item.ItemName
+                                                                    </h3>
+                                                                    <p class="m-0">
+                                                                        Referencia interna: @item.InternalReference
+                                                                    </p>
+                                                                </div>
+                                                                <div style="margin: 1em;">
+                                                                    <table class="striped edged">
+                                                                        <thead>
+                                                                            <tr>
+                                                                                <th width="20%">Código</th>
+                                                                                <th width="30%">Referencia</th>
+                                                                                <th width="20%">Referencia proveedor</th>
+                                                                                <th width="10%">Comprometido</th>
+                                                                                <th width="10%">Reservado</th>
+                                                                                <th width="10%">Existente</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            @foreach (var reference in item.References)
+                                                                            {
+                                                                                <tr>
+                                                                                    <td width="20%">@reference.ReferenceCode</td>
+                                                                                    <td width="30%">@reference.ReferenceName</td>
+                                                                                    <td width="20%">@reference.ProviderReferenceName</td>
+                                                                                    <td width="10%">@(reference.ConfirmedAmount == 0 ? "" : reference.ConfirmedAmount.ToString("N0"))</td>
+                                                                                    <td width="10%">@(reference.ReservedAmount == 0 ? "" : reference.ReservedAmount.ToString("N0"))</td>
+                                                                                    <td width="10%">
+                                                                                        @(reference.AvailableAmount == 0 ? "" : reference.AvailableAmount.ToString("N0"))
+                                                                                        @if (reference.Warehouses?.Any() == true)
+                                                                                        {
+                                                                                            <div>
+                                                                                                <table class="edged mt-1 full no-color">
+                                                                                                    <thead>
+                                                                                                        <tr>
+                                                                                                            <th width="50%" class="bold">Bodega</th>
+                                                                                                            <th width="50%">Cantidad</th>
+                                                                                                        </tr>
+                                                                                                    </thead>
+                                                                                                    <tbody>
+                                                                                                        @foreach (var warehouse in reference.Warehouses)
+                                                                                                        {
+                                                                                                            <tr>
+                                                                                                                <td width="50%">@warehouse.WarehouseName</td>
+                                                                                                                <td width="50%">@(warehouse.Amount == 0 ? "" : warehouse.Amount.ToString("N0"))</td>
+                                                                                                            </tr>
+                                                                                                        }
+                                                                                                    </tbody>
+                                                                                                </table>
+
+                                                                                            </div>
+                                                                                        }
+                                                                                    </td>
+                                                                                </tr>
+                                                                            }
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    }
                                                 }
-                                            }
-                                        </tbody>
-                                    </table>
+                                            </tbody>
+                                        </table>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="no-data-container">
+                                        <h4>@SharedLocalizer["report:no-data"]</h4>
+                                    </div>
                                 }
                             }
                         </div>

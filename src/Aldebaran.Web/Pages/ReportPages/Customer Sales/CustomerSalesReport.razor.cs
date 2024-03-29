@@ -29,6 +29,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Sales
         protected CustomerSalesFilter Filter;
         protected CustomerSalesViewModel ViewModel;
         private bool IsBusy = false;
+        private readonly bool IsLoadingData = false;
         #endregion
 
         #region Overrides

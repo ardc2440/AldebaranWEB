@@ -31,7 +31,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References
         protected ProviderReferencesFilter Filter;
         protected ProviderReferencesViewModel ViewModel;
         private bool IsBusy = false;
-
+        private readonly bool IsLoadingData = false;
         protected IEnumerable<ProviderReferenceReport> DataReport { get; set; }
 
         #endregion

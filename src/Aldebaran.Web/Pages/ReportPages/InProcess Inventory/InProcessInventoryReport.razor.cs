@@ -33,13 +33,14 @@ namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
         protected InProcessInventoryViewModel ViewModel;
         List<InProcessInventoryViewModel.Warehouse> UniqueWarehouses = new List<InProcessInventoryViewModel.Warehouse>();
         private bool IsBusy = false;
+        private readonly bool IsLoadingData = false;
         private IEnumerable<Aldebaran.Application.Services.Models.Reports.InProcessInventoryReport> DataReport { get; set; }
 
         #endregion
 
         #region Overrides
         protected override async Task OnInitializedAsync()
-        {            
+        {
             await RedrawReportAsync();
 
             UniqueWarehouses = ViewModel.Lines.SelectMany(s => s.Items)
@@ -51,7 +52,7 @@ namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
 
         #region Events
 
-        protected async Task RedrawReportAsync(string filter="",CancellationToken ct =default)
+        protected async Task RedrawReportAsync(string filter = "", CancellationToken ct = default)
         {
             DataReport = await InProcessInventoryReportService.GetInProcessInventoryReportDataAsync(filter);
 
@@ -83,7 +84,7 @@ namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
             if (await DialogService.Confirm("Está seguro que desea eliminar los filtros establecidos?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
             {
                 Filter = null;
-                                
+
                 await RedrawReportAsync();
 
                 await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
@@ -178,7 +179,6 @@ namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
         }
 
         #endregion
-
 
     }
 }

@@ -1,5 +1,4 @@
-﻿using Aldebaran.Application.Services.Models;
-using Aldebaran.Application.Services.Reports;
+﻿using Aldebaran.Application.Services.Reports;
 using Aldebaran.Web.Pages.ReportPages.Warehouse_Stock.Components;
 using Aldebaran.Web.Pages.ReportPages.Warehouse_Stock.ViewModel;
 using Microsoft.AspNetCore.Components;
@@ -31,7 +30,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Stock
         protected WarehouseStockFilter Filter;
         protected WarehouseStockViewModel ViewModel;
         private bool IsBusy = false;
-
+        private readonly bool IsLoadingData = false;
         private IEnumerable<Application.Services.Models.Reports.WarehouseStockReport> DataReport { get; set; }
         #endregion
 
