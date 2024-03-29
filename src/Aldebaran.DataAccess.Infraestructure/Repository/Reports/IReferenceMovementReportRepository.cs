@@ -9,6 +9,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository.Reports
 {
     public interface IReferenceMovementReportRepository
     {
-        Task<IEnumerable<ReferenceMovementReport>> GetReferenceMovementReportDataAsync(CancellationToken ct = default);
+        Task<IEnumerable<ReferenceMovementReport>> GetReferenceMovementReportDataAsync(string filter = "", CancellationToken ct = default);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Aldebaran.Application.Services.Models;
 using Aldebaran.Application.Services.Reports;
+using Aldebaran.Web.Pages.ReportPages.Inventory.ViewModel;
 using Aldebaran.Web.Pages.ReportPages.Reference_Movement.Components;
 using Aldebaran.Web.Pages.ReportPages.Reference_Movement.ViewModel;
 using Microsoft.AspNetCore.Components;
@@ -39,23 +40,36 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            DataReport = await ReferenceMovementReportService.GetReferenceMovementReportDataAsync();
+            await RedrawReportAsync();
+        }
+        #endregion
+
+        #region Events
+
+        async Task RedrawReportAsync(string filter = "", CancellationToken ct = default)
+        {
+            DataReport = await ReferenceMovementReportService.GetReferenceMovementReportDataAsync(filter, ct);
 
             ViewModel = new ReferenceMovementViewModel
             {
                 Lines = (await GetReporLinesAsync()).ToList()
             };
         }
-        #endregion
 
-        #region Events
         async Task OpenFilters()
         {
             var result = await DialogService.OpenAsync<ReferenceMovementReportFilter>("Filtrar reporte de movimientos de artículos", parameters: new Dictionary<string, object> { { "Filter", Filter } }, options: new DialogOptions { Width = "800px" });
             if (result == null)
                 return;
             Filter = (ReferenceMovementFilter)result;
-            //Todo: Aplicar filtro de refenrecias al ViewModel
+
+            var referenceIdsFilter = "";
+
+            if (Filter.ItemReferences.Count > 0)
+                referenceIdsFilter = String.Join(",", Filter.ItemReferences.Select(s => s.ReferenceId));
+
+            await RedrawReportAsync(referenceIdsFilter);
+
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
         }
         async Task RemoveFilters()
@@ -63,7 +77,9 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
             if (await DialogService.Confirm("Está seguro que desea eliminar los filtros establecidos?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
             {
                 Filter = null;
-                //Todo: Remover filtro de refenrecias al ViewModel
+
+                await RedrawReportAsync();
+
                 await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
             }
         }

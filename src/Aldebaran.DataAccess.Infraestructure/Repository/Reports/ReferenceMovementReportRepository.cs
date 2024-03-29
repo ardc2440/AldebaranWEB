@@ -11,9 +11,9 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository.Reports
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task<IEnumerable<ReferenceMovementReport>> GetReferenceMovementReportDataAsync(CancellationToken ct = default)
+        public async Task<IEnumerable<ReferenceMovementReport>> GetReferenceMovementReportDataAsync(string filter, CancellationToken ct = default)
         {
-            return await _context.Set<ReferenceMovementReport>().ToListAsync(ct);
+            return await _context.Set<ReferenceMovementReport>().FromSqlRaw($"EXEC SP_GET_REFERENCE_MOVEMENT_REPORT @ReferenceIds = '{filter}'").ToListAsync(ct);
         }
     }
 }
