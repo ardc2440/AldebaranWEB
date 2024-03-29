@@ -1,8 +1,10 @@
 ﻿using Aldebaran.Application.Services.Models;
 using Aldebaran.Application.Services.Reports;
+using Aldebaran.Web.Pages.ReportPages.Provider_References.ViewModel;
 using Aldebaran.Web.Pages.ReportPages.Warehouse_Stock.Components;
 using Aldebaran.Web.Pages.ReportPages.Warehouse_Stock.ViewModel;
 using Microsoft.AspNetCore.Components;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.JSInterop;
 using Radzen;
 
@@ -38,24 +40,45 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Stock
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            DataReport = await WarehouseStockReportService.GetWarehouseStockReportDataAsync();
+            await RedrawReport();
+        }
+        #endregion
+
+        #region Events
+
+        async Task RedrawReport(string filter="", CancellationToken ct = default)
+        {
+            DataReport = await WarehouseStockReportService.GetWarehouseStockReportDataAsync(filter, ct);
 
             ViewModel = new WarehouseStockViewModel()
             {
                 Warehouses = (await GetReportWarehousesAsync()).ToList()
             };
-
         }
-        #endregion
 
-        #region Events
+        async Task<string> SetReportFilter(WarehouseStockFilter filter, CancellationToken ct = default)
+        {
+            var filterResult = string.Empty;
+
+            if (filter.Warehouse != null)
+                if (filter.Warehouse.WarehouseId > 0)
+                    filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@WarehouseId = {filter.Warehouse.WarehouseId}";
+
+            if (filter.ItemReferences.Count > 0)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReferenceIds = '{String.Join(",", Filter.ItemReferences.Select(s => s.ReferenceId))}'";
+
+            return filterResult;
+        }
+
         async Task OpenFilters()
         {
             var result = await DialogService.OpenAsync<WarehouseStockReportFilter>("Filtrar reporte de existencias de artículos", parameters: new Dictionary<string, object> { { "Filter", Filter } }, options: new DialogOptions { Width = "800px" });
             if (result == null)
                 return;
             Filter = (WarehouseStockFilter)result;
-            //Todo: Aplicar filtro de refenrecias al ViewModel
+
+            await RedrawReport(await SetReportFilter(Filter));
+
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
         }
         async Task RemoveFilters()
@@ -63,7 +86,9 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Stock
             if (await DialogService.Confirm("Está seguro que desea eliminar los filtros establecidos?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
             {
                 Filter = null;
-                //Todo: Remover filtro de refenrecias al ViewModel
+
+                await RedrawReport();
+
                 await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
             }
         }

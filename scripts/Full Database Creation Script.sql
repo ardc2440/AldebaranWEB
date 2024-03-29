@@ -1836,8 +1836,7 @@ BEGIN
 	  JOIN warehouses g ON g.WAREHOUSE_ID = f.WAREHOUSE_ID
 	 WHERE EXISTS (SELECT 1 FROM @FilterReferences fr WHERE fr.ReferenceId = c.REFERENCE_ID)
 	   AND (a.PROVIDER_ID = @ProviderId OR @ProviderId IS NULL)
-	 ORDER BY a.PROVIDER_ID
-
+	
 END
 GO
 
@@ -1870,8 +1869,21 @@ END
 GO
 
 CREATE OR ALTER PROCEDURE SP_GET_WAREHOUSE_STOCK_REPORT
+	@ReferenceIds VARCHAR(MAX) = '', 
+	@WarehouseId INT = NULL
 AS
 BEGIN	
+
+	DECLARE @FilterReferences TABLE (ReferenceId INT)
+	
+	IF LEN(RTRIM(@ReferenceIds)) > 0
+		INSERT INTO @FilterReferences
+			 SELECT value FROM STRING_SPLIT(@ReferenceIds,',')
+	ELSE
+		INSERT INTO @FilterReferences
+			 SELECT REFERENCE_ID 
+			   FROM item_references
+
 	SELECT b.WAREHOUSE_ID WarehouseId, b.WAREHOUSE_NAME WarehouseName, e.LINE_ID LineId, e.LINE_CODE LineCode, e.LINE_NAME LineName, d.ITEM_ID ItemId, d.INTERNAL_REFERENCE InternalReference, 
 		   d.ITEM_NAME ItemName, c.REFERENCE_ID ReferenceId, c.REFERENCE_CODE ReferenceCode, c.REFERENCE_NAME ReferenceName, c.PROVIDER_REFERENCE_NAME ProviderReferenceName, 
 		   a.QUANTITY AvailableAmount
@@ -1880,6 +1892,8 @@ BEGIN
 	  JOIN item_references c ON c.REFERENCE_ID = a.REFERENCE_ID AND c.IS_ACTIVE = 1
 	  JOIN items d ON d.ITEM_ID = c.ITEM_ID and d.IS_ACTIVE = 1
 	  JOIN lines e ON e.LINE_ID = d.LINE_ID	  
+	 WHERE EXISTS (SELECT 1 FROM @FilterReferences fr WHERE fr.ReferenceId = a.REFERENCE_ID)
+	   AND (b.WAREHOUSE_ID = @WarehouseId OR @WarehouseId IS NULL)
 END 
 GO
 
