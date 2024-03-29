@@ -8,12 +8,17 @@
             else
             {
                 <div class="component-section d-flex flex-column justify-content-start">
-                    @foreach (var reference in SelectedReferences)
+                    @if (SelectedReferences?.Any() == true)
                     {
                         <div>
-                            <span class="component-label">Referencia</span>
-                            <span class="component-label">(@reference.Item.Line.LineName) @reference.Item.ItemName - @reference.ReferenceName</span>
+                            <span class="component-label">Referencias:</span>
                         </div>
+                        @foreach (var reference in SelectedReferences)
+                        {
+                            <div>
+                                <span class="component-label">(@reference.Item.Line.LineName) @reference.Item.ItemName - @reference.ReferenceName</span>
+                            </div>
+                        }
                     }
                 </div>
             }
@@ -25,13 +30,12 @@
                 <RadzenColumn SizeLG="4" SizeXL="4" SizeMD="4" SizeSM="12" SizeXS="12" SizeXX="12">
                     <RadzenFormField Text="Linea" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDown Data="@AvailableItemReferencesForSelection?.Select(s => s.Item.Line).DistinctBy(d => d.LineId).ToList().OrderBy(o=>o.LineName)" MaxSelectedLabels="2" TextProperty="LineName" ValueProperty="LineId" SelectedItemsText="líneas seleccionadas" Chips="true" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Multiple="true" Disabled="@ReadOnly"
+                            <RadzenDropDown Data="@Lines" MaxSelectedLabels="2" TextProperty="LineName" ValueProperty="LineId" SelectedItemsText="líneas seleccionadas" Chips="true" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Multiple="true" Disabled="@ReadOnly"
                                             style="display: block; width: 100%" @bind-Value="SelectedLineIds" Name="LineId" Change="@OnLineChange" AllowFiltering="true" ClearSearchAfterSelection="true" AllowSelectAll="true">
 
                                 <Template>
                                     @(context?.LineName ?? null)
                                 </Template>
-
                             </RadzenDropDown>
                         </ChildContent>
                     </RadzenFormField>
@@ -51,7 +55,7 @@
                 <RadzenColumn SizeLG="4" SizeXL="4" SizeMD="4" SizeSM="12" SizeXS="12" SizeXX="12">
                     <RadzenFormField Text="Referencia" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDown Data="@References" MaxSelectedLabels="2" ValueProperty="ReferenceId" TextProperty="FullReferenceName" SelectedItemsText="referencias seleccionadas" Chips="true" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Multiple="true" Disabled="@ReadOnly"
+                            <RadzenDropDown Data="@References" MaxSelectedLabels="2" ValueProperty="ReferenceId" TextProperty="ReferenceName" SelectedItemsText="referencias seleccionadas" Chips="true" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Multiple="true" Disabled="@ReadOnly"
                                             style="display: block; width: 100%" DisabledProperty="IsGroup" @bind-Value="SelectedReferenceIds" Name="ReferenceId" Change="@OnReferenceChange" AllowFiltering="true" ClearSearchAfterSelection="true" AllowSelectAll="true">
                                 <Template>
                                     @(context?.ReferenceName ?? $"{context?.ItemName}")

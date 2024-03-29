@@ -14,9 +14,10 @@ namespace Aldebaran.Web.Shared
         #endregion
 
         #region Variables
+        protected IEnumerable<ServiceModel.Line> Lines = new List<ServiceModel.Line>();
         public List<ServiceModel.ItemReference> AvailableItemReferencesForSelection { get; set; }
-        List<GroupReferenceData> References = new List<GroupReferenceData>();
-        List<GroupItemData> Items = new List<GroupItemData>();
+        List<GroupReferenceData> References = new();
+        List<GroupItemData> Items = new();
 
         protected List<short> SelectedLineIds = new List<short>();
         protected List<int> SelectedItemIds = new List<int>();
@@ -32,6 +33,7 @@ namespace Aldebaran.Web.Shared
             CleanItems();
             CleanReferences();
             AvailableItemReferencesForSelection = references;
+            Lines = AvailableItemReferencesForSelection?.Select(s => s.Item.Line).DistinctBy(d => d.LineId).ToList().OrderBy(o => o.LineName);
             CollapsedPanel = (references?.Any()) != true;
         }
         public void SetSelectedItemReferences(List<int> referenceIds)
@@ -76,7 +78,8 @@ namespace Aldebaran.Web.Shared
                 .GroupBy(g => g.LineId)
                 .SelectMany(s => new GroupItemData[] {
                     new() {
-                        LineName = selectedLines.First(f=>f.LineId == s.Key).LineName
+                        LineName = selectedLines.First(f=>f.LineId == s.Key).LineName,
+                        ItemName = string.Empty
                     }
                 }.Concat(s.Select(x => new GroupItemData
                 {
@@ -103,12 +106,12 @@ namespace Aldebaran.Web.Shared
                      new () {
                         LineName = selectedLines.First(f=>f.LineId == s.Key.LineId).LineName,
                         ItemName = selectedItems.First(f=>f.ItemId == s.Key.ItemId).ItemName,
+                        ReferenceName = selectedItems.First(f=>f.ItemId == s.Key.ItemId).ItemName,
                      }
                 }.Concat(s.Select(x => new GroupReferenceData
                 {
                     ReferenceId = x.ReferenceId,
                     ReferenceName = x.ReferenceName,
-                    FullReferenceName = $"{x.Item.ItemName} - {x.ReferenceName}"
                 }))).ToList();
         }
         protected void OnReferenceChange()
@@ -118,7 +121,10 @@ namespace Aldebaran.Web.Shared
                 OnChange.InvokeAsync(null);
                 return;
             }
-            SelectedReferences = AvailableItemReferencesForSelection.Where(w => SelectedReferenceIds.Contains(w.ReferenceId)).ToList();
+            SelectedReferences = AvailableItemReferencesForSelection
+                .Where(w => SelectedReferenceIds.Contains(w.ReferenceId))
+                .OrderBy(o => o.Item.Line.LineName).ThenBy(o => o.Item.ItemName).ThenBy(o => o.ReferenceName)
+                .ToList();
             OnChange.InvokeAsync(SelectedReferences);
         }
         protected async Task PanelCollapseToggle(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
@@ -163,6 +169,5 @@ namespace Aldebaran.Web.Shared
         public int ReferenceId { get; set; }
         public string ReferenceName { get; set; }
         public bool IsGroup { get { return ItemName != null; } }
-        public string FullReferenceName { get; set; }
     }
 }
