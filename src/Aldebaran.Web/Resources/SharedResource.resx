@@ -160,4 +160,10 @@
 	<data name="grid:starts_with_text" xml:space="preserve">
 		<value>Empieza con</value>
 	</data>
+	<data name="report:no-data" xml:space="preserve">
+		<value>No hay información disponible en este momento para visualizar.</value>
+	</data>
+	<data name="report:loading-text" xml:space="preserve">
+		<value>Consultando...</value>
+	</data>
 </root>

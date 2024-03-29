@@ -162,153 +162,172 @@
                             </tr>
                         </table>
                         <div class="mt-1">
-                            @if (ViewModel != null)
+                            @if (IsLoadingData)
                             {
-                                @for (int c = 0; c < ViewModel.Customers.Count(); c++)
+                                <div class="loading-container">
+                                    <RadzenIcon Icon="refresh" />
+                                    <span>@SharedLocalizer["report:loading-text"]</span>
+                                </div>
+                            }
+                            else
+                            {
+                                @if (ViewModel != null)
                                 {
-                                    var customer = ViewModel.Customers[c];
-                                    <table class="edged">
-                                        <thead>
-                                            <tr class="emphasys-3x font-size-2x no-border">
-                                                <td colspan="4" width="40%">
-                                                    <span class="bold">Cliente: </span>@customer.CustomerName
-                                                </td>
-                                                <td colspan="3" width="30%">
-                                                    <span class="bold">Teléfono: </span>@customer.Phone
-                                                </td>
-                                                <td colspan="3" width="30%">
-                                                    <span class="bold">Fax: </span>@customer.Fax
-                                                </td>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @for (int o = 0; o < customer.Orders.Count(); o++)
-                                            {
-                                                var order = customer.Orders[o];
-                                                <tr class="emphasys-2x no-border">
-                                                    <td colspan="2" width="20%">
-                                                        <span class="bold">Orden: </span><br />
-                                                        @order.OrderNumber
-                                                    </td>
-                                                    <td colspan="2" width="20%">
-                                                        <span class="bold">Fecha: </span><br />
-                                                        @order.OrderDate.ToString(SharedLocalizer["date:format"])
-                                                    </td>
-                                                    <td colspan="2" width="20%">
-                                                        <span class="bold">Fecha estimada de entrega: </span><br />
-                                                        @order.EstimatedDeliveryDate.ToString(SharedLocalizer["date:format"])
-                                                    </td>
-                                                    <td colspan="2" width="20%">
-                                                        <span class="bold">Fecha de creación: </span><br />
-                                                        @order.CreationDate.ToString(SharedLocalizer["datetime:format"])
-                                                    </td>
-                                                    <td colspan="2" width="20%">
-                                                        <span class="bold">Estado: </span><br />
-                                                        @order.Status
-                                                    </td>
-                                                </tr>
-                                                <tr class="no-border">
-                                                    <td colspan="5" width="50%">
-                                                        <span class="bold">Observaciones internas: </span><br />
-                                                        @order.InternalNotes
-                                                    </td>
-                                                    <td colspan="5" width="50%">
-                                                        <span class="bold">Observaciones del cliente: </span><br />
-                                                        @order.CustomerNotes
-                                                    </td>
-                                                </tr>
-                                                @for (int r = 0; r < order.References.Count(); r++)
-                                                {
-                                                    var reference = order.References[r];
-                                                    @if (r == 0 || order.References[r - 1].Activities?.Any() == true)
+                                    @if (ViewModel.Customers?.Any() == true)
+                                    {
+                                        @for (int c = 0; c < ViewModel.Customers.Count(); c++)
+                                        {
+                                            var customer = ViewModel.Customers[c];
+                                            <table class="edged">
+                                                <thead>
+                                                    <tr class="emphasys-3x font-size-2x no-border">
+                                                        <td colspan="4" width="40%">
+                                                            <span class="bold">Cliente: </span>@customer.CustomerName
+                                                        </td>
+                                                        <td colspan="3" width="30%">
+                                                            <span class="bold">Teléfono: </span>@customer.Phone
+                                                        </td>
+                                                        <td colspan="3" width="30%">
+                                                            <span class="bold">Fax: </span>@customer.Fax
+                                                        </td>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @for (int o = 0; o < customer.Orders.Count(); o++)
                                                     {
-                                                        <tr class="emphasys bold">
-                                                            <td width="10%">
-                                                                Referencia interna
+                                                        var order = customer.Orders[o];
+                                                        <tr class="emphasys-2x no-border">
+                                                            <td colspan="2" width="20%">
+                                                                <span class="bold">Orden: </span><br />
+                                                                @order.OrderNumber
                                                             </td>
                                                             <td colspan="2" width="20%">
-                                                                Nombre
+                                                                <span class="bold">Fecha: </span><br />
+                                                                @order.OrderDate.ToString(SharedLocalizer["date:format"])
                                                             </td>
-                                                            <td colspan="3" width="30%">
-                                                                Referencia
+                                                            <td colspan="2" width="20%">
+                                                                <span class="bold">Fecha estimada de entrega: </span><br />
+                                                                @order.EstimatedDeliveryDate.ToString(SharedLocalizer["date:format"])
                                                             </td>
-                                                            <td width="10%">
-                                                                Cantidad
+                                                            <td colspan="2" width="20%">
+                                                                <span class="bold">Fecha de creación: </span><br />
+                                                                @order.CreationDate.ToString(SharedLocalizer["datetime:format"])
                                                             </td>
-                                                            <td width="10%">
-                                                                Cantidad entregada
-                                                            </td>
-                                                            <td width="10%">
-                                                                Cantidad en proceso
-                                                            </td>
-                                                            <td width="10%">
-                                                                Estado
+                                                            <td colspan="2" width="20%">
+                                                                <span class="bold">Estado: </span><br />
+                                                                @order.Status
                                                             </td>
                                                         </tr>
-                                                    }
-
-                                                    <tr>
-                                                        <td width="10%">@reference.ItemReference</td>
-                                                        <td width="20%" colspan="2">@reference.ItemName</td>
-                                                        <td width="30%" colspan="3">@(string.IsNullOrEmpty(reference.ReferenceCode) ? string.Empty : $"{reference.ReferenceCode} - ")@reference.ReferenceName</td>
-                                                        <td width="10%">@(reference.Amount.ToString("N0"))</td>
-                                                        <td width="10%">@(reference.DeliveredAmount == 0 ? "" : reference.DeliveredAmount.ToString("N0"))</td>
-                                                        <td width="10%">@(reference.InProcessAmount == 0 ? "" : reference.InProcessAmount.ToString("N0"))</td>
-                                                        <td width="10%">@reference.Status</td>
-                                                    </tr>
-
-                                                    @if (reference.Activities?.Any() == true)
-                                                    {
-                                                        <tr>
-                                                            <td colspan="10" width="100%" style="padding:0 !important">
-                                                                <div style="margin:1em">
-                                                                    <table class="edged no-border">
-                                                                        <thead>
-                                                                            <tr class="no-border">
-                                                                                <th colspan="4" class="bold" width="100%" style="padding:0.2em !important; font-size:1.5em !important">
-                                                                                    Actividades realizadas
-                                                                                    <hr class="mb-1" />
-                                                                                </th>
-                                                                            </tr>
-                                                                        </thead>
-                                                                        <tbody>
-                                                                            @for (int s = 0; s < reference.Activities.Count(); s++)
-                                                                            {
-                                                                                var activity = reference.Activities[s];
-                                                                                <tr class="no-border">
-                                                                                    <td colspan="4" width="100%">
-                                                                                        @if (s > 0)
-                                                                                        {
-                                                                                            <hr class="mt-2 mb-2" />
-                                                                                        }
-                                                                                        <span class="bold">Fecha: </span>@activity.CreationDate
-                                                                                    </td>
-                                                                                </tr>
-                                                                                <tr class="no-border">
-                                                                                    <td colspan="2" width="50%">
-                                                                                        <span class="bold">Area: </span>@activity.AreaName
-                                                                                    </td>
-                                                                                    <td colspan="2" width="50%">
-                                                                                        <span class="bold">Funcionario: </span>@activity.EmployeeName
-                                                                                    </td>
-                                                                                </tr>
-                                                                                <tr class="no-border">
-                                                                                    <td colspan="4" width="100%">
-                                                                                        <span class="bold">Observaciones: </span><br />
-                                                                                        @activity.Notes
-                                                                                    </td>
-                                                                                </tr>
-                                                                            }
-                                                                        </tbody>
-                                                                    </table>
-                                                                </div>
+                                                        <tr class="no-border">
+                                                            <td colspan="5" width="50%">
+                                                                <span class="bold">Observaciones internas: </span><br />
+                                                                @order.InternalNotes
+                                                            </td>
+                                                            <td colspan="5" width="50%">
+                                                                <span class="bold">Observaciones del cliente: </span><br />
+                                                                @order.CustomerNotes
                                                             </td>
                                                         </tr>
+                                                        @for (int r = 0; r < order.References.Count(); r++)
+                                                        {
+                                                            var reference = order.References[r];
+                                                            @if (r == 0 || order.References[r - 1].Activities?.Any() == true)
+                                                            {
+                                                                <tr class="emphasys bold">
+                                                                    <td width="10%">
+                                                                        Referencia interna
+                                                                    </td>
+                                                                    <td colspan="2" width="20%">
+                                                                        Nombre
+                                                                    </td>
+                                                                    <td colspan="3" width="30%">
+                                                                        Referencia
+                                                                    </td>
+                                                                    <td width="10%">
+                                                                        Cantidad
+                                                                    </td>
+                                                                    <td width="10%">
+                                                                        Cantidad entregada
+                                                                    </td>
+                                                                    <td width="10%">
+                                                                        Cantidad en proceso
+                                                                    </td>
+                                                                    <td width="10%">
+                                                                        Estado
+                                                                    </td>
+                                                                </tr>
+                                                            }
+
+                                                            <tr>
+                                                                <td width="10%">@reference.ItemReference</td>
+                                                                <td width="20%" colspan="2">@reference.ItemName</td>
+                                                                <td width="30%" colspan="3">@(string.IsNullOrEmpty(reference.ReferenceCode) ? string.Empty : $"{reference.ReferenceCode} - ")@reference.ReferenceName</td>
+                                                                <td width="10%">@(reference.Amount.ToString("N0"))</td>
+                                                                <td width="10%">@(reference.DeliveredAmount == 0 ? "" : reference.DeliveredAmount.ToString("N0"))</td>
+                                                                <td width="10%">@(reference.InProcessAmount == 0 ? "" : reference.InProcessAmount.ToString("N0"))</td>
+                                                                <td width="10%">@reference.Status</td>
+                                                            </tr>
+
+                                                            @if (reference.Activities?.Any() == true)
+                                                            {
+                                                                <tr>
+                                                                    <td colspan="10" width="100%" style="padding:0 !important">
+                                                                        <div style="margin:1em">
+                                                                            <table class="edged no-border">
+                                                                                <thead>
+                                                                                    <tr class="no-border">
+                                                                                        <th colspan="4" class="bold" width="100%" style="padding:0.2em !important; font-size:1.5em !important">
+                                                                                            Actividades realizadas
+                                                                                            <hr class="mb-1" />
+                                                                                        </th>
+                                                                                    </tr>
+                                                                                </thead>
+                                                                                <tbody>
+                                                                                    @for (int s = 0; s < reference.Activities.Count(); s++)
+                                                                                    {
+                                                                                        var activity = reference.Activities[s];
+                                                                                        <tr class="no-border">
+                                                                                            <td colspan="4" width="100%">
+                                                                                                @if (s > 0)
+                                                                                                {
+                                                                                                    <hr class="mt-2 mb-2" />
+                                                                                                }
+                                                                                                <span class="bold">Fecha: </span>@activity.CreationDate
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                        <tr class="no-border">
+                                                                                            <td colspan="2" width="50%">
+                                                                                                <span class="bold">Area: </span>@activity.AreaName
+                                                                                            </td>
+                                                                                            <td colspan="2" width="50%">
+                                                                                                <span class="bold">Funcionario: </span>@activity.EmployeeName
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                        <tr class="no-border">
+                                                                                            <td colspan="4" width="100%">
+                                                                                                <span class="bold">Observaciones: </span><br />
+                                                                                                @activity.Notes
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                    }
+                                                                                </tbody>
+                                                                            </table>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            }
+                                                        }
                                                     }
-                                                }
-                                            }
-                                        </tbody>
-                                    </table>
+                                                </tbody>
+                                            </table>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div class="no-data-container">
+                                            <h4>@SharedLocalizer["report:no-data"]</h4>
+                                        </div>
+                                    }
                                 }
                             }
                         </div>

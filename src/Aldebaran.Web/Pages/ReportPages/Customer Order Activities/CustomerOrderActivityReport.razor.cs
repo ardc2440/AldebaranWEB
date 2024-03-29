@@ -33,11 +33,13 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
         protected CustomerOrderActivityFilter Filter;
         protected CustomerOrderActivityViewModel ViewModel;
         private bool IsBusy = false;
+        private bool IsLoadingData = false;
         #endregion
 
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
+            IsLoadingData = true; //Muestra un loader mientras la informacion es obtenida de la base de datos
             ViewModel = new CustomerOrderActivityViewModel
             {
                 Customers = new List<CustomerOrderActivityViewModel.Customer> {
@@ -1075,6 +1077,9 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
                     },
                 }
             };
+            //ViewModel = new CustomerOrderActivityViewModel { }; //Simula que no existe informacion para el reporte.
+            await Task.Delay(10000); //Simula que el obtener informacion de la base de datos ha llevado 10sg
+            IsLoadingData = false; //Oculta el loader
         }
         #endregion
 
