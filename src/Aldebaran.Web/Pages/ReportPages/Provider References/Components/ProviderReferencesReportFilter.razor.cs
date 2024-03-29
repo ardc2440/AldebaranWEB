@@ -19,6 +19,9 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References.Components
         protected IProviderService ProviderService { get; set; }
 
         [Inject]
+        protected IItemReferenceService ItemReferenceService { get; set; }
+
+        [Inject]
         protected IProviderReferenceService ProviderReferenceService { get; set; }
 
         #endregion
@@ -32,37 +35,31 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References.Components
         protected bool IsErrorVisible;
         protected bool IsSubmitInProgress;
         protected List<ItemReference> SelectedReferences = new();
+        protected List<ItemReference> AvailableItemReferencesForSelection = new();
         protected IEnumerable<Provider> Providers;
         protected MultiReferencePicker referencePicker;
-        public bool AllowItemReferenceSelection { get; set; } = false;
-        protected int? ProviderId;
         protected RadzenDropDownDataGrid<int?> providersDropdown;
+        protected bool ValidationError = false;
         #endregion
 
         protected override async Task OnInitializedAsync()
         {
             Filter ??= new ProviderReferencesFilter();
-            Providers = await ProviderService.GetAsync();
+            var references = (await ItemReferenceService.GetReportsReferencesAsync()).ToList();
+            AvailableItemReferencesForSelection = references;
+            referencePicker.SetAvailableItemReferencesForSelection(AvailableItemReferencesForSelection);
+            Providers = (await ProviderService.GetAsync()).ToList();
         }
+        protected bool FirstRender = true;
         public override async Task SetParametersAsync(ParameterView parameters)
         {
             await base.SetParametersAsync(parameters);
-            if (Filter?.Provider != null)
+            if (FirstRender == false) return;
+            if (Filter?.ItemReferences?.Any() == true)
             {
-                ProviderId = Filter.Provider.ProviderId;
-                var provider = Providers.Single(s => s.ProviderId == ProviderId);
-                await providersDropdown.DataGrid.SelectRow(provider, false);
-                var providerReferences = await ProviderReferenceService.GetByProviderIdAsync(Filter.Provider.ProviderId);
-                referencePicker.SetAvailableItemReferencesForSelection(providerReferences.Select(s => s.ItemReference).ToList());
                 referencePicker.SetSelectedItemReferences(Filter.ItemReferences.Select(s => s.ReferenceId).ToList());
-                AllowItemReferenceSelection = true;
             }
-            else
-            {
-                AllowItemReferenceSelection = false;
-                referencePicker.SetAvailableItemReferencesForSelection(null);
-                referencePicker.SetSelectedItemReferences(null);
-            }
+            FirstRender = false;
             StateHasChanged();
         }
         #region Events
@@ -70,9 +67,14 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References.Components
         {
             try
             {
-
                 IsSubmitInProgress = true;
-                Filter.Provider = Providers.Single(s => s.ProviderId == ProviderId.Value);
+                // Si no se han incluido filtros, mostrar mensaje de error
+                if (Filter.ProviderId == null && SelectedReferences.Any() == false)
+                {
+                    ValidationError = true;
+                    return;
+                }
+                Filter.Provider = Filter.ProviderId != null ? Providers.Single(s => s.ProviderId == Filter.ProviderId.Value) : null;
                 Filter.ItemReferences = SelectedReferences;
                 DialogService.Close(Filter);
             }
@@ -92,23 +94,6 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References.Components
         protected async Task ItemReferenceHandler(List<ItemReference> references)
         {
             SelectedReferences = references ?? new List<ItemReference>();
-        }
-        protected async Task ProviderSelectionChange(object providerId)
-        {
-            var id = (int?)providerId;
-            if (id == null)
-            {
-                AllowItemReferenceSelection = false;
-                referencePicker.SetAvailableItemReferencesForSelection(null);
-                referencePicker.SetSelectedItemReferences(null);
-                StateHasChanged();
-                return;
-            }
-            var providerReferences = await ProviderReferenceService.GetByProviderIdAsync(id.Value);
-            referencePicker.SetAvailableItemReferencesForSelection(providerReferences.Select(s => s.ItemReference).ToList());
-            referencePicker.SetSelectedItemReferences(null);
-            AllowItemReferenceSelection = true;
-            StateHasChanged();
         }
         #endregion
     }

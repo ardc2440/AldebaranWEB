@@ -19,22 +19,29 @@
             <div class="component-section d-flex flex-column justify-content-start text-secondary-color">
                 @if (Filter != null)
                 {
-                    <div class="d-flex flex-row pt-2 justify-content-start gap-1">
-                        <p class="component-label m-0 fw-bold">Proveedor: </p>
-                        <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.Provider.ProviderName</span>
-                    </div>
-
-                    <p class="component-label m-0 pt-2 fw-bold">Referencias: </p>
-                    @for (int i = 0; i < Filter.ItemReferences.Count(); i++)
+                    @if (Filter.ProviderId != null && Filter.Provider != null)
                     {
-                        <span class='@(i>=2 ? "read-more" : "")' style='@(i>=2 ? "display: none" : "")'>(@Filter.ItemReferences[i].Item.Line.LineName) @Filter.ItemReferences[i].Item.ItemName - @Filter.ItemReferences[i].ReferenceName</span>
-                    }
-                    @if (Filter.ItemReferences.Count() > 2)
-                    {
-                        <div>
-                            <a href="javascript:;" id="toggleLink" @onclick="ToggleReadMore">Ver más</a>
+                        <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
+                            <p class="component-label m-0 fw-bold">Proveedor: </p>
+                            <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.Provider.ProviderName</span>
                         </div>
                     }
+                    <div class="component-section d-flex flex-column justify-content-start pt-2">
+                        @if (Filter.ItemReferences.Any())
+                        {
+                            <p class="component-label m-0 fw-bold">Referencias: </p>
+                            @for (int i = 0; i < Filter.ItemReferences.Count(); i++)
+                            {
+                                <span class="@(i>=2 ? "read-more" : "")" style="@(i>=2 ? "display: none" : "")">(@Filter.ItemReferences[i].Item.Line.LineName) @Filter.ItemReferences[i].Item.ItemName - @Filter.ItemReferences[i].ReferenceName</span>
+                            }
+                            @if (Filter.ItemReferences.Count() > 2)
+                            {
+                                <div>
+                                    <a href="javascript:;" id="toggleLink" @onclick="ToggleReadMore">Ver más</a>
+                                </div>
+                            }
+                        }
+                    </div>
                 }
             </div>
         </RadzenColumn>
@@ -61,12 +68,22 @@
                                         <div class="filters">
                                             <div class="title">Filtros:</div>
                                             <div>
-                                                <div class="type" style="display:inline-block">Proveedor: </div>
-                                                <span>@Filter.Provider.ProviderName</span>
-                                                <div class="type">Referencias: </div>
-                                                @for (int i = 0; i < Filter.ItemReferences.Count(); i++)
+                                                @if (Filter.ProviderId != null && Filter.Provider != null)
                                                 {
-                                                    <p>(@Filter.ItemReferences[i].Item.Line.LineName) @Filter.ItemReferences[i].Item.ItemName - @Filter.ItemReferences[i].ReferenceName</p>
+                                                    <div>
+                                                        <div class="type" style="display:inline-block">Proveedor: </div>
+                                                        <span>@Filter.Provider.ProviderName</span>
+                                                    </div>
+                                                }
+                                                @if (Filter.ItemReferences.Any())
+                                                {
+                                                    <div>
+                                                        <div class="type">Referencias: </div>
+                                                        @for (int i = 0; i < Filter.ItemReferences.Count(); i++)
+                                                        {
+                                                            <p>(@Filter.ItemReferences[i].Item.Line.LineName) @Filter.ItemReferences[i].Item.ItemName - @Filter.ItemReferences[i].ReferenceName</p>
+                                                        }
+                                                    </div>
                                                 }
                                             </div>
                                         </div>
