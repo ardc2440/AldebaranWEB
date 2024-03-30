@@ -33,11 +33,22 @@
                             <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.TargetWarehouse.WarehouseName</span>
                         </div>
                     }
-                    @if (Filter.AdjustmentDate != null)
+                    @if (Filter.AdjustmentDate?.StartDate != null || Filter.AdjustmentDate?.EndDate != null)
                     {
                         <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
-                            <p class="component-label m-0 fw-bold">Fecha de ajuste: </p>
-                            <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.AdjustmentDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                            <p class="component-label m-0 fw-bold">Fecha de traslado: </p>
+                            @if (Filter.AdjustmentDate?.StartDate != null)
+                            {
+                                <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.AdjustmentDate.StartDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                            }
+                            @if (Filter.AdjustmentDate?.EndDate != null)
+                            {
+                                @if (Filter.AdjustmentDate?.StartDate != null)
+                                {
+                                    <p class="component-label m-0"> - </p>
+                                }
+                                <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.AdjustmentDate.EndDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                            }
                         </div>
                     }
                     @if (!string.IsNullOrEmpty(Filter.NationalizationNumber))
@@ -103,11 +114,22 @@
                                                         <span>@Filter.TargetWarehouse.WarehouseName</span>
                                                     </div>
                                                 }
-                                                @if (Filter.AdjustmentDate != null)
+                                                @if (Filter.AdjustmentDate?.StartDate != null || Filter.AdjustmentDate?.EndDate != null)
                                                 {
                                                     <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
-                                                        <div class="type">Fecha de ajuste: </div>
-                                                        <span>@Filter.AdjustmentDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                                                        <div class="type">Fecha de traslado: </div>
+                                                        @if (Filter.AdjustmentDate?.StartDate != null)
+                                                        {
+                                                            <span>@Filter.AdjustmentDate.StartDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                                                        }
+                                                        @if (Filter.AdjustmentDate?.EndDate != null)
+                                                        {
+                                                            @if (Filter.AdjustmentDate?.StartDate != null)
+                                                            {
+                                                                <p> - </p>
+                                                            }
+                                                            <span>@Filter.AdjustmentDate.EndDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                                                        }
                                                     </div>
                                                 }
                                                 @if (!string.IsNullOrEmpty(Filter.NationalizationNumber))
@@ -162,7 +184,7 @@
                                                 </tr>
                                                 <tr>
                                                     <td colspan="10" width="100%">
-                                                        <span class="bold">Motivo: </span>@warehouse.Reason
+                                                        <span class="bold">Estado: </span>@warehouse.Status
                                                     </td>
                                                 </tr>
                                                 <tr>

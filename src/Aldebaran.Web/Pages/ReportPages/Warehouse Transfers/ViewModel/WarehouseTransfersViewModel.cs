@@ -8,7 +8,7 @@
             public DateTime Date { get; set; }
             public string SourceWarehouseName { get; set; }
             public string TargetWarehouseName { get; set; }
-            public string Reason { get; set; }
+            public string Status { get; set; }
             public DateTime RegistrationDate { get; set; }
             public string NationalizationNumber { get; set; }
             public List<Reference> References { get; set; }

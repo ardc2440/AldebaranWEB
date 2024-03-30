@@ -1,6 +1,8 @@
-﻿using Aldebaran.Web.Pages.ReportPages.Warehouse_Transfers.Components;
+﻿using Aldebaran.Application.Services.Reports;
+using Aldebaran.Web.Pages.ReportPages.Warehouse_Transfers.Components;
 using Aldebaran.Web.Pages.ReportPages.Warehouse_Transfers.ViewModel;
 using Microsoft.AspNetCore.Components;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.JSInterop;
 using Radzen;
 namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Transfers
@@ -20,6 +22,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Transfers
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
 
+        [Inject]
+        protected IWarehouseTransferReportService WarehouseTransferReportService { get; set; }
         #endregion
 
         #region Variables
@@ -27,237 +31,15 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Transfers
         protected WarehouseTransfersViewModel ViewModel;
         private bool IsBusy = false;
         private bool IsLoadingData = false;
+
+        private IEnumerable<Application.Services.Models.Reports.WarehouseTransferReport> DataReport { get; set; }
+
         #endregion
 
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            ViewModel = new WarehouseTransfersViewModel()
-            {
-                WarehouseTransfers = new List<WarehouseTransfersViewModel.WarehouseTransfer>
-                {
-                    new WarehouseTransfersViewModel.WarehouseTransfer
-                    {
-                        Date = DateTime.Now,
-                        SourceWarehouseName="Bodega local",
-                        TargetWarehouseName="Zona franca",
-                        Reason="BRAND NEW B-1-2",
-                        NationalizationNumber="9418-1",
-                        RegistrationDate=DateTime.Now,
-                        References = new List<WarehouseTransfersViewModel.Reference>
-                        {
-                            new WarehouseTransfersViewModel.Reference
-                            {
-                                ItemReference="5000SM",
-                                ItemName="GILDAN CAMISETA T-SHIRT",
-                                ReferenceCode="032",
-                                ReferenceName="AZUL MARINO",
-                                Amount=358,
-                            },
-                            new WarehouseTransfersViewModel.Reference
-                            {
-                                ItemReference="5000SM",
-                                ItemName="GILDAN CAMISETA T-SHIRT",
-                                ReferenceCode="032",
-                                ReferenceName="AZUL MARINO",
-                                Amount=358,
-                            },
-                            new WarehouseTransfersViewModel.Reference
-                            {
-                                ItemReference="5000SM",
-                                ItemName="GILDAN CAMISETA T-SHIRT",
-                                ReferenceCode="032",
-                                ReferenceName="AZUL MARINO",
-                                Amount=358,
-                            },
-                            new WarehouseTransfersViewModel.Reference
-                            {
-                                ItemReference="5000SM",
-                                ItemName="GILDAN CAMISETA T-SHIRT",
-                                ReferenceCode="032",
-                                ReferenceName="AZUL MARINO",
-                                Amount=358,
-                            }
-                        }
-                    },
-                    new WarehouseTransfersViewModel.WarehouseTransfer
-                    {
-                        Date = DateTime.Now,
-                        SourceWarehouseName="Bodega local",
-                        TargetWarehouseName="Zona franca",
-                        Reason="BRAND NEW B-1-2",
-                        NationalizationNumber="9418-1",
-                        RegistrationDate=DateTime.Now,
-                        References = new List<WarehouseTransfersViewModel.Reference>
-                        {
-                            new WarehouseTransfersViewModel.Reference
-                            {
-                                ItemReference="5000SM",
-                                ItemName="GILDAN CAMISETA T-SHIRT",
-                                ReferenceCode="032",
-                                ReferenceName="AZUL MARINO",
-                                Amount=358,
-                            },
-                            new WarehouseTransfersViewModel.Reference
-                            {
-                                ItemReference="5000SM",
-                                ItemName="GILDAN CAMISETA T-SHIRT",
-                                ReferenceCode="032",
-                                ReferenceName="AZUL MARINO",
-                                Amount=358,
-                            },
-                            new WarehouseTransfersViewModel.Reference
-                            {
-                                ItemReference="5000SM",
-                                ItemName="GILDAN CAMISETA T-SHIRT",
-                                ReferenceCode="032",
-                                ReferenceName="AZUL MARINO",
-                                Amount=358,
-                            },
-                            new WarehouseTransfersViewModel.Reference
-                            {
-                                ItemReference="5000SM",
-                                ItemName="GILDAN CAMISETA T-SHIRT",
-                                ReferenceCode="032",
-                                ReferenceName="AZUL MARINO",
-                                Amount=358,
-                            }
-                        }
-                    },
-                    new WarehouseTransfersViewModel.WarehouseTransfer
-                    {
-                        Date = DateTime.Now,
-                        SourceWarehouseName="Bodega local",
-                        TargetWarehouseName="Zona franca",
-                        Reason="BRAND NEW B-1-2",
-                        NationalizationNumber="9418-1",
-                        RegistrationDate=DateTime.Now,
-                        References = new List<WarehouseTransfersViewModel.Reference>
-                        {
-                            new WarehouseTransfersViewModel.Reference
-                            {
-                                ItemReference="5000SM",
-                                ItemName="GILDAN CAMISETA T-SHIRT",
-                                ReferenceCode="032",
-                                ReferenceName="AZUL MARINO",
-                                Amount=358,
-                            },
-                            new WarehouseTransfersViewModel.Reference
-                            {
-                                ItemReference="5000SM",
-                                ItemName="GILDAN CAMISETA T-SHIRT",
-                                ReferenceCode="032",
-                                ReferenceName="AZUL MARINO",
-                                Amount=358,
-                            },
-                            new WarehouseTransfersViewModel.Reference
-                            {
-                                ItemReference="5000SM",
-                                ItemName="GILDAN CAMISETA T-SHIRT",
-                                ReferenceCode="032",
-                                ReferenceName="AZUL MARINO",
-                                Amount=358,
-                            },
-                            new WarehouseTransfersViewModel.Reference
-                            {
-                                ItemReference="5000SM",
-                                ItemName="GILDAN CAMISETA T-SHIRT",
-                                ReferenceCode="032",
-                                ReferenceName="AZUL MARINO",
-                                Amount=358,
-                            }
-                        }
-                    },
-                    new WarehouseTransfersViewModel.WarehouseTransfer
-                    {
-                        Date = DateTime.Now,
-                        SourceWarehouseName="Bodega local",
-                        TargetWarehouseName="Zona franca",
-                        Reason="BRAND NEW B-1-2",
-                        NationalizationNumber="9418-1",
-                        RegistrationDate=DateTime.Now,
-                        References = new List<WarehouseTransfersViewModel.Reference>
-                        {
-                            new WarehouseTransfersViewModel.Reference
-                            {
-                                ItemReference="5000SM",
-                                ItemName="GILDAN CAMISETA T-SHIRT",
-                                ReferenceCode="032",
-                                ReferenceName="AZUL MARINO",
-                                Amount=358,
-                            },
-                            new WarehouseTransfersViewModel.Reference
-                            {
-                                ItemReference="5000SM",
-                                ItemName="GILDAN CAMISETA T-SHIRT",
-                                ReferenceCode="032",
-                                ReferenceName="AZUL MARINO",
-                                Amount=358,
-                            },
-                            new WarehouseTransfersViewModel.Reference
-                            {
-                                ItemReference="5000SM",
-                                ItemName="GILDAN CAMISETA T-SHIRT",
-                                ReferenceCode="032",
-                                ReferenceName="AZUL MARINO",
-                                Amount=358,
-                            },
-                            new WarehouseTransfersViewModel.Reference
-                            {
-                                ItemReference="5000SM",
-                                ItemName="GILDAN CAMISETA T-SHIRT",
-                                ReferenceCode="032",
-                                ReferenceName="AZUL MARINO",
-                                Amount=358,
-                            }
-                        }
-                    },
-                    new WarehouseTransfersViewModel.WarehouseTransfer
-                    {
-                        Date = DateTime.Now,
-                        SourceWarehouseName="Bodega local",
-                        TargetWarehouseName="Zona franca",
-                        Reason="BRAND NEW B-1-2",
-                        NationalizationNumber="9418-1",
-                        RegistrationDate=DateTime.Now,
-                        References = new List<WarehouseTransfersViewModel.Reference>
-                        {
-                            new WarehouseTransfersViewModel.Reference
-                            {
-                                ItemReference="5000SM",
-                                ItemName="GILDAN CAMISETA T-SHIRT",
-                                ReferenceCode="032",
-                                ReferenceName="AZUL MARINO",
-                                Amount=358,
-                            },
-                            new WarehouseTransfersViewModel.Reference
-                            {
-                                ItemReference="5000SM",
-                                ItemName="GILDAN CAMISETA T-SHIRT",
-                                ReferenceCode="032",
-                                ReferenceName="AZUL MARINO",
-                                Amount=358,
-                            },
-                            new WarehouseTransfersViewModel.Reference
-                            {
-                                ItemReference="5000SM",
-                                ItemName="GILDAN CAMISETA T-SHIRT",
-                                ReferenceCode="032",
-                                ReferenceName="AZUL MARINO",
-                                Amount=358,
-                            },
-                            new WarehouseTransfersViewModel.Reference
-                            {
-                                ItemReference="5000SM",
-                                ItemName="GILDAN CAMISETA T-SHIRT",
-                                ReferenceCode="032",
-                                ReferenceName="AZUL MARINO",
-                                Amount=358,
-                            }
-                        }
-                    }
-                }
-            };
+            await RedrawReport();
         }
         #endregion
 
@@ -268,7 +50,9 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Transfers
             if (result == null)
                 return;
             Filter = (WarehouseTransfersFilter)result;
-            //Todo: Aplicar filtro de refenrecias al ViewModel
+
+            await RedrawReport(await SetReportFilter(Filter));
+
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
         }
         async Task RemoveFilters()
@@ -276,7 +60,9 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Transfers
             if (await DialogService.Confirm("Está seguro que desea eliminar los filtros establecidos?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
             {
                 Filter = null;
-                //Todo: Remover filtro de refenrecias al ViewModel
+
+                await RedrawReport();
+
                 await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
             }
         }
@@ -292,6 +78,95 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Transfers
         {
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink");
         }
+        async Task RedrawReport(string filter = "", CancellationToken ct = default)
+        {
+            try
+            {
+                IsLoadingData = true;
+
+                DataReport = await WarehouseTransferReportService.GetWarehouseTransferReportDataAsync(filter, ct);
+
+                ViewModel = new WarehouseTransfersViewModel
+                {
+                    WarehouseTransfers = await GetWarehouseTransfers(ct)
+                };
+            }
+            finally
+            {
+                IsLoadingData = false;
+            }
+
+        }
+        async Task<string> SetReportFilter(WarehouseTransfersFilter filter, CancellationToken ct = default)
+        {
+            var filterResult = string.Empty;
+
+            if (filter.TargetWarehouseId.HasValue)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@TargetWarehouseId = {filter.TargetWarehouseId}";
+
+            if (filter.SourceWarehouseId.HasValue)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@SourceWarehouseId = {filter.SourceWarehouseId}";
+
+            if (filter.ItemReferences.Count > 0)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReferenceIds = '{String.Join(",", Filter.ItemReferences.Select(s => s.ReferenceId))}'";
+
+            if (filter.AdjustmentDate.StartDate.HasValue)
+                filterResult += $"@AdjustmentDateFrom = '{(DateTime)filter.AdjustmentDate.StartDate:yyyyMMdd}', @AdjustmentDateTo = '{(DateTime)filter.AdjustmentDate.EndDate:yyyyMMdd}'";
+
+            if (filter.NationalizationNumber != null)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@NationalizationNumber = {filter.NationalizationNumber}";
+
+            if (filter.StatusId.HasValue)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@StatusId = {filter.StatusId}";
+
+            return filterResult;
+        }
+        #endregion
+
+        #region Fill Data Report
+        async Task<List<WarehouseTransfersViewModel.WarehouseTransfer>> GetWarehouseTransfers(CancellationToken ct = default)
+        {
+            var warehouseTransfers = new List<WarehouseTransfersViewModel.WarehouseTransfer>();
+
+            foreach (var warehouseTransfer in DataReport.Select(s => new { s.TransferId, s.Date, s.SourceWarehouseName, s.TargetWarehouseName, s.RegistrationDate, s.NationalizationNumber, s.TransferStatus })
+                                                .DistinctBy(d => d.TransferId)
+                                                .OrderBy(o => o.Date))
+            {
+                warehouseTransfers.Add(new WarehouseTransfersViewModel.WarehouseTransfer
+                {
+                    Date = warehouseTransfer.Date,
+                    NationalizationNumber = warehouseTransfer.NationalizationNumber,
+                    RegistrationDate = warehouseTransfer.RegistrationDate,
+                    SourceWarehouseName = warehouseTransfer.SourceWarehouseName,
+                    TargetWarehouseName = warehouseTransfer.TargetWarehouseName,
+                    Status = warehouseTransfer.TransferStatus,
+                    References = await GetWarehouseTransferReferences(warehouseTransfer.TransferId, ct)
+                });
+            }
+            return warehouseTransfers;
+        }
+        async Task<List<WarehouseTransfersViewModel.Reference>> GetWarehouseTransferReferences(int transferId, CancellationToken ct = default)
+        {
+            var transferDetails = new List<WarehouseTransfersViewModel.Reference>();
+
+            foreach (var transferDetail in DataReport.Where(w => w.TransferId == transferId).Select(s => new { s.ReferenceId, s.ItemReference, s.ItemName, s.ReferenceName, s.ReferenceCode, s.Amount })
+                                                .DistinctBy(d => d.ReferenceId)
+                                                .OrderBy(o => o.ItemName)
+                                                .OrderBy(o => o.ReferenceName))
+            {
+                transferDetails.Add(new WarehouseTransfersViewModel.Reference
+                {
+                    ItemReference = transferDetail.ItemReference,
+                    ReferenceName = transferDetail.ReferenceName,
+                    ReferenceCode = transferDetail.ReferenceCode,
+                    ItemName = transferDetail.ItemName,
+                    Amount = transferDetail.Amount
+                });
+            }
+
+            return transferDetails;
+        }
+
         #endregion
     }
 }

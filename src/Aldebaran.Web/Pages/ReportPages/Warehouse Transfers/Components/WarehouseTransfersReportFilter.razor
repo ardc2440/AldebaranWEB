@@ -30,13 +30,24 @@
         <RadzenRow style="margin-bottom: 1rem">
             <RadzenColumn Size="6">
                 <RadzenStack>
-                    <RadzenFormField Text="Fecha de ajuste" Variant="Variant.Text" Style="width: 100%;">
+                    <RadzenFormField Text="Fecha de inicio de traslado" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.AdjustmentDate" Name="AdjustmentDate" AllowClear=true />
+                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.AdjustmentDate.StartDate" Name="AdjustmentStartDate" AllowClear=true Change="()=> Filter.AdjustmentDate.EndDate = Filter.AdjustmentDate.EndDate < Filter.AdjustmentDate.StartDate ? Filter.AdjustmentDate.StartDate : Filter.AdjustmentDate.EndDate" />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenStack>
             </RadzenColumn>
+            <RadzenColumn Size="6">
+                <RadzenStack>
+                    <RadzenFormField Text="Fecha fin de traslado" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.AdjustmentDate.EndDate" Name="AdjustmentEndDate" AllowClear=true Min="Filter.AdjustmentDate.StartDate" />
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow style="margin-bottom: 1rem">            
             <RadzenColumn Size="6">
                 <RadzenStack>
                     <RadzenFormField Text="Número de nacionalización" Variant="Variant.Text" Style="width: 100%;">

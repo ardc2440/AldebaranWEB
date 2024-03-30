@@ -2242,3 +2242,42 @@ BEGIN
 END
 GO
 
+CREATE OR ALTER PROCEDURE SP_GET_WAREHOUSE_TRANSFER_REPORT
+	@TargetWarehouseId SMALLINT = NULL,
+    @SourceWarehouseId SMALLINT = NULL,
+	@AdjustmentDateFrom DATE = NULL, 
+	@AdjustmentDateTo DATE = NULL,
+	@NationalizationNumber VARCHAR(30) = NULL,
+	@StatusId INT = NULL,
+	@ReferenceIds VARCHAR(MAX) = ''	
+AS
+BEGIN
+
+	DECLARE @FilterReferences TABLE (ReferenceId INT)
+	
+	IF LEN(RTRIM(@ReferenceIds)) > 0
+		INSERT INTO @FilterReferences
+			 SELECT value FROM STRING_SPLIT(@ReferenceIds,',')
+	ELSE
+		INSERT INTO @FilterReferences
+			 SELECT REFERENCE_ID 
+			   FROM item_references
+
+	SELECT a.WAREHOUSE_TRANSFER_ID TransferId, a.TRANSFER_DATE Date, b.WAREHOUSE_NAME SourceWarehouseName, c.WAREHOUSE_NAME TargetWarehouseName, a.CREATION_DATE RegistrationDate, a.NATIONALIZATION NationalizationNumber,
+		   e.REFERENCE_ID ReferenceId, f.INTERNAL_REFERENCE ItemReference, f.ITEM_NAME ItemName, e.REFERENCE_CODE ReferenceCode, e.REFERENCE_NAME ReferenceName, d.QUANTITY Amount, g.STATUS_DOCUMENT_TYPE_NAME TransferStatus	
+	  FROM warehouse_transfers a
+	  JOIN warehouses b ON b.WAREHOUSE_ID = a.ORIGIN_WAREHOUSE_ID
+	  JOIN warehouses c ON c.WAREHOUSE_ID = a.DESTINATION_WAREHOUSE_ID
+	  JOIN warehouse_transfer_details d ON d.WAREHOUSE_TRANSFER_ID = a.WAREHOUSE_TRANSFER_ID
+	  JOIN item_references e ON e.REFERENCE_ID = d.REFERENCE_ID
+	  JOIN items f ON f.ITEM_ID = e.ITEM_ID
+	  JOIN status_document_types g ON g.STATUS_DOCUMENT_TYPE_ID = a.STATUS_DOCUMENT_TYPE_ID	  
+	 WHERE EXISTS (SELECT 1 FROM @FilterReferences fr WHERE fr.ReferenceId = e.REFERENCE_ID)
+	   AND (c.WAREHOUSE_ID = @TargetWarehouseId OR @TargetWarehouseId IS NULL)
+	   AND (b.WAREHOUSE_ID = @SourceWarehouseId OR @SourceWarehouseId IS NULL)
+	   AND (a.TRANSFER_DATE BETWEEN @AdjustmentDateFrom AND @AdjustmentDateTo OR @AdjustmentDateFrom IS NULL)
+	   AND (a.NATIONALIZATION = @NationalizationNumber OR @NationalizationNumber IS NULL)
+	   AND (a.STATUS_DOCUMENT_TYPE_ID = @StatusId OR @StatusId IS NULL)
+END
+GO
+
