@@ -54,7 +54,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders
         {
             var customers = new List<CustomerOrderViewModel.Customer>();
 
-            foreach (var customer in DataReport.Select(s => new { s.CustomerId, s.CustomerName, s.CustomerNotes, s.Fax, s.Phone })
+            foreach (var customer in DataReport.Select(s => new { s.CustomerId, s.CustomerName, s.Fax, s.Phone })
                                         .DistinctBy(d => d.CustomerId).OrderBy(o => o.CustomerName))
             {
 
@@ -99,7 +99,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders
 
             foreach (var reference in DataReport.Where(w => w.OrderId == orderId)
                                         .Select(s => new { s.OrderDetailId, s.DetailStatus, s.OrderDetailAmount, s.DeliveredAmount, s.InProcessAmount, s.OrderDetailItemName, s.OrderDetailItemReference, s.OrderDetailReferenceCode, s.OrderDetailReferenceName })
-                                        .DistinctBy(d => d.OrderDetailId).OrderBy(o => o.OrderDetailItemName))
+                                        .DistinctBy(d => d.OrderDetailId).OrderBy(o => o.OrderDetailItemName).OrderBy(o=> o.OrderDetailReferenceName))
             {
                 orderReferences.Add(new CustomerOrderViewModel.Reference
                 {
@@ -144,7 +144,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders
             var shipmentReferences = new List<CustomerOrderViewModel.ShipmentReference>();
 
             foreach (var shipmentReference in DataReport.Where(w => w.ShipmentId == shipmentId && w.OrderDetailId == orderDetailId).Select(s => new { s.ShipmentDetailId, s.ShipmentDetailItemReference, s.ShipmentDetailItemName, s.ShipmentDetailReferenceCode, s.ShipmentDetailReferenceName, s.ShipmentDetailAmount })
-                .DistinctBy(d => d.ShipmentDetailId).OrderBy(o => o.ShipmentDetailItemName))
+                .DistinctBy(d => d.ShipmentDetailId).OrderBy(o => o.ShipmentDetailItemName).OrderBy(o => o.ShipmentDetailReferenceName))
             {
                 shipmentReferences.Add(new CustomerOrderViewModel.ShipmentReference
                 {
@@ -190,10 +190,10 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders
                 filterResult += $"@CreationDateFrom = '{(DateTime)filter.CreationDate.StartDate:yyyyMMdd}', @CreationDateTo = '{(DateTime)filter.CreationDate.EndDate:yyyyMMdd}'";
 
             if (filter.OrderDate.StartDate.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@OrderDateFrom = '{(DateTime)filter.OrderDate.StartDate:yyyyMMdd}', @OrderDateTo = '{(DateTime)filter.OrderDate.StartDate:yyyyMMdd}'";
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@OrderDateFrom = '{(DateTime)filter.OrderDate.StartDate:yyyyMMdd}', @OrderDateTo = '{(DateTime)filter.OrderDate.EndDate:yyyyMMdd}'";
 
             if (filter.EstimatedDeliveryDate.StartDate.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@EstimatedDeliveryDateFrom = '{(DateTime)filter.EstimatedDeliveryDate.StartDate:yyyyMMdd}', @EstimatedDeliveryDateTo = '{(DateTime)filter.EstimatedDeliveryDate.StartDate:yyyyMMdd}'";
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@EstimatedDeliveryDateFrom = '{(DateTime)filter.EstimatedDeliveryDate.StartDate:yyyyMMdd}', @EstimatedDeliveryDateTo = '{(DateTime)filter.EstimatedDeliveryDate.EndDate:yyyyMMdd}'";
 
             if (!filter.OrderNumber.IsNullOrEmpty())
                 filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@OrderNumber = '{filter.OrderNumber}'";
