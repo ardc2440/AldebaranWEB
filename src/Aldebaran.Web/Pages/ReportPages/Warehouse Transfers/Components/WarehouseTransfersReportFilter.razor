@@ -47,12 +47,23 @@
                 </RadzenStack>
             </RadzenColumn>
         </RadzenRow>
-        <RadzenRow style="margin-bottom: 1rem">            
+        <RadzenRow style="margin-bottom: 1rem">
             <RadzenColumn Size="6">
                 <RadzenStack>
                     <RadzenFormField Text="Número de nacionalización" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
                             <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Filter.NationalizationNumber" Name="NationalizationNumber" />
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+            <RadzenColumn Size="6">
+                <RadzenStack>
+                    <RadzenFormField Text="Estado" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenDropDown Data="@StatusDocumentTypes" TextProperty="StatusDocumentTypeName" ValueProperty="StatusDocumentTypeId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            style="display: block; width: 100%" @bind-Value="@StatusDocumentTypeId" Name="StatusDocumentTypeId">
+                            </RadzenDropDown>
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenStack>

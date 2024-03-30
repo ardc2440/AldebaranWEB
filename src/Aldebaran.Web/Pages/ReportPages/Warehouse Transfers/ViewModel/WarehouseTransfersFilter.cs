@@ -1,6 +1,5 @@
 ﻿using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Shared.ViewModel;
-using System.Security.Cryptography.Xml;
 namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Transfers.ViewModel
 {
     public class WarehouseTransfersFilter
@@ -11,8 +10,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Transfers.ViewModel
         public Warehouse SourceWarehouse { get; set; }
         public DateRange AdjustmentDate { get; set; } = new();
         public string NationalizationNumber { get; set; }
-        public StatusDocumentType Status { get; set; }
-        public int? StatusId { get; set; }
+        public StatusDocumentType StatusDocumentType { get; set; }
+        public short? StatusDocumentTypeId { get; set; }
         public List<ItemReference> ItemReferences { get; set; } = new List<ItemReference>();
     }
 }

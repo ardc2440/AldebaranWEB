@@ -58,6 +58,13 @@
                             <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.NationalizationNumber</span>
                         </div>
                     }
+                    @if (Filter.StatusDocumentTypeId != null & Filter.StatusDocumentType != null)
+                    {
+                        <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
+                            <p class="component-label m-0 fw-bold">Estado: </p>
+                            <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.StatusDocumentType.StatusDocumentTypeName</span>
+                        </div>
+                    }
                     <div class="component-section d-flex flex-column justify-content-start pt-2">
                         @if (Filter.ItemReferences.Any())
                         {
@@ -137,6 +144,13 @@
                                                     <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
                                                         <div class="type">Número de nacionalización: </div>
                                                         <span>@Filter.NationalizationNumber</span>
+                                                    </div>
+                                                }
+                                                @if (Filter.StatusDocumentTypeId != null & Filter.StatusDocumentType != null)
+                                                {
+                                                    <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
+                                                        <div class="type">Estado: </div>
+                                                        <span>@Filter.StatusDocumentType.StatusDocumentTypeName</span>
                                                     </div>
                                                 }
                                                 @if (Filter.ItemReferences.Any())

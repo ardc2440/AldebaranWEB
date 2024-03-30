@@ -2,7 +2,6 @@
 using Aldebaran.Web.Pages.ReportPages.Warehouse_Transfers.Components;
 using Aldebaran.Web.Pages.ReportPages.Warehouse_Transfers.ViewModel;
 using Microsoft.AspNetCore.Components;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.JSInterop;
 using Radzen;
 namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Transfers
@@ -99,27 +98,30 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Transfers
         }
         async Task<string> SetReportFilter(WarehouseTransfersFilter filter, CancellationToken ct = default)
         {
-            var filterResult = string.Empty;
+            var filters = new List<string>();
 
             if (filter.TargetWarehouseId.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@TargetWarehouseId = {filter.TargetWarehouseId}";
+                filters.Add($"@TargetWarehouseId = {filter.TargetWarehouseId}");
 
             if (filter.SourceWarehouseId.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@SourceWarehouseId = {filter.SourceWarehouseId}";
+                filters.Add($"@SourceWarehouseId = {filter.SourceWarehouseId}");
 
-            if (filter.ItemReferences.Count > 0)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReferenceIds = '{String.Join(",", Filter.ItemReferences.Select(s => s.ReferenceId))}'";
+            if (filter.ItemReferences?.Any() == true)
+                filters.Add($"@ReferenceIds = '{string.Join(",", Filter.ItemReferences.Select(s => s.ReferenceId))}'");
 
-            if (filter.AdjustmentDate.StartDate.HasValue)
-                filterResult += $"@AdjustmentDateFrom = '{(DateTime)filter.AdjustmentDate.StartDate:yyyyMMdd}', @AdjustmentDateTo = '{(DateTime)filter.AdjustmentDate.EndDate:yyyyMMdd}'";
+            if (filter.AdjustmentDate?.StartDate != null)
+                filters.Add($"@AdjustmentDateFrom = '{filter.AdjustmentDate.StartDate.Value:yyyyMMdd}'");
 
-            if (filter.NationalizationNumber != null)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@NationalizationNumber = {filter.NationalizationNumber}";
+            if (filter.AdjustmentDate?.EndDate != null)
+                filters.Add($"@AdjustmentDateTo = '{filter.AdjustmentDate.EndDate.Value:yyyyMMdd}'");
 
-            if (filter.StatusId.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@StatusId = {filter.StatusId}";
+            if (!string.IsNullOrEmpty(filter.NationalizationNumber))
+                filters.Add($"@NationalizationNumber = {filter.NationalizationNumber.Trim()}");
 
-            return filterResult;
+            if (filter.StatusDocumentTypeId.HasValue)
+                filters.Add($"@StatusId = {filter.StatusDocumentTypeId}");
+
+            return string.Join(", ", filters);
         }
         #endregion
 

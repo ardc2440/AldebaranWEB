@@ -158,7 +158,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
             try
             {
                 IsLoadingData = true;
-                
+
                 DataReport = await InventoryAdjustmentReportService.GetInventoryAdjustmentReportDataAsync(filter, ct);
 
                 ViewModel = new InventoryAdjustmentsViewModel()
@@ -171,7 +171,6 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
             {
                 IsLoadingData = false;
             }
-
 
         }
 
@@ -200,13 +199,16 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
             if (filter.AdjustmentDate?.StartDate != null)
                 filters.Add($"@AdjustmentDateFrom = '{filter.AdjustmentDate.StartDate.Value:yyyyMMdd}'");
 
+            if (filter.AdjustmentDate?.EndDate != null)
+                filters.Add($"@AdjustmentDateTo = '{filter.AdjustmentDate.EndDate.Value:yyyyMMdd}'");
+
             if (filter.AdjustmentId.HasValue)
                 filters.Add($"@AdjustmentId = {filter.AdjustmentId}");
 
             if (filter.EmployeeId.HasValue)
                 filters.Add($"@EmployeeId = {filter.EmployeeId}");
 
-            if (filter.ItemReferences.Count > 0)
+            if (filter.ItemReferences?.Any() == true)
                 filters.Add($"@ReferenceIds = '{string.Join(",", Filter.ItemReferences.Select(s => s.ReferenceId))}'");
 
             if (filter.AdjustmentReasonId.HasValue)

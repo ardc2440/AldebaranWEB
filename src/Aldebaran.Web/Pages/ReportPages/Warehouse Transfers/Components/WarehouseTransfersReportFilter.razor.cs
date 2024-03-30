@@ -17,6 +17,12 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Transfers.Components
 
         [Inject]
         protected DialogService DialogService { get; set; }
+
+        [Inject]
+        protected IDocumentTypeService DocumentTypeService { get; set; }
+
+        [Inject]
+        protected IStatusDocumentTypeService StatusDocumentTypeService { get; set; }
         #endregion
 
         #region Parameters
@@ -30,10 +36,12 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Transfers.Components
         protected List<ItemReference> SelectedReferences = new();
         protected List<ItemReference> AvailableItemReferencesForSelection = new();
         protected List<Warehouse> Warehouses = new();
+        protected List<StatusDocumentType> StatusDocumentTypes = new();
         protected MultiReferencePicker referencePicker;
         protected bool ValidationError = false;
         protected short? SourceWarehouseId;
         protected short? TargetWarehouseId;
+        protected short? StatusDocumentTypeId;
         #endregion
 
         protected override async Task OnInitializedAsync()
@@ -43,6 +51,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Transfers.Components
             AvailableItemReferencesForSelection = references;
             referencePicker.SetAvailableItemReferencesForSelection(AvailableItemReferencesForSelection);
             Warehouses = (await WarehouseService.GetAsync()).ToList();
+            var documentType = await DocumentTypeService.FindByCodeAsync("B");
+            StatusDocumentTypes = (await StatusDocumentTypeService.GetByDocumentTypeIdAsync(documentType.DocumentTypeId)).ToList();
         }
         protected bool FirstRender = true;
         public override async Task SetParametersAsync(ParameterView parameters)
@@ -55,6 +65,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Transfers.Components
             }
             SourceWarehouseId = Filter?.SourceWarehouseId;
             TargetWarehouseId = Filter?.TargetWarehouseId;
+            StatusDocumentTypeId = Filter?.StatusDocumentTypeId;
             FirstRender = false;
             StateHasChanged();
         }
@@ -66,7 +77,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Transfers.Components
                 IsSubmitInProgress = true;
                 // Si no se han incluido filtros, mostrar mensaje de error
                 if (string.IsNullOrEmpty(Filter.NationalizationNumber) && Filter.AdjustmentDate == null &&
-                    SourceWarehouseId == null && TargetWarehouseId == null && SelectedReferences.Any() == false)
+                    SourceWarehouseId == null && TargetWarehouseId == null &&
+                    StatusDocumentTypeId == null && SelectedReferences.Any() == false)
                 {
                     ValidationError = true;
                     return;
@@ -75,6 +87,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Transfers.Components
                 Filter.TargetWarehouse = Filter.TargetWarehouseId != null ? Warehouses.FirstOrDefault(s => s.WarehouseId == Filter.TargetWarehouseId.Value) : null;
                 Filter.SourceWarehouseId = SourceWarehouseId;
                 Filter.SourceWarehouse = Filter.SourceWarehouseId != null ? Warehouses.FirstOrDefault(s => s.WarehouseId == Filter.SourceWarehouseId.Value) : null;
+                Filter.StatusDocumentTypeId = StatusDocumentTypeId;
+                Filter.StatusDocumentType = Filter.StatusDocumentTypeId != null ? StatusDocumentTypes.FirstOrDefault(s => s.StatusDocumentTypeId == Filter.StatusDocumentTypeId.Value) : null;
                 Filter.NationalizationNumber = string.IsNullOrEmpty(Filter.NationalizationNumber) ? null : Filter.NationalizationNumber;
                 Filter.ItemReferences = SelectedReferences;
                 DialogService.Close(Filter);
