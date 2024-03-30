@@ -186,14 +186,14 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders
         {
             var filterResult = string.Empty;
 
-            if (filter.CreationDateFrom.HasValue)
-                filterResult += $"@CreationDateFrom = '{(DateTime)filter.CreationDateFrom:yyyyMMdd}', @CreationDateTo = '{(DateTime)filter.CreationDateTo:yyyyMMdd}'";
+            if (filter.CreationDate.StartDate.HasValue)
+                filterResult += $"@CreationDateFrom = '{(DateTime)filter.CreationDate.StartDate:yyyyMMdd}', @CreationDateTo = '{(DateTime)filter.CreationDate.EndDate:yyyyMMdd}'";
 
-            if (filter.OrderDateFrom.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@OrderDateFrom = '{(DateTime)filter.OrderDateFrom:yyyyMMdd}', @OrderDateTo = '{(DateTime)filter.OrderDateTo:yyyyMMdd}'";
+            if (filter.OrderDate.StartDate.HasValue)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@OrderDateFrom = '{(DateTime)filter.OrderDate.StartDate:yyyyMMdd}', @OrderDateTo = '{(DateTime)filter.OrderDate.StartDate:yyyyMMdd}'";
 
-            if (filter.EstimatedDeliveryDateFrom.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@EstimatedDeliveryDateFrom = '{(DateTime)filter.EstimatedDeliveryDateFrom:yyyyMMdd}', @EstimatedDeliveryDateTo = '{(DateTime)filter.EstimatedDeliveryDateTo:yyyyMMdd}'";
+            if (filter.EstimatedDeliveryDate.StartDate.HasValue)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@EstimatedDeliveryDateFrom = '{(DateTime)filter.EstimatedDeliveryDate.StartDate:yyyyMMdd}', @EstimatedDeliveryDateTo = '{(DateTime)filter.EstimatedDeliveryDate.StartDate:yyyyMMdd}'";
 
             if (!filter.OrderNumber.IsNullOrEmpty())
                 filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@OrderNumber = '{filter.OrderNumber}'";

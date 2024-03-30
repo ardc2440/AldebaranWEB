@@ -74,8 +74,13 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities.Components
             {
                 IsSubmitInProgress = true;
                 // Si no se han incluido filtros, mostrar mensaje de error
-                if (Filter.CreationDateFrom == null && Filter.OrderDateFrom == null && Filter.EstimatedDeliveryDateFrom == null && string.IsNullOrEmpty(Filter.OrderNumber) &&
-                    Filter.StatusDocumentTypeId == null && Filter.CustomerId == null && SelectedReferences.Any() == false)
+                if (Filter.CreationDate?.StartDate == null && Filter.CreationDate?.EndDate == null &&
+                    Filter.OrderDate?.StartDate == null && Filter.OrderDate?.EndDate == null &&
+                    Filter.EstimatedDeliveryDate?.StartDate == null && Filter.EstimatedDeliveryDate?.EndDate == null && 
+                    string.IsNullOrEmpty(Filter.OrderNumber) &&
+                    Filter.StatusDocumentTypeId == null && 
+                    Filter.CustomerId == null && 
+                    SelectedReferences.Any() == false)
                 {
                     ValidationError = true;
                     return;

@@ -68,11 +68,11 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Reservations
         {
             var filterResult = string.Empty;
 
-            if (filter.CreationDateFrom.HasValue)
-                filterResult += $"@CreationDateFrom = '{(DateTime)filter.CreationDateFrom:yyyyMMdd}', @CreationDateTo = '{(DateTime)filter.CreationDateTo:yyyyMMdd}'";
+            if (filter.CreationDate.StartDate.HasValue)
+                filterResult += $"@CreationDateFrom = '{(DateTime)filter.CreationDate.StartDate:yyyyMMdd}', @CreationDateTo = '{(DateTime)filter.CreationDate.EndDate:yyyyMMdd}'";
 
-            if (filter.ReservationDateFrom .HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReservationDateFrom = '{(DateTime)filter.ReservationDateFrom:yyyyMMdd}', @ReservationDateTo = '{(DateTime)filter.ReservationDateTo:yyyyMMdd}'";
+            if (filter.ReservationDate.StartDate .HasValue)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReservationDateFrom = '{(DateTime)filter.ReservationDate.StartDate:yyyyMMdd}', @ReservationDateTo = '{(DateTime)filter.ReservationDate.EndDate:yyyyMMdd}'";
 
             if (!filter.ReservationNumber.IsNullOrEmpty())
                 filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReservationNumber = '{filter.ReservationNumber}'";

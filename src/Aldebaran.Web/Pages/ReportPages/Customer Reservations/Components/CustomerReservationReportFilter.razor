@@ -4,7 +4,7 @@
 <RadzenColumn SizeMD=12>
     <RadzenTemplateForm TItem="ViewModel.CustomerReservationFilter" Data="Filter" Submit="@FormSubmit">
         <RadzenRow style="margin-bottom: 1rem">
-            <RadzenColumn Size="6">
+            <RadzenColumn Size="12">
                 <RadzenStack>
                     <RadzenFormField Text="Número de la reserva" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
@@ -13,27 +13,49 @@
                     </RadzenFormField>
                 </RadzenStack>
             </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow style="margin-bottom: 1rem">
             <RadzenColumn Size="6">
                 <RadzenStack>
-                    <RadzenFormField Text="Fecha de creación" Variant="Variant.Text" Style="width: 100%;">
+                    <RadzenFormField Text="Fecha de inicio de creación" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.CreationDateFrom" Name="CreationDate" AllowClear=true />
+                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.CreationDate.StartDate" Name="CreationStartDate" AllowClear=true Change="()=> Filter.CreationDate.EndDate = Filter.CreationDate.EndDate < Filter.CreationDate.StartDate ? Filter.CreationDate.StartDate : Filter.CreationDate.EndDate" />
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+            <RadzenColumn Size="6">
+                <RadzenStack>
+                    <RadzenFormField Text="Fecha fin de creación" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.CreationDate.EndDate" Name="CreationEndDate" AllowClear=true Min="Filter.CreationDate.StartDate" />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenStack>
             </RadzenColumn>
         </RadzenRow>
         <RadzenRow style="margin-bottom: 1rem">
-            <RadzenColumn Size="4">
+            <RadzenColumn Size="6">
                 <RadzenStack>
-                    <RadzenFormField Text="Fecha de reserva" Variant="Variant.Text" Style="width: 100%;">
+                    <RadzenFormField Text="Fecha de inicio de la reserva" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.ReservationDateFrom" Name="ReservationDate" AllowClear=true />
+                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.ReservationDate.StartDate" Name="ReservationStartDate" AllowClear=true Change="()=> Filter.ReservationDate.EndDate = Filter.ReservationDate.EndDate < Filter.ReservationDate.StartDate ? Filter.ReservationDate.StartDate : Filter.ReservationDate.EndDate" />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenStack>
             </RadzenColumn>
-            <RadzenColumn Size="4">
+            <RadzenColumn Size="6">
+                <RadzenStack>
+                    <RadzenFormField Text="Fecha fin de reserva" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.ReservationDate.EndDate" Name="ReservationEndDate" AllowClear=true Min="@Filter.ReservationDate.EndDate" />
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow style="margin-bottom: 1rem">
+            <RadzenColumn Size="6">
                 <RadzenStack>
                     <RadzenFormField Text="Estado" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
@@ -44,7 +66,7 @@
                     </RadzenFormField>
                 </RadzenStack>
             </RadzenColumn>
-            <RadzenColumn Size="4">
+            <RadzenColumn Size="6">
                 <RadzenStack>
                     <RadzenFormField Text="Cliente" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>

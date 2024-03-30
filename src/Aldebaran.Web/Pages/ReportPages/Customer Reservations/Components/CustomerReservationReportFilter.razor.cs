@@ -48,7 +48,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Reservations.Components
         protected override async Task OnInitializedAsync()
         {
             Filter ??= new CustomerReservationFilter();
-            var references = (await ItemReferenceService.GetReportsReferencesAsync()).ToList(); 
+            var references = (await ItemReferenceService.GetReportsReferencesAsync()).ToList();
             AvailableItemReferencesForSelection = references;
             referencePicker.SetAvailableItemReferencesForSelection(AvailableItemReferencesForSelection);
             var documentType = await DocumentTypeService.FindByCodeAsync("R");
@@ -74,7 +74,9 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Reservations.Components
             {
                 IsSubmitInProgress = true;
                 // Si no se han incluido filtros, mostrar mensaje de error
-                if (Filter.CreationDateFrom == null && Filter.ReservationDateFrom == null && string.IsNullOrEmpty(Filter.ReservationNumber) &&
+                if (string.IsNullOrEmpty(Filter.ReservationNumber) &&
+                    Filter.CreationDate?.StartDate == null && Filter.CreationDate?.EndDate == null &&
+                    Filter.ReservationDate?.StartDate == null && Filter.ReservationDate?.EndDate == null &&
                     Filter.StatusDocumentTypeId == null && Filter.CustomerId == null && SelectedReferences.Any() == false)
                 {
                     ValidationError = true;

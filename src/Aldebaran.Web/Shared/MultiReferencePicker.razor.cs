@@ -64,13 +64,8 @@ namespace Aldebaran.Web.Shared
         #region Events
         protected void OnLineChange()
         {
-            if (SelectedLineIds == null || !SelectedLineIds.Any())
-            {
-                CleanItems();
-                OnItemChange();
-                return;
-            }
-
+            CleanItems();
+            OnItemChange();
             var selectedLines = AvailableItemReferencesForSelection.Where(w => SelectedLineIds.Contains(w.Item.LineId)).Select(s => s.Item.Line).DistinctBy(d => d.LineId).ToList();
             var itemBySelectedLines = AvailableItemReferencesForSelection.Where(w => SelectedLineIds.Contains(w.Item.LineId)).Select(s => s.Item).DistinctBy(w => w.ItemId).ToList();
 
@@ -89,13 +84,8 @@ namespace Aldebaran.Web.Shared
         }
         protected void OnItemChange()
         {
-            if (SelectedItemIds == null || !SelectedItemIds.Any())
-            {
-                CleanReferences();
-                OnReferenceChange();
-                return;
-            }
-
+            CleanReferences();
+            OnReferenceChange();
             var selectedLines = AvailableItemReferencesForSelection.Where(w => SelectedLineIds.Contains(w.Item.LineId)).Select(s => s.Item.Line).DistinctBy(d => d.LineId).ToList();
             var selectedItems = AvailableItemReferencesForSelection.Where(w => SelectedItemIds.Contains(w.ItemId)).Select(s => s.Item).DistinctBy(d => d.ItemId).ToList();
             var referencesBySelectedItems = AvailableItemReferencesForSelection.Where(w => SelectedItemIds.Contains(w.Item.ItemId)).DistinctBy(d => d.ReferenceId).ToList();

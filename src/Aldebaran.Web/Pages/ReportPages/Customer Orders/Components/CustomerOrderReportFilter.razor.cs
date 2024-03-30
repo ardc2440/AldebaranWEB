@@ -51,7 +51,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders.Components
             var references = (await ItemReferenceService.GetReportsReferencesAsync()).ToList();
             AvailableItemReferencesForSelection = references;
             referencePicker.SetAvailableItemReferencesForSelection(AvailableItemReferencesForSelection);
-            var documentType = await DocumentTypeService.FindByCodeAsync("P");
+            var documentType = await DocumentTypeService.FindByCodeAsync("O");
             StatusDocumentTypes = (await StatusDocumentTypeService.GetByDocumentTypeIdAsync(documentType.DocumentTypeId)).ToList();
             Customers = (await CustomerService.GetAsync()).ToList();
         }
@@ -74,7 +74,10 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders.Components
             {
                 IsSubmitInProgress = true;
                 // Si no se han incluido filtros, mostrar mensaje de error
-                if (Filter.CreationDateFrom == null && Filter.OrderDateFrom == null && Filter.EstimatedDeliveryDateFrom == null && string.IsNullOrEmpty(Filter.OrderNumber) &&
+                if (string.IsNullOrEmpty(Filter.OrderNumber) &&
+                    Filter.CreationDate?.StartDate == null && Filter.CreationDate?.EndDate == null &&
+                    Filter.OrderDate?.StartDate == null && Filter.OrderDate?.EndDate == null &&
+                    Filter.EstimatedDeliveryDate?.StartDate == null && Filter.EstimatedDeliveryDate?.EndDate == null &&
                     Filter.StatusDocumentTypeId == null && Filter.CustomerId == null && SelectedReferences.Any() == false)
                 {
                     ValidationError = true;

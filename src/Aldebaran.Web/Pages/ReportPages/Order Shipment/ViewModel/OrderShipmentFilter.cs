@@ -1,17 +1,15 @@
 ﻿using Aldebaran.Application.Services.Models;
+using Aldebaran.Web.Shared.ViewModel;
 
 namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment.ViewModel
 {
     public class OrderShipmentFilter : ICloneable
     {
         public string OrderNumber { get; set; }
-        public DateTime? CreationDateFrom { get; set; }
-        public DateTime? CreationDateTo { get; set; } = DateTime.Now;
-        public DateTime? RequestDateFrom { get; set; }
-        public DateTime? RequestDateTo { get; set; } = DateTime.Now;
-        public DateTime? ExpectedReceiptDateFrom { get; set; }
-        public DateTime? ExpectedReceiptDateTo{ get; set; } = DateTime.Now;
-        public DateTime? RealReceiptDate { get; set; }
+        public DateRange CreationDate { get; set; } = new();
+        public DateRange RequestDate { get; set; } = new();
+        public DateRange ExpectedReceiptDate { get; set; } = new();
+        public DateRange RealReceiptDate { get; set; } = new();
         public string ImportNumber { get; set; }
         public string EmbarkationPort { get; set; }
         public string ProformaNumber { get; set; }

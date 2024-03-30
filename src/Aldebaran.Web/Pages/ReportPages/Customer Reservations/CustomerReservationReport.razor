@@ -26,18 +26,40 @@
                             <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.ReservationNumber</span>
                         </div>
                     }
-                    @if (Filter.CreationDateFrom != null)
+                    @if (Filter.CreationDate?.StartDate != null || Filter.CreationDate?.EndDate != null)
                     {
                         <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
                             <p class="component-label m-0 fw-bold">Fecha de creación: </p>
-                            <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.CreationDateFrom.Value.ToString(SharedLocalizer["date:format"])</span>
+                            @if (Filter.CreationDate?.StartDate != null)
+                            {
+                                <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.CreationDate.StartDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                            }
+                            @if (Filter.CreationDate?.EndDate != null)
+                            {
+                                @if (Filter.CreationDate?.StartDate != null)
+                                {
+                                    <p class="component-label m-0"> - </p>
+                                }
+                                <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.CreationDate.EndDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                            }
                         </div>
                     }
-                    @if (Filter.ReservationDateFrom != null)
+                    @if (Filter.ReservationDate?.StartDate != null || Filter.ReservationDate?.EndDate != null)
                     {
                         <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
                             <p class="component-label m-0 fw-bold">Fecha de reserva: </p>
-                            <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.ReservationDateFrom.Value.ToString(SharedLocalizer["date:format"])</span>
+                            @if (Filter.ReservationDate?.StartDate != null)
+                            {
+                                <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.ReservationDate.StartDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                            }
+                            @if (Filter.ReservationDate?.EndDate != null)
+                            {
+                                @if (Filter.ReservationDate?.StartDate != null)
+                                {
+                                    <p class="component-label m-0"> - </p>
+                                }
+                                <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.ReservationDate.EndDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                            }
                         </div>
                     }
                     @if (Filter.StatusDocumentTypeId != null && Filter.StatusDocumentType != null)
@@ -98,42 +120,64 @@
                                             <div>
                                                 @if (!string.IsNullOrEmpty(Filter.ReservationNumber))
                                                 {
-                                                    <div>
-                                                        <div class="type" style="display:inline-block">Número de la reserva: </div>
+                                                    <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
+                                                        <div class="type">Número de la reserva: </div>
                                                         <span>@Filter.ReservationNumber</span>
                                                     </div>
                                                 }
-                                                @if (Filter.CreationDateFrom != null)
+                                                @if (Filter.CreationDate?.StartDate != null || Filter.CreationDate?.EndDate != null)
                                                 {
-                                                    <div>
-                                                        <div class="type" style="display:inline-block">Fecha de creación: </div>
-                                                        <span>@Filter.CreationDateFrom.Value.ToString(SharedLocalizer["date:format"])</span>
+                                                    <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
+                                                        <div class="type">Fecha de creación: </div>
+                                                        @if (Filter.CreationDate?.StartDate != null)
+                                                        {
+                                                            <span>@Filter.CreationDate.StartDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                                                        }
+                                                        @if (Filter.CreationDate?.EndDate != null)
+                                                        {
+                                                            @if (Filter.CreationDate?.StartDate != null)
+                                                            {
+                                                                <p> - </p>
+                                                            }
+                                                            <span>@Filter.CreationDate.EndDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                                                        }
                                                     </div>
                                                 }
-                                                @if (Filter.ReservationDateFrom != null)
+                                                @if (Filter.ReservationDate?.StartDate != null || Filter.ReservationDate?.EndDate != null)
                                                 {
-                                                    <div>
-                                                        <div class="type" style="display:inline-block">Fecha de reserva: </div>
-                                                        <span>@Filter.ReservationDateFrom.Value.ToString(SharedLocalizer["date:format"])</span>
+                                                    <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
+                                                        <div class="type">Fecha de reserva: </div>
+                                                        @if (Filter.ReservationDate?.StartDate != null)
+                                                        {
+                                                            <span>@Filter.ReservationDate.StartDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                                                        }
+                                                        @if (Filter.ReservationDate?.EndDate != null)
+                                                        {
+                                                            @if (Filter.ReservationDate?.StartDate != null)
+                                                            {
+                                                                <span > - </span>
+                                                            }
+                                                            <span>@Filter.ReservationDate.EndDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                                                        }
                                                     </div>
                                                 }
                                                 @if (Filter.StatusDocumentTypeId != null && Filter.StatusDocumentType != null)
                                                 {
-                                                    <div>
-                                                        <div class="type" style="display:inline-block">Estado: </div>
+                                                    <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
+                                                        <div class="type">Estado: </div>
                                                         <span>@Filter.StatusDocumentType.StatusDocumentTypeName</span>
                                                     </div>
                                                 }
                                                 @if (Filter.CustomerId != null && Filter.Customer != null)
                                                 {
-                                                    <div>
-                                                        <div class="type" style="display:inline-block">Cliente: </div>
+                                                    <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
+                                                        <div class="type">Cliente: </div>
                                                         <span>@Filter.Customer.CustomerName</span>
                                                     </div>
                                                 }
                                                 @if (Filter.ItemReferences.Any())
                                                 {
-                                                    <div>
+                                                    <div style="display:flex; flex-direction:column; justify-content:end">
                                                         <div class="type">Referencias: </div>
                                                         @for (int i = 0; i < Filter.ItemReferences.Count(); i++)
                                                         {

@@ -70,14 +70,14 @@
                                             <div>
                                                 @if (Filter.WarehouseId != null && Filter.Warehouse != null)
                                                 {
-                                                    <div>
-                                                        <div class="type" style="display:inline-block">Bodega: </div>
+                                                    <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
+                                                        <div class="type">Bodega: </div>
                                                         <span>@Filter.Warehouse.WarehouseName</span>
                                                     </div>
                                                 }
                                                 @if (Filter.ItemReferences.Any())
                                                 {
-                                                    <div>
+                                                    <div style="display:flex; flex-direction:column; justify-content:end">
                                                         <div class="type">Referencias: </div>
                                                         @for (int i = 0; i < Filter.ItemReferences.Count(); i++)
                                                         {

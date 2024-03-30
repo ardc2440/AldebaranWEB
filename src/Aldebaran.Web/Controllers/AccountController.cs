@@ -1,8 +1,10 @@
+using Aldebaran.Application.Services;
 using Aldebaran.Web.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using System.Text.Encodings.Web;
 
 namespace Aldebaran.Web.Controllers
 {
@@ -14,26 +16,28 @@ namespace Aldebaran.Web.Controllers
         private readonly RoleManager<ApplicationRole> roleManager;
         private readonly IWebHostEnvironment env;
         private readonly IConfiguration configuration;
+        private readonly IEmployeeService employeeService;
 
         public AccountController(IWebHostEnvironment env, SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager,
-            RoleManager<ApplicationRole> roleManager, IConfiguration configuration)
+            RoleManager<ApplicationRole> roleManager, IConfiguration configuration, IEmployeeService employeeService)
         {
             this.signInManager = signInManager;
             this.userManager = userManager;
             this.roleManager = roleManager;
             this.env = env;
             this.configuration = configuration;
+            this.employeeService = employeeService;
         }
 
         private IActionResult RedirectWithError(string error, string redirectUrl = null)
         {
             if (!string.IsNullOrEmpty(redirectUrl))
             {
-                return Redirect($"~/Login?error={error}&redirectUrl={Uri.EscapeDataString(redirectUrl)}");
+                return Redirect($"~/Login?error={UrlEncoder.Default.Encode(error)}&redirectUrl={Uri.EscapeDataString(redirectUrl)}");
             }
             else
             {
-                return Redirect($"~/Login?error={error}");
+                return Redirect($"~/Login?error={UrlEncoder.Default.Encode(error)}");
             }
         }
 
@@ -55,10 +59,14 @@ namespace Aldebaran.Web.Controllers
             {
                 var user = await userManager.FindByNameAsync(userName);
                 if (user == null)
-                    return RedirectWithError("Invalid user or password", redirectUrl);
+                    return RedirectWithError("Usuario o contraseña incorrectos.", redirectUrl);
 
                 if (user.LockoutEnabled)
-                    return RedirectWithError("Your account is blocked, please contact the administrator", redirectUrl);
+                    return RedirectWithError("Su cuenta está bloqueada, por favor contacte al administrador.", redirectUrl);
+                // Verificar si existe un empleado asociado al inicio de sesion.
+                var employee = await employeeService.FindByLoginUserIdAsync(user.Id);
+                if (employee == null)
+                    return RedirectWithError("No se ha encontrado un empleado para el inicio de sesión, por favor contacte al administrador.", $"~/{redirectUrl}");
 
                 var result = await signInManager.PasswordSignInAsync(userName, password, false, false);
                 if (result.Succeeded)
@@ -67,7 +75,7 @@ namespace Aldebaran.Web.Controllers
                 }
             }
 
-            return RedirectWithError("Invalid user or password", redirectUrl);
+            return RedirectWithError("Usuario o contraseña incorrectos.", redirectUrl);
         }
 
         [HttpPost]
@@ -76,7 +84,7 @@ namespace Aldebaran.Web.Controllers
         {
             if (string.IsNullOrEmpty(oldPassword) || string.IsNullOrEmpty(newPassword))
             {
-                return BadRequest("Invalid password");
+                return BadRequest(UrlEncoder.Default.Encode("Contraseña inválida"));
             }
 
             var id = User.FindFirstValue(ClaimTypes.NameIdentifier);

@@ -91,35 +91,35 @@
                                             <div>
                                                 @if (Filter.SourceWarehouseId != null && Filter.SourceWarehouse != null)
                                                 {
-                                                    <div>
-                                                        <div class="type" style="display:inline-block">Bodega de origen: </div>
+                                                    <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
+                                                        <div class="type">Bodega de origen: </div>
                                                         <span>@Filter.SourceWarehouse.WarehouseName</span>
                                                     </div>
                                                 }
                                                 @if (Filter.TargetWarehouseId != null && Filter.TargetWarehouse != null)
                                                 {
-                                                    <div>
-                                                        <div class="type" style="display:inline-block">Bodega destino: </div>
+                                                    <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
+                                                        <div class="type">Bodega destino: </div>
                                                         <span>@Filter.TargetWarehouse.WarehouseName</span>
                                                     </div>
                                                 }
                                                 @if (Filter.AdjustmentDate != null)
                                                 {
-                                                    <div>
-                                                        <div class="type" style="display:inline-block">Fecha de ajuste: </div>
+                                                    <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
+                                                        <div class="type">Fecha de ajuste: </div>
                                                         <span>@Filter.AdjustmentDate.Value.ToString(SharedLocalizer["date:format"])</span>
                                                     </div>
                                                 }
                                                 @if (!string.IsNullOrEmpty(Filter.NationalizationNumber))
                                                 {
-                                                    <div>
-                                                        <div class="type" style="display:inline-block">Número de nacionalización: </div>
+                                                    <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
+                                                        <div class="type">Número de nacionalización: </div>
                                                         <span>@Filter.NationalizationNumber</span>
                                                     </div>
                                                 }
                                                 @if (Filter.ItemReferences.Any())
                                                 {
-                                                    <div>
+                                                    <div style="display:flex; flex-direction:column; justify-content:end">
                                                         <div class="type">Referencias: </div>
                                                         @for (int i = 0; i < Filter.ItemReferences.Count(); i++)
                                                         {

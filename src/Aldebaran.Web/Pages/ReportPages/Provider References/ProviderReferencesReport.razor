@@ -70,14 +70,14 @@
                                             <div>
                                                 @if (Filter.ProviderId != null && Filter.Provider != null)
                                                 {
-                                                    <div>
-                                                        <div class="type" style="display:inline-block">Proveedor: </div>
+                                                    <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
+                                                        <div class="type">Proveedor: </div>
                                                         <span>@Filter.Provider.ProviderName</span>
                                                     </div>
                                                 }
                                                 @if (Filter.ItemReferences.Any())
                                                 {
-                                                    <div>
+                                                    <div style="display:flex; flex-direction:column; justify-content:end">
                                                         <div class="type">Referencias: </div>
                                                         @for (int i = 0; i < Filter.ItemReferences.Count(); i++)
                                                         {

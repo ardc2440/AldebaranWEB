@@ -26,18 +26,40 @@
                             <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.AdjustmentId.Value</span>
                         </div>
                     }
-                    @if (Filter.AdjustmentDateFrom != null)
-                    {
-                        <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
-                            <p class="component-label m-0 fw-bold">Fecha del ajuste: </p>
-                            <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.AdjustmentDateFrom.Value.ToString(SharedLocalizer["date:format"])</span>
-                        </div>
-                    }
-                    @if (Filter.CreationDateFrom != null)
+                    @if (Filter.CreationDate?.StartDate != null || Filter.CreationDate?.EndDate != null)
                     {
                         <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
                             <p class="component-label m-0 fw-bold">Fecha de creación: </p>
-                            <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.CreationDateFrom.Value.ToString(SharedLocalizer["date:format"])</span>
+                            @if (Filter.CreationDate?.StartDate != null)
+                            {
+                                <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.CreationDate.StartDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                            }
+                            @if (Filter.CreationDate?.EndDate != null)
+                            {
+                                @if (Filter.CreationDate?.StartDate != null)
+                                {
+                                    <p class="component-label m-0"> - </p>
+                                }
+                                <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.CreationDate.EndDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                            }
+                        </div>
+                    }
+                    @if (Filter.AdjustmentDate?.StartDate != null || Filter.AdjustmentDate?.EndDate != null)
+                    {
+                        <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
+                            <p class="component-label m-0 fw-bold">Fecha del ajuste: </p>
+                            @if (Filter.AdjustmentDate?.StartDate != null)
+                            {
+                                <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.AdjustmentDate.StartDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                            }
+                            @if (Filter.AdjustmentDate?.EndDate != null)
+                            {
+                                @if (Filter.AdjustmentDate?.StartDate != null)
+                                {
+                                    <p class="component-label m-0"> - </p>
+                                }
+                                <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.AdjustmentDate.EndDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                            }
                         </div>
                     }
                     @if (Filter.AdjustmentType != null)
@@ -105,49 +127,71 @@
                                             <div>
                                                 @if (Filter.AdjustmentId != null)
                                                 {
-                                                    <div>
-                                                        <div class="type" style="display:inline-block">Número: </div>
+                                                    <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
+                                                        <div class="type">Número: </div>
                                                         <span>@Filter.AdjustmentId.Value</span>
                                                     </div>
                                                 }
-                                                @if (Filter.AdjustmentDateFrom != null)
+                                                @if (Filter.CreationDate?.StartDate != null || Filter.CreationDate?.EndDate != null)
                                                 {
-                                                    <div>
-                                                        <div class="type" style="display:inline-block">Fecha del ajuste: </div>
-                                                        <span>@Filter.AdjustmentDateFrom.Value.ToString(SharedLocalizer["date:format"])</span>
+                                                    <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
+                                                        <div class="type">Fecha de creación: </div>
+                                                        @if (Filter.CreationDate?.StartDate != null)
+                                                        {
+                                                            <span>@Filter.CreationDate.StartDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                                                        }
+                                                        @if (Filter.CreationDate?.EndDate != null)
+                                                        {
+                                                            @if (Filter.CreationDate?.StartDate != null)
+                                                            {
+                                                                <p> - </p>
+                                                            }
+                                                            <span>@Filter.CreationDate.EndDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                                                        }
                                                     </div>
                                                 }
-                                                @if (Filter.CreationDateFrom != null)
+                                                @if (Filter.AdjustmentDate?.StartDate != null || Filter.AdjustmentDate?.EndDate != null)
                                                 {
-                                                    <div>
-                                                        <div class="type" style="display:inline-block">Fecha de creación: </div>
-                                                        <span>@Filter.CreationDateFrom.Value.ToString(SharedLocalizer["date:format"])</span>
+                                                    <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
+                                                        <div class="type">Fecha del ajuste: </div>
+                                                        @if (Filter.AdjustmentDate?.StartDate != null)
+                                                        {
+                                                            <span>@Filter.AdjustmentDate.StartDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                                                        }
+                                                        @if (Filter.AdjustmentDate?.EndDate != null)
+                                                        {
+                                                            @if (Filter.AdjustmentDate?.StartDate != null)
+                                                            {
+                                                                <p> - </p>
+                                                            }
+                                                            <span>@Filter.AdjustmentDate.EndDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                                                        }
                                                     </div>
                                                 }
                                                 @if (Filter.AdjustmentType != null)
                                                 {
-                                                    <div>
-                                                        <div class="type" style="display:inline-block">Tipo de ajuste: </div>
+                                                    <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
+                                                        <div class="type">Tipo de ajuste: </div>
                                                         <span>@Filter.AdjustmentType.AdjustmentTypeName</span>
                                                     </div>
                                                 }
                                                 @if (Filter.AdjustmentReason != null)
                                                 {
-                                                    <div>
-                                                        <div class="type" style="display:inline-block">Motivo del ajuste: </div>
+                                                    <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
+                                                        <div class="type">Motivo del ajuste: </div>
                                                         <span>@Filter.AdjustmentReason.AdjustmentReasonName</span>
                                                     </div>
                                                 }
                                                 @if (Filter.Employee != null)
                                                 {
-                                                    <div>
-                                                        <div class="type" style="display:inline-block">Empleado: </div>
+                                                    <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
+                                                        <div class="type">Empleado: </div>
                                                         <span>@Filter.Employee.FullName</span>
                                                     </div>
                                                 }
                                                 @if (Filter.ItemReferences.Any())
                                                 {
-                                                    <div>
+                                                    <div style="display:flex; flex-direction:column; justify-content:end">
                                                         <div class="type">Referencias: </div>
                                                         @for (int i = 0; i < Filter.ItemReferences.Count(); i++)
                                                         {
