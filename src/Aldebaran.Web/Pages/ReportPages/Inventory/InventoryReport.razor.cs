@@ -1,7 +1,6 @@
 ﻿using Aldebaran.Application.Services.Reports;
 using Aldebaran.Web.Pages.ReportPages.Inventory.Components;
 using Aldebaran.Web.Pages.ReportPages.Inventory.ViewModel;
-using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
@@ -34,7 +33,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
         protected InventoryFilter Filter;
         protected InventoryViewModel ViewModel;
         private bool IsBusy = false;
-
+        private bool IsLoadingData = false;
         private IEnumerable<Application.Services.Models.Reports.InventoryReport> DataReport { get; set; }
 
         #endregion
@@ -42,7 +41,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            await RedrawReportAsync();            
+            await RedrawReportAsync();
         }
         #endregion
 
@@ -50,12 +49,21 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
 
         async Task RedrawReportAsync(string filter = "", CancellationToken ct = default)
         {
-            DataReport = await InventoryReportService.GetInventoryReportDataAsync(filter,ct);
-
-            ViewModel = new InventoryViewModel
+            try
             {
-                Lines = (await GetLinesAsync(ct)).ToList()
-            };
+                IsLoadingData = true;
+
+                DataReport = await InventoryReportService.GetInventoryReportDataAsync(filter, ct);
+
+                ViewModel = new InventoryViewModel
+                {
+                    Lines = (await GetLinesAsync(ct)).ToList()
+                };
+            }
+            finally
+            {
+                IsLoadingData = false;
+            }
         }
 
         async Task OpenFilters()
@@ -69,8 +77,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
             var referenceIdsFilter = "";
 
             if (Filter.ItemReferences.Count > 0)
-                referenceIdsFilter = String.Join(",", Filter.ItemReferences.Select(s=>s.ReferenceId));
-                        
+                referenceIdsFilter = String.Join(",", Filter.ItemReferences.Select(s => s.ReferenceId));
+
             await RedrawReportAsync(referenceIdsFilter);
 
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
@@ -80,7 +88,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
             if (await DialogService.Confirm("Está seguro que desea eliminar los filtros establecidos?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
             {
                 Filter = null;
-                                
+
                 await RedrawReportAsync();
 
                 await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);

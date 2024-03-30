@@ -33,6 +33,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Reservations
         protected CustomerReservationFilter Filter;
         protected CustomerReservationViewModel ViewModel;
         private bool IsBusy = false;
+        private bool IsLoadingData = false;
         private IEnumerable<Application.Services.Models.Reports.CustomerReservationReport> DataReport { get; set; }
         #endregion
 
@@ -47,13 +48,20 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Reservations
 
         async Task RedrawReportAsync(string filter = "", CancellationToken ct = default)
         {
-            DataReport = await CustomerReservationReportService.GetCustomerReservationReportDataAsync(filter, ct);
-
-            ViewModel = new CustomerReservationViewModel
+            try
             {
-                Customers = await GetCustomersAsync()
-            };
+                IsLoadingData = true;
+                DataReport = await CustomerReservationReportService.GetCustomerReservationReportDataAsync(filter, ct);
 
+                ViewModel = new CustomerReservationViewModel
+                {
+                    Customers = await GetCustomersAsync()
+                };
+            }
+            finally
+            {
+                IsLoadingData = false;
+            }
         }
 
         async Task<string> SetReportFilterAsync(CustomerReservationFilter filter, CancellationToken ct = default)

@@ -1,6 +1,4 @@
-﻿using Aldebaran.Application.Services.Models;
-using Aldebaran.Application.Services.Reports;
-using Aldebaran.Web.Pages.ReportPages.Inventory.ViewModel;
+﻿using Aldebaran.Application.Services.Reports;
 using Aldebaran.Web.Pages.ReportPages.Reference_Movement.Components;
 using Aldebaran.Web.Pages.ReportPages.Reference_Movement.ViewModel;
 using Microsoft.AspNetCore.Components;
@@ -34,6 +32,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
         protected ReferenceMovementFilter Filter;
         protected ReferenceMovementViewModel ViewModel;
         private bool IsBusy = false;
+        private bool IsLoadingData = false;
         private IEnumerable<Application.Services.Models.Reports.ReferenceMovementReport> DataReport { get; set; }
         #endregion
 
@@ -48,12 +47,21 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
 
         async Task RedrawReportAsync(string filter = "", CancellationToken ct = default)
         {
-            DataReport = await ReferenceMovementReportService.GetReferenceMovementReportDataAsync(filter, ct);
-
-            ViewModel = new ReferenceMovementViewModel
+            try
             {
-                Lines = (await GetReporLinesAsync()).ToList()
-            };
+                IsLoadingData = true;
+
+                DataReport = await ReferenceMovementReportService.GetReferenceMovementReportDataAsync(filter, ct);
+
+                ViewModel = new ReferenceMovementViewModel
+                {
+                    Lines = (await GetReporLinesAsync()).ToList()
+                };
+            }
+            finally
+            {
+                IsLoadingData = false;                    
+            }
         }
 
         async Task OpenFilters()
@@ -103,7 +111,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
         {
             var lines = new List<ReferenceMovementViewModel.Line>();
 
-            foreach (var line in DataReport.Select(s => new {s.LineId, s.LineName, s.LineCode })
+            foreach (var line in DataReport.Select(s => new { s.LineId, s.LineName, s.LineCode })
                                     .DistinctBy(d => d.LineId).OrderBy(o => o.LineName))
             {
                 lines.Add(new ReferenceMovementViewModel.Line
@@ -121,7 +129,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
         {
             var items = new List<ReferenceMovementViewModel.Item>();
 
-            foreach (var item in DataReport.Where(w => w.LineId == lineId).Select(s => new { s.ItemId, s.InternalReference, s.ItemName})
+            foreach (var item in DataReport.Where(w => w.LineId == lineId).Select(s => new { s.ItemId, s.InternalReference, s.ItemName })
                                     .DistinctBy(d => d.ItemId).OrderBy(o => o.ItemName))
             {
                 items.Add(new ReferenceMovementViewModel.Item
@@ -139,8 +147,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
         {
             var reportReferences = new List<ReferenceMovementViewModel.Reference>();
 
-            foreach (var reference in DataReport.Where(w => w.ItemId == itemId).Select(s=>new { s.ReferenceId, s.ReferenceName, s.RequestedQuantity, s.ReservedQuantity, s.ReferenceCode})
-                                        .DistinctBy(d=>d.ReferenceId).OrderBy(o => o.ReferenceName))
+            foreach (var reference in DataReport.Where(w => w.ItemId == itemId).Select(s => new { s.ReferenceId, s.ReferenceName, s.RequestedQuantity, s.ReservedQuantity, s.ReferenceCode })
+                                        .DistinctBy(d => d.ReferenceId).OrderBy(o => o.ReferenceName))
             {
                 reportReferences.Add(new ReferenceMovementViewModel.Reference
                 {
@@ -160,8 +168,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
         {
             var warehouses = new List<ReferenceMovementViewModel.Warehouse>();
 
-            foreach (var warehouse in DataReport.Where(w=>w.ReferenceId==referenceId).Select(s=>new { s.WarehouseId, s.Amount, s.WarehouseName})
-                                        .DistinctBy(d=>d.WarehouseId).OrderBy(o => o.WarehouseName))
+            foreach (var warehouse in DataReport.Where(w => w.ReferenceId == referenceId).Select(s => new { s.WarehouseId, s.Amount, s.WarehouseName })
+                                        .DistinctBy(d => d.WarehouseId).OrderBy(o => o.WarehouseName))
             {
                 warehouses.Add(new ReferenceMovementViewModel.Warehouse
                 {

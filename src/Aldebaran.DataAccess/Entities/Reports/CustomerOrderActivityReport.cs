@@ -23,6 +23,7 @@ namespace Aldebaran.DataAccess.Entities.Reports
         public string? CustomerNotes { get; set; }
 
 
+        public int ReferenceId { get; set; }
         public string ItemReference { get; set; }
         public string ItemName { get; set; }
         public string ReferenceCode { get; set; }
@@ -30,15 +31,14 @@ namespace Aldebaran.DataAccess.Entities.Reports
         public int Amount { get; set; }
         public int DeliveredAmount { get; set; }
         public int InProcessAmount { get; set; }
-        public string StatusDetail { get; set; }
+        public string StatusDetail { get; set; } //TODO 
 
 
-        public int ActivityId { get; set; }
-        public DateTime CreationDateActivity { get; set; }
-        public string AreaName { get; set; }
-        public string EmployeeName { get; set; }
+        public int? ActivityId { get; set; }
+        public DateTime? CreationDateActivity { get; set; }
+        public string? AreaName { get; set; }
+        public string? EmployeeName { get; set; }
         public string? Notes { get; set; }
-        public string StatusActivity { get; set; }
 
         public string? ActivityType { get; set; }
         public string? EmployeNameDetail { get; set; }

@@ -17,11 +17,6 @@
     <None Remove="Monikers.imagemanifest" />
   </ItemGroup>
   <ItemGroup>
-    <content Include="Monikers.imagemanifest">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </content>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="..\.editorconfig" Link=".editorconfig" />
     <None Include="wwwroot\js\utils.js" />
   </ItemGroup>

@@ -261,146 +261,162 @@
                             </tr>
                         </table>
                         <div class="mt-1">
+                            @if (IsLoadingData)
+                            {
+                                <div class="loading-container">
+                                    <RadzenIcon Icon="refresh" />
+                                    <span>@SharedLocalizer["report:loading-text"]</span>
+                                </div>
+                            }
                             @if (ViewModel != null)
                             {
-                                @for (int o = 0; o < ViewModel.Orders.Count(); o++)
+                                @if (ViewModel.Orders?.Any() == true)
                                 {
-                                    var order = ViewModel.Orders[o];
-                                    <table class="edged">
-                                        <thead>
-                                            <tr class="emphasys-2x font-size-2x">
-                                                <td colspan="4" width="100%">
-                                                    <span class="bold">Número: </span>@order.OrderNumber
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td width="25%">
-                                                    <span class="bold">Fecha de creación: </span><br />
-                                                    @order.CreationDate.ToString(SharedLocalizer["datetime:format"])
-                                                </td>
-                                                <td width="25%">
-                                                    <span class="bold">Fecha de solicitud: </span><br />
-                                                    @order.RequestDate.ToString(SharedLocalizer["date:format"])
-                                                </td>
-                                                <td colspan="2" width="50%">
-                                                    <span class="bold">Fecha esperada de recepción: </span><br />
-                                                    @order.ExpectedReceiptDate.ToString(SharedLocalizer["date:format"])
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td colspan="4" width="100%">
-                                                    <span class="bold">Proveedor: </span>@order.ProviderName
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td width="25%">
-                                                    <span class="bold">Transportadora: </span>@order.Forwarder.ForwarderName
-                                                </td>
-                                                <td width="25%">
-                                                    <span class="bold">Teléfono: </span>@order.Forwarder.Phone
-                                                </td>
-                                                <td width="25%">
-                                                    <span class="bold">Fax: </span>@order.Forwarder.Fax
-                                                </td>
-                                                <td width="25%">
-                                                    <span class="bold">Mail: </span>@order.Forwarder.Email
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td width="25%">
-                                                    <span class="bold">Agente: </span>@order.ForwarderAgent.ForwarderAgentName
-                                                </td>
-                                                <td width="25%">
-                                                    <span class="bold">Teléfono: </span>@order.ForwarderAgent.Phone
-                                                </td>
-                                                <td width="25%">
-                                                    <span class="bold">Fax: </span>@order.ForwarderAgent.Fax
-                                                </td>
-                                                <td width="25%">
-                                                    <span class="bold">Mail: </span>@order.ForwarderAgent.Email
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td colspan="2" width="50%">
-                                                    <span class="bold">Número de importación: </span>@order.ImportNumber
-                                                </td>
-                                                <td colspan="2" width="50%">
-                                                    <span class="bold">Método de envío: </span>@order.ShipmentMethodName
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td colspan="2" width="50%">
-                                                    <span class="bold">Puerto de embarque: </span>@order.EmbarkationPort
-                                                </td>
-                                                <td colspan="3" width="75%">
-                                                    <span class="bold">Número de proforma: </span>@order.ProformaNumber
-                                                </td>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach (var warehouse in order.Warehouses)
-                                            {
-                                                <tr>
+                                    @for (int o = 0; o < ViewModel.Orders.Count(); o++)
+                                    {
+                                        var order = ViewModel.Orders[o];
+                                        <table class="edged">
+                                            <thead>
+                                                <tr class="emphasys-2x font-size-2x">
                                                     <td colspan="4" width="100%">
-                                                        <p class="title border-bottom-1">Bodega de llegada: @warehouse.WarehouseName</p>
+                                                        <span class="bold">Número: </span>@order.OrderNumber
                                                     </td>
                                                 </tr>
-                                                @foreach (var line in warehouse.Lines)
+                                                <tr>
+                                                    <td width="25%">
+                                                        <span class="bold">Fecha de creación: </span><br />
+                                                        @order.CreationDate.ToString(SharedLocalizer["datetime:format"])
+                                                    </td>
+                                                    <td width="25%">
+                                                        <span class="bold">Fecha de solicitud: </span><br />
+                                                        @order.RequestDate.ToString(SharedLocalizer["date:format"])
+                                                    </td>
+                                                    <td colspan="2" width="50%">
+                                                        <span class="bold">Fecha esperada de recepción: </span><br />
+                                                        @order.ExpectedReceiptDate.ToString(SharedLocalizer["date:format"])
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="4" width="100%">
+                                                        <span class="bold">Proveedor: </span>@order.ProviderName
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td width="25%">
+                                                        <span class="bold">Transportadora: </span>@order.Forwarder.ForwarderName
+                                                    </td>
+                                                    <td width="25%">
+                                                        <span class="bold">Teléfono: </span>@order.Forwarder.Phone
+                                                    </td>
+                                                    <td width="25%">
+                                                        <span class="bold">Fax: </span>@order.Forwarder.Fax
+                                                    </td>
+                                                    <td width="25%">
+                                                        <span class="bold">Mail: </span>@order.Forwarder.Email
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td width="25%">
+                                                        <span class="bold">Agente: </span>@order.ForwarderAgent.ForwarderAgentName
+                                                    </td>
+                                                    <td width="25%">
+                                                        <span class="bold">Teléfono: </span>@order.ForwarderAgent.Phone
+                                                    </td>
+                                                    <td width="25%">
+                                                        <span class="bold">Fax: </span>@order.ForwarderAgent.Fax
+                                                    </td>
+                                                    <td width="25%">
+                                                        <span class="bold">Mail: </span>@order.ForwarderAgent.Email
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="2" width="50%">
+                                                        <span class="bold">Número de importación: </span>@order.ImportNumber
+                                                    </td>
+                                                    <td colspan="2" width="50%">
+                                                        <span class="bold">Método de envío: </span>@order.ShipmentMethodName
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="2" width="50%">
+                                                        <span class="bold">Puerto de embarque: </span>@order.EmbarkationPort
+                                                    </td>
+                                                    <td colspan="3" width="75%">
+                                                        <span class="bold">Número de proforma: </span>@order.ProformaNumber
+                                                    </td>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var warehouse in order.Warehouses)
                                                 {
                                                     <tr>
-                                                        <td colspan="5" width="100%" style="padding:0 !important">
-                                                            <p class="title" style="padding-left: 1em;">Línea: @line.LineCode  - @line.LineName</p>
+                                                        <td colspan="4" width="100%">
+                                                            <p class="title border-bottom-1">Bodega de llegada: @warehouse.WarehouseName</p>
                                                         </td>
                                                     </tr>
-                                                    @for (int i = 0; i < line.Items.Count(); i++)
+                                                    @foreach (var line in warehouse.Lines)
                                                     {
-                                                        var item = line.Items[i];
                                                         <tr>
                                                             <td colspan="5" width="100%" style="padding:0 !important">
-                                                                <div style="padding: 1em 1em 0 1em !important;">
-                                                                    @if (i > 0)
-                                                                    {
-                                                                        <hr class="mb-2" />
-                                                                    }
-                                                                    <h3 class="text-left m-0">
-                                                                        @item.ItemName
-                                                                    </h3>
-                                                                    <p class="m-0">
-                                                                        Referencia interna: @item.InternalReference
-                                                                    </p>
-                                                                </div>
-                                                                <div style="margin: 1em;">
-                                                                    <table class="striped edged">
-                                                                        <thead>
-                                                                            <tr>
-                                                                                <th width="30%">Código</th>
-                                                                                <th width="40%">Referencia</th>
-                                                                                <th width="10%">Cantidad</th>
-                                                                                <th width="10%">Peso</th>
-                                                                                <th width="10%">Volumen</th>
-                                                                            </tr>
-                                                                        </thead>
-                                                                        <tbody>
-                                                                            @foreach (var reference in item.References)
-                                                                            {
-                                                                                <tr>
-                                                                                    <td width="30%">@reference.ReferenceCode</td>
-                                                                                    <td width="40%">@reference.ReferenceName</td>
-                                                                                    <td width="10%">@reference.Amount.ToString("N0")</td>
-                                                                                    <td width="10%">@(reference.Weight == 0 ? "" : reference.Weight.ToString("N0"))</td>
-                                                                                    <td width="10%">@(reference.Volume == 0 ? "" : reference.Volume.ToString("N0"))</td>
-                                                                                </tr>
-                                                                            }
-                                                                        </tbody>
-                                                                    </table>
-                                                                </div>
+                                                                <p class="title" style="padding-left: 1em;">Línea: @line.LineCode  - @line.LineName</p>
                                                             </td>
                                                         </tr>
+                                                        @for (int i = 0; i < line.Items.Count(); i++)
+                                                        {
+                                                            var item = line.Items[i];
+                                                            <tr>
+                                                                <td colspan="5" width="100%" style="padding:0 !important">
+                                                                    <div style="padding: 1em 1em 0 1em !important;">
+                                                                        @if (i > 0)
+                                                                        {
+                                                                            <hr class="mb-2" />
+                                                                        }
+                                                                        <h3 class="text-left m-0">
+                                                                            @item.ItemName
+                                                                        </h3>
+                                                                        <p class="m-0">
+                                                                            Referencia interna: @item.InternalReference
+                                                                        </p>
+                                                                    </div>
+                                                                    <div style="margin: 1em;">
+                                                                        <table class="striped edged">
+                                                                            <thead>
+                                                                                <tr>
+                                                                                    <th width="30%">Código</th>
+                                                                                    <th width="40%">Referencia</th>
+                                                                                    <th width="10%">Cantidad</th>
+                                                                                    <th width="10%">Peso</th>
+                                                                                    <th width="10%">Volumen</th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody>
+                                                                                @foreach (var reference in item.References)
+                                                                                {
+                                                                                    <tr>
+                                                                                        <td width="30%">@reference.ReferenceCode</td>
+                                                                                        <td width="40%">@reference.ReferenceName</td>
+                                                                                        <td width="10%">@reference.Amount.ToString("N0")</td>
+                                                                                        <td width="10%">@(reference.Weight == 0 ? "" : reference.Weight.ToString("N0"))</td>
+                                                                                        <td width="10%">@(reference.Volume == 0 ? "" : reference.Volume.ToString("N0"))</td>
+                                                                                    </tr>
+                                                                                }
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        }
                                                     }
                                                 }
-                                            }
-                                        </tbody>
-                                    </table>
+                                            </tbody>
+                                        </table>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="no-data-container">
+                                        <h4>@SharedLocalizer["report:no-data"]</h4>
+                                    </div>
                                 }
                             }
                         </div>

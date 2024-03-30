@@ -3,9 +3,25 @@
 <RadzenColumn SizeMD=12>
     <RadzenTemplateForm TItem="ViewModel.WarehouseStockFilter" Data="Filter" Submit="@FormSubmit">
         <RadzenRow style="margin-bottom: 1rem">
-            <MultiReferencePicker @ref="referencePicker" OnChange="ItemReferenceHandler"></MultiReferencePicker>
-            <RadzenRequiredValidator Text="La referencia es requerida" Component="ReferenceId" />
+            <RadzenColumn Size="12">
+                <RadzenStack>
+                    <RadzenFormField Text="Bodega" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenDropDown Data="@Warehouses" TextProperty="WarehouseName" ValueProperty="WarehouseId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            style="display: block; width: 100%" @bind-Value="@WarehouseId" Name="WarehouseId">
+                            </RadzenDropDown>
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
         </RadzenRow>
+        <RadzenRow style="margin-bottom: 1rem">
+            <MultiReferencePicker @ref="referencePicker" OnChange="ItemReferenceHandler"></MultiReferencePicker>
+        </RadzenRow>
+        @if (ValidationError)
+        {
+            <div class="rz-message rz-messages-error">Debe seleccionar al menos un filtro</div>
+        }
         <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
             <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="filter_alt" Text="Filtrar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />
             <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />

@@ -148,105 +148,122 @@
                             </tr>
                         </table>
                         <div class="mt-1">
+                            @if (IsLoadingData)
+                            {
+                                <div class="loading-container">
+                                    <RadzenIcon Icon="refresh" />
+                                    <span>@SharedLocalizer["report:loading-text"]</span>
+                                </div>
+                            }
+
                             @if (ViewModel != null)
                             {
-                                @for (int c = 0; c < ViewModel.Customers.Count(); c++)
+                                @if (ViewModel.Customers?.Any() == true)
                                 {
-                                    var customer = ViewModel.Customers[c];
-                                    <table class="edged">
-                                        <thead>
-                                            <tr class="emphasys-3x font-size-2x no-border">
-                                                <td colspan="3" width="60%">
-                                                    <span class="bold">Cliente: </span>@customer.CustomerName
-                                                </td>
-                                                <td width="20%">
-                                                    <span class="bold">Teléfono: </span>@customer.Phone
-                                                </td>
-                                                <td width="20%">
-                                                    <span class="bold">Fax: </span>@customer.Fax
-                                                </td>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @for (int r = 0; r < customer.Reservations.Count(); r++)
-                                            {
-                                                var reservation = customer.Reservations[r];
-                                                <tr class="emphasys-2x no-border">
-                                                    <td width="20%">
-                                                        <span class="bold">Reserva: </span><br />
-                                                        @reservation.ReservationNumber
+                                    @for (int c = 0; c < ViewModel.Customers.Count(); c++)
+                                    {
+                                        var customer = ViewModel.Customers[c];
+                                        <table class="edged">
+                                            <thead>
+                                                <tr class="emphasys-3x font-size-2x no-border">
+                                                    <td colspan="3" width="60%">
+                                                        <span class="bold">Cliente: </span>@customer.CustomerName
                                                     </td>
                                                     <td width="20%">
-                                                        <span class="bold">Fecha: </span><br />
-                                                        @reservation.ReservationDate.ToString(SharedLocalizer["date:format"])
+                                                        <span class="bold">Teléfono: </span>@customer.Phone
                                                     </td>
                                                     <td width="20%">
-                                                        <span class="bold">Fecha de vencimiento: </span><br />
-                                                        @reservation.ReservationDate.ToString(SharedLocalizer["date:format"])
-                                                    </td>
-                                                    <td width="20%">
-                                                        <span class="bold">Fecha de creación: </span><br />
-                                                        @reservation.CreationDate.ToString(SharedLocalizer["datetime:format"])
-                                                    </td>
-                                                    <td width="20%">
-                                                        <span class="bold">Estado: </span><br />
-                                                        @reservation.Status
+                                                        <span class="bold">Fax: </span>@customer.Fax
                                                     </td>
                                                 </tr>
-                                                @if (!string.IsNullOrEmpty(reservation.Notes))
+                                            </thead>
+                                            <tbody>
+                                                @for (int r = 0; r < customer.Reservations.Count(); r++)
                                                 {
-                                                    <tr>
-                                                        <td colspan="5" width="100%">
-                                                            <span class="bold">Observaciones: </span><br />
-                                                            @reservation.Notes
+                                                    var reservation = customer.Reservations[r];
+                                                    <tr class="emphasys-2x no-border">
+                                                        <td width="20%">
+                                                            <span class="bold">Reserva: </span><br />
+                                                            @reservation.ReservationNumber
+                                                        </td>
+                                                        <td width="20%">
+                                                            <span class="bold">Fecha: </span><br />
+                                                            @reservation.ReservationDate.ToString(SharedLocalizer["date:format"])
+                                                        </td>
+                                                        <td width="20%">
+                                                            <span class="bold">Fecha de vencimiento: </span><br />
+                                                            @reservation.ReservationDate.ToString(SharedLocalizer["date:format"])
+                                                        </td>
+                                                        <td width="20%">
+                                                            <span class="bold">Fecha de creación: </span><br />
+                                                            @reservation.CreationDate.ToString(SharedLocalizer["datetime:format"])
+                                                        </td>
+                                                        <td width="20%">
+                                                            <span class="bold">Estado: </span><br />
+                                                            @reservation.Status
+                                                        </td>
+                                                    </tr>
+                                                    @if (!string.IsNullOrEmpty(reservation.Notes))
+                                                    {
+                                                        <tr>
+                                                            <td colspan="5" width="100%">
+                                                                <span class="bold">Observaciones: </span><br />
+                                                                @reservation.Notes
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                    <tr class="emphasys bold">
+                                                        <td width="20%">
+                                                            Referencia interna
+                                                        </td>
+                                                        <td colspan="2" width="40%">
+                                                            Nombre
+                                                        </td>
+                                                        <td width="20%">
+                                                            Referencia
+                                                        </td>
+                                                        <td width="20%">
+                                                            Cantidad
+                                                        </td>
+                                                    </tr>
+                                                    @foreach (var item in reservation.Items)
+                                                    {
+                                                        @foreach (var reference in item.References)
+                                                        {
+                                                            <tr>
+                                                                <td width="20%">@item.InternalReference</td>
+                                                                <td colspan="2" width="40%">@item.ItemName</td>
+                                                                <td width="20%">@(string.IsNullOrEmpty(reference.ReferenceCode) ? string.Empty : $"{reference.ReferenceCode} - ")@reference.ReferenceName</td>
+                                                                <td width="20%">@(reference.Amount.ToString("N0"))</td>
+                                                            </tr>
+                                                        }
+                                                    }
+                                                    <tr class="emphasys">
+                                                        <td colspan="4" class="bold" width="80%" style="text-align:right">
+                                                            Total reserva:
+                                                        </td>
+                                                        <td width="20%" style="text-align:left">
+                                                            @reservation.Total.ToString("N0")
                                                         </td>
                                                     </tr>
                                                 }
-                                                <tr class="emphasys bold">
-                                                    <td width="20%">
-                                                        Referencia interna
-                                                    </td>
-                                                    <td colspan="2" width="40%">
-                                                        Nombre
-                                                    </td>
-                                                    <td width="20%">
-                                                        Referencia
-                                                    </td>
-                                                    <td width="20%">
-                                                        Cantidad
-                                                    </td>
-                                                </tr>
-                                                @foreach (var item in reservation.Items)
-                                                {
-                                                    @foreach (var reference in item.References)
-                                                    {
-                                                        <tr>
-                                                            <td width="20%">@item.InternalReference</td>
-                                                            <td colspan="2" width="40%">@item.ItemName</td>
-                                                            <td width="20%">@(string.IsNullOrEmpty(reference.ReferenceCode) ? string.Empty : $"{reference.ReferenceCode} - ")@reference.ReferenceName</td>
-                                                            <td width="20%">@(reference.Amount.ToString("N0"))</td>
-                                                        </tr>
-                                                    }
-                                                }
                                                 <tr class="emphasys">
-                                                    <td colspan="4" class="bold" width="80%" style="text-align:right">
-                                                        Total reserva:
+                                                    <td colspan="3" class="bold" width="60%" style="text-align:right">
+                                                        Total cliente:
                                                     </td>
-                                                    <td width="20%" style="text-align:left">
-                                                        @reservation.Total.ToString("N0")
+                                                    <td colspan="2" width="40%" style="text-align:left">
+                                                        @customer.Total.ToString("N0")
                                                     </td>
                                                 </tr>
-                                            }
-                                            <tr class="emphasys">
-                                                <td colspan="3" class="bold" width="60%" style="text-align:right">
-                                                    Total cliente:
-                                                </td>
-                                                <td colspan="2" width="40%" style="text-align:left">
-                                                    @customer.Total.ToString("N0")
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                            </tbody>
+                                        </table>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="no-data-container">
+                                        <h4>@SharedLocalizer["report:no-data"]</h4>
+                                    </div>
                                 }
                             }
                         </div>

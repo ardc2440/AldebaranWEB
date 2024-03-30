@@ -2,9 +2,7 @@
 using Aldebaran.Application.Services.Reports;
 using Aldebaran.Web.Pages.ReportPages.Provider_References.Components;
 using Aldebaran.Web.Pages.ReportPages.Provider_References.ViewModel;
-using Aldebaran.Web.Pages.ReportPages.Warehouse_Stock;
 using Microsoft.AspNetCore.Components;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.JSInterop;
 using Radzen;
@@ -34,7 +32,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References
         protected ProviderReferencesFilter Filter;
         protected ProviderReferencesViewModel ViewModel;
         private bool IsBusy = false;
-
+        private bool IsLoadingData = false;
         protected IEnumerable<ProviderReferenceReport> DataReport { get; set; }
 
         #endregion
@@ -50,12 +48,22 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References
 
         async Task RedrawReport(string filter = "", CancellationToken ct = default)
         {
-            DataReport = await ProviderReferenceReportService.GetProviderReferenceReportDataAsync(filter, ct);
-
-            ViewModel = new ProviderReferencesViewModel()
+            try
             {
-                Providers = await GetProviderReferenceListAsync()
-            };
+                IsLoadingData = true;
+
+                DataReport = await ProviderReferenceReportService.GetProviderReferenceReportDataAsync(filter, ct);
+
+                ViewModel = new ProviderReferencesViewModel()
+                {
+                    Providers = await GetProviderReferenceListAsync()
+                };
+
+            }
+            finally
+            {
+                IsLoadingData = false;
+            }
         }
 
         async Task OpenFilters()

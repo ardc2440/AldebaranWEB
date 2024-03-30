@@ -1,6 +1,4 @@
-﻿using Aldebaran.Application.Services.Models;
-using Aldebaran.Application.Services.Reports;
-using Aldebaran.Web.Pages.ReportPages.Provider_References.ViewModel;
+﻿using Aldebaran.Application.Services.Reports;
 using Aldebaran.Web.Pages.ReportPages.Warehouse_Stock.Components;
 using Aldebaran.Web.Pages.ReportPages.Warehouse_Stock.ViewModel;
 using Microsoft.AspNetCore.Components;
@@ -33,7 +31,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Stock
         protected WarehouseStockFilter Filter;
         protected WarehouseStockViewModel ViewModel;
         private bool IsBusy = false;
-
+        private bool IsLoadingData = false;
         private IEnumerable<Application.Services.Models.Reports.WarehouseStockReport> DataReport { get; set; }
         #endregion
 
@@ -48,12 +46,23 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Stock
 
         async Task RedrawReport(string filter="", CancellationToken ct = default)
         {
-            DataReport = await WarehouseStockReportService.GetWarehouseStockReportDataAsync(filter, ct);
-
-            ViewModel = new WarehouseStockViewModel()
+            try
             {
-                Warehouses = (await GetReportWarehousesAsync()).ToList()
-            };
+                IsLoadingData = true;
+
+                DataReport = await WarehouseStockReportService.GetWarehouseStockReportDataAsync(filter, ct);
+
+                ViewModel = new WarehouseStockViewModel()
+                {
+                    Warehouses = (await GetReportWarehousesAsync()).ToList()
+                };
+
+            }
+            finally
+            {
+                IsLoadingData = false;
+            }
+
         }
 
         async Task<string> SetReportFilter(WarehouseStockFilter filter, CancellationToken ct = default)

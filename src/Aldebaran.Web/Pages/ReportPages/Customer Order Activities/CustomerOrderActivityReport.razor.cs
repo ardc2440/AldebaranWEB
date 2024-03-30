@@ -1,7 +1,11 @@
-﻿using Aldebaran.Application.Services;
+﻿using Aldebaran.Application.Services.Reports;
 using Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities.Components;
 using Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities.ViewModel;
+using Aldebaran.Web.Pages.ReportPages.Customer_Orders.ViewModel;
+using Humanizer;
 using Microsoft.AspNetCore.Components;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.JSInterop;
 using Radzen;
 
@@ -23,1069 +27,86 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
         protected IJSRuntime JSRuntime { get; set; }
 
         [Inject]
-        protected IReferencesWarehouseService ReferencesWarehouseService { get; set; }
+        protected NavigationManager NavigationManager { get; set; }
 
         [Inject]
-        protected NavigationManager NavigationManager { get; set; }
+        protected ICustomerOrderActivityReportService CustomerOrderActivityReportService { get; set; }
         #endregion
 
         #region Variables
         protected CustomerOrderActivityFilter Filter;
         protected CustomerOrderActivityViewModel ViewModel;
         private bool IsBusy = false;
+        private bool IsLoadingData = false;
+
+        private IEnumerable<Application.Services.Models.Reports.CustomerOrderActivityReport> DataReport { get; set; }
         #endregion
 
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            ViewModel = new CustomerOrderActivityViewModel
-            {
-                Customers = new List<CustomerOrderActivityViewModel.Customer> {
-                    new CustomerOrderActivityViewModel.Customer {
-                        CustomerName = "Javier Linares",
-                        Phone = "3168849474",
-                        Fax = "12435643",
-                        Orders = new List<CustomerOrderActivityViewModel.Order>
-                        {
-                            new CustomerOrderActivityViewModel.Order
-                            {
-                                CreationDate = DateTime.Now,
-                                EstimatedDeliveryDate = DateTime.Now.AddDays(30),
-                                OrderDate = DateTime.Now.AddDays(1),
-                                OrderNumber = "0000018345",
-                                Status = "Vencida",
-                                InternalNotes = "Atendido por Viviana Mora",
-                                CustomerNotes = "Dejar en recepcion",
-                                References = new List<CustomerOrderActivityViewModel.Reference>
-                                {
-                                    new CustomerOrderActivityViewModel.Reference
-                                    {
-                                        ItemReference="5000SM",
-                                        ItemName="GILDAN CAMISETA T-SHIRT",
-                                        ReferenceCode="032",
-                                        ReferenceName="AZUL MARINO",
-                                        Amount=358,
-                                        DeliveredAmount=100,
-                                        InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-1),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-3),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
-                                    },
-                                    new CustomerOrderActivityViewModel.Reference
-                                    {
-                                        ItemReference="5000SM",
-                                        ItemName="GILDAN CAMISETA T-SHIRT",
-                                        ReferenceCode="032",
-                                        ReferenceName="AZUL MARINO",
-                                        Amount=358,
-                                        DeliveredAmount=100,
-                                        InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-1),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-3),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
-                                    },
-                                    new CustomerOrderActivityViewModel.Reference
-                                    {
-                                        ItemReference="5000SM",
-                                        ItemName="GILDAN CAMISETA T-SHIRT",
-                                        ReferenceCode="032",
-                                        ReferenceName="AZUL MARINO",
-                                        Amount=358,
-                                        DeliveredAmount=100,
-                                        InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                        }
-                                    },
-                                    new CustomerOrderActivityViewModel.Reference
-                                    {
-                                        ItemReference="5000SM",
-                                        ItemName="GILDAN CAMISETA T-SHIRT",
-                                        ReferenceCode="032",
-                                        ReferenceName="AZUL MARINO",
-                                        Amount=358,
-                                        DeliveredAmount=100,
-                                        InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
-                                    },
-                                }
-                            },
-                            new CustomerOrderActivityViewModel.Order
-                            {
-                                CreationDate = DateTime.Now,
-                                EstimatedDeliveryDate = DateTime.Now.AddDays(30),
-                                OrderDate = DateTime.Now.AddDays(1),
-                                OrderNumber = "0000018345",
-                                Status = "Vencida",
-                                InternalNotes = "Atendido por Viviana Mora",
-                                CustomerNotes = "Dejar en recepcion",
-                                References = new List<CustomerOrderActivityViewModel.Reference>
-                                {
-                                    new CustomerOrderActivityViewModel.Reference
-                                    {
-                                        ItemReference="5000SM",
-                                        ItemName="GILDAN CAMISETA T-SHIRT",
-                                        ReferenceCode="032",
-                                        ReferenceName="AZUL MARINO",
-                                        Amount=358,
-                                        DeliveredAmount=100,
-                                        InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-1),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-3),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
-                                    },
-                                    new CustomerOrderActivityViewModel.Reference
-                                    {
-                                        ItemReference="5000SM",
-                                        ItemName="GILDAN CAMISETA T-SHIRT",
-                                        ReferenceCode="032",
-                                        ReferenceName="AZUL MARINO",
-                                        Amount=358,
-                                        DeliveredAmount=100,
-                                        InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-1),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-3),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
-                                    },
-                                    new CustomerOrderActivityViewModel.Reference
-                                    {
-                                        ItemReference="5000SM",
-                                        ItemName="GILDAN CAMISETA T-SHIRT",
-                                        ReferenceCode="032",
-                                        ReferenceName="AZUL MARINO",
-                                        Amount=358,
-                                        DeliveredAmount=100,
-                                        InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                        }
-                                    },
-                                    new CustomerOrderActivityViewModel.Reference
-                                    {
-                                        ItemReference="5000SM",
-                                        ItemName="GILDAN CAMISETA T-SHIRT",
-                                        ReferenceCode="032",
-                                        ReferenceName="AZUL MARINO",
-                                        Amount=358,
-                                        DeliveredAmount=100,
-                                        InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
-                                    },
-                                }
-                            },
-                        }
-                    },
-                    new CustomerOrderActivityViewModel.Customer {
-                        CustomerName = "Javier Linares",
-                        Phone = "3168849474",
-                        Fax = "12435643",
-                        Orders = new List<CustomerOrderActivityViewModel.Order>
-                        {
-                            new CustomerOrderActivityViewModel.Order
-                            {
-                                CreationDate = DateTime.Now,
-                                EstimatedDeliveryDate = DateTime.Now.AddDays(30),
-                                OrderDate = DateTime.Now.AddDays(1),
-                                OrderNumber = "0000018345",
-                                Status = "Vencida",
-                                InternalNotes = "Atendido por Viviana Mora",
-                                CustomerNotes = "Dejar en recepcion",
-                                References = new List<CustomerOrderActivityViewModel.Reference>
-                                {
-                                    new CustomerOrderActivityViewModel.Reference
-                                    {
-                                        ItemReference="5000SM",
-                                        ItemName="GILDAN CAMISETA T-SHIRT",
-                                        ReferenceCode="032",
-                                        ReferenceName="AZUL MARINO",
-                                        Amount=358,
-                                        DeliveredAmount=100,
-                                        InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-1),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-3),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
-                                    },
-                                    new CustomerOrderActivityViewModel.Reference
-                                    {
-                                        ItemReference="5000SM",
-                                        ItemName="GILDAN CAMISETA T-SHIRT",
-                                        ReferenceCode="032",
-                                        ReferenceName="AZUL MARINO",
-                                        Amount=358,
-                                        DeliveredAmount=100,
-                                        InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-1),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-3),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
-                                    },
-                                    new CustomerOrderActivityViewModel.Reference
-                                    {
-                                        ItemReference="5000SM",
-                                        ItemName="GILDAN CAMISETA T-SHIRT",
-                                        ReferenceCode="032",
-                                        ReferenceName="AZUL MARINO",
-                                        Amount=358,
-                                        DeliveredAmount=100,
-                                        InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                        }
-                                    },
-                                    new CustomerOrderActivityViewModel.Reference
-                                    {
-                                        ItemReference="5000SM",
-                                        ItemName="GILDAN CAMISETA T-SHIRT",
-                                        ReferenceCode="032",
-                                        ReferenceName="AZUL MARINO",
-                                        Amount=358,
-                                        DeliveredAmount=100,
-                                        InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
-                                    },
-                                }
-                            },
-                            new CustomerOrderActivityViewModel.Order
-                            {
-                                CreationDate = DateTime.Now,
-                                EstimatedDeliveryDate = DateTime.Now.AddDays(30),
-                                OrderDate = DateTime.Now.AddDays(1),
-                                OrderNumber = "0000018345",
-                                Status = "Vencida",
-                                InternalNotes = "Atendido por Viviana Mora",
-                                CustomerNotes = "Dejar en recepcion",
-                                References = new List<CustomerOrderActivityViewModel.Reference>
-                                {
-                                    new CustomerOrderActivityViewModel.Reference
-                                    {
-                                        ItemReference="5000SM",
-                                        ItemName="GILDAN CAMISETA T-SHIRT",
-                                        ReferenceCode="032",
-                                        ReferenceName="AZUL MARINO",
-                                        Amount=358,
-                                        DeliveredAmount=100,
-                                        InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-1),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-3),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
-                                    },
-                                    new CustomerOrderActivityViewModel.Reference
-                                    {
-                                        ItemReference="5000SM",
-                                        ItemName="GILDAN CAMISETA T-SHIRT",
-                                        ReferenceCode="032",
-                                        ReferenceName="AZUL MARINO",
-                                        Amount=358,
-                                        DeliveredAmount=100,
-                                        InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-1),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-3),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
-                                    },
-                                    new CustomerOrderActivityViewModel.Reference
-                                    {
-                                        ItemReference="5000SM",
-                                        ItemName="GILDAN CAMISETA T-SHIRT",
-                                        ReferenceCode="032",
-                                        ReferenceName="AZUL MARINO",
-                                        Amount=358,
-                                        DeliveredAmount=100,
-                                        InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                        }
-                                    },
-                                    new CustomerOrderActivityViewModel.Reference
-                                    {
-                                        ItemReference="5000SM",
-                                        ItemName="GILDAN CAMISETA T-SHIRT",
-                                        ReferenceCode="032",
-                                        ReferenceName="AZUL MARINO",
-                                        Amount=358,
-                                        DeliveredAmount=100,
-                                        InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
-                                    },
-                                }
-                            },
-                        }
-                    },
-                    new CustomerOrderActivityViewModel.Customer {
-                        CustomerName = "Javier Linares",
-                        Phone = "3168849474",
-                        Fax = "12435643",
-                        Orders = new List<CustomerOrderActivityViewModel.Order>
-                        {
-                            new CustomerOrderActivityViewModel.Order
-                            {
-                                CreationDate = DateTime.Now,
-                                EstimatedDeliveryDate = DateTime.Now.AddDays(30),
-                                OrderDate = DateTime.Now.AddDays(1),
-                                OrderNumber = "0000018345",
-                                Status = "Vencida",
-                                InternalNotes = "Atendido por Viviana Mora",
-                                CustomerNotes = "Dejar en recepcion",
-                                References = new List<CustomerOrderActivityViewModel.Reference>
-                                {
-                                    new CustomerOrderActivityViewModel.Reference
-                                    {
-                                        ItemReference="5000SM",
-                                        ItemName="GILDAN CAMISETA T-SHIRT",
-                                        ReferenceCode="032",
-                                        ReferenceName="AZUL MARINO",
-                                        Amount=358,
-                                        DeliveredAmount=100,
-                                        InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-1),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-3),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
-                                    },
-                                    new CustomerOrderActivityViewModel.Reference
-                                    {
-                                        ItemReference="5000SM",
-                                        ItemName="GILDAN CAMISETA T-SHIRT",
-                                        ReferenceCode="032",
-                                        ReferenceName="AZUL MARINO",
-                                        Amount=358,
-                                        DeliveredAmount=100,
-                                        InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-1),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-3),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
-                                    },
-                                    new CustomerOrderActivityViewModel.Reference
-                                    {
-                                        ItemReference="5000SM",
-                                        ItemName="GILDAN CAMISETA T-SHIRT",
-                                        ReferenceCode="032",
-                                        ReferenceName="AZUL MARINO",
-                                        Amount=358,
-                                        DeliveredAmount=100,
-                                        InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                        }
-                                    },
-                                    new CustomerOrderActivityViewModel.Reference
-                                    {
-                                        ItemReference="5000SM",
-                                        ItemName="GILDAN CAMISETA T-SHIRT",
-                                        ReferenceCode="032",
-                                        ReferenceName="AZUL MARINO",
-                                        Amount=358,
-                                        DeliveredAmount=100,
-                                        InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
-                                    },
-                                }
-                            },
-                            new CustomerOrderActivityViewModel.Order
-                            {
-                                CreationDate = DateTime.Now,
-                                EstimatedDeliveryDate = DateTime.Now.AddDays(30),
-                                OrderDate = DateTime.Now.AddDays(1),
-                                OrderNumber = "0000018345",
-                                Status = "Vencida",
-                                InternalNotes = "Atendido por Viviana Mora",
-                                CustomerNotes = "Dejar en recepcion",
-                                References = new List<CustomerOrderActivityViewModel.Reference>
-                                {
-                                    new CustomerOrderActivityViewModel.Reference
-                                    {
-                                        ItemReference="5000SM",
-                                        ItemName="GILDAN CAMISETA T-SHIRT",
-                                        ReferenceCode="032",
-                                        ReferenceName="AZUL MARINO",
-                                        Amount=358,
-                                        DeliveredAmount=100,
-                                        InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-1),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-3),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
-                                    },
-                                    new CustomerOrderActivityViewModel.Reference
-                                    {
-                                        ItemReference="5000SM",
-                                        ItemName="GILDAN CAMISETA T-SHIRT",
-                                        ReferenceCode="032",
-                                        ReferenceName="AZUL MARINO",
-                                        Amount=358,
-                                        DeliveredAmount=100,
-                                        InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-1),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-3),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
-                                    },
-                                    new CustomerOrderActivityViewModel.Reference
-                                    {
-                                        ItemReference="5000SM",
-                                        ItemName="GILDAN CAMISETA T-SHIRT",
-                                        ReferenceCode="032",
-                                        ReferenceName="AZUL MARINO",
-                                        Amount=358,
-                                        DeliveredAmount=100,
-                                        InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                        }
-                                    },
-                                    new CustomerOrderActivityViewModel.Reference
-                                    {
-                                        ItemReference="5000SM",
-                                        ItemName="GILDAN CAMISETA T-SHIRT",
-                                        ReferenceCode="032",
-                                        ReferenceName="AZUL MARINO",
-                                        Amount=358,
-                                        DeliveredAmount=100,
-                                        InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
-                                    },
-                                }
-                            },
-                        }
-                    },
-                    new CustomerOrderActivityViewModel.Customer {
-                        CustomerName = "Javier Linares",
-                        Phone = "3168849474",
-                        Fax = "12435643",
-                        Orders = new List<CustomerOrderActivityViewModel.Order>
-                        {
-                            new CustomerOrderActivityViewModel.Order
-                            {
-                                CreationDate = DateTime.Now,
-                                EstimatedDeliveryDate = DateTime.Now.AddDays(30),
-                                OrderDate = DateTime.Now.AddDays(1),
-                                OrderNumber = "0000018345",
-                                Status = "Vencida",
-                                InternalNotes = "Atendido por Viviana Mora",
-                                CustomerNotes = "Dejar en recepcion",
-                                References = new List<CustomerOrderActivityViewModel.Reference>
-                                {
-                                    new CustomerOrderActivityViewModel.Reference
-                                    {
-                                        ItemReference="5000SM",
-                                        ItemName="GILDAN CAMISETA T-SHIRT",
-                                        ReferenceCode="032",
-                                        ReferenceName="AZUL MARINO",
-                                        Amount=358,
-                                        DeliveredAmount=100,
-                                        InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-1),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-3),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
-                                    },
-                                    new CustomerOrderActivityViewModel.Reference
-                                    {
-                                        ItemReference="5000SM",
-                                        ItemName="GILDAN CAMISETA T-SHIRT",
-                                        ReferenceCode="032",
-                                        ReferenceName="AZUL MARINO",
-                                        Amount=358,
-                                        DeliveredAmount=100,
-                                        InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-1),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-3),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
-                                    },
-                                    new CustomerOrderActivityViewModel.Reference
-                                    {
-                                        ItemReference="5000SM",
-                                        ItemName="GILDAN CAMISETA T-SHIRT",
-                                        ReferenceCode="032",
-                                        ReferenceName="AZUL MARINO",
-                                        Amount=358,
-                                        DeliveredAmount=100,
-                                        InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                        }
-                                    },
-                                    new CustomerOrderActivityViewModel.Reference
-                                    {
-                                        ItemReference="5000SM",
-                                        ItemName="GILDAN CAMISETA T-SHIRT",
-                                        ReferenceCode="032",
-                                        ReferenceName="AZUL MARINO",
-                                        Amount=358,
-                                        DeliveredAmount=100,
-                                        InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
-                                    },
-                                }
-                            },
-                            new CustomerOrderActivityViewModel.Order
-                            {
-                                CreationDate = DateTime.Now,
-                                EstimatedDeliveryDate = DateTime.Now.AddDays(30),
-                                OrderDate = DateTime.Now.AddDays(1),
-                                OrderNumber = "0000018345",
-                                Status = "Vencida",
-                                InternalNotes = "Atendido por Viviana Mora",
-                                CustomerNotes = "Dejar en recepcion",
-                                References = new List<CustomerOrderActivityViewModel.Reference>
-                                {
-                                    new CustomerOrderActivityViewModel.Reference
-                                    {
-                                        ItemReference="5000SM",
-                                        ItemName="GILDAN CAMISETA T-SHIRT",
-                                        ReferenceCode="032",
-                                        ReferenceName="AZUL MARINO",
-                                        Amount=358,
-                                        DeliveredAmount=100,
-                                        InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-1),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-3),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
-                                    },
-                                    new CustomerOrderActivityViewModel.Reference
-                                    {
-                                        ItemReference="5000SM",
-                                        ItemName="GILDAN CAMISETA T-SHIRT",
-                                        ReferenceCode="032",
-                                        ReferenceName="AZUL MARINO",
-                                        Amount=358,
-                                        DeliveredAmount=100,
-                                        InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-1),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            },
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now.AddDays(-3),
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
-                                    },
-                                    new CustomerOrderActivityViewModel.Reference
-                                    {
-                                        ItemReference="5000SM",
-                                        ItemName="GILDAN CAMISETA T-SHIRT",
-                                        ReferenceCode="032",
-                                        ReferenceName="AZUL MARINO",
-                                        Amount=358,
-                                        DeliveredAmount=100,
-                                        InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                        }
-                                    },
-                                    new CustomerOrderActivityViewModel.Reference
-                                    {
-                                        ItemReference="5000SM",
-                                        ItemName="GILDAN CAMISETA T-SHIRT",
-                                        ReferenceCode="032",
-                                        ReferenceName="AZUL MARINO",
-                                        Amount=358,
-                                        DeliveredAmount=100,
-                                        InProcessAmount=258,
-                                        Status="Entrega parcial",
-                                        Activities = new List<CustomerOrderActivityViewModel.Activity>
-                                        {
-                                            new CustomerOrderActivityViewModel.Activity
-                                            {
-                                                CreationDate = DateTime.Now,
-                                                AreaName="Analisis de inventario",
-                                                EmployeeName="Javier Linares",
-                                                Notes="Cliente recogera el pedido",
-                                                Status="Entregado"
-                                            }
-                                        }
-                                    },
-                                }
-                            },
-                        }
-                    },
-                }
-            };
+            await RedrawReportAsync();
         }
         #endregion
 
         #region Events
+
+        async Task RedrawReportAsync(string filter = "", CancellationToken ct = default)
+        {
+            try
+            {
+                IsLoadingData = true;
+
+                DataReport = await CustomerOrderActivityReportService.GetCustomerOrderActivityReportDataAsync(filter, ct);
+
+                ViewModel = new CustomerOrderActivityViewModel
+                {
+                    Customers = await GetCustomersAsync(ct)
+                };
+            }
+            finally
+            {
+                IsLoadingData = false;
+            }
+        }
+
+        async Task<string> SetReportFilterAsync(CustomerOrderActivityFilter filter, CancellationToken ct = default)
+        {
+            var filterResult = string.Empty;
+
+            if (filter.CreationDateFrom.HasValue)
+                filterResult += $"@CreationDateFrom = '{(DateTime)filter.CreationDateFrom:yyyyMMdd}', @CreationDateTo = '{(DateTime)filter.CreationDateTo:yyyyMMdd}'";
+
+            if (filter.OrderDateFrom.HasValue)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@OrderDateFrom = '{(DateTime)filter.OrderDateFrom:yyyyMMdd}', @OrderDateTo = '{(DateTime)filter.OrderDateTo:yyyyMMdd}'";
+
+            if (filter.EstimatedDeliveryDateFrom.HasValue)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@EstimatedDeliveryDateFrom = '{(DateTime)filter.EstimatedDeliveryDateFrom:yyyyMMdd}', @EstimatedDeliveryDateTo = '{(DateTime)filter.EstimatedDeliveryDateTo:yyyyMMdd}'";
+
+            if (!filter.OrderNumber.IsNullOrEmpty())
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@OrderNumber = '{filter.OrderNumber}'";
+
+            if (filter.StatusDocumentTypeId.HasValue)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@StatusDocumentTypeId = {filter.StatusDocumentTypeId}";
+
+            if (filter.ItemReferences.Count > 0)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReferenceIds = '{String.Join(",", Filter.ItemReferences.Select(s => s.ReferenceId))}'";
+
+            if (filter.CustomerId.HasValue)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@CustomerId = {filter.CustomerId}";
+
+            return filterResult;
+        }
+
         async Task OpenFilters()
         {
             var result = await DialogService.OpenAsync<CustomerOrderActivityReportFilter>("Filtrar reporte de actividades de pedidos", parameters: new Dictionary<string, object> { { "Filter", (CustomerOrderActivityFilter)Filter?.Clone() } }, options: new DialogOptions { Width = "800px" });
             if (result == null)
                 return;
             Filter = (CustomerOrderActivityFilter)result;
-            //Todo: Aplicar filtro de refenrecias al ViewModel
+
+            await RedrawReportAsync(await SetReportFilterAsync(Filter));
+
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
         }
         async Task RemoveFilters()
@@ -1093,7 +114,9 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
             if (await DialogService.Confirm("Está seguro que desea eliminar los filtros establecidos?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
             {
                 Filter = null;
-                //Todo: Remover filtro de refenrecias al ViewModel
+
+                await RedrawReportAsync();
+
                 await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
             }
         }
@@ -1109,6 +132,120 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
         {
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink");
         }
+        #endregion
+
+        #region Fill Data Report
+        async Task<List<CustomerOrderActivityViewModel.Customer>> GetCustomersAsync(CancellationToken ct = default)
+        {
+            var customers = new List<CustomerOrderActivityViewModel.Customer>();
+
+            foreach (var customer in DataReport.Select(s => new { s.CustomerId, s.CustomerName, s.Phone, s.Fax })
+                                        .DistinctBy(d => d.CustomerId)
+                                        .OrderBy(o => o.CustomerName))
+            {
+                customers.Add(new CustomerOrderActivityViewModel.Customer
+                {
+                    CustomerName = customer.CustomerName,
+                    Fax = customer.Fax,
+                    Phone = customer.Phone,
+                    Orders = await GetCustomerOrdersAsync(customer.CustomerId, ct)
+                });
+            }
+
+            return customers;
+        }
+
+        async Task<List<CustomerOrderActivityViewModel.Order>> GetCustomerOrdersAsync(int customerId, CancellationToken ct = default)
+        {
+            var orders = new List<CustomerOrderActivityViewModel.Order>();
+
+            foreach (var order in DataReport.Where(w => w.CustomerId == customerId).Select(s => new { s.OrderId, s.OrderNumber, s.CreationDate, s.OrderDate, s.EstimatedDeliveryDate, s.StatusOrder, s.InternalNotes, s.CustomerNotes })
+                                    .DistinctBy(d => d.OrderId)
+                                    .OrderBy(o => o.OrderNumber))
+
+            {
+                orders.Add(new CustomerOrderActivityViewModel.Order
+                {
+                    CreationDate = order.CreationDate,
+                    Status = order.StatusOrder,
+                    OrderNumber = order.OrderNumber,
+                    CustomerNotes = order.CustomerNotes,
+                    EstimatedDeliveryDate = order.EstimatedDeliveryDate,
+                    InternalNotes = order.InternalNotes,
+                    OrderDate = order.OrderDate,
+                    Activities = await GetOrderActivitiesAsync(order.OrderId, ct),
+                    References = await GetOrderReferencesAsync(order.OrderId, ct)
+                });
+            }
+
+            return orders;
+
+        }
+
+        async Task<List<CustomerOrderActivityViewModel.Activity>> GetOrderActivitiesAsync(int orderId, CancellationToken ct = default)
+        {
+            var activities = new List<CustomerOrderActivityViewModel.Activity>();
+
+            foreach (var activity in DataReport.Where(w => w.OrderId == orderId && !(w.ActivityId == 0)).Select(s => new { s.ActivityId, s.CreationDateActivity, s.AreaName, s.EmployeeName, s.Notes })
+                                        .DistinctBy(d => d.ActivityId)
+                                        .OrderBy(o => o.CreationDateActivity))
+            {
+                activities.Add(new CustomerOrderActivityViewModel.Activity
+                {
+                    AreaName = activity.AreaName,
+                    CreationDate = activity.CreationDateActivity,
+                    EmployeeName = activity.EmployeeName,
+                    Notes = activity.Notes,
+                    Details = await GetActivityDetailsAsync(activity.ActivityId, ct)
+                });
+            }
+
+            return activities;
+        }
+
+        async Task<List<CustomerOrderActivityViewModel.Reference>> GetOrderReferencesAsync(int orderId, CancellationToken ct = default)
+        {
+            var references = new List<CustomerOrderActivityViewModel.Reference>();
+
+            foreach (var reference in DataReport.Where(w => w.OrderId == orderId).Select(s => new { s.ReferenceId, s.ItemReference, s.ItemName, s.ReferenceCode, s.ReferenceName, s.Amount, s.DeliveredAmount, s.InProcessAmount, s.StatusDetail })
+                                        .DistinctBy(d => d.ReferenceId)
+                                        .OrderBy(o => o.ItemName)
+                                        .OrderBy(o => o.ReferenceName))
+            {
+                references.Add(new CustomerOrderActivityViewModel.Reference
+                {
+                    Amount = reference.Amount,
+                    DeliveredAmount = reference.DeliveredAmount,
+                    InProcessAmount = reference.InProcessAmount,
+                    ItemName = reference.ItemName,
+                    ItemReference = reference.ItemReference,
+                    ReferenceCode = reference.ReferenceCode,
+                    ReferenceName = reference.ReferenceName,
+                    Status = reference.StatusDetail
+                });
+            }
+
+            return references;
+        }
+
+        async Task<List<CustomerOrderActivityViewModel.ActivityDetail>> GetActivityDetailsAsync(int activityId, CancellationToken ct = default)
+        {
+            var activityDetails = new List<CustomerOrderActivityViewModel.ActivityDetail>();
+
+            foreach (var activityDetail in DataReport.Where(w => w.ActivityId == activityId && !w.ActivityType.IsNullOrEmpty()).Select(s => new { s.ActivityType, s.EmployeNameDetail })
+                                        .DistinctBy(d => d.ActivityType)
+                                        .OrderBy(o => o.ActivityType))
+            {
+                activityDetails.Add(new CustomerOrderActivityViewModel.ActivityDetail
+                {
+                    ActivityTypeName = activityDetail.ActivityType,
+                    EmployeeName = activityDetail.EmployeNameDetail
+                });
+            }
+
+            return activityDetails;
+        }
+
         #endregion
     }
 }

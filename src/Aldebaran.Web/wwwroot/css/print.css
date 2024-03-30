@@ -4,6 +4,32 @@
     line-height: 1.42857143 !important;
 }
 
+    .report .no-data-container,
+    .report .loading-container {
+        min-height: 600px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        color: #a7a7a7;
+    }
+
+        .report .no-data-container h4 {
+            padding: 0 !important;
+            margin: 0 !important;
+            font-size: 1.5em !important;
+            line-height: normal !important;
+            font-weight: 600 !important;
+            color: #505050;
+        }
+
+        .report .loading-container > i {
+            animation: rotation 700ms linear infinite;
+            font-size: 3em !important;
+            color: #505050;
+        }
+
     .report * {
         font-size: 12px !important;
     }

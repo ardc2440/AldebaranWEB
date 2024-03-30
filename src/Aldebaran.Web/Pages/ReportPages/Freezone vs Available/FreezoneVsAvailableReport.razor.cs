@@ -28,6 +28,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Freezone_vs_Available
         protected FreezoneVsAvailableFilter Filter;
         protected FreezoneVsAvailableViewModel ViewModel;
         private bool IsBusy = false;
+        private bool IsLoadingData = false;
         #endregion
 
         #region Overrides

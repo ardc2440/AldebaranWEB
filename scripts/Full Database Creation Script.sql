@@ -2125,3 +2125,120 @@ BEGIN
 	   AND (a.ORDER_NUMBER LIKE '%'+@OrderNumber+'%' OR @OrderNumber IS NULL)
 END 
 GO
+
+CREATE OR ALTER PROCEDURE SP_GET_CUSTOMER_ORDER_ACTIVITY_REPORT
+	@OrderNumber VARCHAR(10) = NULL,
+	@CreationDateFrom DATE = NULL,
+	@CreationDateTo DATE = NULL,
+	@OrderDateFrom DATE = NULL,
+	@OrderDateTo DATE = NULL,
+	@EstimatedDeliveryDateFrom DATE = NULL,
+	@EstimatedDeliveryDateTo DATE = NULL,
+	@StatusDocumentTypeId SMALLINT = NULL,
+    @CustomerId INT = NULL,
+	@ReferenceIds VARCHAR(MAX) = ''
+AS
+BEGIN		
+	DECLARE @FinishedStatus TABLE (STATUS_DOCUMENT_TYPE_ID INT)
+	
+	INSERT INTO @FinishedStatus
+		 SELECT STATUS_DOCUMENT_TYPE_ID
+		   FROM status_document_types a
+		   JOIN document_types b ON b.DOCUMENT_TYPE_ID = a.DOCUMENT_TYPE_ID
+		  WHERE DOCUMENT_TYPE_CODE = 'P' AND STATUS_ORDER IN (5,6)
+
+	DECLARE @FilterReferences TABLE (ReferenceId INT)
+	
+	IF LEN(RTRIM(@ReferenceIds)) > 0
+		INSERT INTO @FilterReferences
+			 SELECT value FROM STRING_SPLIT(@ReferenceIds,',')
+	ELSE
+		INSERT INTO @FilterReferences
+			 SELECT REFERENCE_ID 
+			   FROM item_references
+	
+	DECLARE @Activities TABLE 
+	(
+		CustomerOrderId INT, 
+		ActivityId INT, 
+		CreationDateActivity DATE, 
+		AreaName VARCHAR(30), 
+		EmployeeName VARCHAR(100), 
+		Notes VARCHAR(255), 
+		ActivityType VARCHAR(30), 
+		EmployeNameDetail VARCHAR(100)
+	)
+	
+	DECLARE @CustomerOrders TABLE 
+	(
+		CustomerId INT, 
+		CustomerName VARCHAR(50), 
+		Phone VARCHAR(55), 
+		Fax VARCHAR(25),
+		OrderId INT, 
+		OrderNumber VARCHAR(10), 
+		CreationDate DATE, 
+		OrderDate DATE, 
+		EstimatedDeliveryDate DATE, 
+		StatusOrder VARCHAR(30),
+		InternalNotes VARCHAR(255), 
+		CustomerNotes VARCHAR(255), 
+		ReferenceId INT, 
+		ItemReference VARCHAR(30), 
+		ItemName VARCHAR(30), 
+		ReferenceCode VARCHAR(30), 
+		ReferenceName VARCHAR(30),
+		Amount INT, 
+		DeliveredAmount INT, 
+		InProcessAmount INT, 
+		StatusDetail VARCHAR(30)
+	)
+
+	INSERT INTO @CustomerOrders
+	     SELECT a.CUSTOMER_ID CustomerId, a.CUSTOMER_NAME CustomerName, (ISNULL(a.CELL_PHONE+', ','')+ISNULL(a.PHONE2+', ','')+ISNULL(a.PHONE1,'')) Phone, a.FAX Fax,
+	     	    b.CUSTOMER_ORDER_ID OrderId, b.ORDER_NUMBER OrderNumber, b.CREATION_DATE CreationDate, b.ORDER_DATE OrderDate, b.ESTIMATED_DELIVERY_DATE EstimatedDeliveryDate, c.STATUS_DOCUMENT_TYPE_NAME StatusOrder,
+	     	    b.INTERNAL_NOTES InternalNotes, b.CUSTOMER_NOTES CustomerNotes, e.REFERENCE_ID, f.INTERNAL_REFERENCE ItemReference, f.ITEM_NAME ItemName, e.REFERENCE_CODE ReferenceCode, e.REFERENCE_NAME ReferenceName,
+	     	    d.REQUESTED_QUANTITY Amount, d.DELIVERED_QUANTITY DeliveredAmount, d.PROCESSED_QUANTITY InProcessAmount, 
+	     	    CASE 
+	     			WHEN EXISTS (SELECT 1 FROM @FinishedStatus WHERE STATUS_DOCUMENT_TYPE_ID = b.STATUS_DOCUMENT_TYPE_ID) THEN 
+	     				c.STATUS_DOCUMENT_TYPE_NAME
+	     	 		WHEN d.DELIVERED_QUANTITY = 0 and d.PROCESSED_QUANTITY = 0 THEN 
+	     				'Pendiente'
+	     			WHEN d.DELIVERED_QUANTITY = d.REQUESTED_QUANTITY THEN 
+	     				'Totalmente atendido'
+	     			ELSE	
+	     				'Parcialmente atendido'
+	     		END StatusDetail
+	       FROM customers a
+	       JOIN customer_orders b ON b.CUSTOMER_ID = a.CUSTOMER_ID
+	       JOIN status_document_types c ON c.STATUS_DOCUMENT_TYPE_ID = b.STATUS_DOCUMENT_TYPE_ID
+	       JOIN customer_order_details d ON d.CUSTOMER_ORDER_ID = b.CUSTOMER_ORDER_ID
+	       JOIN item_references e ON e.REFERENCE_ID = d.REFERENCE_ID
+	       JOIN items f ON f.ITEM_ID = e.ITEM_ID
+		  WHERE EXISTS (SELECT 1 FROM @FilterReferences fr WHERE fr.ReferenceId = e.REFERENCE_ID)
+		    AND (b.ORDER_NUMBER LIKE '%'+@OrderNumber+'%' OR @OrderNumber IS NULL)
+			AND (b.CREATION_DATE BETWEEN @CreationDateFrom AND @CreationDateTo OR @CreationDateFrom IS NULL)
+			AND (b.ORDER_DATE BETWEEN @OrderDateFrom AND @OrderDateTo OR @OrderDateFrom IS NULL)
+			AND (b.ESTIMATED_DELIVERY_DATE BETWEEN @EstimatedDeliveryDateFrom AND @EstimatedDeliveryDateTo OR @EstimatedDeliveryDateFrom IS NULL)
+			AND (b.STATUS_DOCUMENT_TYPE_ID = @StatusDocumentTypeId OR @StatusDocumentTypeId IS NULL)
+			AND (a.CUSTOMER_ID = @CustomerId OR @CustomerId IS NULL)
+					   
+	INSERT INTO @Activities 
+		 SELECT g.CUSTOMER_ORDER_ID CustomerOrderId, g.CUSTOMER_ORDER_ACTIVITY_ID ActivityId, g.ACTIVITY_DATE CreationDateActivity, i.AREA_NAME AreaName, j.FULL_NAME EmployeeName, g.NOTES Notes, 
+			    k.ACTIVITY_TYPE_NAME ActivityType, l.FULL_NAME EmployeNameDetail
+		   FROM customer_order_activities g 
+		   JOIN areas i ON i.AREA_ID = g.AREA_ID
+	       JOIN employees j ON j.EMPLOYEE_ID = g.EMPLOYEE_ID
+		   LEFT JOIN customer_order_activity_details h ON h.CUSTOMER_ORDER_ACTIVITY_ID = g.CUSTOMER_ORDER_ACTIVITY_ID
+	       LEFT JOIN activity_types k ON k.ACTIVITY_TYPE_ID = h.ACTIVITY_TYPE_ID
+		   LEFT JOIN employees l ON l.EMPLOYEE_ID = h.ACTIVITY_EMPLOYEE_ID
+          WHERE EXISTS (SELECT 1 FROM @CustomerOrders co WHERE co.OrderId = g.CUSTOMER_ORDER_ID)	       
+		  
+	SELECT a.CustomerId, a.CustomerName, a.Phone, Fax, a.OrderId, a.OrderNumber, a.CreationDate, a.OrderDate, a.EstimatedDeliveryDate, a.StatusOrder, a.InternalNotes, a.CustomerNotes, 
+		   a.ReferenceId, a.ItemReference, a.ItemName, a.ReferenceCode, a.ReferenceName, a.Amount, a.DeliveredAmount, a.InProcessAmount, a.StatusDetail, b.ActivityId, b.CreationDateActivity, 
+		   b.AreaName, b.EmployeeName, b.Notes, b.ActivityType, b.EmployeNameDetail
+	  FROM @CustomerOrders a
+	  LEFT JOIN @Activities b ON b.CustomerOrderId = a.OrderId	
+END
+GO
+

@@ -32,7 +32,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment
         protected OrderShipmentFilter Filter;
         protected OrderShipmentViewModel ViewModel;
         private bool IsBusy = false;
-
+        private bool IsLoadingData = false;
         private IEnumerable<Application.Services.Models.Reports.OrderShipmentReport> DataReport { get; set; }
         #endregion
 
@@ -46,12 +46,22 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment
         #region Events
         async Task RedrawReportAsync(string filter = "", CancellationToken ct= default)
         {
-            DataReport = await OrderShipmentReportService.GetOrderShipmentReportDataAsync(filter, ct);
 
-            ViewModel = new OrderShipmentViewModel()
+            try
             {
-                Orders = await GetOrdersAsync()
-            };
+                IsLoadingData = true;
+
+                DataReport = await OrderShipmentReportService.GetOrderShipmentReportDataAsync(filter, ct);
+
+                ViewModel = new OrderShipmentViewModel()
+                {
+                    Orders = await GetOrdersAsync()
+                };
+            }
+            finally
+            {
+                IsLoadingData = false;
+            }            
         }
 
         async Task<string> SetReportFilterAsync(OrderShipmentFilter filter, CancellationToken ct = default)

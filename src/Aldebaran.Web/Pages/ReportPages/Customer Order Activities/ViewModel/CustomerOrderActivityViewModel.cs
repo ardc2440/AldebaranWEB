@@ -32,7 +32,6 @@
             public int DeliveredAmount { get; set; }
             public int InProcessAmount { get; set; }
             public string Status { get; set; }
-            public List<Activity> Activities { get; set; }
         }
         public class Activity
         {
@@ -40,13 +39,11 @@
             public string AreaName { get; set; }
             public string EmployeeName { get; set; }
             public string Notes { get; set; }
-            public string Status { get; set; }
-            public List<ActivityDetail> ActivityDetail { get;set; }
+            public List<ActivityDetail> Details { get; set; }
         }
-
         public class ActivityDetail
         {
-            public string ActivityType { get; set; }
+            public string ActivityTypeName { get; set; }
             public string EmployeeName { get; set; }
         }
     }

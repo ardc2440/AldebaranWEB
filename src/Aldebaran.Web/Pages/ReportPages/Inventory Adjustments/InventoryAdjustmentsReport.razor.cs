@@ -32,7 +32,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
         protected InventoryAdjustmentsFilter Filter;
         protected InventoryAdjustmentsViewModel ViewModel;
         private bool IsBusy = false;
-
+        private bool IsLoadingData = false;
         private IEnumerable<InventoryAdjustmentReport> DataReport { get; set; }
 
         #endregion
@@ -40,7 +40,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            await RedrawReportAsync();            
+            await RedrawReportAsync();
         }
         #endregion
 
@@ -102,7 +102,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
             var uniqueLines = DataReport.Where(w => w.AdjustmentId == adjustmentId && w.WarehouseId == warehouseId).Select(s => new { s.LineId, s.LineCode, s.LineName }).DistinctBy(d => d.LineId).OrderBy(o => o.LineName);
             foreach (var line in uniqueLines)
             {
-                var items = await GetLineItems( adjustmentId, warehouseId, line.LineId, ct);
+                var items = await GetLineItems(adjustmentId, warehouseId, line.LineId, ct);
                 reportLines.Add(new InventoryAdjustmentsViewModel.Line
                 {
                     LineCode = line.LineCode,
@@ -137,7 +137,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
             var reportReferences = new List<InventoryAdjustmentsViewModel.Reference>();
 
             foreach (var reference in DataReport.Where(w => w.AdjustmentId == adjustmentId && w.WarehouseId == warehouseId && w.ItemId == itemId).Select(s => new { s.ReferenceId, s.ReferenceName, s.ReferenceCode, s.AvailableAmount })
-                                        .DistinctBy(d => d.ReferenceName).OrderBy(o=>o.ReferenceName))
+                                        .DistinctBy(d => d.ReferenceName).OrderBy(o => o.ReferenceName))
             {
                 reportReferences.Add(new InventoryAdjustmentsViewModel.Reference
                 {
@@ -156,12 +156,24 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
 
         async Task RedrawReportAsync(string filter = "", CancellationToken ct = default)
         {
-            DataReport = await InventoryAdjustmentReportService.GetInventoryAdjustmentReportDataAsync(filter, ct);
-
-            ViewModel = new InventoryAdjustmentsViewModel()
+            try
             {
-                Adjustments = await GetAdjustmentsAsync(ct)
-            };
+                IsLoadingData = true;
+                
+                DataReport = await InventoryAdjustmentReportService.GetInventoryAdjustmentReportDataAsync(filter, ct);
+
+                ViewModel = new InventoryAdjustmentsViewModel()
+                {
+                    Adjustments = await GetAdjustmentsAsync(ct)
+                };
+
+            }
+            finally
+            {
+                IsLoadingData = false;
+            }
+
+
         }
 
         async Task OpenFilters()
@@ -179,20 +191,20 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
         async Task<string> SetReportFilterAsync(InventoryAdjustmentsFilter filter, CancellationToken ct = default)
         {
             var filterResult = string.Empty;
-                        
-            if (filter.CreationDateFrom.HasValue)               
+
+            if (filter.CreationDateFrom.HasValue)
                 filterResult += $"@CreationDateFrom = '{(DateTime)filter.CreationDateFrom:yyyyMMdd}', @CreationDateTo = '{(DateTime)filter.CreationDateTo:yyyyMMdd}'";
 
             if (filter.AdjustmentDateFrom.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty()?", ":"")+$"@AdjustmentDateFrom = '{(DateTime)filter.AdjustmentDateFrom:yyyyMMdd}', @AdjustmentDateTo = '{(DateTime)filter.AdjustmentDateTo:yyyyMMdd}'";
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@AdjustmentDateFrom = '{(DateTime)filter.AdjustmentDateFrom:yyyyMMdd}', @AdjustmentDateTo = '{(DateTime)filter.AdjustmentDateTo:yyyyMMdd}'";
 
             if (filter.AdjustmentId.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "")+ $"@AdjustmentId = {filter.AdjustmentId}";
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@AdjustmentId = {filter.AdjustmentId}";
 
             if (filter.EmployeeId.HasValue)
                 filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@EmployeeId = {filter.EmployeeId}";
 
-            if (filter.ItemReferences.Count > 0)                
+            if (filter.ItemReferences.Count > 0)
                 filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReferenceIds = '{String.Join(",", Filter.ItemReferences.Select(s => s.ReferenceId))}'";
 
             if (filter.AdjustmentReasonId.HasValue)
@@ -200,7 +212,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
 
             if (filter.AdjustmentTypeId.HasValue)
                 filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@AdjustmentTypeId = {filter.AdjustmentTypeId}";
-                        
+
             return filterResult;
         }
 
@@ -209,7 +221,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
             if (await DialogService.Confirm("Está seguro que desea eliminar los filtros establecidos?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
             {
                 Filter = null;
-                
+
                 await RedrawReportAsync();
 
                 await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);

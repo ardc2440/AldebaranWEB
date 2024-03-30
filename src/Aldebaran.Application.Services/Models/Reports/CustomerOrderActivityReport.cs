@@ -23,6 +23,7 @@ namespace Aldebaran.Application.Services.Models.Reports
         public string? CustomerNotes { get; set; }
 
 
+        public int ReferenceId { get; set; }
         public string ItemReference { get; set; }
         public string ItemName { get; set; }
         public string ReferenceCode { get; set; }
@@ -38,7 +39,6 @@ namespace Aldebaran.Application.Services.Models.Reports
         public string AreaName { get; set; }
         public string EmployeeName { get; set; }
         public string? Notes { get; set; }
-        public string StatusActivity { get; set; }
 
         public string? ActivityType { get; set; }
         public string? EmployeNameDetail { get; set; }

@@ -26,6 +26,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Transfers
         protected WarehouseTransfersFilter Filter;
         protected WarehouseTransfersViewModel ViewModel;
         private bool IsBusy = false;
+        private bool IsLoadingData = false;
         #endregion
 
         #region Overrides

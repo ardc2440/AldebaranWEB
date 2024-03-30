@@ -6,7 +6,7 @@
             <RadzenFormField Text="Proveedor" Variant="Variant.Text" Style="width: 100%;">
                 <ChildContent>
                     <RadzenDropDownDataGrid @ref="providersDropdown" Data="@Providers" TextProperty="ProviderName" ValueProperty="ProviderId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                            style="display: block; width: 100%" @bind-Value="@ProviderId" Name="ProviderId" AllowFilteringByAllStringColumns="true" Change="@ProviderSelectionChange">
+                                            style="display: block; width: 100%" @bind-Value="@Filter.ProviderId" Name="ProviderId" AllowFilteringByAllStringColumns="true">
                         <Columns>
                             <RadzenDropDownDataGridColumn Property="ProviderCode" Title="Código" />
                             <RadzenDropDownDataGridColumn Property="ProviderName" Title="Nombre" />
@@ -19,15 +19,15 @@
                         </Columns>
                     </RadzenDropDownDataGrid>
                 </ChildContent>
-                <Helper>
-                    <RadzenRequiredValidator Component="ProviderId" Text="Proveedor es requerido" DefaultValue="0"></RadzenRequiredValidator>
-                </Helper>
             </RadzenFormField>
         </RadzenRow>
         <RadzenRow style="margin-bottom: 1rem">
-            <MultiReferencePicker @ref="referencePicker" OnChange="ItemReferenceHandler" ReadOnly="!AllowItemReferenceSelection"></MultiReferencePicker>
-            <RadzenRequiredValidator Text="La referencia es requerida" Component="ReferenceId" />
+            <MultiReferencePicker @ref="referencePicker" OnChange="ItemReferenceHandler"></MultiReferencePicker>
         </RadzenRow>
+        @if (ValidationError)
+        {
+            <div class="rz-message rz-messages-error">Debe seleccionar al menos un filtro</div>
+        }
         <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
             <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="filter_alt" Text="Filtrar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />
             <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />

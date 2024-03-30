@@ -37,7 +37,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders
         protected CustomerOrderFilter Filter;
         protected CustomerOrderViewModel ViewModel;
         private bool IsBusy = false;
-
+        private bool IsLoadingData = false;
         protected IEnumerable<Application.Services.Models.Reports.CustomerOrderReport> DataReport { get; set; }
         #endregion
 
@@ -98,8 +98,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders
             var orderReferences = new List<CustomerOrderViewModel.Reference>();
 
             foreach (var reference in DataReport.Where(w => w.OrderId == orderId)
-                                        .Select(s => new {s.OrderDetailId, s.DetailStatus, s.OrderDetailAmount, s.DeliveredAmount, s.InProcessAmount, s.OrderDetailItemName, s.OrderDetailItemReference, s.OrderDetailReferenceCode, s.OrderDetailReferenceName})
-                                        .DistinctBy(d=> d.OrderDetailId).OrderBy(o => o.OrderDetailItemName))
+                                        .Select(s => new { s.OrderDetailId, s.DetailStatus, s.OrderDetailAmount, s.DeliveredAmount, s.InProcessAmount, s.OrderDetailItemName, s.OrderDetailItemReference, s.OrderDetailReferenceCode, s.OrderDetailReferenceName })
+                                        .DistinctBy(d => d.OrderDetailId).OrderBy(o => o.OrderDetailItemName))
             {
                 orderReferences.Add(new CustomerOrderViewModel.Reference
                 {
@@ -109,12 +109,11 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders
                     InProcessAmount = reference.InProcessAmount,
                     ItemName = reference.OrderDetailItemName,
                     ItemReference = reference.OrderDetailItemReference,
-                    ReferenceCode= reference.OrderDetailReferenceCode,
-                    ReferenceName= reference.OrderDetailReferenceName,
-                    Shipments = await GetReferenceShipments(reference.OrderDetailId,ct)
+                    ReferenceCode = reference.OrderDetailReferenceCode,
+                    ReferenceName = reference.OrderDetailReferenceName,
+                    Shipments = await GetReferenceShipments(reference.OrderDetailId, ct)
                 });
             }
-
 
             return orderReferences;
         }
@@ -123,7 +122,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders
         {
             var referenceShipments = new List<CustomerOrderViewModel.Shipment>();
 
-            foreach (var shipment in DataReport.Where(w => w.OrderDetailId == orderDetailId&& w.ShipmentId>0).Select(s => new { s.ShipmentId, s.ShipmentDate, s.DeliveryNote, s.TrackingNumber, s.ShipmentMethodName, s.Notes })
+            foreach (var shipment in DataReport.Where(w => w.OrderDetailId == orderDetailId && w.ShipmentId > 0).Select(s => new { s.ShipmentId, s.ShipmentDate, s.DeliveryNote, s.TrackingNumber, s.ShipmentMethodName, s.Notes })
                                     .DistinctBy(d => d.ShipmentId).OrderBy(o => o.ShipmentDate))
             {
                 referenceShipments.Add(new CustomerOrderViewModel.Shipment
@@ -166,12 +165,21 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders
 
         async Task RedrawReportAsync(string filter="",CancellationToken ct = default)
         {
-            DataReport = await CustomerOrderReportService.GetCustomerOrderReportDataAsync(filter, ct);
-
-            ViewModel = new CustomerOrderViewModel
+            try
             {
-                Customers = await GetCustomersAsync()
-            };
+                IsLoadingData = true;
+                DataReport = await CustomerOrderReportService.GetCustomerOrderReportDataAsync(filter, ct);
+
+                ViewModel = new CustomerOrderViewModel
+                {
+                    Customers = await GetCustomersAsync(ct)
+                };
+            }
+            finally
+            {
+                IsLoadingData = false;
+            }
+
         }
 
         async Task<string> SetReportFilterAsync(CustomerOrderFilter filter, CancellationToken ct = default)

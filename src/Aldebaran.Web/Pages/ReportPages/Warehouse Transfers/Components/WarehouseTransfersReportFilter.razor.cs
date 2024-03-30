@@ -53,7 +53,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Transfers.Components
             {
                 referencePicker.SetSelectedItemReferences(Filter.ItemReferences.Select(s => s.ReferenceId).ToList());
             }
-
+            SourceWarehouseId = Filter?.SourceWarehouseId;
+            TargetWarehouseId = Filter?.TargetWarehouseId;
             FirstRender = false;
             StateHasChanged();
         }
