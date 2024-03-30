@@ -1,12 +1,13 @@
 ﻿using Aldebaran.Application.Services.Models;
+using Aldebaran.Web.Shared.ViewModel;
 namespace Aldebaran.Web.Pages.ReportPages.Customer_Sales.ViewModel
 {
     public class CustomerSalesFilter : ICloneable
     {
         public string OrderNumber { get; set; }
-        public DateTime? CreationDate { get; set; }
-        public DateTime? OrderDate { get; set; }
-        public DateTime? EstimatedDeliveryDate { get; set; }
+        public DateRange CreationDate { get; set; } = new();
+        public DateRange OrderDate { get; set; } = new();
+        public DateRange EstimatedDeliveryDate { get; set; } = new();
         public short? StatusDocumentTypeId { get; set; }
         public StatusDocumentType StatusDocumentType { get; set; }
         public int? CustomerId { get; set; }

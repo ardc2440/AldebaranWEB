@@ -26,25 +26,58 @@
                             <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.OrderNumber</span>
                         </div>
                     }
-                    @if (Filter.CreationDate != null)
+                    @if (Filter.CreationDate?.StartDate != null || Filter.CreationDate?.EndDate != null)
                     {
                         <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
                             <p class="component-label m-0 fw-bold">Fecha de creación: </p>
-                            <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.CreationDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                            @if (Filter.CreationDate?.StartDate != null)
+                            {
+                                <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.CreationDate.StartDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                            }
+                            @if (Filter.CreationDate?.EndDate != null)
+                            {
+                                @if (Filter.CreationDate?.StartDate != null)
+                                {
+                                    <p class="component-label m-0"> - </p>
+                                }
+                                <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.CreationDate.EndDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                            }
                         </div>
                     }
-                    @if (Filter.OrderDate != null)
+                    @if (Filter.OrderDate?.StartDate != null || Filter.OrderDate?.EndDate != null)
                     {
                         <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
                             <p class="component-label m-0 fw-bold">Fecha de la orden: </p>
-                            <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.OrderDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                            @if (Filter.OrderDate?.StartDate != null)
+                            {
+                                <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.OrderDate.StartDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                            }
+                            @if (Filter.OrderDate?.EndDate != null)
+                            {
+                                @if (Filter.OrderDate?.StartDate != null)
+                                {
+                                    <p class="component-label m-0"> - </p>
+                                }
+                                <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.OrderDate.EndDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                            }
                         </div>
                     }
-                    @if (Filter.EstimatedDeliveryDate != null)
+                    @if (Filter.EstimatedDeliveryDate?.StartDate != null || Filter.EstimatedDeliveryDate?.EndDate != null)
                     {
                         <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
                             <p class="component-label m-0 fw-bold">Fecha estimada de entrega: </p>
-                            <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.EstimatedDeliveryDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                            @if (Filter.EstimatedDeliveryDate?.StartDate != null)
+                            {
+                                <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.EstimatedDeliveryDate.StartDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                            }
+                            @if (Filter.EstimatedDeliveryDate?.EndDate != null)
+                            {
+                                @if (Filter.EstimatedDeliveryDate?.StartDate != null)
+                                {
+                                    <p class="component-label m-0"> - </p>
+                                }
+                                <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.EstimatedDeliveryDate.EndDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                            }
                         </div>
                     }
                     @if (Filter.StatusDocumentTypeId != null && Filter.StatusDocumentType != null)
@@ -110,25 +143,58 @@
                                                         <span>@Filter.OrderNumber</span>
                                                     </div>
                                                 }
-                                                @if (Filter.CreationDate != null)
+                                                @if (Filter.CreationDate?.StartDate != null || Filter.CreationDate?.EndDate != null)
                                                 {
                                                     <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
                                                         <div class="type">Fecha de creación: </div>
-                                                        <span>@Filter.CreationDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                                                        @if (Filter.CreationDate?.StartDate != null)
+                                                        {
+                                                            <span>@Filter.CreationDate.StartDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                                                        }
+                                                        @if (Filter.CreationDate?.EndDate != null)
+                                                        {
+                                                            @if (Filter.CreationDate?.StartDate != null)
+                                                            {
+                                                                <p> - </p>
+                                                            }
+                                                            <span>@Filter.CreationDate.EndDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                                                        }
                                                     </div>
                                                 }
-                                                @if (Filter.OrderDate != null)
+                                                @if (Filter.OrderDate?.StartDate != null || Filter.OrderDate?.EndDate != null)
                                                 {
                                                     <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
                                                         <div class="type">Fecha de la orden: </div>
-                                                        <span>@Filter.OrderDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                                                        @if (Filter.OrderDate?.StartDate != null)
+                                                        {
+                                                            <span>@Filter.OrderDate.StartDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                                                        }
+                                                        @if (Filter.OrderDate?.EndDate != null)
+                                                        {
+                                                            @if (Filter.OrderDate?.StartDate != null)
+                                                            {
+                                                                <p> - </p>
+                                                            }
+                                                            <span>@Filter.OrderDate.EndDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                                                        }
                                                     </div>
                                                 }
-                                                @if (Filter.EstimatedDeliveryDate != null)
+                                                @if (Filter.EstimatedDeliveryDate?.StartDate != null || Filter.EstimatedDeliveryDate?.EndDate != null)
                                                 {
                                                     <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
                                                         <div class="type">Fecha estimada de entrega: </div>
-                                                        <span>@Filter.EstimatedDeliveryDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                                                        @if (Filter.EstimatedDeliveryDate?.StartDate != null)
+                                                        {
+                                                            <span>@Filter.EstimatedDeliveryDate.StartDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                                                        }
+                                                        @if (Filter.EstimatedDeliveryDate?.EndDate != null)
+                                                        {
+                                                            @if (Filter.EstimatedDeliveryDate?.StartDate != null)
+                                                            {
+                                                                <p> - </p>
+                                                            }
+                                                            <span>@Filter.EstimatedDeliveryDate.EndDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                                                        }
                                                     </div>
                                                 }
                                                 @if (Filter.StatusDocumentTypeId != null && Filter.StatusDocumentType != null)
