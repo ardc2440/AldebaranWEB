@@ -2281,3 +2281,29 @@ BEGIN
 END
 GO
 
+CREATE OR ALTER PROCEDURE SP_GET_FREEZONE_VS_AVAILABLE_REPORT	
+	@ReferenceIds VARCHAR(MAX)	
+AS
+BEGIN
+
+	DECLARE @FilterReferences TABLE (ReferenceId INT)
+	
+	IF LEN(RTRIM(@ReferenceIds)) > 0
+		INSERT INTO @FilterReferences
+			 SELECT value FROM STRING_SPLIT(@ReferenceIds,',')
+	ELSE
+		INSERT INTO @FilterReferences
+			 SELECT REFERENCE_ID 
+			   FROM item_references
+
+	SELECT c.LINE_ID LineId, c.LINE_CODE LineCode, c.LINE_NAME LineName, b.ITEM_ID ItemId, b.INTERNAL_REFERENCE InternalReference, b.ITEM_NAME ItemName,
+	       a.REFERENCE_ID ReferenceId, a.REFERENCE_CODE ReferenceCode, a.REFERENCE_NAME ReferenceName, a.INVENTORY_QUANTITY-a.RESERVED_QUANTITY-a.ORDERED_QUANTITY AvailableAmount,
+		   d.QUANTITY FreeZone
+	  FROM item_references a
+	  JOIN items b ON b.ITEM_ID = a.ITEM_ID
+	  JOIN lines c ON c.LINE_ID = b.LINE_ID
+	  JOIN references_warehouse d ON d.REFERENCE_ID = a.REFERENCE_ID
+	  JOIN warehouses e ON e.WAREHOUSE_ID = d.WAREHOUSE_ID and e.WAREHOUSE_CODE = 2
+	 WHERE EXISTS (SELECT 1 FROM @FilterReferences fr WHERE fr.ReferenceId = a.REFERENCE_ID)
+END
+GO

@@ -76,7 +76,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Transfers.Components
             {
                 IsSubmitInProgress = true;
                 // Si no se han incluido filtros, mostrar mensaje de error
-                if (string.IsNullOrEmpty(Filter.NationalizationNumber) && Filter.AdjustmentDate == null &&
+                if (string.IsNullOrEmpty(Filter.NationalizationNumber) &&
+                    Filter.AdjustmentDate?.StartDate == null && Filter.AdjustmentDate?.EndDate == null &&
                     SourceWarehouseId == null && TargetWarehouseId == null &&
                     StatusDocumentTypeId == null && SelectedReferences.Any() == false)
                 {
