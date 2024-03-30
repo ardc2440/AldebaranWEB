@@ -3,7 +3,6 @@ using Aldebaran.Application.Services.Reports;
 using Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments.Components;
 using Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments.ViewModel;
 using Microsoft.AspNetCore.Components;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.JSInterop;
 using Radzen;
 
@@ -178,30 +177,33 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
 
         async Task<string> SetReportFiterAsync(InventoryAdjustmentsFilter filter, CancellationToken ct = default)
         {
-            var filterResult = string.Empty;
+            var filters = new List<string>();
 
-            if (filter.CreationDateFrom.HasValue)
-                filterResult += $"@CreationDateFrom = '{(DateTime)filter.CreationDateFrom:yyyyMMdd}', @CreationDateTo = '{(DateTime)filter.CreationDateTo:yyyyMMdd}'";
+            if (filter.CreationDate?.StartDate != null)
+                filters.Add($"@CreationDateFrom = '{filter.CreationDate.StartDate.Value:yyyyMMdd}'");
 
-            if (filter.AdjustmentDateFrom.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@AdjustmentDateFrom = '{(DateTime)filter.AdjustmentDateFrom:yyyyMMdd}', @AdjustmentDateTo = '{(DateTime)filter.AdjustmentDateTo:yyyyMMdd}'";
+            if (filter.CreationDate?.EndDate != null)
+                filters.Add($"@CreationDateTo = '{filter.CreationDate.EndDate.Value:yyyyMMdd}'");
+
+            if (filter.AdjustmentDate?.StartDate != null)
+                filters.Add($"@AdjustmentDateFrom = '{filter.AdjustmentDate.StartDate.Value:yyyyMMdd}'");
 
             if (filter.AdjustmentId.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@AdjustmentId = {filter.AdjustmentId}";
+                filters.Add($"@AdjustmentId = {filter.AdjustmentId}");
 
             if (filter.EmployeeId.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@EmployeeId = {filter.EmployeeId}";
+                filters.Add($"@EmployeeId = {filter.EmployeeId}");
 
             if (filter.ItemReferences.Count > 0)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReferenceIds = '{String.Join(",", Filter.ItemReferences.Select(s => s.ReferenceId))}'";
+                filters.Add($"@ReferenceIds = '{string.Join(",", Filter.ItemReferences.Select(s => s.ReferenceId))}'");
 
             if (filter.AdjustmentReasonId.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@AdjustmentReasonId = {filter.AdjustmentReasonId}";
+                filters.Add($"@AdjustmentReasonId = {filter.AdjustmentReasonId}");
 
             if (filter.AdjustmentTypeId.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@AdjustmentTypeId = {filter.AdjustmentTypeId}";
+                filters.Add($"@AdjustmentTypeId = {filter.AdjustmentTypeId}");
 
-            return filterResult;
+            return string.Join(", ", filters);
         }
 
         async Task RemoveFilters()

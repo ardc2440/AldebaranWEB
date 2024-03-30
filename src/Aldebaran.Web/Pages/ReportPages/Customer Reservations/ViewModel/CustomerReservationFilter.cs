@@ -1,11 +1,12 @@
 ﻿using Aldebaran.Application.Services.Models;
+using Aldebaran.Web.Shared.ViewModel;
 namespace Aldebaran.Web.Pages.ReportPages.Customer_Reservations.ViewModel
 {
     public class CustomerReservationFilter : ICloneable
     {
         public string ReservationNumber { get; set; }
-        public DateTime? CreationDate { get; set; }
-        public DateTime? ReservationDate { get; set; }
+        public DateRange CreationDate { get; set; } = new();
+        public DateRange ReservationDate { get; set; } = new();
         public short? StatusDocumentTypeId { get; set; }
         public StatusDocumentType StatusDocumentType { get; set; }
         public int? CustomerId { get; set; }

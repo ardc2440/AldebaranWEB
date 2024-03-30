@@ -120,7 +120,11 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment.Components
             {
                 IsSubmitInProgress = true;
                 // Si no se han incluido filtros, mostrar mensaje de error
-                if (string.IsNullOrEmpty(Filter.OrderNumber) && Filter.CreationDate == null && Filter.RequestDate == null && Filter.ExpectedReceiptDate == null && Filter.RealReceiptDate == null &&
+                if (string.IsNullOrEmpty(Filter.OrderNumber) &&
+                    Filter.CreationDate?.StartDate == null && Filter.CreationDate?.EndDate == null &&
+                    Filter.RequestDate?.StartDate == null && Filter.RequestDate?.EndDate == null &&
+                    Filter.ExpectedReceiptDate?.StartDate == null && Filter.ExpectedReceiptDate?.EndDate == null &&
+                    Filter.RealReceiptDate?.StartDate == null && Filter.RealReceiptDate?.EndDate == null &&
                     string.IsNullOrEmpty(Filter.ImportNumber) && string.IsNullOrEmpty(Filter.EmbarkationPort) && string.IsNullOrEmpty(Filter.ProformaNumber) &&
                     Filter.ProviderId == null && ForwarderId == null && ForwarderAgentId == null && ShipmentMethodId == null &&
                     Filter.WarehouseId == null && SelectedReferences.Any() == false)
@@ -133,7 +137,6 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment.Components
                 Filter.ImportNumber = string.IsNullOrEmpty(Filter.ImportNumber) ? null : Filter.ImportNumber;
                 Filter.EmbarkationPort = string.IsNullOrEmpty(Filter.EmbarkationPort) ? null : Filter.EmbarkationPort;
                 Filter.ProformaNumber = string.IsNullOrEmpty(Filter.ProformaNumber) ? null : Filter.ProformaNumber;
-
                 Filter.Provider = Filter.ProviderId != null ? Providers.FirstOrDefault(s => s.ProviderId == Filter.ProviderId.Value) : null;
                 Filter.ForwarderId = ForwarderId;
                 Filter.Forwarder = Filter.ForwarderId != null ? Forwarders.FirstOrDefault(s => s.ForwarderId == Filter.ForwarderId.Value) : null;

@@ -4,7 +4,7 @@
 <RadzenColumn SizeMD=12>
     <RadzenTemplateForm TItem="ViewModel.OrderShipmentFilter" Data="Filter" Submit="@FormSubmit">
         <RadzenRow style="margin-bottom: 1rem">
-            <RadzenColumn Size="6">
+            <RadzenColumn Size="12">
                 <RadzenStack>
                     <RadzenFormField Text="Número de la orden" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
@@ -13,40 +13,82 @@
                     </RadzenFormField>
                 </RadzenStack>
             </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow style="margin-bottom: 1rem">
             <RadzenColumn Size="6">
                 <RadzenStack>
-                    <RadzenFormField Text="Fecha de creación" Variant="Variant.Text" Style="width: 100%;">
+                    <RadzenFormField Text="Fecha de inicio de creación" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.CreationDate" Name="CreationDate" AllowClear=true />
+                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.CreationDate.StartDate" Name="CreationStartDate" AllowClear=true Change="()=> Filter.CreationDate.EndDate = Filter.CreationDate.EndDate < Filter.CreationDate.StartDate ? Filter.CreationDate.StartDate : Filter.CreationDate.EndDate" />
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+            <RadzenColumn Size="6">
+                <RadzenStack>
+                    <RadzenFormField Text="Fecha fin de creación" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.CreationDate.EndDate" Name="CreationEndDate" AllowClear=true Min="Filter.CreationDate.StartDate" />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenStack>
             </RadzenColumn>
         </RadzenRow>
         <RadzenRow style="margin-bottom: 1rem">
-            <RadzenColumn Size="4">
+            <RadzenColumn Size="6">
                 <RadzenStack>
-                    <RadzenFormField Text="Fecha de solicitud" Variant="Variant.Text" Style="width: 100%;">
+                    <RadzenFormField Text="Fecha de inicio de solicitud" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.RequestDate" Name="RequestDate" AllowClear=true />
+                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.RequestDate.StartDate" Name="RequestStartDate" AllowClear=true Change="()=> Filter.RequestDate.EndDate = Filter.RequestDate.EndDate < Filter.RequestDate.StartDate ? Filter.RequestDate.StartDate : Filter.RequestDate.EndDate" />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenStack>
             </RadzenColumn>
-            <RadzenColumn Size="4">
+            <RadzenColumn Size="6">
                 <RadzenStack>
-                    <RadzenFormField Text="Fecha esperada de recepción" Variant="Variant.Text" Style="width: 100%;">
+                    <RadzenFormField Text="Fecha fin de la solicitud" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.ExpectedReceiptDate" Name="ExpectedReceiptDate" AllowClear=true />
+                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.RequestDate.EndDate" Name="RequestEndDate" AllowClear=true Min="Filter.RequestDate.StartDate" />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenStack>
             </RadzenColumn>
-            <RadzenColumn Size="4">
+        </RadzenRow>
+        <RadzenRow style="margin-bottom: 1rem">
+            <RadzenColumn Size="6">
                 <RadzenStack>
-                    <RadzenFormField Text="Fecha real de recepción" Variant="Variant.Text" Style="width: 100%;">
+                    <RadzenFormField Text="Fecha esperada de inicio de recepción" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.RealReceiptDate" Name="RealReceiptDate" AllowClear=true />
+                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.ExpectedReceiptDate.StartDate" Name="ExpectedReceiptStartDate" AllowClear=true Change="()=> Filter.ExpectedReceiptDate.EndDate = Filter.ExpectedReceiptDate.EndDate < Filter.ExpectedReceiptDate.StartDate ? Filter.ExpectedReceiptDate.StartDate : Filter.ExpectedReceiptDate.EndDate" />
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+            <RadzenColumn Size="6">
+                <RadzenStack>
+                    <RadzenFormField Text="Fecha esperada de fin de recepción" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.ExpectedReceiptDate.EndDate" Name="ExpectedReceiptEndDate" AllowClear=true Min="Filter.ExpectedReceiptDate.StartDate" />
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow style="margin-bottom: 1rem">
+            <RadzenColumn Size="6">
+                <RadzenStack>
+                    <RadzenFormField Text="Fecha real de inicio de recepción" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.RealReceiptDate.StartDate" Name="RealReceiptStartDate" AllowClear=true Change="()=> Filter.RealReceiptDate.EndDate = Filter.RealReceiptDate.EndDate < Filter.RealReceiptDate.StartDate ? Filter.RealReceiptDate.StartDate : Filter.RealReceiptDate.EndDate" />
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+            <RadzenColumn Size="6">
+                <RadzenStack>
+                    <RadzenFormField Text="Fecha real de fin de recepción" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.RealReceiptDate.EndDate" Name="RealReceiptEndDate" AllowClear=true Min="Filter.RealReceiptDate.StartDate" />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenStack>
@@ -142,7 +184,7 @@
                     <RadzenFormField Text="Agente" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
                             <RadzenDropDownDataGrid @ref="forwarderAgentsDropdown" Data="@ForwarderAgents" TextProperty="ForwarderAgentName" ValueProperty="ForwarderAgentId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                                    style="display: block; width: 100%" @bind-Value="ForwarderAgentId" Name="ForwarderAgentId" Change="@OnForwarderAgentChange" AllowFiltering="true" >
+                                                    style="display: block; width: 100%" @bind-Value="ForwarderAgentId" Name="ForwarderAgentId" Change="@OnForwarderAgentChange" AllowFiltering="true">
                                 <Columns>
                                     <RadzenDropDownDataGridColumn Property="ForwarderAgentName" Title="Nombre" />
                                     <RadzenDropDownDataGridColumn Property="ForwarderAgentAddress" Title="Dirección" />
