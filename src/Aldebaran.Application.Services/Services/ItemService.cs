@@ -31,7 +31,16 @@ namespace Aldebaran.Application.Services
             var data = await _repository.FindAsync(itemId, ct);
             return _mapper.Map<Item?>(data);
         }
-
+        public async Task<bool> ExistsByIternalReference(string internalReference, CancellationToken ct = default)
+        {
+            var exists = await _repository.ExistsByIternalReference(internalReference, ct);
+            return exists;
+        }
+        public async Task<bool> ExistsByItemName(string itemName, CancellationToken ct = default)
+        {
+            var exists = await _repository.ExistsByItemName(itemName, ct);
+            return exists;
+        }
         public async Task<IEnumerable<Item>> GetAsync(CancellationToken ct = default)
         {
             var data = await _repository.GetAsync(ct);

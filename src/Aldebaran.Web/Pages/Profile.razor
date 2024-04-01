@@ -37,10 +37,10 @@
                         <RadzenStack>
                             <RadzenFormField Text="Nombre" Variant="Variant.Text" Style="width: 100%;">
                                 <ChildContent>
-                                    <RadzenTextBox style="width: 100%" @bind-Value="@(Employee.FullName)" Name="FullName" MaxLength="50" />
+                                    <RadzenTextBox style="width: 100%" @bind-Value="@(Employee.FullName)" Name="FullName" MaxLength="50"    />
                                 </ChildContent>
                                 <Helper>
-                                    <RadzenRequiredValidator Component="FullName" Text="Nombre es requerido" />
+                                    <RadzenRequiredValidator Component="FullName" Text="Nombre es requerido"  />
                                 </Helper>
                             </RadzenFormField>
                         </RadzenStack>
@@ -56,15 +56,15 @@
                         <RadzenStack>
                             <RadzenFormField Text="Contraseña anterior" Variant="Variant.Text" Style="width: 100%;">
                                 <ChildContent>
-                                    <RadzenTextBox style="width: 100%" @bind-Value="@OldPassword" Name="OldPassword" MaxLength="100" />
+                                    <RadzenPassword style="width: 100%" @bind-Value="@OldPassword" Name="OldPassword" AutoCompleteType="Radzen.Blazor.AutoCompleteType.CurrentPassword" />
                                 </ChildContent>
                                 <Helper>
                                     <RadzenRequiredValidator Component="OldPassword" Text="Contraseña actual es requerida" />
                                 </Helper>
                             </RadzenFormField>
-                            <RadzenFormField Text="Nueva contraseña" Variant="Variant.Text" Style="width: 100%;">
+                            <RadzenFormField Text="Nueva contraseña" Variant="Variant.Text" Style="width: 100%;" >
                                 <ChildContent>
-                                    <RadzenTextBox style="width: 100%" @bind-Value="@NewPassword" Name="NewPassword" MaxLength="100" />
+                                    <RadzenPassword style="width: 100%" @bind-Value="@NewPassword" Name="NewPassword" AutoCompleteType="Radzen.Blazor.AutoCompleteType.NewPassword" />
                                 </ChildContent>
                                 <Helper>
                                     <RadzenRequiredValidator Component="NewPassword" Text="Nueva contraseña es requerida" />
@@ -72,7 +72,7 @@
                             </RadzenFormField>
                             <RadzenFormField Text="Confirmar contraseña" Variant="Variant.Text" Style="width: 100%;">
                                 <ChildContent>
-                                    <RadzenTextBox style="width: 100%" @bind-Value="@ConfirmPassword" Name="ConfirmPassword" MaxLength="100" />
+                                    <RadzenPassword style="width: 100%" @bind-Value="@ConfirmPassword" Name="ConfirmPassword" />
                                 </ChildContent>
                                 <Helper>
                                     <RadzenRequiredValidator Component="ConfirmPassword" Text="Confirmación de contraseña es requerida" />
