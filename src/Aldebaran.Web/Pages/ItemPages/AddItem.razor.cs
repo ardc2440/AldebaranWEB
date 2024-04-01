@@ -43,7 +43,6 @@ namespace Aldebaran.Web.Pages.ItemPages
             {
                 IsActive = true
             };
-
             MeasureUnits = await MeasureUnitService.GetAsync();
             Currencies = await CurrencyService.GetAsync();
             Lines = await LineService.GetAsync();

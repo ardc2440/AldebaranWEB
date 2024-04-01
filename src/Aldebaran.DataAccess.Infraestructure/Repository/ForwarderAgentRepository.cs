@@ -10,7 +10,10 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
-
+        public async Task<bool> ExistsByAgentName(string agentName, CancellationToken ct = default)
+        {
+            return await _context.ForwarderAgents.AsNoTracking().AnyAsync(i => i.ForwarderAgentName.Trim().ToLower() == agentName.Trim().ToLower(), ct);
+        }
         public async Task AddAsync(ForwarderAgent forwarderAgent, CancellationToken ct = default)
         {
             await _context.ForwarderAgents.AddAsync(forwarderAgent, ct);

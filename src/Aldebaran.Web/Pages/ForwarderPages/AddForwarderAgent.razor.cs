@@ -30,6 +30,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
         protected ServiceModel.City SelectedCity;
         protected bool IsSubmitInProgress;
         protected bool IsErrorVisible;
+        protected List<string> ValidationErrors;
         #endregion
 
         #region Overrides
@@ -50,6 +51,17 @@ namespace Aldebaran.Web.Pages.ForwarderPages
             try
             {
                 IsSubmitInProgress = true;
+                ValidationErrors = new List<string>();
+                var agentNameAlreadyExists = await ForwarderAgentService.ExistsByAgentName(ForwarderAgent.ForwarderAgentName);
+                if (agentNameAlreadyExists)
+                {
+                    ValidationErrors.Add("Ya existe un agente con el mismo nombre.");
+                }
+                if (ValidationErrors.Any())
+                {
+                    IsErrorVisible = true;
+                    return;
+                }
                 await ForwarderAgentService.AddAsync(ForwarderAgent);
                 DialogService.Close(true);
             }

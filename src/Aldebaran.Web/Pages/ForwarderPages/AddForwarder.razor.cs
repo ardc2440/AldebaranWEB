@@ -11,6 +11,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
         #region Injections
         [Inject]
         protected DialogService DialogService { get; set; }
+
         [Inject]
         public IForwarderService ForwarderService { get; set; }
         #endregion
@@ -19,6 +20,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
         protected bool IsErrorVisible;
         protected ServiceModel.Forwarder Forwarder;
         protected bool IsSubmitInProgress;
+        protected List<string> ValidationErrors;
         #endregion
 
         #region Overrides
@@ -34,6 +36,17 @@ namespace Aldebaran.Web.Pages.ForwarderPages
             try
             {
                 IsSubmitInProgress = true;
+                ValidationErrors = new List<string>();
+                var forwarderNameAlreadyExists = await ForwarderService.ExistsByForwarderName(Forwarder.ForwarderName);
+                if (forwarderNameAlreadyExists)
+                {
+                    ValidationErrors.Add("Ya existe una transportadora con el mismo nombre.");
+                }
+                if (ValidationErrors.Any())
+                {
+                    IsErrorVisible = true;
+                    return;
+                }
                 await ForwarderService.AddAsync(Forwarder);
                 DialogService.Close(true);
             }

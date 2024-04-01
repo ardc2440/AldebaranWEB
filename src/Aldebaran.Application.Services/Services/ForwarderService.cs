@@ -21,7 +21,10 @@ namespace Aldebaran.Application.Services
             var entity = _mapper.Map<Entities.Forwarder>(forwarder) ?? throw new ArgumentNullException("Transportadora no puede ser nula.");
             await _repository.AddAsync(entity, ct);
         }
-
+        public async Task<bool> ExistsByForwarderName(string forwarderName, CancellationToken ct = default)
+        {
+            return await _repository.ExistsByForwarderName(forwarderName, ct);
+        }
         public async Task DeleteAsync(int forwarderId, CancellationToken ct = default)
         {
             await _repository.DeleteAsync(forwarderId, ct);

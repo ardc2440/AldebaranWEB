@@ -15,7 +15,10 @@ namespace Aldebaran.Application.Services
             _repository = repository ?? throw new ArgumentNullException(nameof(IForwarderAgentRepository));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(IMapper));
         }
-
+        public async Task<bool> ExistsByAgentName(string agentName, CancellationToken ct = default)
+        {
+            return await _repository.ExistsByAgentName(agentName, ct);
+        }
         public async Task AddAsync(ForwarderAgent forwarderAgent, CancellationToken ct = default)
         {
             var entity = _mapper.Map<Entities.ForwarderAgent>(forwarderAgent) ?? throw new ArgumentNullException("Agente no puede ser nulo.");
