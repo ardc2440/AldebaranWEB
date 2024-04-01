@@ -28,7 +28,7 @@ namespace Aldebaran.Web.Pages.CustomerPages
         protected Customer Customer;
         protected IEnumerable<IdentityType> IdentityTypesForSelection = new List<IdentityType>();
         protected bool IsSubmitInProgress;
-
+        protected List<string> ValidationErrors;
         #endregion
 
         #region Overrides
@@ -48,6 +48,22 @@ namespace Aldebaran.Web.Pages.CustomerPages
             try
             {
                 IsSubmitInProgress = true;
+                ValidationErrors = new List<string>();
+                var customerNamelreadyExists = await CustomerService.ExistsByName(Customer.CustomerName);
+                if (customerNamelreadyExists)
+                {
+                    ValidationErrors.Add("Ya existe un cliente con el mismo nombre.");
+                }
+                var identityNumberAlreadyExists = await CustomerService.ExistsByIdentificationNumber(Customer.IdentityNumber);
+                if (identityNumberAlreadyExists)
+                {
+                    ValidationErrors.Add("Ya existe un cliente con el mismo número de identificación.");
+                }
+                if (ValidationErrors.Any())
+                {
+                    IsErrorVisible = true;
+                    return;
+                }
                 await CustomerService.AddAsync(Customer);
                 DialogService.Close(true);
             }

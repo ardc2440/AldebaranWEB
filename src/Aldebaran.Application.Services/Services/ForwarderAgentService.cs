@@ -15,9 +15,9 @@ namespace Aldebaran.Application.Services
             _repository = repository ?? throw new ArgumentNullException(nameof(IForwarderAgentRepository));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(IMapper));
         }
-        public async Task<bool> ExistsByAgentName(string agentName, CancellationToken ct = default)
+        public async Task<bool> ExistsByAgentName(int forwarderId, string agentName, CancellationToken ct = default)
         {
-            return await _repository.ExistsByAgentName(agentName, ct);
+            return await _repository.ExistsByAgentName(forwarderId, agentName, ct);
         }
         public async Task AddAsync(ForwarderAgent forwarderAgent, CancellationToken ct = default)
         {

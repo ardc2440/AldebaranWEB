@@ -15,6 +15,15 @@ namespace Aldebaran.Application.Services
             _mapper = mapper ?? throw new ArgumentNullException(nameof(IMapper));
         }
 
+        public async Task<bool> ExistsByName(string name, CancellationToken ct = default)
+        {
+            return await _repository.ExistsByName(name, ct);
+        }
+        public async Task<bool> ExistsByIdentificationNumber(string identificationNumber, CancellationToken ct = default)
+        {
+            return await _repository.ExistsByIdentificationNumber(identificationNumber, ct);
+        }
+
         public async Task AddAsync(Customer customer, CancellationToken ct = default)
         {
             var data = _mapper.Map<Entities.Customer>(customer);

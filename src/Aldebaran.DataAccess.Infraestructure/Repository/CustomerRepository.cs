@@ -20,7 +20,14 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .FirstOrDefaultAsync(i => i.CustomerId == customerId);
 
         }
-
+        public async Task<bool> ExistsByName(string name, CancellationToken ct = default)
+        {
+            return await _context.Customers.AsNoTracking().AnyAsync(i => i.CustomerName.Trim().ToLower() == name.Trim().ToLower(), ct);
+        }
+        public async Task<bool> ExistsByIdentificationNumber(string identificationNumber, CancellationToken ct = default)
+        {
+            return await _context.Customers.AsNoTracking().AnyAsync(i => i.IdentityNumber.Trim().ToLower() == identificationNumber.Trim().ToLower(), ct);
+        }
         public async Task<IEnumerable<Customer>> GetAsync(CancellationToken ct = default)
         {
             return await _context.Customers

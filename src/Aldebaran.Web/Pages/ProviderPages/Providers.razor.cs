@@ -126,7 +126,7 @@ namespace Aldebaran.Web.Pages.ProviderPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido eliminar el proveedor.\n {ex.Message}"
+                    Detail = $"No se ha podido eliminar el proveedor."
                 });
             }
         }
@@ -194,7 +194,7 @@ namespace Aldebaran.Web.Pages.ProviderPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido eliminar la referencia el proveedor.\n {ex.Message}"
+                    Detail = $"No se ha podido eliminar la referencia el proveedor."
                 });
             }
         }

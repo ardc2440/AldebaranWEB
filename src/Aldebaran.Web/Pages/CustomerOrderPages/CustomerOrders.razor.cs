@@ -45,10 +45,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         [Inject]
         protected TooltipService TooltipService { get; set; }
 
-
         [Inject]
         protected IAlarmService AlarmService { get; set; }
-
 
         #endregion
 
@@ -225,7 +223,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido eliminar la actividad.\n {ex.Message}"
+                    Detail = $"No se ha podido eliminar la actividad."
                 });
             }
         }
@@ -257,7 +255,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido cancelar el pedido.\n {ex.Message}"
+                    Detail = $"No se ha podido cancelar el pedido."
                 });
             }
         }
@@ -360,7 +358,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido cerrar el pedido.\n {ex.Message}"
+                    Detail = $"No se ha podido cerrar el pedido."
                 });
             }
         }
@@ -369,7 +367,6 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         {
             return Security.IsInRole("Admin", "Customer Order Activities Editor") && customerOrder.StatusDocumentType.EditMode;
         }
-
 
         #region Alarms
 
@@ -409,7 +406,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido desactivar la alarma.\n {ex.Message}"
+                    Detail = $"No se ha podido desactivar la alarma."
                 });
             }
         }
@@ -428,11 +425,11 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             try
             {
                 dialogResult = null;
-                var alarmResult = await DialogService.OpenAsync<AlarmDialog>("Crear alarma para pedido", new Dictionary<string, object> { { "Title", "Creación de alarma" }, { "DocumentTypeId", documentType.DocumentTypeId },{ "DocumentId", customerOrder.CustomerOrderId} });
-                
+                var alarmResult = await DialogService.OpenAsync<AlarmDialog>("Crear alarma para pedido", new Dictionary<string, object> { { "Title", "Creación de alarma" }, { "DocumentTypeId", documentType.DocumentTypeId }, { "DocumentId", customerOrder.CustomerOrderId } });
+
                 if (alarmResult == null)
                     return;
-                                
+
                 await GetCustomerOrderAlarmsAsync(customerOrder);
 
                 NotificationService.Notify(new NotificationMessage
@@ -449,7 +446,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido crear la alarma.\n {ex.Message}"
+                    Detail = $"No se ha podido crear la alarma."
                 });
             }
         }

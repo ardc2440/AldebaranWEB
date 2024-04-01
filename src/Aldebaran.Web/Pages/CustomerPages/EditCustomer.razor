@@ -90,6 +90,7 @@
                         </ChildContent>
                         <Helper>
                             <RadzenRequiredValidator Component="Email1" Text="Correo electrónico es requerido" />
+                            <RadzenEmailValidator Component="Email1" Text="Correo electrónico es inválido" />
                         </Helper>
                     </RadzenFormField>
                 </RadzenColumn>
@@ -98,6 +99,9 @@
                         <ChildContent>
                             <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Customer.Email2" Name="Email2" MaxLength="250" />
                         </ChildContent>
+                        <Helper>
+                            <RadzenEmailValidator Component="Email2" Text="Correo electrónico es inválido" />
+                        </Helper>
                     </RadzenFormField>
                 </RadzenColumn>
                 <RadzenColumn Size="12" SizeMD="4">
@@ -105,6 +109,9 @@
                         <ChildContent>
                             <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Customer.Email3" Name="Email3" MaxLength="250" />
                         </ChildContent>
+                        <Helper>
+                            <RadzenEmailValidator Component="Email3" Text="Correo electrónico es inválido" />
+                        </Helper>
                     </RadzenFormField>
                 </RadzenColumn>
             </RadzenRow>

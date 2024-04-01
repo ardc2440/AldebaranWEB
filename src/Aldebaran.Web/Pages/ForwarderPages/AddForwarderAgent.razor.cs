@@ -52,7 +52,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
             {
                 IsSubmitInProgress = true;
                 ValidationErrors = new List<string>();
-                var agentNameAlreadyExists = await ForwarderAgentService.ExistsByAgentName(ForwarderAgent.ForwarderAgentName);
+                var agentNameAlreadyExists = await ForwarderAgentService.ExistsByAgentName(ForwarderAgent.ForwarderId, ForwarderAgent.ForwarderAgentName);
                 if (agentNameAlreadyExists)
                 {
                     ValidationErrors.Add("Ya existe un agente con el mismo nombre.");
