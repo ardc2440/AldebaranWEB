@@ -1,5 +1,7 @@
-﻿using Aldebaran.Web.Pages.ReportPages.Freezone_vs_Available.Components;
+﻿using Aldebaran.Application.Services.Reports;
+using Aldebaran.Web.Pages.ReportPages.Freezone_vs_Available.Components;
 using Aldebaran.Web.Pages.ReportPages.Freezone_vs_Available.ViewModel;
+using Aldebaran.Web.Pages.ReportPages.Inventory.ViewModel;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
@@ -9,6 +11,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Freezone_vs_Available
 {
     public partial class FreezoneVsAvailableReport
     {
+
         #region Injections
         [Inject]
         protected ILogger<FreezoneVsAvailableReport> Logger { get; set; }
@@ -21,6 +24,9 @@ namespace Aldebaran.Web.Pages.ReportPages.Freezone_vs_Available
 
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
+
+        [Inject]
+        protected IFreezoneVsAvailableReportService FreezoneVsAvailableReportService { get; set; }
         #endregion
 
         #region Variables
@@ -29,190 +35,50 @@ namespace Aldebaran.Web.Pages.ReportPages.Freezone_vs_Available
         protected FreezoneVsAvailableViewModel ViewModel;
         private bool IsBusy = false;
         private bool IsLoadingData = false;
+        private IEnumerable<Application.Services.Models.Reports.FreezoneVsAvailableReport> DataReport { get; set; }
         #endregion
 
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            ViewModel = new FreezoneVsAvailableViewModel
-            {
-                Lines = new List<FreezoneVsAvailableViewModel.Line>
-                {
-                   new FreezoneVsAvailableViewModel.Line
-                   {
-                       LineName="Importados",
-                       LineCode="001",
-                       Items= new List<FreezoneVsAvailableViewModel.Item>
-                       {
-                           new FreezoneVsAvailableViewModel.Item
-                           {
-                               InternalReference="00110-01",
-                               ItemName="HOT PORTAMINA",
-                               References= new List<FreezoneVsAvailableViewModel.Reference>
-                               {
-                                   new FreezoneVsAvailableViewModel.Reference
-                                   {
-                                       ReferenceCode="0001",
-                                       ReferenceName="Blanco",
-                                       FreeZone=15,
-                                       AvailableAmount=232452
-                                   },
-                                   new FreezoneVsAvailableViewModel.Reference
-                                   {
-                                       ReferenceName="Rojo",
-                                       FreeZone=897,
-                                       AvailableAmount=23452
-                                   },
-                                   new FreezoneVsAvailableViewModel.Reference
-                                   {
-                                       ReferenceName="Verde",
-                                       FreeZone=877,
-                                       AvailableAmount=23452
-                                   },
-                                   new FreezoneVsAvailableViewModel.Reference
-                                   {
-                                       ReferenceName="Azul",
-                                       FreeZone=5667,
-                                       AvailableAmount=24352
-                                   },
-                                   new FreezoneVsAvailableViewModel.Reference
-                                   {
-                                       ReferenceName="Amarillo",
-                                       FreeZone=56785,
-                                       AvailableAmount=525452
-                                   }
-                               }
-                           },
-                           new FreezoneVsAvailableViewModel.Item
-                           {
-                               InternalReference="AA973-1-01",
-                               ItemName="LACE",
-                               References= new List<FreezoneVsAvailableViewModel.Reference>
-                               {
-                                   new FreezoneVsAvailableViewModel.Reference
-                                   {
-                                       ReferenceName="Blanco",
-                                       FreeZone=15,
-                                       AvailableAmount=232452
-                                   },
-                                   new FreezoneVsAvailableViewModel.Reference
-                                   {
-                                       ReferenceName="Rojo",
-                                       FreeZone=897,
-                                       AvailableAmount=23452
-                                   },
-                                   new FreezoneVsAvailableViewModel.Reference
-                                   {
-                                       ReferenceName="Verde",
-                                       FreeZone=877,
-                                       AvailableAmount=23452
-                                   },
-                                   new FreezoneVsAvailableViewModel.Reference
-                                   {
-                                       ReferenceName="Azul",
-                                       FreeZone=5667,
-                                       AvailableAmount=24352
-                                   },
-                                   new FreezoneVsAvailableViewModel.Reference
-                                   {
-                                       ReferenceName="Amarillo",
-                                       FreeZone=56785,
-                                       AvailableAmount=525452
-                                   }
-                               }
-                           },
-                           new FreezoneVsAvailableViewModel.Item
-                           {
-                               InternalReference="00110-01",
-                               ItemName="HOT PORTAMINA",
-                               References= new List<FreezoneVsAvailableViewModel.Reference>
-                               {
-                                   new FreezoneVsAvailableViewModel.Reference
-                                   {
-                                       ReferenceName="Blanco",
-                                       FreeZone=15,
-                                       AvailableAmount=232452
-                                   },
-                                   new FreezoneVsAvailableViewModel.Reference
-                                   {
-                                       ReferenceName="Rojo",
-                                       FreeZone=897,
-                                       AvailableAmount=23452
-                                   },
-                                   new FreezoneVsAvailableViewModel.Reference
-                                   {
-                                       ReferenceName="Verde",
-                                       FreeZone=877,
-                                       AvailableAmount=23452
-                                   },
-                                   new FreezoneVsAvailableViewModel.Reference
-                                   {
-                                       ReferenceName="Azul",
-                                       FreeZone=5667,
-                                       AvailableAmount=24352
-                                   },
-                                   new FreezoneVsAvailableViewModel.Reference
-                                   {
-                                       ReferenceName="Amarillo",
-                                       FreeZone=56785,
-                                       AvailableAmount=525452
-                                   }
-                               }
-                           },
-                           new FreezoneVsAvailableViewModel.Item
-                           {
-                               InternalReference="AA973-1-01",
-                               ItemName="LACE",
-                               References= new List<FreezoneVsAvailableViewModel.Reference>
-                               {
-                                   new FreezoneVsAvailableViewModel.Reference
-                                   {
-                                       ReferenceName="Blanco",
-                                       FreeZone=15,
-                                       AvailableAmount=232452
-                                   },
-                                   new FreezoneVsAvailableViewModel.Reference
-                                   {
-                                       ReferenceName="Rojo",
-                                       FreeZone=897,
-                                       AvailableAmount=23452
-                                   },
-                                   new FreezoneVsAvailableViewModel.Reference
-                                   {
-                                       ReferenceName="Verde",
-                                       FreeZone=877,
-                                       AvailableAmount=23452
-                                   },
-                                   new FreezoneVsAvailableViewModel.Reference
-                                   {
-                                       ReferenceName="Azul",
-                                       FreeZone=5667,
-                                       AvailableAmount=24352
-                                   },
-                                   new FreezoneVsAvailableViewModel.Reference
-                                   {
-                                       ReferenceName="Amarillo",
-                                       FreeZone=56785,
-                                       AvailableAmount=525452
-                                   }
-                               }
-                           }
-                       }
-                   }
-                }
-            };
+            await RedrawReportAsync();
         }
         #endregion
 
         #region Events
 
+        async Task RedrawReportAsync(string filter = "", CancellationToken ct = default)
+        {
+            try
+            {
+                IsLoadingData = true;
+
+                DataReport = await FreezoneVsAvailableReportService.GetFreezoneVsAvailableReportDataAsync(filter, ct);
+
+                ViewModel = new FreezoneVsAvailableViewModel
+                {
+                    Lines = (await GetLinesAsync(ct)).ToList()
+                };
+            }
+            finally
+            {
+                IsLoadingData = false;
+            }
+        }
         async Task OpenFilters()
         {
             var result = await DialogService.OpenAsync<FreezoneVsAvailableReportFilter>("Filtrar reporte de Zona franca vs. Disponible", parameters: new Dictionary<string, object> { { "Filter", Filter } }, options: new DialogOptions { Width = "800px" });
             if (result == null)
                 return;
             Filter = (FreezoneVsAvailableFilter)result;
-            //Todo: Aplicar filtro de refenrecias al ViewModel
+
+            var referenceIdsFilter = "";
+
+            if (Filter.ItemReferences.Count > 0)
+                referenceIdsFilter = String.Join(",", Filter.ItemReferences.Select(s => s.ReferenceId));
+
+            await RedrawReportAsync(referenceIdsFilter);
+
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
         }
         async Task RemoveFilters()
@@ -220,11 +86,12 @@ namespace Aldebaran.Web.Pages.ReportPages.Freezone_vs_Available
             if (await DialogService.Confirm("Está seguro que desea eliminar los filtros establecidos?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
             {
                 Filter = null;
-                //Todo: Remover filtro de refenrecias al ViewModel
+
+                await RedrawReportAsync();
+
                 await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
             }
         }
-
         async Task Download(MouseEventArgs args)
         {
             IsBusy = true;
@@ -238,5 +105,69 @@ namespace Aldebaran.Web.Pages.ReportPages.Freezone_vs_Available
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink");
         }
         #endregion
+
+        #region Fill Data Report
+        protected async Task<IEnumerable<FreezoneVsAvailableViewModel.Line>> GetLinesAsync(CancellationToken ct = default)
+        {
+            var lines = new List<FreezoneVsAvailableViewModel.Line>();
+
+            foreach (var line in DataReport.Select(s => new { s.LineId, s.LineName, s.LineCode })
+                                    .DistinctBy(d => d.LineId)
+                                    .OrderBy(o => o.LineName))
+            {
+                lines.Add(new FreezoneVsAvailableViewModel.Line
+                {
+                    LineName = line.LineName,
+                    LineCode = line.LineCode,
+                    Items = (await GetItemsPerLineAsync(line.LineId, ct)).ToList()
+                });
+            }
+
+            return lines;
+        }
+
+        protected async Task<IEnumerable<FreezoneVsAvailableViewModel.Item>> GetItemsPerLineAsync(short lineId, CancellationToken ct = default)
+        {
+            var items = new List<FreezoneVsAvailableViewModel.Item>();
+
+            foreach (var item in DataReport.Where(w => w.LineId == lineId)
+                                    .Select(s => new { s.ItemId, s.ItemName, s.InternalReference })
+                                    .DistinctBy(d => d.ItemId)
+                                    .OrderBy(o => o.ItemName))
+            {
+                items.Add(new FreezoneVsAvailableViewModel.Item
+                {
+                    InternalReference = item.InternalReference,
+                    ItemName = item.ItemName,                    
+                    References = (await GetReferencesPerItemAsync(item.ItemId, ct)).ToList()
+                });
+            }
+
+            return items;
+        }
+
+        protected async Task<IEnumerable<FreezoneVsAvailableViewModel.Reference>> GetReferencesPerItemAsync(int itemId, CancellationToken ct = default)
+        {
+            var inventoryReferences = new List<FreezoneVsAvailableViewModel.Reference>();
+
+            foreach (var reference in DataReport.Where(w => w.ItemId == itemId)
+                                        .Select(s => new { s.ReferenceId, s.ReferenceName, s.AvailableAmount, s.FreeZone, s.ReferenceCode })
+                                        .DistinctBy(d => d.ReferenceId)
+                                        .OrderBy(o => o.ReferenceName))
+            {
+                inventoryReferences.Add(new FreezoneVsAvailableViewModel.Reference
+                {
+                    ReferenceName = reference.ReferenceName,
+                    AvailableAmount = reference.AvailableAmount,                    
+                    FreeZone = reference.FreeZone,
+                    ReferenceCode = reference.ReferenceCode                    
+                });
+            }
+
+            return inventoryReferences;
+        }
+
+        #endregion
+
     }
 }
