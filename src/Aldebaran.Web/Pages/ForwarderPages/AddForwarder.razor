@@ -3,7 +3,7 @@
 
 <RadzenColumn SizeMD=12>
     <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible" Title="No se ha podido crear la transportadora">
-        <ul style="list-style-type:disc">
+        <ul class="m-0" style="list-style-type:disc">
             @foreach (var error in ValidationErrors)
             {
                 <li>@error</li>

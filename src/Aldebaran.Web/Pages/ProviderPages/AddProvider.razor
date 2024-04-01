@@ -2,7 +2,14 @@
 @using ServiceModel = Aldebaran.Application.Services.Models;
 
 <RadzenColumn SizeMD=12>
-    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">No se ha podido crear el proveedor</RadzenAlert>
+    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible" Title="No se ha podido crear el proveedor">
+        <ul class="m-0" style="list-style-type:disc">
+            @foreach (var error in ValidationErrors)
+            {
+                <li>@error</li>
+            }
+        </ul>
+    </RadzenAlert>
     <RadzenTemplateForm TItem="ServiceModel.Provider" Data="@Provider" Visible="@(Provider != null)" Submit="@FormSubmit">
         <RadzenStack>
             <RadzenRow AlignItems="Radzen.AlignItems.Start">
@@ -42,7 +49,7 @@
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Nombre" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Provider.ProviderName" Name="ProviderName" MaxLength="15" />
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Provider.ProviderName" Name="ProviderName" MaxLength="50" />
                         </ChildContent>
                         <Helper>
                             <RadzenRequiredValidator Component="ProviderName" Text="Nombre es requerido" />
@@ -96,4 +103,3 @@
         </RadzenStack>
     </RadzenTemplateForm>
 </RadzenColumn>
-

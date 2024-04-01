@@ -11,6 +11,19 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
+        public async Task<bool> ExistsByIdentificationNumber(string identificationNumber, CancellationToken ct = default)
+        {
+            return await _context.Providers.AsNoTracking().AnyAsync(i => i.IdentityNumber.Trim().ToLower() == identificationNumber.Trim().ToLower(), ct);
+        }
+        public async Task<bool> ExistsByCode(string code, CancellationToken ct = default)
+        {
+            return await _context.Providers.AsNoTracking().AnyAsync(i => i.ProviderCode.Trim().ToLower() == code.Trim().ToLower(), ct);
+        }
+        public async Task<bool> ExistsByName(string name, CancellationToken ct = default)
+        {
+            return await _context.Providers.AsNoTracking().AnyAsync(i => i.ProviderName.Trim().ToLower() == name.Trim().ToLower(), ct);
+        }
+
         public async Task AddAsync(Provider provider, CancellationToken ct = default)
         {
             await _context.Providers.AddAsync(provider, ct);

@@ -22,6 +22,7 @@ namespace Aldebaran.Web.Pages.ProviderPages
         protected ServiceModel.Provider Provider;
         protected IEnumerable<ServiceModel.IdentityType> IdentityTypes;
         protected bool IsSubmitInProgress;
+        protected List<string> ValidationErrors;
         #endregion
 
         #region Overrides
@@ -38,6 +39,28 @@ namespace Aldebaran.Web.Pages.ProviderPages
             try
             {
                 IsSubmitInProgress = true;
+                ValidationErrors = new List<string>();
+                var identityNumberAlreadyExists = await ProviderService.ExistsByIdentificationNumber(Provider.IdentityNumber);
+                if (identityNumberAlreadyExists)
+                {
+                    ValidationErrors.Add("Ya existe un proveedor con el mismo número de identificación.");
+                }
+                var providerCodeAlreadyExists = await ProviderService.ExistsByCode(Provider.ProviderCode);
+                if (providerCodeAlreadyExists)
+                {
+                    ValidationErrors.Add("Ya existe un proveedor con el mismo código.");
+                }
+                var providerNameAlreadyExists = await ProviderService.ExistsByName(Provider.ProviderName);
+                if (providerNameAlreadyExists)
+                {
+                    ValidationErrors.Add("Ya existe un proveedor con el mismo nombre.");
+                }
+                if (ValidationErrors.Any())
+                {
+                    IsErrorVisible = true;
+                    return;
+                }
+
                 await ProviderService.AddAsync(Provider);
                 DialogService.Close(true);
             }
