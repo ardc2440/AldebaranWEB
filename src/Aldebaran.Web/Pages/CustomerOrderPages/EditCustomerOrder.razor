@@ -20,7 +20,7 @@
             <RadzenRow AlignItems="AlignItems.Start" Gap="2rem">
                 <RadzenColumn SizeMD="6">
                     <RadzenStack>
-                        <RadzenFormField Text="Cliente" Gap="2rem" Variant="Variant.Text" Style="width: 100%;" >
+                        <RadzenFormField Text="Cliente" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
                                 <RadzenDropDownDataGrid Data="@customersForCUSTOMERID" TextProperty="CustomerName" ValueProperty="CustomerId" AllowClear=true TabIndex="0" Disabled="true"
                                                         style="display: block; width: 100%" @bind-Value="@customerOrder.CustomerId" Name="CUSTOMER_ID" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true" Placeholder="Seleccione el cliente">
@@ -75,7 +75,7 @@
                     <RadzenStack>
                         <RadzenColumn Size="6">
                             <RadzenText Text="Referencias" TextStyle="TextStyle.H5" TagName="TagName.H1" style="margin: 0" />
-                        </RadzenColumn>                        
+                        </RadzenColumn>
                         <LocalizedDataGrid @ref="customerOrderDetailGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                            Data="@customerOrderDetails" TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail">
                             <Columns>
@@ -91,7 +91,7 @@
                                     <Template Context="detail">
                                         <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
                                                       Click="@(args => EditRow(detail))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Actualizar", new TooltipOptions(){ Position = TooltipPosition.Left }))">
-                                        </RadzenButton>                                        
+                                        </RadzenButton>
                                     </Template>
                                 </RadzenDataGridColumn>
                             </Columns>
