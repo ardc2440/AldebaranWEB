@@ -55,6 +55,7 @@ namespace Aldebaran.Web.Shared
         protected async Task OnAreaChange(object areaId)
         {
             EMPLOYEE_ID = null;
+            await OnEmployeeChange(null);
             if (areaId == null)
             {
                 Employee = null;

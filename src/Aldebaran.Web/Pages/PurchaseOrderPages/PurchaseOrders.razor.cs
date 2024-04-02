@@ -199,7 +199,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido cancelar la orden de compra.\n {ex.Message}"
+                    Detail = $"No se ha podido cancelar la orden de compra."
                 });
             }
         }
@@ -244,7 +244,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido agregar la actividad.\n {ex.Message}"
+                    Detail = $"No se ha podido agregar la actividad."
                 });
             }
         }
@@ -273,7 +273,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido actualizar la actividad.\n {ex.Message}"
+                    Detail = $"No se ha podido actualizar la actividad."
                 });
             }
         }
@@ -300,7 +300,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                     {
                         Severity = NotificationSeverity.Error,
                         Summary = $"Error",
-                        Detail = $"No se ha podido eliminar la actividad.\n {ex.Message}"
+                        Detail = $"No se ha podido eliminar la actividad."
                     });
                 }
             }
@@ -349,7 +349,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido desactivar la alarma.\n {ex.Message}"
+                    Detail = $"No se ha podido desactivar la alarma."
                 });
             }
         }
@@ -389,7 +389,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido crear la alarma.\n {ex.Message}"
+                    Detail = $"No se ha podido crear la alarma."
                 });
             }
         }

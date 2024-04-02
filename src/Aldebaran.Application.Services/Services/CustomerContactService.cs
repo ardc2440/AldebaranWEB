@@ -14,7 +14,10 @@ namespace Aldebaran.Application.Services
             _repository = repository ?? throw new ArgumentNullException(nameof(ICustomerContactRepository));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(IMapper));
         }
-
+        public async Task<bool> ExistsByContactName(int customerId, string contactName, CancellationToken ct = default)
+        {
+            return await _repository.ExistsByContactName(customerId, contactName, ct);
+        }
         public async Task AddAsync(CustomerContact customer, CancellationToken ct = default)
         {
             var data = _mapper.Map<Entities.CustomerContact>(customer);

@@ -10,7 +10,10 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
-
+        public async Task<bool> ExistsByContactName(int customerId, string contactName, CancellationToken ct = default)
+        {
+            return await _context.CustomerContacts.AsNoTracking().AnyAsync(i => i.CustomerId == customerId && i.CustomerContactName.Trim().ToLower() == contactName.Trim().ToLower(), ct);
+        }
         public async Task AddAsync(CustomerContact customerContact, CancellationToken ct = default)
         {
             await _context.CustomerContacts.AddAsync(customerContact, ct);

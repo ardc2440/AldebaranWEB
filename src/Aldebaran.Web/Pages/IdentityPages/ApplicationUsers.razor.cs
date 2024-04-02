@@ -118,7 +118,7 @@ namespace Aldebaran.Web.Pages.IdentityPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido eliminar el inicio de sesión.\n {ex.Message}"
+                    Detail = $"No se ha podido eliminar el inicio de sesión."
                 });
             }
         }
@@ -147,7 +147,7 @@ namespace Aldebaran.Web.Pages.IdentityPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido bloquear el usuario.\n {ex.Message}"
+                    Detail = $"No se ha podido bloquear el usuario."
                 });
             }
         }
@@ -176,7 +176,7 @@ namespace Aldebaran.Web.Pages.IdentityPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido desbloquear el usuario.\n {ex.Message}"
+                    Detail = $"No se ha podido desbloquear el usuario."
                 });
             }
         }

@@ -1,7 +1,6 @@
 @page "/send-to-customer-order/{CustomerReservationId}"
 @page "/send-to-customer-order/{Action}/{CustomerReservationId}"
 
-
 @attribute [Authorize(Roles = "Admin,Customer Reservation Editor")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer
@@ -68,7 +67,7 @@
                         <RadzenRow AlignItems="AlignItems.Start" Gap="2rem" class="m-3">
                             <RadzenFormField Text="Notas" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                                 <ChildContent>
-                                    <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerReservation.Notes" Name="NOTES" ReadOnly="true" Rows="3" />
+                                    <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerReservation.Notes" Name="NOTES" ReadOnly="true" Rows="3" MaxLength="250" />
                                 </ChildContent>
                             </RadzenFormField>
                         </RadzenRow>

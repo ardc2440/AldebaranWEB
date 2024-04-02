@@ -57,7 +57,10 @@ namespace Aldebaran.Web.Pages.IdentityPages
                 IsSubmitInProgress = false;
             }
         }
-
+        bool IsPasswordConfirmationRequired()
+        {
+            return !(!string.IsNullOrEmpty(ApplicationUser.Password) && string.IsNullOrEmpty(ApplicationUser.ConfirmPassword));
+        }
         protected async Task CancelClick()
         {
             DialogService.Close(null);

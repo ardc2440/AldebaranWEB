@@ -266,10 +266,6 @@ li.rz-multiselect-item.rz-state-disabled {
         display: none;
     }
 
-span.rz-dropdown-label.rz-inputtext {
-    line-height: 2em;
-}
-
 .rz-button.rz-secondary.rz-shade-default:hover {
     background: transparent !important;
 }

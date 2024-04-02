@@ -214,7 +214,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido cancelar la reserva.\n {ex.Message}"
+                    Detail = $"No se ha podido cancelar la reserva."
                 });
             }
         }
@@ -260,7 +260,6 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             NavigationManager.NavigateTo("send-to-customer-order/" + args.CustomerReservationId);
         }
 
-
         #region Alarms
 
         protected async Task<bool> CanEditAlarm(bool alarm, int statusOrder)
@@ -299,7 +298,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido desactivar la alarma.\n {ex.Message}"
+                    Detail = $"No se ha podido desactivar la alarma."
                 });
             }
         }
@@ -339,13 +338,12 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido crear la alarma.\n {ex.Message}"
+                    Detail = $"No se ha podido crear la alarma."
                 });
             }
         }
 
         #endregion
-
 
         #endregion
     }

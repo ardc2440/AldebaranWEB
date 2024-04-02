@@ -4,6 +4,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
     public interface ICustomerContactRepository
     {
+        Task<bool> ExistsByContactName(int customerId, string contactName, CancellationToken ct = default);
         Task AddAsync(CustomerContact customer, CancellationToken ct = default);
         Task UpdateAsync(int customerId, CustomerContact customer, CancellationToken ct = default);
         Task DeleteAsync(int customerId, CancellationToken ct = default);

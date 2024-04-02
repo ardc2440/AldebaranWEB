@@ -1,7 +1,14 @@
 @attribute [Authorize(Roles = "Admin,Customer Editor")]
 
 <RadzenColumn SizeMD=12>
-    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">No se ha podido crear el contacto</RadzenAlert>
+    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible" Title="No se ha podido crear el contacto">
+        <ul class="m-0" style="list-style-type:disc">
+            @foreach (var error in ValidationErrors)
+            {
+                <li>@error</li>
+            }
+        </ul>
+    </RadzenAlert>
     <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerContact" Data="@CustomerContact" Visible="@(CustomerContact != null)" Submit="@FormSubmit">
         <RadzenStack>
             <div class="flex-shrink-0">
@@ -46,6 +53,9 @@
                         <ChildContent>
                             <RadzenTextBox style="display: block; width: 100%" @bind-Value="@CustomerContact.Email" Name="Email" MaxLength="30" />
                         </ChildContent>
+                        <Helper>
+                            <RadzenEmailValidator Component="Email" Text="Correo electrónico es inválido" />
+                        </Helper>
                     </RadzenFormField>
                 </RadzenColumn>
             </RadzenRow>
@@ -56,4 +66,3 @@
         </RadzenStack>
     </RadzenTemplateForm>
 </RadzenColumn>
-

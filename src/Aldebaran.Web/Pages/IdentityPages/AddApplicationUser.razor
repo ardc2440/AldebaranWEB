@@ -34,7 +34,7 @@
             </RadzenFormField>
             <RadzenRow AlignItems="Radzen.AlignItems.Start">
                 <RadzenColumn Size="12" SizeMD="6">
-                    <RadzenFormField Text="Contraseña" Variant="Variant.Text" Style="width: 100%;">
+                    <RadzenFormField Text="Contraseña" Variant="Variant.Text" Style="width: 100%;" >
                         <ChildContent>
                             <RadzenPassword @bind-Value="@(ApplicationUser.Password)" style="display: block; width: 100%" Name="Password" AutoCompleteType="Radzen.Blazor.AutoCompleteType.NewPassword" />
                         </ChildContent>
@@ -46,7 +46,7 @@
                 <RadzenColumn Size="12" SizeMD="6">
                     <RadzenFormField Text="Confirmar contraseña" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenPassword style="display: block; width: 100%" @bind-Value="@(ApplicationUser.ConfirmPassword)" Name="ConfirmPassword" />
+                            <RadzenPassword style="display: block; width: 100%" @bind-Value="@(ApplicationUser.ConfirmPassword)" Name="ConfirmPassword"  />
                         </ChildContent>
                         <Helper>
                             <RadzenRequiredValidator Component="ConfirmPassword" Text="Confirmar contraseña es requerido" style="display: block; width: 100%" />

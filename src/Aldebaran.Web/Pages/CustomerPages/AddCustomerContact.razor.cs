@@ -36,6 +36,7 @@ namespace Aldebaran.Web.Pages.CustomerPages
         protected Customer Customer;
         protected City CustomerCity;
         protected bool IsSubmitInProgress;
+        protected List<string> ValidationErrors;
 
         #endregion
 
@@ -60,6 +61,17 @@ namespace Aldebaran.Web.Pages.CustomerPages
             try
             {
                 IsSubmitInProgress = true;
+                ValidationErrors = new List<string>();
+                var contactNameAlreadyExists = await CustomerContactService.ExistsByContactName(CustomerContact.CustomerId, CustomerContact.CustomerContactName);
+                if (contactNameAlreadyExists)
+                {
+                    ValidationErrors.Add("Ya existe un contacto con el mismo nombre.");
+                }
+                if (ValidationErrors.Any())
+                {
+                    IsErrorVisible = true;
+                    return;
+                }
                 await CustomerContactService.AddAsync(CustomerContact);
                 DialogService.Close(true);
             }

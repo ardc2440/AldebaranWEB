@@ -15,7 +15,7 @@
                 </Helper>
             </RadzenFormField>
             <EmployeePicker OnChange="EmployeeHandler" EMPLOYEE_ID="PurchaseOrderActivity.ActivityEmployeeId" />
-            <RadzenRequiredValidator Text="Empleado requerido" Component="EmployeeId" />
+            <RadzenNumericRangeValidator Text="Empleado requerido" Min="1" Component="EmployeeId" />
             <RadzenFormField Text="Descripción" Variant="Variant.Text">
                 <ChildContent>
                     <RadzenTextArea style="display: block; width: 100%" @bind-Value="@PurchaseOrderActivity.ActivityDescription" Name="ActivityDescription" Rows="3" MaxLength="500" />

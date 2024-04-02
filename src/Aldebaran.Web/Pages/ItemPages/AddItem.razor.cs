@@ -33,6 +33,7 @@ namespace Aldebaran.Web.Pages.ItemPages
         protected IEnumerable<ServiceModel.MeasureUnit> MeasureUnits;
         protected IEnumerable<ServiceModel.Currency> Currencies;
         protected IEnumerable<ServiceModel.Line> Lines;
+        protected List<string> ValidationErrors;
         #endregion
 
         #region Overrides
@@ -42,7 +43,6 @@ namespace Aldebaran.Web.Pages.ItemPages
             {
                 IsActive = true
             };
-
             MeasureUnits = await MeasureUnitService.GetAsync();
             Currencies = await CurrencyService.GetAsync();
             Lines = await LineService.GetAsync();
@@ -55,6 +55,22 @@ namespace Aldebaran.Web.Pages.ItemPages
             try
             {
                 IsSubmitInProgress = true;
+                ValidationErrors = new List<string>();
+                var itemNameAlreadyExists = await ItemService.ExistsByItemName(Item.ItemName);
+                if (itemNameAlreadyExists)
+                {
+                    ValidationErrors.Add("Ya existe un artículo con el mismo nombre.");
+                }
+                var internalReferenceAlreadyExists = await ItemService.ExistsByIternalReference(Item.InternalReference);
+                if (internalReferenceAlreadyExists)
+                {
+                    ValidationErrors.Add("Ya existe un artículo con la misma referencia interna.");
+                }
+                if (ValidationErrors.Any())
+                {
+                    IsErrorVisible = true;
+                    return;
+                }
                 await ItemService.AddAsync(Item);
                 DialogService.Close(true);
             }
@@ -67,7 +83,6 @@ namespace Aldebaran.Web.Pages.ItemPages
                 IsSubmitInProgress = false;
             }
         }
-
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
             DialogService.Close(null);

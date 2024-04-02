@@ -41,6 +41,14 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                .Include(i => i.FobMeasureUnit)
                .FirstOrDefaultAsync(f => f.ItemId == itemId, ct);
         }
+        public async Task<bool> ExistsByIternalReference(string internalReference, CancellationToken ct = default)
+        {
+            return await _context.Items.AsNoTracking().AnyAsync(i => i.InternalReference.Trim().ToLower() == internalReference.Trim().ToLower(), ct);
+        }
+        public async Task<bool> ExistsByItemName(string itemName, CancellationToken ct = default)
+        {
+            return await _context.Items.AsNoTracking().AnyAsync(i => i.ItemName.Trim().ToLower() == itemName.Trim().ToLower(), ct);
+        }
 
         public async Task<IEnumerable<Item>> GetAsync(CancellationToken ct = default)
         {
