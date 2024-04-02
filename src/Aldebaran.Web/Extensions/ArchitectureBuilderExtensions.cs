@@ -59,9 +59,6 @@ namespace Aldebaran.Web.Extensions
             builder.Services.AddDbContext<ApplicationIdentityDbContext>(options => { options.UseSqlServer(dbConnection); }, ServiceLifetime.Scoped, ServiceLifetime.Scoped);
             builder.Services.AddIdentity<ApplicationUser, ApplicationRole>().AddEntityFrameworkStores<ApplicationIdentityDbContext>().AddDefaultTokenProviders().AddErrorDescriber<MultilanguageIdentityErrorDescriber>();
             builder.Services.AddScoped<AuthenticationStateProvider, ApplicationAuthenticationStateProvider>();
-            // Temp: Este contexto es el viejo de radzen una vez se estabilice el sistema este dbcontext deberia desaparacer y por ende tambien esta conexion
-            services.AddDbContext<AldebaranDbContext>(options => { options.UseSqlServer(dbConnection); }, ServiceLifetime.Scoped, ServiceLifetime.Scoped);
-            services.AddScoped<AldebaranDbService>();
             // Configuration
             services.Configure<FtpSettings>(configuration.GetSection("FtpSettings"));
             builder.Services.AddControllers().AddOData(o =>
@@ -341,7 +338,13 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<ICustomerSaleReportService, CustomerSaleReportService>();
 
             #endregion
+
+#if DEBUG
+            services.AddTransient<IQueue, FakeQueue>();
+#else
             services.AddTransient<IQueue, RabbitQueue>();
+#endif
+
             services.AddTransient<IQueueSettings, QueueSettings>();
             services.AddTransient<Notificator.INotificationService, Notificator.NotificationService>();
             services.AddTransient<IFtpClient, FtpClient>();
