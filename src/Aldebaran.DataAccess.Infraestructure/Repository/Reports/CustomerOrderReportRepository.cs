@@ -15,5 +15,10 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository.Reports
         {
             return await _context.Set<CustomerOrderReport>().FromSqlRaw($"EXEC SP_GET_CUSTOMER_ORDER_REPORT {filter}").ToListAsync(ct);
         }
+
+        public async Task<IEnumerable<CustomerOrderExport>> GetCustomerOrderExportDataAsync(string filter, CancellationToken ct = default)
+        {
+            return await _context.Set<CustomerOrderExport>().FromSqlRaw($"EXEC SP_GET_CUSTOMER_ORDER_EXPORT {filter}").ToListAsync(ct);
+        }
     }
 }

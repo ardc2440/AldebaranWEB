@@ -182,6 +182,7 @@ namespace Aldebaran.DataAccess
             modelBuilder.Entity<WarehouseTransferReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<FreezoneVsAvailableReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<CustomerSaleReport>(iar => { iar.HasNoKey(); });
+            modelBuilder.Entity<CustomerOrderExport>(iar => { iar.HasNoKey(); });
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken ct = default)

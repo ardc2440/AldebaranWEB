@@ -90,6 +90,7 @@ namespace Aldebaran.Application.Services.Mappings
             CreateMap<WarehouseTransferReport, Entities.Reports.WarehouseTransferReport>().ReverseMap();
             CreateMap<FreezoneVsAvailableReport, Entities.Reports.FreezoneVsAvailableReport>().ReverseMap();
             CreateMap<CustomerSaleReport, Entities.Reports.CustomerSaleReport>().ReverseMap();
+            CreateMap<CustomerOrderExport, Entities.Reports.CustomerOrderExport>().ReverseMap();
 
         }
     }

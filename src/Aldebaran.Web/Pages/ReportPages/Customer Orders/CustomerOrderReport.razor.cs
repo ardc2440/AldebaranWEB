@@ -242,14 +242,16 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders
         }
         async Task ExportClick(RadzenSplitButtonItem args)
         {
+            var filter = Filter == null ? "NoFilter" : await SetReportFilterAsync(Filter);
+
             if (args?.Value == "csv")
             {
-                NavigationManager.NavigateTo($"export/aldebarandb/customer-order/csv(fileName='{UrlEncoder.Default.Encode("Ordenes por cliente")}')", true);
+                NavigationManager.NavigateTo($"export/aldebarandb/customer-order/csv(fileName='{UrlEncoder.Default.Encode("Ordenes por cliente")}',filter='{UrlEncoder.Default.Encode(filter)}')", true);
             }
 
             if (args == null || args.Value == "xlsx")
             {
-                NavigationManager.NavigateTo($"export/AldebaranDb/customer-order/excel(fileName='{UrlEncoder.Default.Encode("Ordenes por cliente")}')", true);
+                NavigationManager.NavigateTo($"export/AldebaranDb/customer-order/excel(fileName='{UrlEncoder.Default.Encode("Ordenes por cliente")}',filter='{UrlEncoder.Default.Encode(filter)}')", true);
             }
         }
         async Task ToggleReadMore()

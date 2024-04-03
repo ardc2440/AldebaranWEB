@@ -1,4 +1,5 @@
 using Aldebaran.Application.Services;
+using Aldebaran.Application.Services.Reports;
 using Aldebaran.Web.Utils;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel;
@@ -9,10 +10,12 @@ namespace Aldebaran.Web.Controllers
     {
         private readonly IItemService ItemService;
         private readonly IExportHelper ExportHelper;
-        public ExportAldebaranDbController(IItemService ItemService, IExportHelper ExportHelper)
+        private readonly ICustomerOrderReportService CustomerOrderReportService;
+        public ExportAldebaranDbController(ICustomerOrderReportService CustomerOrderReportService, IItemService ItemService, IExportHelper ExportHelper)
         {
             this.ItemService = ItemService;
             this.ExportHelper = ExportHelper;
+            this.CustomerOrderReportService = CustomerOrderReportService;
         }
 
         [HttpGet("/export/AldebaranDb/items/csv")]
@@ -32,33 +35,25 @@ namespace Aldebaran.Web.Controllers
         }
 
         [HttpGet("/export/AldebaranDb/customer-order/csv")]
-        [HttpGet("/export/AldebaranDb/customer-order/csv(fileName='{fileName}')")]
-        public async Task<FileStreamResult> ExportCustomerOrderToCSV(string fileName = null, CancellationToken ct = default)
+        [HttpGet("/export/AldebaranDb/customer-order/csv(fileName='{fileName}',filter='{filter}')")]
+        public async Task<FileStreamResult> ExportCustomerOrderToCSV(string fileName = null, string filter = null, CancellationToken ct = default)
         {
-            //TODO: Obtener informacion del pedido
-            var data = new List<CustomerOrderFlatData>() {
-                new CustomerOrderFlatData {
-                    CustomerName="Javier Linares",
-                    Fax="09145821327",
-                    Phone="3168849474"
-                }
-            };
-            return ExportHelper.ToCSV(data.ToList(), fileName);
+            filter = filter == "NoFilter" ? "" : filter;
+
+            var dataReport = await CustomerOrderReportService.GetCustomerOrderExportDataAsync(filter, ct);
+                        
+            return ExportHelper.ToCSV(dataReport.ToList(), fileName);
         }
 
         [HttpGet("/export/AldebaranDb/customer-order/excel")]
-        [HttpGet("/export/AldebaranDb/customer-order/excel(fileName='{fileName}')")]
-        public async Task<FileStreamResult> ExportCustomerOrderToExcel(string fileName = null, CancellationToken ct = default)
+        [HttpGet("/export/AldebaranDb/customer-order/excel(fileName='{fileName}',filter='{filter}')")]
+        public async Task<FileStreamResult> ExportCustomerOrderToExcel(string fileName = null, string filter = null, CancellationToken ct = default)
         {
-            //TODO: Obtener informacion del pedido
-            var data = new List<CustomerOrderFlatData>() {
-                new CustomerOrderFlatData {
-                    CustomerName="Javier Linares",
-                    Fax="09145821327",
-                    Phone="3168849474"
-                }
-            };
-            return ExportHelper.ToExcel(data.ToList(), fileName);
+            filter = filter == "NoFilter" ? "" : filter;
+            
+            var dataReport = await CustomerOrderReportService.GetCustomerOrderExportDataAsync(filter, ct);
+                       
+            return ExportHelper.ToExcel(dataReport.ToList(), fileName);
         }
 
         class CustomerOrderFlatData

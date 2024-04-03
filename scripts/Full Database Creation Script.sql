@@ -2477,7 +2477,7 @@ BEGIN
 END
 GO
 
-CREATE OR ALTER PROCEDURE SP_GET_CUSTOMER_ORDER_XLS
+CREATE OR ALTER PROCEDURE SP_GET_CUSTOMER_ORDER_EXPORT
 	@OrderNumber VARCHAR(10) = NULL,
 	@CreationDateFrom DATE = NULL,
 	@CreationDateTo DATE = NULL,
@@ -2507,13 +2507,13 @@ BEGIN
 		INSERT INTO @FilterReferences
 			 SELECT REFERENCE_ID 
 			   FROM item_references
-
-	SELECT a.ORDER_NUMBER Pedido, b.CUSTOMER_NAME Cliente, b.IDENTITY_NUMBER Nit, 
-		   (ISNULL(b.CELL_PHONE+', ','')+ISNULL(b.PHONE2+', ','')+ISNULL(b.PHONE1,'')) Telefonos,
-		   c.CITY_NAME Ciudad, a.CREATION_DATE [Fecha Creación], f.ITEM_NAME Item, f.INTERNAL_REFERENCE [Referencia Item], e.REFERENCE_NAME [Referencia], e.REFERENCE_CODE [Código Referencia],
-		   d.REQUESTED_QUANTITY [Cant. Pedido], d.DELIVERED_QUANTITY [Cant. Enviada],  d.REQUESTED_QUANTITY - d.DELIVERED_QUANTITY - d.PROCESSED_QUANTITY [CANT. PENDIENTE X ENTREGA], d.PROCESSED_QUANTITY [Cant. Proceso],
-		   a.ESTIMATED_DELIVERY_DATE [FECHA EST. ENTREGA], a.INTERNAL_NOTES [Observaciones Internas], a.CUSTOMER_NOTES [Observaciones Cliente],
-		   g.DELIVERY_NOTE Remision, g.SHIPPING_DATE [Fecha Envio], g.NOTES [Observaciones Envio], 
+			   			   
+	SELECT a.ORDER_NUMBER OrderNumber, b.CUSTOMER_NAME CustomerName, b.IDENTITY_NUMBER IdentityNumber, 
+		   (ISNULL(b.CELL_PHONE+', ','')+ISNULL(b.PHONE2+', ','')+ISNULL(b.PHONE1,'')) Phone,
+		   c.CITY_NAME CityName, a.ORDER_DATE OrderDate, f.ITEM_NAME ItemName, f.INTERNAL_REFERENCE ItemCode, e.REFERENCE_NAME ReferenceName, e.REFERENCE_CODE ReferenceCode,
+		   d.REQUESTED_QUANTITY Amount, d.DELIVERED_QUANTITY DeliveredAmount,  d.REQUESTED_QUANTITY - d.DELIVERED_QUANTITY - d.PROCESSED_QUANTITY PendingAmount, d.PROCESSED_QUANTITY ProcessedAmount,
+		   a.ESTIMATED_DELIVERY_DATE EstimatedDeliveryDate, a.INTERNAL_NOTES InternalNotes, a.CUSTOMER_NOTES CustomerNotes,
+		   g.DELIVERY_NOTE DeliveriNote, g.SHIPPING_DATE ShippingDate, g.NOTES ShippingNotes, 
 		   CASE 
 				WHEN EXISTS (SELECT 1 FROM @FinishedStatus WHERE STATUS_DOCUMENT_TYPE_ID = a.STATUS_DOCUMENT_TYPE_ID) THEN 
 					h.STATUS_DOCUMENT_TYPE_NAME
@@ -2523,7 +2523,7 @@ BEGIN
 					'Totalmente atendido'
 				ELSE	
 					'Parcialmente atendido'
-			END Estado
+			END Status
 	  FROM customer_orders a
 	  JOIN customers b ON b.CUSTOMER_ID = a.CUSTOMER_ID
 	  JOIN cities c ON c.CITY_ID = b.CITY_ID
@@ -2543,3 +2543,4 @@ BEGIN
 	   AND (A.CUSTOMER_ID = @CustomerId OR @CustomerId IS NULL)
 END 
 GO
+
