@@ -5,7 +5,7 @@ namespace Aldebaran.Application.FileWritingService.Workers.Inventory.Models
     public class InventoryExcelViewModel
     {
         // Linea
-        [DisplayName("Codigo de la línea")]
+        [DisplayName("Código de la línea")]
         public short LineId { get; set; }
         [DisplayName("Línea")]
         public string LineName { get; set; }
