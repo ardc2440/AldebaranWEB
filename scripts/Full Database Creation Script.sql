@@ -240,6 +240,13 @@ IF EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IND_WAREHOUSE_TRANSFER_DETAIL
 GO
 
 /*****************Borrado de tablas******************/
+IF OBJECT_ID('log.logs', 'U') IS NOT NULL
+	DROP TABLE log.logs
+GO
+
+IF EXISTS (SELECT 1 FROM sys.schemas WHERE name = 'log')	
+	DROP SCHEMA [log]
+GO
 
 IF OBJECT_ID('NOTIFICATION_PROVIDER_SETTINGS', 'U') IS NOT NULL
 	DROP TABLE NOTIFICATION_PROVIDER_SETTINGS
@@ -1614,6 +1621,25 @@ GO
 SET IDENTITY_INSERT [dbo].[notification_provider_settings] ON 
 GO
 
+CREATE SCHEMA [log]
+GO
+
+CREATE TABLE [log].[Logs](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Message] [nvarchar](max) NULL,
+	[MessageTemplate] [nvarchar](max) NULL,
+	[Level] [nvarchar](max) NULL,
+	[TimeStamp] [datetime] NULL,
+	[Exception] [nvarchar](max) NULL,
+	[Properties] [nvarchar](max) NULL,
+	[Source] [nvarchar](100) NULL,
+ CONSTRAINT [PK_Logs] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
 /************creacion de indices*******************/
 
 CREATE INDEX IND_ITEMS_LINE ON ITEMS (LINE_ID)
@@ -2449,4 +2475,71 @@ BEGIN
 	  FROM @CustomerOrders a
 	  LEFT OUTER JOIN @ShippingOrders b ON b.CustomerOrderDetailId = a.OrderDetailId	
 END
+GO
+
+CREATE OR ALTER PROCEDURE SP_GET_CUSTOMER_ORDER_XLS
+	@OrderNumber VARCHAR(10) = NULL,
+	@CreationDateFrom DATE = NULL,
+	@CreationDateTo DATE = NULL,
+	@OrderDateFrom DATE = NULL,
+	@OrderDateTo DATE = NULL,
+	@EstimatedDeliveryDateFrom DATE = NULL,
+	@EstimatedDeliveryDateTo DATE = NULL,
+	@StatusDocumentTypeId SMALLINT = NULL,
+    @CustomerId INT = NULL,
+	@ReferenceIds VARCHAR(MAX) = ''	
+AS
+BEGIN
+	DECLARE @FinishedStatus TABLE (STATUS_DOCUMENT_TYPE_ID INT)
+	
+	INSERT INTO @FinishedStatus
+		 SELECT STATUS_DOCUMENT_TYPE_ID
+		   FROM status_document_types a
+		   JOIN document_types b ON b.DOCUMENT_TYPE_ID = a.DOCUMENT_TYPE_ID
+		  WHERE DOCUMENT_TYPE_CODE = 'P' AND STATUS_ORDER IN (5,6)
+
+	DECLARE @FilterReferences TABLE (ReferenceId INT)
+	
+	IF LEN(RTRIM(@ReferenceIds)) > 0
+		INSERT INTO @FilterReferences
+			 SELECT value FROM STRING_SPLIT(@ReferenceIds,',')
+	ELSE
+		INSERT INTO @FilterReferences
+			 SELECT REFERENCE_ID 
+			   FROM item_references
+
+	SELECT a.ORDER_NUMBER Pedido, b.CUSTOMER_NAME Cliente, b.IDENTITY_NUMBER Nit, 
+		   (ISNULL(b.CELL_PHONE+', ','')+ISNULL(b.PHONE2+', ','')+ISNULL(b.PHONE1,'')) Telefonos,
+		   c.CITY_NAME Ciudad, a.CREATION_DATE [Fecha Creación], f.ITEM_NAME Item, f.INTERNAL_REFERENCE [Referencia Item], e.REFERENCE_NAME [Referencia], e.REFERENCE_CODE [Código Referencia],
+		   d.REQUESTED_QUANTITY [Cant. Pedido], d.DELIVERED_QUANTITY [Cant. Enviada],  d.REQUESTED_QUANTITY - d.DELIVERED_QUANTITY - d.PROCESSED_QUANTITY [CANT. PENDIENTE X ENTREGA], d.PROCESSED_QUANTITY [Cant. Proceso],
+		   a.ESTIMATED_DELIVERY_DATE [FECHA EST. ENTREGA], a.INTERNAL_NOTES [Observaciones Internas], a.CUSTOMER_NOTES [Observaciones Cliente],
+		   g.DELIVERY_NOTE Remision, g.SHIPPING_DATE [Fecha Envio], g.NOTES [Observaciones Envio], 
+		   CASE 
+				WHEN EXISTS (SELECT 1 FROM @FinishedStatus WHERE STATUS_DOCUMENT_TYPE_ID = a.STATUS_DOCUMENT_TYPE_ID) THEN 
+					h.STATUS_DOCUMENT_TYPE_NAME
+				WHEN d.DELIVERED_QUANTITY = 0 and d.PROCESSED_QUANTITY = 0 THEN 
+					'Pendiente'
+				WHEN d.DELIVERED_QUANTITY = d.REQUESTED_QUANTITY THEN 
+					'Totalmente atendido'
+				ELSE	
+					'Parcialmente atendido'
+			END Estado
+	  FROM customer_orders a
+	  JOIN customers b ON b.CUSTOMER_ID = a.CUSTOMER_ID
+	  JOIN cities c ON c.CITY_ID = b.CITY_ID
+	  JOIN customer_order_details d ON d.CUSTOMER_ORDER_ID = a.CUSTOMER_ORDER_ID
+	  JOIN item_references e ON e.REFERENCE_ID = d.REFERENCE_ID
+	  JOIN items f ON f.ITEM_ID = e.ITEM_ID
+	  LEFT JOIN customer_order_shipments g ON g.CUSTOMER_ORDER_ID = a.CUSTOMER_ORDER_ID
+	  LEFT JOIN customer_order_shipment_details i ON i.CUSTOMER_ORDER_SHIPMENT_ID = g.CUSTOMER_ORDER_SHIPMENT_ID
+												 AND i.CUSTOMER_ORDER_DETAIL_ID = d.CUSTOMER_ORDER_DETAIL_ID	
+	  JOIN status_document_types h ON h.STATUS_DOCUMENT_TYPE_ID = a.STATUS_DOCUMENT_TYPE_ID
+	 WHERE EXISTS (SELECT 1 FROM @FilterReferences fr WHERE fr.ReferenceId = e.REFERENCE_ID)
+	   AND (a.ORDER_NUMBER LIKE '%'+@OrderNumber+'%' OR @OrderNumber IS NULL)
+	   AND (a.CREATION_DATE BETWEEN @CreationDateFrom AND @CreationDateTo OR @CreationDateFrom IS NULL)
+	   AND (a.ORDER_DATE BETWEEN @OrderDateFrom AND @OrderDateTo OR @OrderDateFrom IS NULL)
+	   AND (a.ESTIMATED_DELIVERY_DATE BETWEEN @EstimatedDeliveryDateFrom AND @EstimatedDeliveryDateTo OR @EstimatedDeliveryDateFrom IS NULL)
+	   AND (a.STATUS_DOCUMENT_TYPE_ID = @StatusDocumentTypeId OR @StatusDocumentTypeId IS NULL)
+	   AND (A.CUSTOMER_ID = @CustomerId OR @CustomerId IS NULL)
+END 
 GO

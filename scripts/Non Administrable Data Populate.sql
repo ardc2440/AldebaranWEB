@@ -772,6 +772,23 @@ INSERT INTO ALARM_TYPES (NAME, DESCRIPTION, IS_MANUAL_MESSAGE, DOCUMENT_TYPE_ID,
 INSERT INTO ALARM_TYPES (NAME, DESCRIPTION, IS_MANUAL_MESSAGE, DOCUMENT_TYPE_ID, TABLE_NAME, FIELD_NAME) VALUES('Reservas', 'Alarmas para Reservas, con mensajes predefinidos en el sistema',0 , (select DOCUMENT_TYPE_ID from DOCUMENT_TYPES where DOCUMENT_TYPE_CODE = 'R'), NULL, NULL)
 GO
 
+INSERT INTO cancellation_reasons (CANCELLATION_REASON_NAME, DOCUMENT_TYPE_ID, NOTES)
+     VALUES ('Cancelación Orden de Compra', 1, 'Reason de prueba No 1'), 
+			('Cancelación Pedido', 2,'Reason de prueba de Prueba No2'), 
+			('Cancelacion de Reserva', 3,'Reason de prueba de Prueba No3') 
+GO
+
+INSERT INTO close_customer_order_reasons (REASON_NAME, NOTES)
+     VALUES ('Cierre de Pedido 1', 'Reason de prueba No 1'), 
+			('Cierre de Pedido 2', 'Reason de prueba No 2')
+GO
+
+INSERT INTO modification_reasons (MODIFICATION_REASON_NAME, DOCUMENT_TYPE_ID, NOTES)
+     VALUES ('Modificación Orden de Compra', 1, 'Reason de prueba No 1'), 
+			('Modificación Pedido', 2,'Reason de prueba de Prueba No2'), 
+			('Modificación de Reserva', 3,'Reason de prueba de Prueba No3') 
+GO
+			
 /*populate currencies*/
 INSERT INTO CURRENCIES (CURRENCY_NAME) VALUES('EURO')
 INSERT INTO CURRENCIES (CURRENCY_NAME) VALUES('USD')
