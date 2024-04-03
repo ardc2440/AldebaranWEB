@@ -1,6 +1,7 @@
 ﻿@page "/report/inventory"
 @inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer
 
+<PageTitle>Reporte de inventario</PageTitle>
 <RadzenStack Style="gap:0.3em">
     <RadzenRow AlignItems="AlignItems.Start">
         <RadzenColumn Size="12">
@@ -166,11 +167,8 @@
 
                                                                         @if (!reference.PurchaseOrders.Any())
                                                                         {
-                                                                            <tr style='@(odd?"background: #f5f5f5;":"")'>
-                                                                                <td width="10%"></td>
-                                                                                <td width="10%"></td>
-                                                                                <td width="10%"></td>
-                                                                                <td width="20%"></td>
+                                                                            <tr class="m-0 p-0">
+                                                                                <td width="100%" colspan="4" class="m-0 p-0"></td>
                                                                             </tr>
                                                                         }
 
@@ -178,19 +176,18 @@
                                                                         {
                                                                             var purchaseOrder = reference.PurchaseOrders[p];
                                                                             <tr style='@(odd?"background: #f5f5f5;":"")'>
-                                                                                <td width="10%">@purchaseOrder.Date.ToString(SharedLocalizer["date:format"])</td>
+                                                                                <td width="10%">@purchaseOrder.Date?.ToString(SharedLocalizer["date:format"])</td>
                                                                                 <td width="10%">@purchaseOrder.Warehouse</td>
                                                                                 <td width="10%">@purchaseOrder.Total.ToString("N0")</td>
                                                                                 <td width="20%">
                                                                                     @foreach (var purchaseOrderActivity in purchaseOrder.Activities)
                                                                                     {
-                                                                                        <p>@purchaseOrderActivity.Date</p>
+                                                                                        <p>@purchaseOrderActivity.Date?.ToString(SharedLocalizer["date:format"])</p>
                                                                                         <p>@purchaseOrderActivity.Description</p>
                                                                                     }
                                                                                 </td>
                                                                             </tr>
                                                                         }
-
                                                                     }
                                                                 </tbody>
                                                             </table>

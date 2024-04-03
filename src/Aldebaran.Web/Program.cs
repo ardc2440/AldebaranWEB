@@ -30,7 +30,7 @@ static void ConfigureServices(WebApplicationBuilder builder)
     CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 
     var configuration = builder.Configuration;
-    var dbConnection = configuration.GetConnectionString("AldebaranDbConnection") ?? throw new KeyNotFoundException("AldebaranDbConnection");
+    var logDbConnection = configuration.GetConnectionString("LogDbConnection") ?? throw new KeyNotFoundException("LogDbConnection");
     // Logging
     builder.Logging.ClearProviders();
     builder.Logging.SetMinimumLevel(LogLevel.Trace);
@@ -41,7 +41,7 @@ static void ConfigureServices(WebApplicationBuilder builder)
     .MinimumLevel.Information()
     .Enrich.FromLogContext()
     .Enrich.WithProperty("Source", "Aldebaran.Web")
-    .WriteTo.MSSqlServer(dbConnection, sinkOptions: new MSSqlServerSinkOptions
+    .WriteTo.MSSqlServer(logDbConnection, sinkOptions: new MSSqlServerSinkOptions
     {
         TableName = "logs",
         SchemaName = "log"

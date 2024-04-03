@@ -1,4 +1,5 @@
 ﻿using Aldebaran.Application.Services.Reports;
+using Aldebaran.Infraestructure.Common.Utils;
 using Aldebaran.Web.Pages.ReportPages.Warehouse_Stock.Components;
 using Aldebaran.Web.Pages.ReportPages.Warehouse_Stock.ViewModel;
 using Microsoft.AspNetCore.Components;
@@ -18,7 +19,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Stock
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected IPdfService PdfService { get; set; }
+        protected IFileBytesGeneratorService FileBytesGeneratorService { get; set; }
 
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
@@ -44,7 +45,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Stock
 
         #region Events
 
-        async Task RedrawReport(string filter="", CancellationToken ct = default)
+        async Task RedrawReport(string filter = "", CancellationToken ct = default)
         {
             try
             {
@@ -105,7 +106,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Stock
         {
             IsBusy = true;
             var html = await JSRuntime.InvokeAsync<string>("getContent", "warehouse-stock-report-container");
-            var pdfBytes = await PdfService.GetBytes(html, true);
+            var pdfBytes = await FileBytesGeneratorService.GetPdfBytes(html, true);
             await JSRuntime.InvokeVoidAsync("downloadFile", "Existencias de artículos.pdf", "application/pdf", Convert.ToBase64String(pdfBytes));
             IsBusy = false;
         }

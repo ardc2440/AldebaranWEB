@@ -1,5 +1,5 @@
 ﻿using Aldebaran.Application.Services.Reports;
-using Aldebaran.Web.Pages.ReportPages.Customer_Orders.ViewModel;
+using Aldebaran.Infraestructure.Common.Utils;
 using Aldebaran.Web.Pages.ReportPages.Customer_Sales.Components;
 using Aldebaran.Web.Pages.ReportPages.Customer_Sales.ViewModel;
 using Microsoft.AspNetCore.Components;
@@ -19,7 +19,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Sales
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected IPdfService PdfService { get; set; }
+        protected IFileBytesGeneratorService FileBytesGeneratorService { get; set; }
 
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
@@ -125,7 +125,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Sales
         {
             IsBusy = true;
             var html = await JSRuntime.InvokeAsync<string>("getContent", "customer-sales-report-container");
-            var pdfBytes = await PdfService.GetBytes(html, true);
+            var pdfBytes = await FileBytesGeneratorService.GetPdfBytes(html, true);
             await JSRuntime.InvokeVoidAsync("downloadFile", "Ventas por cliente.pdf", "application/pdf", Convert.ToBase64String(pdfBytes));
             IsBusy = false;
         }
@@ -185,7 +185,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Sales
 
             foreach (var reference in DataReport.Where(w => w.CustomerOrderId == orderId)
                                         .Select(s => new { s.OrderDetailId, s.Amount, s.DeliveredAmount, s.ItemName, s.ItemReference, s.ReferenceCode, s.ReferenceName })
-                                        .DistinctBy(d => d.OrderDetailId).OrderBy(o => o.ItemName).OrderBy(o=>o.ReferenceName))
+                                        .DistinctBy(d => d.OrderDetailId).OrderBy(o => o.ItemName).OrderBy(o => o.ReferenceName))
             {
                 orderReferences.Add(new CustomerSalesViewModel.Reference
                 {
@@ -228,7 +228,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Sales
             var shipmentReferences = new List<CustomerSalesViewModel.ShipmentReference>();
 
             foreach (var shipmentReference in DataReport.Where(w => w.ShipmentId == shipmentId && w.OrderDetailId == orderDetailId).Select(s => new { s.ShipmentDetailId, s.ShipmentItemReference, s.ShipmentItemName, s.ShipmentReferenceCode, s.ShipmentReferenceName, s.ShipmentAmount })
-                .DistinctBy(d => d.ShipmentDetailId).OrderBy(o => o.ShipmentItemName).OrderBy(o=>o.ShipmentReferenceName))
+                .DistinctBy(d => d.ShipmentDetailId).OrderBy(o => o.ShipmentItemName).OrderBy(o => o.ShipmentReferenceName))
             {
                 shipmentReferences.Add(new CustomerSalesViewModel.ShipmentReference
                 {

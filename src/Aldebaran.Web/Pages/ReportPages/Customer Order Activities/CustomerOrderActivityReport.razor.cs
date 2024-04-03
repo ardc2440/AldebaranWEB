@@ -1,10 +1,8 @@
 ﻿using Aldebaran.Application.Services.Reports;
+using Aldebaran.Infraestructure.Common.Utils;
 using Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities.Components;
 using Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities.ViewModel;
-using Aldebaran.Web.Pages.ReportPages.Customer_Orders.ViewModel;
-using Humanizer;
 using Microsoft.AspNetCore.Components;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.JSInterop;
 using Radzen;
@@ -21,7 +19,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected IPdfService PdfService { get; set; }
+        protected IFileBytesGeneratorService FileBytesGeneratorService { get; set; }
 
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
@@ -124,7 +122,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
         {
             IsBusy = true;
             var html = await JSRuntime.InvokeAsync<string>("getContent", "customer-order-activity-report-container");
-            var pdfBytes = await PdfService.GetBytes(html, true);
+            var pdfBytes = await FileBytesGeneratorService.GetPdfBytes(html, true);
             await JSRuntime.InvokeVoidAsync("downloadFile", "Actividades de pedidos.pdf", "application/pdf", Convert.ToBase64String(pdfBytes));
             IsBusy = false;
         }

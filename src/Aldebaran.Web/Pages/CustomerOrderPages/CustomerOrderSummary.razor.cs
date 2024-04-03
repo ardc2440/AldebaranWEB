@@ -2,6 +2,7 @@
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Application.Services.Notificator;
 using Aldebaran.Application.Services.Notificator.Model;
+using Aldebaran.Infraestructure.Common.Utils;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
@@ -22,7 +23,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected ICustomerOrderDetailService CustomerOrderDetailService { get; set; }
 
         [Inject]
-        protected IPdfService PdfService { get; set; }
+        protected IFileBytesGeneratorService FileBytesGeneratorService { get; set; }
 
         [Inject]
         protected DialogService DialogService { get; set; }
@@ -66,7 +67,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         {
             IsBusy = true;
             var html = await JSRuntime.InvokeAsync<string>("getContent", "customer-order-summary");
-            var pdfBytes = await PdfService.GetBytes(html);
+            var pdfBytes = await FileBytesGeneratorService.GetPdfBytes(html);
             await JSRuntime.InvokeVoidAsync("downloadFile", "Pedidos.pdf", "application/pdf", Convert.ToBase64String(pdfBytes));
             IsBusy = false;
         }
@@ -76,7 +77,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         {
             IsBusy = true;
             var html = await JSRuntime.InvokeAsync<string>("getContent", "customer-order-summary");
-            var pdfBytes = await PdfService.GetBytes(html);
+            var pdfBytes = await FileBytesGeneratorService.GetPdfBytes(html);
             string pdfBase64 = Convert.ToBase64String(pdfBytes);
             string[] emails = { CustomerOrder.Customer.Email1, CustomerOrder.Customer.Email2, CustomerOrder.Customer.Email3 };
 
