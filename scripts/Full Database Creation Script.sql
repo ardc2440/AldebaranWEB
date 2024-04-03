@@ -514,6 +514,7 @@ CREATE TABLE warehouses
 (
   WAREHOUSE_ID smallint NOT NULL IDENTITY(1,1),
   WAREHOUSE_NAME varchar(30) NOT NULL,
+  IS_CATALOG_VISIBLE BIT NOT NULL DEFAULT 0,
   WAREHOUSE_CODE smallint NOT NULL,
   CONSTRAINT PK_WAREHOUSE PRIMARY KEY (WAREHOUSE_ID),
   CONSTRAINT UQ_WAREHOUSE_NAME UNIQUE (WAREHOUSE_NAME),
@@ -713,7 +714,7 @@ CREATE TABLE forwarder_agents
   EMAIL1 varchar(30),
   EMAIL2 varchar(30),
   CONSTRAINT PK_FORWARDER_AGENT PRIMARY KEY (FORWARDER_AGENT_ID),
-  CONSTRAINT UQ_FORWARDER_AGENT_NAME UNIQUE (FORWARDER_AGENT_NAME),
+  CONSTRAINT UQ_FORWARDER_AGENT_NAME UNIQUE (FORWARDER_ID, FORWARDER_AGENT_NAME),
   CONSTRAINT FK_FORWARDER_AGENT_CITY FOREIGN KEY (CITY_ID) REFERENCES CITIES (CITY_ID),
   CONSTRAINT FK_FORWARDER_AGENT_FORWARDER 
 	FOREIGN KEY (FORWARDER_ID) REFERENCES FORWARDERS (FORWARDER_ID)
@@ -1757,12 +1758,13 @@ END
 GO
 
 CREATE OR ALTER PROCEDURE SP_GET_INVENTORY_REPORT
-	@ReferenceIds VARCHAR(MAX)
+	@ReferenceIds VARCHAR(MAX) = '',
+	@LineId SMALLINT = NULL
 AS
 BEGIN
 	DECLARE @FilterReferences TABLE (ReferenceId INT)
 	
-	DECLARE @TABLA Table 
+	DECLARE @PurchaseOrders Table 
 		(
 			EXPECTED_RECEIPT_DATE DATE, 
 			WAREHOUSE_NAME VARCHAR(30), 
@@ -1774,6 +1776,19 @@ BEGIN
 			ACTIVITY_DESCRIPTION VARCHAR(500)
 		) 
 
+	DECLARE @Inventory TABLE
+	(	
+		LineId SMALLINT, 
+		LineName VARCHAR(30), 
+		InternalReference VARCHAR(30), 
+		ItemName VARCHAR(50), 
+		ItemId INT, 
+		ReferenceName VARCHAR(30), 
+		AvailableAmount INT, 
+		FreeZone INT, 
+		ReferenceId INT
+	)
+	
 	IF LEN(RTRIM(@ReferenceIds)) > 0
 		INSERT INTO @FilterReferences
 			 SELECT value FROM STRING_SPLIT(@ReferenceIds,',')
@@ -1781,29 +1796,34 @@ BEGIN
 		INSERT INTO @FilterReferences
 			 SELECT REFERENCE_ID 
 			   FROM item_references
+			   	
+	INSERT INTO @Inventory
+		 SELECT c.LINE_ID LineId, c.LINE_NAME LineName, b.INTERNAL_REFERENCE InternalReference, b.ITEM_NAME ItemName, b.ITEM_ID ItemId, a.REFERENCE_NAME ReferenceName, 
+			    (a.INVENTORY_QUANTITY - a.RESERVED_QUANTITY - a.ORDERED_QUANTITY) AvailableAmount, 
+			    d.QUANTITY FreeZone, a.REFERENCE_ID ReferenceId 
+		   FROM item_references a 
+		   JOIN items b ON b.ITEM_ID = a.ITEM_ID AND b.IS_ACTIVE = 1 And b.IS_EXTERNAL_INVENTORY = 1
+		   JOIN lines c ON c.LINE_ID = b.LINE_ID
+		   JOIN references_warehouse d ON d.REFERENCE_ID = a.REFERENCE_ID
+		   JOIN warehouses ZonaFranca ON ZonaFranca.WAREHOUSE_ID = d.WAREHOUSE_ID AND ZonaFranca.WAREHOUSE_CODE = 2 	  
+		  WHERE a.IS_ACTIVE = 1 
+		    AND EXISTS (SELECT 1 FROM @FilterReferences fr WHERE fr.ReferenceId = a.REFERENCE_ID)  
+		    AND (c.LINE_ID = @LineId OR @LineId IS NULL)
 
-	INSERT INTO @TABLA
+	INSERT INTO @PurchaseOrders
 		 SELECT a.EXPECTED_RECEIPT_DATE, d.WAREHOUSE_NAME, c.REQUESTED_QUANTITY, a.PURCHASE_ORDER_ID, c.REFERENCE_ID, e.EXECUTION_DATE, e.PURCHASE_ORDER_ACTIVITY_ID, e.ACTIVITY_DESCRIPTION 
 		   FROM purchase_orders a
 		   JOIN status_document_types b on b.STATUS_DOCUMENT_TYPE_ID = a.STATUS_DOCUMENT_TYPE_ID AND b.STATUS_ORDER = 2
 		   JOIN purchase_order_details c on c.PURCHASE_ORDER_ID = a.PURCHASE_ORDER_ID
 		   JOIN warehouses d ON d.WAREHOUSE_ID = c.WAREHOUSE_ID		   
 		   LEFT OUTER JOIN purchase_order_activities e on e.PURCHASE_ORDER_ID = a.PURCHASE_ORDER_ID
-          WHERE EXISTS (SELECT 1 FROM @FilterReferences fr WHERE fr.ReferenceId = c.REFERENCE_ID) 
-
-	SELECT c.LINE_ID LineId, c.LINE_NAME LineName, b.INTERNAL_REFERENCE InternalReference, b.ITEM_NAME ItemName, b.ITEM_ID ItemId, a.REFERENCE_NAME ReferenceName, 
-		   (a.INVENTORY_QUANTITY - a.RESERVED_QUANTITY - a.ORDERED_QUANTITY) AvailableAmount, 
-		   d.QUANTITY FreeZone, a.REFERENCE_ID ReferenceId, e.EXPECTED_RECEIPT_DATE OrderDate, e.WAREHOUSE_NAME Warehouse, e.REQUESTED_QUANTITY Total, 
+          WHERE EXISTS (SELECT 1 FROM @Inventory fr WHERE fr.ReferenceId = c.REFERENCE_ID) 		    
+		  		   
+	SELECT LineId, LineName, InternalReference, ItemName, ItemId, ReferenceName, AvailableAmount, FreeZone, ReferenceId,
+		   e.EXPECTED_RECEIPT_DATE OrderDate, e.WAREHOUSE_NAME Warehouse, e.REQUESTED_QUANTITY Total, 
 		   e.PURCHASE_ORDER_ID PurchaseOrderId, e.EXECUTION_DATE ActivityDate, e.ACTIVITY_DESCRIPTION Description
-	  FROM item_references a 
-	  JOIN items b ON b.ITEM_ID = a.ITEM_ID AND b.IS_ACTIVE = 1 And b.IS_EXTERNAL_INVENTORY = 1
-	  JOIN lines c ON c.LINE_ID = b.LINE_ID
-	  JOIN references_warehouse d ON d.REFERENCE_ID = a.REFERENCE_ID
-	  JOIN warehouses ZonaFranca ON ZonaFranca.WAREHOUSE_ID = d.WAREHOUSE_ID AND ZonaFranca.WAREHOUSE_CODE = 2 
-	  LEFT OUTER JOIN @TABLA e on e.REFERENCE_ID = a.REFERENCE_ID
-	 WHERE a.IS_ACTIVE = 1 
-	   AND EXISTS (SELECT 1 FROM @FilterReferences fr WHERE fr.ReferenceId = a.REFERENCE_ID)  
-
+	  FROM @Inventory a
+	  LEFT OUTER JOIN @PurchaseOrders e on e.REFERENCE_ID = a.ReferenceId
 END
 GO
 
