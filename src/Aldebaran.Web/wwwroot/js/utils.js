@@ -24,8 +24,7 @@ async function readMoreToggle(id, val) {
             element.style.display = (element.style.display === 'none') ? 'inline' : 'none';
             toggleLink.textContent = (element.style.display === 'none') ? 'Ver más' : 'Ver menos';
         }
-    });    
-    //toggleLink.textContent = (toggleLink.textContent === 'Ver más') ? 'Ver menos' : 'Ver más';
+    });
 }
 async function downloadFile(fileName, type, content) {
     const byteArray = Uint8Array.from(atob(content), c => c.charCodeAt(0));

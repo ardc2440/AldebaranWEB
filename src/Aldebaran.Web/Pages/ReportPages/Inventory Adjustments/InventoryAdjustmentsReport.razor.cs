@@ -1,5 +1,6 @@
 ﻿using Aldebaran.Application.Services.Models.Reports;
 using Aldebaran.Application.Services.Reports;
+using Aldebaran.Infraestructure.Common.Utils;
 using Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments.Components;
 using Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments.ViewModel;
 using Microsoft.AspNetCore.Components;
@@ -18,7 +19,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected IPdfService PdfService { get; set; }
+        protected IFileBytesGeneratorService FileBytesGeneratorService { get; set; }
 
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
@@ -235,7 +236,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
         {
             IsBusy = true;
             var html = await JSRuntime.InvokeAsync<string>("getContent", "inventory-adjustments-report-container");
-            var pdfBytes = await PdfService.GetBytes(html, true);
+            var pdfBytes = await FileBytesGeneratorService.GetPdfBytes(html, true);
             await JSRuntime.InvokeVoidAsync("downloadFile", "Ajustes de inventario.pdf", "application/pdf", Convert.ToBase64String(pdfBytes));
             IsBusy = false;
         }

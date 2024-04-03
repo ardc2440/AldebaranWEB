@@ -1,0 +1,121 @@
+<div class="report">
+    <table class="mt-1">
+        <tr>
+            <td colspan="2" width="100%">
+                <h2 class="text-left mb-0">Inventario</h2>
+                <span class="mb-1">{{ now | date.to_string '%m/%d/%Y %I:%M:%S %P' }}</span>
+            </td>
+        </tr>
+    </table>
+    {{if lines }}
+    <table class="edged mt-1">
+        <tbody>
+            {{for line in lines}}
+            <tr>
+                <td width="100%" style="padding:0 !important">
+                    <p class="title">{{ line.line_name }}</p>
+                </td>
+            </tr>
+            {{ for item in line.items }}
+            <tr>
+                <td width="100%" class="m-0 p-0">
+                    <div class="p-2">
+                        <table class="edged m-0">
+                            <thead>
+                                <tr>
+                                    <td colspan="3" width="50%">
+                                        <div style="padding-bottom:0.5rem !important">
+                                            <h3 class="text-left m-0">{{ item.item_name }}</h3>
+                                            <p class="m-0">
+                                                Referencia interna: {{ item.internal_reference }}
+                                            </p>
+                                        </div>
+                                    </td>
+                                    <td colspan="4" width="50%" class="border-left-1">
+                                        <div style="padding-bottom:0.5rem !important">
+                                            <h3 class="text-left mb-0">ARTICULOS EN TRANSITO</h3>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th width="20%">
+                                        <b>Referencia</b>
+                                    </th>
+                                    <th width="15%">
+                                        <b>DISPONIBLE</b>
+                                        <p class="m-0"><small>Total para la venta</small></p>
+                                    </th>
+                                    <th width="15%">
+                                        <b>ZONA FRANCA</b>
+                                        <p class="m-0"><small>Entrega aprx 4-5 dias</small></p>
+                                    </th>
+                                    <th width="10%" class="border-left-1">
+                                        <b>Fecha</b>
+                                    </th>
+                                    <th width="10%">
+                                        <b>Bodega</b>
+                                    </th>
+                                    <th width="10%">
+                                        <b>Total</b>
+                                    </th>
+                                    <th width="20%">
+                                        <b>Actividades</b>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{ ix = 0 }}
+                                {{ for reference in item.references }}
+                                    {{ odd = ix % 2 == 0 }}
+                                    {{ if (reference.purchase_orders | array.size) > 0 }}
+                                        {{ rowspan = (reference.purchase_orders | array.size) + 1}}
+                                    {{ else }}
+                                        {{ rowspan = 2 }}
+                                    {{ end }}
+                                    <tr style='{{ if odd }}background: #f5f5f5{{ end }}'>
+                                        <td width="15%" rowspan="{{ rowspan }}">
+                                            {{ reference.reference_name }}
+                                        </td>
+                                        <td width="15%" rowspan="{{ rowspan }}">
+                                            {{ reference.available_amount | object.format 'N0' }}
+                                        </td>
+                                        <td width="15%" rowspan="{{ rowspan }}">
+                                            {{ reference.free_zone | object.format 'N0' }}
+                                        </td>
+                                    </tr>
+                                    {{ if (reference.purchase_orders | array.size) == 0 }}
+                                        <tr class="m-0 p-0">
+                                            <td width="100%" colspan="4" class="m-0 p-0"></td>
+                                        </tr>
+                                    {{ end }}
+                                    {{ for purchase_order in reference.purchase_orders }}
+                                    <tr style='{{ if odd }}background: #f5f5f5{{ end }}'>
+                                        <td width="10%">{{ purchase_order.date | date.to_string '%m/%d/%Y' }}</td>
+                                        <td width="10%">{{ purchase_order.warehouse }}</td>
+                                        <td width="10%">{{ purchase_order.total | object.format 'N0' }}</td>
+                                        <td width="20%">
+                                            {{ for activity in purchase_order.activities }}
+                                            <p>{{ activity.date | date.to_string '%m/%d/%Y' }}</p>
+                                            <p>{{ activity.description }}</p>
+                                            {{ end }}
+                                        </td>
+                                    </tr>
+                                    {{ end }}
+                                    {{ ix += 1 }}
+                                {{ end }}
+                                {{ ix = 0 }}
+                            </tbody>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+            {{ end }}
+            {{ end }}
+        </tbody>
+    </table>
+    {{ else }}
+    <div class="no-data-container">
+        <h4>No hay información disponible en este momento para visualizar.</h4>
+    </div>
+    {{ end }}
+</div>

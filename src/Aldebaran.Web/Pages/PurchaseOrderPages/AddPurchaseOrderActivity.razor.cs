@@ -1,5 +1,4 @@
 using Aldebaran.Application.Services;
-using Aldebaran.Web.Models.AldebaranDb;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;

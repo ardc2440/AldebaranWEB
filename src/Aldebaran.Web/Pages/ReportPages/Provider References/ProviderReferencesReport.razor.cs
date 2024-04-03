@@ -1,5 +1,6 @@
 ﻿using Aldebaran.Application.Services.Models.Reports;
 using Aldebaran.Application.Services.Reports;
+using Aldebaran.Infraestructure.Common.Utils;
 using Aldebaran.Web.Pages.ReportPages.Provider_References.Components;
 using Aldebaran.Web.Pages.ReportPages.Provider_References.ViewModel;
 using Microsoft.AspNetCore.Components;
@@ -19,7 +20,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected IPdfService PdfService { get; set; }
+        protected IFileBytesGeneratorService FileBytesGeneratorService { get; set; }
 
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
@@ -88,7 +89,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References
 
             if (filter.ItemReferences.Count > 0)
                 filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReferenceIds = '{String.Join(",", Filter.ItemReferences.Select(s => s.ReferenceId))}'";
-                        
+
             return filterResult;
         }
 
@@ -107,7 +108,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References
         {
             IsBusy = true;
             var html = await JSRuntime.InvokeAsync<string>("getContent", "provider-references-report-container");
-            var pdfBytes = await PdfService.GetBytes(html, true);
+            var pdfBytes = await FileBytesGeneratorService.GetPdfBytes(html, true);
             await JSRuntime.InvokeVoidAsync("downloadFile", "Referencias del proveedor.pdf", "application/pdf", Convert.ToBase64String(pdfBytes));
             IsBusy = false;
         }

@@ -1,4 +1,5 @@
 ﻿using Aldebaran.Application.Services.Reports;
+using Aldebaran.Infraestructure.Common.Utils;
 using Aldebaran.Web.Pages.ReportPages.Inventory.Components;
 using Aldebaran.Web.Pages.ReportPages.Inventory.ViewModel;
 using Microsoft.AspNetCore.Components;
@@ -18,7 +19,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected IPdfService PdfService { get; set; }
+        protected IFileBytesGeneratorService FileBytesGeneratorService { get; set; }
 
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
@@ -99,7 +100,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
         {
             IsBusy = true;
             var html = await JSRuntime.InvokeAsync<string>("getContent", "inventory-report-container");
-            var pdfBytes = await PdfService.GetBytes(html, true);
+            var pdfBytes = await FileBytesGeneratorService.GetPdfBytes(html, true);
             await JSRuntime.InvokeVoidAsync("downloadFile", "Inventario.pdf", "application/pdf", Convert.ToBase64String(pdfBytes));
             IsBusy = false;
         }
@@ -163,7 +164,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
                 inventoryPurchaseOrders.Add(new InventoryViewModel.PurchaseOrder
                 {
                     Date = purchaseOrder.OrderDate,
-                    Total = purchaseOrder.Total,
+                    Total = purchaseOrder.Total ?? 0,
                     Warehouse = purchaseOrder.Warehouse,
                     Activities = await GetOrderActivitiesAsync(purchaseOrder.PurchaseOrderId, ct)
                 });

@@ -1,5 +1,5 @@
 ﻿using Aldebaran.Application.Services.Reports;
-using Aldebaran.Web.Pages.ReportPages.Customer_Orders.ViewModel;
+using Aldebaran.Infraestructure.Common.Utils;
 using Aldebaran.Web.Pages.ReportPages.Customer_Reservations.Components;
 using Aldebaran.Web.Pages.ReportPages.Customer_Reservations.ViewModel;
 using Microsoft.AspNetCore.Components;
@@ -20,7 +20,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Reservations
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected IPdfService PdfService { get; set; }
+        protected IFileBytesGeneratorService FileBytesGeneratorService { get; set; }
 
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
@@ -71,7 +71,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Reservations
             if (filter.CreationDate.StartDate.HasValue)
                 filterResult += $"@CreationDateFrom = '{(DateTime)filter.CreationDate.StartDate:yyyyMMdd}', @CreationDateTo = '{(DateTime)filter.CreationDate.EndDate:yyyyMMdd}'";
 
-            if (filter.ReservationDate.StartDate .HasValue)
+            if (filter.ReservationDate.StartDate.HasValue)
                 filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReservationDateFrom = '{(DateTime)filter.ReservationDate.StartDate:yyyyMMdd}', @ReservationDateTo = '{(DateTime)filter.ReservationDate.EndDate:yyyyMMdd}'";
 
             if (!filter.ReservationNumber.IsNullOrEmpty())
@@ -114,7 +114,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Reservations
         {
             IsBusy = true;
             var html = await JSRuntime.InvokeAsync<string>("getContent", "customer-reservation-report-container");
-            var pdfBytes = await PdfService.GetBytes(html, true);
+            var pdfBytes = await FileBytesGeneratorService.GetPdfBytes(html, true);
             await JSRuntime.InvokeVoidAsync("downloadFile", "Reservas por cliente.pdf", "application/pdf", Convert.ToBase64String(pdfBytes));
             IsBusy = false;
         }

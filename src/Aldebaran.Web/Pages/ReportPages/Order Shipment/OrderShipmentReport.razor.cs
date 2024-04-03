@@ -1,5 +1,5 @@
 ﻿using Aldebaran.Application.Services.Reports;
-using Aldebaran.Web.Pages.ReportPages.Customer_Orders.ViewModel;
+using Aldebaran.Infraestructure.Common.Utils;
 using Aldebaran.Web.Pages.ReportPages.Order_Shipment.Components;
 using Aldebaran.Web.Pages.ReportPages.Order_Shipment.ViewModel;
 using Microsoft.AspNetCore.Components;
@@ -19,7 +19,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected IPdfService PdfService { get; set; }
+        protected IFileBytesGeneratorService FileBytesGeneratorService { get; set; }
 
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
@@ -44,7 +44,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment
         #endregion
 
         #region Events
-        async Task RedrawReportAsync(string filter = "", CancellationToken ct= default)
+        async Task RedrawReportAsync(string filter = "", CancellationToken ct = default)
         {
 
             try
@@ -61,7 +61,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment
             finally
             {
                 IsLoadingData = false;
-            }            
+            }
         }
 
         async Task<string> SetReportFilterAsync(OrderShipmentFilter filter, CancellationToken ct = default)
@@ -122,7 +122,6 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
         }
 
-
         async Task RemoveFilters()
         {
             if (await DialogService.Confirm("Está seguro que desea eliminar los filtros establecidos?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
@@ -138,7 +137,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment
         {
             IsBusy = true;
             var html = await JSRuntime.InvokeAsync<string>("getContent", "order-shipment-report-container");
-            var pdfBytes = await PdfService.GetBytes(html, true);
+            var pdfBytes = await FileBytesGeneratorService.GetPdfBytes(html, true);
             await JSRuntime.InvokeVoidAsync("downloadFile", "Ordenes en tránsito.pdf", "application/pdf", Convert.ToBase64String(pdfBytes));
             IsBusy = false;
         }

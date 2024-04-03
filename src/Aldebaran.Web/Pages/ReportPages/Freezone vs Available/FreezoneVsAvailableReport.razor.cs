@@ -1,7 +1,7 @@
 ﻿using Aldebaran.Application.Services.Reports;
+using Aldebaran.Infraestructure.Common.Utils;
 using Aldebaran.Web.Pages.ReportPages.Freezone_vs_Available.Components;
 using Aldebaran.Web.Pages.ReportPages.Freezone_vs_Available.ViewModel;
-using Aldebaran.Web.Pages.ReportPages.Inventory.ViewModel;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
@@ -20,7 +20,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Freezone_vs_Available
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected IPdfService PdfService { get; set; }
+        protected IFileBytesGeneratorService FileBytesGeneratorService { get; set; }
 
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
@@ -96,7 +96,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Freezone_vs_Available
         {
             IsBusy = true;
             var html = await JSRuntime.InvokeAsync<string>("getContent", "freezone-report-container");
-            var pdfBytes = await PdfService.GetBytes(html, false);
+            var pdfBytes = await FileBytesGeneratorService.GetPdfBytes(html, false);
             await JSRuntime.InvokeVoidAsync("downloadFile", "Zona franca vs Disponible.pdf", "application/pdf", Convert.ToBase64String(pdfBytes));
             IsBusy = false;
         }
@@ -138,7 +138,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Freezone_vs_Available
                 items.Add(new FreezoneVsAvailableViewModel.Item
                 {
                     InternalReference = item.InternalReference,
-                    ItemName = item.ItemName,                    
+                    ItemName = item.ItemName,
                     References = (await GetReferencesPerItemAsync(item.ItemId, ct)).ToList()
                 });
             }
@@ -158,9 +158,9 @@ namespace Aldebaran.Web.Pages.ReportPages.Freezone_vs_Available
                 inventoryReferences.Add(new FreezoneVsAvailableViewModel.Reference
                 {
                     ReferenceName = reference.ReferenceName,
-                    AvailableAmount = reference.AvailableAmount,                    
+                    AvailableAmount = reference.AvailableAmount,
                     FreeZone = reference.FreeZone,
-                    ReferenceCode = reference.ReferenceCode                    
+                    ReferenceCode = reference.ReferenceCode
                 });
             }
 

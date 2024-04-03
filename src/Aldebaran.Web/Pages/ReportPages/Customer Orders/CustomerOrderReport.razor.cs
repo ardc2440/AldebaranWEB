@@ -1,7 +1,7 @@
 ﻿using Aldebaran.Application.Services.Reports;
+using Aldebaran.Infraestructure.Common.Utils;
 using Aldebaran.Web.Pages.ReportPages.Customer_Orders.Components;
 using Aldebaran.Web.Pages.ReportPages.Customer_Orders.ViewModel;
-using Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments.ViewModel;
 using Microsoft.AspNetCore.Components;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.JSInterop;
@@ -21,7 +21,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected IPdfService PdfService { get; set; }
+        protected IFileBytesGeneratorService FileBytesGeneratorService { get; set; }
 
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
@@ -99,7 +99,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders
 
             foreach (var reference in DataReport.Where(w => w.OrderId == orderId)
                                         .Select(s => new { s.OrderDetailId, s.DetailStatus, s.OrderDetailAmount, s.DeliveredAmount, s.InProcessAmount, s.OrderDetailItemName, s.OrderDetailItemReference, s.OrderDetailReferenceCode, s.OrderDetailReferenceName })
-                                        .DistinctBy(d => d.OrderDetailId).OrderBy(o => o.OrderDetailItemName).OrderBy(o=> o.OrderDetailReferenceName))
+                                        .DistinctBy(d => d.OrderDetailId).OrderBy(o => o.OrderDetailItemName).OrderBy(o => o.OrderDetailReferenceName))
             {
                 orderReferences.Add(new CustomerOrderViewModel.Reference
                 {
@@ -163,7 +163,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders
 
         #region Events
 
-        async Task RedrawReportAsync(string filter="",CancellationToken ct = default)
+        async Task RedrawReportAsync(string filter = "", CancellationToken ct = default)
         {
             try
             {
@@ -206,7 +206,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders
 
             if (filter.CustomerId.HasValue)
                 filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@CustomerId = {filter.CustomerId}";
-            
+
             return filterResult;
         }
 
@@ -236,7 +236,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders
         {
             IsBusy = true;
             var html = await JSRuntime.InvokeAsync<string>("getContent", "customer-order-report-container");
-            var pdfBytes = await PdfService.GetBytes(html, true);
+            var pdfBytes = await FileBytesGeneratorService.GetPdfBytes(html, true);
             await JSRuntime.InvokeVoidAsync("downloadFile", "Ordenes por cliente.pdf", "application/pdf", Convert.ToBase64String(pdfBytes));
             IsBusy = false;
         }

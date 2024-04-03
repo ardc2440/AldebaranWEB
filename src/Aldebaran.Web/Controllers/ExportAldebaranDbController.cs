@@ -5,7 +5,7 @@ using System.ComponentModel;
 
 namespace Aldebaran.Web.Controllers
 {
-    public partial class ExportAldebaranDbController : ExportController
+    public partial class ExportAldebaranDbController
     {
         private readonly IItemService ItemService;
         private readonly IExportHelper ExportHelper;

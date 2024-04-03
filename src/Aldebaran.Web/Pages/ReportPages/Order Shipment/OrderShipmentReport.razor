@@ -1,6 +1,7 @@
 ﻿@page "/report/order-shipments"
 @inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer
 
+<PageTitle>Reporte de ordenes en tránsito</PageTitle>
 <RadzenStack Style="gap:0.3em">
     <RadzenRow AlignItems="AlignItems.Start">
         <RadzenColumn Size="12">
@@ -438,8 +439,8 @@
                                                 @foreach (var warehouse in order.Warehouses)
                                                 {
                                                     <tr>
-                                                        <td colspan="4" width="100%">
-                                                            <p class="title border-bottom-1">Bodega de llegada: @warehouse.WarehouseName</p>
+                                                        <td colspan="5" width="100%" style="padding:0 !important">
+                                                            <p class="title">Bodega de llegada: @warehouse.WarehouseName</p>
                                                         </td>
                                                     </tr>
                                                     @foreach (var line in warehouse.Lines)

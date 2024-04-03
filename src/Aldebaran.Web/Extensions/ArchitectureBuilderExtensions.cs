@@ -9,6 +9,7 @@ using Aldebaran.DataAccess.Core.Triggers.Shipments;
 using Aldebaran.DataAccess.Core.Triggers.Transfers;
 using Aldebaran.DataAccess.Infraestructure.Repository;
 using Aldebaran.DataAccess.Infraestructure.Repository.Reports;
+using Aldebaran.Infraestructure.Common.Utils;
 using Aldebaran.Infraestructure.Core.Model;
 using Aldebaran.Infraestructure.Core.Queue;
 using Aldebaran.Infraestructure.Core.Ssh;
@@ -54,7 +55,7 @@ namespace Aldebaran.Web.Extensions
                 options.Password.RequireLowercase = true;
             });
             // Data context
-            services.AddDbContext<DataAccess.AldebaranDbContext>(options => { options.UseSqlServer(dbConnection).AddTriggers(); }, ServiceLifetime.Scoped, ServiceLifetime.Scoped);
+            services.AddDbContext<DataAccess.AldebaranDbContext>(options => { options.UseSqlServer(dbConnection).AddTriggers(); }, ServiceLifetime.Transient, ServiceLifetime.Transient);
             // Identity context
             builder.Services.AddDbContext<ApplicationIdentityDbContext>(options => { options.UseSqlServer(dbConnection); }, ServiceLifetime.Scoped, ServiceLifetime.Scoped);
             builder.Services.AddIdentity<ApplicationUser, ApplicationRole>().AddEntityFrameworkStores<ApplicationIdentityDbContext>().AddDefaultTokenProviders().AddErrorDescriber<MultilanguageIdentityErrorDescriber>();
@@ -100,16 +101,16 @@ namespace Aldebaran.Web.Extensions
             builder.Services.AddTransient<ISharedStringLocalizer, SharedStringLocalizer>();
             builder.Services.AddTransient<IExportHelper, ExportHelper>();
             builder.Services.AddSingleton(AutoMapperConfiguration.Configure());
-            builder.Services.AddTransient<IPdfService, PdfSharpCoreService>();
+            builder.Services.AddTransient<IFileBytesGeneratorService, FileBytesGeneratorService>();
             // Logging
             builder.Logging.ClearProviders();
             builder.Logging.SetMinimumLevel(LogLevel.Trace);
             // Radzen
             services.AddScoped<DialogService>();
-            services.AddScoped<Radzen.NotificationService>();
+            services.AddScoped<NotificationService>();
             services.AddScoped<TooltipService>();
             services.AddScoped<ContextMenuService>();
-
+            // BackgroundServices
             services.AddScoped<SecurityService>();
             return services;
         }
