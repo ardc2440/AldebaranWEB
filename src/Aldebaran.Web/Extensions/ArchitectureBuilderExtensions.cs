@@ -253,7 +253,6 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IWarehouseTransferReportRepository, WarehouseTransferReportRepository>();
             services.AddTransient<IFreezoneVsAvailableReportRepository, FreezoneVsAvailableReportRepository>();
             services.AddTransient<ICustomerSaleReportRepository, CustomerSaleReportRepository>();
-
             #endregion
             // Services
             #region Services
@@ -337,15 +336,8 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IWarehouseTransferReportService, WarehouseTransferReportService>();
             services.AddTransient<IFreezoneVsAvailableReportService, FreezoneVsAvailableReportService>();
             services.AddTransient<ICustomerSaleReportService, CustomerSaleReportService>();
-
-            #endregion
-
-#if DEBUG
-            services.AddTransient<IQueue, FakeQueue>();
-#else
+            #endregion            
             services.AddTransient<IQueue, RabbitQueue>();
-#endif
-
             services.AddTransient<IQueueSettings, QueueSettings>();
             services.AddTransient<Notificator.INotificationService, Notificator.NotificationService>();
             services.AddTransient<IFtpClient, FtpClient>();
