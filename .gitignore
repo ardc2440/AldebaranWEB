@@ -230,3 +230,4 @@ bin
 obj
 
 **/logs/*
+**/wwwroot/shared/

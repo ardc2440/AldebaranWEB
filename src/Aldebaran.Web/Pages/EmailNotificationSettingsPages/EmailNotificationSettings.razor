@@ -1,0 +1,329 @@
+﻿@page "/email-notification-settings"
+@attribute [Authorize(Roles = "Admin")]
+@using Aldebaran.Web.Resources.LocalizedControls;
+@using ServiceModel = Aldebaran.Application.Services.Models;
+
+<PageTitle>Configuración de notificaciones por correo electrónico</PageTitle>
+<RadzenCard>
+    <RadzenStack>
+        <RadzenTabs>
+            <Tabs>
+                <RadzenTabsItem Text="Proveedor de correo">
+                    <RadzenRow>
+                        <RadzenColumn Size="12">
+                            <RadzenTemplateForm TItem="ServiceModel.EmailNotificationProvider" Data="@Provider" Visible="@(Provider != null)" Submit="@FormSubmit">
+                                <RadzenRow AlignItems="AlignItems.Center">
+                                    <RadzenColumn Size="12">
+                                        <RadzenText Text="Configuración del proveedor de correo" TextStyle="TextStyle.H4" TagName="TagName.H1" />
+                                        <hr class="mb-4" />
+                                    </RadzenColumn>
+                                </RadzenRow>
+                                <RadzenStack class="mt-4">
+                                    <RadzenRow AlignItems="Radzen.AlignItems.Start">
+                                        <RadzenColumn Size="4">
+                                            <RadzenFormField Text="Servidor de correo" Variant="Variant.Text" Style="width: 100%;">
+                                                <ChildContent>
+                                                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Provider.MailServer" Name="MailServer" MaxLength="100" />
+                                                </ChildContent>
+                                                <Helper>
+                                                    <RadzenRequiredValidator Component="MailServer" Text="Servidor de correo es requerido" />
+                                                </Helper>
+                                            </RadzenFormField>
+                                        </RadzenColumn>
+                                        <RadzenColumn Size="4">
+                                            <RadzenFormField Text="Puerto del servidor de correo" Variant="Variant.Text" Style="width: 100%;">
+                                                <ChildContent>
+                                                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@Provider.Port" Name="Port" />
+                                                </ChildContent>
+                                                <Helper>
+                                                    <RadzenNumericRangeValidator Component="Port" Min="0" Text="Puerto del servidor de correo es requerido" />
+                                                </Helper>
+                                            </RadzenFormField>
+                                        </RadzenColumn>
+                                        <RadzenColumn Size="4">
+                                            <RadzenFormField Text="Seguridad del servidor de correo" Variant="Variant.Text" Style="width: 100%;">
+                                                <ChildContent>
+                                                    <RadzenDropDown Data="@SecureSocketOptions" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                    style="display: block; width: 100%" @bind-Value="@Provider.SecureSocketOption" Name="SecureSocketOption" AllowFiltering="true" ClearSearchAfterSelection="true" />
+                                                </ChildContent>
+                                                <Helper>
+                                                    <RadzenRequiredValidator Component="SecureSocketOption" Text="Seguridad del servidor de correo es requerida" />
+                                                </Helper>
+                                            </RadzenFormField>
+                                        </RadzenColumn>
+                                    </RadzenRow>
+                                    <RadzenRow AlignItems="Radzen.AlignItems.Start">
+                                        <RadzenColumn Size="3">
+                                            <RadzenFormField Text="Nombre del remitente del correo" Variant="Variant.Text" Style="width: 100%;">
+                                                <ChildContent>
+                                                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Provider.SenderName" Name="SenderName" MaxLength="50" />
+                                                </ChildContent>
+                                                <Helper>
+                                                    <RadzenRequiredValidator Component="SenderName" Text="Remitente del correo es requerido" />
+                                                </Helper>
+                                            </RadzenFormField>
+                                        </RadzenColumn>
+                                        <RadzenColumn Size="3">
+                                            <RadzenFormField Text="Correo eletrónico saliente" Variant="Variant.Text" Style="width: 100%;">
+                                                <ChildContent>
+                                                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Provider.SenderEmail" Name="SenderEmail" MaxLength="100" />
+                                                </ChildContent>
+                                                <Helper>
+                                                    <RadzenRequiredValidator Component="SenderEmail" Text="Correo eletrónico saliente es requerido" />
+                                                </Helper>
+                                            </RadzenFormField>
+                                        </RadzenColumn>
+                                        <RadzenColumn Size="3">
+                                            <RadzenFormField Text="Contraseña del correo eletrónico saliente" Variant="Variant.Text" Style="width: 100%;">
+                                                <ChildContent>
+                                                    <RadzenPassword style="display: block; width: 100%" @bind-Value="@Provider.Password" Name="Password" AutoCompleteType="Radzen.Blazor.AutoCompleteType.NewPassword" />
+                                                </ChildContent>
+                                                <Helper>
+                                                    <RadzenRequiredValidator Component="Password" Text="Contraseña del correo eletrónico saliente es requerido" />
+                                                </Helper>
+                                            </RadzenFormField>
+                                        </RadzenColumn>
+                                        <RadzenColumn Size="3">
+                                            <RadzenFormField Text="Confirmar contraseña" Variant="Variant.Text" Style="width: 100%;">
+                                                <ChildContent>
+                                                    <RadzenPassword style="width: 100%" @bind-Value="ConfirmPassword" Name="ConfirmPassword" />
+                                                </ChildContent>
+                                                <Helper>
+                                                    <RadzenRequiredValidator Component="ConfirmPassword" Text="Confirmación de contraseña es requerida" />
+                                                    <RadzenCompareValidator Component="ConfirmPassword" Text="Las contraseñas deben ser las mismas" Value="@Provider.Password" />
+                                                </Helper>
+                                            </RadzenFormField>
+                                        </RadzenColumn>
+                                    </RadzenRow>
+                                </RadzenStack>
+                                <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                                    <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />
+                                </RadzenStack>
+                            </RadzenTemplateForm>
+                        </RadzenColumn>
+                    </RadzenRow>
+                </RadzenTabsItem>
+                <RadzenTabsItem Text="Plantillas de correo">
+                    <RadzenRow>
+                        <RadzenColumn Size="12">
+                            <RadzenRow AlignItems="AlignItems.Center">
+                                <RadzenColumn Size="12">
+                                    <RadzenText Text="Configuración de plantillas para el envío de correos" TextStyle="TextStyle.H4" TagName="TagName.H1" />
+                                    <hr class="mb-4" />
+                                </RadzenColumn>
+                            </RadzenRow>
+                            <RadzenStack>
+                                <RadzenRow AlignItems="Radzen.AlignItems.Start">
+                                    <RadzenColumn Size="12">
+                                        <RadzenAccordion>
+                                            <Items>
+                                                <RadzenAccordionItem Text="Ordenes de compra">
+                                                    <RadzenAccordion>
+                                                        <Items>
+                                                            <RadzenAccordionItem Text="Confirmación de la orden de compra">
+                                                                <RadzenStack>
+                                                                    <RadzenRow>
+                                                                        <RadzenColumn Size="12">
+                                                                            <RadzenTemplateForm TItem="ServiceModel.NotificationTemplate" Data="@PurchaseOrderNew" Visible="@(PurchaseOrderNew != null)" Submit="@UpdatePurchaseOrderNew">
+                                                                                <RadzenStack>
+                                                                                    <RadzenRow AlignItems="Radzen.AlignItems.Start">
+                                                                                        <RadzenColumn Size="12">
+                                                                                            <RadzenFormField Text="Asunto" Variant="Variant.Text" Style="width: 100%;">
+                                                                                                <ChildContent>
+                                                                                                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@PurchaseOrderNew.Subject" Name="PurchaseOrderNewSubject" MaxLength="100" />
+                                                                                                </ChildContent>
+                                                                                                <Helper>
+                                                                                                    <RadzenRequiredValidator Component="PurchaseOrderNewSubject" Text="Asunto del correo es requerido" />
+                                                                                                </Helper>
+                                                                                            </RadzenFormField>
+                                                                                        </RadzenColumn>
+                                                                                        <RadzenColumn Size="12">
+                                                                                            <LocalizedHtmlEditor @bind-Value="@PurchaseOrderNew.Message" Name="PurchaseOrderNewMessage" />
+                                                                                            <RadzenRequiredValidator Component="PurchaseOrderNewMessage" Text="Cuerpo del correo es requerido" />
+                                                                                        </RadzenColumn>
+                                                                                    </RadzenRow>
+                                                                                </RadzenStack>
+                                                                                <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                                                                                    <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />
+                                                                                </RadzenStack>
+                                                                            </RadzenTemplateForm>
+                                                                        </RadzenColumn>
+                                                                    </RadzenRow>
+                                                                </RadzenStack>
+                                                            </RadzenAccordionItem>
+                                                            <RadzenAccordionItem Text="Actualización de la orden de compra">
+                                                                <RadzenStack>
+                                                                    <RadzenRow>
+                                                                        <RadzenColumn Size="12">
+                                                                            <RadzenTemplateForm TItem="ServiceModel.NotificationTemplate" Data="@PurchaseOrderUpdate" Visible="@(PurchaseOrderUpdate != null)" Submit="@UpdatePurchaseOrderUpdate">
+                                                                                <RadzenStack>
+                                                                                    <RadzenRow AlignItems="Radzen.AlignItems.Start">
+                                                                                        <RadzenColumn Size="12">
+                                                                                            <RadzenFormField Text="Asunto" Variant="Variant.Text" Style="width: 100%;">
+                                                                                                <ChildContent>
+                                                                                                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@PurchaseOrderUpdate.Subject" Name="PurchaseOrderUpdateSubject" MaxLength="100" />
+                                                                                                </ChildContent>
+                                                                                                <Helper>
+                                                                                                    <RadzenRequiredValidator Component="PurchaseOrderUpdateSubject" Text="Asunto del correo es requerido" />
+                                                                                                </Helper>
+                                                                                            </RadzenFormField>
+                                                                                        </RadzenColumn>
+                                                                                        <RadzenColumn Size="12">
+                                                                                            <LocalizedHtmlEditor @bind-Value="@PurchaseOrderUpdate.Message" Name="PurchaseOrderUpdateMessage" />
+                                                                                            <RadzenRequiredValidator Component="PurchaseOrderUpdateMessage" Text="Cuerpo del correo es requerido" />
+                                                                                        </RadzenColumn>
+                                                                                    </RadzenRow>
+                                                                                </RadzenStack>
+                                                                                <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                                                                                    <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />
+                                                                                </RadzenStack>
+                                                                            </RadzenTemplateForm>
+                                                                        </RadzenColumn>
+                                                                    </RadzenRow>
+                                                                </RadzenStack>
+                                                            </RadzenAccordionItem>
+                                                            <RadzenAccordionItem Text="Reenvío de orden de compra">
+                                                                <RadzenStack>
+                                                                    <RadzenRow>
+                                                                        <RadzenColumn Size="12">
+                                                                            <RadzenTemplateForm TItem="ServiceModel.NotificationTemplate" Data="@PurchaseOrderForwarding" Visible="@(PurchaseOrderForwarding != null)" Submit="@UpdatePurchaseOrderForwarding">
+                                                                                <RadzenStack>
+                                                                                    <RadzenRow AlignItems="Radzen.AlignItems.Start">
+                                                                                        <RadzenColumn Size="12">
+                                                                                            <RadzenFormField Text="Asunto" Variant="Variant.Text" Style="width: 100%;">
+                                                                                                <ChildContent>
+                                                                                                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@PurchaseOrderForwarding.Subject" Name="PurchaseOrderForwardingSubject" MaxLength="100" />
+                                                                                                </ChildContent>
+                                                                                                <Helper>
+                                                                                                    <RadzenRequiredValidator Component="PurchaseOrderForwardingSubject" Text="Asunto del correo es requerido" />
+                                                                                                </Helper>
+                                                                                            </RadzenFormField>
+                                                                                        </RadzenColumn>
+                                                                                        <RadzenColumn Size="12">
+                                                                                            <LocalizedHtmlEditor @bind-Value="@PurchaseOrderForwarding.Message" Name="PurchaseOrderForwardingMessage" />
+                                                                                            <RadzenRequiredValidator Component="PurchaseOrderForwardingMessage" Text="Cuerpo del correo es requerido" />
+                                                                                        </RadzenColumn>
+                                                                                    </RadzenRow>
+                                                                                </RadzenStack>
+                                                                                <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                                                                                    <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />
+                                                                                </RadzenStack>
+                                                                            </RadzenTemplateForm>
+                                                                        </RadzenColumn>
+                                                                    </RadzenRow>
+                                                                </RadzenStack>
+                                                            </RadzenAccordionItem>
+                                                        </Items>
+                                                    </RadzenAccordion>
+                                                </RadzenAccordionItem>
+                                                <RadzenAccordionItem Text="Reserva de artículos">
+                                                    <RadzenAccordion>
+                                                        <Items>
+                                                            <RadzenAccordionItem Text="Confirmación de la reserva">
+                                                                <RadzenStack>
+                                                                    <RadzenRow>
+                                                                        <RadzenColumn Size="12">
+                                                                            <RadzenTemplateForm TItem="ServiceModel.NotificationTemplate" Data="@CustomerReservationNew" Visible="@(CustomerReservationNew != null)" Submit="@UpdateCustomerReservationNew">
+                                                                                <RadzenStack>
+                                                                                    <RadzenRow AlignItems="Radzen.AlignItems.Start">
+                                                                                        <RadzenColumn Size="12">
+                                                                                            <RadzenFormField Text="Asunto" Variant="Variant.Text" Style="width: 100%;">
+                                                                                                <ChildContent>
+                                                                                                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@CustomerReservationNew.Subject" Name="CustomerReservationNewSubject" MaxLength="100" />
+                                                                                                </ChildContent>
+                                                                                                <Helper>
+                                                                                                    <RadzenRequiredValidator Component="CustomerReservationNewSubject" Text="Asunto del correo es requerido" />
+                                                                                                </Helper>
+                                                                                            </RadzenFormField>
+                                                                                        </RadzenColumn>
+                                                                                        <RadzenColumn Size="12">
+                                                                                            <LocalizedHtmlEditor @bind-Value="@CustomerReservationNew.Message" Name="CustomerReservationNewMessage" />
+                                                                                            <RadzenRequiredValidator Component="CustomerReservationNewMessage" Text="Cuerpo del correo es requerido" />
+                                                                                        </RadzenColumn>
+                                                                                    </RadzenRow>
+                                                                                </RadzenStack>
+                                                                                <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                                                                                    <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />
+                                                                                </RadzenStack>
+                                                                            </RadzenTemplateForm>
+                                                                        </RadzenColumn>
+                                                                    </RadzenRow>
+                                                                </RadzenStack>
+                                                            </RadzenAccordionItem>
+                                                            <RadzenAccordionItem Text="Actualización de la reserva">
+                                                                <RadzenStack>
+                                                                    <RadzenRow>
+                                                                        <RadzenColumn Size="12">
+                                                                            <RadzenTemplateForm TItem="ServiceModel.NotificationTemplate" Data="@CustomerReservationUpdate" Visible="@(CustomerReservationUpdate != null)" Submit="@UpdateCustomerReservationUpdate">
+                                                                                <RadzenStack>
+                                                                                    <RadzenRow AlignItems="Radzen.AlignItems.Start">
+                                                                                        <RadzenColumn Size="12">
+                                                                                            <RadzenFormField Text="Asunto" Variant="Variant.Text" Style="width: 100%;">
+                                                                                                <ChildContent>
+                                                                                                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@CustomerReservationUpdate.Subject" Name="CustomerReservationUpdateSubject" MaxLength="100" />
+                                                                                                </ChildContent>
+                                                                                                <Helper>
+                                                                                                    <RadzenRequiredValidator Component="CustomerReservationUpdateSubject" Text="Asunto del correo es requerido" />
+                                                                                                </Helper>
+                                                                                            </RadzenFormField>
+                                                                                        </RadzenColumn>
+                                                                                        <RadzenColumn Size="12">
+                                                                                            <LocalizedHtmlEditor @bind-Value="@CustomerReservationUpdate.Message" Name="CustomerReservationUpdateMessage" />
+                                                                                            <RadzenRequiredValidator Component="CustomerReservationUpdateMessage" Text="Cuerpo del correo es requerido" />
+                                                                                        </RadzenColumn>
+                                                                                    </RadzenRow>
+                                                                                </RadzenStack>
+                                                                                <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                                                                                    <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />
+                                                                                </RadzenStack>
+                                                                            </RadzenTemplateForm>
+                                                                        </RadzenColumn>
+                                                                    </RadzenRow>
+                                                                </RadzenStack>
+                                                            </RadzenAccordionItem>
+                                                            <RadzenAccordionItem Text="Reenvío de la reserva">
+                                                                <RadzenStack>
+                                                                    <RadzenRow>
+                                                                        <RadzenColumn Size="12">
+                                                                            <RadzenTemplateForm TItem="ServiceModel.NotificationTemplate" Data="@CustomerReservationForwarding" Visible="@(CustomerReservationForwarding != null)" Submit="@UpdateCustomerReservationForwarding">
+                                                                                <RadzenStack>
+                                                                                    <RadzenRow AlignItems="Radzen.AlignItems.Start">
+                                                                                        <RadzenColumn Size="12">
+                                                                                            <RadzenFormField Text="Asunto" Variant="Variant.Text" Style="width: 100%;">
+                                                                                                <ChildContent>
+                                                                                                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@CustomerReservationForwarding.Subject" Name="CustomerReservationForwardingSubject" MaxLength="100" />
+                                                                                                </ChildContent>
+                                                                                                <Helper>
+                                                                                                    <RadzenRequiredValidator Component="CustomerReservationForwardingSubject" Text="Asunto del correo es requerido" />
+                                                                                                </Helper>
+                                                                                            </RadzenFormField>
+                                                                                        </RadzenColumn>
+                                                                                        <RadzenColumn Size="12">
+                                                                                            <LocalizedHtmlEditor @bind-Value="@CustomerReservationForwarding.Message" Name="CustomerReservationForwardingMessage" />
+                                                                                            <RadzenRequiredValidator Component="CustomerReservationForwardingMessage" Text="Cuerpo del correo es requerido" />
+                                                                                        </RadzenColumn>
+                                                                                    </RadzenRow>
+                                                                                </RadzenStack>
+                                                                                <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                                                                                    <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />
+                                                                                </RadzenStack>
+                                                                            </RadzenTemplateForm>
+                                                                        </RadzenColumn>
+                                                                    </RadzenRow>
+                                                                </RadzenStack>
+                                                            </RadzenAccordionItem>
+                                                        </Items>
+                                                    </RadzenAccordion>
+                                                </RadzenAccordionItem>
+                                            </Items>
+                                        </RadzenAccordion>
+                                    </RadzenColumn>
+                                </RadzenRow>
+                            </RadzenStack>
+                        </RadzenColumn>
+                    </RadzenRow>
+                </RadzenTabsItem>
+            </Tabs>
+        </RadzenTabs>
+    </RadzenStack>
+</RadzenCard>

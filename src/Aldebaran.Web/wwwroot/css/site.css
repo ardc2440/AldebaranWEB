@@ -266,10 +266,6 @@ li.rz-multiselect-item.rz-state-disabled {
         display: none;
     }
 
-.rz-button.rz-secondary.rz-shade-default:hover {
-    background: transparent !important;
-}
-
 .rz-button.text-primary-color:hover {
     filter: brightness(80%);
 }
@@ -288,4 +284,59 @@ li.rz-multiselect-item.rz-state-disabled {
 
 .transform-none {
     transform: none !important;
+}
+
+hr.divider {
+    margin: 0.275em 1em !important;
+    color: #919191
+}
+
+.rz-tabview-nav li a {
+    cursor: pointer;
+}
+
+.rz-accordion {
+    border-radius: 0;
+    box-shadow: none;
+    display: flex;
+    flex-direction: column;
+}
+
+.rz-accordion-header {
+    background-color: #fff;
+    margin: 0;
+}
+
+.rz-accordion > div:first-child {
+    border-radius: 12px 12px 0 0;
+}
+
+.rz-accordion-header a[role=tab] {
+    padding: 0.5rem 0;
+    color: #45494f;
+    line-height: 1.5rem;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+    .rz-accordion-header a[role=tab]:hover {
+        color: #ff9455;
+    }
+
+.rz-accordion-header > a[aria-label="Collapse"] {
+    color: var(--rz-primary) !important;
+}
+
+.rz-accordion-toggle-icon {
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+    font-size: 1.5rem !important;
+}
+
+.rz-html-editor-source.rz-textarea {
+    width: 100%;
 }

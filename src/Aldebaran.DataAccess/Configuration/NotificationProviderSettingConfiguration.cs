@@ -11,7 +11,6 @@ namespace Aldebaran.DataAccess.Entities
             builder.Property(x => x.NotificationProviderSettingId).HasColumnName(@"NOTIFICATION_PROVIDER_SETTING_ID").HasColumnType("smallint").IsRequired().ValueGeneratedOnAdd().UseIdentityColumn();
             builder.Property(x => x.Subject).HasColumnName(@"SUBJECT").HasColumnType("varchar(20)").IsRequired().IsUnicode(false).HasMaxLength(20);
             builder.Property(x => x.Settings).HasColumnName(@"SETTINGS").HasColumnType("ntext").IsRequired().IsUnicode(true);
-            builder.Property(x => x.Enabled).HasColumnName(@"ENABLED").HasColumnType("bit").IsRequired();
         }
     }
 }

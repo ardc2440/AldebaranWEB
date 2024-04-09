@@ -50,6 +50,11 @@
                 <RadzenPanelMenuItem Text="Funcionarios" Path="employees" Visible="@Security.IsInRole("Admin","Employee Editor","Employee Viewer")" />
                 <RadzenPanelMenuItem Text="Clientes" Path="customers" Visible="@Security.IsInRole("Admin","Customer Editor","Customer Viewer")" />
                 <RadzenPanelMenuItem Text="Proveedores" Path="providers" Visible="@Security.IsInRole("Admin","Provider Editor","Provider Viewer")" />
+                @if (Security.IsInRole("Admin"))
+                {
+                    <hr class="divider">
+                    <RadzenPanelMenuItem Text="Servidor de correo" Path="email-notification-settings" />
+                }
             </RadzenPanelMenuItem>
             <RadzenPanelMenuItem Text="Movimientos de Inventario" Icon="extension">
                 <RadzenPanelMenuItem Text="Ordenes de compra" Path="purchase-orders" Visible=@Security.IsInRole("Admin","Purchase Order Editor", "Purchase Order Viewer") />

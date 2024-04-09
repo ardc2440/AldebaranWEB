@@ -1,0 +1,73 @@
+﻿@inject ISharedStringLocalizer L;
+
+@code {
+    #region Injections
+    [Inject]
+    protected NotificationService NotificationService { get; set; }
+    [Inject]
+    protected ILogger<LocalizedHtmlEditor> Logger { get; set; }
+    [Inject]
+    protected SecurityService Security { get; set; }
+    #endregion
+
+    #region Parameters
+    [Parameter]
+    public string Name { get; set; }
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IDictionary<string, object> AdditionalAttributes { get; set; }
+    #endregion
+
+    async Task OnUploadError(UploadErrorEventArgs args)
+    {
+        Logger.LogError($"Fecha: {DateTime.Now.ToString("F")} Mensaje de error: {args.Message} Usuario: {@Security.User?.Name}", nameof(OnUploadError));
+        NotificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Error,
+                Summary = $"Error",
+                Detail = args.Message,
+                Duration = 6000
+            });
+    }
+}
+<RadzenHtmlEditor style="display: block; width: 100%;height: 300px;" @attributes="AdditionalAttributes" Name="@Name" UploadUrl="upload/image" UploadError="@OnUploadError">
+    <RadzenHtmlEditorUndo Title="Deshacer" />
+    <RadzenHtmlEditorRedo Title="Rehacer" />
+    <RadzenHtmlEditorSeparator />
+
+    <RadzenHtmlEditorBold Title="Negrilla" />
+    <RadzenHtmlEditorItalic Title="Cursiva" />
+    <RadzenHtmlEditorUnderline Title="Subrayado" />
+    <RadzenHtmlEditorStrikeThrough Title="Tachado" />
+    <RadzenHtmlEditorSeparator />
+
+    <RadzenHtmlEditorAlignLeft Title="Alinear a la izquierda" />
+    <RadzenHtmlEditorAlignCenter Title="Centrar" />
+    <RadzenHtmlEditorAlignRight Title="Alinear a la derecha" />
+    <RadzenHtmlEditorJustify Title="Justificar" />
+    <RadzenHtmlEditorSeparator />
+
+    <RadzenHtmlEditorIndent Title="Disminuir sangría" />
+    <RadzenHtmlEditorOutdent Title="Aumentar sangría" />
+    <RadzenHtmlEditorUnorderedList Title="Lista con viñetas" />
+    <RadzenHtmlEditorOrderedList Title="Lista numerada" />
+    <RadzenHtmlEditorSeparator />
+
+    <RadzenHtmlEditorColor Title="Color de la fuente" ButtonText="Aceptar" />
+    <RadzenHtmlEditorBackground Title="Fondo de la fuente" ButtonText="Aceptar" />
+    <RadzenHtmlEditorRemoveFormat Title="Remover formato" />
+    <RadzenHtmlEditorSeparator />
+
+    <RadzenHtmlEditorSubscript Title="Subíndice" />
+    <RadzenHtmlEditorSuperscript Title="Superíndice" />
+    <RadzenHtmlEditorSeparator />
+
+    <RadzenHtmlEditorLink Title="Hipervínculo" CancelText="Cancelar" OkText="Aceptar" LinkText="Texto" UrlText="Dirección web" OpenInNewWindowText="Abrir en nueva ventana" />
+    <RadzenHtmlEditorUnlink Title="Remover hipervínculo" />
+    <RadzenHtmlEditorImage Title="Insertar imagen" SelectText="Seleccione el archivo de imagen que desea cargar, máximo 2MB." UploadChooseText="Buscar" WidthText="Ancho de la imagen" HeightText="Alto de la imagen" UrlText="o introduzca una dirección web" AltText="Texto alternativo para la imagen" OkText="Aceptar" CancelText="Cancelar" />
+    <RadzenHtmlEditorFontName Title="Fuente" Placeholder="Fuente" />
+    <RadzenHtmlEditorFontSize Title="Tamaño de la fuente" Placeholder="Tamaño de la fuente" />
+    <RadzenHtmlEditorFormatBlock Title="Estilo del texto" Placeholder="Estilo del texto" Heading1Text="Título 1" Heading2Text="Título 2" Heading3Text="Título 3" Heading4Text="Título 4" Heading5Text="Título 5" Heading6Text="Título 6" NormalText="Normal" />
+    <RadzenHtmlEditorSeparator />
+
+    <RadzenHtmlEditorSource Title="Código HTML" />
+</RadzenHtmlEditor>

@@ -253,6 +253,7 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IWarehouseTransferReportRepository, WarehouseTransferReportRepository>();
             services.AddTransient<IFreezoneVsAvailableReportRepository, FreezoneVsAvailableReportRepository>();
             services.AddTransient<ICustomerSaleReportRepository, CustomerSaleReportRepository>();
+            services.AddTransient<IEmailNotificationProviderSettingsRepository, EmailNotificationProviderSettingsRepository>();
 
             #endregion
             // Services
@@ -337,6 +338,8 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IWarehouseTransferReportService, WarehouseTransferReportService>();
             services.AddTransient<IFreezoneVsAvailableReportService, FreezoneVsAvailableReportService>();
             services.AddTransient<ICustomerSaleReportService, CustomerSaleReportService>();
+            services.AddTransient<IEmailNotificationProviderSettingsService, EmailNotificationProviderSettingsService>();
+            services.AddTransient<INotificationTemplateService, NotificationTemplateService>();
 
             #endregion
 

@@ -66,7 +66,7 @@ namespace Aldebaran.Web.Controllers
                 // Verificar si existe un empleado asociado al inicio de sesion.
                 var employee = await employeeService.FindByLoginUserIdAsync(user.Id);
                 if (employee == null)
-                    return RedirectWithError("No se ha encontrado un empleado para el inicio de sesión, por favor contacte al administrador.", $"~/{redirectUrl}");
+                    return RedirectWithError("No se ha encontrado un empleado para el inicio de sesión, por favor contacte al administrador.", redirectUrl);
 
                 var result = await signInManager.PasswordSignInAsync(userName, password, false, false);
                 if (result.Succeeded)
