@@ -1,0 +1,15 @@
+version: '3.4'
+
+services:
+  aldebaran.web:
+    image: ${DOCKER_REGISTRY-}aldebaranweb
+    build:
+      context: .
+      dockerfile: Aldebaran.Web/Dockerfile
+
+  aldebaran.application.notificationprocessor:
+    image: ${DOCKER_REGISTRY-}aldebaranapplicationnotificationprocessor
+    build:
+      context: .
+      dockerfile: Aldebaran.Application.NotificationProcessor/Dockerfile
+
