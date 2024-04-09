@@ -16,6 +16,10 @@ using System.Data;
 
 // Variables
 var builder = Host.CreateApplicationBuilder(args);
+builder.Services.AddWindowsService(options =>
+{
+    options.ServiceName = "Notification Processor";
+});
 var services = builder.Services;
 var configuration = new ConfigurationBuilder()
             .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
@@ -76,6 +80,5 @@ services.AddTransient<INotificationProvider, EmailNotificationProvider>();
 
 // HostedServices
 services.AddHostedService<NotificationWorker>();
-
 var host = builder.Build();
 await host.RunAsync();
