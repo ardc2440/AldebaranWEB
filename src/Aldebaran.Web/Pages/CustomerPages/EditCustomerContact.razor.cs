@@ -43,6 +43,7 @@ namespace Aldebaran.Web.Pages.CustomerPages
         protected City CustomerCity;
         protected Customer Customer;
         protected bool IsSubmitInProgress;
+        protected bool isLoadingInProgress;
 
         #endregion
 
@@ -50,9 +51,17 @@ namespace Aldebaran.Web.Pages.CustomerPages
 
         protected override async Task OnInitializedAsync()
         {
-            CustomerContact = await CustomerContactService.FindAsync(CUSTOMER_CONTACT_ID);
-            Customer = await CustomerService.FindAsync(CustomerContact.CustomerId);
-            CustomerCity = await CityService.FindAsync(Customer.CityId);
+            try
+            {
+                isLoadingInProgress = true;
+                CustomerContact = await CustomerContactService.FindAsync(CUSTOMER_CONTACT_ID);
+                Customer = await CustomerService.FindAsync(CustomerContact.CustomerId);
+                CustomerCity = await CityService.FindAsync(Customer.CityId);
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
         }
 
         #endregion

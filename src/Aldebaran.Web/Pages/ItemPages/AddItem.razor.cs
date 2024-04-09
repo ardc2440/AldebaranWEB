@@ -28,6 +28,7 @@ namespace Aldebaran.Web.Pages.ItemPages
 
         #region Variables
         protected bool IsSubmitInProgress;
+        protected bool isLoadingInProgress;
         protected bool IsErrorVisible;
         protected ServiceModel.Item Item;
         protected IEnumerable<ServiceModel.MeasureUnit> MeasureUnits;
@@ -39,13 +40,22 @@ namespace Aldebaran.Web.Pages.ItemPages
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            Item = new ServiceModel.Item
+            try
             {
-                IsActive = true
-            };
-            MeasureUnits = await MeasureUnitService.GetAsync();
-            Currencies = await CurrencyService.GetAsync();
-            Lines = await LineService.GetAsync();
+                isLoadingInProgress = true;
+                Item = new ServiceModel.Item
+                {
+                    IsActive = true
+                };
+                MeasureUnits = await MeasureUnitService.GetAsync();
+                Currencies = await CurrencyService.GetAsync();
+                Lines = await LineService.GetAsync();
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+
         }
         #endregion
 

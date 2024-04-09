@@ -51,14 +51,14 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages.CustomerOrderActivityPages
 
         #region Global Variables
 
-        protected bool IsErrorVisible;
-        protected string Error;
+        protected bool isErrorVisible;
+        protected string error;
         protected ICollection<CustomerOrderActivityDetail> customerOrderActivityDetails;
         protected LocalizedDataGrid<CustomerOrderActivityDetail> customerOrderActivityDetailsGrid;
         protected IEnumerable<Area> areasForAREAID;
         protected IEnumerable<Employee> employeesForEMPLOYEEID;
-        protected bool IsSubmitInProgress;
-        protected bool IsLoadingInProgress;
+        protected bool isSubmitInProgress;
+        protected bool isLoadingInProgress;
         protected CustomerOrderActivity customerOrderActivity;
         protected CustomerOrder customerOrder;
         protected string title;
@@ -76,7 +76,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages.CustomerOrderActivityPages
             try
             {
 
-                IsLoadingInProgress = true;
+                isLoadingInProgress = true;
 
                 await Task.Yield();
 
@@ -101,10 +101,10 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages.CustomerOrderActivityPages
             }
             catch (Exception ex)
             {
-                Error = ex.Message;
-                IsErrorVisible = true;
+                error = ex.Message;
+                isErrorVisible = true;
             }
-            finally { IsLoadingInProgress = false; }
+            finally { isLoadingInProgress = false; }
         }
 
         #endregion
@@ -119,7 +119,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages.CustomerOrderActivityPages
             {
                 Submitted = true;
 
-                IsSubmitInProgress = true;
+                isSubmitInProgress = true;
 
                 customerOrderActivity.CustomerOrderActivityDetails = customerOrderActivityDetails;
                 await CustomerOrderActivityService.UpdateAsync(customerOrderActivity.CustomerOrderActivityId, customerOrderActivity);
@@ -129,10 +129,10 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages.CustomerOrderActivityPages
             catch (Exception ex)
             {
                 Logger.LogError(ex, nameof(FormSubmit));
-                IsErrorVisible = true;
-                Error = ex.Message;
+                isErrorVisible = true;
+                error = ex.Message;
             }
-            finally { IsSubmitInProgress = false; }
+            finally { isSubmitInProgress = false; }
         }
 
         protected async Task CancelButtonClick(MouseEventArgs args)
@@ -145,6 +145,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages.CustomerOrderActivityPages
         {
             try
             {
+                isSubmitInProgress = true;
+
                 if (customerOrderActivity.AreaId == 0)
                     throw new Exception("No ha seleccionado el área para la actividad");
 
@@ -161,12 +163,12 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages.CustomerOrderActivityPages
             }
             catch (Exception ex)
             {
-                Error = ex.Message;
-                IsErrorVisible = true;
+                error = ex.Message;
+                isErrorVisible = true;
             }
             finally
             {
-                IsSubmitInProgress = false;
+                isSubmitInProgress = false;
             }
         }
 

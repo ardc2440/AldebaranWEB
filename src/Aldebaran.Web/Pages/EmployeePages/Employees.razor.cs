@@ -38,7 +38,7 @@ namespace Aldebaran.Web.Pages.EmployeePages
         protected LocalizedDataGrid<ViewModels.EmployeeViewModel> EmployeesGrid;
         protected ViewModels.EmployeeViewModel Employee;
         protected string search = "";
-        protected bool IsLoadingInProgress;
+        protected bool isLoadingInProgress;
         #endregion
 
         #region Overrides
@@ -46,12 +46,12 @@ namespace Aldebaran.Web.Pages.EmployeePages
         {
             try
             {
-                IsLoadingInProgress = true;
+                isLoadingInProgress = true;
                 await GetEmployeesAsync();
             }
             finally
             {
-                IsLoadingInProgress = false;
+                isLoadingInProgress = false;
             }
         }
         #endregion

@@ -1,8 +1,11 @@
 @attribute [Authorize(Roles = "Admin,Customer Order Editor")]
 
 <PageTitle>Agregar Referencia al Pedido</PageTitle>
+<LoadingData IsLoadingData="@isLoadingInProgress" />
 
-<RadzenColumn SizeMD=12>
+@if (!isLoadingInProgress)
+{
+    <RadzenColumn SizeMD=12>
     <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">
         @Error
     </RadzenAlert>
@@ -36,4 +39,4 @@
         </RadzenStack>
     </RadzenTemplateForm>
 </RadzenColumn>
-
+}

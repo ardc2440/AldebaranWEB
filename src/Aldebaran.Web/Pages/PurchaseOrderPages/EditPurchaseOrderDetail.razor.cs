@@ -39,6 +39,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         protected bool IsErrorVisible;
         protected IEnumerable<ServiceModel.Warehouse> Warehouses;
         protected bool IsSubmitInProgress;
+        protected bool isLoadingInProgress;
         protected string Error;
         protected short WarehouseId;
         protected int RequestedQuantity;
@@ -48,14 +49,23 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            Warehouses = await WarehouseService.GetAsync();
-            if (PURCHASE_ORDER_DETAIL_ID == null && PurchaseOrderDetail == null)
-                throw new ArgumentNullException($"{nameof(PURCHASE_ORDER_DETAIL_ID)} y {nameof(PurchaseOrderDetail)} no pueden ser nulos.");
-            if (PURCHASE_ORDER_DETAIL_ID != null)
-                PurchaseOrderDetail = await PurchaseOrderDetailService.FindAsync(PURCHASE_ORDER_DETAIL_ID.Value);
-            WarehouseId = PurchaseOrderDetail.WarehouseId;
-            RequestedQuantity = PurchaseOrderDetail.RequestedQuantity;
-            ItemReference = await ItemReferenceService.FindAsync(PurchaseOrderDetail.ReferenceId);
+            try
+            {
+                isLoadingInProgress = true;
+                Warehouses = await WarehouseService.GetAsync();
+                if (PURCHASE_ORDER_DETAIL_ID == null && PurchaseOrderDetail == null)
+                    throw new ArgumentNullException($"{nameof(PURCHASE_ORDER_DETAIL_ID)} y {nameof(PurchaseOrderDetail)} no pueden ser nulos.");
+                if (PURCHASE_ORDER_DETAIL_ID != null)
+                    PurchaseOrderDetail = await PurchaseOrderDetailService.FindAsync(PURCHASE_ORDER_DETAIL_ID.Value);
+                WarehouseId = PurchaseOrderDetail.WarehouseId;
+                RequestedQuantity = PurchaseOrderDetail.RequestedQuantity;
+                ItemReference = await ItemReferenceService.FindAsync(PurchaseOrderDetail.ReferenceId);
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+
         }
         #endregion
 

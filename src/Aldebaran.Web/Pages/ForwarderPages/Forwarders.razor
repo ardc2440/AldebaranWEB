@@ -4,6 +4,10 @@
 @using ServiceModel = Aldebaran.Application.Services.Models;
 
 <PageTitle>Transportadoras</PageTitle>
+<LoadingData IsLoadingData="@isLoadingInProgress" />
+
+@if (!isLoadingInProgress)
+{
 <RadzenStack>
     <RadzenRow AlignItems="AlignItems.Center">
         <RadzenColumn Size="12">
@@ -19,7 +23,7 @@
     <RadzenRow>
         <RadzenColumn SizeMD=12>
             <LocalizedDataGrid @ref="ForwardersDataGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                               Data="@ForwardersList" TItem="ServiceModel.Forwarder" RowExpand=@GetForwarderAgents AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowColumnReorder="true" IsLoading="@IsLoadingInProgress">
+                               Data="@ForwardersList" TItem="ServiceModel.Forwarder" RowExpand=@GetForwarderAgents AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowColumnReorder="true" IsLoading="@isLoadingInProgress">
                 <Columns>
                     <RadzenDataGridColumn TItem="ServiceModel.Forwarder" Property="ForwarderName" Title="Nombre">
                     </RadzenDataGridColumn>
@@ -64,7 +68,7 @@
                             </RadzenColumn>
                         </RadzenRow>
                         <LocalizedDataGrid ColumnWidth="200px" Visible="@(forwarder != null)" @ref=ForwarderAgentsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                           Data="@forwarder?.ForwarderAgents" RowExpand=@GetShipmentForwarderAgentMethods TItem="ServiceModel.ForwarderAgent" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowColumnReorder="true" IsLoading="@IsLoadingInProgress">
+                                           Data="@forwarder?.ForwarderAgents" RowExpand=@GetShipmentForwarderAgentMethods TItem="ServiceModel.ForwarderAgent" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowColumnReorder="true" IsLoading="@isLoadingInProgress">
                             <Columns>
                                 <RadzenDataGridColumn TItem="ServiceModel.ForwarderAgent" Property="ForwarderAgentName" Title="Nombre">
                                 </RadzenDataGridColumn>
@@ -110,7 +114,7 @@
                                         </RadzenColumn>
                                     </RadzenRow>
                                     <LocalizedDataGrid ColumnWidth="200px" Visible="@(ForwarderAgent != null)" @ref=ShipmentForwarderAgentMethodDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                                       Data="@ForwarderAgent?.ShipmentForwarderAgentMethods" TItem="ServiceModel.ShipmentForwarderAgentMethod" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowColumnReorder="true" IsLoading="@IsLoadingInProgress">
+                                                       Data="@ForwarderAgent?.ShipmentForwarderAgentMethods" TItem="ServiceModel.ShipmentForwarderAgentMethod" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowColumnReorder="true" IsLoading="@isLoadingInProgress">
                                         <Columns>
                                             <RadzenDataGridColumn TItem="ServiceModel.ShipmentForwarderAgentMethod" Property="ShipmentMethod.ShipmentMethodName" Title="Método de envío">
                                             </RadzenDataGridColumn>
@@ -133,3 +137,4 @@
         </RadzenColumn>
     </RadzenRow>
 </RadzenStack>
+}

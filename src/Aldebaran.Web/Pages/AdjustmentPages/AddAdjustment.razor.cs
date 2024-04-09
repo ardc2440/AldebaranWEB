@@ -55,6 +55,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         protected bool IsErrorVisible;
         private bool Submitted = false;
         protected bool IsSubmitInProgress;
+        protected bool isLoadingInProgress;
         protected string Error;
 
         #endregion
@@ -63,15 +64,24 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected override async Task OnInitializedAsync()
         {
-            AdjustmentReasonsForAdjustmentReasonId = await AdjustmentReasonService.GetAsync();
-            AdjustmentTypesForAdjustmentTypeId = await AdjustmentTypeService.GetAsync();
-            AdjustmentDetails = new List<AdjustmentDetail>();
-            adjustment = new Adjustment() { AdjustmentReason = null, AdjustmentType = null, Employee = null, StatusDocumentType = null };
-            documentType = await DocumentTypeService.FindByCodeAsync("A");
-            adjustment.StatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 1);
-            adjustment.StatusDocumentTypeId = adjustment.StatusDocumentType.StatusDocumentTypeId;
-            adjustment.Employee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id);
-            adjustment.EmployeeId = adjustment.Employee.EmployeeId;
+            try
+            {
+                isLoadingInProgress = true;
+                AdjustmentReasonsForAdjustmentReasonId = await AdjustmentReasonService.GetAsync();
+                AdjustmentTypesForAdjustmentTypeId = await AdjustmentTypeService.GetAsync();
+                AdjustmentDetails = new List<AdjustmentDetail>();
+                adjustment = new Adjustment() { AdjustmentReason = null, AdjustmentType = null, Employee = null, StatusDocumentType = null };
+                documentType = await DocumentTypeService.FindByCodeAsync("A");
+                adjustment.StatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 1);
+                adjustment.StatusDocumentTypeId = adjustment.StatusDocumentType.StatusDocumentTypeId;
+                adjustment.Employee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id);
+                adjustment.EmployeeId = adjustment.Employee.EmployeeId;
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+
         }
         #endregion
 

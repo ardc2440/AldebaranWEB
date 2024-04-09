@@ -39,7 +39,7 @@ namespace Aldebaran.Web.Pages.ProviderPages
         protected ServiceModel.Provider Provider;
         protected LocalizedDataGrid<ServiceModel.ProviderReference> ProviderReferencesDataGrid;
         protected string search = "";
-        protected bool IsLoadingInProgress;
+        protected bool isLoadingInProgress;
 
         #endregion
 
@@ -48,12 +48,12 @@ namespace Aldebaran.Web.Pages.ProviderPages
         {
             try
             {
-                IsLoadingInProgress = true;
+                isLoadingInProgress = true;
                 await GetProvidersAsync();
             }
             finally
             {
-                IsLoadingInProgress = false;
+                isLoadingInProgress = false;
             }
         }
         #endregion
@@ -145,14 +145,14 @@ namespace Aldebaran.Web.Pages.ProviderPages
             Provider = args;
             try
             {
-                IsLoadingInProgress = true;
+                isLoadingInProgress = true;
                 await Task.Yield();
                 var providerReferencesResult = await ProviderReferenceService.GetByProviderIdAsync(args.ProviderId);
                 args.ProviderReferences = providerReferencesResult.ToList();
             }
             finally
             {
-                IsLoadingInProgress = false;
+                isLoadingInProgress = false;
             }
         }
         protected async Task AddProviderReference(MouseEventArgs args, ServiceModel.Provider data)

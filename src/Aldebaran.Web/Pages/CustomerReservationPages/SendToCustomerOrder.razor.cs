@@ -45,30 +45,39 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         protected bool IsErrorVisible;
         private bool Submitted = false;
         protected bool IsSubmitInProgress;
+        protected bool isLoadingInProgress;
         protected string Error;
-        protected bool readOnly=false;
+        protected bool readOnly = false;
 
         #endregion
 
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
+            try
+            {
+                isLoadingInProgress = true;
+                Now = DateTime.UtcNow.AddDays(-1);
 
-            Now = DateTime.UtcNow.AddDays(-1);
+                customerReservationDetails = new List<CustomerReservationDetail>();
 
-            customerReservationDetails = new List<CustomerReservationDetail>();
+                var customerReservationId = 0;
 
-            var customerReservationId = 0;
+                int.TryParse(CustomerReservationId, out customerReservationId);
 
-            int.TryParse(CustomerReservationId, out customerReservationId);
+                customerReservation = await CustomerReservationService.FindAsync(customerReservationId);
 
-            customerReservation = await CustomerReservationService.FindAsync(customerReservationId);
+                title = $"Convertir la reserva No. {customerReservation.ReservationNumber} en pedido";
 
-           title = $"Convertir la reserva No. {customerReservation.ReservationNumber} en pedido";
-            
-            await SetPresentation();
+                await SetPresentation();
 
-            await GetChildData(customerReservation);
+                await GetChildData(customerReservation);
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+
 
         }
         #endregion

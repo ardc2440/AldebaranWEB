@@ -1,45 +1,49 @@
 @attribute [Authorize]
 @using ServiceModel = Aldebaran.Application.Services.Models;
 
-<RadzenColumn SizeMD=12>
-    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">
-        @Error
-    </RadzenAlert>
-    <RadzenTemplateForm TItem="ServiceModel.PurchaseOrderDetail" Data="@PurchaseOrderDetail" Submit="@FormSubmit">
-        <RadzenStack>
-            <ReferencePicker OnChange="ItemReferenceHandler" References="ProviderItemReferences" />
-            <RadzenRequiredValidator Text="Referencia requerida" Component="ReferenceId" />
-            <RadzenRow AlignItems="Radzen.AlignItems.Start">
-                <RadzenColumn Size="12" SizeMD="6">
-                    <RadzenFormField Text="Cantidad solicitada" Variant="Variant.Text" Style="width:100%">
-                        <ChildContent>
-                            <RadzenNumeric style="display: block; width: 100%" @bind-Value="@PurchaseOrderDetail.RequestedQuantity" Name="RequestedQuantity" />
-                        </ChildContent>
-                        <Helper>
-                            <RadzenNumericRangeValidator Component="RequestedQuantity" Min="1" Text="Cantidad solicitada es requerida" />
-                        </Helper>
-                    </RadzenFormField>
-                </RadzenColumn>
-                <RadzenColumn Size="12" SizeMD="6">
-                    <RadzenFormField Text="Bodega" Variant="Variant.Text" Style="width:100%">
-                        <ChildContent>
-                            <RadzenDropDown Data="@Warehouses" TextProperty="WarehouseName" ValueProperty="WarehouseId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                            style="display: block; width: 100%" @bind-Value="@PurchaseOrderDetail.WarehouseId" Name="WarehouseId" />
-                        </ChildContent>
-                        <Helper>
-                            <RadzenNumericRangeValidator Component="WarehouseId" Min="1" Text="Bodega es requerida" />
-                        </Helper>
-                    </RadzenFormField>
-                </RadzenColumn>
-            </RadzenRow>
-        </RadzenStack>
-        <RadzenRow style="margin-bottom: 1rem">
-            <InventoryQuantities Reference="ItemReference" />
-        </RadzenRow>
-        <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
-            <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />
-            <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
-        </RadzenStack>
-    </RadzenTemplateForm>
-</RadzenColumn>
+<LoadingData IsLoadingData="@isLoadingInProgress" />
 
+@if (!isLoadingInProgress)
+{
+    <RadzenColumn SizeMD=12>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">
+            @Error
+        </RadzenAlert>
+        <RadzenTemplateForm TItem="ServiceModel.PurchaseOrderDetail" Data="@PurchaseOrderDetail" Submit="@FormSubmit">
+            <RadzenStack>
+                <ReferencePicker OnChange="ItemReferenceHandler" References="ProviderItemReferences" />
+                <RadzenRequiredValidator Text="Referencia requerida" Component="ReferenceId" />
+                <RadzenRow AlignItems="Radzen.AlignItems.Start">
+                    <RadzenColumn Size="12" SizeMD="6">
+                        <RadzenFormField Text="Cantidad solicitada" Variant="Variant.Text" Style="width:100%">
+                            <ChildContent>
+                                <RadzenNumeric style="display: block; width: 100%" @bind-Value="@PurchaseOrderDetail.RequestedQuantity" Name="RequestedQuantity" />
+                            </ChildContent>
+                            <Helper>
+                                <RadzenNumericRangeValidator Component="RequestedQuantity" Min="1" Text="Cantidad solicitada es requerida" />
+                            </Helper>
+                        </RadzenFormField>
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="6">
+                        <RadzenFormField Text="Bodega" Variant="Variant.Text" Style="width:100%">
+                            <ChildContent>
+                                <RadzenDropDown Data="@Warehouses" TextProperty="WarehouseName" ValueProperty="WarehouseId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                style="display: block; width: 100%" @bind-Value="@PurchaseOrderDetail.WarehouseId" Name="WarehouseId" />
+                            </ChildContent>
+                            <Helper>
+                                <RadzenNumericRangeValidator Component="WarehouseId" Min="1" Text="Bodega es requerida" />
+                            </Helper>
+                        </RadzenFormField>
+                    </RadzenColumn>
+                </RadzenRow>
+            </RadzenStack>
+            <RadzenRow style="margin-bottom: 1rem">
+                <InventoryQuantities Reference="ItemReference" />
+            </RadzenRow>
+            <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />
+                <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
+            </RadzenStack>
+        </RadzenTemplateForm>
+    </RadzenColumn>
+}

@@ -31,21 +31,31 @@ namespace Aldebaran.Web.Pages.ProviderPages
         protected ServiceModel.ProviderReference ProviderReference;
         protected ServiceModel.Provider Provider;
         protected bool IsSubmitInProgress;
+        protected bool isLoadingInProgress;
         protected bool IsErrorVisible;
         #endregion
 
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            Provider = await ProviderService.FindAsync(PROVIDER_ID);
-            var itemReferences = await ItemReferenceService.GetAsync();
-            var currentReferencesInProvider = await ProviderReferenceService.GetByProviderIdAsync(PROVIDER_ID);
-            // Referencias disponibles para seleccion, Referencias excepto los ya seleccionados
-            AvailableItemReferencesForSelection = itemReferences.Where(w => !currentReferencesInProvider.Any(x => x.ReferenceId == w.ReferenceId)).ToList();
-            ProviderReference = new ServiceModel.ProviderReference
+            try
             {
-                ProviderId = PROVIDER_ID
-            };
+                isLoadingInProgress = true;
+                Provider = await ProviderService.FindAsync(PROVIDER_ID);
+                var itemReferences = await ItemReferenceService.GetAsync();
+                var currentReferencesInProvider = await ProviderReferenceService.GetByProviderIdAsync(PROVIDER_ID);
+                // Referencias disponibles para seleccion, Referencias excepto los ya seleccionados
+                AvailableItemReferencesForSelection = itemReferences.Where(w => !currentReferencesInProvider.Any(x => x.ReferenceId == w.ReferenceId)).ToList();
+                ProviderReference = new ServiceModel.ProviderReference
+                {
+                    ProviderId = PROVIDER_ID
+                };
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+
         }
         #endregion
 

@@ -30,18 +30,28 @@ namespace Aldebaran.Web.Pages.ForwarderPages
         protected ServiceModel.City SelectedCity;
         protected bool IsSubmitInProgress;
         protected bool IsErrorVisible;
+        protected bool isLoadingInProgress;
         protected List<string> ValidationErrors;
         #endregion
 
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            Forwarder = await ForwarderService.FindAsync(FORWARDER_ID);
-            SelectedCity = await CityService.FindAsync(Forwarder.CityId);
-            ForwarderAgent = new ServiceModel.ForwarderAgent
+            try
             {
-                ForwarderId = FORWARDER_ID
-            };
+                isLoadingInProgress = true;
+                Forwarder = await ForwarderService.FindAsync(FORWARDER_ID);
+                SelectedCity = await CityService.FindAsync(Forwarder.CityId);
+                ForwarderAgent = new ServiceModel.ForwarderAgent
+                {
+                    ForwarderId = FORWARDER_ID
+                };
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+
         }
         #endregion
 

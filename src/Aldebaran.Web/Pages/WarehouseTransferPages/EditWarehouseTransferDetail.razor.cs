@@ -50,6 +50,7 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
         protected string Error;
 
         protected bool IsSubmitInProgress;
+        protected bool isLoadingInProgress;
 
         bool hasWarehouseTransfer_IDValue;
 
@@ -61,17 +62,26 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
 
         protected override async Task OnInitializedAsync()
         {
-            warehouseTransferDetail = new WarehouseTransferDetail()
+            try
             {
-                ItemReference = WarehouseTransferDetail.ItemReference,
-                WarehouseTransfer = WarehouseTransferDetail.WarehouseTransfer,
-                WarehouseTransferDetailId = WarehouseTransferDetail.WarehouseTransferDetailId,
-                WarehouseTransferId = WarehouseTransferDetail.WarehouseTransferId,
-                Quantity = WarehouseTransferDetail.Quantity,
-                ReferenceId = WarehouseTransferDetail.ReferenceId
-            };
+                isLoadingInProgress = true;
+                warehouseTransferDetail = new WarehouseTransferDetail()
+                {
+                    ItemReference = WarehouseTransferDetail.ItemReference,
+                    WarehouseTransfer = WarehouseTransferDetail.WarehouseTransfer,
+                    WarehouseTransferDetailId = WarehouseTransferDetail.WarehouseTransferDetailId,
+                    WarehouseTransferId = WarehouseTransferDetail.WarehouseTransferId,
+                    Quantity = WarehouseTransferDetail.Quantity,
+                    ReferenceId = WarehouseTransferDetail.ReferenceId
+                };
 
-            ItemReference = await ItemReferenceService.FindAsync(WarehouseTransferDetail.ReferenceId);
+                ItemReference = await ItemReferenceService.FindAsync(WarehouseTransferDetail.ReferenceId);
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+
         }
 
         public override async Task SetParametersAsync(ParameterView parameters)

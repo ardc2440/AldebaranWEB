@@ -1,0 +1,21 @@
+﻿@inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer
+
+@code
+{
+    [Parameter]
+    public bool IsLoadingData { get; set; } = false;
+}
+
+@if (IsLoadingData)
+{
+    <div class="loading-container">
+        <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" Wrap="FlexWrap.Wrap">
+            <RadzenRow JustifyContent="JustifyContent.Center">
+                <RadzenProgressBarCircular ProgressBarStyle="ProgressBarStyle.Primary" Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Size="ProgressBarCircularSize.Medium" />
+            </RadzenRow>
+            <RadzenRow JustifyContent="JustifyContent.Center">
+                <span>@SharedLocalizer["page:loading-text"]</span>
+            </RadzenRow>
+        </RadzenStack>
+    </div>
+}

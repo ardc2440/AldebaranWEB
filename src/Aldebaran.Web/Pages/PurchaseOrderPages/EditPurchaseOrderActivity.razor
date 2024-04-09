@@ -2,33 +2,38 @@
 @using ServiceModel = Aldebaran.Application.Services.Models;
 @inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer
 
-<RadzenColumn SizeMD=12>
-    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">No se ha podido actulizar la actividad</RadzenAlert>
-    <RadzenTemplateForm TItem="ServiceModel.PurchaseOrderActivity" Data="@PurchaseOrderActivity" Visible="@(PurchaseOrderActivity != null)" Submit="@FormSubmit">
-        <RadzenStack>
-            <RadzenFormField Text="Fecha de ejecución" Variant="Variant.Text">
-                <ChildContent>
-                    <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@PurchaseOrderActivity.ExecutionDate" Name="ExecutionDate" Min="@DateTime.Now.AddDays(-1)" />
-                </ChildContent>
-                <Helper>
-                    <RadzenRequiredValidator Component="ExecutionDate" Text="Fecha de ejecución es requerida" />
-                </Helper>
-            </RadzenFormField>
-            <EmployeePicker OnChange="EmployeeHandler" EMPLOYEE_ID="PurchaseOrderActivity.ActivityEmployeeId" />
-            <RadzenNumericRangeValidator Text="Empleado requerido" Min="1" Component="EmployeeId" />
-            <RadzenFormField Text="Descripción" Variant="Variant.Text">
-                <ChildContent>
-                    <RadzenTextArea style="display: block; width: 100%" @bind-Value="@PurchaseOrderActivity.ActivityDescription" Name="ActivityDescription" Rows="3" MaxLength="500" />
-                </ChildContent>
-                <Helper>
-                    <RadzenRequiredValidator Component="ActivityDescription" Text="Descripción es requerida" />
-                </Helper>
-            </RadzenFormField>
-        </RadzenStack>
-        <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
-            <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />
-            <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
-        </RadzenStack>
-    </RadzenTemplateForm>
-</RadzenColumn>
+<LoadingData IsLoadingData="@isLoadingInProgress" />
+
+@if (!isLoadingInProgress)
+{
+    <RadzenColumn SizeMD=12>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">No se ha podido actulizar la actividad</RadzenAlert>
+        <RadzenTemplateForm TItem="ServiceModel.PurchaseOrderActivity" Data="@PurchaseOrderActivity" Visible="@(PurchaseOrderActivity != null)" Submit="@FormSubmit">
+            <RadzenStack>
+                <RadzenFormField Text="Fecha de ejecución" Variant="Variant.Text">
+                    <ChildContent>
+                        <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@PurchaseOrderActivity.ExecutionDate" Name="ExecutionDate" Min="@DateTime.Now.AddDays(-1)" />
+                    </ChildContent>
+                    <Helper>
+                        <RadzenRequiredValidator Component="ExecutionDate" Text="Fecha de ejecución es requerida" />
+                    </Helper>
+                </RadzenFormField>
+                <EmployeePicker OnChange="EmployeeHandler" EMPLOYEE_ID="PurchaseOrderActivity.ActivityEmployeeId" />
+                <RadzenNumericRangeValidator Text="Empleado requerido" Min="1" Component="EmployeeId" />
+                <RadzenFormField Text="Descripción" Variant="Variant.Text">
+                    <ChildContent>
+                        <RadzenTextArea style="display: block; width: 100%" @bind-Value="@PurchaseOrderActivity.ActivityDescription" Name="ActivityDescription" Rows="3" MaxLength="500" />
+                    </ChildContent>
+                    <Helper>
+                        <RadzenRequiredValidator Component="ActivityDescription" Text="Descripción es requerida" />
+                    </Helper>
+                </RadzenFormField>
+            </RadzenStack>
+            <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />
+                <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
+            </RadzenStack>
+        </RadzenTemplateForm>
+    </RadzenColumn>
+}
 

@@ -53,6 +53,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         protected string Error = "No se hapodido agregar la referencia";
         protected AdjustmentDetail adjustmentDetail;
         protected bool IsSubmitInProgress;
+        protected bool isLoadingInProgress;
         bool hasAdjustmentIdValue;
         bool hasWarehouseIdValue;
         bool hasReferenceIdValue;
@@ -63,12 +64,19 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected override async Task OnInitializedAsync()
         {
+            try
+            {
+                isLoadingInProgress = true;
 
-            ItemReferencesForReferenceId = await ItemReferenceService.GetByStatusAsync(true);
+                ItemReferencesForReferenceId = await ItemReferenceService.GetByStatusAsync(true);
+                WarehousesForWarehouseId = await WarehouseService.GetAsync();
+                adjustmentDetail.Quantity = 0;
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
 
-            WarehousesForWarehouseId = await WarehouseService.GetAsync();
-
-            adjustmentDetail.Quantity = 0;
         }
 
         public override async Task SetParametersAsync(ParameterView parameters)

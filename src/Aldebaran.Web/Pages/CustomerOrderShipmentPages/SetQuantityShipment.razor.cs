@@ -33,6 +33,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
         protected bool IsErrorVisible;
         private bool Submitted = false;
         protected bool IsSubmitInProgress;
+        protected bool isLoadingInProgress;
         protected string Error;
 
         #endregion
@@ -41,24 +42,32 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
 
         protected override async Task OnInitializedAsync()
         {
-
-            detailInProcess = new DetailInProcess()
+            try
             {
-                CUSTOMER_ORDER_DETAIL_ID = DetailInProcess.CUSTOMER_ORDER_DETAIL_ID,
-                DELIVERED_QUANTITY = DetailInProcess.DELIVERED_QUANTITY,
-                BRAND = DetailInProcess.BRAND,
-                THIS_QUANTITY = DetailInProcess.THIS_QUANTITY,
-                PENDING_QUANTITY = DetailInProcess.PENDING_QUANTITY,
-                PROCESSED_QUANTITY = DetailInProcess.PROCESSED_QUANTITY,
-                REFERENCE_DESCRIPTION = DetailInProcess.REFERENCE_DESCRIPTION,
-                REFERENCE_ID = DetailInProcess.REFERENCE_ID,
-                ItemReference = DetailInProcess.ItemReference
-            };
+                isLoadingInProgress = true;
+                detailInProcess = new DetailInProcess()
+                {
+                    CUSTOMER_ORDER_DETAIL_ID = DetailInProcess.CUSTOMER_ORDER_DETAIL_ID,
+                    DELIVERED_QUANTITY = DetailInProcess.DELIVERED_QUANTITY,
+                    BRAND = DetailInProcess.BRAND,
+                    THIS_QUANTITY = DetailInProcess.THIS_QUANTITY,
+                    PENDING_QUANTITY = DetailInProcess.PENDING_QUANTITY,
+                    PROCESSED_QUANTITY = DetailInProcess.PROCESSED_QUANTITY,
+                    REFERENCE_DESCRIPTION = DetailInProcess.REFERENCE_DESCRIPTION,
+                    REFERENCE_ID = DetailInProcess.REFERENCE_ID,
+                    ItemReference = DetailInProcess.ItemReference
+                };
 
-            if (detailInProcess.THIS_QUANTITY == 0)
-                detailInProcess.THIS_QUANTITY = detailInProcess.PROCESSED_QUANTITY;
+                if (detailInProcess.THIS_QUANTITY == 0)
+                    detailInProcess.THIS_QUANTITY = detailInProcess.PROCESSED_QUANTITY;
 
-            ItemReference = await ItemReferenceService.FindAsync(detailInProcess.REFERENCE_ID);
+                ItemReference = await ItemReferenceService.FindAsync(detailInProcess.REFERENCE_ID);
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+
         }
 
         #endregion

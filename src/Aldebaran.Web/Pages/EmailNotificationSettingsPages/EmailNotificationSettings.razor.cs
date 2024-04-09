@@ -34,6 +34,7 @@ namespace Aldebaran.Web.Pages.EmailNotificationSettingsPages
         protected ServiceModel.NotificationTemplate CustomerReservationUpdate;
         protected ServiceModel.NotificationTemplate CustomerReservationForwarding;
         protected bool IsSubmitInProgress;
+        protected bool isLoadingInProgress;
         private static readonly string SettingsKey = "Sales";
         public string ConfirmPassword;
         #endregion
@@ -41,11 +42,20 @@ namespace Aldebaran.Web.Pages.EmailNotificationSettingsPages
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            await GetEmailProviderSettings();
-            await GetEmailTemplates();
-            SecureSocketOptions = Enum.GetValues(typeof(ServiceModel.EmailNotificationProvider.SecureSocketOptions))
-                                    .Cast<ServiceModel.EmailNotificationProvider.SecureSocketOptions>()
-                                    .ToList();
+            try
+            {
+                isLoadingInProgress = true;
+                await GetEmailProviderSettings();
+                await GetEmailTemplates();
+                SecureSocketOptions = Enum.GetValues(typeof(ServiceModel.EmailNotificationProvider.SecureSocketOptions))
+                                        .Cast<ServiceModel.EmailNotificationProvider.SecureSocketOptions>()
+                                        .ToList();
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+
         }
         #endregion
 
@@ -59,9 +69,9 @@ namespace Aldebaran.Web.Pages.EmailNotificationSettingsPages
         private async Task GetEmailTemplates()
         {
             var templates = await NotificationTemplateService.GetAsync();
-            PurchaseOrderNew = templates.FirstOrDefault(w => w.Name == "Customer:PurchaseOrder:New");
-            PurchaseOrderUpdate = templates.FirstOrDefault(w => w.Name == "Customer:PurchaseOrder:Update");
-            PurchaseOrderForwarding = templates.FirstOrDefault(w => w.Name == "Customer:PurchaseOrder:Forwarding");
+            PurchaseOrderNew = templates.FirstOrDefault(w => w.Name == "Customer:Order:New");
+            PurchaseOrderUpdate = templates.FirstOrDefault(w => w.Name == "Customer:Order:Update");
+            PurchaseOrderForwarding = templates.FirstOrDefault(w => w.Name == "Customer:Order:Forwarding");
             CustomerReservationNew = templates.FirstOrDefault(w => w.Name == "Customer:Reservation:New");
             CustomerReservationUpdate = templates.FirstOrDefault(w => w.Name == "Customer:Reservation:Update");
             CustomerReservationForwarding = templates.FirstOrDefault(w => w.Name == "Customer:Reservation:Forwarding");
@@ -105,7 +115,7 @@ namespace Aldebaran.Web.Pages.EmailNotificationSettingsPages
         {
             try
             {
-                if (await DialogService.Confirm("Está seguro que desea actualizar la plantilla para \"Confirmación de la orden de compra\" ?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar actualización") == true)
+                if (await DialogService.Confirm("Está seguro que desea actualizar la plantilla para \"Creación del pedido\" ?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar actualización") == true)
                 {
                     IsSubmitInProgress = true;
                     await NotificationTemplateService.UpdateAsync(PurchaseOrderNew.NotificationTemplateId, PurchaseOrderNew);
@@ -113,7 +123,7 @@ namespace Aldebaran.Web.Pages.EmailNotificationSettingsPages
                     {
                         Summary = "Plantilla de correo",
                         Severity = NotificationSeverity.Success,
-                        Detail = $"Plantilla de correo para \"Confirmación de la orden de compra\" ha sido actualizada.",
+                        Detail = $"Plantilla de correo para \"Creación del pedido\" ha sido actualizada.",
                         Duration = 6000
                     });
                 }
@@ -125,7 +135,7 @@ namespace Aldebaran.Web.Pages.EmailNotificationSettingsPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido actualizar la plantilla para \"Confirmación de la orden de compra\".",
+                    Detail = $"No se ha podido actualizar la plantilla para \"Creación del pedido\".",
                     Duration = 6000
                 });
             }
@@ -139,7 +149,7 @@ namespace Aldebaran.Web.Pages.EmailNotificationSettingsPages
         {
             try
             {
-                if (await DialogService.Confirm("Está seguro que desea actualizar la plantilla para \"Actualización de la orden de compra\" ?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar actualización") == true)
+                if (await DialogService.Confirm("Está seguro que desea actualizar la plantilla para \"Actualización del pedido\" ?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar actualización") == true)
                 {
                     IsSubmitInProgress = true;
                     await NotificationTemplateService.UpdateAsync(PurchaseOrderUpdate.NotificationTemplateId, PurchaseOrderUpdate);
@@ -147,7 +157,7 @@ namespace Aldebaran.Web.Pages.EmailNotificationSettingsPages
                     {
                         Summary = "Plantilla de correo",
                         Severity = NotificationSeverity.Success,
-                        Detail = $"Plantilla de correo para \"Actualización de la orden de compra\" ha sido actualizada.",
+                        Detail = $"Plantilla de correo para \"Actualización del pedido\" ha sido actualizada.",
                         Duration = 6000
                     });
                 }
@@ -159,7 +169,7 @@ namespace Aldebaran.Web.Pages.EmailNotificationSettingsPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido actualizar la plantilla para \"Actualización de la orden de compra\".",
+                    Detail = $"No se ha podido actualizar la plantilla para \"Actualización del pedido\".",
                     Duration = 6000
                 });
             }
@@ -173,7 +183,7 @@ namespace Aldebaran.Web.Pages.EmailNotificationSettingsPages
         {
             try
             {
-                if (await DialogService.Confirm("Está seguro que desea actualizar la plantilla para \"Reenvío de orden de compra\" ?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar actualización") == true)
+                if (await DialogService.Confirm("Está seguro que desea actualizar la plantilla para \"Reenvío del pedido\" ?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar actualización") == true)
                 {
                     IsSubmitInProgress = true;
                     await NotificationTemplateService.UpdateAsync(PurchaseOrderForwarding.NotificationTemplateId, PurchaseOrderForwarding);
@@ -181,7 +191,7 @@ namespace Aldebaran.Web.Pages.EmailNotificationSettingsPages
                     {
                         Summary = "Plantilla de correo",
                         Severity = NotificationSeverity.Success,
-                        Detail = $"Plantilla de correo para \"Reenvío de orden de compra\" ha sido actualizada.",
+                        Detail = $"Plantilla de correo para \"Reenvío del pedido\" ha sido actualizada.",
                         Duration = 6000
                     });
                 }
@@ -193,7 +203,7 @@ namespace Aldebaran.Web.Pages.EmailNotificationSettingsPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido actualizar la plantilla para \"Reenvío de orden de compra\".",
+                    Detail = $"No se ha podido actualizar la plantilla para \"Reenvío del pedido\".",
                     Duration = 6000
                 });
             }

@@ -36,17 +36,27 @@ namespace Aldebaran.Web.Pages.AreaPages
         protected List<ServiceModel.Item> AvailableItemsForSelection = new List<ServiceModel.Item>();
         protected bool IsSubmitInProgress;
         protected bool IsErrorVisible;
+        protected bool isLoadingInProgress;
         #endregion
 
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            ItemArea = new ServiceModel.ItemsArea() { AreaId = AREA_ID };
-            Area = await AreaService.FindAsync(AREA_ID);
-            var currentItemsInArea = await ItemAreaService.GetByAreaIdAsync(AREA_ID);
-            var items = await ItemService.GetAsync();
-            // Articulos disponibles para seleccion, Articulos excepto los ya seleccionados
-            AvailableItemsForSelection = items.Where(w => !currentItemsInArea.Any(x => x.ItemId == w.ItemId)).ToList();
+            try
+            {
+                isLoadingInProgress = true;
+                ItemArea = new ServiceModel.ItemsArea() { AreaId = AREA_ID };
+                Area = await AreaService.FindAsync(AREA_ID);
+                var currentItemsInArea = await ItemAreaService.GetByAreaIdAsync(AREA_ID);
+                var items = await ItemService.GetAsync();
+                // Articulos disponibles para seleccion, Articulos excepto los ya seleccionados
+                AvailableItemsForSelection = items.Where(w => !currentItemsInArea.Any(x => x.ItemId == w.ItemId)).ToList();
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+
         }
         #endregion
 

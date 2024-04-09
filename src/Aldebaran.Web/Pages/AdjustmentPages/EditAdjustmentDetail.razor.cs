@@ -53,6 +53,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         protected string Error;
 
         protected bool IsSubmitInProgress;
+        protected bool isLoadingInProgress;
 
         bool hasADJUSTMENT_IDValue;
 
@@ -64,19 +65,27 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected override async Task OnInitializedAsync()
         {
-            adjustmentDetail = new AdjustmentDetail()
+            try
             {
-                ItemReference = AdjustmentDetail.ItemReference,
-                Warehouse = AdjustmentDetail.Warehouse,
-                Adjustment = AdjustmentDetail.Adjustment,
-                AdjustmentDetailId = AdjustmentDetail.AdjustmentDetailId,
-                AdjustmentId = AdjustmentDetail.AdjustmentId,
-                Quantity = AdjustmentDetail.Quantity,
-                ReferenceId = AdjustmentDetail.ReferenceId,
-                WarehouseId = AdjustmentDetail.WarehouseId
-            };
+                isLoadingInProgress = true;
+                adjustmentDetail = new AdjustmentDetail()
+                {
+                    ItemReference = AdjustmentDetail.ItemReference,
+                    Warehouse = AdjustmentDetail.Warehouse,
+                    Adjustment = AdjustmentDetail.Adjustment,
+                    AdjustmentDetailId = AdjustmentDetail.AdjustmentDetailId,
+                    AdjustmentId = AdjustmentDetail.AdjustmentId,
+                    Quantity = AdjustmentDetail.Quantity,
+                    ReferenceId = AdjustmentDetail.ReferenceId,
+                    WarehouseId = AdjustmentDetail.WarehouseId
+                };
 
-            ItemReference = await ItemReferenceService.FindAsync(adjustmentDetail.ReferenceId);
+                ItemReference = await ItemReferenceService.FindAsync(adjustmentDetail.ReferenceId);
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
         }
 
         public override async Task SetParametersAsync(ParameterView parameters)

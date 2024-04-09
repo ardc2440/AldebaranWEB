@@ -24,7 +24,7 @@ namespace Aldebaran.Web.Pages.IdentityPages
         protected bool IsErrorVisible;
         protected string search = "";
         protected IEnumerable<ApplicationUser> ApplicationUsers;
-        protected bool IsLoadingInProgress;
+        protected bool isLoadingInProgress;
         #endregion
 
         #region Overrides
@@ -32,12 +32,12 @@ namespace Aldebaran.Web.Pages.IdentityPages
         {
             try
             {
-                IsLoadingInProgress = true;
+                isLoadingInProgress = true;
                 await GetApplicationRolesAsync();
             }
             finally
             {
-                IsLoadingInProgress = false;
+                isLoadingInProgress = false;
             }
         }
         #endregion
@@ -61,13 +61,13 @@ namespace Aldebaran.Web.Pages.IdentityPages
             ApplicationRole = args;
             try
             {
-                IsLoadingInProgress = true;
+                isLoadingInProgress = true;
                 await Task.Yield();
                 ApplicationUsers = await Security.GetUsersByRole(args.Id);
             }
             finally
             {
-                IsLoadingInProgress = false;
+                isLoadingInProgress = false;
             }
         }
         #endregion

@@ -1,33 +1,38 @@
 ﻿@using ServiceModel = Aldebaran.Application.Services.Models;
 
-<RadzenStack Gap="1rem">
-    @if (!CloseCustomerOrderReasons.Any())
-    {
-        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="IsErrorVisible">
-            Motivos de cierre no encontrados!!!
-        </RadzenAlert>
-    } 
-    <RadzenTemplateForm TItem="ServiceModel.CloseCustomerOrderReason" Data="@CloseCustomerOrderReason" Visible="@CloseCustomerOrderReasons.Any()" Submit="@FormSubmit" InvalidSubmit="()=>Submitted=true">
-        <div class="component-section d-flex flex-column justify-content-start">
-            <span>@TITLE</span>
-        </div>
-        <RadzenRow AlignItems="AlignItems.Center" class="my-4">
-            <RadzenFormField Text="Motivo de cancelación" Variant="Variant.Text" Style="width: 100%;">
-                <ChildContent>
-                    <RadzenDropDown Data="@CloseCustomerOrderReasons" TextProperty="CloseReasonName" ValueProperty="CloseCustomerOrderReasonId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                    style="display: block; width: 100%" @bind-Value="@CloseCustomerOrderReason.CloseCustomerOrderReasonId" Name="CloseReasonName">
-                    </RadzenDropDown>
-                </ChildContent>
-                <Helper>
-                    <RadzenNumericRangeValidator Component="CloseReasonName" Min="1" Text="Motivo de cierre es requerido" />
-                </Helper>
-            </RadzenFormField>
-        </RadzenRow>
-        <div class="mt-2">
-            <div class="rz-dialog-confirm-buttons">
-                <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Text="Si" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" class="rz-button rz-button-md rz-variant-filled rz-primary rz-shade-default" />
-                <RadzenButton ButtonStyle="ButtonStyle.Light" Text="No" Variant="Variant.Flat" Click="@Cancel" class="rz-button rz-button-md rz-variant-filled rz-secondary rz-shade-default" />
+<LoadingData IsLoadingData="@isLoadingInProgress" />
+
+@if (!isLoadingInProgress)
+{
+    <RadzenStack Gap="1rem">
+        @if (!CloseCustomerOrderReasons.Any())
+        {
+            <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="IsErrorVisible">
+                Motivos de cierre no encontrados!!!
+            </RadzenAlert>
+        }
+        <RadzenTemplateForm TItem="ServiceModel.CloseCustomerOrderReason" Data="@CloseCustomerOrderReason" Visible="@CloseCustomerOrderReasons.Any()" Submit="@FormSubmit" InvalidSubmit="()=>Submitted=true">
+            <div class="component-section d-flex flex-column justify-content-start">
+                <span>@TITLE</span>
             </div>
-        </div>
-    </RadzenTemplateForm>
-</RadzenStack>
+            <RadzenRow AlignItems="AlignItems.Center" class="my-4">
+                <RadzenFormField Text="Motivo de cancelación" Variant="Variant.Text" Style="width: 100%;">
+                    <ChildContent>
+                        <RadzenDropDown Data="@CloseCustomerOrderReasons" TextProperty="CloseReasonName" ValueProperty="CloseCustomerOrderReasonId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                        style="display: block; width: 100%" @bind-Value="@CloseCustomerOrderReason.CloseCustomerOrderReasonId" Name="CloseReasonName">
+                        </RadzenDropDown>
+                    </ChildContent>
+                    <Helper>
+                        <RadzenNumericRangeValidator Component="CloseReasonName" Min="1" Text="Motivo de cierre es requerido" />
+                    </Helper>
+                </RadzenFormField>
+            </RadzenRow>
+            <div class="mt-2">
+                <div class="rz-dialog-confirm-buttons">
+                    <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Text="Si" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" class="rz-button rz-button-md rz-variant-filled rz-primary rz-shade-default" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Light" Text="No" Variant="Variant.Flat" Click="@Cancel" class="rz-button rz-button-md rz-variant-filled rz-secondary rz-shade-default" />
+                </div>
+            </div>
+        </RadzenTemplateForm>
+    </RadzenStack>
+}

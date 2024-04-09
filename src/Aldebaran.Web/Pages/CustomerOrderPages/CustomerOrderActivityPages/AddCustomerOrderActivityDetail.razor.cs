@@ -54,10 +54,10 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages.CustomerOrderActivityPages
 
         #region Global Variables
 
-        protected bool IsErrorVisible;
+        protected bool isErrorVisible;
         protected string Error;
-        protected bool IsSubmitInProgress;
-        protected bool IsLoadingInProgress;
+        protected bool isSubmitInProgress;
+        protected bool isLoadingInProgress;
         protected CustomerOrderActivityDetail customerOrderActivityDetail;
         protected IEnumerable<Employee> employeesForACTIVITYEMPLOYEEID;
         protected IEnumerable<ActivityTypesArea> activityTypesForACTIVITY_ID;
@@ -74,7 +74,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages.CustomerOrderActivityPages
         {
             try
             {
-                IsLoadingInProgress = true;
+                isLoadingInProgress = true;
 
                 await Task.Yield();
 
@@ -90,9 +90,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages.CustomerOrderActivityPages
             catch (Exception ex)
             {
                 Error = ex.Message;
-                IsErrorVisible = true;
+                isErrorVisible = true;
             }
-            finally { IsLoadingInProgress = false; }
+            finally { isLoadingInProgress = false; }
         }
 
         public override async Task SetParametersAsync(ParameterView parameters)
@@ -138,8 +138,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages.CustomerOrderActivityPages
         {
             try
             {
-                IsErrorVisible = false;
-                IsSubmitInProgress = true;
+                isErrorVisible = false;
+                isSubmitInProgress = true;
 
                 if (CustomerOrderActivityDetails.Any(ad => ad.ActivityTypeId == customerOrderActivityDetail.ActivityTypeId))
                     throw new Exception("El detalle seleccionado ya existe dentro de esta actividad del pedido.");
@@ -158,11 +158,11 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages.CustomerOrderActivityPages
             catch (Exception ex)
             {
                 Error = ex.Message;
-                IsErrorVisible = true;
+                isErrorVisible = true;
             }
             finally
             {
-                IsSubmitInProgress = false;
+                isSubmitInProgress = false;
             }
         }
 

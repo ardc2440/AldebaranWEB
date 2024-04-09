@@ -1,98 +1,103 @@
 @attribute [Authorize(Roles = "Admin,Provider Editor")]
 @using ServiceModel = Aldebaran.Application.Services.Models;
 
-<RadzenColumn SizeMD=12>
-    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">No se ha podido actualizar el proveedor</RadzenAlert>
-    <RadzenTemplateForm TItem="ServiceModel.Provider" Data="@Provider" Visible="@(Provider != null)" Submit="@FormSubmit">
-        <RadzenStack>
-            <RadzenRow AlignItems="Radzen.AlignItems.Start">
-                <RadzenColumn Size="12" SizeMD="6">
-                    <RadzenFormField Text="Tipo de documento" Variant="Variant.Text" Style="width: 100%;">
-                        <ChildContent>
-                            <RadzenDropDown Data="@IdentityTypes" TextProperty="IdentityTypeCode" ValueProperty="IdentityTypeId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                            style="display: block; width: 100%" @bind-Value="@Provider.IdentityTypeId" Name="IdentityTypeId" AllowFiltering="true" ClearSearchAfterSelection="true" />
-                        </ChildContent>
-                        <Helper>
-                            <RadzenNumericRangeValidator Component="IdentityTypeId" Min="1" Text="Tipo de documento es requerido" />
-                        </Helper>
-                    </RadzenFormField>
-                </RadzenColumn>
-                <RadzenColumn Size="12" SizeMD="6">
-                    <RadzenFormField Text="Número de documento" Variant="Variant.Text" Style="width: 100%;">
-                        <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Provider.IdentityNumber" Name="IdentityNumber" MaxLength="15" />
-                        </ChildContent>
-                        <Helper>
-                            <RadzenRequiredValidator Component="IdentityNumber" Text="Número de documento es requerido" />
-                        </Helper>
-                    </RadzenFormField>
-                </RadzenColumn>
-            </RadzenRow>
-            <RadzenRow AlignItems="Radzen.AlignItems.Start">
-                <RadzenColumn Size="12" SizeMD="6">
-                    <RadzenFormField Text="Código" Variant="Variant.Text" Style="width: 100%;">
-                        <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Provider.ProviderCode" Name="ProviderCode" MaxLength="10" />
-                        </ChildContent>
-                        <Helper>
-                            <RadzenRequiredValidator Component="ProviderCode" Text="Código es requerido" />
-                        </Helper>
-                    </RadzenFormField>
-                </RadzenColumn>
-                <RadzenColumn Size="12" SizeMD="6">
-                    <RadzenFormField Text="Nombre" Variant="Variant.Text" Style="width: 100%;">
-                        <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Provider.ProviderName" Name="ProviderName" MaxLength="50" />
-                        </ChildContent>
-                        <Helper>
-                            <RadzenRequiredValidator Component="ProviderName" Text="Nombre es requerido" />
-                        </Helper>
-                    </RadzenFormField>
-                </RadzenColumn>
-            </RadzenRow>
-            <RadzenRow AlignItems="Radzen.AlignItems.Start">
-                <RadzenColumn Size="12" SizeMD="6">
-                    <RadzenFormField Text="Teléfono" Variant="Variant.Text" Style="width: 100%;">
-                        <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Provider.Phone" Name="Phone" MaxLength="20" />
-                        </ChildContent>
-                    </RadzenFormField>
-                </RadzenColumn>
-                <RadzenColumn Size="12" SizeMD="6">
-                    <RadzenFormField Text="Dirección" Variant="Variant.Text" Style="width: 100%;">
-                        <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Provider.ProviderAddress" Name="ProviderAddress" MaxLength="80" />
-                        </ChildContent>
-                    </RadzenFormField>
-                </RadzenColumn>
-            </RadzenRow>
-            <RadzenRow AlignItems="Radzen.AlignItems.Start">
-                <RadzenColumn Size="12" SizeMD="6">
-                    <RadzenFormField Text="Correo electrónico" Variant="Variant.Text" Style="width: 100%;">
-                        <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Provider.Email" Name="Email" MaxLength="30" />
-                        </ChildContent>
-                    </RadzenFormField>
-                </RadzenColumn>
-                <RadzenColumn Size="12" SizeMD="6">
-                    <RadzenFormField Text="Fax" Variant="Variant.Text" Style="width: 100%;">
-                        <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Provider.Fax" Name="Fax" MaxLength="22" />
-                        </ChildContent>
-                    </RadzenFormField>
-                </RadzenColumn>
-            </RadzenRow>
-            <RadzenFormField Text="Contacto" Variant="Variant.Text">
-                <ChildContent>
-                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Provider.ContactPerson" Name="ContactPerson" MaxLength="50" />
-                </ChildContent>
-            </RadzenFormField>
-            <LocalizationPicker OnChange="LocalizationHandler" CITY_ID="Provider.CityId" />
-            <RadzenRequiredValidator Text="Ubicación requerida" Component="CityId" />
-        </RadzenStack>
-        <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
-            <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />
-            <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
-        </RadzenStack>
-    </RadzenTemplateForm>
-</RadzenColumn>
+<LoadingData IsLoadingData="@isLoadingInProgress" />
+
+@if (!isLoadingInProgress)
+{
+    <RadzenColumn SizeMD=12>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">No se ha podido actualizar el proveedor</RadzenAlert>
+        <RadzenTemplateForm TItem="ServiceModel.Provider" Data="@Provider" Visible="@(Provider != null)" Submit="@FormSubmit">
+            <RadzenStack>
+                <RadzenRow AlignItems="Radzen.AlignItems.Start">
+                    <RadzenColumn Size="12" SizeMD="6">
+                        <RadzenFormField Text="Tipo de documento" Variant="Variant.Text" Style="width: 100%;">
+                            <ChildContent>
+                                <RadzenDropDown Data="@IdentityTypes" TextProperty="IdentityTypeCode" ValueProperty="IdentityTypeId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                style="display: block; width: 100%" @bind-Value="@Provider.IdentityTypeId" Name="IdentityTypeId" AllowFiltering="true" ClearSearchAfterSelection="true" />
+                            </ChildContent>
+                            <Helper>
+                                <RadzenNumericRangeValidator Component="IdentityTypeId" Min="1" Text="Tipo de documento es requerido" />
+                            </Helper>
+                        </RadzenFormField>
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="6">
+                        <RadzenFormField Text="Número de documento" Variant="Variant.Text" Style="width: 100%;">
+                            <ChildContent>
+                                <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Provider.IdentityNumber" Name="IdentityNumber" MaxLength="15" />
+                            </ChildContent>
+                            <Helper>
+                                <RadzenRequiredValidator Component="IdentityNumber" Text="Número de documento es requerido" />
+                            </Helper>
+                        </RadzenFormField>
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenRow AlignItems="Radzen.AlignItems.Start">
+                    <RadzenColumn Size="12" SizeMD="6">
+                        <RadzenFormField Text="Código" Variant="Variant.Text" Style="width: 100%;">
+                            <ChildContent>
+                                <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Provider.ProviderCode" Name="ProviderCode" MaxLength="10" />
+                            </ChildContent>
+                            <Helper>
+                                <RadzenRequiredValidator Component="ProviderCode" Text="Código es requerido" />
+                            </Helper>
+                        </RadzenFormField>
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="6">
+                        <RadzenFormField Text="Nombre" Variant="Variant.Text" Style="width: 100%;">
+                            <ChildContent>
+                                <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Provider.ProviderName" Name="ProviderName" MaxLength="50" />
+                            </ChildContent>
+                            <Helper>
+                                <RadzenRequiredValidator Component="ProviderName" Text="Nombre es requerido" />
+                            </Helper>
+                        </RadzenFormField>
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenRow AlignItems="Radzen.AlignItems.Start">
+                    <RadzenColumn Size="12" SizeMD="6">
+                        <RadzenFormField Text="Teléfono" Variant="Variant.Text" Style="width: 100%;">
+                            <ChildContent>
+                                <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Provider.Phone" Name="Phone" MaxLength="20" />
+                            </ChildContent>
+                        </RadzenFormField>
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="6">
+                        <RadzenFormField Text="Dirección" Variant="Variant.Text" Style="width: 100%;">
+                            <ChildContent>
+                                <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Provider.ProviderAddress" Name="ProviderAddress" MaxLength="80" />
+                            </ChildContent>
+                        </RadzenFormField>
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenRow AlignItems="Radzen.AlignItems.Start">
+                    <RadzenColumn Size="12" SizeMD="6">
+                        <RadzenFormField Text="Correo electrónico" Variant="Variant.Text" Style="width: 100%;">
+                            <ChildContent>
+                                <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Provider.Email" Name="Email" MaxLength="30" />
+                            </ChildContent>
+                        </RadzenFormField>
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="6">
+                        <RadzenFormField Text="Fax" Variant="Variant.Text" Style="width: 100%;">
+                            <ChildContent>
+                                <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Provider.Fax" Name="Fax" MaxLength="22" />
+                            </ChildContent>
+                        </RadzenFormField>
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenFormField Text="Contacto" Variant="Variant.Text">
+                    <ChildContent>
+                        <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Provider.ContactPerson" Name="ContactPerson" MaxLength="50" />
+                    </ChildContent>
+                </RadzenFormField>
+                <LocalizationPicker OnChange="LocalizationHandler" CITY_ID="Provider.CityId" />
+                <RadzenRequiredValidator Text="Ubicación requerida" Component="CityId" />
+            </RadzenStack>
+            <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />
+                <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
+            </RadzenStack>
+        </RadzenTemplateForm>
+    </RadzenColumn>
+}

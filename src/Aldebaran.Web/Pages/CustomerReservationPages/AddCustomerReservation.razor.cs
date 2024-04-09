@@ -50,6 +50,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         protected bool IsErrorVisible;
         private bool Submitted = false;
         protected bool IsSubmitInProgress;
+        protected bool isLoadingInProgress;
         protected string Error;
 
         #endregion
@@ -57,23 +58,31 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            customersForCUSTOMERID = await CustomerService.GetAsync();
-
-            documentType = await DocumentTypeService.FindByCodeAsync("R");
-
-            customerReservationDetails = new List<CustomerReservationDetail>();
-
-            customerReservation = new CustomerReservation()
+            try
             {
-                CustomerReservationId = 0,
-                Employee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id),
-                StatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 1),
-                ReservationDate = DateTime.Today,
-                CreationDate = DateTime.Today,
-                ReservationNumber = "0"
-            };
-            customerReservation.StatusDocumentTypeId = customerReservation.StatusDocumentType.StatusDocumentTypeId;
-            customerReservation.EmployeeId = customerReservation.Employee.EmployeeId;
+                isLoadingInProgress = true;
+                customersForCUSTOMERID = await CustomerService.GetAsync();
+
+                documentType = await DocumentTypeService.FindByCodeAsync("R");
+
+                customerReservationDetails = new List<CustomerReservationDetail>();
+
+                customerReservation = new CustomerReservation()
+                {
+                    CustomerReservationId = 0,
+                    Employee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id),
+                    StatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 1),
+                    ReservationDate = DateTime.Today,
+                    CreationDate = DateTime.Today,
+                    ReservationNumber = "0"
+                };
+                customerReservation.StatusDocumentTypeId = customerReservation.StatusDocumentType.StatusDocumentTypeId;
+                customerReservation.EmployeeId = customerReservation.Employee.EmployeeId;
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }            
         }
         #endregion
 

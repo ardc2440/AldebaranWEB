@@ -28,6 +28,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         protected ServiceModel.PurchaseOrderDetail PurchaseOrderDetail;
         protected IEnumerable<ServiceModel.Warehouse> Warehouses;
         protected bool IsSubmitInProgress;
+        protected bool isLoadingInProgress;
         protected string Error;
         protected ServiceModel.ItemReference ItemReference;
         #endregion
@@ -35,8 +36,17 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            PurchaseOrderDetail = new ServiceModel.PurchaseOrderDetail();
-            Warehouses = await WarehouseService.GetAsync();
+            try
+            {
+                isLoadingInProgress = true;
+                PurchaseOrderDetail = new ServiceModel.PurchaseOrderDetail();
+                Warehouses = await WarehouseService.GetAsync();
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+
         }
         #endregion
 

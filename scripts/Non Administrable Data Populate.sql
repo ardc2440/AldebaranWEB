@@ -1239,9 +1239,9 @@ SET IDENTITY_INSERT [dbo].[notification_provider_settings] OFF
 GO
 SET IDENTITY_INSERT [dbo].[notification_templates] ON 
 GO
-INSERT [dbo].[notification_templates] ([NOTIFICATION_TEMPLATE_ID], [NAME], [SUBJECT], [MESSAGE]) VALUES (1, N'Customer:PurchaseOrder:New', N'Confirmación de pedido: ¡Gracias por su compra!', N'<p>Nos complace informarle que hemos recibido su pedido con éxito. Adjunto a este correo encontrará un archivo PDF con los detalles de su compra.</p>')
-INSERT [dbo].[notification_templates] ([NOTIFICATION_TEMPLATE_ID], [NAME], [SUBJECT], [MESSAGE]) VALUES (2, N'Customer:PurchaseOrder:Update', N'Actualización de pedido: Cambios realizados', N'<p>Queremos informarle que se han realizado algunos cambios en su pedido. Adjunto a este correo encontrará un archivo PDF con los detalles de su compra.</p>')
-INSERT [dbo].[notification_templates] ([NOTIFICATION_TEMPLATE_ID], [NAME], [SUBJECT], [MESSAGE]) VALUES (3, N'Customer:PurchaseOrder:Forwarding', N'Reenvío: Detalles de compra', N'<p>Hemos recibido su solicitud de reenvío de los detalles de su pedido. Adjunto a este correo encontrará un archivo PDF con los detalles de su compra.</p>')
+INSERT [dbo].[notification_templates] ([NOTIFICATION_TEMPLATE_ID], [NAME], [SUBJECT], [MESSAGE]) VALUES (1, N'Customer:Order:New', N'Confirmación de pedido: ¡Gracias por su compra!', N'<p>Nos complace informarle que hemos recibido su pedido con éxito. Adjunto a este correo encontrará un archivo PDF con los detalles de su compra.</p>')
+INSERT [dbo].[notification_templates] ([NOTIFICATION_TEMPLATE_ID], [NAME], [SUBJECT], [MESSAGE]) VALUES (2, N'Customer:Order:Update', N'Actualización de pedido: Cambios realizados', N'<p>Queremos informarle que se han realizado algunos cambios en su pedido. Adjunto a este correo encontrará un archivo PDF con los detalles de su compra.</p>')
+INSERT [dbo].[notification_templates] ([NOTIFICATION_TEMPLATE_ID], [NAME], [SUBJECT], [MESSAGE]) VALUES (3, N'Customer:Order:Forwarding', N'Reenvío: Detalles de compra', N'<p>Hemos recibido su solicitud de reenvío de los detalles de su pedido. Adjunto a este correo encontrará un archivo PDF con los detalles de su compra.</p>')
 -- Reserva
 INSERT [dbo].[notification_templates] ([NOTIFICATION_TEMPLATE_ID], [NAME], [SUBJECT], [MESSAGE]) VALUES (4, N'Customer:Reservation:New', N'Confirmación de reserva: ¡Gracias por su reserva!', N'<p>Nos complace informarle que hemos recibido su reserva con éxito. Adjunto a este correo encontrará un archivo PDF con los detalles de su reserva.</p>')
 INSERT [dbo].[notification_templates] ([NOTIFICATION_TEMPLATE_ID], [NAME], [SUBJECT], [MESSAGE]) VALUES (5, N'Customer:Reservation:Update', N'Actualización de reserva: Cambios realizados', N'<p>Queremos informarle que se han realizado algunos cambios en su reserva. Adjunto a este correo encontrará un archivo PDF con los detalles de su reserva.</p>')
@@ -1249,3 +1249,4 @@ INSERT [dbo].[notification_templates] ([NOTIFICATION_TEMPLATE_ID], [NAME], [SUBJ
 GO
 SET IDENTITY_INSERT [dbo].[notification_templates] OFF
 GO
+ 

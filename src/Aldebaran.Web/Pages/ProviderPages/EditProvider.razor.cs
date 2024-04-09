@@ -27,13 +27,23 @@ namespace Aldebaran.Web.Pages.ProviderPages
         protected ServiceModel.Provider Provider;
         protected IEnumerable<ServiceModel.IdentityType> IdentityTypes;
         protected bool IsSubmitInProgress;
+        protected bool isLoadingInProgress;
         #endregion
 
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            Provider = await ProviderService.FindAsync(PROVIDER_ID);
-            IdentityTypes = await IdentityTypeService.GetAsync();
+            try
+            {
+                isLoadingInProgress = true;
+                Provider = await ProviderService.FindAsync(PROVIDER_ID);
+                IdentityTypes = await IdentityTypeService.GetAsync();
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+
         }
         #endregion
 

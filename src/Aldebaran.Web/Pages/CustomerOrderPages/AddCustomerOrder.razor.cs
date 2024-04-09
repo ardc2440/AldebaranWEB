@@ -54,6 +54,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected bool IsErrorVisible;
         private bool Submitted = false;
         protected bool IsSubmitInProgress;
+        protected bool isLoadingInProgress;
         protected string Error;
 
         #endregion
@@ -63,7 +64,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         {
             try
             {
-
+                isLoadingInProgress = true;
                 IsErrorVisible = false;
 
                 await Task.Yield();
@@ -90,6 +91,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 IsErrorVisible = true;
                 Error = ex.Message;
             }
+            finally { isLoadingInProgress= false; }
         }
         #endregion
 
@@ -113,7 +115,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                     customerOrder.CustomerOrderDetails = customerOrderDetails;
                     customerOrder = await CustomerOrderService.AddAsync(customerOrder);
 
-                    var result = await DialogService.OpenAsync<CustomerOrderSummary>(null, new Dictionary<string, object> { { "Id", customerOrder.CustomerOrderId }, { "NotificationTemplateName", "Customer:PurchaseOrder:New" } }, options: new DialogOptions { ShowTitle = false, ShowClose = false, CloseDialogOnEsc = false, CloseDialogOnOverlayClick = false, Width = "800px" });
+                    var result = await DialogService.OpenAsync<CustomerOrderSummary>(null, new Dictionary<string, object> { { "Id", customerOrder.CustomerOrderId }, { "NotificationTemplateName", "Customer:Order:New" } }, options: new DialogOptions { ShowTitle = false, ShowClose = false, CloseDialogOnEsc = false, CloseDialogOnOverlayClick = false, Width = "800px" });
                     NavigationManager.NavigateTo($"customer-orders/{customerOrder.CustomerOrderId}");
                 }
             }

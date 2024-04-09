@@ -28,6 +28,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected bool IsErrorVisible;
         protected string Error;
         protected bool IsSubmitInProgress;
+        protected bool isLoadingInProgress;
         protected ItemReference ItemReference { get; set; }
         protected CustomerOrderDetail customerOrderDetail { get; set; }
 
@@ -36,18 +37,27 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            customerOrderDetail = new CustomerOrderDetail
+            try
             {
-                CustomerOrderId = CustomerOrderDetail.CustomerOrderId,
-                CustomerOrderDetailId = CustomerOrderDetail.CustomerOrderId,
-                CustomerOrder = CustomerOrderDetail.CustomerOrder,
-                Brand = CustomerOrderDetail.Brand,
-                ItemReference = CustomerOrderDetail.ItemReference,
-                ReferenceId = CustomerOrderDetail.ReferenceId,
-                RequestedQuantity = CustomerOrderDetail.RequestedQuantity
-            };
+                isLoadingInProgress = true;
+                customerOrderDetail = new CustomerOrderDetail
+                {
+                    CustomerOrderId = CustomerOrderDetail.CustomerOrderId,
+                    CustomerOrderDetailId = CustomerOrderDetail.CustomerOrderId,
+                    CustomerOrder = CustomerOrderDetail.CustomerOrder,
+                    Brand = CustomerOrderDetail.Brand,
+                    ItemReference = CustomerOrderDetail.ItemReference,
+                    ReferenceId = CustomerOrderDetail.ReferenceId,
+                    RequestedQuantity = CustomerOrderDetail.RequestedQuantity
+                };
 
-            ItemReference = await ItemReferenceService.FindAsync(CustomerOrderDetail.ReferenceId);
+                ItemReference = await ItemReferenceService.FindAsync(CustomerOrderDetail.ReferenceId);
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+
         }
 
         public override async Task SetParametersAsync(ParameterView parameters)

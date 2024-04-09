@@ -3,6 +3,10 @@
 @using Aldebaran.Web.Resources.LocalizedControls;
 
 <PageTitle>Inicios de sesión</PageTitle>
+<LoadingData IsLoadingData="@isLoadingInProgress" />
+
+@if (!isLoadingInProgress)
+{
 <RadzenStack>
     <RadzenRow AlignItems="AlignItems.Center">
         <RadzenColumn Size="12">
@@ -53,3 +57,4 @@
         </RadzenColumn>
     </RadzenRow>
 </RadzenStack>
+}

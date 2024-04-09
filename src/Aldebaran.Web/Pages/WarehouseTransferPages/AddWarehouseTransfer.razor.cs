@@ -52,6 +52,7 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
         protected bool IsErrorVisible;
         private bool Submitted = false;
         protected bool IsSubmitInProgress;
+        protected bool isLoadingInProgress;
         protected string Error;
 
         #endregion
@@ -60,14 +61,23 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
 
         protected override async Task OnInitializedAsync()
         {
-            WarehousesForWarehouseId = await WarehouseService.GetAsync();
-            WarehouseTransferDetails = new List<WarehouseTransferDetail>();
-            warehouseTransfer = new WarehouseTransfer();
-            documentType = await DocumentTypeService.FindByCodeAsync("B");
-            warehouseTransfer.StatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 1);
-            warehouseTransfer.StatusDocumentTypeId = warehouseTransfer.StatusDocumentType.StatusDocumentTypeId;
-            warehouseTransfer.Employee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id);
-            warehouseTransfer.EmployeeId = warehouseTransfer.Employee.EmployeeId;
+            try
+            {
+                isLoadingInProgress = true;
+                WarehousesForWarehouseId = await WarehouseService.GetAsync();
+                WarehouseTransferDetails = new List<WarehouseTransferDetail>();
+                warehouseTransfer = new WarehouseTransfer();
+                documentType = await DocumentTypeService.FindByCodeAsync("B");
+                warehouseTransfer.StatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 1);
+                warehouseTransfer.StatusDocumentTypeId = warehouseTransfer.StatusDocumentType.StatusDocumentTypeId;
+                warehouseTransfer.Employee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id);
+                warehouseTransfer.EmployeeId = warehouseTransfer.Employee.EmployeeId;
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+
         }
         #endregion
 

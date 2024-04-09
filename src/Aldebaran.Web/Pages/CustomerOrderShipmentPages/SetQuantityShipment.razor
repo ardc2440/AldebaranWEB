@@ -1,64 +1,67 @@
 @attribute [Authorize(Roles = "Admin,Customer Order Editor")]
 
 <PageTitle>Agregar Referencia al Pedido</PageTitle>
+<LoadingData IsLoadingData="@isLoadingInProgress" />
 
-<RadzenColumn SizeMD=12>
-    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">
-        @Error
-    </RadzenAlert>
-    <RadzenTemplateForm TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Data="@detailInProcess" Visible="@(detailInProcess != null)" Submit="@FormSubmit" InvalidSubmit="()=>Submitted=true">
-        <RadzenStack style="margin-bottom: 1rem">
-            <RadzenRow SizeMD="9">
-                <RadzenColumn SizeMD="3">
-                    <RadzenLabel Text="Referencia" class="fw-bold" style="width: 100%" />
-                </RadzenColumn>
-                <RadzenColumn SizeMD="9">
-                    <span>@detailInProcess.REFERENCE_DESCRIPTION</span>
-                </RadzenColumn>
-                <RadzenColumn SizeMD="3">
-                    <RadzenLabel Text="Marcación especial" class="fw-bold" style="width: 100%" />
-                </RadzenColumn>
-                <RadzenColumn SizeMD="9">
-                    <span>@detailInProcess.BRAND</span>
-                </RadzenColumn>
-                <RadzenColumn SizeMD="5">
-                    <RadzenLabel Text="Cantidad pendiente" class="fw-bold" style="width: 100%" />
-                </RadzenColumn>
-                <RadzenColumn SizeMD="7">
-                    <span>@detailInProcess.PENDING_QUANTITY</span>
-                </RadzenColumn>
-                <RadzenColumn SizeMD="5">
-                    <RadzenLabel Text="Cantidad en proceso" class="fw-bold" style="width: 100%" />
-                </RadzenColumn>
-                <RadzenColumn SizeMD="7">
-                    <span>@detailInProcess.PROCESSED_QUANTITY</span>
-                </RadzenColumn>
-                <RadzenColumn SizeMD="5">
-                    <RadzenLabel Text="Cantidad despachada" class="fw-bold" style="width: 100%" />
-                </RadzenColumn>
-                <RadzenColumn SizeMD="7">
-                    <span>@detailInProcess.DELIVERED_QUANTITY</span>
-                </RadzenColumn>
+@if (!isLoadingInProgress)
+{
+    <RadzenColumn SizeMD=12>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">
+            @Error
+        </RadzenAlert>
+        <RadzenTemplateForm TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Data="@detailInProcess" Visible="@(detailInProcess != null)" Submit="@FormSubmit" InvalidSubmit="()=>Submitted=true">
+            <RadzenStack style="margin-bottom: 1rem">
+                <RadzenRow SizeMD="9">
+                    <RadzenColumn SizeMD="3">
+                        <RadzenLabel Text="Referencia" class="fw-bold" style="width: 100%" />
+                    </RadzenColumn>
+                    <RadzenColumn SizeMD="9">
+                        <span>@detailInProcess.REFERENCE_DESCRIPTION</span>
+                    </RadzenColumn>
+                    <RadzenColumn SizeMD="3">
+                        <RadzenLabel Text="Marcación especial" class="fw-bold" style="width: 100%" />
+                    </RadzenColumn>
+                    <RadzenColumn SizeMD="9">
+                        <span>@detailInProcess.BRAND</span>
+                    </RadzenColumn>
+                    <RadzenColumn SizeMD="5">
+                        <RadzenLabel Text="Cantidad pendiente" class="fw-bold" style="width: 100%" />
+                    </RadzenColumn>
+                    <RadzenColumn SizeMD="7">
+                        <span>@detailInProcess.PENDING_QUANTITY</span>
+                    </RadzenColumn>
+                    <RadzenColumn SizeMD="5">
+                        <RadzenLabel Text="Cantidad en proceso" class="fw-bold" style="width: 100%" />
+                    </RadzenColumn>
+                    <RadzenColumn SizeMD="7">
+                        <span>@detailInProcess.PROCESSED_QUANTITY</span>
+                    </RadzenColumn>
+                    <RadzenColumn SizeMD="5">
+                        <RadzenLabel Text="Cantidad despachada" class="fw-bold" style="width: 100%" />
+                    </RadzenColumn>
+                    <RadzenColumn SizeMD="7">
+                        <span>@detailInProcess.DELIVERED_QUANTITY</span>
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenRow>
+                    <RadzenFormField Text="Enviar en este proceso" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenNumeric style="display: block; width: 100%" @bind-Value="@detailInProcess.THIS_QUANTITY" Name="THIS_QUANTITY"
+                                           TabIndex="1" Placeholder="Ingrese la cantidad a trasladar" />
+                        </ChildContent>
+                        <Helper>
+                            <RadzenRequiredValidator Component="THIS_QUANTITY" Text="La cantidad es requerida" />
+                        </Helper>
+                    </RadzenFormField>
+                </RadzenRow>
+            </RadzenStack>
+            <RadzenRow style="margin-bottom: 1rem">
+                <InventoryQuantities Reference="ItemReference" />
             </RadzenRow>
-            <RadzenRow>
-                <RadzenFormField Text="Enviar en este proceso" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
-                    <ChildContent>
-                        <RadzenNumeric style="display: block; width: 100%" @bind-Value="@detailInProcess.THIS_QUANTITY" Name="THIS_QUANTITY"
-                                       TabIndex="1" Placeholder="Ingrese la cantidad a trasladar" />
-                    </ChildContent>
-                    <Helper>
-                        <RadzenRequiredValidator Component="THIS_QUANTITY" Text="La cantidad es requerida" />
-                    </Helper>
-                </RadzenFormField>
-            </RadzenRow>
-        </RadzenStack>
-        <RadzenRow style="margin-bottom: 1rem">
-            <InventoryQuantities Reference="ItemReference" />
-        </RadzenRow>
-        <RadzenStack class="my-2" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
-            <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@IsSubmitInProgress" />
-            <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
-        </RadzenStack>
-    </RadzenTemplateForm>
-</RadzenColumn>
-
+            <RadzenStack class="my-2" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@IsSubmitInProgress" />
+                <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
+            </RadzenStack>
+        </RadzenTemplateForm>
+    </RadzenColumn>
+}

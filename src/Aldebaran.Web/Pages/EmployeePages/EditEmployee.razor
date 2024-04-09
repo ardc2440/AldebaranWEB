@@ -1,7 +1,10 @@
 @attribute [Authorize(Roles = "Admin,Employee Editor")]
 @using ServiceModel = Aldebaran.Application.Services.Models;
 
-<RadzenColumn SizeMD=12>
+<LoadingData IsLoadingData="@isLoadingInProgress" />
+@if (!isLoadingInProgress)
+{
+    <RadzenColumn SizeMD=12>
     <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">No se ha podido actualizar el funcionario</RadzenAlert>
     <RadzenTemplateForm TItem="ServiceModel.Employee" Data="@Employee" Visible="@(Employee != null)" Submit="@FormSubmit">
         <RadzenStack>
@@ -100,3 +103,4 @@
         </RadzenStack>
     </RadzenTemplateForm>
 </RadzenColumn>
+}

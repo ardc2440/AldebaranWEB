@@ -80,10 +80,10 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
         {
             try
             {
-                documentType = await DocumentTypeService.FindByCodeAsync("P");
-
                 isLoadingInProgress = true;
 
+                documentType = await DocumentTypeService.FindByCodeAsync("P");
+                
                 await Task.Yield();
 
                 await GetCustomerOrderShipmentAsync();

@@ -29,21 +29,31 @@ namespace Aldebaran.Web.Pages.ForwarderPages
         protected ServiceModel.ForwarderAgent ForwarderAgent;
         protected ServiceModel.ShipmentForwarderAgentMethod ShipmentForwarderAgentMethod;
         protected bool IsSubmitInProgress;
+        protected bool isLoadingInProgress;
         protected bool IsErrorVisible;
         #endregion
 
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            ForwarderAgent = await ForwarderAgentService.FindAsync(FORWARDER_AGENT_ID);
-            var currentShipmentMethodsForAgent = await ShipmentForwarderAgentMethodService.GetByForwarderAgentIdAsync(FORWARDER_AGENT_ID);
-            // Metodos de envio disponibles para seleccion. Metodos de envio excepto los ya seleccionados
-            var shipmentMethods = await ShipmentMethodService.GetAsync();
-            AvailableShipmentMethodsForSelection = shipmentMethods.Where(w => !currentShipmentMethodsForAgent.Any(x => x.ShipmentMethodId == w.ShipmentMethodId)).ToList();
-            ShipmentForwarderAgentMethod = new ServiceModel.ShipmentForwarderAgentMethod
+            try
             {
-                ForwarderAgentId = FORWARDER_AGENT_ID
-            };
+                isLoadingInProgress = true;
+                ForwarderAgent = await ForwarderAgentService.FindAsync(FORWARDER_AGENT_ID);
+                var currentShipmentMethodsForAgent = await ShipmentForwarderAgentMethodService.GetByForwarderAgentIdAsync(FORWARDER_AGENT_ID);
+                // Metodos de envio disponibles para seleccion. Metodos de envio excepto los ya seleccionados
+                var shipmentMethods = await ShipmentMethodService.GetAsync();
+                AvailableShipmentMethodsForSelection = shipmentMethods.Where(w => !currentShipmentMethodsForAgent.Any(x => x.ShipmentMethodId == w.ShipmentMethodId)).ToList();
+                ShipmentForwarderAgentMethod = new ServiceModel.ShipmentForwarderAgentMethod
+                {
+                    ForwarderAgentId = FORWARDER_AGENT_ID
+                };
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+
         }
         #endregion
 

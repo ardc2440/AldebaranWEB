@@ -7,195 +7,200 @@
 @inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer
 
 <PageTitle>Ordenes de compra</PageTitle>
-<RadzenStack>
-    <RadzenRow AlignItems="AlignItems.Center">
-        <RadzenColumn Size="12">
-            <RadzenText Text="Ordenes de compra" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
-        </RadzenColumn>
-        <RadzenColumn Size="12" Visible="@Security.IsInRole("Admin","Purchase Order Editor")">
-            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
-                <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddPurchaseOrder" Variant="Variant.Flat" />
-            </RadzenStack>
-        </RadzenColumn>
-    </RadzenRow>
-    <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
-    <RadzenRow>
-        <RadzenColumn SizeMD=12>
-            <LocalizedDataGrid @ref="PurchaseOrderGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                               Data="@PurchaseOrdersList" TItem="ServiceModel.PurchaseOrder" RowExpand=@GetChildData AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" ExpandMode="Radzen.DataGridExpandMode.Single" AllowGrouping="true" AllowColumnReorder="true" IsLoading="@IsLoadingInProgress">
-                <Columns>
-                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Property="OrderNumber" Title="Número de orden">
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Property="CreationDate" Title="Fecha de creación" Visible="false">
-                        <Template Context="purchaseOrder">
-                            <span>@purchaseOrder.CreationDate.ToString(SharedLocalizer["date:format"])</span>
-                        </Template>
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Property="RequestDate" Title="Fecha de solicitud">
-                        <Template Context="purchaseOrder">
-                            <span>@purchaseOrder.RequestDate.ToString(SharedLocalizer["date:format"])</span>
-                        </Template>
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Property="ExpectedReceiptDate" Title="Fecha esperada de recepción">
-                        <Template Context="purchaseOrder">
-                            <span>@purchaseOrder.ExpectedReceiptDate.ToString(SharedLocalizer["date:format"])</span>
-                        </Template>
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Property="RealReceiptDate" Title="Fecha real de recepción">
-                        <Template Context="purchaseOrder">
-                            <span>@purchaseOrder.RealReceiptDate?.ToString(SharedLocalizer["date:format"])</span>
-                        </Template>
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Property="StatusDocumentType.StatusDocumentTypeName" Title="Estado">
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Property="ImportNumber" Title="Número de importación" Visible="false">
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Property="EmbarkationPort" Title="Puerto de embarcación" Visible="false">
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Property="ProformaNumber" Title="Número de proforma" Visible="false">
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Property="Provider.ProviderName" Title="Proveedor">
-                        <Template Context="purchaseOrder">
-                            <span>(@purchaseOrder.ForwarderAgent.Forwarder.ForwarderName) @purchaseOrder.ForwarderAgent.ForwarderAgentName</span>
-                        </Template>
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Property="ShipmentForwarderAgentMethodId" Title="Método de envío">
-                        <Template Context="purchaseOrder">
-                            <span>@purchaseOrder.ShipmentForwarderAgentMethod.ShipmentMethod.ShipmentMethodName</span>
-                        </Template>
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Filterable="false" Sortable="false" Width="130px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Admin","Purchase Order Editor")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
-                        <Template Context="purchaseOrder">
-                            <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="done_all" Size="ButtonSize.Medium" Visible="purchaseOrder.StatusDocumentType.EditMode == true" MouseEnter="@(args => ShowTooltip(args,"Confirmar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
-                                          Shade="Shade.Lighter" Variant="Variant.Flat"
-                                          Click=@(args => ConfirmPurchaseOrder(args, purchaseOrder)) @onclick:stopPropagation="true" />
-                            <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="edit" Size="ButtonSize.Medium" Visible="purchaseOrder.StatusDocumentType.EditMode == true" MouseEnter="@(args => ShowTooltip(args,"Actualizar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
-                                          Shade="Shade.Lighter" Variant="Variant.Flat"
-                                          Click=@(args => EditPurchaseOrder(args, purchaseOrder)) @onclick:stopPropagation="true" />
-                            <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Visible="purchaseOrder.StatusDocumentType.EditMode == true" MouseEnter="@(args => ShowTooltip(args,"Cancelar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
-                                          Shade="Shade.Lighter" Variant="Variant.Flat"
-                                          Click=@(args => CancelPurchaseOrder(args, purchaseOrder)) @onclick:stopPropagation="true" />
-                        </Template>
-                    </RadzenDataGridColumn>
-                </Columns>
-                <Template Context="purchaseOrder">
-                    <RadzenTabs SelectedIndex="0">
-                        <Tabs>
-                            <RadzenTabsItem Text="Referencias">
-                                <RadzenStack>
-                                    <LocalizedDataGrid Visible="@(purchaseOrder != null)" @ref=PurchaseOrderDetailsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                                       Data="@purchaseOrder?.PurchaseOrderDetails" TItem="ServiceModel.PurchaseOrderDetail">
-                                        <Columns>
-                                            <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Property="RequestedQuantity" Title="Cantidad solicitada">
-                                            </RadzenDataGridColumn>
-                                            <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Property="ReceivedQuantity" Title="Cantidad recibida">
-                                            </RadzenDataGridColumn>
-                                            <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Title="Referencia">
-                                                <Template Context="detail">
-                                                    <RadzenLabel MouseEnter="@(args => ShowTooltip(args,GetReferenceHint(@detail.ItemReference).Result, new TooltipOptions(){ Position = TooltipPosition.Left }))">
-                                                        (@detail.ItemReference.Item.Line.LineName) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName
-                                                    </RadzenLabel>
-                                                </Template>
-                                            </RadzenDataGridColumn>
-                                            <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Property="Warehouse.WarehouseName" Title="Bodega">
-                                            </RadzenDataGridColumn>
-                                        </Columns>
-                                    </LocalizedDataGrid>
-                                </RadzenStack>
-                            </RadzenTabsItem>
-                            <RadzenTabsItem Text="Actividades">
-                                <RadzenStack>
-                                    <RadzenRow Gap="0" AlignItems="AlignItems.Center" Visible="@Security.IsInRole("Admin","Purchase Order Activities Editor")">
-                                        <RadzenColumn Size="12" Visible="purchaseOrder.StatusDocumentType.StatusOrder == 1">
-                                            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
-                                                <RadzenButton Visible="@(purchaseOrder != null)" Icon="add_circle_outline" Text="Nuevo" Click=@(args => AddPurchaseOrderActivity(args,purchaseOrder)) />
-                                            </RadzenStack>
-                                        </RadzenColumn>
-                                    </RadzenRow>
-                                    <LocalizedDataGrid Visible="@(purchaseOrder != null)" @ref=PurchaseOrderActivitiesDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                                       Data="@purchaseOrder?.PurchaseOrderActivities" TItem="ServiceModel.PurchaseOrderActivity">
-                                        <Columns>
-                                            <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderActivity" Title="Creado por" Width="300px">
-                                                <Template Context="activity">
-                                                    <span>(@activity.Employee.Area.AreaName) @activity.ActivityEmployee.FullName</span>
-                                                </Template>
-                                            </RadzenDataGridColumn>
+<LoadingData IsLoadingData="@isLoadingInProgress" />
 
-                                            <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderActivity" Title="Responsable" Width="300px">
-                                                <Template Context="activity">
-                                                    <span>(@activity.ActivityEmployee.Area.AreaName) @activity.ActivityEmployee.FullName</span>
-                                                </Template>
-                                            </RadzenDataGridColumn>
-                                            <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderActivity" Title="Fecha de ejecución">
-                                                <Template Context="activity">
-                                                    <span>@activity.ExecutionDate.ToString(SharedLocalizer["date:format"])</span>
-                                                </Template>
-                                            </RadzenDataGridColumn>
-                                            <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderActivity" Property="ActivityDescription" Title="Actividad">
-                                            </RadzenDataGridColumn>
-                                            <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderActivity" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Visible="@Security.IsInRole("Admin","Purchase Order Activities Editor")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
-                                                <Template Context="activity">
-                                                    <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="edit" Size="ButtonSize.Medium" Variant="Variant.Flat" Visible="purchaseOrder.StatusDocumentType.EditMode == true" MouseEnter="@(args => ShowTooltip(args,"Actualizar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
-                                                                  Click=@(args => EditPurchaseOrderActivity(activity,purchaseOrder)) @onclick:stopPropagation="true" />
-                                                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Shade="Shade.Lighter" Variant="Variant.Flat" Visible="purchaseOrder.StatusDocumentType.EditMode == true" MouseEnter="@(args => ShowTooltip(args,"Eliminar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
-                                                                  Click=@(args => DeletePurchaseOrderActivity(args, purchaseOrder, activity)) @onclick:stopPropagation="true" />
-                                                </Template>
-                                            </RadzenDataGridColumn>
-                                        </Columns>
-                                    </LocalizedDataGrid>
-                                </RadzenStack>
-                            </RadzenTabsItem>
-                            <RadzenTabsItem Text="Alarmas">
-                                <RadzenStack>
-                                    <RadzenRow Gap="0" AlignItems="AlignItems.Center">
-                                        <RadzenColumn Size="12">
-                                            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
-                                                <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddAlarmButtonClick" Variant="Variant.Flat"
-                                                              Visible="purchaseOrder.StatusDocumentType.EditMode == true" />
-                                            </RadzenStack>
-                                        </RadzenColumn>
-                                    </RadzenRow>
-                                    <LocalizedDataGrid ColumnWidth="200px" Visible="@(purchaseOrder != null)" @ref=alarmsGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                                       ExpandMode="DataGridExpandMode.Single" Data="@alarms" TItem="Aldebaran.Application.Services.Models.Alarm">
-                                        <Columns>
-                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Alarm" Property="CreationDate" Title="Fecha creación" Width="40%">
-                                                <Template Context="alarm">
-                                                    <span>@alarm.CreationDate.ToString(SharedLocalizer["date:format"])</span>
-                                                </Template>
-                                            </RadzenDataGridColumn>
-                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Alarm" Property="ExecutionDate" Title="Fecha activación" Width="40%">
-                                                <Template Context="alarm">
-                                                    <span>@alarm.ExecutionDate.ToString(SharedLocalizer["date:format"])</span>
-                                                </Template>
-                                            </RadzenDataGridColumn>
-                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Alarm" Property="AlarmMessage.Message" Title="Mensaje" Width="100%"></RadzenDataGridColumn>
-                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Alarm" Property="IsActive" Title="Estado" Width="20%">
-                                                <Template Context="alarm">
-                                                    @if (alarm.IsActive)
-                                                    {
-                                                        <span>Activa</span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span>Inactiva</span>
-                                                    }
-                                                </Template>
-                                            </RadzenDataGridColumn>
-                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Alarm" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
-                                                <Template Context="alarm">
-                                                    <RadzenButton Icon="assignment_turned_in" ButtonStyle="ButtonStyle.Light" Visible="@CanEditAlarm(alarm.IsActive, purchaseOrder.StatusDocumentType.StatusOrder).Result" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => DisableAlarm(alarm))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Desactivar alarma", new TooltipOptions(){ Position = TooltipPosition.Left }))">
-                                                    </RadzenButton>
-                                                </Template>
-                                            </RadzenDataGridColumn>
-                                        </Columns>
-                                    </LocalizedDataGrid>
-                                </RadzenStack>
-                            </RadzenTabsItem>
+@if (!isLoadingInProgress)
+{
+    <RadzenStack>
+        <RadzenRow AlignItems="AlignItems.Center">
+            <RadzenColumn Size="12">
+                <RadzenText Text="Ordenes de compra" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
+            </RadzenColumn>
+            <RadzenColumn Size="12" Visible="@Security.IsInRole("Admin","Purchase Order Editor")">
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
+                    <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddPurchaseOrder" Variant="Variant.Flat" />
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
+        <RadzenRow>
+            <RadzenColumn SizeMD=12>
+                <LocalizedDataGrid @ref="PurchaseOrderGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                   Data="@PurchaseOrdersList" TItem="ServiceModel.PurchaseOrder" RowExpand=@GetChildData AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" ExpandMode="Radzen.DataGridExpandMode.Single" AllowGrouping="true" AllowColumnReorder="true" IsLoading="@isLoadingInProgress">
+                    <Columns>
+                        <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Property="OrderNumber" Title="Número de orden">
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Property="CreationDate" Title="Fecha de creación" Visible="false">
+                            <Template Context="purchaseOrder">
+                                <span>@purchaseOrder.CreationDate.ToString(SharedLocalizer["date:format"])</span>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Property="RequestDate" Title="Fecha de solicitud">
+                            <Template Context="purchaseOrder">
+                                <span>@purchaseOrder.RequestDate.ToString(SharedLocalizer["date:format"])</span>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Property="ExpectedReceiptDate" Title="Fecha esperada de recepción">
+                            <Template Context="purchaseOrder">
+                                <span>@purchaseOrder.ExpectedReceiptDate.ToString(SharedLocalizer["date:format"])</span>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Property="RealReceiptDate" Title="Fecha real de recepción">
+                            <Template Context="purchaseOrder">
+                                <span>@purchaseOrder.RealReceiptDate?.ToString(SharedLocalizer["date:format"])</span>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Property="StatusDocumentType.StatusDocumentTypeName" Title="Estado">
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Property="ImportNumber" Title="Número de importación" Visible="false">
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Property="EmbarkationPort" Title="Puerto de embarcación" Visible="false">
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Property="ProformaNumber" Title="Número de proforma" Visible="false">
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Property="Provider.ProviderName" Title="Proveedor">
+                            <Template Context="purchaseOrder">
+                                <span>(@purchaseOrder.ForwarderAgent.Forwarder.ForwarderName) @purchaseOrder.ForwarderAgent.ForwarderAgentName</span>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Property="ShipmentForwarderAgentMethodId" Title="Método de envío">
+                            <Template Context="purchaseOrder">
+                                <span>@purchaseOrder.ShipmentForwarderAgentMethod.ShipmentMethod.ShipmentMethodName</span>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Filterable="false" Sortable="false" Width="130px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Admin","Purchase Order Editor")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                            <Template Context="purchaseOrder">
+                                <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="done_all" Size="ButtonSize.Medium" Visible="purchaseOrder.StatusDocumentType.EditMode == true" MouseEnter="@(args => ShowTooltip(args,"Confirmar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
+                                              Shade="Shade.Lighter" Variant="Variant.Flat"
+                                              Click=@(args => ConfirmPurchaseOrder(args, purchaseOrder)) @onclick:stopPropagation="true" />
+                                <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="edit" Size="ButtonSize.Medium" Visible="purchaseOrder.StatusDocumentType.EditMode == true" MouseEnter="@(args => ShowTooltip(args,"Actualizar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
+                                              Shade="Shade.Lighter" Variant="Variant.Flat"
+                                              Click=@(args => EditPurchaseOrder(args, purchaseOrder)) @onclick:stopPropagation="true" />
+                                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Visible="purchaseOrder.StatusDocumentType.EditMode == true" MouseEnter="@(args => ShowTooltip(args,"Cancelar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
+                                              Shade="Shade.Lighter" Variant="Variant.Flat"
+                                              Click=@(args => CancelPurchaseOrder(args, purchaseOrder)) @onclick:stopPropagation="true" />
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </Columns>
+                    <Template Context="purchaseOrder">
+                        <RadzenTabs SelectedIndex="0">
+                            <Tabs>
+                                <RadzenTabsItem Text="Referencias">
+                                    <RadzenStack>
+                                        <LocalizedDataGrid Visible="@(purchaseOrder != null)" @ref=PurchaseOrderDetailsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                                           Data="@purchaseOrder?.PurchaseOrderDetails" TItem="ServiceModel.PurchaseOrderDetail">
+                                            <Columns>
+                                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Property="RequestedQuantity" Title="Cantidad solicitada">
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Property="ReceivedQuantity" Title="Cantidad recibida">
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Title="Referencia">
+                                                    <Template Context="detail">
+                                                        <RadzenLabel MouseEnter="@(args => ShowTooltip(args,GetReferenceHint(@detail.ItemReference).Result, new TooltipOptions(){ Position = TooltipPosition.Left }))">
+                                                            (@detail.ItemReference.Item.Line.LineName) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName
+                                                        </RadzenLabel>
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Property="Warehouse.WarehouseName" Title="Bodega">
+                                                </RadzenDataGridColumn>
+                                            </Columns>
+                                        </LocalizedDataGrid>
+                                    </RadzenStack>
+                                </RadzenTabsItem>
+                                <RadzenTabsItem Text="Actividades">
+                                    <RadzenStack>
+                                        <RadzenRow Gap="0" AlignItems="AlignItems.Center" Visible="@Security.IsInRole("Admin","Purchase Order Activities Editor")">
+                                            <RadzenColumn Size="12" Visible="purchaseOrder.StatusDocumentType.StatusOrder == 1">
+                                                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
+                                                    <RadzenButton Visible="@(purchaseOrder != null)" Icon="add_circle_outline" Text="Nuevo" Click=@(args => AddPurchaseOrderActivity(args,purchaseOrder)) />
+                                                </RadzenStack>
+                                            </RadzenColumn>
+                                        </RadzenRow>
+                                        <LocalizedDataGrid Visible="@(purchaseOrder != null)" @ref=PurchaseOrderActivitiesDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                                           Data="@purchaseOrder?.PurchaseOrderActivities" TItem="ServiceModel.PurchaseOrderActivity">
+                                            <Columns>
+                                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderActivity" Title="Creado por" Width="300px">
+                                                    <Template Context="activity">
+                                                        <span>(@activity.Employee.Area.AreaName) @activity.ActivityEmployee.FullName</span>
+                                                    </Template>
+                                                </RadzenDataGridColumn>
 
-                        </Tabs>
-                    </RadzenTabs>
-                </Template>
-            </LocalizedDataGrid>
-        </RadzenColumn>
-    </RadzenRow>
-</RadzenStack>
+                                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderActivity" Title="Responsable" Width="300px">
+                                                    <Template Context="activity">
+                                                        <span>(@activity.ActivityEmployee.Area.AreaName) @activity.ActivityEmployee.FullName</span>
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderActivity" Title="Fecha de ejecución">
+                                                    <Template Context="activity">
+                                                        <span>@activity.ExecutionDate.ToString(SharedLocalizer["date:format"])</span>
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderActivity" Property="ActivityDescription" Title="Actividad">
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderActivity" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Visible="@Security.IsInRole("Admin","Purchase Order Activities Editor")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                                                    <Template Context="activity">
+                                                        <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="edit" Size="ButtonSize.Medium" Variant="Variant.Flat" Visible="purchaseOrder.StatusDocumentType.EditMode == true" MouseEnter="@(args => ShowTooltip(args,"Actualizar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
+                                                                      Click=@(args => EditPurchaseOrderActivity(activity,purchaseOrder)) @onclick:stopPropagation="true" />
+                                                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Shade="Shade.Lighter" Variant="Variant.Flat" Visible="purchaseOrder.StatusDocumentType.EditMode == true" MouseEnter="@(args => ShowTooltip(args,"Eliminar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
+                                                                      Click=@(args => DeletePurchaseOrderActivity(args, purchaseOrder, activity)) @onclick:stopPropagation="true" />
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                            </Columns>
+                                        </LocalizedDataGrid>
+                                    </RadzenStack>
+                                </RadzenTabsItem>
+                                <RadzenTabsItem Text="Alarmas">
+                                    <RadzenStack>
+                                        <RadzenRow Gap="0" AlignItems="AlignItems.Center">
+                                            <RadzenColumn Size="12">
+                                                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
+                                                    <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddAlarmButtonClick" Variant="Variant.Flat"
+                                                                  Visible="purchaseOrder.StatusDocumentType.EditMode == true" />
+                                                </RadzenStack>
+                                            </RadzenColumn>
+                                        </RadzenRow>
+                                        <LocalizedDataGrid ColumnWidth="200px" Visible="@(purchaseOrder != null)" @ref=alarmsGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                                           ExpandMode="DataGridExpandMode.Single" Data="@alarms" TItem="Aldebaran.Application.Services.Models.Alarm">
+                                            <Columns>
+                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Alarm" Property="CreationDate" Title="Fecha creación" Width="40%">
+                                                    <Template Context="alarm">
+                                                        <span>@alarm.CreationDate.ToString(SharedLocalizer["date:format"])</span>
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Alarm" Property="ExecutionDate" Title="Fecha activación" Width="40%">
+                                                    <Template Context="alarm">
+                                                        <span>@alarm.ExecutionDate.ToString(SharedLocalizer["date:format"])</span>
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Alarm" Property="AlarmMessage.Message" Title="Mensaje" Width="100%"></RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Alarm" Property="IsActive" Title="Estado" Width="20%">
+                                                    <Template Context="alarm">
+                                                        @if (alarm.IsActive)
+                                                        {
+                                                            <span>Activa</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span>Inactiva</span>
+                                                        }
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Alarm" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                                                    <Template Context="alarm">
+                                                        <RadzenButton Icon="assignment_turned_in" ButtonStyle="ButtonStyle.Light" Visible="@CanEditAlarm(alarm.IsActive, purchaseOrder.StatusDocumentType.StatusOrder).Result" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => DisableAlarm(alarm))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Desactivar alarma", new TooltipOptions(){ Position = TooltipPosition.Left }))">
+                                                        </RadzenButton>
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                            </Columns>
+                                        </LocalizedDataGrid>
+                                    </RadzenStack>
+                                </RadzenTabsItem>
+
+                            </Tabs>
+                        </RadzenTabs>
+                    </Template>
+                </LocalizedDataGrid>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenStack>
+}

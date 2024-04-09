@@ -27,6 +27,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         protected bool IsErrorVisible;
         private bool Submitted = false;
         protected bool IsSubmitInProgress;
+        protected bool isLoadingInProgress;                       
         protected string Error;
         protected CustomerReservationDetail CustomerReservationDetailData { get; set; }
 
@@ -37,19 +38,28 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            CustomerReservationDetailData = new CustomerReservationDetail
+            try
             {
-                Brand = CustomerReservationDetail.Brand,
-                CustomerReservationDetailId = CustomerReservationDetail.CustomerReservationDetailId,
-                ReferenceId = CustomerReservationDetail.ReferenceId,
-                ItemReference = CustomerReservationDetail.ItemReference,
-                ReservedQuantity = CustomerReservationDetail.ReservedQuantity,
-                CustomerReservation = CustomerReservationDetail.CustomerReservation,
-                SendToCustomerOrder = CustomerReservationDetail.SendToCustomerOrder,
-                CustomerReservationId = CustomerReservationDetail.CustomerReservationId
-            };
+                isLoadingInProgress = true;
+                CustomerReservationDetailData = new CustomerReservationDetail
+                {
+                    Brand = CustomerReservationDetail.Brand,
+                    CustomerReservationDetailId = CustomerReservationDetail.CustomerReservationDetailId,
+                    ReferenceId = CustomerReservationDetail.ReferenceId,
+                    ItemReference = CustomerReservationDetail.ItemReference,
+                    ReservedQuantity = CustomerReservationDetail.ReservedQuantity,
+                    CustomerReservation = CustomerReservationDetail.CustomerReservation,
+                    SendToCustomerOrder = CustomerReservationDetail.SendToCustomerOrder,
+                    CustomerReservationId = CustomerReservationDetail.CustomerReservationId
+                };
 
-            ItemReference = await ItemReferenceService.FindAsync(CustomerReservationDetail.ReferenceId);
+                ItemReference = await ItemReferenceService.FindAsync(CustomerReservationDetail.ReferenceId);
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+
         }
 
         public override async Task SetParametersAsync(ParameterView parameters)

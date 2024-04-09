@@ -47,7 +47,7 @@ namespace Aldebaran.Web.Pages.ItemPages
         protected LocalizedDataGrid<ServiceModel.Item> ItemsDataGrid;
         protected LocalizedDataGrid<ServiceModel.ItemReference> ItemReferencesDataGrid;
         protected string search = "";
-        protected bool IsLoadingInProgress;
+        protected bool isLoadingInProgress;
         #endregion
 
         #region Overrides
@@ -55,12 +55,12 @@ namespace Aldebaran.Web.Pages.ItemPages
         {
             try
             {
-                IsLoadingInProgress = true;
+                isLoadingInProgress = true;
                 await GetItemsAsync();
             }
             finally
             {
-                IsLoadingInProgress = false;
+                isLoadingInProgress = false;
             }
         }
         #endregion
@@ -165,14 +165,14 @@ namespace Aldebaran.Web.Pages.ItemPages
             Item = args;
             try
             {
-                IsLoadingInProgress = true;
+                isLoadingInProgress = true;
                 await Task.Yield();
                 var ItemReferencesResult = await ItemReferenceService.GetByItemIdAsync(args.ItemId);
                 args.ItemReferences = ItemReferencesResult.ToList();
             }
             finally
             {
-                IsLoadingInProgress = false;
+                isLoadingInProgress = false;
             }
         }
         protected async Task AddItemReference(ServiceModel.Item data)

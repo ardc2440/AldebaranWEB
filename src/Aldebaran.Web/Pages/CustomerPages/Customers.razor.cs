@@ -41,7 +41,7 @@ namespace Aldebaran.Web.Pages.CustomerPages
         protected string search = "";
         protected Customer Customer;
         protected LocalizedDataGrid<CustomerContact> CustomerContactsDataGrid;
-        protected bool IsLoadingInProgress;
+        protected bool isLoadingInProgress;
 
         #endregion
 
@@ -51,12 +51,12 @@ namespace Aldebaran.Web.Pages.CustomerPages
         {
             try
             {
-                IsLoadingInProgress = true;
+                isLoadingInProgress = true;
                 await GetCustomersAsync();
             }
             finally
             {
-                IsLoadingInProgress = false;
+                isLoadingInProgress = false;
             }
         }
 
@@ -140,14 +140,14 @@ namespace Aldebaran.Web.Pages.CustomerPages
             Customer = args;
             try
             {
-                IsLoadingInProgress = true;
+                isLoadingInProgress = true;
                 await Task.Yield();
                 var CustomerContactsResult = await CustomerContactService.GetByCustomerIdAsync(args.CustomerId);
                 args.CustomerContacts = CustomerContactsResult.ToList();
             }
             finally
             {
-                IsLoadingInProgress = false;
+                isLoadingInProgress = false;
             }
         }
 

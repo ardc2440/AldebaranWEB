@@ -36,6 +36,7 @@ namespace Aldebaran.Web.Pages.CustomerPages
         protected Customer Customer;
         protected IEnumerable<IdentityType> IdentityTypesForSelection = new List<IdentityType>();
         protected bool IsSubmitInProgress;
+        protected bool isLoadingInProgress;
 
         #endregion
 
@@ -43,8 +44,17 @@ namespace Aldebaran.Web.Pages.CustomerPages
 
         protected override async Task OnInitializedAsync()
         {
-            Customer = await CustomerService.FindAsync(CUSTOMER_ID);
-            IdentityTypesForSelection = await IdentityTypeService.GetAsync();
+            try
+            {
+                isLoadingInProgress = true;
+                Customer = await CustomerService.FindAsync(CUSTOMER_ID);
+                IdentityTypesForSelection = await IdentityTypeService.GetAsync();
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+
         }
 
         #endregion

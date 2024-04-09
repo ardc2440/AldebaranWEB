@@ -24,18 +24,28 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         protected ServiceModel.PurchaseOrderActivity PurchaseOrderActivity;
         protected IEnumerable<ServiceModel.Employee> Employees;
         protected bool IsSubmitInProgress;
+        protected bool isLoadingInProgress;
         protected ServiceModel.Employee LoggedEmployee { get; set; }
         #endregion
 
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            LoggedEmployee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id);
-            PurchaseOrderActivity = new ServiceModel.PurchaseOrderActivity()
+            try
             {
-                EmployeeId = LoggedEmployee.EmployeeId
-            };
-            Employees = await EmployeeService.GetAsync();
+                isLoadingInProgress = true;
+                LoggedEmployee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id);
+                PurchaseOrderActivity = new ServiceModel.PurchaseOrderActivity()
+                {
+                    EmployeeId = LoggedEmployee.EmployeeId
+                };
+                Employees = await EmployeeService.GetAsync();
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+
         }
         #endregion
 

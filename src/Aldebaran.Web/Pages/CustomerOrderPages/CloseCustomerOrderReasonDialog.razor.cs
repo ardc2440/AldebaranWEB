@@ -32,6 +32,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         #region Variables
         private bool Submitted = false;
         protected bool IsSubmitInProgress;
+        protected bool isLoadingInProgress;
         private bool IsErrorVisible;
         protected ServiceModel.CloseCustomerOrderReason CloseCustomerOrderReason { get; set; }
         protected IEnumerable<ServiceModel.CloseCustomerOrderReason> CloseCustomerOrderReasons = new List<ServiceModel.CloseCustomerOrderReason>();
@@ -40,10 +41,19 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            await Task.Yield();
-            CloseCustomerOrderReason = new ServiceModel.CloseCustomerOrderReason();
-            CloseCustomerOrderReasons = await CloseCustomerOrderReasonService.GetAsync();
-            IsErrorVisible = !CloseCustomerOrderReasons.Any();
+            try
+            {
+                isLoadingInProgress = true;
+                await Task.Yield();
+                CloseCustomerOrderReason = new ServiceModel.CloseCustomerOrderReason();
+                CloseCustomerOrderReasons = await CloseCustomerOrderReasonService.GetAsync();
+                IsErrorVisible = !CloseCustomerOrderReasons.Any();
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+
         }
         #endregion
 

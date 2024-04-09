@@ -33,6 +33,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         protected bool IsErrorVisible;
         private bool Submitted = false;
         protected bool IsSubmitInProgress;
+        protected bool isLoadingInProgress;
         protected string Error;
         protected IEnumerable<ItemReference> ItemReferencesForREFERENCEID { get; set; } = new List<ItemReference>();
         #endregion
@@ -41,7 +42,16 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
         protected override async Task OnInitializedAsync()
         {
-            ItemReferencesForREFERENCEID = await ItemReferenceService.GetByStatusAsync(true);
+            try
+            {
+                isLoadingInProgress = true;
+                ItemReferencesForREFERENCEID = await ItemReferenceService.GetByStatusAsync(true);
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+
         }
 
         public override async Task SetParametersAsync(ParameterView parameters)

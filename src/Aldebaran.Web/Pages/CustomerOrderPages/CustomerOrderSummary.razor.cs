@@ -50,14 +50,24 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected IEnumerable<CustomerOrderDetail> CustomerOrderDetails;
         protected IEnumerable<CustomerOrderShipment> CustomerOrderShipments;
         private bool IsBusy = false;
+        protected bool isLoadingInProgress;
         #endregion
 
         #region Override
         protected override async Task OnInitializedAsync()
         {
-            CustomerOrder = await CustomerOrderService.FindAsync(Id);
-            CustomerOrderDetails = await CustomerOrderDetailService.GetByCustomerOrderIdAsync(Id);
-            CustomerOrderShipments = await CustomerOrderShipmentService.GetByCustomerOrderIdAsync(Id);
+            try
+            {
+                isLoadingInProgress = true;
+                CustomerOrder = await CustomerOrderService.FindAsync(Id);
+                CustomerOrderDetails = await CustomerOrderDetailService.GetByCustomerOrderIdAsync(Id);
+                CustomerOrderShipments = await CustomerOrderShipmentService.GetByCustomerOrderIdAsync(Id);
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+
         }
         #endregion
 

@@ -59,14 +59,24 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         protected RadzenDataGrid<ServiceModel.PurchaseOrderDetail> PurchaseOrderDetailGrid;
         private bool Submitted = false;
         protected bool IsSubmitInProgress;
+        protected bool isLoadingInProgress;
         protected string Error;
         #endregion
 
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            PurchaseOrder = new ServiceModel.PurchaseOrder { RequestDate = DateTime.Now };
-            Providers = await ProviderService.GetAsync();
+            try
+            {
+                isLoadingInProgress = true;
+                PurchaseOrder = new ServiceModel.PurchaseOrder { RequestDate = DateTime.Now };
+                Providers = await ProviderService.GetAsync();
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+
         }
         #endregion
 

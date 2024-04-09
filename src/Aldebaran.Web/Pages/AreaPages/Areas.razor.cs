@@ -42,7 +42,7 @@ namespace Aldebaran.Web.Pages.AreaPages
         protected ServiceModel.Area Area;
         protected LocalizedDataGrid<ServiceModel.ItemsArea> ItemsAreasDataGrid;
         protected string search = "";
-        protected bool IsLoadingInProgress;
+        protected bool isLoadingInProgress;
         #endregion
 
         #region Overrides
@@ -50,12 +50,12 @@ namespace Aldebaran.Web.Pages.AreaPages
         {
             try
             {
-                IsLoadingInProgress = true;
+                isLoadingInProgress = true;
                 await GetAreasAsync();
             }
             finally
             {
-                IsLoadingInProgress = false;
+                isLoadingInProgress = false;
             }
         }
 
@@ -79,14 +79,14 @@ namespace Aldebaran.Web.Pages.AreaPages
             Area = args;
             try
             {
-                IsLoadingInProgress = true;
+                isLoadingInProgress = true;
                 await Task.Yield();
                 var itemsAreasResult = await ItemAreaService.GetByAreaIdAsync(Area.AreaId);
                 args.ItemsAreas = itemsAreasResult.ToList();
             }
             finally
             {
-                IsLoadingInProgress = false;
+                isLoadingInProgress = false;
             }
         }
         protected async Task AddItemArea(MouseEventArgs args, ServiceModel.Area data)

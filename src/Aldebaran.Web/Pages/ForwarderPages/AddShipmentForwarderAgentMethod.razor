@@ -1,35 +1,39 @@
 @attribute [Authorize(Roles = "Admin,Forwarder Editor")]
 @using ServiceModel = Aldebaran.Application.Services.Models;
 
-<RadzenColumn SizeMD=12>
-    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">No se ha podido asignar el método de envío</RadzenAlert>
-    <RadzenTemplateForm TItem="ServiceModel.ShipmentForwarderAgentMethod" Data="@ShipmentForwarderAgentMethod" Visible="@(ShipmentForwarderAgentMethod != null)" Submit="@FormSubmit">
-        <RadzenStack>
-            <div class="flex-shrink-0">
-                <div class="text-primary-color" style="font-size: 16px">
-                    <RadzenLabel Text="Transportadora: " Style="font-weight: bold" />
-                    <RadzenLabel Text="@ForwarderAgent.Forwarder.ForwarderName" />
-                </div>
-                <div class="text-secondary-color">
-                    <RadzenLabel Text="Agente: " />
-                    <RadzenLabel Text="@ForwarderAgent.ForwarderAgentName" />
-                </div>
-            </div>
-            <RadzenFormField Text="Método de envío" Variant="Variant.Text">
-                <ChildContent>
-                    <RadzenDropDown Data="@AvailableShipmentMethodsForSelection" TextProperty="ShipmentMethodName" ValueProperty="ShipmentMethodId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                    style="display: block; width: 100%" @bind-Value="@ShipmentForwarderAgentMethod.ShipmentMethodId" Name="ShipmentMethodId">
-                    </RadzenDropDown>
-                </ChildContent>
-                <Helper>
-                    <RadzenNumericRangeValidator Component="ShipmentMethodId" Min="1" Text="Método de envío es requerido" />
-                </Helper>
-            </RadzenFormField>
-        </RadzenStack>
-        <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
-            <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />
-            <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
-        </RadzenStack>
-    </RadzenTemplateForm>
-</RadzenColumn>
+<LoadingData IsLoadingData="@isLoadingInProgress" />
 
+@if (!isLoadingInProgress)
+{
+    <RadzenColumn SizeMD=12>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">No se ha podido asignar el método de envío</RadzenAlert>
+        <RadzenTemplateForm TItem="ServiceModel.ShipmentForwarderAgentMethod" Data="@ShipmentForwarderAgentMethod" Visible="@(ShipmentForwarderAgentMethod != null)" Submit="@FormSubmit">
+            <RadzenStack>
+                <div class="flex-shrink-0">
+                    <div class="text-primary-color" style="font-size: 16px">
+                        <RadzenLabel Text="Transportadora: " Style="font-weight: bold" />
+                        <RadzenLabel Text="@ForwarderAgent.Forwarder.ForwarderName" />
+                    </div>
+                    <div class="text-secondary-color">
+                        <RadzenLabel Text="Agente: " />
+                        <RadzenLabel Text="@ForwarderAgent.ForwarderAgentName" />
+                    </div>
+                </div>
+                <RadzenFormField Text="Método de envío" Variant="Variant.Text">
+                    <ChildContent>
+                        <RadzenDropDown Data="@AvailableShipmentMethodsForSelection" TextProperty="ShipmentMethodName" ValueProperty="ShipmentMethodId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                        style="display: block; width: 100%" @bind-Value="@ShipmentForwarderAgentMethod.ShipmentMethodId" Name="ShipmentMethodId">
+                        </RadzenDropDown>
+                    </ChildContent>
+                    <Helper>
+                        <RadzenNumericRangeValidator Component="ShipmentMethodId" Min="1" Text="Método de envío es requerido" />
+                    </Helper>
+                </RadzenFormField>
+            </RadzenStack>
+            <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />
+                <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
+            </RadzenStack>
+        </RadzenTemplateForm>
+    </RadzenColumn>
+}

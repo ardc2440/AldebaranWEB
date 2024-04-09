@@ -26,6 +26,7 @@ namespace Aldebaran.Web.Pages.ItemPages
         protected ServiceModel.ItemReference ItemReference;
         protected ServiceModel.Item Item;
         protected bool IsSubmitInProgress;
+        protected bool isLoadingInProgress;
         protected bool IsErrorVisible;
         protected List<string> ValidationErrors;
         #endregion
@@ -33,11 +34,20 @@ namespace Aldebaran.Web.Pages.ItemPages
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            Item = await ItemService.FindAsync(ITEM_ID);
-            ItemReference = new ServiceModel.ItemReference
+            try
             {
-                ItemId = ITEM_ID
-            };
+                isLoadingInProgress = true;
+                Item = await ItemService.FindAsync(ITEM_ID);
+                ItemReference = new ServiceModel.ItemReference
+                {
+                    ItemId = ITEM_ID
+                };
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+
         }
         #endregion
 

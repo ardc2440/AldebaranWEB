@@ -1,28 +1,32 @@
 @attribute [Authorize(Roles = "Admin,Area Editor")]
 @using ServiceModel = Aldebaran.Application.Services.Models;
 
-<RadzenColumn SizeMD=12>
-    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">No se ha podido agregar el artículo al área</RadzenAlert>
-    <RadzenTemplateForm TItem="ServiceModel.ItemsArea" Data="@ItemArea" Submit="@FormSubmit">
-        <RadzenStack>
-            <div class="flex-shrink-0">
-                <div class="text-primary-color" style="font-size: 16px">
-                    <RadzenLabel Text="Item: " Style="font-weight: bold" />
-                    <RadzenLabel Text="@Area?.AreaName" />
+<LoadingData IsLoadingData="@isLoadingInProgress" />
+@if (!isLoadingInProgress)
+{
+    <RadzenColumn SizeMD=12>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">No se ha podido agregar el artículo al área</RadzenAlert>
+        <RadzenTemplateForm TItem="ServiceModel.ItemsArea" Data="@ItemArea" Submit="@FormSubmit">
+            <RadzenStack>
+                <div class="flex-shrink-0">
+                    <div class="text-primary-color" style="font-size: 16px">
+                        <RadzenLabel Text="Item: " Style="font-weight: bold" />
+                        <RadzenLabel Text="@Area?.AreaName" />
+                    </div>
+                    <div class="text-secondary-color">
+                        <RadzenLabel Text="Código: " />
+                        <RadzenLabel Text="@Area?.AreaCode" />
+                    </div>
                 </div>
-                <div class="text-secondary-color">
-                    <RadzenLabel Text="Código: " />
-                    <RadzenLabel Text="@Area?.AreaCode" />
-                </div>
-            </div>
-            <RadzenRow style="margin-bottom: 1rem">
-                <ItemPicker OnChange="ItemHandler" AvailableItemsForSelection="AvailableItemsForSelection" />
-                <RadzenRequiredValidator Component="ItemId" DefaultValue="0" Text="Artículo es requerido" />
-            </RadzenRow>
-        </RadzenStack>
-        <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
-            <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />
-            <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
-        </RadzenStack>
-    </RadzenTemplateForm>
-</RadzenColumn>
+                <RadzenRow style="margin-bottom: 1rem">
+                    <ItemPicker OnChange="ItemHandler" AvailableItemsForSelection="AvailableItemsForSelection" />
+                    <RadzenRequiredValidator Component="ItemId" DefaultValue="0" Text="Artículo es requerido" />
+                </RadzenRow>
+            </RadzenStack>
+            <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />
+                <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
+            </RadzenStack>
+        </RadzenTemplateForm>
+    </RadzenColumn>
+}

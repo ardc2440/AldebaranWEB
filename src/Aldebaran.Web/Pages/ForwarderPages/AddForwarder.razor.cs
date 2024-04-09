@@ -21,12 +21,22 @@ namespace Aldebaran.Web.Pages.ForwarderPages
         protected ServiceModel.Forwarder Forwarder;
         protected bool IsSubmitInProgress;
         protected List<string> ValidationErrors;
+        protected bool isLoadingInProgress;
         #endregion
 
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            Forwarder = new ServiceModel.Forwarder();
+            try
+            {
+                isLoadingInProgress = true;
+                Forwarder = new ServiceModel.Forwarder();
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+
         }
         #endregion
 

@@ -1,27 +1,32 @@
-@attribute [Authorize(Roles="Admin,Provider Editor")]
+@attribute [Authorize(Roles = "Admin,Provider Editor")]
 @using ServiceModel = Aldebaran.Application.Services.Models;
 
-<RadzenColumn SizeMD=12>
-    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">No se ha podido agregar la referencia al proveedor</RadzenAlert>
-    <RadzenTemplateForm TItem="ServiceModel.ProviderReference" Data="@ProviderReference" Visible="@(ProviderReference != null)" Submit="@FormSubmit">
-        <RadzenStack>
-            <div class="flex-shrink-0">
-                <div class="text-primary-color" style="font-size: 16px">
-                    <RadzenLabel Text="Proveedor: " Style="font-weight: bold" />
-                    <RadzenLabel Text="@Provider.ProviderName" />
+<LoadingData IsLoadingData="@isLoadingInProgress" />
+
+@if (!isLoadingInProgress)
+{
+    <RadzenColumn SizeMD=12>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">No se ha podido agregar la referencia al proveedor</RadzenAlert>
+        <RadzenTemplateForm TItem="ServiceModel.ProviderReference" Data="@ProviderReference" Visible="@(ProviderReference != null)" Submit="@FormSubmit">
+            <RadzenStack>
+                <div class="flex-shrink-0">
+                    <div class="text-primary-color" style="font-size: 16px">
+                        <RadzenLabel Text="Proveedor: " Style="font-weight: bold" />
+                        <RadzenLabel Text="@Provider.ProviderName" />
+                    </div>
+                    <div class="text-secondary-color">
+                        <RadzenLabel Text="Código: " />
+                        <RadzenLabel Text="@Provider.ProviderCode" />
+                    </div>
                 </div>
-                <div class="text-secondary-color">
-                    <RadzenLabel Text="Código: " />
-                    <RadzenLabel Text="@Provider.ProviderCode" />
-                </div>
-            </div>
-            <ReferencePicker OnChange="ItemReferenceHandler" References="AvailableItemReferencesForSelection" />
-            <RadzenRequiredValidator Text="Referencia requerida" Component="ReferenceId" />
-        </RadzenStack>
-        <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
-            <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />
-            <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
-        </RadzenStack>
-    </RadzenTemplateForm>
-</RadzenColumn>
+                <ReferencePicker OnChange="ItemReferenceHandler" References="AvailableItemReferencesForSelection" />
+                <RadzenRequiredValidator Text="Referencia requerida" Component="ReferenceId" />
+            </RadzenStack>
+            <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />
+                <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
+            </RadzenStack>
+        </RadzenTemplateForm>
+    </RadzenColumn>
+}
 

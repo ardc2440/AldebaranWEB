@@ -72,7 +72,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected IEnumerable<Customer> customersForCUSTOMERID;
         protected IEnumerable<Employee> employeesForEMPLOYEEID;
         protected bool IsSubmitInProgress;
-        protected bool IsLoadingInProgress;
+        protected bool isLoadingInProgress;
         protected bool Submitted = false;
 
         #endregion
@@ -83,7 +83,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         {
             try
             {
-                IsLoadingInProgress = true;
+                isLoadingInProgress = true;
 
                 await Task.Yield();
 
@@ -104,7 +104,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 Error = ex.Message;
                 IsErrorVisible = true;
             }
-            finally { IsLoadingInProgress = false; }
+            finally { isLoadingInProgress = false; }
         }
 
         #endregion

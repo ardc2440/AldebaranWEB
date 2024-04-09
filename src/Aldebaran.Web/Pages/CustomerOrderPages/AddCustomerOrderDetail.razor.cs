@@ -27,6 +27,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected bool IsErrorVisible;
         protected string Error;
         protected bool IsSubmitInProgress;
+        protected bool isLoadingInProgress;
         protected CustomerOrderDetail customerOrderDetail;
         protected InventoryQuantities quantitiesPanel;
         protected IEnumerable<ItemReference> itemReferencesForREFERENCEID { get; set; } = new List<ItemReference>();
@@ -37,7 +38,16 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected override async Task OnInitializedAsync()
         {
-            itemReferencesForREFERENCEID = await ItemReferenceService.GetByStatusAsync(true);
+            try
+            {
+                isLoadingInProgress = true;
+                itemReferencesForREFERENCEID = await ItemReferenceService.GetByStatusAsync(true);
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+
         }
 
         public override async Task SetParametersAsync(ParameterView parameters)

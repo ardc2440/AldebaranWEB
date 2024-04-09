@@ -51,6 +51,7 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
         protected string Error = "No se hapodido agregar la referencia";
         protected WarehouseTransferDetail warehouseTransferDetail;
         protected bool IsSubmitInProgress;
+        protected bool isLoadingInProgress;
         bool hasWarehouseTransferIdValue;
         bool hasReferenceIdValue;
 
@@ -60,10 +61,18 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
 
         protected override async Task OnInitializedAsync()
         {
+            try
+            {
+                isLoadingInProgress = true;
+                ItemReferencesForReferenceId = await ItemReferenceService.GetByStatusAsync(true);
 
-            ItemReferencesForReferenceId = await ItemReferenceService.GetByStatusAsync(true);
+                warehouseTransferDetail.Quantity = 0;
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
 
-            warehouseTransferDetail.Quantity = 0;
         }
 
         public override async Task SetParametersAsync(ParameterView parameters)

@@ -38,15 +38,25 @@ namespace Aldebaran.Web.Pages.EmployeePages
         protected IEnumerable<ServiceModel.IdentityType> IdentityTypes;
         protected IEnumerable<ApplicationUser> ApplicationUsers;
         protected bool IsSubmitInProgress;
+        protected bool isLoadingInProgress ;
         #endregion
 
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            Employee = await EmployeeService.FindAsync(EMPLOYEE_ID);
-            Areas = await AreaService.GetAsync();
-            IdentityTypes = await IdentityTypeService.GetAsync();
-            ApplicationUsers = await Security.GetUsers();
+            try
+            {
+                isLoadingInProgress = true;
+                Employee = await EmployeeService.FindAsync(EMPLOYEE_ID);
+                Areas = await AreaService.GetAsync();
+                IdentityTypes = await IdentityTypeService.GetAsync();
+                ApplicationUsers = await Security.GetUsers();
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+
         }
         #endregion
 

@@ -1,104 +1,109 @@
 @page "/customers"
-@attribute [Authorize(Roles="Admin,Customer Viewer,Customer Editor")]
+@attribute [Authorize(Roles = "Admin,Customer Viewer,Customer Editor")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @using ServiceModel = Aldebaran.Application.Services.Models;
 
 <PageTitle>Clientes</PageTitle>
-<RadzenStack>
-    <RadzenRow AlignItems="AlignItems.Center">
-        <RadzenColumn Size="12">
-            <RadzenText Text="Clientes" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
-        </RadzenColumn>
-        <RadzenColumn Size="12" Visible="@Security.IsInRole("Admin","Customer Editor")">
-            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
-                <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddCustomer" Variant="Variant.Flat" />
-            </RadzenStack>
-        </RadzenColumn>
-    </RadzenRow>
-    <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
-    <RadzenRow>
-        <RadzenColumn SizeMD=12>
-            <LocalizedDataGrid @ref="CustomerDataGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                               Data="@CustomersList" TItem="ServiceModel.Customer" RowExpand=@GetCustomerContacts AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowGrouping="true" AllowColumnReorder="true" IsLoading="@IsLoadingInProgress">
-                <Columns>
-                    <RadzenDataGridColumn TItem="ServiceModel.Customer" Property="CustomerName" Title="Nombre">
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="ServiceModel.Customer" Property="IdentityType.IdentityTypeCode" Title="Tipo de documento" Visible="false">
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="ServiceModel.Customer" Property="IdentityNumber" Title="Número de documento" Visible="false">
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="ServiceModel.Customer" Property="Phone1" Title="Teléfono">
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="ServiceModel.Customer" Property="CellPhone" Title="Celular">
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="ServiceModel.Customer" Property="Phone2" Title="Teléfono opcional" Visible="false">
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="ServiceModel.Customer" Property="Fax" Title="Fax" Visible="false">
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="ServiceModel.Customer" Property="Email1" Title="Correo electrónico">
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="ServiceModel.Customer" Property="Email2" Title="Correo electrónico opcional" Visible="false">
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="ServiceModel.Customer" Property="Email3" Title="Correo electrónico opcional" Visible="false">
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="ServiceModel.Customer" Property="CustomerAddress" Title="Dirección">
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="ServiceModel.Customer" Property="City.CityId" Title="Ubicación">
-                        <Template Context="customer">
-                            <span>(@customer.City.Department.Country.CountryCode) @customer.City.Department.DepartmentName - @customer.City.CityName</span>
-                        </Template>
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="ServiceModel.Customer" Property="SEND_EMAIL" Title="Enviar correo" Visible="false">
-                        <Template Context="customer">
-                            <RadzenCheckBox @bind-Value="@customer.SendEmail" Name="SEND_EMAIL" Disabled="true"></RadzenCheckBox>
-                        </Template>
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="ServiceModel.Customer" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Admin","Customer Editor")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
-                        <Template Context="customer">
-                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditCustomer(customer))" @onclick:stopPropagation="true">
-                            </RadzenButton>
-                            <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Eliminar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
-                                          Shade="Shade.Lighter" Variant="Variant.Flat"
-                                          Click=@(args => DeleteCustomer(args, customer)) @onclick:stopPropagation="true" />
-                        </Template>
-                    </RadzenDataGridColumn>
-                </Columns>
-                <Template Context="customer">
-                    <RadzenStack Class="rz-my-8">
-                        <RadzenRow Gap="0" AlignItems="AlignItems.Center">
-                            <RadzenColumn Size="12">
-                                <RadzenText Visible="@(customer != null)" Text="Contactos" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
-                            </RadzenColumn>
-                            <RadzenColumn Size="12" Visible="@Security.IsInRole("Admin","Customer Editor")">
-                                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
-                                    <RadzenButton Visible="@(customer != null)" Icon="add_circle_outline" Text="Nuevo" Click=@(args => AddCustomerContact(args,customer)) />
-                                </RadzenStack>
-                            </RadzenColumn>
-                        </RadzenRow>
-                        <LocalizedDataGrid ColumnWidth="200px" Visible="@(customer != null)" @ref=CustomerContactsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                        Data="@customer?.CustomerContacts" TItem="ServiceModel.CustomerContact" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" AllowGrouping="true" AllowColumnReorder="true" IsLoading="@IsLoadingInProgress">
-                            <Columns>
-                                <RadzenDataGridColumn TItem="ServiceModel.CustomerContact" Property="Title" Title="Tratamiento">
-                                </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="ServiceModel.CustomerContact" Property="CustomerContactName" Title="Nombre">
-                                </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="ServiceModel.CustomerContact" Property="Phone" Title="Teléfono">
-                                </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="ServiceModel.CustomerContact" Property="Email" Title="Correo electrónico">
-                                </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="ServiceModel.CustomerContact" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Admin","Customer Editor")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
-                                    <Template Context="customerContact">
-                                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditCustomerContact(customerContact, customer))" @onclick:stopPropagation="true">
-                                        </RadzenButton>
-                                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Shade="Shade.Lighter" Variant="Variant.Flat" MouseEnter="@(args => ShowTooltip(args,"Eliminar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
-                                                      Click=@(args => DeleteCustomerContact(args, customerContact)) @onclick:stopPropagation="true" />
-                                    </Template>
-                                </RadzenDataGridColumn>
-                            </Columns>
-                        </LocalizedDataGrid>
-                    </RadzenStack>
-                </Template>
-            </LocalizedDataGrid>
-        </RadzenColumn>
-    </RadzenRow>
-</RadzenStack>
+<LoadingData IsLoadingData="@isLoadingInProgress" />
+
+@if (!isLoadingInProgress)
+{
+    <RadzenStack>
+        <RadzenRow AlignItems="AlignItems.Center">
+            <RadzenColumn Size="12">
+                <RadzenText Text="Clientes" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
+            </RadzenColumn>
+            <RadzenColumn Size="12" Visible="@Security.IsInRole("Admin","Customer Editor")">
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
+                    <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddCustomer" Variant="Variant.Flat" />
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
+        <RadzenRow>
+            <RadzenColumn SizeMD=12>
+                <LocalizedDataGrid @ref="CustomerDataGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                   Data="@CustomersList" TItem="ServiceModel.Customer" RowExpand=@GetCustomerContacts AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowGrouping="true" AllowColumnReorder="true" IsLoading="@isLoadingInProgress">
+                    <Columns>
+                        <RadzenDataGridColumn TItem="ServiceModel.Customer" Property="CustomerName" Title="Nombre">
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.Customer" Property="IdentityType.IdentityTypeCode" Title="Tipo de documento" Visible="false">
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.Customer" Property="IdentityNumber" Title="Número de documento" Visible="false">
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.Customer" Property="Phone1" Title="Teléfono">
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.Customer" Property="CellPhone" Title="Celular">
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.Customer" Property="Phone2" Title="Teléfono opcional" Visible="false">
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.Customer" Property="Fax" Title="Fax" Visible="false">
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.Customer" Property="Email1" Title="Correo electrónico">
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.Customer" Property="Email2" Title="Correo electrónico opcional" Visible="false">
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.Customer" Property="Email3" Title="Correo electrónico opcional" Visible="false">
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.Customer" Property="CustomerAddress" Title="Dirección">
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.Customer" Property="City.CityId" Title="Ubicación">
+                            <Template Context="customer">
+                                <span>(@customer.City.Department.Country.CountryCode) @customer.City.Department.DepartmentName - @customer.City.CityName</span>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.Customer" Property="SEND_EMAIL" Title="Enviar correo" Visible="false">
+                            <Template Context="customer">
+                                <RadzenCheckBox @bind-Value="@customer.SendEmail" Name="SEND_EMAIL" Disabled="true"></RadzenCheckBox>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.Customer" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Admin","Customer Editor")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                            <Template Context="customer">
+                                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditCustomer(customer))" @onclick:stopPropagation="true">
+                                </RadzenButton>
+                                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Eliminar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
+                                              Shade="Shade.Lighter" Variant="Variant.Flat"
+                                              Click=@(args => DeleteCustomer(args, customer)) @onclick:stopPropagation="true" />
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </Columns>
+                    <Template Context="customer">
+                        <RadzenStack Class="rz-my-8">
+                            <RadzenRow Gap="0" AlignItems="AlignItems.Center">
+                                <RadzenColumn Size="12">
+                                    <RadzenText Visible="@(customer != null)" Text="Contactos" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
+                                </RadzenColumn>
+                                <RadzenColumn Size="12" Visible="@Security.IsInRole("Admin","Customer Editor")">
+                                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
+                                        <RadzenButton Visible="@(customer != null)" Icon="add_circle_outline" Text="Nuevo" Click=@(args => AddCustomerContact(args,customer)) />
+                                    </RadzenStack>
+                                </RadzenColumn>
+                            </RadzenRow>
+                            <LocalizedDataGrid ColumnWidth="200px" Visible="@(customer != null)" @ref=CustomerContactsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                               Data="@customer?.CustomerContacts" TItem="ServiceModel.CustomerContact" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" AllowGrouping="true" AllowColumnReorder="true" IsLoading="@isLoadingInProgress">
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="ServiceModel.CustomerContact" Property="Title" Title="Tratamiento">
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="ServiceModel.CustomerContact" Property="CustomerContactName" Title="Nombre">
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="ServiceModel.CustomerContact" Property="Phone" Title="Teléfono">
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="ServiceModel.CustomerContact" Property="Email" Title="Correo electrónico">
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="ServiceModel.CustomerContact" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Admin","Customer Editor")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                                        <Template Context="customerContact">
+                                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditCustomerContact(customerContact, customer))" @onclick:stopPropagation="true">
+                                            </RadzenButton>
+                                            <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Shade="Shade.Lighter" Variant="Variant.Flat" MouseEnter="@(args => ShowTooltip(args,"Eliminar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
+                                                          Click=@(args => DeleteCustomerContact(args, customerContact)) @onclick:stopPropagation="true" />
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                </Columns>
+                            </LocalizedDataGrid>
+                        </RadzenStack>
+                    </Template>
+                </LocalizedDataGrid>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenStack>
+}

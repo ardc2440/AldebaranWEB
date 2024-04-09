@@ -31,12 +31,22 @@ namespace Aldebaran.Web.Pages.IdentityPages
         protected IEnumerable<ApplicationUser> ApplicationUser;
         protected LocalizedDataGrid<ApplicationUser> ApplicationUserDataGrid;
         protected bool IsErrorVisible;
+        protected bool isLoadingInProgress;
         #endregion
 
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            await GetUsers();
+            try
+            {
+                isLoadingInProgress = true;
+                await GetUsers();
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+
         }
         #endregion
 

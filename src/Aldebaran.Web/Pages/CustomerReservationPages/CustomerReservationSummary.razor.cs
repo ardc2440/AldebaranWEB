@@ -46,13 +46,23 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         protected CustomerReservation CustomerReservation;
         protected IEnumerable<CustomerReservationDetail> CustomerReservationDetails;
         private bool IsBusy = false;
+        protected bool isLoadingInProgress;
         #endregion
 
         #region Override
         protected override async Task OnInitializedAsync()
         {
-            CustomerReservation = await CustomerReservationService.FindAsync(Id);
-            CustomerReservationDetails = await CustomerReservationDetailService.GetByCustomerReservationIdAsync(Id);
+            try
+            {
+                isLoadingInProgress = true;
+                CustomerReservation = await CustomerReservationService.FindAsync(Id);
+                CustomerReservationDetails = await CustomerReservationDetailService.GetByCustomerReservationIdAsync(Id);
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+
         }
         #endregion
 

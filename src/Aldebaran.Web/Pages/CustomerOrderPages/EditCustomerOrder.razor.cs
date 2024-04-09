@@ -60,7 +60,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected IEnumerable<Customer> customersForCUSTOMERID;
         protected IEnumerable<Employee> employeesForEMPLOYEEID;
         protected bool IsSubmitInProgress;
-        protected bool IsLoadingInProgress;
+        protected bool isLoadingInProgress;
         protected string title;
         protected bool Submitted = false;
         #endregion
@@ -70,7 +70,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         {
             try
             {
-                IsLoadingInProgress = true;
+                isLoadingInProgress = true;
 
                 await Task.Yield();
 
@@ -93,7 +93,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 Error = ex.Message;
                 IsErrorVisible = true;
             }
-            finally { IsLoadingInProgress = false; }
+            finally { isLoadingInProgress = false; }
         }
         #endregion
 
@@ -119,7 +119,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 customerOrder.CustomerOrderDetails = customerOrderDetails;
                 await CustomerOrderService.UpdateAsync(customerOrder.CustomerOrderId, customerOrder, reason);
 
-                var result = await DialogService.OpenAsync<CustomerOrderSummary>(null, new Dictionary<string, object> { { "Id", customerOrder.CustomerOrderId }, { "NotificationTemplateName", "Customer:PurchaseOrder:Update" } }, options: new DialogOptions { ShowTitle = false, ShowClose = false, CloseDialogOnEsc = false, CloseDialogOnOverlayClick = false, Width = "800px" });
+                var result = await DialogService.OpenAsync<CustomerOrderSummary>(null, new Dictionary<string, object> { { "Id", customerOrder.CustomerOrderId }, { "NotificationTemplateName", "Customer:Order:Update" } }, options: new DialogOptions { ShowTitle = false, ShowClose = false, CloseDialogOnEsc = false, CloseDialogOnOverlayClick = false, Width = "800px" });
                 NavigationManager.NavigateTo($"customer-orders/edit/{customerOrder.CustomerOrderId}");
             }
             catch (Exception ex)

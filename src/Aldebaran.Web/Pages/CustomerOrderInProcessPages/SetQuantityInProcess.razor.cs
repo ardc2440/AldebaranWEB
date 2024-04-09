@@ -41,6 +41,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         protected bool IsErrorVisible;
         private bool Submitted = false;
         protected bool IsSubmitInProgress;
+        protected bool isLoadingInProgress;
         protected string Error;
 
         #endregion
@@ -49,33 +50,42 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
         protected override async Task OnInitializedAsync()
         {
-            warehousesForWAREHOUSEID = await WarehouseService.GetAsync();
-
-            detailInProcess = new DetailInProcess()
+            try
             {
-                CUSTOMER_ORDER_DETAIL_ID = DetailInProcess.CUSTOMER_ORDER_DETAIL_ID,
-                DELIVERED_QUANTITY = DetailInProcess.DELIVERED_QUANTITY,
-                BRAND = DetailInProcess.BRAND,
-                WAREHOUSE_ID = DetailInProcess.WAREHOUSE_ID,
-                THIS_QUANTITY = DetailInProcess.THIS_QUANTITY,
-                PENDING_QUANTITY = DetailInProcess.PENDING_QUANTITY,
-                PROCESSED_QUANTITY = DetailInProcess.PROCESSED_QUANTITY,
-                REFERENCE_DESCRIPTION = DetailInProcess.REFERENCE_DESCRIPTION,
-                REFERENCE_ID = DetailInProcess.REFERENCE_ID,
-                ItemReference = DetailInProcess.ItemReference
-            };
+                isLoadingInProgress = true;
+                warehousesForWAREHOUSEID = await WarehouseService.GetAsync();
 
-            if (detailInProcess.THIS_QUANTITY == 0)
-            {
-                detailInProcess.THIS_QUANTITY = detailInProcess.PENDING_QUANTITY;
+                detailInProcess = new DetailInProcess()
+                {
+                    CUSTOMER_ORDER_DETAIL_ID = DetailInProcess.CUSTOMER_ORDER_DETAIL_ID,
+                    DELIVERED_QUANTITY = DetailInProcess.DELIVERED_QUANTITY,
+                    BRAND = DetailInProcess.BRAND,
+                    WAREHOUSE_ID = DetailInProcess.WAREHOUSE_ID,
+                    THIS_QUANTITY = DetailInProcess.THIS_QUANTITY,
+                    PENDING_QUANTITY = DetailInProcess.PENDING_QUANTITY,
+                    PROCESSED_QUANTITY = DetailInProcess.PROCESSED_QUANTITY,
+                    REFERENCE_DESCRIPTION = DetailInProcess.REFERENCE_DESCRIPTION,
+                    REFERENCE_ID = DetailInProcess.REFERENCE_ID,
+                    ItemReference = DetailInProcess.ItemReference
+                };
+
+                if (detailInProcess.THIS_QUANTITY == 0)
+                {
+                    detailInProcess.THIS_QUANTITY = detailInProcess.PENDING_QUANTITY;
+                }
+                else
+                {
+                    if (detailInProcess.THIS_QUANTITY > detailInProcess.PROCESSED_QUANTITY)
+                        detailInProcess.THIS_QUANTITY = detailInProcess.PROCESSED_QUANTITY;
+                }
+
+                ItemReference = await ItemReferenceService.FindAsync(detailInProcess.REFERENCE_ID);
             }
-            else
+            finally
             {
-                if (detailInProcess.THIS_QUANTITY > detailInProcess.PROCESSED_QUANTITY)
-                    detailInProcess.THIS_QUANTITY = detailInProcess.PROCESSED_QUANTITY;
+                isLoadingInProgress = false;
             }
 
-            ItemReference = await ItemReferenceService.FindAsync(detailInProcess.REFERENCE_ID);
         }
 
         public override async Task SetParametersAsync(ParameterView parameters)

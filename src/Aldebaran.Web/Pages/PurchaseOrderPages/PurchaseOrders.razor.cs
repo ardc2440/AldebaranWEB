@@ -66,7 +66,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         protected IEnumerable<ServiceModel.PurchaseOrder> PurchaseOrdersList;
         protected RadzenDataGrid<ServiceModel.PurchaseOrder> PurchaseOrderGrid;
         protected string search = "";
-        protected bool IsLoadingInProgress;
+        protected bool isLoadingInProgress;
 
         protected ServiceModel.DocumentType documentType;
         protected IEnumerable<ServiceModel.Alarm> alarms;
@@ -79,14 +79,14 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         {
             try
             {
-                IsLoadingInProgress = true;
+                isLoadingInProgress = true;
                 documentType = await DocumentTypeService.FindByCodeAsync("O");
                 await GetPurchaseOrdersAsync();
                 await DialogResultResolver();
             }
             finally
             {
-                IsLoadingInProgress = false;
+                isLoadingInProgress = false;
             }
         }
         async Task DialogResultResolver(CancellationToken ct = default)
@@ -152,7 +152,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
             PurchaseOrder = args;
             try
             {
-                IsLoadingInProgress = true;
+                isLoadingInProgress = true;
                 await Task.Yield();
                 var details = await PurchaseOrderDetailService.GetByPurchaseOrderIdAsync(args.PurchaseOrderId);
                 args.PurchaseOrderDetails = details.ToList();
@@ -163,7 +163,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
             }
             finally
             {
-                IsLoadingInProgress = false;
+                isLoadingInProgress = false;
             }
         }
         protected async Task EditPurchaseOrder(MouseEventArgs args, ServiceModel.PurchaseOrder purchaseOrder)

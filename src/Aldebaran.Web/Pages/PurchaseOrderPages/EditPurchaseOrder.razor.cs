@@ -69,24 +69,34 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         protected RadzenDataGrid<ServiceModel.PurchaseOrderDetail> PurchaseOrderDetailGrid;
         private bool Submitted = false;
         protected bool IsSubmitInProgress;
+        protected bool isLoadingInProgress;
         protected string Error;
         #endregion
 
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            if (PURCHASE_ORDER_ID == null)
-                NavigationManager.NavigateTo("purchase-orders");
-            var valid = int.TryParse(PURCHASE_ORDER_ID, out var purchaseOrderId);
-            if (!valid)
-                NavigationManager.NavigateTo("purchase-orders");
+            try
+            {
+                isLoadingInProgress = true;
+                if (PURCHASE_ORDER_ID == null)
+                    NavigationManager.NavigateTo("purchase-orders");
+                var valid = int.TryParse(PURCHASE_ORDER_ID, out var purchaseOrderId);
+                if (!valid)
+                    NavigationManager.NavigateTo("purchase-orders");
 
-            PurchaseOrder = await PurchaseOrderService.FindAsync(purchaseOrderId);
-            if (PurchaseOrder == null)
-                NavigationManager.NavigateTo("purchase-orders");
-            var orderDetails = await PurchaseOrderDetailService.GetByPurchaseOrderIdAsync(purchaseOrderId);
-            PurchaseOrderDetails = orderDetails.ToList();
-            Providers = await ProviderService.GetAsync();
+                PurchaseOrder = await PurchaseOrderService.FindAsync(purchaseOrderId);
+                if (PurchaseOrder == null)
+                    NavigationManager.NavigateTo("purchase-orders");
+                var orderDetails = await PurchaseOrderDetailService.GetByPurchaseOrderIdAsync(purchaseOrderId);
+                PurchaseOrderDetails = orderDetails.ToList();
+                Providers = await ProviderService.GetAsync();
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+
         }
         #endregion
 

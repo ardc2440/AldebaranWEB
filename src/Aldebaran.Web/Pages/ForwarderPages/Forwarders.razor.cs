@@ -44,7 +44,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
         protected RadzenDataGrid<ServiceModel.ShipmentForwarderAgentMethod> ShipmentForwarderAgentMethodDataGrid;
         protected ServiceModel.ShipmentForwarderAgentMethod ShipmentMethod;
         protected string search = "";
-        protected bool IsLoadingInProgress;
+        protected bool isLoadingInProgress;
         #endregion
 
         #region Overrides
@@ -52,12 +52,12 @@ namespace Aldebaran.Web.Pages.ForwarderPages
         {
             try
             {
-                IsLoadingInProgress = true;
+                isLoadingInProgress = true;
                 await GetForwardersAsync();
             }
             finally
             {
-                IsLoadingInProgress = false;
+                isLoadingInProgress = false;
             }
         }
         #endregion
@@ -140,14 +140,14 @@ namespace Aldebaran.Web.Pages.ForwarderPages
             Forwarder = args;
             try
             {
-                IsLoadingInProgress = true;
+                isLoadingInProgress = true;
                 await Task.Yield();
                 var forwarderAgentsResult = await ForwarderAgentService.GetByForwarderIdAsync(args.ForwarderId);
                 args.ForwarderAgents = forwarderAgentsResult.ToList();
             }
             finally
             {
-                IsLoadingInProgress = false;
+                isLoadingInProgress = false;
             }
         }
         protected async Task AddForwarderAgent(MouseEventArgs args, ServiceModel.Forwarder data)
@@ -214,14 +214,14 @@ namespace Aldebaran.Web.Pages.ForwarderPages
             ForwarderAgent = args;
             try
             {
-                IsLoadingInProgress = true;
+                isLoadingInProgress = true;
                 await Task.Yield();
                 var shipmentForwarderAgentMethodsResult = await ShipmentForwarderAgentMethodService.GetByForwarderAgentIdAsync(args.ForwarderAgentId);
                 ForwarderAgent.ShipmentForwarderAgentMethods = shipmentForwarderAgentMethodsResult.ToList();
             }
             finally
             {
-                IsLoadingInProgress = false;
+                isLoadingInProgress = false;
             }
         }
         protected async Task AddShipmentForwarderAgentMethod(MouseEventArgs args, ServiceModel.ForwarderAgent data)

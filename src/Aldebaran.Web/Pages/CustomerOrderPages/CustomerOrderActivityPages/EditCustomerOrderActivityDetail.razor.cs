@@ -45,7 +45,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages.CustomerOrderActivityPages
         protected bool IsErrorVisible;
         protected string Error;
         protected bool IsSubmitInProgress;
-        protected bool IsLoadingInProgress;
+        protected bool isLoadingInProgress;
         protected IEnumerable<Employee> employeesForACTIVITYEMPLOYEEID;
         protected IEnumerable<ActivityTypesArea> activityTypesForACTIVITY_ID;
         bool hasCUSTOMER_ORDER_ACTIVITY_IDValue;
@@ -60,7 +60,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages.CustomerOrderActivityPages
         {
             try
             {
-                IsLoadingInProgress = true;
+                isLoadingInProgress = true;
 
                 await Task.Yield();
 
@@ -78,7 +78,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages.CustomerOrderActivityPages
                 Error = ex.Message;
                 IsErrorVisible = true;
             }
-            finally { IsLoadingInProgress = false; }
+            finally { isLoadingInProgress = false; }
         }
 
         public override async Task SetParametersAsync(ParameterView parameters)

@@ -3,7 +3,11 @@
 @using Aldebaran.Web.Resources.LocalizedControls;
 
 <PageTitle>Roles</PageTitle>
-<RadzenStack>
+<LoadingData IsLoadingData="@isLoadingInProgress" />
+
+@if (!isLoadingInProgress)
+{
+    <RadzenStack>
     <RadzenRow AlignItems="AlignItems.Center">
         <RadzenColumn Size="12">
             <RadzenText Text="Roles" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
@@ -25,7 +29,7 @@
                             </RadzenColumn>
                         </RadzenRow>
                         <LocalizedDataGrid ColumnWidth="200px" Visible="@(role != null)" @ref=ApplicationUserDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                        Data="@ApplicationUsers" TItem="Aldebaran.Web.Models.ApplicationUser" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" AllowGrouping="true" AllowColumnReorder="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" IsLoading="@IsLoadingInProgress">
+                                        Data="@ApplicationUsers" TItem="Aldebaran.Web.Models.ApplicationUser" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" AllowGrouping="true" AllowColumnReorder="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" IsLoading="@isLoadingInProgress">
                             <Columns>
                                 <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ApplicationUser" Property="Email" Title="Correo electrónico" />
                                 <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ApplicationUser" Property="UserName" Title="Nombre de usuario" />
@@ -42,3 +46,4 @@
         </RadzenColumn>
     </RadzenRow>
 </RadzenStack>
+}

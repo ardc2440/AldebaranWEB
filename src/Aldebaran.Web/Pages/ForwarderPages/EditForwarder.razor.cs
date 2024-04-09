@@ -22,6 +22,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
 
         #region Variables
         protected bool IsSubmitInProgress;
+        protected bool isLoadingInProgress;
         protected bool IsErrorVisible;
         protected ServiceModel.Forwarder Forwarder;
         #endregion
@@ -29,7 +30,16 @@ namespace Aldebaran.Web.Pages.ForwarderPages
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            Forwarder = await ForwarderService.FindAsync(FORWARDER_ID);
+            try
+            {
+                isLoadingInProgress = true;
+                Forwarder = await ForwarderService.FindAsync(FORWARDER_ID);
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+            
         }
         #endregion
 

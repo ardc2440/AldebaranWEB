@@ -4,7 +4,10 @@
 @using ViewModels = Aldebaran.Web.Models.ViewModels;
 
 <PageTitle>Funcionarios</PageTitle>
-<RadzenStack>
+<LoadingData IsLoadingData="@isLoadingInProgress" />
+@if (!isLoadingInProgress)
+{
+    <RadzenStack>
     <RadzenRow AlignItems="AlignItems.Center">
         <RadzenColumn Size="12">
             <RadzenText Text="Funcionarios" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
@@ -19,7 +22,7 @@
     <RadzenRow>
         <RadzenColumn SizeMD=12>
             <LocalizedDataGrid @ref="EmployeesGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                               Data="@EmployeesList" TItem="ViewModels.EmployeeViewModel" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowGrouping="true" AllowColumnReorder="true" IsLoading="@IsLoadingInProgress">
+                               Data="@EmployeesList" TItem="ViewModels.EmployeeViewModel" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowGrouping="true" AllowColumnReorder="true" IsLoading="@isLoadingInProgress">
                 <Columns>
                     <RadzenDataGridColumn TItem="ViewModels.EmployeeViewModel" Property="IdentityType.IdentityTypeCode" Title="Tipo de documento">
                     </RadzenDataGridColumn>
@@ -50,3 +53,4 @@
         </RadzenColumn>
     </RadzenRow>
 </RadzenStack>
+}

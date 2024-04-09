@@ -26,14 +26,24 @@ namespace Aldebaran.Web.Pages.ItemPages
         protected ServiceModel.ItemReference ItemReference;
         protected ServiceModel.Item Item;
         protected bool IsSubmitInProgress;
+        protected bool isLoadingInProgress;
         protected bool IsErrorVisible;
         #endregion
 
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            ItemReference = await ItemReferenceService.FindAsync(REFERENCE_ID);
-            Item = ItemReference.Item;
+            try
+            {
+                isLoadingInProgress = true;
+                ItemReference = await ItemReferenceService.FindAsync(REFERENCE_ID);
+                Item = ItemReference.Item;
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+
         }
         #endregion
 

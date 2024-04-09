@@ -1,7 +1,11 @@
 @page "/add-application-user"
 @attribute [Authorize]
 
-<RadzenColumn SizeMD="12">
+<LoadingData IsLoadingData="@isLoadingInProgress" />
+
+@if (!isLoadingInProgress)
+{
+    <RadzenColumn SizeMD="12">
     <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible" Title="No se ha podido crear el inicio de sesión">@Error</RadzenAlert>
     <RadzenTemplateForm TItem="Aldebaran.Web.Models.ApplicationUser" Data="@ApplicationUser" Visible="@(ApplicationUser != null)" Submit="@FormSubmit">
         <RadzenStack>
@@ -62,3 +66,4 @@
         </RadzenStack>
     </RadzenTemplateForm>
 </RadzenColumn>
+}

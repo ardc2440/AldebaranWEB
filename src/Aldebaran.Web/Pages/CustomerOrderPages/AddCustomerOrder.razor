@@ -5,6 +5,10 @@
 @inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer
 
 <PageTitle>Pedido de artículos</PageTitle>
+<LoadingData IsLoadingData="@isLoadingInProgress" />
+
+@if (!isLoadingInProgress)
+{
 <RadzenCard>
     <RadzenStack>
         <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerOrder" Data="@customerOrder" Visible="@(customerOrder != null)" Submit="@FormSubmit" InvalidSubmit="()=>Submitted=true">
@@ -122,3 +126,4 @@
         </RadzenTemplateForm>
     </RadzenStack>
 </RadzenCard>
+}

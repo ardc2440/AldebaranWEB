@@ -58,6 +58,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages.CustomerOrderActivityPages
         protected bool IsErrorVisible;
         private bool Submitted = false;
         protected bool IsSubmitInProgress;
+        protected bool isLoadingInProgress;
         protected string Error;
 
         #endregion
@@ -67,6 +68,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages.CustomerOrderActivityPages
         {
             try
             {
+                isLoadingInProgress = true;
                 IsErrorVisible = false;
 
                 await Task.Yield();
@@ -96,6 +98,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages.CustomerOrderActivityPages
                 IsErrorVisible = true;
                 Error = ex.Message;
             }
+            finally { isLoadingInProgress = false; }
         }
         #endregion
 

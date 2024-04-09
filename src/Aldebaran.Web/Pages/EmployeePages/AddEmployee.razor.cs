@@ -33,18 +33,29 @@ namespace Aldebaran.Web.Pages.EmployeePages
         protected IEnumerable<ServiceModel.IdentityType> IdentityTypes;
         protected IEnumerable<ApplicationUser> ApplicationUsers;
         protected bool IsSubmitInProgress;
+        protected bool isLoadingInProgress ;
         #endregion
 
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            Employee = new ServiceModel.Employee();
-            Areas = await AreaService.GetAsync();
-            IdentityTypes = await IdentityTypeService.GetAsync();
-            var users = await Security.GetUsers();
-            var employees = await EmployeeService.GetAsync();
-            var ids = employees.Select(s => s.LoginUserId);
-            ApplicationUsers = users.Where(w => !ids.Contains(w.Id));
+            try
+            {
+                isLoadingInProgress = true;
+
+                Employee = new ServiceModel.Employee();
+                Areas = await AreaService.GetAsync();
+                IdentityTypes = await IdentityTypeService.GetAsync();
+                var users = await Security.GetUsers();
+                var employees = await EmployeeService.GetAsync();
+                var ids = employees.Select(s => s.LoginUserId);
+                ApplicationUsers = users.Where(w => !ids.Contains(w.Id));
+
+            }
+            finally
+            {
+                isLoadingInProgress = false;   
+            }
         }
         #endregion
 

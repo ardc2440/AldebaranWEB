@@ -261,7 +261,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         }
         protected async Task DownloadAsync(MouseEventArgs arg, CustomerOrder customerOrder)
         {
-            var result = await DialogService.OpenAsync<CustomerOrderSummary>(null, new Dictionary<string, object> { { "Id", customerOrder.CustomerOrderId }, { "NotificationTemplateName", "Customer:PurchaseOrder:Forwarding" } }, options: new DialogOptions { ShowTitle = false, ShowClose = false, CloseDialogOnEsc = false, CloseDialogOnOverlayClick = false, Width = "800px" });
+            var result = await DialogService.OpenAsync<CustomerOrderSummary>(null, new Dictionary<string, object> { { "Id", customerOrder.CustomerOrderId }, { "NotificationTemplateName", "Customer:Order:Forwarding" } }, options: new DialogOptions { ShowTitle = false, ShowClose = false, CloseDialogOnEsc = false, CloseDialogOnOverlayClick = false, Width = "800px" });
             var dialogResult = (bool)result;
             if (dialogResult)
             {

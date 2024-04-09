@@ -2,7 +2,11 @@
 @using ServiceModel = Aldebaran.Application.Services.Models;
 @inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer
 
-<RadzenColumn SizeMD=12>
+<LoadingData IsLoadingData="@isLoadingInProgress" />
+
+@if (!isLoadingInProgress)
+{
+    <RadzenColumn SizeMD=12>
     <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">No se ha podido agregar la actividad</RadzenAlert>
     <RadzenTemplateForm TItem="ServiceModel.PurchaseOrderActivity" Data="@PurchaseOrderActivity" Visible="@(PurchaseOrderActivity != null)" Submit="@FormSubmit">
         <RadzenStack>
@@ -31,4 +35,5 @@
         </RadzenStack>
     </RadzenTemplateForm>
 </RadzenColumn>
+}
 

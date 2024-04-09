@@ -1,152 +1,156 @@
 ﻿@inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer
+<LoadingData IsLoadingData="@isLoadingInProgress" />
 
-<RadzenStack>
-    <RadzenRow AlignItems="AlignItems.Start">
-        <RadzenColumn Size="8">
-            @if (CustomerOrder != null)
-            {
-                <RadzenCard style="max-height:350px; overflow-y:auto">
-                    <div id="customer-order-summary">
-                        <div class="report">
-                            <h2>Pedido</h2>
-                            <table class="border-top">
-                                <tbody>
-                                    <tr>
-                                        <td colspan="2">Cliente: @CustomerOrder.Customer.CustomerName</td>
-                                        <td>Tel: @CustomerOrder.Customer.Phone1</td>
-                                        <td>Fax: @CustomerOrder.Customer.Fax</td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="2">
-                                            Dirección: @CustomerOrder.Customer.CustomerAddress <br />
-                                            (@CustomerOrder.Customer.City.Department.Country.CountryCode) @CustomerOrder.Customer.City.Department.DepartmentName - @CustomerOrder.Customer.City.CityName
-                                        </td>
-                                        <td colspan="2">
-                                            @CustomerOrder.Customer.IdentityType.IdentityTypeCode: @CustomerOrder.Customer.IdentityNumber
-                                        </td>
-                                    </tr>
-                                    <tr class="border border-bottom-0 emphasys">
-                                        <td colspan="2">Pedido: @CustomerOrder.OrderNumber</td>
-                                        <td colspan="2">Fecha de creación: @CustomerOrder.CreationDate.ToString("dd/MM/yyyy hh:mm:ss t")</td>
-                                    </tr>
-                                    <tr class="border border-top-0 emphasys">
-                                        <td colspan="2">Fecha de pedido: @CustomerOrder.OrderDate.ToString("dd/MM/yyyy")</td>
-                                        <td colspan="2">Fecha estimada de entrega: @CustomerOrder.EstimatedDeliveryDate.ToString("dd/MM/yyyy")</td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="2">
-                                            Observaciones internas: <br />
-                                            @if (!string.IsNullOrEmpty(CustomerOrder.InternalNotes))
-                                            {
-                                                @CustomerOrder.InternalNotes
-                                            }
-                                            else
-                                            {
-                                                <span>&nbsp;</span>
-                                            }
-                                        </td>
-                                        <td colspan="2">
-                                            Observaciones del cliente: <br />
-                                            @if (!string.IsNullOrEmpty(CustomerOrder.CustomerNotes))
-                                            {
-                                                @CustomerOrder.CustomerNotes
-                                            }
-                                            else
-                                            {
-                                                <span>&nbsp;</span>
-                                            }
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Referencia</th>
-                                        <th>Solicitado</th>
-                                        <th>Entregado</th>
-                                        <th>Pendiente</th>
-                                        <th>Estado</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var detail in CustomerOrderDetails)
-                                    {
+@if (!isLoadingInProgress)
+{
+    <RadzenStack>
+        <RadzenRow AlignItems="AlignItems.Start">
+            <RadzenColumn Size="8">
+                @if (CustomerOrder != null)
+                {
+                    <RadzenCard style="max-height:350px; overflow-y:auto">
+                        <div id="customer-order-summary">
+                            <div class="report">
+                                <h2>Pedido</h2>
+                                <table class="border-top">
+                                    <tbody>
                                         <tr>
-                                            <td>@detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName</td>
-                                            <td>@detail.RequestedQuantity</td>
-                                            <td>@detail.ProcessedQuantity</td>
-                                            <td>@detail.DeliveredQuantity</td>
-                                            <td>@GetOrderStatus(detail)</td>
+                                            <td colspan="2">Cliente: @CustomerOrder.Customer.CustomerName</td>
+                                            <td>Tel: @CustomerOrder.Customer.Phone1</td>
+                                            <td>Fax: @CustomerOrder.Customer.Fax</td>
                                         </tr>
-                                        @if (CustomerOrderShipments.Any(w => w.CustomerOrderShipmentDetails.Any(x => x.CustomerOrderDetailId == detail.CustomerOrderDetailId)))
+                                        <tr>
+                                            <td colspan="2">
+                                                Dirección: @CustomerOrder.Customer.CustomerAddress <br />
+                                                (@CustomerOrder.Customer.City.Department.Country.CountryCode) @CustomerOrder.Customer.City.Department.DepartmentName - @CustomerOrder.Customer.City.CityName
+                                            </td>
+                                            <td colspan="2">
+                                                @CustomerOrder.Customer.IdentityType.IdentityTypeCode: @CustomerOrder.Customer.IdentityNumber
+                                            </td>
+                                        </tr>
+                                        <tr class="border border-bottom-0 emphasys">
+                                            <td colspan="2">Pedido: @CustomerOrder.OrderNumber</td>
+                                            <td colspan="2">Fecha de creación: @CustomerOrder.CreationDate.ToString("dd/MM/yyyy hh:mm:ss t")</td>
+                                        </tr>
+                                        <tr class="border border-top-0 emphasys">
+                                            <td colspan="2">Fecha de pedido: @CustomerOrder.OrderDate.ToString("dd/MM/yyyy")</td>
+                                            <td colspan="2">Fecha estimada de entrega: @CustomerOrder.EstimatedDeliveryDate.ToString("dd/MM/yyyy")</td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2">
+                                                Observaciones internas: <br />
+                                                @if (!string.IsNullOrEmpty(CustomerOrder.InternalNotes))
+                                                {
+                                                    @CustomerOrder.InternalNotes
+                                                }
+                                                else
+                                                {
+                                                    <span>&nbsp;</span>
+                                                }
+                                            </td>
+                                            <td colspan="2">
+                                                Observaciones del cliente: <br />
+                                                @if (!string.IsNullOrEmpty(CustomerOrder.CustomerNotes))
+                                                {
+                                                    @CustomerOrder.CustomerNotes
+                                                }
+                                                else
+                                                {
+                                                    <span>&nbsp;</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Referencia</th>
+                                            <th>Solicitado</th>
+                                            <th>Entregado</th>
+                                            <th>Pendiente</th>
+                                            <th>Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var detail in CustomerOrderDetails)
                                         {
                                             <tr>
-                                                <td colspan="5">
-                                                    <div class="inner-table-container">
-                                                        <div class="title">
-                                                            Entregas realizadas
-                                                        </div>
-                                                        @foreach (var shipment in CustomerOrderShipments.Where(w => w.CustomerOrderShipmentDetails.Any(x => x.CustomerOrderDetailId == detail.CustomerOrderDetailId)))
-                                                        {
-                                                            <div class="content">
-                                                                <table>
-                                                                    <tbody>
-                                                                        <tr>
-                                                                            <td colspan="3">
-                                                                                Fecha: @shipment.ShippingDate.ToString(@SharedLocalizer["date:format"])
-                                                                            </td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td width="33%">
-                                                                                <b>Remisión: </b>@shipment.TrackingNumber
-                                                                            </td>
-                                                                            <td width="33%">
-                                                                                <b>Guía: </b>@shipment.DeliveryNote
-                                                                            </td>
-                                                                            <td width="33%">
-                                                                                <b>Método de envío: </b>@shipment.ShippingMethod.ShippingMethodName
-                                                                            </td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td colspan="3">
-                                                                                Observaciones: @shipment.Notes
-                                                                            </td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td colspan="3">
-                                                                                Cantidad enviada: @shipment.CustomerOrderShipmentDetails.Where(w => w.CustomerOrderDetailId == detail.CustomerOrderDetailId).Sum(s => s.DeliveredQuantity)
-                                                                            </td>
-                                                                        </tr>
-                                                                    </tbody>
-                                                                </table>
-                                                            </div>
-                                                        }
-                                                    </div>
-                                                </td>
+                                                <td>@detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName</td>
+                                                <td>@detail.RequestedQuantity</td>
+                                                <td>@detail.ProcessedQuantity</td>
+                                                <td>@detail.DeliveredQuantity</td>
+                                                <td>@GetOrderStatus(detail)</td>
                                             </tr>
+                                            @if (CustomerOrderShipments.Any(w => w.CustomerOrderShipmentDetails.Any(x => x.CustomerOrderDetailId == detail.CustomerOrderDetailId)))
+                                            {
+                                                <tr>
+                                                    <td colspan="5">
+                                                        <div class="inner-table-container">
+                                                            <div class="title">
+                                                                Entregas realizadas
+                                                            </div>
+                                                            @foreach (var shipment in CustomerOrderShipments.Where(w => w.CustomerOrderShipmentDetails.Any(x => x.CustomerOrderDetailId == detail.CustomerOrderDetailId)))
+                                                            {
+                                                                <div class="content">
+                                                                    <table>
+                                                                        <tbody>
+                                                                            <tr>
+                                                                                <td colspan="3">
+                                                                                    Fecha: @shipment.ShippingDate.ToString(@SharedLocalizer["date:format"])
+                                                                                </td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <td width="33%">
+                                                                                    <b>Remisión: </b>@shipment.TrackingNumber
+                                                                                </td>
+                                                                                <td width="33%">
+                                                                                    <b>Guía: </b>@shipment.DeliveryNote
+                                                                                </td>
+                                                                                <td width="33%">
+                                                                                    <b>Método de envío: </b>@shipment.ShippingMethod.ShippingMethodName
+                                                                                </td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <td colspan="3">
+                                                                                    Observaciones: @shipment.Notes
+                                                                                </td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <td colspan="3">
+                                                                                    Cantidad enviada: @shipment.CustomerOrderShipmentDetails.Where(w => w.CustomerOrderDetailId == detail.CustomerOrderDetailId).Sum(s => s.DeliveredQuantity)
+                                                                                </td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            }
                                         }
-                                    }
-                                </tbody>
-                            </table>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
+                    </RadzenCard>
+                }
+            </RadzenColumn>
+            <RadzenColumn Size="4">
+                <div class="d-flex flex-column gap-4 flex-shrink-0">
+                    <div>
+                        <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="save" Text="Guardar PDF" Click="@Download" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@IsBusy" />
                     </div>
-                </RadzenCard>
-            }
-        </RadzenColumn>
-        <RadzenColumn Size="4">
-            <div class="d-flex flex-column gap-4 flex-shrink-0">
-                <div>
-                    <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="save" Text="Guardar PDF" Click="@Download" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@IsBusy" />
+                    <div>
+                        <p>Desea enviar un correo al cliente con el detalle del pedido?</p>
+                        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Start" JustifyContent="JustifyContent.Left" Gap="0.5rem">
+                            <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Si" Variant="Variant.Flat" BusyText="Procesando" Click="@Notify" IsBusy="@IsBusy" />
+                            <RadzenButton ButtonStyle="ButtonStyle.Light" Text="No" Variant="Variant.Flat" Click="@CancelNotify" IsBusy="@IsBusy" />
+                        </RadzenStack>
+                    </div>
                 </div>
-                <div>
-                    <p>Desea enviar un correo al cliente con el detalle del pedido?</p>
-                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Start" JustifyContent="JustifyContent.Left" Gap="0.5rem">
-                        <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Si" Variant="Variant.Flat" BusyText="Procesando" Click="@Notify" IsBusy="@IsBusy" />
-                        <RadzenButton ButtonStyle="ButtonStyle.Light" Text="No" Variant="Variant.Flat" Click="@CancelNotify" IsBusy="@IsBusy" />
-                    </RadzenStack>
-                </div>
-            </div>
-        </RadzenColumn>
-    </RadzenRow>
-</RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenStack>
+}

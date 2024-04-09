@@ -6,7 +6,11 @@
 @inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer
 
 <PageTitle>Convertir reserva en Pedido</PageTitle>
-<RadzenCard>
+<LoadingData IsLoadingData="@isLoadingInProgress" />
+
+@if (!isLoadingInProgress)
+{
+    <RadzenCard>
     <RadzenStack>
         <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerReservation" Data="@customerReservation" Visible="@(customerReservation != null)" Submit="@FormSubmit" InvalidSubmit="()=>Submitted=true">
             <RadzenRow AlignItems="AlignItems.Center">
@@ -109,3 +113,4 @@
         </RadzenTemplateForm>
     </RadzenStack>
 </RadzenCard>
+}

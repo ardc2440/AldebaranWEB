@@ -26,13 +26,23 @@ namespace Aldebaran.Web.Pages.IdentityPages
         protected string Error;
         protected bool IsErrorVisible;
         protected bool IsSubmitInProgress;
+        protected bool isLoadingInProgress;
 
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            ApplicationUser = await Security.GetUserById($"{Id}");
-            UserRoles = ApplicationUser.Roles.Select(role => role.Id);
-            ApplicationRoles = await Security.GetRoles();
+            try
+            {
+                isLoadingInProgress = true;
+                ApplicationUser = await Security.GetUserById($"{Id}");
+                UserRoles = ApplicationUser.Roles.Select(role => role.Id);
+                ApplicationRoles = await Security.GetRoles();
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+
         }
         #endregion
 
