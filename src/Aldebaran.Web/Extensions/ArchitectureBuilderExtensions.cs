@@ -340,15 +340,9 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<ICustomerSaleReportService, CustomerSaleReportService>();
             services.AddTransient<IEmailNotificationProviderSettingsService, EmailNotificationProviderSettingsService>();
             services.AddTransient<INotificationTemplateService, NotificationTemplateService>();
-
             #endregion
 
-#if DEBUG
-            services.AddTransient<IQueue, FakeQueue>();
-#else
             services.AddTransient<IQueue, RabbitQueue>();
-#endif
-
             services.AddTransient<IQueueSettings, QueueSettings>();
             services.AddTransient<Notificator.INotificationService, Notificator.NotificationService>();
             services.AddTransient<IFtpClient, FtpClient>();

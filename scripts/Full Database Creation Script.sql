@@ -2467,7 +2467,7 @@ BEGIN
 		  WHERE EXISTS (SELECT 1 FROM @CustomerOrders co WHERE co.OrderId = a.CUSTOMER_ORDER_ID)
 		  
 	SELECT a.CustomerId, a.CustomerName, a.Phone, a.Fax, 
-		   a.OrderId CustomerOrderId, a.OrderNumber, a.OrderCreationDate, a.OrderDate, a.EstimatedDeliveryDate, a.OrderStatus Status, a.InternalNotes, a.OrderDetailId, 
+		   a.OrderId CustomerOrderId, a.OrderNumber, a.OrderCreationDate CreationDate, a.OrderDate, a.EstimatedDeliveryDate, a.OrderStatus Status, a.InternalNotes, a.OrderDetailId, 
 		   a.OrderDetailItemReference ItemReference, a.OrderDetailItemName ItemName, a.OrderDetailReferenceCode ReferenceCode, a.OrderDetailReferenceName ReferenceName, 
 		   a.OrderDetailAmount Amount, a.DeliveredAmount, b.ShipmentId, b.ShipmentDate, b.DeliveryNote, b.TrackingNumber, b.ShipmentMethodName, b.Notes, 
 		   b.ShipmentDetailId ShipmentDetailId, b.ShipmentDetailItemReference ShipmentItemReference, b.ShipmentDetailItemName ShipmentItemName, b.ShipmentDetailReferenceCode ShipmentReferenceCode, 

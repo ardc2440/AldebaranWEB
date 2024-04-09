@@ -113,32 +113,34 @@ GO
 
 /* Populate [AspNetRoles] */
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'1D05EBDD-FE74-457D-B24A-66A2723C2706', N'0b78675f-1440-478f-801e-7842df6b9211', N'Admin', N'ADMIN')
-INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'23A6F643-EFFB-4765-9698-C2124083202E', N'6f83b5be-83f2-4157-ac08-5a941b74b743', N'Customer Viewer', N'CUSTOMER Viewer')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'23A6F643-EFFB-4765-9698-C2124083202E', N'6f83b5be-83f2-4157-ac08-5a941b74b743', N'Customer Viewer', N'CUSTOMER VIEWER')
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'26DE4D1B-2958-4FE0-B16D-9D04359FFBD4', N'dc1a8d49-6141-490e-b4c3-55b6eba3b05b', N'Item Editor', N'ITEM EDITOR')
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'4DB3584B-9743-4B29-9BDB-98C9BE9F09C2', N'157e9822-4b81-4ffb-8311-9f508723e769', N'Customer Editor', N'CUSTOMER EDITOR')
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'4E9FC011-0383-4ECC-8C15-993BAB8D003D', N'766f135a-21be-4adb-ab15-9bdc4e1b7b40', N'Forwarder Editor', N'FORWARDER EDITOR')
-INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'73355C80-2EBD-4086-A36D-A2BF92266F02', N'24f293a8-94ab-49fa-bda4-9ab76278bfd2', N'Area Viewer', N'AREA Viewer')
-INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'8557BCB7-08E7-4428-A4A1-4958ED38F567', N'f9f6ce6a-cde5-4e59-b9b0-77e61048b29c', N'Forwarder Viewer', N'FORWARDER Viewer')
-INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'A83F0905-EDD8-4525-A097-D35287F2BEEA', N'7550ad25-8ec7-45a5-a50e-f17a12e5ef7d', N'Provider Viewer', N'PROVIDER Viewer')
-INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'D9F0A318-073B-407D-842A-748171E52DD0', N'679060b5-df92-4471-b170-d34241dcfce2', N'Item Viewer', N'ITEM Viewer')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'73355C80-2EBD-4086-A36D-A2BF92266F02', N'24f293a8-94ab-49fa-bda4-9ab76278bfd2', N'Area Viewer', N'AREA VIEWER')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'8557BCB7-08E7-4428-A4A1-4958ED38F567', N'f9f6ce6a-cde5-4e59-b9b0-77e61048b29c', N'Forwarder Viewer', N'FORWARDER VIEWER')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'A83F0905-EDD8-4525-A097-D35287F2BEEA', N'7550ad25-8ec7-45a5-a50e-f17a12e5ef7d', N'Provider Viewer', N'PROVIDER VIEWER')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'D9F0A318-073B-407D-842A-748171E52DD0', N'679060b5-df92-4471-b170-d34241dcfce2', N'Item Viewer', N'ITEM VIEWER')
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'DEF1FA65-AA33-4508-82F7-F8094F3DCACF', N'5913647b-8b79-4bc0-9417-95b6aec32fe9', N'Area Editor', N'AREA EDITOR')
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'FFEBC6FB-D258-4E32-BAB4-406CF4E2BB12', N'2f18315e-5f18-4f55-9a75-053ee74fc7fb', N'Provider Editor', N'PROVIDER EDITOR')
-INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'17488316-F3CC-4E9A-B90F-69E7608776E7', N'1691B7A5-5120-4AE7-914C-609750C0ECF3', N'Adjustment Viewer', N'ADJUSTMENT Viewer')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'17488316-F3CC-4E9A-B90F-69E7608776E7', N'1691B7A5-5120-4AE7-914C-609750C0ECF3', N'Adjustment Viewer', N'ADJUSTMENT VIEWER')
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'5309DB17-EBBB-4554-86D3-F58E2252EF1E', N'624679D3-8550-4F77-ADB9-AD806B2081D4', N'Adjustment Editor', N'ADJUSTMENT EDITOR')
-INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'522A25EC-D939-4E72-A6B2-24BEA9E9E05E', N'95154F99-AB57-476D-9809-7B3BBF01B1B7', N'Customer Reservation Viewer', N'CUSTOMER RESERVATION Viewer')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'522A25EC-D939-4E72-A6B2-24BEA9E9E05E', N'95154F99-AB57-476D-9809-7B3BBF01B1B7', N'Customer Reservation Viewer', N'CUSTOMER RESERVATION VIEWER')
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'63CD17B9-7FC8-485F-9B39-47DBBA4BA8EA', N'D030FD33-6837-4406-901C-19343D6BA0F3', N'Customer Reservation Editor', N'CUSTOMER RESERVATION EDITOR')
-INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'EB3CF662-1D17-4ECF-ACFD-CDA90F2B4F08', N'776577F0-F84A-454E-A47D-96715B515E03', N'Customer Order Viewer', N'CUSTOMER ORDER Viewer')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'EB3CF662-1D17-4ECF-ACFD-CDA90F2B4F08', N'776577F0-F84A-454E-A47D-96715B515E03', N'Customer Order Viewer', N'CUSTOMER ORDER VIEWER')
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'D9326438-F865-407F-AECB-88835E5684DF', N'3B00D9D0-1368-4352-BF25-E4EA7C14C341', N'Customer Order Editor', N'CUSTOMER ORDER EDITOR')
-INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'6237D7AE-B500-4BC3-A3F0-C481C39C7537', N'5006A0A3-A82B-4F2B-AB6D-A8E148690F75', N'Customer Order Activities Viewer', N'CUSTOMER ORDER ACTIVITIES Viewer')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'6237D7AE-B500-4BC3-A3F0-C481C39C7537', N'5006A0A3-A82B-4F2B-AB6D-A8E148690F75', N'Customer Order Activities Viewer', N'CUSTOMER ORDER ACTIVITIES VIEWER')
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'CEFCF7BA-8051-4834-A71E-9EDF6D00994F', N'6A012978-A636-4992-B83F-E3D1438D1FC2', N'Customer Order Activities Editor', N'CUSTOMER ORDER ACTIVITIES EDITOR')
-INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'FA0772F4-E436-4DC3-8EB8-5AFF4001B359', N'3BD108A7-4ECF-4EC3-8EA2-0091D166FFA6', N'Employee Viewer', N'EMPLOYEE Viewer')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'FA0772F4-E436-4DC3-8EB8-5AFF4001B359', N'3BD108A7-4ECF-4EC3-8EA2-0091D166FFA6', N'Employee Viewer', N'EMPLOYEE VIEWER')
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'FF50269F-1010-44BD-8186-2492A104B604', N'DB8AF2E0-7749-414B-A9DA-70F0FB6E30C7', N'Employee Editor', N'EMPLOYEE EDITOR')
-INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'D110A8C2-4A5F-43F3-B006-CB50FF1C5246', N'1F326C29-9A96-4B93-8538-30C5CB82AF1D', N'Customer Order In Process Viewer', N'CUSTOMER ORDER IN PROCESS Viewer')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'D110A8C2-4A5F-43F3-B006-CB50FF1C5246', N'1F326C29-9A96-4B93-8538-30C5CB82AF1D', N'Customer Order In Process Viewer', N'CUSTOMER ORDER IN PROCESS VIEWER')
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'1C555961-106F-4D24-96CC-D6C4C79D2C58', N'3B0830CE-9819-4B09-A960-E303411ACDE7', N'Customer Order In Process Editor', N'CUSTOMER ORDER IN PROCESS EDITOR')
-INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'F1739555-CFB2-40E8-AF96-F31035EFD37F', N'2BA2B385-304D-47CE-8C5A-BA58FCB47C79', N'Customer Order Shipment Viewer', N'CUSTOMER ORDER SHIPMENT Viewer')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'F1739555-CFB2-40E8-AF96-F31035EFD37F', N'2BA2B385-304D-47CE-8C5A-BA58FCB47C79', N'Customer Order Shipment Viewer', N'CUSTOMER ORDER SHIPMENT VIEWER')
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'5820492A-1331-4C5F-80B1-935E19C5C1A1', N'8371B223-CE6E-452B-A5B1-D878B329C872', N'Customer Order Shipment Editor', N'CUSTOMER ORDER SHIPMENT EDITOR')
-INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'5862C6BC-B8B7-4579-9B94-A418988E037A', N'BBA2E6C7-BA10-40FB-8E78-4A4CEF4B9397', N'Transfer Warehouses Viewer', N'TRANSFER WAREHOUSES Viewer')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'5862C6BC-B8B7-4579-9B94-A418988E037A', N'BBA2E6C7-BA10-40FB-8E78-4A4CEF4B9397', N'Transfer Warehouses Viewer', N'TRANSFER WAREHOUSES VIEWER')
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'B4F9324F-B285-4518-974F-CEC1A3782BD1', N'96EE4102-D58B-401C-B45C-A891C0928623', N'Transfer Warehouses Editor', N'TRANSFER WAREHOUSES EDITOR')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'0BC52517-6C36-446D-8F4E-C16A22917A6C', N'89070ADC-6C9D-4852-A101-D959216B1FC0', N'Report Viewer', N'REPORT VIEWER')
+
 GO
 
 /*
@@ -149,16 +151,11 @@ SELECT NEWID()
 */
 
 /* Populate [AspNetUsers] */
-INSERT [dbo].[AspNetUsers] ([Id], [AccessFailedCount], [ConcurrencyStamp], [Email], [EmailConfirmed], [LockoutEnabled], [LockoutEnd], [NormalizedEmail], [NormalizedUserName], [PasswordHash], [PhoneNumber], [PhoneNumberConfirmed], [SecurityStamp], [TwoFactorEnabled], [UserName]) VALUES (N'685d8718-442e-4c05-b692-0c38f152c09b', 0, N'bb598b0e-754e-47d4-b288-66366345db11', N'admin@aldebaran.com', 1, 0, NULL, N'ADMIN@ALDEBARAN.COM', N'SA', N'AQAAAAIAAYagAAAAEKnhTxr9IQcqMLbyCCct9zKiP1GXJgES8K3hSq1Lg5C49rr0AvV3pTii9QOUUiJAHg==', NULL, 0, N'Y6J4AUSPMJV5CAMMR3NJH6CFZD4RSIGW', 0, N'sa')
-INSERT [dbo].[AspNetUsers] ([Id], [AccessFailedCount], [ConcurrencyStamp], [Email], [EmailConfirmed], [LockoutEnabled], [LockoutEnd], [NormalizedEmail], [NormalizedUserName], [PasswordHash], [PhoneNumber], [PhoneNumberConfirmed], [SecurityStamp], [TwoFactorEnabled], [UserName]) VALUES (N'6f0fcb22-9413-409e-b8f4-a2bf42c931b7', 0, N'86c73bd6-484b-488b-9b68-374e86915b8d', N'ardc2440@gmail.com', 1, 0, NULL, N'ARDC2440@GMAIL.COM', N'ANDRESD', N'AQAAAAIAAYagAAAAED9nlp/sjl9uZ3rWG4ybs3DhISdb9yKVsqkhwQWXRf1Ud2SE2USit/jcT83BmqJ8uQ==', NULL, 0, N'FLOGG3MXBRTFYBSK2WMC2U2345L56T4C', 0, N'andresd')
-INSERT [dbo].[AspNetUsers] ([Id], [AccessFailedCount], [ConcurrencyStamp], [Email], [EmailConfirmed], [LockoutEnabled], [LockoutEnd], [NormalizedEmail], [NormalizedUserName], [PasswordHash], [PhoneNumber], [PhoneNumberConfirmed], [SecurityStamp], [TwoFactorEnabled], [UserName]) VALUES (N'af843d73-69db-462b-af38-0450c2823727', 0, N'90ca6e70-fa62-44d3-9091-19a78189eb60', N'javito115@gmail.com', 1, 0, NULL, N'JAVITO115@GMAIL.COM', N'JAVIERL', N'AQAAAAIAAYagAAAAEHQQRHDVBQng2Xrnyb8P62ZPC8/cvDxmCMHHuSU56U4jBtsby5RzyNciGh03ArnO1Q==', NULL, 0, N'VTG7UW2UFHOPTDX6KZLGHWF5LZQ5NK6D', 0, N'javierl')
+INSERT [dbo].[AspNetUsers] ([Id], [AccessFailedCount], [ConcurrencyStamp], [Email], [EmailConfirmed], [LockoutEnabled], [LockoutEnd], [NormalizedEmail], [NormalizedUserName], [PasswordHash], [PhoneNumber], [PhoneNumberConfirmed], [SecurityStamp], [TwoFactorEnabled], [UserName]) VALUES (N'685d8718-442e-4c05-b692-0c38f152c09b', 0, N'bb598b0e-754e-47d4-b288-66366345db11', N'admin@aldebaran.com', 1, 0, NULL, N'ADMIN@ALDEBARAN.COM', N'admin', N'AQAAAAIAAYagAAAAEKnhTxr9IQcqMLbyCCct9zKiP1GXJgES8K3hSq1Lg5C49rr0AvV3pTii9QOUUiJAHg==', NULL, 0, N'Y6J4AUSPMJV5CAMMR3NJH6CFZD4RSIGW', 0, N'admin')
 GO
 
 /* Populate [AspNetUserRoles]  */
 INSERT [dbo].[AspNetUserRoles] ([UserId], [RoleId]) VALUES (N'685d8718-442e-4c05-b692-0c38f152c09b', N'1D05EBDD-FE74-457D-B24A-66A2723C2706')
-INSERT [dbo].[AspNetUserRoles] ([UserId], [RoleId]) VALUES (N'6f0fcb22-9413-409e-b8f4-a2bf42c931b7', N'26DE4D1B-2958-4FE0-B16D-9D04359FFBD4')
-INSERT [dbo].[AspNetUserRoles] ([UserId], [RoleId]) VALUES (N'6f0fcb22-9413-409e-b8f4-a2bf42c931b7', N'D9F0A318-073B-407D-842A-748171E52DD0')
-INSERT [dbo].[AspNetUserRoles] ([UserId], [RoleId]) VALUES (N'af843d73-69db-462b-af38-0450c2823727', N'D9F0A318-073B-407D-842A-748171E52DD0')
 GO
 
 /*populate activity_type_area*/
@@ -778,7 +775,7 @@ INSERT INTO cancellation_reasons (CANCELLATION_REASON_NAME, DOCUMENT_TYPE_ID, NO
 			('Cancelacion de Reserva', 3,'Reason de prueba de Prueba No3') 
 GO
 
-INSERT INTO close_customer_order_reasons (REASON_NAME, NOTES)
+INSERT INTO close_customer_order_reasons (CLOSE_REASON_NAME, CLOSE_REASON_NOTES)
      VALUES ('Cierre de Pedido 1', 'Reason de prueba No 1'), 
 			('Cierre de Pedido 2', 'Reason de prueba No 2')
 GO
@@ -845,8 +842,6 @@ GO
 /* Poulate employees */
 SET IDENTITY_INSERT [dbo].[employees] ON
 GO
-INSERT [dbo].[employees] ([EMPLOYEE_ID], [AREA_ID], [IDENTITY_TYPE_ID], [IDENTITY_NUMBER], [DISPLAY_NAME], [FULL_NAME], [LOGIN_USER_ID], [POSITION]) VALUES (1, 2, 1, N'91534942', NULL, N'Javier Linares', N'af843d73-69db-462b-af38-0450c2823727', N'Despachador')
-INSERT [dbo].[employees] ([EMPLOYEE_ID], [AREA_ID], [IDENTITY_TYPE_ID], [IDENTITY_NUMBER], [DISPLAY_NAME], [FULL_NAME], [LOGIN_USER_ID], [POSITION]) VALUES (2, 17, 1, N'79872389', NULL, N'Andres Diaz', N'6f0fcb22-9413-409e-b8f4-a2bf42c931b7', N'Ingeniero')
 INSERT [dbo].[employees] ([EMPLOYEE_ID], [AREA_ID], [IDENTITY_TYPE_ID], [IDENTITY_NUMBER], [DISPLAY_NAME], [FULL_NAME], [LOGIN_USER_ID], [POSITION]) VALUES (3, 17, 3, N'123456789', NULL, N'Administrador', N'685d8718-442e-4c05-b692-0c38f152c09b', N'Administrador')
 GO
 

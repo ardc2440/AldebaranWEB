@@ -17,7 +17,7 @@
         <RadzenRow style="margin-bottom: 1rem">
             <RadzenColumn Size="6">
                 <RadzenStack>
-                    <RadzenFormField Text="Fecha de inicio de creación" Variant="Variant.Text" Style="width: 100%;">
+                    <RadzenFormField Text="Fecha de creación inicial" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
                             <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.CreationDate.StartDate" Name="CreationStartDate" AllowClear=true Change="()=> Filter.CreationDate.EndDate = Filter.CreationDate.EndDate < Filter.CreationDate.StartDate ? Filter.CreationDate.StartDate : Filter.CreationDate.EndDate" />
                         </ChildContent>
@@ -26,7 +26,7 @@
             </RadzenColumn>
             <RadzenColumn Size="6">
                 <RadzenStack>
-                    <RadzenFormField Text="Fecha fin de creación" Variant="Variant.Text" Style="width: 100%;">
+                    <RadzenFormField Text="Fecha de creación final" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
                             <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.CreationDate.EndDate" Name="CreationEndDate" AllowClear=true Min="Filter.CreationDate.StartDate" />
                         </ChildContent>
@@ -37,7 +37,7 @@
         <RadzenRow style="margin-bottom: 1rem">
             <RadzenColumn Size="6">
                 <RadzenStack>
-                    <RadzenFormField Text="Fecha de inicio de la orden" Variant="Variant.Text" Style="width: 100%;">
+                    <RadzenFormField Text="Fecha de pedido inicio" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
                             <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.OrderDate.StartDate" Name="OrderStartDate" AllowClear=true Change="()=> Filter.OrderDate.EndDate = Filter.OrderDate.EndDate < Filter.OrderDate.StartDate ? Filter.OrderDate.StartDate : Filter.OrderDate.EndDate" />
                         </ChildContent>
@@ -46,7 +46,7 @@
             </RadzenColumn>
             <RadzenColumn Size="6">
                 <RadzenStack>
-                    <RadzenFormField Text="Fecha fin de la orden" Variant="Variant.Text" Style="width: 100%;">
+                    <RadzenFormField Text="Fecha de pedido final" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
                             <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.OrderDate.EndDate" Name="OrderEndDate" AllowClear=true Min="@Filter.OrderDate.StartDate" />
                         </ChildContent>
@@ -57,7 +57,7 @@
         <RadzenRow style="margin-bottom: 1rem">
             <RadzenColumn Size="6">
                 <RadzenStack>
-                    <RadzenFormField Text="Fecha estimada de inicio de entrega" Variant="Variant.Text" Style="width: 100%;">
+                    <RadzenFormField Text="Fecha estimada de entrega inicial" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
                             <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.EstimatedDeliveryDate.StartDate" Name="EstimatedDeliveryStartDate" AllowClear=true Change="()=> Filter.EstimatedDeliveryDate.EndDate = Filter.EstimatedDeliveryDate.EndDate < Filter.EstimatedDeliveryDate.StartDate ? Filter.EstimatedDeliveryDate.StartDate : Filter.EstimatedDeliveryDate.EndDate" />
                         </ChildContent>
@@ -66,7 +66,7 @@
             </RadzenColumn>
             <RadzenColumn Size="6">
                 <RadzenStack>
-                    <RadzenFormField Text="Fecha estimada de fin de entrega" Variant="Variant.Text" Style="width: 100%;">
+                    <RadzenFormField Text="Fecha estimada de entrega final" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
                             <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.EstimatedDeliveryDate.EndDate" Name="EstimatedDeliveryEndDate" AllowClear=true Min="@Filter.EstimatedDeliveryDate.StartDate" />
                         </ChildContent>
@@ -114,6 +114,18 @@
         @if (ValidationError)
         {
             <div class="rz-message rz-messages-error">Debe seleccionar al menos un filtro</div>
+        }
+        @if (ValidationEstimatedDeliveryDate)
+        {
+            <div class="rz-message rz-messages-error">Debe seleccionar fecha estimada de entrega inicial y fecha estimada de entrega final</div>
+        }
+        @if (ValidationCreationDate)
+        {
+            <div class="rz-message rz-messages-error">Debe seleccionar fecha de creación inicial y fecha de creación final</div>
+        }
+        @if (ValidationOrderDate)
+        {
+            <div class="rz-message rz-messages-error">Debe seleccionar fecha de pedido inicial y fecha de pedido final</div>
         }
         <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
             <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="filter_alt" Text="Filtrar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />

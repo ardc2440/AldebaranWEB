@@ -30,7 +30,7 @@
         <RadzenRow style="margin-bottom: 1rem">
             <RadzenColumn Size="6">
                 <RadzenStack>
-                    <RadzenFormField Text="Fecha de inicio de traslado" Variant="Variant.Text" Style="width: 100%;">
+                    <RadzenFormField Text="Fecha de traslado inicial" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
                             <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.AdjustmentDate.StartDate" Name="AdjustmentStartDate" AllowClear=true Change="()=> Filter.AdjustmentDate.EndDate = Filter.AdjustmentDate.EndDate < Filter.AdjustmentDate.StartDate ? Filter.AdjustmentDate.StartDate : Filter.AdjustmentDate.EndDate" />
                         </ChildContent>
@@ -39,7 +39,7 @@
             </RadzenColumn>
             <RadzenColumn Size="6">
                 <RadzenStack>
-                    <RadzenFormField Text="Fecha fin de traslado" Variant="Variant.Text" Style="width: 100%;">
+                    <RadzenFormField Text="Fecha de traslado final" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
                             <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.AdjustmentDate.EndDate" Name="AdjustmentEndDate" AllowClear=true Min="Filter.AdjustmentDate.StartDate" />
                         </ChildContent>
@@ -75,6 +75,10 @@
         @if (ValidationError)
         {
             <div class="rz-message rz-messages-error">Debe seleccionar al menos un filtro</div>
+        }
+        @if (ValidationAdjustmentDate)
+        {
+            <div class="rz-message rz-messages-error">Debe seleccionar fecha de traslado inicial y fecha de traslado final</div>
         }
         <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
             <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="filter_alt" Text="Filtrar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />
