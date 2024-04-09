@@ -42,9 +42,14 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Reservations.Components
         protected MultiReferencePicker referencePicker;
         protected List<StatusDocumentType> StatusDocumentTypes = new();
         protected List<Customer> Customers = new();
+        protected bool FirstRender = true;
         protected bool ValidationError = false;
+        protected bool ValidationCreationDate = false;
+        protected bool ValidationReservationDate = false;
+
         #endregion
 
+        #region Override
         protected override async Task OnInitializedAsync()
         {
             Filter ??= new CustomerReservationFilter();
@@ -55,7 +60,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Reservations.Components
             StatusDocumentTypes = (await StatusDocumentTypeService.GetByDocumentTypeIdAsync(documentType.DocumentTypeId)).ToList();
             Customers = (await CustomerService.GetAsync()).ToList();
         }
-        protected bool FirstRender = true;
+        
         public override async Task SetParametersAsync(ParameterView parameters)
         {
             await base.SetParametersAsync(parameters);
@@ -67,12 +72,18 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Reservations.Components
             FirstRender = false;
             StateHasChanged();
         }
+        #endregion
+
         #region Events
         protected async Task FormSubmit()
         {
             try
             {
+                ValidationError = false;
+                ValidationCreationDate = false;
+                ValidationReservationDate = false;
                 IsSubmitInProgress = true;
+
                 // Si no se han incluido filtros, mostrar mensaje de error
                 if (string.IsNullOrEmpty(Filter.ReservationNumber) &&
                     Filter.CreationDate?.StartDate == null && Filter.CreationDate?.EndDate == null &&
@@ -82,6 +93,21 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Reservations.Components
                     ValidationError = true;
                     return;
                 }
+
+                if ((Filter.CreationDate?.StartDate == null && Filter.CreationDate?.EndDate != null) ||
+                    (Filter.CreationDate?.StartDate != null && Filter.CreationDate?.EndDate == null))
+                {
+                    ValidationCreationDate = true;
+                    return;
+                }
+
+                if ((Filter.ReservationDate?.StartDate == null && Filter.ReservationDate?.EndDate != null) ||
+                    (Filter.ReservationDate?.StartDate != null && Filter.ReservationDate?.EndDate == null))
+                {
+                    ValidationReservationDate = true;
+                    return;
+                }
+
                 Filter.ReservationNumber = string.IsNullOrEmpty(Filter.ReservationNumber) ? null : Filter.ReservationNumber;
                 Filter.StatusDocumentType = Filter.StatusDocumentTypeId != null ? StatusDocumentTypes.FirstOrDefault(s => s.StatusDocumentTypeId == Filter.StatusDocumentTypeId.Value) : null;
                 Filter.Customer = Filter.CustomerId != null ? Customers.FirstOrDefault(s => s.CustomerId == Filter.CustomerId.Value) : null;

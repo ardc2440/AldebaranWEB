@@ -42,8 +42,11 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments.Components
         protected List<AdjustmentType> AdjustmentsTypes = new();
         protected MultiReferencePicker referencePicker;
         protected bool ValidationError = false;
+        protected bool ValidationCreationDate = false;
+        protected bool ValidationAdjusmentDate = false;
         #endregion
 
+        #region Override
         protected override async Task OnInitializedAsync()
         {
             Filter ??= new InventoryAdjustmentsFilter();
@@ -63,12 +66,18 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments.Components
             }
             StateHasChanged();
         }
+        #endregion
+
         #region Events
         protected async Task FormSubmit()
         {
             try
             {
+                ValidationError = false;
+                ValidationCreationDate = false;
+                ValidationAdjusmentDate = false;
                 IsSubmitInProgress = true;
+
                 // Si no se han incluido filtros, mostrar mensaje de error
                 if (Filter.AdjustmentId == null &&
                     Filter.CreationDate?.StartDate == null && Filter.CreationDate?.EndDate == null &&
@@ -77,6 +86,20 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments.Components
                     Filter.EmployeeId == null && SelectedReferences.Any() == false)
                 {
                     ValidationError = true;
+                    return;
+                }
+
+                if ((Filter.CreationDate?.StartDate == null && Filter.CreationDate?.EndDate != null) ||
+                    (Filter.CreationDate?.StartDate != null && Filter.CreationDate?.EndDate == null))
+                {
+                    ValidationCreationDate = true;
+                    return;
+                }
+
+                if ((Filter.AdjustmentDate?.StartDate == null && Filter.AdjustmentDate?.EndDate != null) ||
+                    (Filter.AdjustmentDate?.StartDate != null && Filter.AdjustmentDate?.EndDate == null))
+                {
+                    ValidationAdjusmentDate = true;
                     return;
                 }
 

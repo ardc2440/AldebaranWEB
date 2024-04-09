@@ -17,7 +17,7 @@
         <RadzenRow style="margin-bottom: 1rem">
             <RadzenColumn Size="6">
                 <RadzenStack>
-                    <RadzenFormField Text="Fecha de inicio de creación" Variant="Variant.Text" Style="width: 100%;">
+                    <RadzenFormField Text="Fecha de creación inicial" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
                             <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.CreationDate.StartDate" Name="CreationStartDate" AllowClear=true Change="()=> Filter.CreationDate.EndDate = Filter.CreationDate.EndDate < Filter.CreationDate.StartDate ? Filter.CreationDate.StartDate : Filter.CreationDate.EndDate" />
                         </ChildContent>
@@ -26,7 +26,7 @@
             </RadzenColumn>
             <RadzenColumn Size="6">
                 <RadzenStack>
-                    <RadzenFormField Text="Fecha fin de creación" Variant="Variant.Text" Style="width: 100%;">
+                    <RadzenFormField Text="Fecha de creación final" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
                             <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.CreationDate.EndDate" Name="CreationEndDate" AllowClear=true Min="Filter.CreationDate.StartDate" />
                         </ChildContent>
@@ -37,7 +37,7 @@
         <RadzenRow style="margin-bottom: 1rem">
             <RadzenColumn Size="6">
                 <RadzenStack>
-                    <RadzenFormField Text="Fecha de inicio de la reserva" Variant="Variant.Text" Style="width: 100%;">
+                    <RadzenFormField Text="Fecha de reserva inicial" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
                             <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.ReservationDate.StartDate" Name="ReservationStartDate" AllowClear=true Change="()=> Filter.ReservationDate.EndDate = Filter.ReservationDate.EndDate < Filter.ReservationDate.StartDate ? Filter.ReservationDate.StartDate : Filter.ReservationDate.EndDate" />
                         </ChildContent>
@@ -46,7 +46,7 @@
             </RadzenColumn>
             <RadzenColumn Size="6">
                 <RadzenStack>
-                    <RadzenFormField Text="Fecha fin de reserva" Variant="Variant.Text" Style="width: 100%;">
+                    <RadzenFormField Text="Fecha de reserva final" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
                             <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.ReservationDate.EndDate" Name="ReservationEndDate" AllowClear=true Min="@Filter.ReservationDate.EndDate" />
                         </ChildContent>
@@ -94,6 +94,18 @@
         @if (ValidationError)
         {
             <div class="rz-message rz-messages-error">Debe seleccionar al menos un filtro</div>
+        }
+        @if (ValidationError)
+        {
+            <div class="rz-message rz-messages-error">Debe seleccionar al menos un filtro</div>
+        }
+        @if (ValidationCreationDate)
+        {
+            <div class="rz-message rz-messages-error">Debe seleccionar fecha de creación inicial y fecha de creación final</div>
+        }
+        @if (ValidationReservationDate)
+        {
+            <div class="rz-message rz-messages-error">Debe seleccionar fecha de reserva inicial y fecha de reserva final</div>
         }
         <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
             <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="filter_alt" Text="Filtrar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />

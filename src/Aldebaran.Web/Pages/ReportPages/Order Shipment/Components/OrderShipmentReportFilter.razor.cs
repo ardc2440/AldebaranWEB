@@ -59,12 +59,17 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment.Components
 
         protected List<Warehouse> Warehouses = new();
         protected bool ValidationError = false;
+        protected bool ValidationCreationDate = false;
+        protected bool ValidationRequestDate = false;
+        protected bool ValidationExpectedReceiptDate = false;                
 
         protected int? ForwarderId;
         protected int? ForwarderAgentId;
         protected short? ShipmentMethodId;
+        protected bool FirstRender = true;
         #endregion
 
+        #region Override
         protected override async Task OnInitializedAsync()
         {
             Filter ??= new OrderShipmentFilter();
@@ -75,7 +80,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment.Components
             Forwarders = (await ForwarderService.GetAsync()).ToList();
             Warehouses = (await WarehouseService.GetAsync()).ToList();
         }
-        protected bool FirstRender = true;
+        
         public override async Task SetParametersAsync(ParameterView parameters)
         {
             await base.SetParametersAsync(parameters);
@@ -113,18 +118,24 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment.Components
             FirstRender = false;
             StateHasChanged();
         }
+        #endregion
+
         #region Events
         protected async Task FormSubmit()
         {
             try
             {
+                ValidationError = false;
+                ValidationCreationDate = false;
+                ValidationRequestDate = false; 
+                ValidationExpectedReceiptDate = false;
                 IsSubmitInProgress = true;
+
                 // Si no se han incluido filtros, mostrar mensaje de error
                 if (string.IsNullOrEmpty(Filter.OrderNumber) &&
                     Filter.CreationDate?.StartDate == null && Filter.CreationDate?.EndDate == null &&
                     Filter.RequestDate?.StartDate == null && Filter.RequestDate?.EndDate == null &&
                     Filter.ExpectedReceiptDate?.StartDate == null && Filter.ExpectedReceiptDate?.EndDate == null &&
-                    Filter.RealReceiptDate?.StartDate == null && Filter.RealReceiptDate?.EndDate == null &&
                     string.IsNullOrEmpty(Filter.ImportNumber) && string.IsNullOrEmpty(Filter.EmbarkationPort) && string.IsNullOrEmpty(Filter.ProformaNumber) &&
                     Filter.ProviderId == null && ForwarderId == null && ForwarderAgentId == null && ShipmentMethodId == null &&
                     Filter.WarehouseId == null && SelectedReferences.Any() == false)
@@ -133,6 +144,26 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment.Components
                     return;
                 }
 
+                if ((Filter.CreationDate?.StartDate == null && Filter.CreationDate?.EndDate != null) ||
+                    (Filter.CreationDate?.StartDate != null && Filter.CreationDate?.EndDate == null))
+                {
+                    ValidationCreationDate = true;
+                    return;
+                }
+
+                if ((Filter.RequestDate?.StartDate == null && Filter.RequestDate?.EndDate != null) ||
+                    (Filter.RequestDate?.StartDate != null && Filter.RequestDate?.EndDate == null))
+                {
+                    ValidationRequestDate = true;
+                    return;
+                }
+                if ((Filter.ExpectedReceiptDate?.StartDate == null && Filter.ExpectedReceiptDate?.EndDate != null) ||
+                    (Filter.ExpectedReceiptDate?.StartDate != null && Filter.ExpectedReceiptDate?.EndDate == null))
+                {
+                    ValidationExpectedReceiptDate = true;
+                    return;
+                }
+                               
                 Filter.OrderNumber = string.IsNullOrEmpty(Filter.OrderNumber) ? null : Filter.OrderNumber;
                 Filter.ImportNumber = string.IsNullOrEmpty(Filter.ImportNumber) ? null : Filter.ImportNumber;
                 Filter.EmbarkationPort = string.IsNullOrEmpty(Filter.EmbarkationPort) ? null : Filter.EmbarkationPort;

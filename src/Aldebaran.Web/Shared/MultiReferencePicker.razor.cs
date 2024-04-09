@@ -64,8 +64,13 @@ namespace Aldebaran.Web.Shared
         #region Events
         protected void OnLineChange()
         {
-            CleanItems();
+            CleanItems();            
             OnItemChange();
+            if (SelectedLineIds == null || !SelectedLineIds.Any())
+            {
+                OnChange.InvokeAsync(null);
+                return;
+            }
             var selectedLines = AvailableItemReferencesForSelection.Where(w => SelectedLineIds.Contains(w.Item.LineId)).Select(s => s.Item.Line).DistinctBy(d => d.LineId).ToList();
             var itemBySelectedLines = AvailableItemReferencesForSelection.Where(w => SelectedLineIds.Contains(w.Item.LineId)).Select(s => s.Item).DistinctBy(w => w.ItemId).ToList();
 
@@ -84,8 +89,13 @@ namespace Aldebaran.Web.Shared
         }
         protected void OnItemChange()
         {
-            CleanReferences();
+            CleanReferences();            
             OnReferenceChange();
+            if (SelectedItemIds == null || !SelectedItemIds.Any())
+            {
+                OnChange.InvokeAsync(null);
+                return;
+            }
             var selectedLines = AvailableItemReferencesForSelection.Where(w => SelectedLineIds.Contains(w.Item.LineId)).Select(s => s.Item.Line).DistinctBy(d => d.LineId).ToList();
             var selectedItems = AvailableItemReferencesForSelection.Where(w => SelectedItemIds.Contains(w.ItemId)).Select(s => s.Item).DistinctBy(d => d.ItemId).ToList();
             var referencesBySelectedItems = AvailableItemReferencesForSelection.Where(w => SelectedItemIds.Contains(w.Item.ItemId)).DistinctBy(d => d.ReferenceId).ToList();
@@ -128,14 +138,37 @@ namespace Aldebaran.Web.Shared
         void CleanItems()
         {
             Items = new List<GroupItemData>();
-            SelectedItemIds = new List<int>();
+            if (SelectedLineIds == null || !SelectedLineIds.Any())
+            {
+                SelectedItemIds = new List<int>();
+                return;
+            }
+            SelectedItemIds = (from a in SelectedItemIds
+                               join b in AvailableItemReferencesForSelection on a equals b.ItemId
+                               join c in SelectedLineIds on b.Item.LineId equals c
+                               select a).ToList();
+
         }
         void CleanReferences()
         {
             References = new List<GroupReferenceData>();
-            SelectedReferenceIds = new List<int>();
-            SelectedReferences = new List<ServiceModel.ItemReference>();
+            if (SelectedItemIds == null || !SelectedItemIds.Any())
+            {
+                SelectedReferenceIds = new List<int>();
+                SelectedReferences = new List<ServiceModel.ItemReference>();
+                return;
+            }
+
+            SelectedReferenceIds = (from a in SelectedReferenceIds
+                                    join b in AvailableItemReferencesForSelection on a equals b.ReferenceId
+                                    join c in SelectedItemIds on b.ItemId equals c 
+                                    select a).ToList();
+
+            SelectedReferences = (from a in SelectedReferences
+                                  join b in SelectedReferenceIds on a.ReferenceId equals b
+                                  select a).ToList();
         }
+
         void PanelCollapseChange(string Command)
         {
             if (Command == "Expand")

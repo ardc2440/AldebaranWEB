@@ -42,20 +42,25 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders.Components
         protected MultiReferencePicker referencePicker;
         protected List<StatusDocumentType> StatusDocumentTypes = new();
         protected List<Customer> Customers = new();
+        protected bool FirstRender = true;
         protected bool ValidationError = false;
+        protected bool ValidationCreationDate = false;
+        protected bool ValidationOrderDate = false;
+        protected bool ValidationEstimatedDeliveryDate = false;
         #endregion
 
+        #region Override
         protected override async Task OnInitializedAsync()
         {
             Filter ??= new CustomerOrderFilter();
             var references = (await ItemReferenceService.GetReportsReferencesAsync()).ToList();
             AvailableItemReferencesForSelection = references;
             referencePicker.SetAvailableItemReferencesForSelection(AvailableItemReferencesForSelection);
-            var documentType = await DocumentTypeService.FindByCodeAsync("O");
+            var documentType = await DocumentTypeService.FindByCodeAsync("P");
             StatusDocumentTypes = (await StatusDocumentTypeService.GetByDocumentTypeIdAsync(documentType.DocumentTypeId)).ToList();
             Customers = (await CustomerService.GetAsync()).ToList();
         }
-        protected bool FirstRender = true;
+
         public override async Task SetParametersAsync(ParameterView parameters)
         {
             await base.SetParametersAsync(parameters);
@@ -67,11 +72,18 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders.Components
             FirstRender = false;
             StateHasChanged();
         }
+        #endregion
+
         #region Events
         protected async Task FormSubmit()
         {
             try
             {
+                ValidationError = false;
+                ValidationCreationDate = false;
+                ValidationOrderDate = false;
+                ValidationEstimatedDeliveryDate = false;
+
                 IsSubmitInProgress = true;
                 // Si no se han incluido filtros, mostrar mensaje de error
                 if (string.IsNullOrEmpty(Filter.OrderNumber) &&
@@ -81,6 +93,26 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders.Components
                     Filter.StatusDocumentTypeId == null && Filter.CustomerId == null && SelectedReferences.Any() == false)
                 {
                     ValidationError = true;
+                    return;
+                }
+                if ((Filter.CreationDate?.StartDate == null && Filter.CreationDate?.EndDate != null) ||
+                    (Filter.CreationDate?.StartDate != null && Filter.CreationDate?.EndDate == null))
+                {
+                    ValidationCreationDate = true;
+                    return;
+                }
+
+                if ((Filter.OrderDate?.StartDate == null && Filter.OrderDate?.EndDate != null) ||
+                    (Filter.OrderDate?.StartDate != null && Filter.OrderDate?.EndDate == null))
+                {
+                    ValidationOrderDate = true;
+                    return;
+                }
+
+                if ((Filter.EstimatedDeliveryDate?.StartDate == null && Filter.EstimatedDeliveryDate?.EndDate != null) ||
+                    (Filter.EstimatedDeliveryDate?.StartDate != null && Filter.EstimatedDeliveryDate?.EndDate == null))
+                {
+                    ValidationEstimatedDeliveryDate = true;
                     return;
                 }
                 Filter.OrderNumber = string.IsNullOrEmpty(Filter.OrderNumber) ? null : Filter.OrderNumber;
