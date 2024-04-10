@@ -26,7 +26,7 @@
                         <RadzenStack>
                             <RadzenFormField Text="Fecha de reserva" Variant="Variant.Text" Style="width: 100%;">
                                 <ChildContent>
-                                    <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@customerReservation.ReservationDate" Name="RESERVATION_DATE" Placeholder="Seleccione la fecha de reserva" TabIndex="0" />
+                                    <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@customerReservation.ReservationDate" Name="RESERVATION_DATE" Placeholder="Seleccione la fecha de reserva" TabIndex="0" Change="()=> customerReservation.ExpirationDate = customerReservation.ExpirationDate > customerReservation.ReservationDate ? customerReservation.ExpirationDate : customerReservation.ReservationDate" />
                                 </ChildContent>
                                 <Helper>
                                     <RadzenRequiredValidator Text="La fecha de reserva es requerida" Component="RESERVATION_DATE" />
