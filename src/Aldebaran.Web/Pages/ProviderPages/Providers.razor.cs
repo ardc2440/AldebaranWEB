@@ -143,17 +143,9 @@ namespace Aldebaran.Web.Pages.ProviderPages
         protected async Task GetProviderReferences(ServiceModel.Provider args)
         {
             Provider = args;
-            try
-            {
-                isLoadingInProgress = true;
-                await Task.Yield();
-                var providerReferencesResult = await ProviderReferenceService.GetByProviderIdAsync(args.ProviderId);
-                args.ProviderReferences = providerReferencesResult.ToList();
-            }
-            finally
-            {
-                isLoadingInProgress = false;
-            }
+            await Task.Yield();
+            var providerReferencesResult = await ProviderReferenceService.GetByProviderIdAsync(args.ProviderId);
+            args.ProviderReferences = providerReferencesResult.ToList();
         }
         protected async Task AddProviderReference(MouseEventArgs args, ServiceModel.Provider data)
         {

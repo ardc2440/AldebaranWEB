@@ -140,6 +140,8 @@ INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) 
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'5862C6BC-B8B7-4579-9B94-A418988E037A', N'BBA2E6C7-BA10-40FB-8E78-4A4CEF4B9397', N'Transfer Warehouses Viewer', N'TRANSFER WAREHOUSES VIEWER')
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'B4F9324F-B285-4518-974F-CEC1A3782BD1', N'96EE4102-D58B-401C-B45C-A891C0928623', N'Transfer Warehouses Editor', N'TRANSFER WAREHOUSES EDITOR')
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'0BC52517-6C36-446D-8F4E-C16A22917A6C', N'89070ADC-6C9D-4852-A101-D959216B1FC0', N'Report Viewer', N'REPORT VIEWER')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'761A5BAF-80F5-48CC-B54F-E3B91240750F', N'F4FCF41D-9E8D-488E-96E6-B5DBF8DD62F5', N'Purchase Order Viewer', N'PURCHASE ORDER VIEWER')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'C04E9671-031F-412D-90C1-39FC449475C0', N'156CF103-485A-4005-8DEE-E7E1CCB6ACA8', N'Purchase Order Editor', N'PURCHASE ORDER EDITOR')
 
 GO
 
@@ -801,6 +803,11 @@ INSERT INTO ALARM_MESSAGES (ALARM_TYPE_ID, ALARM_MESSAGE) VALUES((select ALARM_T
 INSERT INTO ALARM_MESSAGES (ALARM_TYPE_ID, ALARM_MESSAGE) VALUES((select ALARM_TYPE_ID from ALARM_TYPES where NAME = 'Ordenes de Compra'),'Ingreso Bodega Origen')
 INSERT INTO ALARM_MESSAGES (ALARM_TYPE_ID, ALARM_MESSAGE) VALUES((select ALARM_TYPE_ID from ALARM_TYPES where NAME = 'Ordenes de Compra'),'Llegada a Zona Franca')
 INSERT INTO ALARM_MESSAGES (ALARM_TYPE_ID, ALARM_MESSAGE) VALUES((select ALARM_TYPE_ID from ALARM_TYPES where NAME = 'Ordenes de Compra'),'Pedir Muestra')
+
+INSERT INTO ALARM_MESSAGES (ALARM_TYPE_ID, ALARM_MESSAGE) VALUES((select ALARM_TYPE_ID from ALARM_TYPES where NAME = 'Pedidos'),'Prueba de alarma para pedidos 1')
+INSERT INTO ALARM_MESSAGES (ALARM_TYPE_ID, ALARM_MESSAGE) VALUES((select ALARM_TYPE_ID from ALARM_TYPES where NAME = 'Pedidos'),'Prueba de alarma para pedidos 2')
+INSERT INTO ALARM_MESSAGES (ALARM_TYPE_ID, ALARM_MESSAGE) VALUES((select ALARM_TYPE_ID from ALARM_TYPES where NAME = 'Reservas'),'Prueba de alarma para reservas 1')
+INSERT INTO ALARM_MESSAGES (ALARM_TYPE_ID, ALARM_MESSAGE) VALUES((select ALARM_TYPE_ID from ALARM_TYPES where NAME = 'Reservas'),'Prueba de alarma para reservas 2')
 GO
 
 /*populate identity_types*/

@@ -77,17 +77,9 @@ namespace Aldebaran.Web.Pages.AreaPages
         protected async Task GetAreaItems(ServiceModel.Area args)
         {
             Area = args;
-            try
-            {
-                isLoadingInProgress = true;
                 await Task.Yield();
                 var itemsAreasResult = await ItemAreaService.GetByAreaIdAsync(Area.AreaId);
-                args.ItemsAreas = itemsAreasResult.ToList();
-            }
-            finally
-            {
-                isLoadingInProgress = false;
-            }
+                args.ItemsAreas = itemsAreasResult.ToList();            
         }
         protected async Task AddItemArea(MouseEventArgs args, ServiceModel.Area data)
         {

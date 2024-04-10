@@ -138,17 +138,9 @@ namespace Aldebaran.Web.Pages.CustomerPages
         protected async Task GetCustomerContacts(Customer args)
         {
             Customer = args;
-            try
-            {
-                isLoadingInProgress = true;
-                await Task.Yield();
-                var CustomerContactsResult = await CustomerContactService.GetByCustomerIdAsync(args.CustomerId);
-                args.CustomerContacts = CustomerContactsResult.ToList();
-            }
-            finally
-            {
-                isLoadingInProgress = false;
-            }
+            await Task.Yield();
+            var CustomerContactsResult = await CustomerContactService.GetByCustomerIdAsync(args.CustomerId);
+            args.CustomerContacts = CustomerContactsResult.ToList();
         }
 
         protected async Task AddCustomerContact(MouseEventArgs args, Customer data)

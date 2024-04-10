@@ -31,8 +31,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 {
                     Quantity = item.Quantity,
                     ReferenceId = item.ReferenceId,
-                    WarehouseId = item.WarehouseId,
-                    AdjustmentId = item.AdjustmentId
+                    WarehouseId = item.WarehouseId
                 });
 
             try
