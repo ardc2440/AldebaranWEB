@@ -38,7 +38,7 @@
                                                     AllowFiltering="true" ClearSearchAfterSelection="true" TabIndex="1" />
                                 </ChildContent>
                                 <Helper>
-                                    <RadzenRequiredValidator Component="ADJUSTMENT_REASON_ID" DefaultValue="0" Text="El motivo del ajuste es requerido "></RadzenRequiredValidator>
+                                    <RadzenNumericRangeValidator Component="ADJUSTMENT_REASON_ID" Min="1" Text="El motivo del ajuste es requerido "></RadzenNumericRangeValidator>
                                 </Helper>
                             </RadzenFormField>
                             <RadzenFormField Text="Tipo de ajuste" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
@@ -48,7 +48,7 @@
                                                     AllowFiltering="true" ClearSearchAfterSelection="true" TabIndex="2" />
                                 </ChildContent>
                                 <Helper>
-                                    <RadzenRequiredValidator Component="ADJUSTMENT_TYPE_ID" DefaultValue="0" Text="El tipo de ajuste es requerido"></RadzenRequiredValidator>
+                                    <RadzenNumericRangeValidator Component="ADJUSTMENT_TYPE_ID" Min="1" Text="El tipo de ajuste es requerido"></RadzenNumericRangeValidator>
                                 </Helper>
                             </RadzenFormField>
                             <RadzenFormField Text="Notas" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
