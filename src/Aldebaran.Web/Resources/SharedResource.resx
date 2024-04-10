@@ -130,6 +130,6 @@
     <value>Consultando...</value>
   </data>
   <data name="page:loading-text" xml:space="preserve">
-    <value>Cargando la página. Un momento porfavor...</value>
+    <value>Cargando la página. Un momento por favor...</value>
   </data>
 </root>

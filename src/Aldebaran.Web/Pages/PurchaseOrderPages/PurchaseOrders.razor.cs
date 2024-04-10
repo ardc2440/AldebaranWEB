@@ -150,21 +150,14 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         protected async Task GetChildData(ServiceModel.PurchaseOrder args)
         {
             PurchaseOrder = args;
-            try
-            {
-                isLoadingInProgress = true;
-                await Task.Yield();
-                var details = await PurchaseOrderDetailService.GetByPurchaseOrderIdAsync(args.PurchaseOrderId);
-                args.PurchaseOrderDetails = details.ToList();
-                var activities = await PurchaseOrderActivityService.GetByPurchaseOrderIdAsync(args.PurchaseOrderId);
-                args.PurchaseOrderActivities = activities.ToList();
+            await Task.Yield();
+            var details = await PurchaseOrderDetailService.GetByPurchaseOrderIdAsync(args.PurchaseOrderId);
+            args.PurchaseOrderDetails = details.ToList();
+            var activities = await PurchaseOrderActivityService.GetByPurchaseOrderIdAsync(args.PurchaseOrderId);
+            args.PurchaseOrderActivities = activities.ToList();
 
-                await GetPurchaseOrderAlarmsAsync(args);
-            }
-            finally
-            {
-                isLoadingInProgress = false;
-            }
+            await GetPurchaseOrderAlarmsAsync(args);
+
         }
         protected async Task EditPurchaseOrder(MouseEventArgs args, ServiceModel.PurchaseOrder purchaseOrder)
         {

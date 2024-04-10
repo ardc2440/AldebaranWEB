@@ -138,17 +138,9 @@ namespace Aldebaran.Web.Pages.ForwarderPages
         protected async Task GetForwarderAgents(ServiceModel.Forwarder args)
         {
             Forwarder = args;
-            try
-            {
-                isLoadingInProgress = true;
-                await Task.Yield();
-                var forwarderAgentsResult = await ForwarderAgentService.GetByForwarderIdAsync(args.ForwarderId);
-                args.ForwarderAgents = forwarderAgentsResult.ToList();
-            }
-            finally
-            {
-                isLoadingInProgress = false;
-            }
+            await Task.Yield();
+            var forwarderAgentsResult = await ForwarderAgentService.GetByForwarderIdAsync(args.ForwarderId);
+            args.ForwarderAgents = forwarderAgentsResult.ToList();
         }
         protected async Task AddForwarderAgent(MouseEventArgs args, ServiceModel.Forwarder data)
         {
@@ -212,17 +204,9 @@ namespace Aldebaran.Web.Pages.ForwarderPages
         protected async Task GetShipmentForwarderAgentMethods(ServiceModel.ForwarderAgent args)
         {
             ForwarderAgent = args;
-            try
-            {
-                isLoadingInProgress = true;
-                await Task.Yield();
-                var shipmentForwarderAgentMethodsResult = await ShipmentForwarderAgentMethodService.GetByForwarderAgentIdAsync(args.ForwarderAgentId);
-                ForwarderAgent.ShipmentForwarderAgentMethods = shipmentForwarderAgentMethodsResult.ToList();
-            }
-            finally
-            {
-                isLoadingInProgress = false;
-            }
+            await Task.Yield();
+            var shipmentForwarderAgentMethodsResult = await ShipmentForwarderAgentMethodService.GetByForwarderAgentIdAsync(args.ForwarderAgentId);
+            ForwarderAgent.ShipmentForwarderAgentMethods = shipmentForwarderAgentMethodsResult.ToList();
         }
         protected async Task AddShipmentForwarderAgentMethod(MouseEventArgs args, ServiceModel.ForwarderAgent data)
         {

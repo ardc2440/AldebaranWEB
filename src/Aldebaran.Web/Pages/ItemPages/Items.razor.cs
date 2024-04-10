@@ -163,17 +163,9 @@ namespace Aldebaran.Web.Pages.ItemPages
         protected async Task GetItemReferences(ServiceModel.Item args)
         {
             Item = args;
-            try
-            {
-                isLoadingInProgress = true;
                 await Task.Yield();
                 var ItemReferencesResult = await ItemReferenceService.GetByItemIdAsync(args.ItemId);
-                args.ItemReferences = ItemReferencesResult.ToList();
-            }
-            finally
-            {
-                isLoadingInProgress = false;
-            }
+                args.ItemReferences = ItemReferencesResult.ToList();            
         }
         protected async Task AddItemReference(ServiceModel.Item data)
         {

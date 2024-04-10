@@ -17,7 +17,7 @@
     <RadzenRow>
         <RadzenColumn SizeMD=12>
             <LocalizedDataGrid @ref="AreasDataGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                               Data="@AreasList" TItem="ServiceModel.Area" RowExpand=@GetAreaItems ExpandMode="Radzen.DataGridExpandMode.Single" IsLoading="@isLoadingInProgress">
+                               Data="@AreasList" TItem="ServiceModel.Area" RowExpand=@GetAreaItems ExpandMode="Radzen.DataGridExpandMode.Single" >
                 <Columns>
                     <RadzenDataGridColumn TItem="ServiceModel.Area" Property="AreaCode" Title="Código">
                     </RadzenDataGridColumn>
@@ -39,7 +39,7 @@
                             </RadzenColumn>
                         </RadzenRow>
                         <LocalizedDataGrid ColumnWidth="200px" Visible="@(area != null)" @ref=ItemsAreasDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                           Data="@area?.ItemsAreas" TItem="ServiceModel.ItemsArea" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowGrouping="true" AllowColumnReorder="true" IsLoading="@isLoadingInProgress">
+                                           Data="@area?.ItemsAreas" TItem="ServiceModel.ItemsArea" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowGrouping="true" AllowColumnReorder="true" >
                             <Columns>
                                 <RadzenDataGridColumn TItem="ServiceModel.ItemsArea" Property="Item.InternalReference" Title="Referencia interna">
                                 </RadzenDataGridColumn>
