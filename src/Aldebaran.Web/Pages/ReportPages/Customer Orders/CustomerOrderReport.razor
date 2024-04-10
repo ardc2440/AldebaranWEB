@@ -233,13 +233,8 @@
                             </tr>
                         </table>
                         <div class="mt-1">
-                            @if (IsLoadingData)
-                            {
-                                <div class="loading-container">
-                                    <RadzenIcon Icon="refresh" />
-                                    <span>@SharedLocalizer["report:loading-text"]</span>
-                                </div>
-                            }
+                            <LoadingData IsLoadingData="@IsLoadingData" />
+                            
                             @if (ViewModel != null)
                             {
                                 @if (ViewModel.Customers?.Any() == true)
