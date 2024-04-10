@@ -86,7 +86,7 @@
                                 <RadzenNumeric style="display: block; width: 100%" @bind-Value="@Item.Volume" Name="Volume" Max="9999999999" />
                             </ChildContent>
                             <Helper>
-                                <RadzenNumericRangeValidator Component="Volume" Min="0" Text="Volumen debe ser mayor a 0" />
+                                <RadzenNumericRangeValidator Component="Volume" Min="0.1" Text="Volumen debe ser mayor a 0" />
                             </Helper>
                         </RadzenFormField>
                     </RadzenColumn>
@@ -96,7 +96,7 @@
                                 <RadzenNumeric style="display: block; width: 100%" @bind-Value="@Item.Weight" Name="Weight" Max="9999999999" />
                             </ChildContent>
                             <Helper>
-                                <RadzenNumericRangeValidator Component="Weight" Min="0" Text="Peso debe ser mayor a 0" />
+                                <RadzenNumericRangeValidator Component="Weight" Min="0.1" Text="Peso debe ser mayor a 0" />
                             </Helper>
                         </RadzenFormField>
                     </RadzenColumn>
@@ -120,7 +120,7 @@
                                 <RadzenNumeric style="display: block; width: 100%" @bind-Value="@Item.FobCost" Name="FobCost" Max="9999999999" />
                             </ChildContent>
                             <Helper>
-                                <RadzenNumericRangeValidator Component="FobCost" Min="0" Text="Costo debe ser mayor a 0" />
+                                <RadzenNumericRangeValidator Component="FobCost" Min="0.1" Text="Costo debe ser mayor a 0" />
                             </Helper>
                         </RadzenFormField>
                     </RadzenColumn>

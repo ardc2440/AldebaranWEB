@@ -49,7 +49,7 @@
                         <RadzenFormField Text="Fecha de pedido" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
                                 <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@customerOrder.OrderDate"
-                                                  Name="ORDER_DATE" Placeholder="Seleccione la fecha de pedido" TabIndex="1" />
+                                                      Name="ORDER_DATE" Placeholder="Seleccione la fecha de pedido" TabIndex="1" Change="()=> customerOrder.EstimatedDeliveryDate = customerOrder.EstimatedDeliveryDate > customerOrder.OrderDate ? customerOrder.EstimatedDeliveryDate : customerOrder.OrderDate" />
                             </ChildContent>
                             <Helper>
                                 <RadzenRequiredValidator Text="La fecha de pedido es requerida" Component="ORDER_DATE" />
