@@ -72,7 +72,4 @@
       <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
     </Compile>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="wwwroot\shared\" />
-  </ItemGroup>
 </Project>

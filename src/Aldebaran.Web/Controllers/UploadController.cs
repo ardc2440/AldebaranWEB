@@ -28,7 +28,10 @@ namespace Aldebaran.Web.Controllers
                 }
 
                 var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-                var filePath = Path.Combine(environment.WebRootPath, "shared", fileName);
+                var directory = Path.Combine(environment.WebRootPath, "shared");
+                var filePath = Path.Combine(directory, fileName);
+                if (!Directory.Exists(directory))
+                    Directory.CreateDirectory(directory);
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     file.CopyTo(stream);
