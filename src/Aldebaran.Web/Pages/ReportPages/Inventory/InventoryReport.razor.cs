@@ -166,18 +166,18 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
                     Date = purchaseOrder.OrderDate,
                     Total = purchaseOrder.Total ?? 0,
                     Warehouse = purchaseOrder.Warehouse,
-                    Activities = await GetOrderActivitiesAsync(purchaseOrder.PurchaseOrderId, ct)
+                    Activities = await GetOrderActivitiesAsync(purchaseOrder.PurchaseOrderId, referenceId, ct)
                 });
             }
 
             return inventoryPurchaseOrders;
         }
 
-        protected async Task<List<InventoryViewModel.Activity>> GetOrderActivitiesAsync(int purchaseOrderId, CancellationToken ct = default)
+        protected async Task<List<InventoryViewModel.Activity>> GetOrderActivitiesAsync(int purchaseOrderId, int referenceId, CancellationToken ct = default)
         {
             var activities = new List<InventoryViewModel.Activity>();
 
-            foreach (var item in DataReport.Where(w => w.PurchaseOrderId == purchaseOrderId && w.Description != null && w.Description.Trim().Length > 0)
+            foreach (var item in DataReport.Where(w => w.PurchaseOrderId == purchaseOrderId && w.ReferenceId == referenceId && w.Description != null && w.Description.Trim().Length > 0)
                                         .Select(s => new InventoryViewModel.Activity
                                         {
                                             Date = s.ActivityDate,
