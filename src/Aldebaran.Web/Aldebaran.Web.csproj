@@ -73,6 +73,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Pages\UserAlarmTypes\" />
     <Folder Include="wwwroot\shared\" />
   </ItemGroup>
 </Project>

@@ -142,7 +142,8 @@ INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) 
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'0BC52517-6C36-446D-8F4E-C16A22917A6C', N'89070ADC-6C9D-4852-A101-D959216B1FC0', N'Report Viewer', N'REPORT VIEWER')
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'761A5BAF-80F5-48CC-B54F-E3B91240750F', N'F4FCF41D-9E8D-488E-96E6-B5DBF8DD62F5', N'Purchase Order Viewer', N'PURCHASE ORDER VIEWER')
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'C04E9671-031F-412D-90C1-39FC449475C0', N'156CF103-485A-4005-8DEE-E7E1CCB6ACA8', N'Purchase Order Editor', N'PURCHASE ORDER EDITOR')
-
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'A4F0F288-C119-4CDD-A5C4-D1CB132F786A', N'5E48AA2D-8847-43C2-8B67-5C56C1D85452', N'User Alarms Editor', N'USER ALARMS EDITOR')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'E569BDED-9E6F-4A3D-B50B-ED15C2C1FA46', N'161ACC4E-31C1-481C-BDF6-CE452F9E3A1A', N'User Alarms Viewer', N'USER ALARMS VIEWER')
 GO
 
 /*
