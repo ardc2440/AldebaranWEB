@@ -179,6 +179,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
                     await CustomerReservationService.UpdateAsync(customerReservation.CustomerReservationId, customerReservation, null);
 
+                    var result = await DialogService.OpenAsync<CustomerOrderSummary>(null, new Dictionary<string, object> { { "Id", customerOrder.CustomerOrderId }, { "NotificationTemplateName", "Customer:Order:New" } }, options: new DialogOptions { ShowTitle = false, ShowClose = false, CloseDialogOnEsc = false, CloseDialogOnOverlayClick = false, Width = "800px" });
                     NavigationManager.NavigateTo($"customer-reservations/create-order/{customerReservation.CustomerReservationId}");
                 }
             }
