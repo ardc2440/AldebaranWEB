@@ -1,6 +1,6 @@
 ﻿@using ServiceModel = Aldebaran.Application.Services.Models;
 
-<RadzenStack Gap="1rem">
+<RadzenStack>
     @if (!CancellationReasons.Any())
     {
         <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="IsErrorVisible" >

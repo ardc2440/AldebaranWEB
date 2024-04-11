@@ -1,0 +1,72 @@
+﻿@page "/employee-alarms"
+@attribute [Authorize(Roles = "Admin,User Alarms Viewer,User Alarms Editor")]
+@using Aldebaran.Web.Resources.LocalizedControls;
+@using ServiceModel = Aldebaran.Application.Services.Models;
+
+<PageTitle>Alarmas por funcionario</PageTitle>
+<LoadingData IsLoadingData="@isLoadingInProgress" />
+@if (!isLoadingInProgress)
+{
+    <RadzenCard>
+        <RadzenStack>
+            <RadzenRow>
+                <RadzenColumn Size="12">
+                    <RadzenRow AlignItems="AlignItems.Center">
+                        <RadzenColumn Size="12">
+                            <RadzenText Text="Alarmas por funcionario" TextStyle="TextStyle.H4" TagName="TagName.H1" />
+                            <hr class="mb-4" />
+                        </RadzenColumn>
+                    </RadzenRow>
+                    <RadzenRow AlignItems="Radzen.AlignItems.Start">
+                        <RadzenColumn Size="12">
+                            <RadzenAccordion>
+                                <Items>
+                                    @foreach (var alarm in AlarmTypes)
+                                    {
+                                        <RadzenAccordionItem Text="@alarm.Name" class="accordion-content-no-padding" >
+                                            <span class="accordion-sub">@alarm.Description</span>
+                                            <RadzenStack class="mt-4">
+                                                <RadzenRow Gap="0" AlignItems="AlignItems.Center" Visible="@Security.IsInRole("Admin","User Alarms Editor")">
+                                                    <RadzenColumn Size="12">
+                                                        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
+                                                            <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click=@(args => AddAlarmToEmployee(alarm)) />
+                                                        </RadzenStack>
+                                                    </RadzenColumn>
+                                                </RadzenRow>
+                                                <LocalizedDataGrid AllowFiltering="true" @ref="UsersAlarmTypesDataGrid" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                                                   Data="@alarm.UsersAlarmTypes" TItem="ServiceModel.UsersAlarmType" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" AllowGrouping="true" AllowColumnReorder="true">
+                                                    <Columns>
+                                                        <RadzenDataGridColumn TItem="ServiceModel.UsersAlarmType" Title="Documento">
+                                                            <Template Context="useralarmType">
+                                                                <span>@($"{useralarmType.Employee.IdentityType.IdentityTypeCode.Trim()}. {useralarmType.Employee.IdentityNumber}")</span>
+                                                            </Template>
+                                                        </RadzenDataGridColumn>
+                                                        <RadzenDataGridColumn TItem="ServiceModel.UsersAlarmType" Property="Employee.DisplayName" Title="Nombre para Mostrar" Visible="false">
+                                                        </RadzenDataGridColumn>
+                                                        <RadzenDataGridColumn TItem="ServiceModel.UsersAlarmType" Property="Employee.FullName" Title="Nombre Completo">
+                                                        </RadzenDataGridColumn>
+                                                        <RadzenDataGridColumn TItem="ServiceModel.UsersAlarmType" Property="Employee.Area.AreaName" Title="Area">
+                                                        </RadzenDataGridColumn>
+                                                        <RadzenDataGridColumn TItem="ServiceModel.UsersAlarmType" Property="Employee.Position" Title="Cargo">
+                                                        </RadzenDataGridColumn>
+                                                        <RadzenDataGridColumn TItem="ServiceModel.UsersAlarmType" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Admin","User Alarms Editor")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                                                            <Template Context="usersAlarmType">
+                                                                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Eliminar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
+                                                                              Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@Security.IsInRole("Admin","User Alarms Editor")"
+                                                                              Click=@(args => OnDeleteEmployee(usersAlarmType.Employee, alarm)) @onclick:stopPropagation="true" />
+                                                            </Template>
+                                                        </RadzenDataGridColumn>
+                                                    </Columns>
+                                                </LocalizedDataGrid>
+                                            </RadzenStack>
+                                        </RadzenAccordionItem>
+                                    }
+                                </Items>
+                            </RadzenAccordion>
+                        </RadzenColumn>
+                    </RadzenRow>
+                </RadzenColumn>
+            </RadzenRow>
+        </RadzenStack>
+    </RadzenCard>
+}

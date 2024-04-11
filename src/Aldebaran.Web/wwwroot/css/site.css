@@ -1,3 +1,7 @@
+:root {
+    --rz-gap: 1rem;
+}
+
 #blazor-error-ui {
     background: lightyellow;
     bottom: 0;
@@ -170,10 +174,6 @@ a {
         transform: translate(0, -2px);
     }
 
-.rz-stack {
-    gap: 1rem;
-}
-
 .text-primary-color {
     color: var(--rz-primary) !important;
 }
@@ -340,3 +340,12 @@ hr.divider {
 .rz-html-editor-source.rz-textarea {
     width: 100%;
 }
+
+.rz-accordion .accordion-content-no-padding + .rz-accordion-content-wrapper .rz-accordion-content {
+    padding-top: 0;
+}
+
+    .rz-accordion .accordion-content-no-padding + .rz-accordion-content-wrapper .rz-accordion-content .accordion-sub {
+        font-style: italic;
+        color: #5e5e5e;
+    }

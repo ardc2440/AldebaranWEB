@@ -2,7 +2,7 @@
 @using Aldebaran.Web.Resources.LocalizedControls;
 @inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer
 
-<RadzenStack Gap="1rem">
+<RadzenStack>
     @if (!alarmMessages.Any())
     {
         <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="IsErrorVisible">

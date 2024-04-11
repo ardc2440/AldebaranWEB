@@ -42,12 +42,13 @@
             <RadzenImage Path="images/aldebaran-text.svg" style="width: 150px;"></RadzenImage>
         </RadzenStack>
         <RadzenPanelMenu>
-            <RadzenPanelMenuItem Text="Home" Path="" />
+            <RadzenPanelMenuItem Text="Inicio" Path="" />
             <RadzenPanelMenuItem Text="Administración" Icon="admin_panel_settings">
                 <RadzenPanelMenuItem Text="Artículos" Path="items" Visible="@Security.IsInRole("Admin","Item Editor","Item Viewer")" />
                 <RadzenPanelMenuItem Text="Artículos por áreas" Path="areas" Visible="@Security.IsInRole("Admin","Area Editor","Area Viewer")" />
                 <RadzenPanelMenuItem Text="Transportadoras" Path="forwarders" Visible="@Security.IsInRole("Admin","Forwarder Editor","Forwarder Viewer")" />
                 <RadzenPanelMenuItem Text="Funcionarios" Path="employees" Visible="@Security.IsInRole("Admin","Employee Editor","Employee Viewer")" />
+                <RadzenPanelMenuItem Text="Alarmas por funcionario" Path="employee-alarms" Visible="@Security.IsInRole("Admin","User Alarms Viewer","User Alarms Editor")" />
                 <RadzenPanelMenuItem Text="Clientes" Path="customers" Visible="@Security.IsInRole("Admin","Customer Editor","Customer Viewer")" />
                 <RadzenPanelMenuItem Text="Proveedores" Path="providers" Visible="@Security.IsInRole("Admin","Provider Editor","Provider Viewer")" />
                 @if (Security.IsInRole("Admin"))
