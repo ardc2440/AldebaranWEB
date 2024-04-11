@@ -15,6 +15,10 @@ using Serilog.Sinks.MSSqlServer;
 using System.Data;
 
 var builder = Host.CreateApplicationBuilder(args);
+builder.Services.AddWindowsService(options =>
+{
+    options.ServiceName = "Ftp File Writing Service";
+});
 var services = builder.Services;
 var configuration = new ConfigurationBuilder()
             .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
