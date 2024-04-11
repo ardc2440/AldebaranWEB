@@ -48,7 +48,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                     Brand = CustomerOrderDetail.Brand,
                     ItemReference = CustomerOrderDetail.ItemReference,
                     ReferenceId = CustomerOrderDetail.ReferenceId,
-                    RequestedQuantity = CustomerOrderDetail.RequestedQuantity
+                    RequestedQuantity = CustomerOrderDetail.RequestedQuantity,
+                    ProcessedQuantity = CustomerOrderDetail.ProcessedQuantity,
+                    DeliveredQuantity = CustomerOrderDetail.DeliveredQuantity
                 };
 
                 ItemReference = await ItemReferenceService.FindAsync(CustomerOrderDetail.ReferenceId);
