@@ -26,7 +26,7 @@
                     </ChildContent>
                     <Helper>
                         <RadzenRequiredValidator Component="REQUESTED_QUANTITY" Text="La Cantidad es Requerida" />
-                        <RadzenNumericRangeValidator Component="REQUESTED_QUANTITY" Min="1" Text="La cantidad debe ser mayor a 0" />
+                        <RadzenNumericRangeValidator Component="REQUESTED_QUANTITY" Min="@(customerOrderDetail.ProcessedQuantity + customerOrderDetail.DeliveredQuantity)" Text="@(string.Format("La cantidad debe ser mayor a {0}, ya que existen cantidades en proceso y/o despachadas.",customerOrderDetail.ProcessedQuantity + customerOrderDetail.DeliveredQuantity))" />
                     </Helper>
                 </RadzenFormField>
                 <RadzenFormField Text="Marcación" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
