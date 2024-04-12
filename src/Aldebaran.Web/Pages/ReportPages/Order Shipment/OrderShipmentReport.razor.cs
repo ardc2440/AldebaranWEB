@@ -55,7 +55,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment
 
                 ViewModel = new OrderShipmentViewModel()
                 {
-                    Orders = await GetOrdersAsync()
+                    Orders = await GetOrdersAsync(ct)
                 };
             }
             finally
@@ -220,18 +220,18 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment
                 {
                     LineName = line.LineName,
                     LineCode = line.LineCode,
-                    Items = await GetLineItemsAsync(orderId, line.LineId, ct)
+                    Items = await GetLineItemsAsync(orderId, warehouseId, line.LineId, ct)
                 });
             }
 
             return lines;
         }
 
-        async Task<List<OrderShipmentViewModel.Item>> GetLineItemsAsync(int orderId, int lineId, CancellationToken ct = default)
+        async Task<List<OrderShipmentViewModel.Item>> GetLineItemsAsync(int orderId, short warehouseId, int lineId, CancellationToken ct = default)
         {
             var items = new List<OrderShipmentViewModel.Item>();
 
-            foreach (var item in DataReport.Where(w => w.OrderId == orderId && w.LineId == lineId).Select(s => new { s.ItemId, s.ItemName, s.InternalReference })
+            foreach (var item in DataReport.Where(w => w.OrderId == orderId && w.WarehouseId == warehouseId && w.LineId == lineId).Select(s => new { s.ItemId, s.ItemName, s.InternalReference })
                                     .DistinctBy(d => d.ItemId)
                                     .OrderBy(o => o.ItemName))
             {
@@ -239,18 +239,18 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment
                 {
                     InternalReference = item.InternalReference,
                     ItemName = item.ItemName,
-                    References = await GetItemReferencesAsync(orderId, item.ItemId, ct)
+                    References = await GetItemReferencesAsync(orderId, warehouseId, item.ItemId, ct)
                 });
             }
 
             return items;
         }
 
-        async Task<List<OrderShipmentViewModel.Reference>> GetItemReferencesAsync(int orderId, int itemId, CancellationToken ct = default)
+        async Task<List<OrderShipmentViewModel.Reference>> GetItemReferencesAsync(int orderId, short warehouseId, int itemId, CancellationToken ct = default)
         {
             var references = new List<OrderShipmentViewModel.Reference>();
 
-            foreach (var reference in DataReport.Where(w => w.OrderId == orderId && w.ItemId == itemId).Select(s => new { s.ReferenceCode, s.ReferenceName, s.Amount, s.Volume, s.Weight })
+            foreach (var reference in DataReport.Where(w => w.OrderId == orderId && w.WarehouseId == warehouseId && w.ItemId == itemId).Select(s => new { s.ReferenceCode, s.ReferenceName, s.Amount, s.Volume, s.Weight })
                                             .OrderBy(o => o.ReferenceName))
             {
                 references.Add(new OrderShipmentViewModel.Reference

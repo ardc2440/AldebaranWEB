@@ -1847,7 +1847,7 @@ BEGIN
 		  		   
 	SELECT LineId, LineName, InternalReference, ItemName, ItemId, ReferenceName, AvailableAmount, FreeZone, ReferenceId,
 		   e.EXPECTED_RECEIPT_DATE OrderDate, e.WAREHOUSE_NAME Warehouse, e.REQUESTED_QUANTITY Total, 
-		   e.PURCHASE_ORDER_ID PurchaseOrderId, e.EXECUTION_DATE ActivityDate, e.ACTIVITY_DESCRIPTION Description
+		   e.PURCHASE_ORDER_ID PurchaseOrderId, e.EXECUTION_DATE ActivityDate, e.ACTIVITY_DESCRIPTION Description, e.PURCHASE_ORDER_ACTIVITY_ID ActivityId
 	  FROM @Inventory a
 	  LEFT OUTER JOIN @PurchaseOrders e on e.REFERENCE_ID = a.ReferenceId
 END
