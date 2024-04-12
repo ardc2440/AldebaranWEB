@@ -203,10 +203,23 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                 {
                     Summary = "Reserva de artículos",
                     Severity = NotificationSeverity.Success,
+                    Duration = 6000,
                     Detail = $"La reserva No. {customerReservation.ReservationNumber}, ha sido cancelada correctamente."
                 });
-
                 await CustomerReservationGrid.Reload();
+
+                var result = await DialogService.OpenAsync<CustomerReservationSummary>(null, new Dictionary<string, object> { { "Id", customerReservation.CustomerReservationId }, { "NotificationTemplateName", "Customer:Reservation:Cancellation" } }, options: new DialogOptions { ShowTitle = false, ShowClose = false, CloseDialogOnEsc = false, CloseDialogOnOverlayClick = false, Width = "800px" });
+                var summaryResult = (bool)result;
+                if (summaryResult)
+                {
+                    NotificationService.Notify(new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Success,
+                        Summary = $"Notificación",
+                        Duration = 6000,
+                        Detail = $"Se ha enviado un correo al cliente con el detalle de la reserva."
+                    });
+                }
             }
             catch (Exception ex)
             {
@@ -221,7 +234,8 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
         protected async Task DownloadAsync(MouseEventArgs arg, CustomerReservation customerReservation)
         {
-            var result = await DialogService.OpenAsync<CustomerReservationSummary>(null, new Dictionary<string, object> { { "Id", customerReservation.CustomerReservationId }, { "NotificationTemplateName", "Customer:Reservation:Forwarding" } }, options: new DialogOptions { ShowTitle = false, ShowClose = false, CloseDialogOnEsc = false, CloseDialogOnOverlayClick = false, Width = "800px" });
+            var templateCode = new[] { 3 }.Contains(customerReservation.StatusDocumentType.StatusOrder) ? "Customer:Reservation:Cancellation" : "Customer:Reservation:Forwarding";
+            var result = await DialogService.OpenAsync<CustomerReservationSummary>(null, new Dictionary<string, object> { { "Id", customerReservation.CustomerReservationId }, { "NotificationTemplateName", templateCode } }, options: new DialogOptions { ShowTitle = false, ShowClose = false, CloseDialogOnEsc = false, CloseDialogOnOverlayClick = false, Width = "800px" });
             var dialogResult = (bool)result;
             if (dialogResult)
             {

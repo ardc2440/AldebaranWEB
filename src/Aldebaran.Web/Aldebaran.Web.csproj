@@ -8,9 +8,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="logs\**" />
+    <Compile Remove="Pages\UserAlarmTypes\**" />
     <Content Remove="logs\**" />
+    <Content Remove="Pages\UserAlarmTypes\**" />
     <EmbeddedResource Remove="logs\**" />
+    <EmbeddedResource Remove="Pages\UserAlarmTypes\**" />
     <None Remove="logs\**" />
+    <None Remove="Pages\UserAlarmTypes\**" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="bundleconfig.json" />
@@ -73,7 +77,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Pages\UserAlarmTypes\" />
     <Folder Include="wwwroot\shared\" />
   </ItemGroup>
 </Project>
