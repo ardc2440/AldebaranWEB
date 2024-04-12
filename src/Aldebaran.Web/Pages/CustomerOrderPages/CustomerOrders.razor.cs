@@ -245,9 +245,23 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 {
                     Summary = "Pedido de artículos",
                     Severity = NotificationSeverity.Success,
+                    Duration = 6000,
                     Detail = $"El pedido ha sido cancelado correctamente."
                 });
                 await CustomerOrdersGrid.Reload();
+
+                var result = await DialogService.OpenAsync<CustomerOrderSummary>(null, new Dictionary<string, object> { { "Id", customerOrder.CustomerOrderId }, { "NotificationTemplateName", "Customer:Order:Cancellation" } }, options: new DialogOptions { ShowTitle = false, ShowClose = false, CloseDialogOnEsc = false, CloseDialogOnOverlayClick = false, Width = "800px" });
+                var summaryResult = (bool)result;
+                if (summaryResult)
+                {
+                    NotificationService.Notify(new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Success,
+                        Summary = $"Notificación",
+                        Duration = 6000,
+                        Detail = $"Se ha enviado un correo al cliente con el detalle del pedido."
+                    });
+                }
             }
             catch (Exception ex)
             {
@@ -261,7 +275,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         }
         protected async Task DownloadAsync(MouseEventArgs arg, CustomerOrder customerOrder)
         {
-            var result = await DialogService.OpenAsync<CustomerOrderSummary>(null, new Dictionary<string, object> { { "Id", customerOrder.CustomerOrderId }, { "NotificationTemplateName", "Customer:Order:Forwarding" } }, options: new DialogOptions { ShowTitle = false, ShowClose = false, CloseDialogOnEsc = false, CloseDialogOnOverlayClick = false, Width = "800px" });
+            var templateCode = new[] { 5, 6 }.Contains(customerOrder.StatusDocumentType.StatusOrder) ? "Customer:Order:Cancellation" : "Customer:Order:Forwarding";
+            var result = await DialogService.OpenAsync<CustomerOrderSummary>(null, new Dictionary<string, object> { { "Id", customerOrder.CustomerOrderId }, { "NotificationTemplateName", templateCode } }, options: new DialogOptions { ShowTitle = false, ShowClose = false, CloseDialogOnEsc = false, CloseDialogOnOverlayClick = false, Width = "800px" });
             var dialogResult = (bool)result;
             if (dialogResult)
             {

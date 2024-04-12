@@ -86,5 +86,14 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             entity.Position = employee.Position;
             await _context.SaveChangesAsync(ct);
         }
+
+        public async Task<IEnumerable<Employee>> GetByAlarmTypeAsync(short alarmTypeId, CancellationToken ct = default)
+        {
+            return await _context.UsersAlarmTypes.AsNoTracking()
+                .Include(i => i.Employee)
+                .Where(w => w.AlarmTypeId == alarmTypeId)
+                .Select(s => s.Employee)
+                .ToListAsync(ct);
+        }
     }
 }

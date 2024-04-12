@@ -1,0 +1,51 @@
+﻿@attribute [Authorize(Roles = "Admin,User Alarms Editor")]
+@using Aldebaran.Web.Resources.LocalizedControls;
+@using ServiceModel = Aldebaran.Application.Services.Models;
+
+<LoadingData IsLoadingData="@isLoadingInProgress" />
+@if (!isLoadingInProgress)
+{
+    <RadzenColumn SizeMD=12>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">No se ha podido crear el funcionario</RadzenAlert>
+        <RadzenStack Gap="0.5rem">
+            <div class="mb-2">
+                <label>Seleccione los funcionarios a incluir</label>
+            </div>
+            <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
+            <RadzenRow AlignItems="Radzen.AlignItems.Start">
+                <RadzenColumn Size="12">
+                    <LocalizedDataGrid @ref="EmployeeDataGrid" AllowRowSelectOnRowClick="true" AllowFiltering="true" FilterPopupRenderMode="PopupRenderMode.OnDemand" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                       Data="@Employees" TItem="ServiceModel.Employee" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" AllowGrouping="true" AllowColumnReorder="true"
+                                       SelectionMode="DataGridSelectionMode.Multiple" @bind-Value=@SelectedEmployees>
+                        <Columns>
+                            <RadzenDataGridColumn TItem="ServiceModel.Employee" Width="60px" Filterable="false" Sortable="false" Pickable="false" Reorderable="false" Groupable="false">
+                                <Template Context="data">
+                                    <RadzenCheckBox TabIndex="-1" TValue="bool" TriState="false" Value="@(SelectedEmployees != null && SelectedEmployees.Contains(data))" />
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="ServiceModel.Employee" Title="Documento">
+                                <Template Context="employee">
+                                    <span>@($"{employee.IdentityType.IdentityTypeCode.Trim()}. {employee.IdentityNumber}")</span>
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="ServiceModel.Employee" Property="IdentityNumber" Title="Número de documento">
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="ServiceModel.Employee" Property="FullName" Title="Nombre Completo">
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="ServiceModel.Employee" Property="Area.AreaName" Title="Area">
+                            </RadzenDataGridColumn>
+                        </Columns>
+                    </LocalizedDataGrid>
+                    @if (ValidationError)
+                    {
+                        <div class="rz-message rz-messages-error">Debe seleccionar al menos un funcionario</div>
+                    }
+                </RadzenColumn>
+            </RadzenRow>
+        </RadzenStack>
+        <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+            <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="save" Text="Guardar" Variant="Variant.Flat" Click="@FormSubmit" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />
+            <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
+        </RadzenStack>
+    </RadzenColumn>
+}

@@ -61,5 +61,11 @@ namespace Aldebaran.Application.Services
             var entity = _mapper.Map<Entities.Employee>(employee) ?? throw new ArgumentNullException("Empleado no puede ser nulo.");
             await _repository.UpdateAsync(employeeId, entity, ct);
         }
+
+        public async Task<IEnumerable<Employee>> GetByAlarmTypeAsync(short alarmTypeId, CancellationToken ct = default)
+        {
+            var data = await _repository.GetByAlarmTypeAsync(alarmTypeId, ct);
+            return _mapper.Map<List<Employee>>(data);
+        }
     }
 }
