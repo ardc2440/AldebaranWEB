@@ -32,6 +32,7 @@ namespace Aldebaran.Web.Pages.IdentityPages
         protected LocalizedDataGrid<ApplicationUser> ApplicationUserDataGrid;
         protected bool IsErrorVisible;
         protected bool isLoadingInProgress;
+        protected string search = "";
         #endregion
 
         #region Overrides
@@ -51,11 +52,18 @@ namespace Aldebaran.Web.Pages.IdentityPages
         #endregion
 
         #region Events
-        void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
-        private async Task GetUsers()
+        protected async Task Search(ChangeEventArgs args)
         {
-            var applicationUsers = await Security.GetUsers();
-            ApplicationUser = applicationUsers;
+            search = $"{args.Value}";
+            await ApplicationUserDataGrid.GoToPage(0);
+            await GetUsers(search);
+        }
+
+        void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
+        private async Task GetUsers(string searchKey = null, CancellationToken ct = default)
+        {
+            await Task.Yield();
+            ApplicationUser = string.IsNullOrEmpty(searchKey) ? await Security.GetUsers(ct) : await Security.GetUsers(searchKey,ct) ;
         }
         protected async Task AddApplicationUser()
         {
@@ -69,7 +77,7 @@ namespace Aldebaran.Web.Pages.IdentityPages
                     Detail = $"Inicio de sesión creado correctamente"
                 });
             }
-            await GetUsers();
+            await GetUsers(search);
             await ApplicationUserDataGrid.Reload();
         }
         protected async Task EditApplicationUser(ApplicationUser user)
@@ -84,7 +92,7 @@ namespace Aldebaran.Web.Pages.IdentityPages
                     Detail = $"Inicio de sesión actualizado correctamente"
                 });
             }
-            await GetUsers();
+            await GetUsers(search);
             await ApplicationUserDataGrid.Reload();
         }
         protected async Task DeleteApplicationUser(ApplicationUser user)
@@ -118,7 +126,7 @@ namespace Aldebaran.Web.Pages.IdentityPages
                         Detail = "Inicio de sesión eliminado correctamente."
                     });
                 }
-                await GetUsers();
+                await GetUsers(search);
                 await ApplicationUserDataGrid.Reload();
             }
             catch (Exception ex)
@@ -147,7 +155,7 @@ namespace Aldebaran.Web.Pages.IdentityPages
                     Severity = NotificationSeverity.Success,
                     Detail = "Usuario bloqueado correctamente."
                 });
-                await GetUsers();
+                await GetUsers(search);
                 await ApplicationUserDataGrid.Reload();
             }
             catch (Exception ex)
@@ -176,7 +184,7 @@ namespace Aldebaran.Web.Pages.IdentityPages
                     Severity = NotificationSeverity.Success,
                     Detail = "Usuario desbloqueado correctamente."
                 });
-                await GetUsers();
+                await GetUsers(search);
                 await ApplicationUserDataGrid.Reload();
             }
             catch (Exception ex)

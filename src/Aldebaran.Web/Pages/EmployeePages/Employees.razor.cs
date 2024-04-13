@@ -89,7 +89,7 @@ namespace Aldebaran.Web.Pages.EmployeePages
                     Detail = $"Funcionario creado correctamente."
                 });
             }
-            await GetEmployeesAsync();
+            await GetEmployeesAsync(search);
             await EmployeesGrid.Reload();
         }
 
@@ -105,7 +105,7 @@ namespace Aldebaran.Web.Pages.EmployeePages
                     Detail = $"Funcionario actualizado correctamente."
                 });
             }
-            await GetEmployeesAsync();
+            await GetEmployeesAsync(search);
             await EmployeesGrid.Reload();
         }
 
@@ -116,7 +116,7 @@ namespace Aldebaran.Web.Pages.EmployeePages
                 if (await DialogService.Confirm("Está seguro que desea eliminar este funcionario?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
                 {
                     await EmployeeService.DeleteAsync(employee.EmployeeId);
-                    await GetEmployeesAsync();
+                    await GetEmployeesAsync(search);
                     NotificationService.Notify(new NotificationMessage
                     {
                         Summary = "Funcionario",

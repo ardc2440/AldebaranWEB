@@ -88,7 +88,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
                     Detail = $"Transportadora creada correctamente."
                 });
             }
-            await GetForwardersAsync();
+            await GetForwardersAsync(search);
             await ForwardersDataGrid.Reload();
         }
         protected async Task EditForwarder(ServiceModel.Forwarder args)
@@ -103,7 +103,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
                     Detail = $"Transportadora actualizada correctamente."
                 });
             }
-            await GetForwardersAsync();
+            await GetForwardersAsync(search);
             await ForwardersDataGrid.Reload();
         }
         protected async Task DeleteForwarder(MouseEventArgs args, ServiceModel.Forwarder forwarder)
@@ -113,7 +113,7 @@ namespace Aldebaran.Web.Pages.ForwarderPages
                 if (await DialogService.Confirm("Está seguro que desea eliminar esta transportadora?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
                 {
                     await ForwarderService.DeleteAsync(forwarder.ForwarderId);
-                    await GetForwardersAsync();
+                    await GetForwardersAsync(search);
                     NotificationService.Notify(new NotificationMessage
                     {
                         Summary = "Transportadora",
