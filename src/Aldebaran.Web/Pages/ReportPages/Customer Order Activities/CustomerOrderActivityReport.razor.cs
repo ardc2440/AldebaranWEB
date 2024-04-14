@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.JSInterop;
 using Radzen;
+using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
 {
@@ -118,14 +119,24 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
                 await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
             }
         }
-        async Task Download()
+        async Task Save(RadzenSplitButtonItem args)
         {
+            if (args?.Value == null)
+                return;
             IsBusy = true;
             var html = await JSRuntime.InvokeAsync<string>("getContent", "customer-order-activity-report-container");
-            var pdfBytes = await FileBytesGeneratorService.GetPdfBytes(html, true);
-            await JSRuntime.InvokeVoidAsync("downloadFile", "Actividades de pedidos.pdf", "application/pdf", Convert.ToBase64String(pdfBytes));
+            if (args?.Value == "save")
+            {
+                var pdfBytes = await FileBytesGeneratorService.GetPdfBytes(html, true);
+                await JSRuntime.InvokeVoidAsync("downloadFile", "Actividades de pedidos.pdf", "application/pdf", Convert.ToBase64String(pdfBytes));
+            }
+            if (args?.Value == "print")
+            {
+                await JSRuntime.InvokeVoidAsync("print", "customer-order-activity-report-container");
+            }
             IsBusy = false;
         }
+
         async Task ToggleReadMore()
         {
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink");

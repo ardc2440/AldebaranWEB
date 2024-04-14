@@ -47,9 +47,12 @@
             </div>
         </RadzenColumn>
         <RadzenColumn Size="6" class="align-self-end">
-            <div class="d-flex flex-row justify-content-end align-items-end">
-                <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="save" Text="Guardar PDF" Click="@Download" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@IsBusy" />
-            </div>
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.End" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                <RadzenSplitButton Icon="build" Text="Acciones" Click="@Save" Variant="Variant.Flat" Shade="Shade.Lighter" IsBusy="@IsBusy">
+                    <RadzenSplitButtonItem Text="Imprimir" Icon="print" Value="print" Style="cursor:pointer" />
+                    <RadzenSplitButtonItem Text="Guardar PDF" Icon="picture_as_pdf" Value="save" Style="cursor:pointer" />
+                </RadzenSplitButton>
+            </RadzenStack>
         </RadzenColumn>
     </RadzenRow>
     <RadzenRow AlignItems="AlignItems.Start">
@@ -102,7 +105,7 @@
                                     {
                                         <table class="edged">
                                             <thead>
-                                                <tr>
+                                                <tr class="border-bottom-1">
                                                     <td colspan="2" width="50%">
                                                         <span class="bold">Código: </span>@provider.ProviderCode
                                                     </td>
@@ -110,7 +113,7 @@
                                                         <span class="bold">Nombre: </span>@provider.ProviderName
                                                     </td>
                                                 </tr>
-                                                <tr>
+                                                <tr class="border-bottom-1">
                                                     <td colspan="2" width="50%">
                                                         <span class="bold">Dirección: </span>@provider.ProviderAddress
                                                     </td>
@@ -121,7 +124,7 @@
                                                         <span class="bold">Fax: </span>@provider.Fax
                                                     </td>
                                                 </tr>
-                                                <tr>
+                                                <tr class="border-bottom-1">
                                                     <td colspan="2" width="50%">
                                                         <span class="bold">Correo electrónico: </span>@provider.Email
                                                     </td>

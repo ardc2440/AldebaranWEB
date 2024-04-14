@@ -175,9 +175,12 @@
             </div>
         </RadzenColumn>
         <RadzenColumn SizeXL="2" SizeLG="2" SizeMD="12" SizeSM="12" SizeXS="12" SizeXX="12" class="align-self-end">
-            <div class="d-flex flex-row justify-content-end align-items-end">
-                <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="save" Text="Guardar PDF" Click="@Download" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@IsBusy" />
-            </div>
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.End" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                <RadzenSplitButton Icon="build" Text="Acciones" Click="@Save" Variant="Variant.Flat" Shade="Shade.Lighter" IsBusy="@IsBusy">
+                    <RadzenSplitButtonItem Text="Imprimir" Icon="print" Value="print" Style="cursor:pointer" />
+                    <RadzenSplitButtonItem Text="Guardar PDF" Icon="picture_as_pdf" Value="save" Style="cursor:pointer" />
+                </RadzenSplitButton>
+            </RadzenStack>
         </RadzenColumn>
     </RadzenRow>
     <RadzenRow AlignItems="AlignItems.Start">
@@ -360,12 +363,12 @@
                                         var order = ViewModel.Orders[o];
                                         <table class="edged">
                                             <thead>
-                                                <tr class="emphasys-2x font-size-2x">
+                                                <tr class="emphasys-2x font-size-2x border-bottom-1">
                                                     <td colspan="4" width="100%">
                                                         <span class="bold">Número: </span>@order.OrderNumber
                                                     </td>
                                                 </tr>
-                                                <tr>
+                                                <tr class="border-bottom-1">
                                                     <td width="25%">
                                                         <span class="bold">Fecha de creación: </span><br />
                                                         @order.CreationDate.ToString(SharedLocalizer["datetime:format"])
@@ -379,12 +382,12 @@
                                                         @order.ExpectedReceiptDate.ToString(SharedLocalizer["date:format"])
                                                     </td>
                                                 </tr>
-                                                <tr>
+                                                <tr class="border-bottom-1">
                                                     <td colspan="4" width="100%">
                                                         <span class="bold">Proveedor: </span>@order.ProviderName
                                                     </td>
                                                 </tr>
-                                                <tr>
+                                                <tr class="border-bottom-1">
                                                     <td width="25%">
                                                         <span class="bold">Transportadora: </span>@order.Forwarder.ForwarderName
                                                     </td>
@@ -398,7 +401,7 @@
                                                         <span class="bold">Mail: </span>@order.Forwarder.Email
                                                     </td>
                                                 </tr>
-                                                <tr>
+                                                <tr class="border-bottom-1">
                                                     <td width="25%">
                                                         <span class="bold">Agente: </span>@order.ForwarderAgent.ForwarderAgentName
                                                     </td>
@@ -412,7 +415,7 @@
                                                         <span class="bold">Mail: </span>@order.ForwarderAgent.Email
                                                     </td>
                                                 </tr>
-                                                <tr>
+                                                <tr class="border-bottom-1">
                                                     <td colspan="2" width="50%">
                                                         <span class="bold">Número de importación: </span>@order.ImportNumber
                                                     </td>
@@ -420,7 +423,7 @@
                                                         <span class="bold">Método de envío: </span>@order.ShipmentMethodName
                                                     </td>
                                                 </tr>
-                                                <tr>
+                                                <tr class="border-bottom-1">
                                                     <td colspan="2" width="50%">
                                                         <span class="bold">Puerto de embarque: </span>@order.EmbarkationPort
                                                     </td>
