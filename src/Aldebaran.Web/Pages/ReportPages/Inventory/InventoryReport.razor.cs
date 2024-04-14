@@ -167,8 +167,10 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
         {
             var inventoryPurchaseOrders = new List<InventoryViewModel.PurchaseOrder>();
 
-            foreach (var purchaseOrder in DataReport.Where(w => w.ReferenceId == referenceId && w.PurchaseOrderId > 0).Select(s => new { s.PurchaseOrderId, s.OrderDate, s.Warehouse, s.Total })
-                                            .DistinctBy(d => d.PurchaseOrderId).OrderBy(o => o.OrderDate))
+            foreach (var purchaseOrder in DataReport.Where(w => w.ReferenceId == referenceId && w.PurchaseOrderId > 0)
+                                            .Select(s => new { s.PurchaseOrderId, s.OrderDate, s.Warehouse, s.Total })
+                                            .DistinctBy(d => new { d.PurchaseOrderId, d.Warehouse })
+                                            .OrderBy(o => o.OrderDate))
             {
                 inventoryPurchaseOrders.Add(new InventoryViewModel.PurchaseOrder
                 {
@@ -186,11 +188,13 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
         {
             var activities = new List<InventoryViewModel.Activity>();
 
-            foreach (var item in DataReport.Where(w => w.PurchaseOrderId == purchaseOrderId && w.ReferenceId == referenceId && w.Description != null && w.Description.Trim().Length > 0)
+            foreach (var item in DataReport.Where(w => w.PurchaseOrderId == purchaseOrderId && w.ReferenceId == referenceId && w.Description != null && w.ActivityId != null)
+                                        .Select(s => new { s.ActivityDate, s.Description, s.ActivityId})
+                                        .DistinctBy(d=>d.ActivityId)
                                         .Select(s => new InventoryViewModel.Activity
                                         {
                                             Date = s.ActivityDate,
-                                            Description = s.Description
+                                            Description = s.Description,
                                         }))
                 activities.Add(item);
 

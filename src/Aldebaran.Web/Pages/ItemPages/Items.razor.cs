@@ -101,7 +101,7 @@ namespace Aldebaran.Web.Pages.ItemPages
                     Detail = $"Artículo creado correctamente."
                 });
             }
-            await GetItemsAsync();
+            await GetItemsAsync(search);
             await ItemsDataGrid.Reload();
         }
         protected async Task EditItem(ServiceModel.Item item)
@@ -116,7 +116,7 @@ namespace Aldebaran.Web.Pages.ItemPages
                     Detail = $"Artículo actualizado correctamente."
                 });
             }
-            await GetItemsAsync();
+            await GetItemsAsync(search);
             await ItemsDataGrid.Reload();
         }
         protected async Task DeleteItem(MouseEventArgs args, ServiceModel.Item item)
@@ -126,7 +126,7 @@ namespace Aldebaran.Web.Pages.ItemPages
                 if (await DialogService.Confirm("Está seguro que desea eliminar este artículo?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
                 {
                     await ItemService.DeleteAsync(item.ItemId);
-                    await GetItemsAsync();
+                    await GetItemsAsync(search);
                     NotificationService.Notify(new NotificationMessage
                     {
                         Summary = "Artículo",

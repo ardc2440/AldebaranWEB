@@ -140,10 +140,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             var details = await _context.PurchaseOrderDetails.Where(x => x.PurchaseOrderId == purchaseOrderId).ToListAsync(ct);
             _context.PurchaseOrderDetails.RemoveRange(details);
             entity.PurchaseOrderDetails = purchaseOrder.PurchaseOrderDetails;
-            // Activities
-            var activities = await _context.PurchaseOrderActivities.Where(x => x.PurchaseOrderId == purchaseOrderId).ToListAsync(ct);
-            _context.PurchaseOrderActivities.RemoveRange(activities);
-            entity.PurchaseOrderActivities = purchaseOrder.PurchaseOrderActivities;
 
             var reasonEntity = new ModifiedPurchaseOrder
             {
