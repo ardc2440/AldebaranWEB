@@ -82,7 +82,7 @@
                             </tr>
                         </table>
                         <div class="border mt-1">
-                            <LoadingData IsLoadingData="@IsLoadingData" />                            
+                            <LoadingData IsLoadingData="@IsLoadingData" />
 
                             @if (ViewModel != null)
                             {
@@ -124,7 +124,7 @@
                                                         {
                                                             <tr>
                                                                 <td width="40%">@reference.ReferenceName</td>
-                                                                <td width="20%">@reference.InProcessAmount</td>
+                                                                <td width="20%">@reference.InProcessAmount.ToString("N0")</td>
                                                                 @foreach (var warehouse in UniqueWarehouses.OrderBy(o => o.WarehouseId))
                                                                 {
                                                                     {

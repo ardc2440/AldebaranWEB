@@ -9,65 +9,68 @@
 @if (!isLoadingInProgress)
 {
     <RadzenStack>
-    <RadzenRow AlignItems="AlignItems.Center">
-        <RadzenColumn Size="12">
-            <RadzenText Text="Ajustes de inventario" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
-        </RadzenColumn>
-        <RadzenColumn Size="12" SizeMD="6">
-            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
-                <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddAdjustmentClick" Variant="Variant.Flat" Visible="@Security.IsInRole("Admin","Adjustment Editor")" />
-            </RadzenStack>
-        </RadzenColumn>
-    </RadzenRow>
-    <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
-    <RadzenRow>
-        <RadzenColumn SizeMD=12>
-            <LocalizedDataGrid @ref="AdjustmentsGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                               ExpandMode="DataGridExpandMode.Single" Data="@adjustments" TItem="Aldebaran.Application.Services.Models.Adjustment" RowExpand=@GetChildData AllowColumnPicking="true" PageSizeText="items per page" PagingSummaryFormat="Page {0} de {1} ({2} items)" IsLoading="@isLoadingInProgress">
-                <Columns>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Adjustment" Property="AdjustmentId" Title="Consecutivo" Width="140px">
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Adjustment" Property="AdjustmentDate" Title="Fecha de ajuste">
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Adjustment" Property="AdjustmentType.AdjustmentTypeName" Title="Tipo de ajuste">
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Adjustment" Property="AdjustmentReason.AdjustmentReasonName" Title="Motivo del ajuste">
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Adjustment" Property="Employee.FullName" Title="Usuario aesponsable">
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Adjustment" Property="StatusDocumentType.StatusDocumentTypeName" Title="Estado">
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Adjustment" Property="Notes" Title="Notas" Visible="false">
-                    </RadzenDataGridColumn>                    
-                </Columns>
-                <Template Context="adjustment">
-                    <RadzenStack Class="rz-my-8">
-                        <RadzenRow Gap="0" AlignItems="AlignItems.Center">
-                            <RadzenColumn Size="12" SizeMD="6">
-                                <RadzenText Visible="@(adjustment != null)" Text="Referencias del ajuste" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
-                            </RadzenColumn>
-                        </RadzenRow>
-                        <LocalizedDataGrid ColumnWidth="200px" Visible="@(adjustment != null)" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                           Data="@adjustmentDetails" TItem="Aldebaran.Application.Services.Models.AdjustmentDetail">
-                            <Columns>
-                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AdjustmentDetail" Property="Quantity" Title="Cantidad">
-                                </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AdjustmentDetail" Property="ItemReference.ReferenceName" Title="Referencia">
-                                    <Template Context="detail">
-                                        <RadzenLabel MouseEnter="@(args => ShowTooltip(args,GetReferenceHint(@detail.ItemReference).Result, new TooltipOptions(){ Position = TooltipPosition.Left }))">
-                                            (@detail.ItemReference.Item.Line.LineName) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName
-                                        </RadzenLabel>
-                                    </Template>
-                                </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AdjustmentDetail" Context="detail" Property="Warehouse.WarehouseName" Title="Bodega">
-                                </RadzenDataGridColumn>
-                            </Columns>
-                        </LocalizedDataGrid>
-                    </RadzenStack>
-                </Template>
-            </LocalizedDataGrid>
+        <RadzenRow AlignItems="AlignItems.Center">
+            <RadzenColumn Size="12">
+                <RadzenText Text="Ajustes de inventario" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
+            </RadzenColumn>
+            <RadzenColumn Size="12" SizeMD="6">
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
+                    <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddAdjustmentClick" Variant="Variant.Flat" Visible="@Security.IsInRole("Admin","Adjustment Editor")" />
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
+        <RadzenRow>
+            <RadzenColumn SizeMD=12>
+                <LocalizedDataGrid @ref="AdjustmentsGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                   ExpandMode="DataGridExpandMode.Single" Data="@adjustments" TItem="Aldebaran.Application.Services.Models.Adjustment" RowExpand=@GetChildData AllowColumnPicking="true" PageSizeText="items per page" PagingSummaryFormat="Page {0} de {1} ({2} items)" IsLoading="@isLoadingInProgress">
+                    <Columns>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Adjustment" Property="AdjustmentId" Title="Consecutivo" Width="140px">
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Adjustment" Property="AdjustmentDate" Title="Fecha de ajuste">
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Adjustment" Property="AdjustmentType.AdjustmentTypeName" Title="Tipo de ajuste">
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Adjustment" Property="AdjustmentReason.AdjustmentReasonName" Title="Motivo del ajuste">
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Adjustment" Property="Employee.FullName" Title="Usuario aesponsable">
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Adjustment" Property="StatusDocumentType.StatusDocumentTypeName" Title="Estado">
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Adjustment" Property="Notes" Title="Notas" Visible="false">
+                        </RadzenDataGridColumn>
+                    </Columns>
+                    <Template Context="adjustment">
+                        <RadzenStack Class="rz-my-8">
+                            <RadzenRow Gap="0" AlignItems="AlignItems.Center">
+                                <RadzenColumn Size="12" SizeMD="6">
+                                    <RadzenText Visible="@(adjustment != null)" Text="Referencias del ajuste" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
+                                </RadzenColumn>
+                            </RadzenRow>
+                            <LocalizedDataGrid ColumnWidth="200px" Visible="@(adjustment != null)" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                               Data="@adjustmentDetails" TItem="Aldebaran.Application.Services.Models.AdjustmentDetail">
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AdjustmentDetail" Title="Cantidad">
+                                        <Template Context="detail">
+                                            @detail.Quantity.ToString("N0")
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AdjustmentDetail" Property="ItemReference.ReferenceName" Title="Referencia">
+                                        <Template Context="detail">
+                                            <RadzenLabel MouseEnter="@(args => ShowTooltip(args,GetReferenceHint(@detail.ItemReference).Result, new TooltipOptions(){ Position = TooltipPosition.Left }))">
+                                                (@detail.ItemReference.Item.Line.LineName) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName
+                                            </RadzenLabel>
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AdjustmentDetail" Context="detail" Property="Warehouse.WarehouseName" Title="Bodega">
+                                    </RadzenDataGridColumn>
+                                </Columns>
+                            </LocalizedDataGrid>
+                        </RadzenStack>
+                    </Template>
+                </LocalizedDataGrid>
 
-        </RadzenColumn>
-    </RadzenRow>
-</RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenStack>
 }

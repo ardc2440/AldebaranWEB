@@ -22,7 +22,7 @@
                         </ChildContent>
                         <Template>
                             <div style="margin: 0 0.5em;">
-                                @(LoggedEmployee?.DisplayName ?? LoggedEmployee?.DisplayName)<br />
+                                @(LoggedEmployee?.DisplayName ?? LoggedEmployee?.FullName)<br />
                                 <span class="d-block text-end fw-bold">
                                     @Security.User?.Name
                                 </span>
