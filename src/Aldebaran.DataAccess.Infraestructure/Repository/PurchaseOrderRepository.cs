@@ -1,15 +1,18 @@
 ﻿using Aldebaran.DataAccess.Entities;
 using Aldebaran.DataAccess.Infraestructure.Models;
 using Microsoft.EntityFrameworkCore;
+using Aldebaran.Infraestructure.Common.Utils;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
     public class PurchaseOrderRepository : IPurchaseOrderRepository
     {
         private readonly AldebaranDbContext _context;
-        public PurchaseOrderRepository(AldebaranDbContext context)
+        private readonly ISharedStringLocalizer _SharedLocalizer;
+        public PurchaseOrderRepository(ISharedStringLocalizer sharedLocalizer, AldebaranDbContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
+            _SharedLocalizer = sharedLocalizer;
         }
 
         public async Task<PurchaseOrder> AddAsync(PurchaseOrder item, CancellationToken ct = default)
@@ -114,8 +117,15 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                .Include(i => i.ShipmentForwarderAgentMethod.ShipmentMethod)
                .Include(i => i.ShipmentForwarderAgentMethod.ForwarderAgent)
                .Include(i => i.StatusDocumentType.DocumentType)
-               .Where(w => w.OrderNumber.Contains(searchKey) || w.ImportNumber.Contains(searchKey) || w.EmbarkationPort.Contains(searchKey) || w.ProformaNumber.Contains(searchKey))
-               .ToListAsync(ct);
+               .Where(w => w.OrderNumber.Contains(searchKey) ||
+                           w.ImportNumber.Contains(searchKey) ||
+                           w.EmbarkationPort.Contains(searchKey) ||
+                           w.ProformaNumber.Contains(searchKey)) 
+                           //w.CreationDate.ToString(_SharedLocalizer["date:format"]).Contains(searchKey) ||
+                           //(w.RealReceiptDate.HasValue && w.RealReceiptDate.Value.ToString(_SharedLocalizer["date:format"]).Contains(searchKey)) ||
+                           //w.ExpectedReceiptDate.ToString(_SharedLocalizer["date:format"]).Contains(searchKey) ||
+                           //w.RequestDate.ToString(_SharedLocalizer["date:format"]).Contains(searchKey))
+               .ToListAsync();               
         }
 
         public async Task<IEnumerable<PurchaseOrder>> GetTransitByReferenceIdAsync(int referenceId, CancellationToken ct = default)

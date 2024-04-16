@@ -2,7 +2,7 @@
 
 @attribute [Authorize(Roles = "Admin,Customer Reservation Editor")]
 @using Aldebaran.Web.Resources.LocalizedControls;
-@inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer
+@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
 
 <PageTitle>Pedido de artículos</PageTitle>
 <LoadingData IsLoadingData="@isLoadingInProgress" />

@@ -2,7 +2,7 @@
 @attribute [Authorize(Roles = "Admin,Purchase Order Editor")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @using ServiceModel = Aldebaran.Application.Services.Models;
-@inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer
+@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
 
 <PageTitle>Nueva orden de compra</PageTitle>
 <LoadingData IsLoadingData="@isLoadingInProgress" />

@@ -2,7 +2,7 @@
 
 @attribute [Authorize(Roles = "Admin,Customer Order In Process Editor")]
 @using Aldebaran.Web.Resources.LocalizedControls;
-@inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer
+@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
 
 <PageTitle>Modificación del traslado a proceso</PageTitle>
 <LoadingData IsLoadingData="@isLoadingInProgress" />

@@ -2,7 +2,7 @@
 
 @attribute [Authorize(Roles = "Admin,Adjustment Editor")]
 @using Aldebaran.Web.Resources.LocalizedControls;
-@inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer
+@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
 
 <PageTitle>Nuevo Ajuste de Inventario</PageTitle>
 <LoadingData IsLoadingData="@isLoadingInProgress" />

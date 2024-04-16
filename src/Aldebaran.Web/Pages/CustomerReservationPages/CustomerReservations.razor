@@ -3,7 +3,7 @@
 @page "/customer-reservations/{Action}/{CUSTOMER_RESERVATION_ID}"
 @attribute [Authorize(Roles = "Admin,Customer Reservation Viewer,Customer Reservation Editor")]
 @using Aldebaran.Web.Resources.LocalizedControls;
-@inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer
+@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
 
 <PageTitle>Reserva de artículos</PageTitle>
 <LoadingData IsLoadingData="@isLoadingInProgress" />

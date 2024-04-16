@@ -64,11 +64,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Update="Resources\SharedResource.resx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Update="Mappings\ViewModelProfile.cs">
       <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
     </Compile>

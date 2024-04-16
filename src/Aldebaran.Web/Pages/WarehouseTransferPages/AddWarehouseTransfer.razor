@@ -2,7 +2,7 @@
 
 @attribute [Authorize(Roles = "Admin,Transfer Warehouses Editor")]
 @using Aldebaran.Web.Resources.LocalizedControls;
-@inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer
+@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
 
 <PageTitle>Nuevo traslado entre bodegas</PageTitle>
 <LoadingData IsLoadingData="@isLoadingInProgress" />

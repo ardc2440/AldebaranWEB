@@ -59,16 +59,8 @@ namespace Aldebaran.Web.Pages.IdentityPages
         protected async Task GetApplicationUsers(ApplicationRole args)
         {
             ApplicationRole = args;
-            try
-            {
-                isLoadingInProgress = true;
-                await Task.Yield();
-                ApplicationUsers = await Security.GetUsersByRole(args.Id);
-            }
-            finally
-            {
-                isLoadingInProgress = false;
-            }
+            await Task.Yield();
+            ApplicationUsers = await Security.GetUsersByRole(args.Id);
         }
         #endregion
     }

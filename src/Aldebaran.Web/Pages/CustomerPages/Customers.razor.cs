@@ -88,7 +88,7 @@ namespace Aldebaran.Web.Pages.CustomerPages
                     Detail = $"Cliente creado correctamente."
                 });
             }
-            await GetCustomersAsync();
+            await GetCustomersAsync(search);
             await CustomerDataGrid.Reload();
         }
         protected async Task EditCustomer(Customer args)
@@ -103,7 +103,7 @@ namespace Aldebaran.Web.Pages.CustomerPages
                     Detail = $"Cliente actualizado correctamente."
                 });
             }
-            await GetCustomersAsync();
+            await GetCustomersAsync(search);
             await CustomerDataGrid.Reload();
         }
         protected async Task DeleteCustomer(MouseEventArgs args, Customer customer)
@@ -113,7 +113,7 @@ namespace Aldebaran.Web.Pages.CustomerPages
                 if (await DialogService.Confirm("Está seguro que desea eliminar este cliente?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
                 {
                     await CustomerService.DeleteAsync(customer.CustomerId);
-                    await GetCustomersAsync();
+                    await GetCustomersAsync(search);
                     NotificationService.Notify(new NotificationMessage
                     {
                         Summary = "Cliente",

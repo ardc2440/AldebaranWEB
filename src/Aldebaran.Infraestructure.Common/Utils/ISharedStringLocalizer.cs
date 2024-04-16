@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Localization;
 
-namespace Aldebaran.Web.Resources
+namespace Aldebaran.Infraestructure.Common.Utils
 {
     public interface ISharedStringLocalizer
     {

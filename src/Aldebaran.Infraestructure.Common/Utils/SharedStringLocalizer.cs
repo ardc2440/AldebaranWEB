@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Localization;
 using System.Reflection;
 
-namespace Aldebaran.Web.Resources
+namespace Aldebaran.Infraestructure.Common.Utils
 {
     public class SharedStringLocalizer : ISharedStringLocalizer
     {

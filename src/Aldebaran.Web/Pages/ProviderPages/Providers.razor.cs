@@ -84,7 +84,7 @@ namespace Aldebaran.Web.Pages.ProviderPages
                     Detail = $"Proveedor creado correctamente."
                 });
             }
-            await GetProvidersAsync();
+            await GetProvidersAsync(search);
             await ProvidersGrid.Reload();
         }
         protected async Task EditProvider(ServiceModel.Provider args)
@@ -99,7 +99,7 @@ namespace Aldebaran.Web.Pages.ProviderPages
                     Detail = $"Proveedor actualizado correctamente."
                 });
             }
-            await GetProvidersAsync();
+            await GetProvidersAsync(search);
             await ProvidersGrid.Reload();
         }
         protected async Task DeleteProvider(MouseEventArgs args, ServiceModel.Provider provider)
@@ -109,7 +109,7 @@ namespace Aldebaran.Web.Pages.ProviderPages
                 if (await DialogService.Confirm("Está seguro que desea eliminar este proveedor?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
                 {
                     await ProviderService.DeleteAsync(provider.ProviderId);
-                    await GetProvidersAsync();
+                    await GetProvidersAsync(search);
                     NotificationService.Notify(new NotificationMessage
                     {
                         Summary = "Proveedor",

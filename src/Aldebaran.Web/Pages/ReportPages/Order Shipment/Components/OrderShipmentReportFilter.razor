@@ -1,5 +1,5 @@
 ﻿@using ViewModel = Aldebaran.Web.Pages.ReportPages.Order_Shipment.ViewModel;
-@inject Aldebaran.Web.Resources.ISharedStringLocalizer SharedLocalizer
+@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
 
 <RadzenColumn SizeMD=12>
     <RadzenTemplateForm TItem="ViewModel.OrderShipmentFilter" Data="Filter" Submit="@FormSubmit">
