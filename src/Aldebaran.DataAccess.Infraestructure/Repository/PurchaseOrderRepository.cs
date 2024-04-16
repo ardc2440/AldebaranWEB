@@ -2,6 +2,7 @@
 using Aldebaran.DataAccess.Infraestructure.Models;
 using Microsoft.EntityFrameworkCore;
 using Aldebaran.Infraestructure.Common.Utils;
+using Aldebaran.Infraestructure.Common.Extensions;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
@@ -120,11 +121,11 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                .Where(w => w.OrderNumber.Contains(searchKey) ||
                            w.ImportNumber.Contains(searchKey) ||
                            w.EmbarkationPort.Contains(searchKey) ||
-                           w.ProformaNumber.Contains(searchKey)) 
-                           //w.CreationDate.ToString(_SharedLocalizer["date:format"]).Contains(searchKey) ||
-                           //(w.RealReceiptDate.HasValue && w.RealReceiptDate.Value.ToString(_SharedLocalizer["date:format"]).Contains(searchKey)) ||
-                           //w.ExpectedReceiptDate.ToString(_SharedLocalizer["date:format"]).Contains(searchKey) ||
-                           //w.RequestDate.ToString(_SharedLocalizer["date:format"]).Contains(searchKey))
+                           w.ProformaNumber.Contains(searchKey) ||
+                           _context.Format(w.CreationDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
+                           _context.Format(w.ExpectedReceiptDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
+                           _context.Format(w.RequestDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
+                           (w.RealReceiptDate.HasValue && _context.Format(w.RealReceiptDate.Value, _SharedLocalizer["date:format"]).Contains(searchKey)))                            
                .ToListAsync();               
         }
 

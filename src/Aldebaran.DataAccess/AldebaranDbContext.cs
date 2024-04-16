@@ -96,9 +96,13 @@ namespace Aldebaran.DataAccess
 
         }
 
+        public string Format(DateTime date, string format) => throw new NotSupportedException();
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
+        {            
             base.OnModelCreating(modelBuilder);
+            modelBuilder.HasDbFunction(typeof(AldebaranDbContext).GetMethod(nameof(Format), new[] { typeof(DateTime), typeof(string) }))
+                .HasName("DateTimeToStringFormated");
             modelBuilder.ApplyConfiguration(new ActivityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new ActivityTypesAreaConfiguration());
             modelBuilder.ApplyConfiguration(new AdjustmentConfiguration());
@@ -182,7 +186,7 @@ namespace Aldebaran.DataAccess
             modelBuilder.Entity<WarehouseTransferReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<FreezoneVsAvailableReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<CustomerSaleReport>(iar => { iar.HasNoKey(); });
-            modelBuilder.Entity<CustomerOrderExport>(iar => { iar.HasNoKey(); });
+            modelBuilder.Entity<CustomerOrderExport>(iar => { iar.HasNoKey(); });            
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken ct = default)
