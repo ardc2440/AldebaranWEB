@@ -2,7 +2,6 @@
 using Aldebaran.DataAccess.Infraestructure.Models;
 using Microsoft.EntityFrameworkCore;
 using Aldebaran.Infraestructure.Common.Utils;
-using Aldebaran.Infraestructure.Common.Extensions;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {

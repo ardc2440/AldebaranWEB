@@ -1,15 +1,18 @@
 ﻿using Aldebaran.DataAccess.Entities;
 using Aldebaran.Infraestructure.Common.Extensions;
 using Microsoft.EntityFrameworkCore;
+using Aldebaran.Infraestructure.Common.Utils;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
     public class AdjustmentRepository : IAdjustmentRepository
     {
         private readonly AldebaranDbContext _context;
-        public AdjustmentRepository(AldebaranDbContext context)
+        private readonly ISharedStringLocalizer _SharedLocalizer;
+        public AdjustmentRepository(ISharedStringLocalizer sharedLocalizer, AldebaranDbContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
+            _SharedLocalizer = sharedLocalizer;
         }
 
         public async Task<Adjustment> AddAsync(Adjustment adjustment, CancellationToken ct = default)
@@ -91,28 +94,20 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         public async Task<IEnumerable<Adjustment>> GetAsync(string searchKey, CancellationToken ct = default)
         {
             return await _context.Adjustments.AsNoTracking()
-                .Where(i => i.StatusDocumentType.StatusDocumentTypeName.Contains(searchKey) ||
-                          i.Employee.FullName.Contains(searchKey) ||
-                          i.Employee.DisplayName.Contains(searchKey) ||
-                          i.Employee.IdentityNumber.Contains(searchKey) ||
-                          i.Employee.IdentityType.IdentityTypeName.Contains(searchKey) ||
-                          i.Employee.IdentityType.IdentityTypeCode.Contains(searchKey) ||
-                          i.Employee.Area.AreaName.Contains(searchKey) ||
-                          i.Employee.Area.AreaCode.Contains(searchKey) ||
-                          i.Employee.Area.Description.Contains(searchKey) ||
-                          i.StatusDocumentType.StatusDocumentTypeName.Contains(searchKey) ||
-                          i.StatusDocumentType.Notes.Contains(searchKey) ||
-                          i.AdjustmentReason.AdjustmentReasonName.Contains(searchKey) ||
-                          i.AdjustmentReason.AdjustmentReasonNotes.Contains(searchKey) ||
-                          i.AdjustmentType.AdjustmentTypeName.Contains(searchKey) ||
-                          i.Notes.Contains(searchKey) ||
-                          i.AdjustmentDate.ToString().Contains(searchKey) ||
-                          i.CreationDate.ToString().Contains(searchKey))
                 .Include(i => i.StatusDocumentType)
                 .Include(i => i.AdjustmentReason)
                 .Include(i => i.AdjustmentType)
                 .Include(i => i.Employee.IdentityType)
                 .Include(i => i.Employee.Area)
+                .Where(i => i.StatusDocumentType.StatusDocumentTypeName.Contains(searchKey) ||
+                          i.AdjustmentId.ToString().Contains(searchKey) ||
+                          _context.Format(i.AdjustmentDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
+                          _context.Format(i.CreationDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
+                          i.AdjustmentType.AdjustmentTypeName.Contains(searchKey) ||
+                          i.AdjustmentReason.AdjustmentReasonName.Contains(searchKey) ||
+                          i.Employee.FullName.Contains(searchKey) ||
+                          i.AdjustmentReason.AdjustmentReasonNotes.Contains(searchKey) ||
+                          i.Notes.Contains(searchKey))
                 .ToListAsync(ct);
         }
 

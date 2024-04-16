@@ -1,15 +1,18 @@
 ﻿using Aldebaran.DataAccess.Entities;
 using Aldebaran.DataAccess.Infraestructure.Models;
 using Microsoft.EntityFrameworkCore;
+using Aldebaran.Infraestructure.Common.Utils;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
     public class CustomerOrderRepository : ICustomerOrderRepository
     {
         private readonly AldebaranDbContext _context;
-        public CustomerOrderRepository(AldebaranDbContext context)
+        private readonly ISharedStringLocalizer _SharedLocalizer;
+        public CustomerOrderRepository(ISharedStringLocalizer sharedLocalizer, AldebaranDbContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
+            _SharedLocalizer = sharedLocalizer;
         }
 
         public async Task<CustomerOrder?> AddAsync(CustomerOrder customerOrder, CancellationToken ct = default)
@@ -84,16 +87,14 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                             i.Customer.City.Department.DepartmentName.Contains(searchKey) ||
                             i.Customer.City.CityName.Contains(searchKey) ||
                             i.Customer.CustomerName.Contains(searchKey) ||
-                            i.Customer.Email1.Contains(searchKey) ||
-                            i.Customer.Email2.Contains(searchKey) ||
-                            i.Customer.Email3.Contains(searchKey) ||
                             i.Customer.CustomerAddress.Contains(searchKey) ||
-                            i.Customer.Phone1.Contains(searchKey) ||
-                            i.Customer.Phone2.Contains(searchKey) ||
-                            i.Customer.Fax.Contains(searchKey) ||
                             i.Customer.IdentityType.IdentityTypeCode.Contains(searchKey) ||
                             i.Customer.IdentityType.IdentityTypeName.Contains(searchKey) ||
-                            i.Customer.IdentityNumber.Contains(searchKey))
+                            i.Customer.IdentityNumber.Contains(searchKey) ||
+                            _context.Format(i.CreationDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
+                            _context.Format(i.OrderDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
+                            _context.Format(i.EstimatedDeliveryDate, _SharedLocalizer["date:format"]).Contains(searchKey)
+                            )
                 .ToListAsync(ct);
         }
 

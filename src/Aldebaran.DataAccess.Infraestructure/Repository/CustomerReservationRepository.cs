@@ -1,15 +1,18 @@
 ﻿using Aldebaran.DataAccess.Entities;
 using Aldebaran.DataAccess.Infraestructure.Models;
 using Microsoft.EntityFrameworkCore;
+using Aldebaran.Infraestructure.Common.Utils;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
     public class CustomerReservationRepository : ICustomerReservationRepository
     {
         private readonly AldebaranDbContext _context;
-        public CustomerReservationRepository(AldebaranDbContext context)
+        private readonly ISharedStringLocalizer _SharedLocalizer;
+        public CustomerReservationRepository(ISharedStringLocalizer sharedLocalizer, AldebaranDbContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
+            _SharedLocalizer = sharedLocalizer;
         }
 
         public async Task<CustomerReservation> AddAsync(CustomerReservation customerReservation, CancellationToken ct = default)
@@ -79,8 +82,9 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .Include(i => i.StatusDocumentType.DocumentType)
                 .Include(i => i.Employee.IdentityType)
                 .Where(i => i.Notes.Contains(searchKey) ||
-                            i.ReservationDate.ToString().Contains(searchKey) ||
-                            i.CreationDate.ToString().Contains(searchKey) ||
+                            _context.Format(i.CreationDate, _SharedLocalizer["date:format"]).Contains(searchKey)||
+                            _context.Format(i.ExpirationDate, _SharedLocalizer["date:format"]).Contains(searchKey)||
+                            _context.Format(i.ReservationDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
                             i.ReservationNumber.Contains(searchKey) ||
                             i.StatusDocumentType.StatusDocumentTypeName.Contains(searchKey) ||
                             i.Employee.FullName.Contains(searchKey) ||
@@ -91,13 +95,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                             i.Customer.City.Department.DepartmentName.Contains(searchKey) ||
                             i.Customer.City.CityName.Contains(searchKey) ||
                             i.Customer.CustomerName.Contains(searchKey) ||
-                            i.Customer.Email1.Contains(searchKey) ||
-                            i.Customer.Email2.Contains(searchKey) ||
-                            i.Customer.Email3.Contains(searchKey) ||
                             i.Customer.CustomerAddress.Contains(searchKey) ||
-                            i.Customer.Phone1.Contains(searchKey) ||
-                            i.Customer.Phone2.Contains(searchKey) ||
-                            i.Customer.Fax.Contains(searchKey) ||
                             i.Customer.IdentityType.IdentityTypeCode.Contains(searchKey) ||
                             i.Customer.IdentityType.IdentityTypeName.Contains(searchKey) ||
                             i.Customer.IdentityNumber.Contains(searchKey))
