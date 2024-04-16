@@ -140,7 +140,10 @@
             <RadzenColumn Size="4">
                 <div class="d-flex flex-column gap-4 flex-shrink-0">
                     <div>
-                        <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="save" Text="Guardar PDF" Click="@Download" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@IsBusy" />
+                        <RadzenSplitButton Icon="build" Text="Acciones" Click="@Save" Variant="Variant.Flat" Shade="Shade.Lighter" IsBusy="@IsBusy">
+                            <RadzenSplitButtonItem Text="Imprimir" Icon="print" Value="print" Style="cursor:pointer" />
+                            <RadzenSplitButtonItem Text="Guardar PDF" Icon="picture_as_pdf" Value="save" Style="cursor:pointer" />
+                        </RadzenSplitButton>
                     </div>
                     <div>
                         <p>Desea enviar un correo al cliente con el detalle del pedido?</p>
