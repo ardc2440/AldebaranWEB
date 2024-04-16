@@ -3,9 +3,9 @@ using Aldebaran.Infraestructure.Common.Utils;
 using Aldebaran.Web.Pages.ReportPages.InProcess_Inventory.Components;
 using Aldebaran.Web.Pages.ReportPages.InProcess_Inventory.ViewModel;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using Radzen;
+using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
 {
@@ -101,12 +101,22 @@ namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
                 await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
             }
         }
-        async Task Download(MouseEventArgs args)
+
+        async Task Save(RadzenSplitButtonItem args)
         {
+            if (args?.Value == null)
+                return;
             IsBusy = true;
             var html = await JSRuntime.InvokeAsync<string>("getContent", "inprocess-inventory-report-container");
-            var pdfBytes = await FileBytesGeneratorService.GetPdfBytes(html, true);
-            await JSRuntime.InvokeVoidAsync("downloadFile", "Inventario en proceso.pdf", "application/pdf", Convert.ToBase64String(pdfBytes));
+            if (args?.Value == "save")
+            {
+                var pdfBytes = await FileBytesGeneratorService.GetPdfBytes(html, true);
+                await JSRuntime.InvokeVoidAsync("downloadFile", "Inventario en proceso.pdf", "application/pdf", Convert.ToBase64String(pdfBytes));
+            }
+            if (args?.Value == "print")
+            {
+                await JSRuntime.InvokeVoidAsync("print", "inprocess-inventory-report-container");
+            }
             IsBusy = false;
         }
         async Task ToggleReadMore()

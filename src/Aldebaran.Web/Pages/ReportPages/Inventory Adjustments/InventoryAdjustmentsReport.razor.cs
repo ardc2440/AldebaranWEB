@@ -6,6 +6,7 @@ using Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments.ViewModel;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Radzen;
+using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
 {
@@ -232,14 +233,24 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
                 await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
             }
         }
-        async Task Download()
+        async Task Save(RadzenSplitButtonItem args)
         {
+            if (args?.Value == null)
+                return;
             IsBusy = true;
             var html = await JSRuntime.InvokeAsync<string>("getContent", "inventory-adjustments-report-container");
-            var pdfBytes = await FileBytesGeneratorService.GetPdfBytes(html, true);
-            await JSRuntime.InvokeVoidAsync("downloadFile", "Ajustes de inventario.pdf", "application/pdf", Convert.ToBase64String(pdfBytes));
+            if (args?.Value == "save")
+            {
+                var pdfBytes = await FileBytesGeneratorService.GetPdfBytes(html, true);
+                await JSRuntime.InvokeVoidAsync("downloadFile", "Ajustes de inventario.pdf", "application/pdf", Convert.ToBase64String(pdfBytes));
+            }
+            if (args?.Value == "print")
+            {
+                await JSRuntime.InvokeVoidAsync("print", "inventory-adjustments-report-container");
+            }
             IsBusy = false;
         }
+
         async Task ToggleReadMore()
         {
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink");

@@ -1,6 +1,6 @@
 ﻿async function print(id) {
     var el = document.getElementById(id);
-    var win = window.open('', '', 'height=500,width=500');
+    var win = window.open('', '', 'height=600,width=800');
     var styles = document.createElement('link');
     styles.href = '/css/print.css'; // Ruta absoluta al archivo CSS
     styles.rel = 'stylesheet';

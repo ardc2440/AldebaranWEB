@@ -116,10 +116,13 @@
         </RadzenColumn>
         <RadzenColumn SizeXL="4" SizeLG="4" SizeMD="12" SizeSM="12" SizeXS="12" SizeXX="12" class="align-self-end">
             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.End" JustifyContent="JustifyContent.End" Gap="0.5rem">
-                <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="save" Text="Guardar PDF" Click="@Download" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@IsBusy" />
                 <RadzenSplitButton Icon="get_app" Text="Exportar" Click="@ExportClick" Variant="Variant.Flat" Shade="Shade.Lighter">
                     <RadzenSplitButtonItem Text="Excel" Value="xlsx" />
                     <RadzenSplitButtonItem Text="CSV" Value="csv" />
+                </RadzenSplitButton>
+                <RadzenSplitButton Icon="build" Text="Acciones" Click="@Save" Variant="Variant.Flat" Shade="Shade.Lighter" IsBusy="@IsBusy">
+                    <RadzenSplitButtonItem Text="Imprimir" Icon="print" Value="print" Style="cursor:pointer" />
+                    <RadzenSplitButtonItem Text="Guardar PDF" Icon="picture_as_pdf" Value="save" Style="cursor:pointer" />
                 </RadzenSplitButton>
             </RadzenStack>
         </RadzenColumn>
@@ -234,7 +237,7 @@
                         </table>
                         <div class="mt-1">
                             <LoadingData IsLoadingData="@IsLoadingData" />
-                            
+
                             @if (ViewModel != null)
                             {
                                 @if (ViewModel.Customers?.Any() == true)

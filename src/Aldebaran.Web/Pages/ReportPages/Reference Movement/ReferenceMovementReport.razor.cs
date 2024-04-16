@@ -3,9 +3,9 @@ using Aldebaran.Infraestructure.Common.Utils;
 using Aldebaran.Web.Pages.ReportPages.Reference_Movement.Components;
 using Aldebaran.Web.Pages.ReportPages.Reference_Movement.ViewModel;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using Radzen;
+using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
 {
@@ -92,14 +92,24 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
                 await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
             }
         }
-        async Task Download(MouseEventArgs args)
+        async Task Save(RadzenSplitButtonItem args)
         {
+            if (args?.Value == null)
+                return;
             IsBusy = true;
             var html = await JSRuntime.InvokeAsync<string>("getContent", "inventory-movement-report-container");
-            var pdfBytes = await FileBytesGeneratorService.GetPdfBytes(html, true);
-            await JSRuntime.InvokeVoidAsync("downloadFile", "Movimientos de artículos.pdf", "application/pdf", Convert.ToBase64String(pdfBytes));
+            if (args?.Value == "save")
+            {
+                var pdfBytes = await FileBytesGeneratorService.GetPdfBytes(html, true);
+                await JSRuntime.InvokeVoidAsync("downloadFile", "Movimientos de artículos.pdf", "application/pdf", Convert.ToBase64String(pdfBytes));
+            }
+            if (args?.Value == "print")
+            {
+                await JSRuntime.InvokeVoidAsync("print", "inventory-movement-report-container");
+            }
             IsBusy = false;
         }
+
         async Task ToggleReadMore()
         {
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink");
