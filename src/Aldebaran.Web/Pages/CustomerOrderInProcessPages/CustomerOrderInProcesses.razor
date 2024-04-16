@@ -140,7 +140,10 @@
                                                             </RadzenDataGridColumn>
                                                             <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderInProcessDetail" Property="Warehouse.WarehouseName" Title="Bodega">
                                                             </RadzenDataGridColumn>
-                                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderInProcessDetail" Property="ProcessedQuantity" Title="Cantidad">
+                                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderInProcessDetail" Title="Cantidad">
+                                                                <Template Context="detail">
+                                                                    @detail.ProcessedQuantity.ToString("N0")
+                                                                </Template>
                                                             </RadzenDataGridColumn>
                                                         </Columns>
                                                     </LocalizedDataGrid>

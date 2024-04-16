@@ -142,7 +142,10 @@
                                                                     </RadzenLabel>
                                                                 </Template>
                                                             </RadzenDataGridColumn>
-                                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipmentDetail" Property="DeliveredQuantity" Title="Cantidad despachada">
+                                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipmentDetail" Title="Cantidad despachada">
+                                                                <Template Context="detail">
+                                                                    @detail.DeliveredQuantity.ToString("N0")
+                                                                </Template>
                                                             </RadzenDataGridColumn>
                                                         </Columns>
                                                     </LocalizedDataGrid>
