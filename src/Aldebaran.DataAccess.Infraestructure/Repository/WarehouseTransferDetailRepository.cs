@@ -14,6 +14,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         public async Task<IEnumerable<WarehouseTransferDetail>> GetByWarehouseTransferIdAsync(int warehouseTransferId, CancellationToken ct = default)
         {
             return await _context.WarehouseTransferDetails.AsNoTracking()
+                .Include(i=>i.ItemReference.Item.Line)
                 .Where(i => i.WarehouseTransferId == warehouseTransferId)
                 .ToListAsync(ct);
         }

@@ -767,9 +767,9 @@ INSERT INTO STATUS_DOCUMENT_TYPES (STATUS_DOCUMENT_TYPE_NAME, DOCUMENT_TYPE_ID, 
 GO
 
 /*populate alarm_types*/
-INSERT INTO ALARM_TYPES (NAME, DESCRIPTION, IS_MANUAL_MESSAGE, DOCUMENT_TYPE_ID, TABLE_NAME, FIELD_NAME) VALUES('Ordenes de Compra', 'Alarmas para Ordenes de Compra, con mensajes predefinidos en el sistema',0 , (select DOCUMENT_TYPE_ID from DOCUMENT_TYPES where DOCUMENT_TYPE_CODE = 'O'), NULL, NULL)
-INSERT INTO ALARM_TYPES (NAME, DESCRIPTION, IS_MANUAL_MESSAGE, DOCUMENT_TYPE_ID, TABLE_NAME, FIELD_NAME) VALUES('Pedidos', 'Alarmas para Pedidos, con mensajes predefinidos en el sistema',0 , (select DOCUMENT_TYPE_ID from DOCUMENT_TYPES where DOCUMENT_TYPE_CODE = 'P'), NULL, NULL)
-INSERT INTO ALARM_TYPES (NAME, DESCRIPTION, IS_MANUAL_MESSAGE, DOCUMENT_TYPE_ID, TABLE_NAME, FIELD_NAME) VALUES('Reservas', 'Alarmas para Reservas, con mensajes predefinidos en el sistema',0 , (select DOCUMENT_TYPE_ID from DOCUMENT_TYPES where DOCUMENT_TYPE_CODE = 'R'), NULL, NULL)
+INSERT INTO ALARM_TYPES (NAME, DESCRIPTION, DOCUMENT_TYPE_ID) VALUES('Ordenes de Compra', 'Alarmas para Ordenes de Compra, con mensajes predefinidos en el sistema', (select DOCUMENT_TYPE_ID from DOCUMENT_TYPES where DOCUMENT_TYPE_CODE = 'O'))
+INSERT INTO ALARM_TYPES (NAME, DESCRIPTION, DOCUMENT_TYPE_ID) VALUES('Pedidos', 'Alarmas para Pedidos, con mensajes predefinidos en el sistema', (select DOCUMENT_TYPE_ID from DOCUMENT_TYPES where DOCUMENT_TYPE_CODE = 'P'))
+INSERT INTO ALARM_TYPES (NAME, DESCRIPTION, DOCUMENT_TYPE_ID) VALUES('Reservas', 'Alarmas para Reservas, con mensajes predefinidos en el sistema', (select DOCUMENT_TYPE_ID from DOCUMENT_TYPES where DOCUMENT_TYPE_CODE = 'R'))
 GO
 
 INSERT INTO cancellation_reasons (CANCELLATION_REASON_NAME, DOCUMENT_TYPE_ID, NOTES)

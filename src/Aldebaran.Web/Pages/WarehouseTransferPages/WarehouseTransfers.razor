@@ -3,6 +3,7 @@
 @page "/warehouse-transfers/{Action}/{WAREHOUSE_TRANSFER_ID}"
 @attribute [Authorize(Roles = "Admin,Transfer Warehouses Editor,Transfer Warehouses Viwer")]
 @using Aldebaran.Web.Resources.LocalizedControls;
+@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer ;
 
 <PageTitle>Traslado entre bodegas</PageTitle>
 <LoadingData IsLoadingData="@isLoadingInProgress" />
@@ -10,61 +11,64 @@
 @if (!isLoadingInProgress)
 {
     <RadzenStack>
-    <RadzenRow AlignItems="AlignItems.Center">
-        <RadzenColumn Size="12">
-            <RadzenText Text="Traslado entre bodegas" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
-        </RadzenColumn>
-        <RadzenColumn Size="12" SizeMD="6">
-            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
-                <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddWarehouseTransferClick" Variant="Variant.Flat" Visible="@Security.IsInRole("Admin","Transfer Warehouses Editor")" />
-            </RadzenStack>
-        </RadzenColumn>
-    </RadzenRow>
-    <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
-    <RadzenRow>
-        <RadzenColumn SizeMD=12>
-            <LocalizedDataGrid @ref="WarehouseTransfersGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                               ExpandMode="DataGridExpandMode.Single" Data="@warehouseTransfers" TItem="Aldebaran.Application.Services.Models.WarehouseTransfer" RowExpand=@GetChildData AllowColumnPicking="true" PageSizeText="items per page" PagingSummaryFormat="Page {0} de {1} ({2} items)" IsLoading="@isLoadingInProgress">
-                <Columns>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransfer" Property="TransferDate" Title="Fecha de traslado">
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransfer" Property="Nationalization" Title="Nacionalización">
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransfer" Property="OriginWarehouse.WarehouseName" Title="Bodega origen">
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransfer" Property="DestinationWarehouse.WarehouseName" Title="Bodega destino">
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransfer" Property="StatusDocumentType.StatusDocumentTypeName" Title="Estado">
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransfer" Property="Notes" Title="Notas" Visible="false">
-                    </RadzenDataGridColumn>                    
-                </Columns>
-                <Template Context="warehouseTransfer">
-                    <RadzenStack Class="rz-my-8">
-                        <RadzenRow Gap="0" AlignItems="AlignItems.Center">
-                            <RadzenColumn Size="12" SizeMD="6">
-                                <RadzenText Visible="@(warehouseTransfer != null)" Text="Referencias del traslado" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
-                            </RadzenColumn>
-                        </RadzenRow>
-                        <LocalizedDataGrid ColumnWidth="200px" Visible="@(warehouseTransfer != null)" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                           Data="@warehouseTransferDetails" TItem="Aldebaran.Application.Services.Models.WarehouseTransferDetail">
-                            <Columns>
-                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransferDetail" Property="Quantity" Title="Cantidad">
-                                </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransferDetail" Property="ItemReference.ReferenceName" Title="Referencia">
-                                    <Template Context="detail">
-                                        <RadzenLabel MouseEnter="@(args => ShowTooltip(args,GetReferenceHint(@detail.ItemReference).Result, new TooltipOptions(){ Position = TooltipPosition.Left }))">
-                                            (@detail.ItemReference.Item.Line.LineName) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName
-                                        </RadzenLabel>
-                                    </Template>
-                                </RadzenDataGridColumn>
-                            </Columns>
-                        </LocalizedDataGrid>
-                    </RadzenStack>
-                </Template>
-            </LocalizedDataGrid>
+        <RadzenRow AlignItems="AlignItems.Center">
+            <RadzenColumn Size="12">
+                <RadzenText Text="Traslado entre bodegas" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
+            </RadzenColumn>
+            <RadzenColumn Size="12" SizeMD="6">
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
+                    <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddWarehouseTransferClick" Variant="Variant.Flat" Visible="@Security.IsInRole("Admin","Transfer Warehouses Editor")" />
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
+        <RadzenRow>
+            <RadzenColumn SizeMD=12>
+                <LocalizedDataGrid @ref="WarehouseTransfersGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                   ExpandMode="DataGridExpandMode.Single" Data="@warehouseTransfers" TItem="Aldebaran.Application.Services.Models.WarehouseTransfer" RowExpand=@GetChildData AllowColumnPicking="true" PageSizeText="items per page" PagingSummaryFormat="Page {0} de {1} ({2} items)" IsLoading="@isLoadingInProgress">
+                    <Columns>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransfer" Property="TransferDate" Title="Fecha de traslado">
+                            <Template Context="warehouseTransfer">
+                                <span>@warehouseTransfer.TransferDate.ToString(SharedLocalizer["date:format"])</span>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransfer" Property="Nationalization" Title="Nacionalización">
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransfer" Property="OriginWarehouse.WarehouseName" Title="Bodega origen">
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransfer" Property="DestinationWarehouse.WarehouseName" Title="Bodega destino">
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransfer" Property="StatusDocumentType.StatusDocumentTypeName" Title="Estado">
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransfer" Property="Notes" Title="Notas" Visible="false">
+                        </RadzenDataGridColumn>
+                    </Columns>
+                    <Template Context="warehouseTransfer">
+                        <RadzenStack Class="rz-my-8">
+                            <RadzenRow Gap="0" AlignItems="AlignItems.Center">
+                                <RadzenColumn Size="12" SizeMD="6">
+                                    <RadzenText Visible="@(warehouseTransfer != null)" Text="Referencias del traslado" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
+                                </RadzenColumn>
+                            </RadzenRow>
+                            <LocalizedDataGrid ColumnWidth="200px" Visible="@(warehouseTransfer != null)" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                               Data="@warehouseTransferDetails" TItem="Aldebaran.Application.Services.Models.WarehouseTransferDetail">
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransferDetail" Property="Quantity" Title="Cantidad">
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransferDetail" Property="ItemReference.ReferenceName" Title="Referencia">
+                                        <Template Context="detail">
+                                            <RadzenLabel MouseEnter="@(args => ShowTooltip(args,GetReferenceHint(@detail.ItemReference).Result, new TooltipOptions(){ Position = TooltipPosition.Left }))">
+                                                (@detail.ItemReference.Item.Line.LineName) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName
+                                            </RadzenLabel>
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                </Columns>
+                            </LocalizedDataGrid>
+                        </RadzenStack>
+                    </Template>
+                </LocalizedDataGrid>
 
-        </RadzenColumn>
-    </RadzenRow>
-</RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenStack>
 }
