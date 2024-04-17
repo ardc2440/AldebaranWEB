@@ -1,5 +1,6 @@
 @using Aldebaran.Web.Models.ViewModels;
 @using Aldebaran.Web.Resources.LocalizedControls;
+@using System.Drawing
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
 
 <RadzenPanel Class="rz-mx-auto toggle-panel">
@@ -11,7 +12,10 @@
             <RadzenRow AlignItems="AlignItems.Start" Gap="2rem">
                 <RadzenColumn SizeMD="6" class="d-flex flex-column gap-3">
                     <RadzenRow Style="gap:0">
-                        <RadzenLabel Text="En bodega" />
+                        <div class="text-secondary-color">
+                            <RadzenLabel Text="En bodega: " />   
+                            <span style="color:black;font-weight:bold;">@WarehouseAvailable.ToString("N0")</span>
+                        </div>
                         <LocalizedDataGrid @ref="ReferencesWarehouseGrid" AllowFiltering="false" AllowPaging="false" AllowSorting="false" ShowPagingSummary="false"
                                            Data="@ReferencesWarehouses" TItem="Aldebaran.Application.Services.Models.ReferencesWarehouse">
                             <Columns>
@@ -25,7 +29,10 @@
                         </LocalizedDataGrid>
                     </RadzenRow>
                     <RadzenRow Style="gap:0">
-                        <RadzenLabel Text="En tránsito" />
+                        <div class="text-secondary-color">
+                            <RadzenLabel Text="En transito: " />                              
+                            <span style="color:black;font-weight:bold;">@TransitAvailable.ToString("N0")</span>
+                        </div>
                         <LocalizedDataGrid @ref="GroupPurchaseOrderDetailGrid" AllowFiltering="false" AllowPaging="false" AllowSorting="false" ShowPagingSummary="false"
                                            Data="@GroupPurchaseOrderDetails" TItem="GroupPurchaseOrderDetail">
                             <Columns>
@@ -45,7 +52,10 @@
                 </RadzenColumn>
                 <RadzenColumn SizeMD="6" class="d-flex flex-column gap-3">
                     <RadzenRow Style="gap:0">
-                        <RadzenLabel Text="Disponible" />
+                        <div class="text-secondary-color">   
+                            <RadzenLabel Text="Disponible: " />
+                            <span style="color:black;font-weight:bold;">@Available.ToString("N0")</span>
+                        </div>
                         <LocalizedDataGrid @ref="ItemReferenceInventoryGrid" AllowFiltering="false" AllowPaging="false" AllowSorting="false" ShowPagingSummary="false" class="no-header"
                                            Data="@ItemReferenceInventories" TItem="ItemReferenceInventory">
                             <Columns>

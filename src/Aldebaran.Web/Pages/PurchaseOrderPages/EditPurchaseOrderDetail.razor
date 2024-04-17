@@ -29,7 +29,7 @@
                     <RadzenColumn Size="12" SizeMD="6">
                         <RadzenFormField Text="Cantidad solicitada" Variant="Variant.Text" Style="width:100%">
                             <ChildContent>
-                                <RadzenNumeric style="display: block; width: 100%" @bind-Value="@PurchaseOrderDetail.RequestedQuantity" Name="RequestedQuantity" />
+                                <RadzenNumeric style="display: block; width: 100%" @bind-Value="@PurchaseOrderDetail.RequestedQuantity" Name="RequestedQuantity" Format="N0" />
                             </ChildContent>
                             <Helper>
                                 <RadzenNumericRangeValidator Component="RequestedQuantity" Min="1" Text="Cantidad solicitada es requerida" />

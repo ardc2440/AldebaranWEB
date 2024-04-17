@@ -16,7 +16,7 @@
             <RadzenFormField Text="Cantidad" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                 <ChildContent>
                     <RadzenNumeric style="display: block; width: 100%" @bind-Value="@customerOrderDetail.RequestedQuantity" Name="REQUESTED_QUANTITY" TabIndex="1"
-                                   Placeholder="Ingrese la cantidad a solicitada" />
+                                   Placeholder="Ingrese la cantidad a solicitada" Format="N0"/>
                 </ChildContent>
                 <Helper>
                     <RadzenRequiredValidator Component="REQUESTED_QUANTITY" Text="La cantidad es requerida" />

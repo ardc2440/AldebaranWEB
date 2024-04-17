@@ -85,7 +85,11 @@
                             <LocalizedDataGrid @ref="warehouseTransferDetailGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                                Data="@WarehouseTransferDetails" TItem="Aldebaran.Application.Services.Models.WarehouseTransferDetail">
                                 <Columns>
-                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransferDetail" Property="Quantity" Title="Cantidad" Width="100px" />
+                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransferDetail" Property="Quantity" Title="Cantidad" Width="100px">
+                                        <Template Context="detail">
+                                            @detail.Quantity.ToString("N0")
+                                        </Template>
+                                    </RadzenDataGridColumn>
                                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransferDetail" Title="Referencia">
                                         <Template Context="detail">
                                             <RadzenLabel MouseEnter="@(args => ShowTooltip(args,GetReferenceHint(@detail.ItemReference).Result, new TooltipOptions(){ Position = TooltipPosition.Left }))">

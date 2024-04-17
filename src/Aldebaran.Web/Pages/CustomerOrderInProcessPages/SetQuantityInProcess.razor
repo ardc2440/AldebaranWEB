@@ -27,26 +27,26 @@
                         <RadzenLabel Text="Cantidad pendiente:" style="width: 100%" />
                     </RadzenColumn>
                     <RadzenColumn SizeMD="7">
-                        <span>@detailInProcess.PENDING_QUANTITY</span>
+                        <span>@detailInProcess.PENDING_QUANTITY.ToString("N0")</span>
                     </RadzenColumn>
                     <RadzenColumn SizeMD="5">
                         <RadzenLabel Text="Cantidad en proceso:" style="width: 100%" />
                     </RadzenColumn>
                     <RadzenColumn SizeMD="7">
-                        <span>@detailInProcess.PROCESSED_QUANTITY</span>
+                        <span>@detailInProcess.PROCESSED_QUANTITY.ToString("N0")</span>
                     </RadzenColumn>
                     <RadzenColumn SizeMD="5">
                         <RadzenLabel Text="Cantidad despachada:" style="width: 100%" />
                     </RadzenColumn>
                     <RadzenColumn SizeMD="7">
-                        <span>@detailInProcess.DELIVERED_QUANTITY</span>
+                        <span>@detailInProcess.DELIVERED_QUANTITY.ToString("N0")</span>
                     </RadzenColumn>
                 </RadzenRow>
                 <RadzenRow>
                     <RadzenFormField Text="Enviar en este proceso" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
                             <RadzenNumeric style="display: block; width: 100%" @bind-Value="@detailInProcess.THIS_QUANTITY" Name="THIS_QUANTITY"
-                                           Placeholder="Ingrese la cantidad a trasladar" TabIndex="0" />
+                                           Placeholder="Ingrese la cantidad a trasladar" TabIndex="0" Format="N0"/>
                         </ChildContent>
                         <Helper>
                             <RadzenRequiredValidator Component="THIS_QUANTITY" Text="La Cantidad es Requerida" />

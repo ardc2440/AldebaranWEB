@@ -43,6 +43,9 @@ namespace Aldebaran.Web.Shared
         protected int reservedQuantity = 0;
         protected int orderedQuantity = 0;
 
+        protected int Available { get; set; } = 0;
+        protected int WarehouseAvailable { get; set; } = 0;
+        protected int TransitAvailable { get; set; } = 0;
         #endregion
 
         #region Overrides
@@ -88,12 +91,14 @@ namespace Aldebaran.Web.Shared
             ItemReferenceInventories.Add(new ItemReferenceInventory() { Type = "En Proceso", Quantity = Reference?.WorkInProcessQuantity ?? 0 });
             if (ItemReferenceInventoryGrid != null)
                 await ItemReferenceInventoryGrid.Reload();
+            Available = Reference?.InventoryQuantity ?? 0 - Reference?.OrderedQuantity ?? 0 - Reference?.ReservedQuantity ?? 0;
         }
         async Task RefreshWarehouses()
         {
             ReferencesWarehouses = await ReferencesWarehouseService.GetByReferenceIdAsync(Reference.ReferenceId);
             if (ReferencesWarehouseGrid != null)
                 await ReferencesWarehouseGrid.Reload();
+            WarehouseAvailable = ReferencesWarehouses.Sum(s => s.Quantity);
         }
         async Task RefreshTransitOrders()
         {
@@ -103,6 +108,7 @@ namespace Aldebaran.Web.Shared
             GroupPurchaseOrderDetails = detailInTransit.GroupBy(group => group.PurchaseOrder.ExpectedReceiptDate).Select(c => new GroupPurchaseOrderDetail() { ExpectedReceiptDate = c.Key, Quantity = c.Sum(p => p.RequestedQuantity) });
             if (GroupPurchaseOrderDetailGrid != null)
                 await GroupPurchaseOrderDetailGrid.Reload();
+            TransitAvailable = GroupPurchaseOrderDetails.Sum(s => s.Quantity);
         }
         #endregion
     }

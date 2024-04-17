@@ -86,8 +86,14 @@
                                                     </Template>
                                                 </RadzenDataGridColumn>
                                                 <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Property="ProcessedQuantity" Title="En Proceso">
+                                                     <Template Context="detail">
+                                                        @detail.ProcessedQuantity.ToString("N0")
+                                                    </Template>
                                                 </RadzenDataGridColumn>
                                                 <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Property="DeliveredQuantity" Title="Despachado">
+                                                    <Template Context="detail">
+                                                        @detail.DeliveredQuantity.ToString("N0")
+                                                    </Template>
                                                 </RadzenDataGridColumn>
                                             </Columns>
                                         </LocalizedDataGrid>

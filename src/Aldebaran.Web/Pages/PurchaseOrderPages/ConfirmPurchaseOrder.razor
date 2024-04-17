@@ -111,7 +111,7 @@
                                         <EditTemplate Context="detail">
                                             <RadzenFormField Text="Cantidad recibida" Variant="Variant.Text" Style="width: 100%;">
                                                 <ChildContent>
-                                                    <RadzenNumeric @bind-Value="detail.ReceivedQuantity" style="display: block; width: 100%" Min="0" Name="ReceivedQuantity" />
+                                                    <RadzenNumeric @bind-Value="detail.ReceivedQuantity" style="display: block; width: 100%" Min="0" Name="ReceivedQuantity" Format="N0" />
                                                 </ChildContent>
                                                 <Helper>
                                                     <RadzenRequiredValidator Component="ReceivedQuantity" Text="Cantidad recibida es requerida" />

@@ -15,7 +15,7 @@
                 <RadzenRequiredValidator Text="La referencia es requerida" Component="ReferenceId" />
                 <RadzenFormField Text="Cantidad" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                     <ChildContent>
-                        <RadzenNumeric style="display: block; width: 100%" @bind-Value="@customerReservationDetail.ReservedQuantity" Name="RESERVED_QUANTITY" Placeholder="Ingrese la cantidad a reservar" TabIndex="1" />
+                        <RadzenNumeric style="display: block; width: 100%" @bind-Value="@customerReservationDetail.ReservedQuantity" Name="RESERVED_QUANTITY" Placeholder="Ingrese la cantidad a reservar" TabIndex="1" Format="N0" />
                     </ChildContent>
                     <Helper>
                         <RadzenRequiredValidator Component="RESERVED_QUANTITY" Text="La cantidad es requerida" />

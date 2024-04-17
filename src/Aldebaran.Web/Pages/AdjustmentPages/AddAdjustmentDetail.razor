@@ -27,7 +27,7 @@
                     </RadzenFormField>
                     <RadzenFormField Text="Cantidad" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenNumeric style="display: block; width: 100%" @bind-Value="@adjustmentDetail.Quantity" Name="QUANTITY" Placeholder="Ingrese la cantidad a ajustar" TabIndex="2" />
+                            <RadzenNumeric style="display: block; width: 100%" @bind-Value="@adjustmentDetail.Quantity" Name="QUANTITY" Placeholder="Ingrese la cantidad a ajustar" TabIndex="2" Format="N0" />
                         </ChildContent>
                         <Helper>
                             <RadzenRequiredValidator Component="QUANTITY" Text="La Cantidad es requerida" />
