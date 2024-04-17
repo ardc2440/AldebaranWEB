@@ -59,6 +59,8 @@
                         <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Property="ProformaNumber" Title="Número de proforma" Visible="false">
                         </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Property="Provider.ProviderName" Title="Proveedor">
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Title="Transportadora">
                             <Template Context="purchaseOrder">
                                 <span>(@purchaseOrder.ForwarderAgent.Forwarder.ForwarderName) @purchaseOrder.ForwarderAgent.ForwarderAgentName</span>
                             </Template>

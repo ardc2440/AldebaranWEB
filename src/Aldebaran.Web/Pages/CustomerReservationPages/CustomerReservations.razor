@@ -25,7 +25,7 @@
         <RadzenRow>
             <RadzenColumn SizeMD=12>
                 <LocalizedDataGrid @ref="CustomerReservationGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                   ExpandMode="DataGridExpandMode.Single" Data="@customerReservations" TItem="Aldebaran.Application.Services.Models.CustomerReservation" RowExpand=@GetChildData AllowColumnPicking="true" PageSizeText="items per page" PagingSummaryFormat="Page {0} de {1} ({2} items)" IsLoading="@isLoadingInProgress">
+                                   ExpandMode="DataGridExpandMode.Single" Data="@customerReservations" TItem="Aldebaran.Application.Services.Models.CustomerReservation" RowExpand=@GetChildData AllowColumnPicking="true" IsLoading="@isLoadingInProgress">
                     <Columns>
                         <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservation" Property="ReservationNumber" Title="No. reserva">
                         </RadzenDataGridColumn>
