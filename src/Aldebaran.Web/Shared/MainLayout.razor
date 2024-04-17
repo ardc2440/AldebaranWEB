@@ -21,8 +21,12 @@
                             <RadzenProfileMenuItem Text="Cerrar sesión" Value="Logout" Icon="power_settings_new" />
                         </ChildContent>
                         <Template>
-                            @Security.User?.Name
-                            <RadzenGravatar Email="@Security.User?.Name" />
+                            <div style="margin: 0 0.5em;">
+                                @(LoggedEmployee?.DisplayName ?? LoggedEmployee?.FullName)<br />
+                                <span class="d-block text-end fw-bold">
+                                    @Security.User?.Name
+                                </span>
+                            </div>
                         </Template>
                     </RadzenProfileMenu>
                 </RadzenStack>
@@ -54,7 +58,7 @@
                 @if (Security.IsInRole("Admin"))
                 {
                     <hr class="divider">
-                    <RadzenPanelMenuItem Text="Servidor de correo" Path="email-notification-settings" />
+                    <RadzenPanelMenuItem Text="Notificaciones" Path="email-notification-settings" />
                 }
             </RadzenPanelMenuItem>
             <RadzenPanelMenuItem Text="Movimientos de Inventario" Icon="extension">

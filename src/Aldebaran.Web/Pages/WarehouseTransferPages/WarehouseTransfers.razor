@@ -27,9 +27,9 @@
                 <LocalizedDataGrid @ref="WarehouseTransfersGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                    ExpandMode="DataGridExpandMode.Single" Data="@warehouseTransfers" TItem="Aldebaran.Application.Services.Models.WarehouseTransfer" RowExpand=@GetChildData AllowColumnPicking="true" PageSizeText="items per page" PagingSummaryFormat="Page {0} de {1} ({2} items)" IsLoading="@isLoadingInProgress">
                     <Columns>
-                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransfer" Property="TransferDate" Title="Fecha de traslado">
-                            <Template Context="warehouseTransfer">
-                                <span>@warehouseTransfer.TransferDate.ToString(SharedLocalizer["date:format"])</span>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransfer" Title="Fecha de traslado">
+                            <Template Context="detail">
+                                @detail.TransferDate.ToString(SharedLocalizer["date:format"])
                             </Template>
                         </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransfer" Property="Nationalization" Title="Nacionalización">
@@ -53,7 +53,10 @@
                             <LocalizedDataGrid ColumnWidth="200px" Visible="@(warehouseTransfer != null)" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                                Data="@warehouseTransferDetails" TItem="Aldebaran.Application.Services.Models.WarehouseTransferDetail">
                                 <Columns>
-                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransferDetail" Property="Quantity" Title="Cantidad">
+                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransferDetail" Title="Cantidad">
+                                        <Template Context="detail">
+                                            @detail.Quantity.ToString("N0")
+                                        </Template>
                                     </RadzenDataGridColumn>
                                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransferDetail" Property="ItemReference.ReferenceName" Title="Referencia">
                                         <Template Context="detail">

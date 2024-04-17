@@ -16,7 +16,11 @@
                                            Data="@ReferencesWarehouses" TItem="Aldebaran.Application.Services.Models.ReferencesWarehouse">
                             <Columns>
                                 <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.ReferencesWarehouse" Property="Warehouse.WarehouseName" Title="Bodega" Width="50%" />
-                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.ReferencesWarehouse" Property="Quantity" Title="Cantidad" Width="50%" />
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.ReferencesWarehouse" Title="Cantidad" Width="50%">
+                                    <Template Context="detail">
+                                        @detail.Quantity.ToString("N0")
+                                    </Template>
+                                </RadzenDataGridColumn>
                             </Columns>
                         </LocalizedDataGrid>
                     </RadzenRow>
@@ -30,7 +34,11 @@
                                         <span>@detail.ExpectedReceiptDate.ToString(SharedLocalizer["date:format"])</span>
                                     </Template>
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="GroupPurchaseOrderDetail" Property="Quantity" Title="Cantidad" Width="50%" />
+                                <RadzenDataGridColumn TItem="GroupPurchaseOrderDetail" Property="Quantity" Title="Cantidad" Width="50%">
+                                    <Template Context="detail">
+                                        @detail.Quantity.ToString("N0")
+                                    </Template>
+                                </RadzenDataGridColumn>
                             </Columns>
                         </LocalizedDataGrid>
                     </RadzenRow>
@@ -42,7 +50,11 @@
                                            Data="@ItemReferenceInventories" TItem="ItemReferenceInventory">
                             <Columns>
                                 <RadzenDataGridColumn TItem="ItemReferenceInventory" Property="Type" Title="" Width="50%" />
-                                <RadzenDataGridColumn TItem="ItemReferenceInventory" Property="Quantity" Title="" Width="50%" />
+                                <RadzenDataGridColumn TItem="ItemReferenceInventory" Property="Quantity" Title="Cantidad" Width="50%">
+                                    <Template Context="detail">
+                                        @detail.Quantity.ToString("N0")
+                                    </Template>
+                                </RadzenDataGridColumn>
                             </Columns>
                         </LocalizedDataGrid>
                     </RadzenRow>

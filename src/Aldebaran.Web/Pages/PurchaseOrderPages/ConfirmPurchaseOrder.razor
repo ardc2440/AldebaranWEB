@@ -60,7 +60,7 @@
                             </RadzenRow>
                             <RadzenFormField Text="Fecha real de recepción" Variant="Variant.Text" Style="width: 100%;">
                                 <ChildContent>
-                                    <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@PurchaseOrder.RealReceiptDate" Name="RealReceiptDate" Min="@PurchaseOrder.RequestDate" />
+                                    <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@PurchaseOrder.RealReceiptDate" Name="RealReceiptDate" Min="@PurchaseOrder.RequestDate" Max="DateTime.Now" />
                                 </ChildContent>
                                 <Helper>
                                     <RadzenRequiredValidator Component="RealReceiptDate" Text="Fecha real de recepción es requerida" />
@@ -98,11 +98,15 @@
                             <LocalizedDataGrid @ref="PurchaseOrderDetailGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                                Data="@PurchaseOrderDetails" TItem="ServiceModel.PurchaseOrderDetail" AllowColumnResize="true" AllowMultiColumnSorting="true" AllowColumnReorder="true">
                                 <Columns>
-                                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Property="RequestedQuantity" Title="Cantidad solicitada" />
+                                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Title="Cantidad solicitada">
+                                        <Template Context="detail">
+                                            @detail.RequestedQuantity.ToString("N0")
+                                        </Template>
+                                    </RadzenDataGridColumn>
                                     <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Property="ReceivedQuantity" Title="Cantidad recibida">
                                         <Template Context="detail">
                                             <RadzenIcon Icon="warning" IconStyle="IconStyle.Warning" Style="font-size: 1.5em; display:flex" Visible="Submitted && detail.ReceivedQuantity == null" />
-                                            <span>@detail.ReceivedQuantity</span>
+                                            <span>@detail.ReceivedQuantity?.ToString("N0")</span>
                                         </Template>
                                         <EditTemplate Context="detail">
                                             <RadzenFormField Text="Cantidad recibida" Variant="Variant.Text" Style="width: 100%;">

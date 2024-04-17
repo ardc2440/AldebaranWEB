@@ -30,11 +30,11 @@
                                         </tr>
                                         <tr class="border border-bottom-0 emphasys">
                                             <td colspan="2">Pedido: @CustomerOrder.OrderNumber</td>
-                                            <td colspan="2">Fecha de creación: @CustomerOrder.CreationDate.ToString("dd/MM/yyyy hh:mm:ss t")</td>
+                                            <td colspan="2">Fecha de creación: @CustomerOrder.CreationDate.ToString(SharedLocalizer["datetime:format"])</td>
                                         </tr>
                                         <tr class="border border-top-0 emphasys">
-                                            <td colspan="2">Fecha de pedido: @CustomerOrder.OrderDate.ToString("dd/MM/yyyy")</td>
-                                            <td colspan="2">Fecha estimada de entrega: @CustomerOrder.EstimatedDeliveryDate.ToString("dd/MM/yyyy")</td>
+                                            <td colspan="2">Fecha de pedido: @CustomerOrder.OrderDate.ToString(SharedLocalizer["date:format"])</td>
+                                            <td colspan="2">Fecha estimada de entrega: @CustomerOrder.EstimatedDeliveryDate.ToString(SharedLocalizer["date:format"])</td>
                                         </tr>
                                         <tr>
                                             <td colspan="2">
@@ -77,9 +77,9 @@
                                         {
                                             <tr>
                                                 <td>@detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName</td>
-                                                <td>@detail.RequestedQuantity</td>
-                                                <td>@detail.ProcessedQuantity</td>
-                                                <td>@detail.DeliveredQuantity</td>
+                                                <td>@detail.RequestedQuantity.ToString("N0")</td>
+                                                <td>@detail.ProcessedQuantity.ToString("N0")</td>
+                                                <td>@detail.DeliveredQuantity.ToString("N0")</td>
                                                 <td>@GetOrderStatus(detail)</td>
                                             </tr>
                                             @if (CustomerOrderShipments.Any(w => w.CustomerOrderShipmentDetails.Any(x => x.CustomerOrderDetailId == detail.CustomerOrderDetailId)))
@@ -118,7 +118,7 @@
                                                                             </tr>
                                                                             <tr>
                                                                                 <td colspan="3">
-                                                                                    Cantidad enviada: @shipment.CustomerOrderShipmentDetails.Where(w => w.CustomerOrderDetailId == detail.CustomerOrderDetailId).Sum(s => s.DeliveredQuantity)
+                                                                                    Cantidad enviada: @shipment.CustomerOrderShipmentDetails.Where(w => w.CustomerOrderDetailId == detail.CustomerOrderDetailId).Sum(s => s.DeliveredQuantity).ToString("N0")
                                                                                 </td>
                                                                             </tr>
                                                                         </tbody>
@@ -140,7 +140,10 @@
             <RadzenColumn Size="4">
                 <div class="d-flex flex-column gap-4 flex-shrink-0">
                     <div>
-                        <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="save" Text="Guardar PDF" Click="@Download" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@IsBusy" />
+                        <RadzenSplitButton Icon="build" Text="Acciones" Click="@Save" Variant="Variant.Flat" Shade="Shade.Lighter" IsBusy="@IsBusy">
+                            <RadzenSplitButtonItem Text="Imprimir" Icon="print" Value="print" Style="cursor:pointer" />
+                            <RadzenSplitButtonItem Text="Guardar PDF" Icon="picture_as_pdf" Value="save" Style="cursor:pointer" />
+                        </RadzenSplitButton>
                     </div>
                     <div>
                         <p>Desea enviar un correo al cliente con el detalle del pedido?</p>

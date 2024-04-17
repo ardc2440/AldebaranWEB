@@ -78,11 +78,20 @@
                                                         </RadzenLabel>
                                                     </Template>
                                                 </RadzenDataGridColumn>
-                                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Property="PENDING_QUANTITY" Title="Pendiente">
+                                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Title="Pendiente">
+                                                    <Template Context="detail">
+                                                        @detail.PENDING_QUANTITY.ToString("N0")
+                                                    </Template>
                                                 </RadzenDataGridColumn>
-                                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Property="PROCESSED_QUANTITY" Title="En proceso">
+                                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Title="En proceso">
+                                                    <Template Context="detail">
+                                                        @detail.PROCESSED_QUANTITY.ToString("N0")
+                                                    </Template>
                                                 </RadzenDataGridColumn>
-                                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Property="DELIVERED_QUANTITY" Title="Despachado">
+                                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Title="Despachado">
+                                                    <Template Context="detail">
+                                                        @detail.DELIVERED_QUANTITY.ToString("N0")
+                                                    </Template>
                                                 </RadzenDataGridColumn>
                                             </Columns>
                                         </LocalizedDataGrid>
@@ -133,7 +142,10 @@
                                                                     </RadzenLabel>
                                                                 </Template>
                                                             </RadzenDataGridColumn>
-                                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipmentDetail" Property="DeliveredQuantity" Title="Cantidad despachada">
+                                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipmentDetail" Title="Cantidad despachada">
+                                                                <Template Context="detail">
+                                                                    @detail.DeliveredQuantity.ToString("N0")
+                                                                </Template>
                                                             </RadzenDataGridColumn>
                                                         </Columns>
                                                     </LocalizedDataGrid>

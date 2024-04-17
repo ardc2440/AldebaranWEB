@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using Radzen;
+using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.CustomerOrderPages
 {
@@ -73,12 +74,21 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         #region Events
         #region Print
-        async Task Download(MouseEventArgs args)
+        async Task Save(RadzenSplitButtonItem args)
         {
+            if (args?.Value == null)
+                return;
             IsBusy = true;
             var html = await JSRuntime.InvokeAsync<string>("getContent", "customer-order-summary");
-            var pdfBytes = await FileBytesGeneratorService.GetPdfBytes(html);
-            await JSRuntime.InvokeVoidAsync("downloadFile", "Pedidos.pdf", "application/pdf", Convert.ToBase64String(pdfBytes));
+            if (args?.Value == "save")
+            {
+                var pdfBytes = await FileBytesGeneratorService.GetPdfBytes(html, true);
+                await JSRuntime.InvokeVoidAsync("downloadFile", "Pedidos.pdf", "application/pdf", Convert.ToBase64String(pdfBytes));
+            }
+            if (args?.Value == "print")
+            {
+                await JSRuntime.InvokeVoidAsync("print", "customer-order-summary");
+            }
             IsBusy = false;
         }
         #endregion

@@ -1,3 +1,5 @@
+using Aldebaran.Application.Services;
+using Aldebaran.Application.Services.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Radzen;
@@ -24,9 +26,11 @@ namespace Aldebaran.Web.Shared
 
         [Inject]
         protected NotificationService NotificationService { get; set; }
+        [Inject]
+        protected IEmployeeService EmployeeService { get; set; }
 
         private bool sidebarExpanded = true;
-
+        public Employee LoggedEmployee { get; set; }
         [Inject]
         protected SecurityService Security { get; set; }
 
@@ -35,6 +39,10 @@ namespace Aldebaran.Web.Shared
             sidebarExpanded = !sidebarExpanded;
         }
 
+        protected override async Task OnInitializedAsync()
+        {
+            LoggedEmployee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id);
+        }
         protected void ProfileMenuClick(RadzenProfileMenuItem args)
         {
             if (args.Value == "Logout")

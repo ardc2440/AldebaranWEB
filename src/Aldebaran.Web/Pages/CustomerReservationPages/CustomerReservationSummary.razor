@@ -26,15 +26,15 @@
                                                 (@CustomerReservation.Customer.City.Department.Country.CountryCode) @CustomerReservation.Customer.City.Department.DepartmentName - @CustomerReservation.Customer.City.CityName
                                             </td>
                                             <td colspan="2">
-                                                @CustomerReservation.Customer.IdentityType.IdentityTypeCode: @CustomerReservation.Customer.IdentityNumber
+                                                @($"{CustomerReservation.Customer.IdentityType.IdentityTypeCode.Trim()}: {CustomerReservation.Customer.IdentityNumber}")
                                             </td>
                                         </tr>
                                         <tr class="border border-bottom-0 emphasys">
                                             <td colspan="2">Reserva: @CustomerReservation.ReservationNumber</td>
-                                            <td colspan="2">Fecha de creación: @CustomerReservation.CreationDate.ToString("dd/MM/yyyy hh:mm:ss t")</td>
+                                            <td colspan="2">Fecha de creación: @CustomerReservation.CreationDate.ToString(SharedLocalizer["datetime:format"])</td>
                                         </tr>
                                         <tr class="border border-top-0 emphasys">
-                                            <td colspan="4">Fecha de reserva: @CustomerReservation.ReservationDate.ToString("dd/MM/yyyy")</td>
+                                            <td colspan="4">Fecha de reserva: @CustomerReservation.ReservationDate.ToString(SharedLocalizer["date:format"])</td>
                                         </tr>
                                         <tr>
                                             <td colspan="4">
@@ -66,7 +66,7 @@
                                             <tr>
                                                 <td>@detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName</td>
                                                 <td>@detail.Brand</td>
-                                                <td>@detail.ReservedQuantity</td>
+                                                <td>@detail.ReservedQuantity.ToString("N0")</td>
                                                 <td>@(detail.SendToCustomerOrder ? "Si" : "No")</td>
                                             </tr>
                                         }
@@ -80,7 +80,10 @@
             <RadzenColumn Size="4">
                 <div class="d-flex flex-column gap-4 flex-shrink-0">
                     <div>
-                        <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="save" Text="Guardar PDF" Click="@Download" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@IsBusy" />
+                        <RadzenSplitButton Icon="build" Text="Acciones" Click="@Save" Variant="Variant.Flat" Shade="Shade.Lighter" IsBusy="@IsBusy">
+                            <RadzenSplitButtonItem Text="Imprimir" Icon="print" Value="print" Style="cursor:pointer" />
+                            <RadzenSplitButtonItem Text="Guardar PDF" Icon="picture_as_pdf" Value="save" Style="cursor:pointer" />
+                        </RadzenSplitButton>
                     </div>
                     <div>
                         <p>Desea enviar un correo al cliente con el detalle de la reserva?</p>

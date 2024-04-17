@@ -60,6 +60,9 @@
                                                Data="@adjustmentDetails" TItem="Aldebaran.Application.Services.Models.AdjustmentDetail">
                                 <Columns>
                                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AdjustmentDetail" Property="Quantity" Title="Cantidad">
+                                        <Template Context="detail">
+                                            @detail.Quantity.ToString("N0")
+                                        </Template>
                                     </RadzenDataGridColumn>
                                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AdjustmentDetail" Property="ItemReference.ReferenceName" Title="Referencia">
                                         <Template Context="detail">
