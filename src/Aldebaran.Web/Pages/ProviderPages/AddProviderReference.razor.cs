@@ -1,4 +1,5 @@
 using Aldebaran.Application.Services;
+using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
@@ -33,6 +34,8 @@ namespace Aldebaran.Web.Pages.ProviderPages
         protected bool IsSubmitInProgress;
         protected bool isLoadingInProgress;
         protected bool IsErrorVisible;
+        protected List<ServiceModel.ItemReference> SelectedReferences = new();
+        protected MultiReferencePicker referencePicker;
         #endregion
 
         #region Overrides
@@ -54,6 +57,8 @@ namespace Aldebaran.Web.Pages.ProviderPages
             finally
             {
                 isLoadingInProgress = false;
+                StateHasChanged();
+                referencePicker?.SetAvailableItemReferencesForSelection(AvailableItemReferencesForSelection);
             }
 
         }
@@ -65,7 +70,12 @@ namespace Aldebaran.Web.Pages.ProviderPages
             try
             {
                 IsSubmitInProgress = true;
-                await ProviderReferenceService.AddAsync(ProviderReference);
+                var pr = SelectedReferences.Select(s => new ServiceModel.ProviderReference
+                {
+                    ProviderId = ProviderReference.ProviderId,
+                    ReferenceId = s.ReferenceId
+                }).ToList();
+                await ProviderReferenceService.AddRangeAsync(pr);
                 DialogService.Close(true);
             }
             catch (Exception ex)
@@ -77,9 +87,9 @@ namespace Aldebaran.Web.Pages.ProviderPages
                 IsSubmitInProgress = false;
             }
         }
-        protected async Task ItemReferenceHandler(ServiceModel.ItemReference reference)
+        protected async Task ItemReferenceHandler(List<ServiceModel.ItemReference> references)
         {
-            ProviderReference.ReferenceId = reference?.ReferenceId ?? 0;
+            SelectedReferences = references ?? new List<ServiceModel.ItemReference>();
         }
         protected async Task CancelButtonClick(MouseEventArgs args)
         {

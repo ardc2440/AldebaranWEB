@@ -11,6 +11,11 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
+        public async Task AddRangeAsync(List<ProviderReference> providerReferences, CancellationToken ct = default)
+        {
+            await _context.ProviderReferences.AddRangeAsync(providerReferences, ct);
+            await _context.SaveChangesAsync(ct);
+        }
         public async Task AddAsync(ProviderReference providerReference, CancellationToken ct = default)
         {
             await _context.ProviderReferences.AddAsync(providerReference, ct);

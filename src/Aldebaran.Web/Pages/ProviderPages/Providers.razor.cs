@@ -149,14 +149,14 @@ namespace Aldebaran.Web.Pages.ProviderPages
         }
         protected async Task AddProviderReference(MouseEventArgs args, ServiceModel.Provider data)
         {
-            var result = await DialogService.OpenAsync<AddProviderReference>("Agregar referencia", new Dictionary<string, object> { { "PROVIDER_ID", data.ProviderId } });
+            var result = await DialogService.OpenAsync<AddProviderReference>("Agregar referencia", new Dictionary<string, object> { { "PROVIDER_ID", data.ProviderId } }, options: new DialogOptions { Width = "800px" });
             if (result == true)
             {
                 NotificationService.Notify(new NotificationMessage
                 {
                     Summary = "Referencia",
                     Severity = NotificationSeverity.Success,
-                    Detail = $"Referencia agregada correctamente al proveedor."
+                    Detail = $"Referencias agregadas correctamente al proveedor."
                 });
             }
             await GetProviderReferences(data);

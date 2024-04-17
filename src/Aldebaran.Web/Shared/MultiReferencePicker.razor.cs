@@ -64,7 +64,7 @@ namespace Aldebaran.Web.Shared
         #region Events
         protected void OnLineChange()
         {
-            CleanItems();            
+            CleanItems();
             OnItemChange();
             if (SelectedLineIds == null || !SelectedLineIds.Any())
             {
@@ -89,7 +89,7 @@ namespace Aldebaran.Web.Shared
         }
         protected void OnItemChange()
         {
-            CleanReferences();            
+            CleanReferences();
             OnReferenceChange();
             if (SelectedItemIds == null || !SelectedItemIds.Any())
             {
@@ -161,7 +161,7 @@ namespace Aldebaran.Web.Shared
 
             SelectedReferenceIds = (from a in SelectedReferenceIds
                                     join b in AvailableItemReferencesForSelection on a equals b.ReferenceId
-                                    join c in SelectedItemIds on b.ItemId equals c 
+                                    join c in SelectedItemIds on b.ItemId equals c
                                     select a).ToList();
 
             SelectedReferences = (from a in SelectedReferences

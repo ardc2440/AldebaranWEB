@@ -13,7 +13,7 @@
             </RadzenColumn>
             <RadzenColumn Size="7">
                 <RadzenStack AlignItems="AlignItems.Center" Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End">
-                    <RadzenProfileMenu Visible="@Security.IsAuthenticated()" Click="@ProfileMenuClick">
+                    <RadzenProfileMenu Visible="@Security.IsAuthenticated()" Click="@ProfileMenuClick" class="layout-toolbar">
                         <ChildContent>
                             <RadzenProfileMenuItem Path="profile" Icon="settings" Text="Perfil" />
                             <RadzenProfileMenuItem Path="application-users" Icon="person" Text="Inicios de sesión" />
@@ -21,11 +21,14 @@
                             <RadzenProfileMenuItem Text="Cerrar sesión" Value="Logout" Icon="power_settings_new" />
                         </ChildContent>
                         <Template>
-                            <div style="margin: 0 0.5em;">
-                                @(LoggedEmployee?.DisplayName ?? LoggedEmployee?.FullName)<br />
-                                <span class="d-block text-end fw-bold">
-                                    @Security.User?.Name
-                                </span>
+                            <div class="d-flex gap-2 align-items-center">
+                                <div style="margin: 0 0.5em;">
+                                    @(LoggedEmployee?.DisplayName ?? LoggedEmployee?.FullName)<br />
+                                    <span class="d-block text-end fw-bold">
+                                        @Security.User?.Name
+                                    </span>
+                                </div>
+                                <RadzenGravatar Email="@Security.User?.Name" onerror="this.style.display = 'none'" />
                             </div>
                         </Template>
                     </RadzenProfileMenu>

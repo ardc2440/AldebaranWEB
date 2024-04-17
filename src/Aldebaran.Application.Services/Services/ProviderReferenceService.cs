@@ -15,6 +15,11 @@ namespace Aldebaran.Application.Services
             _mapper = mapper ?? throw new ArgumentNullException(nameof(IMapper));
         }
 
+        public async Task AddRangeAsync(List<ProviderReference> providerReferences, CancellationToken ct = default)
+        {
+            var entities = _mapper.Map<List<Entities.ProviderReference>>(providerReferences) ?? throw new ArgumentNullException("Referencias del proveedor no puede ser nulas.");
+            await _repository.AddRangeAsync(entities, ct);
+        }
         public async Task AddAsync(ProviderReference providerReference, CancellationToken ct = default)
         {
             var entity = _mapper.Map<Entities.ProviderReference>(providerReference) ?? throw new ArgumentNullException("Referencia del proveedor no puede ser nula.");

@@ -53,7 +53,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         public async Task<IEnumerable<ItemReference>> GetByStatusAsync(bool isActive, CancellationToken ct = default)
         {
             return await _context.ItemReferences.AsNoTracking()
-               .Where(w => w.IsActive == isActive)
+               .Where(w => w.IsActive == isActive && w.Item.IsActive == isActive && w.Item.Line.IsActive == isActive)
                .Include(i => i.Item.Line)
                .Include(i => i.Item.Currency)
                .Include(i => i.Item.CifMeasureUnit)

@@ -187,7 +187,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
             if (PurchaseOrder.ProviderId == 0)
                 return;
             var providerReferences = await ProviderReferenceService.GetByProviderIdAsync(PurchaseOrder.ProviderId);
-            var itemReferences = providerReferences.Select(s => s.ItemReference).ToList();
+            var itemReferences = providerReferences.Where(w => w.ItemReference.IsActive && w.ItemReference.Item.IsActive && w.ItemReference.Item.Line.IsActive).Select(s => s.ItemReference).ToList();
             var result = await DialogService.OpenAsync<AddPurchaseOrderDetail>("Nueva referencia",
                 new Dictionary<string, object> {
                     { "ProviderItemReferences", itemReferences.ToList() },

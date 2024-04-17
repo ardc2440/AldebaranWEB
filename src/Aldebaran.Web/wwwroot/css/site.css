@@ -163,6 +163,14 @@ a {
     }
 
 /*JLinG*/
+.login-form .rz-stack {
+    gap: 1rem;
+}
+
+.layout-toolbar .rz-navigation-item-link {
+    gap: 0.5rem;
+}
+
 .component-section {
     transform: translate(0, -3px);
 }

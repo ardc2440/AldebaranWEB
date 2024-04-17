@@ -13,8 +13,9 @@
                 <RadzenColumn SizeMD="6" class="d-flex flex-column gap-3">
                     <RadzenRow Style="gap:0">
                         <div class="text-secondary-color">
-                            <RadzenLabel Text="En bodega: " />   
-                            <span style="color:black;font-weight:bold;">@WarehouseAvailable.ToString("N0")</span>
+                            <p>
+                                En bodega: <span style="@(WarehouseAvailable<=0?"color:red;":"color:green;")font-weight:bold">@WarehouseAvailable.ToString("N0")</span>
+                            </p>
                         </div>
                         <LocalizedDataGrid @ref="ReferencesWarehouseGrid" AllowFiltering="false" AllowPaging="false" AllowSorting="false" ShowPagingSummary="false"
                                            Data="@ReferencesWarehouses" TItem="Aldebaran.Application.Services.Models.ReferencesWarehouse">
@@ -30,8 +31,9 @@
                     </RadzenRow>
                     <RadzenRow Style="gap:0">
                         <div class="text-secondary-color">
-                            <RadzenLabel Text="En transito: " />                              
-                            <span style="color:black;font-weight:bold;">@TransitAvailable.ToString("N0")</span>
+                            <p>
+                                En tránsito: <span style="color:black;font-weight:bold">@TransitAvailable.ToString("N0")</span>
+                            </p>
                         </div>
                         <LocalizedDataGrid @ref="GroupPurchaseOrderDetailGrid" AllowFiltering="false" AllowPaging="false" AllowSorting="false" ShowPagingSummary="false"
                                            Data="@GroupPurchaseOrderDetails" TItem="GroupPurchaseOrderDetail">
@@ -52,9 +54,10 @@
                 </RadzenColumn>
                 <RadzenColumn SizeMD="6" class="d-flex flex-column gap-3">
                     <RadzenRow Style="gap:0">
-                        <div class="text-secondary-color">   
-                            <RadzenLabel Text="Disponible: " />
-                            <span style="color:black;font-weight:bold;">@Available.ToString("N0")</span>
+                        <div class="text-secondary-color">
+                            <p>
+                                Disponible: <span style="@(Available<=0?"color:red;":"color:green;")font-weight:bold">@Available.ToString("N0")</span>
+                            </p>
                         </div>
                         <LocalizedDataGrid @ref="ItemReferenceInventoryGrid" AllowFiltering="false" AllowPaging="false" AllowSorting="false" ShowPagingSummary="false" class="no-header"
                                            Data="@ItemReferenceInventories" TItem="ItemReferenceInventory">
