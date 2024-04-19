@@ -4,6 +4,7 @@ namespace Aldebaran.Application.Services
     public interface IPurchaseOrderService
     {
         Task<PurchaseOrder?> FindAsync(int purchaseOrderId, CancellationToken ct = default);
+        PurchaseOrder? Find(int purchaseOrderId);
         Task<IEnumerable<PurchaseOrder>> GetAsync(CancellationToken ct = default);
         Task<IEnumerable<PurchaseOrder>> GetAsync(string searchKey, CancellationToken ct = default);
         Task CancelAsync(int purchaseOrderId, Reason reason, CancellationToken ct = default);

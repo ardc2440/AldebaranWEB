@@ -222,12 +222,11 @@ project.lock.json
 # End of core ignore list, below put you custom 'per project' settings (patterns or path)
 #####
 #*.pubxml
-/GmlGuasaOps/healthchecksdb
+**/healthchecksdb.db
 /.docker-volumes
+**/logs/*
+**/wwwroot/shared/
 
 debug
 bin
 obj
-
-**/logs/*
-**/wwwroot/shared/

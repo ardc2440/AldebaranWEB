@@ -8,7 +8,7 @@
         public int ReservedQuantity { get; set; }
         public int OrderedQuantity { get; set; }
 
-        public async static Task<IEnumerable<OutOfStockArticle>> GetOutOfStockArticleListAsync(IEnumerable<Application.Services.Models.ItemReference> outOfStockReferences, IEnumerable<Application.Services.Models.PurchaseOrderDetail> referencesInTransit)
+        public static List<OutOfStockArticle> GetOutOfStockArticleList(List<Application.Services.Models.ItemReference> outOfStockReferences, List<Application.Services.Models.PurchaseOrderDetail> referencesInTransit)
         {
             var result = new List<OutOfStockArticle>();
 
@@ -20,13 +20,13 @@
                     AvailableQuantity = outOfStockReference.InventoryQuantity,
                     InTransitQuantity = referencesInTransit.Where(i => i.ReferenceId == outOfStockReference.ReferenceId).Sum(i => i.RequestedQuantity),
                     ReservedQuantity = outOfStockReference.ReservedQuantity,
-                    OrderedQuantity = outOfStockReference.OrderedQuantity,                    
+                    OrderedQuantity = outOfStockReference.OrderedQuantity,
                 };
 
                 result.Add(outOfStockArticle);
             }
 
-            return result.Where(i => (i.AvailableQuantity + i.InTransitQuantity) <= 0);
+            return result.Where(i => (i.AvailableQuantity + i.InTransitQuantity) <= 0).ToList();
         }
     }
 }
