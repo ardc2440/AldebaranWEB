@@ -15,10 +15,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         {
             return await _context.StatusDocumentTypes.AsNoTracking().FirstOrDefaultAsync(f => f.DocumentTypeId == documentTypeId && f.StatusOrder == order, ct);
         }
-        public StatusDocumentType? FindByDocumentAndOrder(int documentTypeId, int order)
-        {
-            return _context.StatusDocumentTypes.AsNoTracking().FirstOrDefault(f => f.DocumentTypeId == documentTypeId && f.StatusOrder == order);
-        }
+
         public async Task<IEnumerable<StatusDocumentType>> GetByDocumentTypeIdAsync(int documentTypeId, CancellationToken ct = default)
         {
             return await _context.StatusDocumentTypes.AsNoTracking()
@@ -31,4 +28,5 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             return await _context.StatusDocumentTypes.AsNoTracking().FirstOrDefaultAsync(f => f.StatusDocumentTypeId == statusDocumentTypeId, ct);
         }
     }
+
 }

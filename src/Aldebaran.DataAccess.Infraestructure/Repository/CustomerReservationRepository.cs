@@ -1,7 +1,7 @@
 ﻿using Aldebaran.DataAccess.Entities;
 using Aldebaran.DataAccess.Infraestructure.Models;
-using Aldebaran.Infraestructure.Common.Utils;
 using Microsoft.EntityFrameworkCore;
+using Aldebaran.Infraestructure.Common.Utils;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
@@ -70,19 +70,10 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .Include(i => i.Customer.IdentityType)
                 .Include(i => i.StatusDocumentType.DocumentType)
                 .Include(i => i.Employee.IdentityType)
-                .Where(i => i.ExpirationDate.Date <= DateTime.Today && i.StatusDocumentType.StatusOrder == 1)
+                .Where(i=> i.ExpirationDate.Date <= DateTime.Today && i.StatusDocumentType.StatusOrder == 1)
                 .ToListAsync(ct);
         }
-        public List<CustomerReservation> GetExpiredReservations()
-        {
-            return _context.CustomerReservations.AsNoTracking()
-                .Include(i => i.Customer.City.Department.Country)
-                .Include(i => i.Customer.IdentityType)
-                .Include(i => i.StatusDocumentType.DocumentType)
-                .Include(i => i.Employee.IdentityType)
-                .Where(i => i.ExpirationDate.Date <= DateTime.Today && i.StatusDocumentType.StatusOrder == 1)
-                .ToList();
-        }
+
         public async Task<IEnumerable<CustomerReservation>> GetAsync(string searchKey, CancellationToken ct = default)
         {
             return await _context.CustomerReservations.AsNoTracking()
@@ -91,8 +82,8 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .Include(i => i.StatusDocumentType.DocumentType)
                 .Include(i => i.Employee.IdentityType)
                 .Where(i => i.Notes.Contains(searchKey) ||
-                            _context.Format(i.CreationDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
-                            _context.Format(i.ExpirationDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
+                            _context.Format(i.CreationDate, _SharedLocalizer["date:format"]).Contains(searchKey)||
+                            _context.Format(i.ExpirationDate, _SharedLocalizer["date:format"]).Contains(searchKey)||
                             _context.Format(i.ReservationDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
                             i.ReservationNumber.Contains(searchKey) ||
                             i.StatusDocumentType.StatusDocumentTypeName.Contains(searchKey) ||
@@ -120,16 +111,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .Include(i => i.Employee.IdentityType)
                 .Include(i => i.CustomerReservationDetails)
                 .FirstOrDefaultAsync(i => i.CustomerReservationId == customerReservationId, ct);
-        }
-        public CustomerReservation? Find(int customerReservationId)
-        {
-            return _context.CustomerReservations.AsNoTracking()
-                .Include(i => i.Customer.City.Department.Country)
-                .Include(i => i.Customer.IdentityType)
-                .Include(i => i.StatusDocumentType.DocumentType)
-                .Include(i => i.Employee.IdentityType)
-                .Include(i => i.CustomerReservationDetails)
-                .FirstOrDefault(i => i.CustomerReservationId == customerReservationId);
         }
 
         public async Task UpdateAsync(int customerReservationId, CustomerReservation customerReservation, Reason? reason, CancellationToken ct = default)

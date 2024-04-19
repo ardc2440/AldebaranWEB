@@ -1,7 +1,7 @@
 ﻿using Aldebaran.DataAccess.Entities;
 using Aldebaran.DataAccess.Infraestructure.Models;
-using Aldebaran.Infraestructure.Common.Utils;
 using Microsoft.EntityFrameworkCore;
+using Aldebaran.Infraestructure.Common.Utils;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
@@ -106,15 +106,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .Include(i => i.StatusDocumentType.DocumentType)
                 .Include(i => i.Employee.IdentityType)
                 .FirstOrDefaultAsync(i => i.CustomerOrderId.Equals(customerOrderId), ct);
-        }
-        public CustomerOrder? Find(int customerOrderId)
-        {
-            return _context.CustomerOrders.AsNoTracking()
-                .Include(i => i.Customer.City.Department.Country)
-                .Include(i => i.Customer.IdentityType)
-                .Include(i => i.StatusDocumentType.DocumentType)
-                .Include(i => i.Employee.IdentityType)
-                .FirstOrDefault(i => i.CustomerOrderId.Equals(customerOrderId));
         }
 
         public async Task UpdateAsync(int customerOrderId, CustomerOrder customerOrder, Reason reason, CancellationToken ct = default)

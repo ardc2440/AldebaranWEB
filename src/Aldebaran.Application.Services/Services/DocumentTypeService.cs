@@ -19,11 +19,6 @@ namespace Aldebaran.Application.Services
             var data = await _repository.FindByCodeAsync(code, ct);
             return _mapper.Map<DocumentType?>(data);
         }
-        public DocumentType? FindByCode(string code)
-        {
-            var data = _repository.FindByCode(code);
-            return _mapper.Map<DocumentType?>(data);
-        }
     }
 
 }

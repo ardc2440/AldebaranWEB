@@ -15,10 +15,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         {
             return await _context.DocumentTypes.AsNoTracking().FirstOrDefaultAsync(f => f.DocumentTypeCode == code, ct);
         }
-        public DocumentType? FindByCode(string code)
-        {
-            return _context.DocumentTypes.AsNoTracking().FirstOrDefault(f => f.DocumentTypeCode == code);
-        }
     }
 
 }

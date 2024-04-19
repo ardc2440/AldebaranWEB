@@ -15,6 +15,7 @@ using Aldebaran.Infraestructure.Core.Queue;
 using Aldebaran.Infraestructure.Core.Ssh;
 using Aldebaran.Web.Data;
 using Aldebaran.Web.Models;
+using Aldebaran.Web.Resources;
 using Aldebaran.Web.Settings;
 using Aldebaran.Web.Utils;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -61,8 +62,6 @@ namespace Aldebaran.Web.Extensions
             builder.Services.AddScoped<AuthenticationStateProvider, ApplicationAuthenticationStateProvider>();
             // Configuration
             services.Configure<FtpSettings>(configuration.GetSection("FtpSettings"));
-            services.Configure<AppSettings>(configuration.GetSection("AppSettings"));
-
             builder.Services.AddControllers().AddOData(o =>
             {
                 var oDataBuilder = new ODataConventionModelBuilder();
@@ -103,7 +102,6 @@ namespace Aldebaran.Web.Extensions
             builder.Services.AddTransient<IExportHelper, ExportHelper>();
             builder.Services.AddSingleton(AutoMapperConfiguration.Configure());
             builder.Services.AddTransient<IFileBytesGeneratorService, FileBytesGeneratorService>();
-            builder.Services.AddTransient<ITimerPreferenceService, TimerPreferenceService>();
             // Logging
             builder.Logging.ClearProviders();
             builder.Logging.SetMinimumLevel(LogLevel.Trace);

@@ -17,14 +17,10 @@
     <None Remove="Pages\UserAlarmTypes\**" />
   </ItemGroup>
   <ItemGroup>
-    <Content Remove="appsettings.json" />
     <Content Remove="bundleconfig.json" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.editorconfig" Link=".editorconfig" />
-    <None Include="appsettings.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="bundleconfig.json" />
     <None Include="wwwroot\js\utils.js" />
   </ItemGroup>
@@ -61,6 +57,11 @@
     <ProjectReference Include="..\Aldebaran.Application.Services.Notificator\Aldebaran.Application.Services.Notificator.csproj" />
     <ProjectReference Include="..\Aldebaran.Application.Services\Aldebaran.Application.Services.csproj" />
     <ProjectReference Include="..\Aldebaran.Infraestructure.Core\Aldebaran.Infraestructure.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Mappings\ViewModelProfile.cs">
