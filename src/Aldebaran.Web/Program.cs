@@ -15,6 +15,7 @@ static void ConfigureServices(WebApplicationBuilder builder)
 {
     builder.AddArchitecture();
     builder.AddInfraestructure();
+    builder.Services.AddMemoryCache();
 
     var cultureInfo = new CultureInfo("es-CO");
     NumberFormatInfo numberFormatInfo = (NumberFormatInfo)cultureInfo.NumberFormat.Clone();
@@ -31,6 +32,7 @@ static void ConfigureServices(WebApplicationBuilder builder)
 
     var configuration = builder.Configuration;
     var logDbConnection = configuration.GetConnectionString("LogDbConnection") ?? throw new KeyNotFoundException("LogDbConnection");
+
     // Logging
     builder.Logging.ClearProviders();
     builder.Logging.SetMinimumLevel(LogLevel.Trace);

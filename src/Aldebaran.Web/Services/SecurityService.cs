@@ -120,13 +120,13 @@ namespace Aldebaran.Web
 
         }
 
-        public async Task<IEnumerable<ApplicationUser>> GetUsers(CancellationToken ct=default)
+        public async Task<IEnumerable<ApplicationUser>> GetUsers(CancellationToken ct = default)
         {
             var uri = new Uri(baseUri, $"ApplicationUsers");
 
             uri = uri.GetODataUri();
 
-            var response = await httpClient.GetAsync(uri,ct);
+            var response = await httpClient.GetAsync(uri, ct);
 
             var result = await response.ReadAsync<ODataServiceResult<ApplicationUser>>();
 
@@ -139,11 +139,11 @@ namespace Aldebaran.Web
 
             uri = uri.GetODataUri();
 
-            var response = await httpClient.GetAsync(uri,ct);
+            var response = await httpClient.GetAsync(uri, ct);
 
             var result = await response.ReadAsync<ODataServiceResult<ApplicationUser>>();
 
-            return result.Value.Where(w=>w.Name.Contains(searchKey)||w.UserName.Contains(searchKey));
+            return result.Value.Where(w => w.Name.Contains(searchKey) || w.UserName.Contains(searchKey));
         }
 
         public async Task<ApplicationUser> CreateUser(ApplicationUser user)

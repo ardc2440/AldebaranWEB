@@ -1,7 +1,7 @@
 ﻿using Aldebaran.Application.Services.Models;
-using Entities = Aldebaran.DataAccess.Entities;
 using Aldebaran.DataAccess.Infraestructure.Repository;
 using AutoMapper;
+using Entities = Aldebaran.DataAccess.Entities;
 
 namespace Aldebaran.Application.Services
 {
@@ -32,51 +32,51 @@ namespace Aldebaran.Application.Services
             return _mapper.Map<List<Alarm>>(data);
         }
 
-        public async Task<IEnumerable<Alarm>> GetByDocumentIdAsync(int documentTypeId, int documentId, CancellationToken ct = default) 
+        public async Task<IEnumerable<Alarm>> GetByDocumentIdAsync(int documentTypeId, int documentId, CancellationToken ct = default)
         {
             var data = await _repository.GetByDocumentIdAsync(documentTypeId, documentId, ct);
             return _mapper.Map<List<Alarm>>(data);
         }
 
-        public async Task<string> GetDocumentNumber(int documentId, string documentTypeCode, CancellationToken ct = default)
+        public string GetDocumentNumber(int documentId, string documentTypeCode, CancellationToken ct = default)
         {
             switch (documentTypeCode)
             {
                 case "O":
-                    return await GetPurchaseOrderNumber(documentId);
+                    return GetPurchaseOrderNumber(documentId);
                 case "P":
-                    return await GetCustomerOrderNumber(documentId);
+                    return GetCustomerOrderNumber(documentId);
                 case "R":
-                    return await GetCustomerReservationNumber(documentId);
+                    return GetCustomerReservationNumber(documentId);
                 default:
                     return "N/A";
             }
         }
 
-        internal async Task<string> GetCustomerOrderNumber(int documentId, CancellationToken ct = default)
+        internal string GetCustomerOrderNumber(int documentId)
         {
-            var customerOrderNumber = "N/A"; 
-            var customerOrder = await _customerOrderService.FindAsync(documentId, ct);
-            if (customerOrder !=null)
+            var customerOrderNumber = "N/A";
+            var customerOrder = _customerOrderService.Find(documentId);
+            if (customerOrder != null)
                 customerOrderNumber = customerOrder.OrderNumber;
 
             return customerOrderNumber;
         }
 
-        internal async Task<string> GetCustomerReservationNumber(int documentId, CancellationToken ct = default)
+        internal string GetCustomerReservationNumber(int documentId)
         {
             var customerReservationNumber = "N/A";
-            var customerReservation = await _customerReservationService.FindAsync(documentId, ct);
+            var customerReservation = _customerReservationService.Find(documentId);
             if (customerReservation != null)
                 customerReservationNumber = customerReservation.ReservationNumber;
 
             return customerReservationNumber;
         }
 
-        internal async Task<string> GetPurchaseOrderNumber(int documentId, CancellationToken ct = default)
+        internal string GetPurchaseOrderNumber(int documentId)
         {
             var purchaseOrderNumber = "N/A";
-            var purchaseOrder = await _purchaseOrderService.FindAsync(documentId, ct);
+            var purchaseOrder = _purchaseOrderService.Find(documentId);
             if (purchaseOrder != null)
                 purchaseOrderNumber = purchaseOrder.OrderNumber;
 

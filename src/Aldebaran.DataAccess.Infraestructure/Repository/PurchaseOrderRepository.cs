@@ -1,7 +1,7 @@
 ﻿using Aldebaran.DataAccess.Entities;
 using Aldebaran.DataAccess.Infraestructure.Models;
-using Microsoft.EntityFrameworkCore;
 using Aldebaran.Infraestructure.Common.Utils;
+using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
@@ -93,6 +93,19 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                .Where(w => w.PurchaseOrderId == purchaseOrderId)
                .FirstOrDefaultAsync(ct);
         }
+        public PurchaseOrder? Find(int purchaseOrderId)
+        {
+            return _context.PurchaseOrders.AsNoTracking()
+               .Include(i => i.Employee.Area)
+               .Include(i => i.Employee.IdentityType)
+               .Include(i => i.ForwarderAgent.Forwarder)
+               .Include(i => i.Provider.IdentityType)
+               .Include(i => i.ShipmentForwarderAgentMethod.ShipmentMethod)
+               .Include(i => i.ShipmentForwarderAgentMethod.ForwarderAgent)
+               .Include(i => i.StatusDocumentType.DocumentType)
+               .Where(w => w.PurchaseOrderId == purchaseOrderId)
+               .FirstOrDefault();
+        }
 
         public async Task<IEnumerable<PurchaseOrder>> GetAsync(CancellationToken ct = default)
         {
@@ -124,8 +137,8 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                            _context.Format(w.CreationDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
                            _context.Format(w.ExpectedReceiptDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
                            _context.Format(w.RequestDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
-                           (w.RealReceiptDate.HasValue && _context.Format(w.RealReceiptDate.Value, _SharedLocalizer["date:format"]).Contains(searchKey)))                            
-               .ToListAsync();               
+                           (w.RealReceiptDate.HasValue && _context.Format(w.RealReceiptDate.Value, _SharedLocalizer["date:format"]).Contains(searchKey)))
+               .ToListAsync();
         }
 
         public async Task<IEnumerable<PurchaseOrder>> GetTransitByReferenceIdAsync(int referenceId, CancellationToken ct = default)

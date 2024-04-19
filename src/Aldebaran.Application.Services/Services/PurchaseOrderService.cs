@@ -41,6 +41,12 @@ namespace Aldebaran.Application.Services
             return _mapper.Map<PurchaseOrder?>(data);
         }
 
+        public PurchaseOrder? Find(int purchaseOrderId)
+        {
+            var data = _repository.Find(purchaseOrderId);
+            return _mapper.Map<PurchaseOrder?>(data);
+        }
+
         public async Task<IEnumerable<PurchaseOrder>> GetAsync(CancellationToken ct = default)
         {
             var data = await _repository.GetAsync(ct);

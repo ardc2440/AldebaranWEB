@@ -40,6 +40,12 @@ namespace Aldebaran.Application.Services
             return _mapper.Map<CustomerReservation?>(data);
         }
 
+        public CustomerReservation? Find(int customerReservationId)
+        {
+            var data = _repository.Find(customerReservationId);
+            return _mapper.Map<CustomerReservation?>(data);
+        }
+
         public async Task CancelAsync(int customerReservationId, short canceledStatusDocumentId, Reason reason, CancellationToken ct = default)
         {
             var mapReason = _mapper.Map<DataAccess.Infraestructure.Models.Reason>(reason);
@@ -57,6 +63,11 @@ namespace Aldebaran.Application.Services
         {
             var data = await _repository.GetExpiredReservationsAsync(ct);
             return _mapper.Map<IEnumerable<CustomerReservation>>(data);
+        }
+        public List<CustomerReservation> GetExpiredReservations()
+        {
+            var data = _repository.GetExpiredReservations();
+            return _mapper.Map<List<CustomerReservation>>(data);
         }
     }
 
