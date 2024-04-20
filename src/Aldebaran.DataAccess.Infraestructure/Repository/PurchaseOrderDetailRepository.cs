@@ -68,15 +68,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .Where(p => (p.ReferenceId == referenceId || !referenceId.HasValue) && p.PurchaseOrder.StatusDocumentTypeId == statusOrder)
                 .ToListAsync(ct);
         }
-        public List<PurchaseOrderDetail> GetByReferenceIdAndStatusOrder(int statusOrder, int? referenceId = null)
-        {
-            return _context.PurchaseOrderDetails.AsNoTracking()
-                .Include(p => p.PurchaseOrder)
-                .Include(p => p.ItemReference.Item.Line)
-                .Include(p => p.Warehouse)
-                .Where(p => (p.ReferenceId == referenceId || !referenceId.HasValue) && p.PurchaseOrder.StatusDocumentTypeId == statusOrder)
-                .ToList();
-        }
 
         public async Task UpdateAsync(int purchaseOrderDetailId, PurchaseOrderDetail purchaseOrder, CancellationToken ct = default)
         {

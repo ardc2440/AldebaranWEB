@@ -107,16 +107,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .Include(i => i.Employee.IdentityType)
                 .FirstOrDefaultAsync(i => i.CustomerOrderId.Equals(customerOrderId), ct);
         }
-        public CustomerOrder? Find(int customerOrderId)
-        {
-            return _context.CustomerOrders.AsNoTracking()
-                .Include(i => i.Customer.City.Department.Country)
-                .Include(i => i.Customer.IdentityType)
-                .Include(i => i.StatusDocumentType.DocumentType)
-                .Include(i => i.Employee.IdentityType)
-                .FirstOrDefault(i => i.CustomerOrderId.Equals(customerOrderId));
-        }
-
         public async Task UpdateAsync(int customerOrderId, CustomerOrder customerOrder, Reason reason, CancellationToken ct = default)
         {
             var entity = await _context.CustomerOrders.Include(i => i.CustomerOrderDetails).FirstOrDefaultAsync(x => x.CustomerOrderId == customerOrderId, ct) ?? throw new KeyNotFoundException($"Pedido con id {customerOrderId} no existe.");

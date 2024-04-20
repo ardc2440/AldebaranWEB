@@ -73,16 +73,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .Where(i => i.ExpirationDate.Date <= DateTime.Today && i.StatusDocumentType.StatusOrder == 1)
                 .ToListAsync(ct);
         }
-        public List<CustomerReservation> GetExpiredReservations()
-        {
-            return _context.CustomerReservations.AsNoTracking()
-                .Include(i => i.Customer.City.Department.Country)
-                .Include(i => i.Customer.IdentityType)
-                .Include(i => i.StatusDocumentType.DocumentType)
-                .Include(i => i.Employee.IdentityType)
-                .Where(i => i.ExpirationDate.Date <= DateTime.Today && i.StatusDocumentType.StatusOrder == 1)
-                .ToList();
-        }
         public async Task<IEnumerable<CustomerReservation>> GetAsync(string searchKey, CancellationToken ct = default)
         {
             return await _context.CustomerReservations.AsNoTracking()
@@ -120,16 +110,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .Include(i => i.Employee.IdentityType)
                 .Include(i => i.CustomerReservationDetails)
                 .FirstOrDefaultAsync(i => i.CustomerReservationId == customerReservationId, ct);
-        }
-        public CustomerReservation? Find(int customerReservationId)
-        {
-            return _context.CustomerReservations.AsNoTracking()
-                .Include(i => i.Customer.City.Department.Country)
-                .Include(i => i.Customer.IdentityType)
-                .Include(i => i.StatusDocumentType.DocumentType)
-                .Include(i => i.Employee.IdentityType)
-                .Include(i => i.CustomerReservationDetails)
-                .FirstOrDefault(i => i.CustomerReservationId == customerReservationId);
         }
 
         public async Task UpdateAsync(int customerReservationId, CustomerReservation customerReservation, Reason? reason, CancellationToken ct = default)

@@ -76,168 +76,77 @@ namespace Aldebaran.Web.Pages
         protected int pageSize = 7;
         protected Employee employee;
         List<DataTimer> Timers;
-        readonly GridTimer MinimumQuantityGridTimer = new GridTimer("MinimumQuantityGridTimer");
-        readonly GridTimer ItemsOutOfStockGridTimer = new GridTimer("ItemsOutOfStockGridTimer");
-        readonly GridTimer ExpiredReservationsGridTimer = new GridTimer("ExpiredReservationsGridTimer");
-        readonly GridTimer UserAlarmsGridTimer = new GridTimer("UserAlarmsGridTimer");
+        readonly GridTimer GridTimer = new GridTimer("Dahsboard-GridTimer");
         #endregion
 
         #region Overrides
         protected override async Task OnInitializedAsync()
         {
             Timers = TimerPreferenceService.Timers;
-            await Task.Yield();
             await InitializeGridTimers();
             employee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id);
-            await UpdateMinimumQuantitiesAsync();
-            await UpdateItemsOutOfStockAsync();
-            await UpdateExpiredReservationsAsync();
-            await UpdateUserAlarmsAsync();
+            await GridData_Update();
         }
         async Task InitializeGridTimers()
         {
-            await MinimumQuantityGridTimer.InitializeTimer(TimerPreferenceService.GetTimerPreferences(MinimumQuantityGridTimer.Key), async (sender, e) =>
+            await GridTimer.InitializeTimer(TimerPreferenceService.GetTimerPreferences(GridTimer.Key), async (sender, e) =>
             {
-                await UpdateMinimumQuantitiesAsync();
-            });
-
-            await ItemsOutOfStockGridTimer.InitializeTimer(TimerPreferenceService.GetTimerPreferences(ItemsOutOfStockGridTimer.Key), async (sender, e) =>
-            {
-                await UpdateItemsOutOfStockAsync();
-            });
-
-            await ExpiredReservationsGridTimer.InitializeTimer(TimerPreferenceService.GetTimerPreferences(ExpiredReservationsGridTimer.Key), async (sender, e) =>
-            {
-                await UpdateExpiredReservationsAsync();
-            });
-
-            await UserAlarmsGridTimer.InitializeTimer(TimerPreferenceService.GetTimerPreferences(UserAlarmsGridTimer.Key), async (sender, e) =>
-            {
-                await UpdateUserAlarmsAsync();
+                await InvokeAsync(async () =>
+                {
+                    GridTimer.IsLoading = true;
+                    try
+                    {
+                        StateHasChanged();
+                        await GridData_Update();
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError(ex, "Unable to update data for Dashboard Data");
+                        NotificationService.Notify(new NotificationMessage
+                        {
+                            Summary = "Actualización de información",
+                            Severity = NotificationSeverity.Error,
+                            Detail = $"No se ha podido actualizar la información, favor intente manualmente."
+                        });
+                    }
+                    finally
+                    {
+                        GridTimer.IsLoading = false;
+                        StateHasChanged();
+                    }
+                });
             });
         }
-        async Task UpdateMinimumQuantitiesAsync()
+        private async Task GridData_Update()
         {
-            await InvokeAsync(async () =>
-            {
-                await Task.Yield();
-                MinimumQuantityGridTimer.IsLoading = true;
-                try
-                {
-                    StateHasChanged();
-                    await Task.Delay(TimeSpan.FromSeconds(10));
-                    var detailInTransit = GetDetailInTransitAsync();
-                    var itemReferences = ItemReferenceService.GetAllReferencesWithMinimumQuantity();
-                    minimumQuantityArticles = MinimumQuantityArticle.GetMinimuQuantityArticleList(itemReferences, detailInTransit);
-                    await minimumQuantityArticlesGrid.Reload();
-                    Console.WriteLine($"=> {MinimumQuantityGridTimer.Key}: {DateTime.Now}");
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, "Unable to update data for MinimumQuantities");
-                    NotificationService.Notify(new NotificationMessage
-                    {
-                        Summary = "Cantidades mínimas",
-                        Severity = NotificationSeverity.Success,
-                        Detail = $"No se ha podido actualizar la información, favor intente manualmente."
-                    });
-                }
-                finally
-                {
-                    MinimumQuantityGridTimer.IsLoading = false;
-                    StateHasChanged();
-                }
-            });
+            var detailInTransit = await GetDetailInTransit();
+            var itemReferences = await ItemReferenceService.GetAllReferencesWithMinimumQuantityAsync();
+            await UpdateMinimumQuantitiesAsync(detailInTransit.ToList(), itemReferences.ToList());
+            await UpdateItemsOutOfStockAsync(detailInTransit.ToList(), itemReferences.ToList());
+            await UpdateExpiredReservationsAsync();
+            await UpdateUserAlarmsAsync();
+            Console.WriteLine($"{DateTime.Now}");
         }
-        async Task UpdateItemsOutOfStockAsync()
+        async Task UpdateMinimumQuantitiesAsync(List<PurchaseOrderDetail> detailInTransit, List<ItemReference> itemReferences)
         {
-            await InvokeAsync(async () =>
-            {
-                await Task.Yield();
-                ItemsOutOfStockGridTimer.IsLoading = true;
-                try
-                {
-                    var detailInTransit = GetDetailInTransitAsync();
-                    var itemReferences = ItemReferenceService.GetAllReferencesOutOfStock();
-                    outOfStockArticles = OutOfStockArticle.GetOutOfStockArticleList(itemReferences, detailInTransit);
-                    await outOfStockArticlesGrid.Reload();
-                    Console.WriteLine($"==> {ItemsOutOfStockGridTimer.Key}: {DateTime.Now}");
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, "Unable to update data for ItemsOutOfStock");
-                    NotificationService.Notify(new NotificationMessage
-                    {
-                        Summary = "Artículos sin disponible",
-                        Severity = NotificationSeverity.Success,
-                        Detail = $"No se ha podido actualizar la información, favor intente manualmente."
-                    });
-                }
-                finally
-                {
-                    ItemsOutOfStockGridTimer.IsLoading = false;
-                    StateHasChanged();
-                }
-            });
+            minimumQuantityArticles = MinimumQuantityArticle.GetMinimuQuantityArticleList(itemReferences, detailInTransit);
+            await minimumQuantityArticlesGrid.Reload();
         }
-        async Task UpdateExpiredReservationsAsync()
+        async Task UpdateItemsOutOfStockAsync(List<PurchaseOrderDetail> detailInTransit, List<ItemReference> itemReferences)
         {
-            await InvokeAsync(async () =>
-            {
-                await Task.Yield();
-                ExpiredReservationsGridTimer.IsLoading = true;
-                try
-                {
-                    expiredReservations = CustomerReservationService.GetExpiredReservations();
-                    await expiredReservationsGrid.Reload();
-                    Console.WriteLine($"===> {ExpiredReservationsGridTimer.Key}: {DateTime.Now}");
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, "Unable to update data for ExpiredReservations");
-                    NotificationService.Notify(new NotificationMessage
-                    {
-                        Summary = "Reservas vencidas",
-                        Severity = NotificationSeverity.Success,
-                        Detail = $"No se ha podido actualizar la información, favor intente manualmente."
-                    });
-                }
-                finally
-                {
-                    ExpiredReservationsGridTimer.IsLoading = false;
-                    StateHasChanged();
-                }
-            });
+            outOfStockArticles = OutOfStockArticle.GetOutOfStockArticleList(itemReferences, detailInTransit);
+            await outOfStockArticlesGrid.Reload();
         }
-        async Task UpdateUserAlarmsAsync()
+        async Task UpdateExpiredReservationsAsync(CancellationToken ct = default)
         {
-            await InvokeAsync(async () =>
-            {
-                await Task.Yield();
-                UserAlarmsGridTimer.IsLoading = true;
-                try
-                {
-                    var alarmList = (await AlarmService.GetByEmployeeIdAsync(employee.EmployeeId)).ToList();
-                    alarms = Models.ViewModels.Alarm.GetAlarmsList(alarmList, AlarmService);
-                    await alarmsGrid.Reload();
-                    Console.WriteLine($"====> {UserAlarmsGridTimer.Key}: {DateTime.Now}");
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, "Unable to update data for UserAlarms");
-                    NotificationService.Notify(new NotificationMessage
-                    {
-                        Summary = "Alarmas del día",
-                        Severity = NotificationSeverity.Success,
-                        Detail = $"No se ha podido actualizar la información, favor intente manualmente."
-                    });
-                }
-                finally
-                {
-                    UserAlarmsGridTimer.IsLoading = false;
-                    StateHasChanged();
-                }
-            });
+            expiredReservations = (await CustomerReservationService.GetExpiredReservationsAsync(ct)).ToList();
+            await expiredReservationsGrid.Reload();
+        }
+        async Task UpdateUserAlarmsAsync(CancellationToken ct = default)
+        {
+            var alarmList = await AlarmService.GetByEmployeeIdAsync(employee.EmployeeId, ct);
+            alarms = await Models.ViewModels.Alarm.GetAlarmsList(alarmList.ToList(), AlarmService);
+            await alarmsGrid.Reload();
         }
 
         #endregion
@@ -255,11 +164,11 @@ namespace Aldebaran.Web.Pages
             }
         }
 
-        List<PurchaseOrderDetail> GetDetailInTransitAsync()
+        async Task<IEnumerable<PurchaseOrderDetail>> GetDetailInTransit()
         {
-            var documentType = DocumentTypeService.FindByCode("O");
-            var statusOrder = StatusDocumentTypeService.FindByDocumentAndOrder(documentType.DocumentTypeId, 1);
-            return PurchaseOrderDetailService.GetTransitDetailOrders(statusOrder.StatusDocumentTypeId);
+            var documentType = await DocumentTypeService.FindByCodeAsync("O");
+            var statusOrder = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 1);
+            return await PurchaseOrderDetailService.GetTransitDetailOrdersAsync(statusOrder.StatusDocumentTypeId);
         }
 
         protected async Task OpenCustomerReservation(CustomerReservation args)
@@ -277,39 +186,17 @@ namespace Aldebaran.Web.Pages
             }
         }
 
-        private async Task MinimumQuantityData_UpdateOnTimerChange(object value)
+        private async Task GridaData_UpdateOnTimerChange(object value)
         {
-            await UpdateTimer((double)value, MinimumQuantityGridTimer);
-        }
-
-        private async Task ItemsOutOfStockData_UpdateOnTimerChange(object value)
-        {
-            await UpdateTimer((double)value, ItemsOutOfStockGridTimer);
-        }
-
-        private async Task ExpiredReservationsData_UpdateOnTimerChange(object value)
-        {
-            await UpdateTimer((double)value, ExpiredReservationsGridTimer);
-        }
-
-        private async Task UserAlarmsData_UpdateOnTimerChange(object value)
-        {
-            await UpdateTimer((double)value, UserAlarmsGridTimer);
-        }
-
-        async Task UpdateTimer(double milliseconds, GridTimer gridTimer)
-        {
-            gridTimer.UpdateTimerInterval(milliseconds);
-            TimerPreferenceService.UpdateTimerPreferences(gridTimer.Key, milliseconds);
+            var milliseconds = (double)value;
+            GridTimer.UpdateTimerInterval(milliseconds);
+            TimerPreferenceService.UpdateTimerPreferences(GridTimer.Key, milliseconds);
         }
         #endregion
 
         public void Dispose()
         {
-            MinimumQuantityGridTimer.Dispose();
-            ItemsOutOfStockGridTimer.Dispose();
-            ExpiredReservationsGridTimer.Dispose();
-            UserAlarmsGridTimer.Dispose();
+            GridTimer.Dispose();
         }
     }
 }

@@ -93,19 +93,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                .Where(w => w.PurchaseOrderId == purchaseOrderId)
                .FirstOrDefaultAsync(ct);
         }
-        public PurchaseOrder? Find(int purchaseOrderId)
-        {
-            return _context.PurchaseOrders.AsNoTracking()
-               .Include(i => i.Employee.Area)
-               .Include(i => i.Employee.IdentityType)
-               .Include(i => i.ForwarderAgent.Forwarder)
-               .Include(i => i.Provider.IdentityType)
-               .Include(i => i.ShipmentForwarderAgentMethod.ShipmentMethod)
-               .Include(i => i.ShipmentForwarderAgentMethod.ForwarderAgent)
-               .Include(i => i.StatusDocumentType.DocumentType)
-               .Where(w => w.PurchaseOrderId == purchaseOrderId)
-               .FirstOrDefault();
-        }
 
         public async Task<IEnumerable<PurchaseOrder>> GetAsync(CancellationToken ct = default)
         {

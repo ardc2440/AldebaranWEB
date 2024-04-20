@@ -21,12 +21,6 @@ namespace Aldebaran.Application.Services
 
         }
 
-        public StatusDocumentType? FindByDocumentAndOrder(int documentTypeId, int order)
-        {
-            var data = _repository.FindByDocumentAndOrder(documentTypeId, order);
-            return _mapper.Map<StatusDocumentType?>(data);
-        }
-
         public async Task<StatusDocumentType?> FindByDocumentAndOrderAsync(int documentTypeId, int order, CancellationToken ct = default)
         {
             var data = await _repository.FindByDocumentAndOrderAsync(documentTypeId, order, ct);

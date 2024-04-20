@@ -43,11 +43,6 @@ namespace Aldebaran.Application.Services
             var data = await _repository.GetByReferenceIdAndStatusOrderAsync(statusOrder, referenceId, ct);
             return _mapper.Map<IEnumerable<PurchaseOrderDetail>>(data);
         }
-        public List<PurchaseOrderDetail> GetTransitDetailOrders(int statusOrder, int? referenceId = null)
-        {
-            var data = _repository.GetByReferenceIdAndStatusOrder(statusOrder, referenceId);
-            return _mapper.Map<List<PurchaseOrderDetail>>(data);
-        }
         public async Task UpdateAsync(int purchaseOrderDetailId, PurchaseOrderDetail purchaseOrder, CancellationToken ct = default)
         {
             var entity = _mapper.Map<Entities.PurchaseOrderDetail>(purchaseOrder) ?? throw new ArgumentNullException("Referencia de la orden de compra no puede ser nula.");

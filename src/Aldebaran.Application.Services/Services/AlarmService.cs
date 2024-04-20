@@ -38,45 +38,45 @@ namespace Aldebaran.Application.Services
             return _mapper.Map<List<Alarm>>(data);
         }
 
-        public string GetDocumentNumber(int documentId, string documentTypeCode, CancellationToken ct = default)
+        public async Task<string> GetDocumentNumberAsync(int documentId, string documentTypeCode, CancellationToken ct = default)
         {
             switch (documentTypeCode)
             {
                 case "O":
-                    return GetPurchaseOrderNumber(documentId);
+                    return await GetPurchaseOrderNumber(documentId, ct);
                 case "P":
-                    return GetCustomerOrderNumber(documentId);
+                    return await GetCustomerOrderNumber(documentId, ct);
                 case "R":
-                    return GetCustomerReservationNumber(documentId);
+                    return await GetCustomerReservationNumber(documentId, ct);
                 default:
                     return "N/A";
             }
         }
 
-        internal string GetCustomerOrderNumber(int documentId)
+        internal async Task<string> GetCustomerOrderNumber(int documentId, CancellationToken ct = default)
         {
             var customerOrderNumber = "N/A";
-            var customerOrder = _customerOrderService.Find(documentId);
+            var customerOrder = await _customerOrderService.FindAsync(documentId, ct);
             if (customerOrder != null)
                 customerOrderNumber = customerOrder.OrderNumber;
 
             return customerOrderNumber;
         }
 
-        internal string GetCustomerReservationNumber(int documentId)
+        internal async Task<string> GetCustomerReservationNumber(int documentId, CancellationToken ct = default)
         {
             var customerReservationNumber = "N/A";
-            var customerReservation = _customerReservationService.Find(documentId);
+            var customerReservation = await _customerReservationService.FindAsync(documentId, ct);
             if (customerReservation != null)
                 customerReservationNumber = customerReservation.ReservationNumber;
 
             return customerReservationNumber;
         }
 
-        internal string GetPurchaseOrderNumber(int documentId)
+        internal async Task<string> GetPurchaseOrderNumber(int documentId, CancellationToken ct = default)
         {
             var purchaseOrderNumber = "N/A";
-            var purchaseOrder = _purchaseOrderService.Find(documentId);
+            var purchaseOrder = await _purchaseOrderService.FindAsync(documentId, ct);
             if (purchaseOrder != null)
                 purchaseOrderNumber = purchaseOrder.OrderNumber;
 

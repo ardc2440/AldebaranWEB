@@ -5,19 +5,19 @@ namespace Aldebaran.Web.Models.ViewModels
     public class Alarm
     {
         public int AlarmId { get; set; }
-        public String AlarmMessage { get; set; }
+        public string AlarmMessage { get; set; }
         public DateTime CreationDate { get; set; }
         public DateTime ExecutionDate { get; set; }
         public string DocumentTypeName { get; set; }
         public string DocumentNumber { get; set; }
 
-        public static List<Alarm> GetAlarmsList(List<Application.Services.Models.Alarm> alarms, IAlarmService alarmService)
+        public static async Task<List<Alarm>> GetAlarmsList(List<Application.Services.Models.Alarm> alarms, IAlarmService alarmService, CancellationToken ct = default)
         {
             var result = new List<Alarm>();
 
             foreach (var alarm in alarms)
             {
-                var documentNumber = alarmService.GetDocumentNumber(alarm.DocumentId, alarm.AlarmMessage.AlarmType.DocumentType.DocumentTypeCode);
+                var documentNumber = await alarmService.GetDocumentNumberAsync(alarm.DocumentId, alarm.AlarmMessage.AlarmType.DocumentType.DocumentTypeCode, ct);
 
                 var alarmUser = new Alarm
                 {
