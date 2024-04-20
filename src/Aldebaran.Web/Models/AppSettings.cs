@@ -4,5 +4,6 @@
     {
         public int[] RefreshIntervalOptionsMinutes { get; set; }
         public TimeSpan SlidingExpirationCache { get; set; }
+        public int DefaultIntervalOption { get; set; }
     }
 }

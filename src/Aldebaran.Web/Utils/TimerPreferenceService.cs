@@ -31,7 +31,7 @@ namespace Aldebaran.Web.Utils
         public DataTimer GetTimerPreferences(string key)
         {
             var loggedUserCache = GetCacheKey(key);
-            var min = Timers.MinBy(x => x.Milliseconds); // Por defecto sera el minimo tiempo posible de refresco
+            var min = Timers.Single(s => s.Milliseconds == TimeSpan.FromMinutes(_settings.DefaultIntervalOption).TotalMilliseconds);
             if (!_memoryCache.TryGetValue(loggedUserCache, out DataTimer timer))
             {
                 // No se encuentra en cache el tiempo por defecto

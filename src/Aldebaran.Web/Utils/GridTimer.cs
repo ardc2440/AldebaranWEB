@@ -6,9 +6,11 @@
         public System.Timers.Timer Timer { get; set; }
         public double SelectedTimer { get; set; }
         public bool IsLoading { get; set; } = false;
+        public DateTime LastUpdate { get; set; }
         public GridTimer(string key)
         {
             Key = key;
+            LastUpdate = DateTime.Now;
         }
 
         public async Task<GridTimer> InitializeTimer(DataTimer dataTimer, System.Timers.ElapsedEventHandler elapsedHandler)

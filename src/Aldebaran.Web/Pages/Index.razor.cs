@@ -119,13 +119,14 @@ namespace Aldebaran.Web.Pages
         }
         private async Task GridData_Update()
         {
+            GridTimer.LastUpdate = DateTime.Now;
+            Console.WriteLine($"{GridTimer.LastUpdate}");
             var detailInTransit = await GetDetailInTransit();
             var itemReferences = await ItemReferenceService.GetAllReferencesWithMinimumQuantityAsync();
             await UpdateMinimumQuantitiesAsync(detailInTransit.ToList(), itemReferences.ToList());
             await UpdateItemsOutOfStockAsync(detailInTransit.ToList(), itemReferences.ToList());
             await UpdateExpiredReservationsAsync();
             await UpdateUserAlarmsAsync();
-            Console.WriteLine($"{DateTime.Now}");
         }
         async Task UpdateMinimumQuantitiesAsync(List<PurchaseOrderDetail> detailInTransit, List<ItemReference> itemReferences)
         {
