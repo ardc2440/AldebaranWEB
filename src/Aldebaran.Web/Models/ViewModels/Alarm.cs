@@ -11,7 +11,7 @@ namespace Aldebaran.Web.Models.ViewModels
         public string DocumentTypeName { get; set; }
         public string DocumentNumber { get; set; }
 
-        public static async Task<List<Alarm>> GetAlarmsList(List<Application.Services.Models.Alarm> alarms, IAlarmService alarmService, CancellationToken ct = default)
+        public static async Task<List<Alarm>> GetAlarmsListAsync(List<Application.Services.Models.Alarm> alarms, IAlarmService alarmService, CancellationToken ct = default)
         {
             var result = new List<Alarm>();
 

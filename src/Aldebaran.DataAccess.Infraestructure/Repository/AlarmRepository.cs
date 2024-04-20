@@ -23,18 +23,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                             .ToListAsync(ct);
         }
 
-        public List<Alarm> GetByEmployeeId(int employeeId)
-        {
-            return _context.Alarms.AsNoTracking()
-                            .Include(i => i.AlarmMessage.AlarmType.DocumentType)
-                            .Where(i => i.ExecutionDate <= DateTime.Now && i.IsActive &&
-                                        !_context.VisualizedAlarms.AsNoTracking().Any(j => j.AlarmId == i.AlarmId) &&
-                                         _context.UsersAlarmTypes.AsNoTracking().Any(k => k.Visualize &&
-                                                                                          k.EmployeeId == employeeId &&
-                                                                                          k.AlarmTypeId == i.AlarmMessage.AlarmTypeId))
-                            .ToList();
-        }
-
         public async Task<IEnumerable<Alarm>> GetByDocumentIdAsync(int documentTypeId, int documentId, CancellationToken ct = default)
         {
             return await _context.Alarms.AsNoTracking()

@@ -145,7 +145,7 @@ namespace Aldebaran.Web.Pages
         async Task UpdateUserAlarmsAsync(CancellationToken ct = default)
         {
             var alarmList = await AlarmService.GetByEmployeeIdAsync(employee.EmployeeId, ct);
-            alarms = await Models.ViewModels.Alarm.GetAlarmsList(alarmList.ToList(), AlarmService);
+            alarms = await Models.ViewModels.Alarm.GetAlarmsListAsync(alarmList.ToList(), AlarmService);
             await alarmsGrid.Reload();
         }
 
