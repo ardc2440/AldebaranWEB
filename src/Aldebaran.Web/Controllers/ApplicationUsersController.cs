@@ -115,7 +115,9 @@ namespace Aldebaran.Web.Controllers
 
                 if (result.Succeeded)
                 {
-                    result = await userManager.AddToRolesAsync(user, data.Roles.Select(r => r.Name));
+                    var newroles = data.Roles.Select(r => r.Name).ToList();
+                    await Task.Delay(500);
+                    result = await userManager.AddToRolesAsync(user, newroles);
                 }
             }
 
