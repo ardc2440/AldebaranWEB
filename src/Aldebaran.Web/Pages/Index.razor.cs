@@ -19,22 +19,7 @@ namespace Aldebaran.Web.Pages
 
         [Inject]
         protected NavigationManager NavigationManager { get; set; }
-
-        [Inject]
-        public IItemReferenceService ItemReferenceService { get; set; }
-
-        [Inject]
-        public IDocumentTypeService DocumentTypeService { get; set; }
-
-        [Inject]
-        public IStatusDocumentTypeService StatusDocumentTypeService { get; set; }
-
-        [Inject]
-        public IPurchaseOrderDetailService PurchaseOrderDetailService { get; set; }
-
-        [Inject]
-        public ICustomerReservationService CustomerReservationService { get; set; }
-
+               
         [Inject]
         public IAlarmService AlarmService { get; set; }
 
@@ -42,7 +27,7 @@ namespace Aldebaran.Web.Pages
         public IVisualizedAlarmService VisualizedAlarmService { get; set; }
 
         [Inject]
-        public IEmployeeService EmployeeService { get; set; }
+        public IDashBoardService DashBoardService { get; set; }
 
         [Inject]
         protected TooltipService TooltipService { get; set; }
@@ -75,6 +60,9 @@ namespace Aldebaran.Web.Pages
 
         protected int pageSize = 7;
         protected Employee employee;
+        protected DocumentType orderDocumentType;
+        protected StatusDocumentType pendingStatusOrder;
+
         List<DataTimer> Timers;
         readonly GridTimer GridTimer = new GridTimer("Dahsboard-GridTimer");
         #endregion
@@ -84,7 +72,10 @@ namespace Aldebaran.Web.Pages
         {
             Timers = TimerPreferenceService.Timers;
             await InitializeGridTimers();
-            employee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id);
+            employee = await DashBoardService.FindByLoginUserIdAsync(Security.User.Id);
+            orderDocumentType = await DashBoardService.FindByCodeAsync("O");
+            pendingStatusOrder = await DashBoardService.FindByDocumentAndOrderAsync(orderDocumentType.DocumentTypeId, 1);
+
             await GridData_Update();
         }
         async Task InitializeGridTimers()
@@ -121,8 +112,8 @@ namespace Aldebaran.Web.Pages
         {
             GridTimer.LastUpdate = DateTime.Now;
             Console.WriteLine($"{GridTimer.LastUpdate}");
-            var detailInTransit = await GetDetailInTransit();
-            var itemReferences = await ItemReferenceService.GetAllReferencesWithMinimumQuantityAsync();
+            var detailInTransit = await DashBoardService.GetTransitDetailOrdersAsync(pendingStatusOrder.StatusDocumentTypeId);
+            var itemReferences = await DashBoardService.GetAllReferencesWithMinimumQuantityAsync();
             await UpdateMinimumQuantitiesAsync(detailInTransit.ToList(), itemReferences.ToList());
             await UpdateItemsOutOfStockAsync(detailInTransit.ToList(), itemReferences.ToList());
             await UpdateExpiredReservationsAsync();
@@ -140,12 +131,12 @@ namespace Aldebaran.Web.Pages
         }
         async Task UpdateExpiredReservationsAsync(CancellationToken ct = default)
         {
-            expiredReservations = (await CustomerReservationService.GetExpiredReservationsAsync(ct)).ToList();
+            expiredReservations = (await DashBoardService.GetExpiredReservationsAsync(ct)).ToList();
             await expiredReservationsGrid.Reload();
         }
         async Task UpdateUserAlarmsAsync(CancellationToken ct = default)
         {
-            var alarmList = await AlarmService.GetByEmployeeIdAsync(employee.EmployeeId, ct);
+            var alarmList = await DashBoardService.GetByEmployeeIdAsync(employee.EmployeeId, ct);
             alarms = await Models.ViewModels.Alarm.GetAlarmsListAsync(alarmList.ToList(), AlarmService);
             await alarmsGrid.Reload();
         }
@@ -164,14 +155,7 @@ namespace Aldebaran.Web.Pages
                 pageSize = newRowSize;
             }
         }
-
-        async Task<IEnumerable<PurchaseOrderDetail>> GetDetailInTransit()
-        {
-            var documentType = await DocumentTypeService.FindByCodeAsync("O");
-            var statusOrder = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 1);
-            return await PurchaseOrderDetailService.GetTransitDetailOrdersAsync(statusOrder.StatusDocumentTypeId);
-        }
-
+        
         protected async Task OpenCustomerReservation(CustomerReservation args)
         {
             NavigationManager.NavigateTo("send-to-customer-order/view/" + args.CustomerReservationId);

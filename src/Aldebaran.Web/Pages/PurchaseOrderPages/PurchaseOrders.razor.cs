@@ -312,7 +312,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 return false;
 
             int[] validStatusOrder = { 1 };
-            return Security.IsInRole("Admin", "Customer Order Editor") && validStatusOrder.Contains(statusOrder);
+            return Security.IsInRole("Administrador", "Modificación de pedidos") && validStatusOrder.Contains(statusOrder);
         }
 
         protected async Task DisableAlarm(Application.Services.Models.Alarm alarm)

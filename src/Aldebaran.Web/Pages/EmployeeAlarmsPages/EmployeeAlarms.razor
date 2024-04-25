@@ -1,5 +1,5 @@
 ﻿@page "/employee-alarms"
-@attribute [Authorize(Roles = "Admin,User Alarms Viewer,User Alarms Editor")]
+@attribute [Authorize(Roles = "Administrador,Consulta de alarmas por usuario,Asignación de alarmas por usuario")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @using ServiceModel = Aldebaran.Application.Services.Models;
 
@@ -26,7 +26,7 @@
                                         <RadzenAccordionItem Text="@alarm.Name" class="accordion-content-no-padding" >
                                             <span class="accordion-sub">@alarm.Description</span>
                                             <RadzenStack class="mt-4">
-                                                <RadzenRow Gap="0" AlignItems="AlignItems.Center" Visible="@Security.IsInRole("Admin","User Alarms Editor")">
+                                                <RadzenRow Gap="0" AlignItems="AlignItems.Center" Visible="@Security.IsInRole("Administrador","Asignación de alarmas por usuario")">
                                                     <RadzenColumn Size="12">
                                                         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
                                                             <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click=@(args => AddAlarmToEmployee(alarm)) />
@@ -49,10 +49,10 @@
                                                         </RadzenDataGridColumn>
                                                         <RadzenDataGridColumn TItem="ServiceModel.UsersAlarmType" Property="Employee.Position" Title="Cargo">
                                                         </RadzenDataGridColumn>
-                                                        <RadzenDataGridColumn TItem="ServiceModel.UsersAlarmType" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Admin","User Alarms Editor")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                                                        <RadzenDataGridColumn TItem="ServiceModel.UsersAlarmType" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Administrador","Asignación de alarmas por usuario")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                                                             <Template Context="usersAlarmType">
                                                                 <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Eliminar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
-                                                                              Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@Security.IsInRole("Admin","User Alarms Editor")"
+                                                                              Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@Security.IsInRole("Administrador","Asignación de alarmas por usuario")"
                                                                               Click=@(args => OnDeleteEmployee(usersAlarmType.Employee, alarm)) @onclick:stopPropagation="true" />
                                                             </Template>
                                                         </RadzenDataGridColumn>

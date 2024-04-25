@@ -163,9 +163,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
             await customerOrderDetailGrid.Reload();
         }
 
-        protected bool CanSend(DetailInProcess detailInProcess) => detailInProcess.PROCESSED_QUANTITY > 0 && Security.IsInRole("Admin", "Customer Order Shipment Editor");
+        protected bool CanSend(DetailInProcess detailInProcess) => detailInProcess.PROCESSED_QUANTITY > 0 && Security.IsInRole("Administrador", "Modificación de despachos");
 
-        protected bool CanCancel(DetailInProcess detailInProcess) => detailInProcess.THIS_QUANTITY > 0 && Security.IsInRole("Admin", "Customer Order Shipment Editor");
+        protected bool CanCancel(DetailInProcess detailInProcess) => detailInProcess.THIS_QUANTITY > 0 && Security.IsInRole("Administrador", "Modificación de despachos");
 
         protected async Task FormSubmit()
         {

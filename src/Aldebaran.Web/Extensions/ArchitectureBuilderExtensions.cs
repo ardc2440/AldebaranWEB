@@ -55,6 +55,8 @@ namespace Aldebaran.Web.Extensions
             });
             // Data context
             services.AddDbContext<DataAccess.AldebaranDbContext>(options => { options.UseSqlServer(dbConnection).AddTriggers(); }, ServiceLifetime.Scoped, ServiceLifetime.Scoped);
+            //
+            services.AddDbContext<DataAccess.AldebaranDashBoardDbContext>(options => { options.UseSqlServer(dbConnection).AddTriggers(); }, ServiceLifetime.Transient, ServiceLifetime.Scoped);
             // Identity context
             builder.Services.AddDbContext<ApplicationIdentityDbContext>(options => { options.UseSqlServer(dbConnection); }, ServiceLifetime.Scoped, ServiceLifetime.Scoped);
             builder.Services.AddIdentity<ApplicationUser, ApplicationRole>().AddEntityFrameworkStores<ApplicationIdentityDbContext>().AddDefaultTokenProviders().AddErrorDescriber<MultilanguageIdentityErrorDescriber>();
@@ -256,6 +258,7 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IFreezoneVsAvailableReportRepository, FreezoneVsAvailableReportRepository>();
             services.AddTransient<ICustomerSaleReportRepository, CustomerSaleReportRepository>();
             services.AddTransient<IEmailNotificationProviderSettingsRepository, EmailNotificationProviderSettingsRepository>();
+            services.AddTransient<IDashBoardRepository, DashBoardRepository>();
 
             #endregion
             // Services
@@ -342,6 +345,7 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<ICustomerSaleReportService, CustomerSaleReportService>();
             services.AddTransient<IEmailNotificationProviderSettingsService, EmailNotificationProviderSettingsService>();
             services.AddTransient<INotificationTemplateService, NotificationTemplateService>();
+            services.AddTransient<IDashBoardService, DashBoardService>();
             #endregion
 
             services.AddTransient<IQueue, RabbitQueue>();

@@ -261,12 +261,12 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
         protected async Task<bool> CanEdit(CustomerReservation customerReservation)
         {
-            return Security.IsInRole("Admin", "Customer Reservation Editor") && customerReservation.StatusDocumentType.EditMode;
+            return Security.IsInRole("Administrador", "Modificación de reservas") && customerReservation.StatusDocumentType.EditMode;
         }
 
         protected async Task<bool> CanSendToCustomerOrder(CustomerReservation customerReservation)
         {
-            return Security.IsInRole("Admin", "Customer Order Editor") && customerReservation.StatusDocumentType.EditMode;
+            return Security.IsInRole("Administrador", "Modificación de pedidos") && customerReservation.StatusDocumentType.EditMode;
         }
 
         protected async Task SendToCustomerOrder(CustomerReservation args)
@@ -282,7 +282,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                 return false;
 
             int[] validStatusOrder = { 1 };
-            return Security.IsInRole("Admin", "Customer Order Editor") && validStatusOrder.Contains(statusOrder);
+            return Security.IsInRole("Administrador", "Modificación de pedidos") && validStatusOrder.Contains(statusOrder);
         }
 
         protected async Task DisableAlarm(Application.Services.Models.Alarm alarm)

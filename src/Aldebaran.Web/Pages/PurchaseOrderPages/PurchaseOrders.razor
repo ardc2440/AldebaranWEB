@@ -1,7 +1,7 @@
 @page "/purchase-orders"
 @page "/purchase-orders/{PURCHASE_ORDER_ID}"
 @page "/purchase-orders/{Action}/{PURCHASE_ORDER_ID}"
-@attribute [Authorize(Roles = "Admin,Purchase Order Viewer,Purchase Order Editor")]
+@attribute [Authorize(Roles = "Administrador,Consulta de órdenes de compra,Modificación de órdenes de compra")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @using ServiceModel = Aldebaran.Application.Services.Models;
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
@@ -16,7 +16,7 @@
             <RadzenColumn Size="12">
                 <RadzenText Text="Ordenes de compra" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
             </RadzenColumn>
-            <RadzenColumn Size="12" Visible="@Security.IsInRole("Admin","Purchase Order Editor")">
+            <RadzenColumn Size="12" Visible="@Security.IsInRole("Administrador","Modificación de órdenes de compra")">
                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
                     <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddPurchaseOrder" Variant="Variant.Flat" />
                 </RadzenStack>
@@ -70,7 +70,7 @@
                                 <span>@purchaseOrder.ShipmentForwarderAgentMethod.ShipmentMethod.ShipmentMethodName</span>
                             </Template>
                         </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Filterable="false" Sortable="false" Width="130px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Admin","Purchase Order Editor")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                        <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Filterable="false" Sortable="false" Width="130px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Administrador","Modificación de órdenes de compra")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                             <Template Context="purchaseOrder">
                                 <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="done_all" Size="ButtonSize.Medium" Visible="purchaseOrder.StatusDocumentType.EditMode == true" MouseEnter="@(args => ShowTooltip(args,"Confirmar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
                                               Shade="Shade.Lighter" Variant="Variant.Flat"
@@ -117,7 +117,7 @@
                                 </RadzenTabsItem>
                                 <RadzenTabsItem Text="Actividades">
                                     <RadzenStack>
-                                        <RadzenRow Gap="0" AlignItems="AlignItems.Center" Visible="@Security.IsInRole("Admin","Purchase Order Activities Editor")">
+                                        <RadzenRow Gap="0" AlignItems="AlignItems.Center" Visible="@Security.IsInRole("Administrador","Modificación de actividades de una orden de compra")">
                                             <RadzenColumn Size="12" Visible="purchaseOrder.StatusDocumentType.StatusOrder == 1">
                                                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
                                                     <RadzenButton Visible="@(purchaseOrder != null)" Icon="add_circle_outline" Text="Nuevo" Click=@(args => AddPurchaseOrderActivity(args,purchaseOrder)) />
@@ -145,7 +145,7 @@
                                                 </RadzenDataGridColumn>
                                                 <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderActivity" Property="ActivityDescription" Title="Actividad">
                                                 </RadzenDataGridColumn>
-                                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderActivity" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Visible="@Security.IsInRole("Admin","Purchase Order Activities Editor")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderActivity" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Visible="@Security.IsInRole("Administrador","Modificación de actividades de una orden de compra")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                                                     <Template Context="activity">
                                                         <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="edit" Size="ButtonSize.Medium" Variant="Variant.Flat" Visible="purchaseOrder.StatusDocumentType.EditMode == true" MouseEnter="@(args => ShowTooltip(args,"Actualizar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
                                                                       Click=@(args => EditPurchaseOrderActivity(activity,purchaseOrder)) @onclick:stopPropagation="true" />

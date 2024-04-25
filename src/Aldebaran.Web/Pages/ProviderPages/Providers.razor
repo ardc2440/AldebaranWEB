@@ -1,5 +1,5 @@
 @page "/providers"
-@attribute [Authorize(Roles = "Admin,Provider Viewer,Provider Editor")]
+@attribute [Authorize(Roles = "Administrador,Consulta de proveedores,Modificación de proveedores")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @using ServiceModel = Aldebaran.Application.Services.Models;
 
@@ -13,7 +13,7 @@
         <RadzenColumn Size="12">
             <RadzenText Text="Proveedores" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
         </RadzenColumn>
-        <RadzenColumn Size="12" Visible="@Security.IsInRole("Admin","Provider Editor")">
+        <RadzenColumn Size="12" Visible="@Security.IsInRole("Administrador","Modificación de proveedores")">
             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
                 <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddProvider" Variant="Variant.Flat" />
             </RadzenStack>
@@ -48,7 +48,7 @@
                             <span>(@provider.City.Department.Country.CountryCode) @provider.City.Department.DepartmentName - @provider.City.CityName</span>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="ServiceModel.Provider" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Admin","Provider Editor")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                    <RadzenDataGridColumn TItem="ServiceModel.Provider" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Administrador","Modificación de proveedores")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                         <Template Context="provider">
                             <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Actualizar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
                                           Click="@(args => EditProvider(provider))" @onclick:stopPropagation="true">
@@ -65,7 +65,7 @@
                             <RadzenColumn Size="12">
                                 <RadzenText Visible="@(provider != null)" Text="Referencias" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
                             </RadzenColumn>
-                            <RadzenColumn Size="12" isible="@Security.IsInRole("Admin","Provider Editor")">
+                            <RadzenColumn Size="12" isible="@Security.IsInRole("Administrador","Modificación de proveedores")">
                                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
                                     <RadzenButton Visible="@(provider != null)" Icon="add_circle_outline" Text="Nuevo" Click=@(args => AddProviderReference(args,provider)) />
                                 </RadzenStack>
@@ -100,7 +100,7 @@
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="ServiceModel.ProviderReference" Property="ItemReference.AlarmMinimumQuantity" Title="Cantidad mínima" Visible="false">
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="ServiceModel.ProviderReference" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Admin","Provider Editor")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                                <RadzenDataGridColumn TItem="ServiceModel.ProviderReference" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Administrador","Modificación de proveedores")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                                     <Template Context="itemReference">
                                         <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Shade="Shade.Lighter" Variant="Variant.Flat" MouseEnter="@(args => ShowTooltip(args,"Eliminar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
                                                       Click=@(args => DeleteProviderReference(args, itemReference)) @onclick:stopPropagation="true" />

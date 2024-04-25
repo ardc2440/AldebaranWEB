@@ -51,47 +51,47 @@
         <RadzenPanelMenu>
             <RadzenPanelMenuItem Text="Inicio" Path="" />
             <RadzenPanelMenuItem Text="Administración" Icon="admin_panel_settings">
-                <RadzenPanelMenuItem Text="Artículos" Path="items" Visible="@Security.IsInRole("Admin","Item Editor","Item Viewer")" />
-                <RadzenPanelMenuItem Text="Artículos por áreas" Path="areas" Visible="@Security.IsInRole("Admin","Area Editor","Area Viewer")" />
-                <RadzenPanelMenuItem Text="Transportadoras" Path="forwarders" Visible="@Security.IsInRole("Admin","Forwarder Editor","Forwarder Viewer")" />
-                <RadzenPanelMenuItem Text="Funcionarios" Path="employees" Visible="@Security.IsInRole("Admin","Employee Editor","Employee Viewer")" />
-                <RadzenPanelMenuItem Text="Alarmas por funcionario" Path="employee-alarms" Visible="@Security.IsInRole("Admin","User Alarms Viewer","User Alarms Editor")" />
-                <RadzenPanelMenuItem Text="Clientes" Path="customers" Visible="@Security.IsInRole("Admin","Customer Editor","Customer Viewer")" />
-                <RadzenPanelMenuItem Text="Proveedores" Path="providers" Visible="@Security.IsInRole("Admin","Provider Editor","Provider Viewer")" />
-                @if (Security.IsInRole("Admin"))
+                <RadzenPanelMenuItem Text="Artículos" Path="items" Visible="@Security.IsInRole("Administrador","Modificación de artículos","Consulta de artículos")" />
+                <RadzenPanelMenuItem Text="Artículos por áreas" Path="areas" Visible="@Security.IsInRole("Administrador","Modificación de artículos por área","Consulta de artículos por área")" />
+                <RadzenPanelMenuItem Text="Transportadoras" Path="forwarders" Visible="@Security.IsInRole("Administrador","Modificación de agentes de transporte","Consulta de agentes de transporte")" />
+                <RadzenPanelMenuItem Text="Funcionarios" Path="employees" Visible="@Security.IsInRole("Administrador","Modificación de funcionarios","Consulta de funcionarios")" />
+                <RadzenPanelMenuItem Text="Alarmas por funcionario" Path="employee-alarms" Visible="@Security.IsInRole("Administrador","Consulta de alarmas por usuario","Asignación de alarmas por usuario")" />
+                <RadzenPanelMenuItem Text="Clientes" Path="customers" Visible="@Security.IsInRole("Administrador","Modificación de clientes","Consulta de clientes")" />
+                <RadzenPanelMenuItem Text="Proveedores" Path="providers" Visible="@Security.IsInRole("Administrador","Modificación de proveedores","Consulta de proveedores")" />
+                @if (Security.IsInRole("Administrador"))
                 {
                     <hr class="divider">
                     <RadzenPanelMenuItem Text="Notificaciones" Path="email-notification-settings" />
                 }
             </RadzenPanelMenuItem>
             <RadzenPanelMenuItem Text="Movimientos de Inventario" Icon="extension">
-                <RadzenPanelMenuItem Text="Ordenes de compra" Path="purchase-orders" Visible=@Security.IsInRole("Admin","Purchase Order Editor", "Purchase Order Viewer") />
-                <RadzenPanelMenuItem Text="Reserva de artículos" Path="customer-reservations" Visible=@Security.IsInRole("Admin","Customer Reservation Viewer","Customer Reservation Editor","Customer Order Editor") />
-                <RadzenPanelMenuItem Text="Pedido de artículos" Path="customer-orders" Visible=@Security.IsInRole("Admin","Customer Order Viewer","Customer Order Editor") />
-                <RadzenPanelMenuItem Text="Traslado de pedidos a proceso " Path="process-customer-orders" Visible=@Security.IsInRole("Admin","Customer Order In Process Viewer","Customer Order In Process Editor") />
-                <RadzenPanelMenuItem Text="Despacho de pedidos procesados" Path="shipment-customer-orders" Visible=@Security.IsInRole("Admin","Customer Order Shipment Viewer","Customer Order Shipment Editor") />
-                <RadzenPanelMenuItem Text="Ajustes de inventario" Path="adjustments" Visible=@Security.IsInRole("Admin","Adjustment Editor","Adjustment Viewer") />
-                <RadzenPanelMenuItem Text="Traslado entre bodegas" Path="warehouse-transfers" Visible=@Security.IsInRole("Admin","Transfer Warehouses Editor","Transfer Warehouses Viewer") />
+                <RadzenPanelMenuItem Text="Ordenes de compra" Path="purchase-orders" Visible=@Security.IsInRole("Administrador","Modificación de órdenes de compra", "Consulta de órdenes de compra") />
+                <RadzenPanelMenuItem Text="Reserva de artículos" Path="customer-reservations" Visible=@Security.IsInRole("Administrador","Consulta de reservas","Modificación de reservas","Modificación de pedidos") />
+                <RadzenPanelMenuItem Text="Pedido de artículos" Path="customer-orders" Visible=@Security.IsInRole("Administrador","Consulta de pedidos","Modificación de pedidos") />
+                <RadzenPanelMenuItem Text="Traslado de pedidos a proceso " Path="process-customer-orders" Visible=@Security.IsInRole("Administrador","Consulta de pedidos en proceso","Modificación de pedidos en proceso") />
+                <RadzenPanelMenuItem Text="Despacho de pedidos procesados" Path="shipment-customer-orders" Visible=@Security.IsInRole("Administrador","Consulta de despachos","Modificación de despachos") />
+                <RadzenPanelMenuItem Text="Ajustes de inventario" Path="adjustments" Visible=@Security.IsInRole("Administrador","Modificación de ajustes de inventario","Consulta de ajustes de inventario") />
+                <RadzenPanelMenuItem Text="Traslado entre bodegas" Path="warehouse-transfers" Visible=@Security.IsInRole("Administrador","Modificación de traslados entre bodegas","Consulta de traslados entre bodegas") />
             </RadzenPanelMenuItem>
             <RadzenPanelMenuItem Text="Reportes" Icon="summarize">
                 <RadzenPanelMenuItem Text="Inventario" Icon="summarize">
-                    <RadzenPanelMenuItem Text="Inventario" Path="report/inventory" Visible=@Security.IsInRole("Admin","Report Viewer") />
-                    <RadzenPanelMenuItem Text="Inventario en proceso" Path="report/inprocess-inventory" Visible=@Security.IsInRole("Admin","Report Viewer") />
-                    <RadzenPanelMenuItem Text="Movimientos de artículos" Path="report/reference-movement" Visible=@Security.IsInRole("Admin","Report Viewer") />
-                    <RadzenPanelMenuItem Text="Existencias en bodega" Path="report/warehouse-stock" Visible=@Security.IsInRole("Admin","Report Viewer") />
-                    <RadzenPanelMenuItem Text="Ajustes de inventario" Path="report/inventory-adjustments" Visible=@Security.IsInRole("Admin","Report Viewer") />
-                    <RadzenPanelMenuItem Text="Traslados entre bodegas" Path="report/warehouse-transfers" Visible=@Security.IsInRole("Admin","Report Viewer") />
-                    <RadzenPanelMenuItem Text="Zona franca vs. Disponible" Path="/report/freezone-vs-available" Visible=@Security.IsInRole("Admin","Report Viewer") />
+                    <RadzenPanelMenuItem Text="Inventario" Path="report/inventory" Visible=@Security.IsInRole("Administrador","Consulta de reportes") />
+                    <RadzenPanelMenuItem Text="Inventario en proceso" Path="report/inprocess-inventory" Visible=@Security.IsInRole("Administrador","Consulta de reportes") />
+                    <RadzenPanelMenuItem Text="Movimientos de artículos" Path="report/reference-movement" Visible=@Security.IsInRole("Administrador","Consulta de reportes") />
+                    <RadzenPanelMenuItem Text="Existencias en bodega" Path="report/warehouse-stock" Visible=@Security.IsInRole("Administrador","Consulta de reportes") />
+                    <RadzenPanelMenuItem Text="Ajustes de inventario" Path="report/inventory-adjustments" Visible=@Security.IsInRole("Administrador","Consulta de reportes") />
+                    <RadzenPanelMenuItem Text="Traslados entre bodegas" Path="report/warehouse-transfers" Visible=@Security.IsInRole("Administrador","Consulta de reportes") />
+                    <RadzenPanelMenuItem Text="Zona franca vs. Disponible" Path="/report/freezone-vs-available" Visible=@Security.IsInRole("Administrador","Consulta de reportes") />
                 </RadzenPanelMenuItem>
                 <RadzenPanelMenuItem Text="Clientes" Icon="summarize">
-                    <RadzenPanelMenuItem Text="Reservas por cliente" Path="report/customer-reservation" Visible=@Security.IsInRole("Admin","Report Viewer") />
-                    <RadzenPanelMenuItem Text="Pedidos por cliente" Path="report/customer-order" Visible=@Security.IsInRole("Admin","Report Viewer") />
-                    <RadzenPanelMenuItem Text="Actividades de pedidos" Path="report/customer-order-activity" Visible=@Security.IsInRole("Admin","Report Viewer") />
-                    <RadzenPanelMenuItem Text="Ventas por cliente" Path="report/customer-sales" Visible=@Security.IsInRole("Admin","Report Viewer") />
+                    <RadzenPanelMenuItem Text="Reservas por cliente" Path="report/customer-reservation" Visible=@Security.IsInRole("Administrador","Consulta de reportes") />
+                    <RadzenPanelMenuItem Text="Pedidos por cliente" Path="report/customer-order" Visible=@Security.IsInRole("Administrador","Consulta de reportes") />
+                    <RadzenPanelMenuItem Text="Actividades de pedidos" Path="report/customer-order-activity" Visible=@Security.IsInRole("Administrador","Consulta de reportes") />
+                    <RadzenPanelMenuItem Text="Ventas por cliente" Path="report/customer-sales" Visible=@Security.IsInRole("Administrador","Consulta de reportes") />
                 </RadzenPanelMenuItem>
                 <RadzenPanelMenuItem Text="Proveedores" Icon="summarize">
-                    <RadzenPanelMenuItem Text="Referencias del proveedor" Path="report/provider-references" Visible=@Security.IsInRole("Admin","Report Viewer") />
-                    <RadzenPanelMenuItem Text="Ordenes en tránsito" Path="report/order-shipments" Visible=@Security.IsInRole("Admin","Report Viewer") />
+                    <RadzenPanelMenuItem Text="Referencias del proveedor" Path="report/provider-references" Visible=@Security.IsInRole("Administrador","Consulta de reportes") />
+                    <RadzenPanelMenuItem Text="Ordenes en tránsito" Path="report/order-shipments" Visible=@Security.IsInRole("Administrador","Consulta de reportes") />
                 </RadzenPanelMenuItem>
             </RadzenPanelMenuItem>
         </RadzenPanelMenu>

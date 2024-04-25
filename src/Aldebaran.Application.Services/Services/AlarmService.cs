@@ -25,13 +25,7 @@ namespace Aldebaran.Application.Services
             _purchaseOrderService = purchaseOrderService ?? throw new ArgumentNullException(nameof(IPurchaseOrderService));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(IMapper));
         }
-
-        public async Task<IEnumerable<Alarm>> GetByEmployeeIdAsync(int employeeId, CancellationToken ct = default)
-        {
-            var data = await _repository.GetByEmployeeIdAsync(employeeId, ct);
-            return _mapper.Map<List<Alarm>>(data);
-        }
-
+        
         public async Task<IEnumerable<Alarm>> GetByDocumentIdAsync(int documentTypeId, int documentId, CancellationToken ct = default)
         {
             var data = await _repository.GetByDocumentIdAsync(documentTypeId, documentId, ct);

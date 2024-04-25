@@ -1,6 +1,6 @@
 @page "/edit-customer-order-in-process/{CustomerOrderInProcessId}"
 
-@attribute [Authorize(Roles = "Admin,Customer Order In Process Editor")]
+@attribute [Authorize(Roles = "Administrador,Modificación de pedidos en proceso")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
 
@@ -175,7 +175,7 @@
                                         <Template Context="detail">
                                             <RadzenButton Icon="assignment_ind" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
                                                           Click="@(args => SendToProcess(detail))" @onclick:stopPropagation="true"
-                                                          Visible="@Security.IsInRole("Admin","Customer Order In Process Editor")" MouseEnter="@(args => ShowTooltip(args,"Enviar", new TooltipOptions(){ Position = TooltipPosition.Left }))">
+                                                          Visible="@Security.IsInRole("Administrador","Modificación de pedidos en proceso")" MouseEnter="@(args => ShowTooltip(args,"Enviar", new TooltipOptions(){ Position = TooltipPosition.Left }))">
                                             </RadzenButton>
                                             <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
                                                           Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@CanCancel(detail)"

@@ -1,5 +1,5 @@
 @page "/forwarders"
-@attribute [Authorize(Roles = "Admin,Forwarder Viewer,Forwarder Editor")]
+@attribute [Authorize(Roles = "Administrador,Consulta de agentes de transporte,Modificación de agentes de transporte")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @using ServiceModel = Aldebaran.Application.Services.Models;
 
@@ -13,7 +13,7 @@
         <RadzenColumn Size="12">
             <RadzenText Text="Transportadoras" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
         </RadzenColumn>
-        <RadzenColumn Size="12" Visible="@Security.IsInRole("Admin","Forwarder Editor")">
+        <RadzenColumn Size="12" Visible="@Security.IsInRole("Administrador","Modificación de agentes de transporte")">
             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
                 <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddForwarder" Variant="Variant.Flat" />
             </RadzenStack>
@@ -44,7 +44,7 @@
                             <span>(@forwarder.City.Department.Country.CountryCode) @forwarder.City.Department.DepartmentName - @forwarder.City.CityName</span>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="ServiceModel.Forwarder" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Admin","Forwarder Editor")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                    <RadzenDataGridColumn TItem="ServiceModel.Forwarder" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Administrador","Modificación de agentes de transporte")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                         <Template Context="forwarder">
                             <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Actualizar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
                                           Click="@(args => EditForwarder(forwarder))" @onclick:stopPropagation="true">
@@ -61,7 +61,7 @@
                             <RadzenColumn Size="12">
                                 <RadzenText Visible="@(forwarder != null)" Text="Agentes" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
                             </RadzenColumn>
-                            <RadzenColumn Size="12" Visible="@Security.IsInRole("Admin","Forwarder Editor")">
+                            <RadzenColumn Size="12" Visible="@Security.IsInRole("Administrador","Modificación de agentes de transporte")">
                                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
                                     <RadzenButton Visible="@(forwarder != null)" Icon="add_circle_outline" Text="Nuevo" Click=@(args => AddForwarderAgent(args,forwarder)) />
                                 </RadzenStack>
@@ -91,7 +91,7 @@
                                         <span>(@forwarderAgent.City.Department.Country.CountryCode) @forwarderAgent.City.Department.DepartmentName - @forwarderAgent.City.CityName</span>
                                     </Template>
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="ServiceModel.ForwarderAgent" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Admin","Forwarder Editor")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                                <RadzenDataGridColumn TItem="ServiceModel.ForwarderAgent" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Administrador","Modificación de agentes de transporte")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                                     <Template Context="forwarderAgent">
                                         <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Actualizar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
                                                       Click="@(args => EditForwarderAgent(forwarderAgent,forwarder))" @onclick:stopPropagation="true">
@@ -107,7 +107,7 @@
                                         <RadzenColumn Size="12">
                                             <RadzenText Visible="@(ForwarderAgent != null)" Text="Método de envío" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
                                         </RadzenColumn>
-                                        <RadzenColumn Size="12" Visible="@Security.IsInRole("Admin","Forwarder Editor")">
+                                        <RadzenColumn Size="12" Visible="@Security.IsInRole("Administrador","Modificación de agentes de transporte")">
                                             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
                                                 <RadzenButton Visible="@(ForwarderAgent != null)" Icon="add_circle_outline" Text="Nuevo" Click=@(args => AddShipmentForwarderAgentMethod(args,ForwarderAgent)) />
                                             </RadzenStack>
@@ -120,7 +120,7 @@
                                             </RadzenDataGridColumn>
                                             <RadzenDataGridColumn TItem="ServiceModel.ShipmentForwarderAgentMethod" Property="ShipmentMethod.ShipmentMethodNotes" Title="Descripción">
                                             </RadzenDataGridColumn>
-                                            <RadzenDataGridColumn TItem="ServiceModel.ShipmentForwarderAgentMethod" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Admin","Forwarder Editor")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                                            <RadzenDataGridColumn TItem="ServiceModel.ShipmentForwarderAgentMethod" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Administrador","Modificación de agentes de transporte")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                                                 <Template Context="shipmentForwarderAgent">
                                                     <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Shade="Shade.Lighter" Variant="Variant.Flat" MouseEnter="@(args => ShowTooltip(args,"Eliminar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
                                                                   Click=@(args => DeleteShipmentForwarderAgentMethod(args, shipmentForwarderAgent)) @onclick:stopPropagation="true" />

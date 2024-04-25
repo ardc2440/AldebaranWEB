@@ -1,5 +1,5 @@
 @page "/edit-purchase-order/{PURCHASE_ORDER_ID}"
-@attribute [Authorize(Roles = "Admin,Purchase Order Editor")]
+@attribute [Authorize(Roles = "Administrador,Modificación de órdenes de compra")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @using ServiceModel = Aldebaran.Application.Services.Models;
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer

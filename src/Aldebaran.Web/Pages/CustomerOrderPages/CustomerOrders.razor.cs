@@ -330,17 +330,17 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task<bool> CanEdit(CustomerOrder customerOrder)
         {
-            return Security.IsInRole("Admin", "Customer Order Editor") && customerOrder.StatusDocumentType.EditMode;
+            return Security.IsInRole("Administrador", "Modificación de pedidos") && customerOrder.StatusDocumentType.EditMode;
         }
 
         protected async Task<bool> CanCloseCustomerOrder(CustomerOrder customerOrder)
         {
-            return Security.IsInRole("Admin", "Customer Order Editor") && (customerOrder.StatusDocumentType.StatusOrder == 2 || customerOrder.StatusDocumentType.StatusOrder == 3);
+            return Security.IsInRole("Administrador", "Modificación de pedidos") && (customerOrder.StatusDocumentType.StatusOrder == 2 || customerOrder.StatusDocumentType.StatusOrder == 3);
         }
 
         protected async Task<bool> CanCancel(CustomerOrder customerOrder)
         {
-            return Security.IsInRole("Admin", "Customer Order Editor") && (customerOrder.StatusDocumentType.StatusOrder == 1);
+            return Security.IsInRole("Administrador", "Modificación de pedidos") && (customerOrder.StatusDocumentType.StatusOrder == 1);
         }
 
         protected async Task CloseCustomerOrder(CustomerOrder args)
@@ -380,7 +380,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task<bool> CanEditActivities(CustomerOrder customerOrder)
         {
-            return Security.IsInRole("Admin", "Customer Order Activities Editor") && customerOrder.StatusDocumentType.EditMode;
+            return Security.IsInRole("Administrador", "Modificación de actividades de un pedido") && customerOrder.StatusDocumentType.EditMode;
         }
 
         #region Alarms
@@ -391,7 +391,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 return false;
 
             int[] validStatusOrder = { 1, 2, 3 };
-            return Security.IsInRole("Admin", "Customer Order Editor") && validStatusOrder.Contains(statusOrder);
+            return Security.IsInRole("Administrador", "Modificación de pedidos") && validStatusOrder.Contains(statusOrder);
         }
 
         protected async Task DisableAlarm(Application.Services.Models.Alarm alarm)

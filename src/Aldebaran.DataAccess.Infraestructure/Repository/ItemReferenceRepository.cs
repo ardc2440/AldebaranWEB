@@ -116,15 +116,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                           i.ReferenceName.Contains(searchKey))
                 .ToListAsync(ct);
         }
-
-        public async Task<IEnumerable<ItemReference>> GetAllReferencesWithMinimumQuantityAsync(CancellationToken ct = default)
-        {
-            return await _context.ItemReferences.AsNoTracking()
-                .Include(i => i.Item.Line)
-                .Where(i => i.AlarmMinimumQuantity > 0 && i.InventoryQuantity <= i.AlarmMinimumQuantity && i.IsActive && i.Item.IsActive)
-                .ToListAsync(ct);
-        }
-
+        
         public async Task<IEnumerable<ItemReference>> GetAllReferencesOutOfStockAsync(CancellationToken ct = default)
         {
             return await _context.ItemReferences.AsNoTracking()

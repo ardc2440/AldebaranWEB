@@ -1,0 +1,60 @@
+﻿using Aldebaran.Application.Services.Models;
+using Aldebaran.DataAccess.Infraestructure.Repository;
+using AutoMapper;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Aldebaran.Application.Services
+{
+    public class DashBoardService : IDashBoardService
+    {
+        private readonly IDashBoardRepository _repository;
+        private readonly IMapper _mapper;
+        public DashBoardService(IDashBoardRepository repository, IMapper mapper)
+        {
+            _repository = repository ?? throw new ArgumentNullException(nameof(IDashBoardRepository));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(IMapper));
+        }
+        public async Task<IEnumerable<PurchaseOrderDetail>> GetTransitDetailOrdersAsync(int statusOrder, int? referenceId = null, CancellationToken ct = default)
+        {
+            var data = await _repository.GetByReferenceIdAndStatusOrderAsync(statusOrder, referenceId, ct);
+            return _mapper.Map<IEnumerable<PurchaseOrderDetail>>(data);
+        }
+
+        public async Task<IEnumerable<ItemReference>> GetAllReferencesWithMinimumQuantityAsync(CancellationToken ct = default)
+        {
+            var data = await _repository.GetAllReferencesWithMinimumQuantityAsync(ct);
+            return _mapper.Map<List<ItemReference>>(data);
+        }
+        public async Task<IEnumerable<CustomerReservation>> GetExpiredReservationsAsync(CancellationToken ct = default)
+        {
+            var data = await _repository.GetExpiredReservationsAsync(ct);
+            return _mapper.Map<IEnumerable<CustomerReservation>>(data);
+        }
+
+        public async Task<IEnumerable<Alarm>> GetByEmployeeIdAsync(int employeeId, CancellationToken ct = default)
+        {
+            var data = await _repository.GetByEmployeeIdAsync(employeeId, ct);
+            return _mapper.Map<List<Alarm>>(data);
+        }
+        public async Task<Employee?> FindByLoginUserIdAsync(string loginUserId, CancellationToken ct = default)
+        {
+            var data = await _repository.FindByLoginUserIdAsync(loginUserId, ct);
+            return _mapper.Map<Employee?>(data);
+        }
+        public async Task<DocumentType?> FindByCodeAsync(string code, CancellationToken ct = default)
+        {
+            var data = await _repository.FindByCodeAsync(code, ct);
+            return _mapper.Map<DocumentType?>(data);
+        }
+
+        public async Task<StatusDocumentType?> FindByDocumentAndOrderAsync(int documentTypeId, int order, CancellationToken ct = default)
+        {
+            var data = await _repository.FindByDocumentAndOrderAsync(documentTypeId, order, ct);
+            return _mapper.Map<StatusDocumentType?>(data);
+        }
+    }
+}

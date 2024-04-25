@@ -199,7 +199,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
 
         protected async Task<bool> CanEditProcess(CustomerOrderShipment customerOrderShipment)
         {
-            return Security.IsInRole("Admin", "Customer Order Shipment Editor") && customerOrderShipment.StatusDocumentType.EditMode;
+            return Security.IsInRole("Administrador", "Modificación de despachos") && customerOrderShipment.StatusDocumentType.EditMode;
         }
 
         protected async Task CancelCustomerOrderShipment(MouseEventArgs args, CustomerOrderShipment customerOrderShipment)

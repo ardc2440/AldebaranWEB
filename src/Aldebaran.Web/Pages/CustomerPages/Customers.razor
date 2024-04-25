@@ -1,5 +1,5 @@
 @page "/customers"
-@attribute [Authorize(Roles = "Admin,Customer Viewer,Customer Editor")]
+@attribute [Authorize(Roles = "Administrador,Consulta de clientes,Modificación de clientes")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @using ServiceModel = Aldebaran.Application.Services.Models;
 
@@ -13,7 +13,7 @@
             <RadzenColumn Size="12">
                 <RadzenText Text="Clientes" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
             </RadzenColumn>
-            <RadzenColumn Size="12" Visible="@Security.IsInRole("Admin","Customer Editor")">
+            <RadzenColumn Size="12" Visible="@Security.IsInRole("Administrador","Modificación de clientes")">
                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
                     <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddCustomer" Variant="Variant.Flat" />
                 </RadzenStack>
@@ -57,7 +57,7 @@
                                 <RadzenCheckBox @bind-Value="@customer.SendEmail" Name="SEND_EMAIL" Disabled="true"></RadzenCheckBox>
                             </Template>
                         </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="ServiceModel.Customer" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Admin","Customer Editor")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                        <RadzenDataGridColumn TItem="ServiceModel.Customer" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Administrador","Modificación de clientes")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                             <Template Context="customer">
                                 <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditCustomer(customer))" @onclick:stopPropagation="true">
                                 </RadzenButton>
@@ -73,7 +73,7 @@
                                 <RadzenColumn Size="12">
                                     <RadzenText Visible="@(customer != null)" Text="Contactos" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
                                 </RadzenColumn>
-                                <RadzenColumn Size="12" Visible="@Security.IsInRole("Admin","Customer Editor")">
+                                <RadzenColumn Size="12" Visible="@Security.IsInRole("Administrador","Modificación de clientes")">
                                     <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
                                         <RadzenButton Visible="@(customer != null)" Icon="add_circle_outline" Text="Nuevo" Click=@(args => AddCustomerContact(args,customer)) />
                                     </RadzenStack>
@@ -90,7 +90,7 @@
                                     </RadzenDataGridColumn>
                                     <RadzenDataGridColumn TItem="ServiceModel.CustomerContact" Property="Email" Title="Correo electrónico">
                                     </RadzenDataGridColumn>
-                                    <RadzenDataGridColumn TItem="ServiceModel.CustomerContact" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Admin","Customer Editor")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                                    <RadzenDataGridColumn TItem="ServiceModel.CustomerContact" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Administrador","Modificación de clientes")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                                         <Template Context="customerContact">
                                             <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditCustomerContact(customerContact, customer))" @onclick:stopPropagation="true">
                                             </RadzenButton>

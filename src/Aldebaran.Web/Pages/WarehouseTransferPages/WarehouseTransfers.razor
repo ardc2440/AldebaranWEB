@@ -1,7 +1,7 @@
 @page "/warehouse-transfers"
 @page "/warehouse-transfers/{WAREHOUSE_TRANSFER_ID}"
 @page "/warehouse-transfers/{Action}/{WAREHOUSE_TRANSFER_ID}"
-@attribute [Authorize(Roles = "Admin,Transfer Warehouses Editor,Transfer Warehouses Viwer")]
+@attribute [Authorize(Roles = "Administrador,Modificación de traslados entre bodegas,Consulta de traslados entre bodegas")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer ;
 
@@ -17,7 +17,7 @@
             </RadzenColumn>
             <RadzenColumn Size="12" SizeMD="6">
                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
-                    <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddWarehouseTransferClick" Variant="Variant.Flat" Visible="@Security.IsInRole("Admin","Transfer Warehouses Editor")" />
+                    <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddWarehouseTransferClick" Variant="Variant.Flat" Visible="@Security.IsInRole("Administrador","Modificación de traslados entre bodegas")" />
                 </RadzenStack>
             </RadzenColumn>
         </RadzenRow>

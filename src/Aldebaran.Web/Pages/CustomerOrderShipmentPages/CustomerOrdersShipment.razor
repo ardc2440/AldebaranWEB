@@ -1,7 +1,7 @@
 @page "/shipment-customer-orders"
 @page "/shipment-customer-orders/{CUSTOMER_ORDER_SHIPMENT_ID}"
 @page "/shipment-customer-orders/{Action}/{CUSTOMER_ORDER_SHIPMENT_ID}"
-@attribute [Authorize(Roles = "Admin,Customer Order Shipment Viewer,Customer Order Shipment Editor")]
+@attribute [Authorize(Roles = "Administrador,Consulta de despachos,Modificación de despachos")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer ;
 
@@ -58,7 +58,7 @@
                             <Template Context="customerOrder">
                                 <RadzenButton Icon="assignment_ind" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
                                               Click="@(args => SendToShipment(customerOrder))" @onclick:stopPropagation="true"
-                                              Visible="@Security.IsInRole("Admin","Customer Order Shipment Editor")" title="Despachar Cantidades">
+                                              Visible="@Security.IsInRole("Administrador","Modificación de despachos")" title="Despachar Cantidades">
                                 </RadzenButton>
                             </Template>
                         </RadzenDataGridColumn>

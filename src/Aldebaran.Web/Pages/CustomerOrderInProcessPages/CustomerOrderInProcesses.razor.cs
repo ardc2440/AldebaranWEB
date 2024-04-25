@@ -204,7 +204,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
         protected async Task<bool> CanEditProcess(CustomerOrdersInProcess customerOrderinProcess)
         {
-            return Security.IsInRole("Admin", "Customer Order In Process Editor") && customerOrderinProcess.StatusDocumentType.EditMode;
+            return Security.IsInRole("Administrador", "Modificación de pedidos en proceso") && customerOrderinProcess.StatusDocumentType.EditMode;
         }
 
         protected async Task CancelCustomerOrderProcess(MouseEventArgs args, CustomerOrdersInProcess customerOrderInProcess)

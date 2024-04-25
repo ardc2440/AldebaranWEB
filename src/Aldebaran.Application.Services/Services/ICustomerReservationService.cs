@@ -9,7 +9,6 @@ namespace Aldebaran.Application.Services
         Task<IEnumerable<CustomerReservation>> GetAsync(string searchKey, CancellationToken ct = default);
         Task<CustomerReservation?> FindAsync(int customerReservationId, CancellationToken ct = default);
         Task CancelAsync(int customerReservationId, short canceledStatusDocumentId, Reason reason, CancellationToken ct = default);
-        Task UpdateAsync(int customerReservationId, CustomerReservation customerReservation, Reason? reason, CancellationToken ct = default);
-        Task<IEnumerable<CustomerReservation>> GetExpiredReservationsAsync(CancellationToken ct = default);
+        Task UpdateAsync(int customerReservationId, CustomerReservation customerReservation, Reason? reason, CancellationToken ct = default);        
     }
 }

@@ -1,5 +1,5 @@
 @page "/employees"
-@attribute [Authorize(Roles = "Admin,Employee Viewer,Employee Editor")]
+@attribute [Authorize(Roles = "Administrador,Consulta de funcionarios,Modificación de funcionarios")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @using ViewModels = Aldebaran.Web.Models.ViewModels;
 
@@ -12,7 +12,7 @@
         <RadzenColumn Size="12">
             <RadzenText Text="Funcionarios" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
         </RadzenColumn>
-        <RadzenColumn Size="12" Visible="@Security.IsInRole("Admin","Employee Editor")">
+        <RadzenColumn Size="12" Visible="@Security.IsInRole("Administrador","Modificación de funcionarios")">
             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
                 <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddEmployee" Variant="Variant.Flat" />
             </RadzenStack>
@@ -38,13 +38,13 @@
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="ViewModels.EmployeeViewModel" Property="ApplicationUser.UserName" Title="Inicio de Session">
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="ViewModels.EmployeeViewModel" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Admin","Employee Editor")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                    <RadzenDataGridColumn TItem="ViewModels.EmployeeViewModel" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Administrador","Modificación de funcionarios")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                         <Template Context="employee">
                             <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" MouseEnter="@(args => ShowTooltip(args,"Actualizar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
-                                          Size="ButtonSize.Medium" Visible="@Security.IsInRole("Admin","Employee Editor")"
+                                          Size="ButtonSize.Medium" Visible="@Security.IsInRole("Administrador","Modificación de funcionarios")"
                                           Click="@(args => EditEmployee(employee))" @onclick:stopPropagation="true" />
                             <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Eliminar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
-                                          Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@Security.IsInRole("Admin","Employee Editor")"
+                                          Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@Security.IsInRole("Administrador","Modificación de funcionarios")"
                                           Click=@(args => DeleteEmployee(args,employee)) @onclick:stopPropagation="true" />
                         </Template>
                     </RadzenDataGridColumn>

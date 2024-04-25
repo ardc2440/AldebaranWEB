@@ -1,7 +1,7 @@
 @page "/customer-orders"
 @page "/customer-orders/{CUSTOMER_ORDER_ID}"
 @page "/customer-orders/{Action}/{CUSTOMER_ORDER_ID}"
-@attribute [Authorize(Roles = "Admin,Customer Order Viewer,Customer Order Editor,Customer Order Activities Viewer,Customer Order Activities Editor")]
+@attribute [Authorize(Roles = "Administrador,Consulta de pedidos,Modificación de pedidos,Consulta de actividades de un pedido,Modificación de actividades de un pedido")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer ;
 
@@ -17,7 +17,7 @@
             </RadzenColumn>
             <RadzenColumn Size="12" SizeMD="6">
                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
-                    <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddButtonClick" Variant="Variant.Flat" Visible="@Security.IsInRole("Admin","Customer Order Editor")" />
+                    <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddButtonClick" Variant="Variant.Flat" Visible="@Security.IsInRole("Administrador","Modificación de pedidos")" />
                 </RadzenStack>
             </RadzenColumn>
         </RadzenRow>
@@ -98,7 +98,7 @@
                                             </Columns>
                                         </LocalizedDataGrid>
                                     </RadzenTabsItem>
-                                    <RadzenStack Visible="@Security.IsInRole("Admin","Customer Order Activities Viewer","Customer Order Activities Editor")">
+                                    <RadzenStack Visible="@Security.IsInRole("Administrador","Consulta de actividades de un pedido","Modificación de actividades de un pedido")">
                                         <RadzenTabsItem Text="Actividades">
                                             <RadzenStack>
                                                 <RadzenRow Gap="0" AlignItems="AlignItems.Center">

@@ -70,11 +70,6 @@ namespace Aldebaran.Application.Services
             var data = await _repository.GetByStatusAsync(isActive, ct);
             return _mapper.Map<List<ItemReference>>(data);
         }
-        public async Task<IEnumerable<ItemReference>> GetAllReferencesWithMinimumQuantityAsync(CancellationToken ct = default)
-        {
-            var data = await _repository.GetAllReferencesWithMinimumQuantityAsync(ct);
-            return _mapper.Map<List<ItemReference>>(data);
-        }
 
         public async Task<IEnumerable<ItemReference>> GetAllReferencesOutOfStockAsync(CancellationToken ct = default)
         {
