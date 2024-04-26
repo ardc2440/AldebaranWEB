@@ -15,7 +15,6 @@ namespace Aldebaran.Application.Services.Models
         public string Email2 { get; set; }
         public int CityId { get; set; }
         public string Email3 { get; set; }
-        public bool SendEmail { get; set; }
         // Reverse navigation
         public ICollection<CustomerContact> CustomerContacts { get; set; }
         public ICollection<CustomerOrder> CustomerOrders { get; set; }
@@ -24,7 +23,6 @@ namespace Aldebaran.Application.Services.Models
         public IdentityType IdentityType { get; set; }
         public Customer()
         {
-            SendEmail = false;
             CustomerContacts = new List<CustomerContact>();
             CustomerOrders = new List<CustomerOrder>();
             CustomerReservations = new List<CustomerReservation>();

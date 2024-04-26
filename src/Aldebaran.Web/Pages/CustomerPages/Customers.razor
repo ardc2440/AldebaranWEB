@@ -52,11 +52,6 @@
                                 <span>(@customer.City.Department.Country.CountryCode) @customer.City.Department.DepartmentName - @customer.City.CityName</span>
                             </Template>
                         </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="ServiceModel.Customer" Property="SEND_EMAIL" Title="Enviar correo" Visible="false">
-                            <Template Context="customer">
-                                <RadzenCheckBox @bind-Value="@customer.SendEmail" Name="SEND_EMAIL" Disabled="true"></RadzenCheckBox>
-                            </Template>
-                        </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="ServiceModel.Customer" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Administrador","Modificación de clientes")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                             <Template Context="customer">
                                 <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditCustomer(customer))" @onclick:stopPropagation="true">

@@ -78,7 +78,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             entity.Email2 = customer.Email2;
             entity.Email3 = customer.Email3;
             entity.CityId = customer.CityId;
-            entity.SendEmail = customer.SendEmail;
             entity.IdentityNumber = customer.IdentityNumber;
             entity.CellPhone = customer.CellPhone;
             entity.IdentityTypeId = customer.IdentityTypeId;

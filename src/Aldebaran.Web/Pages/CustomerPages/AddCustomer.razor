@@ -126,14 +126,6 @@
                         </RadzenFormField>
                     </RadzenColumn>
                 </RadzenRow>
-                <RadzenRow>
-                    <RadzenColumn Size="12" style="margin-bottom: -1.5rem;">
-                        <RadzenRow style="margin-bottom: 1rem; width:100%">
-                            <RadzenCheckBox @bind-Value="@Customer.SendEmail" Name="SendEmail" />
-                            <RadzenLabel Text="Enviar correo" Component="SendEmail" />
-                        </RadzenRow>
-                    </RadzenColumn>
-                </RadzenRow>
             </RadzenStack>
             <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
                 <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />
