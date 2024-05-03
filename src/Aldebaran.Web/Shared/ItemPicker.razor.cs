@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using Aldebaran.Application.Services;
+using Microsoft.AspNetCore.Components;
 using ServiceModel = Aldebaran.Application.Services.Models;
 
 namespace Aldebaran.Web.Shared
@@ -20,8 +21,8 @@ namespace Aldebaran.Web.Shared
         public short? LINE_ID { get; set; }
         protected ServiceModel.Line SelectedLine;
         protected IEnumerable<ServiceModel.Line> Lines = new List<ServiceModel.Line>();
-        protected ServiceModel.Item SelectedItem;
-        protected IEnumerable<ServiceModel.Item> Items = new List<ServiceModel.Item>();
+        ItemData SelectedItem;
+        IEnumerable<ItemData> Items = new List<ItemData>();
         protected bool CollapsedPanel { get; set; } = true;
         bool IsSetParametersEnabled = true;
         #endregion
@@ -58,7 +59,16 @@ namespace Aldebaran.Web.Shared
                 return;
             }
             SelectedLine = Lines.Single(s => s.LineId == (short)lineId);
-            Items = AvailableItemsForSelection.Where(w => w.LineId == (short)lineId);
+            Items = AvailableItemsForSelection
+                        .Where(w => w.LineId == (short)lineId)
+                        .Select(s => new ItemData
+                        {
+                            LineName = s.Line.LineName,
+                            ItemId = s.ItemId,
+                            ItemName = s.ItemName,
+                            InternalReference = s.InternalReference,
+                            FullName = $"{s.InternalReference} - {s.ItemName}"
+                        });
         }
         protected async Task OnItemChange(object itemId)
         {
@@ -71,7 +81,7 @@ namespace Aldebaran.Web.Shared
             SelectedItem = Items.Single(s => s.ItemId == (int)itemId);
             CollapsedPanel = true;
             IsSetParametersEnabled = false;
-            await OnChange.InvokeAsync(SelectedItem);
+            await OnChange.InvokeAsync(AvailableItemsForSelection.FirstOrDefault(f => f.ItemId == SelectedItem.ItemId));
         }
         protected async Task PanelCollapseToggle(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
@@ -79,7 +89,7 @@ namespace Aldebaran.Web.Shared
         }
         void CleanItems()
         {
-            Items = new List<ServiceModel.Item>();
+            Items = new List<ItemData>();
             ITEM_ID = null;
         }
         protected void PanelCollapseChange(string Command)
@@ -90,5 +100,14 @@ namespace Aldebaran.Web.Shared
                 CollapsedPanel = true;
         }
         #endregion
+    }
+
+    class ItemData
+    {
+        public string LineName { get; set; }
+        public int ItemId { get; set; }
+        public string ItemName { get; set; }
+        public string InternalReference { get; set; }
+        public string FullName { get; set; }
     }
 }

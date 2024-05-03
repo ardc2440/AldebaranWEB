@@ -25,8 +25,8 @@ namespace Aldebaran.Web.Shared
         #region Variables
         protected IEnumerable<ServiceModel.Line> Lines = new List<ServiceModel.Line>();
         protected ServiceModel.Line SelectedLine;
-        protected IEnumerable<ServiceModel.Item> Items = new List<ServiceModel.Item>();
-        protected ServiceModel.Item SelectedItem;
+        IEnumerable<ItemData> Items = new List<ItemData>();
+        ItemData SelectedItem;
         protected IEnumerable<ServiceModel.ItemReference> ItemReferences = new List<ServiceModel.ItemReference>();
         protected ServiceModel.ItemReference SelectedItemReference;
         protected bool CollapsedPanel { get; set; } = true;
@@ -67,7 +67,15 @@ namespace Aldebaran.Web.Shared
                 return;
             }
             SelectedLine = Lines.Single(s => s.LineId == (short)lineId);
-            Items = References.Where(w => w.Item.LineId == (short)lineId).Select(s => s.Item).DistinctBy(w => w.ItemId).OrderBy(o => o.ItemName);
+            Items = References.Where(w => w.Item.LineId == (short)lineId).Select(s => s.Item)
+                        .Select(s => new ItemData
+                        {
+                            LineName = s.Line.LineName,
+                            ItemId = s.ItemId,
+                            ItemName = s.ItemName,
+                            InternalReference = s.InternalReference,
+                            FullName = $"{s.InternalReference} - {s.ItemName}"
+                        }).DistinctBy(w => w.ItemId).OrderBy(o => o.ItemName);
         }
         protected async Task OnItemChange(object itemId)
         {
@@ -100,7 +108,7 @@ namespace Aldebaran.Web.Shared
         }
         void CleanItems()
         {
-            Items = new List<ServiceModel.Item>();
+            Items = new List<ItemData>();
             ITEM_ID = null;
         }
         void CleanReferences()

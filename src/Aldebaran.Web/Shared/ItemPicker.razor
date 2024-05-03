@@ -9,7 +9,7 @@
             {
                 <div class="component-section d-flex flex-column justify-content-start">
                     <span class="component-label">Artículo</span>
-                    <span>(@SelectedLine?.LineName) @SelectedItem?.ItemName</span>
+                    <span>(@SelectedLine?.LineName) @SelectedItem?.FullName</span>
                 </div>
             }
         </RadzenButton>
@@ -26,12 +26,17 @@
                     </RadzenFormField>
                 </RadzenColumn>
                 <RadzenColumn SizeLG="6" SizeXL="6" SizeMD="6" SizeSM="12" SizeXS="12" SizeXX="12">
-                    <RadzenFormField Text="Árticulo" Variant="Variant.Text" Style="width: 100%;">
+                    <RadzenFormField Text="Artículo" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDown Data="@Items" TextProperty="ItemName" ValueProperty="ItemId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Disabled="@ReadOnly"
-                                            style="display: block; width: 100%" @bind-Value="ITEM_ID" Name="ItemId" Change="@OnItemChange" AllowFiltering="true" ClearSearchAfterSelection="true" />
+                            <RadzenDropDownDataGrid Data="@Items" TextProperty="FullName" ValueProperty="ItemId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Disabled="@ReadOnly"
+                                                    style="display: block; width: 100%" @bind-Value="ITEM_ID" Name="ItemId" Change="@OnItemChange" AllowFiltering="true" AllowSelectAll="true">
+                                <Columns>
+                                    <RadzenDropDownDataGridColumn Property="InternalReference" Title="Ref. interna" />
+                                    <RadzenDropDownDataGridColumn Property="ItemName" Title="Nombre" />
+                                </Columns>
+                            </RadzenDropDownDataGrid>
                         </ChildContent>
-                    </RadzenFormField>
+                    </RadzenFormField>                   
                 </RadzenColumn>
             </RadzenRow>
         </RadzenCard>

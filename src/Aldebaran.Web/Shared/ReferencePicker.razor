@@ -28,8 +28,13 @@
                 <RadzenColumn SizeLG="4" SizeXL="4" SizeMD="4" SizeSM="12" SizeXS="12" SizeXX="12">
                     <RadzenFormField Text="Artículo" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDown Data="@Items" TextProperty="ItemName" ValueProperty="ItemId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Disabled="@ReadOnly"
-                                            style="display: block; width: 100%" @bind-Value="ITEM_ID" Name="ItemId" Change="@OnItemChange" AllowFiltering="true" ClearSearchAfterSelection="true" />
+                            <RadzenDropDownDataGrid Data="@Items" TextProperty="FullName" ValueProperty="ItemId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Disabled="@ReadOnly"
+                                                    style="display: block; width: 100%" @bind-Value="ITEM_ID" Name="ItemId" Change="@OnItemChange" AllowFiltering="true" AllowSelectAll="true">
+                                <Columns>
+                                    <RadzenDropDownDataGridColumn Property="InternalReference" Title="Ref. interna" />
+                                    <RadzenDropDownDataGridColumn Property="ItemName" Title="Nombre" />                                    
+                                </Columns>
+                            </RadzenDropDownDataGrid>
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenColumn>
