@@ -43,12 +43,25 @@
                 <RadzenColumn SizeLG="4" SizeXL="4" SizeMD="4" SizeSM="12" SizeXS="12" SizeXX="12">
                     <RadzenFormField Text="Artículo" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDown Data="@Items" MaxSelectedLabels="2" TextProperty="ItemName" ValueProperty="ItemId" SelectedItemsText="artículos seleccionados" Chips="true" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Multiple="true" Disabled="@ReadOnly"
-                                            style="display: block; width: 100%" DisabledProperty="IsGroup" @bind-Value="SelectedItemIds" Name="ItemId" Change="@OnItemChange" AllowFiltering="true" ClearSearchAfterSelection="true" AllowSelectAll="true">
-                                <Template>
-                                    @(context?.LineName ?? context?.ItemName)
-                                </Template>
-                            </RadzenDropDown>
+                            <RadzenDropDownDataGrid @ref="itemsGrid" Data="@Items.Where(w=> !string.IsNullOrEmpty(w.ItemName))" MaxSelectedLabels="2" TextProperty="FullName" ValueProperty="ItemId" SelectedItemsText="artículos seleccionados" Chips="true" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Multiple="true" Disabled="@ReadOnly"
+                                                    style="display: block; width: 100%" @bind-Value="SelectedItemIds" Name="ItemId" Change="@OnItemChange" AllowFiltering="true" AllowSelectAll="true">
+                                <Columns>
+
+                                    <RadzenDropDownDataGridColumn Width="60px" Sortable="false">
+                                        <HeaderTemplate>
+                                            <RadzenCheckBox Disabled="@(!itemsGrid.AllowSelectAll)" TriState="false" TValue="bool" Value="@(Items.Any(c => SelectedItemIds != null && SelectedItemIds.Contains(c.ItemId)))"
+                                                            Change="@(args => SelectedItemIds = args ? itemsGrid.View.Cast<GroupItemData>().Select(c => c.ItemId) .ToList(): SelectedItemIds = new List<int>())" />
+                                        </HeaderTemplate>
+                                        <Template Context="data">
+                                            <RadzenCheckBox TriState="false" Value="@(SelectedItemIds != null && SelectedItemIds.Contains(((GroupItemData) data).ItemId))"
+                                                            TValue="bool" Change=@(args => itemsGrid.SelectItem(data)) @onclick:stopPropagation />
+                                        </Template>
+                                    </RadzenDropDownDataGridColumn>
+
+                                    <RadzenDropDownDataGridColumn Property="ItemName" Title="Nombre" />
+                                    <RadzenDropDownDataGridColumn Property="InternalReference" Title="Referencia interna" />
+                                </Columns>
+                            </RadzenDropDownDataGrid>
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenColumn>

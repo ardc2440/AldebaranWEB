@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Radzen;
+using Radzen.Blazor;
 using ServiceModel = Aldebaran.Application.Services.Models;
 
 namespace Aldebaran.Web.Shared
@@ -18,7 +19,7 @@ namespace Aldebaran.Web.Shared
         public List<ServiceModel.ItemReference> AvailableItemReferencesForSelection { get; set; }
         List<GroupReferenceData> References = new();
         List<GroupItemData> Items = new();
-
+        RadzenDropDownDataGrid<List<int>> itemsGrid;
         protected List<short> SelectedLineIds = new List<short>();
         protected List<int> SelectedItemIds = new List<int>();
         protected List<int> SelectedReferenceIds = new List<int>();
@@ -84,7 +85,9 @@ namespace Aldebaran.Web.Shared
                 }.Concat(s.Select(x => new GroupItemData
                 {
                     ItemId = x.ItemId,
-                    ItemName = x.ItemName
+                    ItemName = x.ItemName,
+                    InternalReference = x.InternalReference,
+                    FullName = $"{x.ItemName} - {x.InternalReference}"
                 }))).ToList();
         }
         protected void OnItemChange()
@@ -183,6 +186,8 @@ namespace Aldebaran.Web.Shared
         public string LineName { get; set; }
         public int ItemId { get; set; }
         public string ItemName { get; set; }
+        public string InternalReference { get; set; }
+        public string FullName { get; set; }
         public bool IsGroup { get { return LineName != null; } }
     }
     class GroupReferenceData
