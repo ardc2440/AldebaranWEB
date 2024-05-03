@@ -65,6 +65,8 @@
                                 <table class="striped edged">
                                     <thead>
                                         <tr>
+                                            <th>Ref. Interna</th>
+                                            <th>Artículo</th>
                                             <th>Referencia</th>
                                             <th>Solicitado</th>
                                             <th>Entregado</th>
@@ -76,7 +78,9 @@
                                         @foreach (var detail in CustomerOrderDetails)
                                         {
                                             <tr>
-                                                <td>@detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName</td>
+                                                <td>@detail.ItemReference.Item.InternalReference</td>
+                                                <td>@detail.ItemReference.Item.ItemName</td>
+                                                <td>@detail.ItemReference.ReferenceName</td>
                                                 <td>@detail.RequestedQuantity.ToString("N0")</td>
                                                 <td>@detail.ProcessedQuantity.ToString("N0")</td>
                                                 <td>@detail.DeliveredQuantity.ToString("N0")</td>

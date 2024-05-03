@@ -99,7 +99,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                 if (!customerReservationDetails.Any())
                     throw new Exception("No ha ingresado ninguna referencia");
 
-                if (await DialogService.Confirm("Está seguro que desea crear este pedido de artículos?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar creación") == true)
+                if (await DialogService.Confirm("Está seguro que desea crear esta reserva de artículos?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar creación") == true)
                 {
                     customerReservation.CustomerReservationDetails = customerReservationDetails;
                     customerReservation = await CustomerReservationService.AddAsync(customerReservation);
