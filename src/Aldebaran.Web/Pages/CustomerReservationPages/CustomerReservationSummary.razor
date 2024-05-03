@@ -54,6 +54,8 @@
                                 <table class="striped edged">
                                     <thead>
                                         <tr>
+                                            <th>Ref. Interna</th>
+                                            <th>Artículo</th>
                                             <th>Referencia</th>
                                             <th>Marcación</th>
                                             <th>Cantidad</th>
@@ -64,7 +66,9 @@
                                         @foreach (var detail in CustomerReservationDetails)
                                         {
                                             <tr>
-                                                <td>@detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName</td>
+                                                <td>@detail.ItemReference.Item.InternalReference</td>
+                                                <td>@detail.ItemReference.Item.ItemName</td>
+                                                <td>@detail.ItemReference.ReferenceName</td>
                                                 <td>@detail.Brand</td>
                                                 <td>@detail.ReservedQuantity.ToString("N0")</td>
                                                 <td>@(detail.SendToCustomerOrder ? "Si" : "No")</td>
