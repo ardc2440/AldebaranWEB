@@ -40,10 +40,12 @@
                         <RadzenDataGridColumn TItem="ServiceModel.Customer" Property="Fax" Title="Fax" Visible="false">
                         </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="ServiceModel.Customer" Property="Email1" Title="Correo electrónico">
-                        </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="ServiceModel.Customer" Property="Email2" Title="Correo electrónico opcional" Visible="false">
-                        </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="ServiceModel.Customer" Property="Email3" Title="Correo electrónico opcional" Visible="false">
+                            <Template Context="customer">
+                                @foreach (var email in customer.Email1.Split(";"))
+                                {
+                                    <div>@email</div>
+                                }
+                            </Template>
                         </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="ServiceModel.Customer" Property="CustomerAddress" Title="Dirección">
                         </RadzenDataGridColumn>

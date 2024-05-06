@@ -1,0 +1,32 @@
+﻿﻿<div class="chip-input @ChipsContainerClass">
+    <ul class="chip-input-wrapper @ChipsListClass">
+        @foreach (string chip in Chips)
+        {
+            <li class="chip @ChipClass" id="@chip">
+                @if (PrependIconTemplate != null)
+                {
+                    @PrependIconTemplate
+                }
+                <span style="margin: 0px 5px 0px 5px;">@chip</span>
+
+                @if (!ReadonlyChips || AllowDeleteOfReadonlyItems)
+                {
+                    <button tabindex="0" title="Remove Importados" type="button" class="rz-button rz-button-sm rz-button-icon-only rz-light " @onclick="(e) => RemoveChip(chip)" alt="Close">
+                        <i style="" class="rzi" id="4NkDHixVL0" _bl_ee767f20-6a72-415e-b8b8-df9141421ed8="">close</i>
+                    </button>
+                }
+            </li>
+        }
+        <li class="chip-text">
+            <input type="text" @bind-value="currentInputValue" @onkeyup="OnKeyUp" @oninput="OnInput" @onkeydown="OnKeyDown" @attributes="InputAttributes" />
+        </li>
+    </ul>
+</div>
+
+@if (ShowValidationErrors && ValidationErrorTemplate != null)
+{
+    @foreach (string validationError in validationErrors)
+    {
+        @ValidationErrorTemplate(validationError)
+    }
+}

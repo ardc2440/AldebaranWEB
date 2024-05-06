@@ -357,3 +357,42 @@ hr.divider {
         font-style: italic;
         color: #5e5e5e;
     }
+
+.chip-input {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+    .chip-input .chip-input-wrapper {
+        display: inline-flex;
+        flex-wrap: wrap;
+        width: 100%;
+        margin: 0;
+        padding: 5px;
+        list-style: none;
+    }
+
+    .chip-input .chip {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0 25px;
+        height: 30px;
+        border-radius: var(--rz-chip-border-radius);
+        background-color: var(--rz-chip-background-color);
+        line-height: 1.6;
+        margin: 5px 5px 5px 0px;
+        padding: var(--rz-chip-padding);
+    }
+
+    .chip-input .chip-text {
+        display: flex;
+        flex-grow: 1;
+        margin: 5px 5px 5px 0px;
+        align-items: center;
+    }
+        .chip-input .chip-text input {
+            border: none;
+            width: 100%;
+            outline: none;
+        }
