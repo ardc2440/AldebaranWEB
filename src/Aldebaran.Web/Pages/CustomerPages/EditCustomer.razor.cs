@@ -54,7 +54,7 @@ namespace Aldebaran.Web.Pages.CustomerPages
                 isLoadingInProgress = true;
                 Customer = await CustomerService.FindAsync(CUSTOMER_ID);
                 IdentityTypesForSelection = await IdentityTypeService.GetAsync();
-                emails = Customer.Email1.Split(";").ToList();
+                emails = Customer.Email.Split(";").ToList();
             }
             finally
             {
@@ -72,7 +72,7 @@ namespace Aldebaran.Web.Pages.CustomerPages
             try
             {
                 IsSubmitInProgress = true;
-                Customer.Email1 = string.Join(";", emails.ToArray());
+                Customer.Email = string.Join(";", emails.Select(s => s.Trim()));
                 await CustomerService.UpdateAsync(CUSTOMER_ID, Customer);
                 DialogService.Close(true);
             }

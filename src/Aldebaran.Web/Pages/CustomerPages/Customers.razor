@@ -41,7 +41,7 @@
                         </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="ServiceModel.Customer" Property="Email1" Title="Correo electrónico">
                             <Template Context="customer">
-                                @foreach (var email in customer.Email1.Split(";"))
+                                @foreach (var email in customer.Email.Split(";"))
                                 {
                                     <div>@email</div>
                                 }

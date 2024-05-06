@@ -80,7 +80,7 @@ namespace Aldebaran.Web.Pages.CustomerPages
                     IsErrorVisible = true;
                     return;
                 }
-                Customer.Email1 = string.Join(";", emails.ToArray());
+                Customer.Email = string.Join(";", emails.Select(s => s.Trim()));
                 await CustomerService.AddAsync(Customer);
                 DialogService.Close(true);
             }

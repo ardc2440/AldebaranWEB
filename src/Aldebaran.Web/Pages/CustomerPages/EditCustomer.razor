@@ -1,4 +1,5 @@
 @attribute [Authorize(Roles = "Administrador,Modificación de clientes")]
+@using Aldebaran.Web.Shared;
 <LoadingData IsLoadingData="@isLoadingInProgress" />
 
 @if (!isLoadingInProgress)

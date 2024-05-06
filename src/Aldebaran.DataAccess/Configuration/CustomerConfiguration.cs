@@ -17,10 +17,8 @@ namespace Aldebaran.DataAccess.Entities
             builder.Property(x => x.Fax).HasColumnName(@"FAX").HasColumnType("varchar(22)").IsRequired(false).IsUnicode(false).HasMaxLength(22);
             builder.Property(x => x.CustomerAddress).HasColumnName(@"CUSTOMER_ADDRESS").HasColumnType("varchar(52)").IsRequired().IsUnicode(false).HasMaxLength(52);
             builder.Property(x => x.CellPhone).HasColumnName(@"CELL_PHONE").HasColumnType("varchar(15)").IsRequired(false).IsUnicode(false).HasMaxLength(15);
-            builder.Property(x => x.Email1).HasColumnName(@"EMAIL1").HasColumnType("varchar(252)").IsRequired(false).IsUnicode(false).HasMaxLength(252);
-            builder.Property(x => x.Email2).HasColumnName(@"EMAIL2").HasColumnType("varchar(252)").IsRequired(false).IsUnicode(false).HasMaxLength(252);
+            builder.Property(x => x.Email).HasColumnName(@"EMAIL").HasColumnType("varchar(252)").IsRequired(false).IsUnicode(false).HasMaxLength(252);
             builder.Property(x => x.CityId).HasColumnName(@"CITY_ID").HasColumnType("int").IsRequired();
-            builder.Property(x => x.Email3).HasColumnName(@"EMAIL3").HasColumnType("varchar(252)").IsRequired(false).IsUnicode(false).HasMaxLength(252);
             // Foreign keys
             builder.HasOne(a => a.City).WithMany(b => b.Customers).HasForeignKey(c => c.CityId).OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_CUSTOMER_CITY");
             builder.HasOne(a => a.IdentityType).WithMany(b => b.Customers).HasForeignKey(c => c.IdentityTypeId).OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_CUSTOMER_IDENTITY_TYPE");
