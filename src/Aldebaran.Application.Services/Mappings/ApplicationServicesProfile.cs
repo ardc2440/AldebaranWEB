@@ -93,6 +93,7 @@ namespace Aldebaran.Application.Services.Mappings
             CreateMap<CustomerOrderExport, Entities.Reports.CustomerOrderExport>().ReverseMap();
             CreateMap<EmailNotificationProvider, DataAccess.Infraestructure.Models.EmailNotificationProvider>().ReverseMap();
             CreateMap<NotificationTemplate, Entities.NotificationTemplate>().ReverseMap();
+            CreateMap<CustomerOrderAffectedByPurchaseOrderUpdate, Entities.CustomerOrderAffectedByPurchaseOrderUpdate>().ReverseMap();
         }
     }
 }
