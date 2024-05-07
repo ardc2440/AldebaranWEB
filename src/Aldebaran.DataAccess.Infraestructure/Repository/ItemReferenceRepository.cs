@@ -42,13 +42,13 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .FirstOrDefaultAsync(w => w.ReferenceId == itemReferenceId, ct);
         }
 
-        public async Task<bool> ExistsByReferenceCode(string referenceCode, CancellationToken ct = default)
+        public async Task<bool> ExistsByReferenceCode(string referenceCode, int itemId, CancellationToken ct = default)
         {
-            return await _context.ItemReferences.AsNoTracking().AnyAsync(w => w.ReferenceCode.Trim().ToLower() == referenceCode.Trim().ToLower());
+            return await _context.ItemReferences.AsNoTracking().AnyAsync(w => w.ReferenceCode.Trim().ToLower() == referenceCode.Trim().ToLower() && w.ItemId == itemId);
         }
-        public async Task<bool> ExistsByReferenceName(string referenceName, CancellationToken ct = default)
+        public async Task<bool> ExistsByReferenceName(string referenceName, int itemId, CancellationToken ct = default)
         {
-            return await _context.ItemReferences.AsNoTracking().AnyAsync(w => w.ReferenceName.Trim().ToLower() == referenceName.Trim().ToLower());
+            return await _context.ItemReferences.AsNoTracking().AnyAsync(w => w.ReferenceName.Trim().ToLower() == referenceName.Trim().ToLower() && w.ItemId == itemId);
         }
         public async Task<IEnumerable<ItemReference>> GetByStatusAsync(bool isActive, CancellationToken ct = default)
         {
