@@ -32,13 +32,13 @@ namespace Aldebaran.Application.Services
             return _mapper.Map<ItemReference?>(data);
         }
 
-        public async Task<bool> ExistsByReferenceCode(string referenceCode, CancellationToken ct = default)
+        public async Task<bool> ExistsByReferenceCode(string referenceCode, int itemId, CancellationToken ct = default)
         {
-            return await _repository.ExistsByReferenceCode(referenceCode, ct);
+            return await _repository.ExistsByReferenceCode(referenceCode, itemId, ct);
         }
-        public async Task<bool> ExistsByReferenceName(string referenceName, CancellationToken ct = default)
+        public async Task<bool> ExistsByReferenceName(string referenceName, int itemId, CancellationToken ct = default)
         {
-            return await _repository.ExistsByReferenceName(referenceName, ct);
+            return await _repository.ExistsByReferenceName(referenceName, itemId, ct);
         }
 
         public async Task<IEnumerable<ItemReference>> GetByItemIdAsync(int itemId, CancellationToken ct = default)
