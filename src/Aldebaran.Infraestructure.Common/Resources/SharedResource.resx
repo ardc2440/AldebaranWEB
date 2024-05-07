@@ -118,10 +118,10 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="date:format" xml:space="preserve">
-    <value>MM/dd/yyyy</value>
+    <value>dd/MM/yyyy</value>
   </data>
   <data name="datetime:format" xml:space="preserve">
-    <value>MM/dd/yyyy hh:mm:ss tt</value>
+    <value>dd/MM/yyyy hh:mm:ss tt</value>
   </data>
   <data name="report:no-data" xml:space="preserve">
     <value>No hay información disponible en este momento para visualizar.</value>
