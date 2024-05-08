@@ -48,6 +48,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         [Parameter]
         public string CustomerOrderId { get; set; } = "NoParamInput";
 
+        [Parameter]
+        public string Action { get; set; } = null;
+
         #endregion
 
         #region Global Variables
@@ -63,6 +66,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected bool isLoadingInProgress;
         protected string title;
         protected bool Submitted = false;
+        protected bool readOnly = false;
         #endregion
 
         #region Overrides
@@ -86,7 +90,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 var customerOrderDetails = await CustomerOrderDetailService.GetByCustomerOrderIdAsync(customerOrder.CustomerOrderId);
                 this.customerOrderDetails = customerOrderDetails.ToList();
 
-                title = $"Actualizar el Pedido No. {customerOrder.OrderNumber}";
+                await SetPresentation();                
             }
             catch (Exception ex)
             {
@@ -99,6 +103,18 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         #region Events
 
+        async Task SetPresentation(CancellationToken ct = default)
+        {
+            if (Action == "view")
+            {
+                readOnly = true;
+                title = $"Consultar el pedido No. {customerOrder.OrderNumber}";
+
+                return;
+            }
+
+            title = $"Actualizar el pedido No. {customerOrder.OrderNumber}";
+        }
         protected async Task<string> GetReferenceHint(ItemReference reference) => $"({reference.Item.Line.LineName}) {reference.Item.ItemName} - {reference.ReferenceName}";
 
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
@@ -149,6 +165,12 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
             await customerOrderDetailGrid.Reload();
         }
+
+        protected async Task CloseButtonClick(MouseEventArgs args)
+        {
+            NavigationManager.NavigateTo("purchase-orders");
+        }
+
         #endregion
     }
 }

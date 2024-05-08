@@ -215,7 +215,11 @@
                                                 </RadzenDataGridColumn>
                                                 <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderNotification" Property="ModifiedPurchaseOrder.ModificationReason.ModificationReasonName" Title="Motivo"></RadzenDataGridColumn>
                                                 <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderNotification" Property="CustomerOrder.Customer.CustomerName" Title="Cliente"></RadzenDataGridColumn>
-                                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderNotification" Property="CustomerOrder.OrderNumber" Title="Pedido"></RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderNotification" Title="Pedido">
+                                                    <Template Context="notification">
+                                                        <a href="edit-customer-order/view/@notification.CustomerOrderId" target="_parent"> @notification.CustomerOrder.OrderNumber </a>
+                                                    </Template>
+                                                </RadzenDataGridColumn>
                                                 <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderNotification" Title="Fecha pactada de entrega">
                                                     <Template Context="notification">
                                                         <span>@notification.CustomerOrder.EstimatedDeliveryDate.ToString(SharedLocalizer["date:format"])</span>
