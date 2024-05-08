@@ -51,6 +51,9 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         [Inject]
         protected IDocumentTypeService DocumentTypeService { get; set; }
 
+        [Inject]
+        protected IPurchaseOrderNotificationService PurchaseOrderNotificationService { get; set; }
+
         #endregion
 
         #region Parameters
@@ -155,9 +158,9 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
             args.PurchaseOrderDetails = details.ToList();
             var activities = await PurchaseOrderActivityService.GetByPurchaseOrderIdAsync(args.PurchaseOrderId);
             args.PurchaseOrderActivities = activities.ToList();
-
+            var notifications = await PurchaseOrderNotificationService.GetByPurchaseOrderId(args.PurchaseOrderId);
+            args.PurchaseOrderNotifications = notifications.ToList();
             await GetPurchaseOrderAlarmsAsync(args);
-
         }
         protected async Task EditPurchaseOrder(MouseEventArgs args, ServiceModel.PurchaseOrder purchaseOrder)
         {
@@ -387,6 +390,10 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
             }
         }
 
+        #endregion
+
+        #region Notifications
+        protected RadzenDataGrid<ServiceModel.PurchaseOrderNotification> PurchaseOrderNotificationsDataGrid;
         #endregion
 
         #endregion

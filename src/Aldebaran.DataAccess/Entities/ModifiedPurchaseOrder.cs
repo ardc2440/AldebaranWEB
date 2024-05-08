@@ -10,9 +10,14 @@ namespace Aldebaran.DataAccess.Entities
         public Employee Employee { get; set; }
         public ModificationReason ModificationReason { get; set; }
         public PurchaseOrder PurchaseOrder { get; set; }
+        public ICollection<PurchaseOrderNotification> PurchaseOrderNotifications { get; set; }
         public ModifiedPurchaseOrder()
         {
             ModificationDate = DateTime.Now;
+            Employee = new Employee();
+            ModificationReason = new ModificationReason();
+            PurchaseOrder = new PurchaseOrder();
+            PurchaseOrderNotifications = new List<PurchaseOrderNotification>();
         }
     }
 }
