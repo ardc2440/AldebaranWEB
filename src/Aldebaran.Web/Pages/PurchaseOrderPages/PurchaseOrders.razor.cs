@@ -92,6 +92,10 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 isLoadingInProgress = false;
             }
         }
+
+        #endregion
+
+        #region Events
         async Task DialogResultResolver(CancellationToken ct = default)
         {
             if (PURCHASE_ORDER_ID == null)
@@ -129,9 +133,6 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 Detail = $"Orden de compra {purchaseOrder.OrderNumber} ha sido creada correctamente."
             });
         }
-        #endregion
-
-        #region Events
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
 
         #region PurchaseOrder

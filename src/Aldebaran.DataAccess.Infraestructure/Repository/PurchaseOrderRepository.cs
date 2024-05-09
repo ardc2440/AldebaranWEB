@@ -138,10 +138,13 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                .ToListAsync(ct);
         }
 
-        public async Task UpdateAsync(int purchaseOrderId, PurchaseOrder purchaseOrder, Reason reason, CancellationToken ct = default)
+        public async Task UpdateAsync(int purchaseOrderId, PurchaseOrder purchaseOrder, Reason reason, IEnumerable<CustomerOrderAffectedByPurchaseOrderUpdate> ordersAffected, CancellationToken ct = default)
         {
             var entity = await _context.PurchaseOrders
                 .FirstOrDefaultAsync(x => x.PurchaseOrderId == purchaseOrderId, ct) ?? throw new KeyNotFoundException($"Orden con id {purchaseOrderId} no existe.");
+
+            var OldExpectedReceiptDate = entity.ExpectedReceiptDate;
+
             entity.RequestDate = purchaseOrder.RequestDate;
             entity.ExpectedReceiptDate = purchaseOrder.ExpectedReceiptDate;
             entity.ProviderId = purchaseOrder.ProviderId;
@@ -151,6 +154,21 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             var details = await _context.PurchaseOrderDetails.Where(x => x.PurchaseOrderId == purchaseOrderId).ToListAsync(ct);
             _context.PurchaseOrderDetails.RemoveRange(details);
             entity.PurchaseOrderDetails = purchaseOrder.PurchaseOrderDetails;
+            IEnumerable<PurchaseOrderNotification> purchaseOrderNotifications = new List<PurchaseOrderNotification>();
+
+            if (ordersAffected.Any())
+            {
+                purchaseOrderNotifications = ordersAffected.Select(s => new PurchaseOrderNotification
+                {
+                    CustomerOrderId = s.CustomerOrderId,
+                    NotificationState = false,
+                    NotifiedMailList = (_context.CustomerOrders.AsNoTracking()
+                                            .Include(i => i.Customer)
+                                            .FirstOrDefault(f => f.CustomerOrderId == s.CustomerOrderId)).Customer.Email
+                });
+
+
+            }
 
             var reasonEntity = new ModifiedPurchaseOrder
             {
@@ -158,7 +176,9 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 ModificationReasonId = reason.ReasonId,
                 EmployeeId = reason.EmployeeId,
                 ModificationDate = reason.Date
+                PurchaseOrderNotifications = purchaseOrderNotifications.ToList() 
             };
+
             try
             {
                 _context.ModifiedPurchaseOrders.Add(reasonEntity);

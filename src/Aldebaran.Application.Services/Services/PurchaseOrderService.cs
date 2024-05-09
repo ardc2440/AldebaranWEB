@@ -53,11 +53,12 @@ namespace Aldebaran.Application.Services
             return _mapper.Map<List<PurchaseOrder>>(data);
         }
 
-        public async Task UpdateAsync(int purchaseOrderId, PurchaseOrder purchaseOrder, Reason reason, CancellationToken ct = default)
+        public async Task UpdateAsync(int purchaseOrderId, PurchaseOrder purchaseOrder, Reason reason, IEnumerable<CustomerOrderAffectedByPurchaseOrderUpdate> ordersAffected, CancellationToken ct = default)
         {
             var entity = _mapper.Map<Entities.PurchaseOrder>(purchaseOrder) ?? throw new ArgumentNullException("Orden no puede ser nula.");
             var mapReason = _mapper.Map<DataAccess.Infraestructure.Models.Reason>(reason);
-            await _repository.UpdateAsync(purchaseOrderId, entity, mapReason, ct);
+            var mapOrdersAffected = _mapper.Map<IEnumerable<Entities.CustomerOrderAffectedByPurchaseOrderUpdate>>(ordersAffected);
+            await _repository.UpdateAsync(purchaseOrderId, entity, mapReason, mapOrdersAffected,ct);
         }
 
         public async Task<IEnumerable<PurchaseOrder>> GetTransitByReferenceIdAsync(int referenceId, CancellationToken ct = default)

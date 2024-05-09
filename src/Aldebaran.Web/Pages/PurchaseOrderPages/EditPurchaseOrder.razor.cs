@@ -131,7 +131,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 // Complementar la orden compra
                 PurchaseOrder.PurchaseOrderDetails = purchaseOrderDetails;
 
-                await PurchaseOrderService.UpdateAsync(PurchaseOrder.PurchaseOrderId, PurchaseOrder, reason);
+                await PurchaseOrderService.UpdateAsync(PurchaseOrder.PurchaseOrderId, PurchaseOrder, reason, ordersAffected);
                 NavigationManager.NavigateTo($"purchase-orders/edit/{PurchaseOrder.PurchaseOrderId}");
             }
             catch (Exception ex)
