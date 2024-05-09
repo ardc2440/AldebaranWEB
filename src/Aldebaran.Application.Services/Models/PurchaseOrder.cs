@@ -20,6 +20,7 @@ namespace Aldebaran.Application.Services.Models
         public ICollection<ModifiedPurchaseOrder> ModifiedPurchaseOrders { get; set; }
         public ICollection<PurchaseOrderActivity> PurchaseOrderActivities { get; set; }
         public ICollection<PurchaseOrderDetail> PurchaseOrderDetails { get; set; }
+        public ICollection<PurchaseOrderNotification> PurchaseOrderNotifications { get; set; }
         public Employee Employee { get; set; } = null!;
         public ForwarderAgent? ForwarderAgent { get; set; }
         public Provider Provider { get; set; } = null!;

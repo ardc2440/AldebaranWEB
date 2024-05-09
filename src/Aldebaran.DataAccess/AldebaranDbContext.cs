@@ -90,6 +90,7 @@ namespace Aldebaran.DataAccess
         public DbSet<WarehouseTransferDetail> WarehouseTransferDetails { get; set; }
         public DbSet<NotificationProviderSetting> NotificationProviderSettings { get; set; }
         public DbSet<NotificationTemplate> NotificationTemplates { get; set; }
+        public DbSet<PurchaseOrderNotification> PurchaseOrderNotifications { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -172,6 +173,8 @@ namespace Aldebaran.DataAccess
             modelBuilder.ApplyConfiguration(new WarehouseTransferDetailConfiguration());
             modelBuilder.ApplyConfiguration(new NotificationProviderSettingConfiguration());
             modelBuilder.ApplyConfiguration(new NotificationTemplateConfiguration());
+            modelBuilder.ApplyConfiguration(new PurchaseOrderNotificationConfiguration());
+
 
             modelBuilder.Entity<InventoryAdjustmentReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<InProcessInventoryReport>(iar => { iar.HasNoKey(); });

@@ -92,13 +92,13 @@
                                         <LocalizedDataGrid Visible="@(purchaseOrder != null)" @ref=PurchaseOrderDetailsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                                            Data="@purchaseOrder?.PurchaseOrderDetails" TItem="ServiceModel.PurchaseOrderDetail">
                                             <Columns>
-                                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail"  Title="Cantidad solicitada">
+                                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Title="Cantidad solicitada">
                                                     <Template Context="detail">
                                                         @detail.RequestedQuantity.ToString("N0")
                                                     </Template>
                                                 </RadzenDataGridColumn>
                                                 <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Title="Cantidad recibida">
-                                                     <Template Context="detail">
+                                                    <Template Context="detail">
                                                         @detail.ReceivedQuantity?.ToString("N0")
                                                     </Template>
                                                 </RadzenDataGridColumn>
@@ -203,7 +203,58 @@
                                         </LocalizedDataGrid>
                                     </RadzenStack>
                                 </RadzenTabsItem>
-
+                                <RadzenTabsItem Text="Notificaciones generadas al cliente">
+                                    <RadzenStack>
+                                        <LocalizedDataGrid Visible="@(purchaseOrder != null)" @ref=PurchaseOrderNotificationsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                                           Data="@purchaseOrder?.PurchaseOrderNotifications" TItem="ServiceModel.PurchaseOrderNotification">
+                                            <Columns>
+                                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderNotification" Title="Fecha modificación">
+                                                    <Template Context="notification">
+                                                        <span>@notification.ModifiedPurchaseOrder.ModificationDate.ToString(SharedLocalizer["date:format"])</span>
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderNotification" Property="ModifiedPurchaseOrder.ModificationReason.ModificationReasonName" Title="Motivo"></RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderNotification" Property="CustomerOrder.Customer.CustomerName" Title="Cliente"></RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderNotification" Title="Pedido">
+                                                    <Template Context="notification">
+                                                        <a href="edit-customer-order/view/@notification.CustomerOrderId" target="_parent"> @notification.CustomerOrder.OrderNumber </a>
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderNotification" Title="Fecha pactada de entrega">
+                                                    <Template Context="notification">
+                                                        <span>@notification.CustomerOrder.EstimatedDeliveryDate.ToString(SharedLocalizer["date:format"])</span>
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderNotification" Title="Fecha notificación">
+                                                    <Template Context="notification">
+                                                        <span>@notification.NotificationDate.ToString(SharedLocalizer["date:format"])</span>
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderNotification" Title="Correo(s) Notificado(s)">
+                                                    <Template Context="notification">
+                                                        @foreach (string mail in notification.NotifiedMailList.Split(';'))
+                                                        {
+                                                            <li>@mail</li>
+                                                        }
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderNotification" Title="Estado notificación">
+                                                    <Template Context="notification">
+                                                        @if (notification.NotificationState)
+                                                        {
+                                                            <span>Enviada</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span>Sin Enviar</span>
+                                                        }
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderNotification" Property="NotificationSendingErrorMessage" Title="Error notificación"></RadzenDataGridColumn>
+                                            </Columns>
+                                        </LocalizedDataGrid>
+                                    </RadzenStack>
+                                </RadzenTabsItem>
                             </Tabs>
                         </RadzenTabs>
                     </Template>

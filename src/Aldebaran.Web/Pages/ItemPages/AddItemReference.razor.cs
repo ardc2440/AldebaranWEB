@@ -40,7 +40,11 @@ namespace Aldebaran.Web.Pages.ItemPages
                 Item = await ItemService.FindAsync(ITEM_ID);
                 ItemReference = new ServiceModel.ItemReference
                 {
-                    ItemId = ITEM_ID
+                    ItemId = ITEM_ID,
+                    InventoryQuantity = 0,
+                    OrderedQuantity = 0,
+                    ReservedQuantity = 0,
+                    WorkInProcessQuantity = 0
                 };
             }
             finally
@@ -58,12 +62,12 @@ namespace Aldebaran.Web.Pages.ItemPages
             {
                 IsSubmitInProgress = true;
                 ValidationErrors = new List<string>();
-                var referenceNameAlreadyExists = await ItemReferenceService.ExistsByReferenceName(ItemReference.ReferenceName);
+                var referenceNameAlreadyExists = await ItemReferenceService.ExistsByReferenceName(ItemReference.ReferenceName, ItemReference.ItemId);
                 if (referenceNameAlreadyExists)
                 {
                     ValidationErrors.Add("Ya existe una referencia con el mismo nombre.");
                 }
-                var referenceCodeAlreadyExists = await ItemReferenceService.ExistsByReferenceCode(ItemReference.ReferenceCode);
+                var referenceCodeAlreadyExists = await ItemReferenceService.ExistsByReferenceCode(ItemReference.ReferenceCode, ItemReference.ItemId);
                 if (referenceCodeAlreadyExists)
                 {
                     ValidationErrors.Add("Ya existe una referencia con el mismo código.");

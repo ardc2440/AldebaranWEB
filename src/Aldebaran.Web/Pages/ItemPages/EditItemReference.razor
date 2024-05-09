@@ -59,17 +59,7 @@
                         </RadzenFormField>
                     </RadzenColumn>
                 </RadzenRow>
-                <RadzenRow AlignItems="Radzen.AlignItems.Start">
-                    <RadzenColumn Size="12" SizeMD="6">
-                        <RadzenFormField Text="Cantidad en inventario" Variant="Variant.Text" Style="width: 100%;">
-                            <ChildContent>
-                                <RadzenNumeric style="display: block; width: 100%" @bind-Value="@ItemReference.InventoryQuantity" Name="InventoryQuantity" Max="999999999" />
-                            </ChildContent>
-                            <Helper>
-                                <RadzenRequiredValidator Component="InventoryQuantity" Text="Cantidad es requerida" />
-                            </Helper>
-                        </RadzenFormField>
-                    </RadzenColumn>
+                <RadzenRow AlignItems="Radzen.AlignItems.Start">                    
                     <RadzenColumn Size="12" SizeMD="6">
                         <RadzenFormField Text="Alarma para cantidad mínima" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
