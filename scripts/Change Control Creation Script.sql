@@ -192,3 +192,13 @@ CREATE TABLE visualized_purchase_order_transit_alarms
 )
 GO
 
+ALTER TABLE [customers] DROP COLUMN EMAIL2
+GO
+ALTER TABLE [customers] DROP COLUMN EMAIL3
+GO
+
+EXEC sp_rename 'customers.EMAIL1',  'EMAIL', 'COLUMN';
+GO
+
+ALTER TABLE [customers] ALTER COLUMN EMAIL NVARCHAR(MAX) NOT NULL
+GO
