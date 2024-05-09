@@ -11,15 +11,13 @@
         public string? NotificationSendingErrorMessage { get; set; }
 
         // Reverse navigation
-        public CustomerOrder CustomerOrder { get; set; }
-        public ModifiedPurchaseOrder ModifiedPurchaseOrder { get; set; }
+        public CustomerOrder CustomerOrder { get; set; } = null!;
+        public ModifiedPurchaseOrder ModifiedPurchaseOrder { get; set; } = null!;
 
         public PurchaseOrderNotification()
         {
             NotifiedMailList = "";
             NotificationDate = DateTime.Now;
-            CustomerOrder = new CustomerOrder();
-            ModifiedPurchaseOrder = new ModifiedPurchaseOrder();
         }
     }
 }

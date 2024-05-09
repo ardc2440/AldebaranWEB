@@ -6,7 +6,7 @@
         public int WarehouseTransferId { get; set; }
         public int ReferenceId { get; set; }
         public int Quantity { get; set; }
-        public WarehouseTransfer WarehouseTransfer { get; set; }
-        public ItemReference ItemReference { get; set; }
+        public WarehouseTransfer WarehouseTransfer { get; set; } = null!;
+        public ItemReference ItemReference { get; set; } = null!;
     }
 }

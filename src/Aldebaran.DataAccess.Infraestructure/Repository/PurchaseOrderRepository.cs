@@ -3,6 +3,7 @@ using Aldebaran.DataAccess.Infraestructure.Models;
 using Aldebaran.Infraestructure.Common.Utils;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
@@ -143,7 +144,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             var entity = await _context.PurchaseOrders
                 .FirstOrDefaultAsync(x => x.PurchaseOrderId == purchaseOrderId, ct) ?? throw new KeyNotFoundException($"Orden con id {purchaseOrderId} no existe.");
 
-            var OldExpectedReceiptDate = entity.ExpectedReceiptDate;
+            var oldExpectedReceiptDate = entity.ExpectedReceiptDate;
 
             entity.RequestDate = purchaseOrder.RequestDate;
             entity.ExpectedReceiptDate = purchaseOrder.ExpectedReceiptDate;
@@ -156,6 +157,8 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             entity.PurchaseOrderDetails = purchaseOrder.PurchaseOrderDetails;
             IEnumerable<PurchaseOrderNotification> purchaseOrderNotifications = new List<PurchaseOrderNotification>();
 
+            List<PurchaseOrderTransitAlarm> purchaseOrderTransitAlarm = new List<PurchaseOrderTransitAlarm>();
+
             if (ordersAffected.Any())
             {
                 purchaseOrderNotifications = ordersAffected.Select(s => new PurchaseOrderNotification
@@ -167,7 +170,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                                             .FirstOrDefault(f => f.CustomerOrderId == s.CustomerOrderId)).Customer.Email
                 });
 
-
+                purchaseOrderTransitAlarm.Add (new PurchaseOrderTransitAlarm { OldExpectedReceiptDate = oldExpectedReceiptDate });
             }
 
             var reasonEntity = new ModifiedPurchaseOrder
@@ -175,10 +178,15 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 PurchaseOrderId = purchaseOrderId,
                 ModificationReasonId = reason.ReasonId,
                 EmployeeId = reason.EmployeeId,
-                ModificationDate = reason.Date
-                PurchaseOrderNotifications = purchaseOrderNotifications.ToList() 
+                ModificationDate = reason.Date                
             };
 
+            if (purchaseOrderNotifications.Any())
+            {
+                reasonEntity.PurchaseOrderNotifications = purchaseOrderNotifications.ToList();
+                reasonEntity.PurchaseOrderTransitAlarms = purchaseOrderTransitAlarm ;
+            }            
+                    
             try
             {
                 _context.ModifiedPurchaseOrders.Add(reasonEntity);

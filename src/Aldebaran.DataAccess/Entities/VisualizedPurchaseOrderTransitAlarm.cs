@@ -17,10 +17,9 @@ namespace Aldebaran.DataAccess.Entities
         public PurchaseOrderTransitAlarm PurchaseOrderTransitAlarm {  get; set; }
         public Employee Employee { get; set; }
 
-        public VisualizedPurchaseOrderTransitAlarm()
-        {
-            PurchaseOrderTransitAlarm = new PurchaseOrderTransitAlarm();
-            Employee = new Employee();
+        public VisualizedPurchaseOrderTransitAlarm() 
+        { 
+            VisualizedDate = System.DateTime.Now;
         }
     }
 }

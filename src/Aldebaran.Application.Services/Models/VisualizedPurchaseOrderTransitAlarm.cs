@@ -7,13 +7,7 @@
         public DateTime VisualizedDate { get; set; }
 
         /*reverse navigation*/
-        public PurchaseOrderTransitAlarm PurchaseOrderTransitAlarm { get; set; }
-        public Employee Employee { get; set; }
-
-        public VisualizedPurchaseOrderTransitAlarm()
-        {
-            PurchaseOrderTransitAlarm = new PurchaseOrderTransitAlarm();
-            Employee = new Employee();
-        }
+        public PurchaseOrderTransitAlarm PurchaseOrderTransitAlarm { get; set; } = null!;
+        public Employee Employee { get; set; } = null!;
     }
 }

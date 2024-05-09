@@ -19,7 +19,6 @@ namespace Aldebaran.DataAccess.Entities
 
         public PurchaseOrderTransitAlarm()
         {
-            ModifiedPurchaseOrder = new ModifiedPurchaseOrder();
             VisualizedAlarms = new List<VisualizedPurchaseOrderTransitAlarm>();
         }
     }

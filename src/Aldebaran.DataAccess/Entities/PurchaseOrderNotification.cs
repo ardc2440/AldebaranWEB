@@ -20,8 +20,6 @@ namespace Aldebaran.DataAccess.Entities
         {
             NotifiedMailList = "";
             NotificationDate = DateTime.Now;
-            CustomerOrder = new CustomerOrder();
-            ModifiedPurchaseOrder = new ModifiedPurchaseOrder(); 
         }
     }
 }
