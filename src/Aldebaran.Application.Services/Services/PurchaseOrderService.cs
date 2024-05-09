@@ -65,5 +65,12 @@ namespace Aldebaran.Application.Services
             var data = await _repository.GetTransitByReferenceIdAsync(referenceId, ct);
             return _mapper.Map<List<PurchaseOrder>>(data);
         }
+
+        public async Task<IEnumerable<CustomerOrderAffectedByPurchaseOrderUpdate>> GetAffectedCustomerOrders(int purchaseOrderId, DateTime newExpectedReceiptDate, IEnumerable<PurchaseOrderDetail> purchaseOrderDetails, CancellationToken ct = default)
+        {
+            var details = _mapper.Map<List<Entities.PurchaseOrderDetail>>(purchaseOrderDetails) ?? throw new ArgumentNullException("Orden debe contener detalles.");
+            var data = await _repository.GetAffectedCustomerOrders(purchaseOrderId, newExpectedReceiptDate, details, ct);
+            return _mapper.Map<List<CustomerOrderAffectedByPurchaseOrderUpdate>>(data);
+        }
     }
 }

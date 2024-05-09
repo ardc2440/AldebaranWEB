@@ -100,7 +100,7 @@ namespace Aldebaran.DataAccess
         public string Format(DateTime date, string format) => throw new NotSupportedException();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {            
+        {
             base.OnModelCreating(modelBuilder);
             modelBuilder.HasDbFunction(typeof(AldebaranDbContext).GetMethod(nameof(Format), new[] { typeof(DateTime), typeof(string) }))
                 .HasName("DateTimeToStringFormated");
@@ -189,7 +189,17 @@ namespace Aldebaran.DataAccess
             modelBuilder.Entity<WarehouseTransferReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<FreezoneVsAvailableReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<CustomerSaleReport>(iar => { iar.HasNoKey(); });
-            modelBuilder.Entity<CustomerOrderExport>(iar => { iar.HasNoKey(); });            
+            modelBuilder.Entity<CustomerOrderExport>(iar => { iar.HasNoKey(); });
+            modelBuilder.Entity<CustomerOrderAffectedByPurchaseOrderUpdate>(iar =>
+            {
+                iar.HasNoKey();
+                iar.Property(x => x.CustomerOrderId).HasColumnName(@"CUSTOMERORDERID").HasColumnType("int").IsRequired().ValueGeneratedOnAdd().UseIdentityColumn();
+                iar.Property(x => x.OrderNumber).HasColumnName(@"ORDERNUMBER").HasColumnType("VARCHAR(10)").IsRequired().IsUnicode(false).HasMaxLength(10);
+                iar.Property(x => x.CustomerName).HasColumnName(@"CUSTOMERNAME").HasColumnType("VARCHAR(50)").IsRequired().IsUnicode(false).HasMaxLength(50);
+                iar.Property(x => x.OrderDate).HasColumnName(@"ORDERDATE").HasColumnType("DATE").IsRequired();
+                iar.Property(x => x.EstimatedDeliveryDate).HasColumnName(@"ESTIMATEDDELIVERYDATE").HasColumnType("DATE").IsRequired();
+                iar.Property(x => x.Status).HasColumnName(@"STATUS_DOCUMENT_TYPE_NAME").HasColumnType("VARCHAR(30)").IsRequired().IsUnicode(false).HasMaxLength(30);
+            });
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken ct = default)

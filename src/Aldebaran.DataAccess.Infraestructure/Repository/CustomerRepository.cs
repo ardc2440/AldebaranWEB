@@ -51,9 +51,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                             i.City.CityName.Equals(searchKey) ||
                             i.CustomerAddress.Contains(searchKey) ||
                             i.CustomerName.Contains(searchKey) ||
-                            i.Email1.Contains(searchKey) ||
-                            i.Email2.Contains(searchKey) ||
-                            i.Email3.Contains(searchKey) ||
+                            i.Email.Contains(searchKey) ||
                             i.Fax.Contains(searchKey) ||
                             i.Phone1.Contains(searchKey) ||
                             i.Phone2.Contains(searchKey))
@@ -74,9 +72,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             entity.Phone2 = customer.Phone2;
             entity.Fax = customer.Fax;
             entity.CustomerAddress = customer.CustomerAddress;
-            entity.Email1 = customer.Email1;
-            entity.Email2 = customer.Email2;
-            entity.Email3 = customer.Email3;
+            entity.Email = customer.Email;
             entity.CityId = customer.CityId;
             entity.IdentityNumber = customer.IdentityNumber;
             entity.CellPhone = customer.CellPhone;

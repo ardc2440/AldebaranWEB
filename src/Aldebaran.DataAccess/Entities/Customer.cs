@@ -11,18 +11,17 @@ namespace Aldebaran.DataAccess.Entities
         public string Fax { get; set; }
         public string CustomerAddress { get; set; }
         public string CellPhone { get; set; }
-        public string Email1 { get; set; }
-        public string Email2 { get; set; }
+        public string Email { get; set; }
         public int CityId { get; set; }
-        public string Email3 { get; set; }
         // Reverse navigation
         public ICollection<CustomerContact> CustomerContacts { get; set; }
         public ICollection<CustomerOrder> CustomerOrders { get; set; }
         public ICollection<CustomerReservation> CustomerReservations { get; set; }
         public City City { get; set; }
         public IdentityType IdentityType { get; set; }
-        public Customer()        {
-            
+        public Customer()
+        {
+
             CustomerContacts = new List<CustomerContact>();
             CustomerOrders = new List<CustomerOrder>();
             CustomerReservations = new List<CustomerReservation>();

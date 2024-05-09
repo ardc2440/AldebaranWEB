@@ -99,7 +99,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             var html = await JSRuntime.InvokeAsync<string>("getContent", "customer-order-summary");
             var pdfBytes = await FileBytesGeneratorService.GetPdfBytes(html);
             string pdfBase64 = Convert.ToBase64String(pdfBytes);
-            string[] emails = { CustomerOrder.Customer.Email1, CustomerOrder.Customer.Email2, CustomerOrder.Customer.Email3 };
+            string[] emails = CustomerOrder.Customer.Email.Split(";");
 
             var message = new MessageModel
             {
