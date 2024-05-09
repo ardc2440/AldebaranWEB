@@ -1,0 +1,67 @@
+﻿@using ServiceModel = Aldebaran.Application.Services.Models;
+@using Aldebaran.Web.Resources.LocalizedControls;
+@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer ;
+@using Microsoft.AspNetCore.Mvc
+
+<RadzenStack>
+    @if (!ModificationReasons.Any())
+    {
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="IsErrorVisible">
+            Motivos de modificación no encontrados!!!
+        </RadzenAlert>
+    }
+    <RadzenTemplateForm TItem="ServiceModel.ModificationReason" Data="@ModificationReason" Visible="@ModificationReasons.Any()" Submit="@FormSubmit" InvalidSubmit="()=>Submitted=true">
+        <div class="component-section d-flex flex-column justify-content-start">
+            <span>@TITLE</span>
+        </div>
+        @if (CUSTOMER_ORDERS.Any())
+        {
+            <RadzenRow AlignItems="AlignItems.Center" class="my-4" Gap="0.5rem">
+                <p class="m-0" style="font-weight: 600;">Pedidos afectados por la modificación</p>
+                <LocalizedDataGrid @ref="@CustomerOrdersGrid" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                   Data="@CUSTOMER_ORDERS" TItem="ServiceModel.CustomerOrderAffectedByPurchaseOrderUpdate" AllowColumnPicking="false" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowGrouping="false" AllowColumnReorder="true">
+                    <Columns>
+                        <RadzenDataGridColumn TItem="ServiceModel.CustomerOrderAffectedByPurchaseOrderUpdate" Property="OrderNumber" Title="Pedido">
+                            <Template Context="customerOrder">
+                                <RadzenLink href="javascript:void(0);" @onclick="@(async (args) => await CustomerOrderDetailInfo(customerOrder.CustomerOrderId))">
+                                    @customerOrder.OrderNumber
+                                </RadzenLink>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.CustomerOrderAffectedByPurchaseOrderUpdate" Property="CustomerName" Title="Cliente" />
+                        <RadzenDataGridColumn TItem="ServiceModel.CustomerOrderAffectedByPurchaseOrderUpdate" Property="OrderDate" Title="Fecha pedido">
+                            <Template Context="customerOrder">
+                                <span>@customerOrder.OrderDate.ToString(SharedLocalizer["date:format"])</span>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.CustomerOrderAffectedByPurchaseOrderUpdate" Property="EstimatedDeliveryDate" Title="Fecha estimada de entrega">
+                            <Template Context="customerOrder">
+                                <span>@customerOrder.EstimatedDeliveryDate.ToString(SharedLocalizer["date:format"])</span>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.CustomerOrderAffectedByPurchaseOrderUpdate" Property="Status" Title="Estado" />
+                    </Columns>
+                </LocalizedDataGrid>
+            </RadzenRow>
+        }
+        <RadzenRow AlignItems="AlignItems.Center" class="my-4">
+            <RadzenFormField Text="Motivo de modificación" Variant="Variant.Text" Style="width: 100%;">
+                <ChildContent>
+                    <RadzenDropDown Data="@ModificationReasons" TextProperty="ModificationReasonName" ValueProperty="ModificationReasonId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    style="display: block; width: 100%" @bind-Value="@ModificationReason.ModificationReasonId" Name="ModificationReasonName">
+                    </RadzenDropDown>
+                </ChildContent>
+                <Helper>
+                    <RadzenNumericRangeValidator Component="ModificationReasonName" Min="1" Text="Motivo de modificación es requerido" />
+                </Helper>
+            </RadzenFormField>
+        </RadzenRow>
+
+        <div class="mt-2">
+            <div class="rz-dialog-confirm-buttons">
+                <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Text="Si" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" class="rz-button rz-button-md rz-variant-filled rz-primary rz-shade-default" />
+                <RadzenButton ButtonStyle="ButtonStyle.Light" Text="No" Variant="Variant.Flat" Click="@Cancel" class="rz-button rz-button-md rz-variant-filled rz-secondary rz-shade-default" />
+            </div>
+        </div>
+    </RadzenTemplateForm>
+</RadzenStack>

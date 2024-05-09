@@ -1,0 +1,61 @@
+﻿@page "/customer-order-detail/{CustomerOrderId}"
+@attribute [Authorize(Roles = "Administrador,Consulta de pedidos")]
+@using Aldebaran.Web.Resources.LocalizedControls;
+@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer ;
+
+<PageTitle>Detalles del Pedido</PageTitle>
+<LoadingData IsLoadingData="@isLoadingInProgress" />
+
+@if (!isLoadingInProgress)
+{
+    <RadzenStack>
+        <RadzenRow AlignItems="AlignItems.Start">
+            <RadzenColumn Size="12">
+                <div class="flex-shrink-0">
+                    <div class="text-primary-color" style="font-size: 16px">
+                        <RadzenLabel Text="Cliente: " Style="font-weight: bold" />
+                        <RadzenLabel Text="@customerOrder.Customer.CustomerName" />
+                    </div>
+                    <div class="text-secondary-color">
+                        <RadzenLabel Text="Fecha de pedido: " />
+                        <span>@customerOrder.OrderDate.ToString(SharedLocalizer["date:format"])</span>
+                    </div>
+                    <div class="text-secondary-color">
+                        <RadzenLabel Text="Fecha Pactada de Entrega: " />
+                        <span>@customerOrder.EstimatedDeliveryDate.ToString(SharedLocalizer["date:format"])</span>
+                    </div>
+                    <div class="text-secondary-color">
+                        <RadzenLabel Text="Notas del cliente: " />
+                        <span>@customerOrder.CustomerNotes</span>
+                    </div>
+                    <div class="text-secondary-color">
+                        <RadzenLabel Text="Notas internas: " />
+                        <span>@customerOrder.InternalNotes</span>
+                    </div>
+                </div>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow AlignItems="AlignItems.Start">
+            <RadzenColumn Size="12">
+                <RadzenText Text="Referencias" TextStyle="TextStyle.H5" TagName="TagName.H1" style="margin-bottom: 0.5rem;" />
+                <LocalizedDataGrid ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                   Data="@customerOrderDetails" TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail">
+                    <Columns>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Title="Cantidad" Width="100px">
+                            <Template Context="detail">
+                                @detail.RequestedQuantity.ToString("N0")
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Title="Referencia">
+                            <Template Context="detail">
+                                <RadzenLabel MouseEnter="@(args => ShowTooltip(args,GetReferenceHint(@detail.ItemReference).Result, new TooltipOptions(){ Position = TooltipPosition.Left }))">
+                                    (@detail.ItemReference.Item.Line.LineName) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName
+                                </RadzenLabel>
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </Columns>
+                </LocalizedDataGrid>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenStack>
+}

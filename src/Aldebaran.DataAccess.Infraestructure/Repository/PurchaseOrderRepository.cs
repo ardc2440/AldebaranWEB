@@ -1,6 +1,7 @@
 ﻿using Aldebaran.DataAccess.Entities;
 using Aldebaran.DataAccess.Infraestructure.Models;
 using Aldebaran.Infraestructure.Common.Utils;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
@@ -169,6 +170,18 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 _context.Entry(reasonEntity).State = EntityState.Unchanged;
                 throw;
             }
+        }
+
+        public async Task<IEnumerable<CustomerOrderAffectedByPurchaseOrderUpdate>> GetAffectedCustomerOrders(int purchaseOrderId, DateTime newExpectedReceiptDate, IEnumerable<PurchaseOrderDetail> purchaseOrderDetails, CancellationToken ct = default)
+        {
+            var purchaseOrderIdParameter = new SqlParameter("@PURCHASEORDERID", purchaseOrderId);
+            var newExpectedReceiptDateParameter = new SqlParameter("@NEWEXPECTEDRECIPDATE", newExpectedReceiptDate);
+            var purchaseOrderDetailsParameter = new SqlParameter("@PURCHASEORDERDETAILQUANTITIES", string.Join(";", purchaseOrderDetails.Select(s => $"{s.ReferenceId}-{s.RequestedQuantity}")));
+
+            return await _context.Set<CustomerOrderAffectedByPurchaseOrderUpdate>()
+                .FromSqlRaw($"EXEC SP_CUSTOMER_ORDERS_AFFECTED_BY_PURCHASE_ORDER_UPDATE " +
+                $"@PURCHASEORDERID, @NEWEXPECTEDRECIPDATE, @PURCHASEORDERDETAILQUANTITIES",
+                purchaseOrderIdParameter, newExpectedReceiptDateParameter, purchaseOrderDetailsParameter).ToListAsync(ct);
         }
     }
 }

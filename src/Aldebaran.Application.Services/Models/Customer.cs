@@ -11,10 +11,8 @@ namespace Aldebaran.Application.Services.Models
         public string Fax { get; set; }
         public string CustomerAddress { get; set; }
         public string CellPhone { get; set; }
-        public string Email1 { get; set; }
-        public string Email2 { get; set; }
+        public string Email { get; set; }
         public int CityId { get; set; }
-        public string Email3 { get; set; }
         // Reverse navigation
         public ICollection<CustomerContact> CustomerContacts { get; set; }
         public ICollection<CustomerOrder> CustomerOrders { get; set; }

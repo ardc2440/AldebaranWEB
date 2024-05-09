@@ -1,4 +1,5 @@
 @attribute [Authorize(Roles = "Administrador,Modificación de clientes")]
+@using Aldebaran.Web.Shared;
 
 <LoadingData IsLoadingData="@isLoadingInProgress" />
 
@@ -13,7 +14,7 @@
                 }
             </ul>
         </RadzenAlert>
-        <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.Customer" Data="@Customer" Visible="@(Customer != null)" Submit="@FormSubmit">
+        <RadzenTemplateForm @ref="customerForm" TItem="Aldebaran.Application.Services.Models.Customer" Data="@Customer" Visible="@(Customer != null)" Submit="@FormSubmit">
             <RadzenStack>
                 <RadzenRow AlignItems="Radzen.AlignItems.Start">
                     <RadzenColumn Size="12" SizeMD="6">
@@ -94,34 +95,22 @@
                     </RadzenColumn>
                 </RadzenRow>
                 <RadzenRow AlignItems="Radzen.AlignItems.Start">
-                    <RadzenColumn Size="12" SizeMD="4">
+                    <RadzenColumn Size="12">
                         <RadzenFormField Text="Correo electrónico" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
-                                <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Customer.Email1" Name="Email1" MaxLength="250" />
+                                <ChipsInput ShowValidationErrors="false" Chips="@emails" AddChipKeyCode="Space"
+                                    CustomValidation="@OnEmailChipValidation"
+                                    OnChipsChanged="@OnEmailChipChange">
+                                </ChipsInput>
+                                <RadzenListBox Style="display:none" @bind-Value="@emails" Data="@emails" Name="Emails" />
                             </ChildContent>
                             <Helper>
-                                <RadzenRequiredValidator Component="Email1" Text="Correo electrónico es requerido" />
-                                <RadzenEmailValidator Component="Email1" Text="Correo electrónico es inválido" />
-                            </Helper>
-                        </RadzenFormField>
-                    </RadzenColumn>
-                    <RadzenColumn Size="12" SizeMD="4">
-                        <RadzenFormField Text="Correo electrónico opcional" Variant="Variant.Text" Style="width: 100%;">
-                            <ChildContent>
-                                <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Customer.Email2" Name="Email2" MaxLength="250" />
-                            </ChildContent>
-                            <Helper>
-                                <RadzenEmailValidator Component="Email2" Text="Correo electrónico es inválido" />
-                            </Helper>
-                        </RadzenFormField>
-                    </RadzenColumn>
-                    <RadzenColumn Size="12" SizeMD="4">
-                        <RadzenFormField Text="Correo electrónico opcional" Variant="Variant.Text" Style="width: 100%;">
-                            <ChildContent>
-                                <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Customer.Email3" Name="Email3" MaxLength="250" />
-                            </ChildContent>
-                            <Helper>
-                                <RadzenEmailValidator Component="Email3" Text="Correo electrónico es inválido" />
+                                @if (EmailValidationError.Any()){
+                                    @foreach (var error in EmailValidationError){
+                                        <div class="rz-message rz-messages-error d-block text-primary-color">@error</div>
+                                    }
+                                }
+                                <RadzenRequiredValidator Component="Emails" Text="Correo electrónico es requerido"></RadzenRequiredValidator>
                             </Helper>
                         </RadzenFormField>
                     </RadzenColumn>

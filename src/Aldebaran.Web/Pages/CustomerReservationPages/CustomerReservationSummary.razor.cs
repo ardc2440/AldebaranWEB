@@ -94,7 +94,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             var html = await JSRuntime.InvokeAsync<string>("getContent", "customer-reservation-summary");
             var pdfBytes = await FileBytesGeneratorService.GetPdfBytes(html);
             string pdfBase64 = Convert.ToBase64String(pdfBytes);
-            string[] emails = { CustomerReservation.Customer.Email1, CustomerReservation.Customer.Email2, CustomerReservation.Customer.Email3 };
+            string[] emails = CustomerReservation.Customer.Email.Split(";");
 
             var message = new MessageModel
             {

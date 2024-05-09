@@ -1,6 +1,6 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
-using Aldebaran.Web.Shared;
+using Aldebaran.Web.Pages.PurchaseOrderPages.Components;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
@@ -115,19 +115,21 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 if (!PurchaseOrderDetails.Any())
                     return;
 
-                var reasonResult = await DialogService.OpenAsync<ModificationReasonDialog>("Confirmar modificación", new Dictionary<string, object> { { "DOCUMENT_TYPE_CODE", "O" }, { "TITLE", "Está seguro que desea actualizar esta orden de compra?" } });
+                var purchaseOrderDetails = PurchaseOrderDetails.Select(s => new ServiceModel.PurchaseOrderDetail
+                {
+                    ReferenceId = s.ReferenceId,
+                    WarehouseId = s.WarehouseId,
+                    RequestedQuantity = s.RequestedQuantity,
+                }).ToList();
+                var ordersAffected = await PurchaseOrderService.GetAffectedCustomerOrders(PurchaseOrder.PurchaseOrderId, PurchaseOrder.ExpectedReceiptDate, purchaseOrderDetails);
+                var reasonResult = await DialogService.OpenAsync<PurchaseOrderModificationReasonDialog>("Confirmar modificación", new Dictionary<string, object> { { "DOCUMENT_TYPE_CODE", "O" }, { "TITLE", "Está seguro que desea actualizar esta orden de compra?" }, { "CUSTOMER_ORDERS", ordersAffected } }, options: new DialogOptions { CloseDialogOnOverlayClick = false, Width = "800px" });
                 if (reasonResult == null)
                     return;
 
                 var reason = (Reason)reasonResult;
                 var now = DateTime.UtcNow;
                 // Complementar la orden compra
-                PurchaseOrder.PurchaseOrderDetails = PurchaseOrderDetails.Select(s => new ServiceModel.PurchaseOrderDetail
-                {
-                    ReferenceId = s.ReferenceId,
-                    WarehouseId = s.WarehouseId,
-                    RequestedQuantity = s.RequestedQuantity,
-                }).ToList();
+                PurchaseOrder.PurchaseOrderDetails = purchaseOrderDetails;
 
                 await PurchaseOrderService.UpdateAsync(PurchaseOrder.PurchaseOrderId, PurchaseOrder, reason);
                 NavigationManager.NavigateTo($"purchase-orders/edit/{PurchaseOrder.PurchaseOrderId}");
