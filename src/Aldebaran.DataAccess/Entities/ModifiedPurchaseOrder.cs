@@ -15,7 +15,9 @@ namespace Aldebaran.DataAccess.Entities
         
         public ModifiedPurchaseOrder()
         {
-            ModificationDate = DateTime.Now;            
+            ModificationDate = DateTime.Now;
+            PurchaseOrderNotifications = new List<PurchaseOrderNotification>();
+            PurchaseOrderTransitAlarms = new List<PurchaseOrderTransitAlarm>();
         }
     }
 }
