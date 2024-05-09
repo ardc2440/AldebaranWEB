@@ -260,7 +260,9 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IEmailNotificationProviderSettingsRepository, EmailNotificationProviderSettingsRepository>();
             services.AddTransient<IDashBoardRepository, DashBoardRepository>();
             services.AddTransient<IPurchaseOrderNotificationRepository, PurchaseOrderNotificationRepository>();
-            
+            services.AddTransient<IVisualizedPurchaseOrderTransitAlarmRepository, VisualizedPurchaseOrderTransitAlarmRepository>();
+            services.AddTransient<IPurchaseOrderTransitAlarmRepository, PurchaseOrderTransitAlarmRepository>();
+
             #endregion
             // Services
             #region Services
@@ -347,7 +349,10 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IEmailNotificationProviderSettingsService, EmailNotificationProviderSettingsService>();
             services.AddTransient<INotificationTemplateService, NotificationTemplateService>();
             services.AddTransient<IDashBoardService, DashBoardService>();
-            services.AddTransient<IPurchaseOrderNotificationService, PurchaseOrderNotificationService>();            
+            services.AddTransient<IPurchaseOrderNotificationService, PurchaseOrderNotificationService>();
+            services.AddTransient<IVisualizedPurchaseOrderTransitAlarmService, VisualizedPurchaseOrderTransitAlarmService>();
+            services.AddTransient<IPurchaseOrderTransitAlarmService, PurchaseOrderTransitAlarmService>();
+
             #endregion
 
             services.AddTransient<IQueue, RabbitQueue>();

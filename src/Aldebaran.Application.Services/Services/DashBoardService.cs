@@ -56,5 +56,11 @@ namespace Aldebaran.Application.Services
             var data = await _repository.FindByDocumentAndOrderAsync(documentTypeId, order, ct);
             return _mapper.Map<StatusDocumentType?>(data);
         }
+
+        public async Task<IEnumerable<PurchaseOrderTransitAlarm>> GetAllTransitAlarmAsync(int employeeId, CancellationToken ct = default)
+        {
+            var data = await _repository.GetAllTransitAlarmAsync(employeeId, ct);
+            return _mapper.Map<IEnumerable<PurchaseOrderTransitAlarm>>(data);
+        }
     }
 }

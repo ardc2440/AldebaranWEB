@@ -38,6 +38,7 @@ namespace Aldebaran.DataAccess.Entities
         public ICollection<PurchaseOrderActivity> PurchaseOrderActivities_ActivityEmployeeId { get; set; }
         public ICollection<PurchaseOrderActivity> PurchaseOrderActivities_EmployeeId { get; set; }
         public ICollection<UsersAlarmType> UsersAlarmTypes { get; set; }
+        public ICollection<VisualizedPurchaseOrderTransitAlarm> VisualizedPurchaseOrderTransitAlarms { get; set; }
         public ICollection<VisualizedAlarm> VisualizedAlarms { get; set; }
         public ICollection<WarehouseTransfer> WarehouseTransfers { get; set; }
 

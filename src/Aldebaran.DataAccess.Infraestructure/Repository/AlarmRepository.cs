@@ -1,4 +1,5 @@
 ﻿using Aldebaran.DataAccess.Entities;
+using DocumentFormat.OpenXml.Vml.Office;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
@@ -21,9 +22,18 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
 
         public async Task<Alarm> AddAsync(Alarm item, CancellationToken ct = default)
         {
-            await _context.Alarms.AddAsync(item, ct);
-            await _context.SaveChangesAsync(ct);
-            return item;
+            try
+            {
+                await _context.Alarms.AddAsync(item, ct);
+                await _context.SaveChangesAsync(ct);
+                return item;
+            }
+            catch (Exception)
+            {
+                _context.Entry(item).State = EntityState.Unchanged;
+                throw;
+            }
+           
         }
 
         public async Task DisableAsync(int alarmId, CancellationToken ct = default)

@@ -94,6 +94,8 @@ namespace Aldebaran.Application.Services.Mappings
             CreateMap<EmailNotificationProvider, DataAccess.Infraestructure.Models.EmailNotificationProvider>().ReverseMap();
             CreateMap<NotificationTemplate, Entities.NotificationTemplate>().ReverseMap();
             CreateMap<PurchaseOrderNotification, Entities.PurchaseOrderNotification>().ReverseMap();
+            CreateMap<PurchaseOrderTransitAlarm, Entities.PurchaseOrderTransitAlarm>().ReverseMap();
+            CreateMap<VisualizedPurchaseOrderTransitAlarm, Entities.VisualizedPurchaseOrderTransitAlarm>().ReverseMap();
         }
     }
 }

@@ -11,6 +11,8 @@ namespace Aldebaran.DataAccess.Entities
         public ModificationReason ModificationReason { get; set; }
         public PurchaseOrder PurchaseOrder { get; set; }
         public ICollection<PurchaseOrderNotification> PurchaseOrderNotifications { get; set; }
+        public ICollection<PurchaseOrderTransitAlarm> PurchaseOrderTransitAlarms { get; set; }
+        
         public ModifiedPurchaseOrder()
         {
             ModificationDate = DateTime.Now;
@@ -18,6 +20,7 @@ namespace Aldebaran.DataAccess.Entities
             ModificationReason = new ModificationReason();
             PurchaseOrder = new PurchaseOrder();
             PurchaseOrderNotifications = new List<PurchaseOrderNotification>();
+            PurchaseOrderTransitAlarms = new List<PurchaseOrderTransitAlarm>();
         }
     }
 }
