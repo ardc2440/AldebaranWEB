@@ -1,4 +1,5 @@
-﻿using Aldebaran.DataAccess.Core.Atributes;
+﻿using Aldebaran.DataAccess.Configuration;
+using Aldebaran.DataAccess.Core.Atributes;
 using Aldebaran.DataAccess.Entities;
 using Aldebaran.DataAccess.Entities.Reports;
 using Microsoft.EntityFrameworkCore;
@@ -91,7 +92,8 @@ namespace Aldebaran.DataAccess
         public DbSet<WarehouseTransferDetail> WarehouseTransferDetails { get; set; }
         public DbSet<NotificationProviderSetting> NotificationProviderSettings { get; set; }
         public DbSet<NotificationTemplate> NotificationTemplates { get; set; }
-
+        public DbSet<PurchaseOrderTransitAlarm> PurchaseOrderTransitAlarms { get; set; }
+        public DbSet<VisualizedPurchaseOrderTransitAlarm> VisualizedPurchaseOrderTransitAlarms { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {           
@@ -169,6 +171,8 @@ namespace Aldebaran.DataAccess
             modelBuilder.ApplyConfiguration(new WarehouseTransferDetailConfiguration());
             modelBuilder.ApplyConfiguration(new NotificationProviderSettingConfiguration());
             modelBuilder.ApplyConfiguration(new NotificationTemplateConfiguration());
+            modelBuilder.ApplyConfiguration(new PurchaseOrderTransitAlarmConfiguration());
+            modelBuilder.ApplyConfiguration(new VisualizedPurchaseOrderTransitAlarmConfiguration());
         }
     }
 }

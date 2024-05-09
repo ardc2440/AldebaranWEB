@@ -15,11 +15,10 @@ namespace Aldebaran.Application.Services
             _mapper = mapper ?? throw new ArgumentNullException(nameof(IMapper));
         }
 
-        public async Task<VisualizedAlarm> AddAsync(VisualizedAlarm visualizedAlarm, CancellationToken ct = default)
+        public async Task AddAsync(VisualizedAlarm visualizedAlarm, CancellationToken ct = default)
         {
-            var entity = _mapper.Map<Entities.VisualizedAlarm>(visualizedAlarm) ?? throw new ArgumentNullException("Orden no puede ser nula.");
-            var result = await _repository.AddAsync(entity, ct);
-            return _mapper.Map<VisualizedAlarm>(result);
+            var entity = _mapper.Map<Entities.VisualizedAlarm>(visualizedAlarm) ?? throw new ArgumentNullException("Alarma no puede ser nula.");
+            await _repository.AddAsync(entity, ct);            
         }
     }
 

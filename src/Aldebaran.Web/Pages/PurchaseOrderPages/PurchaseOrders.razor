@@ -217,7 +217,9 @@
                                                 <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderNotification" Property="CustomerOrder.Customer.CustomerName" Title="Cliente"></RadzenDataGridColumn>
                                                 <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderNotification" Title="Pedido">
                                                     <Template Context="notification">
-                                                        <a href="edit-customer-order/view/@notification.CustomerOrderId" target="_parent"> @notification.CustomerOrder.OrderNumber </a>
+                                                        <RadzenLink href="javascript:void(0);" @onclick="@(async (args) => await CustomerOrderDetailInfo(notification.CustomerOrder.CustomerOrderId))">
+                                                            @notification.CustomerOrder.OrderNumber
+                                                        </RadzenLink>                                                        
                                                     </Template>
                                                 </RadzenDataGridColumn>
                                                 <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderNotification" Title="Fecha pactada de entrega">

@@ -64,5 +64,15 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .Include(i => i.IdentityType)
                 .FirstOrDefaultAsync(f => f.LoginUserId == loginUserId, ct);
         }
+
+        public async Task<IEnumerable<PurchaseOrderTransitAlarm>> GetAllTransitAlarmAsync(int employeeId, CancellationToken ct = default)
+        {
+            return await _context.PurchaseOrderTransitAlarms.AsNoTracking()
+                .Include(i=>i.ModifiedPurchaseOrder.PurchaseOrder.StatusDocumentType)
+                .Where(w => w.ModifiedPurchaseOrder.PurchaseOrder.StatusDocumentType.StatusOrder == 1 &&
+                            !_context.VisualizedPurchaseOrderTransitAlarms.AsNoTracking().Any(j => j.PurchaseOrderTransitAlarmId == w.PurchaseOrderTransitAlarmId &&
+                                                                                                   j.EmployeeId == employeeId))                
+                .ToListAsync(ct);
+        }
     }
 }

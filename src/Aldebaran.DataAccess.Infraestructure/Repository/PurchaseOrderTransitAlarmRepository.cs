@@ -1,21 +1,25 @@
 ﻿using Aldebaran.DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
-    public class VisualizedAlarmRepository : IVisualizedAlarmRepository
+    public class PurchaseOrderTransitAlarmRepository : IPurchaseOrderTransitAlarmRepository
     {
         private readonly AldebaranDbContext _context;
-        public VisualizedAlarmRepository(AldebaranDbContext context)
+        public PurchaseOrderTransitAlarmRepository(AldebaranDbContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
-
-        public async Task AddAsync(VisualizedAlarm item, CancellationToken ct = default)
+        public async Task AddAsync(PurchaseOrderTransitAlarm item, CancellationToken ct = default)
         {
             try
             {
-                await _context.VisualizedAlarms.AddAsync(item, ct);
+                await _context.PurchaseOrderTransitAlarms.AddAsync(item, ct);
                 await _context.SaveChangesAsync(ct);
             }
             catch (Exception)
@@ -25,5 +29,4 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             }
         }
     }
-
 }

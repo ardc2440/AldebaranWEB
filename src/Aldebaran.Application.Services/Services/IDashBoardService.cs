@@ -16,5 +16,6 @@ namespace Aldebaran.Application.Services
         Task<Employee?> FindByLoginUserIdAsync(string loginUserId, CancellationToken ct = default);
         Task<DocumentType?> FindByCodeAsync(string code, CancellationToken ct = default);
         Task<StatusDocumentType?> FindByDocumentAndOrderAsync(int documentTypeId, int order, CancellationToken ct = default);
+        Task<IEnumerable<PurchaseOrderTransitAlarm>> GetAllTransitAlarmAsync(int employeeId, CancellationToken ct = default);
     }
 }

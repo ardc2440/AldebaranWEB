@@ -35,6 +35,7 @@ namespace Aldebaran.Application.Services.Models
         public ICollection<PurchaseOrderActivity> PurchaseOrderActivities_EmployeeId { get; set; }
         public ICollection<UsersAlarmType> UsersAlarmTypes { get; set; }
         public ICollection<VisualizedAlarm> VisualizedAlarms { get; set; }
+        public ICollection<VisualizedPurchaseOrderTransitAlarm> VisualizedPurchaseOrderTransitAlarms { get; set; }
         public ICollection<WarehouseTransfer> WarehouseTransfers { get; set; }
         public Area Area { get; set; }
         public IdentityType IdentityType { get; set; }
@@ -64,6 +65,7 @@ namespace Aldebaran.Application.Services.Models
             PurchaseOrders = new List<PurchaseOrder>();
             UsersAlarmTypes = new List<UsersAlarmType>();
             VisualizedAlarms = new List<VisualizedAlarm>();
+            VisualizedPurchaseOrderTransitAlarms = new List<VisualizedPurchaseOrderTransitAlarm>();
         }
 
     }

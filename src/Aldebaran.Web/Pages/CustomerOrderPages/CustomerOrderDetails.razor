@@ -32,6 +32,10 @@
                         <RadzenLabel Text="Notas internas: " />
                         <span>@customerOrder.InternalNotes</span>
                     </div>
+                    <div class="text-secondary-color">
+                        <RadzenLabel Text="Estado: " />
+                        <span>@customerOrder.StatusDocumentType.StatusDocumentTypeName</span>
+                    </div>
                 </div>
             </RadzenColumn>
         </RadzenRow>
@@ -44,6 +48,14 @@
                         <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Title="Cantidad" Width="100px">
                             <Template Context="detail">
                                 @detail.RequestedQuantity.ToString("N0")
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Title="Pendiente" Width="100px">
+                            <Template Context="detail">
+                                @{
+                                    var pendingQuantity = @detail.RequestedQuantity - @detail.ProcessedQuantity - @detail.DeliveredQuantity;
+                                }
+                                @pendingQuantity.ToString("N0")
                             </Template>
                         </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Title="Referencia">

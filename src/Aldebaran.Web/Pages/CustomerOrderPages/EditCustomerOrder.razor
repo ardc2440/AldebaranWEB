@@ -1,5 +1,4 @@
 @page "/edit-customer-order/{CustomerOrderId}"
-@page "/edit-customer-order/{Action}/{CustomerOrderId}"
 
 @attribute [Authorize(Roles = "Administrador,Modificación de pedidos")]
 @using Aldebaran.Web.Resources.LocalizedControls;
@@ -88,15 +87,7 @@
                                         <Template Context="detail">
                                             @detail.RequestedQuantity.ToString("N0")
                                         </Template>
-                                    </RadzenDataGridColumn>
-                                    <RadzenDataGridColumn Visible="@(readOnly)" TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Title="Pendiente" Width="100px">
-                                        <Template Context="detail">
-                                            @{
-                                                var pendingQuantity = @detail.RequestedQuantity - @detail.ProcessedQuantity - @detail.DeliveredQuantity;
-                                            }
-                                            @pendingQuantity.ToString("N0")
-                                        </Template>
-                                    </RadzenDataGridColumn>
+                                    </RadzenDataGridColumn>                                    
                                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Title="Referencia">
                                         <Template Context="detail">
                                             <RadzenLabel MouseEnter="@(args => ShowTooltip(args,GetReferenceHint(@detail.ItemReference).Result, new TooltipOptions(){ Position = TooltipPosition.Left }))">
@@ -106,7 +97,7 @@
                                     </RadzenDataGridColumn>
                                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                                         <Template Context="detail">
-                                            <RadzenButton Visible="@(!readOnly)" Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
                                                           Click="@(args => EditRow(detail))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Actualizar", new TooltipOptions(){ Position = TooltipPosition.Left }))">
                                             </RadzenButton>
                                         </Template>
@@ -119,9 +110,8 @@
                 <RadzenRow AlignItems="Radzen.AlignItems.Center">
                     <RadzenColumn Size="12">
                         <RadzenStack class="my-2" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
-                            <RadzenButton Visible="@(!readOnly)" ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@IsSubmitInProgress" />
-                            <RadzenButton Visible="@(!readOnly)" ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
-                            <RadzenButton Visible="@(readOnly)" ButtonStyle="ButtonStyle.Light" Text="Regresar" Variant="Variant.Flat" Click="@CloseButtonClick" />
+                            <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando" IsBusy="@IsSubmitInProgress" />
+                            <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />                            
                         </RadzenStack>
                     </RadzenColumn>
                 </RadzenRow>
