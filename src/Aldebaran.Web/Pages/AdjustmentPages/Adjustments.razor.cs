@@ -125,13 +125,13 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         {
             adjustment = args;
 
-            var AdjustmentDetailsResult = await AdjustmentDetailService.GetByAdjustmentIdAsync(args.AdjustmentId);
+            var adjustmentDetailsResult = await AdjustmentDetailService.GetByAdjustmentIdAsync(args.AdjustmentId);
 
-            if (AdjustmentDetailsResult != null)
+            if (adjustmentDetailsResult != null)
             {
-                adjustmentDetails = AdjustmentDetailsResult.ToList();
+                adjustmentDetails = adjustmentDetailsResult.ToList();
 
-                args.AdjustmentDetails = AdjustmentDetailsResult.ToList();
+                args.AdjustmentDetails = adjustmentDetailsResult.ToList();
             }
         }
 

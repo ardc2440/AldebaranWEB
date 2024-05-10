@@ -69,6 +69,8 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         {
             return await _context.PurchaseOrderTransitAlarms.AsNoTracking()
                 .Include(i=>i.ModifiedPurchaseOrder.PurchaseOrder.StatusDocumentType)
+                .Include(i=>i.ModifiedPurchaseOrder.PurchaseOrder.Provider)
+                .Include(i=>i.ModifiedPurchaseOrder.ModificationReason)
                 .Where(w => w.ModifiedPurchaseOrder.PurchaseOrder.StatusDocumentType.StatusOrder == 1 &&
                             !_context.VisualizedPurchaseOrderTransitAlarms.AsNoTracking().Any(j => j.PurchaseOrderTransitAlarmId == w.PurchaseOrderTransitAlarmId &&
                                                                                                    j.EmployeeId == employeeId))                

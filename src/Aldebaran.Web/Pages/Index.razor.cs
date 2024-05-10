@@ -27,6 +27,13 @@ namespace Aldebaran.Web.Pages
         public IVisualizedAlarmService VisualizedAlarmService { get; set; }
 
         [Inject]
+        public IVisualizedPurchaseOrderTransitAlarmService VisualizedPurchaseOrderTransitAlarmService { get; set; }
+
+        [Inject]
+        public IPurchaseOrderNotificationService PurchaseOrderNotificationService { get; set; }
+
+
+        [Inject]
         public IDashBoardService DashBoardService { get; set; }
 
         [Inject]
@@ -57,6 +64,9 @@ namespace Aldebaran.Web.Pages
         protected LocalizedDataGrid<CustomerReservation> expiredReservationsGrid;
         protected List<Models.ViewModels.Alarm> alarms = new List<Models.ViewModels.Alarm>();
         protected LocalizedDataGrid<Models.ViewModels.Alarm> alarmsGrid;
+        protected IEnumerable<PurchaseOrderTransitAlarm> purchaseOrderTransitAlarms = new List<PurchaseOrderTransitAlarm>();
+        protected IEnumerable<PurchaseOrderNotification> purchaseOrderNotifications = new List<PurchaseOrderNotification>();
+        protected LocalizedDataGrid<PurchaseOrderTransitAlarm> purchaseOrderTransitAlarmsGrid;
 
         protected int pageSize = 7;
         protected Employee employee;
@@ -118,6 +128,7 @@ namespace Aldebaran.Web.Pages
             await UpdateItemsOutOfStockAsync(detailInTransit.ToList(), itemReferences.ToList());
             await UpdateExpiredReservationsAsync();
             await UpdateUserAlarmsAsync();
+            await UpdatePurchaseOrderTransitAlarmsAsync();
         }
         async Task UpdateMinimumQuantitiesAsync(List<PurchaseOrderDetail> detailInTransit, List<ItemReference> itemReferences)
         {
@@ -141,21 +152,16 @@ namespace Aldebaran.Web.Pages
             await alarmsGrid.Reload();
         }
 
+        async Task UpdatePurchaseOrderTransitAlarmsAsync(CancellationToken ct = default)
+        {
+            purchaseOrderTransitAlarms = await DashBoardService.GetAllTransitAlarmAsync(employee.EmployeeId, ct);
+            await purchaseOrderTransitAlarmsGrid.Reload(); 
+        }
+
         #endregion
 
         #region Events
-        void OnResize(RadzenSplitterResizeEventArgs args)
-        {
-            if (args.Pane != null)
-            {
-                var newSize = args.NewSize;
-                var rowSize = 4.1641;
-                var newRowSize = Convert.ToInt32(newSize / rowSize) - 5; //Se quitan las 2 rows de la paginacion
-                newRowSize = newRowSize < 1 ? 1 : newRowSize;
-                pageSize = newRowSize;
-            }
-        }
-        
+               
         protected async Task OpenCustomerReservation(CustomerReservation args)
         {
             NavigationManager.NavigateTo("send-to-customer-order/view/" + args.CustomerReservationId);
@@ -171,11 +177,43 @@ namespace Aldebaran.Web.Pages
             }
         }
 
+        protected async Task DisablePurchaseOrderTransitAlarm(PurchaseOrderTransitAlarm args)
+        {
+            if (await DialogService.Confirm("Desea marcar esta alarma como leída?. No volverá a salir en su Home", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Marcar alarma leída") == true)
+            {
+                await VisualizedPurchaseOrderTransitAlarmService.AddAsync(new VisualizedPurchaseOrderTransitAlarm { PurchaseOrderTransitAlarmId = args.PurchaseOrderTransitAlarmId, EmployeeId = employee.EmployeeId, VisualizedDate = System.DateTime.Now });
+                await UpdatePurchaseOrderTransitAlarmsAsync();
+            }
+        }
+
         private async Task GridaData_UpdateOnTimerChange(object value)
         {
             var milliseconds = (double)value;
             GridTimer.UpdateTimerInterval(milliseconds);
             TimerPreferenceService.UpdateTimerPreferences(GridTimer.Key, milliseconds);
+        }
+
+        #endregion
+
+        #region Notifications
+        protected LocalizedDataGrid<PurchaseOrderNotification> PurchaseOrderNotificationsDataGrid;
+        public async Task CustomerOrderDetailInfo(int customerOrderId)
+        {
+            var reasonResult = await DialogService.OpenAsync<CustomerOrderPages.CustomerOrderDetails>("Detalles del pedido", new Dictionary<string, object> { { "CustomerOrderId", customerOrderId } }, options: new DialogOptions { CloseDialogOnOverlayClick = false, Width = "800px" });
+            if (reasonResult == null)
+                return;
+        }
+
+        protected async Task GetChildData(PurchaseOrderTransitAlarm args)
+        {
+            var alarm = args;
+
+            var notificationsResult = await PurchaseOrderNotificationService.GetByModifiedPurchaseOrder(args.ModifiedPurchaseOrder.ModifiedPurchaseOrderId);
+
+            if (notificationsResult != null)
+            {
+                purchaseOrderNotifications = notificationsResult.ToList();                
+            }
         }
         #endregion
 

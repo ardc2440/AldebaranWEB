@@ -25,6 +25,15 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                             .ToListAsync(ct);            
         }
 
+        public async Task<IEnumerable<PurchaseOrderNotification>> GetByModifiedPurchaseOrder(int modifiedPurchaseOrderId, CancellationToken ct = default)
+        {
+            return await _context.PurchaseOrderNotifications.AsNoTracking()
+                            .Include(i => i.ModifiedPurchaseOrder.ModificationReason)
+                            .Include(i => i.CustomerOrder.Customer)
+                            .Where(w => w.ModifiedPurchaseOrder.ModifiedPurchaseOrderId == modifiedPurchaseOrderId)
+                            .ToListAsync(ct);
+        }
+
         public async Task AddAsync(PurchaseOrderNotification purchaseOrderNotification, CancellationToken ct = default)
         {
             try

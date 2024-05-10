@@ -394,7 +394,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         #endregion
 
         #region Notifications
-        protected RadzenDataGrid<ServiceModel.PurchaseOrderNotification> PurchaseOrderNotificationsDataGrid;
+        protected LocalizedDataGrid<ServiceModel.PurchaseOrderNotification> PurchaseOrderNotificationsDataGrid;
         public async Task CustomerOrderDetailInfo(int customerOrderId)
         {
             var reasonResult = await DialogService.OpenAsync<CustomerOrderPages.CustomerOrderDetails>("Detalles del pedido", new Dictionary<string, object> { { "CustomerOrderId", customerOrderId } }, options: new DialogOptions { CloseDialogOnOverlayClick = false, Width = "800px" });
