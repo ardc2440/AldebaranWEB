@@ -45,12 +45,12 @@
                 <LocalizedDataGrid ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                    Data="@customerOrderDetails" TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail">
                     <Columns>
-                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Title="Cantidad" Width="100px">
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Title="Cantidad" Width="40px">
                             <Template Context="detail">
                                 @detail.RequestedQuantity.ToString("N0")
                             </Template>
                         </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Title="Pendiente" Width="100px">
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Title="Pendiente" Width="40px">
                             <Template Context="detail">
                                 @{
                                     var pendingQuantity = @detail.RequestedQuantity - @detail.ProcessedQuantity - @detail.DeliveredQuantity;
@@ -58,11 +58,22 @@
                                 @pendingQuantity.ToString("N0")
                             </Template>
                         </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Title="Referencia">
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Title="Referencia" Width="100px">
                             <Template Context="detail">
                                 <RadzenLabel MouseEnter="@(args => ShowTooltip(args,GetReferenceHint(@detail.ItemReference).Result, new TooltipOptions(){ Position = TooltipPosition.Left }))">
                                     (@detail.ItemReference.Item.Line.LineName) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName
                                 </RadzenLabel>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Title="Existencias" Width="100px" Filterable="false" Sortable="false">
+                            <Template Context="detail">                                
+                                <LocalizedDataGrid ColumnWidth="200px" AllowFiltering="false" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="false" AllowSorting="false" ShowPagingSummary="false" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                                   Data="detail.ItemReference.ReferencesWarehouses" TItem="Aldebaran.Application.Services.Models.ReferencesWarehouse" >
+                                    <Columns>
+                                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.ReferencesWarehouse" Property="Warehouse.WarehouseName" Title="Bodega" Width="60px" />
+                                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.ReferencesWarehouse" Property="Quantity" Title="Cantidad" Width="40px" />
+                                    </Columns>
+                                </LocalizedDataGrid>
                             </Template>
                         </RadzenDataGridColumn>
                     </Columns>

@@ -5,5 +5,8 @@
         public int[] RefreshIntervalOptionsMinutes { get; set; }
         public TimeSpan SlidingExpirationCache { get; set; }
         public int DefaultIntervalOption { get; set; }
+        public int PurchaseOrderWhiteFlag { get; set; }
+        public int PurchaseOrderYellowFlag { get; set; }
+        public int PurchaseOrderRedFlag { get; set; }
     }
 }

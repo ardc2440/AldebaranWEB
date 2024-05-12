@@ -1,9 +1,8 @@
 ﻿using Aldebaran.DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
-
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
-    public class DashBoardRepository: IDashBoardRepository
+    public class DashBoardRepository : IDashBoardRepository
     {
         private readonly AldebaranDashBoardDbContext _context;
         public DashBoardRepository(AldebaranDashBoardDbContext context)
@@ -68,12 +67,24 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         public async Task<IEnumerable<PurchaseOrderTransitAlarm>> GetAllTransitAlarmAsync(int employeeId, CancellationToken ct = default)
         {
             return await _context.PurchaseOrderTransitAlarms.AsNoTracking()
-                .Include(i=>i.ModifiedPurchaseOrder.PurchaseOrder.StatusDocumentType)
-                .Include(i=>i.ModifiedPurchaseOrder.PurchaseOrder.Provider)
-                .Include(i=>i.ModifiedPurchaseOrder.ModificationReason)
+                .Include(i => i.ModifiedPurchaseOrder.PurchaseOrder.StatusDocumentType)
+                .Include(i => i.ModifiedPurchaseOrder.PurchaseOrder.Provider)
+                .Include(i => i.ModifiedPurchaseOrder.ModificationReason)
                 .Where(w => w.ModifiedPurchaseOrder.PurchaseOrder.StatusDocumentType.StatusOrder == 1 &&
                             !_context.VisualizedPurchaseOrderTransitAlarms.AsNoTracking().Any(j => j.PurchaseOrderTransitAlarmId == w.PurchaseOrderTransitAlarmId &&
-                                                                                                   j.EmployeeId == employeeId))                
+                                                                                                   j.EmployeeId == employeeId))
+                .ToListAsync(ct);
+        }
+
+        public async Task<IEnumerable<PurchaseOrder>> GetPurchaseOrderExpirationsAsync(int purchaseOrderWitheFlag, CancellationToken ct = default)
+        {
+            return await _context.PurchaseOrders.AsNoTracking()
+                .Include(i => i.Provider)
+                .Include(i => i.StatusDocumentType)
+                .Include(i => i.ShipmentForwarderAgentMethod.ForwarderAgent.Forwarder)
+                .Include(i => i.ShipmentForwarderAgentMethod.ShipmentMethod)
+                .Where(w => w.StatusDocumentType.StatusOrder == 1 &&
+                            EF.Functions.DateDiffDay(DateTime.Today, w.ExpectedReceiptDate) <= purchaseOrderWitheFlag)
                 .ToListAsync(ct);
         }
     }

@@ -17,5 +17,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         Task<DocumentType?> FindByCodeAsync(string code, CancellationToken ct = default);
         Task<Employee?> FindByLoginUserIdAsync(string loginUserId, CancellationToken ct = default);
         Task<IEnumerable<PurchaseOrderTransitAlarm>> GetAllTransitAlarmAsync(int employeeId, CancellationToken ct = default);
+        Task<IEnumerable<PurchaseOrder>> GetPurchaseOrderExpirationsAsync(int purchaseOrderWitheFlag, CancellationToken ct = default);
     }
 }

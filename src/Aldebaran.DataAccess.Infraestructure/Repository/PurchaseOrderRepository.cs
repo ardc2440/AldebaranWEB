@@ -211,5 +211,15 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 $"@PURCHASEORDERID, @NEWEXPECTEDRECIPDATE, @PURCHASEORDERDETAILQUANTITIES",
                 purchaseOrderIdParameter, newExpectedReceiptDateParameter, purchaseOrderDetailsParameter).ToListAsync(ct);
         }
+
+        public async Task<IEnumerable<CustomerOrderAffectedByPurchaseOrderUpdate>> GetAffectedCustomerOrders(int purchaseOrderId, CancellationToken ct = default)
+        {
+            var purchaseOrderIdParameter = new SqlParameter("@PURCHASEORDERID", purchaseOrderId);
+            
+            return await _context.Set<CustomerOrderAffectedByPurchaseOrderUpdate>()
+                .FromSqlRaw($"EXEC SP_CUSTOMER_ORDERS_POSSIBLY_AFFECTED_BY_PURCHASE_ORDER_ID " +
+                $"@PURCHASEORDERID",
+                purchaseOrderIdParameter).ToListAsync(ct);
+        }
     }
 }

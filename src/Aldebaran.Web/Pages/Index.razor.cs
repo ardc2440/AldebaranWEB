@@ -1,9 +1,11 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
+using Aldebaran.Web.Models;
 using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Utils;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Options;
 using Radzen;
 
 namespace Aldebaran.Web.Pages
@@ -19,7 +21,7 @@ namespace Aldebaran.Web.Pages
 
         [Inject]
         protected NavigationManager NavigationManager { get; set; }
-               
+
         [Inject]
         public IAlarmService AlarmService { get; set; }
 
@@ -32,6 +34,8 @@ namespace Aldebaran.Web.Pages
         [Inject]
         public IPurchaseOrderNotificationService PurchaseOrderNotificationService { get; set; }
 
+        [Inject]
+        public IPurchaseOrderService PurchaseOrderService { get; set; }
 
         [Inject]
         public IDashBoardService DashBoardService { get; set; }
@@ -47,6 +51,10 @@ namespace Aldebaran.Web.Pages
 
         [Inject]
         public ITimerPreferenceService TimerPreferenceService { get; set; }
+
+        [Inject]
+        public IOptions<AppSettings> Settings { get; set; }
+
 
         #endregion
 
@@ -67,6 +75,10 @@ namespace Aldebaran.Web.Pages
         protected IEnumerable<PurchaseOrderTransitAlarm> purchaseOrderTransitAlarms = new List<PurchaseOrderTransitAlarm>();
         protected IEnumerable<PurchaseOrderNotification> purchaseOrderNotifications = new List<PurchaseOrderNotification>();
         protected LocalizedDataGrid<PurchaseOrderTransitAlarm> purchaseOrderTransitAlarmsGrid;
+        protected IEnumerable<PurchaseOrder> purchaseOrderExpirations = new List<PurchaseOrder>();
+        protected LocalizedDataGrid<PurchaseOrder> purchaseOrderExpirationsGrid;
+        protected IEnumerable<CustomerOrderAffectedByPurchaseOrderUpdate> customerOrdersAffected = new List<CustomerOrderAffectedByPurchaseOrderUpdate>();
+        protected LocalizedDataGrid<CustomerOrderAffectedByPurchaseOrderUpdate> customerOrdersAffectedGrid;
 
         protected int pageSize = 7;
         protected Employee employee;
@@ -78,6 +90,7 @@ namespace Aldebaran.Web.Pages
         #endregion
 
         #region Overrides
+
         protected override async Task OnInitializedAsync()
         {
             Timers = TimerPreferenceService.Timers;
@@ -129,6 +142,8 @@ namespace Aldebaran.Web.Pages
             await UpdateExpiredReservationsAsync();
             await UpdateUserAlarmsAsync();
             await UpdatePurchaseOrderTransitAlarmsAsync();
+            await UpdatePurchaseOrderExpirationsAsync();
+
         }
         async Task UpdateMinimumQuantitiesAsync(List<PurchaseOrderDetail> detailInTransit, List<ItemReference> itemReferences)
         {
@@ -155,13 +170,13 @@ namespace Aldebaran.Web.Pages
         async Task UpdatePurchaseOrderTransitAlarmsAsync(CancellationToken ct = default)
         {
             purchaseOrderTransitAlarms = await DashBoardService.GetAllTransitAlarmAsync(employee.EmployeeId, ct);
-            await purchaseOrderTransitAlarmsGrid.Reload(); 
+            await purchaseOrderTransitAlarmsGrid.Reload();
         }
 
         #endregion
 
         #region Events
-               
+
         protected async Task OpenCustomerReservation(CustomerReservation args)
         {
             NavigationManager.NavigateTo("send-to-customer-order/view/" + args.CustomerReservationId);
@@ -204,15 +219,60 @@ namespace Aldebaran.Web.Pages
                 return;
         }
 
-        protected async Task GetChildData(PurchaseOrderTransitAlarm args)
+        protected async Task GetAlarmChildData(PurchaseOrderTransitAlarm args)
         {
-            var alarm = args;
-
             var notificationsResult = await PurchaseOrderNotificationService.GetByModifiedPurchaseOrder(args.ModifiedPurchaseOrder.ModifiedPurchaseOrderId);
 
             if (notificationsResult != null)
             {
-                purchaseOrderNotifications = notificationsResult.ToList();                
+                purchaseOrderNotifications = notificationsResult.ToList();
+            }
+        }
+        #endregion
+
+        #region PurchaseOrderExpirations
+
+        public async Task UpdatePurchaseOrderExpirationsAsync(CancellationToken ct = default)
+        {
+            purchaseOrderExpirations = await DashBoardService.GetPurchaseOrderExpirationsAsync(Settings.Value.PurchaseOrderWhiteFlag, ct);
+            await purchaseOrderExpirationsGrid.Reload();
+        }
+
+        protected async Task GetExpiredPurchaseOrderChildData(PurchaseOrder args)
+        {
+            var customerOrderResult = await PurchaseOrderService.GetAffectedCustomerOrders(args.PurchaseOrderId);
+
+            if (customerOrderResult != null)
+            {
+                customerOrdersAffected = customerOrderResult.ToList();
+            }
+        }
+
+        protected bool CanExpand(PurchaseOrder data)
+        {
+            var days = (int)(data.ExpectedReceiptDate - System.DateTime.Today).Days;
+
+            return days <= Settings.Value.PurchaseOrderRedFlag;
+        }
+
+        protected async void RowRender(RowRenderEventArgs<PurchaseOrder> args)
+        {
+            args.Expandable = CanExpand(args.Data);            
+        }
+
+        protected async void CellRender(DataGridCellRenderEventArgs<PurchaseOrder> args)
+        {
+            var days = (int)(args.Data.ExpectedReceiptDate - System.DateTime.Today).Days;
+            if (days <= Settings.Value.PurchaseOrderRedFlag)
+            {               
+               args.Attributes.Add("style", $"background-color:var(--rz-danger-light)");               
+            }
+            else
+            {
+                if (days <= Settings.Value.PurchaseOrderYellowFlag)
+                {
+                    args.Attributes.Add("style", $"background-color:var(--rz-warning-light)");
+                }                
             }
         }
         #endregion

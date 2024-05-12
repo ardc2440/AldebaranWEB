@@ -37,6 +37,10 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected ICustomerOrderDetailService CustomerOrderDetailService { get; set; }
 
         [Inject]
+        protected IReferencesWarehouseService ReferencesWarehouseService { get; set; }
+
+
+        [Inject]
         protected TooltipService TooltipService { get; set; }
 
         #endregion
@@ -51,6 +55,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected CustomerOrder customerOrder;
         protected DocumentType documentType;
         protected ICollection<CustomerOrderDetail> customerOrderDetails;
+        protected ICollection<ReferencesWarehouse> referenceWarehouses;
         protected bool isLoadingInProgress;
         #endregion
 
@@ -63,6 +68,11 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 await Task.Yield();
                 customerOrder = await CustomerOrderService.FindAsync(CustomerOrderId);
                 customerOrderDetails = (await CustomerOrderDetailService.GetByCustomerOrderIdAsync(customerOrder.CustomerOrderId)).ToList();
+
+                foreach (var item in customerOrderDetails)
+                {
+                    item.ItemReference.ReferencesWarehouses = (await ReferencesWarehouseService.GetByReferenceIdAsync(item.ReferenceId)).ToList();
+                }
             }
             catch (Exception ex)
             {
@@ -77,6 +87,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected async Task<string> GetReferenceHint(ItemReference reference) => $"({reference.Item.Line.LineName}) {reference.Item.ItemName} - {reference.ReferenceName}";
 
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
+        
         #endregion
     }
 }

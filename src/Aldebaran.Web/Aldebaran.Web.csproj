@@ -66,6 +66,9 @@
     <Compile Update="Mappings\ViewModelProfile.cs">
       <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
     </Compile>
+    <Compile Update="Models\AppSettings.cs">
+      <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+    </Compile>
     <Compile Update="Settings\AutoMapperConfiguration.cs">
       <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
     </Compile>

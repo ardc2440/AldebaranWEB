@@ -1,11 +1,8 @@
 ﻿using Aldebaran.Application.Services.Models;
 using Aldebaran.DataAccess.Infraestructure.Repository;
 using AutoMapper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using DocumentFormat.OpenXml.Wordprocessing;
+using Microsoft.Extensions.Options;
 
 namespace Aldebaran.Application.Services
 {
@@ -13,11 +10,13 @@ namespace Aldebaran.Application.Services
     {
         private readonly IDashBoardRepository _repository;
         private readonly IMapper _mapper;
+
         public DashBoardService(IDashBoardRepository repository, IMapper mapper)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(IDashBoardRepository));
-            _mapper = mapper ?? throw new ArgumentNullException(nameof(IMapper));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(IMapper));            
         }
+                
         public async Task<IEnumerable<PurchaseOrderDetail>> GetTransitDetailOrdersAsync(int statusOrder, int? referenceId = null, CancellationToken ct = default)
         {
             var data = await _repository.GetByReferenceIdAndStatusOrderAsync(statusOrder, referenceId, ct);
@@ -45,10 +44,10 @@ namespace Aldebaran.Application.Services
             var data = await _repository.FindByLoginUserIdAsync(loginUserId, ct);
             return _mapper.Map<Employee?>(data);
         }
-        public async Task<DocumentType?> FindByCodeAsync(string code, CancellationToken ct = default)
+        public async Task<Models.DocumentType?> FindByCodeAsync(string code, CancellationToken ct = default)
         {
             var data = await _repository.FindByCodeAsync(code, ct);
-            return _mapper.Map<DocumentType?>(data);
+            return _mapper.Map<Models.DocumentType?>(data);
         }
 
         public async Task<StatusDocumentType?> FindByDocumentAndOrderAsync(int documentTypeId, int order, CancellationToken ct = default)
@@ -61,6 +60,12 @@ namespace Aldebaran.Application.Services
         {
             var data = await _repository.GetAllTransitAlarmAsync(employeeId, ct);
             return _mapper.Map<IEnumerable<PurchaseOrderTransitAlarm>>(data);
+        }
+
+        public async Task<IEnumerable<PurchaseOrder>> GetPurchaseOrderExpirationsAsync(int purchaseOrderWitheFlag, CancellationToken ct = default)
+        {
+            var data = await _repository.GetPurchaseOrderExpirationsAsync(purchaseOrderWitheFlag, ct);
+            return _mapper.Map<IEnumerable<PurchaseOrder>>(data);
         }
     }
 }
