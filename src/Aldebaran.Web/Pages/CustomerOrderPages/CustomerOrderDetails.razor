@@ -66,8 +66,8 @@
                             </Template>
                         </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Title="Existencias" Width="100px" Filterable="false" Sortable="false">
-                            <Template Context="detail">                                
-                                <LocalizedDataGrid ColumnWidth="200px" AllowFiltering="false" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="false" AllowSorting="false" ShowPagingSummary="false" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                            <Template Context="detail">
+                                <LocalizedDataGrid class="rz-datatable-no-header"  ColumnWidth="200px" AllowFiltering="false" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="false" AllowSorting="false" ShowPagingSummary="false" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                                    Data="detail.ItemReference.ReferencesWarehouses" TItem="Aldebaran.Application.Services.Models.ReferencesWarehouse" >
                                     <Columns>
                                         <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.ReferencesWarehouse" Property="Warehouse.WarehouseName" Title="Bodega" Width="60px" />

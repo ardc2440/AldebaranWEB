@@ -396,3 +396,6 @@ hr.divider {
             width: 100%;
             outline: none;
         }
+.rz-datatable-no-header table.rz-grid-table thead{
+    display:none;
+}
