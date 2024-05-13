@@ -87,5 +87,17 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                             EF.Functions.DateDiffDay(DateTime.Today, w.ExpectedReceiptDate) <= purchaseOrderWitheFlag)
                 .ToListAsync(ct);
         }
+
+        public async Task<IEnumerable<CustomerOrder>> GetExpiredCustomerOrdersAsync(CancellationToken ct = default)
+        {
+            return await _context.CustomerOrders.AsNoTracking()
+                .Include(i => i.Customer)
+                .Include(i => i.StatusDocumentType)
+                .Where(i => i.EstimatedDeliveryDate.Date <= DateTime.Today && 
+                            (i.StatusDocumentType.StatusOrder == 1 || 
+                             i.StatusDocumentType.StatusOrder == 2 || 
+                             i.StatusDocumentType.StatusOrder == 3))
+                .ToListAsync(ct);
+        }
     }
 }

@@ -1,9 +1,4 @@
 ﻿using Aldebaran.DataAccess.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
@@ -18,5 +13,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         Task<Employee?> FindByLoginUserIdAsync(string loginUserId, CancellationToken ct = default);
         Task<IEnumerable<PurchaseOrderTransitAlarm>> GetAllTransitAlarmAsync(int employeeId, CancellationToken ct = default);
         Task<IEnumerable<PurchaseOrder>> GetPurchaseOrderExpirationsAsync(int purchaseOrderWitheFlag, CancellationToken ct = default);
+        Task<IEnumerable<CustomerOrder>> GetExpiredCustomerOrdersAsync(CancellationToken ct = default);
     }
 }

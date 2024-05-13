@@ -67,5 +67,11 @@ namespace Aldebaran.Application.Services
             var data = await _repository.GetPurchaseOrderExpirationsAsync(purchaseOrderWitheFlag, ct);
             return _mapper.Map<IEnumerable<PurchaseOrder>>(data);
         }
+
+        public async Task<IEnumerable<CustomerOrder>> GetExpiredCustomerOrdersAsync(CancellationToken ct = default)
+        {
+            var data = await _repository.GetExpiredCustomerOrdersAsync(ct);
+            return _mapper.Map<IEnumerable<CustomerOrder>>(data);
+        }
     }
 }
