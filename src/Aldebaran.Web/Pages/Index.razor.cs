@@ -4,6 +4,7 @@ using Aldebaran.Web.Models;
 using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Utils;
+using DocumentFormat.OpenXml.Bibliography;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Options;
 using Radzen;
@@ -160,6 +161,7 @@ namespace Aldebaran.Web.Pages
 
         private async Task GridData_Update()
         {
+            generalAlertVisible = false;
             GridTimer.LastUpdate = DateTime.Now;
             Console.WriteLine($"{GridTimer.LastUpdate}");
             var detailInTransit = await DashBoardService.GetTransitDetailOrdersAsync(pendingStatusOrder.StatusDocumentTypeId);
@@ -202,7 +204,7 @@ namespace Aldebaran.Web.Pages
             generalAlertVisible = false;
             minimumAlertVisible = false;
             outOfStockAlertVisible = false;
-            expiredReservationsAlertVisible = false;            
+            expiredReservationsAlertVisible = false;
             alarmsAlertVisible = false;
             purchaseAlarmsAlertVisible = false;
             expiredPurchasesAlertVisible = false;
@@ -237,12 +239,47 @@ namespace Aldebaran.Web.Pages
             expiredCustomerOrdersAlertVisible = false;
         }
 
+        internal static async Task<bool> IsEqual<T>(List<T> first, List<T> second) where T : class
+        {
+            if (first == null || second == null || first.Count != second.Count)
+            {
+                return false;
+            }
+
+            for (var i = 0; i < first.Count; i++)
+            {
+                var a = first[i];
+                var b = second[i];
+
+                for (var j = 0; j < a.GetType().GetProperties().Count(); j++)
+                {
+                    var val1 = a.GetType().GetProperties()[j].GetValue(a);
+                    var val2 = b.GetType().GetProperties()[j].GetValue(b);
+
+                    if ((val1 == null && val2 != null) || (val1 != null && val2 == null))
+                        return false;
+                    
+                    if (val1 != null && val2 != null && (val1.GetType() == Type.GetType("System.Int32") ||
+                                                         val1.GetType() == Type.GetType("System.Int64") ||
+                                                         val1.GetType() == Type.GetType("System.Double") ||
+                                                         val1.GetType() == Type.GetType("System.Decimal") ||
+                                                         val1.GetType() == Type.GetType("System.DateTime") ||
+                                                         val1.GetType() == Type.GetType("System.String") ||
+                                                         val1.GetType() == Type.GetType("System.Boolean")))
+                        if (!val1.Equals(val2))
+                            return false;
+                }
+            }
+
+            return true;
+        }
+
         #region MinimumQuantities
         async Task UpdateMinimumQuantitiesAsync(List<PurchaseOrderDetail> detailInTransit, List<ItemReference> itemReferences)
         {
-            var quantityData = minimumQuantityArticles.Count;
+            var originalData = minimumQuantityArticles;
             minimumQuantityArticles = MinimumQuantityArticle.GetMinimuQuantityArticleList(itemReferences, detailInTransit);
-            minimumAlertVisible = minimumQuantityArticles.Count != quantityData;
+            minimumAlertVisible = !await IsEqual<MinimumQuantityArticle>(minimumQuantityArticles.OrderBy(o => o.ArticleName).ToList(), originalData.OrderBy(o => o.ArticleName).ToList());
 
             await minimumQuantityArticlesGrid.Reload();
         }
@@ -251,9 +288,9 @@ namespace Aldebaran.Web.Pages
         #region ItemsOutOfStock
         async Task UpdateItemsOutOfStockAsync(List<PurchaseOrderDetail> detailInTransit, List<ItemReference> itemReferences)
         {
-            var quantityData = outOfStockArticles.Count;
+            var originalData = outOfStockArticles; 
             outOfStockArticles = OutOfStockArticle.GetOutOfStockArticleList(itemReferences, detailInTransit);
-            outOfStockAlertVisible= quantityData != outOfStockArticles.Count;
+            outOfStockAlertVisible = !await IsEqual<OutOfStockArticle>(outOfStockArticles.OrderBy(o => o.ArticleName).ToList(), originalData.OrderBy(o => o.ArticleName).ToList());
             await outOfStockArticlesGrid.Reload();
         }
         #endregion
@@ -261,9 +298,9 @@ namespace Aldebaran.Web.Pages
         #region ExpiredReservations
         async Task UpdateExpiredReservationsAsync(CancellationToken ct = default)
         {
-            var quantityExpired = expiredReservations.Count;
+            var originalData = expiredReservations;
             expiredReservations = (await DashBoardService.GetExpiredReservationsAsync(ct)).ToList();
-            expiredReservationsAlertVisible = quantityExpired != expiredReservations.Count;
+            expiredReservationsAlertVisible = !await IsEqual<CustomerReservation>(expiredReservations.OrderBy(o => o.CustomerReservationId).ToList(), originalData.OrderBy(o => o.CustomerReservationId).ToList());
             await expiredReservationsGrid.Reload();
         }
 
@@ -276,9 +313,9 @@ namespace Aldebaran.Web.Pages
         #region ExpiredCustomerOrders
         async Task UpdateExpiredCustomerOrdersAsync(CancellationToken ct = default)
         {
-            var quantityExpired = expiredCustomerOrders.ToList().Count;
+            var originalData = expiredCustomerOrders;
             expiredCustomerOrders = (await DashBoardService.GetExpiredCustomerOrdersAsync(ct)).ToList();
-            expiredCustomerOrdersAlertVisible = quantityExpired != expiredCustomerOrders.ToList().Count;
+            expiredCustomerOrdersAlertVisible = !await IsEqual<CustomerOrder>(expiredCustomerOrders.OrderBy(o => o.CustomerOrderId).ToList(), originalData.OrderBy(o => o.CustomerOrderId).ToList());
             await expiredCustomerOrdersGrid.Reload();
         }
         #endregion
@@ -286,19 +323,22 @@ namespace Aldebaran.Web.Pages
         #region UserAlarms
         async Task UpdateUserAlarmsAsync(CancellationToken ct = default)
         {
-            var quantityAlarms = alarms.Count;
+            var originalData = alarms;
             var alarmList = await DashBoardService.GetByEmployeeIdAsync(employee.EmployeeId, ct);
-            alarms = await Models.ViewModels.Alarm.GetAlarmsListAsync(alarmList.ToList(), AlarmService);
-            alarmsAlertVisible = quantityAlarms != alarms.Count;
+            alarms = await Models.ViewModels.Alarm.GetAlarmsListAsync(alarmList.ToList(), AlarmService, ct);
+            alarmsAlertVisible = !await IsEqual<Models.ViewModels.Alarm>(alarms.OrderBy(o => o.AlarmId).ToList(), originalData.OrderBy(o => o.AlarmId).ToList());
             await alarmsGrid.Reload();
         }
 
         protected async Task DisableAlarm(Models.ViewModels.Alarm args)
         {
+            var alertVisible = alarmsAlertVisible;
+
             if (await DialogService.Confirm("Desea marcar esta alarma como leída?. No volverá a salir en su Home", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Marcar alarma leída") == true)
             {
-                await VisualizedAlarmService.AddAsync(new VisualizedAlarm { AlarmId = args.AlarmId, EmployeeId = employee.EmployeeId });
+                await VisualizedAlarmService.AddAsync(new VisualizedAlarm { AlarmId = args.AlarmId, EmployeeId = employee.EmployeeId });                
                 await UpdateUserAlarmsAsync();
+                alarmsAlertVisible = alertVisible;
             }
         }
         #endregion
@@ -306,18 +346,20 @@ namespace Aldebaran.Web.Pages
         #region PurchaseOrderTransitAlarms
         async Task UpdatePurchaseOrderTransitAlarmsAsync(CancellationToken ct = default)
         {
-            var quantity = purchaseOrderTransitAlarms.ToList().Count;
+            var originalData = purchaseOrderTransitAlarms;
             purchaseOrderTransitAlarms = await DashBoardService.GetAllTransitAlarmAsync(employee.EmployeeId, ct);
-            purchaseAlarmsAlertVisible = quantity != purchaseOrderTransitAlarms.ToList().Count;
+            purchaseAlarmsAlertVisible = !await IsEqual<PurchaseOrderTransitAlarm>(purchaseOrderTransitAlarms.OrderBy(o => o.PurchaseOrderTransitAlarmId).ToList(), originalData.OrderBy(o => o.PurchaseOrderTransitAlarmId).ToList());
             await purchaseOrderTransitAlarmsGrid.Reload();
         }
 
         protected async Task DisablePurchaseOrderTransitAlarm(PurchaseOrderTransitAlarm args)
         {
+            var alarmVisible = purchaseAlarmsAlertVisible;
             if (await DialogService.Confirm("Desea marcar esta alarma como leída?. No volverá a salir en su Home", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Marcar alarma leída") == true)
             {
                 await VisualizedPurchaseOrderTransitAlarmService.AddAsync(new VisualizedPurchaseOrderTransitAlarm { PurchaseOrderTransitAlarmId = args.PurchaseOrderTransitAlarmId, EmployeeId = employee.EmployeeId, VisualizedDate = System.DateTime.Now });
                 await UpdatePurchaseOrderTransitAlarmsAsync();
+                purchaseAlarmsAlertVisible = alarmVisible;
             }
         }
 
@@ -336,9 +378,9 @@ namespace Aldebaran.Web.Pages
 
         public async Task UpdatePurchaseOrderExpirationsAsync(CancellationToken ct = default)
         {
-            var quantity = purchaseOrderExpirations.ToList().Count;
+            var originalData = purchaseOrderExpirations;
             purchaseOrderExpirations = await DashBoardService.GetPurchaseOrderExpirationsAsync(Settings.Value.PurchaseOrderWhiteFlag, ct);
-            expiredPurchasesAlertVisible = quantity != purchaseOrderExpirations.ToList().Count;
+            expiredPurchasesAlertVisible = !await IsEqual<PurchaseOrder>(purchaseOrderExpirations.OrderBy(o => o.PurchaseOrderId).ToList(), originalData.OrderBy(o => o.PurchaseOrderId).ToList());
             await purchaseOrderExpirationsGrid.Reload();
         }
 
