@@ -6,6 +6,7 @@ using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Utils;
 using DocumentFormat.OpenXml.Bibliography;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Radzen;
 
@@ -56,6 +57,8 @@ namespace Aldebaran.Web.Pages
         [Inject]
         public IOptions<AppSettings> Settings { get; set; }
 
+        [Inject]
+        protected IMemoryCache MemoryCache { get; set; }
 
         #endregion
 
@@ -109,6 +112,7 @@ namespace Aldebaran.Web.Pages
 
         List<DataTimer> Timers;
         readonly GridTimer GridTimer = new GridTimer("Dahsboard-GridTimer");
+        private MemoryCacheEntryOptions _cacheEntryOptions;
         #endregion
 
         #region Overrides
@@ -120,13 +124,34 @@ namespace Aldebaran.Web.Pages
             employee = await DashBoardService.FindByLoginUserIdAsync(Security.User.Id);
             orderDocumentType = await DashBoardService.FindByCodeAsync("O");
             pendingStatusOrder = await DashBoardService.FindByDocumentAndOrderAsync(orderDocumentType.DocumentTypeId, 1);
-
+            _cacheEntryOptions = new MemoryCacheEntryOptions { SlidingExpiration = Settings.Value.SlidingExpirationCache};
             await GridData_Update();
         }
 
         #endregion
 
         #region Events
+
+        string GetCacheKey(string key)
+        {
+            return $"{Security.User.Id}-{key}";
+        }
+
+        public async Task UpdateDashBoardCache<T>(string key, List<T> list) where T:class
+        {
+            MemoryCache.Set(GetCacheKey(key), list, _cacheEntryOptions);
+        }
+
+        public async Task<List<T>> GetDashBoardCache<T>(string key) where T:class
+        {
+            var loggedUserCache = GetCacheKey(key);
+            if (!MemoryCache.TryGetValue(loggedUserCache, out List<T> list))
+            {
+                MemoryCache.Set(loggedUserCache, new List<T>(), _cacheEntryOptions);
+                return new List<T>();
+            }
+            return list ?? new List<T>();
+        }
 
         async Task InitializeGridTimers()
         {
@@ -277,10 +302,11 @@ namespace Aldebaran.Web.Pages
         #region MinimumQuantities
         async Task UpdateMinimumQuantitiesAsync(List<PurchaseOrderDetail> detailInTransit, List<ItemReference> itemReferences)
         {
-            var originalData = minimumQuantityArticles;
+            var originalData = await GetDashBoardCache<MinimumQuantityArticle>("MinimumQuantityArticle");
+
             minimumQuantityArticles = MinimumQuantityArticle.GetMinimuQuantityArticleList(itemReferences, detailInTransit);
             minimumAlertVisible = !await IsEqual<MinimumQuantityArticle>(minimumQuantityArticles.OrderBy(o => o.ArticleName).ToList(), originalData.OrderBy(o => o.ArticleName).ToList());
-
+            await UpdateDashBoardCache<MinimumQuantityArticle>("MinimumQuantityArticle", minimumQuantityArticles);
             await minimumQuantityArticlesGrid.Reload();
         }
         #endregion
@@ -288,9 +314,10 @@ namespace Aldebaran.Web.Pages
         #region ItemsOutOfStock
         async Task UpdateItemsOutOfStockAsync(List<PurchaseOrderDetail> detailInTransit, List<ItemReference> itemReferences)
         {
-            var originalData = outOfStockArticles; 
+            var originalData = await GetDashBoardCache<OutOfStockArticle>("OutOfStockArticle");  
             outOfStockArticles = OutOfStockArticle.GetOutOfStockArticleList(itemReferences, detailInTransit);
             outOfStockAlertVisible = !await IsEqual<OutOfStockArticle>(outOfStockArticles.OrderBy(o => o.ArticleName).ToList(), originalData.OrderBy(o => o.ArticleName).ToList());
+            await UpdateDashBoardCache<OutOfStockArticle>("OutOfStockArticle", outOfStockArticles);
             await outOfStockArticlesGrid.Reload();
         }
         #endregion
@@ -298,9 +325,11 @@ namespace Aldebaran.Web.Pages
         #region ExpiredReservations
         async Task UpdateExpiredReservationsAsync(CancellationToken ct = default)
         {
-            var originalData = expiredReservations;
+            var originalData = await GetDashBoardCache<CustomerReservation>("CustomerReservation"); 
+
             expiredReservations = (await DashBoardService.GetExpiredReservationsAsync(ct)).ToList();
             expiredReservationsAlertVisible = !await IsEqual<CustomerReservation>(expiredReservations.OrderBy(o => o.CustomerReservationId).ToList(), originalData.OrderBy(o => o.CustomerReservationId).ToList());
+            await UpdateDashBoardCache<CustomerReservation>("CustomerReservation", expiredReservations);
             await expiredReservationsGrid.Reload();
         }
 
@@ -313,9 +342,11 @@ namespace Aldebaran.Web.Pages
         #region ExpiredCustomerOrders
         async Task UpdateExpiredCustomerOrdersAsync(CancellationToken ct = default)
         {
-            var originalData = expiredCustomerOrders;
+            var originalData = await GetDashBoardCache<CustomerOrder>("CustomerOrder"); 
+
             expiredCustomerOrders = (await DashBoardService.GetExpiredCustomerOrdersAsync(ct)).ToList();
             expiredCustomerOrdersAlertVisible = !await IsEqual<CustomerOrder>(expiredCustomerOrders.OrderBy(o => o.CustomerOrderId).ToList(), originalData.OrderBy(o => o.CustomerOrderId).ToList());
+            await UpdateDashBoardCache<CustomerOrder>("CustomerOrder", expiredCustomerOrders.ToList());
             await expiredCustomerOrdersGrid.Reload();
         }
         #endregion
@@ -323,10 +354,12 @@ namespace Aldebaran.Web.Pages
         #region UserAlarms
         async Task UpdateUserAlarmsAsync(CancellationToken ct = default)
         {
-            var originalData = alarms;
+            var originalData = await GetDashBoardCache<Models.ViewModels.Alarm>("Alarm");
+
             var alarmList = await DashBoardService.GetByEmployeeIdAsync(employee.EmployeeId, ct);
             alarms = await Models.ViewModels.Alarm.GetAlarmsListAsync(alarmList.ToList(), AlarmService, ct);
             alarmsAlertVisible = !await IsEqual<Models.ViewModels.Alarm>(alarms.OrderBy(o => o.AlarmId).ToList(), originalData.OrderBy(o => o.AlarmId).ToList());
+            await UpdateDashBoardCache<Models.ViewModels.Alarm>("Alarm", alarms);
             await alarmsGrid.Reload();
         }
 
@@ -346,9 +379,11 @@ namespace Aldebaran.Web.Pages
         #region PurchaseOrderTransitAlarms
         async Task UpdatePurchaseOrderTransitAlarmsAsync(CancellationToken ct = default)
         {
-            var originalData = purchaseOrderTransitAlarms;
+            var originalData = await GetDashBoardCache<PurchaseOrderTransitAlarm>("PurchaseOrderTransitAlarm"); 
+
             purchaseOrderTransitAlarms = await DashBoardService.GetAllTransitAlarmAsync(employee.EmployeeId, ct);
             purchaseAlarmsAlertVisible = !await IsEqual<PurchaseOrderTransitAlarm>(purchaseOrderTransitAlarms.OrderBy(o => o.PurchaseOrderTransitAlarmId).ToList(), originalData.OrderBy(o => o.PurchaseOrderTransitAlarmId).ToList());
+            await UpdateDashBoardCache<PurchaseOrderTransitAlarm>("PurchaseOrderTransitAlarm", purchaseOrderTransitAlarms.ToList());
             await purchaseOrderTransitAlarmsGrid.Reload();
         }
 
@@ -378,9 +413,11 @@ namespace Aldebaran.Web.Pages
 
         public async Task UpdatePurchaseOrderExpirationsAsync(CancellationToken ct = default)
         {
-            var originalData = purchaseOrderExpirations;
+            var originalData = await GetDashBoardCache<PurchaseOrder>("PurchaseOrder");
+
             purchaseOrderExpirations = await DashBoardService.GetPurchaseOrderExpirationsAsync(Settings.Value.PurchaseOrderWhiteFlag, ct);
             expiredPurchasesAlertVisible = !await IsEqual<PurchaseOrder>(purchaseOrderExpirations.OrderBy(o => o.PurchaseOrderId).ToList(), originalData.OrderBy(o => o.PurchaseOrderId).ToList());
+            await UpdateDashBoardCache<PurchaseOrder>("PurchaseOrder", purchaseOrderExpirations.ToList());
             await purchaseOrderExpirationsGrid.Reload();
         }
 
