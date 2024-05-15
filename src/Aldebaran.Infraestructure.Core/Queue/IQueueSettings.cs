@@ -2,6 +2,7 @@
 {
     public interface IQueueSettings
     {
-        string QueueName { get; }
+        string DefaultQueue { get; }
+        string NotificationResultQueue { get; }
     }
 }

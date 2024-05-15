@@ -1,9 +1,9 @@
 ﻿using Aldebaran.DataAccess.Entities;
+using Aldebaran.DataAccess.Enums;
 using Aldebaran.DataAccess.Infraestructure.Models;
 using Aldebaran.Infraestructure.Common.Utils;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
@@ -139,7 +139,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                .ToListAsync(ct);
         }
 
-        public async Task UpdateAsync(int purchaseOrderId, PurchaseOrder purchaseOrder, Reason reason, IEnumerable<CustomerOrderAffectedByPurchaseOrderUpdate> ordersAffected, CancellationToken ct = default)
+        public async Task<int> UpdateAsync(int purchaseOrderId, PurchaseOrder purchaseOrder, Reason reason, IEnumerable<CustomerOrderAffectedByPurchaseOrderUpdate> ordersAffected, CancellationToken ct = default)
         {
             var entity = await _context.PurchaseOrders
                 .FirstOrDefaultAsync(x => x.PurchaseOrderId == purchaseOrderId, ct) ?? throw new KeyNotFoundException($"Orden con id {purchaseOrderId} no existe.");
@@ -164,13 +164,13 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 purchaseOrderNotifications = ordersAffected.Select(s => new PurchaseOrderNotification
                 {
                     CustomerOrderId = s.CustomerOrderId,
-                    NotificationState = false,
+                    NotificationState = NotificationStatus.Pending,
                     NotifiedMailList = (_context.CustomerOrders.AsNoTracking()
                                             .Include(i => i.Customer)
                                             .FirstOrDefault(f => f.CustomerOrderId == s.CustomerOrderId)).Customer.Email
                 });
 
-                purchaseOrderTransitAlarm.Add (new PurchaseOrderTransitAlarm { OldExpectedReceiptDate = oldExpectedReceiptDate });
+                purchaseOrderTransitAlarm.Add(new PurchaseOrderTransitAlarm { OldExpectedReceiptDate = oldExpectedReceiptDate });
             }
 
             var reasonEntity = new ModifiedPurchaseOrder
@@ -178,19 +178,20 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 PurchaseOrderId = purchaseOrderId,
                 ModificationReasonId = reason.ReasonId,
                 EmployeeId = reason.EmployeeId,
-                ModificationDate = reason.Date                
+                ModificationDate = reason.Date
             };
 
             if (purchaseOrderNotifications.Any())
             {
                 reasonEntity.PurchaseOrderNotifications = purchaseOrderNotifications.ToList();
-                reasonEntity.PurchaseOrderTransitAlarms = purchaseOrderTransitAlarm ;
-            }            
-                    
+                reasonEntity.PurchaseOrderTransitAlarms = purchaseOrderTransitAlarm;
+            }
+
             try
             {
                 _context.ModifiedPurchaseOrders.Add(reasonEntity);
                 await _context.SaveChangesAsync(ct);
+                return reasonEntity.ModifiedPurchaseOrderId;
             }
             catch
             {
@@ -215,7 +216,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         public async Task<IEnumerable<CustomerOrderAffectedByPurchaseOrderUpdate>> GetAffectedCustomerOrders(int purchaseOrderId, CancellationToken ct = default)
         {
             var purchaseOrderIdParameter = new SqlParameter("@PURCHASEORDERID", purchaseOrderId);
-            
+
             return await _context.Set<CustomerOrderAffectedByPurchaseOrderUpdate>()
                 .FromSqlRaw($"EXEC SP_CUSTOMER_ORDERS_POSSIBLY_AFFECTED_BY_PURCHASE_ORDER_ID " +
                 $"@PURCHASEORDERID",

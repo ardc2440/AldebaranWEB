@@ -24,31 +24,32 @@ namespace Aldebaran.Infraestructure.Core.Queue
         /// Dependencia de Logger
         /// </summary>
         private readonly ILogger Logger;
+        private readonly IQueueSettings QueueSettings;
 
         /// <summary>
         /// Identificador del consumidor de mensajes
         /// </summary>
         private string? ConsumerTag;
 
-        private readonly string QueueName;
+        private readonly string DefaultQueue;
         private const int MaxNotificationAttempts = 5;
         public RabbitQueue(IConnection connection, ILogger<RabbitQueue> logger, IQueueSettings queueSettings)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(IConnection));
             Logger = logger ?? throw new ArgumentNullException(nameof(ILogger));
-            QueueName = queueSettings?.QueueName ?? throw new ArgumentNullException($"{nameof(QueueName)}");
+            QueueSettings = queueSettings ?? throw new ArgumentNullException(nameof(IQueueSettings));
+            DefaultQueue = queueSettings?.DefaultQueue ?? throw new ArgumentNullException($"{nameof(DefaultQueue)}");
         }
-        /// <summary>
-        /// Permite encolar un mensaje en una cola
-        /// </summary>
-        /// <typeparam name="TModel">Tipo de mensaje a encolar</typeparam>
-        /// <param name="queue">Nombre de la cola a almacenar el mensaje</param>
-        /// <param name="request">Mensaje a encolar</param>
-        /// <param name="metadata">Metadata del mensaje</param>
+        /// <inheritdoc/>
         public void Enqueue<TModel>(TModel request, IDictionary<string, object>? metadata = null)
         {
+            Enqueue(DefaultQueue, request, metadata);
+        }
+        /// <inheritdoc/>
+        public void Enqueue<TModel>(string queue, TModel request, IDictionary<string, object>? metadata = null)
+        {
             using var channel = Connection.CreateModel();
-            channel.QueueDeclare(queue: QueueName,
+            channel.QueueDeclare(queue: queue,
                                  durable: true,
                                  exclusive: false,
                                  autoDelete: false,
@@ -63,22 +64,22 @@ namespace Aldebaran.Infraestructure.Core.Queue
                             });
 
             channel.BasicPublish(exchange: string.Empty,
-                                 routingKey: QueueName,
+                                 routingKey: queue,
                                  basicProperties: bproperties,
                                  body: Encoding.UTF8.GetBytes(json));
         }
 
-        /// <summary>
-        /// Permite desecolar un mensaje de una cola y al mensaje desencolado ser procesado por una funcion
-        /// </summary>
-        /// <typeparam name="TModel">Tipo de mensaje a encolar</typeparam>
-        /// <param name="queue">Nombre de la cola a monitorear</param>
-        /// <param name="code">Funcion que procesara el mensaje</param>
-        /// <returns></returns>
+        /// <inheritdoc/>
         public async Task Dequeue<TModel>(Func<QueueMessage<TModel>, Task> code)
         {
+            await Dequeue(DefaultQueue, code);
+        }
+
+        /// <inheritdoc/>
+        public async Task Dequeue<TModel>(string queue, Func<QueueMessage<TModel>, Task> code)
+        {
             channel = Connection.CreateModel();
-            channel.QueueDeclare(queue: QueueName,
+            channel.QueueDeclare(queue: queue,
                                 durable: true,
                                 exclusive: false,
                                 autoDelete: false,
@@ -126,7 +127,7 @@ namespace Aldebaran.Infraestructure.Core.Queue
                         _ = headers.TryGetValue("x-retries", out object? oretries) && int.TryParse(oretries?.ToString(), out iretries);
                         iretries++;
                         using var channel2 = Connection.CreateModel();
-                        var queueName2 = QueueName + ((iretries >= MaxNotificationAttempts) ? "-dead-letter" : string.Empty);
+                        var queueName2 = queue + ((iretries >= MaxNotificationAttempts) ? "-dead-letter" : string.Empty);
                         channel2.QueueDeclare(queue: queueName2,
                                                   durable: true,
                                                   exclusive: false,
@@ -138,7 +139,7 @@ namespace Aldebaran.Infraestructure.Core.Queue
                             ["x-retries"] = iretries,
                             ["x-exception"] = ex.Message
                         };
-                        if (queueName2 == QueueName)
+                        if (queueName2 == queue)
                             await Task.Delay(TimeSpan.FromMinutes(1));
                         channel2.BasicPublish(exchange: string.Empty,
                                          routingKey: queueName2,
@@ -157,7 +158,7 @@ namespace Aldebaran.Infraestructure.Core.Queue
                     }
                 }
             };
-            ConsumerTag = this.channel.BasicConsume(queue: QueueName,
+            ConsumerTag = this.channel.BasicConsume(queue: queue,
                                                    autoAck: false,
                                                    consumer: consumer);
             await Task.CompletedTask;

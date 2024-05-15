@@ -1,4 +1,5 @@
-﻿using Aldebaran.Application.Services.Notificator.Model;
+﻿using Aldebaran.Application.NotificationProcessor.Services;
+using Aldebaran.Application.Services.Notificator.Model;
 using Aldebaran.Application.Services.Notificator.Notify;
 using Aldebaran.Infraestructure.Core.Queue;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,6 +27,8 @@ namespace Aldebaran.Application.NotificationProcessor.Workers
         /// Dependencia de Proveedor de servicios
         /// </summary>
         private readonly INotificationProvider _notificationProvider;
+        private readonly IQueueSettings _queueSettings;
+        private readonly IClientHookApi HookApi;
         /// <summary>
         /// </summary>
         /// <param name="queuer">Manejador de colas</param>
@@ -45,6 +48,22 @@ namespace Aldebaran.Application.NotificationProcessor.Workers
         /// <returns></returns>
         public async Task StartAsync(CancellationToken ct)
         {
+            try
+            {
+                await NotificationBrokerAsync(ct);
+                await NotificationResultBrokerAsync(ct);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                _logger.LogCritical(ex, "Error al inciar NotificationWorker");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error sin identificar en NotificationWorker");
+            }
+        }
+        async Task NotificationBrokerAsync(CancellationToken ct = default)
+        {
             await _queuer.Dequeue<MessageModel>(async data =>
             {
                 using (var scope = _serviceProvider.CreateScope())
@@ -55,17 +74,53 @@ namespace Aldebaran.Application.NotificationProcessor.Workers
                     {
                         _notificationProvider.Configure(metadata);
                         await _notificationProvider.SendMessage(message, metadata, ct);
+                        message.MessageDeliveryStatus = new MessageModel.DeliveryStatus
+                        {
+                            Status = 200,
+                            Success = true
+                        };
                         _logger.LogInformation($"Notificacion {message.Header.MessageUid} ha sido enviada.");
                     }
                     catch (Exception ex)
                     {
+                        message.MessageDeliveryStatus = new MessageModel.DeliveryStatus
+                        {
+                            Status = 400,
+                            Success = false,
+                            Message = ex.Message
+                        };
                         _logger.LogError(ex, "NotificationWorker Service");
-                        throw;
+                    }
+                    finally
+                    {
+                        _queuer.Enqueue(_queueSettings.NotificationResultQueue, message);
                     }
                 }
             });
         }
-
+        async Task NotificationResultBrokerAsync(CancellationToken ct = default)
+        {
+            await _queuer.Dequeue<MessageModel>(_queueSettings.NotificationResultQueue, async data =>
+            {
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var message = data.Message;
+                    if (HookApi.Client.BaseAddress == null)
+                    {
+                        _logger.LogInformation($"El mensaje no tiene un HookUrl válido para reportar el estado de la notificación.");
+                        return;
+                    }
+                    try
+                    {
+                        await HookApi.SendMessageStatus(message);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, $"Ha ocurrido un error al intentar reportar el estado de la notificación al hook {HookApi.Client.BaseAddress} [{DateTime.Now}]");
+                    }
+                }
+            });
+        }
         public Task StopAsync(CancellationToken cancellationToken)
         {
             _queuer.Dispose();

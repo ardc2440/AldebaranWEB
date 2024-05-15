@@ -2,6 +2,7 @@
 {
     public class MessageModel
     {
+        public Uri HookUrl { get; set; }
         /// <summary>
         /// Cabecera de la notificacion
         /// </summary>
@@ -101,6 +102,33 @@
                 /// Ej: f39750ba2be51117f8e10580893ab1aa
                 /// </summary>
                 public required string Hash { get; set; }
+            }
+        }
+
+        public DeliveryStatus MessageDeliveryStatus { get; set; }
+        public class DeliveryStatus
+        {
+            /// <summary>
+            /// Codigo de estado de la notificacion
+            /// </summary>
+            public int Status { get; set; }
+            /// <summary>
+            /// Determina si la notificacion pudo o no ser entregada
+            /// </summary>
+            public bool Success { get; set; }
+            /// <summary>
+            /// Mensaje del estado del envio de la notificacion
+            /// Ej: Servidor de correo no disponible
+            /// </summary>
+            public string Message { get; set; }
+            /// <summary>
+            /// Fecha de envio de la notificacion
+            /// Ej: 2012-04-21T18:25:43.511Z
+            /// </summary>
+            public DateTime Date { get; set; }
+            public DeliveryStatus()
+            {
+                Date = DateTime.Now;
             }
         }
     }
