@@ -2,6 +2,7 @@ using Aldebaran.Application.Services.Models;
 using Aldebaran.Application.Services.Models.Reports;
 using AutoMapper;
 using Entities = Aldebaran.DataAccess.Entities;
+using Enums = Aldebaran.DataAccess.Enums;
 
 namespace Aldebaran.Application.Services.Mappings
 {
@@ -97,6 +98,8 @@ namespace Aldebaran.Application.Services.Mappings
             CreateMap<CustomerOrderAffectedByPurchaseOrderUpdate, Entities.CustomerOrderAffectedByPurchaseOrderUpdate>().ReverseMap();
             CreateMap<PurchaseOrderTransitAlarm, Entities.PurchaseOrderTransitAlarm>().ReverseMap();
             CreateMap<VisualizedPurchaseOrderTransitAlarm, Entities.VisualizedPurchaseOrderTransitAlarm>().ReverseMap();
+            CreateMap<NotificationStatus, Enums.NotificationStatus>().ReverseMap();
+
         }
     }
 }

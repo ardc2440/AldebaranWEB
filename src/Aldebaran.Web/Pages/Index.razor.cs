@@ -4,7 +4,6 @@ using Aldebaran.Web.Models;
 using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Utils;
-using DocumentFormat.OpenXml.Bibliography;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
@@ -448,13 +447,13 @@ namespace Aldebaran.Web.Pages
             var days = (int)(args.Data.ExpectedReceiptDate - System.DateTime.Today).Days;
             if (days <= Settings.Value.PurchaseOrderRedFlag)
             {
-                args.Attributes.Add("style", $"background-color:var(--rz-danger-light)");
+                args.Attributes.Add("style", $"background-color:#ffa7a7");
             }
             else
             {
                 if (days <= Settings.Value.PurchaseOrderYellowFlag)
                 {
-                    args.Attributes.Add("style", $"background-color:var(--rz-warning-light)");
+                    args.Attributes.Add("style", $"background-color:#ffff58");
                 }
             }
         }

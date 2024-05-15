@@ -2,6 +2,8 @@
 using Aldebaran.DataAccess.Infraestructure.Repository;
 using AutoMapper;
 using Entities = Aldebaran.DataAccess.Entities;
+using Enums = Aldebaran.DataAccess.Enums;
+
 
 namespace Aldebaran.Application.Services
 {
@@ -33,9 +35,15 @@ namespace Aldebaran.Application.Services
             return _mapper.Map<List<PurchaseOrderNotification>>(entity);            
         }
 
-        public async Task UpdateNotificationStatusAsync(int purchaseOrderNotificationId, bool status, string errorMessage, CancellationToken ct = default)
+        public async Task UpdateNotificationStatusAsync(int purchaseOrderNotificationId, NotificationStatus status, string errorMessage, CancellationToken ct = default)
         {
-            await _repository.UpdateNotificationStatusAsync(purchaseOrderNotificationId, status, errorMessage, ct);
+            var statusNum = _mapper.Map<Enums.NotificationStatus>(status);
+            await _repository.UpdateNotificationStatusAsync(purchaseOrderNotificationId, statusNum, errorMessage, ct);
+        }
+        public async Task UpdateNotificationStatusAsync(string notificationId, NotificationStatus status, string errorMessage, CancellationToken ct = default)
+        {
+            var statusNum = _mapper.Map<Enums.NotificationStatus>(status);
+            await _repository.UpdateNotificationStatusAsync(notificationId, statusNum, errorMessage, ct);
         }
     }
 }

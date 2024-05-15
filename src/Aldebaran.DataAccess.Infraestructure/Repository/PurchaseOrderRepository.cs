@@ -164,11 +164,12 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 purchaseOrderNotifications = ordersAffected.Select(s => new PurchaseOrderNotification
                 {
                     CustomerOrderId = s.CustomerOrderId,
+                    NotificationId = Guid.NewGuid().ToString(),
                     NotificationState = NotificationStatus.Pending,
                     NotifiedMailList = (_context.CustomerOrders.AsNoTracking()
                                             .Include(i => i.Customer)
                                             .FirstOrDefault(f => f.CustomerOrderId == s.CustomerOrderId)).Customer.Email
-                });
+                }); 
 
                 purchaseOrderTransitAlarm.Add(new PurchaseOrderTransitAlarm { OldExpectedReceiptDate = oldExpectedReceiptDate });
             }

@@ -13,7 +13,8 @@ namespace Aldebaran.Web.Controllers
         {
             var template = message.Body.Template;
             var notificationId = message.Header.MessageUid;
-            await PurchaseOrderNotificationService.UpdateNotificationStatusAsync(notificationId, message.MessageDeliveryStatus.Success, message.MessageDeliveryStatus.Message, ct);
+            var status = message.MessageDeliveryStatus.Success ? Application.Services.Models.NotificationStatus.Success : Application.Services.Models.NotificationStatus.Error;
+            await PurchaseOrderNotificationService.UpdateNotificationStatusAsync(notificationId, status, message.MessageDeliveryStatus.Message, ct);
             return Ok();
         }
         [HttpPost]
