@@ -6,6 +6,6 @@ namespace Aldebaran.Application.Services
     {
         Task AddAsync(CustomerOrderNotification customerOrderNotification, CancellationToken ct = default);
         Task UpdateAsync(string notificationId, NotificationStatus status, string errorMessage, CancellationToken ct = default);
-        Task<IEnumerable<CustomerOrderNotification>> GetByCustomerOrderId(int customerOrderId, CancellationToken ct = default);
+        Task<IEnumerable<CustomerOrderNotification>> GetByCustomerOrderIdAsync(int customerOrderId, CancellationToken ct = default);
     }
 }

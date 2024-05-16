@@ -13,7 +13,7 @@ namespace Aldebaran.DataAccess.Configuration
     {
         public void Configure(EntityTypeBuilder<CustomerOrderNotification> builder)
         {
-            builder.ToTable("purchase_order_notifications", "dbo");
+            builder.ToTable("customer_order_notifications", "dbo");
             builder.HasKey(x => x.CustomerOrderNotificationId).HasName("PK_CUSTOMER_ORDER_NOTIFICATIONS").IsClustered();
             builder.Property(x => x.CustomerOrderNotificationId).HasColumnName(@"CUSTOMER_ORDER_NOTIFICATION_ID").HasColumnType("int").IsRequired().ValueGeneratedOnAdd().UseIdentityColumn();
             builder.Property(x => x.NotificationTemplateId).HasColumnName(@"NOTIFICATION_TEMPLATE_ID").HasColumnType("SMALLINT").IsRequired();

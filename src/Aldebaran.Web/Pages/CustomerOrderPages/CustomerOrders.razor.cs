@@ -43,6 +43,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected ICustomerOrderActivityDetailService CustomerOrderActivityDetailService { get; set; }
 
         [Inject]
+        protected ICustomerOrderNotificationService CustomerOrderNotificationService { get; set; }
+
+        [Inject]
         protected TooltipService TooltipService { get; set; }
 
         [Inject]
@@ -69,6 +72,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected LocalizedDataGrid<CustomerOrderDetail> CustomerOrderDetailsDataGrid;
         protected LocalizedDataGrid<CustomerOrderActivity> CustomerOrderActivitiesDataGrid;
         protected LocalizedDataGrid<CustomerOrderActivityDetail> CustomerOrderActivityDetailsDataGrid;
+        protected LocalizedDataGrid<CustomerOrderNotification> CustomerOrderNotificationsDataGrid;        
         protected string search = "";
         protected bool isLoadingInProgress;
 
@@ -290,19 +294,19 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         }
         protected async Task GetOrderDetails(CustomerOrder args)
         {
-            var CustomerOrderDetailsResult = await CustomerOrderDetailService.GetByCustomerOrderIdAsync(args.CustomerOrderId);
-            if (CustomerOrderDetailsResult != null)
+            var customerOrderDetailsResult = await CustomerOrderDetailService.GetByCustomerOrderIdAsync(args.CustomerOrderId);
+            if (customerOrderDetailsResult != null)
             {
-                args.CustomerOrderDetails = CustomerOrderDetailsResult.ToList();
+                args.CustomerOrderDetails = customerOrderDetailsResult.ToList();
             }
         }
 
         protected async Task GetCustomerOrderActivitiesAsync(CustomerOrder args)
         {
-            var CustomerOrderActivitiesResult = await CustomerOrderActivityService.GetByCustomerOrderIdAsync(args.CustomerOrderId);
-            if (CustomerOrderActivitiesResult != null)
+            var customerOrderActivitiesResult = await CustomerOrderActivityService.GetByCustomerOrderIdAsync(args.CustomerOrderId);
+            if (customerOrderActivitiesResult != null)
             {
-                args.CustomerOrderActivities = CustomerOrderActivitiesResult.ToList();
+                args.CustomerOrderActivities = customerOrderActivitiesResult.ToList();
             }
         }
 
@@ -310,10 +314,19 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         {
             customerOrderActivity = args;
 
-            var CustomerOrderActivityDetailsResult = await CustomerOrderActivityDetailService.GetByCustomerOrderActivityIdAsync(args.CustomerOrderActivityId);
-            if (CustomerOrderActivityDetailsResult != null)
+            var customerOrderActivityDetailsResult = await CustomerOrderActivityDetailService.GetByCustomerOrderActivityIdAsync(args.CustomerOrderActivityId);
+            if (customerOrderActivityDetailsResult != null)
             {
-                args.CustomerOrderActivityDetails = CustomerOrderActivityDetailsResult.ToList();
+                args.CustomerOrderActivityDetails = customerOrderActivityDetailsResult.ToList();
+            }
+        }
+
+        protected async Task GetCustomerOrderNotificationsAsync(CustomerOrder args)
+        {
+            var customerOrderNotificationsResult = await CustomerOrderNotificationService.GetByCustomerOrderIdAsync(args.CustomerOrderId);
+            if (customerOrderNotificationsResult != null)
+            {
+                args.CustomerOrderNotifications = customerOrderNotificationsResult.ToList();
             }
         }
 
@@ -326,6 +339,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             await GetCustomerOrderActivitiesAsync(args);
 
             await GetCustomerOrderAlarmsAsync(args);
+
+            await GetCustomerOrderNotificationsAsync(args);
         }
 
         protected async Task<bool> CanEdit(CustomerOrder customerOrder)

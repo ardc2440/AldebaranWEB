@@ -24,14 +24,14 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 await _context.CustomerReservationNotifications.AddAsync(customerReservationNotification, ct);
                 await _context.SaveChangesAsync(ct);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 _context.Entry(customerReservationNotification).State = EntityState.Unchanged;
                 throw;
             }
         }
 
-        public async Task<IEnumerable<CustomerReservationNotification>> GetByCustomerReservationId(int customerReservationId, CancellationToken ct = default)
+        public async Task<IEnumerable<CustomerReservationNotification>> GetByCustomerReservationIdAsync(int customerReservationId, CancellationToken ct = default)
         {
             return await _context.CustomerReservationNotifications.AsNoTracking()
                             .Include(i => i.CustomerReservation.Customer)

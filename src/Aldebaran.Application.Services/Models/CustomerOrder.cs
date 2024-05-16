@@ -21,6 +21,8 @@ namespace Aldebaran.Application.Services.Models
         public ICollection<CustomerOrdersInProcess> CustomerOrdersInProcesses { get; set; }
         public ICollection<CustomerReservation> CustomerReservations { get; set; }
         public ICollection<ModifiedCustomerOrder> ModifiedCustomerOrders { get; set; }
+        public ICollection<CustomerOrderNotification> CustomerOrderNotifications { get; set; }
+
         public Customer Customer { get; set; }
         public Employee Employee { get; set; }
         public StatusDocumentType StatusDocumentType { get; set; }
@@ -34,6 +36,7 @@ namespace Aldebaran.Application.Services.Models
             CustomerOrdersInProcesses = new List<CustomerOrdersInProcess>();
             CustomerReservations = new List<CustomerReservation>();
             ModifiedCustomerOrders = new List<ModifiedCustomerOrder>();
+            CustomerOrderNotifications = new List<CustomerOrderNotification>();
         }
     }
 }

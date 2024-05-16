@@ -23,9 +23,9 @@ namespace Aldebaran.Application.Services
             await _repository.AddAsync(entity, ct);
         }
 
-        public async  Task<IEnumerable<CustomerOrderNotification>> GetByCustomerOrderId(int customerOrderId, CancellationToken ct = default)
+        public async  Task<IEnumerable<CustomerOrderNotification>> GetByCustomerOrderIdAsync(int customerOrderId, CancellationToken ct = default)
         {
-            var data = await _repository.GetByCustomerOrderId(customerOrderId,ct);
+            var data = await _repository.GetByCustomerOrderIdAsync(customerOrderId,ct);
             return _mapper.Map<List<CustomerOrderNotification>>(data);
         }
 

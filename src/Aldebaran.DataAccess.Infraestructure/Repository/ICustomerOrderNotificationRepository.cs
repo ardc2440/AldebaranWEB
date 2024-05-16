@@ -7,6 +7,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
     {
         Task AddAsync(CustomerOrderNotification customerOrderNotification, CancellationToken ct =default);
         Task UpdateAsync(string notificationId, NotificationStatus status, string errorMessage, CancellationToken ct = default);
-        Task<IEnumerable<CustomerOrderNotification>> GetByCustomerOrderId(int customerorderId, CancellationToken ct = default); 
+        Task<IEnumerable<CustomerOrderNotification>> GetByCustomerOrderIdAsync(int customerorderId, CancellationToken ct = default); 
     }
 }

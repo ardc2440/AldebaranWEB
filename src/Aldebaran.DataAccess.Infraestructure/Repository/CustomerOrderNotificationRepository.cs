@@ -27,7 +27,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             }
         }
 
-        public async Task<IEnumerable<CustomerOrderNotification>> GetByCustomerOrderId(int customerOrderId, CancellationToken ct = default)
+        public async Task<IEnumerable<CustomerOrderNotification>> GetByCustomerOrderIdAsync(int customerOrderId, CancellationToken ct = default)
         {
             return await _context.CustomerOrderNotifications.AsNoTracking()
                             .Include(i => i.CustomerOrder.Customer)
