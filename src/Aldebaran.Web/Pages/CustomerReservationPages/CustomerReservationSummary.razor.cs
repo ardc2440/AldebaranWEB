@@ -33,6 +33,12 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         protected INotificationService NotificationService { get; set; }
 
         [Inject]
+        protected INotificationTemplateService NotificationTemplateService { get; set; }
+
+        [Inject]
+        protected ICustomerReservationNotificationService CustomerReservationNotificationService { get; set; }
+
+        [Inject]
         protected NavigationManager NavigationManager { get; set; }
         #endregion
 
@@ -119,6 +125,17 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                 }
             };
             await NotificationService.Send(message);
+
+            await CustomerReservationNotificationService.AddAsync(new CustomerReservationNotification
+            {
+                CustomerReservationId = CustomerReservation.CustomerReservationId,
+                NotificationId = message.Header.MessageUid,
+                NotificationState = NotificationStatus.InProcess,
+                NotificationTemplateId = (await NotificationTemplateService.FindAsync(NotificationTemplateName)).NotificationTemplateId,
+                NotifiedMailList = CustomerReservation.Customer.Email,
+                NotificationDate = DateTime.Now
+            });
+
             // Enviar notificacion
             DialogService.Close(true);
             IsBusy = false;
