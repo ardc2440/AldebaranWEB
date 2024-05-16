@@ -104,6 +104,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
             var message = new MessageModel
             {
+                HookUrl = new Uri($"{NavigationManager.BaseUri}Application/CustomerReservationUpdateAsync"),
                 Header = new MessageModel.EnvelopeHeader
                 {
                     MessageUid = Guid.NewGuid().ToString(),

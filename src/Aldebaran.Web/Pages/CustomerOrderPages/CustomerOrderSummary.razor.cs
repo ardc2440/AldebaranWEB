@@ -109,6 +109,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
             var message = new MessageModel
             {
+                HookUrl = new Uri($"{NavigationManager.BaseUri}Application/CustomerOrderUpdateAsync"),
                 Header = new MessageModel.EnvelopeHeader
                 {
                     MessageUid = Guid.NewGuid().ToString(),
