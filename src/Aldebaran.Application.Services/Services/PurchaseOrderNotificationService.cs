@@ -37,13 +37,11 @@ namespace Aldebaran.Application.Services
 
         public async Task UpdateNotificationStatusAsync(int purchaseOrderNotificationId, NotificationStatus status, string errorMessage, CancellationToken ct = default)
         {
-            var statusNum = _mapper.Map<Enums.NotificationStatus>(status);
-            await _repository.UpdateNotificationStatusAsync(purchaseOrderNotificationId, statusNum, errorMessage, ct);
+            await _repository.UpdateNotificationStatusAsync(purchaseOrderNotificationId, (Enums.NotificationStatus)status, errorMessage, ct);
         }
         public async Task UpdateNotificationStatusAsync(string notificationId, NotificationStatus status, string errorMessage, CancellationToken ct = default)
         {
-            var statusNum = _mapper.Map<Enums.NotificationStatus>(status);
-            await _repository.UpdateNotificationStatusAsync(notificationId, statusNum, errorMessage, ct);
+            await _repository.UpdateNotificationStatusAsync(notificationId, (Enums.NotificationStatus)status, errorMessage, ct);
         }
     }
 }

@@ -262,6 +262,9 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IPurchaseOrderNotificationRepository, PurchaseOrderNotificationRepository>();
             services.AddTransient<IVisualizedPurchaseOrderTransitAlarmRepository, VisualizedPurchaseOrderTransitAlarmRepository>();
             services.AddTransient<IPurchaseOrderTransitAlarmRepository, PurchaseOrderTransitAlarmRepository>();
+            services.AddTransient<ICustomerOrderNotificationRepository, CustomerOrderNotificationRepository>();
+            services.AddTransient<ICustomerReservationRepository, CustomerReservationRepository>();
+
 
             #endregion
             // Services
@@ -352,6 +355,8 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IPurchaseOrderNotificationService, PurchaseOrderNotificationService>();
             services.AddTransient<IVisualizedPurchaseOrderTransitAlarmService, VisualizedPurchaseOrderTransitAlarmService>();
             services.AddTransient<IPurchaseOrderTransitAlarmService, PurchaseOrderTransitAlarmService>();
+            services.AddTransient<ICustomerOrderNotificationService, CustomerOrderNotificationService>();
+            services.AddTransient<ICustomerReservationService, CustomerReservationService>();
 
             #endregion
 
