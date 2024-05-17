@@ -1,4 +1,5 @@
-﻿using Aldebaran.Application.NotificationProcessor.Settings;
+﻿using Aldebaran.Application.NotificationProcessor.Services;
+using Aldebaran.Application.NotificationProcessor.Settings;
 using Aldebaran.Application.NotificationProcessor.Workers;
 using Aldebaran.Application.Services.Notificator.EmailProvider;
 using Aldebaran.Application.Services.Notificator.Notify;
@@ -77,6 +78,8 @@ services.AddTransient<IQueue, RabbitQueue>();
 services.AddTransient<IQueueSettings, QueueSettings>();
 services.AddTransient<IEmailService, EmailService>();
 services.AddTransient<INotificationProvider, EmailNotificationProvider>();
+
+
 
 // HostedServices
 services.AddHostedService<NotificationWorker>();

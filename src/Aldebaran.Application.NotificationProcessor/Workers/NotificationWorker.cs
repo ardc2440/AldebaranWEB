@@ -28,18 +28,20 @@ namespace Aldebaran.Application.NotificationProcessor.Workers
         /// </summary>
         private readonly INotificationProvider _notificationProvider;
         private readonly IQueueSettings _queueSettings;
-        private readonly IClientHookApi HookApi;
+        private readonly IClientHookApi _hookApi;
         /// <summary>
         /// </summary>
         /// <param name="queuer">Manejador de colas</param>
         /// <param name="serviceProvider">Proveedor de servicios</param>
         /// <param name="notificationProvider">Servicio de notificaciones</param>
-        public NotificationWorker(IQueue queuer, IServiceProvider serviceProvider, INotificationProvider notificationProvider, ILogger<NotificationWorker> logger)
+        public NotificationWorker(IClientHookApi hookApi, IQueueSettings queueSettings, IQueue queuer, IServiceProvider serviceProvider, INotificationProvider notificationProvider, ILogger<NotificationWorker> logger)
         {
             _queuer = queuer ?? throw new ArgumentNullException(nameof(IQueue));
             _logger = logger ?? throw new ArgumentNullException(nameof(ILogger<NotificationWorker>));
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(IServiceProvider));
             _notificationProvider = notificationProvider ?? throw new ArgumentNullException(nameof(INotificationProvider));
+            _queueSettings = queueSettings ?? throw new ArgumentNullException(nameof(IQueueSettings));
+            _hookApi = hookApi ?? throw new ArgumentNullException(nameof(IClientHookApi));
         }
         /// <summary>
         /// Inicio del procesamiento de notificaciones
@@ -105,18 +107,18 @@ namespace Aldebaran.Application.NotificationProcessor.Workers
                 using (var scope = _serviceProvider.CreateScope())
                 {
                     var message = data.Message;
-                    if (HookApi.Client.BaseAddress == null)
+                    if (_hookApi.Client.BaseAddress == null)
                     {
                         _logger.LogInformation($"El mensaje no tiene un HookUrl válido para reportar el estado de la notificación.");
                         return;
                     }
                     try
                     {
-                        await HookApi.SendMessageStatus(message);
+                        await _hookApi.SendMessageStatus(message);
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, $"Ha ocurrido un error al intentar reportar el estado de la notificación al hook {HookApi.Client.BaseAddress} [{DateTime.Now}]");
+                        _logger.LogError(ex, $"Ha ocurrido un error al intentar reportar el estado de la notificación al hook {_hookApi.Client.BaseAddress} [{DateTime.Now}]");
                     }
                 }
             });
