@@ -1,4 +1,4 @@
-﻿using Aldebaran.Application.NotificationProcessor.Services;
+using Aldebaran.Application.NotificationProcessor.Services;
 using Aldebaran.Application.Services.Notificator.Model;
 using Aldebaran.Application.Services.Notificator.Notify;
 using Aldebaran.Infraestructure.Core.Queue;
@@ -27,21 +27,19 @@ namespace Aldebaran.Application.NotificationProcessor.Workers
         /// Dependencia de Proveedor de servicios
         /// </summary>
         private readonly INotificationProvider _notificationProvider;
-        private readonly IQueueSettings _queueSettings;
-        private readonly IClientHookApi HookApi;
+        private readonly IClientHookApi _hookApi;
         /// <summary>
         /// </summary>
         /// <param name="queuer">Manejador de colas</param>
         /// <param name="serviceProvider">Proveedor de servicios</param>
         /// <param name="notificationProvider">Servicio de notificaciones</param>
-        public NotificationWorker(IQueue queuer, IServiceProvider serviceProvider, INotificationProvider notificationProvider, IQueueSettings queueSettings, IClientHookApi hookApi, ILogger<NotificationWorker> logger)
+        public NotificationWorker(IQueue queuer, IServiceProvider serviceProvider, INotificationProvider notificationProvider, IClientHookApi hookApi, ILogger<NotificationWorker> logger)
         {
             _queuer = queuer ?? throw new ArgumentNullException(nameof(IQueue));
             _logger = logger ?? throw new ArgumentNullException(nameof(ILogger<NotificationWorker>));
-            _queueSettings = queueSettings ?? throw new ArgumentNullException(nameof(IQueueSettings));
-            HookApi = hookApi ?? throw new ArgumentNullException(nameof(IClientHookApi));
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(IServiceProvider));
             _notificationProvider = notificationProvider ?? throw new ArgumentNullException(nameof(INotificationProvider));
+            _hookApi = hookApi ?? throw new ArgumentNullException(nameof(IClientHookApi));
         }
         /// <summary>
         /// Inicio del procesamiento de notificaciones
@@ -110,12 +108,12 @@ namespace Aldebaran.Application.NotificationProcessor.Workers
             }
             try
             {
-                HookApi.Client.BaseAddress = message.HookUrl;
-                await HookApi.SendMessageStatus(message);
+                _hookApi.Client.BaseAddress = message.HookUrl;
+                await _hookApi.SendMessageStatus(message);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Ha ocurrido un error al intentar reportar el estado de la notificación al hook {HookApi.Client.BaseAddress} [{DateTime.Now}]");
+                _logger.LogError(ex, $"Ha ocurrido un error al intentar reportar el estado de la notificación al hook {message.HookUrl} [{DateTime.Now}]");
             }
         }
         public Task StopAsync(CancellationToken cancellationToken)

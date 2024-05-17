@@ -1,5 +1,4 @@
-﻿using Aldebaran.Application.Services.Models;
-using Aldebaran.DataAccess.Enums;
+using Aldebaran.Application.Services.Models;
 
 namespace Aldebaran.Application.Services
 {

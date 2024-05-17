@@ -94,6 +94,8 @@ namespace Aldebaran.DataAccess
         public DbSet<PurchaseOrderNotification> PurchaseOrderNotifications { get; set; }
         public DbSet<PurchaseOrderTransitAlarm> PurchaseOrderTransitAlarms { get; set; }
         public DbSet<VisualizedPurchaseOrderTransitAlarm> VisualizedPurchaseOrderTransitAlarms { get; set; }
+        public DbSet<CustomerOrderNotification> CustomerOrderNotifications { get; set; }
+        public DbSet<CustomerReservationNotification> CustomerReservationNotifications { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -179,6 +181,9 @@ namespace Aldebaran.DataAccess
             modelBuilder.ApplyConfiguration(new PurchaseOrderNotificationConfiguration());
             modelBuilder.ApplyConfiguration(new PurchaseOrderTransitAlarmConfiguration());
             modelBuilder.ApplyConfiguration(new VisualizedPurchaseOrderTransitAlarmConfiguration());
+            modelBuilder.ApplyConfiguration(new CustomerOrderNotificationConfiguration());
+            modelBuilder.ApplyConfiguration(new CustomerReservationNotificationConfiguration());
+
 
             modelBuilder.Entity<InventoryAdjustmentReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<InProcessInventoryReport>(iar => { iar.HasNoKey(); });

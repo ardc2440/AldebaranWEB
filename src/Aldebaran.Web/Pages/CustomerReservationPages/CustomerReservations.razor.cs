@@ -5,6 +5,7 @@ using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.Identity.Client;
 using Radzen;
 
 namespace Aldebaran.Web.Pages.CustomerReservationPages
@@ -45,6 +46,9 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         [Inject]
         protected IAlarmService AlarmService { get; set; }
 
+        [Inject]
+        protected ICustomerReservationNotificationService CustomerReservationNotificationService { get; set; }
+
         #endregion
 
         #region Parameters
@@ -67,6 +71,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         protected DocumentType documentType;
         protected CustomerReservation customerReservation;
         protected LocalizedDataGrid<CustomerReservationDetail> CustomerReservationDetailsDataGrid;
+        protected LocalizedDataGrid<CustomerReservationNotification> CustomerReservationNotificationsDataGrid;
 
         protected IEnumerable<Application.Services.Models.Alarm> alarms;
         protected LocalizedDataGrid<Application.Services.Models.Alarm> alarmsGrid;
@@ -257,6 +262,16 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             }
 
             await GetCustomerReservationAlarmsAsync(args);
+            await GetCustomerReservationNotificationsAsync(args);
+        }
+
+        protected async Task GetCustomerReservationNotificationsAsync(CustomerReservation args)
+        {
+            var customerReservationNotificationsResult = await CustomerReservationNotificationService.GetByCustomerReservationIdAsync(args.CustomerReservationId);
+            if (customerReservationNotificationsResult != null)
+            {
+                args.CustomerReservationNotifications = customerReservationNotificationsResult.ToList();
+            }
         }
 
         protected async Task<bool> CanEdit(CustomerReservation customerReservation)

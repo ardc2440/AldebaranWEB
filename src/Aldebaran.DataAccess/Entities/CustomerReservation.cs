@@ -19,6 +19,7 @@ namespace Aldebaran.DataAccess.Entities
         public CanceledCustomerReservation CanceledCustomerReservation { get; set; }
         public ICollection<CustomerReservationDetail> CustomerReservationDetails { get; set; }
         public ICollection<ModifiedCustomerReservation> ModifiedCustomerReservations { get; set; }
+        public ICollection<CustomerReservationNotification> CustomerReservationNotifications { get; set; }
         public Customer Customer { get; set; }
         public CustomerOrder CustomerOrder { get; set; }
         public Employee Employee { get; set; }

@@ -1236,11 +1236,11 @@ GO
 SET IDENTITY_INSERT [dbo].[notification_provider_settings] ON
 GO
 INSERT [dbo].[notification_provider_settings] ([NOTIFICATION_PROVIDER_SETTING_ID], [SUBJECT], [SETTINGS], [ENABLED]) VALUES (1, N'Sales', N'{
-  "mail_server": "outlook.office365.com",
+  "mail_server": "smtp.gmail.com",
   "port": "587",
-  "sender_name": "Toyota Financial Services",
-  "sender_email": "simulador@toyotacredito.com.co",
-  "password": "/ScE3Jd25JFSVOeUXE8u0w6qnQBHVY6aBQm7LwiXZMg=",
+  "sender_name": "Catalogos Promocionales",
+  "sender_email": "pedidos@catalogospromocionales.com",
+  "password": "0JX1aR4gPyRuXqRbVdSr0mDDEU9zbyZD2VggSZXMXJ4=",
   "secure_socket_option": "StartTls"
 }', 1)
 GO

@@ -1,4 +1,4 @@
-﻿using Aldebaran.DataAccess.Entities;
+using Aldebaran.DataAccess.Entities;
 using Aldebaran.DataAccess.Enums;
 using Microsoft.EntityFrameworkCore;
 
@@ -67,6 +67,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             {
                 entity.NotificationState = status;
                 entity.NotificationSendingErrorMessage = errorMessage;
+                entity.NotificationDate = DateTime.Now;
                 await _context.SaveChangesAsync(ct);
             }
             catch (Exception)

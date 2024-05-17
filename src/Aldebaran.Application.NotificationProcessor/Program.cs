@@ -91,6 +91,8 @@ services.AddTransient<IQueueSettings, QueueSettings>();
 services.AddTransient<IEmailService, EmailService>();
 services.AddTransient<INotificationProvider, EmailNotificationProvider>();
 
+
+
 // HostedServices
 services.AddHostedService<NotificationWorker>();
 var host = builder.Build();

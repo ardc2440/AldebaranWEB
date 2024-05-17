@@ -1,4 +1,4 @@
-﻿using Aldebaran.DataAccess.Entities;
+using Aldebaran.DataAccess.Entities;
 using Aldebaran.DataAccess.Enums;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository

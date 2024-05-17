@@ -1,5 +1,4 @@
-﻿using Aldebaran.Application.Services.Models;
-using Aldebaran.DataAccess.Enums;
+using Aldebaran.Application.Services.Models;
 using Aldebaran.DataAccess.Infraestructure.Repository;
 using AutoMapper;
 using Entities = Aldebaran.DataAccess.Entities;
@@ -35,11 +34,11 @@ namespace Aldebaran.Application.Services
         }
         public async Task UpdateAsync(int purchaseOrderNotificationId, string uid, NotificationStatus status, CancellationToken ct = default)
         {
-            await _repository.UpdateAsync(purchaseOrderNotificationId, uid, status, ct);
+            await _repository.UpdateAsync(purchaseOrderNotificationId, uid, (DataAccess.Enums.NotificationStatus)status, ct);
         }
         public async Task UpdateNotificationResponseAsync(string notificationId, NotificationStatus status, string errorMessage, DateTime date, CancellationToken ct = default)
         {
-            await _repository.UpdateNotificationResponseAsync(notificationId, status, errorMessage, date, ct);
+            await _repository.UpdateNotificationResponseAsync(notificationId, (DataAccess.Enums.NotificationStatus)status, errorMessage, date, ct);
         }
     }
 }

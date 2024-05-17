@@ -27,6 +27,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected IFileBytesGeneratorService FileBytesGeneratorService { get; set; }
 
         [Inject]
+        protected ICustomerOrderNotificationService CustomerOrderNotificationService { get; set; }
+
+        [Inject]
         protected DialogService DialogService { get; set; }
 
         [Inject]
@@ -34,6 +37,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         [Inject]
         protected INotificationService NotificationService { get; set; }
+
+        [Inject]
+        protected INotificationTemplateService NotificationTemplateService { get; set; }
 
         [Inject]
         protected NavigationManager NavigationManager { get; set; }
@@ -103,6 +109,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
             var message = new MessageModel
             {
+                HookUrl = new Uri($"{NavigationManager.BaseUri}Notification/CustomerOrderUpdateAsync"),
                 Header = new MessageModel.EnvelopeHeader
                 {
                     MessageUid = Guid.NewGuid().ToString(),
@@ -124,6 +131,17 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 }
             };
             await NotificationService.Send(message);
+
+            await CustomerOrderNotificationService.AddAsync(new CustomerOrderNotification
+            {
+                CustomerOrderId = CustomerOrder.CustomerOrderId,
+                NotificationId = message.Header.MessageUid,
+                NotificationState = NotificationStatus.InProcess,
+                NotificationTemplateId = (await NotificationTemplateService.FindAsync(NotificationTemplateName)).NotificationTemplateId, 
+                NotifiedMailList = CustomerOrder.Customer.Email,
+                NotificationDate = DateTime.Now
+            });
+
             // Enviar notificacion
             DialogService.Close(true);
             IsBusy = false;

@@ -86,7 +86,7 @@
                                                     </Template>
                                                 </RadzenDataGridColumn>
                                                 <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Property="ProcessedQuantity" Title="En Proceso">
-                                                     <Template Context="detail">
+                                                    <Template Context="detail">
                                                         @detail.ProcessedQuantity.ToString("N0")
                                                     </Template>
                                                 </RadzenDataGridColumn>
@@ -199,6 +199,46 @@
                                                             </RadzenButton>
                                                         </Template>
                                                     </RadzenDataGridColumn>
+                                                </Columns>
+                                            </LocalizedDataGrid>
+                                        </RadzenStack>
+                                    </RadzenTabsItem>
+                                    <RadzenTabsItem Text="Notificaciones generadas al cliente">
+                                        <RadzenStack>
+                                            <LocalizedDataGrid Visible="@(customerOrder != null)" @ref=CustomerOrderNotificationsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                                               Data="@customerOrder?.CustomerOrderNotifications" TItem="Aldebaran.Application.Services.Models.CustomerOrderNotification">
+                                                <Columns>
+                                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderNotification" Title="Fecha notificación" Width="70%">
+                                                        <Template Context="notification">
+                                                            <span>@notification.NotificationDate.ToString(SharedLocalizer["date:format"])</span>
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderNotification" Property="NotificationTemplate.Name" Title="Motivo" Width="100%">
+                                                        <Template Context="notification">
+                                                            @{
+                                                                var notificationTemplateName = $"{notification.NotificationTemplate.Name.Split(':')[2]} Order";
+                                                            }
+                                                            <span>@notificationTemplateName</span>
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderNotification" Property="CustomerOrder.Customer.CustomerName" Title="Cliente" Width="100%"></RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderNotification" Title="Correo(s) Notificado(s)" Width="100%">
+                                                        <Template Context="notification">
+                                                            @foreach (string mail in notification.NotifiedMailList.Split(';'))
+                                                            {
+                                                                <li>@mail</li>
+                                                            }
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderNotification" Title="Estado notificación" Width="70%">
+                                                        <Template Context="notification">
+                                                            @{
+                                                                var status = (Aldebaran.Application.Services.Models.NotificationStatus)notification.NotificationState;
+                                                            }
+                                                            <span>@status</span>
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderNotification" Property="NotificationSendingErrorMessage" Title="Error notificación" Width="100%"></RadzenDataGridColumn>
                                                 </Columns>
                                             </LocalizedDataGrid>
                                         </RadzenStack>
