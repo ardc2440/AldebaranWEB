@@ -1,4 +1,5 @@
 ﻿using Aldebaran.Application.Services.Models;
+using Aldebaran.DataAccess.Enums;
 using Aldebaran.DataAccess.Infraestructure.Repository;
 using AutoMapper;
 using Entities = Aldebaran.DataAccess.Entities;
@@ -30,12 +31,15 @@ namespace Aldebaran.Application.Services
         public async Task<IEnumerable<PurchaseOrderNotification>> GetByPurchaseOrderId(int purchaseOrderId, CancellationToken ct = default)
         {
             var entity = await _repository.GetByPurchaseOrderId(purchaseOrderId, ct);
-            return _mapper.Map<List<PurchaseOrderNotification>>(entity);            
+            return _mapper.Map<List<PurchaseOrderNotification>>(entity);
         }
-
-        public async Task UpdateNotificationStatusAsync(int purchaseOrderNotificationId, bool status, string errorMessage, CancellationToken ct = default)
+        public async Task UpdateAsync(int purchaseOrderNotificationId, string uid, NotificationStatus status, CancellationToken ct = default)
         {
-            await _repository.UpdateNotificationStatusAsync(purchaseOrderNotificationId, status, errorMessage, ct);
+            await _repository.UpdateAsync(purchaseOrderNotificationId, uid, status, ct);
+        }
+        public async Task UpdateNotificationResponseAsync(string notificationId, NotificationStatus status, string errorMessage, DateTime date, CancellationToken ct = default)
+        {
+            await _repository.UpdateNotificationResponseAsync(notificationId, status, errorMessage, date, ct);
         }
     }
 }

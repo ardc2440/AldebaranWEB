@@ -43,13 +43,8 @@ namespace Aldebaran.Infraestructure.Core.Queue
         /// <inheritdoc/>
         public void Enqueue<TModel>(TModel request, IDictionary<string, object>? metadata = null)
         {
-            Enqueue(DefaultQueue, request, metadata);
-        }
-        /// <inheritdoc/>
-        public void Enqueue<TModel>(string queue, TModel request, IDictionary<string, object>? metadata = null)
-        {
             using var channel = Connection.CreateModel();
-            channel.QueueDeclare(queue: queue,
+            channel.QueueDeclare(queue: DefaultQueue,
                                  durable: true,
                                  exclusive: false,
                                  autoDelete: false,
@@ -64,7 +59,7 @@ namespace Aldebaran.Infraestructure.Core.Queue
                             });
 
             channel.BasicPublish(exchange: string.Empty,
-                                 routingKey: queue,
+                                 routingKey: DefaultQueue,
                                  basicProperties: bproperties,
                                  body: Encoding.UTF8.GetBytes(json));
         }
@@ -72,14 +67,8 @@ namespace Aldebaran.Infraestructure.Core.Queue
         /// <inheritdoc/>
         public async Task Dequeue<TModel>(Func<QueueMessage<TModel>, Task> code)
         {
-            await Dequeue(DefaultQueue, code);
-        }
-
-        /// <inheritdoc/>
-        public async Task Dequeue<TModel>(string queue, Func<QueueMessage<TModel>, Task> code)
-        {
             channel = Connection.CreateModel();
-            channel.QueueDeclare(queue: queue,
+            channel.QueueDeclare(queue: DefaultQueue,
                                 durable: true,
                                 exclusive: false,
                                 autoDelete: false,
@@ -127,7 +116,7 @@ namespace Aldebaran.Infraestructure.Core.Queue
                         _ = headers.TryGetValue("x-retries", out object? oretries) && int.TryParse(oretries?.ToString(), out iretries);
                         iretries++;
                         using var channel2 = Connection.CreateModel();
-                        var queueName2 = queue + ((iretries >= MaxNotificationAttempts) ? "-dead-letter" : string.Empty);
+                        var queueName2 = DefaultQueue + ((iretries >= MaxNotificationAttempts) ? "-dead-letter" : string.Empty);
                         channel2.QueueDeclare(queue: queueName2,
                                                   durable: true,
                                                   exclusive: false,
@@ -139,7 +128,7 @@ namespace Aldebaran.Infraestructure.Core.Queue
                             ["x-retries"] = iretries,
                             ["x-exception"] = ex.Message
                         };
-                        if (queueName2 == queue)
+                        if (queueName2 == DefaultQueue)
                             await Task.Delay(TimeSpan.FromMinutes(1));
                         channel2.BasicPublish(exchange: string.Empty,
                                          routingKey: queueName2,
@@ -158,7 +147,7 @@ namespace Aldebaran.Infraestructure.Core.Queue
                     }
                 }
             };
-            ConsumerTag = this.channel.BasicConsume(queue: queue,
+            ConsumerTag = this.channel.BasicConsume(queue: DefaultQueue,
                                                    autoAck: false,
                                                    consumer: consumer);
             await Task.CompletedTask;

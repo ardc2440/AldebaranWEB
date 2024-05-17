@@ -1,4 +1,5 @@
-﻿using Aldebaran.Application.NotificationProcessor.Settings;
+﻿using Aldebaran.Application.NotificationProcessor.Services;
+using Aldebaran.Application.NotificationProcessor.Settings;
 using Aldebaran.Application.NotificationProcessor.Workers;
 using Aldebaran.Application.Services.Notificator.EmailProvider;
 using Aldebaran.Application.Services.Notificator.Notify;
@@ -9,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Polly;
+using Refit;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.MSSqlServer;
@@ -71,7 +73,18 @@ services.AddSingleton(sp =>
             return conn;
         });
 });
-
+// Refit Api services
+services.AddRefitClient<IClientHookApi>()
+    .AddTransientHttpErrorPolicy(builder =>
+    builder.WaitAndRetryAsync(10, _ => TimeSpan.FromSeconds(5), (ex, ts) =>
+    {
+        var sresponse = string.Empty;
+        using (var content = ex.Result.Content)
+        {
+            sresponse = content.ReadAsStringAsync().GetAwaiter().GetResult();
+        }
+        Console.WriteLine("[RefitClient] Resilience Error [{ERROR}] since [{ELAPSEDSECS}] sec using connection [{URL}] response [{RESPONSE}]", ex?.Exception?.Message, ts.TotalSeconds, ex?.Result?.RequestMessage?.RequestUri, sresponse);
+    }));
 // Services
 services.AddTransient<IQueue, RabbitQueue>();
 services.AddTransient<IQueueSettings, QueueSettings>();

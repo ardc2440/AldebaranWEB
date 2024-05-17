@@ -164,6 +164,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 purchaseOrderNotifications = ordersAffected.Select(s => new PurchaseOrderNotification
                 {
                     CustomerOrderId = s.CustomerOrderId,
+                    NotificationId = string.Empty,
                     NotificationState = NotificationStatus.Pending,
                     NotifiedMailList = (_context.CustomerOrders.AsNoTracking()
                                             .Include(i => i.Customer)

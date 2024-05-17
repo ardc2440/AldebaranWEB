@@ -1,6 +1,6 @@
 ﻿namespace Aldebaran.DataAccess.Enums
 {
-    public enum NotificationStatus
+    public enum NotificationStatus : short
     {
         Pending = 0,
         InProcess = 1,

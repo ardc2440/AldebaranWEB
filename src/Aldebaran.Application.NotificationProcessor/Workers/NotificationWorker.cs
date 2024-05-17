@@ -34,10 +34,12 @@ namespace Aldebaran.Application.NotificationProcessor.Workers
         /// <param name="queuer">Manejador de colas</param>
         /// <param name="serviceProvider">Proveedor de servicios</param>
         /// <param name="notificationProvider">Servicio de notificaciones</param>
-        public NotificationWorker(IQueue queuer, IServiceProvider serviceProvider, INotificationProvider notificationProvider, ILogger<NotificationWorker> logger)
+        public NotificationWorker(IQueue queuer, IServiceProvider serviceProvider, INotificationProvider notificationProvider, IQueueSettings queueSettings, IClientHookApi hookApi, ILogger<NotificationWorker> logger)
         {
             _queuer = queuer ?? throw new ArgumentNullException(nameof(IQueue));
             _logger = logger ?? throw new ArgumentNullException(nameof(ILogger<NotificationWorker>));
+            _queueSettings = queueSettings ?? throw new ArgumentNullException(nameof(IQueueSettings));
+            HookApi = hookApi ?? throw new ArgumentNullException(nameof(IClientHookApi));
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(IServiceProvider));
             _notificationProvider = notificationProvider ?? throw new ArgumentNullException(nameof(INotificationProvider));
         }
@@ -51,7 +53,6 @@ namespace Aldebaran.Application.NotificationProcessor.Workers
             try
             {
                 await NotificationBrokerAsync(ct);
-                await NotificationResultBrokerAsync(ct);
             }
             catch (KeyNotFoundException ex)
             {
@@ -73,6 +74,7 @@ namespace Aldebaran.Application.NotificationProcessor.Workers
                     try
                     {
                         _notificationProvider.Configure(metadata);
+                        message.Header.SentDate = DateTime.Now;
                         await _notificationProvider.SendMessage(message, metadata, ct);
                         message.MessageDeliveryStatus = new MessageModel.DeliveryStatus
                         {
@@ -93,33 +95,28 @@ namespace Aldebaran.Application.NotificationProcessor.Workers
                     }
                     finally
                     {
-                        _queuer.Enqueue(_queueSettings.NotificationResultQueue, message);
+                        await NotificationResultBrokerAsync(message, ct);
                     }
                 }
             });
         }
-        async Task NotificationResultBrokerAsync(CancellationToken ct = default)
+
+        async Task NotificationResultBrokerAsync(MessageModel message, CancellationToken ct = default)
         {
-            await _queuer.Dequeue<MessageModel>(_queueSettings.NotificationResultQueue, async data =>
+            if (message.HookUrl == null)
             {
-                using (var scope = _serviceProvider.CreateScope())
-                {
-                    var message = data.Message;
-                    if (HookApi.Client.BaseAddress == null)
-                    {
-                        _logger.LogInformation($"El mensaje no tiene un HookUrl válido para reportar el estado de la notificación.");
-                        return;
-                    }
-                    try
-                    {
-                        await HookApi.SendMessageStatus(message);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, $"Ha ocurrido un error al intentar reportar el estado de la notificación al hook {HookApi.Client.BaseAddress} [{DateTime.Now}]");
-                    }
-                }
-            });
+                _logger.LogInformation($"El mensaje no tiene un HookUrl válido para reportar el estado de la notificación.");
+                return;
+            }
+            try
+            {
+                HookApi.Client.BaseAddress = message.HookUrl;
+                await HookApi.SendMessageStatus(message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Ha ocurrido un error al intentar reportar el estado de la notificación al hook {HookApi.Client.BaseAddress} [{DateTime.Now}]");
+            }
         }
         public Task StopAsync(CancellationToken cancellationToken)
         {

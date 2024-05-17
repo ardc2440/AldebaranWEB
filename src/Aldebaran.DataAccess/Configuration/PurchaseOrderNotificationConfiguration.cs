@@ -15,7 +15,7 @@ namespace Aldebaran.DataAccess.Entities
             builder.Property(x => x.NotificationDate).HasColumnName(@"NOTIFICATION_DATE").HasColumnType("datetime").IsRequired();
             builder.Property(x => x.NotifiedMailList).HasColumnName(@"NOTIFIED_MAIL_LIST").HasColumnType("varchar(max)").IsRequired();
             builder.Property(x => x.CustomerOrderId).HasColumnName(@"CUSTOMER_ORDER_ID").HasColumnType("int").IsRequired();
-            builder.Property(x => x.NotificationState).HasColumnName(@"NOTIFICATION_STATE").HasColumnType("short").IsRequired();
+            builder.Property(x => x.NotificationState).HasColumnName(@"NOTIFICATION_STATE").HasColumnType("smallint").IsRequired();
             builder.Property(x => x.NotificationSendingErrorMessage).HasColumnName(@"NOTIFICATION_SENDING_ERROR_MESSAGE").HasColumnType("varchar(MAX)").IsRequired(false).IsUnicode(false);
             // Foreign keys
             builder.HasOne(a => a.CustomerOrder).WithMany(b => b.PurchaseOrderNotifications).HasForeignKey(c => c.CustomerOrderId).OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_PURCHASE_ORDER_NOTIFICATIONS_CUSTOMER_ORDER");

@@ -381,6 +381,43 @@
                                                             </Items>
                                                         </RadzenAccordion>
                                                     </RadzenAccordionItem>
+                                                    <RadzenAccordionItem Text="Orden de compra">
+                                                        <RadzenAccordion>
+                                                            <Items>
+                                                                <RadzenAccordionItem Text="Actualización de la orden de compra">
+                                                                    <RadzenStack>
+                                                                        <RadzenRow>
+                                                                            <RadzenColumn Size="12">
+                                                                                <RadzenTemplateForm TItem="ServiceModel.NotificationTemplate" Data="@PurchaseOrderUpdate" Visible="@(PurchaseOrderUpdate != null)" Submit="@UpdatePurchaseOrderUpdate">
+                                                                                    <RadzenStack>
+                                                                                        <RadzenRow AlignItems="Radzen.AlignItems.Start">
+                                                                                            <RadzenColumn Size="12">
+                                                                                                <RadzenFormField Text="Asunto" Variant="Variant.Text" Style="width: 100%;">
+                                                                                                    <ChildContent>
+                                                                                                        <RadzenTextBox style="display: block; width: 100%" @bind-Value="@PurchaseOrderUpdate.Subject" Name="PurchaseOrderUpdateSubject" MaxLength="100" />
+                                                                                                    </ChildContent>
+                                                                                                    <Helper>
+                                                                                                        <RadzenRequiredValidator Component="PurchaseOrderUpdateSubject" Text="Asunto del correo es requerido" />
+                                                                                                    </Helper>
+                                                                                                </RadzenFormField>
+                                                                                            </RadzenColumn>
+                                                                                            <RadzenColumn Size="12">
+                                                                                                <LocalizedHtmlEditor @bind-Value="@PurchaseOrderUpdate.Message" Name="PurchaseOrderUpdateMessage" />
+                                                                                                <RadzenRequiredValidator Component="PurchaseOrderUpdateMessage" Text="Cuerpo del correo es requerido" />
+                                                                                            </RadzenColumn>
+                                                                                        </RadzenRow>
+                                                                                    </RadzenStack>
+                                                                                    <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                                                                                        <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />
+                                                                                    </RadzenStack>
+                                                                                </RadzenTemplateForm>
+                                                                            </RadzenColumn>
+                                                                        </RadzenRow>
+                                                                    </RadzenStack>
+                                                                </RadzenAccordionItem>
+                                                            </Items>
+                                                        </RadzenAccordion>
+                                                    </RadzenAccordionItem>
                                                 </Items>
                                             </RadzenAccordion>
                                         </RadzenColumn>

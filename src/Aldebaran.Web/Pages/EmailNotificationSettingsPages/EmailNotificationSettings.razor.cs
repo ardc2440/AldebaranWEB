@@ -35,6 +35,7 @@ namespace Aldebaran.Web.Pages.EmailNotificationSettingsPages
         protected ServiceModel.NotificationTemplate CustomerReservationUpdate;
         protected ServiceModel.NotificationTemplate CustomerReservationForwarding;
         protected ServiceModel.NotificationTemplate CustomerReservationCancellation;
+        protected ServiceModel.NotificationTemplate PurchaseOrderUpdate;
         protected bool IsSubmitInProgress;
         protected bool isLoadingInProgress;
         private static readonly string SettingsKey = "Sales";
@@ -79,6 +80,7 @@ namespace Aldebaran.Web.Pages.EmailNotificationSettingsPages
             CustomerReservationUpdate = templates.FirstOrDefault(w => w.Name == "Customer:Reservation:Update");
             CustomerReservationForwarding = templates.FirstOrDefault(w => w.Name == "Customer:Reservation:Forwarding");
             CustomerReservationCancellation = templates.FirstOrDefault(w => w.Name == "Customer:Reservation:Cancellation");
+            PurchaseOrderUpdate = templates.FirstOrDefault(w => w.Name == "PurchaseOrder:Update:Customer:Order");
         }
         protected async Task FormSubmit()
         {
@@ -290,7 +292,7 @@ namespace Aldebaran.Web.Pages.EmailNotificationSettingsPages
         {
             try
             {
-                if (await DialogService.Confirm("Está seguro que desea actualizar la plantilla para \"Actualizacion de la reserva\" ?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar actualización") == true)
+                if (await DialogService.Confirm("Está seguro que desea actualizar la plantilla para \"Actualización de la reserva\" ?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar actualización") == true)
                 {
                     IsSubmitInProgress = true;
                     await NotificationTemplateService.UpdateAsync(CustomerReservationUpdate.NotificationTemplateId, CustomerReservationUpdate);
@@ -298,7 +300,7 @@ namespace Aldebaran.Web.Pages.EmailNotificationSettingsPages
                     {
                         Summary = "Plantilla de correo",
                         Severity = NotificationSeverity.Success,
-                        Detail = $"Plantilla de correo para \"Actualizacion de la reserva\" ha sido actualizada.",
+                        Detail = $"Plantilla de correo para \"Actualización de la reserva\" ha sido actualizada.",
                         Duration = 6000
                     });
                 }
@@ -310,7 +312,7 @@ namespace Aldebaran.Web.Pages.EmailNotificationSettingsPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido actualizar la plantilla para \"Actualizacion de la reserva\".",
+                    Detail = $"No se ha podido actualizar la plantilla para \"Actualización de la reserva\".",
                     Duration = 6000
                 });
             }
@@ -378,7 +380,42 @@ namespace Aldebaran.Web.Pages.EmailNotificationSettingsPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
-                    Detail = $"No se ha podido actualizar la plantilla para \"Reenvío de la reserva\".",
+                    Detail = $"No se ha podido actualizar la plantilla para \"Cancelación de la reserva\".",
+                    Duration = 6000
+                });
+            }
+            finally
+            {
+                IsSubmitInProgress = false;
+                await GetEmailTemplates();
+            }
+        }
+
+        protected async Task UpdatePurchaseOrderUpdate()
+        {
+            try
+            {
+                if (await DialogService.Confirm("Está seguro que desea actualizar la plantilla para \"Actualización de la orden de compra\" ?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar actualización") == true)
+                {
+                    IsSubmitInProgress = true;
+                    await NotificationTemplateService.UpdateAsync(PurchaseOrderUpdate.NotificationTemplateId, PurchaseOrderUpdate);
+                    NotificationService.Notify(new NotificationMessage
+                    {
+                        Summary = "Plantilla de correo",
+                        Severity = NotificationSeverity.Success,
+                        Detail = $"Plantilla de correo para \"Actualización de la orden de compra\" ha sido actualizada.",
+                        Duration = 6000
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, nameof(UpdateCustomerReservationForwarding));
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = $"Error",
+                    Detail = $"No se ha podido actualizar la plantilla para \"Actualización de la orden de compra\".",
                     Duration = 6000
                 });
             }

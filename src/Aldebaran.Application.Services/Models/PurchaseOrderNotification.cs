@@ -1,4 +1,6 @@
-﻿namespace Aldebaran.Application.Services.Models
+﻿using Aldebaran.DataAccess.Enums;
+
+namespace Aldebaran.Application.Services.Models
 {
     public class PurchaseOrderNotification
     {
@@ -7,7 +9,7 @@
         public DateTime NotificationDate { get; set; }
         public string NotifiedMailList { get; set; }
         public int CustomerOrderId { get; set; }
-        public bool NotificationState { get; set; }
+        public NotificationStatus NotificationState { get; set; }
         public string? NotificationSendingErrorMessage { get; set; }
 
         // Reverse navigation

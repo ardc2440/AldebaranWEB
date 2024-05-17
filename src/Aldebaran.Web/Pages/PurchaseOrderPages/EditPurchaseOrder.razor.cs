@@ -1,5 +1,7 @@
 using Aldebaran.Application.Services;
-using Aldebaran.Application.Services.Models;
+using Aldebaran.Application.Services.Notificator;
+using Aldebaran.Application.Services.Notificator.Model;
+using Aldebaran.DataAccess.Enums;
 using Aldebaran.Web.Pages.PurchaseOrderPages.Components;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -28,6 +30,12 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         protected TooltipService TooltipService { get; set; }
 
         [Inject]
+        protected INotificationService NotificationService { get; set; }
+
+        [Inject]
+        protected ICustomerOrderService CustomerOrderService { get; set; }
+
+        [Inject]
         protected IProviderService ProviderService { get; set; }
 
         [Inject]
@@ -50,6 +58,12 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
 
         [Inject]
         protected IPurchaseOrderDetailService PurchaseOrderDetailService { get; set; }
+
+        [Inject]
+        protected IPurchaseOrderNotificationService PurchaseOrderNotificationService { get; set; }
+
+        [Inject]
+        protected Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer { get; set; }
 
         #endregion
 
@@ -126,12 +140,14 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 if (reasonResult == null)
                     return;
 
-                var reason = (Reason)reasonResult;
+                var reason = (ServiceModel.Reason)reasonResult;
                 var now = DateTime.UtcNow;
                 // Complementar la orden compra
                 PurchaseOrder.PurchaseOrderDetails = purchaseOrderDetails;
 
-                await PurchaseOrderService.UpdateAsync(PurchaseOrder.PurchaseOrderId, PurchaseOrder, reason, ordersAffected);
+                var modifiedPurchaseOrderId = await PurchaseOrderService.UpdateAsync(PurchaseOrder.PurchaseOrderId, PurchaseOrder, reason, ordersAffected);
+                await NotifyToCustomers(modifiedPurchaseOrderId);
+
                 NavigationManager.NavigateTo($"purchase-orders/edit/{PurchaseOrder.PurchaseOrderId}");
             }
             catch (Exception ex)
@@ -143,6 +159,34 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
             finally
             {
                 IsSubmitInProgress = false;
+            }
+        }
+        protected async Task NotifyToCustomers(int modifiedPurchaseOrderId, CancellationToken ct = default)
+        {
+            var NotificationTemplateName = "PurchaseOrder:Update:Customer:Order";
+            var purchaseOrderNotifications = await PurchaseOrderNotificationService.GetByModifiedPurchaseOrder(modifiedPurchaseOrderId, ct);
+            foreach (var pon in purchaseOrderNotifications)
+            {
+                string[] emails = pon.NotifiedMailList.Split(";");
+                var uid = Guid.NewGuid().ToString();
+                var message = new MessageModel
+                {
+                    HookUrl = new Uri($"{NavigationManager.BaseUri.TrimEnd('/')}/Notification/PurchaseOrderUpdate"),
+                    Header = new MessageModel.EnvelopeHeader
+                    {
+                        MessageUid = uid,
+                        ReceiverUrn = emails.Where(s => s != null).ToArray(),
+                        Subject = "Sales",
+                    },
+                    Body = new MessageModel.EnvelopeBody
+                    {
+                        Template = NotificationTemplateName,
+                    }
+                };
+                var additionalBodyMessage = $"<p>Pedido: {pon.CustomerOrder.OrderNumber}<br />" +
+                                            $"Fecha: {pon.CustomerOrder.OrderDate.ToString(SharedLocalizer["date:format"])}</p>";
+                await PurchaseOrderNotificationService.UpdateAsync(pon.PurchaseOrderNotificationId, uid, NotificationStatus.InProcess, ct);
+                await NotificationService.Send(message, additionalBodyMessage, ct);
             }
         }
         protected async Task AgentForwarderHandler(ServiceModel.ForwarderAgent agent)

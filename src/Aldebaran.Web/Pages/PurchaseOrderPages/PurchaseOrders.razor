@@ -219,7 +219,7 @@
                                                     <Template Context="notification">
                                                         <RadzenLink href="javascript:void(0);" @onclick="@(async (args) => await CustomerOrderDetailInfo(notification.CustomerOrder.CustomerOrderId))">
                                                             @notification.CustomerOrder.OrderNumber
-                                                        </RadzenLink>                                                        
+                                                        </RadzenLink>
                                                     </Template>
                                                 </RadzenDataGridColumn>
                                                 <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderNotification" Title="Fecha pactada de entrega">
@@ -242,13 +242,20 @@
                                                 </RadzenDataGridColumn>
                                                 <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderNotification" Title="Estado notificación">
                                                     <Template Context="notification">
-                                                        @if (notification.NotificationState)
+                                                        @switch (notification.NotificationState)
                                                         {
-                                                            <span>Enviada</span>
-                                                        }
-                                                        else
-                                                        {
-                                                            <span>Sin Enviar</span>
+                                                            case DataAccess.Enums.NotificationStatus.Success:
+                                                                <span>Enviada</span>
+                                                                return;
+                                                            case DataAccess.Enums.NotificationStatus.Error:
+                                                                <span>Error</span>
+                                                                return;
+                                                                case DataAccess.Enums.NotificationStatus.InProcess:
+                                                                <span>En proceso</span>
+                                                                return;
+                                                            case DataAccess.Enums.NotificationStatus.Pending:
+                                                                <span>Pendiente</span>
+                                                                return;
                                                         }
                                                     </Template>
                                                 </RadzenDataGridColumn>

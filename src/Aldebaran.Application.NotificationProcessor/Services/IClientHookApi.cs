@@ -12,6 +12,6 @@ namespace Aldebaran.Application.NotificationProcessor.Services
         /// <param name="mr">Notificacion procesada</param>
         /// <returns>Modelo de mensaje de respuesta</returns>
         [Post("")]
-        Task<MessageModel> SendMessageStatus([Body] MessageModel mr);
+        Task SendMessageStatus([Body] MessageModel mr);
     }
 }

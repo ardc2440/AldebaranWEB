@@ -38,14 +38,33 @@ namespace Aldebaran.Application.Services.Notificator
             var template = await _templateRepository.FindAsync(message.Body.Template, ct);
             if (template == null)
                 throw new InvalidOperationException($"Plantilla no existe {message.Body.Template}");
-            MetaData = new Dictionary<string, object>();
-            var providerParameters = JsonConvert.DeserializeObject<Dictionary<string, string>>(settings.Settings);
-            foreach (var kv in providerParameters)
-                MetaData[kv.Key] = kv.Value;
 
             message.Body.Subject = template.Subject;
             message.Body.Message = template.Message;
-            message.Header.SentDate = DateTime.UtcNow;
+
+            var providerParameters = JsonConvert.DeserializeObject<Dictionary<string, string>>(settings.Settings);
+            MetaData = new Dictionary<string, object>();
+            foreach (var kv in providerParameters)
+                MetaData[kv.Key] = kv.Value;
+            _queuer.Enqueue(message, MetaData);
+        }
+
+        public async Task Send(MessageModel message, string additionalBodyMessage, CancellationToken ct = default)
+        {
+            var settings = await _settingsRepository.FindAsync(message.Header.Subject, ct);
+            if (settings == null)
+                throw new InvalidOperationException($"No existe una configuracion para {message.Header.Subject}");
+            var template = await _templateRepository.FindAsync(message.Body.Template, ct);
+            if (template == null)
+                throw new InvalidOperationException($"Plantilla no existe {message.Body.Template}");
+
+            message.Body.Subject = template.Subject;
+            message.Body.Message = template.Message + additionalBodyMessage;
+
+            var providerParameters = JsonConvert.DeserializeObject<Dictionary<string, string>>(settings.Settings);
+            MetaData = new Dictionary<string, object>();
+            foreach (var kv in providerParameters)
+                MetaData[kv.Key] = kv.Value;
             _queuer.Enqueue(message, MetaData);
         }
     }
