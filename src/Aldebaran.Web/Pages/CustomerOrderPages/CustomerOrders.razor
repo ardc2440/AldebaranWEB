@@ -3,6 +3,7 @@
 @page "/customer-orders/{Action}/{CUSTOMER_ORDER_ID}"
 @attribute [Authorize(Roles = "Administrador,Consulta de pedidos,Modificación de pedidos,Consulta de actividades de un pedido,Modificación de actividades de un pedido")]
 @using Aldebaran.Web.Resources.LocalizedControls;
+@using ServiceModel = Aldebaran.Application.Services.Models;
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer ;
 
 <PageTitle>Pedido de artículos</PageTitle>
@@ -216,7 +217,7 @@
                                                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderNotification" Property="NotificationTemplate.Name" Title="Motivo" Width="100%">
                                                         <Template Context="notification">
                                                             @{
-                                                                var notificationTemplateName = $"{notification.NotificationTemplate.Name.Split(':')[2]} Order";
+                                                                var notificationTemplateName = $"{notification.NotificationTemplate.Subject.Split(':')[0]}";
                                                             }
                                                             <span>@notificationTemplateName</span>
                                                         </Template>
@@ -232,10 +233,21 @@
                                                     </RadzenDataGridColumn>
                                                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderNotification" Title="Estado notificación" Width="70%">
                                                         <Template Context="notification">
-                                                            @{
-                                                                var status = (Aldebaran.Application.Services.Models.NotificationStatus)notification.NotificationState;
+                                                            @switch (notification.NotificationState)
+                                                            {
+                                                                case ServiceModel.NotificationStatus.Success:
+                                                                    <span>Enviada</span>
+                                                                    return;
+                                                                case ServiceModel.NotificationStatus.Error:
+                                                                    <span>Error</span>
+                                                                    return;
+                                                                case ServiceModel.NotificationStatus.InProcess:
+                                                                    <span>En proceso</span>
+                                                                    return;
+                                                                case ServiceModel.NotificationStatus.Pending:
+                                                                    <span>Pendiente</span>
+                                                                    return;
                                                             }
-                                                            <span>@status</span>
                                                         </Template>
                                                     </RadzenDataGridColumn>
                                                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderNotification" Property="NotificationSendingErrorMessage" Title="Error notificación" Width="100%"></RadzenDataGridColumn>
