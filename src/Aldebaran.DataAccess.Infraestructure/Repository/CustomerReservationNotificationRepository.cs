@@ -40,7 +40,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                             .ToListAsync(ct);
         }
 
-        public async Task UpdateAsync(string notificationId, NotificationStatus status, string errorMessage, CancellationToken ct = default)
+        public async Task UpdateAsync(string notificationId, NotificationStatus status, string errorMessage, DateTime date, CancellationToken ct = default)
         {
             var entity = await _context.CustomerReservationNotifications.FirstOrDefaultAsync(w => w.NotificationId.Equals(notificationId)) ?? throw new KeyNotFoundException($"Notificación de la orden de compra con id {notificationId} no existe.");
 
@@ -48,7 +48,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             {
                 entity.NotificationState = status;
                 entity.NotificationSendingErrorMessage = errorMessage;
-                entity.NotificationDate = DateTime.Now;
+                entity.NotificationDate = date;
                 await _context.SaveChangesAsync(ct);
             }
             catch (Exception)

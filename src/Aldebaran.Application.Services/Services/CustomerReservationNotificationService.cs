@@ -29,9 +29,9 @@ namespace Aldebaran.Application.Services
             return _mapper.Map<List<CustomerReservationNotification>>(data);
         }
 
-        public async Task UpdateAsync(string notificationId, NotificationStatus status, string errorMessage, CancellationToken ct = default)
+        public async Task UpdateAsync(string notificationId, NotificationStatus status, string errorMessage, DateTime date, CancellationToken ct = default)
         {
-            await _repository.UpdateAsync(notificationId, (Enums.NotificationStatus)status, errorMessage, ct);
+            await _repository.UpdateAsync(notificationId, (Enums.NotificationStatus)status, errorMessage, date, ct);
         }
     }
 }

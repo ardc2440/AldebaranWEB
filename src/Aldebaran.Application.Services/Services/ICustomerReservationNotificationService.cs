@@ -6,7 +6,7 @@ namespace Aldebaran.Application.Services
     public interface ICustomerReservationNotificationService
     {
         Task AddAsync(CustomerReservationNotification customerReservationNotification, CancellationToken ct = default);
-        Task UpdateAsync(string notificationId, NotificationStatus status, string errorMessage, CancellationToken ct = default);
+        Task UpdateAsync(string notificationId, NotificationStatus status, string errorMessage, DateTime date, CancellationToken ct = default);
         Task<IEnumerable<CustomerReservationNotification>> GetByCustomerReservationIdAsync(int customerReservationId, CancellationToken ct = default);
     }
 }

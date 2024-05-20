@@ -123,7 +123,7 @@ namespace Aldebaran.Web.Pages
             employee = await DashBoardService.FindByLoginUserIdAsync(Security.User.Id);
             orderDocumentType = await DashBoardService.FindByCodeAsync("O");
             pendingStatusOrder = await DashBoardService.FindByDocumentAndOrderAsync(orderDocumentType.DocumentTypeId, 1);
-            _cacheEntryOptions = new MemoryCacheEntryOptions { SlidingExpiration = Settings.Value.SlidingExpirationCache};
+            _cacheEntryOptions = new MemoryCacheEntryOptions { SlidingExpiration = TimeSpan.FromDays(1) };
             await GridData_Update();
         }
 
