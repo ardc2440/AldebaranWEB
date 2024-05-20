@@ -104,7 +104,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
             var message = new MessageModel
             {
-                HookUrl = new Uri($"{NavigationManager.BaseUri}Notification/CustomerReservationUpdateAsync"),
+                HookUrl = new Uri($"{NavigationManager.BaseUri.TrimEnd('/')}/Notification/CustomerReservationUpdate"),
                 Header = new MessageModel.EnvelopeHeader
                 {
                     MessageUid = Guid.NewGuid().ToString(),
@@ -125,7 +125,6 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                     }
                 }
             };
-            await NotificationService.Send(message);
 
             await CustomerReservationNotificationService.AddAsync(new CustomerReservationNotification
             {
@@ -136,6 +135,8 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                 NotifiedMailList = CustomerReservation.Customer.Email,
                 NotificationDate = DateTime.Now
             });
+
+            await NotificationService.Send(message);
 
             // Enviar notificacion
             DialogService.Close(true);

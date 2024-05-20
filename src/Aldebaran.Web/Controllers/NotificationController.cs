@@ -18,7 +18,7 @@ namespace Aldebaran.Web.Controllers
             CustomerReservationNotificationService = customerReservationNotificationService;
         }
         [HttpPost]
-        public async Task<IActionResult> PurchaseOrderUpdateAsync([FromBody] Application.Services.Notificator.Model.MessageModel message, CancellationToken ct = default)
+        public async Task<IActionResult> PurchaseOrderUpdate([FromBody] Application.Services.Notificator.Model.MessageModel message, CancellationToken ct = default)
         {
             var notificationId = message.Header.MessageUid;
             var status = message.MessageDeliveryStatus.Success ? NotificationStatus.Success : NotificationStatus.Error;
@@ -26,7 +26,7 @@ namespace Aldebaran.Web.Controllers
             return Ok();
         }
         [HttpPost]
-        public async Task<IActionResult> CustomerOrderUpdateAsync(Application.Services.Notificator.Model.MessageModel message, CancellationToken ct = default)
+        public async Task<IActionResult> CustomerOrderUpdate([FromBody] Application.Services.Notificator.Model.MessageModel message, CancellationToken ct = default)
         {
             var notificationId = message.Header.MessageUid;
             var status = message.MessageDeliveryStatus.Success ? NotificationStatus.Success : NotificationStatus.Error;
@@ -35,10 +35,10 @@ namespace Aldebaran.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CustomerReservationUpdateAsync(Application.Services.Notificator.Model.MessageModel message, CancellationToken ct = default)
+        public async Task<IActionResult> CustomerReservationUpdate([FromBody] Application.Services.Notificator.Model.MessageModel message, CancellationToken ct = default)
         {
             var notificationId = message.Header.MessageUid;
-            var status = message.MessageDeliveryStatus.Success ? Application.Services.Models.NotificationStatus.Success : Application.Services.Models.NotificationStatus.Error;
+            var status = message.MessageDeliveryStatus.Success ? NotificationStatus.Success : NotificationStatus.Error;
             await CustomerReservationNotificationService.UpdateAsync(notificationId, status, message.MessageDeliveryStatus.Message, message.Header.SentDate.Value, ct);
             return Ok();
         }

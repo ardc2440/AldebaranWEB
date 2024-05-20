@@ -170,7 +170,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 var uid = Guid.NewGuid().ToString();
                 var message = new MessageModel
                 {
-                    HookUrl = new Uri($"{NavigationManager.BaseUri.TrimEnd('/')}/Notification/PurchaseOrderUpdateAsync"),
+                    HookUrl = new Uri($"{NavigationManager.BaseUri.TrimEnd('/')}/Notification/PurchaseOrderUpdate"),
                     Header = new MessageModel.EnvelopeHeader
                     {
                         MessageUid = uid,

@@ -109,7 +109,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
             var message = new MessageModel
             {
-                HookUrl = new Uri($"{NavigationManager.BaseUri}Notification/CustomerOrderUpdateAsync"),
+                HookUrl = new Uri($"{NavigationManager.BaseUri.TrimEnd('/')}/Notification/CustomerOrderUpdate"),
                 Header = new MessageModel.EnvelopeHeader
                 {
                     MessageUid = Guid.NewGuid().ToString(),
@@ -130,8 +130,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                     }
                 }
             };
-            await NotificationService.Send(message);
-
+            
             await CustomerOrderNotificationService.AddAsync(new CustomerOrderNotification
             {
                 CustomerOrderId = CustomerOrder.CustomerOrderId,
@@ -141,6 +140,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 NotifiedMailList = CustomerOrder.Customer.Email,
                 NotificationDate = DateTime.Now
             });
+
+            await NotificationService.Send(message);
 
             // Enviar notificacion
             DialogService.Close(true);
