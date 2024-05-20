@@ -24,22 +24,15 @@ namespace Aldebaran.Application.NotificationProcessor.Workers
         private readonly IServiceProvider _serviceProvider;
 
         /// <summary>
-        /// Dependencia de Proveedor de servicios
-        /// </summary>
-        private readonly INotificationProvider _notificationProvider;
-        private readonly IClientHookApi _hookApi;
-        /// <summary>
         /// </summary>
         /// <param name="queuer">Manejador de colas</param>
         /// <param name="serviceProvider">Proveedor de servicios</param>
         /// <param name="notificationProvider">Servicio de notificaciones</param>
-        public NotificationWorker(IQueue queuer, IServiceProvider serviceProvider, INotificationProvider notificationProvider, IClientHookApi hookApi, ILogger<NotificationWorker> logger)
+        public NotificationWorker(IQueue queuer, IServiceProvider serviceProvider, ILogger<NotificationWorker> logger)
         {
             _queuer = queuer ?? throw new ArgumentNullException(nameof(IQueue));
             _logger = logger ?? throw new ArgumentNullException(nameof(ILogger<NotificationWorker>));
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(IServiceProvider));
-            _notificationProvider = notificationProvider ?? throw new ArgumentNullException(nameof(INotificationProvider));
-            _hookApi = hookApi ?? throw new ArgumentNullException(nameof(IClientHookApi));
         }
         /// <summary>
         /// Inicio del procesamiento de notificaciones
@@ -67,13 +60,19 @@ namespace Aldebaran.Application.NotificationProcessor.Workers
             {
                 using (var scope = _serviceProvider.CreateScope())
                 {
+                    if (scope == null)
+                    {
+                        _logger.LogCritical("Scope es null cuando no deberia serlo en NotificationBrokerAsync");
+                        return;
+                    }
+                    var notificationProvider = scope.ServiceProvider.GetRequiredService<INotificationProvider>();
                     var message = data.Message;
                     var metadata = data.Metadata;
                     try
                     {
-                        _notificationProvider.Configure(metadata);
+                        notificationProvider.Configure(metadata);
                         message.Header.SentDate = DateTime.Now;
-                        await _notificationProvider.SendMessage(message, metadata, ct);
+                        await notificationProvider.SendMessage(message, metadata, ct);
                         message.MessageDeliveryStatus = new MessageModel.DeliveryStatus
                         {
                             Status = 200,
@@ -93,23 +92,24 @@ namespace Aldebaran.Application.NotificationProcessor.Workers
                     }
                     finally
                     {
-                        await NotificationResultBrokerAsync(message, ct);
+                        await NotificationResultBrokerAsync(message, scope, ct);
                     }
                 }
             });
         }
 
-        async Task NotificationResultBrokerAsync(MessageModel message, CancellationToken ct = default)
+        async Task NotificationResultBrokerAsync(MessageModel message, IServiceScope scope, CancellationToken ct = default)
         {
             if (message.HookUrl == null)
             {
                 _logger.LogInformation($"El mensaje no tiene un HookUrl válido para reportar el estado de la notificación.");
                 return;
             }
+            var hookApi = scope.ServiceProvider.GetRequiredService<IClientHookApi>();
             try
             {
-                _hookApi.Client.BaseAddress = message.HookUrl;
-                await _hookApi.SendMessageStatus(message);
+                hookApi.Client.BaseAddress = message.HookUrl;
+                await hookApi.SendMessageStatus(message);
             }
             catch (Exception ex)
             {
