@@ -1,5 +1,6 @@
 ﻿using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Reports;
+using Aldebaran.DataAccess;
 using Aldebaran.DataAccess.Core.Triggers.Adjustments;
 using Aldebaran.DataAccess.Core.Triggers.OrderInProcesses;
 using Aldebaran.DataAccess.Core.Triggers.Orders;
@@ -106,6 +107,7 @@ namespace Aldebaran.Web.Extensions
             builder.Services.AddSingleton(AutoMapperConfiguration.Configure());
             builder.Services.AddTransient<IFileBytesGeneratorService, FileBytesGeneratorService>();
             builder.Services.AddTransient<ITimerPreferenceService, TimerPreferenceService>();
+            services.AddScoped<IContextConfiguration, ContextConfiguration>();
             // Logging
             builder.Logging.ClearProviders();
             builder.Logging.SetMinimumLevel(LogLevel.Trace);
@@ -264,7 +266,6 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IPurchaseOrderTransitAlarmRepository, PurchaseOrderTransitAlarmRepository>();
             services.AddTransient<ICustomerOrderNotificationRepository, CustomerOrderNotificationRepository>();
             services.AddTransient<ICustomerReservationNotificationRepository, CustomerReservationNotificationRepository>();
-
 
             #endregion
             // Services
