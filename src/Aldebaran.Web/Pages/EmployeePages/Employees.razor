@@ -40,7 +40,7 @@
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="ViewModels.EmployeeViewModel" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Administrador","Modificación de funcionarios")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                         <Template Context="employee">
-                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" MouseEnter="@(args => ShowTooltip(args,"Actualizar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
+                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" MouseEnter="@(args => ShowTooltip(args,"Editar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
                                           Size="ButtonSize.Medium" Visible="@Security.IsInRole("Administrador","Modificación de funcionarios")"
                                           Click="@(args => EditEmployee(employee))" @onclick:stopPropagation="true" />
                             <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Eliminar", new TooltipOptions(){ Position = TooltipPosition.Left }))"

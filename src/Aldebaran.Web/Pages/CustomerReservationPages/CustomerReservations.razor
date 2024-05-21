@@ -54,7 +54,7 @@
                                 </RadzenButton>
                                 <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
                                               Click="@(args => EditRow(customerReservation))" @onclick:stopPropagation="true"
-                                              Visible="@CanEdit(customerReservation).Result" MouseEnter="@(args => ShowTooltip(args,"Actualizar", new TooltipOptions(){ Position = TooltipPosition.Left }))">
+                                              Visible="@CanEdit(customerReservation).Result" MouseEnter="@(args => ShowTooltip(args,"Editar", new TooltipOptions(){ Position = TooltipPosition.Left }))">
                                 </RadzenButton>
                                 <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
                                               Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@CanEdit(customerReservation).Result"

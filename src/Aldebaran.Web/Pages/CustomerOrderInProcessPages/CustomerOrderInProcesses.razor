@@ -112,7 +112,7 @@
                                                     <Template Context="customerOrderInProcess">
                                                         <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
                                                                       Click="@(args => EditProcessRow(customerOrderInProcess))" @onclick:stopPropagation="true"
-                                                                      Visible="@CanEditProcess(customerOrderInProcess).Result" MouseEnter="@(args => ShowTooltip(args,"Actualizar", new TooltipOptions(){ Position = TooltipPosition.Left }))">
+                                                                      Visible="@CanEditProcess(customerOrderInProcess).Result" MouseEnter="@(args => ShowTooltip(args,"Editar", new TooltipOptions(){ Position = TooltipPosition.Left }))">
                                                         </RadzenButton>
                                                         <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
                                                                       Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@CanEditProcess(customerOrderInProcess).Result"

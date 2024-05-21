@@ -105,7 +105,7 @@
                                         <Template Context="detail">
                                             <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="edit" Size="ButtonSize.Medium"
                                                           Shade="Shade.Lighter" Variant="Variant.Flat"
-                                                          Click=@(args => EditPurchaseOrderDetail(args, detail)) @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Actualizar", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                                                          Click=@(args => EditPurchaseOrderDetail(args, detail)) @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Editar", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
                                             <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
                                                           Shade="Shade.Lighter" Variant="Variant.Flat"
                                                           Click=@(args => DeletePurchaseOrderDetail(args, detail)) @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Eliminar", new TooltipOptions(){ Position = TooltipPosition.Left }))" />

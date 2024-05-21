@@ -1632,7 +1632,7 @@ CREATE SCHEMA [log]
 GO
 
 CREATE TABLE [log].[Logs](
-	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Id] [bigint] IDENTITY(1,1) NOT NULL,
 	[Message] [nvarchar](max) NULL,
 	[MessageTemplate] [nvarchar](max) NULL,
 	[Level] [nvarchar](max) NULL,
