@@ -295,12 +295,17 @@ namespace Aldebaran.DataAccess
                 var entityType = Model.FindEntityType(entity.GetType());
                 if (entityType == null)
                     continue;
+
                 var primaryKey = entityType.FindPrimaryKey();
                 if (primaryKey == null)
                     continue;
-                var primaryKeyName = primaryKey.Properties.FirstOrDefault()?.Name;
-                if (primaryKeyName == null)
-                    continue;
+
+                // Construir el JSON de la llave primaria
+                var keyValues = primaryKey.Properties.ToDictionary(
+                    p => p.Name,
+                    p => entry.Property(p.Name).IsTemporary ? "Temporary" : (entry.State == EntityState.Deleted ? entry.OriginalValues[p.Name]?.ToString() : entry.CurrentValues[p.Name]?.ToString())
+                );
+                var entityKeyJson = System.Text.Json.JsonSerializer.Serialize(keyValues);
                 var entityProperties = entityType.GetProperties().Where(p => entry.Property(p.Name).IsTemporary == false).ToList();
                 var log = string.Join(",", entityProperties.Select(p =>
                 {
@@ -311,7 +316,7 @@ namespace Aldebaran.DataAccess
                 Track track = new()
                 {
                     EntityName = entity.GetType().Name,
-                    EntityKey = entry.Property(primaryKeyName).IsTemporary ? null : entry.Property(primaryKeyName).CurrentValue?.ToString() ?? "Unknown",
+                    EntityKey = entityKeyJson,
                     Action = entry.State.ToString(),
                     ModifiedDate = now,
                     DataLog = $"{{{log}}}",
