@@ -5,7 +5,6 @@ using Aldebaran.DataAccess.Entities;
 using Aldebaran.DataAccess.Entities.Reports;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
-using System.Text;
 
 namespace Aldebaran.DataAccess
 {
@@ -220,7 +219,7 @@ namespace Aldebaran.DataAccess
         {
             UpdateSequenceProperties();
             if (_configuration.TrackEnabled)
-                TrackEntities(DateTime.Now);
+                return await TrackEntities(DateTime.Now, ct);
             return await base.SaveChangesAsync(ct);
         }
 
@@ -264,62 +263,57 @@ namespace Aldebaran.DataAccess
         /// Metodo que identifica las modificaciones sobre las tablas afectadas
         /// </summary>
         /// <param name="now">Fecha para registrar la modificacion</param>
-        private void TrackEntities(DateTime now)
+        private async Task<int> TrackEntities(DateTime now, CancellationToken ct = default)
         {
-            var tracks = GetTracks(now);
-            Tracks.AddRange(tracks);
-        }
-        /// <summary>
-        /// Permite obtener las modificaciones realizadas en las tablas marcadas con ITrackeable
-        /// </summary>
-        /// <param name="now">Fecha para registrar la modificacion</param>
-        /// <see cref="ITrackeable"/>
-        /// <returns>Lista de modificaciones</returns>
-        private List<Track> GetTracks(DateTime now)
-        {
-            var tracks = new List<Track>();
-            var events = new[] { EntityState.Added, EntityState.Deleted, EntityState.Modified };
-            var changedEntities = ChangeTracker.Entries()
-               .Where(w => events.Contains(w.State))
-               .Select(e => e.Entity)
-               .OfType<ITrackeable>();
-            StringBuilder stringBuilder = new();
-            foreach (var entity in changedEntities)
-            {
-                var originalValues = ChangeTracker.Entries()
-                   .Where(e => e.Entity == entity)
-                   .Select(e => e.OriginalValues)
-                   .FirstOrDefault();
+            var trackeableEntities = ChangeTracker.Entries()
+                .Where(e => e.Entity is ITrackeable && (e.State == EntityState.Added || e.State == EntityState.Deleted || e.State == EntityState.Modified))
+                .Select(e => new { Entry = e, State = e.State }).ToList();
 
-                var entry = Entry(entity);
-                var entityType = Model.FindEntityType(entity.GetType());
-                if (entityType == null)
-                    continue;
-                var primaryKey = entityType.FindPrimaryKey();
-                if (primaryKey == null)
-                    continue;
-                var primaryKeyName = primaryKey.Properties.FirstOrDefault()?.Name;
-                if (primaryKeyName == null)
-                    continue;
-                var entityProperties = entityType.GetProperties().Where(p => entry.Property(p.Name).IsTemporary == false).ToList();
-                var log = string.Join(",", entityProperties.Select(p =>
+            var result = await base.SaveChangesAsync(ct);
+            if (trackeableEntities.Any())
+            {
+                var tracks = new List<Track>();
+                foreach (var item in trackeableEntities)
                 {
-                    if (entry.State == EntityState.Deleted || entry.State == EntityState.Added)
-                        return $"\"{p.Name}\":\"{entry.Property(p.Name).OriginalValue}\"";
-                    return $"\"{p.Name}\":\"{entry.Property(p.Name).CurrentValue}\"";
-                }));
-                Track track = new()
-                {
-                    EntityName = entity.GetType().Name,
-                    EntityKey = entry.Property(primaryKeyName).IsTemporary ? null : entry.Property(primaryKeyName).CurrentValue?.ToString() ?? "Unknown",
-                    Action = entry.State.ToString(),
-                    ModifiedDate = now,
-                    DataLog = $"{{{log}}}",
-                    ModifierName = _configuration.TrackUser
-                };
-                tracks.Add(track);
+                    var entry = item.Entry;
+                    var entity = entry.Entity;
+                    var entityType = Model.FindEntityType(entity.GetType());
+                    if (entityType == null)
+                        continue;
+
+                    var primaryKey = entityType.FindPrimaryKey();
+                    if (primaryKey == null)
+                        continue;
+
+                    // Construir el JSON de la llave primaria
+                    var keyValues = primaryKey.Properties.ToDictionary(
+                        p => p.Name,
+                        p => entry.Property(p.Name).CurrentValue?.ToString()
+                    );
+                    var entityKeyJson = System.Text.Json.JsonSerializer.Serialize(keyValues);
+                    var entityProperties = entityType.GetProperties().ToList();
+                    var log = string.Join(",", entityProperties.Select(p =>
+                    {
+                        if (entry.State == EntityState.Deleted || entry.State == EntityState.Added)
+                            return $"\"{p.Name}\":\"{entry.Property(p.Name).OriginalValue}\"";
+                        return $"\"{p.Name}\":\"{entry.Property(p.Name).CurrentValue}\"";
+                    }));
+
+                    Track track = new()
+                    {
+                        EntityName = entity.GetType().Name,
+                        EntityKey = entityKeyJson,
+                        Action = item.State.ToString(),
+                        ModifiedDate = now,
+                        DataLog = $"{{{log}}}",
+                        ModifierName = _configuration.TrackUser
+                    };
+                    tracks.Add(track);
+                }
+                Tracks.AddRange(tracks);
+                return await base.SaveChangesAsync(ct);
             }
-            return tracks;
+            return result;
         }
     }
 }
