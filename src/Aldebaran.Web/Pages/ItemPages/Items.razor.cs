@@ -3,6 +3,7 @@ using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Utils;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.EntityFrameworkCore;
 using Radzen;
 using Radzen.Blazor;
 using System.Text.Encodings.Web;
@@ -163,9 +164,9 @@ namespace Aldebaran.Web.Pages.ItemPages
         protected async Task GetItemReferences(ServiceModel.Item args)
         {
             Item = args;
-                await Task.Yield();
-                var ItemReferencesResult = await ItemReferenceService.GetByItemIdAsync(args.ItemId);
-                args.ItemReferences = ItemReferencesResult.ToList();            
+            await Task.Yield();
+            var ItemReferencesResult = await ItemReferenceService.GetByItemIdAsync(args.ItemId);
+            args.ItemReferences = ItemReferencesResult.ToList();
         }
         protected async Task AddItemReference(ServiceModel.Item data)
         {
@@ -213,6 +214,15 @@ namespace Aldebaran.Web.Pages.ItemPages
                     });
                     await ItemReferencesDataGrid.Reload();
                 }
+            }
+            catch (DbUpdateException ex)
+            {
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = $"Error",
+                    Detail = $"Existen movimientos para esta referencia y no se puede eliminar."
+                });
             }
             catch (Exception ex)
             {

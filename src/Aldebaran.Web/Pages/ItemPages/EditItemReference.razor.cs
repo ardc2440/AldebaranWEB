@@ -28,6 +28,7 @@ namespace Aldebaran.Web.Pages.ItemPages
         protected bool IsSubmitInProgress;
         protected bool isLoadingInProgress;
         protected bool IsErrorVisible;
+        protected List<string> ValidationErrors;
         #endregion
 
         #region Overrides
@@ -53,6 +54,24 @@ namespace Aldebaran.Web.Pages.ItemPages
             try
             {
                 IsSubmitInProgress = true;
+                ValidationErrors = new List<string>();
+
+                var references = await ItemReferenceService.GetByItemIdAsync(ItemReference.ItemId);
+                var nameAlreadyExists = references.Where(w => w.ReferenceId != REFERENCE_ID).Any(w => w.ReferenceName.Trim().ToLower() == ItemReference.ReferenceName.Trim().ToLower());
+                if (nameAlreadyExists)
+                {
+                    ValidationErrors.Add("Ya existe una referencia con el mismo nombre.");
+                }
+                var codeAlreadyExists = references.Where(w => w.ReferenceId != REFERENCE_ID).Any(w => w.ReferenceCode.Trim().ToLower() == ItemReference.ReferenceCode.Trim().ToLower());
+                if (codeAlreadyExists)
+                {
+                    ValidationErrors.Add("Ya existe una referencia con el mismo código.");
+                }
+                if (ValidationErrors.Any())
+                {
+                    IsErrorVisible = true;
+                    return;
+                }
                 await ItemReferenceService.UpdateAsync(REFERENCE_ID, ItemReference);
                 DialogService.Close(true);
             }
