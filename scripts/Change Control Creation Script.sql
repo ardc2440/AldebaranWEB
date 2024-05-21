@@ -1,12 +1,44 @@
 USE Aldebaran
 GO
 
+IF OBJECT_ID('log.track', 'U') IS NOT NULL
+	DROP TABLE LOG.TRACK
+GO
+
+IF OBJECT_ID('CUSTOMER_RESERVATION_NOTIFICATIONS', 'U') IS NOT NULL
+	DROP TABLE CUSTOMER_RESERVATION_NOTIFICATIONS
+GO
+
+IF OBJECT_ID('CUSTOMER_ORDER_NOTIFICATIONS', 'U') IS NOT NULL
+	DROP TABLE CUSTOMER_ORDER_NOTIFICATIONS
+GO 
+
+IF OBJECT_ID('VISUALIZED_PURCHASE_ORDER_TRANSIT_ALARMS', 'U') IS NOT NULL
+	DROP TABLE VISUALIZED_PURCHASE_ORDER_TRANSIT_ALARMS
+GO 
+
 IF OBJECT_ID('PURCHASE_ORDER_NOTIFICATIONS', 'U') IS NOT NULL
 	DROP TABLE PURCHASE_ORDER_NOTIFICATIONS
 GO
 
 IF OBJECT_ID('PURCHASE_ORDER_TRANSIT_ALARMS', 'U') IS NOT NULL
 	DROP TABLE PURCHASE_ORDER_TRANSIT_ALARMS
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE Name = 'EMAIL2' AND object_id = OBJECT_ID('CUSTOMERS')) 
+	ALTER TABLE [customers] ADD EMAIL2 VARCHAR(30)
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE Name = 'EMAIL3' AND object_id = OBJECT_ID('CUSTOMERS')) 
+	ALTER TABLE [customers] ADD EMAIL3 VARCHAR(30)
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE Name = 'EMAIL1' AND object_id = OBJECT_ID('CUSTOMERS')) 
+BEGIN
+	EXEC sp_rename 'customers.EMAIL',  'EMAIL1', 'COLUMN';
+
+	ALTER TABLE [customers] ALTER COLUMN EMAIL1 VARCHAR(20) NOT NULL
+END
 GO
 
 CREATE OR ALTER PROCEDURE SP_CUSTOMER_ORDERS_AFFECTED_BY_PURCHASE_ORDER_UPDATE
@@ -270,9 +302,12 @@ BEGIN
 END
 GO
 
-SET IDENTITY_INSERT [dbo].[notification_templates] ON 
-INSERT [dbo].[notification_templates] ([NOTIFICATION_TEMPLATE_ID], [NAME], [SUBJECT], [MESSAGE]) VALUES (9, N'PurchaseOrder:Update:Customer:Order', N'Afectación del pedido por modificación de la orden de compra', N'<p>Lamentamos informarle que su pedido ha sido afectado por una actualización de la orden de compra que incluía los artículos solicitados por usted. Entendemos que esto puede causarle inconvenientes y le pedimos disculpas por cualquier molestia que esto pueda ocasionarle. Si tiene alguna pregunta o necesita asistencia adicional, no dude en ponerse en contacto con nuestro equipo de atención al cliente.</p>')
-SET IDENTITY_INSERT [dbo].[notification_templates] OFF
+IF NOT EXISTS(SELECT 1 FROM notification_templates WHERE NOTIFICATION_TEMPLATE_ID = 9)
+BEGIN
+	SET IDENTITY_INSERT [dbo].[notification_templates] ON 
+	INSERT [dbo].[notification_templates] ([NOTIFICATION_TEMPLATE_ID], [NAME], [SUBJECT], [MESSAGE]) VALUES (9, N'PurchaseOrder:Update:Customer:Order', N'Afectación del pedido por modificación de la orden de compra', N'<p>Lamentamos informarle que su pedido ha sido afectado por una actualización de la orden de compra que incluía los artículos solicitados por usted. Entendemos que esto puede causarle inconvenientes y le pedimos disculpas por cualquier molestia que esto pueda ocasionarle. Si tiene alguna pregunta o necesita asistencia adicional, no dude en ponerse en contacto con nuestro equipo de atención al cliente.</p>')
+	SET IDENTITY_INSERT [dbo].[notification_templates] OFF
+END
 GO
 
 CREATE TABLE customer_order_notifications

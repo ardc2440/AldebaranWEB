@@ -1,6 +1,8 @@
+using Aldebaran.DataAccess.Core;
+
 namespace Aldebaran.DataAccess.Entities
 {
-    public class ShipmentForwarderAgentMethod
+    public class ShipmentForwarderAgentMethod : ITrackeable
     {
         public short ShipmentForwarderAgentMethodId { get; set; }
         public short ShipmentMethodId { get; set; }

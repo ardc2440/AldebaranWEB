@@ -1,6 +1,8 @@
+using Aldebaran.DataAccess.Core;
+
 namespace Aldebaran.DataAccess.Entities
 {
-    public class AdjustmentDetail
+    public class AdjustmentDetail : ITrackeable
     {
         public int AdjustmentDetailId { get; set; }
         public int AdjustmentId { get; set; }

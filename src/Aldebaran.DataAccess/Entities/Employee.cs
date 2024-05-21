@@ -1,6 +1,8 @@
+using Aldebaran.DataAccess.Core;
+
 namespace Aldebaran.DataAccess.Entities
 {
-    public class Employee
+    public class Employee : ITrackeable
     {
         public int EmployeeId { get; set; }
         public short AreaId { get; set; }

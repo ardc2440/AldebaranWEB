@@ -1,6 +1,8 @@
-﻿namespace Aldebaran.DataAccess.Entities
+﻿using Aldebaran.DataAccess.Core;
+
+namespace Aldebaran.DataAccess.Entities
 {
-    public class WarehouseTransferDetail
+    public class WarehouseTransferDetail : ITrackeable
     {
         public int WarehouseTransferDetailId { get; set; }
         public int WarehouseTransferId { get; set; }

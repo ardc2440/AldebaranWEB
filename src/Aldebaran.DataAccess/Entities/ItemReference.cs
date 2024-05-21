@@ -1,6 +1,8 @@
+using Aldebaran.DataAccess.Core;
+
 namespace Aldebaran.DataAccess.Entities
 {
-    public class ItemReference
+    public class ItemReference : ITrackeable
     {
         public int ReferenceId { get; set; }
         public int ItemId { get; set; }

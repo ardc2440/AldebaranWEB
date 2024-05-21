@@ -1,6 +1,8 @@
+using Aldebaran.DataAccess.Core;
+
 namespace Aldebaran.DataAccess.Entities
 {
-    public class Forwarder
+    public class Forwarder : ITrackeable
     {
         public int ForwarderId { get; set; }
         public string ForwarderName { get; set; }

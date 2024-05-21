@@ -1,6 +1,8 @@
+using Aldebaran.DataAccess.Core;
+
 namespace Aldebaran.DataAccess.Entities
 {
-    public class VisualizedAlarm
+    public class VisualizedAlarm : ITrackeable
     {
         public int AlarmId { get; set; }
         public int EmployeeId { get; set; }

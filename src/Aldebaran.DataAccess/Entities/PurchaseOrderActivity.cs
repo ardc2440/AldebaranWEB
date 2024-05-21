@@ -1,6 +1,8 @@
+using Aldebaran.DataAccess.Core;
+
 namespace Aldebaran.DataAccess.Entities
 {
-    public class PurchaseOrderActivity
+    public class PurchaseOrderActivity : ITrackeable
     {
         public int PurchaseOrderActivityId { get; set; }
         public int PurchaseOrderId { get; set; }

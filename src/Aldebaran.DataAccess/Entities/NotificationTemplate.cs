@@ -1,6 +1,8 @@
-﻿namespace Aldebaran.DataAccess.Entities
+﻿using Aldebaran.DataAccess.Core;
+
+namespace Aldebaran.DataAccess.Entities
 {
-    public class NotificationTemplate
+    public class NotificationTemplate : ITrackeable
     {
         public short NotificationTemplateId { get; set; }
         public required string Name { get; set; }

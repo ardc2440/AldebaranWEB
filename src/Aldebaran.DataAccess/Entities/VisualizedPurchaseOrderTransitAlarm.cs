@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Aldebaran.DataAccess.Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Aldebaran.DataAccess.Entities
 {
-    public class VisualizedPurchaseOrderTransitAlarm
+    public class VisualizedPurchaseOrderTransitAlarm : ITrackeable
     {
         public int PurchaseOrderTransitAlarmId { get; set; }
         public int EmployeeId { get; set; } 
