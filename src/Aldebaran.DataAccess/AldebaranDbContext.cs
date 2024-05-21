@@ -1,9 +1,11 @@
 using Aldebaran.DataAccess.Configuration;
+using Aldebaran.DataAccess.Core;
 using Aldebaran.DataAccess.Core.Atributes;
 using Aldebaran.DataAccess.Entities;
 using Aldebaran.DataAccess.Entities.Reports;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
+using System.Text;
 
 namespace Aldebaran.DataAccess
 {
@@ -13,13 +15,14 @@ namespace Aldebaran.DataAccess
     public class AldebaranDbContext : DbContext
     {
         public Dictionary<string, bool> Events = new();
-
+        private readonly IContextConfiguration _configuration;
         public AldebaranDbContext()
         {
         }
-        public AldebaranDbContext(DbContextOptions<AldebaranDbContext> options)
+        public AldebaranDbContext(DbContextOptions<AldebaranDbContext> options, IContextConfiguration contextConfiguration)
             : base(options)
         {
+            _configuration = contextConfiguration ?? throw new ArgumentNullException(nameof(IContextConfiguration));
         }
 
         public DbSet<ActivityType> ActivityTypes { get; set; }
@@ -96,6 +99,7 @@ namespace Aldebaran.DataAccess
         public DbSet<VisualizedPurchaseOrderTransitAlarm> VisualizedPurchaseOrderTransitAlarms { get; set; }
         public DbSet<CustomerOrderNotification> CustomerOrderNotifications { get; set; }
         public DbSet<CustomerReservationNotification> CustomerReservationNotifications { get; set; }
+        public virtual DbSet<Track> Tracks { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -184,7 +188,6 @@ namespace Aldebaran.DataAccess
             modelBuilder.ApplyConfiguration(new CustomerOrderNotificationConfiguration());
             modelBuilder.ApplyConfiguration(new CustomerReservationNotificationConfiguration());
 
-
             modelBuilder.Entity<InventoryAdjustmentReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<InProcessInventoryReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<InventoryReport>(iar => { iar.HasNoKey(); });
@@ -209,11 +212,15 @@ namespace Aldebaran.DataAccess
                 iar.Property(x => x.EstimatedDeliveryDate).HasColumnName(@"ESTIMATEDDELIVERYDATE").HasColumnType("DATE").IsRequired();
                 iar.Property(x => x.Status).HasColumnName(@"STATUS_DOCUMENT_TYPE_NAME").HasColumnType("VARCHAR(30)").IsRequired().IsUnicode(false).HasMaxLength(30);
             });
+
+            modelBuilder.ApplyConfiguration(new TrackConfiguration());
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken ct = default)
         {
             UpdateSequenceProperties();
+            if (_configuration.TrackEnabled)
+                TrackEntities(DateTime.Now);
             return await base.SaveChangesAsync(ct);
         }
 
@@ -251,6 +258,68 @@ namespace Aldebaran.DataAccess
                     property.SetValue(entity, newValue);
                 }
             }
+        }
+
+        /// <summary>
+        /// Metodo que identifica las modificaciones sobre las tablas afectadas
+        /// </summary>
+        /// <param name="now">Fecha para registrar la modificacion</param>
+        private void TrackEntities(DateTime now)
+        {
+            var tracks = GetTracks(now);
+            Tracks.AddRange(tracks);
+        }
+        /// <summary>
+        /// Permite obtener las modificaciones realizadas en las tablas marcadas con ITrackeable
+        /// </summary>
+        /// <param name="now">Fecha para registrar la modificacion</param>
+        /// <see cref="ITrackeable"/>
+        /// <returns>Lista de modificaciones</returns>
+        private List<Track> GetTracks(DateTime now)
+        {
+            var tracks = new List<Track>();
+            var events = new[] { EntityState.Added, EntityState.Deleted, EntityState.Modified };
+            var changedEntities = ChangeTracker.Entries()
+               .Where(w => events.Contains(w.State))
+               .Select(e => e.Entity)
+               .OfType<ITrackeable>();
+            StringBuilder stringBuilder = new();
+            foreach (var entity in changedEntities)
+            {
+                var originalValues = ChangeTracker.Entries()
+                   .Where(e => e.Entity == entity)
+                   .Select(e => e.OriginalValues)
+                   .FirstOrDefault();
+
+                var entry = Entry(entity);
+                var entityType = Model.FindEntityType(entity.GetType());
+                if (entityType == null)
+                    continue;
+                var primaryKey = entityType.FindPrimaryKey();
+                if (primaryKey == null)
+                    continue;
+                var primaryKeyName = primaryKey.Properties.FirstOrDefault()?.Name;
+                if (primaryKeyName == null)
+                    continue;
+                var entityProperties = entityType.GetProperties().Where(p => entry.Property(p.Name).IsTemporary == false).ToList();
+                var log = string.Join(",", entityProperties.Select(p =>
+                {
+                    if (entry.State == EntityState.Deleted || entry.State == EntityState.Added)
+                        return $"\"{p.Name}\":\"{entry.Property(p.Name).OriginalValue}\"";
+                    return $"\"{p.Name}\":\"{entry.Property(p.Name).CurrentValue}\"";
+                }));
+                Track track = new()
+                {
+                    EntityName = entity.GetType().Name,
+                    EntityKey = entry.Property(primaryKeyName).IsTemporary ? null : entry.Property(primaryKeyName).CurrentValue?.ToString() ?? "Unknown",
+                    Action = entry.State.ToString(),
+                    ModifiedDate = now,
+                    DataLog = $"{{{log}}}",
+                    ModifierName = _configuration.TrackUser
+                };
+                tracks.Add(track);
+            }
+            return tracks;
         }
     }
 }
