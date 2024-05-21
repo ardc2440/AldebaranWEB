@@ -6,7 +6,14 @@
 @if (!isLoadingInProgress)
 {
     <RadzenColumn SizeMD=12>
-        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">No se ha podido actualizar la referencia</RadzenAlert>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" Title="No se ha podido actualizar la referencia" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">
+            <ul class="m-0" style="list-style-type:disc">
+                @foreach (var error in ValidationErrors)
+                {
+                    <li>@error</li>
+                }
+            </ul>
+        </RadzenAlert>
         <RadzenTemplateForm TItem="ServiceModel.ItemReference" Data="@ItemReference" Visible="@(ItemReference != null)" Submit="@FormSubmit">
             <RadzenStack>
                 <div class="flex-shrink-0">
@@ -23,7 +30,7 @@
                     <RadzenColumn Size="12" SizeMD="6">
                         <RadzenFormField Text="Nombre referencia" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
-                                <RadzenTextBox style="display: block; width: 100%" @bind-Value="@ItemReference.ReferenceName" Name="ReferenceName" MaxLength="30" ReadOnly="true" />
+                                <RadzenTextBox style="display: block; width: 100%" @bind-Value="@ItemReference.ReferenceName" Name="ReferenceName" MaxLength="30" />
                             </ChildContent>
                             <Helper>
                                 <RadzenRequiredValidator Component="ReferenceName" Text="Nombre es requerido" />
@@ -34,7 +41,7 @@
                         <RadzenColumn Size="12" SizeMD="6">
                             <RadzenFormField Text="Código referencia" Variant="Variant.Text" Style="width: 100%;">
                                 <ChildContent>
-                                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@ItemReference.ReferenceCode" Name="ReferenceCode" MaxLength="30" ReadOnly="true" />
+                                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@ItemReference.ReferenceCode" Name="ReferenceCode" MaxLength="30" />
                                 </ChildContent>
                                 <Helper>
                                     <RadzenRequiredValidator Component="ReferenceCode" Text="Referencia es requerida" />
@@ -59,7 +66,7 @@
                         </RadzenFormField>
                     </RadzenColumn>
                 </RadzenRow>
-                <RadzenRow AlignItems="Radzen.AlignItems.Start">                    
+                <RadzenRow AlignItems="Radzen.AlignItems.Start">
                     <RadzenColumn Size="12" SizeMD="6">
                         <RadzenFormField Text="Alarma para cantidad mínima" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>

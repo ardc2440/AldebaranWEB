@@ -21,6 +21,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         {
             var entity = await _context.ItemReferences.FirstOrDefaultAsync(x => x.ReferenceId == itemReferenceId, ct) ?? throw new KeyNotFoundException($"Referencia con id {itemReferenceId} no existe.");
             _context.ItemReferences.Remove(entity);
+            _context.ReferencesWarehouses.RemoveRange(_context.ReferencesWarehouses.Where(x => x.ReferenceId == itemReferenceId));
             try
             {
                 await _context.SaveChangesAsync(ct);
@@ -116,7 +117,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                           i.ReferenceName.Contains(searchKey))
                 .ToListAsync(ct);
         }
-        
+
         public async Task<IEnumerable<ItemReference>> GetAllReferencesOutOfStockAsync(CancellationToken ct = default)
         {
             return await _context.ItemReferences.AsNoTracking()

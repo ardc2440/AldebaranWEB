@@ -7,28 +7,14 @@ namespace Aldebaran.Web.Settings
     public class ContextConfiguration : IContextConfiguration
     {
         private readonly AppSettings _settings;
-        //private readonly SecurityService Security;
-        //protected IEmployeeService EmployeeService;
-        protected IServiceProvider _serviceProvider;
-        /// <summary>
-        /// </summary>
-        /// <param name="settings">Configuracion de la auditoria</param>
-        /// <exception cref="ArgumentNullException">Cuando alguna inyeccion ha fallado</exception>
-        //public ContextConfiguration(IOptions<AppSettings> settings, SecurityService security, IEmployeeService employeeService)
-        //{
-        //    _settings = settings?.Value ?? throw new ArgumentNullException(nameof(AppSettings));
-        //    Security = security ?? throw new ArgumentNullException(nameof(SecurityService));
-        //    EmployeeService = employeeService ?? throw new ArgumentNullException(nameof(EmployeeService));
-        //}
-        //public ContextConfiguration(IOptions<AppSettings> settings, SecurityService security)
-        //{
-        //    _settings = settings?.Value ?? throw new ArgumentNullException(nameof(AppSettings));
-        //    Security = security ?? throw new ArgumentNullException(nameof(SecurityService));
-        //}
-        public ContextConfiguration(IOptions<AppSettings> settings, IServiceProvider serviceProvider)
+        protected ILogger<ContextConfiguration> _logger { get; set; }
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public ContextConfiguration(IOptions<AppSettings> settings, ILogger<ContextConfiguration> logger, IHttpContextAccessor httpContextAccessor)
         {
             _settings = settings?.Value ?? throw new ArgumentNullException(nameof(AppSettings));
-            _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(IServiceProvider));
+            _logger = logger ?? throw new ArgumentNullException(nameof(ILogger<ContextConfiguration>));
+            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(IHttpContextAccessor));
+
         }
         public bool TrackEnabled => _settings.TrackEnabled;
 
@@ -38,19 +24,15 @@ namespace Aldebaran.Web.Settings
             {
                 try
                 {
-                    //using (var scope = _serviceProvider.CreateScope())
-                    //{
-                    //    var securityService = scope.ServiceProvider.GetRequiredService<SecurityService>();
-                    //    var employeeService = scope.ServiceProvider.GetRequiredService<IEmployeeService>();
-                    //    var employee = employeeService.FindByLoginUserIdAsync(securityService.User.Id).GetAwaiter().GetResult();
-                    //    return employee.FullName;
-                    //}
-                    return "JLING";
+                    var user = _httpContextAccessor.HttpContext?.User;
+                    if (user == null || !user.Identity.IsAuthenticated)
+                        throw new Exception("No se ha podido obtener el usuario autenticado para la auditoria");
+                    return user.Identity.Name;
                 }
                 catch (Exception ex)
                 {
-
-                    throw;
+                    _logger.LogError(ex, "ContextConfiguration.TrackUser");
+                    return "Unknown";
                 }
             }
         }
