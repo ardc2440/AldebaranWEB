@@ -292,20 +292,23 @@ namespace Aldebaran.DataAccess
                     );
                     var entityKeyJson = System.Text.Json.JsonSerializer.Serialize(keyValues);
                     var entityProperties = entityType.GetProperties().ToList();
-                    var log = string.Join(",", entityProperties.Select(p =>
-                    {
-                        if (entry.State == EntityState.Deleted || entry.State == EntityState.Added)
-                            return $"\"{p.Name}\":\"{entry.Property(p.Name).OriginalValue}\"";
-                        return $"\"{p.Name}\":\"{entry.Property(p.Name).CurrentValue}\"";
-                    }));
 
+                    var logValues = new Dictionary<string, string?>();
+                    foreach (var prop in entityProperties)
+                    {
+                        var value = item.State == EntityState.Deleted || item.State == EntityState.Added
+                            ? entry.Property(prop.Name).OriginalValue?.ToString()
+                            : entry.Property(prop.Name).CurrentValue?.ToString();
+                        logValues[prop.Name] = value;
+                    }
+                    var logJson = System.Text.Json.JsonSerializer.Serialize(logValues);
                     Track track = new()
                     {
                         EntityName = entity.GetType().Name,
                         EntityKey = entityKeyJson,
                         Action = item.State.ToString(),
                         ModifiedDate = now,
-                        DataLog = $"{{{log}}}",
+                        DataLog = logJson,
                         ModifierName = _configuration.TrackUser
                     };
                     tracks.Add(track);
