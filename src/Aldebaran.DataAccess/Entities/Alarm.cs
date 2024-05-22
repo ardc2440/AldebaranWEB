@@ -1,6 +1,8 @@
+using Aldebaran.DataAccess.Core;
+
 namespace Aldebaran.DataAccess.Entities
 {
-    public class Alarm
+    public class Alarm : ITrackeable
     {
         public int AlarmId { get; set; }
         public int AlarmMessageId { get; set; }

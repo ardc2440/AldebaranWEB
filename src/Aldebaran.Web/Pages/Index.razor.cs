@@ -112,19 +112,28 @@ namespace Aldebaran.Web.Pages
         List<DataTimer> Timers;
         readonly GridTimer GridTimer = new GridTimer("Dahsboard-GridTimer");
         private MemoryCacheEntryOptions _cacheEntryOptions;
+        protected bool isLoadingInProgress;
         #endregion
 
         #region Overrides
 
         protected override async Task OnInitializedAsync()
         {
-            Timers = TimerPreferenceService.Timers;
-            await InitializeGridTimers();
-            employee = await DashBoardService.FindByLoginUserIdAsync(Security.User.Id);
-            orderDocumentType = await DashBoardService.FindByCodeAsync("O");
-            pendingStatusOrder = await DashBoardService.FindByDocumentAndOrderAsync(orderDocumentType.DocumentTypeId, 1);
-            _cacheEntryOptions = new MemoryCacheEntryOptions { SlidingExpiration = TimeSpan.FromDays(1) };
-            await GridData_Update();
+            try
+            {
+                isLoadingInProgress = true;
+                Timers = TimerPreferenceService.Timers;
+                await InitializeGridTimers();
+                employee = await DashBoardService.FindByLoginUserIdAsync(Security.User.Id);
+                orderDocumentType = await DashBoardService.FindByCodeAsync("O");
+                pendingStatusOrder = await DashBoardService.FindByDocumentAndOrderAsync(orderDocumentType.DocumentTypeId, 1);
+                _cacheEntryOptions = new MemoryCacheEntryOptions { SlidingExpiration = TimeSpan.FromDays(1) };
+                await GridData_Update();
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
         }
 
         #endregion
@@ -136,12 +145,12 @@ namespace Aldebaran.Web.Pages
             return $"{Security.User.Id}-{key}";
         }
 
-        public async Task UpdateDashBoardCache<T>(string key, List<T> list) where T:class
+        public async Task UpdateDashBoardCache<T>(string key, List<T> list) where T : class
         {
             MemoryCache.Set(GetCacheKey(key), list, _cacheEntryOptions);
         }
 
-        public async Task<List<T>> GetDashBoardCache<T>(string key) where T:class
+        public async Task<List<T>> GetDashBoardCache<T>(string key) where T : class
         {
             var loggedUserCache = GetCacheKey(key);
             if (!MemoryCache.TryGetValue(loggedUserCache, out List<T> list))
@@ -185,21 +194,29 @@ namespace Aldebaran.Web.Pages
 
         private async Task GridData_Update()
         {
-            generalAlertVisible = false;
-            GridTimer.LastUpdate = DateTime.Now;
-            Console.WriteLine($"{GridTimer.LastUpdate}");
-            var detailInTransit = await DashBoardService.GetTransitDetailOrdersAsync(pendingStatusOrder.StatusDocumentTypeId);
-            var itemReferences = await DashBoardService.GetAllReferencesWithMinimumQuantityAsync();
-            await UpdateMinimumQuantitiesAsync(detailInTransit.ToList(), itemReferences.ToList());
-            await UpdateItemsOutOfStockAsync(detailInTransit.ToList(), itemReferences.ToList());
-            await UpdateExpiredReservationsAsync();
-            await UpdateUserAlarmsAsync();
-            await UpdatePurchaseOrderTransitAlarmsAsync();
-            await UpdatePurchaseOrderExpirationsAsync();
-            await UpdateExpiredCustomerOrdersAsync();
+            try
+            {
+                isLoadingInProgress = true;
+                generalAlertVisible = false;
+                GridTimer.LastUpdate = DateTime.Now;
+                Console.WriteLine($"{GridTimer.LastUpdate}");
+                var detailInTransit = await DashBoardService.GetTransitDetailOrdersAsync(pendingStatusOrder.StatusDocumentTypeId);
+                var itemReferences = await DashBoardService.GetAllReferencesWithMinimumQuantityAsync();
+                await UpdateMinimumQuantitiesAsync(detailInTransit.ToList(), itemReferences.ToList());
+                await UpdateItemsOutOfStockAsync(detailInTransit.ToList(), itemReferences.ToList());
+                await UpdateExpiredReservationsAsync();
+                await UpdateUserAlarmsAsync();
+                await UpdatePurchaseOrderTransitAlarmsAsync();
+                await UpdatePurchaseOrderExpirationsAsync();
+                await UpdateExpiredCustomerOrdersAsync();
 
-            if (minimumAlertVisible || outOfStockAlertVisible || expiredReservationsAlertVisible || alarmsAlertVisible ||
-                purchaseAlarmsAlertVisible || expiredPurchasesAlertVisible || expiredCustomerOrdersAlertVisible) { generalAlertVisible = true; }
+                if (minimumAlertVisible || outOfStockAlertVisible || expiredReservationsAlertVisible || alarmsAlertVisible ||
+                    purchaseAlarmsAlertVisible || expiredPurchasesAlertVisible || expiredCustomerOrdersAlertVisible) { generalAlertVisible = true; }
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
         }
 
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
@@ -282,7 +299,7 @@ namespace Aldebaran.Web.Pages
 
                     if ((val1 == null && val2 != null) || (val1 != null && val2 == null))
                         return false;
-                    
+
                     if (val1 != null && val2 != null && (val1.GetType() == Type.GetType("System.Int32") ||
                                                          val1.GetType() == Type.GetType("System.Int64") ||
                                                          val1.GetType() == Type.GetType("System.Double") ||
@@ -306,30 +323,33 @@ namespace Aldebaran.Web.Pages
             minimumQuantityArticles = MinimumQuantityArticle.GetMinimuQuantityArticleList(itemReferences, detailInTransit);
             minimumAlertVisible = !await IsEqual<MinimumQuantityArticle>(minimumQuantityArticles.OrderBy(o => o.ArticleName).ToList(), originalData.OrderBy(o => o.ArticleName).ToList());
             await UpdateDashBoardCache<MinimumQuantityArticle>("MinimumQuantityArticle", minimumQuantityArticles);
-            await minimumQuantityArticlesGrid.Reload();
+            if (minimumQuantityArticlesGrid != null)
+                await minimumQuantityArticlesGrid.Reload();
         }
         #endregion
 
         #region ItemsOutOfStock
         async Task UpdateItemsOutOfStockAsync(List<PurchaseOrderDetail> detailInTransit, List<ItemReference> itemReferences)
         {
-            var originalData = await GetDashBoardCache<OutOfStockArticle>("OutOfStockArticle");  
+            var originalData = await GetDashBoardCache<OutOfStockArticle>("OutOfStockArticle");
             outOfStockArticles = OutOfStockArticle.GetOutOfStockArticleList(itemReferences, detailInTransit);
             outOfStockAlertVisible = !await IsEqual<OutOfStockArticle>(outOfStockArticles.OrderBy(o => o.ArticleName).ToList(), originalData.OrderBy(o => o.ArticleName).ToList());
             await UpdateDashBoardCache<OutOfStockArticle>("OutOfStockArticle", outOfStockArticles);
-            await outOfStockArticlesGrid.Reload();
+            if (outOfStockArticlesGrid != null)
+                await outOfStockArticlesGrid.Reload();
         }
         #endregion
 
         #region ExpiredReservations
         async Task UpdateExpiredReservationsAsync(CancellationToken ct = default)
         {
-            var originalData = await GetDashBoardCache<CustomerReservation>("CustomerReservation"); 
+            var originalData = await GetDashBoardCache<CustomerReservation>("CustomerReservation");
 
             expiredReservations = (await DashBoardService.GetExpiredReservationsAsync(ct)).ToList();
             expiredReservationsAlertVisible = !await IsEqual<CustomerReservation>(expiredReservations.OrderBy(o => o.CustomerReservationId).ToList(), originalData.OrderBy(o => o.CustomerReservationId).ToList());
             await UpdateDashBoardCache<CustomerReservation>("CustomerReservation", expiredReservations);
-            await expiredReservationsGrid.Reload();
+            if (expiredReservationsGrid != null)
+                await expiredReservationsGrid.Reload();
         }
 
         protected async Task OpenCustomerReservation(CustomerReservation args)
@@ -341,12 +361,13 @@ namespace Aldebaran.Web.Pages
         #region ExpiredCustomerOrders
         async Task UpdateExpiredCustomerOrdersAsync(CancellationToken ct = default)
         {
-            var originalData = await GetDashBoardCache<CustomerOrder>("CustomerOrder"); 
+            var originalData = await GetDashBoardCache<CustomerOrder>("CustomerOrder");
 
             expiredCustomerOrders = (await DashBoardService.GetExpiredCustomerOrdersAsync(ct)).ToList();
             expiredCustomerOrdersAlertVisible = !await IsEqual<CustomerOrder>(expiredCustomerOrders.OrderBy(o => o.CustomerOrderId).ToList(), originalData.OrderBy(o => o.CustomerOrderId).ToList());
             await UpdateDashBoardCache<CustomerOrder>("CustomerOrder", expiredCustomerOrders.ToList());
-            await expiredCustomerOrdersGrid.Reload();
+            if (expiredCustomerOrdersGrid != null)
+                await expiredCustomerOrdersGrid.Reload();
         }
         #endregion
 
@@ -359,7 +380,8 @@ namespace Aldebaran.Web.Pages
             alarms = await Models.ViewModels.Alarm.GetAlarmsListAsync(alarmList.ToList(), AlarmService, ct);
             alarmsAlertVisible = !await IsEqual<Models.ViewModels.Alarm>(alarms.OrderBy(o => o.AlarmId).ToList(), originalData.OrderBy(o => o.AlarmId).ToList());
             await UpdateDashBoardCache<Models.ViewModels.Alarm>("Alarm", alarms);
-            await alarmsGrid.Reload();
+            if (alarmsGrid != null)
+                await alarmsGrid.Reload();
         }
 
         protected async Task DisableAlarm(Models.ViewModels.Alarm args)
@@ -368,7 +390,7 @@ namespace Aldebaran.Web.Pages
 
             if (await DialogService.Confirm("Desea marcar esta alarma como leída?. No volverá a salir en su Home", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Marcar alarma leída") == true)
             {
-                await VisualizedAlarmService.AddAsync(new VisualizedAlarm { AlarmId = args.AlarmId, EmployeeId = employee.EmployeeId });                
+                await VisualizedAlarmService.AddAsync(new VisualizedAlarm { AlarmId = args.AlarmId, EmployeeId = employee.EmployeeId });
                 await UpdateUserAlarmsAsync();
                 alarmsAlertVisible = alertVisible;
             }
@@ -378,12 +400,13 @@ namespace Aldebaran.Web.Pages
         #region PurchaseOrderTransitAlarms
         async Task UpdatePurchaseOrderTransitAlarmsAsync(CancellationToken ct = default)
         {
-            var originalData = await GetDashBoardCache<PurchaseOrderTransitAlarm>("PurchaseOrderTransitAlarm"); 
+            var originalData = await GetDashBoardCache<PurchaseOrderTransitAlarm>("PurchaseOrderTransitAlarm");
 
             purchaseOrderTransitAlarms = await DashBoardService.GetAllTransitAlarmAsync(employee.EmployeeId, ct);
             purchaseAlarmsAlertVisible = !await IsEqual<PurchaseOrderTransitAlarm>(purchaseOrderTransitAlarms.OrderBy(o => o.PurchaseOrderTransitAlarmId).ToList(), originalData.OrderBy(o => o.PurchaseOrderTransitAlarmId).ToList());
             await UpdateDashBoardCache<PurchaseOrderTransitAlarm>("PurchaseOrderTransitAlarm", purchaseOrderTransitAlarms.ToList());
-            await purchaseOrderTransitAlarmsGrid.Reload();
+            if (purchaseOrderTransitAlarmsGrid != null)
+                await purchaseOrderTransitAlarmsGrid.Reload();
         }
 
         protected async Task DisablePurchaseOrderTransitAlarm(PurchaseOrderTransitAlarm args)
@@ -417,7 +440,8 @@ namespace Aldebaran.Web.Pages
             purchaseOrderExpirations = await DashBoardService.GetPurchaseOrderExpirationsAsync(Settings.Value.PurchaseOrderWhiteFlag, ct);
             expiredPurchasesAlertVisible = !await IsEqual<PurchaseOrder>(purchaseOrderExpirations.OrderBy(o => o.PurchaseOrderId).ToList(), originalData.OrderBy(o => o.PurchaseOrderId).ToList());
             await UpdateDashBoardCache<PurchaseOrder>("PurchaseOrder", purchaseOrderExpirations.ToList());
-            await purchaseOrderExpirationsGrid.Reload();
+            if (purchaseOrderExpirationsGrid != null)
+                await purchaseOrderExpirationsGrid.Reload();
         }
 
         protected async Task GetExpiredPurchaseOrderChildData(PurchaseOrder args)

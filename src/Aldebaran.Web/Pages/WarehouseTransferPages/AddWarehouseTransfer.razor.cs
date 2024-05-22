@@ -54,6 +54,8 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
         protected bool IsSubmitInProgress;
         protected bool isLoadingInProgress;
         protected string Error;
+        protected string Title;
+        protected int lastReferenceId = 0;
 
         #endregion
 
@@ -90,17 +92,20 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
         {
             try
             {
+                Title = "";
                 Submitted = true;
                 IsSubmitInProgress = true;
                 if (!WarehouseTransferDetails.Any())
                     throw new Exception("No ha ingresado ninguna referencia");
-
+                if (warehouseTransfer.DestinationWarehouseId == warehouseTransfer.OriginWarehouseId)
+                    throw new Exception("Las bodegas de origen y destino deben ser diferentes");
                 warehouseTransfer.WarehouseTransferDetails = WarehouseTransferDetails;
                 var result = await WarehouseTransferService.AddAsync(warehouseTransfer);
                 NavigationManager.NavigateTo($"warehouse-transfers/{result.WarehouseTransferId}");
             }
             catch (Exception ex)
             {
+                Title = "No se ha podido grabar el traslado entre bodegas";
                 Logger.LogError(ex, nameof(FormSubmit));
                 IsErrorVisible = true;
                 Error = ex.Message;
@@ -116,15 +121,30 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
 
         protected async Task AddWarehouseTransferDetail(MouseEventArgs args)
         {
-            var result = await DialogService.OpenAsync<AddWarehouseTransferDetail>("Agregar referencia", new Dictionary<string, object> { { "WarehouseTransferDetails", WarehouseTransferDetails }, { "warehouseTransfer", warehouseTransfer } });
+            try
+            {
+                if (warehouseTransfer.OriginWarehouseId <= 0)
+                    throw new Exception("No ha seleccionado la bodega de origen");
 
-            if (result == null)
-                return;
+                var result = await DialogService.OpenAsync<AddWarehouseTransferDetail>("Agregar referencia", new Dictionary<string, object> {
+                { "WarehouseTransferDetails", WarehouseTransferDetails },
+                { "warehouseTransfer", warehouseTransfer },
+                { "LastReferenceId", lastReferenceId }, });
 
-            var detail = (WarehouseTransferDetail)result;
-            WarehouseTransferDetails.Add(detail);
+                if (result == null)
+                    return;
 
-            await warehouseTransferDetailGrid.Reload();
+                var detail = (WarehouseTransferDetail)result;
+                WarehouseTransferDetails.Add(detail);
+                lastReferenceId = detail.ReferenceId;
+                await warehouseTransferDetailGrid.Reload();
+            }
+            catch (Exception ex)
+            {
+                Title = "";
+                IsErrorVisible = true;
+                Error = ex.Message;
+            }
         }
 
         protected async Task DeleteWarehouseTransferDetail(WarehouseTransferDetail item)

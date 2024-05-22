@@ -11,7 +11,7 @@
         </RadzenAlert>
         <RadzenTemplateForm TItem="ServiceModel.PurchaseOrderDetail" Data="@PurchaseOrderDetail" Submit="@FormSubmit">
             <RadzenStack>
-                <ReferencePicker OnChange="ItemReferenceHandler" References="ProviderItemReferences" />
+                    <ReferencePicker OnChange="ItemReferenceHandler" References="ProviderItemReferences" LAST_REFERENCE_ID="LastReferenceId"/>
                 <RadzenRequiredValidator Text="Referencia requerida" Component="ReferenceId" />
                 <RadzenRow AlignItems="Radzen.AlignItems.Start">
                     <RadzenColumn Size="12" SizeMD="6">

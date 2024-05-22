@@ -21,6 +21,10 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         public IEnumerable<ServiceModel.ItemReference> ProviderItemReferences { get; set; } = new List<ServiceModel.ItemReference>();
         [Parameter]
         public IEnumerable<ServiceModel.PurchaseOrderDetail> PurchaseOrderDetails { get; set; } = new List<ServiceModel.PurchaseOrderDetail>();
+        [Parameter]
+        public int LastReferenceId { get; set; }
+        [Parameter]
+        public short LastWarehouseId { get; set; }
         #endregion
 
         #region Variables
@@ -41,6 +45,11 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 isLoadingInProgress = true;
                 PurchaseOrderDetail = new ServiceModel.PurchaseOrderDetail();
                 Warehouses = await WarehouseService.GetAsync();
+
+                if (LastWarehouseId != 0)
+                {
+                    PurchaseOrderDetail.WarehouseId = LastWarehouseId;
+                }
             }
             finally
             {

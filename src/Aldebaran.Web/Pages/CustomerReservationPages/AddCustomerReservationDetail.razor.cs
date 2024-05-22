@@ -24,6 +24,9 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         [Parameter]
         public ICollection<CustomerReservationDetail> CustomerReservationDetails { get; set; }
 
+        [Parameter]
+        public int LastReferenceId { get; set; }
+
         #endregion
 
         #region Global Variables

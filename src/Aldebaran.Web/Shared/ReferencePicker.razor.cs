@@ -19,6 +19,9 @@ namespace Aldebaran.Web.Shared
         public bool ReadOnly { get; set; } = false;
         [Parameter]
         public int? REFERENCE_ID { get; set; }
+        [Parameter]
+        public int? LAST_REFERENCE_ID { get; set; }
+
 
         #endregion
 
@@ -37,6 +40,20 @@ namespace Aldebaran.Web.Shared
         protected override async Task OnInitializedAsync()
         {
             Lines = References.Select(s => s.Item.Line).GroupBy(g => g.LineId).Select(s => s.First()).OrderBy(o => o.LineName);
+
+            if ((LAST_REFERENCE_ID != null && LAST_REFERENCE_ID != 0))
+            {
+                var item = References.FirstOrDefault(f => f.ReferenceId == LAST_REFERENCE_ID).Item;
+
+                LINE_ID = item.Line.LineId;
+                ITEM_ID = item.ItemId;
+                
+                await OnLineChange(LINE_ID);
+
+                await OnItemChange(ITEM_ID);
+
+                CollapsedPanel = false;
+            }
         }
         public override async Task SetParametersAsync(ParameterView parameters)
         {

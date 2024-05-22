@@ -1,356 +1,360 @@
 @page "/"
 @attribute [Authorize]
-<PageTitle>Index</PageTitle>
 @using Aldebaran.Web.Models.ViewModels;
 @using Aldebaran.Web.Resources.LocalizedControls;
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer ;
 
-<RadzenRow class="mb-2">    
-    <RadzenColumn SizeLG="6" SizeXL="6" SizeMD="6" SizeSM="6" SizeXX="12" SizeXS="12" class="d-flex align-items-end">
-        <RadzenText Text="Consulta de notificaciones activas" TextStyle="Radzen.Blazor.TextStyle.DisplayH5" TagName="Radzen.Blazor.TagName.Auto" class="p-0 m-0"></RadzenText>
-    </RadzenColumn>
-    <RadzenColumn SizeLG="6" SizeXL="6" SizeMD="6" SizeSM="6" SizeXX="12" SizeXS="12">
-        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.End" Gap="1rem" Wrap="FlexWrap.Wrap" JustifyContent="JustifyContent.End">
-            <RadzenImage Click="@GeneralAlertClick" Visible="@generalAlertVisible" Path="images/alert.gif" style="width: 40px"></RadzenImage>
-            <RadzenFormField Variant="Variant.Text">
-                <RadzenDropDown @bind-Value="@GridTimer.SelectedTimer" Data="@Timers" ValueProperty="Milliseconds" TextProperty="Description" Name="MinimumQuantityDropDownTimer" Change="@((args)=>GridaData_UpdateOnTimerChange(args))" />
-            </RadzenFormField>
-            <RadzenButton Click="@GridData_Update" Icon="refresh" Variant="Variant.Filled" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Medium" class="d-flex align-items-end rz-button-icon-only rz-border-radius-10" />
-        </RadzenStack>
-        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.End" Gap="1rem" Wrap="FlexWrap.Wrap" JustifyContent="JustifyContent.End" class="pt-1">
-            <p class="p-0 m-0 text-end fw-lighter text-muted">
-                Última actualización: @GridTimer.LastUpdate.ToString(SharedLocalizer["datetime:format"])
-            </p>
-        </RadzenStack>
-    </RadzenColumn>
-</RadzenRow>
-<RadzenPanel style="border: 2px solid rgba(0,0,0,.08);">
-    <RadzenPanel style="border: 2px solid rgba(0,0,0,.08);">
-        <RadzenSplitter Orientation="Orientation.Horizontal">
-            <RadzenSplitterPane Size="50%" Min="20%" Max="80%">
-                <RadzenCard>
-                    <RadzenRow class="mb-2">
-                        <RadzenColumn Size="12" class="d-flex align-items-end">
-                            <RadzenImage Click="@MinimumAlertClick" Visible="@minimumAlertVisible" Path="images/alert.gif" style="width: 30px"></RadzenImage>
-                            <RadzenText Text="Cantidades mínimas" TextStyle="Radzen.Blazor.TextStyle.H6" TagName="Radzen.Blazor.TagName.Auto" class="p-0 m-0"></RadzenText>
-                        </RadzenColumn>
-                    </RadzenRow>
-                    <LocalizedDataGrid PageSize="@pageSize" @ref="minimumQuantityArticlesGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" Data="@minimumQuantityArticles" TItem="MinimumQuantityArticle" IsLoading="@GridTimer.IsLoading">
-                        <Columns>
-                            <RadzenDataGridColumn TItem="MinimumQuantityArticle" Property="ArticleName" Title="Referencia" Width="80%" />
-                            <RadzenDataGridColumn TItem="MinimumQuantityArticle" Title="Cant. Mínima" Width="30%" Filterable="false">
-                                <Template Context="detail">
-                                    @detail.MinimumQuantity.ToString("N0")
-                                </Template>
-                            </RadzenDataGridColumn>
-                            <RadzenDataGridColumn TItem="MinimumQuantityArticle" Title="Inventario" Width="30%" Filterable="false">
-                                <Template Context="detail">
-                                    @detail.AvailableQuantity.ToString("N0")
-                                </Template>
-                            </RadzenDataGridColumn>
-                            <RadzenDataGridColumn TItem="MinimumQuantityArticle" Title="En Tránsito" Width="30%" Filterable="false">
-                                <Template Context="detail">
-                                    @detail.InTransitQuantity.ToString("N0")
-                                </Template>
-                            </RadzenDataGridColumn>
-                            <RadzenDataGridColumn TItem="MinimumQuantityArticle" Title="Reservado" Width="30%" Filterable="false">
-                                <Template Context="detail">
-                                    @detail.ReservedQuantity.ToString("N0")
-                                </Template>
-                            </RadzenDataGridColumn>
-                            <RadzenDataGridColumn TItem="MinimumQuantityArticle" Title="Pedido" Width="30%" Filterable="false">
-                                <Template Context="detail">
-                                    @detail.OrderedQuantity.ToString("N0")
-                                </Template>
-                            </RadzenDataGridColumn>
-                        </Columns>
-                    </LocalizedDataGrid>
-                </RadzenCard>
-            </RadzenSplitterPane>
-            <RadzenSplitterPane>
-                <RadzenCard>
-                    <RadzenRow class="mb-2">
-                        <RadzenColumn Size="12" class="d-flex align-items-end">
-                            <RadzenImage Click="@StockAlertClick" Visible="@outOfStockAlertVisible" Path="images/alert.gif" style="width: 30px"></RadzenImage>
-                            <RadzenText Text="Artículos sin disponible" TextStyle="Radzen.Blazor.TextStyle.H6" TagName="Radzen.Blazor.TagName.Auto" class="p-0 m-0"></RadzenText>
-                        </RadzenColumn>
-                    </RadzenRow>
-                    <LocalizedDataGrid Style="height: 100%" PageSize="@pageSize" @ref="outOfStockArticlesGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" Data="@outOfStockArticles" TItem="OutOfStockArticle" IsLoading="@GridTimer.IsLoading">
-                        <Columns>
-                            <RadzenDataGridColumn TItem="OutOfStockArticle" Property="ArticleName" Title="Referencia" Width="80%" />
+<PageTitle>Notificaciones</PageTitle>
+<LoadingData IsLoadingData="@isLoadingInProgress" />
 
-                            <RadzenDataGridColumn TItem="OutOfStockArticle" Title="Inventario" Width="30%" Filterable="false">
-                                <Template Context="detail">
-                                    @detail.AvailableQuantity.ToString("N0")
-                                </Template>
-                            </RadzenDataGridColumn>
-                            <RadzenDataGridColumn TItem="OutOfStockArticle" Title="En Tránsito" Width="30%" Filterable="false">
-                                <Template Context="detail">
-                                    @detail.InTransitQuantity.ToString("N0")
-                                </Template>
-                            </RadzenDataGridColumn>
-                            <RadzenDataGridColumn TItem="OutOfStockArticle" Title="Reservado" Width="30%" Filterable="false">
-                                <Template Context="detail">
-                                    @detail.ReservedQuantity.ToString("N0")
-                                </Template>
-                            </RadzenDataGridColumn>
-                            <RadzenDataGridColumn TItem="OutOfStockArticle" Title="Pedido" Width="30%" Filterable="false">
-                                <Template Context="detail">
-                                    @detail.OrderedQuantity.ToString("N0")
-                                </Template>
-                            </RadzenDataGridColumn>
-                        </Columns>
-                    </LocalizedDataGrid>
-                </RadzenCard>
-            </RadzenSplitterPane>
-        </RadzenSplitter>
-    </RadzenPanel>
+@if (!isLoadingInProgress)
+{
+    <RadzenRow class="mb-2">
+        <RadzenColumn SizeLG="6" SizeXL="6" SizeMD="6" SizeSM="6" SizeXX="12" SizeXS="12" class="d-flex align-items-end">
+            <RadzenText Text="Consulta de notificaciones activas" TextStyle="Radzen.Blazor.TextStyle.DisplayH5" TagName="Radzen.Blazor.TagName.Auto" class="p-0 m-0"></RadzenText>
+        </RadzenColumn>
+        <RadzenColumn SizeLG="6" SizeXL="6" SizeMD="6" SizeSM="6" SizeXX="12" SizeXS="12">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.End" Gap="1rem" Wrap="FlexWrap.Wrap" JustifyContent="JustifyContent.End">
+                <RadzenImage Click="@GeneralAlertClick" Visible="@generalAlertVisible" Path="images/alert.gif" style="width: 40px"></RadzenImage>
+                <RadzenFormField Variant="Variant.Text">
+                    <RadzenDropDown @bind-Value="@GridTimer.SelectedTimer" Data="@Timers" ValueProperty="Milliseconds" TextProperty="Description" Name="MinimumQuantityDropDownTimer" Change="@((args)=>GridaData_UpdateOnTimerChange(args))" />
+                </RadzenFormField>
+                <RadzenButton Click="@GridData_Update" Icon="refresh" Variant="Variant.Filled" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Medium" class="d-flex align-items-end rz-button-icon-only rz-border-radius-10" />
+            </RadzenStack>
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.End" Gap="1rem" Wrap="FlexWrap.Wrap" JustifyContent="JustifyContent.End" class="pt-1">
+                <p class="p-0 m-0 text-end fw-lighter text-muted">
+                    Última actualización: @GridTimer.LastUpdate.ToString(SharedLocalizer["datetime:format"])
+                </p>
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
     <RadzenPanel style="border: 2px solid rgba(0,0,0,.08);">
-        <RadzenSplitter Orientation="Orientation.Horizontal">
-            <RadzenSplitterPane Size="50%" Min="20%" Max="80%">
-                <RadzenCard>
-                    <RadzenRow class="mb-2">
-                        <RadzenColumn Size="12" class="d-flex align-items-end">
-                            <RadzenImage Click="@ReservationAlertClick" Visible="@expiredReservationsAlertVisible" Path="images/alert.gif" style="width: 30px"></RadzenImage>
-                            <RadzenText Text="Reservas vencidas" TextStyle="Radzen.Blazor.TextStyle.H6" TagName="Radzen.Blazor.TagName.Auto" class="p-0 m-0"></RadzenText>
-                        </RadzenColumn>
-                    </RadzenRow>
-                    <LocalizedDataGrid Style="height: 100%" PageSize="@pageSize" @ref="expiredReservationsGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" Data="@expiredReservations" TItem="Aldebaran.Application.Services.Models.CustomerReservation" IsLoading="@GridTimer.IsLoading">
-                        <Columns>
-                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservation" Property="ReservationNumber" Title="No. reserva" Width="40%"></RadzenDataGridColumn>
-                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservation" Property="Customer.CustomerName" Title="Cliente" Width="80%"></RadzenDataGridColumn>
-                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservation" Property="ReservationDate" Title="Fecha reserva" Width="50%">
-                                <Template Context="customerReservation">
-                                    <span>@customerReservation.ReservationDate.ToString(SharedLocalizer["date:format"])</span>
-                                </Template>
-                            </RadzenDataGridColumn>
-                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservation" Property="ExpirationDate" Title="Fecha expiración" Width="50%">
-                                <Template Context="customerReservation">
-                                    <span>@customerReservation.ExpirationDate.ToString(SharedLocalizer["date:format"])</span>
-                                </Template>
-                            </RadzenDataGridColumn>
-                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservation" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
-                                <Template Context="customerReservation">
-                                    <RadzenButton Icon="document_scanner" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => OpenCustomerReservation(customerReservation))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Consultar reserva", new TooltipOptions(){ Position = TooltipPosition.Left }))">
-                                    </RadzenButton>
-                                </Template>
-                            </RadzenDataGridColumn>
-                        </Columns>
-                    </LocalizedDataGrid>
-                </RadzenCard>
-            </RadzenSplitterPane>
-            <RadzenSplitterPane>
-                <RadzenCard>
-                    <RadzenRow class="mb-2">
-                        <RadzenColumn Size="12" class="d-flex align-items-end">
-                            <RadzenImage Click="@AlarmAlertClick" Visible="@alarmsAlertVisible" Path="images/alert.gif" style="width: 30px"></RadzenImage>
-                            <RadzenText Text="Alarmas del día" TextStyle="Radzen.Blazor.TextStyle.H6" TagName="Radzen.Blazor.TagName.Auto" class="p-0 m-0"></RadzenText>
-                        </RadzenColumn>
-                    </RadzenRow>
-                    <LocalizedDataGrid Style="height: 100%" PageSize="@pageSize" @ref="alarmsGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" Data="@alarms" TItem="Alarm" IsLoading="@GridTimer.IsLoading">
-                        <Columns>
-                            <RadzenDataGridColumn TItem="Alarm" Title="Documento" Width="80%">
-                                <Template Context="alarm">
-                                    <RadzenLabel>
-                                        @alarm.DocumentTypeName Nro. @alarm.DocumentNumber
-                                    </RadzenLabel>
-                                </Template>
-                            </RadzenDataGridColumn>
-                            <RadzenDataGridColumn TItem="Alarm" Property="CreationDate" Title="Fecha creación" Width="50%">
-                                <Template Context="alarm">
-                                    <span>@alarm.CreationDate.ToString(SharedLocalizer["date:format"])</span>
-                                </Template>
-                            </RadzenDataGridColumn>
-                            <RadzenDataGridColumn TItem="Alarm" Property="ExecutionDate" Title="Fecha activación" Width="50%">
-                                <Template Context="alarm">
-                                    <span>@alarm.ExecutionDate.ToString(SharedLocalizer["date:format"])</span>
-                                </Template>
-                            </RadzenDataGridColumn>
-                            <RadzenDataGridColumn TItem="Alarm" Property="AlarmMessage" Title="Mensaje" Width="80%"></RadzenDataGridColumn>
-                            <RadzenDataGridColumn TItem="Alarm" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
-                                <Template Context="alarm">
-                                    <RadzenButton Icon="assignment_turned_in" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => DisableAlarm(alarm))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Marcar alarma como leída", new TooltipOptions(){ Position = TooltipPosition.Left }))">
-                                    </RadzenButton>
-                                </Template>
-                            </RadzenDataGridColumn>
-                        </Columns>
-                    </LocalizedDataGrid>
-                </RadzenCard>
-            </RadzenSplitterPane>
-        </RadzenSplitter>
-    </RadzenPanel>
-    <RadzenPanel style="border: 2px solid rgba(0,0,0,.08);">
-        <RadzenCard>
-            <RadzenRow class="mb-2">
-                <RadzenColumn Size="12" class="d-flex align-items-end">
-                    <RadzenImage Click="@PurchaseAlarmAlertClick" Visible="@purchaseAlarmsAlertVisible" Path="images/alert.gif" style="width: 30px"></RadzenImage>
-                    <RadzenText Text="Ordenes modificadas con afectación en pedido" TextStyle="Radzen.Blazor.TextStyle.H6" TagName="Radzen.Blazor.TagName.Auto" class="p-0 m-0"></RadzenText>
-                </RadzenColumn>
-            </RadzenRow>
-            <LocalizedDataGrid RowExpand=@GetAlarmChildData ExpandMode="DataGridExpandMode.Single" Style="height: 100%" PageSize="@pageSize" @ref="purchaseOrderTransitAlarmsGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" Data="@purchaseOrderTransitAlarms" TItem="Aldebaran.Application.Services.Models.PurchaseOrderTransitAlarm" IsLoading="@GridTimer.IsLoading">
-                <Columns>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrderTransitAlarm" Property="ModifiedPurchaseOrder.PurchaseOrder.OrderNumber" Title="No. orden" Width="40%"></RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrderTransitAlarm" Title="Fecha est. recibo" Width="50%">
-                        <Template Context="alarm">
-                            <span>@alarm.ModifiedPurchaseOrder.PurchaseOrder.ExpectedReceiptDate.ToString(SharedLocalizer["date:format"])</span>
-                        </Template>
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrderTransitAlarm" Property="ModifiedPurchaseOrder.PurchaseOrder.Provider.ProviderName" Title="Proveedor" Width="80%"></RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrderTransitAlarm" Property="ModifiedPurchaseOrder.ModificationDate" Title="Fecha modificación" Width="80%">
-                        <Template Context="alarm">
-                            <span>@alarm.ModifiedPurchaseOrder.ModificationDate.ToString(SharedLocalizer["date:format"])</span>
-                        </Template>
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrderTransitAlarm" Property="ModifiedPurchaseOrder.ModificationReason.ModificationReasonName" Title="Motivo modificación" Width="80%"></RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrderTransitAlarm" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
-                        <Template Context="purchaseOrderTransitAlarm">
-                            <RadzenButton Icon="assignment_turned_in" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => DisablePurchaseOrderTransitAlarm(purchaseOrderTransitAlarm))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Marcar alarma como leída", new TooltipOptions(){ Position = TooltipPosition.Left }))">
-                            </RadzenButton>
-                        </Template>
-                    </RadzenDataGridColumn>
-                </Columns>
-                <Template Context="alarmNotifications">
-                    <RadzenStack Class="rz-my-8">
-                        <RadzenRow Gap="0" AlignItems="AlignItems.Center">
-                            <RadzenColumn Size="12" SizeMD="6">
-                                <RadzenText Visible="@(purchaseOrderTransitAlarms != null)" Text="Pedidos afectados" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
+        <RadzenPanel style="border: 2px solid rgba(0,0,0,.08);">
+            <RadzenSplitter Orientation="Orientation.Horizontal">
+                <RadzenSplitterPane Size="50%" Min="20%" Max="80%">
+                    <RadzenCard>
+                        <RadzenRow class="mb-2">
+                            <RadzenColumn Size="12" class="d-flex align-items-end">
+                                <RadzenImage Click="@MinimumAlertClick" Visible="@minimumAlertVisible" Path="images/alert.gif" style="width: 30px"></RadzenImage>
+                                <RadzenText Text="Cantidades mínimas" TextStyle="Radzen.Blazor.TextStyle.H6" TagName="Radzen.Blazor.TagName.Auto" class="p-0 m-0"></RadzenText>
                             </RadzenColumn>
                         </RadzenRow>
-                        <LocalizedDataGrid Visible="@(purchaseOrderTransitAlarms != null)" @ref=PurchaseOrderNotificationsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30}) Data="@purchaseOrderNotifications" TItem="Aldebaran.Application.Services.Models.PurchaseOrderNotification">
+                        <LocalizedDataGrid PageSize="@pageSize" @ref="minimumQuantityArticlesGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" Data="@minimumQuantityArticles" TItem="MinimumQuantityArticle" IsLoading="@GridTimer.IsLoading">
                             <Columns>
-                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrderNotification" Title="Fecha modificación">
-                                    <Template Context="notification">
-                                        <span>@notification.ModifiedPurchaseOrder.ModificationDate.ToString(SharedLocalizer["date:format"])</span>
+                                <RadzenDataGridColumn TItem="MinimumQuantityArticle" Property="ArticleName" Title="Referencia" Width="80%" />
+                                <RadzenDataGridColumn TItem="MinimumQuantityArticle" Title="Cant. Mínima" Width="30%" Filterable="false">
+                                    <Template Context="detail">
+                                        @detail.MinimumQuantity.ToString("N0")
                                     </Template>
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrderNotification" Property="ModifiedPurchaseOrder.ModificationReason.ModificationReasonName" Title="Motivo"></RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrderNotification" Property="CustomerOrder.Customer.CustomerName" Title="Cliente"></RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrderNotification" Title="No. Pedido">
-                                    <Template Context="notification">
-                                        <RadzenLink href="javascript:void(0);" @onclick="@(async (args) => await CustomerOrderDetailInfo(notification.CustomerOrder.CustomerOrderId))">
-                                            @notification.CustomerOrder.OrderNumber
-                                        </RadzenLink>
+                                <RadzenDataGridColumn TItem="MinimumQuantityArticle" Title="Inventario" Width="30%" Filterable="false">
+                                    <Template Context="detail">
+                                        @detail.AvailableQuantity.ToString("N0")
                                     </Template>
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrderNotification" Title="Fecha pactada de entrega">
-                                    <Template Context="notification">
-                                        <span>@notification.CustomerOrder.EstimatedDeliveryDate.ToString(SharedLocalizer["date:format"])</span>
+                                <RadzenDataGridColumn TItem="MinimumQuantityArticle" Title="En Tránsito" Width="30%" Filterable="false">
+                                    <Template Context="detail">
+                                        @detail.InTransitQuantity.ToString("N0")
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="MinimumQuantityArticle" Title="Reservado" Width="30%" Filterable="false">
+                                    <Template Context="detail">
+                                        @detail.ReservedQuantity.ToString("N0")
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="MinimumQuantityArticle" Title="Pedido" Width="30%" Filterable="false">
+                                    <Template Context="detail">
+                                        @detail.OrderedQuantity.ToString("N0")
                                     </Template>
                                 </RadzenDataGridColumn>
                             </Columns>
                         </LocalizedDataGrid>
-                    </RadzenStack>
-                </Template>
-            </LocalizedDataGrid>
-        </RadzenCard>
-    </RadzenPanel>
-    <RadzenPanel style="border: 2px solid rgba(0,0,0,.08);">
-        <RadzenCard>
-            <RadzenRow class="mb-2">
-                <RadzenColumn Size="12" class="d-flex align-items-end">
-                    <RadzenImage Click="@ExpiredPurchaseAlertClick" Visible="@expiredPurchasesAlertVisible" Path="images/alert.gif" style="width: 30px"></RadzenImage>
-                    <RadzenText Text="Ordenes próximas a su vencimiento" TextStyle="Radzen.Blazor.TextStyle.H6" TagName="Radzen.Blazor.TagName.Auto" class="p-0 m-0"></RadzenText>
-                </RadzenColumn>
-            </RadzenRow>
-            <LocalizedDataGrid RowExpand=@GetExpiredPurchaseOrderChildData ExpandMode="DataGridExpandMode.Single" RowRender="@RowRender" CellRender="@CellRender" Style="height: 100%" PageSize="@pageSize" @ref="purchaseOrderExpirationsGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" Data="@purchaseOrderExpirations" TItem="Aldebaran.Application.Services.Models.PurchaseOrder" IsLoading="@GridTimer.IsLoading">
-                <Columns>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrder" Property="OrderNumber" Title="Número de orden" Width="65%" />
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrder" Property="ExpectedReceiptDate" Title="Fecha est. recibo" Width="70%">
-                        <Template Context="purchasOrder">
-                            <span>@purchasOrder.ExpectedReceiptDate.ToString(SharedLocalizer["date:format"])</span>
-                        </Template>
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrder" Title="Dias restantes" Width="60%">
-                        <Template Context="purchasOrder">
-                            @{
-                                var days = (int)(@purchasOrder.ExpectedReceiptDate - System.DateTime.Today).Days;
-                            }
-                            <span>@days dias</span>
-                        </Template>
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrder" Property="Provider.ProviderName" Title="Proveedor" Width="80%"></RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrder" Property="ShipmentForwarderAgentMethod.ForwarderAgent.Forwarder.ForwarderName" Title="Transportadora" Width="80%"></RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrder" Property="ShipmentForwarderAgentMethod.ForwarderAgent.ForwarderAgentName" Title="Agente" Width="80%"></RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrder" Property="ShipmentForwarderAgentMethod.ShipmentMethod.ShipmentMethodName" Title="Método de envio" Width="80%"></RadzenDataGridColumn>
-                </Columns>
-                <Template Context="purchaseOrder">
-                    @if (CanExpand(purchaseOrder))
-                    {
+                    </RadzenCard>
+                </RadzenSplitterPane>
+                <RadzenSplitterPane>
+                    <RadzenCard>
+                        <RadzenRow class="mb-2">
+                            <RadzenColumn Size="12" class="d-flex align-items-end">
+                                <RadzenImage Click="@StockAlertClick" Visible="@outOfStockAlertVisible" Path="images/alert.gif" style="width: 30px"></RadzenImage>
+                                <RadzenText Text="Artículos sin disponible" TextStyle="Radzen.Blazor.TextStyle.H6" TagName="Radzen.Blazor.TagName.Auto" class="p-0 m-0"></RadzenText>
+                            </RadzenColumn>
+                        </RadzenRow>
+                        <LocalizedDataGrid Style="height: 100%" PageSize="@pageSize" @ref="outOfStockArticlesGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" Data="@outOfStockArticles" TItem="OutOfStockArticle" IsLoading="@GridTimer.IsLoading">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="OutOfStockArticle" Property="ArticleName" Title="Referencia" Width="80%" />
+
+                                <RadzenDataGridColumn TItem="OutOfStockArticle" Title="Inventario" Width="30%" Filterable="false">
+                                    <Template Context="detail">
+                                        @detail.AvailableQuantity.ToString("N0")
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="OutOfStockArticle" Title="En Tránsito" Width="30%" Filterable="false">
+                                    <Template Context="detail">
+                                        @detail.InTransitQuantity.ToString("N0")
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="OutOfStockArticle" Title="Reservado" Width="30%" Filterable="false">
+                                    <Template Context="detail">
+                                        @detail.ReservedQuantity.ToString("N0")
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="OutOfStockArticle" Title="Pedido" Width="30%" Filterable="false">
+                                    <Template Context="detail">
+                                        @detail.OrderedQuantity.ToString("N0")
+                                    </Template>
+                                </RadzenDataGridColumn>
+                            </Columns>
+                        </LocalizedDataGrid>
+                    </RadzenCard>
+                </RadzenSplitterPane>
+            </RadzenSplitter>
+        </RadzenPanel>
+        <RadzenPanel style="border: 2px solid rgba(0,0,0,.08);">
+            <RadzenSplitter Orientation="Orientation.Horizontal">
+                <RadzenSplitterPane Size="50%" Min="20%" Max="80%">
+                    <RadzenCard>
+                        <RadzenRow class="mb-2">
+                            <RadzenColumn Size="12" class="d-flex align-items-end">
+                                <RadzenImage Click="@ReservationAlertClick" Visible="@expiredReservationsAlertVisible" Path="images/alert.gif" style="width: 30px"></RadzenImage>
+                                <RadzenText Text="Reservas vencidas" TextStyle="Radzen.Blazor.TextStyle.H6" TagName="Radzen.Blazor.TagName.Auto" class="p-0 m-0"></RadzenText>
+                            </RadzenColumn>
+                        </RadzenRow>
+                        <LocalizedDataGrid Style="height: 100%" PageSize="@pageSize" @ref="expiredReservationsGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" Data="@expiredReservations" TItem="Aldebaran.Application.Services.Models.CustomerReservation" IsLoading="@GridTimer.IsLoading">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservation" Property="ReservationNumber" Title="No. reserva" Width="40%"></RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservation" Property="Customer.CustomerName" Title="Cliente" Width="80%"></RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservation" Property="ReservationDate" Title="Fecha reserva" Width="50%">
+                                    <Template Context="customerReservation">
+                                        <span>@customerReservation.ReservationDate.ToString(SharedLocalizer["date:format"])</span>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservation" Property="ExpirationDate" Title="Fecha expiración" Width="50%">
+                                    <Template Context="customerReservation">
+                                        <span>@customerReservation.ExpirationDate.ToString(SharedLocalizer["date:format"])</span>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservation" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                                    <Template Context="customerReservation">
+                                        <RadzenButton Icon="document_scanner" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => OpenCustomerReservation(customerReservation))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Consultar reserva", new TooltipOptions(){ Position = TooltipPosition.Left }))">
+                                        </RadzenButton>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                            </Columns>
+                        </LocalizedDataGrid>
+                    </RadzenCard>
+                </RadzenSplitterPane>
+                <RadzenSplitterPane>
+                    <RadzenCard>
+                        <RadzenRow class="mb-2">
+                            <RadzenColumn Size="12" class="d-flex align-items-end">
+                                <RadzenImage Click="@AlarmAlertClick" Visible="@alarmsAlertVisible" Path="images/alert.gif" style="width: 30px"></RadzenImage>
+                                <RadzenText Text="Alarmas del día" TextStyle="Radzen.Blazor.TextStyle.H6" TagName="Radzen.Blazor.TagName.Auto" class="p-0 m-0"></RadzenText>
+                            </RadzenColumn>
+                        </RadzenRow>
+                        <LocalizedDataGrid Style="height: 100%" PageSize="@pageSize" @ref="alarmsGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" Data="@alarms" TItem="Alarm" IsLoading="@GridTimer.IsLoading">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="Alarm" Title="Documento" Width="80%">
+                                    <Template Context="alarm">
+                                        <RadzenLabel>
+                                            @alarm.DocumentTypeName Nro. @alarm.DocumentNumber
+                                        </RadzenLabel>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="Alarm" Property="CreationDate" Title="Fecha creación" Width="50%">
+                                    <Template Context="alarm">
+                                        <span>@alarm.CreationDate.ToString(SharedLocalizer["date:format"])</span>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="Alarm" Property="ExecutionDate" Title="Fecha activación" Width="50%">
+                                    <Template Context="alarm">
+                                        <span>@alarm.ExecutionDate.ToString(SharedLocalizer["date:format"])</span>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="Alarm" Property="AlarmMessage" Title="Mensaje" Width="80%"></RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="Alarm" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                                    <Template Context="alarm">
+                                        <RadzenButton Icon="assignment_turned_in" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => DisableAlarm(alarm))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Marcar alarma como leída", new TooltipOptions(){ Position = TooltipPosition.Left }))">
+                                        </RadzenButton>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                            </Columns>
+                        </LocalizedDataGrid>
+                    </RadzenCard>
+                </RadzenSplitterPane>
+            </RadzenSplitter>
+        </RadzenPanel>
+        <RadzenPanel style="border: 2px solid rgba(0,0,0,.08);">
+            <RadzenCard>
+                <RadzenRow class="mb-2">
+                    <RadzenColumn Size="12" class="d-flex align-items-end">
+                        <RadzenImage Click="@PurchaseAlarmAlertClick" Visible="@purchaseAlarmsAlertVisible" Path="images/alert.gif" style="width: 30px"></RadzenImage>
+                        <RadzenText Text="Ordenes modificadas con afectación en pedido" TextStyle="Radzen.Blazor.TextStyle.H6" TagName="Radzen.Blazor.TagName.Auto" class="p-0 m-0"></RadzenText>
+                    </RadzenColumn>
+                </RadzenRow>
+                <LocalizedDataGrid RowExpand=@GetAlarmChildData ExpandMode="DataGridExpandMode.Single" Style="height: 100%" PageSize="@pageSize" @ref="purchaseOrderTransitAlarmsGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" Data="@purchaseOrderTransitAlarms" TItem="Aldebaran.Application.Services.Models.PurchaseOrderTransitAlarm" IsLoading="@GridTimer.IsLoading">
+                    <Columns>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrderTransitAlarm" Property="ModifiedPurchaseOrder.PurchaseOrder.OrderNumber" Title="No. orden" Width="40%"></RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrderTransitAlarm" Title="Fecha est. recibo" Width="50%">
+                            <Template Context="alarm">
+                                <span>@alarm.ModifiedPurchaseOrder.PurchaseOrder.ExpectedReceiptDate.ToString(SharedLocalizer["date:format"])</span>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrderTransitAlarm" Property="ModifiedPurchaseOrder.PurchaseOrder.Provider.ProviderName" Title="Proveedor" Width="80%"></RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrderTransitAlarm" Property="ModifiedPurchaseOrder.ModificationDate" Title="Fecha modificación" Width="80%">
+                            <Template Context="alarm">
+                                <span>@alarm.ModifiedPurchaseOrder.ModificationDate.ToString(SharedLocalizer["date:format"])</span>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrderTransitAlarm" Property="ModifiedPurchaseOrder.ModificationReason.ModificationReasonName" Title="Motivo modificación" Width="80%"></RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrderTransitAlarm" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                            <Template Context="purchaseOrderTransitAlarm">
+                                <RadzenButton Icon="assignment_turned_in" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => DisablePurchaseOrderTransitAlarm(purchaseOrderTransitAlarm))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Marcar alarma como leída", new TooltipOptions(){ Position = TooltipPosition.Left }))">
+                                </RadzenButton>
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </Columns>
+                    <Template Context="alarmNotifications">
                         <RadzenStack Class="rz-my-8">
                             <RadzenRow Gap="0" AlignItems="AlignItems.Center">
                                 <RadzenColumn Size="12" SizeMD="6">
-                                    <RadzenText Visible="@(purchaseOrderExpirations != null)" Text="Pedidos con posible afectacíon" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
+                                    <RadzenText Visible="@(purchaseOrderTransitAlarms != null)" Text="Pedidos afectados" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
                                 </RadzenColumn>
                             </RadzenRow>
-                            <LocalizedDataGrid Visible="@(purchaseOrderExpirations != null)" @ref=customerOrdersAffectedGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30}) Data="@customerOrdersAffected" TItem="Aldebaran.Application.Services.Models.CustomerOrderAffectedByPurchaseOrderUpdate">
+                            <LocalizedDataGrid Visible="@(purchaseOrderTransitAlarms != null)" @ref=PurchaseOrderNotificationsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30}) Data="@purchaseOrderNotifications" TItem="Aldebaran.Application.Services.Models.PurchaseOrderNotification">
                                 <Columns>
-                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderAffectedByPurchaseOrderUpdate" Property="CustomerOrder.Customer.CustomerName" Title="Cliente"></RadzenDataGridColumn>
-                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderAffectedByPurchaseOrderUpdate" Title="Fecha pedido">
-                                        <Template Context="customerOrder">
-                                            <span>@customerOrder.OrderDate.ToString(SharedLocalizer["date:format"])</span>
+                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrderNotification" Title="Fecha modificación">
+                                        <Template Context="notification">
+                                            <span>@notification.ModifiedPurchaseOrder.ModificationDate.ToString(SharedLocalizer["date:format"])</span>
                                         </Template>
                                     </RadzenDataGridColumn>
-                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderAffectedByPurchaseOrderUpdate" Title="No. Pedido">
-                                        <Template Context="customerOrder">
-                                            <RadzenLink href="javascript:void(0);" @onclick="@(async (args) => await CustomerOrderDetailInfo(customerOrder.CustomerOrderId))">
-                                                @customerOrder.OrderNumber
+                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrderNotification" Property="ModifiedPurchaseOrder.ModificationReason.ModificationReasonName" Title="Motivo"></RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrderNotification" Property="CustomerOrder.Customer.CustomerName" Title="Cliente"></RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrderNotification" Title="No. Pedido">
+                                        <Template Context="notification">
+                                            <RadzenLink href="javascript:void(0);" @onclick="@(async (args) => await CustomerOrderDetailInfo(notification.CustomerOrder.CustomerOrderId))">
+                                                @notification.CustomerOrder.OrderNumber
                                             </RadzenLink>
                                         </Template>
                                     </RadzenDataGridColumn>
-                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderAffectedByPurchaseOrderUpdate" Title="Fecha pactada de entrega">
-                                        <Template Context="customerOrder">
-                                            <span>@customerOrder.EstimatedDeliveryDate.ToString(SharedLocalizer["date:format"])</span>
+                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrderNotification" Title="Fecha pactada de entrega">
+                                        <Template Context="notification">
+                                            <span>@notification.CustomerOrder.EstimatedDeliveryDate.ToString(SharedLocalizer["date:format"])</span>
                                         </Template>
                                     </RadzenDataGridColumn>
-                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderAffectedByPurchaseOrderUpdate" Property="Status" Title="Estado"></RadzenDataGridColumn>
                                 </Columns>
                             </LocalizedDataGrid>
                         </RadzenStack>
-                    }
-                </Template>
-            </LocalizedDataGrid>
-        </RadzenCard>
+                    </Template>
+                </LocalizedDataGrid>
+            </RadzenCard>
+        </RadzenPanel>
+        <RadzenPanel style="border: 2px solid rgba(0,0,0,.08);">
+            <RadzenCard>
+                <RadzenRow class="mb-2">
+                    <RadzenColumn Size="12" class="d-flex align-items-end">
+                        <RadzenImage Click="@ExpiredPurchaseAlertClick" Visible="@expiredPurchasesAlertVisible" Path="images/alert.gif" style="width: 30px"></RadzenImage>
+                        <RadzenText Text="Ordenes próximas a su vencimiento" TextStyle="Radzen.Blazor.TextStyle.H6" TagName="Radzen.Blazor.TagName.Auto" class="p-0 m-0"></RadzenText>
+                    </RadzenColumn>
+                </RadzenRow>
+                <LocalizedDataGrid RowExpand=@GetExpiredPurchaseOrderChildData ExpandMode="DataGridExpandMode.Single" RowRender="@RowRender" CellRender="@CellRender" Style="height: 100%" PageSize="@pageSize" @ref="purchaseOrderExpirationsGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" Data="@purchaseOrderExpirations" TItem="Aldebaran.Application.Services.Models.PurchaseOrder" IsLoading="@GridTimer.IsLoading">
+                    <Columns>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrder" Property="OrderNumber" Title="Número de orden" Width="65%" />
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrder" Property="ExpectedReceiptDate" Title="Fecha est. recibo" Width="70%">
+                            <Template Context="purchasOrder">
+                                <span>@purchasOrder.ExpectedReceiptDate.ToString(SharedLocalizer["date:format"])</span>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrder" Title="Dias restantes" Width="60%">
+                            <Template Context="purchasOrder">
+                                @{
+                                    var days = (int)(@purchasOrder.ExpectedReceiptDate - System.DateTime.Today).Days;
+                                }
+                                <span>@days dias</span>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrder" Property="Provider.ProviderName" Title="Proveedor" Width="80%"></RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrder" Property="ShipmentForwarderAgentMethod.ForwarderAgent.Forwarder.ForwarderName" Title="Transportadora" Width="80%"></RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrder" Property="ShipmentForwarderAgentMethod.ForwarderAgent.ForwarderAgentName" Title="Agente" Width="80%"></RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrder" Property="ShipmentForwarderAgentMethod.ShipmentMethod.ShipmentMethodName" Title="Método de envio" Width="80%"></RadzenDataGridColumn>
+                    </Columns>
+                    <Template Context="purchaseOrder">
+                        @if (CanExpand(purchaseOrder))
+                        {
+                            <RadzenStack Class="rz-my-8">
+                                <RadzenRow Gap="0" AlignItems="AlignItems.Center">
+                                    <RadzenColumn Size="12" SizeMD="6">
+                                        <RadzenText Visible="@(purchaseOrderExpirations != null)" Text="Pedidos con posible afectacíon" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
+                                    </RadzenColumn>
+                                </RadzenRow>
+                                <LocalizedDataGrid Visible="@(purchaseOrderExpirations != null)" @ref=customerOrdersAffectedGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30}) Data="@customerOrdersAffected" TItem="Aldebaran.Application.Services.Models.CustomerOrderAffectedByPurchaseOrderUpdate">
+                                    <Columns>
+                                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderAffectedByPurchaseOrderUpdate" Property="CustomerOrder.Customer.CustomerName" Title="Cliente"></RadzenDataGridColumn>
+                                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderAffectedByPurchaseOrderUpdate" Title="Fecha pedido">
+                                            <Template Context="customerOrder">
+                                                <span>@customerOrder.OrderDate.ToString(SharedLocalizer["date:format"])</span>
+                                            </Template>
+                                        </RadzenDataGridColumn>
+                                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderAffectedByPurchaseOrderUpdate" Title="No. Pedido">
+                                            <Template Context="customerOrder">
+                                                <RadzenLink href="javascript:void(0);" @onclick="@(async (args) => await CustomerOrderDetailInfo(customerOrder.CustomerOrderId))">
+                                                    @customerOrder.OrderNumber
+                                                </RadzenLink>
+                                            </Template>
+                                        </RadzenDataGridColumn>
+                                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderAffectedByPurchaseOrderUpdate" Title="Fecha pactada de entrega">
+                                            <Template Context="customerOrder">
+                                                <span>@customerOrder.EstimatedDeliveryDate.ToString(SharedLocalizer["date:format"])</span>
+                                            </Template>
+                                        </RadzenDataGridColumn>
+                                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderAffectedByPurchaseOrderUpdate" Property="Status" Title="Estado"></RadzenDataGridColumn>
+                                    </Columns>
+                                </LocalizedDataGrid>
+                            </RadzenStack>
+                        }
+                    </Template>
+                </LocalizedDataGrid>
+            </RadzenCard>
+        </RadzenPanel>
+        <RadzenPanel>
+            <RadzenCard>
+                <RadzenRow class="mb-2">
+                    <RadzenColumn Size="12" class="d-flex align-items-end">
+                        <RadzenImage Click="@ExpiredCustomerOrderAlertClick" Visible="@expiredCustomerOrdersAlertVisible" Path="images/alert.gif" style="width: 30px"></RadzenImage>
+                        <RadzenText Text="Pedidos vencidos" TextStyle="Radzen.Blazor.TextStyle.H6" TagName="Radzen.Blazor.TagName.Auto" class="p-0 m-0"></RadzenText>
+                    </RadzenColumn>
+                </RadzenRow>
+                <LocalizedDataGrid Style="height: 100%" PageSize="@pageSize" @ref="expiredCustomerOrdersGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" Data="@expiredCustomerOrders" TItem="Aldebaran.Application.Services.Models.CustomerOrder" IsLoading="@GridTimer.IsLoading">
+                    <Columns>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="Customer.CustomerName" Title="Proveedor" Width="80%"></RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="OrderDate" Title="Fecha pedido" Width="70%">
+                            <Template Context="customerOrder">
+                                <span>@customerOrder.OrderDate.ToString(SharedLocalizer["date:format"])</span>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Title="No. Pedido" Width="70%">
+                            <Template Context="customerOrder">
+                                <RadzenLink href="javascript:void(0);" @onclick="@(async (args) => await CustomerOrderDetailInfo(customerOrder.CustomerOrderId))">
+                                    @customerOrder.OrderNumber
+                                </RadzenLink>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="EstimatedDeliveryDate" Title="Fecha est. entrega" Width="70%">
+                            <Template Context="customerOrder">
+                                <span>@customerOrder.EstimatedDeliveryDate.ToString(SharedLocalizer["date:format"])</span>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Title="Dias vencidos" Width="60%">
+                            <Template Context="customerOrder">
+                                @{
+                                    var days = (int)(System.DateTime.Today - customerOrder.EstimatedDeliveryDate).Days;
+                                }
+                                <span>@days dias</span>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="StatusDocumentType.StatusDocumentTypeName" Title="Estado" Width="80%"></RadzenDataGridColumn>
+                    </Columns>
+                </LocalizedDataGrid>
+            </RadzenCard>
+        </RadzenPanel>
     </RadzenPanel>
-    <RadzenPanel>
-        <RadzenCard>
-            <RadzenRow class="mb-2">
-                <RadzenColumn Size="12" class="d-flex align-items-end">
-                    <RadzenImage Click="@ExpiredCustomerOrderAlertClick" Visible="@expiredCustomerOrdersAlertVisible" Path="images/alert.gif" style="width: 30px"></RadzenImage>
-                    <RadzenText Text="Pedidos vencidos" TextStyle="Radzen.Blazor.TextStyle.H6" TagName="Radzen.Blazor.TagName.Auto" class="p-0 m-0"></RadzenText>
-                </RadzenColumn>
-            </RadzenRow>
-            <LocalizedDataGrid Style="height: 100%" PageSize="@pageSize" @ref="expiredCustomerOrdersGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" Data="@expiredCustomerOrders" TItem="Aldebaran.Application.Services.Models.CustomerOrder" IsLoading="@GridTimer.IsLoading">
-                <Columns>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="Customer.CustomerName" Title="Proveedor" Width="80%"></RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="OrderDate" Title="Fecha pedido" Width="70%">
-                        <Template Context="customerOrder">
-                            <span>@customerOrder.OrderDate.ToString(SharedLocalizer["date:format"])</span>
-                        </Template>
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Title="No. Pedido" Width="70%">
-                        <Template Context="customerOrder">
-                            <RadzenLink href="javascript:void(0);" @onclick="@(async (args) => await CustomerOrderDetailInfo(customerOrder.CustomerOrderId))">
-                                @customerOrder.OrderNumber
-                            </RadzenLink>
-                        </Template>
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="EstimatedDeliveryDate" Title="Fecha est. entrega" Width="70%">
-                        <Template Context="customerOrder">
-                            <span>@customerOrder.EstimatedDeliveryDate.ToString(SharedLocalizer["date:format"])</span>
-                        </Template>
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Title="Dias vencidos" Width="60%">
-                        <Template Context="customerOrder">
-                            @{
-                                var days = (int)(System.DateTime.Today - customerOrder.EstimatedDeliveryDate).Days;
-                            }
-                            <span>@days dias</span>
-                        </Template>
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="StatusDocumentType.StatusDocumentTypeName" Title="Estado" Width="80%"></RadzenDataGridColumn>
-                </Columns>
-            </LocalizedDataGrid>
-        </RadzenCard>
-    </RadzenPanel>
-</RadzenPanel>
-
+}

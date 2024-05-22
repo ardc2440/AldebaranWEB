@@ -36,6 +36,8 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
 
         [Parameter]
         public int ReferenceId { get; set; }
+        [Parameter]
+        public int LastReferenceId { get; set; }
 
         #endregion
 

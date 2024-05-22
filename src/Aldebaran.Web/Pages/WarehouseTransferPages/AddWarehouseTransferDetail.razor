@@ -12,7 +12,7 @@
         <RadzenStack>
             <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.WarehouseTransferDetail" Data="@warehouseTransferDetail" Visible="@(warehouseTransferDetail != null)" Submit="@FormSubmit">
                 <RadzenRow AlignItems="AlignItems.Start" Gap="2rem">
-                    <ReferencePicker OnChange="ItemReferenceHandler" References="ItemReferencesForReferenceId" />
+                    <ReferencePicker OnChange="ItemReferenceHandler" References="ItemReferencesForReferenceId" LAST_REFERENCE_ID="LastReferenceId" />
                     <RadzenRequiredValidator Text="La referencia es requerida" Component="ReferenceId" />
                     <RadzenFormField Text="Cantidad" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>

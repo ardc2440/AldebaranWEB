@@ -21,6 +21,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         [Parameter]
         public ICollection<CustomerOrderDetail> CustomerOrderDetails { get; set; }
 
+        [Parameter]
+        public int LastReferenceId { get; set; }
+
         #endregion
 
         #region Global Variables

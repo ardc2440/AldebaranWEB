@@ -1,6 +1,7 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Resources.LocalizedControls;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
@@ -52,6 +53,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         protected bool IsSubmitInProgress;
         protected bool isLoadingInProgress;
         protected string Error;
+        protected int lastReferenceId = 0;
 
         #endregion
 
@@ -124,7 +126,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
         protected async Task AddCustomerReservationDetailButtonClick(MouseEventArgs args)
         {
-            var result = await DialogService.OpenAsync<AddCustomerReservationDetail>("Agregar referencia", new Dictionary<string, object> { { "CustomerReservationDetails", customerReservationDetails } });
+            var result = await DialogService.OpenAsync<AddCustomerReservationDetail>("Agregar referencia", new Dictionary<string, object> { { "CustomerReservationDetails", customerReservationDetails }, { "LastReferenceId", lastReferenceId} });
 
             if (result == null)
                 return;
@@ -132,6 +134,8 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             var detail = (CustomerReservationDetail)result;
 
             customerReservationDetails.Add(detail);
+
+            lastReferenceId = detail.ReferenceId;
 
             await customerReservationDetailGrid.Reload();
         }

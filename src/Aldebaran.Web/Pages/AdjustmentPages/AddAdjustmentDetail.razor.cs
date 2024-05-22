@@ -37,6 +37,10 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         [Parameter]
         public short WarehouseId { get; set; }
+        [Parameter]
+        public int LastReferenceId { get; set; }
+        [Parameter]
+        public short LastWarehouseId { get; set; }
 
         #endregion
 
@@ -71,6 +75,11 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
                 ItemReferencesForReferenceId = await ItemReferenceService.GetByStatusAsync(true);
                 WarehousesForWarehouseId = await WarehouseService.GetAsync();
                 adjustmentDetail.Quantity = 0;
+
+                if (LastWarehouseId != 0)
+                {
+                    adjustmentDetail.WarehouseId = LastWarehouseId;
+                }
             }
             finally
             {

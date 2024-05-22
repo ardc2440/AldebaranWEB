@@ -56,6 +56,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected bool IsSubmitInProgress;
         protected bool isLoadingInProgress;
         protected string Error;
+        protected int lastReferenceId = 0;
 
         #endregion
 
@@ -136,7 +137,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task AddCustomerOrderDetailButtonClick(MouseEventArgs args)
         {
-            var result = await DialogService.OpenAsync<AddCustomerOrderDetail>("Agregar referencia", new Dictionary<string, object> { { "CustomerOrderDetails", customerOrderDetails } });
+            var result = await DialogService.OpenAsync<AddCustomerOrderDetail>("Agregar referencia", new Dictionary<string, object> { { "CustomerOrderDetails", customerOrderDetails }, { "LastReferenceId", lastReferenceId } });
 
             if (result == null)
                 return;
@@ -144,6 +145,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             var detail = (CustomerOrderDetail)result;
 
             customerOrderDetails.Add(detail);
+
+            lastReferenceId = detail.ReferenceId;
 
             await customerOrderDetailGrid.Reload();
         }

@@ -57,6 +57,8 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         protected bool IsSubmitInProgress;
         protected bool isLoadingInProgress;
         protected string Error;
+        protected int lastReferenceId = 0;
+        protected short lastWarehouseId = 0;
 
         #endregion
 
@@ -120,13 +122,18 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected async Task AddAdjustmentDetailButtonClick(MouseEventArgs args)
         {
-            var result = await DialogService.OpenAsync<AddAdjustmentDetail>("Agregar referencia", new Dictionary<string, object> { { "AdjustmentDetails", AdjustmentDetails } });
+            var result = await DialogService.OpenAsync<AddAdjustmentDetail>("Agregar referencia", new Dictionary<string, object> {
+                    { "AdjustmentDetails", AdjustmentDetails },
+                    { "LastReferenceId", lastReferenceId },
+                    { "LastWarehouseId", lastWarehouseId} });
 
             if (result == null)
                 return;
 
             var detail = (AdjustmentDetail)result;
             AdjustmentDetails.Add(detail);
+            lastReferenceId = detail.ReferenceId;
+            lastWarehouseId = detail.WarehouseId;
             await adjustmentDetailGrid.Reload();
         }
 

@@ -12,7 +12,7 @@
         <RadzenStack>
             <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.AdjustmentDetail" Data="@adjustmentDetail" Visible="@(adjustmentDetail != null)" Submit="@FormSubmit">
                 <RadzenRow AlignItems="AlignItems.Start" Gap="2rem">
-                    <ReferencePicker OnChange="ItemReferenceHandler" References="ItemReferencesForReferenceId" />
+                    <ReferencePicker OnChange="ItemReferenceHandler" References="ItemReferencesForReferenceId" LAST_REFERENCE_ID="LastReferenceId" />
                     <RadzenRequiredValidator Text="La referencia es requerida" Component="ReferenceId" />
                     <RadzenFormField Text="Bodega" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>

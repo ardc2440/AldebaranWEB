@@ -11,7 +11,7 @@
         </RadzenAlert>
         <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Data="@customerReservationDetail" Visible="@(customerReservationDetail != null)" Submit="@FormSubmit" InvalidSubmit="()=>Submitted=true">
             <RadzenStack style="margin-bottom: 1rem">
-                <ReferencePicker OnChange="ItemReferenceHandler" References="ItemReferencesForREFERENCEID" />
+                <ReferencePicker OnChange="ItemReferenceHandler" References="ItemReferencesForREFERENCEID" LAST_REFERENCE_ID="LastReferenceId" />
                 <RadzenRequiredValidator Text="La referencia es requerida" Component="ReferenceId" />
                 <RadzenFormField Text="Cantidad" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                     <ChildContent>
