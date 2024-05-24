@@ -1,10 +1,36 @@
 ﻿@using ViewModel = Aldebaran.Web.Pages.ReportPages.Reference_Movement.ViewModel;
+@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer;
 
 <RadzenColumn SizeMD=12>
     <RadzenTemplateForm TItem="ViewModel.ReferenceMovementFilter" Data="Filter" Submit="@FormSubmit">
         <RadzenRow style="margin-bottom: 1rem">
+            <RadzenColumn Size="6">
+                <RadzenStack>
+                    <RadzenFormField Text="Fecha de movimiento inicial" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.MovementDate.StartDate" Name="MovementDateStartDate" AllowClear=true Change="()=> Filter.MovementDate.EndDate = Filter.MovementDate.EndDate < Filter.MovementDate.StartDate ? Filter.MovementDate.StartDate : Filter.MovementDate.EndDate" />
+                        </ChildContent>
+                        <Helper>
+                            <RadzenRequiredValidator Text="La fecha inicial del movimiento es requerida" Component="MovementDateStartDate" />
+                        </Helper>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+            <RadzenColumn Size="6">
+                <RadzenStack>
+                    <RadzenFormField Text="Fecha de movimiento final" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.MovementDate.EndDate" Name="MovementDateEndDate" AllowClear=true Min="Filter.MovementDate.StartDate" />
+                        </ChildContent>
+                        <Helper>
+                            <RadzenRequiredValidator Text="La fecha final del movimiento es requerida" Component="MovementDateEndDate" />
+                        </Helper>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow style="margin-bottom: 1rem">
             <MultiReferencePicker @ref="referencePicker" OnChange="ItemReferenceHandler"></MultiReferencePicker>
-            <RadzenRequiredValidator Text="La referencia es requerida" Component="ReferenceId" />
         </RadzenRow>
         <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
             <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="filter_alt" Text="Filtrar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />
