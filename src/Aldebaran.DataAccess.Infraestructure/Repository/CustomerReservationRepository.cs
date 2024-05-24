@@ -60,6 +60,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .Include(i => i.Customer.IdentityType)
                 .Include(i => i.StatusDocumentType.DocumentType)
                 .Include(i => i.Employee.IdentityType)
+                .OrderBy(o=>o.ReservationNumber)
                 .ToListAsync(ct);
         }
                 
@@ -88,6 +89,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                             i.Customer.IdentityType.IdentityTypeCode.Contains(searchKey) ||
                             i.Customer.IdentityType.IdentityTypeName.Contains(searchKey) ||
                             i.Customer.IdentityNumber.Contains(searchKey))
+                .OrderBy(o=>o.ReservationNumber)
                 .ToListAsync(ct);
         }
 

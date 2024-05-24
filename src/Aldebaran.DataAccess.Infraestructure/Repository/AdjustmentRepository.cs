@@ -88,6 +88,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .Include(i => i.AdjustmentType)
                 .Include(i => i.Employee)
                 .Include(i => i.AdjustmentDetails)
+                .OrderBy(o=>o.AdjustmentId)
                 .ToListAsync(ct);
         }
 
@@ -108,6 +109,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                           i.Employee.FullName.Contains(searchKey) ||
                           i.AdjustmentReason.AdjustmentReasonNotes.Contains(searchKey) ||
                           i.Notes.Contains(searchKey))
+                .OrderBy(o => o.AdjustmentId)
                 .ToListAsync(ct);
         }
 

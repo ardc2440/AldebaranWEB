@@ -182,8 +182,10 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                         Template = NotificationTemplateName,
                     }
                 };
-                var additionalBodyMessage = $"<p>Pedido: {pon.CustomerOrder.OrderNumber}<br />" +
-                                            $"Fecha: {pon.CustomerOrder.OrderDate.ToString(SharedLocalizer["date:format"])}</p>";
+                var additionalBodyMessage = $"<p>Datos del pedido afectado: <br /><br />" +
+                                            $"Pedido No.: {pon.CustomerOrder.OrderNumber}<br />" +
+                                            $"Fecha de pedido: {pon.CustomerOrder.OrderDate.ToString(SharedLocalizer["date:format"])}<br />" +
+                                            $"Fecha estimada de entrega: {pon.CustomerOrder.EstimatedDeliveryDate.ToString(SharedLocalizer["date:format"])}</p>";
                 await PurchaseOrderNotificationService.UpdateAsync(pon.PurchaseOrderNotificationId, uid, ServiceModel.NotificationStatus.InProcess, ct);
                 await NotificationService.Send(message, additionalBodyMessage, ct);
             }

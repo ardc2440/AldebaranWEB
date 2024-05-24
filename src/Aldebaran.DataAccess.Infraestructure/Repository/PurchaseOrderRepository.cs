@@ -106,6 +106,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .Include(i => i.ShipmentForwarderAgentMethod.ShipmentMethod)
                 .Include(i => i.ShipmentForwarderAgentMethod.ForwarderAgent)
                 .Include(i => i.StatusDocumentType.DocumentType)
+                .OrderBy(o => o.OrderNumber)
                 .ToListAsync(ct);
         }
 
@@ -127,6 +128,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                            _context.Format(w.ExpectedReceiptDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
                            _context.Format(w.RequestDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
                            (w.RealReceiptDate.HasValue && _context.Format(w.RealReceiptDate.Value, _SharedLocalizer["date:format"]).Contains(searchKey)))
+               .OrderBy(o => o.OrderNumber)
                .ToListAsync();
         }
 
@@ -136,6 +138,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                .Include(i => i.PurchaseOrderDetails)
                .Include(i => i.PurchaseOrderActivities)
                .Where(w => w.StatusDocumentType.StatusOrder == 1 && _context.PurchaseOrderDetails.AsNoTracking().Any(d => d.PurchaseOrderId == w.PurchaseOrderId && d.ReferenceId == referenceId))
+               .OrderBy(o => o.OrderNumber)
                .ToListAsync(ct);
         }
 

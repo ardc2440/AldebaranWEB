@@ -72,13 +72,13 @@ namespace Aldebaran.Application.Services
         {
             var details = _mapper.Map<List<Entities.PurchaseOrderDetail>>(purchaseOrderDetails) ?? throw new ArgumentNullException("Orden debe contener detalles.");
             var data = await _repository.GetAffectedCustomerOrders(purchaseOrderId, newExpectedReceiptDate, details, ct);
-            return _mapper.Map<List<CustomerOrderAffectedByPurchaseOrderUpdate>>(data);
+            return _mapper.Map<List<CustomerOrderAffectedByPurchaseOrderUpdate>>(data.OrderBy(o => o.OrderNumber));
         }
 
         public async Task<IEnumerable<CustomerOrderAffectedByPurchaseOrderUpdate>> GetAffectedCustomerOrders(int purchaseOrderId, CancellationToken ct = default)
         {
             var data = await _repository.GetAffectedCustomerOrders(purchaseOrderId, ct);
-            return _mapper.Map<List<CustomerOrderAffectedByPurchaseOrderUpdate>>(data);
+            return _mapper.Map<List<CustomerOrderAffectedByPurchaseOrderUpdate>>(data.OrderBy(o => o.OrderNumber));
         }
     }
 }

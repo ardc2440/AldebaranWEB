@@ -65,6 +65,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .Include(i => i.Customer.IdentityType)
                 .Include(i => i.StatusDocumentType.DocumentType)
                 .Include(i => i.Employee.IdentityType)
+                .OrderBy(o=>o.OrderNumber)
                 .ToListAsync(ct);
         }
 
@@ -95,6 +96,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                             _context.Format(i.OrderDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
                             _context.Format(i.EstimatedDeliveryDate, _SharedLocalizer["date:format"]).Contains(searchKey)
                             )
+                .OrderBy(o => o.OrderNumber)
                 .ToListAsync(ct);
         }
 
