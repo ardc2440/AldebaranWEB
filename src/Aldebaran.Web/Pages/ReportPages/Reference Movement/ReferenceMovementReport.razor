@@ -20,6 +20,24 @@
             <div class="component-section d-flex flex-column justify-content-start text-secondary-color">
                 @if (Filter != null)
                 {
+                    @if (Filter.MovementDate?.StartDate != null || Filter.MovementDate?.EndDate != null)
+                    {
+                        <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
+                            <p class="component-label m-0 fw-bold">Fecha de movimiento: </p>
+                            @if (Filter.MovementDate?.StartDate != null)
+                            {
+                                <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.MovementDate.StartDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                            }
+                            @if (Filter.MovementDate?.EndDate != null)
+                            {
+                                @if (Filter.MovementDate?.StartDate != null)
+                                {
+                                    <p class="component-label m-0"> - </p>
+                                }
+                                <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.MovementDate.EndDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                            }
+                        </div>
+                    }
                     <div class="component-section d-flex flex-column justify-content-start pt-2">
                         @if (Filter.ItemReferences.Any())
                         {
@@ -65,6 +83,24 @@
                                         <div class="filters">
                                             <div class="title">Filtros:</div>
                                             <div>
+                                                @if (Filter.MovementDate?.StartDate != null || Filter.MovementDate?.EndDate != null)
+                                                {
+                                                    <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
+                                                        <div class="type">Fecha de movimiento: </div>
+                                                        @if (Filter.MovementDate?.StartDate != null)
+                                                        {
+                                                            <span>@Filter.MovementDate.StartDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                                                        }
+                                                        @if (Filter.MovementDate?.EndDate != null)
+                                                        {
+                                                            @if (Filter.MovementDate?.StartDate != null)
+                                                            {
+                                                                <p> - </p>
+                                                            }
+                                                            <span>@Filter.MovementDate.EndDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                                                        }
+                                                    </div>
+                                                }
                                                 @if (Filter.ItemReferences.Any())
                                                 {
                                                     <div style="display:flex; flex-direction:column; justify-content:end">
@@ -137,6 +173,32 @@
                                                                     </table>
                                                                 </td>
                                                             </tr>
+                                                            @foreach (var movement in reference.Movements)
+                                                            {
+                                                                <tr style="background:#fff !important">
+                                                                    <td colspan="4">
+                                                                        <div style="margin: 1em 1em 0em 1em !important;">
+                                                                            <h4 class="text-left m-0 pb-1">@movement.Title</h4>
+                                                                            <table style="text-align: center !important;margin:0 !important; margin-bottom: 1em !important;" class="edged">
+                                                                                @foreach (var detail in movement.Details)
+                                                                                {
+                                                                                    <tr>
+                                                                                        <td width="15%">@detail.Code</td>
+                                                                                        <td width="20%">@detail.Status</td>
+                                                                                        <td width="10%">@detail.Date.ToString(SharedLocalizer["date:format"])</td>
+                                                                                        <td width="40%">@detail.Owner</td>
+                                                                                        <td width="15%">@detail.Amount.ToString("N0")</td>
+                                                                                    </tr>
+                                                                                }
+                                                                                <tr style="font-weight: 600;">
+                                                                                    <td colspan="4" style="text-align: right">Total: </td>
+                                                                                    <td>@movement.Details.Sum(s => s.Amount).ToString("N0")</td>
+                                                                                </tr>
+                                                                            </table>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            }
                                                         }
                                                     </tbody>
                                                 </table>

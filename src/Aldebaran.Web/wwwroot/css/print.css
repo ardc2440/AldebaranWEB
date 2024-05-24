@@ -173,12 +173,12 @@
             border: 0;
         }
 
-        .report table.striped tbody tr:nth-of-type(odd) {
+        .report table.striped > tbody > tr:nth-of-type(odd) {
             background: #f5f5f5;
         }
 
         .report table.no-color,
-        .report table.no-color thead tr, .report table.no-color tbody tr {
+        .report table.no-color > thead > tr, .report table.no-color > tbody > tr {
             background: #fff !important;
         }
 

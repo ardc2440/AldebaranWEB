@@ -26,6 +26,7 @@
             public int ReservedQuantity { get; set; }
             public int RequestedQuantity { get; set; }
             public List<Warehouse> Warehouses { get; set; }
+            public List<Movements> Movements { get; set; }
         }
 
         public class Warehouse
@@ -34,6 +35,19 @@
             public string WarehouseName { get; set; }
             public int Amount { get; set; }
         }
+        public class Movements
+        {
+            public string Title { get; set; }
+            public List<MovementDetail> Details { get; set; }
 
+        }
+        public class MovementDetail
+        {
+            public string Code { get; set; }
+            public DateTime Date { get; set; }
+            public string Owner { get; set; }
+            public int Amount { get; set; }
+            public string Status { get; set; }
+        }
     }
 }
