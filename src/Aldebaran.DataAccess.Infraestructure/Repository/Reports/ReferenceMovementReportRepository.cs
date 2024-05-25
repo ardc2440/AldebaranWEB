@@ -13,7 +13,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository.Reports
         {
             return await ExecuteQueryAsync(async dbContext =>
             {
-                return await _context.Set<ReferenceMovementReport>().FromSqlRaw($"EXEC SP_GET_REFERENCE_MOVEMENT_REPORT {filter}").ToListAsync(ct);
+                return await dbContext.Set<ReferenceMovementReport>().FromSqlRaw($"EXEC SP_GET_REFERENCE_MOVEMENT_REPORT {filter}").ToListAsync(ct);
             }, ct);
         }
     }
