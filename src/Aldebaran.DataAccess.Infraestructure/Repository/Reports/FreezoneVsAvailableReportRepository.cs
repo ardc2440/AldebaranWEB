@@ -3,17 +3,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository.Reports
 {
-    public class FreezoneVsAvailableReportRepository : IFreezoneVsAvailableReportRepository
+    public class FreezoneVsAvailableReportRepository : RepositoryBase<AldebaranDbContext>, IFreezoneVsAvailableReportRepository
     {
-        private readonly AldebaranDbContext _context;
-        public FreezoneVsAvailableReportRepository(AldebaranDbContext context)
+        public FreezoneVsAvailableReportRepository(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public async Task<IEnumerable<FreezoneVsAvailableReport>> GetFreezoneVsAvailableReportDataAsync(string filter = "", CancellationToken ct = default)
         {
-            return await _context.Set<FreezoneVsAvailableReport>().FromSqlRaw($"EXEC SP_GET_FREEZONE_VS_AVAILABLE_REPORT @ReferenceIds = '{filter}'").ToListAsync(ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.Set<FreezoneVsAvailableReport>().FromSqlRaw($"EXEC SP_GET_FREEZONE_VS_AVAILABLE_REPORT @ReferenceIds = '{filter}'").ToListAsync(ct);
+            }, ct);
         }
     }
 }

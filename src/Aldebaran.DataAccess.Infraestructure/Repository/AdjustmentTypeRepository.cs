@@ -3,17 +3,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
-    public class AdjustmentTypeRepository : IAdjustmentTypeRepository
+    public class AdjustmentTypeRepository : RepositoryBase<AldebaranDbContext>, IAdjustmentTypeRepository
     {
-        private readonly AldebaranDbContext _context;
-        public AdjustmentTypeRepository(AldebaranDbContext context)
+        public AdjustmentTypeRepository(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public async Task<IEnumerable<AdjustmentType>> GetAsync(CancellationToken ct = default)
         {
-            return await _context.AdjustmentTypes.AsNoTracking().ToListAsync(ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.AdjustmentTypes.AsNoTracking().ToListAsync(ct);
+            }, ct);
         }
     }
 

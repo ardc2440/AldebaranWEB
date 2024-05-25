@@ -3,33 +3,41 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
-    public class NotificationTemplateRepository : INotificationTemplateRepository
+    public class NotificationTemplateRepository : RepositoryBase<AldebaranDbContext>, INotificationTemplateRepository
     {
-        private readonly AldebaranDbContext _context;
-        public NotificationTemplateRepository(AldebaranDbContext context)
+        public NotificationTemplateRepository(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public async Task<NotificationTemplate?> FindAsync(string name, CancellationToken ct = default)
         {
-            return await _context.NotificationTemplates.AsNoTracking()
-                .FirstOrDefaultAsync(i => i.Name == name, ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.NotificationTemplates.AsNoTracking()
+               .FirstOrDefaultAsync(i => i.Name == name, ct);
+            }, ct);
         }
 
         public async Task<IEnumerable<NotificationTemplate>> GetAsync(CancellationToken ct = default)
         {
-            return await _context.NotificationTemplates.AsNoTracking().ToListAsync(ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.NotificationTemplates.AsNoTracking().ToListAsync(ct);
+            }, ct);
         }
 
         public async Task UpdateAsync(short templateId, NotificationTemplate template, CancellationToken ct = default)
         {
-            var entity = await _context.NotificationTemplates.FirstOrDefaultAsync(f => f.NotificationTemplateId == templateId, ct);
-            if (entity == null)
-                throw new KeyNotFoundException($"Plantilla de correo con Id {templateId} no encontrada");
-            entity.Subject = template.Subject;
-            entity.Message = template.Message;
-            await _context.SaveChangesAsync(ct);
+            await ExecuteCommandAsync(async dbContext =>
+            {
+                var entity = await dbContext.NotificationTemplates.FirstOrDefaultAsync(f => f.NotificationTemplateId == templateId, ct);
+                if (entity == null)
+                    throw new KeyNotFoundException($"Plantilla de correo con Id {templateId} no encontrada");
+                entity.Subject = template.Subject;
+                entity.Message = template.Message;
+                await dbContext.SaveChangesAsync(ct);
+                return Task.CompletedTask;
+            }, ct);
         }
     }
 }

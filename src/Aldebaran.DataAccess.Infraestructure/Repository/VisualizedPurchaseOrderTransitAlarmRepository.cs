@@ -1,33 +1,30 @@
 ﻿using Aldebaran.DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
-    public class VisualizedPurchaseOrderTransitAlarmRepository: IVisualizedPurchaseOrderTransitAlarmRepository
+    public class VisualizedPurchaseOrderTransitAlarmRepository : RepositoryBase<AldebaranDbContext>, IVisualizedPurchaseOrderTransitAlarmRepository
     {
-        private readonly AldebaranDbContext _context;
-        public VisualizedPurchaseOrderTransitAlarmRepository(AldebaranDbContext context)
+        public VisualizedPurchaseOrderTransitAlarmRepository(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public async Task AddAsync(VisualizedPurchaseOrderTransitAlarm item, CancellationToken ct = default)
         {
-            try
+            await ExecuteCommandAsync(async dbContext =>
             {
-                await _context.VisualizedPurchaseOrderTransitAlarms.AddAsync(item, ct);
-                await _context.SaveChangesAsync(ct);
-            }
-            catch (Exception)
-            {
-                _context.Entry(item).State = EntityState.Unchanged;
-                throw;
-            }            
+                try
+                {
+                    await dbContext.VisualizedPurchaseOrderTransitAlarms.AddAsync(item, ct);
+                    await dbContext.SaveChangesAsync(ct);
+                }
+                catch (Exception)
+                {
+                    dbContext.Entry(item).State = EntityState.Unchanged;
+                    throw;
+                }
+                return Task.CompletedTask;
+            }, ct);
         }
     }
 }

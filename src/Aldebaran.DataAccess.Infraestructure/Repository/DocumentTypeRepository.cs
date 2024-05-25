@@ -3,17 +3,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
-    public class DocumentTypeRepository : IDocumentTypeRepository
+    public class DocumentTypeRepository : RepositoryBase<AldebaranDbContext>, IDocumentTypeRepository
     {
-        private readonly AldebaranDbContext _context;
-        public DocumentTypeRepository(AldebaranDbContext context)
+        public DocumentTypeRepository(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public async Task<DocumentType?> FindByCodeAsync(string code, CancellationToken ct = default)
         {
-            return await _context.DocumentTypes.AsNoTracking().FirstOrDefaultAsync(f => f.DocumentTypeCode == code, ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.DocumentTypes.AsNoTracking().FirstOrDefaultAsync(f => f.DocumentTypeCode == code, ct);
+            }, ct);
         }
     }
 }

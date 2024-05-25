@@ -1,20 +1,20 @@
-﻿
-using Aldebaran.DataAccess.Entities.Reports;
+﻿using Aldebaran.DataAccess.Entities.Reports;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository.Reports
 {
-    public class CustomerOrderActivityReportRepository : ICustomerOrderActivityReportRepository
+    public class CustomerOrderActivityReportRepository : RepositoryBase<AldebaranDbContext>, ICustomerOrderActivityReportRepository
     {
-        private readonly AldebaranDbContext _context;
-        public CustomerOrderActivityReportRepository(AldebaranDbContext context)
+        public CustomerOrderActivityReportRepository(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public async Task<IEnumerable<CustomerOrderActivityReport>> GetCustomerOrderActivityReportDataAsync(string filter = "", CancellationToken ct = default)
         {
-            return await _context.Set<CustomerOrderActivityReport>().FromSqlRaw($"EXEC SP_GET_CUSTOMER_ORDER_ACTIVITY_REPORT {filter}").ToListAsync(ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.Set<CustomerOrderActivityReport>().FromSqlRaw($"EXEC SP_GET_CUSTOMER_ORDER_ACTIVITY_REPORT {filter}").ToListAsync(ct);
+            }, ct);
         }
     }
 }

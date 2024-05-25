@@ -1,24 +1,20 @@
 ﻿using Aldebaran.DataAccess.Entities.Reports;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository.Reports
 {
-    public class ProviderReferenceReportRepository : IProviderReferenceReportRepository
+    public class ProviderReferenceReportRepository : RepositoryBase<AldebaranDbContext>, IProviderReferenceReportRepository
     {
-        private readonly AldebaranDbContext _context;
-        public ProviderReferenceReportRepository(AldebaranDbContext context)
+        public ProviderReferenceReportRepository(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public async Task<IEnumerable<ProviderReferenceReport>> GetProviderReferenceReportDataAsync(string filter, CancellationToken ct)
         {
-            return await _context.Set<ProviderReferenceReport>().FromSqlRaw($"EXEC SP_GET_PROVIDER_REFERENCE_REPORT {filter}").ToListAsync(ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.Set<ProviderReferenceReport>().FromSqlRaw($"EXEC SP_GET_PROVIDER_REFERENCE_REPORT {filter}").ToListAsync(ct);
+            }, ct);
         }
     }
 }

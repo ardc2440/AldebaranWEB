@@ -3,17 +3,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
-    public class AdjustmentDetailRepository : IAdjustmentDetailRepository
+    public class AdjustmentDetailRepository : RepositoryBase<AldebaranDbContext>, IAdjustmentDetailRepository
     {
-        private readonly AldebaranDbContext _context;
-        public AdjustmentDetailRepository(AldebaranDbContext context)
+        public AdjustmentDetailRepository(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public async Task<IEnumerable<AdjustmentDetail>> GetAsync(string searchKey, CancellationToken ct = default)
         {
-            return await _context.AdjustmentDetails.AsNoTracking()
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.AdjustmentDetails.AsNoTracking()
                 .Where(i => i.Warehouse.WarehouseName.Contains(searchKey) ||
                           i.ItemReference.Item.Line.LineName.Contains(searchKey) ||
                           i.ItemReference.Item.ItemName.Contains(searchKey) ||
@@ -29,25 +29,32 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .Include(i => i.ItemReference.Item.Line)
                 .Include(i => i.Warehouse)
                 .ToListAsync(ct);
+            }, ct);
         }
 
         public async Task<AdjustmentDetail?> FindAsync(int adjustmentDetailId, CancellationToken ct = default)
         {
-            return await _context.AdjustmentDetails.AsNoTracking()
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.AdjustmentDetails.AsNoTracking()
                 .Include(i => i.Adjustment)
                 .Include(i => i.ItemReference.Item.Line)
                 .Include(i => i.Warehouse)
                 .FirstOrDefaultAsync(w => w.AdjustmentDetailId == adjustmentDetailId, ct);
+            }, ct);
         }
 
         public async Task<IEnumerable<AdjustmentDetail>> GetByAdjustmentIdAsync(int adjustmentId, CancellationToken ct = default)
         {
-            return await _context.AdjustmentDetails.AsNoTracking()
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.AdjustmentDetails.AsNoTracking()
                 .Include(i => i.Adjustment)
                 .Include(i => i.ItemReference.Item.Line)
                 .Include(i => i.Warehouse)
                 .Where(w => w.AdjustmentId == adjustmentId)
                 .ToListAsync(ct);
+            }, ct);
         }
     }
 

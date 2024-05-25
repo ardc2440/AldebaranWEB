@@ -1,54 +1,60 @@
 ﻿using Aldebaran.DataAccess.Entities;
-using DocumentFormat.OpenXml.Vml.Office;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
-    public class AlarmRepository : IAlarmRepository
+    public class AlarmRepository : RepositoryBase<AldebaranDbContext>, IAlarmRepository
     {
-        private readonly AldebaranDbContext _context;
-        public AlarmRepository(AldebaranDbContext context)
+        public AlarmRepository(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
-        
+
         public async Task<IEnumerable<Alarm>> GetByDocumentIdAsync(int documentTypeId, int documentId, CancellationToken ct = default)
         {
-            return await _context.Alarms.AsNoTracking()
-                            .Include(i => i.AlarmMessage.AlarmType.DocumentType)
-                            .Where(i => i.DocumentId == documentId && i.AlarmMessage.AlarmType.DocumentTypeId == documentTypeId)
-                            .ToListAsync(ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.Alarms.AsNoTracking()
+                                .Include(i => i.AlarmMessage.AlarmType.DocumentType)
+                                .Where(i => i.DocumentId == documentId && i.AlarmMessage.AlarmType.DocumentTypeId == documentTypeId)
+                                .ToListAsync(ct);
+            }, ct);
         }
 
         public async Task<Alarm> AddAsync(Alarm item, CancellationToken ct = default)
         {
-            try
+            return await ExecuteCommandAsync(async dbContext =>
             {
-                await _context.Alarms.AddAsync(item, ct);
-                await _context.SaveChangesAsync(ct);
-                return item;
-            }
-            catch (Exception)
-            {
-                _context.Entry(item).State = EntityState.Unchanged;
-                throw;
-            }
-           
+                try
+                {
+                    await dbContext.Alarms.AddAsync(item, ct);
+                    await dbContext.SaveChangesAsync(ct);
+                    return item;
+                }
+                catch (Exception)
+                {
+                    dbContext.Entry(item).State = EntityState.Unchanged;
+                    throw;
+                }
+            }, ct);
         }
 
         public async Task DisableAsync(int alarmId, CancellationToken ct = default)
         {
-            var entity = await _context.Alarms.FirstOrDefaultAsync(x => x.AlarmId == alarmId, ct) ?? throw new KeyNotFoundException($"Alarma con id {alarmId} no existe.");
-            entity.IsActive = false;
-            try
+            await ExecuteCommandAsync(async dbContext =>
             {
-                await _context.SaveChangesAsync(ct);
-            }
-            catch
-            {
-                _context.Entry(entity).State = EntityState.Unchanged;
-                throw;
-            }
+                var entity = await dbContext.Alarms.FirstOrDefaultAsync(x => x.AlarmId == alarmId, ct) ?? throw new KeyNotFoundException($"Alarma con id {alarmId} no existe.");
+                entity.IsActive = false;
+                try
+                {
+                    await dbContext.SaveChangesAsync(ct);
+                }
+                catch
+                {
+                    dbContext.Entry(entity).State = EntityState.Unchanged;
+                    throw;
+                }
+                return Task.CompletedTask;
+            }, ct);
         }
     }
 
