@@ -1907,7 +1907,7 @@ BEGIN
 	)
 
 	INSERT INTO @Movements
-		 SELECT b.REFERENCE_ID, 1, 'Ajustes de inventario', a.ADJUSTMENT_ID, a.ADJUSTMENT_DATE, c.ADJUSTMENT_TYPE_NAME + ' por ' + d.ADJUSTMENT_REASON_NAME, b.QUANTITY, e.STATUS_DOCUMENT_TYPE_NAME
+		 SELECT b.REFERENCE_ID, 1, 'Ajustes de inventario realizados en el periodo', a.ADJUSTMENT_ID, a.ADJUSTMENT_DATE, c.ADJUSTMENT_TYPE_NAME + ' por ' + d.ADJUSTMENT_REASON_NAME, b.QUANTITY, e.STATUS_DOCUMENT_TYPE_NAME
 		   FROM adjustments a
 		   JOIN adjustment_details b ON b.ADJUSTMENT_ID = a.ADJUSTMENT_ID
 		   JOIN adjustment_types c ON c.ADJUSTMENT_TYPE_ID = a.ADJUSTMENT_TYPE_ID
@@ -1919,7 +1919,7 @@ BEGIN
 	 	  ORDER BY b.REFERENCE_ID, a.ADJUSTMENT_DATE, a.ADJUSTMENT_ID
 
   	INSERT INTO @Movements
-		 SELECT b.REFERENCE_ID, 2, 'Ordenes de compra', a.ORDER_NUMBER, a.REQUEST_DATE, c.PROVIDER_NAME, b.REQUESTED_QUANTITY, d.STATUS_DOCUMENT_TYPE_NAME
+		 SELECT b.REFERENCE_ID, 2, 'Ordenes de compra realizadas en el periodo', a.ORDER_NUMBER, a.REQUEST_DATE, c.PROVIDER_NAME, b.REQUESTED_QUANTITY, d.STATUS_DOCUMENT_TYPE_NAME
 		   FROM purchase_orders a
 		   JOIN purchase_order_details b on b.PURCHASE_ORDER_ID = a.PURCHASE_ORDER_ID
 		   JOIN providers c on c.PROVIDER_ID = a.PROVIDER_ID
@@ -1930,7 +1930,7 @@ BEGIN
 		  ORDER BY b.REFERENCE_ID, a.REQUEST_DATE, a.ORDER_NUMBER
 
   	INSERT INTO @Movements
-		 SELECT b.REFERENCE_ID, 3, 'Reservas', a.RESERVATION_NUMBER, a.RESERVATION_DATE, c.CUSTOMER_NAME, b.RESERVED_QUANTITY, d.STATUS_DOCUMENT_TYPE_NAME
+		 SELECT b.REFERENCE_ID, 3, 'Reservas realizadas en el periodo', a.RESERVATION_NUMBER, a.RESERVATION_DATE, c.CUSTOMER_NAME, b.RESERVED_QUANTITY, d.STATUS_DOCUMENT_TYPE_NAME
 		   FROM customer_reservations a
 		   JOIN customer_reservation_details b on b.CUSTOMER_RESERVATION_ID = a.CUSTOMER_RESERVATION_ID
 		   JOIN customers c on c.CUSTOMER_ID = a.CUSTOMER_ID
@@ -1941,7 +1941,7 @@ BEGIN
 		  ORDER BY b.REFERENCE_ID, a.RESERVATION_DATE, a.RESERVATION_NUMBER
 
 	INSERT INTO @Movements
-		 SELECT b.REFERENCE_ID, 4, 'Pedidos', a.ORDER_NUMBER, a.ORDER_DATE, c.CUSTOMER_NAME, b.REQUESTED_QUANTITY, d.STATUS_DOCUMENT_TYPE_NAME
+		 SELECT b.REFERENCE_ID, 4, 'Pedidos realizados en el periodo', a.ORDER_NUMBER, a.ORDER_DATE, c.CUSTOMER_NAME, b.REQUESTED_QUANTITY, d.STATUS_DOCUMENT_TYPE_NAME
 		   FROM customer_orders a
 		   JOIN customer_order_details b on b.CUSTOMER_ORDER_ID = a.CUSTOMER_ORDER_ID
 		   JOIN customers c on c.CUSTOMER_ID = a.CUSTOMER_ID
@@ -2065,7 +2065,8 @@ BEGIN
 		  ShipmentDetailAmount INT)
 
 	INSERT INTO @CustomerOrders
-		 SELECT b.CUSTOMER_ID CustomerId, b.CUSTOMER_NAME CustomerName, (ISNULL(b.CELL_PHONE+', ','')+ISNULL(b.PHONE2+', ','')+ISNULL(b.PHONE1,'')) Phone, b.FAX Fax,
+		 SELECT b.CUSTOMER_ID CustomerId, b.CUSTOMER_NAME CustomerName, 
+				CASE WHEN b.CELL_PHONE IS NULL AND b.PHONE2 IS NULL AND b.PHONE1 IS NULL THEN NULL ELSE CONCAT_WS(',', b.CELL_PHONE, b.PHONE2, b.PHONE1) END Phone, b.FAX Fax,
 	 			a.CUSTOMER_ORDER_ID OrderId, a.ORDER_NUMBER OrderNumber, a.CREATION_DATE OrderCreationDate, a.ORDER_DATE OrderDate, a.ESTIMATED_DELIVERY_DATE EstimatedDeliveryDate, 
 				c.STATUS_DOCUMENT_TYPE_NAME OrderStatus, a.INTERNAL_NOTES InternalNotes, a.CUSTOMER_NOTES CustomerNotes, D.CUSTOMER_ORDER_DETAIL_ID OrderDetailId,
 				f.INTERNAL_REFERENCE OrderDetailItemReference, f.ITEM_NAME OrderDetailItemName, e.REFERENCE_CODE OrderDetailReferenceCode, e.REFERENCE_NAME OrderDetailReferenceName,
@@ -2140,7 +2141,8 @@ BEGIN
 			 SELECT REFERENCE_ID 
 			   FROM item_references
 
-	SELECT a.CUSTOMER_ID CustomerId, a.CUSTOMER_NAME CustomerName, (ISNULL(a.CELL_PHONE+', ','')+ISNULL(a.PHONE2+', ','')+ISNULL(a.PHONE1,'')) Phone, a.FAX Fax,
+	SELECT a.CUSTOMER_ID CustomerId, a.CUSTOMER_NAME CustomerName, 	   
+		   CASE WHEN a.CELL_PHONE IS NULL AND a.PHONE2 IS NULL AND a.PHONE1 IS NULL THEN NULL ELSE CONCAT_WS(',', a.CELL_PHONE, a.PHONE2, a.PHONE1)END Phone, a.FAX Fax,
 	       b.CUSTOMER_RESERVATION_ID ReservationId, b.RESERVATION_NUMBER ReservationNumber, b.CREATION_DATE CreationDate, b.RESERVATION_DATE ReservationDate, b.EXPIRATION_DATE ExpirationDate, c.STATUS_DOCUMENT_TYPE_NAME Status, ISNULL(b.NOTES,'') Notes,
 		   f.ITEM_ID ItemId, f.INTERNAL_REFERENCE InternalReference, f.ITEM_NAME ItemName, e.REFERENCE_CODE ReferenceCode, e.REFERENCE_NAME ReferenceName, d.RESERVED_QUANTITY Amount
 	  FROM Customers a
@@ -2190,9 +2192,11 @@ BEGIN
 
 	SELECT a.PURCHASE_ORDER_ID OrderId, a.ORDER_NUMBER OrderNumber, a.CREATION_DATE CreationDate, a.REQUEST_DATE RequestDate, a.EXPECTED_RECEIPT_DATE ExpectedReceiptDate, c.PROVIDER_NAME ProviderName,  
 	       a.IMPORT_NUMBER ImportNumber, e.SHIPMENT_METHOD_NAME ShipmentMethodName, a.EMBARKATION_PORT EmbarkationPort, a.PROFORMA_NUMBER ProformaNumber, g.FORWARDER_NAME ForwarderName, 
-		   (ISNULL(g.PHONE2+', ','')+ISNULL(g.PHONE1,'')) ForwarderPhone, g.FAX ForwarderFax, SUBSTRING(RTRIM((ISNULL(g.MAIL1+', ','')+ISNULL(g.MAIL2+', ',''))),1,LEN(RTRIM((ISNULL(g.MAIL1+', ','')+ISNULL(g.MAIL2+', ',''))))-1) ForwarderEmail,
-		   f.FORWARDER_AGENT_NAME ForwarderAgentName, (ISNULL(f.PHONE2+', ','')+ISNULL(f.PHONE1,'')) AgentPhone, f.FAX AgentFax, 
-		   SUBSTRING(RTRIM((ISNULL(f.EMAIL1+', ','')+ISNULL(f.EMAIL2+', ',''))),1,LEN(RTRIM((ISNULL(g.MAIL1+', ','')+ISNULL(g.MAIL2+', ',''))))-1) AgentEmail, 
+		   CASE WHEN g.PHONE2 IS NULL AND g.PHONE1 IS NULL THEN NULL ELSE CONCAT_WS(',', g.PHONE1, g.PHONE2) END ForwarderPhone, g.FAX ForwarderFax, 
+		   CASE WHEN g.MAIL1 IS NULL AND g.MAIL2 IS NULL THEN NULL ELSE CONCAT_WS(',', g.MAIL1, g.MAIL2) END ForwarderEmail,
+		   f.FORWARDER_AGENT_NAME ForwarderAgentName, 		   
+		   CASE WHEN f.PHONE2 IS NULL AND f.PHONE1 IS NULL THEN NULL ELSE CONCAT_WS(',', f.PHONE1, f.PHONE2) END AgentPhone, f.FAX AgentFax,
+		   CASE WHEN f.EMAIL1 IS NULL AND f.EMAIL2 IS NULL THEN NULL ELSE CONCAT_WS(',', f.EMAIL1, f.EMAIL2) END AgentEmail,
 		   i.WAREHOUSE_ID WarehouseId, i.WAREHOUSE_NAME WarehouseName, l.LINE_ID LineId, l.LINE_CODE LineCode, l.LINE_NAME LineName, k.ITEM_ID ItemId, k.ITEM_NAME ItemName, k.INTERNAL_REFERENCE InternalReference, 
 		   j.REFERENCE_CODE ReferenceCode, j.REFERENCE_NAME ReferenceName, h.REQUESTED_QUANTITY Amount, k.WEIGHT * h.REQUESTED_QUANTITY Weight, k.VOLUME * h.REQUESTED_QUANTITY Volume
 	  FROM purchase_orders a
@@ -2293,7 +2297,8 @@ BEGIN
 	)
 
 	INSERT INTO @CustomerOrders
-	     SELECT a.CUSTOMER_ID CustomerId, a.CUSTOMER_NAME CustomerName, (ISNULL(a.CELL_PHONE+', ','')+ISNULL(a.PHONE2+', ','')+ISNULL(a.PHONE1,'')) Phone, a.FAX Fax,
+	     SELECT a.CUSTOMER_ID CustomerId, a.CUSTOMER_NAME CustomerName, 
+				CASE WHEN a.CELL_PHONE IS NULL AND a.PHONE2 IS NULL AND a.PHONE1 IS NULL THEN NULL ELSE CONCAT_WS(',', a.PHONE1, a.PHONE2, a.CELL_PHONE) END Phone, a.FAX Fax,
 	     	    b.CUSTOMER_ORDER_ID OrderId, b.ORDER_NUMBER OrderNumber, b.CREATION_DATE CreationDate, b.ORDER_DATE OrderDate, b.ESTIMATED_DELIVERY_DATE EstimatedDeliveryDate, c.STATUS_DOCUMENT_TYPE_NAME StatusOrder,
 	     	    b.INTERNAL_NOTES InternalNotes, b.CUSTOMER_NOTES CustomerNotes, e.REFERENCE_ID, f.INTERNAL_REFERENCE ItemReference, f.ITEM_NAME ItemName, e.REFERENCE_CODE ReferenceCode, e.REFERENCE_NAME ReferenceName,
 	     	    d.REQUESTED_QUANTITY Amount, d.DELIVERED_QUANTITY DeliveredAmount, d.PROCESSED_QUANTITY InProcessAmount, 
@@ -2477,7 +2482,8 @@ BEGIN
 		  ShipmentDetailAmount INT)
 
 	INSERT INTO @CustomerOrders
-		 SELECT b.CUSTOMER_ID CustomerId, b.CUSTOMER_NAME CustomerName, (ISNULL(b.CELL_PHONE+', ','')+ISNULL(b.PHONE2+', ','')+ISNULL(b.PHONE1,'')) Phone, b.FAX Fax,
+		 SELECT b.CUSTOMER_ID CustomerId, b.CUSTOMER_NAME CustomerName, 
+				CASE WHEN b.CELL_PHONE IS NULL AND b.PHONE2 IS NULL THEN NULL ELSE CONCAT_WS(',', b.CELL_PHONE, b.PHONE2) END Phone, b.FAX Fax,
 	 			a.CUSTOMER_ORDER_ID OrderId, a.ORDER_NUMBER OrderNumber, a.CREATION_DATE OrderCreationDate, a.ORDER_DATE OrderDate, a.ESTIMATED_DELIVERY_DATE EstimatedDeliveryDate, 
 				c.STATUS_DOCUMENT_TYPE_NAME OrderStatus, a.INTERNAL_NOTES InternalNotes, a.CUSTOMER_NOTES CustomerNotes, D.CUSTOMER_ORDER_DETAIL_ID OrderDetailId,
 				f.INTERNAL_REFERENCE OrderDetailItemReference, f.ITEM_NAME OrderDetailItemName, e.REFERENCE_CODE OrderDetailReferenceCode, e.REFERENCE_NAME OrderDetailReferenceName,
@@ -2561,7 +2567,7 @@ BEGIN
 			   FROM item_references
 			   			   
 	SELECT a.ORDER_NUMBER OrderNumber, b.CUSTOMER_NAME CustomerName, b.IDENTITY_NUMBER IdentityNumber, 
-		   (ISNULL(b.CELL_PHONE+', ','')+ISNULL(b.PHONE2+', ','')+ISNULL(b.PHONE1,'')) Phone,
+		   CASE WHEN b.CELL_PHONE IS NULL AND b.PHONE2 IS NULL THEN NULL ELSE CONCAT_WS(',', b.CELL_PHONE, b.PHONE2) END Phone,
 		   c.CITY_NAME CityName, a.ORDER_DATE OrderDate, f.ITEM_NAME ItemName, f.INTERNAL_REFERENCE ItemCode, e.REFERENCE_NAME ReferenceName, e.REFERENCE_CODE ReferenceCode,
 		   d.REQUESTED_QUANTITY Amount, d.DELIVERED_QUANTITY DeliveredAmount,  d.REQUESTED_QUANTITY - d.DELIVERED_QUANTITY - d.PROCESSED_QUANTITY PendingAmount, d.PROCESSED_QUANTITY ProcessedAmount,
 		   a.ESTIMATED_DELIVERY_DATE EstimatedDeliveryDate, a.INTERNAL_NOTES InternalNotes, a.CUSTOMER_NOTES CustomerNotes,
