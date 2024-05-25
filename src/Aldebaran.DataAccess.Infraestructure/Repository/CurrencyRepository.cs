@@ -3,18 +3,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
-    public class CurrencyRepository : ICurrencyRepository
+    public class CurrencyRepository : RepositoryBase<AldebaranDbContext>, ICurrencyRepository
     {
-        private readonly AldebaranDbContext _context;
-        public CurrencyRepository(AldebaranDbContext context)
+        public CurrencyRepository(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public async Task<IEnumerable<Currency>> GetAsync(CancellationToken ct = default)
         {
-            return await _context.Currencies.AsNoTracking()
-               .ToListAsync(ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.Currencies.AsNoTracking()
+                           .ToListAsync(ct);
+            }, ct);
         }
     }
 }

@@ -3,103 +3,116 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
-    public class WarehouseTransferRepository : IWarehouseTransferRepository
+    public class WarehouseTransferRepository : RepositoryBase<AldebaranDbContext>, IWarehouseTransferRepository
     {
-        private readonly AldebaranDbContext _context;
-        public WarehouseTransferRepository(AldebaranDbContext context)
+        public WarehouseTransferRepository(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public async Task CancelAsync(int warehouseTransferId, CancellationToken ct = default)
         {
-            var entity = await _context.WarehouseTransfers.FirstOrDefaultAsync(x => x.WarehouseTransferId == warehouseTransferId, ct) ?? throw new KeyNotFoundException($"Traslado con id {warehouseTransferId} no existe.");
-            var documentType = await _context.DocumentTypes.AsNoTracking().FirstAsync(f => f.DocumentTypeCode == "B", ct);
-            var statutsDocumentType = await _context.StatusDocumentTypes.AsNoTracking().FirstAsync(f => f.DocumentTypeId == documentType.DocumentTypeId && f.StatusOrder == 2, ct);
-            entity.StatusDocumentTypeId = statutsDocumentType.StatusDocumentTypeId;
-            try
+            await ExecuteCommandAsync(async dbContext =>
             {
-                await _context.SaveChangesAsync(ct);
-            }
-            catch
-            {
-                _context.Entry(entity).State = EntityState.Unchanged;
-                throw;
-            }
+                var entity = await dbContext.WarehouseTransfers.FirstOrDefaultAsync(x => x.WarehouseTransferId == warehouseTransferId, ct) ?? throw new KeyNotFoundException($"Traslado con id {warehouseTransferId} no existe.");
+                var documentType = await dbContext.DocumentTypes.AsNoTracking().FirstAsync(f => f.DocumentTypeCode == "B", ct);
+                var statutsDocumentType = await dbContext.StatusDocumentTypes.AsNoTracking().FirstAsync(f => f.DocumentTypeId == documentType.DocumentTypeId && f.StatusOrder == 2, ct);
+                entity.StatusDocumentTypeId = statutsDocumentType.StatusDocumentTypeId;
+                try
+                {
+                    await dbContext.SaveChangesAsync(ct);
+                }
+                catch
+                {
+                    dbContext.Entry(entity).State = EntityState.Unchanged;
+                    throw;
+                }
+                return Task.CompletedTask;
+            }, ct);
         }
 
         public async Task<WarehouseTransfer?> FindAsync(int warehouseTransferId, CancellationToken ct = default)
         {
-            return await _context.WarehouseTransfers.AsNoTracking()
-                .Include(i => i.OriginWarehouse)
-                .Include(i => i.DestinationWarehouse)
-                .Include(i => i.Employee)
-                .Include(i => i.StatusDocumentType)
-                .FirstOrDefaultAsync(i => i.WarehouseTransferId == warehouseTransferId, ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.WarehouseTransfers.AsNoTracking()
+                   .Include(i => i.OriginWarehouse)
+                   .Include(i => i.DestinationWarehouse)
+                   .Include(i => i.Employee)
+                   .Include(i => i.StatusDocumentType)
+                   .FirstOrDefaultAsync(i => i.WarehouseTransferId == warehouseTransferId, ct);
+            }, ct);
         }
 
         public async Task<IEnumerable<WarehouseTransfer>> GetAsync(CancellationToken ct = default)
         {
-            return await _context.WarehouseTransfers.AsNoTracking()
-                .Include(i => i.OriginWarehouse)
-                .Include(i => i.DestinationWarehouse)
-                .Include(i => i.Employee)
-                .Include(i => i.StatusDocumentType)
-                .ToListAsync(ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.WarehouseTransfers.AsNoTracking()
+                   .Include(i => i.OriginWarehouse)
+                   .Include(i => i.DestinationWarehouse)
+                   .Include(i => i.Employee)
+                   .Include(i => i.StatusDocumentType)
+                   .ToListAsync(ct);
+            }, ct);
         }
 
         public async Task<IEnumerable<WarehouseTransfer>> GetAsync(string search, CancellationToken ct = default)
         {
-            return await _context.WarehouseTransfers.AsNoTracking()
-                .Include(i => i.OriginWarehouse)
-                .Include(i => i.DestinationWarehouse)
-                .Include(i => i.Employee)
-                .Include(i => i.StatusDocumentType)
-                .Where(i => i.Notes.Contains(search) ||
-                          i.TransferDate.ToString().Contains(search) ||
-                          i.Nationalization.Contains(search) ||
-                          i.StatusDocumentType.StatusDocumentTypeName.Contains(search) ||
-                          i.DestinationWarehouse.WarehouseName.Contains(search) ||
-                          i.OriginWarehouse.WarehouseName.Contains(search) ||
-                          i.Employee.FullName.Contains(search))
-                .ToListAsync(ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.WarehouseTransfers.AsNoTracking()
+                            .Include(i => i.OriginWarehouse)
+                            .Include(i => i.DestinationWarehouse)
+                            .Include(i => i.Employee)
+                            .Include(i => i.StatusDocumentType)
+                            .Where(i => i.Notes.Contains(search) ||
+                                      i.TransferDate.ToString().Contains(search) ||
+                                      i.Nationalization.Contains(search) ||
+                                      i.StatusDocumentType.StatusDocumentTypeName.Contains(search) ||
+                                      i.DestinationWarehouse.WarehouseName.Contains(search) ||
+                                      i.OriginWarehouse.WarehouseName.Contains(search) ||
+                                      i.Employee.FullName.Contains(search))
+                            .ToListAsync(ct);
+            }, ct);
         }
 
         public async Task<WarehouseTransfer?> AddAsync(WarehouseTransfer warehouseTransfer, CancellationToken ct = default)
         {
-            var entity = new WarehouseTransfer
+            return await ExecuteCommandAsync(async dbContext =>
             {
-                WarehouseTransferDetails = new List<WarehouseTransferDetail>(),
-                CreationDate = DateTime.Now,
-                TransferDate = warehouseTransfer.TransferDate,
-                DestinationWarehouseId = warehouseTransfer.DestinationWarehouseId,
-                OriginWarehouseId = warehouseTransfer.OriginWarehouseId,
-                StatusDocumentTypeId = warehouseTransfer.StatusDocumentTypeId,
-                EmployeeId = warehouseTransfer.EmployeeId,
-                Nationalization = warehouseTransfer.Nationalization,
-                Notes = warehouseTransfer.Notes
-            };
-
-            foreach (var item in warehouseTransfer.WarehouseTransferDetails)
-                entity.WarehouseTransferDetails.Add(new WarehouseTransferDetail
+                var entity = new WarehouseTransfer
                 {
-                    ReferenceId = item.ReferenceId,
-                    Quantity = item.Quantity
-                });
+                    WarehouseTransferDetails = new List<WarehouseTransferDetail>(),
+                    CreationDate = DateTime.Now,
+                    TransferDate = warehouseTransfer.TransferDate,
+                    DestinationWarehouseId = warehouseTransfer.DestinationWarehouseId,
+                    OriginWarehouseId = warehouseTransfer.OriginWarehouseId,
+                    StatusDocumentTypeId = warehouseTransfer.StatusDocumentTypeId,
+                    EmployeeId = warehouseTransfer.EmployeeId,
+                    Nationalization = warehouseTransfer.Nationalization,
+                    Notes = warehouseTransfer.Notes
+                };
 
-            try
-            {
-                await _context.WarehouseTransfers.AddAsync(entity, ct);
-                await _context.SaveChangesAsync(ct);
-            }
-            catch (Exception)
-            {
-                _context.Entry(entity).State = EntityState.Unchanged;
-                throw;
-            }
+                foreach (var item in warehouseTransfer.WarehouseTransferDetails)
+                    entity.WarehouseTransferDetails.Add(new WarehouseTransferDetail
+                    {
+                        ReferenceId = item.ReferenceId,
+                        Quantity = item.Quantity
+                    });
 
-            return entity;
+                try
+                {
+                    await dbContext.WarehouseTransfers.AddAsync(entity, ct);
+                    await dbContext.SaveChangesAsync(ct);
+                }
+                catch (Exception)
+                {
+                    dbContext.Entry(entity).State = EntityState.Unchanged;
+                    throw;
+                }
+
+                return entity;
+            }, ct);
         }
     }
-
 }

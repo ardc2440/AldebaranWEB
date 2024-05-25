@@ -3,18 +3,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
-    public class NotificationProviderSettingsRepository : INotificationProviderSettingsRepository
+    public class NotificationProviderSettingsRepository : RepositoryBase<AldebaranDbContext>, INotificationProviderSettingsRepository
     {
-        private readonly AldebaranDbContext _context;
-        public NotificationProviderSettingsRepository(AldebaranDbContext context)
+        public NotificationProviderSettingsRepository(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public async Task<NotificationProviderSetting?> FindAsync(string subject, CancellationToken ct = default)
         {
-            return await _context.NotificationProviderSettings.AsNoTracking()
-                .FirstOrDefaultAsync(i => i.Subject == subject, ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.NotificationProviderSettings.AsNoTracking()
+               .FirstOrDefaultAsync(i => i.Subject == subject, ct);
+            }, ct);
         }
     }
 }

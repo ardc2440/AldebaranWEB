@@ -3,23 +3,27 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
-    public class CountryRepository : ICountryRepository
+    public class CountryRepository : RepositoryBase<AldebaranDbContext>, ICountryRepository
     {
-        private readonly AldebaranDbContext _context;
-        public CountryRepository(AldebaranDbContext context)
+        public CountryRepository(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
         public async Task<Country?> FindAsync(int countryId, CancellationToken ct = default)
         {
-            return await _context.Countries.AsNoTracking()
-                .FirstOrDefaultAsync(f => f.CountryId == countryId, ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.Countries.AsNoTracking()
+                    .FirstOrDefaultAsync(f => f.CountryId == countryId, ct);
+            }, ct);
         }
 
         public async Task<IEnumerable<Country>> GetAsync(CancellationToken ct = default)
         {
-            return await _context.Countries.AsNoTracking()
-                .ToListAsync(ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.Countries.AsNoTracking()
+                    .ToListAsync(ct);
+            }, ct);
         }
     }
 }

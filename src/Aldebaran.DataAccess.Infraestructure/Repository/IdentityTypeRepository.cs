@@ -3,18 +3,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
-    public class IdentityTypeRepository : IIdentityTypeRepository
+    public class IdentityTypeRepository : RepositoryBase<AldebaranDbContext>, IIdentityTypeRepository
     {
-        private readonly AldebaranDbContext _context;
-        public IdentityTypeRepository(AldebaranDbContext context)
+        public IdentityTypeRepository(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public async Task<IEnumerable<IdentityType>> GetAsync(CancellationToken ct = default)
         {
-            return await _context.IdentityTypes.AsNoTracking()
-             .ToListAsync(ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.IdentityTypes.AsNoTracking()
+            .ToListAsync(ct);
+            }, ct);
         }
     }
 }

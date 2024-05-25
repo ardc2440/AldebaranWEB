@@ -4,78 +4,94 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
-    public class PurchaseOrderNotificationRepository : IPurchaseOrderNotificationRepository
+    public class PurchaseOrderNotificationRepository : RepositoryBase<AldebaranDbContext>, IPurchaseOrderNotificationRepository
     {
-        private readonly AldebaranDbContext _context;
-        public PurchaseOrderNotificationRepository(AldebaranDbContext context)
+        public PurchaseOrderNotificationRepository(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public async Task<IEnumerable<PurchaseOrderNotification>> GetByPurchaseOrderId(int purchaseOrderId, CancellationToken ct = default)
         {
-            return await _context.PurchaseOrderNotifications.AsNoTracking()
-                            .Include(i => i.ModifiedPurchaseOrder.ModificationReason)
-                            .Include(i => i.CustomerOrder.Customer)
-                            .Where(w => w.ModifiedPurchaseOrder.PurchaseOrderId == purchaseOrderId)
-                            .ToListAsync(ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.PurchaseOrderNotifications.AsNoTracking()
+                                        .Include(i => i.ModifiedPurchaseOrder.ModificationReason)
+                                        .Include(i => i.CustomerOrder.Customer)
+                                        .Where(w => w.ModifiedPurchaseOrder.PurchaseOrderId == purchaseOrderId)
+                                        .ToListAsync(ct);
+            }, ct);
         }
 
         public async Task<IEnumerable<PurchaseOrderNotification>> GetByModifiedPurchaseOrder(int modifiedPurchaseOrderId, CancellationToken ct = default)
         {
-            return await _context.PurchaseOrderNotifications.AsNoTracking()
-                            .Include(i => i.ModifiedPurchaseOrder.ModificationReason)
-                            .Include(i => i.CustomerOrder.Customer)
-                            .Where(w => w.ModifiedPurchaseOrder.ModifiedPurchaseOrderId == modifiedPurchaseOrderId)
-                            .ToListAsync(ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.PurchaseOrderNotifications.AsNoTracking()
+                                        .Include(i => i.ModifiedPurchaseOrder.ModificationReason)
+                                        .Include(i => i.CustomerOrder.Customer)
+                                        .Where(w => w.ModifiedPurchaseOrder.ModifiedPurchaseOrderId == modifiedPurchaseOrderId)
+                                        .ToListAsync(ct);
+            }, ct);
         }
 
         public async Task AddAsync(PurchaseOrderNotification purchaseOrderNotification, CancellationToken ct = default)
         {
-            try
+            await ExecuteCommandAsync(async dbContext =>
             {
-                await _context.PurchaseOrderNotifications.AddAsync(purchaseOrderNotification, ct);
-                await _context.SaveChangesAsync(ct);
-            }
-            catch (Exception)
-            {
-                _context.Entry(purchaseOrderNotification).State = EntityState.Unchanged;
-                throw;
-            }
+                try
+                {
+                    await dbContext.PurchaseOrderNotifications.AddAsync(purchaseOrderNotification, ct);
+                    await dbContext.SaveChangesAsync(ct);
+                }
+                catch (Exception)
+                {
+                    dbContext.Entry(purchaseOrderNotification).State = EntityState.Unchanged;
+                    throw;
+                }
+                return Task.CompletedTask;
+            }, ct);
         }
+
         public async Task UpdateAsync(int purchaseOrderNotificationId, string uid, NotificationStatus status, CancellationToken ct = default)
         {
-            var entity = await _context.PurchaseOrderNotifications.FirstOrDefaultAsync(w => w.PurchaseOrderNotificationId == purchaseOrderNotificationId) ?? throw new KeyNotFoundException($"Notificación de la orden de compra con id {purchaseOrderNotificationId} no existe.");
-
-            try
+            await ExecuteCommandAsync(async dbContext =>
             {
-                entity.NotificationState = status;
-                entity.NotificationId = uid;
-                await _context.SaveChangesAsync(ct);
-            }
-            catch (Exception)
-            {
-                _context.Entry(entity).State = EntityState.Unchanged;
-                throw;
-            }
+                var entity = await dbContext.PurchaseOrderNotifications.FirstOrDefaultAsync(w => w.PurchaseOrderNotificationId == purchaseOrderNotificationId) ?? throw new KeyNotFoundException($"Notificación de la orden de compra con id {purchaseOrderNotificationId} no existe.");
+                try
+                {
+                    entity.NotificationState = status;
+                    entity.NotificationId = uid;
+                    await dbContext.SaveChangesAsync(ct);
+                }
+                catch (Exception)
+                {
+                    dbContext.Entry(entity).State = EntityState.Unchanged;
+                    throw;
+                }
+                return Task.CompletedTask;
+            }, ct);
         }
+
         public async Task UpdateNotificationResponseAsync(string notificationId, NotificationStatus status, string errorMessage, DateTime date, CancellationToken ct = default)
         {
-            var entity = await _context.PurchaseOrderNotifications.FirstOrDefaultAsync(w => w.NotificationId == notificationId) ?? throw new KeyNotFoundException($"Notificación con id {notificationId} no existe.");
+            await ExecuteCommandAsync(async dbContext =>
+            {
+                var entity = await dbContext.PurchaseOrderNotifications.FirstOrDefaultAsync(w => w.NotificationId == notificationId) ?? throw new KeyNotFoundException($"Notificación con id {notificationId} no existe.");
 
-            try
-            {
-                entity.NotificationState = status;
-                entity.NotificationSendingErrorMessage = errorMessage;
-                entity.NotificationDate = DateTime.Now;
-                await _context.SaveChangesAsync(ct);
-            }
-            catch (Exception)
-            {
-                _context.Entry(entity).State = EntityState.Unchanged;
-                throw;
-            }
+                try
+                {
+                    entity.NotificationState = status;
+                    entity.NotificationSendingErrorMessage = errorMessage;
+                    entity.NotificationDate = DateTime.Now;
+                    await dbContext.SaveChangesAsync(ct);
+                }
+                catch (Exception)
+                {
+                    dbContext.Entry(entity).State = EntityState.Unchanged;
+                    throw;
+                }
+                return Task.CompletedTask;
+            }, ct);
         }
-
     }
 }

@@ -3,28 +3,32 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
-    public class AlarmTypeRepository : IAlarmTypeRepository
+    public class AlarmTypeRepository : RepositoryBase<AldebaranDbContext>, IAlarmTypeRepository
     {
-        private readonly AldebaranDbContext _context;
-        public AlarmTypeRepository(AldebaranDbContext context)
+        public AlarmTypeRepository(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
         public async Task<IEnumerable<AlarmType>> GetAsync(CancellationToken ct = default)
         {
-            return await _context.AlarmTypes.AsNoTracking()
-                .Include(i => i.DocumentType)
-                .Include(i => i.UsersAlarmTypes).ThenInclude(i => i.Employee.IdentityType)
-                .Include(i => i.UsersAlarmTypes).ThenInclude(i => i.Employee.Area)
-                .ToListAsync(ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.AlarmTypes.AsNoTracking()
+                    .Include(i => i.DocumentType)
+                    .Include(i => i.UsersAlarmTypes).ThenInclude(i => i.Employee.IdentityType)
+                    .Include(i => i.UsersAlarmTypes).ThenInclude(i => i.Employee.Area)
+                    .ToListAsync(ct);
+            }, ct);
         }
         public async Task<AlarmType?> FindAsync(short alarmTypeId, CancellationToken ct = default)
         {
-            return await _context.AlarmTypes.AsNoTracking()
-                .Include(i => i.DocumentType)
-                .Include(i => i.UsersAlarmTypes).ThenInclude(i => i.Employee.IdentityType)
-                .Include(i => i.UsersAlarmTypes).ThenInclude(i => i.Employee.Area)
-                .FirstOrDefaultAsync(f => f.AlarmTypeId == alarmTypeId, ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.AlarmTypes.AsNoTracking()
+                    .Include(i => i.DocumentType)
+                    .Include(i => i.UsersAlarmTypes).ThenInclude(i => i.Employee.IdentityType)
+                    .Include(i => i.UsersAlarmTypes).ThenInclude(i => i.Employee.Area)
+                    .FirstOrDefaultAsync(f => f.AlarmTypeId == alarmTypeId, ct);
+            }, ct);
         }
     }
 }

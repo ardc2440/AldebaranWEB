@@ -3,23 +3,27 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
-    public class ShippingMethodRepository : IShippingMethodRepository
+    public class ShippingMethodRepository : RepositoryBase<AldebaranDbContext>, IShippingMethodRepository
     {
-        private readonly AldebaranDbContext _context;
-        public ShippingMethodRepository(AldebaranDbContext context)
+        public ShippingMethodRepository(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public async Task<IEnumerable<ShippingMethod>> GetAsync(CancellationToken ct = default)
         {
-            return await _context.ShippingMethods.AsNoTracking().ToListAsync(ct);
-        }
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.ShippingMethods.AsNoTracking().ToListAsync(ct);
 
+            }, ct);
+        }
         public async Task<ShippingMethod?> FindAsync(short ShippingMethodId, CancellationToken ct = default)
         {
-            return await _context.ShippingMethods.AsNoTracking()
-                .FirstOrDefaultAsync(i => i.ShippingMethodId == ShippingMethodId, ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.ShippingMethods.AsNoTracking()
+               .FirstOrDefaultAsync(i => i.ShippingMethodId == ShippingMethodId, ct);
+            }, ct);
         }
     }
 }

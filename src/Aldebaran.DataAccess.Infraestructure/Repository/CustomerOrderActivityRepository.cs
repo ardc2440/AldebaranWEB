@@ -3,130 +3,146 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
-    public class CustomerOrderActivityRepository : ICustomerOrderActivityRepository
+    public class CustomerOrderActivityRepository : RepositoryBase<AldebaranDbContext>, ICustomerOrderActivityRepository
     {
-        private readonly AldebaranDbContext _context;
-        public CustomerOrderActivityRepository(AldebaranDbContext context)
+        public CustomerOrderActivityRepository(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public async Task DeleteAsync(int customerOrderActivityId, CancellationToken ct = default)
         {
-            var entity = await _context.CustomerOrderActivities.FirstOrDefaultAsync(i => i.CustomerOrderActivityId == customerOrderActivityId, ct) ?? throw new KeyNotFoundException($"Actividad con id {customerOrderActivityId} no existe."); ;
+            await ExecuteCommandAsync(async dbContext =>
+            {
+                var entity = await dbContext.CustomerOrderActivities.FirstOrDefaultAsync(i => i.CustomerOrderActivityId == customerOrderActivityId, ct) ?? throw new KeyNotFoundException($"Actividad con id {customerOrderActivityId} no existe."); ;
 
-            try
-            {
-                _context.CustomerOrderActivities.Remove(entity);
-                await _context.SaveChangesAsync(ct);
-            }
-            catch
-            {
-                _context.Entry(entity).State = EntityState.Unchanged;
-                throw;
-            }
+                try
+                {
+                    dbContext.CustomerOrderActivities.Remove(entity);
+                    await dbContext.SaveChangesAsync(ct);
+                }
+                catch
+                {
+                    dbContext.Entry(entity).State = EntityState.Unchanged;
+                    throw;
+                }
+                return Task.CompletedTask;
+            }, ct);
         }
 
         public async Task<IEnumerable<CustomerOrderActivity>> GetByCustomerOrderIdAsync(int customerOrderId, CancellationToken ct = default)
         {
-            return await _context.CustomerOrderActivities.AsNoTracking()
-                .Include(i => i.Area)
-                .Include(i => i.Employee.IdentityType)
-                .Where(i => i.CustomerOrderId.Equals(customerOrderId))
-                .ToListAsync(ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.CustomerOrderActivities.AsNoTracking()
+                            .Include(i => i.Area)
+                            .Include(i => i.Employee.IdentityType)
+                            .Where(i => i.CustomerOrderId.Equals(customerOrderId))
+                            .ToListAsync(ct);
+            }, ct);
         }
 
         public async Task AddAsync(CustomerOrderActivity customerOrderActivity, CancellationToken ct = default)
         {
-            var entity = new CustomerOrderActivity()
+            await ExecuteCommandAsync(async dbContext =>
             {
-                ActivityDate = customerOrderActivity.ActivityDate,
-                CustomerOrderId = customerOrderActivity.CustomerOrderId,
-                AreaId = customerOrderActivity.AreaId,
-                EmployeeId = customerOrderActivity.EmployeeId,
-                Notes = customerOrderActivity.Notes
-            };
-
-            foreach (var item in customerOrderActivity.CustomerOrderActivityDetails)
-            {
-                var entityDetail = new CustomerOrderActivityDetail()
+                var entity = new CustomerOrderActivity()
                 {
-                    ActivityTypeId = item.ActivityTypeId,
-                    ActivityEmployeeId = item.ActivityEmployeeId,
-                    EmployeeId = item.EmployeeId
+                    ActivityDate = customerOrderActivity.ActivityDate,
+                    CustomerOrderId = customerOrderActivity.CustomerOrderId,
+                    AreaId = customerOrderActivity.AreaId,
+                    EmployeeId = customerOrderActivity.EmployeeId,
+                    Notes = customerOrderActivity.Notes
                 };
 
-                entity.CustomerOrderActivityDetails.Add(entityDetail);
-            }
+                foreach (var item in customerOrderActivity.CustomerOrderActivityDetails)
+                {
+                    var entityDetail = new CustomerOrderActivityDetail()
+                    {
+                        ActivityTypeId = item.ActivityTypeId,
+                        ActivityEmployeeId = item.ActivityEmployeeId,
+                        EmployeeId = item.EmployeeId
+                    };
 
-            try
-            {
-                _context.CustomerOrderActivities.Add(entity);
-                await _context.SaveChangesAsync(ct);
-            }
-            catch
-            {
-                _context.Entry(entity).State = EntityState.Unchanged;
-                throw;
-            }
+                    entity.CustomerOrderActivityDetails.Add(entityDetail);
+                }
+
+                try
+                {
+                    dbContext.CustomerOrderActivities.Add(entity);
+                    await dbContext.SaveChangesAsync(ct);
+                }
+                catch
+                {
+                    dbContext.Entry(entity).State = EntityState.Unchanged;
+                    throw;
+                }
+                return Task.CompletedTask;
+            }, ct);
         }
 
         public async Task<CustomerOrderActivity?> FindAsync(int customerOrderActivityId, CancellationToken ct)
         {
-            return await _context.CustomerOrderActivities.AsNoTracking()
-                .Include(i => i.Area)
-                .Include(i => i.Employee)
-                .FirstOrDefaultAsync(i => i.CustomerOrderActivityId == customerOrderActivityId, ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.CustomerOrderActivities.AsNoTracking()
+                            .Include(i => i.Area)
+                            .Include(i => i.Employee)
+                            .FirstOrDefaultAsync(i => i.CustomerOrderActivityId == customerOrderActivityId, ct);
+            }, ct);
         }
 
         public async Task UpdateAsync(int customerOrderActivityId, CustomerOrderActivity customerOrderActivity, CancellationToken ct = default)
         {
-            var entity = await _context.CustomerOrderActivities.Include(i => i.CustomerOrderActivityDetails).FirstOrDefaultAsync(i => i.CustomerOrderActivityId == customerOrderActivityId, ct) ?? throw new KeyNotFoundException($"Actividad con id {customerOrderActivityId} no existe."); ;
-
-            entity.ActivityDate = customerOrderActivity.ActivityDate;
-            entity.AreaId = customerOrderActivity.AreaId;
-            entity.CustomerOrderId = customerOrderActivity.CustomerOrderId;
-            entity.EmployeeId = customerOrderActivity.EmployeeId;
-
-            foreach (var item in customerOrderActivity.CustomerOrderActivityDetails)
+            await ExecuteCommandAsync(async dbContext =>
             {
-                if (item.CustomerOrderActivityDetailId > 0)
-                {
-                    var entityDetail = entity.CustomerOrderActivityDetails.FirstOrDefault(i => i.CustomerOrderActivityDetailId == item.CustomerOrderActivityDetailId);
+                var entity = await dbContext.CustomerOrderActivities.Include(i => i.CustomerOrderActivityDetails).FirstOrDefaultAsync(i => i.CustomerOrderActivityId == customerOrderActivityId, ct) ?? throw new KeyNotFoundException($"Actividad con id {customerOrderActivityId} no existe."); ;
 
-                    if (entityDetail != null)
+                entity.ActivityDate = customerOrderActivity.ActivityDate;
+                entity.AreaId = customerOrderActivity.AreaId;
+                entity.CustomerOrderId = customerOrderActivity.CustomerOrderId;
+                entity.EmployeeId = customerOrderActivity.EmployeeId;
+
+                foreach (var item in customerOrderActivity.CustomerOrderActivityDetails)
+                {
+                    if (item.CustomerOrderActivityDetailId > 0)
                     {
-                        entityDetail.ActivityEmployeeId = item.ActivityEmployeeId;
-                        entityDetail.ActivityTypeId = item.ActivityTypeId;
-                        entityDetail.EmployeeId = item.EmployeeId;
-                        continue;
+                        var entityDetail = entity.CustomerOrderActivityDetails.FirstOrDefault(i => i.CustomerOrderActivityDetailId == item.CustomerOrderActivityDetailId);
+
+                        if (entityDetail != null)
+                        {
+                            entityDetail.ActivityEmployeeId = item.ActivityEmployeeId;
+                            entityDetail.ActivityTypeId = item.ActivityTypeId;
+                            entityDetail.EmployeeId = item.EmployeeId;
+                            continue;
+                        }
                     }
+
+                    entity.CustomerOrderActivityDetails.Add(new CustomerOrderActivityDetail()
+                    {
+                        ActivityTypeId = item.ActivityTypeId,
+                        EmployeeId = item.EmployeeId,
+                        ActivityEmployeeId = item.ActivityEmployeeId,
+                        CustomerOrderActivityId = item.CustomerOrderActivityId
+                    });
                 }
 
-                entity.CustomerOrderActivityDetails.Add(new CustomerOrderActivityDetail()
+                foreach (var item in entity.CustomerOrderActivityDetails)
                 {
-                    ActivityTypeId = item.ActivityTypeId,
-                    EmployeeId = item.EmployeeId,
-                    ActivityEmployeeId = item.ActivityEmployeeId,
-                    CustomerOrderActivityId = item.CustomerOrderActivityId
-                });
-            }
+                    if (!customerOrderActivity.CustomerOrderActivityDetails.Any(i => i.CustomerOrderActivityDetailId == item.CustomerOrderActivityDetailId))
+                        dbContext.CustomerOrderActivityDetails.Remove(item);
+                }
 
-            foreach (var item in entity.CustomerOrderActivityDetails)
-            {
-                if (!customerOrderActivity.CustomerOrderActivityDetails.Any(i => i.CustomerOrderActivityDetailId == item.CustomerOrderActivityDetailId))
-                    _context.CustomerOrderActivityDetails.Remove(item);
-            }
-
-            try
-            {
-                await _context.SaveChangesAsync(ct);
-            }
-            catch
-            {
-                _context.Entry(entity).State = EntityState.Unchanged;
-                throw;
-            }
+                try
+                {
+                    await dbContext.SaveChangesAsync(ct);
+                }
+                catch
+                {
+                    dbContext.Entry(entity).State = EntityState.Unchanged;
+                    throw;
+                }
+                return Task.CompletedTask;
+            }, ct);
         }
     }
 

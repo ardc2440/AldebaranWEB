@@ -3,87 +3,106 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
-    public class PurchaseOrderDetailRepository : IPurchaseOrderDetailRepository
+    public class PurchaseOrderDetailRepository : RepositoryBase<AldebaranDbContext>, IPurchaseOrderDetailRepository
     {
-        private readonly AldebaranDbContext _context;
-        public PurchaseOrderDetailRepository(AldebaranDbContext context)
+        public PurchaseOrderDetailRepository(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public async Task AddAsync(PurchaseOrderDetail purchaseOrder, CancellationToken ct = default)
         {
-            try
+            await ExecuteCommandAsync(async dbContext =>
             {
-                await _context.PurchaseOrderDetails.AddAsync(purchaseOrder, ct);
-                await _context.SaveChangesAsync(ct);
-            }
-            catch (Exception)
-            {
-                _context.Entry(purchaseOrder).State = EntityState.Unchanged;
-                throw;
-            }
+                try
+                {
+                    await dbContext.PurchaseOrderDetails.AddAsync(purchaseOrder, ct);
+                    await dbContext.SaveChangesAsync(ct);
+                }
+                catch (Exception)
+                {
+                    dbContext.Entry(purchaseOrder).State = EntityState.Unchanged;
+                    throw;
+                }
+                return Task.CompletedTask;
+            }, ct);
         }
 
         public async Task DeleteAsync(int purchaseOrderDetailId, CancellationToken ct = default)
         {
-            var entity = await _context.PurchaseOrderDetails.FirstOrDefaultAsync(x => x.PurchaseOrderDetailId == purchaseOrderDetailId, ct) ?? throw new KeyNotFoundException($"Detalle de la orden de compra con id {purchaseOrderDetailId} no existe.");
-            _context.PurchaseOrderDetails.Remove(entity);
-            try
+            await ExecuteCommandAsync(async dbContext =>
             {
-                await _context.SaveChangesAsync(ct);
-            }
-            catch
-            {
-                _context.Entry(entity).State = EntityState.Unchanged;
-                throw;
-            }
+                var entity = await dbContext.PurchaseOrderDetails.FirstOrDefaultAsync(x => x.PurchaseOrderDetailId == purchaseOrderDetailId, ct) ?? throw new KeyNotFoundException($"Detalle de la orden de compra con id {purchaseOrderDetailId} no existe.");
+                dbContext.PurchaseOrderDetails.Remove(entity);
+                try
+                {
+                    await dbContext.SaveChangesAsync(ct);
+                }
+                catch
+                {
+                    dbContext.Entry(entity).State = EntityState.Unchanged;
+                    throw;
+                }
+                return Task.CompletedTask;
+            }, ct);
         }
 
         public async Task<PurchaseOrderDetail?> FindAsync(int purchaseOrderDetailId, CancellationToken ct = default)
         {
-            return await _context.PurchaseOrderDetails.AsNoTracking()
-                .Include(p => p.PurchaseOrder)
-                .Include(p => p.ItemReference.Item.Line)
-                .Include(p => p.Warehouse)
-                .FirstOrDefaultAsync(p => p.PurchaseOrderDetailId == purchaseOrderDetailId, ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.PurchaseOrderDetails.AsNoTracking()
+                            .Include(p => p.PurchaseOrder)
+                            .Include(p => p.ItemReference.Item.Line)
+                            .Include(p => p.Warehouse)
+                            .FirstOrDefaultAsync(p => p.PurchaseOrderDetailId == purchaseOrderDetailId, ct);
+            }, ct);
         }
 
         public async Task<IEnumerable<PurchaseOrderDetail>> GetByPurchaseOrderIdAsync(int purchaseOrderId, CancellationToken ct = default)
         {
-            return await _context.PurchaseOrderDetails.AsNoTracking()
-                .Include(p => p.PurchaseOrder)
-                .Include(p => p.ItemReference.Item.Line)
-                .Include(p => p.Warehouse)
-                .Where(p => p.PurchaseOrderId == purchaseOrderId)
-                .ToListAsync(ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.PurchaseOrderDetails.AsNoTracking()
+                            .Include(p => p.PurchaseOrder)
+                            .Include(p => p.ItemReference.Item.Line)
+                            .Include(p => p.Warehouse)
+                            .Where(p => p.PurchaseOrderId == purchaseOrderId)
+                            .ToListAsync(ct);
+            }, ct);
         }
 
         public async Task<IEnumerable<PurchaseOrderDetail>> GetByReferenceIdAndStatusOrderAsync(int statusOrder, int? referenceId = null, CancellationToken ct = default)
         {
-            return await _context.PurchaseOrderDetails.AsNoTracking()
-                .Include(p => p.PurchaseOrder)
-                .Include(p => p.ItemReference.Item.Line)
-                .Include(p => p.Warehouse)
-                .Where(p => (p.ReferenceId == referenceId || !referenceId.HasValue) && p.PurchaseOrder.StatusDocumentTypeId == statusOrder)
-                .ToListAsync(ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.PurchaseOrderDetails.AsNoTracking()
+               .Include(p => p.PurchaseOrder)
+               .Include(p => p.ItemReference.Item.Line)
+               .Include(p => p.Warehouse)
+               .Where(p => (p.ReferenceId == referenceId || !referenceId.HasValue) && p.PurchaseOrder.StatusDocumentTypeId == statusOrder)
+               .ToListAsync(ct);
+            }, ct);
         }
 
         public async Task UpdateAsync(int purchaseOrderDetailId, PurchaseOrderDetail purchaseOrder, CancellationToken ct = default)
         {
-            var entity = await _context.PurchaseOrderDetails.FirstOrDefaultAsync(x => x.PurchaseOrderDetailId == purchaseOrderDetailId, ct) ?? throw new KeyNotFoundException($"Detalle de la orden de compra con id {purchaseOrderDetailId} no existe.");
-            entity.WarehouseId = purchaseOrder.WarehouseId;
-            entity.ReceivedQuantity = purchaseOrder.ReceivedQuantity;
-            entity.RequestedQuantity = purchaseOrder.RequestedQuantity;
-            try
+            await ExecuteCommandAsync(async dbContext =>
             {
-                await _context.SaveChangesAsync(ct);
-            }
-            catch (Exception)
-            {
-                _context.Entry(entity).State = EntityState.Unchanged;
-                throw;
-            }
+                var entity = await dbContext.PurchaseOrderDetails.FirstOrDefaultAsync(x => x.PurchaseOrderDetailId == purchaseOrderDetailId, ct) ?? throw new KeyNotFoundException($"Detalle de la orden de compra con id {purchaseOrderDetailId} no existe.");
+                entity.WarehouseId = purchaseOrder.WarehouseId;
+                entity.ReceivedQuantity = purchaseOrder.ReceivedQuantity;
+                entity.RequestedQuantity = purchaseOrder.RequestedQuantity;
+                try
+                {
+                    await dbContext.SaveChangesAsync(ct);
+                }
+                catch (Exception)
+                {
+                    dbContext.Entry(entity).State = EntityState.Unchanged;
+                    throw;
+                }
+                return Task.CompletedTask;
+            }, ct);
         }
     }
 }

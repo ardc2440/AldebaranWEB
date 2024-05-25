@@ -3,26 +3,30 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
-    public class DepartmentRepository : IDepartmentRepository
+    public class DepartmentRepository : RepositoryBase<AldebaranDbContext>, IDepartmentRepository
     {
-        private readonly AldebaranDbContext _context;
-        public DepartmentRepository(AldebaranDbContext context)
+        public DepartmentRepository(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public async Task<Department?> FindAsync(int departmentId, CancellationToken ct = default)
         {
-            return await _context.Departments.AsNoTracking()
-                .FirstOrDefaultAsync(f => f.DepartmentId == departmentId, ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.Departments.AsNoTracking()
+                    .FirstOrDefaultAsync(f => f.DepartmentId == departmentId, ct);
+            }, ct);
         }
 
         public async Task<IEnumerable<Department>> GetByCountryIdAsync(int countryId, CancellationToken ct = default)
         {
-            return await _context.Departments.AsNoTracking()
-                .Include(i => i.Country)
-                .Where(f => f.CountryId == countryId)
-                .ToListAsync(ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.Departments.AsNoTracking()
+                 .Include(i => i.Country)
+                 .Where(f => f.CountryId == countryId)
+                 .ToListAsync(ct);
+            }, ct);
         }
     }
 }

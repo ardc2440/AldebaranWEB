@@ -3,33 +3,37 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
-    public class CustomerReservationDetailRepository : ICustomerReservationDetailRepository
+    public class CustomerReservationDetailRepository : RepositoryBase<AldebaranDbContext>, ICustomerReservationDetailRepository
     {
-        private readonly AldebaranDbContext _context;
-        public CustomerReservationDetailRepository(AldebaranDbContext context)
+        public CustomerReservationDetailRepository(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public async Task<IEnumerable<CustomerReservationDetail>> GetByCustomerReservationIdAsync(int customerReservationId, CancellationToken ct = default)
         {
-            return await _context.CustomerReservationDetails.AsNoTracking()
-                .Include(i => i.ItemReference.Item.Line)
-                .Where(i => i.CustomerReservationId == customerReservationId)
-                .ToListAsync(ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.CustomerReservationDetails.AsNoTracking()
+                            .Include(i => i.ItemReference.Item.Line)
+                            .Where(i => i.CustomerReservationId == customerReservationId)
+                            .ToListAsync(ct);
+            }, ct);
         }
 
         public async Task UpdateAsync(int customerReservationDetailId, CustomerReservationDetail customerReservationDetail, CancellationToken ct = default)
         {
-            var entity = _context.CustomerReservationDetails.FirstOrDefault(i => i.CustomerReservationDetailId == customerReservationDetailId) ?? throw new KeyNotFoundException($"Detalle de Reserva con id {customerReservationDetailId} no existe.");
+            await ExecuteCommandAsync(async dbContext =>
+            {
+                var entity = dbContext.CustomerReservationDetails.FirstOrDefault(i => i.CustomerReservationDetailId == customerReservationDetailId) ?? throw new KeyNotFoundException($"Detalle de Reserva con id {customerReservationDetailId} no existe.");
 
-            entity.Brand = customerReservationDetail.Brand;
-            entity.ReferenceId = customerReservationDetail.ReferenceId;
-            entity.ReservedQuantity = customerReservationDetail.ReservedQuantity;
-            entity.SendToCustomerOrder = customerReservationDetail.SendToCustomerOrder;
+                entity.Brand = customerReservationDetail.Brand;
+                entity.ReferenceId = customerReservationDetail.ReferenceId;
+                entity.ReservedQuantity = customerReservationDetail.ReservedQuantity;
+                entity.SendToCustomerOrder = customerReservationDetail.SendToCustomerOrder;
 
-            await _context.SaveChangesAsync(ct);
-
+                await dbContext.SaveChangesAsync(ct);
+                return Task.CompletedTask;
+            }, ct);
         }
     }
 

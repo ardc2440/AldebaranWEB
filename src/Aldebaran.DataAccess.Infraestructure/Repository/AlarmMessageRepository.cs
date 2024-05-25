@@ -3,20 +3,21 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
-    public class AlarmMessageRepository : IAlarmMessageRepository
+    public class AlarmMessageRepository : RepositoryBase<AldebaranDbContext>, IAlarmMessageRepository
     {
-        private readonly AldebaranDbContext _context;
-        public AlarmMessageRepository(AldebaranDbContext context)
+        public AlarmMessageRepository(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public async Task<IEnumerable<AlarmMessage>> GetByDocumentTypeIdAsync(short documentTypeId, CancellationToken ct = default)
         {
-            return await _context.AlarmMessages.AsNoTracking()
-                .Include(i => i.AlarmType.DocumentType)
-                .Where(i => i.AlarmType.DocumentTypeId == documentTypeId)                            
-                .ToListAsync(ct);                
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.AlarmMessages.AsNoTracking()
+                    .Include(i => i.AlarmType.DocumentType)
+                    .Where(i => i.AlarmType.DocumentTypeId == documentTypeId)
+                    .ToListAsync(ct);
+            }, ct);
         }
     }
 

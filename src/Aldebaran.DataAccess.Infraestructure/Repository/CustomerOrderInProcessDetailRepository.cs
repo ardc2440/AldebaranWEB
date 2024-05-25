@@ -3,21 +3,22 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
-    public class CustomerOrderInProcessDetailRepository : ICustomerOrderInProcessDetailRepository
+    public class CustomerOrderInProcessDetailRepository : RepositoryBase<AldebaranDbContext>, ICustomerOrderInProcessDetailRepository
     {
-        private readonly AldebaranDbContext _context;
-        public CustomerOrderInProcessDetailRepository(AldebaranDbContext context)
+        public CustomerOrderInProcessDetailRepository(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public async Task<IEnumerable<CustomerOrderInProcessDetail>> GetByCustomerOrderInProcessIdAsync(int customerOrderInProcessId, CancellationToken ct)
         {
-            return await _context.CustomerOrderInProcessDetails.AsNoTracking()
-                .Include(i => i.CustomerOrderDetail.ItemReference.Item.Line)
-                .Include(i => i.Warehouse)
-                .Where(i => i.CustomerOrderInProcessId == customerOrderInProcessId)
-                .ToListAsync(ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.CustomerOrderInProcessDetails.AsNoTracking()
+               .Include(i => i.CustomerOrderDetail.ItemReference.Item.Line)
+               .Include(i => i.Warehouse)
+               .Where(i => i.CustomerOrderInProcessId == customerOrderInProcessId)
+               .ToListAsync(ct);
+            }, ct);
         }
     }
 

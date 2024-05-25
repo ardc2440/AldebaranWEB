@@ -3,27 +3,34 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
-    public class AreaRepository : IAreaRepository
+    public class AreaRepository : RepositoryBase<AldebaranDbContext>, IAreaRepository
     {
-        private readonly AldebaranDbContext _context;
-        public AreaRepository(AldebaranDbContext context)
+        public AreaRepository(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
         public async Task<Area?> FindAsync(short areaId, CancellationToken ct = default)
         {
-            return await _context.Areas.AsNoTracking().FirstOrDefaultAsync(f => f.AreaId == areaId, ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.Areas.AsNoTracking().FirstOrDefaultAsync(f => f.AreaId == areaId, ct);
+            }, ct);
         }
         public async Task<IEnumerable<Area>> GetAsync(CancellationToken ct = default)
         {
-            return await _context.Areas.AsNoTracking().ToListAsync(ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.Areas.AsNoTracking().ToListAsync(ct);
+            }, ct);
         }
 
         public async Task<IEnumerable<Area>> GetAsync(string searchKey, CancellationToken ct = default)
         {
-            return await _context.Areas.AsNoTracking()
-               .Where(w => w.AreaCode.Contains(searchKey) || w.AreaName.Contains(searchKey) || w.Description.Contains(searchKey))
-               .ToListAsync(ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.Areas.AsNoTracking()
+                   .Where(w => w.AreaCode.Contains(searchKey) || w.AreaName.Contains(searchKey) || w.Description.Contains(searchKey))
+                   .ToListAsync(ct);
+            }, ct);
         }
     }
 }

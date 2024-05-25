@@ -4,54 +4,62 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
-    public class CustomerOrderNotificationRepository : ICustomerOrderNotificationRepository
+    public class CustomerOrderNotificationRepository : RepositoryBase<AldebaranDbContext>, ICustomerOrderNotificationRepository
     {
-        private readonly AldebaranDbContext _context;
-
-        public CustomerOrderNotificationRepository(AldebaranDbContext context)
+        public CustomerOrderNotificationRepository(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public async Task AddAsync(CustomerOrderNotification customerOrderNotification, CancellationToken ct = default)
         {
-            try
+            await ExecuteCommandAsync(async dbContext =>
             {
-                await _context.CustomerOrderNotifications.AddAsync(customerOrderNotification, ct);
-                await _context.SaveChangesAsync(ct);
-            }
-            catch (Exception)
-            {
-                _context.Entry(customerOrderNotification).State = EntityState.Unchanged;
-                throw;
-            }
+                try
+                {
+                    await dbContext.CustomerOrderNotifications.AddAsync(customerOrderNotification, ct);
+                    await dbContext.SaveChangesAsync(ct);
+                }
+                catch (Exception)
+                {
+                    dbContext.Entry(customerOrderNotification).State = EntityState.Unchanged;
+                    throw;
+                }
+                return Task.CompletedTask;
+            }, ct);
         }
 
         public async Task<IEnumerable<CustomerOrderNotification>> GetByCustomerOrderIdAsync(int customerOrderId, CancellationToken ct = default)
         {
-            return await _context.CustomerOrderNotifications.AsNoTracking()
-                            .Include(i => i.CustomerOrder.Customer)
-                            .Include(i => i.NotificationTemplate)
-                            .Where(w => w.CustomerOrderId == customerOrderId)
-                            .ToListAsync(ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.CustomerOrderNotifications.AsNoTracking()
+                           .Include(i => i.CustomerOrder.Customer)
+                           .Include(i => i.NotificationTemplate)
+                           .Where(w => w.CustomerOrderId == customerOrderId)
+                           .ToListAsync(ct);
+            }, ct);
         }
 
         public async Task UpdateAsync(string notificationId, NotificationStatus status, string errorMessage, DateTime date, CancellationToken ct = default)
         {
-            var entity = await _context.CustomerOrderNotifications.FirstOrDefaultAsync(w => w.NotificationId.Equals(notificationId)) ?? throw new KeyNotFoundException($"Notificación de la orden de compra con id {notificationId} no existe.");
+            await ExecuteCommandAsync(async dbContext =>
+            {
+                var entity = await dbContext.CustomerOrderNotifications.FirstOrDefaultAsync(w => w.NotificationId.Equals(notificationId)) ?? throw new KeyNotFoundException($"Notificación de la orden de compra con id {notificationId} no existe.");
 
-            try
-            {
-                entity.NotificationState = status;
-                entity.NotificationSendingErrorMessage = errorMessage;
-                entity.NotificationDate = date;
-                await _context.SaveChangesAsync(ct);
-            }
-            catch (Exception)
-            {
-                _context.Entry(entity).State = EntityState.Unchanged;
-                throw;
-            }
+                try
+                {
+                    entity.NotificationState = status;
+                    entity.NotificationSendingErrorMessage = errorMessage;
+                    entity.NotificationDate = date;
+                    await dbContext.SaveChangesAsync(ct);
+                }
+                catch (Exception)
+                {
+                    dbContext.Entry(entity).State = EntityState.Unchanged;
+                    throw;
+                }
+                return Task.CompletedTask;
+            }, ct);
         }
     }
 }

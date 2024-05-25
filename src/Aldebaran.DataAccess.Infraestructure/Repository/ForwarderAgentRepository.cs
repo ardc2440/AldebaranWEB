@@ -3,68 +3,89 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
-    public class ForwarderAgentRepository : IForwarderAgentRepository
+    public class ForwarderAgentRepository : RepositoryBase<AldebaranDbContext>, IForwarderAgentRepository
     {
-        private readonly AldebaranDbContext _context;
-        public ForwarderAgentRepository(AldebaranDbContext context)
+        public ForwarderAgentRepository(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
+
         public async Task<bool> ExistsByAgentName(int forwarderId, string agentName, CancellationToken ct = default)
         {
-            return await _context.ForwarderAgents.AsNoTracking().AnyAsync(i => i.ForwarderId == forwarderId && i.ForwarderAgentName.Trim().ToLower() == agentName.Trim().ToLower(), ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.ForwarderAgents.AsNoTracking().AnyAsync(i => i.ForwarderId == forwarderId && i.ForwarderAgentName.Trim().ToLower() == agentName.Trim().ToLower(), ct);
+            }, ct);
         }
+
         public async Task AddAsync(ForwarderAgent forwarderAgent, CancellationToken ct = default)
         {
-            await _context.ForwarderAgents.AddAsync(forwarderAgent, ct);
-            await _context.SaveChangesAsync(ct);
+            await ExecuteCommandAsync(async dbContext =>
+            {
+                await dbContext.ForwarderAgents.AddAsync(forwarderAgent, ct);
+                await dbContext.SaveChangesAsync(ct);
+                return Task.CompletedTask;
+            }, ct);
         }
 
         public async Task DeleteAsync(int forwarderAgentId, CancellationToken ct = default)
         {
-            var entity = await _context.ForwarderAgents.FirstOrDefaultAsync(x => x.ForwarderAgentId == forwarderAgentId, ct) ?? throw new KeyNotFoundException($"Agente con id {forwarderAgentId} no existe.");
-            _context.ForwarderAgents.Remove(entity);
-            try
+            await ExecuteCommandAsync(async dbContext =>
             {
-                await _context.SaveChangesAsync(ct);
-            }
-            catch
-            {
-                _context.Entry(entity).State = EntityState.Unchanged;
-                throw;
-            }
+                var entity = await dbContext.ForwarderAgents.FirstOrDefaultAsync(x => x.ForwarderAgentId == forwarderAgentId, ct) ?? throw new KeyNotFoundException($"Agente con id {forwarderAgentId} no existe.");
+                dbContext.ForwarderAgents.Remove(entity);
+                try
+                {
+                    await dbContext.SaveChangesAsync(ct);
+                }
+                catch
+                {
+                    dbContext.Entry(entity).State = EntityState.Unchanged;
+                    throw;
+                }
+                return Task.CompletedTask;
+            }, ct);
         }
 
         public async Task<ForwarderAgent?> FindAsync(int forwarderAgentId, CancellationToken ct = default)
         {
-            return await _context.ForwarderAgents.AsNoTracking()
-                .Include(i => i.Forwarder)
-                .Include(i => i.City.Department.Country)
-                .FirstOrDefaultAsync(w => w.ForwarderAgentId == forwarderAgentId, ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.ForwarderAgents.AsNoTracking()
+                            .Include(i => i.Forwarder)
+                            .Include(i => i.City.Department.Country)
+                            .FirstOrDefaultAsync(w => w.ForwarderAgentId == forwarderAgentId, ct);
+            }, ct);
         }
 
         public async Task<IEnumerable<ForwarderAgent>> GetByForwarderIdAsync(int forwarderId, CancellationToken ct = default)
         {
-            return await _context.ForwarderAgents.AsNoTracking()
-                .Where(w => w.ForwarderId == forwarderId)
-                .Include(i => i.Forwarder)
-                .Include(i => i.City.Department.Country)
-                .ToListAsync(ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.ForwarderAgents.AsNoTracking()
+               .Where(w => w.ForwarderId == forwarderId)
+               .Include(i => i.Forwarder)
+               .Include(i => i.City.Department.Country)
+               .ToListAsync(ct);
+            }, ct);
         }
 
         public async Task UpdateAsync(int forwarderAgentId, ForwarderAgent forwarderAgent, CancellationToken ct = default)
         {
-            var entity = await _context.ForwarderAgents.FirstOrDefaultAsync(x => x.ForwarderAgentId == forwarderAgentId, ct) ?? throw new KeyNotFoundException($"Agente con id {forwarderAgentId} no existe.");
-            entity.ForwarderAgentName = forwarderAgent.ForwarderAgentName;
-            entity.Phone1 = forwarderAgent.Phone1;
-            entity.Phone2 = forwarderAgent.Phone2;
-            entity.Fax = forwarderAgent.Fax;
-            entity.ForwarderAgentAddress = forwarderAgent.ForwarderAgentAddress;
-            entity.CityId = forwarderAgent.CityId;
-            entity.Contact = forwarderAgent.Contact;
-            entity.Email1 = forwarderAgent.Email1;
-            entity.Email2 = forwarderAgent.Email2;
-            await _context.SaveChangesAsync(ct);
+            await ExecuteCommandAsync(async dbContext =>
+            {
+                var entity = await dbContext.ForwarderAgents.FirstOrDefaultAsync(x => x.ForwarderAgentId == forwarderAgentId, ct) ?? throw new KeyNotFoundException($"Agente con id {forwarderAgentId} no existe.");
+                entity.ForwarderAgentName = forwarderAgent.ForwarderAgentName;
+                entity.Phone1 = forwarderAgent.Phone1;
+                entity.Phone2 = forwarderAgent.Phone2;
+                entity.Fax = forwarderAgent.Fax;
+                entity.ForwarderAgentAddress = forwarderAgent.ForwarderAgentAddress;
+                entity.CityId = forwarderAgent.CityId;
+                entity.Contact = forwarderAgent.Contact;
+                entity.Email1 = forwarderAgent.Email1;
+                entity.Email2 = forwarderAgent.Email2;
+                await dbContext.SaveChangesAsync(ct);
+                return Task.CompletedTask;
+            }, ct);
         }
     }
 }
