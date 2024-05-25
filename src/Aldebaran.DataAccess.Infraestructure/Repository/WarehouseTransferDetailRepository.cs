@@ -3,21 +3,21 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
-    public class WarehouseTransferDetailRepository : IWarehouseTransferDetailRepository
+    public class WarehouseTransferDetailRepository : RepositoryBase<AldebaranDbContext>, IWarehouseTransferDetailRepository
     {
-        private readonly AldebaranDbContext _context;
-        public WarehouseTransferDetailRepository(AldebaranDbContext context)
+        public WarehouseTransferDetailRepository(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public async Task<IEnumerable<WarehouseTransferDetail>> GetByWarehouseTransferIdAsync(int warehouseTransferId, CancellationToken ct = default)
         {
-            return await _context.WarehouseTransferDetails.AsNoTracking()
-                .Include(i=>i.ItemReference.Item.Line)
-                .Where(i => i.WarehouseTransferId == warehouseTransferId)
-                .ToListAsync(ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.WarehouseTransferDetails.AsNoTracking()
+                            .Include(i => i.ItemReference.Item.Line)
+                            .Where(i => i.WarehouseTransferId == warehouseTransferId)
+                            .ToListAsync(ct);
+            }, ct);
         }
     }
-
 }

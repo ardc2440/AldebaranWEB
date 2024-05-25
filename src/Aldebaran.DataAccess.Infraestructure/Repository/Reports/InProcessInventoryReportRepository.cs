@@ -3,17 +3,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository.Reports
 {
-    public class InProcessInventoryReportRepository : IInProcessInventoryReportRepository
+    public class InProcessInventoryReportRepository : RepositoryBase<AldebaranDbContext>, IInProcessInventoryReportRepository
     {
-        private readonly AldebaranDbContext _context;
-        public InProcessInventoryReportRepository(AldebaranDbContext context)
+        public InProcessInventoryReportRepository(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public async Task<IEnumerable<InProcessInventoryReport>> GetInProcessInventoryReportDataAsync(string referenceIdsFilter, CancellationToken ct = default)
         {
-            return await _context.Set<InProcessInventoryReport>().FromSqlRaw($"EXEC SP_GET_IN_PROCESS_INVENTORY_REPORT @ReferenceIds = '{referenceIdsFilter}'").ToListAsync(ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.Set<InProcessInventoryReport>().FromSqlRaw($"EXEC SP_GET_IN_PROCESS_INVENTORY_REPORT @ReferenceIds = '{referenceIdsFilter}'").ToListAsync(ct);
+            }, ct);
         }
     }
 }

@@ -4,166 +4,180 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
-    public class CustomerOrdersInProcessRepository : ICustomerOrdersInProcessRepository
+    public class CustomerOrdersInProcessRepository : RepositoryBase<AldebaranDbContext>, ICustomerOrdersInProcessRepository
     {
-        private readonly AldebaranDbContext _context;
-        public CustomerOrdersInProcessRepository(AldebaranDbContext context)
+        public CustomerOrdersInProcessRepository(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public async Task<CustomerOrdersInProcess> AddAsync(CustomerOrdersInProcess customerOrdersInProcess, CancellationToken ct)
         {
-            var entity = new CustomerOrdersInProcess
+            return await ExecuteCommandAsync(async dbContext =>
             {
-                CustomerOrderId = customerOrdersInProcess.CustomerOrderId,
-                EmployeeRecipientId = customerOrdersInProcess.EmployeeRecipientId,
-                EmployeeId = customerOrdersInProcess.EmployeeId,
-                Notes = customerOrdersInProcess.Notes,
-                ProcessDate = customerOrdersInProcess.ProcessDate,
-                CreationDate = customerOrdersInProcess.CreationDate,
-                ProcessSatelliteId = customerOrdersInProcess.ProcessSatelliteId,
-                StatusDocumentTypeId = customerOrdersInProcess.StatusDocumentTypeId,
-                TransferDatetime = customerOrdersInProcess.TransferDatetime,
-                CustomerOrderInProcessDetails = new List<CustomerOrderInProcessDetail>()
-            };
-
-            foreach (var item in customerOrdersInProcess.CustomerOrderInProcessDetails)
-            {
-                entity.CustomerOrderInProcessDetails.Add(new CustomerOrderInProcessDetail
+                var entity = new CustomerOrdersInProcess
                 {
-                    Brand = item.Brand,
-                    CustomerOrderInProcessId = item.CustomerOrderInProcessId,
-                    ProcessedQuantity = item.ProcessedQuantity,
-                    WarehouseId = item.WarehouseId,
-                    CustomerOrderDetailId = item.CustomerOrderDetailId
-                });
-            }
+                    CustomerOrderId = customerOrdersInProcess.CustomerOrderId,
+                    EmployeeRecipientId = customerOrdersInProcess.EmployeeRecipientId,
+                    EmployeeId = customerOrdersInProcess.EmployeeId,
+                    Notes = customerOrdersInProcess.Notes,
+                    ProcessDate = customerOrdersInProcess.ProcessDate,
+                    CreationDate = customerOrdersInProcess.CreationDate,
+                    ProcessSatelliteId = customerOrdersInProcess.ProcessSatelliteId,
+                    StatusDocumentTypeId = customerOrdersInProcess.StatusDocumentTypeId,
+                    TransferDatetime = customerOrdersInProcess.TransferDatetime,
+                    CustomerOrderInProcessDetails = new List<CustomerOrderInProcessDetail>()
+                };
 
-            try
-            {
-                await _context.CustomerOrdersInProcesses.AddAsync(entity, ct);
-                await _context.SaveChangesAsync(ct);
+                foreach (var item in customerOrdersInProcess.CustomerOrderInProcessDetails)
+                {
+                    entity.CustomerOrderInProcessDetails.Add(new CustomerOrderInProcessDetail
+                    {
+                        Brand = item.Brand,
+                        CustomerOrderInProcessId = item.CustomerOrderInProcessId,
+                        ProcessedQuantity = item.ProcessedQuantity,
+                        WarehouseId = item.WarehouseId,
+                        CustomerOrderDetailId = item.CustomerOrderDetailId
+                    });
+                }
 
-                return entity;
-            }
-            catch (Exception)
-            {
-                _context.Entry(entity).State = EntityState.Unchanged;
-                throw;
-            }
+                try
+                {
+                    await dbContext.CustomerOrdersInProcesses.AddAsync(entity, ct);
+                    await dbContext.SaveChangesAsync(ct);
+
+                    return entity;
+                }
+                catch (Exception)
+                {
+                    dbContext.Entry(entity).State = EntityState.Unchanged;
+                    throw;
+                }
+            }, ct);
         }
 
         public async Task<IEnumerable<CustomerOrdersInProcess>> GetByCustomerOrderIdAsync(int customerOrderId, CancellationToken ct)
         {
-            return await _context.CustomerOrdersInProcesses.AsNoTracking()
-                .Include(i => i.CustomerOrder)
-                .Include(i => i.EmployeeRecipient)
-                .Include(i => i.Employee)
-                .Include(i => i.ProcessSatellite)
-                .Include(i => i.StatusDocumentType)
-                .Where(i => i.CustomerOrderId == customerOrderId)
-                .ToListAsync(ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.CustomerOrdersInProcesses.AsNoTracking()
+                            .Include(i => i.CustomerOrder)
+                            .Include(i => i.EmployeeRecipient)
+                            .Include(i => i.Employee)
+                            .Include(i => i.ProcessSatellite)
+                            .Include(i => i.StatusDocumentType)
+                            .Where(i => i.CustomerOrderId == customerOrderId)
+                            .ToListAsync(ct);
+            }, ct);
         }
 
         public async Task UpdateAsync(int customerOrderInProcessId, CustomerOrdersInProcess customerOrdersInProcess, Reason reason, CancellationToken ct)
         {
-            var entity = await _context.CustomerOrdersInProcesses.Include(i => i.CustomerOrderInProcessDetails).FirstOrDefaultAsync(x => x.CustomerOrderInProcessId == customerOrderInProcessId, ct) ?? throw new KeyNotFoundException($"Traslado a proceso con id {customerOrderInProcessId} no existe.");
-
-            entity.TransferDatetime = customerOrdersInProcess.TransferDatetime;
-            entity.ProcessDate = customerOrdersInProcess.ProcessDate;
-            entity.CustomerOrderId = customerOrdersInProcess.CustomerOrderId;
-            entity.EmployeeRecipientId = customerOrdersInProcess.EmployeeRecipientId;
-            entity.EmployeeId = customerOrdersInProcess.EmployeeId;
-            entity.StatusDocumentTypeId = customerOrdersInProcess.StatusDocumentTypeId;
-            entity.Notes = customerOrdersInProcess.Notes;
-
-            foreach (var item in customerOrdersInProcess.CustomerOrderInProcessDetails)
+            await ExecuteCommandAsync(async dbContext =>
             {
-                if (item.CustomerOrderInProcessDetailId > 0)
+                var entity = await dbContext.CustomerOrdersInProcesses.Include(i => i.CustomerOrderInProcessDetails).FirstOrDefaultAsync(x => x.CustomerOrderInProcessId == customerOrderInProcessId, ct) ?? throw new KeyNotFoundException($"Traslado a proceso con id {customerOrderInProcessId} no existe.");
+
+                entity.TransferDatetime = customerOrdersInProcess.TransferDatetime;
+                entity.ProcessDate = customerOrdersInProcess.ProcessDate;
+                entity.CustomerOrderId = customerOrdersInProcess.CustomerOrderId;
+                entity.EmployeeRecipientId = customerOrdersInProcess.EmployeeRecipientId;
+                entity.EmployeeId = customerOrdersInProcess.EmployeeId;
+                entity.StatusDocumentTypeId = customerOrdersInProcess.StatusDocumentTypeId;
+                entity.Notes = customerOrdersInProcess.Notes;
+
+                foreach (var item in customerOrdersInProcess.CustomerOrderInProcessDetails)
                 {
-                    var detail = entity.CustomerOrderInProcessDetails.FirstOrDefault(i => i.CustomerOrderInProcessDetailId == item.CustomerOrderInProcessDetailId);
-                    if (detail != null)
+                    if (item.CustomerOrderInProcessDetailId > 0)
                     {
-                        detail.Brand = item.Brand;
-                        detail.WarehouseId = item.WarehouseId;
-                        detail.ProcessedQuantity = item.ProcessedQuantity;
-                        detail.CustomerOrderDetailId = item.CustomerOrderDetailId;
+                        var detail = entity.CustomerOrderInProcessDetails.FirstOrDefault(i => i.CustomerOrderInProcessDetailId == item.CustomerOrderInProcessDetailId);
+                        if (detail != null)
+                        {
+                            detail.Brand = item.Brand;
+                            detail.WarehouseId = item.WarehouseId;
+                            detail.ProcessedQuantity = item.ProcessedQuantity;
+                            detail.CustomerOrderDetailId = item.CustomerOrderDetailId;
+                        }
+                        continue;
                     }
-                    continue;
+
+                    entity.CustomerOrderInProcessDetails.Add(new CustomerOrderInProcessDetail()
+                    {
+                        CustomerOrderInProcessId = item.CustomerOrderInProcessId,
+                        CustomerOrderDetailId = item.CustomerOrderDetailId,
+                        ProcessedQuantity = item.ProcessedQuantity,
+                        Brand = item.Brand,
+                        WarehouseId = item.WarehouseId
+                    });
                 }
 
-                entity.CustomerOrderInProcessDetails.Add(new CustomerOrderInProcessDetail()
+                foreach (var item in entity.CustomerOrderInProcessDetails)
                 {
-                    CustomerOrderInProcessId = item.CustomerOrderInProcessId,
-                    CustomerOrderDetailId = item.CustomerOrderDetailId,
-                    ProcessedQuantity = item.ProcessedQuantity,
-                    Brand = item.Brand,
-                    WarehouseId = item.WarehouseId
-                });
-            }
+                    if (!customerOrdersInProcess.CustomerOrderInProcessDetails.Any(i => i.CustomerOrderInProcessDetailId == item.CustomerOrderInProcessDetailId))
+                        dbContext.CustomerOrderInProcessDetails.Remove(item);
+                }
 
-            foreach (var item in entity.CustomerOrderInProcessDetails)
-            {
-                if (!customerOrdersInProcess.CustomerOrderInProcessDetails.Any(i => i.CustomerOrderInProcessDetailId == item.CustomerOrderInProcessDetailId))
-                    _context.CustomerOrderInProcessDetails.Remove(item);
-            }
-
-            var reasonEntity = new ModifiedOrdersInProcess
-            {
-                CustomerOrderInProcessId = customerOrderInProcessId,
-                ModificationReasonId = reason.ReasonId,
-                EmployeeId = reason.EmployeeId,
-                ModificationDate = reason.Date
-            };
-            try
-            {
-                _context.ModifiedOrdersInProcesses.Add(reasonEntity);
-                await _context.SaveChangesAsync(ct);
-            }
-            catch (Exception)
-            {
-                _context.Entry(entity).State = EntityState.Unchanged;
-                _context.Entry(reasonEntity).State = EntityState.Unchanged;
-                throw;
-            }
+                var reasonEntity = new ModifiedOrdersInProcess
+                {
+                    CustomerOrderInProcessId = customerOrderInProcessId,
+                    ModificationReasonId = reason.ReasonId,
+                    EmployeeId = reason.EmployeeId,
+                    ModificationDate = reason.Date
+                };
+                try
+                {
+                    dbContext.ModifiedOrdersInProcesses.Add(reasonEntity);
+                    await dbContext.SaveChangesAsync(ct);
+                }
+                catch (Exception)
+                {
+                    dbContext.Entry(entity).State = EntityState.Unchanged;
+                    dbContext.Entry(reasonEntity).State = EntityState.Unchanged;
+                    throw;
+                }
+                return Task.CompletedTask;
+            }, ct);
         }
 
         public async Task<CustomerOrdersInProcess?> FindAsync(int customerOrderInProcessId, CancellationToken ct = default)
         {
-            return await _context.CustomerOrdersInProcesses.AsNoTracking()
-                .Include(i => i.CustomerOrder)
-                .Include(i => i.EmployeeRecipient)
-                .Include(i => i.Employee)
-                .Include(i => i.ProcessSatellite)
-                .Include(i => i.StatusDocumentType)
-                .FirstOrDefaultAsync(i => i.CustomerOrderInProcessId == customerOrderInProcessId, ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.CustomerOrdersInProcesses.AsNoTracking()
+               .Include(i => i.CustomerOrder)
+               .Include(i => i.EmployeeRecipient)
+               .Include(i => i.Employee)
+               .Include(i => i.ProcessSatellite)
+               .Include(i => i.StatusDocumentType)
+               .FirstOrDefaultAsync(i => i.CustomerOrderInProcessId == customerOrderInProcessId, ct);
+            }, ct);
         }
 
         public async Task CancelAsync(int customerOrderInProcessId, short canceledStatusDocumentId, Reason reason, CancellationToken ct = default)
         {
-            var entity = await _context.CustomerOrdersInProcesses.Include(i => i.CustomerOrderInProcessDetails).FirstOrDefaultAsync(x => x.CustomerOrderInProcessId == customerOrderInProcessId, ct) ?? throw new KeyNotFoundException($"Traslado con id {customerOrderInProcessId} no existe.");
-            entity.StatusDocumentTypeId = canceledStatusDocumentId;
+            await ExecuteCommandAsync(async dbContext =>
+            {
+                var entity = await dbContext.CustomerOrdersInProcesses.Include(i => i.CustomerOrderInProcessDetails).FirstOrDefaultAsync(x => x.CustomerOrderInProcessId == customerOrderInProcessId, ct) ?? throw new KeyNotFoundException($"Traslado con id {customerOrderInProcessId} no existe.");
+                entity.StatusDocumentTypeId = canceledStatusDocumentId;
 
-            var reasonEntity = new CanceledOrdersInProcess
-            {
-                CustomerOrderInProcessId = customerOrderInProcessId,
-                CancellationReasonId = reason.ReasonId,
-                EmployeeId = reason.EmployeeId,
-                CancellationDate = reason.Date
-            };
-            try
-            {
-                _context.CanceledOrdersInProcesses.Add(reasonEntity);
-                await _context.SaveChangesAsync(ct);
-            }
-            catch (Exception)
-            {
-                _context.Entry(entity).State = EntityState.Unchanged;
-                _context.Entry(reasonEntity).State = EntityState.Unchanged;
-                throw;
-            }
+                var reasonEntity = new CanceledOrdersInProcess
+                {
+                    CustomerOrderInProcessId = customerOrderInProcessId,
+                    CancellationReasonId = reason.ReasonId,
+                    EmployeeId = reason.EmployeeId,
+                    CancellationDate = reason.Date
+                };
+                try
+                {
+                    dbContext.CanceledOrdersInProcesses.Add(reasonEntity);
+                    await dbContext.SaveChangesAsync(ct);
+                }
+                catch (Exception)
+                {
+                    dbContext.Entry(entity).State = EntityState.Unchanged;
+                    dbContext.Entry(reasonEntity).State = EntityState.Unchanged;
+                    throw;
+                }
+                return Task.CompletedTask;
+            }, ct);
         }
     }
-
 }

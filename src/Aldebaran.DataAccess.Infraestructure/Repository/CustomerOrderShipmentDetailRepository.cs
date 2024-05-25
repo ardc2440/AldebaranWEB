@@ -3,20 +3,21 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
-    public class CustomerOrderShipmentDetailRepository : ICustomerOrderShipmentDetailRepository
+    public class CustomerOrderShipmentDetailRepository : RepositoryBase<AldebaranDbContext>, ICustomerOrderShipmentDetailRepository
     {
-        private readonly AldebaranDbContext _context;
-        public CustomerOrderShipmentDetailRepository(AldebaranDbContext context)
+        public CustomerOrderShipmentDetailRepository(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public async Task<IEnumerable<CustomerOrderShipmentDetail>> GetByCustomerOrderShipmentIdAsync(int customerOrderShipmentId, CancellationToken ct)
         {
-            return await _context.CustomerOrderShipmentDetails.AsNoTracking()
-                .Include(i => i.CustomerOrderDetail.ItemReference.Item.Line)
-                .Where(i => i.CustomerOrderShipmentId == customerOrderShipmentId)
-                .ToListAsync(ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.CustomerOrderShipmentDetails.AsNoTracking()
+                            .Include(i => i.CustomerOrderDetail.ItemReference.Item.Line)
+                            .Where(i => i.CustomerOrderShipmentId == customerOrderShipmentId)
+                            .ToListAsync(ct);
+            }, ct);
         }
     }
 

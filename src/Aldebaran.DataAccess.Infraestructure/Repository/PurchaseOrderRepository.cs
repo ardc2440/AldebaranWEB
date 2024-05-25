@@ -7,221 +7,251 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
-    public class PurchaseOrderRepository : IPurchaseOrderRepository
+    public class PurchaseOrderRepository : RepositoryBase<AldebaranDbContext>, IPurchaseOrderRepository
     {
-        private readonly AldebaranDbContext _context;
         private readonly ISharedStringLocalizer _SharedLocalizer;
-        public PurchaseOrderRepository(ISharedStringLocalizer sharedLocalizer, AldebaranDbContext context)
+        public PurchaseOrderRepository(IServiceProvider serviceProvider, ISharedStringLocalizer sharedLocalizer) : base(serviceProvider)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
-            _SharedLocalizer = sharedLocalizer;
+            _SharedLocalizer = sharedLocalizer ?? throw new ArgumentNullException(nameof(ISharedStringLocalizer));
         }
 
         public async Task<PurchaseOrder> AddAsync(PurchaseOrder item, CancellationToken ct = default)
         {
-            await _context.PurchaseOrders.AddAsync(item, ct);
-            await _context.SaveChangesAsync(ct);
-            return item;
+            return await ExecuteCommandAsync(async dbContext =>
+            {
+                await dbContext.PurchaseOrders.AddAsync(item, ct);
+                await dbContext.SaveChangesAsync(ct);
+                return item;
+            }, ct);
         }
 
         public async Task CancelAsync(int purchaseOrderId, Reason reason, CancellationToken ct = default)
         {
-            var entity = await _context.PurchaseOrders.FirstOrDefaultAsync(x => x.PurchaseOrderId == purchaseOrderId, ct) ?? throw new KeyNotFoundException($"Orden con id {purchaseOrderId} no existe.");
-            var documentType = await _context.DocumentTypes.AsNoTracking().FirstAsync(f => f.DocumentTypeCode == "O", ct);
-            var statutsDocumentType = await _context.StatusDocumentTypes.AsNoTracking().FirstAsync(f => f.DocumentTypeId == documentType.DocumentTypeId && f.StatusOrder == 3, ct);
-            entity.StatusDocumentTypeId = statutsDocumentType.StatusDocumentTypeId;
+            await ExecuteCommandAsync(async dbContext =>
+            {
+                var entity = await dbContext.PurchaseOrders.FirstOrDefaultAsync(x => x.PurchaseOrderId == purchaseOrderId, ct) ?? throw new KeyNotFoundException($"Orden con id {purchaseOrderId} no existe.");
+                var documentType = await dbContext.DocumentTypes.AsNoTracking().FirstAsync(f => f.DocumentTypeCode == "O", ct);
+                var statutsDocumentType = await dbContext.StatusDocumentTypes.AsNoTracking().FirstAsync(f => f.DocumentTypeId == documentType.DocumentTypeId && f.StatusOrder == 3, ct);
+                entity.StatusDocumentTypeId = statutsDocumentType.StatusDocumentTypeId;
 
-            var reasonEntity = new CanceledPurchaseOrder
-            {
-                PurchaseOrderId = purchaseOrderId,
-                CancellationReasonId = reason.ReasonId,
-                EmployeeId = reason.EmployeeId,
-                CancellationDate = reason.Date
-            };
-            try
-            {
-                _context.CanceledPurchaseOrders.Add(reasonEntity);
-                await _context.SaveChangesAsync(ct);
-            }
-            catch
-            {
-                _context.Entry(entity).State = EntityState.Unchanged;
-                _context.Entry(reasonEntity).State = EntityState.Unchanged;
-                throw;
-            }
+                var reasonEntity = new CanceledPurchaseOrder
+                {
+                    PurchaseOrderId = purchaseOrderId,
+                    CancellationReasonId = reason.ReasonId,
+                    EmployeeId = reason.EmployeeId,
+                    CancellationDate = reason.Date
+                };
+                try
+                {
+                    dbContext.CanceledPurchaseOrders.Add(reasonEntity);
+                    await dbContext.SaveChangesAsync(ct);
+                }
+                catch
+                {
+                    dbContext.Entry(entity).State = EntityState.Unchanged;
+                    dbContext.Entry(reasonEntity).State = EntityState.Unchanged;
+                    throw;
+                }
+                return Task.CompletedTask;
+            }, ct);
         }
 
         public async Task ConfirmAsync(int purchaseOrderId, PurchaseOrder purchaseOrder, CancellationToken ct = default)
         {
-            var entity = await _context.PurchaseOrders.FirstOrDefaultAsync(x => x.PurchaseOrderId == purchaseOrderId, ct) ?? throw new KeyNotFoundException($"Orden con id {purchaseOrderId} no existe.");
-            entity.RealReceiptDate = purchaseOrder.RealReceiptDate;
-            entity.ImportNumber = purchaseOrder.ImportNumber;
-            entity.EmbarkationPort = purchaseOrder.EmbarkationPort;
-            entity.ProformaNumber = purchaseOrder.ProformaNumber;
+            await ExecuteCommandAsync(async dbContext =>
+            {
+                var entity = await dbContext.PurchaseOrders.FirstOrDefaultAsync(x => x.PurchaseOrderId == purchaseOrderId, ct) ?? throw new KeyNotFoundException($"Orden con id {purchaseOrderId} no existe.");
+                entity.RealReceiptDate = purchaseOrder.RealReceiptDate;
+                entity.ImportNumber = purchaseOrder.ImportNumber;
+                entity.EmbarkationPort = purchaseOrder.EmbarkationPort;
+                entity.ProformaNumber = purchaseOrder.ProformaNumber;
 
-            var documentType = await _context.DocumentTypes.AsNoTracking().FirstAsync(f => f.DocumentTypeCode == "O", ct);
-            var statutsDocumentType = await _context.StatusDocumentTypes.AsNoTracking().FirstAsync(f => f.DocumentTypeId == documentType.DocumentTypeId && f.StatusOrder == 2, ct);
-            entity.StatusDocumentTypeId = statutsDocumentType.StatusDocumentTypeId;
+                var documentType = await dbContext.DocumentTypes.AsNoTracking().FirstAsync(f => f.DocumentTypeCode == "O", ct);
+                var statutsDocumentType = await dbContext.StatusDocumentTypes.AsNoTracking().FirstAsync(f => f.DocumentTypeId == documentType.DocumentTypeId && f.StatusOrder == 2, ct);
+                entity.StatusDocumentTypeId = statutsDocumentType.StatusDocumentTypeId;
 
-            // Details
-            var details = await _context.PurchaseOrderDetails.Where(x => x.PurchaseOrderId == purchaseOrderId).ToListAsync(ct);
-            foreach (var detail in purchaseOrder.PurchaseOrderDetails)
-            {
-                var detailToUpdate = details.FirstOrDefault(f => f.PurchaseOrderDetailId == detail.PurchaseOrderDetailId);
-                if (detailToUpdate != null)
-                    detailToUpdate.ReceivedQuantity = detail.ReceivedQuantity;
-            }
-            try
-            {
-                await _context.SaveChangesAsync(ct);
-            }
-            catch
-            {
-                _context.Entry(entity).State = EntityState.Unchanged;
-                throw;
-            }
+                // Details
+                var details = await dbContext.PurchaseOrderDetails.Where(x => x.PurchaseOrderId == purchaseOrderId).ToListAsync(ct);
+                foreach (var detail in purchaseOrder.PurchaseOrderDetails)
+                {
+                    var detailToUpdate = details.FirstOrDefault(f => f.PurchaseOrderDetailId == detail.PurchaseOrderDetailId);
+                    if (detailToUpdate != null)
+                        detailToUpdate.ReceivedQuantity = detail.ReceivedQuantity;
+                }
+                try
+                {
+                    await dbContext.SaveChangesAsync(ct);
+                }
+                catch
+                {
+                    dbContext.Entry(entity).State = EntityState.Unchanged;
+                    throw;
+                }
+                return Task.CompletedTask;
+            }, ct);
         }
 
         public async Task<PurchaseOrder?> FindAsync(int purchaseOrderId, CancellationToken ct = default)
         {
-            return await _context.PurchaseOrders.AsNoTracking()
-               .Include(i => i.Employee.Area)
-               .Include(i => i.Employee.IdentityType)
-               .Include(i => i.ForwarderAgent.Forwarder)
-               .Include(i => i.Provider.IdentityType)
-               .Include(i => i.ShipmentForwarderAgentMethod.ShipmentMethod)
-               .Include(i => i.ShipmentForwarderAgentMethod.ForwarderAgent)
-               .Include(i => i.StatusDocumentType.DocumentType)
-               .Where(w => w.PurchaseOrderId == purchaseOrderId)
-               .FirstOrDefaultAsync(ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.PurchaseOrders.AsNoTracking()
+                      .Include(i => i.Employee.Area)
+                      .Include(i => i.Employee.IdentityType)
+                      .Include(i => i.ForwarderAgent.Forwarder)
+                      .Include(i => i.Provider.IdentityType)
+                      .Include(i => i.ShipmentForwarderAgentMethod.ShipmentMethod)
+                      .Include(i => i.ShipmentForwarderAgentMethod.ForwarderAgent)
+                      .Include(i => i.StatusDocumentType.DocumentType)
+                      .Where(w => w.PurchaseOrderId == purchaseOrderId)
+                      .FirstOrDefaultAsync(ct);
+            }, ct);
         }
 
         public async Task<IEnumerable<PurchaseOrder>> GetAsync(CancellationToken ct = default)
         {
-            return await _context.PurchaseOrders.AsNoTracking()
-                .Include(i => i.Employee.Area)
-                .Include(i => i.Employee.IdentityType)
-                .Include(i => i.ForwarderAgent.Forwarder)
-                .Include(i => i.Provider.IdentityType)
-                .Include(i => i.ShipmentForwarderAgentMethod.ShipmentMethod)
-                .Include(i => i.ShipmentForwarderAgentMethod.ForwarderAgent)
-                .Include(i => i.StatusDocumentType.DocumentType)
-                .ToListAsync(ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.PurchaseOrders.AsNoTracking()
+                        .Include(i => i.Employee.Area)
+                        .Include(i => i.Employee.IdentityType)
+                        .Include(i => i.ForwarderAgent.Forwarder)
+                        .Include(i => i.Provider.IdentityType)
+                        .Include(i => i.ShipmentForwarderAgentMethod.ShipmentMethod)
+                        .Include(i => i.ShipmentForwarderAgentMethod.ForwarderAgent)
+                        .Include(i => i.StatusDocumentType.DocumentType)
+                        .ToListAsync(ct);
+            }, ct);
         }
 
         public async Task<IEnumerable<PurchaseOrder>> GetAsync(string searchKey, CancellationToken ct = default)
         {
-            return await _context.PurchaseOrders.AsNoTracking()
-               .Include(i => i.Employee.Area)
-               .Include(i => i.Employee.IdentityType)
-               .Include(i => i.ForwarderAgent.Forwarder)
-               .Include(i => i.Provider.IdentityType)
-               .Include(i => i.ShipmentForwarderAgentMethod.ShipmentMethod)
-               .Include(i => i.ShipmentForwarderAgentMethod.ForwarderAgent)
-               .Include(i => i.StatusDocumentType.DocumentType)
-               .Where(w => w.OrderNumber.Contains(searchKey) ||
-                           w.ImportNumber.Contains(searchKey) ||
-                           w.EmbarkationPort.Contains(searchKey) ||
-                           w.ProformaNumber.Contains(searchKey) ||
-                           _context.Format(w.CreationDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
-                           _context.Format(w.ExpectedReceiptDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
-                           _context.Format(w.RequestDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
-                           (w.RealReceiptDate.HasValue && _context.Format(w.RealReceiptDate.Value, _SharedLocalizer["date:format"]).Contains(searchKey)))
-               .ToListAsync();
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.PurchaseOrders.AsNoTracking()
+                           .Include(i => i.Employee.Area)
+                           .Include(i => i.Employee.IdentityType)
+                           .Include(i => i.ForwarderAgent.Forwarder)
+                           .Include(i => i.Provider.IdentityType)
+                           .Include(i => i.ShipmentForwarderAgentMethod.ShipmentMethod)
+                           .Include(i => i.ShipmentForwarderAgentMethod.ForwarderAgent)
+                           .Include(i => i.StatusDocumentType.DocumentType)
+                           .Where(w => w.OrderNumber.Contains(searchKey) ||
+                                       w.ImportNumber.Contains(searchKey) ||
+                                       w.EmbarkationPort.Contains(searchKey) ||
+                                       w.ProformaNumber.Contains(searchKey) ||
+                                       dbContext.Format(w.CreationDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
+                                       dbContext.Format(w.ExpectedReceiptDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
+                                       dbContext.Format(w.RequestDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
+                                       (w.RealReceiptDate.HasValue && dbContext.Format(w.RealReceiptDate.Value, _SharedLocalizer["date:format"]).Contains(searchKey)))
+                           .ToListAsync();
+            }, ct);
         }
 
         public async Task<IEnumerable<PurchaseOrder>> GetTransitByReferenceIdAsync(int referenceId, CancellationToken ct = default)
         {
-            return await _context.PurchaseOrders.AsNoTracking()
-               .Include(i => i.PurchaseOrderDetails)
-               .Include(i => i.PurchaseOrderActivities)
-               .Where(w => w.StatusDocumentType.StatusOrder == 1 && _context.PurchaseOrderDetails.AsNoTracking().Any(d => d.PurchaseOrderId == w.PurchaseOrderId && d.ReferenceId == referenceId))
-               .ToListAsync(ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.PurchaseOrders.AsNoTracking()
+                           .Include(i => i.PurchaseOrderDetails)
+                           .Include(i => i.PurchaseOrderActivities)
+                           .Where(w => w.StatusDocumentType.StatusOrder == 1 && dbContext.PurchaseOrderDetails.AsNoTracking().Any(d => d.PurchaseOrderId == w.PurchaseOrderId && d.ReferenceId == referenceId))
+                           .ToListAsync(ct);
+            }, ct);
         }
 
         public async Task<int> UpdateAsync(int purchaseOrderId, PurchaseOrder purchaseOrder, Reason reason, IEnumerable<CustomerOrderAffectedByPurchaseOrderUpdate> ordersAffected, CancellationToken ct = default)
         {
-            var entity = await _context.PurchaseOrders
-                .FirstOrDefaultAsync(x => x.PurchaseOrderId == purchaseOrderId, ct) ?? throw new KeyNotFoundException($"Orden con id {purchaseOrderId} no existe.");
-
-            var oldExpectedReceiptDate = entity.ExpectedReceiptDate;
-
-            entity.RequestDate = purchaseOrder.RequestDate;
-            entity.ExpectedReceiptDate = purchaseOrder.ExpectedReceiptDate;
-            entity.ProviderId = purchaseOrder.ProviderId;
-            entity.ForwarderAgentId = purchaseOrder.ForwarderAgentId;
-            entity.ShipmentForwarderAgentMethodId = purchaseOrder.ShipmentForwarderAgentMethodId;
-            // Details
-            var details = await _context.PurchaseOrderDetails.Where(x => x.PurchaseOrderId == purchaseOrderId).ToListAsync(ct);
-            _context.PurchaseOrderDetails.RemoveRange(details);
-            entity.PurchaseOrderDetails = purchaseOrder.PurchaseOrderDetails;
-            IEnumerable<PurchaseOrderNotification> purchaseOrderNotifications = new List<PurchaseOrderNotification>();
-
-            List<PurchaseOrderTransitAlarm> purchaseOrderTransitAlarm = new List<PurchaseOrderTransitAlarm>();
-
-            if (ordersAffected.Any())
+            return await ExecuteCommandAsync(async dbContext =>
             {
-                purchaseOrderNotifications = ordersAffected.Select(s => new PurchaseOrderNotification
+                var entity = await dbContext.PurchaseOrders
+                            .FirstOrDefaultAsync(x => x.PurchaseOrderId == purchaseOrderId, ct) ?? throw new KeyNotFoundException($"Orden con id {purchaseOrderId} no existe.");
+
+                var oldExpectedReceiptDate = entity.ExpectedReceiptDate;
+
+                entity.RequestDate = purchaseOrder.RequestDate;
+                entity.ExpectedReceiptDate = purchaseOrder.ExpectedReceiptDate;
+                entity.ProviderId = purchaseOrder.ProviderId;
+                entity.ForwarderAgentId = purchaseOrder.ForwarderAgentId;
+                entity.ShipmentForwarderAgentMethodId = purchaseOrder.ShipmentForwarderAgentMethodId;
+                // Details
+                var details = await dbContext.PurchaseOrderDetails.Where(x => x.PurchaseOrderId == purchaseOrderId).ToListAsync(ct);
+                dbContext.PurchaseOrderDetails.RemoveRange(details);
+                entity.PurchaseOrderDetails = purchaseOrder.PurchaseOrderDetails;
+                IEnumerable<PurchaseOrderNotification> purchaseOrderNotifications = new List<PurchaseOrderNotification>();
+
+                List<PurchaseOrderTransitAlarm> purchaseOrderTransitAlarm = new List<PurchaseOrderTransitAlarm>();
+
+                if (ordersAffected.Any())
                 {
-                    CustomerOrderId = s.CustomerOrderId,
-                    NotificationId = string.Empty,
-                    NotificationState = NotificationStatus.Pending,
-                    NotifiedMailList = (_context.CustomerOrders.AsNoTracking()
-                                            .Include(i => i.Customer)
-                                            .FirstOrDefault(f => f.CustomerOrderId == s.CustomerOrderId)).Customer.Email
-                });
+                    purchaseOrderNotifications = ordersAffected.Select(s => new PurchaseOrderNotification
+                    {
+                        CustomerOrderId = s.CustomerOrderId,
+                        NotificationId = string.Empty,
+                        NotificationState = NotificationStatus.Pending,
+                        NotifiedMailList = (dbContext.CustomerOrders.AsNoTracking()
+                                    .Include(i => i.Customer)
+                                    .FirstOrDefault(f => f.CustomerOrderId == s.CustomerOrderId)).Customer.Email
+                    });
 
-                purchaseOrderTransitAlarm.Add(new PurchaseOrderTransitAlarm { OldExpectedReceiptDate = oldExpectedReceiptDate });
-            }
+                    purchaseOrderTransitAlarm.Add(new PurchaseOrderTransitAlarm { OldExpectedReceiptDate = oldExpectedReceiptDate });
+                }
 
-            var reasonEntity = new ModifiedPurchaseOrder
-            {
-                PurchaseOrderId = purchaseOrderId,
-                ModificationReasonId = reason.ReasonId,
-                EmployeeId = reason.EmployeeId,
-                ModificationDate = reason.Date
-            };
+                var reasonEntity = new ModifiedPurchaseOrder
+                {
+                    PurchaseOrderId = purchaseOrderId,
+                    ModificationReasonId = reason.ReasonId,
+                    EmployeeId = reason.EmployeeId,
+                    ModificationDate = reason.Date
+                };
 
-            if (purchaseOrderNotifications.Any())
-            {
-                reasonEntity.PurchaseOrderNotifications = purchaseOrderNotifications.ToList();
-                reasonEntity.PurchaseOrderTransitAlarms = purchaseOrderTransitAlarm;
-            }
+                if (purchaseOrderNotifications.Any())
+                {
+                    reasonEntity.PurchaseOrderNotifications = purchaseOrderNotifications.ToList();
+                    reasonEntity.PurchaseOrderTransitAlarms = purchaseOrderTransitAlarm;
+                }
 
-            try
-            {
-                _context.ModifiedPurchaseOrders.Add(reasonEntity);
-                await _context.SaveChangesAsync(ct);
-                return reasonEntity.ModifiedPurchaseOrderId;
-            }
-            catch
-            {
-                _context.Entry(entity).State = EntityState.Unchanged;
-                _context.Entry(reasonEntity).State = EntityState.Unchanged;
-                throw;
-            }
+                try
+                {
+                    dbContext.ModifiedPurchaseOrders.Add(reasonEntity);
+                    await dbContext.SaveChangesAsync(ct);
+                    return reasonEntity.ModifiedPurchaseOrderId;
+                }
+                catch
+                {
+                    dbContext.Entry(entity).State = EntityState.Unchanged;
+                    dbContext.Entry(reasonEntity).State = EntityState.Unchanged;
+                    throw;
+                }
+            }, ct);
         }
 
         public async Task<IEnumerable<CustomerOrderAffectedByPurchaseOrderUpdate>> GetAffectedCustomerOrders(int purchaseOrderId, DateTime newExpectedReceiptDate, IEnumerable<PurchaseOrderDetail> purchaseOrderDetails, CancellationToken ct = default)
         {
-            var purchaseOrderIdParameter = new SqlParameter("@PURCHASEORDERID", purchaseOrderId);
-            var newExpectedReceiptDateParameter = new SqlParameter("@NEWEXPECTEDRECIPDATE", newExpectedReceiptDate);
-            var purchaseOrderDetailsParameter = new SqlParameter("@PURCHASEORDERDETAILQUANTITIES", string.Join(";", purchaseOrderDetails.Select(s => $"{s.ReferenceId}-{s.RequestedQuantity}")));
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                var purchaseOrderIdParameter = new SqlParameter("@PURCHASEORDERID", purchaseOrderId);
+                var newExpectedReceiptDateParameter = new SqlParameter("@NEWEXPECTEDRECIPDATE", newExpectedReceiptDate);
+                var purchaseOrderDetailsParameter = new SqlParameter("@PURCHASEORDERDETAILQUANTITIES", string.Join(";", purchaseOrderDetails.Select(s => $"{s.ReferenceId}-{s.RequestedQuantity}")));
 
-            return await _context.Set<CustomerOrderAffectedByPurchaseOrderUpdate>()
-                .FromSqlRaw($"EXEC SP_CUSTOMER_ORDERS_AFFECTED_BY_PURCHASE_ORDER_UPDATE " +
-                $"@PURCHASEORDERID, @NEWEXPECTEDRECIPDATE, @PURCHASEORDERDETAILQUANTITIES",
-                purchaseOrderIdParameter, newExpectedReceiptDateParameter, purchaseOrderDetailsParameter).ToListAsync(ct);
+                return await dbContext.Set<CustomerOrderAffectedByPurchaseOrderUpdate>()
+                    .FromSqlRaw($"EXEC SP_CUSTOMER_ORDERS_AFFECTED_BY_PURCHASE_ORDER_UPDATE " +
+                    $"@PURCHASEORDERID, @NEWEXPECTEDRECIPDATE, @PURCHASEORDERDETAILQUANTITIES",
+                    purchaseOrderIdParameter, newExpectedReceiptDateParameter, purchaseOrderDetailsParameter).ToListAsync(ct);
+            }, ct);
         }
 
         public async Task<IEnumerable<CustomerOrderAffectedByPurchaseOrderUpdate>> GetAffectedCustomerOrders(int purchaseOrderId, CancellationToken ct = default)
         {
-            var purchaseOrderIdParameter = new SqlParameter("@PURCHASEORDERID", purchaseOrderId);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                var purchaseOrderIdParameter = new SqlParameter("@PURCHASEORDERID", purchaseOrderId);
 
-            return await _context.Set<CustomerOrderAffectedByPurchaseOrderUpdate>()
-                .FromSqlRaw($"EXEC SP_CUSTOMER_ORDERS_POSSIBLY_AFFECTED_BY_PURCHASE_ORDER_ID " +
-                $"@PURCHASEORDERID",
-                purchaseOrderIdParameter).ToListAsync(ct);
+                return await dbContext.Set<CustomerOrderAffectedByPurchaseOrderUpdate>()
+                    .FromSqlRaw($"EXEC SP_CUSTOMER_ORDERS_POSSIBLY_AFFECTED_BY_PURCHASE_ORDER_ID " +
+                    $"@PURCHASEORDERID",
+                    purchaseOrderIdParameter).ToListAsync(ct);
+            }, ct);
         }
     }
 }

@@ -3,16 +3,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository.Reports
 {
-    public class WarehouseStockReportRepository : IWarehouseStockReportRepository
+    public class WarehouseStockReportRepository : RepositoryBase<AldebaranDbContext>, IWarehouseStockReportRepository
     {
-        private readonly AldebaranDbContext _context;
-        public WarehouseStockReportRepository(AldebaranDbContext context)
+        public WarehouseStockReportRepository(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
+
         public async Task<IEnumerable<WarehouseStockReport>> GetWarehouseStockReportDataAsync(string filter, CancellationToken ct = default)
         {
-            return await _context.Set<WarehouseStockReport>().FromSqlRaw($"EXEC SP_GET_WAREHOUSE_STOCK_REPORT {filter}").ToListAsync(ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.Set<WarehouseStockReport>().FromSqlRaw($"EXEC SP_GET_WAREHOUSE_STOCK_REPORT {filter}").ToListAsync(ct);
+            }, ct);
         }
     }
 }

@@ -173,31 +173,34 @@
                                                                     </table>
                                                                 </td>
                                                             </tr>
-                                                            @foreach (var movement in reference.Movements)
+                                                            @if (reference.Movements != null)
                                                             {
-                                                                <tr style="background:#fff !important">
-                                                                    <td colspan="4">
-                                                                        <div style="margin: 1em 1em 0em 1em !important;">
-                                                                            <h4 class="text-left m-0 pb-1">@movement.Title</h4>
-                                                                            <table style="text-align: center !important;margin:0 !important; margin-bottom: 1em !important;" class="edged">
-                                                                                @foreach (var detail in movement.Details)
-                                                                                {
-                                                                                    <tr>
-                                                                                        <td width="15%">@detail.Code</td>
-                                                                                        <td width="20%">@detail.Status</td>
-                                                                                        <td width="10%">@detail.Date.ToString(SharedLocalizer["date:format"])</td>
-                                                                                        <td width="40%">@detail.Owner</td>
-                                                                                        <td width="15%">@detail.Amount.ToString("N0")</td>
+                                                                @foreach (var movement in reference.Movements)
+                                                                {
+                                                                    <tr style="background:#fff !important">
+                                                                        <td colspan="4">
+                                                                            <div style="margin: 1em 1em 0em 1em !important;">
+                                                                                <h4 class="text-left m-0 pb-1">@movement.Title</h4>
+                                                                                <table style="text-align: center !important;margin:0 !important; margin-bottom: 1em !important;" class="edged">
+                                                                                    @foreach (var detail in movement.Details)
+                                                                                    {
+                                                                                        <tr>
+                                                                                            <td width="15%">@detail.Code</td>
+                                                                                            <td width="20%">@detail.Status</td>
+                                                                                            <td width="10%">@detail.Date.ToString(SharedLocalizer["date:format"])</td>
+                                                                                            <td width="40%">@detail.Owner</td>
+                                                                                            <td width="15%">@detail.Amount.ToString("N0")</td>
+                                                                                        </tr>
+                                                                                    }
+                                                                                    <tr style="font-weight: 600;">
+                                                                                        <td colspan="4" style="text-align: right">Total: </td>
+                                                                                        <td>@movement.Details.Sum(s => s.Amount).ToString("N0")</td>
                                                                                     </tr>
-                                                                                }
-                                                                                <tr style="font-weight: 600;">
-                                                                                    <td colspan="4" style="text-align: right">Total: </td>
-                                                                                    <td>@movement.Details.Sum(s => s.Amount).ToString("N0")</td>
-                                                                                </tr>
-                                                                            </table>
-                                                                        </div>
-                                                                    </td>
-                                                                </tr>
+                                                                                </table>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                }
                                                             }
                                                         }
                                                     </tbody>

@@ -1,24 +1,28 @@
 ﻿using Aldebaran.DataAccess.Entities.Reports;
 using Microsoft.EntityFrameworkCore;
 
-
 namespace Aldebaran.DataAccess.Infraestructure.Repository.Reports
 {
-    public class CustomerOrderReportRepository : ICustomerOrderReportRepository
+    public class CustomerOrderReportRepository : RepositoryBase<AldebaranDbContext>, ICustomerOrderReportRepository
     {
-        private readonly AldebaranDbContext _context;
-        public CustomerOrderReportRepository(AldebaranDbContext context)
+        public CustomerOrderReportRepository(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
+
         public async Task<IEnumerable<CustomerOrderReport>> GetCustomerOrderReportDataAsync(string filter, CancellationToken ct = default)
         {
-            return await _context.Set<CustomerOrderReport>().FromSqlRaw($"EXEC SP_GET_CUSTOMER_ORDER_REPORT {filter}").ToListAsync(ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.Set<CustomerOrderReport>().FromSqlRaw($"EXEC SP_GET_CUSTOMER_ORDER_REPORT {filter}").ToListAsync(ct);
+            }, ct);
         }
 
         public async Task<IEnumerable<CustomerOrderExport>> GetCustomerOrderExportDataAsync(string filter, CancellationToken ct = default)
         {
-            return await _context.Set<CustomerOrderExport>().FromSqlRaw($"EXEC SP_GET_CUSTOMER_ORDER_EXPORT {filter}").ToListAsync(ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.Set<CustomerOrderExport>().FromSqlRaw($"EXEC SP_GET_CUSTOMER_ORDER_EXPORT {filter}").ToListAsync(ct);
+            }, ct);
         }
     }
 }

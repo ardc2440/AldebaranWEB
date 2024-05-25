@@ -3,27 +3,28 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
-    public class VisualizedAlarmRepository : IVisualizedAlarmRepository
+    public class VisualizedAlarmRepository : RepositoryBase<AldebaranDbContext>, IVisualizedAlarmRepository
     {
-        private readonly AldebaranDbContext _context;
-        public VisualizedAlarmRepository(AldebaranDbContext context)
+        public VisualizedAlarmRepository(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public async Task AddAsync(VisualizedAlarm item, CancellationToken ct = default)
         {
-            try
+            await ExecuteCommandAsync(async dbContext =>
             {
-                await _context.VisualizedAlarms.AddAsync(item, ct);
-                await _context.SaveChangesAsync(ct);
-            }
-            catch (Exception)
-            {
-                _context.Entry(item).State = EntityState.Unchanged;
-                throw;
-            }
+                try
+                {
+                    await dbContext.VisualizedAlarms.AddAsync(item, ct);
+                    await dbContext.SaveChangesAsync(ct);
+                }
+                catch (Exception)
+                {
+                    dbContext.Entry(item).State = EntityState.Unchanged;
+                    throw;
+                }
+                return Task.CompletedTask;
+            }, ct);
         }
     }
-
 }

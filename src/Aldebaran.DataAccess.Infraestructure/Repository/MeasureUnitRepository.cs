@@ -3,17 +3,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
-    public class MeasureUnitRepository : IMeasureUnitRepository
+    public class MeasureUnitRepository : RepositoryBase<AldebaranDbContext>, IMeasureUnitRepository
     {
-        private readonly AldebaranDbContext _context;
-        public MeasureUnitRepository(AldebaranDbContext context)
+        public MeasureUnitRepository(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
+
         public async Task<IEnumerable<MeasureUnit>> GetAsync(CancellationToken ct = default)
         {
-            return await _context.MeasureUnits.AsNoTracking()
-               .ToListAsync(ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.MeasureUnits.AsNoTracking()
+                           .ToListAsync(ct);
+            }, ct);
         }
     }
 }

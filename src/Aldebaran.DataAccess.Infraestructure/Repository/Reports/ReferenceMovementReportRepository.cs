@@ -3,17 +3,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository.Reports
 {
-    public class ReferenceMovementReportRepository : IReferenceMovementReportRepository
+    public class ReferenceMovementReportRepository : RepositoryBase<AldebaranDbContext>, IReferenceMovementReportRepository
     {
-        private readonly AldebaranDbContext _context;
-        public ReferenceMovementReportRepository(AldebaranDbContext context)
+        public ReferenceMovementReportRepository(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public async Task<IEnumerable<ReferenceMovementReport>> GetReferenceMovementReportDataAsync(string filter, CancellationToken ct = default)
         {
-            return await _context.Set<ReferenceMovementReport>().FromSqlRaw($"EXEC SP_GET_REFERENCE_MOVEMENT_REPORT @ReferenceIds = '{filter}'").ToListAsync(ct);
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.Set<ReferenceMovementReport>().FromSqlRaw($"EXEC SP_GET_REFERENCE_MOVEMENT_REPORT @ReferenceIds = '{filter}'").ToListAsync(ct);
+            }, ct);
         }
     }
 }
