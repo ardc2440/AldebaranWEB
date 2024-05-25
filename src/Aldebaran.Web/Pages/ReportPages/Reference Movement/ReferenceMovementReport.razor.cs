@@ -1,8 +1,10 @@
 ﻿using Aldebaran.Application.Services.Reports;
 using Aldebaran.Infraestructure.Common.Utils;
+using Aldebaran.Web.Pages.ReportPages.Customer_Reservations.ViewModel;
 using Aldebaran.Web.Pages.ReportPages.Reference_Movement.Components;
 using Aldebaran.Web.Pages.ReportPages.Reference_Movement.ViewModel;
 using Microsoft.AspNetCore.Components;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.JSInterop;
 using Radzen;
 using Radzen.Blazor;
@@ -56,13 +58,26 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
 
                 ViewModel = new ReferenceMovementViewModel
                 {
-                    Lines = (await GetReporLinesAsync()).ToList()
+                    Lines = (await GetReporLinesAsync(ct)).ToList()
                 };
             }
             finally
             {
                 IsLoadingData = false;
             }
+        }
+
+        async Task<string> SetReportFilterAsync(ReferenceMovementFilter filter, CancellationToken ct = default)
+        {
+            var filterResult = string.Empty;
+
+            if (filter.MovementDate.StartDate.HasValue)
+                filterResult += $"@InitialMovementDate = '{(DateTime)filter.MovementDate.StartDate:yyyyMMdd}', @FinalMovementDate = '{(DateTime)filter.MovementDate.EndDate:yyyyMMdd}'";
+                        
+            if (filter.ItemReferences.Count > 0)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReferenceIds = '{String.Join(",", Filter.ItemReferences.Select(s => s.ReferenceId))}'";
+                        
+            return filterResult;
         }
 
         async Task OpenFilters()
@@ -72,15 +87,11 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
                 return;
             Filter = (ReferenceMovementFilter)result;
 
-            var referenceIdsFilter = "";
-
-            if (Filter.ItemReferences.Count > 0)
-                referenceIdsFilter = String.Join(",", Filter.ItemReferences.Select(s => s.ReferenceId));
-
-            await RedrawReportAsync(referenceIdsFilter);
+            await RedrawReportAsync(await SetReportFilterAsync(Filter));
 
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
         }
+
         async Task RemoveFilters()
         {
             if (await DialogService.Confirm("Está seguro que desea eliminar los filtros establecidos?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
@@ -167,8 +178,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
                     RequestedQuantity = reference.RequestedQuantity,
                     ReservedQuantity = reference.ReservedQuantity,
                     ReferenceCode = reference.ReferenceCode,
-                    Warehouses = (await GetWarehousesByReferenceIdAsync(reference.ReferenceId, ct)).ToList()
-
+                    Warehouses = (await GetWarehousesByReferenceIdAsync(reference.ReferenceId, ct)).ToList(),
+                    Movements = (await GetMovementsByReferenceIdAsync(reference.ReferenceId, ct)).ToList(),
                 }); ;
             }
 
@@ -179,7 +190,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
         {
             var warehouses = new List<ReferenceMovementViewModel.Warehouse>();
 
-            foreach (var warehouse in DataReport.Where(w => w.ReferenceId == referenceId).Select(s => new { s.WarehouseId, s.Amount, s.WarehouseName })
+            foreach (var warehouse in DataReport.Where(w => w.ReferenceId == referenceId)
+                                        .Select(s => new { s.WarehouseId, s.Amount, s.WarehouseName })
                                         .DistinctBy(d => d.WarehouseId).OrderBy(o => o.WarehouseName))
             {
                 warehouses.Add(new ReferenceMovementViewModel.Warehouse
@@ -193,6 +205,47 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
 
             return warehouses;
 
+        }
+
+        protected async Task<IEnumerable<ReferenceMovementViewModel.Movements>> GetMovementsByReferenceIdAsync(int referenceId, CancellationToken ct = default)
+        {
+            var movements = new List<ReferenceMovementViewModel.Movements>();
+
+            foreach (var movement in DataReport.Where(w => w.ReferenceId == referenceId && w.TitleId != null)
+                                        .Select(s => new { s.TitleId, s.Title })
+                                        .DistinctBy(d => d.TitleId).OrderBy(o => o.TitleId))
+            {
+                movements.Add(new ReferenceMovementViewModel.Movements
+                {
+                    Title = movement.Title,
+                    Details = (await GetMovementDetailsByTitleIdAsync(referenceId, (short)movement.TitleId, ct)).ToList()
+                });
+            }
+
+            return movements;
+        }
+
+        protected async Task<IEnumerable<ReferenceMovementViewModel.MovementDetail>> GetMovementDetailsByTitleIdAsync(int referenceId, short titleId, CancellationToken ct = default)
+        {
+            var movementDetails = new List<ReferenceMovementViewModel.MovementDetail>();
+
+            foreach (var detail in DataReport.Where(w => w.ReferenceId == referenceId && w.TitleId == titleId)
+                                        .Select(s => new { s.Code, s.Date, s.Owner, s.MovementAmount, s.Status })
+                                        .DistinctBy(d=>d.Code)
+                                        .OrderBy(o => o.Date)
+                                        .OrderBy(o => o.Code))
+            {
+                movementDetails.Add(new ReferenceMovementViewModel.MovementDetail
+                {
+                    Code = detail.Code,
+                    Date = (DateTime)detail.Date,
+                    Owner = detail.Owner,
+                    Amount = (int)detail.MovementAmount,
+                    Status = detail.Status
+                });
+            }
+
+            return movementDetails;
         }
 
         #endregion

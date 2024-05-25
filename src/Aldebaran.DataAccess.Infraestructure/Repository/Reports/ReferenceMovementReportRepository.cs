@@ -13,7 +13,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository.Reports
 
         public async Task<IEnumerable<ReferenceMovementReport>> GetReferenceMovementReportDataAsync(string filter, CancellationToken ct = default)
         {
-            return await _context.Set<ReferenceMovementReport>().FromSqlRaw($"EXEC SP_GET_REFERENCE_MOVEMENT_REPORT @ReferenceIds = '{filter}'").ToListAsync(ct);
+            return await _context.Set<ReferenceMovementReport>().FromSqlRaw($"EXEC SP_GET_REFERENCE_MOVEMENT_REPORT {filter}").ToListAsync(ct);
         }
     }
 }

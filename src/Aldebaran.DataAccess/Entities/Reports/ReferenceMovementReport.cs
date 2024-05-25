@@ -20,5 +20,13 @@
         public string WarehouseName { get; set; }
         public int Amount { get; set; }
 
+        public short? TitleId { get; set; }
+        public string? Title { get; set; }
+                
+        public string? Code { get; set; }
+        public DateTime? Date { get; set; }
+        public string? Owner { get; set; }
+        public int? MovementAmount { get; set; }
+        public string? Status { get; set; }        
     }
 }
