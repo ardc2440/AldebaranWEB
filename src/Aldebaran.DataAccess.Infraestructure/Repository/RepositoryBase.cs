@@ -61,7 +61,9 @@ public abstract class RepositoryBase<TContext> where TContext : DbContext
             // Resuelve la instancia de DbContext del ámbito
             var dbContext = scope.ServiceProvider.GetRequiredService<TContext>();
             // Ejecuta la operación proporcionada con el DbContext resuelto
-            return await operation(dbContext);
+            var res = await operation(dbContext);
+            tx.Complete();
+            return res;
         }
     }
 }
