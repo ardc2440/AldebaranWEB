@@ -118,7 +118,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
                     {
                         REFERENCE_ID = item.CustomerOrderDetail.ReferenceId,
                         CUSTOMER_ORDER_DETAIL_ID = item.CustomerOrderDetailId,
-                        REFERENCE_DESCRIPTION = $"({item.CustomerOrderDetail.ItemReference.Item.InternalReference}) {item.CustomerOrderDetail.ItemReference.Item.ItemName} - {item.CustomerOrderDetail.ItemReference.ReferenceName}",
+                        REFERENCE_DESCRIPTION = $"[{item.CustomerOrderDetail.ItemReference.Item.InternalReference}] ({item.CustomerOrderDetail.ItemReference.Item.Line.LineName}) {item.CustomerOrderDetail.ItemReference.Item.ItemName} - {item.CustomerOrderDetail.ItemReference.ReferenceName}",
                         PENDING_QUANTITY = item.CustomerOrderDetail.RequestedQuantity - item.CustomerOrderDetail.ProcessedQuantity - item.CustomerOrderDetail.DeliveredQuantity,
                         PROCESSED_QUANTITY = item.CustomerOrderDetail.ProcessedQuantity,
                         DELIVERED_QUANTITY = item.CustomerOrderDetail.DeliveredQuantity,

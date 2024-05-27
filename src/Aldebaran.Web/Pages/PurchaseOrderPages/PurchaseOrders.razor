@@ -92,24 +92,24 @@
                                         <LocalizedDataGrid Visible="@(purchaseOrder != null)" @ref=PurchaseOrderDetailsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                                            Data="@purchaseOrder?.PurchaseOrderDetails" TItem="ServiceModel.PurchaseOrderDetail">
                                             <Columns>
-                                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Title="Cantidad solicitada">
+                                                <RadzenDataGridColumn Width="50%" TItem="ServiceModel.PurchaseOrderDetail" Title="Referencia">
+                                                    <Template Context="detail">
+                                                        <RadzenLabel MouseEnter="@(args => ShowTooltip(args,GetReferenceHint(@detail.ItemReference).Result, new TooltipOptions(){ Position = TooltipPosition.Left }))">
+                                                            [@detail.ItemReference.Item.InternalReference] (@detail.ItemReference.Item.Line.LineName) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName
+                                                        </RadzenLabel>
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn Width="30%" TItem="ServiceModel.PurchaseOrderDetail" Title="Cantidad solicitada">
                                                     <Template Context="detail">
                                                         @detail.RequestedQuantity.ToString("N0")
                                                     </Template>
                                                 </RadzenDataGridColumn>
-                                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Title="Cantidad recibida">
+                                                <RadzenDataGridColumn Width="30%" TItem="ServiceModel.PurchaseOrderDetail" Title="Cantidad recibida">
                                                     <Template Context="detail">
                                                         @detail.ReceivedQuantity?.ToString("N0")
                                                     </Template>
-                                                </RadzenDataGridColumn>
-                                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Title="Referencia">
-                                                    <Template Context="detail">
-                                                        <RadzenLabel MouseEnter="@(args => ShowTooltip(args,GetReferenceHint(@detail.ItemReference).Result, new TooltipOptions(){ Position = TooltipPosition.Left }))">
-                                                            (@detail.ItemReference.Item.Line.LineName) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName
-                                                        </RadzenLabel>
-                                                    </Template>
-                                                </RadzenDataGridColumn>
-                                                <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Property="Warehouse.WarehouseName" Title="Bodega">
+                                                </RadzenDataGridColumn>                                                
+                                                <RadzenDataGridColumn Width="50%" TItem="ServiceModel.PurchaseOrderDetail" Property="Warehouse.WarehouseName" Title="Bodega">
                                                 </RadzenDataGridColumn>
                                             </Columns>
                                         </LocalizedDataGrid>

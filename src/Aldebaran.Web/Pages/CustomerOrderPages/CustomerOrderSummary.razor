@@ -84,7 +84,7 @@
                                                 <td>@detail.RequestedQuantity.ToString("N0")</td>
                                                 <td>@detail.ProcessedQuantity.ToString("N0")</td>
                                                 <td>@detail.DeliveredQuantity.ToString("N0")</td>
-                                                <td>@GetOrderStatus(detail)</td>
+                                                <td>@GetOrderStatus(detail, CustomerOrder)</td>
                                             </tr>
                                             @if (CustomerOrderShipments.Any(w => w.CustomerOrderShipmentDetails.Any(x => x.CustomerOrderDetailId == detail.CustomerOrderDetailId)))
                                             {

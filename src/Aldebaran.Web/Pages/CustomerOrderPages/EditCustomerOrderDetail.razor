@@ -16,7 +16,7 @@
                         <RadzenLabel Text="Referencia" Component="REFERENCE" style="width: 100%" />
                     </RadzenColumn>
                     <RadzenColumn SizeMD="9">
-                        <span>(@customerOrderDetail.ItemReference.Item.Line.LineName) @customerOrderDetail.ItemReference.Item.ItemName - @customerOrderDetail.ItemReference.ReferenceName</span>
+                        <span>[@customerOrderDetail.ItemReference.Item.InternalReference] (@customerOrderDetail.ItemReference.Item.Line.LineName) @customerOrderDetail.ItemReference.Item.ItemName - @customerOrderDetail.ItemReference.ReferenceName</span>
                     </RadzenColumn>
                 </RadzenRow>
                 <RadzenFormField Text="Cantidad" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">

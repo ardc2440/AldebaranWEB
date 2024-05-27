@@ -149,7 +149,10 @@ namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
         {
             var items = new List<InProcessInventoryViewModel.Item>();
 
-            foreach (var item in DataReport.Where(w => w.LineId == lineId).Select(s => new { s.ItemId, s.InternalReference, s.ItemName }).DistinctBy(d => d.ItemId))
+            foreach (var item in DataReport.Where(w => w.LineId == lineId)
+                                    .Select(s => new { s.ItemId, s.InternalReference, s.ItemName })
+                                    .DistinctBy(d => d.ItemId)
+                                    .OrderBy(o=>o.ItemName))
             {
                 items.Add(new InProcessInventoryViewModel.Item
                 {
@@ -166,7 +169,10 @@ namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
         {
             var reportReferences = new List<InProcessInventoryViewModel.Reference>();
 
-            foreach (var reference in DataReport.Where(w => w.ItemId == itemId).Select(s => new { s.ReferenceId, s.ReferenceName, s.InProcessAmount }).DistinctBy(d => d.ReferenceId).OrderBy(o => o.ReferenceName))
+            foreach (var reference in DataReport.Where(w => w.ItemId == itemId)
+                                        .Select(s => new { s.ReferenceId, s.ReferenceName, s.InProcessAmount })
+                                        .DistinctBy(d => d.ReferenceId)
+                                        .OrderBy(o => o.ReferenceName))
             {
                 reportReferences.Add(new InProcessInventoryViewModel.Reference
                 {

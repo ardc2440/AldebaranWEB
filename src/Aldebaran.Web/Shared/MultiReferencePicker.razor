@@ -16,7 +16,7 @@
                         @foreach (var reference in SelectedReferences)
                         {
                             <div>
-                                <span class="component-label">(@reference.Item.Line.LineName) @reference.Item.ItemName - @reference.ReferenceName</span>
+                                <span class="component-label">[@reference.Item.InternalReference] (@reference.Item.Line.LineName) @reference.Item.ItemName - @reference.ReferenceName</span>
                             </div>
                         }
                     }

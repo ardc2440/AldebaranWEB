@@ -71,17 +71,17 @@
                                     <RadzenTabsItem Text="Referencias">
                                         <LocalizedDataGrid ColumnWidth="200px" Visible="@(customerReservation != null)" @ref=CustomerReservationDetailsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                                            ExpandMode="DataGridExpandMode.Single" Data="@customerReservation?.CustomerReservationDetails" TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail">
-                                            <Columns>
-                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Title="Cantidad">
-                                                    <Template Context="detail">
-                                                        @detail.ReservedQuantity.ToString("N0")
-                                                    </Template>
-                                                </RadzenDataGridColumn>
+                                            <Columns>                                                
                                                 <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Title="Referencia">
                                                     <Template Context="detail">
                                                         <RadzenLabel MouseEnter="@(args => ShowTooltip(args,GetReferenceHint(@detail.ItemReference).Result, new TooltipOptions(){ Position = TooltipPosition.Left }))">
-                                                            (@detail.ItemReference.Item.Line.LineName) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName
+                                                            [@detail.ItemReference.Item.InternalReference] (@detail.ItemReference.Item.Line.LineName) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName
                                                         </RadzenLabel>
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Title="Cantidad">
+                                                    <Template Context="detail">
+                                                        @detail.ReservedQuantity.ToString("N0")
                                                     </Template>
                                                 </RadzenDataGridColumn>
                                                 <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Property="SendToCustomerOrder" Title="Agregar al pedido" Visible="false">

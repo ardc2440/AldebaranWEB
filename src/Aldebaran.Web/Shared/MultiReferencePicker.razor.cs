@@ -87,7 +87,7 @@ namespace Aldebaran.Web.Shared
                     ItemId = x.ItemId,
                     ItemName = x.ItemName,
                     InternalReference = x.InternalReference,
-                    FullName = $"{x.ItemName} - {x.InternalReference}"
+                    FullName = $"{x.InternalReference} {x.ItemName}"
                 }))).ToList();
         }
         protected void OnItemChange()

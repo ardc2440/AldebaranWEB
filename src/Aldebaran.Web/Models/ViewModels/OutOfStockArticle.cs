@@ -16,7 +16,7 @@
             {
                 var outOfStockArticle = new OutOfStockArticle
                 {
-                    ArticleName = $"({outOfStockReference.Item.Line.LineName}) {outOfStockReference.Item.ItemName} - {outOfStockReference.ReferenceName}",
+                    ArticleName = $"[{outOfStockReference.Item.InternalReference}] ({outOfStockReference.Item.Line.LineName}) {outOfStockReference.Item.ItemName} - {outOfStockReference.ReferenceName}",
                     AvailableQuantity = outOfStockReference.InventoryQuantity,
                     InTransitQuantity = referencesInTransit.Where(i => i.ReferenceId == outOfStockReference.ReferenceId).Sum(i => i.RequestedQuantity),
                     ReservedQuantity = outOfStockReference.ReservedQuantity,

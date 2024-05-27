@@ -23,7 +23,9 @@
                 <RadzenRow AlignItems="AlignItems.Start" Gap="2rem">
                     <RadzenColumn SizeMD="6">
                         <RadzenStack>
-                            <RadzenRow AlignItems="AlignItems.Start" Gap="2rem" class="m-3">
+                            <RadzenRow />
+                            <RadzenRow AlignItems="AlignItems.Start" Gap="2rem">
+                                <RadzenColumn SizeMD="1" />
                                 <RadzenColumn SizeMD="6">
                                     <RadzenStack>
                                         <div class="flex-shrink-0">
@@ -37,19 +39,22 @@
                                             </div>
                                             <div class="text-secondary-color">
                                                 <RadzenLabel Text="Correo: " />
-                                                <span>@customerOrder.Customer.Email</span>
-                                            </div>
-                                            <div class="text-secondary-color">
-                                                <RadzenLabel Text="Dirección: " />
-                                                <span>@customerOrder.Customer.CustomerAddress</span>
-                                            </div>
-                                            <div class="text-secondary-color">
-                                                <span>(@customerOrder.Customer.City.Department.Country.CountryCode) @customerOrder.Customer.City.Department.DepartmentName - @customerOrder.Customer.City.CityName </span>
-                                            </div>
+                                                @foreach (string mail in @customerOrder.Customer.Email.Split(';'))
+                                                {
+                                            <li>@mail</li>
+                                                }
+                                        </div>
+                                        <div class="text-secondary-color">
+                                            <RadzenLabel Text="Dirección: " />
+                                            <span>@customerOrder.Customer.CustomerAddress</span>
+                                        </div>
+                                        <div class="text-secondary-color">
+                                            <span>(@customerOrder.Customer.City.Department.Country.CountryCode) @customerOrder.Customer.City.Department.DepartmentName - @customerOrder.Customer.City.CityName </span>
+                                        </div>
                                         </div>
                                     </RadzenStack>
                                 </RadzenColumn>
-                                <RadzenColumn SizeMD="6">
+                                <RadzenColumn SizeMD="5">
                                     <div class="flex-shrink-0">
                                         <div class="text-primary-color" style="font-size: 16px">
                                             <RadzenLabel Text="Fecha de pedido:" />

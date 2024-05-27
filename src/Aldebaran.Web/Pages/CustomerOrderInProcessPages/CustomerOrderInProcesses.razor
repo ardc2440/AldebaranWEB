@@ -61,7 +61,7 @@
                                         <LocalizedDataGrid ColumnWidth="200px" Visible="@(customerOrder != null)" @ref=CustomerOrderDetailsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                                            ExpandMode="DataGridExpandMode.Single" Data="@detailInProcesses" TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess">
                                             <Columns>
-                                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Title="Referencia">
+                                                <RadzenDataGridColumn Width="80%" TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Title="Referencia">
                                                     <Template Context="detail">
                                                         <RadzenLabel MouseEnter="@(args => ShowTooltip(args,detail.REFERENCE_DESCRIPTION, new TooltipOptions(){ Position = TooltipPosition.Left }))">
                                                             @detail.REFERENCE_DESCRIPTION
@@ -131,20 +131,20 @@
                                                                        AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30}) ExpandMode="DataGridExpandMode.Single"
                                                                        Data="@customerOrderInProcessDetails" TItem="Aldebaran.Application.Services.Models.CustomerOrderInProcessDetail">
                                                         <Columns>
-                                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderInProcessDetail" Title="Referencia">
+                                                            <RadzenDataGridColumn Width="80%" TItem="Aldebaran.Application.Services.Models.CustomerOrderInProcessDetail" Title="Referencia">
                                                                 <Template Context="detail">
                                                                     <RadzenLabel MouseEnter="@(args => ShowTooltip(args,GetReferenceHint(@detail.CustomerOrderDetail.ItemReference).Result, new TooltipOptions(){ Position = TooltipPosition.Left }))">
-                                                                        (@detail.CustomerOrderDetail.ItemReference.Item.Line.LineName) @detail.CustomerOrderDetail.ItemReference.Item.ItemName - @detail.CustomerOrderDetail.ItemReference.ReferenceName
+                                                                        [@detail.CustomerOrderDetail.ItemReference.Item.InternalReference] (@detail.CustomerOrderDetail.ItemReference.Item.Line.LineName) @detail.CustomerOrderDetail.ItemReference.Item.ItemName - @detail.CustomerOrderDetail.ItemReference.ReferenceName
                                                                     </RadzenLabel>
                                                                 </Template>
-                                                            </RadzenDataGridColumn>
-                                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderInProcessDetail" Property="Warehouse.WarehouseName" Title="Bodega">
                                                             </RadzenDataGridColumn>
                                                             <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderInProcessDetail" Title="Cantidad">
                                                                 <Template Context="detail">
                                                                     @detail.ProcessedQuantity.ToString("N0")
                                                                 </Template>
                                                             </RadzenDataGridColumn>
+                                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderInProcessDetail" Property="Warehouse.WarehouseName" Title="Bodega">
+                                                            </RadzenDataGridColumn>                                                            
                                                         </Columns>
                                                     </LocalizedDataGrid>
                                                 </RadzenStack>

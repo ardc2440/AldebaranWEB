@@ -1907,30 +1907,43 @@ BEGIN
 	)
 
 	INSERT INTO @Movements
-		 SELECT b.REFERENCE_ID, 1, 'Ajustes de inventario realizados en el periodo', a.ADJUSTMENT_ID, a.ADJUSTMENT_DATE, c.ADJUSTMENT_TYPE_NAME + ' por ' + d.ADJUSTMENT_REASON_NAME, b.QUANTITY, e.STATUS_DOCUMENT_TYPE_NAME
+		 SELECT b.REFERENCE_ID, 1, 'Ajustes de inventario realizados en el periodo', a.ADJUSTMENT_ID, a.ADJUSTMENT_DATE, c.ADJUSTMENT_TYPE_NAME + ' '+ f.WAREHOUSE_NAME +' por ' + d.ADJUSTMENT_REASON_NAME, b.QUANTITY, e.STATUS_DOCUMENT_TYPE_NAME
 		   FROM adjustments a
-		   JOIN adjustment_details b ON b.ADJUSTMENT_ID = a.ADJUSTMENT_ID
 		   JOIN adjustment_types c ON c.ADJUSTMENT_TYPE_ID = a.ADJUSTMENT_TYPE_ID
 		   JOIN adjustment_reasons d ON d.ADJUSTMENT_REASON_ID = a.ADJUSTMENT_REASON_ID
+		   JOIN adjustment_details b ON b.ADJUSTMENT_ID = a.ADJUSTMENT_ID
+		   JOIN warehouses f ON f.WAREHOUSE_ID = b.WAREHOUSE_ID 
 		   JOIN status_document_types e ON e.STATUS_DOCUMENT_TYPE_ID = a.STATUS_DOCUMENT_TYPE_ID
 		  WHERE (a.ADJUSTMENT_DATE BETWEEN @InitialMovementDate AND @FinalMovementDate OR @InitialMovementDate IS NULL)
 		    AND e.STATUS_ORDER = 1
 		    AND EXISTS (SELECT 1 FROM @FilterReferences fr WHERE fr.ReferenceId = b.REFERENCE_ID)
 	 	  ORDER BY b.REFERENCE_ID, a.ADJUSTMENT_DATE, a.ADJUSTMENT_ID
 
+	INSERT INTO @Movements
+		 SELECT b.REFERENCE_ID, 2, 'Traslados entre bodegas realizados en el periodo', a.WAREHOUSE_TRANSFER_ID, a.TRANSFER_DATE, 'De '+c.WAREHOUSE_NAME + ' a ' + d.WAREHOUSE_NAME, b.QUANTITY, e.STATUS_DOCUMENT_TYPE_NAME
+		   FROM warehouse_transfers a
+		   JOIN warehouse_transfer_details b ON b.WAREHOUSE_TRANSFER_ID = a.WAREHOUSE_TRANSFER_ID
+		   JOIN warehouses c ON c.WAREHOUSE_ID = a.ORIGIN_WAREHOUSE_ID
+		   JOIN warehouses d ON d.WAREHOUSE_ID = a.DESTINATION_WAREHOUSE_ID
+		   JOIN status_document_types e ON e.STATUS_DOCUMENT_TYPE_ID = a.STATUS_DOCUMENT_TYPE_ID
+		  WHERE (a.TRANSFER_DATE BETWEEN @InitialMovementDate AND @FinalMovementDate OR @InitialMovementDate IS NULL)
+		    AND e.STATUS_ORDER = 1 
+		    AND EXISTS (SELECT 1 FROM @FilterReferences fr WHERE fr.ReferenceId = b.REFERENCE_ID)
+	 	  ORDER BY b.REFERENCE_ID, a.TRANSFER_DATE, a.WAREHOUSE_TRANSFER_ID
+
   	INSERT INTO @Movements
-		 SELECT b.REFERENCE_ID, 2, 'Ordenes de compra realizadas en el periodo', a.ORDER_NUMBER, a.REQUEST_DATE, c.PROVIDER_NAME, b.REQUESTED_QUANTITY, d.STATUS_DOCUMENT_TYPE_NAME
+		 SELECT b.REFERENCE_ID, 3, 'Ordenes de compra realizadas en el periodo', a.ORDER_NUMBER, a.REQUEST_DATE, c.PROVIDER_NAME, b.REQUESTED_QUANTITY, d.STATUS_DOCUMENT_TYPE_NAME
 		   FROM purchase_orders a
 		   JOIN purchase_order_details b on b.PURCHASE_ORDER_ID = a.PURCHASE_ORDER_ID
 		   JOIN providers c on c.PROVIDER_ID = a.PROVIDER_ID
 		   JOIN status_document_types d ON d.STATUS_DOCUMENT_TYPE_ID = a.STATUS_DOCUMENT_TYPE_ID
 		  WHERE (a.REQUEST_DATE BETWEEN @InitialMovementDate AND @FinalMovementDate OR @InitialMovementDate IS NULL)
-		    AND d.STATUS_ORDER = 1
+		    AND d.STATUS_ORDER IN (1,2)
 		    AND EXISTS (SELECT 1 FROM @FilterReferences fr WHERE fr.ReferenceId = b.REFERENCE_ID)
 		  ORDER BY b.REFERENCE_ID, a.REQUEST_DATE, a.ORDER_NUMBER
 
   	INSERT INTO @Movements
-		 SELECT b.REFERENCE_ID, 3, 'Reservas realizadas en el periodo', a.RESERVATION_NUMBER, a.RESERVATION_DATE, c.CUSTOMER_NAME, b.RESERVED_QUANTITY, d.STATUS_DOCUMENT_TYPE_NAME
+		 SELECT b.REFERENCE_ID, 4, 'Reservas realizadas en el periodo', a.RESERVATION_NUMBER, a.RESERVATION_DATE, c.CUSTOMER_NAME, b.RESERVED_QUANTITY, d.STATUS_DOCUMENT_TYPE_NAME
 		   FROM customer_reservations a
 		   JOIN customer_reservation_details b on b.CUSTOMER_RESERVATION_ID = a.CUSTOMER_RESERVATION_ID
 		   JOIN customers c on c.CUSTOMER_ID = a.CUSTOMER_ID
@@ -1941,7 +1954,7 @@ BEGIN
 		  ORDER BY b.REFERENCE_ID, a.RESERVATION_DATE, a.RESERVATION_NUMBER
 
 	INSERT INTO @Movements
-		 SELECT b.REFERENCE_ID, 4, 'Pedidos realizados en el periodo', a.ORDER_NUMBER, a.ORDER_DATE, c.CUSTOMER_NAME, b.REQUESTED_QUANTITY, d.STATUS_DOCUMENT_TYPE_NAME
+		 SELECT b.REFERENCE_ID, 5, 'Pedidos realizados en el periodo', a.ORDER_NUMBER, a.ORDER_DATE, c.CUSTOMER_NAME, b.REQUESTED_QUANTITY, d.STATUS_DOCUMENT_TYPE_NAME
 		   FROM customer_orders a
 		   JOIN customer_order_details b on b.CUSTOMER_ORDER_ID = a.CUSTOMER_ORDER_ID
 		   JOIN customers c on c.CUSTOMER_ID = a.CUSTOMER_ID
@@ -1956,7 +1969,7 @@ BEGIN
 		   a.REFERENCE_CODE ReferenceCode, a.REFERENCE_NAME ReferenceName, a.RESERVED_QUANTITY ReservedQuantity, a.ORDERED_QUANTITY RequestedQuantity, e.WAREHOUSE_ID WarehouseId,
 		   e.WAREHOUSE_NAME WarehouseName, d.QUANTITY Amount, Title_Id TitleId, Title,	Code, Movement_Date [Date],  Movement_Owner [Owner], Movement_Amount MovementAmount, Movement_Status [Status]
 	  FROM item_references a
-	  JOIN items b ON b.ITEM_ID = a.ITEM_ID AND b.IS_EXTERNAL_INVENTORY = 1 and b.IS_ACTIVE = 1
+	  JOIN items b ON b.ITEM_ID = a.ITEM_ID 
 	  JOIN lines c ON c.LINE_ID = b.LINE_ID
 	  JOIN references_warehouse d ON d.REFERENCE_ID = a.REFERENCE_ID
 	  JOIN warehouses e ON e.WAREHOUSE_ID = d.WAREHOUSE_ID

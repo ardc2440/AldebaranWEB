@@ -152,8 +152,11 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             DialogService.Close(false);
         }
         #endregion
-        static string GetOrderStatus(CustomerOrderDetail detail)
+        static string GetOrderStatus(CustomerOrderDetail detail, CustomerOrder master)
         {
+            if (master.StatusDocumentType.StatusOrder == 6)
+                return "Cancelado";
+
             if (detail.DeliveredQuantity == 0 && detail.ProcessedQuantity == 0)
                 return "Pendiente";
             if (detail.ProcessedQuantity > 0)

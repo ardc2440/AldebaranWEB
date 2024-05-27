@@ -90,7 +90,7 @@
                                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Title="Referencia">
                                         <Template Context="detail">
                                             <RadzenLabel MouseEnter="@(args => ShowTooltip(args,GetReferenceHint(@detail.ItemReference).Result, new TooltipOptions(){ Position = TooltipPosition.Left }))">
-                                                (@detail.ItemReference.Item.Line.LineName) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName
+                                                [@detail.ItemReference.Item.InternalReference] (@detail.ItemReference.Item.Line.LineName) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName
                                             </RadzenLabel>
                                         </Template>
                                     </RadzenDataGridColumn>

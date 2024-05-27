@@ -17,7 +17,7 @@
             {
                 var minimumQuantityArticle = new MinimumQuantityArticle
                 {
-                    ArticleName = $"({minimumQuantityReference.Item.Line.LineName}) {minimumQuantityReference.Item.ItemName} - {minimumQuantityReference.ReferenceName}",
+                    ArticleName = $"[{minimumQuantityReference.Item.InternalReference}] ({minimumQuantityReference.Item.Line.LineName}) {minimumQuantityReference.Item.ItemName} - {minimumQuantityReference.ReferenceName}",
                     AvailableQuantity = minimumQuantityReference.InventoryQuantity,
                     MinimumQuantity = minimumQuantityReference.AlarmMinimumQuantity,
                     InTransitQuantity = referencesInTransit.Where(i => i.ReferenceId == minimumQuantityReference.ReferenceId).Sum(i => i.RequestedQuantity),

@@ -91,7 +91,7 @@ namespace Aldebaran.Web.Shared
                             ItemId = s.ItemId,
                             ItemName = s.ItemName,
                             InternalReference = s.InternalReference,
-                            FullName = $"{s.InternalReference} - {s.ItemName}"
+                            FullName = $"{s.InternalReference} {s.ItemName}"
                         }).DistinctBy(w => w.ItemId).OrderBy(o => o.ItemName);
         }
         protected async Task OnItemChange(object itemId)

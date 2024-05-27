@@ -53,18 +53,18 @@
                             <LocalizedDataGrid ColumnWidth="200px" Visible="@(warehouseTransfer != null)" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                                Data="@warehouseTransferDetails" TItem="Aldebaran.Application.Services.Models.WarehouseTransferDetail">
                                 <Columns>
+                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransferDetail" Property="ItemReference.ReferenceName" Title="Referencia">
+                                        <Template Context="detail">
+                                            <RadzenLabel MouseEnter="@(args => ShowTooltip(args,GetReferenceHint(@detail.ItemReference).Result, new TooltipOptions(){ Position = TooltipPosition.Left }))">
+                                                [@detail.ItemReference.Item.InternalReference] (@detail.ItemReference.Item.Line.LineName) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName
+                                            </RadzenLabel>
+                                        </Template>
+                                    </RadzenDataGridColumn>
                                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransferDetail" Title="Cantidad">
                                         <Template Context="detail">
                                             @detail.Quantity.ToString("N0")
                                         </Template>
-                                    </RadzenDataGridColumn>
-                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransferDetail" Property="ItemReference.ReferenceName" Title="Referencia">
-                                        <Template Context="detail">
-                                            <RadzenLabel MouseEnter="@(args => ShowTooltip(args,GetReferenceHint(@detail.ItemReference).Result, new TooltipOptions(){ Position = TooltipPosition.Left }))">
-                                                (@detail.ItemReference.Item.Line.LineName) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName
-                                            </RadzenLabel>
-                                        </Template>
-                                    </RadzenDataGridColumn>
+                                    </RadzenDataGridColumn>                                    
                                 </Columns>
                             </LocalizedDataGrid>
                         </RadzenStack>
