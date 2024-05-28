@@ -36,7 +36,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 entity.Subject = template.Subject;
                 entity.Message = template.Message;
                 await dbContext.SaveChangesAsync(ct);
-                return Task.CompletedTask;
             }, ct);
         }
     }

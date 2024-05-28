@@ -180,7 +180,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     dbContext.Entry(reasonEntity).State = EntityState.Unchanged;
                     throw;
                 }
-                return Task.CompletedTask;
             }, ct);
         }
 
@@ -208,7 +207,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     dbContext.Entry(reasonEntity).State = EntityState.Unchanged;
                     throw;
                 }
-                return Task.CompletedTask;
             }, ct);
         }
 
@@ -236,7 +234,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     dbContext.Entry(reasonEntity).State = EntityState.Unchanged;
                     throw;
                 }
-                return Task.CompletedTask;
             }, ct);
         }
     }

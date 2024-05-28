@@ -15,7 +15,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             {
                 await dbContext.ShipmentForwarderAgentMethods.AddAsync(shipmentForwarderAgentMethod, ct);
                 await dbContext.SaveChangesAsync(ct);
-                return Task.CompletedTask;
             }, ct);
         }
 
@@ -34,7 +33,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     dbContext.Entry(entity).State = EntityState.Unchanged;
                     throw;
                 }
-                return Task.CompletedTask;
             }, ct);
         }
 
@@ -69,7 +67,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 entity.ShipmentMethodId = shipmentForwarderAgentMethod.ShipmentMethodId;
                 entity.ForwarderAgentId = shipmentForwarderAgentMethod.ForwarderAgentId;
                 await dbContext.SaveChangesAsync(ct);
-                return Task.CompletedTask;
             }, ct);
         }
     }

@@ -15,7 +15,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             {
                 await dbContext.Items.AddAsync(item, ct);
                 await dbContext.SaveChangesAsync(ct);
-                return Task.CompletedTask;
             }, ct);
         }
 
@@ -34,7 +33,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     dbContext.Entry(entity).State = EntityState.Unchanged;
                     throw;
                 }
-                return Task.CompletedTask;
             }, ct);
         }
 
@@ -123,7 +121,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 entity.IsActive = item.IsActive;
                 entity.IsCatalogVisible = item.IsCatalogVisible;
                 await dbContext.SaveChangesAsync(ct);
-                return Task.CompletedTask;
             }, ct);
         }
     }

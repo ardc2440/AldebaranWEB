@@ -23,7 +23,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             {
                 await dbContext.Forwarders.AddAsync(forwarder, ct);
                 await dbContext.SaveChangesAsync(ct);
-                return Task.CompletedTask;
             }, ct);
         }
 
@@ -42,7 +41,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     dbContext.Entry(entity).State = EntityState.Unchanged;
                     throw;
                 }
-                return Task.CompletedTask;
             }, ct);
         }
 
@@ -91,7 +89,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 entity.Mail2 = forwarder.Mail2;
                 entity.CityId = forwarder.CityId;
                 await dbContext.SaveChangesAsync(ct);
-                return Task.CompletedTask;
             }, ct);
         }
     }

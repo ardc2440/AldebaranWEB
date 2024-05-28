@@ -15,7 +15,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             {
                 await dbContext.Employees.AddAsync(employee, ct);
                 await dbContext.SaveChangesAsync(ct);
-                return Task.CompletedTask;
             }, ct);
         }
 
@@ -34,7 +33,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     dbContext.Entry(entity).State = EntityState.Unchanged;
                     throw;
                 }
-                return Task.CompletedTask;
             }, ct);
         }
 
@@ -108,7 +106,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 entity.LoginUserId = employee.LoginUserId;
                 entity.Position = employee.Position;
                 await dbContext.SaveChangesAsync(ct);
-                return Task.CompletedTask;
             }, ct);
         }
 

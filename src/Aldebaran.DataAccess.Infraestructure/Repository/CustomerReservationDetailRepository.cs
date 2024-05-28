@@ -32,7 +32,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 entity.SendToCustomerOrder = customerReservationDetail.SendToCustomerOrder;
 
                 await dbContext.SaveChangesAsync(ct);
-                return Task.CompletedTask;
             }, ct);
         }
     }
