@@ -21,7 +21,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             {
                 await dbContext.CustomerContacts.AddAsync(customerContact, ct);
                 await dbContext.SaveChangesAsync(ct);
-                return Task.CompletedTask;
             }, ct);
         }
 
@@ -37,7 +36,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 entity.CustomerId = customerContact.CustomerId;
 
                 await dbContext.SaveChangesAsync(ct);
-                return Task.CompletedTask;
             }, ct);
         }
 
@@ -56,7 +54,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     dbContext.Entry(entity).State = EntityState.Unchanged;
                     throw;
                 }
-                return Task.CompletedTask;
             }, ct);
         }
 

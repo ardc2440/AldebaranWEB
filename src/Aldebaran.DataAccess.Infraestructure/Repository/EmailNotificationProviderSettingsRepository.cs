@@ -56,7 +56,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                         };
                 currentProvider.Settings = JsonConvert.SerializeObject(settings);
                 await dbContext.SaveChangesAsync(ct);
-                return Task.CompletedTask;
             }, ct);
         }
     }

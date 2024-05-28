@@ -15,7 +15,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             {
                 await dbContext.ProviderReferences.AddRangeAsync(providerReferences, ct);
                 await dbContext.SaveChangesAsync(ct);
-                return Task.CompletedTask;
             }, ct);
         }
 
@@ -25,7 +24,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             {
                 await dbContext.ProviderReferences.AddAsync(providerReference, ct);
                 await dbContext.SaveChangesAsync(ct);
-                return Task.CompletedTask;
             }, ct);
         }
 
@@ -44,7 +42,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     dbContext.Entry(entity).State = EntityState.Unchanged;
                     throw;
                 }
-                return Task.CompletedTask;
             }, ct);
         }
 

@@ -15,7 +15,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             {
                 await dbContext.ItemReferences.AddAsync(itemReference, ct);
                 await dbContext.SaveChangesAsync(ct);
-                return Task.CompletedTask;
             }, ct);
         }
 
@@ -35,7 +34,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     dbContext.Entry(entity).State = EntityState.Unchanged;
                     throw;
                 }
-                return Task.CompletedTask;
             }, ct);
         }
 
@@ -114,7 +112,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 entity.IsSoldOut = itemReference.IsSoldOut;
                 entity.AlarmMinimumQuantity = itemReference.AlarmMinimumQuantity;
                 await dbContext.SaveChangesAsync(ct);
-                return Task.CompletedTask;
             }, ct);
         }
 
