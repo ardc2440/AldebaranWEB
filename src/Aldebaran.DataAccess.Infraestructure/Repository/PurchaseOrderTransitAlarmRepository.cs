@@ -23,7 +23,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     dbContext.Entry(item).State = EntityState.Unchanged;
                     throw;
                 }
-                return Task.CompletedTask;
             }, ct);
         }
     }

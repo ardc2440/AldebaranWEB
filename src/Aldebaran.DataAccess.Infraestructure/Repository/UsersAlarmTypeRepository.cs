@@ -15,7 +15,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             {
                 await dbContext.UsersAlarmTypes.AddRangeAsync(items, ct);
                 await dbContext.SaveChangesAsync(ct);
-                return Task.CompletedTask;
             }, ct);
         }
         public async Task DeleteAsync(short alarmTypeId, int employeeId, CancellationToken ct = default)
@@ -33,7 +32,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     dbContext.Entry(entity).State = EntityState.Unchanged;
                     throw;
                 }
-                return Task.CompletedTask;
             }, ct);
         }
     }
