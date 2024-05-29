@@ -4,6 +4,8 @@ using Aldebaran.DataAccess.Core.Atributes;
 using Aldebaran.DataAccess.Entities;
 using Aldebaran.DataAccess.Entities.Reports;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Newtonsoft.Json.Linq;
 using System.Reflection;
 
 namespace Aldebaran.DataAccess
@@ -263,17 +265,50 @@ namespace Aldebaran.DataAccess
         /// Metodo que identifica las modificaciones sobre las tablas afectadas
         /// </summary>
         /// <param name="now">Fecha para registrar la modificacion</param>
+        ///
+
+        private bool AreEntriesEqual(EntityEntry entry1, EntityEntry entry2)
+        {
+            if (entry1.GetType() != entry2.GetType()) return false;
+            var entry1EntityKeyJson = GetJsonKeys(entry1);
+            var entry2EntityKeyJson = GetJsonKeys(entry2);
+
+            var jToken1 = JToken.Parse(entry1EntityKeyJson);
+            var jToken2 = JToken.Parse(entry2EntityKeyJson);
+
+            var equals = JToken.DeepEquals(jToken1, jToken2);
+            Console.WriteLine($"E1: {entry1EntityKeyJson} E2: {entry2EntityKeyJson} AreEquals: {equals}");
+            return equals;
+        }
+
+        private string GetJsonKeys(EntityEntry entry)
+        {
+            var entity1 = entry.Entity;
+            var entry1EntityType = Model.FindEntityType(entity1.GetType());
+            var entry1PrimaryKey = entry1EntityType.FindPrimaryKey();
+            var entry1KeyValues = entry1PrimaryKey.Properties.OrderBy(o => o.Name).ToDictionary(p => p.Name, p => entry.Property(p.Name).CurrentValue?.ToString());
+            var entry1EntityKeyJson = System.Text.Json.JsonSerializer.Serialize(entry1KeyValues);
+            return entry1EntityKeyJson;
+        }
         private async Task<int> TrackEntities(DateTime now, CancellationToken ct = default)
         {
             var trackeableEntities = ChangeTracker.Entries()
                 .Where(e => e.Entity is ITrackeable && (e.State == EntityState.Added || e.State == EntityState.Deleted || e.State == EntityState.Modified))
-                .Select(e => new { Entry = e, State = e.State }).ToList();
+                .Select(e => new ChangeTrackerEntity { Entry = e, State = e.State }).ToList();
 
             var result = await base.SaveChangesAsync(ct);
-            if (trackeableEntities.Any())
+
+            var afterSaveTrackeableEntities = ChangeTracker.Entries()
+                .Where(e => e.Entity is ITrackeable)
+                .Select(e => new ChangeTrackerEntity { Entry = e, State = EntityState.Modified }).ToList();
+
+            var trackeableTriggerEntities = afterSaveTrackeableEntities.Where(w => !trackeableEntities.Any(y => AreEntriesEqual(y.Entry, w.Entry))).ToList();
+            var allTrackeableEntities = trackeableEntities.Union(trackeableTriggerEntities);
+
+            if (allTrackeableEntities.Any())
             {
                 var tracks = new List<Track>();
-                foreach (var item in trackeableEntities)
+                foreach (var item in allTrackeableEntities)
                 {
                     var entry = item.Entry;
                     var entity = entry.Entity;
@@ -319,4 +354,10 @@ namespace Aldebaran.DataAccess
             return result;
         }
     }
+}
+
+public class ChangeTrackerEntity
+{
+    public EntityEntry Entry { get; set; }
+    public EntityState State { get; set; }
 }
