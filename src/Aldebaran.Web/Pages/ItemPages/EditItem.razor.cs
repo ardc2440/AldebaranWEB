@@ -58,7 +58,7 @@ namespace Aldebaran.Web.Pages.ItemPages
                 MeasureUnits = await MeasureUnitService.GetAsync();
                 Currencies = await CurrencyService.GetAsync();
                 Lines = await LineService.GetAsync();
-                packaging = await PackagingService.FindByItemId(Item.ItemId);                
+                packaging = await PackagingService.FindByItemId(Item.ItemId)??new Packaging { ItemId = Item.ItemId};                
             }
             finally
             {
