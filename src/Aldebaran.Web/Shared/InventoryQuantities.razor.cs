@@ -91,7 +91,7 @@ namespace Aldebaran.Web.Shared
             ItemReferenceInventories.Add(new ItemReferenceInventory() { Type = "En Proceso", Quantity = Reference?.WorkInProcessQuantity ?? 0 });
             if (ItemReferenceInventoryGrid != null)
                 await ItemReferenceInventoryGrid.Reload();
-            Available = Reference?.InventoryQuantity ?? 0 - Reference?.OrderedQuantity ?? 0 - Reference?.ReservedQuantity ?? 0;
+            Available = (Reference?.InventoryQuantity ?? 0) - (Reference?.OrderedQuantity ?? 0) - (Reference?.ReservedQuantity ?? 0);
         }
         async Task RefreshWarehouses()
         {

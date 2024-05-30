@@ -73,15 +73,7 @@
                                 <Helper>
                                     <RadzenRequiredValidator Component="EmbarkationPort" Text="Puerto de embarcación es requerido" />
                                 </Helper>
-                            </RadzenFormField>
-                            <RadzenFormField Text="Número de proforma" Variant="Variant.Text" Style="width: 100%;">
-                                <ChildContent>
-                                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@PurchaseOrder.ProformaNumber" Name="ProformaNumber" MaxLength="20" />
-                                </ChildContent>
-                                <Helper>
-                                    <RadzenRequiredValidator Component="ProformaNumber" Text="Número de proforma es requerido" />
-                                </Helper>
-                            </RadzenFormField>
+                            </RadzenFormField>                            
                             <RadzenFormField Text="Número de importación" Variant="Variant.Text" Style="width: 100%;">
                                 <ChildContent>
                                     <RadzenTextBox style="display: block; width: 100%" @bind-Value="@PurchaseOrder.ImportNumber" Name="ImportNumber" MaxLength="20" />
