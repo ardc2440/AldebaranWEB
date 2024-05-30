@@ -1,4 +1,6 @@
 using Aldebaran.Application.Services;
+using Aldebaran.Application.Services.Models;
+using Aldebaran.Application.Services.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
@@ -23,6 +25,9 @@ namespace Aldebaran.Web.Pages.ItemPages
 
         [Inject]
         protected IItemService ItemService { get; set; }
+
+        [Inject]
+        protected IPackagingService PackagingService { get; set; }
         #endregion
 
         #region Parameters
@@ -38,6 +43,9 @@ namespace Aldebaran.Web.Pages.ItemPages
         protected IEnumerable<ServiceModel.MeasureUnit> MeasureUnits;
         protected IEnumerable<ServiceModel.Currency> Currencies;
         protected IEnumerable<ServiceModel.Line> Lines;
+
+        protected Packaging packaging { get; set; }
+        
         #endregion
 
         #region Overrides
@@ -50,6 +58,7 @@ namespace Aldebaran.Web.Pages.ItemPages
                 MeasureUnits = await MeasureUnitService.GetAsync();
                 Currencies = await CurrencyService.GetAsync();
                 Lines = await LineService.GetAsync();
+                packaging = await PackagingService.FindByItemId(Item.ItemId);                
             }
             finally
             {
@@ -65,6 +74,7 @@ namespace Aldebaran.Web.Pages.ItemPages
             try
             {
                 IsSubmitInProgress = true;
+                Item.Packagings.Add(packaging);
                 await ItemService.UpdateAsync(ITEM_ID, Item);
                 DialogService.Close(true);
             }

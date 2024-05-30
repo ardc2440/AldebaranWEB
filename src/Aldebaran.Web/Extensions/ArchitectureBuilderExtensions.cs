@@ -1,5 +1,6 @@
 ﻿using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Reports;
+using Aldebaran.Application.Services.Services;
 using Aldebaran.DataAccess;
 using Aldebaran.DataAccess.Core.Triggers.Adjustments;
 using Aldebaran.DataAccess.Core.Triggers.OrderInProcesses;
@@ -254,7 +255,7 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IPurchaseOrderTransitAlarmRepository, PurchaseOrderTransitAlarmRepository>();
             services.AddTransient<ICustomerOrderNotificationRepository, CustomerOrderNotificationRepository>();
             services.AddTransient<ICustomerReservationNotificationRepository, CustomerReservationNotificationRepository>();
-
+            services.AddTransient<IPackagingRepository, PackagingRepository>(); 
             #endregion
             // Services
             #region Services
@@ -334,7 +335,7 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IPurchaseOrderTransitAlarmService, PurchaseOrderTransitAlarmService>();
             services.AddTransient<ICustomerOrderNotificationService, CustomerOrderNotificationService>();
             services.AddTransient<ICustomerReservationNotificationService, CustomerReservationNotificationService>();
-
+            services.AddTransient<IPackagingService,PackagingService>();
             #endregion
 
             services.AddTransient<IQueue, RabbitQueue>();

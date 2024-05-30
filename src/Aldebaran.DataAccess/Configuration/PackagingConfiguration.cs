@@ -6,7 +6,7 @@ namespace Aldebaran.DataAccess.Entities
     {
         public void Configure(EntityTypeBuilder<Packaging> builder)
         {
-            builder.ToTable("PACKAGING", "dbo");
+            builder.ToTable("packaging", "dbo");
             builder.HasKey(x => x.PackagingId).HasName("PK_PACKAGING").IsClustered();
             builder.Property(x => x.PackagingId).HasColumnName(@"PACKAGING_ID").HasColumnType("smallint").IsRequired().ValueGeneratedOnAdd().UseIdentityColumn();
             builder.Property(x => x.ItemId).HasColumnName(@"ITEM_ID").HasColumnType("int").IsRequired();

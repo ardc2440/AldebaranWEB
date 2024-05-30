@@ -150,30 +150,97 @@
                         </RadzenFormField>
                     </RadzenColumn>
                 </RadzenRow>
-                <RadzenRow AlignItems="Radzen.AlignItems.Start">
-                    <RadzenColumn Size="12">
-                        <div class="d-flex gap-4 flex-row mt-2">
-                            <div>
-                                <RadzenCheckBox @bind-Value="@Item.IsActive" Name="IsActive" />
-                                <RadzenLabel Text="Activo" Component="IsActive" />
-                            </div>
-                            <div>
-                                <RadzenCheckBox @bind-Value="@Item.IsDomesticProduct" Name="IsDomesticProduct" />
-                                <RadzenLabel Text="Producto Nacional" Component="IsDomesticProduct" />
-                            </div>
-                        </div>
-                    </RadzenColumn>
-                    <RadzenColumn Size="12">
-                        <div class="d-flex gap-4 flex-row mt-2">
-                            <div>
-                                <RadzenCheckBox @bind-Value="@Item.IsExternalInventory" Name="IsExternalInventory" />
-                                <RadzenLabel Text="Inventario externo" Component="IsExternalInventory" />
-                            </div>
-                            <div>
-                                <RadzenCheckBox @bind-Value="@Item.IsCatalogVisible" Name="IsCatalogVisible" />
-                                <RadzenLabel Text="Visible en catálogo" Component="IsCatalogVisible" />
-                            </div>
-                        </div>
+                <RadzenRow AlignItems="Radzen.AlignItems.Center">
+                    <RadzenRow class="rz-col-7" AlignItems="Radzen.AlignItems.Center" JustifyContent="JustifyContent.Center">
+                        <RadzenColumn Size="7">
+                            <RadzenColumn Size="7">
+                                <div class="d-flex gap-4 flex-row mt-2">
+                                    <div>
+                                        <RadzenCheckBox @bind-Value="@Item.IsActive" Name="IsActive" />
+                                        <RadzenLabel Text="Activo" Component="IsActive" />
+                                    </div>
+                                </div>
+                            </RadzenColumn>
+                            <RadzenColumn Size="7">
+                                <div class="d-flex gap-4 flex-row mt-2">
+                                    <div>
+                                        <RadzenCheckBox @bind-Value="@Item.IsDomesticProduct" Name="IsDomesticProduct" />
+                                        <RadzenLabel Text="Producto Nacional" Component="IsDomesticProduct" />
+                                    </div>
+                                </div>
+                            </RadzenColumn>
+                            <RadzenColumn Size="7">
+                                <div class="d-flex gap-4 flex-row mt-2">
+                                    <div>
+                                        <RadzenCheckBox @bind-Value="@Item.IsExternalInventory" Name="IsExternalInventory" />
+                                        <RadzenLabel Text="Inventario externo" Component="IsExternalInventory" />
+                                    </div>
+                                </div>
+                            </RadzenColumn>
+                            <RadzenColumn Size="7">
+                                <div class="d-flex gap-4 flex-row mt-2">
+                                    <div>
+                                        <RadzenCheckBox @bind-Value="@Item.IsCatalogVisible" Name="IsCatalogVisible" />
+                                        <RadzenLabel Text="Visible en catálogo" Component="IsCatalogVisible" />
+                                    </div>
+                                </div>
+                            </RadzenColumn>
+                        </RadzenColumn>
+                    </RadzenRow>
+                    <RadzenColumn Size="5">
+                        <RadzenColumn Size="5">
+                            <RadzenLabel Text="Embalaje artículo" />
+                            <RadzenRow>
+                                <RadzenFormField Text="Peso" Variant="Variant.Text" Style="width: 100%;">
+                                    <ChildContent>
+                                        <RadzenNumeric style="display: block; width: 100%" @bind-Value="@Weight" Name="Weigth" MaxLength="10" />
+                                    </ChildContent>
+                                    <Helper>
+                                        <RadzenRequiredValidator Component="Weigth" Text="Peso es requerido" />
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenRow>
+                            <RadzenRow>
+                                <RadzenFormField Text="Altura" Variant="Variant.Text" Style="width: 100%;">
+                                    <ChildContent>
+                                        <RadzenNumeric style="display: block; width: 100%" @bind-Value="@Height" Name="Height" MaxLength="10" />
+                                    </ChildContent>
+                                    <Helper>
+                                        <RadzenRequiredValidator Component="Height" Text="Altura es requerida" />
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenRow>
+                            <RadzenRow>
+                                <RadzenFormField Text="Ancho" Variant="Variant.Text" Style="width: 100%;">
+                                    <ChildContent>
+                                        <RadzenNumeric style="display: block; width: 100%" @bind-Value="@Width" Name="Width" MaxLength="10" />
+                                    </ChildContent>
+                                    <Helper>
+                                        <RadzenRequiredValidator Component="Width" Text="Ancho es requerido" />
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenRow>
+                            <RadzenRow>
+                                <RadzenFormField Text="Largo" Variant="Variant.Text" Style="width: 100%;">
+                                    <ChildContent>
+                                        <RadzenNumeric style="display: block; width: 100%" @bind-Value="@Length" Name="Length" MaxLength="10" />
+                                    </ChildContent>
+                                    <Helper>
+                                        <RadzenRequiredValidator Component="Length" Text="Largo es requerido" />
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenRow>
+                            <RadzenRow>
+                                <RadzenFormField Text="Cantidad por caja" Variant="Variant.Text" Style="width: 100%;">
+                                    <ChildContent>
+                                        <RadzenNumeric style="display: block; width: 100%" @bind-Value="@Quantity" Name="Quantity" MaxLength="10" />
+                                    </ChildContent>
+                                    <Helper>
+                                        <RadzenRequiredValidator Component="Quantity" Text="Cantidad por caja es requerida" />
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenRow>
+                        </RadzenColumn>
                     </RadzenColumn>
                 </RadzenRow>
                 <RadzenFormField Text="Notas" Variant="Variant.Text">

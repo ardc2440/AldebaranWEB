@@ -23,6 +23,8 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             await ExecuteCommandAsync(async dbContext =>
             {
                 var entity = await dbContext.Items.FirstOrDefaultAsync(x => x.ItemId == itemId, ct) ?? throw new KeyNotFoundException($"Artículo {itemId} no existe.");
+                var entityPackaging = await dbContext.Packagings.FirstOrDefaultAsync(x => x.ItemId == itemId, ct) ?? throw new KeyNotFoundException($"Artículo {itemId} no existe.");
+                dbContext.Packagings.Remove(entityPackaging);
                 dbContext.Items.Remove(entity);
                 try
                 {
@@ -31,6 +33,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 catch
                 {
                     dbContext.Entry(entity).State = EntityState.Unchanged;
+                    dbContext.Entry(entityPackaging).State = EntityState.Unchanged;
                     throw;
                 }
             }, ct);
@@ -120,6 +123,8 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 entity.IsDomesticProduct = item.IsDomesticProduct;
                 entity.IsActive = item.IsActive;
                 entity.IsCatalogVisible = item.IsCatalogVisible;
+                entity.Packagings = item.Packagings; 
+
                 await dbContext.SaveChangesAsync(ct);
             }, ct);
         }

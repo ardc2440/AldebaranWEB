@@ -2,6 +2,7 @@ using Aldebaran.Application.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
+using System.IO.Packaging;
 using ServiceModel = Aldebaran.Application.Services.Models;
 
 namespace Aldebaran.Web.Pages.ItemPages
@@ -35,6 +36,13 @@ namespace Aldebaran.Web.Pages.ItemPages
         protected IEnumerable<ServiceModel.Currency> Currencies;
         protected IEnumerable<ServiceModel.Line> Lines;
         protected List<string> ValidationErrors;
+
+        protected float Weight;
+        protected float Height;
+        protected float Width;
+        protected float Length;
+        protected int Quantity;
+
         #endregion
 
         #region Overrides
@@ -81,6 +89,7 @@ namespace Aldebaran.Web.Pages.ItemPages
                     IsErrorVisible = true;
                     return;
                 }
+                Item.Packagings.Add(new ServiceModel.Packaging { Height = Height, Length = Length, Weight=Weight, Width = Width, Quantity = Quantity });
                 await ItemService.AddAsync(Item);
                 DialogService.Close(true);
             }
