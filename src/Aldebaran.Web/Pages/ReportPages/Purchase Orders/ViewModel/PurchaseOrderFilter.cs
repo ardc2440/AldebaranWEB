@@ -1,9 +1,9 @@
 ﻿using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Shared.ViewModel;
 
-namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment.ViewModel
+namespace Aldebaran.Web.Pages.ReportPages.Purchase_Orders.ViewModel
 {
-    public class OrderShipmentFilter : ICloneable
+    public class PurchaseOrderFilter : ICloneable
     {
         public string OrderNumber { get; set; }
         public DateRange CreationDate { get; set; } = new();
@@ -24,6 +24,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment.ViewModel
         public short? WarehouseId { get; set; }
         public Warehouse Warehouse { get; set; }
         public List<ItemReference> ItemReferences { get; set; } = new List<ItemReference>();
+        public short? StatusDocumentId { get; set; }
+        public StatusDocumentType StatusDocumentType { get; set; }
 
         public object Clone()
         {

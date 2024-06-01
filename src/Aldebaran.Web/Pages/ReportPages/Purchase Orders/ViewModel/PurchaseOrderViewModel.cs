@@ -1,6 +1,6 @@
-﻿namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment.ViewModel
+﻿namespace Aldebaran.Web.Pages.ReportPages.Purchase_Orders.ViewModel
 {
-    public class OrderShipmentViewModel
+    public class PurchaseOrderViewModel
     {
         public List<Order> Orders { get; set; }
         public class Order
@@ -17,6 +17,7 @@
             public string EmbarkationPort { get; set; }
             public string ProformaNumber { get; set; }
             public List<Warehouse> Warehouses { get; set; }
+            public string StatusDocumentName { get; set; }
 
         }
         public class Forwarder

@@ -3,6 +3,7 @@
     public class OrderShipmentReport
     {
         public int OrderId { get; set; }
+        public string StatusDocumentTypeName { get; set; }
         public string OrderNumber { get; set; }
         public DateTime CreationDate { get; set; }
         public DateTime RequestDate { get; set; }

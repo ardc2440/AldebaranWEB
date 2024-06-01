@@ -1,15 +1,14 @@
 ﻿using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
-using Aldebaran.Web.Pages.ReportPages.Order_Shipment.ViewModel;
 using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
 using Radzen.Blazor;
 
-namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment.Components
+namespace Aldebaran.Web.Pages.ReportPages.Purchase_Orders.Components
 {
-    public partial class OrderShipmentReportFilter
+    public partial class PurchaseOrderReportFilter
     {
         #region Injections
         [Inject]
@@ -39,7 +38,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment.Components
 
         #region Parameters
         [Parameter]
-        public OrderShipmentFilter Filter { get; set; } = new();
+        public Purchase_Orders.ViewModel.PurchaseOrderFilter Filter { get; set; } = new();
         #endregion
 
         #region Variables
@@ -72,7 +71,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment.Components
         #region Override
         protected override async Task OnInitializedAsync()
         {
-            Filter ??= new OrderShipmentFilter();
+            Filter ??= new Purchase_Orders.ViewModel.PurchaseOrderFilter();
             var references = (await ItemReferenceService.GetReportsReferencesAsync()).ToList();
             AvailableItemReferencesForSelection = references;
             referencePicker.SetAvailableItemReferencesForSelection(AvailableItemReferencesForSelection);
@@ -80,7 +79,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment.Components
             Forwarders = (await ForwarderService.GetAsync()).ToList();
             Warehouses = (await WarehouseService.GetAsync()).ToList();
         }
-        
+
         public override async Task SetParametersAsync(ParameterView parameters)
         {
             await base.SetParametersAsync(parameters);

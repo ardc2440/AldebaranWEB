@@ -91,7 +91,7 @@
                 </RadzenPanelMenuItem>
                 <RadzenPanelMenuItem Text="Proveedores" Icon="summarize">
                     <RadzenPanelMenuItem Text="Referencias del proveedor" Path="report/provider-references" Visible=@Security.IsInRole("Administrador","Consulta de reportes") />
-                    <RadzenPanelMenuItem Text="Ordenes en tránsito" Path="report/order-shipments" Visible=@Security.IsInRole("Administrador","Consulta de reportes") />
+                    <RadzenPanelMenuItem Text="Ordenes de compra" Path="report/purchase-orders" Visible=@Security.IsInRole("Administrador","Consulta de reportes") />
                 </RadzenPanelMenuItem>
             </RadzenPanelMenuItem>
         </RadzenPanelMenu>

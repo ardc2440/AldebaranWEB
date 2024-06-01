@@ -1,20 +1,20 @@
 ﻿using Aldebaran.Application.Services.Reports;
 using Aldebaran.Infraestructure.Common.Utils;
-using Aldebaran.Web.Pages.ReportPages.Order_Shipment.Components;
-using Aldebaran.Web.Pages.ReportPages.Order_Shipment.ViewModel;
+using Aldebaran.Web.Pages.ReportPages.Purchase_Orders.Components;
+using Aldebaran.Web.Pages.ReportPages.Purchase_Orders.ViewModel;
 using Microsoft.AspNetCore.Components;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.JSInterop;
 using Radzen;
 using Radzen.Blazor;
 
-namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment
+namespace Aldebaran.Web.Pages.ReportPages.Purchase_Orders
 {
-    public partial class OrderShipmentReport
+    public partial class PurchaseOrderReport
     {
         #region Injections
         [Inject]
-        protected ILogger<OrderShipmentReport> Logger { get; set; }
+        protected ILogger<PurchaseOrderReport> Logger { get; set; }
 
         [Inject]
         protected DialogService DialogService { get; set; }
@@ -30,8 +30,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment
         #endregion
 
         #region Variables
-        protected OrderShipmentFilter Filter;
-        protected OrderShipmentViewModel ViewModel;
+        protected PurchaseOrderFilter Filter;
+        protected PurchaseOrderViewModel ViewModel;
         private bool IsBusy = false;
         private bool IsLoadingData = false;
         private IEnumerable<Application.Services.Models.Reports.OrderShipmentReport> DataReport { get; set; }
@@ -54,7 +54,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment
 
                 DataReport = await OrderShipmentReportService.GetOrderShipmentReportDataAsync(filter, ct);
 
-                ViewModel = new OrderShipmentViewModel()
+                ViewModel = new PurchaseOrderViewModel()
                 {
                     Orders = await GetOrdersAsync(ct)
                 };
@@ -65,7 +65,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment
             }
         }
 
-        async Task<string> SetReportFilterAsync(OrderShipmentFilter filter, CancellationToken ct = default)
+        async Task<string> SetReportFilterAsync(PurchaseOrderFilter filter, CancellationToken ct = default)
         {
             var filterResult = string.Empty;
 
@@ -113,10 +113,10 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment
 
         async Task OpenFilters()
         {
-            var result = await DialogService.OpenAsync<OrderShipmentReportFilter>("Filtrar reporte de ordenes en tránsito", parameters: new Dictionary<string, object> { { "Filter", (OrderShipmentFilter)Filter?.Clone() } }, options: new DialogOptions { Width = "800px" });
+            var result = await DialogService.OpenAsync<PurchaseOrderReportFilter>("Filtrar reporte de ordenes en tránsito", parameters: new Dictionary<string, object> { { "Filter", (PurchaseOrderFilter)Filter?.Clone() } }, options: new DialogOptions { Width = "800px" });
             if (result == null)
                 return;
-            Filter = (OrderShipmentFilter)result;
+            Filter = (PurchaseOrderFilter)result;
 
             await RedrawReportAsync(await SetReportFilterAsync(Filter));
 
@@ -160,29 +160,29 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment
 
         #region Fill Data Report
 
-        async Task<List<OrderShipmentViewModel.Order>> GetOrdersAsync(CancellationToken ct = default)
+        async Task<List<PurchaseOrderViewModel.Order>> GetOrdersAsync(CancellationToken ct = default)
         {
-            var orders = new List<OrderShipmentViewModel.Order>();
+            var orders = new List<PurchaseOrderViewModel.Order>();
 
             foreach (var order in DataReport.Select(s => new { s.OrderId, s.OrderNumber, s.CreationDate, s.RequestDate, s.ExpectedReceiptDate, s.ProviderName, s.ImportNumber, s.ShipmentMethodName, s.EmbarkationPort, s.ProformaNumber, s.ForwarderName, s.ForwarderEmail, s.ForwarderFax, s.ForwarderPhone, s.ForwarderAgentName, s.AgentPhone, s.AgentFax, s.AgentEmail })
                                     .DistinctBy(d => d.OrderId)
                                     .OrderBy(o => o.OrderNumber))
             {
-                orders.Add(new OrderShipmentViewModel.Order
+                orders.Add(new PurchaseOrderViewModel.Order
                 {
                     OrderNumber = order.OrderNumber,
                     CreationDate = order.CreationDate,
                     RequestDate = order.RequestDate,
                     ExpectedReceiptDate = order.ExpectedReceiptDate,
                     ProviderName = order.ProviderName,
-                    Forwarder = new OrderShipmentViewModel.Forwarder
+                    Forwarder = new PurchaseOrderViewModel.Forwarder
                     {
                         ForwarderName = order.ForwarderName,
                         Phone = order.ForwarderPhone,
                         Fax = order.ForwarderFax,
                         Email = order.ForwarderEmail
                     },
-                    ForwarderAgent = new OrderShipmentViewModel.ForwarderAgent
+                    ForwarderAgent = new PurchaseOrderViewModel.ForwarderAgent
                     {
                         ForwarderAgentName = order.ForwarderAgentName,
                         Phone = order.AgentPhone,
@@ -193,22 +193,23 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment
                     ShipmentMethodName = order.ShipmentMethodName,
                     EmbarkationPort = order.EmbarkationPort,
                     ProformaNumber = order.ProformaNumber,
-                    Warehouses = await GetOrderWarehousesAsync(order.OrderId, ct)
+                    Warehouses = await GetOrderWarehousesAsync(order.OrderId, ct)//,
+                    //StatusDocumentName = order.StatusDocuemntName
                 });
             }
 
             return orders;
         }
 
-        async Task<List<OrderShipmentViewModel.Warehouse>> GetOrderWarehousesAsync(int orderId, CancellationToken ct = default)
+        async Task<List<PurchaseOrderViewModel.Warehouse>> GetOrderWarehousesAsync(int orderId, CancellationToken ct = default)
         {
-            var warehouses = new List<OrderShipmentViewModel.Warehouse>();
+            var warehouses = new List<PurchaseOrderViewModel.Warehouse>();
 
             foreach (var warehouse in DataReport.Where(w => w.OrderId == orderId).Select(s => new { s.WarehouseId, s.WarehouseName })
                                         .DistinctBy(d => d.WarehouseId)
                                         .OrderBy(o => o.WarehouseName))
             {
-                warehouses.Add(new OrderShipmentViewModel.Warehouse
+                warehouses.Add(new PurchaseOrderViewModel.Warehouse
                 {
                     WarehouseId = warehouse.WarehouseId,
                     WarehouseName = warehouse.WarehouseName,
@@ -219,15 +220,15 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment
             return warehouses;
         }
 
-        async Task<List<OrderShipmentViewModel.Line>> GetOrderLinesAsync(int orderId, short warehouseId, CancellationToken ct = default)
+        async Task<List<PurchaseOrderViewModel.Line>> GetOrderLinesAsync(int orderId, short warehouseId, CancellationToken ct = default)
         {
-            var lines = new List<OrderShipmentViewModel.Line>();
+            var lines = new List<PurchaseOrderViewModel.Line>();
 
             foreach (var line in DataReport.Where(w => w.OrderId == orderId && w.WarehouseId == warehouseId).Select(s => new { s.LineId, s.LineName, s.LineCode })
                                     .DistinctBy(d => d.LineId)
                                     .OrderBy(o => o.LineName))
             {
-                lines.Add(new OrderShipmentViewModel.Line
+                lines.Add(new PurchaseOrderViewModel.Line
                 {
                     LineName = line.LineName,
                     LineCode = line.LineCode,
@@ -238,15 +239,15 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment
             return lines;
         }
 
-        async Task<List<OrderShipmentViewModel.Item>> GetLineItemsAsync(int orderId, short warehouseId, int lineId, CancellationToken ct = default)
+        async Task<List<PurchaseOrderViewModel.Item>> GetLineItemsAsync(int orderId, short warehouseId, int lineId, CancellationToken ct = default)
         {
-            var items = new List<OrderShipmentViewModel.Item>();
+            var items = new List<PurchaseOrderViewModel.Item>();
 
             foreach (var item in DataReport.Where(w => w.OrderId == orderId && w.WarehouseId == warehouseId && w.LineId == lineId).Select(s => new { s.ItemId, s.ItemName, s.InternalReference })
                                     .DistinctBy(d => d.ItemId)
                                     .OrderBy(o => o.ItemName))
             {
-                items.Add(new OrderShipmentViewModel.Item
+                items.Add(new PurchaseOrderViewModel.Item
                 {
                     InternalReference = item.InternalReference,
                     ItemName = item.ItemName,
@@ -257,14 +258,14 @@ namespace Aldebaran.Web.Pages.ReportPages.Order_Shipment
             return items;
         }
 
-        async Task<List<OrderShipmentViewModel.Reference>> GetItemReferencesAsync(int orderId, short warehouseId, int itemId, CancellationToken ct = default)
+        async Task<List<PurchaseOrderViewModel.Reference>> GetItemReferencesAsync(int orderId, short warehouseId, int itemId, CancellationToken ct = default)
         {
-            var references = new List<OrderShipmentViewModel.Reference>();
+            var references = new List<PurchaseOrderViewModel.Reference>();
 
             foreach (var reference in DataReport.Where(w => w.OrderId == orderId && w.WarehouseId == warehouseId && w.ItemId == itemId).Select(s => new { s.ReferenceCode, s.ReferenceName, s.Amount, s.Volume, s.Weight })
                                             .OrderBy(o => o.ReferenceName))
             {
-                references.Add(new OrderShipmentViewModel.Reference
+                references.Add(new PurchaseOrderViewModel.Reference
                 {
                     ReferenceCode = reference.ReferenceCode,
                     ReferenceName = reference.ReferenceName,
