@@ -99,6 +99,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                     NavigationManager.NavigateTo("purchase-orders");
 
                 PurchaseOrder = await PurchaseOrderService.FindAsync(purchaseOrderId);
+                PurchaseOrder.ProformaNumber = PurchaseOrder.ProformaNumber.Trim();
                 if (PurchaseOrder == null)
                     NavigationManager.NavigateTo("purchase-orders");
                 var orderDetails = await PurchaseOrderDetailService.GetByPurchaseOrderIdAsync(purchaseOrderId);

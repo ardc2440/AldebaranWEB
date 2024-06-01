@@ -88,7 +88,16 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                     NavigationManager.NavigateTo("purchase-orders");
                 PurchaseOrder.EmbarkationPort = string.IsNullOrWhiteSpace(PurchaseOrder.EmbarkationPort) ? null : PurchaseOrder.EmbarkationPort;
                 PurchaseOrder.ProformaNumber = string.IsNullOrWhiteSpace(PurchaseOrder.ProformaNumber) ? null : PurchaseOrder.ProformaNumber;
+
                 await GetDataAsync(purchaseOrderId);
+
+                if (PurchaseOrder.ProformaNumber == null)
+                    throw new Exception("La orden de compra no tiene 'Número de Proforma'. Para agregarlo, debe ingresar a modificar la orden antes de usar la opción de confirmación");
+            }
+            catch (Exception ex)
+            {
+                IsErrorVisible = true;
+                Error = ex.Message;
             }
             finally
             {
@@ -114,6 +123,9 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         {
             try
             {
+                if (PurchaseOrder.ProformaNumber == null)
+                    throw new Exception("La orden de compra no tiene 'Número de Proforma'. Para agregarlo, debe ingresar a modificar la orden antes de usar la opción de confirmación");
+
                 IsSubmitInProgress = true;
                 Submitted = true;
                 if (PurchaseOrderDetails.Any(a => a.ReceivedQuantity == null) || detailToUpdate != null)

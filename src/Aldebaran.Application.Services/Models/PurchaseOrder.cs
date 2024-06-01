@@ -29,7 +29,6 @@ namespace Aldebaran.Application.Services.Models
         public PurchaseOrder()
         {
             EmbarkationPort = " ";
-            ProformaNumber = " ";
             CreationDate = DateTime.Now;
             ModifiedPurchaseOrders = new List<ModifiedPurchaseOrder>();
             PurchaseOrderActivities = new List<PurchaseOrderActivity>();
