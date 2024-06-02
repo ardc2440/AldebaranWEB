@@ -75,7 +75,12 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 {
                     var detailToUpdate = details.FirstOrDefault(f => f.PurchaseOrderDetailId == detail.PurchaseOrderDetailId);
                     if (detailToUpdate != null)
+                    {
                         detailToUpdate.ReceivedQuantity = detail.ReceivedQuantity;
+
+                        if (detailToUpdate.WarehouseId != detail.WarehouseId)
+                            detailToUpdate.WarehouseId = detail.WarehouseId;
+                    }
                 }
                 try
                 {

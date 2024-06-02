@@ -22,10 +22,10 @@
                     </RadzenAlert>
                 </RadzenRow>
                 <RadzenRow AlignItems="AlignItems.Start" Gap="2rem" class="mt-2">
-                    <RadzenColumn Size="6">
+                    <RadzenColumn Size="5">
                         <RadzenStack>
                             <RadzenRow AlignItems="AlignItems.Start" Style="margin-bottom: 1rem">
-                                <RadzenColumn Size="6">
+                                <RadzenColumn Size="5">
                                     <div class="flex-shrink-0">
                                         <div class="text-primary-color" style="font-size: 16px">
                                             <RadzenLabel Text="Fecha de solicitud: " Style="font-weight: bold" />
@@ -41,7 +41,7 @@
                                         </div>
                                     </div>
                                 </RadzenColumn>
-                                <RadzenColumn Size="6">
+                                <RadzenColumn Size="5">
                                     <div class="flex-shrink-0">
                                         <div class="text-primary-color" style="font-size: 16px">
                                             <RadzenLabel Text="Transportadora: " Style="font-weight: bold" />
@@ -84,18 +84,39 @@
                             </RadzenFormField>
                         </RadzenStack>
                     </RadzenColumn>
-                    <RadzenColumn Size="6">
+                    <RadzenColumn Size="7">
                         <RadzenText Text="Referencias" TextStyle="TextStyle.H5" TagName="TagName.H1"   />
                         <RadzenStack>
                             <LocalizedDataGrid @ref="PurchaseOrderDetailGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                                Data="@PurchaseOrderDetails" TItem="ServiceModel.PurchaseOrderDetail" AllowColumnResize="true" AllowMultiColumnSorting="true" AllowColumnReorder="true">
                                 <Columns>
-                                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Title="Cantidad solicitada">
+                                    <RadzenDataGridColumn Width="100%" TItem="ServiceModel.PurchaseOrderDetail" Title="Referencia">
                                         <Template Context="detail">
-                                            @detail.RequestedQuantity.ToString("N0")
+                                            <RadzenLabel MouseEnter="@(args => ShowTooltip(args,GetReferenceHint(@detail.ItemReference).Result, new TooltipOptions(){ Position = TooltipPosition.Left }))">
+                                                [@detail.ItemReference.Item.InternalReference] (@detail.ItemReference.Item.Line.LineName) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName
+                                            </RadzenLabel>
                                         </Template>
+                                    </RadzenDataGridColumn>                                    
+                                    <RadzenDataGridColumn Width="160px" TItem="ServiceModel.PurchaseOrderDetail" Property="Warehouse.WarehouseName" Title="Bodega">
+                                        <Template Context="detail">
+                                            <span>@detail.Warehouse.WarehouseName</span>
+                                        </Template>
+                                        <EditTemplate Context="detail">
+                                            <RadzenFormField Text="Bodega" Variant="Variant.Text" Style="width: 100%;">
+                                                <ChildContent>
+                                                    <RadzenDropDown Data="@Warehouses" TextProperty="WarehouseName" ValueProperty="WarehouseId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                    style="display: block; width: 100%" @bind-Value="@detail.WarehouseId" Name="WarehouseId" />                                                    
+                                                </ChildContent>
+                                                <Helper>
+                                                    <RadzenNumericRangeValidator Component="WarehouseId" Min="1" Text="Bodega es requerida" />
+                                                </Helper>
+                                            </RadzenFormField>
+                                        </EditTemplate>
                                     </RadzenDataGridColumn>
-                                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Property="ReceivedQuantity" Title="Cantidad recibida">
+                                    <RadzenDataGridColumn Width="130px" TItem="ServiceModel.PurchaseOrderDetail" Property="ReceivedQuantity" Title="Cantidad recibida">
+                                        <HeaderTemplate>
+                                            Cantidad<br>Recibida
+                                        </HeaderTemplate>
                                         <Template Context="detail">
                                             <RadzenIcon Icon="warning" IconStyle="IconStyle.Warning" Style="font-size: 1.5em; display:flex" Visible="Submitted && detail.ReceivedQuantity == null" />
                                             <span>@detail.ReceivedQuantity?.ToString("N0")</span>
@@ -111,14 +132,13 @@
                                             </RadzenFormField>
                                         </EditTemplate>
                                     </RadzenDataGridColumn>
-                                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Title="Referencia">
+                                    <RadzenDataGridColumn Width="130px" TItem="ServiceModel.PurchaseOrderDetail" Title="Cantidad solicitada">
+                                        <HeaderTemplate>
+                                            Cantidad<br>Solicitada
+                                        </HeaderTemplate>
                                         <Template Context="detail">
-                                            <RadzenLabel MouseEnter="@(args => ShowTooltip(args,GetReferenceHint(@detail.ItemReference).Result, new TooltipOptions(){ Position = TooltipPosition.Left }))">
-                                                [@detail.ItemReference.Item.InternalReference] (@detail.ItemReference.Item.Line.LineName) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName
-                                            </RadzenLabel>
+                                            @detail.RequestedQuantity.ToString("N0")
                                         </Template>
-                                    </RadzenDataGridColumn>
-                                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Property="Warehouse.WarehouseName" Title="Bodega">
                                     </RadzenDataGridColumn>
                                     <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                                         <Template Context="detail">

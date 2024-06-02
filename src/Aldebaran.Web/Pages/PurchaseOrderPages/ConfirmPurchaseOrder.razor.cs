@@ -49,6 +49,9 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         [Inject]
         protected IPurchaseOrderDetailService PurchaseOrderDetailService { get; set; }
 
+        [Inject]
+        protected IWarehouseService WarehouseService { get; set; }
+
         #endregion
 
         #region Parameters
@@ -59,6 +62,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         #region Variables
         protected bool IsErrorVisible;
         protected ServiceModel.PurchaseOrder PurchaseOrder;
+        protected IEnumerable<ServiceModel.Warehouse> Warehouses;
         protected IEnumerable<ServiceModel.Provider> Providers;
         protected IEnumerable<ServiceModel.ShipmentForwarderAgentMethod> ShipmentForwarderAgentMethods;
         protected RadzenDropDownDataGrid<int> ProviderDropDownDataGrid;
@@ -88,7 +92,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                     NavigationManager.NavigateTo("purchase-orders");
                 PurchaseOrder.EmbarkationPort = string.IsNullOrWhiteSpace(PurchaseOrder.EmbarkationPort) ? null : PurchaseOrder.EmbarkationPort;
                 PurchaseOrder.ProformaNumber = string.IsNullOrWhiteSpace(PurchaseOrder.ProformaNumber) ? null : PurchaseOrder.ProformaNumber;
-
+                Warehouses = await WarehouseService.GetAsync();
                 await GetDataAsync(purchaseOrderId);
 
                 if (PurchaseOrder.ProformaNumber == null)
@@ -138,6 +142,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                     {
                         PurchaseOrderDetailId = s.PurchaseOrderDetailId,
                         ReceivedQuantity = s.ReceivedQuantity,
+                        WarehouseId = s.WarehouseId
                     }).ToList();
 
                     await PurchaseOrderService.ConfirmAsync(PurchaseOrder.PurchaseOrderId, PurchaseOrder);
@@ -211,6 +216,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
             PurchaseOrderDetails.Add(detail);
             await PurchaseOrderDetailGrid.Reload();
         }
+
         protected async Task DeletePurchaseOrderDetail(MouseEventArgs args, ServiceModel.PurchaseOrderDetail item)
         {
             if (await DialogService.Confirm("Está seguro que desea eliminar esta referencia?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
@@ -219,29 +225,28 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 await PurchaseOrderDetailGrid.Reload();
             }
         }
+
         ServiceModel.PurchaseOrderDetail detailToUpdate;
         protected async Task EditReceivedQuantity(ServiceModel.PurchaseOrderDetail item)
         {
             detailToUpdate = item;
             await PurchaseOrderDetailGrid.EditRow(detailToUpdate);
         }
+
         protected async Task SaveReceivedQuantity(ServiceModel.PurchaseOrderDetail item)
         {
-            if (item.ReceivedQuantity <= item.RequestedQuantity)
-            {
-                await PurchaseOrderDetailGrid.UpdateRow(item);
-                Reset();
-                return;
-            }
+            if (item.ReceivedQuantity > item.RequestedQuantity)
+                if (await DialogService.Confirm("La cantidad recibida supera la cantidad solicitada, esta seguro de esta cantidad?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar cantidad") != true)
+                    return;
 
-            if (await DialogService.Confirm("La cantidad recibida supera la cantidad solicitada, esta seguro de esta cantidad?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar cantidad") == true)
-            {
-                await PurchaseOrderDetailGrid.UpdateRow(item);
-                Reset();
-                return;
-            }
-            return;
+            if (item.WarehouseId > 0 && item.WarehouseId != item.Warehouse.WarehouseId)
+                item.Warehouse = Warehouses.First(f => f.WarehouseId == item.WarehouseId);
+
+            await PurchaseOrderDetailGrid.UpdateRow(item);
+            Reset();
+            return;            
         }
+
         protected async Task CancelEditReceivedQuantity(ServiceModel.PurchaseOrderDetail item)
         {
             Reset();
