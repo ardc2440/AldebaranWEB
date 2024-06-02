@@ -103,8 +103,32 @@
                 </RadzenStack>
             </RadzenColumn>
         </RadzenRow>
-        <RadzenRow style="margin-bottom: 1rem">
+        <RadzenRow style="margin-bottom: 1rem">            
             <RadzenColumn Size="6">
+                <RadzenStack>
+                    <RadzenFormField Text="Bodega de llegada" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenDropDown Data="@Warehouses" TextProperty="WarehouseName" ValueProperty="WarehouseId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            style="display: block; width: 100%" @bind-Value="@Filter.WarehouseId" Name="WarehouseId">
+                            </RadzenDropDown>
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+            <RadzenColumn Size="6">
+                <RadzenStack>
+                    <RadzenFormField Text="Estado de la orden" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenDropDown Data="@StatusDocumentTypes" TextProperty="StatusDocumentTypeName" ValueProperty="StatusDocumentTypeId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            style="display: block; width: 100%" @bind-Value="@Filter.StatusDocumentId" Name="StatusDocumentId">
+                            </RadzenDropDown>
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow style="margin-bottom: 1rem">
+            <RadzenColumn Size="12">
                 <RadzenStack>
                     <RadzenFormField Text="Proveedor" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
@@ -124,20 +148,8 @@
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenStack>
-            </RadzenColumn>
-            <RadzenColumn Size="6">
-                <RadzenStack>
-                    <RadzenFormField Text="Bodega de llegada" Variant="Variant.Text" Style="width: 100%;">
-                        <ChildContent>
-                            <RadzenDropDown Data="@Warehouses" TextProperty="WarehouseName" ValueProperty="WarehouseId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                            style="display: block; width: 100%" @bind-Value="@Filter.WarehouseId" Name="WarehouseId">
-                            </RadzenDropDown>
-                        </ChildContent>
-                    </RadzenFormField>
-                </RadzenStack>
-            </RadzenColumn>
+            </RadzenColumn>            
         </RadzenRow>
-
         <RadzenRow style="margin-bottom: 1rem">
             <RadzenColumn Size="4">
                 <RadzenStack>

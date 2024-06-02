@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Aldebaran.Application.Services.Models.Reports
 {
-    public class OrderShipmentReport
+    public class PurchaseOrderReport
     {
         public int OrderId { get; set; }
         public string StatusDocumentTypeName { get; set; }

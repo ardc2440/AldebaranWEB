@@ -2191,7 +2191,7 @@ BEGIN
 END 
 GO
 
-CREATE OR ALTER PROCEDURE SP_GET_ORDER_SHIPMENT_REPORT
+CREATE OR ALTER PROCEDURE [dbo].[SP_GET_PURCHASE_ORDER_REPORT]
 	@OrderNumber VARCHAR(10) = NULL,
 	@CreationDateFrom DATE = NULL,
 	@CreationDateTo DATE = NULL,
@@ -2207,7 +2207,8 @@ CREATE OR ALTER PROCEDURE SP_GET_ORDER_SHIPMENT_REPORT
  	@ForwarderId INT = NULL,
  	@ForwarderAgentId INT = NULL,
  	@ShipmentMethodId INT = NULL,
- 	@WarehouseId INT = NULL
+ 	@WarehouseId INT = NULL,
+	@StatusDocumentTypeId INT = NULL
 AS 
 BEGIN 
 
@@ -2221,7 +2222,7 @@ BEGIN
 			 SELECT REFERENCE_ID 
 			   FROM item_references
 
-	SELECT a.PURCHASE_ORDER_ID OrderId, a.ORDER_NUMBER OrderNumber, a.CREATION_DATE CreationDate, a.REQUEST_DATE RequestDate, a.EXPECTED_RECEIPT_DATE ExpectedReceiptDate, c.PROVIDER_NAME ProviderName,  
+	SELECT a.PURCHASE_ORDER_ID OrderId, b.STATUS_DOCUMENT_TYPE_NAME StatusDocumentTypeName, a.ORDER_NUMBER OrderNumber, a.CREATION_DATE CreationDate, a.REQUEST_DATE RequestDate, a.EXPECTED_RECEIPT_DATE ExpectedReceiptDate, c.PROVIDER_NAME ProviderName,  
 	       a.IMPORT_NUMBER ImportNumber, e.SHIPMENT_METHOD_NAME ShipmentMethodName, a.EMBARKATION_PORT EmbarkationPort, a.PROFORMA_NUMBER ProformaNumber, g.FORWARDER_NAME ForwarderName, 
 		   CASE WHEN g.PHONE2 IS NULL AND g.PHONE1 IS NULL THEN NULL ELSE CONCAT_WS(',', g.PHONE1, g.PHONE2) END ForwarderPhone, g.FAX ForwarderFax, 
 		   CASE WHEN g.MAIL1 IS NULL AND g.MAIL2 IS NULL THEN NULL ELSE CONCAT_WS(',', g.MAIL1, g.MAIL2) END ForwarderEmail,
@@ -2229,7 +2230,7 @@ BEGIN
 		   CASE WHEN f.PHONE2 IS NULL AND f.PHONE1 IS NULL THEN NULL ELSE CONCAT_WS(',', f.PHONE1, f.PHONE2) END AgentPhone, f.FAX AgentFax,
 		   CASE WHEN f.EMAIL1 IS NULL AND f.EMAIL2 IS NULL THEN NULL ELSE CONCAT_WS(',', f.EMAIL1, f.EMAIL2) END AgentEmail,
 		   i.WAREHOUSE_ID WarehouseId, i.WAREHOUSE_NAME WarehouseName, l.LINE_ID LineId, l.LINE_CODE LineCode, l.LINE_NAME LineName, k.ITEM_ID ItemId, k.ITEM_NAME ItemName, k.INTERNAL_REFERENCE InternalReference, 
-		   j.REFERENCE_CODE ReferenceCode, j.REFERENCE_NAME ReferenceName, h.REQUESTED_QUANTITY Amount, k.WEIGHT * h.REQUESTED_QUANTITY Weight, k.VOLUME * h.REQUESTED_QUANTITY Volume
+		   j.REFERENCE_CODE ReferenceCode, j.REFERENCE_NAME ReferenceName, CASE b.STATUS_ORDER WHEN 2 THEN h.RECEIVED_QUANTITY ELSE h.REQUESTED_QUANTITY END Amount, k.WEIGHT * h.REQUESTED_QUANTITY Weight, k.VOLUME * h.REQUESTED_QUANTITY Volume
 	  FROM purchase_orders a
 	  JOIN status_document_types b ON b.STATUS_DOCUMENT_TYPE_ID = a.STATUS_DOCUMENT_TYPE_ID
 	  JOIN providers c ON c.PROVIDER_ID = a.PROVIDER_ID
@@ -2242,8 +2243,7 @@ BEGIN
 	  JOIN item_references j ON j.REFERENCE_ID = h.REFERENCE_ID
 	  JOIN items k ON k.ITEM_ID = j.ITEM_ID
 	  JOIN lines l ON l.LINE_ID = k.LINE_ID
-     WHERE b.STATUS_ORDER = 1
-	   AND EXISTS (SELECT 1 FROM @FilterReferences fr WHERE fr.ReferenceId = j.REFERENCE_ID)
+     WHERE EXISTS (SELECT 1 FROM @FilterReferences fr WHERE fr.ReferenceId = j.REFERENCE_ID)
 	   AND (a.CREATION_DATE BETWEEN @CreationDateFrom AND @CreationDateTo OR @CreationDateFrom IS NULL)
 	   AND (a.REQUEST_DATE BETWEEN @RequestDateFrom AND @RequestDateTo OR @RequestDateFrom IS NULL)
 	   AND (a.EXPECTED_RECEIPT_DATE BETWEEN @ExpectedReceiptDateFrom AND @ExpectedReceiptDateTo OR @ExpectedReceiptDateFrom IS NULL)
@@ -2256,6 +2256,7 @@ BEGIN
  	   AND (e.SHIPMENT_METHOD_ID = @ShipmentMethodId OR @ShipmentMethodId IS NULL)
  	   AND (i.WAREHOUSE_ID = @WarehouseId OR @WarehouseId IS NULL)
 	   AND (a.ORDER_NUMBER LIKE '%'+@OrderNumber+'%' OR @OrderNumber IS NULL)
+	   AND (a.STATUS_DOCUMENT_TYPE_ID = @StatusDocumentTypeId OR @StatusDocumentTypeId IS NULL)
 END 
 GO
 

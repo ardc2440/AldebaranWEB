@@ -32,5 +32,8 @@
 	  <Compile Update="Repository\InventoryAdjustmentReportRepository - Copia.cs">
 	    <DependentUpon>IInProcessInventoryReportRepository.cs</DependentUpon>
 	  </Compile>
+	  <Compile Update="Repository\Reports\OrderShipmentReportRepository.cs">
+	    <DependentUpon>IPurchaseOrderReportRepository.cs</DependentUpon>
+	  </Compile>
 	</ItemGroup>
 </Project>

@@ -197,7 +197,7 @@ namespace Aldebaran.DataAccess
             modelBuilder.Entity<ProviderReferenceReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<ReferenceMovementReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<WarehouseStockReport>(iar => { iar.HasNoKey(); });
-            modelBuilder.Entity<OrderShipmentReport>(iar => { iar.HasNoKey(); });
+            modelBuilder.Entity<PurchaseOrderReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<CustomerOrderActivityReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<WarehouseTransferReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<FreezoneVsAvailableReport>(iar => { iar.HasNoKey(); });

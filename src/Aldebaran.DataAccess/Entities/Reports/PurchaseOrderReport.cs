@@ -1,6 +1,6 @@
 ﻿namespace Aldebaran.DataAccess.Entities.Reports
 {
-    public class OrderShipmentReport
+    public class PurchaseOrderReport
     {
         public int OrderId { get; set; }
         public string StatusDocumentTypeName { get; set; }

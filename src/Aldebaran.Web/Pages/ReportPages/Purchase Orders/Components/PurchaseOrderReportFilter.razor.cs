@@ -33,6 +33,12 @@ namespace Aldebaran.Web.Pages.ReportPages.Purchase_Orders.Components
         protected IShipmentForwarderAgentMethodService ShipmentForwarderAgentMethodService { get; set; }
 
         [Inject]
+        protected IStatusDocumentTypeService StatusDocumentTypeService { get; set; }
+
+        [Inject]
+        protected IDocumentTypeService DocumentTypeService { get; set; }
+
+        [Inject]
         protected DialogService DialogService { get; set; }
         #endregion
 
@@ -57,6 +63,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Purchase_Orders.Components
         protected List<ShipmentMethod> ShipmentMethods = new();
 
         protected List<Warehouse> Warehouses = new();
+        protected List<StatusDocumentType> StatusDocumentTypes = new();
         protected bool ValidationError = false;
         protected bool ValidationCreationDate = false;
         protected bool ValidationRequestDate = false;
@@ -66,6 +73,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Purchase_Orders.Components
         protected int? ForwarderAgentId;
         protected short? ShipmentMethodId;
         protected bool FirstRender = true;
+
         #endregion
 
         #region Override
@@ -78,6 +86,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Purchase_Orders.Components
             Providers = (await ProviderService.GetAsync()).ToList();
             Forwarders = (await ForwarderService.GetAsync()).ToList();
             Warehouses = (await WarehouseService.GetAsync()).ToList();
+            var documentType = await DocumentTypeService.FindByCodeAsync("O");
+            StatusDocumentTypes = (await StatusDocumentTypeService.GetByDocumentTypeIdAsync(documentType.DocumentTypeId)).ToList();
         }
 
         public override async Task SetParametersAsync(ParameterView parameters)
@@ -113,7 +123,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Purchase_Orders.Components
                 var shipmentMethod = ShipmentMethods.Single(s => s.ShipmentMethodId == Filter.ShipmentMethodId.Value);
                 await shipmentMethodsDropdown.SelectItem(shipmentMethod, false);
             }
-
+            
             FirstRender = false;
             StateHasChanged();
         }
@@ -137,7 +147,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Purchase_Orders.Components
                     Filter.ExpectedReceiptDate?.StartDate == null && Filter.ExpectedReceiptDate?.EndDate == null &&
                     string.IsNullOrEmpty(Filter.ImportNumber) && string.IsNullOrEmpty(Filter.EmbarkationPort) && string.IsNullOrEmpty(Filter.ProformaNumber) &&
                     Filter.ProviderId == null && ForwarderId == null && ForwarderAgentId == null && ShipmentMethodId == null &&
-                    Filter.WarehouseId == null && SelectedReferences.Any() == false)
+                    Filter.WarehouseId == null && SelectedReferences.Any() == false && Filter.StatusDocumentId == null)
                 {
                     ValidationError = true;
                     return;
@@ -176,6 +186,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Purchase_Orders.Components
                 Filter.ShipmentMethod = Filter.ShipmentMethodId != null ? ShipmentMethods.FirstOrDefault(s => s.ShipmentMethodId == Filter.ShipmentMethodId.Value) : null;
                 Filter.Warehouse = Filter.WarehouseId != null ? Warehouses.FirstOrDefault(s => s.WarehouseId == Filter.WarehouseId.Value) : null;
                 Filter.ItemReferences = SelectedReferences;
+                Filter.StatusDocumentType = Filter.StatusDocumentId != null ? StatusDocumentTypes.FirstOrDefault(s => s.StatusDocumentTypeId == Filter.StatusDocumentId.Value) : null;
                 DialogService.Close(Filter);
             }
             catch (Exception ex)

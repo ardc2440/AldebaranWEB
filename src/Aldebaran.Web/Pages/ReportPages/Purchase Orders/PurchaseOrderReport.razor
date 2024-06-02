@@ -155,6 +155,13 @@
                             <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.Warehouse.WarehouseName</span>
                         </div>
                     }
+                    @if (Filter.StatusDocumentId != null)
+                    {
+                        <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
+                            <p class="component-label m-0 fw-bold">Estado de la order: </p>
+                            <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.StatusDocumentType.StatusDocumentTypeName</span>
+                        </div>
+                    }
                     <div class="component-section d-flex flex-column justify-content-start pt-2">
                         @if (Filter.ItemReferences.Any())
                         {
@@ -186,7 +193,7 @@
     <RadzenRow AlignItems="AlignItems.Start">
         <RadzenColumn Size="12">
             <RadzenCard style="min-height:600px; overflow-y:auto">
-                <div id="order-shipment-report-container">
+                <div id="purchase-order-report-container">
                     <div class="report">
                         <table>
                             <tr>
@@ -314,6 +321,13 @@
                                                         <span>@Filter.Warehouse.WarehouseName</span>
                                                     </div>
                                                 }
+                                                @if (Filter.StatusDocumentId != null)
+                                                {
+                                                    <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
+                                                        <div class="type">Estado de la orden: </div>
+                                                        <span>@Filter.StatusDocumentType.StatusDocumentTypeName</span>
+                                                    </div>
+                                                }
                                                 @if (Filter.ForwarderId != null)
                                                 {
                                                     <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
@@ -335,7 +349,6 @@
                                                         <span>@Filter.ShipmentMethod.ShipmentMethodName</span>
                                                     </div>
                                                 }
-
                                                 @if (Filter.ItemReferences.Any())
                                                 {
                                                     <div style="display:flex; flex-direction:column; justify-content:end">
@@ -377,9 +390,13 @@
                                                         <span class="bold">Fecha de solicitud: </span><br />
                                                         @order.RequestDate.ToString(SharedLocalizer["date:format"])
                                                     </td>
-                                                    <td colspan="2" width="50%">
+                                                    <td width="25%">
                                                         <span class="bold">Fecha esperada de recepción: </span><br />
                                                         @order.ExpectedReceiptDate.ToString(SharedLocalizer["date:format"])
+                                                    </td>
+                                                    <td width="25%">
+                                                        <span class="bold">Estado de la orden: </span><br />
+                                                        @order.StatusDocumentName
                                                     </td>
                                                 </tr>
                                                 <tr class="border-bottom-1">

@@ -26,7 +26,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Purchase_Orders
         protected IJSRuntime JSRuntime { get; set; }
 
         [Inject]
-        protected IOrderShipmentReportService OrderShipmentReportService { get; set; }
+        protected IPurchaseOrderReportService PurchaseOrderReportService { get; set; }
         #endregion
 
         #region Variables
@@ -34,7 +34,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Purchase_Orders
         protected PurchaseOrderViewModel ViewModel;
         private bool IsBusy = false;
         private bool IsLoadingData = false;
-        private IEnumerable<Application.Services.Models.Reports.OrderShipmentReport> DataReport { get; set; }
+        private IEnumerable<Application.Services.Models.Reports.PurchaseOrderReport> DataReport { get; set; }
         #endregion
 
         #region Overrides
@@ -52,7 +52,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Purchase_Orders
             {
                 IsLoadingData = true;
 
-                DataReport = await OrderShipmentReportService.GetOrderShipmentReportDataAsync(filter, ct);
+                DataReport = await PurchaseOrderReportService.GetPurchaseOrderReportDataAsync(filter, ct);
 
                 ViewModel = new PurchaseOrderViewModel()
                 {
@@ -108,12 +108,15 @@ namespace Aldebaran.Web.Pages.ReportPages.Purchase_Orders
             if (filter.WarehouseId.HasValue)
                 filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@WarehouseId = {filter.WarehouseId}";
 
+            if (filter.StatusDocumentId.HasValue)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@StatusDocumentTypeId = {filter.StatusDocumentId}";
+
             return filterResult;
         }
 
         async Task OpenFilters()
         {
-            var result = await DialogService.OpenAsync<PurchaseOrderReportFilter>("Filtrar reporte de ordenes en tránsito", parameters: new Dictionary<string, object> { { "Filter", (PurchaseOrderFilter)Filter?.Clone() } }, options: new DialogOptions { Width = "800px" });
+            var result = await DialogService.OpenAsync<PurchaseOrderReportFilter>("Filtrar reporte de ordenes de compra", parameters: new Dictionary<string, object> { { "Filter", (PurchaseOrderFilter)Filter?.Clone() } }, options: new DialogOptions { Width = "800px" });
             if (result == null)
                 return;
             Filter = (PurchaseOrderFilter)result;
@@ -139,15 +142,15 @@ namespace Aldebaran.Web.Pages.ReportPages.Purchase_Orders
             if (args?.Value == null)
                 return;
             IsBusy = true;
-            var html = await JSRuntime.InvokeAsync<string>("getContent", "order-shipment-report-container");
+            var html = await JSRuntime.InvokeAsync<string>("getContent", "purchase-order-report-container");
             if (args?.Value == "save")
             {
                 var pdfBytes = await FileBytesGeneratorService.GetPdfBytes(html, true);
-                await JSRuntime.InvokeVoidAsync("downloadFile", "Ordenes en tránsito.pdf", "application/pdf", Convert.ToBase64String(pdfBytes));
+                await JSRuntime.InvokeVoidAsync("downloadFile", "Ordenes de compra.pdf", "application/pdf", Convert.ToBase64String(pdfBytes));
             }
             if (args?.Value == "print")
             {
-                await JSRuntime.InvokeVoidAsync("print", "order-shipment-report-container");
+                await JSRuntime.InvokeVoidAsync("print", "purchase-order-report-container");
             }
             IsBusy = false;
         }
@@ -164,7 +167,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Purchase_Orders
         {
             var orders = new List<PurchaseOrderViewModel.Order>();
 
-            foreach (var order in DataReport.Select(s => new { s.OrderId, s.OrderNumber, s.CreationDate, s.RequestDate, s.ExpectedReceiptDate, s.ProviderName, s.ImportNumber, s.ShipmentMethodName, s.EmbarkationPort, s.ProformaNumber, s.ForwarderName, s.ForwarderEmail, s.ForwarderFax, s.ForwarderPhone, s.ForwarderAgentName, s.AgentPhone, s.AgentFax, s.AgentEmail })
+            foreach (var order in DataReport.Select(s => new { s.OrderId, s.StatusDocumentTypeName, s.OrderNumber, s.CreationDate, s.RequestDate, s.ExpectedReceiptDate, s.ProviderName, s.ImportNumber, s.ShipmentMethodName, s.EmbarkationPort, s.ProformaNumber, s.ForwarderName, s.ForwarderEmail, s.ForwarderFax, s.ForwarderPhone, s.ForwarderAgentName, s.AgentPhone, s.AgentFax, s.AgentEmail })
                                     .DistinctBy(d => d.OrderId)
                                     .OrderBy(o => o.OrderNumber))
             {
@@ -193,8 +196,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Purchase_Orders
                     ShipmentMethodName = order.ShipmentMethodName,
                     EmbarkationPort = order.EmbarkationPort,
                     ProformaNumber = order.ProformaNumber,
-                    Warehouses = await GetOrderWarehousesAsync(order.OrderId, ct)//,
-                    //StatusDocumentName = order.StatusDocuemntName
+                    Warehouses = await GetOrderWarehousesAsync(order.OrderId, ct),
+                    StatusDocumentName = order.StatusDocumentTypeName
                 });
             }
 
