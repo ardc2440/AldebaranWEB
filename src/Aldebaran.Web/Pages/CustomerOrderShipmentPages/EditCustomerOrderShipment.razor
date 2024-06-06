@@ -22,7 +22,7 @@
                     </RadzenAlert>
                 </RadzenRow>
                 <RadzenRow AlignItems="AlignItems.Start" Gap="2rem">
-                    <RadzenColumn SizeMD="6">
+                    <RadzenColumn SizeMD="5">
                         <RadzenStack>
                             <RadzenRow AlignItems="AlignItems.Start" Gap="2rem">
                                 <RadzenColumn SizeMD="1" />
@@ -38,9 +38,15 @@
                                             <RadzenRow>
                                                 <span>@customerOrder.Customer.Phone1</span>
                                             </RadzenRow>
-                                            <RadzenRow>
-                                                <span>@customerOrder.Customer.Email</span>
-                                            </RadzenRow>
+                                            <div class="text-secondary-color">
+                                                <RadzenLabel Text="Correo: " />
+                                                @{
+                                                    foreach (string mail in @customerOrder.Customer.Email.Split(';'))
+                                                    {
+                                                    <li>@mail</li>
+                                                    }
+                                                }
+                                            </div>
                                             <RadzenRow>
                                                 <span>@customerOrder.Customer.CustomerAddress, (@customerOrder.Customer.City.Department.Country.CountryCode) @customerOrder.Customer.City.Department.DepartmentName - @customerOrder.Customer.City.CityName </span>
                                             </RadzenRow>
@@ -65,7 +71,7 @@
                                 </RadzenColumn>
                             </RadzenRow>
                             <RadzenCard class="m-3">
-                                <RadzenColumn Size="6">
+                                <RadzenColumn Size="5">
                                     <RadzenText Text="Datos del despacho" TextStyle="TextStyle.H5" TagName="TagName.H1" style="margin: 0" />
                                 </RadzenColumn>
                                 <RadzenRow style="margin-bottom: 1rem">
@@ -130,7 +136,7 @@
                             </RadzenCard>
                         </RadzenStack>
                     </RadzenColumn>
-                    <RadzenColumn Size="6">
+                    <RadzenColumn Size="7">
                         <RadzenStack>
                             <RadzenColumn SizeMD="3">
                                 <RadzenLabel Text="Referencias del pedido" class="fw-bold" style="width: 100%" />

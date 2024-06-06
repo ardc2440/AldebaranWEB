@@ -43,6 +43,12 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
         [Inject]
         protected IEmployeeService EmployeeService { get; set; }
 
+        [Inject]
+        protected ICustomerOrderDetailService CustomerOrderDetailService { get; set; }
+
+        [Inject]
+        protected IStatusDocumentTypeService StatusDocumentTypeService { get; set; }
+
         #endregion
 
         #region Params
@@ -167,6 +173,11 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
                 var reason = (Reason)reasonResult;
 
                 customerOrderShipment.CustomerOrderShipmentDetails = await MapDetailsInProcess(detailsInProcess);
+
+                await GetNewCustomerOrderStatus();
+
+                customerOrderShipment.CustomerOrder = customerOrder;
+
                 await CustomerOrderShipmentService.UpdateAsync(customerOrderShipment.CustomerOrderShipmentId, customerOrderShipment, reason);
                 NavigationManager.NavigateTo($"shipment-customer-orders/edit/{customerOrderShipment.CustomerOrderShipmentId}");
             }
@@ -176,6 +187,22 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
                 IsErrorVisible = true;
             }
             finally { IsSubmitInProgress = false; }
+        }
+
+        protected async Task GetNewCustomerOrderStatus(CancellationToken ct = default)
+        {
+            var orderDetail = await CustomerOrderDetailService.GetByCustomerOrderIdAsync(customerOrder.CustomerOrderId, ct);
+
+            var actualDeliveryCuantity = (await CustomerOrderShipmentDetailService.GetByCustomerOrderShipmentIdAsync(customerOrderShipment.CustomerOrderShipmentId,ct)).Sum(s => s.DeliveredQuantity);
+
+            var totalRequestedQuantity = orderDetail.Sum(s => s.RequestedQuantity);
+            var totalDeliveryQuantity = orderDetail.Sum(s => s.DeliveredQuantity) - actualDeliveryCuantity + customerOrderShipment.CustomerOrderShipmentDetails.Sum(s => s.DeliveredQuantity);
+
+            var documentType = await DocumentTypeService.FindByCodeAsync("P", ct);
+
+            var newStatus = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, (totalDeliveryQuantity == totalRequestedQuantity ? 4 : 3), ct);
+
+            customerOrder.StatusDocumentTypeId = newStatus.StatusDocumentTypeId;
         }
 
         protected async Task<ICollection<CustomerOrderShipmentDetail>> MapDetailsInProcess(ICollection<DetailInProcess> detailsInProcess)

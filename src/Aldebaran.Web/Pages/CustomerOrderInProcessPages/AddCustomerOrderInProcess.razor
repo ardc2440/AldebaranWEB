@@ -39,9 +39,11 @@
                                             </div>
                                             <div class="text-secondary-color">
                                                 <RadzenLabel Text="Correo: " />
-                                                @foreach (string mail in @customerOrder.Customer.Email.Split(';'))
-                                                {
-                                            <li>@mail</li>
+                                                @{
+                                                    foreach (string mail in @customerOrder.Customer.Email.Split(';'))
+                                                    {
+                                                <li>@mail</li>
+                                                    }
                                                 }
                                         </div>
                                         <div class="text-secondary-color">
@@ -152,34 +154,34 @@
                             <LocalizedDataGrid @ref="customerOrderDetailGrid" ColumnWidth="200px" AllowFiltering="false" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true"
                                                PageSizeOptions=@(new int[]{5, 10, 20, 30}) Data="@detailsInProcess" TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess">
                                 <Columns>
-                                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Title="Referencia">
+                                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Title="Referencia" Width="170px">
                                         <Template Context="detail">
                                             <RadzenLabel MouseEnter="@(args => ShowTooltip(args,detail.REFERENCE_DESCRIPTION, new TooltipOptions(){ Position = TooltipPosition.Left }))">
                                                 @detail.REFERENCE_DESCRIPTION
                                             </RadzenLabel>
                                         </Template>
                                     </RadzenDataGridColumn>
-                                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Title="Pendiente" Width="100px">
+                                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Title="Pendiente" Width="80px">
                                         <Template Context="detail">
                                             @detail.PENDING_QUANTITY.ToString("N0")
                                         </Template>
                                     </RadzenDataGridColumn>
-                                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Title="En proceso" Width="100px">
+                                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Title="En proceso" Width="80px">
                                         <Template Context="detail">
                                             @detail.PROCESSED_QUANTITY.ToString("N0")
                                         </Template>
                                     </RadzenDataGridColumn>
-                                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Title="Despachado" Width="100px">
+                                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Title="Despachado" Width="80px">
                                         <Template Context="detail">
                                             @detail.DELIVERED_QUANTITY.ToString("N0")
                                         </Template>
                                     </RadzenDataGridColumn>
-                                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Title="Este traslado" Width="100px">
+                                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Title="Este traslado" Width="90px">
                                         <Template Context="detail">
                                             @detail.THIS_QUANTITY.ToString("N0")
                                         </Template>
                                     </RadzenDataGridColumn>
-                                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Filterable="false" Sortable="false" Width="110px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
                                         <Template Context="detail">
                                             <RadzenButton Icon="assignment_ind" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
                                                           Click="@(args => SendToProcess(detail))" @onclick:stopPropagation="true"

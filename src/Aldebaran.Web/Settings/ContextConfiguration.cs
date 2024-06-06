@@ -24,9 +24,25 @@ namespace Aldebaran.Web.Settings
             {
                 try
                 {
+                    if (_httpContextAccessor == null)
+                        throw new Exception("El acceso al contexto HTTP esta vacio");
+                    if (_httpContextAccessor.HttpContext == null)
+                        throw new Exception("El contexto HTTP esta vacio");
+
                     var user = _httpContextAccessor.HttpContext?.User;
-                    if (user == null || !user.Identity.IsAuthenticated)
-                        throw new Exception("No se ha podido obtener el usuario autenticado para la auditoria");
+
+                    if (user == null)
+                        throw new Exception("El usuario esta vacio");
+
+                    if (!user.Identity.IsAuthenticated)
+                        throw new Exception("El usuario no esta autenticado");
+
+                    if (user.Identity == null)
+                        throw new Exception("La identidad del usuario esta vacia");
+
+                    if (user.Identity.Name == string.Empty)
+                        throw new Exception("El nombre del usuario esta vacio");
+
                     return user.Identity.Name;
                 }
                 catch (Exception ex)

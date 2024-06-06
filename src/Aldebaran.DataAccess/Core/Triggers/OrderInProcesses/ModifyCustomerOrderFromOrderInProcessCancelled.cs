@@ -18,42 +18,52 @@ namespace Aldebaran.DataAccess.Core.Triggers.OrderInProcesses
             if (context.ChangeType != ChangeType.Modified)
                 return;
 
+            /* If new CustomerOrderInprocess's State isn't Cancelled, the process ends and does nothing */
             var statusOrder = (await _context.StatusDocumentTypes.FindAsync(new object[] { context.Entity.StatusDocumentTypeId }, cancellationToken))!.StatusOrder;
 
             if (statusOrder != 2)
                 return;
 
+            /* Get the old and new state value */
             var detailChanges = context.Entity.GetType()
              .GetProperties()
              .Select(property => (name: property.Name, oldValue: property.GetValue(context.UnmodifiedEntity), newValue: property.GetValue(context.Entity)))
              .FirstOrDefault(x => x.newValue != x.oldValue && x.name.Equals("StatusDocumentTypeId"));
 
+
+            /* If the state value doesn't change, the process ends and does nothing*/
             if ((short)(detailChanges.oldValue ?? 0) == (short)(detailChanges.newValue ?? 0))
                 return;
-
-            /* Verify if exists CustomerOrderInProcess in Executed State for this CustomerOrder */
-            var documentType = await _context.DocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeCode == "T", cancellationToken);
-            var statusExcutedCustomerOrderInProcess = await _context.StatusDocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeId == documentType!.DocumentTypeId && i.StatusOrder == 1, cancellationToken);
-
-            if (_context.CustomerOrdersInProcesses.Any(i => i.StatusDocumentTypeId == statusExcutedCustomerOrderInProcess!.StatusDocumentTypeId && i.CustomerOrderInProcessId != context.Entity.CustomerOrderInProcessId))
+                        
+            var documentType = await _context.DocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeCode == "P", cancellationToken);
+            var statusDoumentPartialAttended = await _context.StatusDocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeId == documentType!.DocumentTypeId && 
+                                                                                                           i.StatusOrder == 4, cancellationToken);
+            /* If the customer order is in Partial Attended state, the process ends and does nothing*/
+            if (await _context.CustomerOrders.AnyAsync(i => i.StatusDocumentTypeId == statusDoumentPartialAttended!.StatusDocumentTypeId &&
+                                                            i.CustomerOrderId == context.Entity.CustomerOrderId, cancellationToken))
                 return;
 
-            /* Verify if exists CustomerOrderShipmente in Executed State for this CustomerOrder */
-            documentType = await _context.DocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeCode == "D", cancellationToken);
-            statusExcutedCustomerOrderInProcess = await _context.StatusDocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeId == documentType!.DocumentTypeId && i.StatusOrder == 1, cancellationToken);
+            documentType = await _context.DocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeCode == "T", cancellationToken);
+            var statusExcuted = await _context.StatusDocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeId == documentType!.DocumentTypeId && 
+                                                                                            i.StatusOrder == 1, cancellationToken);
 
-            if (_context.CustomerOrderShipments.Any(i => i.StatusDocumentTypeId == statusExcutedCustomerOrderInProcess!.StatusDocumentTypeId))
+            /* if exists CustomerOrderInProcess in Executed State for this CustomerOrder, the process ends and does nothing */
+            if (await _context.CustomerOrdersInProcesses.AnyAsync(i => i.StatusDocumentTypeId == statusExcuted!.StatusDocumentTypeId && 
+                                                                       i.CustomerOrderInProcessId != context.Entity.CustomerOrderInProcessId && 
+                                                                       i.CustomerOrderId == context.Entity.CustomerOrderId, cancellationToken))
                 return;
-
-            /* If not exists CustomerOrderShipmente or CustomerOrderInProcess, change de CustomerOrder State */
+                        
             documentType = await _context.DocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeCode == "P", cancellationToken);
-            var statusPendingCustomerOrder = await _context.StatusDocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeId == documentType!.DocumentTypeId && i.StatusOrder == 1, cancellationToken);
+            var statusPendingCustomerOrder = await _context.StatusDocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeId == documentType!.DocumentTypeId && 
+                                                                                                         i.StatusOrder == 1, cancellationToken);
 
             var customerOrder = await _context.CustomerOrders.FirstOrDefaultAsync(i => i.CustomerOrderId == context.Entity.CustomerOrderId, cancellationToken);
 
+            /* If the CustomerOrder's state Is Pending, the process ends and does nothing*/
             if (customerOrder!.StatusDocumentTypeId == statusPendingCustomerOrder!.StatusDocumentTypeId)
                 return;
 
+            /* Change the CustomerOrder's State to Pending*/
             customerOrder!.StatusDocumentTypeId = statusPendingCustomerOrder!.StatusDocumentTypeId;
         }
     }

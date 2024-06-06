@@ -2,8 +2,10 @@ using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Resources.LocalizedControls;
+using DocumentFormat.OpenXml.Vml.Office;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.EntityFrameworkCore;
 using Radzen;
 
 namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
@@ -180,6 +182,10 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
 
                 customerOrderShipment.CustomerOrderShipmentDetails = await MapDetailsInProcess(detailsInProcess);
 
+                await GetNewCustomerOrderStatus();
+
+                customerOrderShipment.CustomerOrder = customerOrder;
+
                 var result = await CustomerOrderShipmentService.AddAsync(customerOrderShipment);
 
                 NavigationManager.NavigateTo($"Shipment-customer-orders/{result.CustomerOrderShipmentId}");
@@ -190,6 +196,20 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
                 IsErrorVisible = true;
             }
             finally { IsSubmitInProgress = false; }
+        }
+
+        protected async Task GetNewCustomerOrderStatus(CancellationToken ct=default) 
+        {
+            var orderDetail = await CustomerOrderDetailService.GetByCustomerOrderIdAsync(customerOrder.CustomerOrderId);
+
+            var totalRequestedQuantity = orderDetail.Sum(s => s.RequestedQuantity);
+            var totalDeliveryQuantity = orderDetail.Sum(s => s.DeliveredQuantity) + customerOrderShipment.CustomerOrderShipmentDetails.Sum(s => s.DeliveredQuantity);
+
+            var documentType = await DocumentTypeService.FindByCodeAsync("P", ct);
+
+            var newStatus = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, (totalDeliveryQuantity == totalRequestedQuantity ? 4 : 3), ct);
+            
+            customerOrder.StatusDocumentTypeId = newStatus.StatusDocumentTypeId;
         }
 
         protected async Task<ICollection<CustomerOrderShipmentDetail>> MapDetailsInProcess(ICollection<DetailInProcess> detailsInProcess)

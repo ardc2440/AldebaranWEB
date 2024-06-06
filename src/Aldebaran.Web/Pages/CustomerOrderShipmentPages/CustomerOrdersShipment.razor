@@ -58,7 +58,7 @@
                             <Template Context="customerOrder">
                                 <RadzenButton Icon="assignment_ind" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
                                               Click="@(args => SendToShipment(customerOrder))" @onclick:stopPropagation="true"
-                                              Visible="@Security.IsInRole("Administrador","Modificación de despachos")" title="Despachar Cantidades">
+                                              Visible="@CanDispach(customerOrder).Result" title="Despachar Cantidades">
                                 </RadzenButton>
                             </Template>
                         </RadzenDataGridColumn>

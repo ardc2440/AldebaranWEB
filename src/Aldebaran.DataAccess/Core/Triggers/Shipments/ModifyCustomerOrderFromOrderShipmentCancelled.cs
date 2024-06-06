@@ -20,6 +20,7 @@ namespace Aldebaran.DataAccess.Core.Triggers.OrderInProcesses
 
             var statusOrder = (await _context.StatusDocumentTypes.FindAsync(new object[] { context.Entity.StatusDocumentTypeId }, cancellationToken))!.StatusOrder;
 
+            /* If the new state is not canceled, it does nothing */
             if (statusOrder != 2)
                 return;
 
@@ -28,24 +29,36 @@ namespace Aldebaran.DataAccess.Core.Triggers.OrderInProcesses
              .Select(property => (name: property.Name, oldValue: property.GetValue(context.UnmodifiedEntity), newValue: property.GetValue(context.Entity)))
              .FirstOrDefault(x => x.newValue != x.oldValue && x.name.Equals("StatusDocumentTypeId"));
 
+            /* If the state does not change, it does nothing */
             if ((short)(detailChanges.oldValue ?? 0) == (short)(detailChanges.newValue ?? 0))
                 return;
 
             var documentType = await _context.DocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeCode == "D", cancellationToken);
-            var statusExcutedCustomerOrderInProcess = await _context.StatusDocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeId == documentType!.DocumentTypeId && i.StatusOrder == 1, cancellationToken);
-
-            if (_context.CustomerOrderShipments.Any(i => i.StatusDocumentTypeId == statusExcutedCustomerOrderInProcess!.StatusDocumentTypeId && i.CustomerOrderShipmentId != context.Entity.CustomerOrderShipmentId))
-                return;
+            var statusExcuted = await _context.StatusDocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeId == documentType!.DocumentTypeId &&
+                                                                                            i.StatusOrder == 1, cancellationToken);
 
             documentType = await _context.DocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeCode == "P", cancellationToken);
-            var statusInProcessCustomerOrder = await _context.StatusDocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeId == documentType!.DocumentTypeId && i.StatusOrder == 2, cancellationToken);
+            
+            var statusPartiallyAttended = await _context.StatusDocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeId == documentType!.DocumentTypeId &&
+                                                                                                      i.StatusOrder == 3, cancellationToken);
+
+            var statusInProcess = await _context.StatusDocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeId == documentType!.DocumentTypeId &&
+                                                                                              i.StatusOrder == 2, cancellationToken);
+            var newStatus = statusInProcess;
+
+            /* If there are more shipments and the status of the customer order is partially attended, it does nothing*/
+            if (await _context.CustomerOrderShipments.AnyAsync(i => i.StatusDocumentTypeId == statusExcuted!.StatusDocumentTypeId &&
+                                                                    i.CustomerOrderShipmentId != context.Entity.CustomerOrderShipmentId &&
+                                                                    i.CustomerOrderId == context.Entity.CustomerOrderId, cancellationToken))
+                newStatus = statusPartiallyAttended;
 
             var customerOrder = await _context.CustomerOrders.FirstOrDefaultAsync(i => i.CustomerOrderId == context.Entity.CustomerOrderId, cancellationToken);
 
-            if (customerOrder!.StatusDocumentTypeId == statusInProcessCustomerOrder!.StatusDocumentTypeId)
+            if (customerOrder!.StatusDocumentTypeId == newStatus!.StatusDocumentTypeId)
                 return;
 
-            customerOrder!.StatusDocumentTypeId = statusInProcessCustomerOrder!.StatusDocumentTypeId;
+            /* change the state of tehe Customer Order to Partially Attended */
+            customerOrder!.StatusDocumentTypeId = newStatus!.StatusDocumentTypeId;
         }
     }
 }

@@ -37,15 +37,20 @@
                                             </div>
                                             <div class="text-secondary-color">
                                                 <RadzenLabel Text="Correo: " />
-                                                <span>@customerOrder.Customer.Email</span>
-                                            </div>
-                                            <div class="text-secondary-color">
-                                                <RadzenLabel Text="Dirección: " />
-                                                <span>@customerOrder.Customer.CustomerAddress</span>
-                                            </div>
-                                            <div class="text-secondary-color">
-                                                <span>(@customerOrder.Customer.City.Department.Country.CountryCode) @customerOrder.Customer.City.Department.DepartmentName - @customerOrder.Customer.City.CityName </span>
-                                            </div>
+                                                @{
+                                                    foreach (string mail in @customerOrder.Customer.Email.Split(';'))
+                                                    {
+                                                <li>@mail</li>
+                                                    }
+                                                }
+                                        </div>
+                                        <div class="text-secondary-color">
+                                            <RadzenLabel Text="Dirección: " />
+                                            <span>@customerOrder.Customer.CustomerAddress</span>
+                                        </div>
+                                        <div class="text-secondary-color">
+                                            <span>(@customerOrder.Customer.City.Department.Country.CountryCode) @customerOrder.Customer.City.Department.DepartmentName - @customerOrder.Customer.City.CityName </span>
+                                        </div>
                                         </div>
                                     </RadzenStack>
                                 </RadzenColumn>
@@ -178,7 +183,7 @@
                                             @detail.THIS_QUANTITY.ToString("N0")
                                         </Template>
                                     </RadzenDataGridColumn>
-                                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Filterable="false" Sortable="false" Width="110px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                                    <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Filterable="false" Sortable="false" Width="60px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
                                         <Template Context="detail">
                                             <RadzenButton Icon="assignment_ind" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
                                                           Click="@(args => SendToShipment(detail))" @onclick:stopPropagation="true"

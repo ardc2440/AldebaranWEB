@@ -776,7 +776,9 @@ GO
 INSERT INTO cancellation_reasons (CANCELLATION_REASON_NAME, DOCUMENT_TYPE_ID, NOTES)
      VALUES ('Cancelación Orden de Compra', 1, 'Reason de prueba No 1'), 
 			('Cancelación Pedido', 2,'Reason de prueba de Prueba No2'), 
-			('Cancelacion de Reserva', 3,'Reason de prueba de Prueba No3') 
+			('Cancelacion de Reserva', 3,'Reason de prueba de Prueba No3'), 
+			('Cancelacion de Proceso', 4,'Reason de prueba de Prueba No4'),
+			('Cancelacion de Despacho', 5,'Reason de prueba de Prueba No5')
 GO
 
 INSERT INTO close_customer_order_reasons (CLOSE_REASON_NAME, CLOSE_REASON_NOTES)
@@ -787,7 +789,9 @@ GO
 INSERT INTO modification_reasons (MODIFICATION_REASON_NAME, DOCUMENT_TYPE_ID, NOTES)
      VALUES ('Modificación Orden de Compra', 1, 'Reason de prueba No 1'), 
 			('Modificación Pedido', 2,'Reason de prueba de Prueba No2'), 
-			('Modificación de Reserva', 3,'Reason de prueba de Prueba No3') 
+			('Modificación de Reserva', 3,'Reason de prueba de Prueba No3'),			
+			('Modificación de Proceso', 4,'Reason de prueba de Prueba No4'),			
+			('Modificación de Despacho', 5,'Reason de prueba de Prueba No5') 
 GO
 			
 /*populate currencies*/

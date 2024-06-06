@@ -6,8 +6,10 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
     public class CustomerOrderShipmentRepository : RepositoryBase<AldebaranDbContext>, ICustomerOrderShipmentRepository
     {
-        public CustomerOrderShipmentRepository(IServiceProvider serviceProvider) : base(serviceProvider)
+        private ICustomerOrderRepository _customerOrderRepository;
+        public CustomerOrderShipmentRepository(IServiceProvider serviceProvider, ICustomerOrderRepository customerOrderRepository) : base(serviceProvider)
         {
+            _customerOrderRepository = customerOrderRepository;
         }
 
         public async Task<CustomerOrderShipment> AddAsync(CustomerOrderShipment customerOrderShipment, CancellationToken ct)
@@ -37,6 +39,23 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     });
                 }
 
+                /*var orderDetail = dbContext.CustomerOrderDetails.Where(w => w.CustomerOrderId == entity.CustomerOrderId);
+
+                var totalRequestedQuantity = orderDetail.Sum(s => s.RequestedQuantity);
+                var totalDeliveryQuantity = orderDetail.Sum(s => s.DeliveredQuantity) + entity.CustomerOrderShipmentDetails.Sum(s => s.DeliveredQuantity);
+
+                var documentType = dbContext.DocumentTypes.First(w => w.DocumentTypeCode.Equals("P"));
+
+                var newStatus = dbContext.StatusDocumentTypes.First(w => w.DocumentTypeId == documentType.DocumentTypeId && w.StatusOrder == (totalDeliveryQuantity == totalRequestedQuantity ? 4 : 3));
+
+                var orderEntity = dbContext.CustomerOrders.First(w => w.CustomerOrderId == entity.CustomerOrderId);
+
+                orderEntity.StatusDocumentTypeId = newStatus.StatusDocumentTypeId;*/
+
+                var orderEntity = dbContext.CustomerOrders.First(w => w.CustomerOrderId == entity.CustomerOrderId);
+
+                orderEntity.StatusDocumentTypeId = customerOrderShipment.CustomerOrder.StatusDocumentTypeId; 
+
                 try
                 {
                     await dbContext.CustomerOrderShipments.AddAsync(entity, ct);
@@ -44,6 +63,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 }
                 catch (Exception)
                 {
+                    dbContext.Entry(orderEntity).State = EntityState.Unchanged;
                     dbContext.Entry(entity).State = EntityState.Unchanged;
                     throw;
                 }
@@ -83,6 +103,8 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 entity.DeliveryNote = customerOrderShipment.DeliveryNote;
                 entity.TrackingNumber = customerOrderShipment.TrackingNumber;
 
+                var oldDetailSum = entity.CustomerOrderShipmentDetails.Sum(s => s.DeliveredQuantity);
+
                 foreach (var item in customerOrderShipment.CustomerOrderShipmentDetails)
                 {
                     if (item.CustomerOrderShipmentDetailId > 0)
@@ -116,6 +138,25 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     EmployeeId = reason.EmployeeId,
                     ModificationDate = reason.Date
                 };
+
+                /*                var orderDetail = dbContext.CustomerOrderDetails.Where(w=>w.CustomerOrderId==entity.CustomerOrderId);
+
+                                var totalRequestedQuantity = orderDetail.Sum(s => s.RequestedQuantity);
+                                var totalDeliveryQuantity = orderDetail.Sum(s => s.DeliveredQuantity) - oldDetailSum + entity.CustomerOrderShipmentDetails.Sum(s => s.DeliveredQuantity);
+
+                                var documentType = dbContext.DocumentTypes.First(w=>w.DocumentTypeCode.Equals("P"));
+
+                                var newStatus = dbContext.StatusDocumentTypes.First(w=>w.DocumentTypeId==documentType.DocumentTypeId && w.StatusOrder == (totalDeliveryQuantity == totalRequestedQuantity ? 4 : 3));
+
+                                var orderEntity = dbContext.CustomerOrders.First(w => w.CustomerOrderId == entity.CustomerOrderId);
+
+                                orderEntity.StatusDocumentTypeId = newStatus.StatusDocumentTypeId; 
+                */
+
+                var orderEntity = dbContext.CustomerOrders.First(w => w.CustomerOrderId == entity.CustomerOrderId);
+
+                orderEntity.StatusDocumentTypeId = customerOrderShipment.CustomerOrder.StatusDocumentTypeId;
+
                 try
                 {
                     dbContext.ModifiedOrderShipments.Add(reasonEntity);
@@ -123,6 +164,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 }
                 catch (Exception)
                 {
+                    dbContext.Entry(orderEntity).State = EntityState.Unchanged;
                     dbContext.Entry(entity).State = EntityState.Unchanged;
                     dbContext.Entry(reasonEntity).State = EntityState.Unchanged;
                     throw;
@@ -157,6 +199,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     EmployeeId = reason.EmployeeId,
                     CancellationDate = reason.Date
                 };
+                                                
                 try
                 {
                     dbContext.CanceledOrderShipments.Add(reasonEntity);

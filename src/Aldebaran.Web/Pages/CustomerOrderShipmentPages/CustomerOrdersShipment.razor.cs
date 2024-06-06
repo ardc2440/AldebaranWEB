@@ -6,6 +6,7 @@ using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
+using System.Security.Cryptography;
 
 namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
 {
@@ -61,6 +62,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
 
         protected DialogResult dialogResult;
         protected DocumentType documentType;
+        protected IEnumerable<StatusDocumentType> dispachStatus;
         protected IEnumerable<CustomerOrder> customerOrders;
         protected IEnumerable<CustomerOrderShipment> customerOrderShipments;
         protected IEnumerable<CustomerOrderShipmentDetail> customerOrderShipmentDetails;
@@ -83,6 +85,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
                 isLoadingInProgress = true;
 
                 documentType = await DocumentTypeService.FindByCodeAsync("P");
+
+                dispachStatus = (await StatusDocumentTypeService.GetByDocumentTypeIdAsync(documentType.DocumentTypeId)).Where(w=>w.StatusOrder == 2 || w.StatusOrder == 3);
                 
                 await Task.Yield();
 
@@ -135,9 +139,13 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
         {
             await Task.Yield();
             var orders = string.IsNullOrEmpty(searchKey) ? await CustomerOrderService.GetAsync(ct) : await CustomerOrderService.GetAsync(searchKey, ct);
-            customerOrders = orders.Where(x => x.StatusDocumentType.StatusOrder == 2 || x.StatusDocumentType.StatusOrder == 3);
+            customerOrders = orders.Where(x => x.StatusDocumentType.StatusOrder == 2 || x.StatusDocumentType.StatusOrder == 3 || x.StatusDocumentType.StatusOrder == 4);
         }
 
+        async Task<bool> CanDispach(CustomerOrder customerOrder,CancellationToken ct = default)
+        {            
+            return dispachStatus.Any(a=>a.StatusDocumentTypeId == customerOrder.StatusDocumentTypeId) && Security.IsInRole("Administrador", "Modificación de despachos");
+        }
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
 
         protected async Task<string> GetReferenceHint(ItemReference reference) => $"({reference.Item.Line.LineName}) {reference.Item.ItemName} - {reference.ReferenceName}";

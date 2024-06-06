@@ -19,13 +19,16 @@ namespace Aldebaran.DataAccess.Core.Triggers.OrderInProcesses
                 return;
 
             var documentType = await _context.DocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeCode == "P", cancellationToken);
-            var statusInProcessCustomerOrder = await _context.StatusDocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeId == documentType!.DocumentTypeId && i.StatusOrder == 3, cancellationToken);
+            var statusPartiallyAttended = await _context.StatusDocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeId == documentType!.DocumentTypeId && i.StatusOrder == 3, cancellationToken);
+            var statusFullyAttended = await _context.StatusDocumentTypes.FirstOrDefaultAsync(i => i.DocumentTypeId == documentType!.DocumentTypeId && i.StatusOrder == 4, cancellationToken);
 
             var customerOrder = await _context.CustomerOrders.FirstOrDefaultAsync(i => i.CustomerOrderId == context.Entity.CustomerOrderId, cancellationToken);
 
-            if (customerOrder!.StatusDocumentTypeId == statusInProcessCustomerOrder!.StatusDocumentTypeId)
+            if (customerOrder!.StatusDocumentTypeId == statusPartiallyAttended!.StatusDocumentTypeId || 
+                customerOrder!.StatusDocumentTypeId == statusFullyAttended!.StatusDocumentTypeId)
                 return;
-            customerOrder!.StatusDocumentTypeId = statusInProcessCustomerOrder!.StatusDocumentTypeId;
+
+            customerOrder!.StatusDocumentTypeId = statusPartiallyAttended!.StatusDocumentTypeId;
         }
     }
 }
