@@ -28,6 +28,13 @@ namespace Aldebaran.Application.Services
             var data = await _repository.GetAllReferencesWithMinimumQuantityAsync(ct);
             return _mapper.Map<List<ItemReference>>(data);
         }
+
+        public async Task<IEnumerable<ItemReference>> GetAllOutOfStockReferences(CancellationToken ct = default)
+        {
+            var data = await _repository.GetAllOutOfStockReferences(ct);
+            return _mapper.Map<List<ItemReference>>(data);
+        }
+        
         public async Task<IEnumerable<CustomerReservation>> GetExpiredReservationsAsync(CancellationToken ct = default)
         {
             var data = await _repository.GetExpiredReservationsAsync(ct);

@@ -6,6 +6,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
     {
         Task<IEnumerable<PurchaseOrderDetail>> GetByReferenceIdAndStatusOrderAsync(int statusOrder, int? referenceId = null, CancellationToken ct = default);
         Task<IEnumerable<ItemReference>> GetAllReferencesWithMinimumQuantityAsync(CancellationToken ct = default);
+        Task<IEnumerable<ItemReference>> GetAllOutOfStockReferences(CancellationToken ct = default);
         Task<IEnumerable<CustomerReservation>> GetExpiredReservationsAsync(CancellationToken ct = default);
         Task<IEnumerable<Alarm>> GetByEmployeeIdAsync(int employeeId, CancellationToken ct = default);
         Task<StatusDocumentType?> FindByDocumentAndOrderAsync(int documentTypeId, int order, CancellationToken ct = default);

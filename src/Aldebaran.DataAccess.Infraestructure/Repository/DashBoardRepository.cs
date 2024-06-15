@@ -31,6 +31,18 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                             .ToListAsync(ct);
             }, ct);
         }
+
+        public async Task<IEnumerable<ItemReference>> GetAllOutOfStockReferences(CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.ItemReferences.AsNoTracking()
+                            .Include(i => i.Item.Line)
+                            .Where(i => i.AlarmMinimumQuantity == 0 && i.InventoryQuantity <= 0 && i.IsActive && i.Item.IsActive)
+                            .ToListAsync(ct);
+            }, ct);
+        }
+
         public async Task<IEnumerable<CustomerReservation>> GetExpiredReservationsAsync(CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>

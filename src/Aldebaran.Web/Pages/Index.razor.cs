@@ -200,10 +200,9 @@ namespace Aldebaran.Web.Pages
                 generalAlertVisible = false;
                 GridTimer.LastUpdate = DateTime.Now;
                 Console.WriteLine($"{GridTimer.LastUpdate}");
-                var detailInTransit = await DashBoardService.GetTransitDetailOrdersAsync(pendingStatusOrder.StatusDocumentTypeId);
-                var itemReferences = await DashBoardService.GetAllReferencesWithMinimumQuantityAsync();
-                await UpdateMinimumQuantitiesAsync(detailInTransit.ToList(), itemReferences.ToList());
-                await UpdateItemsOutOfStockAsync(detailInTransit.ToList(), itemReferences.ToList());
+                var detailInTransit = await DashBoardService.GetTransitDetailOrdersAsync(pendingStatusOrder.StatusDocumentTypeId);                
+                await UpdateMinimumQuantitiesAsync(detailInTransit.ToList(), (await DashBoardService.GetAllReferencesWithMinimumQuantityAsync()).ToList());
+                await UpdateItemsOutOfStockAsync(detailInTransit.ToList(), (await DashBoardService.GetAllOutOfStockReferences()).ToList());
                 await UpdateExpiredReservationsAsync();
                 await UpdateUserAlarmsAsync();
                 await UpdatePurchaseOrderTransitAlarmsAsync();
