@@ -27,7 +27,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             {
                 return await dbContext.ItemReferences.AsNoTracking()
                             .Include(i => i.Item.Line)
-                            .Where(i => i.AlarmMinimumQuantity > 0 && i.InventoryQuantity <= i.AlarmMinimumQuantity && i.IsActive && i.Item.IsActive)
+                            .Where(i => i.AlarmMinimumQuantity > 0 && i.IsActive && i.Item.IsActive) /* No se filtra la cantidad por que en la clase se computa con lo que hay en transito para saber si esta por debajo del minimo */
                             .ToListAsync(ct);
             }, ct);
         }
@@ -38,7 +38,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             {
                 return await dbContext.ItemReferences.AsNoTracking()
                             .Include(i => i.Item.Line)
-                            .Where(i => i.AlarmMinimumQuantity == 0 && i.InventoryQuantity <= 0 && i.IsActive && i.Item.IsActive)
+                            .Where(i => i.AlarmMinimumQuantity <= 0 && i.IsActive && i.Item.IsActive) /* No se filtra la cantidad por que en la clase se computa con lo que hay en transito para saber si esta sin stock */
                             .ToListAsync(ct);
             }, ct);
         }
