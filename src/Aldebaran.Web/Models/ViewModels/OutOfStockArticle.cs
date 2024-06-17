@@ -26,7 +26,7 @@
                 result.Add(outOfStockArticle);
             }
 
-            return result.Where(i => (i.AvailableQuantity + i.InTransitQuantity) <= 0).ToList();
+            return result.ToList();
         }
     }
 }

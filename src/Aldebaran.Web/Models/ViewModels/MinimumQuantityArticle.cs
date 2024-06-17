@@ -28,7 +28,7 @@
                 result.Add(minimumQuantityArticle);
             }
 
-            return result.Where(i => i.MinimumQuantity >= (i.AvailableQuantity + i.InTransitQuantity)).ToList();
+            return result.ToList();
         }
     }
 }
