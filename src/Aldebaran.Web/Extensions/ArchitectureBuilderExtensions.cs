@@ -107,7 +107,7 @@ namespace Aldebaran.Web.Extensions
             builder.Services.AddTransient<IExportHelper, ExportHelper>();
             builder.Services.AddSingleton(AutoMapperConfiguration.Configure());
             builder.Services.AddTransient<IFileBytesGeneratorService, FileBytesGeneratorService>();
-            builder.Services.AddTransient<ITimerPreferenceService, TimerPreferenceService>();
+            builder.Services.AddTransient<ITimerPreferenceService, TimerPreferenceService>();            
             services.AddScoped<IContextConfiguration, ContextConfiguration>();
             // Logging
             builder.Logging.ClearProviders();

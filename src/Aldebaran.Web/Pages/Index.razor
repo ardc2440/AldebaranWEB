@@ -2,6 +2,7 @@
 @attribute [Authorize]
 @using Aldebaran.Web.Models.ViewModels;
 @using Aldebaran.Web.Resources.LocalizedControls;
+@using Aldebaran.Web.Pages.DashboardNotificationComponents;
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer ;
 
 <PageTitle>Notificaciones</PageTitle>
@@ -9,6 +10,10 @@
 
 @if (!isLoadingInProgress)
 {
+    <RadzenRow class="mb-2">
+        <MinimumQuantityNotifications PendingStatusOrderId="@pendingStatusOrder.StatusDocumentTypeId" />
+    </RadzenRow> 
+    
     <RadzenRow class="mb-2">
         <RadzenColumn SizeLG="6" SizeXL="6" SizeMD="6" SizeSM="6" SizeXX="12" SizeXS="12" class="d-flex align-items-end">
             <RadzenText Text="Consulta de notificaciones activas" TextStyle="Radzen.Blazor.TextStyle.DisplayH5" TagName="Radzen.Blazor.TagName.Auto" class="p-0 m-0"></RadzenText>

@@ -1,5 +1,53 @@
-﻿<h3>MinimumQuantityNotifications</h3>
+﻿@using Aldebaran.Web.Models.ViewModels;
+@using Aldebaran.Web.Resources.LocalizedControls;
+@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer ;
 
+<PageTitle>Notificaciones</PageTitle>
+<LoadingData IsLoadingData="@isLoadingInProgress" />
+
+<RadzenCard class="rz-col-12" Style="max-width: 100%">
+    <NotificationTitle TogglePanel="@TogglePanel" AlertVisible="@minimumAlertVisible" DataUpdate="@GridData_Update" GridTimer="@GridTimer" 
+                       IsPanelCollapsed="@isPanelCollapsed" Timers="@Timers" DataUpdateOnTimerChange="@GridaData_UpdateOnTimerChange" OnBoolChange="@HandleBoolChange" />
+    
+    <RadzenCard Visible="!isPanelCollapsed">
+        <LocalizedDataGrid PageSize="@pageSize" @ref="minimumQuantityArticlesGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" Data="@minimumQuantityArticles" TItem="MinimumQuantityArticle" IsLoading="@GridTimer.IsLoading">
+            <Columns>
+                <RadzenDataGridColumn TItem="MinimumQuantityArticle" Property="ArticleName" Title="Referencia" Width="80%" />
+                <RadzenDataGridColumn TItem="MinimumQuantityArticle" Title="Cant. Mínima" Width="30%" Filterable="false">
+                    <Template Context="detail">
+                        @detail.MinimumQuantity.ToString("N0")
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="MinimumQuantityArticle" Title="Inventario" Width="30%" Filterable="false">
+                    <Template Context="detail">
+                        @detail.AvailableQuantity.ToString("N0")
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="MinimumQuantityArticle" Title="En Tránsito" Width="30%" Filterable="false">
+                    <Template Context="detail">
+                        @detail.InTransitQuantity.ToString("N0")
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="MinimumQuantityArticle" Title="Reservado" Width="30%" Filterable="false">
+                    <Template Context="detail">
+                        @detail.ReservedQuantity.ToString("N0")
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="MinimumQuantityArticle" Title="Pedido" Width="30%" Filterable="false">
+                    <Template Context="detail">
+                        @detail.OrderedQuantity.ToString("N0")
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+        </LocalizedDataGrid>
+    </RadzenCard>
+</RadzenCard>
 @code {
+    private bool isPanelCollapsed = true;
+    private string ToggleIcon => isPanelCollapsed ? "expand_more" : "expand_less";
 
+    private void TogglePanel()
+    {
+        isPanelCollapsed = !isPanelCollapsed;
+    }
 }

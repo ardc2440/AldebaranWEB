@@ -92,6 +92,8 @@ namespace Aldebaran.Web.Pages
         protected LocalizedDataGrid<CustomerOrderAffectedByPurchaseOrderUpdate> customerOrdersAffectedGrid;
 
         protected IEnumerable<CustomerOrder> expiredCustomerOrders = new List<CustomerOrder>();
+        protected IEnumerable<PurchaseOrderDetail> detailInTransit = new List<PurchaseOrderDetail>();
+
         protected LocalizedDataGrid<CustomerOrder> expiredCustomerOrdersGrid;
 
 
@@ -200,14 +202,14 @@ namespace Aldebaran.Web.Pages
                 generalAlertVisible = false;
                 GridTimer.LastUpdate = DateTime.Now;
                 Console.WriteLine($"{GridTimer.LastUpdate}");
-                var detailInTransit = await DashBoardService.GetTransitDetailOrdersAsync(pendingStatusOrder.StatusDocumentTypeId);                
-                await UpdateMinimumQuantitiesAsync(detailInTransit.ToList(), (await DashBoardService.GetAllReferencesWithMinimumQuantityAsync()).ToList());
-                await UpdateItemsOutOfStockAsync(detailInTransit.ToList(), (await DashBoardService.GetAllOutOfStockReferences()).ToList());
+                detailInTransit = await DashBoardService.GetTransitDetailOrdersAsync(pendingStatusOrder.StatusDocumentTypeId);                
+                //await UpdateMinimumQuantitiesAsync(detailInTransit.ToList(), (await DashBoardService.GetAllReferencesWithMinimumQuantityAsync()).ToList());
+                /*await UpdateItemsOutOfStockAsync(detailInTransit.ToList(), (await DashBoardService.GetAllOutOfStockReferences()).ToList());
                 await UpdateExpiredReservationsAsync();
                 await UpdateUserAlarmsAsync();
                 await UpdatePurchaseOrderTransitAlarmsAsync();
                 await UpdatePurchaseOrderExpirationsAsync();
-                await UpdateExpiredCustomerOrdersAsync();
+                await UpdateExpiredCustomerOrdersAsync();*/
 
                 if (minimumAlertVisible || outOfStockAlertVisible || expiredReservationsAlertVisible || alarmsAlertVisible ||
                     purchaseAlarmsAlertVisible || expiredPurchasesAlertVisible || expiredCustomerOrdersAlertVisible) { generalAlertVisible = true; }
@@ -315,11 +317,11 @@ namespace Aldebaran.Web.Pages
         }
 
         #region MinimumQuantities
-        async Task UpdateMinimumQuantitiesAsync(List<PurchaseOrderDetail> detailInTransit, List<ItemReference> itemReferences)
+        async Task UpdateMinimumQuantitiesAsync(List<PurchaseOrderDetail> mydetailInTransit, List<ItemReference> itemReferences)
         {
             var originalData = await GetDashBoardCache<MinimumQuantityArticle>("MinimumQuantityArticle");
 
-            minimumQuantityArticles = MinimumQuantityArticle.GetMinimuQuantityArticleList(itemReferences, detailInTransit);
+            minimumQuantityArticles = MinimumQuantityArticle.GetMinimuQuantityArticleList(itemReferences, mydetailInTransit);
             minimumAlertVisible = !await IsEqual<MinimumQuantityArticle>(minimumQuantityArticles.OrderBy(o => o.ArticleName).ToList(), originalData.OrderBy(o => o.ArticleName).ToList());
             await UpdateDashBoardCache<MinimumQuantityArticle>("MinimumQuantityArticle", minimumQuantityArticles);
             if (minimumQuantityArticlesGrid != null)
@@ -328,10 +330,10 @@ namespace Aldebaran.Web.Pages
         #endregion
 
         #region ItemsOutOfStock
-        async Task UpdateItemsOutOfStockAsync(List<PurchaseOrderDetail> detailInTransit, List<ItemReference> itemReferences)
+        async Task UpdateItemsOutOfStockAsync(List<PurchaseOrderDetail> mydetailInTransit, List<ItemReference> itemReferences)
         {
             var originalData = await GetDashBoardCache<OutOfStockArticle>("OutOfStockArticle");
-            outOfStockArticles = OutOfStockArticle.GetOutOfStockArticleList(itemReferences, detailInTransit);
+            outOfStockArticles = OutOfStockArticle.GetOutOfStockArticleList(itemReferences, mydetailInTransit);
             outOfStockAlertVisible = !await IsEqual<OutOfStockArticle>(outOfStockArticles.OrderBy(o => o.ArticleName).ToList(), originalData.OrderBy(o => o.ArticleName).ToList());
             await UpdateDashBoardCache<OutOfStockArticle>("OutOfStockArticle", outOfStockArticles);
             if (outOfStockArticlesGrid != null)
