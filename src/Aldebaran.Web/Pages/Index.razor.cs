@@ -22,10 +22,7 @@ namespace Aldebaran.Web.Pages
 
         [Inject]
         protected NavigationManager NavigationManager { get; set; }
-
-        [Inject]
-        public IAlarmService AlarmService { get; set; }
-
+        
         [Inject]
         public IVisualizedAlarmService VisualizedAlarmService { get; set; }
 
@@ -69,10 +66,7 @@ namespace Aldebaran.Web.Pages
                 
         protected List<CustomerReservation> expiredReservations = new List<CustomerReservation>();
         protected LocalizedDataGrid<CustomerReservation> expiredReservationsGrid;
-
-        protected List<Models.ViewModels.Alarm> alarms = new List<Models.ViewModels.Alarm>();
-        protected LocalizedDataGrid<Models.ViewModels.Alarm> alarmsGrid;
-
+        
         protected IEnumerable<PurchaseOrderTransitAlarm> purchaseOrderTransitAlarms = new List<PurchaseOrderTransitAlarm>();
         protected LocalizedDataGrid<PurchaseOrderTransitAlarm> purchaseOrderTransitAlarmsGrid;
 
@@ -98,7 +92,7 @@ namespace Aldebaran.Web.Pages
 
         protected bool generalAlertVisible = false;
         protected bool expiredReservationsAlertVisible = false;
-        protected bool alarmsAlertVisible = false;
+        
         protected bool purchaseAlarmsAlertVisible = false;
         protected bool expiredPurchasesAlertVisible = false;
         protected bool expiredCustomerOrdersAlertVisible = false;
@@ -196,13 +190,12 @@ namespace Aldebaran.Web.Pages
                 Console.WriteLine($"{GridTimer.LastUpdate}");
               /*
                 await UpdateExpiredReservationsAsync();
-                await UpdateUserAlarmsAsync();
                 await UpdatePurchaseOrderTransitAlarmsAsync();
                 await UpdatePurchaseOrderExpirationsAsync();
                 await UpdateExpiredCustomerOrdersAsync();
               */
 
-                if (expiredReservationsAlertVisible || alarmsAlertVisible ||
+                if (expiredReservationsAlertVisible || 
                     purchaseAlarmsAlertVisible || expiredPurchasesAlertVisible || expiredCustomerOrdersAlertVisible) { generalAlertVisible = true; }
             }
             finally
@@ -235,8 +228,7 @@ namespace Aldebaran.Web.Pages
         protected async Task GeneralAlertClick()
         {
             generalAlertVisible = false;
-            expiredReservationsAlertVisible = false;
-            alarmsAlertVisible = false;
+            expiredReservationsAlertVisible = false;            
             purchaseAlarmsAlertVisible = false;
             expiredPurchasesAlertVisible = false;
             expiredCustomerOrdersAlertVisible = false;
@@ -245,10 +237,6 @@ namespace Aldebaran.Web.Pages
         protected async Task ReservationAlertClick()
         {
             expiredReservationsAlertVisible = false;
-        }
-        protected async Task AlarmAlertClick()
-        {
-            alarmsAlertVisible = false;
         }
         protected async Task PurchaseAlarmAlertClick()
         {
@@ -328,33 +316,7 @@ namespace Aldebaran.Web.Pages
                 await expiredCustomerOrdersGrid.Reload();
         }
         #endregion
-
-        #region UserAlarms
-        async Task UpdateUserAlarmsAsync(CancellationToken ct = default)
-        {
-            var originalData = await GetDashBoardCache<Models.ViewModels.Alarm>("Alarm");
-
-            var alarmList = await DashBoardService.GetByEmployeeIdAsync(employee.EmployeeId, ct);
-            alarms = await Models.ViewModels.Alarm.GetAlarmsListAsync(alarmList.ToList(), AlarmService, ct);
-            alarmsAlertVisible = !await IsEqual<Models.ViewModels.Alarm>(alarms.OrderBy(o => o.AlarmId).ToList(), originalData.OrderBy(o => o.AlarmId).ToList());
-            await UpdateDashBoardCache<Models.ViewModels.Alarm>("Alarm", alarms);
-            if (alarmsGrid != null)
-                await alarmsGrid.Reload();
-        }
-
-        protected async Task DisableAlarm(Models.ViewModels.Alarm args)
-        {
-            var alertVisible = alarmsAlertVisible;
-
-            if (await DialogService.Confirm("Desea marcar esta alarma como leída?. No volverá a salir en su Home", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Marcar alarma leída") == true)
-            {
-                await VisualizedAlarmService.AddAsync(new VisualizedAlarm { AlarmId = args.AlarmId, EmployeeId = employee.EmployeeId });
-                await UpdateUserAlarmsAsync();
-                alarmsAlertVisible = alertVisible;
-            }
-        }
-        #endregion
-
+                       
         #region PurchaseOrderTransitAlarms
         async Task UpdatePurchaseOrderTransitAlarmsAsync(CancellationToken ct = default)
         {

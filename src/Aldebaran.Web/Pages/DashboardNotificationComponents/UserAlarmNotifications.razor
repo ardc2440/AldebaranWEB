@@ -1,5 +1,47 @@
-﻿<h3>UserAlarmNotifications</h3>
+﻿@using Aldebaran.Web.Models.ViewModels;
+@using Aldebaran.Web.Resources.LocalizedControls;
+@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer ;
+<RadzenCard class="rz-col-12" Style="max-width: 100%">
+    <NotificationTitle TogglePanel="@TogglePanel" AlertVisible="@alarmsAlertVisible" DataUpdate="@GridData_Update" GridTimer="@GridTimer" Title="Alarmas del día"
+                       IsPanelCollapsed="@isPanelCollapsed" Timers="@Timers" DataUpdateOnTimerChange="@GridaData_UpdateOnTimerChange" OnBoolChange="@HandleBoolChange" />
+    <RadzenCard Visible="!isPanelCollapsed">
+        <LocalizedDataGrid Style="height: 100%" PageSize="@pageSize" @ref="alarmsGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" Data="@alarms" TItem="Alarm" IsLoading="@GridTimer.IsLoading">
+            <Columns>
+                <RadzenDataGridColumn TItem="Alarm" Title="Documento" Width="80%">
+                    <Template Context="alarm">
+                        <RadzenLabel>
+                            @alarm.DocumentTypeName Nro. @alarm.DocumentNumber
+                        </RadzenLabel>
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Alarm" Property="CreationDate" Title="Fecha creación" Width="50%">
+                    <Template Context="alarm">
+                        <span>@alarm.CreationDate.ToString(SharedLocalizer["date:format"])</span>
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Alarm" Property="ExecutionDate" Title="Fecha activación" Width="50%">
+                    <Template Context="alarm">
+                        <span>@alarm.ExecutionDate.ToString(SharedLocalizer["date:format"])</span>
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Alarm" Property="AlarmMessage" Title="Mensaje" Width="80%"></RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Alarm" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                    <Template Context="alarm">
+                        <RadzenButton Icon="assignment_turned_in" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => DisableAlarm(alarm))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Marcar alarma como leída", new TooltipOptions(){ Position = TooltipPosition.Left }))">
+                        </RadzenButton>
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+        </LocalizedDataGrid>
+    </RadzenCard>
+</RadzenCard>
 
 @code {
+    private bool isPanelCollapsed = true;
+    private string ToggleIcon => isPanelCollapsed ? "expand_more" : "expand_less";
 
+    private void TogglePanel()
+    {
+        isPanelCollapsed = !isPanelCollapsed;
+    }
 }
