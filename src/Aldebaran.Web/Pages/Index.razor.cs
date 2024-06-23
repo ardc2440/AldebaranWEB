@@ -66,13 +66,7 @@ namespace Aldebaran.Web.Pages
         #endregion
 
         #region Global Variables
-
-        protected List<MinimumQuantityArticle> minimumQuantityArticles = new List<MinimumQuantityArticle>();
-        protected LocalizedDataGrid<MinimumQuantityArticle> minimumQuantityArticlesGrid;
-
-        protected List<OutOfStockArticle> outOfStockArticles = new List<OutOfStockArticle>();
-        protected LocalizedDataGrid<OutOfStockArticle> outOfStockArticlesGrid;
-
+                
         protected List<CustomerReservation> expiredReservations = new List<CustomerReservation>();
         protected LocalizedDataGrid<CustomerReservation> expiredReservationsGrid;
 
@@ -103,8 +97,6 @@ namespace Aldebaran.Web.Pages
         protected StatusDocumentType pendingStatusOrder;
 
         protected bool generalAlertVisible = false;
-        protected bool minimumAlertVisible = false;
-        protected bool outOfStockAlertVisible = false;
         protected bool expiredReservationsAlertVisible = false;
         protected bool alarmsAlertVisible = false;
         protected bool purchaseAlarmsAlertVisible = false;
@@ -202,16 +194,15 @@ namespace Aldebaran.Web.Pages
                 generalAlertVisible = false;
                 GridTimer.LastUpdate = DateTime.Now;
                 Console.WriteLine($"{GridTimer.LastUpdate}");
-                detailInTransit = await DashBoardService.GetTransitDetailOrdersAsync(pendingStatusOrder.StatusDocumentTypeId);                
-                //await UpdateMinimumQuantitiesAsync(detailInTransit.ToList(), (await DashBoardService.GetAllReferencesWithMinimumQuantityAsync()).ToList());
-                /*await UpdateItemsOutOfStockAsync(detailInTransit.ToList(), (await DashBoardService.GetAllOutOfStockReferences()).ToList());
+              /*
                 await UpdateExpiredReservationsAsync();
                 await UpdateUserAlarmsAsync();
                 await UpdatePurchaseOrderTransitAlarmsAsync();
                 await UpdatePurchaseOrderExpirationsAsync();
-                await UpdateExpiredCustomerOrdersAsync();*/
+                await UpdateExpiredCustomerOrdersAsync();
+              */
 
-                if (minimumAlertVisible || outOfStockAlertVisible || expiredReservationsAlertVisible || alarmsAlertVisible ||
+                if (expiredReservationsAlertVisible || alarmsAlertVisible ||
                     purchaseAlarmsAlertVisible || expiredPurchasesAlertVisible || expiredCustomerOrdersAlertVisible) { generalAlertVisible = true; }
             }
             finally
@@ -244,22 +235,13 @@ namespace Aldebaran.Web.Pages
         protected async Task GeneralAlertClick()
         {
             generalAlertVisible = false;
-            minimumAlertVisible = false;
-            outOfStockAlertVisible = false;
             expiredReservationsAlertVisible = false;
             alarmsAlertVisible = false;
             purchaseAlarmsAlertVisible = false;
             expiredPurchasesAlertVisible = false;
             expiredCustomerOrdersAlertVisible = false;
         }
-        protected async Task MinimumAlertClick()
-        {
-            minimumAlertVisible = false;
-        }
-        protected async Task StockAlertClick()
-        {
-            outOfStockAlertVisible = false;
-        }
+        
         protected async Task ReservationAlertClick()
         {
             expiredReservationsAlertVisible = false;
@@ -315,31 +297,6 @@ namespace Aldebaran.Web.Pages
 
             return true;
         }
-
-        #region MinimumQuantities
-        async Task UpdateMinimumQuantitiesAsync(List<PurchaseOrderDetail> mydetailInTransit, List<ItemReference> itemReferences)
-        {
-            var originalData = await GetDashBoardCache<MinimumQuantityArticle>("MinimumQuantityArticle");
-
-            minimumQuantityArticles = MinimumQuantityArticle.GetMinimuQuantityArticleList(itemReferences, mydetailInTransit);
-            minimumAlertVisible = !await IsEqual<MinimumQuantityArticle>(minimumQuantityArticles.OrderBy(o => o.ArticleName).ToList(), originalData.OrderBy(o => o.ArticleName).ToList());
-            await UpdateDashBoardCache<MinimumQuantityArticle>("MinimumQuantityArticle", minimumQuantityArticles);
-            if (minimumQuantityArticlesGrid != null)
-                await minimumQuantityArticlesGrid.Reload();
-        }
-        #endregion
-
-        #region ItemsOutOfStock
-        async Task UpdateItemsOutOfStockAsync(List<PurchaseOrderDetail> mydetailInTransit, List<ItemReference> itemReferences)
-        {
-            var originalData = await GetDashBoardCache<OutOfStockArticle>("OutOfStockArticle");
-            outOfStockArticles = OutOfStockArticle.GetOutOfStockArticleList(itemReferences, mydetailInTransit);
-            outOfStockAlertVisible = !await IsEqual<OutOfStockArticle>(outOfStockArticles.OrderBy(o => o.ArticleName).ToList(), originalData.OrderBy(o => o.ArticleName).ToList());
-            await UpdateDashBoardCache<OutOfStockArticle>("OutOfStockArticle", outOfStockArticles);
-            if (outOfStockArticlesGrid != null)
-                await outOfStockArticlesGrid.Reload();
-        }
-        #endregion
 
         #region ExpiredReservations
         async Task UpdateExpiredReservationsAsync(CancellationToken ct = default)

@@ -21,8 +21,10 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         [Parameter]
         public GridTimer GridTimer { get; set; }
         [Parameter]
-        public List<DataTimer> Timers { get; set; }                
-        
+        public List<DataTimer> Timers { get; set; }
+        [Parameter]
+        public string Title { get; set; }
+
         protected async Task AlertClick()
         {
             AlertVisible = false;

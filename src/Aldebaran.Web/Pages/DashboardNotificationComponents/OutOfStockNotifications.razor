@@ -1,5 +1,46 @@
-﻿<h3>OutOfStockNotifications</h3>
+﻿@using Aldebaran.Web.Models.ViewModels;
+@using Aldebaran.Web.Resources.LocalizedControls;
+@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer ;
 
+<RadzenCard class="rz-col-12" Style="max-width: 100%">
+    <NotificationTitle TogglePanel="@TogglePanel" AlertVisible="@outOfStockAlertVisible" DataUpdate="@GridData_Update" GridTimer="@GridTimer" Title="Sobrepaso de cantidades mínimas"
+                       IsPanelCollapsed="@isPanelCollapsed" Timers="@Timers" DataUpdateOnTimerChange="@GridaData_UpdateOnTimerChange" OnBoolChange="@HandleBoolChange" />
+    <RadzenCard Visible="!isPanelCollapsed">
+        <LocalizedDataGrid Style="height: 100%" PageSize="@pageSize" @ref="outOfStockArticlesGrid" AllowFiltering="true" AllowPaging="true" Title="Referencias sin stock"
+                           AllowSorting="true" ShowPagingSummary="true" Data="@outOfStockArticles" TItem="OutOfStockArticle" IsLoading="@(GridTimer.IsLoading || isLoadingInProgress)">
+            <Columns>
+                <RadzenDataGridColumn TItem="OutOfStockArticle" Property="ArticleName" Title="Referencia" Width="80%" />
+
+                <RadzenDataGridColumn TItem="OutOfStockArticle" Title="Inventario" Width="30%" Filterable="false">
+                    <Template Context="detail">
+                        @detail.AvailableQuantity.ToString("N0")
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="OutOfStockArticle" Title="En Tránsito" Width="30%" Filterable="false">
+                    <Template Context="detail">
+                        @detail.InTransitQuantity.ToString("N0")
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="OutOfStockArticle" Title="Reservado" Width="30%" Filterable="false">
+                    <Template Context="detail">
+                        @detail.ReservedQuantity.ToString("N0")
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="OutOfStockArticle" Title="Pedido" Width="30%" Filterable="false">
+                    <Template Context="detail">
+                        @detail.OrderedQuantity.ToString("N0")
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+        </LocalizedDataGrid>
+    </RadzenCard>
+</RadzenCard>
 @code {
+    private bool isPanelCollapsed = true;
+    private string ToggleIcon => isPanelCollapsed ? "expand_more" : "expand_less";
 
+    private void TogglePanel()
+    {
+        isPanelCollapsed = !isPanelCollapsed;
+    }
 }

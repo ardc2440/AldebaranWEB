@@ -2,7 +2,6 @@
 @using Aldebaran.Web.Resources.LocalizedControls;
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer ;
 
-<PageTitle>Notificaciones</PageTitle>
 <RadzenCard class="rz-col-12" Style="max-width: 100%">
     <NotificationTitle TogglePanel="@TogglePanel" AlertVisible="@minimumAlertVisible" DataUpdate="@GridData_Update" GridTimer="@GridTimer" 
                        IsPanelCollapsed="@isPanelCollapsed" Timers="@Timers" DataUpdateOnTimerChange="@GridaData_UpdateOnTimerChange" OnBoolChange="@HandleBoolChange" />
