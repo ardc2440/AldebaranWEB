@@ -45,6 +45,13 @@
     <RadzenRow class="mb-2">
         <CustomerOrderExpirationNotifications />
     </RadzenRow>
+    <RadzenRow class="mb-2">
+        <PurchaseOrderExpirationNotifications />
+    </RadzenRow>
+    <RadzenRow class="mb-2">
+        <PurchaseOrderTransitAlarmNotifications />
+    </RadzenRow>
+
 
     <RadzenPanel style="border: 2px solid rgba(0,0,0,.08);">
         
@@ -112,73 +119,6 @@
                     </Template>
                 </LocalizedDataGrid>
             </RadzenCard>
-        </RadzenPanel>
-        <RadzenPanel style="border: 2px solid rgba(0,0,0,.08);">
-            <RadzenCard>
-                <RadzenRow class="mb-2">
-                    <RadzenColumn Size="12" class="d-flex align-items-end">
-                        <RadzenImage Click="@ExpiredPurchaseAlertClick" Visible="@expiredPurchasesAlertVisible" Path="images/alert.gif" style="width: 30px"></RadzenImage>
-                        <RadzenText Text="Ordenes próximas a su vencimiento" TextStyle="Radzen.Blazor.TextStyle.H6" TagName="Radzen.Blazor.TagName.Auto" class="p-0 m-0"></RadzenText>
-                    </RadzenColumn>
-                </RadzenRow>
-                <LocalizedDataGrid RowExpand=@GetExpiredPurchaseOrderChildData ExpandMode="DataGridExpandMode.Single" RowRender="@RowRender" CellRender="@CellRender" Style="height: 100%" PageSize="@pageSize" @ref="purchaseOrderExpirationsGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" Data="@purchaseOrderExpirations" TItem="Aldebaran.Application.Services.Models.PurchaseOrder" IsLoading="@GridTimer.IsLoading">
-                    <Columns>
-                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrder" Property="OrderNumber" Title="Número de orden" Width="65%" />
-                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrder" Property="ExpectedReceiptDate" Title="Fecha est. recibo" Width="70%">
-                            <Template Context="purchasOrder">
-                                <span>@purchasOrder.ExpectedReceiptDate.ToString(SharedLocalizer["date:format"])</span>
-                            </Template>
-                        </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrder" Title="Dias restantes" Width="60%">
-                            <Template Context="purchasOrder">
-                                @{
-                                    var days = (int)(@purchasOrder.ExpectedReceiptDate - System.DateTime.Today).Days;
-                                }
-                                <span>@days dias</span>
-                            </Template>
-                        </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrder" Property="Provider.ProviderName" Title="Proveedor" Width="80%"></RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrder" Property="ShipmentForwarderAgentMethod.ForwarderAgent.Forwarder.ForwarderName" Title="Transportadora" Width="80%"></RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrder" Property="ShipmentForwarderAgentMethod.ForwarderAgent.ForwarderAgentName" Title="Agente" Width="80%"></RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrder" Property="ShipmentForwarderAgentMethod.ShipmentMethod.ShipmentMethodName" Title="Método de envio" Width="80%"></RadzenDataGridColumn>
-                    </Columns>
-                    <Template Context="purchaseOrder">
-                        @if (CanExpand(purchaseOrder))
-                        {
-                            <RadzenStack Class="rz-my-8">
-                                <RadzenRow Gap="0" AlignItems="AlignItems.Center">
-                                    <RadzenColumn Size="12" SizeMD="6">
-                                        <RadzenText Visible="@(purchaseOrderExpirations != null)" Text="Pedidos con posible afectacíon" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
-                                    </RadzenColumn>
-                                </RadzenRow>
-                                <LocalizedDataGrid Visible="@(purchaseOrderExpirations != null)" @ref=customerOrdersAffectedGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30}) Data="@customerOrdersAffected" TItem="Aldebaran.Application.Services.Models.CustomerOrderAffectedByPurchaseOrderUpdate">
-                                    <Columns>
-                                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderAffectedByPurchaseOrderUpdate" Property="CustomerOrder.Customer.CustomerName" Title="Cliente"></RadzenDataGridColumn>
-                                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderAffectedByPurchaseOrderUpdate" Title="Fecha pedido">
-                                            <Template Context="customerOrder">
-                                                <span>@customerOrder.OrderDate.ToString(SharedLocalizer["date:format"])</span>
-                                            </Template>
-                                        </RadzenDataGridColumn>
-                                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderAffectedByPurchaseOrderUpdate" Title="No. Pedido">
-                                            <Template Context="customerOrder">
-                                                <RadzenLink href="javascript:void(0);" @onclick="@(async (args) => await CustomerOrderDetailInfo(customerOrder.CustomerOrderId))">
-                                                    @customerOrder.OrderNumber
-                                                </RadzenLink>
-                                            </Template>
-                                        </RadzenDataGridColumn>
-                                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderAffectedByPurchaseOrderUpdate" Title="Fecha pactada de entrega">
-                                            <Template Context="customerOrder">
-                                                <span>@customerOrder.EstimatedDeliveryDate.ToString(SharedLocalizer["date:format"])</span>
-                                            </Template>
-                                        </RadzenDataGridColumn>
-                                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderAffectedByPurchaseOrderUpdate" Property="Status" Title="Estado"></RadzenDataGridColumn>
-                                    </Columns>
-                                </LocalizedDataGrid>
-                            </RadzenStack>
-                        }
-                    </Template>
-                </LocalizedDataGrid>
-            </RadzenCard>
-        </RadzenPanel>        
+        </RadzenPanel>               
     </RadzenPanel>
 }

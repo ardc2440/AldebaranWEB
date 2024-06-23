@@ -33,9 +33,6 @@ namespace Aldebaran.Web.Pages
         public IPurchaseOrderNotificationService PurchaseOrderNotificationService { get; set; }
 
         [Inject]
-        public IPurchaseOrderService PurchaseOrderService { get; set; }
-
-        [Inject]
         public IDashBoardService DashBoardService { get; set; }
 
         [Inject]
@@ -70,14 +67,7 @@ namespace Aldebaran.Web.Pages
         protected IEnumerable<PurchaseOrderNotification> purchaseOrderNotifications = new List<PurchaseOrderNotification>();
         protected LocalizedDataGrid<PurchaseOrderNotification> PurchaseOrderNotificationsDataGrid;
 
-        protected IEnumerable<PurchaseOrder> purchaseOrderExpirations = new List<PurchaseOrder>();
-        protected LocalizedDataGrid<PurchaseOrder> purchaseOrderExpirationsGrid;
-
-        protected IEnumerable<CustomerOrderAffectedByPurchaseOrderUpdate> customerOrdersAffected = new List<CustomerOrderAffectedByPurchaseOrderUpdate>();
-        protected LocalizedDataGrid<CustomerOrderAffectedByPurchaseOrderUpdate> customerOrdersAffectedGrid;
-
-        protected IEnumerable<PurchaseOrderDetail> detailInTransit = new List<PurchaseOrderDetail>();
-
+        
         protected int pageSize = 7;
         protected Employee employee;
         protected DocumentType orderDocumentType;
@@ -87,8 +77,6 @@ namespace Aldebaran.Web.Pages
 
         
         protected bool purchaseAlarmsAlertVisible = false;
-        protected bool expiredPurchasesAlertVisible = false;
-        protected bool expiredCustomerOrdersAlertVisible = false;
 
         List<DataTimer> Timers;
         readonly GridTimer GridTimer = new GridTimer("Dahsboard-GridTimer");
@@ -183,12 +171,10 @@ namespace Aldebaran.Web.Pages
                 Console.WriteLine($"{GridTimer.LastUpdate}");
               /*
                 
-                await UpdatePurchaseOrderTransitAlarmsAsync();
-                await UpdatePurchaseOrderExpirationsAsync();
-                await UpdateExpiredCustomerOrdersAsync();
+                await UpdatePurchaseOrderTransitAlarmsAsync();                
               */
 
-                if (purchaseAlarmsAlertVisible || expiredPurchasesAlertVisible || expiredCustomerOrdersAlertVisible) { generalAlertVisible = true; }
+                if (purchaseAlarmsAlertVisible) { generalAlertVisible = true; }
             }
             finally
             {
@@ -215,8 +201,6 @@ namespace Aldebaran.Web.Pages
             generalAlertVisible = false;
                       
             purchaseAlarmsAlertVisible = false;
-            expiredPurchasesAlertVisible = false;
-            expiredCustomerOrdersAlertVisible = false;
         }
         
        
@@ -224,15 +208,7 @@ namespace Aldebaran.Web.Pages
         {
             purchaseAlarmsAlertVisible = false;
         }
-        protected async Task ExpiredPurchaseAlertClick()
-        {
-            expiredPurchasesAlertVisible = false;
-        }
-        protected async Task ExpiredCustomerOrderAlertClick()
-        {
-            expiredCustomerOrdersAlertVisible = false;
-        }
-
+       
         internal static async Task<bool> IsEqual<T>(List<T> first, List<T> second) where T : class
         {
             if (first == null || second == null || first.Count != second.Count)
@@ -267,13 +243,7 @@ namespace Aldebaran.Web.Pages
 
             return true;
         }
-
-        public async Task CustomerOrderDetailInfo(int customerOrderId)
-        {
-            var reasonResult = await DialogService.OpenAsync<CustomerOrderPages.CustomerOrderDetails>("Detalles del pedido", new Dictionary<string, object> { { "CustomerOrderId", customerOrderId } }, options: new DialogOptions { CloseDialogOnOverlayClick = false, Width = "800px" });
-            if (reasonResult == null)
-                return;
-        }
+                
 
         #region ExpiredCustomerOrders
 
@@ -313,58 +283,12 @@ namespace Aldebaran.Web.Pages
         }
         #endregion
 
-        #region PurchaseOrderExpirations
-
-        public async Task UpdatePurchaseOrderExpirationsAsync(CancellationToken ct = default)
+        public async Task CustomerOrderDetailInfo(int customerOrderId)
         {
-            var originalData = await GetDashBoardCache<PurchaseOrder>("PurchaseOrder");
-
-            purchaseOrderExpirations = await DashBoardService.GetPurchaseOrderExpirationsAsync(Settings.Value.PurchaseOrderWhiteFlag, ct);
-            expiredPurchasesAlertVisible = !await IsEqual<PurchaseOrder>(purchaseOrderExpirations.OrderBy(o => o.PurchaseOrderId).ToList(), originalData.OrderBy(o => o.PurchaseOrderId).ToList());
-            await UpdateDashBoardCache<PurchaseOrder>("PurchaseOrder", purchaseOrderExpirations.ToList());
-            if (purchaseOrderExpirationsGrid != null)
-                await purchaseOrderExpirationsGrid.Reload();
+            var reasonResult = await DialogService.OpenAsync<CustomerOrderPages.CustomerOrderDetails>("Detalles del pedido", new Dictionary<string, object> { { "CustomerOrderId", customerOrderId } }, options: new DialogOptions { CloseDialogOnOverlayClick = false, Width = "800px" });
+            if (reasonResult == null)
+                return;
         }
-
-        protected async Task GetExpiredPurchaseOrderChildData(PurchaseOrder args)
-        {
-            var customerOrderResult = await PurchaseOrderService.GetAffectedCustomerOrders(args.PurchaseOrderId);
-
-            if (customerOrderResult != null)
-            {
-                customerOrdersAffected = customerOrderResult.ToList();
-            }
-        }
-
-        protected bool CanExpand(PurchaseOrder data)
-        {
-            var days = (int)(data.ExpectedReceiptDate - System.DateTime.Today).Days;
-
-            return days <= Settings.Value.PurchaseOrderRedFlag;
-        }
-
-        protected async void RowRender(RowRenderEventArgs<PurchaseOrder> args)
-        {
-            args.Expandable = CanExpand(args.Data);
-        }
-
-        protected async void CellRender(DataGridCellRenderEventArgs<PurchaseOrder> args)
-        {
-            var days = (int)(args.Data.ExpectedReceiptDate - System.DateTime.Today).Days;
-            if (days <= Settings.Value.PurchaseOrderRedFlag)
-            {
-                args.Attributes.Add("style", $"background-color:#ffa7a7");
-            }
-            else
-            {
-                if (days <= Settings.Value.PurchaseOrderYellowFlag)
-                {
-                    args.Attributes.Add("style", $"background-color:#ffff58");
-                }
-            }
-        }
-        #endregion
-
         #endregion
     }
 }
