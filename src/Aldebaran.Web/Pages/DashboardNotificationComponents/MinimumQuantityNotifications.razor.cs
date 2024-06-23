@@ -2,7 +2,6 @@
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Resources.LocalizedControls;
-using Aldebaran.Infraestructure.Common.Utils;
 using Microsoft.AspNetCore.Components;
 using Aldebaran.Infraestructure.Common.Extensions;
 using Microsoft.Extensions.Caching.Memory;
@@ -13,17 +12,19 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
 {
     public partial class MinimumQuantityNotifications
     {
-        #region Injections
+        #region Injections       
 
         [Inject]
         protected SecurityService Security { get; set; }
 
         [Inject]
-        public IDashBoardService DashBoardService { get; set; }
-        
-        [Inject]
         private IMemoryCache MemoryCache { get; set; }
 
+        private static MemoryCacheEntryOptions _cacheEntryOptions = new MemoryCacheEntryOptions { SlidingExpiration = TimeSpan.FromDays(1) };
+
+        [Inject]
+        public IDashBoardService DashBoardService { get; set; }
+        
         [Inject]
         public ITimerPreferenceService TimerPreferenceService { get; set; }
 
@@ -32,6 +33,9 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
 
         [Inject]
         protected NotificationService NotificationService { get; set; }
+
+        [Inject]
+        protected ICacheHelper CacheHelper { get; set; }
 
         #endregion
 
@@ -46,9 +50,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         protected int pageSize = 7;
         readonly GridTimer GridTimer = new GridTimer("MinimumQuantity-GridTimer");
         List<DataTimer> Timers;
-
-        private static MemoryCacheEntryOptions _cacheEntryOptions = new MemoryCacheEntryOptions { SlidingExpiration = TimeSpan.FromDays(1) };
-
+                
         protected List<MinimumQuantityArticle> minimumQuantityArticles = new List<MinimumQuantityArticle>();
         protected LocalizedDataGrid<MinimumQuantityArticle> minimumQuantityArticlesGrid;
 
@@ -153,6 +155,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         {
             MemoryCache.Set(GetCacheKey(key), list, _cacheEntryOptions);
         }
+
         #endregion
 
         async Task UpdateMinimumQuantitiesAsync(List<PurchaseOrderDetail> referencesInTransit, List<ItemReference> references)
@@ -170,7 +173,6 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         {
             minimumAlertVisible = newValue;
         }
-
         #endregion
     }
 }

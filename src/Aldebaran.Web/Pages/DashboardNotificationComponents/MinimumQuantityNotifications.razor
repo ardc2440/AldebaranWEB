@@ -3,14 +3,13 @@
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer ;
 
 <PageTitle>Notificaciones</PageTitle>
-<LoadingData IsLoadingData="@isLoadingInProgress" />
-
 <RadzenCard class="rz-col-12" Style="max-width: 100%">
     <NotificationTitle TogglePanel="@TogglePanel" AlertVisible="@minimumAlertVisible" DataUpdate="@GridData_Update" GridTimer="@GridTimer" 
                        IsPanelCollapsed="@isPanelCollapsed" Timers="@Timers" DataUpdateOnTimerChange="@GridaData_UpdateOnTimerChange" OnBoolChange="@HandleBoolChange" />
     
     <RadzenCard Visible="!isPanelCollapsed">
-        <LocalizedDataGrid PageSize="@pageSize" @ref="minimumQuantityArticlesGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" Data="@minimumQuantityArticles" TItem="MinimumQuantityArticle" IsLoading="@GridTimer.IsLoading">
+        <LocalizedDataGrid PageSize="@pageSize" @ref="minimumQuantityArticlesGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true" 
+                           ShowPagingSummary="true" Data="@minimumQuantityArticles" TItem="MinimumQuantityArticle" IsLoading="@(isLoadingInProgress||GridTimer.IsLoading)">
             <Columns>
                 <RadzenDataGridColumn TItem="MinimumQuantityArticle" Property="ArticleName" Title="Referencia" Width="80%" />
                 <RadzenDataGridColumn TItem="MinimumQuantityArticle" Title="Cant. Mínima" Width="30%" Filterable="false">
@@ -49,5 +48,5 @@
     private void TogglePanel()
     {
         isPanelCollapsed = !isPanelCollapsed;
-    }
+    }   
 }

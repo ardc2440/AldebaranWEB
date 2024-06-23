@@ -105,6 +105,7 @@ namespace Aldebaran.Web.Extensions
             builder.Services.AddLocalization();
             builder.Services.AddTransient<ISharedStringLocalizer, SharedStringLocalizer>();
             builder.Services.AddTransient<IExportHelper, ExportHelper>();
+            builder.Services.AddTransient<ICacheHelper, CacheHelper>();
             builder.Services.AddSingleton(AutoMapperConfiguration.Configure());
             builder.Services.AddTransient<IFileBytesGeneratorService, FileBytesGeneratorService>();
             builder.Services.AddTransient<ITimerPreferenceService, TimerPreferenceService>();            
