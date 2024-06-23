@@ -174,9 +174,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         }
 
         #endregion
-
-        void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
-
+                
         public async Task UpdatePurchaseOrderExpirationsAsync(CancellationToken ct = default)
         {
             var originalData = await GetCache<PurchaseOrder>("PurchaseOrder");
