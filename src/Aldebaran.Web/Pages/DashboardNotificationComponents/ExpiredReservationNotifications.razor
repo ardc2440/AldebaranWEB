@@ -1,5 +1,41 @@
-﻿<h3>ExpiredReservationNotifications</h3>
+﻿@using Aldebaran.Web.Models.ViewModels;
+@using Aldebaran.Web.Resources.LocalizedControls;
+@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer ;
 
+<RadzenCard class="rz-col-12" Style="max-width: 100%">
+    <NotificationTitle TogglePanel="@TogglePanel" AlertVisible="@expiredReservationsAlertVisible" DataUpdate="@GridData_Update" GridTimer="@GridTimer" Title="Reservas vencidas"
+                       IsPanelCollapsed="@isPanelCollapsed" Timers="@Timers" DataUpdateOnTimerChange="@GridaData_UpdateOnTimerChange" OnBoolChange="@HandleBoolChange" />
+    <RadzenCard Visible="!isPanelCollapsed">
+        <LocalizedDataGrid Style="height: 100%" PageSize="@pageSize" @ref="expiredReservationsGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" Data="@expiredReservations" TItem="Aldebaran.Application.Services.Models.CustomerReservation" IsLoading="@GridTimer.IsLoading">
+            <Columns>
+                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservation" Property="ReservationNumber" Title="No. reserva" Width="40%"></RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservation" Property="Customer.CustomerName" Title="Cliente" Width="80%"></RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservation" Property="ReservationDate" Title="Fecha reserva" Width="50%">
+                    <Template Context="customerReservation">
+                        <span>@customerReservation.ReservationDate.ToString(SharedLocalizer["date:format"])</span>
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservation" Property="ExpirationDate" Title="Fecha expiración" Width="50%">
+                    <Template Context="customerReservation">
+                        <span>@customerReservation.ExpirationDate.ToString(SharedLocalizer["date:format"])</span>
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservation" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                    <Template Context="customerReservation">
+                        <RadzenButton Icon="document_scanner" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => OpenCustomerReservation(customerReservation))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Consultar reserva", new TooltipOptions(){ Position = TooltipPosition.Left }))">
+                        </RadzenButton>
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+        </LocalizedDataGrid>
+    </RadzenCard>
+</RadzenCard>
 @code {
+    private bool isPanelCollapsed = true;
+    private string ToggleIcon => isPanelCollapsed ? "expand_more" : "expand_less";
 
+    private void TogglePanel()
+    {
+        isPanelCollapsed = !isPanelCollapsed;
+    }
 }

@@ -64,9 +64,6 @@ namespace Aldebaran.Web.Pages
 
         #region Global Variables
                 
-        protected List<CustomerReservation> expiredReservations = new List<CustomerReservation>();
-        protected LocalizedDataGrid<CustomerReservation> expiredReservationsGrid;
-        
         protected IEnumerable<PurchaseOrderTransitAlarm> purchaseOrderTransitAlarms = new List<PurchaseOrderTransitAlarm>();
         protected LocalizedDataGrid<PurchaseOrderTransitAlarm> purchaseOrderTransitAlarmsGrid;
 
@@ -91,7 +88,7 @@ namespace Aldebaran.Web.Pages
         protected StatusDocumentType pendingStatusOrder;
 
         protected bool generalAlertVisible = false;
-        protected bool expiredReservationsAlertVisible = false;
+
         
         protected bool purchaseAlarmsAlertVisible = false;
         protected bool expiredPurchasesAlertVisible = false;
@@ -189,14 +186,13 @@ namespace Aldebaran.Web.Pages
                 GridTimer.LastUpdate = DateTime.Now;
                 Console.WriteLine($"{GridTimer.LastUpdate}");
               /*
-                await UpdateExpiredReservationsAsync();
+                
                 await UpdatePurchaseOrderTransitAlarmsAsync();
                 await UpdatePurchaseOrderExpirationsAsync();
                 await UpdateExpiredCustomerOrdersAsync();
               */
 
-                if (expiredReservationsAlertVisible || 
-                    purchaseAlarmsAlertVisible || expiredPurchasesAlertVisible || expiredCustomerOrdersAlertVisible) { generalAlertVisible = true; }
+                if (purchaseAlarmsAlertVisible || expiredPurchasesAlertVisible || expiredCustomerOrdersAlertVisible) { generalAlertVisible = true; }
             }
             finally
             {
@@ -228,16 +224,13 @@ namespace Aldebaran.Web.Pages
         protected async Task GeneralAlertClick()
         {
             generalAlertVisible = false;
-            expiredReservationsAlertVisible = false;            
+                      
             purchaseAlarmsAlertVisible = false;
             expiredPurchasesAlertVisible = false;
             expiredCustomerOrdersAlertVisible = false;
         }
         
-        protected async Task ReservationAlertClick()
-        {
-            expiredReservationsAlertVisible = false;
-        }
+       
         protected async Task PurchaseAlarmAlertClick()
         {
             purchaseAlarmsAlertVisible = false;
@@ -286,23 +279,7 @@ namespace Aldebaran.Web.Pages
             return true;
         }
 
-        #region ExpiredReservations
-        async Task UpdateExpiredReservationsAsync(CancellationToken ct = default)
-        {
-            var originalData = await GetDashBoardCache<CustomerReservation>("CustomerReservation");
-
-            expiredReservations = (await DashBoardService.GetExpiredReservationsAsync(ct)).ToList();
-            expiredReservationsAlertVisible = !await IsEqual<CustomerReservation>(expiredReservations.OrderBy(o => o.CustomerReservationId).ToList(), originalData.OrderBy(o => o.CustomerReservationId).ToList());
-            await UpdateDashBoardCache<CustomerReservation>("CustomerReservation", expiredReservations);
-            if (expiredReservationsGrid != null)
-                await expiredReservationsGrid.Reload();
-        }
-
-        protected async Task OpenCustomerReservation(CustomerReservation args)
-        {
-            NavigationManager.NavigateTo("send-to-customer-order/view/" + args.CustomerReservationId);
-        }
-        #endregion
+       
 
         #region ExpiredCustomerOrders
         async Task UpdateExpiredCustomerOrdersAsync(CancellationToken ct = default)

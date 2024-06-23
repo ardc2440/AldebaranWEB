@@ -39,56 +39,12 @@
     <RadzenRow class="mb-2">
         <UserAlarmNotifications />
     </RadzenRow>
+    <RadzenRow class="mb-2">
+        <ExpiredReservationNotifications />
+    </RadzenRow>
+
     <RadzenPanel style="border: 2px solid rgba(0,0,0,.08);">
-        <RadzenPanel style="border: 2px solid rgba(0,0,0,.08);">
-            <RadzenSplitter Orientation="Orientation.Horizontal">
-                <RadzenSplitterPane Size="50%" Min="20%" Max="80%">
-                    
-                </RadzenSplitterPane>
-                <RadzenSplitterPane>
-                    
-                </RadzenSplitterPane>
-            </RadzenSplitter>
-        </RadzenPanel>
-        <RadzenPanel style="border: 2px solid rgba(0,0,0,.08);">
-            <RadzenSplitter Orientation="Orientation.Horizontal">
-                <RadzenSplitterPane Size="50%" Min="20%" Max="80%">
-                    <RadzenCard>
-                        <RadzenRow class="mb-2">
-                            <RadzenColumn Size="12" class="d-flex align-items-end">
-                                <RadzenImage Click="@ReservationAlertClick" Visible="@expiredReservationsAlertVisible" Path="images/alert.gif" style="width: 30px"></RadzenImage>
-                                <RadzenText Text="Reservas vencidas" TextStyle="Radzen.Blazor.TextStyle.H6" TagName="Radzen.Blazor.TagName.Auto" class="p-0 m-0"></RadzenText>
-                            </RadzenColumn>
-                        </RadzenRow>
-                        <LocalizedDataGrid Style="height: 100%" PageSize="@pageSize" @ref="expiredReservationsGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" Data="@expiredReservations" TItem="Aldebaran.Application.Services.Models.CustomerReservation" IsLoading="@GridTimer.IsLoading">
-                            <Columns>
-                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservation" Property="ReservationNumber" Title="No. reserva" Width="40%"></RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservation" Property="Customer.CustomerName" Title="Cliente" Width="80%"></RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservation" Property="ReservationDate" Title="Fecha reserva" Width="50%">
-                                    <Template Context="customerReservation">
-                                        <span>@customerReservation.ReservationDate.ToString(SharedLocalizer["date:format"])</span>
-                                    </Template>
-                                </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservation" Property="ExpirationDate" Title="Fecha expiración" Width="50%">
-                                    <Template Context="customerReservation">
-                                        <span>@customerReservation.ExpirationDate.ToString(SharedLocalizer["date:format"])</span>
-                                    </Template>
-                                </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservation" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
-                                    <Template Context="customerReservation">
-                                        <RadzenButton Icon="document_scanner" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => OpenCustomerReservation(customerReservation))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Consultar reserva", new TooltipOptions(){ Position = TooltipPosition.Left }))">
-                                        </RadzenButton>
-                                    </Template>
-                                </RadzenDataGridColumn>
-                            </Columns>
-                        </LocalizedDataGrid>
-                    </RadzenCard>
-                </RadzenSplitterPane>
-                <RadzenSplitterPane>                    
-                        
-                </RadzenSplitterPane>
-            </RadzenSplitter>
-        </RadzenPanel>
+        
         <RadzenPanel style="border: 2px solid rgba(0,0,0,.08);">
             <RadzenCard>
                 <RadzenRow class="mb-2">
