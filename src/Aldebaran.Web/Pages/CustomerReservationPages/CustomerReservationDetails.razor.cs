@@ -3,14 +3,14 @@ using Aldebaran.Application.Services.Models;
 using Microsoft.AspNetCore.Components;
 using Radzen;
 
-namespace Aldebaran.Web.Pages.CustomerOrderPages
+namespace Aldebaran.Web.Pages.CustomerReservationPages
 {
-    public partial class CustomerOrderDetails
+    public partial class CustomerReservationDetails
     {
         #region Injections
 
         [Inject]
-        protected ILogger<CustomerOrderDetails> Logger { get; set; }
+        protected ILogger<CustomerReservationDetails> Logger { get; set; }
 
         [Inject]
         protected NavigationManager NavigationManager { get; set; }
@@ -31,10 +31,10 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected IEmployeeService EmployeeService { get; set; }
 
         [Inject]
-        protected ICustomerOrderService CustomerOrderService { get; set; }
+        protected ICustomerReservationService CustomerReservationService { get; set; }
 
         [Inject]
-        protected ICustomerOrderDetailService CustomerOrderDetailService { get; set; }
+        protected ICustomerReservationDetailService CustomerReservationDetailService { get; set; }
 
         [Inject]
         protected IReferencesWarehouseService ReferencesWarehouseService { get; set; }
@@ -47,14 +47,14 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         #region Parameters
         [Parameter]
-        public int CustomerOrderId { get; set; }
+        public int CustomerReservationId { get; set; }
 
         #endregion
 
         #region Global Variables
-        protected CustomerOrder customerOrder;
+        protected CustomerReservation customerReservation;
         protected DocumentType documentType;
-        protected ICollection<CustomerOrderDetail> customerOrderDetails;
+        protected ICollection<CustomerReservationDetail> customerReservationDetails;
         protected ICollection<ReferencesWarehouse> referenceWarehouses;
         protected bool isLoadingInProgress;
         #endregion
@@ -66,17 +66,17 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             {
                 isLoadingInProgress = true;
                 await Task.Yield();
-                customerOrder = await CustomerOrderService.FindAsync(CustomerOrderId);
-                customerOrderDetails = (await CustomerOrderDetailService.GetByCustomerOrderIdAsync(customerOrder.CustomerOrderId)).ToList();
+                customerReservation = await CustomerReservationService.FindAsync(CustomerReservationId);
+                customerReservationDetails = (await CustomerReservationDetailService.GetByCustomerReservationIdAsync(customerReservation.CustomerReservationId)).ToList();
 
-                foreach (var item in customerOrderDetails)
+                foreach (var item in customerReservationDetails)
                 {
                     item.ItemReference.ReferencesWarehouses = (await ReferencesWarehouseService.GetByReferenceIdAsync(item.ReferenceId)).ToList();
                 }
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "CustomerOrderDetails.OnInitializedAsync()");
+                Logger.LogError(ex, "CustomerReservationDetails.OnInitializedAsync()");
             }
             finally { isLoadingInProgress = false; }
         }

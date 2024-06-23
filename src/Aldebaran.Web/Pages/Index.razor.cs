@@ -76,11 +76,7 @@ namespace Aldebaran.Web.Pages
         protected IEnumerable<CustomerOrderAffectedByPurchaseOrderUpdate> customerOrdersAffected = new List<CustomerOrderAffectedByPurchaseOrderUpdate>();
         protected LocalizedDataGrid<CustomerOrderAffectedByPurchaseOrderUpdate> customerOrdersAffectedGrid;
 
-        protected IEnumerable<CustomerOrder> expiredCustomerOrders = new List<CustomerOrder>();
         protected IEnumerable<PurchaseOrderDetail> detailInTransit = new List<PurchaseOrderDetail>();
-
-        protected LocalizedDataGrid<CustomerOrder> expiredCustomerOrdersGrid;
-
 
         protected int pageSize = 7;
         protected Employee employee;
@@ -208,14 +204,7 @@ namespace Aldebaran.Web.Pages
             GridTimer.UpdateTimerInterval(milliseconds);
             TimerPreferenceService.UpdateTimerPreferences(GridTimer.Key, milliseconds);
         }
-
-        public async Task CustomerOrderDetailInfo(int customerOrderId)
-        {
-            var reasonResult = await DialogService.OpenAsync<CustomerOrderPages.CustomerOrderDetails>("Detalles del pedido", new Dictionary<string, object> { { "CustomerOrderId", customerOrderId } }, options: new DialogOptions { CloseDialogOnOverlayClick = false, Width = "800px" });
-            if (reasonResult == null)
-                return;
-        }
-
+        
         public void Dispose()
         {
             GridTimer.Dispose();
@@ -279,21 +268,17 @@ namespace Aldebaran.Web.Pages
             return true;
         }
 
-       
+        public async Task CustomerOrderDetailInfo(int customerOrderId)
+        {
+            var reasonResult = await DialogService.OpenAsync<CustomerOrderPages.CustomerOrderDetails>("Detalles del pedido", new Dictionary<string, object> { { "CustomerOrderId", customerOrderId } }, options: new DialogOptions { CloseDialogOnOverlayClick = false, Width = "800px" });
+            if (reasonResult == null)
+                return;
+        }
 
         #region ExpiredCustomerOrders
-        async Task UpdateExpiredCustomerOrdersAsync(CancellationToken ct = default)
-        {
-            var originalData = await GetDashBoardCache<CustomerOrder>("CustomerOrder");
 
-            expiredCustomerOrders = (await DashBoardService.GetExpiredCustomerOrdersAsync(ct)).ToList();
-            expiredCustomerOrdersAlertVisible = !await IsEqual<CustomerOrder>(expiredCustomerOrders.OrderBy(o => o.CustomerOrderId).ToList(), originalData.OrderBy(o => o.CustomerOrderId).ToList());
-            await UpdateDashBoardCache<CustomerOrder>("CustomerOrder", expiredCustomerOrders.ToList());
-            if (expiredCustomerOrdersGrid != null)
-                await expiredCustomerOrdersGrid.Reload();
-        }
         #endregion
-                       
+
         #region PurchaseOrderTransitAlarms
         async Task UpdatePurchaseOrderTransitAlarmsAsync(CancellationToken ct = default)
         {

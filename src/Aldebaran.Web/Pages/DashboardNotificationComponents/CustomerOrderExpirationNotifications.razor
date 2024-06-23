@@ -1,5 +1,51 @@
-﻿<h3>CustomerOrderExpirationNotifications</h3>
+﻿@using Aldebaran.Web.Models.ViewModels;
+@using Aldebaran.Web.Resources.LocalizedControls;
+@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer ;
 
+<RadzenCard class="rz-col-12" Style="max-width: 100%">
+    <NotificationTitle TogglePanel="@TogglePanel" AlertVisible="@expiredCustomerOrdersAlertVisible" DataUpdate="@GridData_Update" GridTimer="@GridTimer" Title="Pedidos vencidos"
+                       IsPanelCollapsed="@isPanelCollapsed" Timers="@Timers" DataUpdateOnTimerChange="@GridaData_UpdateOnTimerChange" OnBoolChange="@HandleBoolChange" />
+    <RadzenCard Visible="!isPanelCollapsed">
+        <LocalizedDataGrid Style="height: 100%" PageSize="@pageSize" @ref="expiredCustomerOrdersGrid" AllowFiltering="true" AllowPaging="true" 
+                           AllowSorting="true" ShowPagingSummary="true" Data="@expiredCustomerOrders" TItem="Aldebaran.Application.Services.Models.CustomerOrder" IsLoading="@(GridTimer.IsLoading||isLoadingInProgress)">
+            <Columns>
+                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="Customer.CustomerName" Title="Cliente" Width="80%"></RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="OrderDate" Title="Fecha pedido" Width="70%">
+                    <Template Context="customerOrder">
+                        <span>@customerOrder.OrderDate.ToString(SharedLocalizer["date:format"])</span>
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Title="No. Pedido" Width="70%">
+                    <Template Context="customerOrder">
+                        <RadzenLink href="javascript:void(0);" @onclick="@(async (args) => await CustomerOrderDetailInfo(customerOrder.CustomerOrderId))">
+                            @customerOrder.OrderNumber
+                        </RadzenLink>
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="EstimatedDeliveryDate" Title="Fecha est. entrega" Width="70%">
+                    <Template Context="customerOrder">
+                        <span>@customerOrder.EstimatedDeliveryDate.ToString(SharedLocalizer["date:format"])</span>
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Title="Dias vencidos" Width="60%">
+                    <Template Context="customerOrder">
+                        @{
+                            var days = (int)(System.DateTime.Today - customerOrder.EstimatedDeliveryDate).Days;
+                        }
+                        <span>@days dias</span>
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="StatusDocumentType.StatusDocumentTypeName" Title="Estado" Width="80%"></RadzenDataGridColumn>
+            </Columns>
+        </LocalizedDataGrid>
+    </RadzenCard>    
+</RadzenCard>
 @code {
+    private bool isPanelCollapsed = true;
+    private string ToggleIcon => isPanelCollapsed ? "expand_more" : "expand_less";
 
+    private void TogglePanel()
+    {
+        isPanelCollapsed = !isPanelCollapsed;
+    }
 }

@@ -42,6 +42,9 @@
     <RadzenRow class="mb-2">
         <ExpiredReservationNotifications />
     </RadzenRow>
+    <RadzenRow class="mb-2">
+        <CustomerOrderExpirationNotifications />
+    </RadzenRow>
 
     <RadzenPanel style="border: 2px solid rgba(0,0,0,.08);">
         
@@ -176,47 +179,6 @@
                     </Template>
                 </LocalizedDataGrid>
             </RadzenCard>
-        </RadzenPanel>
-        <RadzenPanel>
-            <RadzenCard>
-                <RadzenRow class="mb-2">
-                    <RadzenColumn Size="12" class="d-flex align-items-end">
-                        <RadzenImage Click="@ExpiredCustomerOrderAlertClick" Visible="@expiredCustomerOrdersAlertVisible" Path="images/alert.gif" style="width: 30px"></RadzenImage>
-                        <RadzenText Text="Pedidos vencidos" TextStyle="Radzen.Blazor.TextStyle.H6" TagName="Radzen.Blazor.TagName.Auto" class="p-0 m-0"></RadzenText>
-                    </RadzenColumn>
-                </RadzenRow>
-                <LocalizedDataGrid Style="height: 100%" PageSize="@pageSize" @ref="expiredCustomerOrdersGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" Data="@expiredCustomerOrders" TItem="Aldebaran.Application.Services.Models.CustomerOrder" IsLoading="@GridTimer.IsLoading">
-                    <Columns>
-                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="Customer.CustomerName" Title="Proveedor" Width="80%"></RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="OrderDate" Title="Fecha pedido" Width="70%">
-                            <Template Context="customerOrder">
-                                <span>@customerOrder.OrderDate.ToString(SharedLocalizer["date:format"])</span>
-                            </Template>
-                        </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Title="No. Pedido" Width="70%">
-                            <Template Context="customerOrder">
-                                <RadzenLink href="javascript:void(0);" @onclick="@(async (args) => await CustomerOrderDetailInfo(customerOrder.CustomerOrderId))">
-                                    @customerOrder.OrderNumber
-                                </RadzenLink>
-                            </Template>
-                        </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="EstimatedDeliveryDate" Title="Fecha est. entrega" Width="70%">
-                            <Template Context="customerOrder">
-                                <span>@customerOrder.EstimatedDeliveryDate.ToString(SharedLocalizer["date:format"])</span>
-                            </Template>
-                        </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Title="Dias vencidos" Width="60%">
-                            <Template Context="customerOrder">
-                                @{
-                                    var days = (int)(System.DateTime.Today - customerOrder.EstimatedDeliveryDate).Days;
-                                }
-                                <span>@days dias</span>
-                            </Template>
-                        </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="StatusDocumentType.StatusDocumentTypeName" Title="Estado" Width="80%"></RadzenDataGridColumn>
-                    </Columns>
-                </LocalizedDataGrid>
-            </RadzenCard>
-        </RadzenPanel>
+        </RadzenPanel>        
     </RadzenPanel>
 }

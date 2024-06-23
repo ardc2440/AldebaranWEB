@@ -41,6 +41,9 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         protected TooltipService TooltipService { get; set; }
 
         [Inject]
+        protected DialogService DialogService { get; set; }
+
+        [Inject]
         protected ICacheHelper CacheHelper { get; set; }
 
         #endregion
@@ -54,7 +57,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         protected bool isLoadingInProgress;
         protected bool expiredReservationsAlertVisible = false;
         protected int pageSize = 7;
-        readonly GridTimer GridTimer = new GridTimer("OutOfStock-GridTimer");
+        readonly GridTimer GridTimer = new GridTimer("ExpiredReservations-GridTimer");
         List<DataTimer> Timers;
 
         protected List<CustomerReservation> expiredReservations = new List<CustomerReservation>();
@@ -178,7 +181,9 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
 
         protected async Task OpenCustomerReservation(CustomerReservation args)
         {
-            NavigationManager.NavigateTo("send-to-customer-order/view/" + args.CustomerReservationId);
+            var reasonResult = await DialogService.OpenAsync<CustomerReservationPages.CustomerReservationDetails>("Detalles de la reserva", new Dictionary<string, object> { { "CustomerReservationId", args.CustomerReservationId } }, options: new DialogOptions { CloseDialogOnOverlayClick = false, Width = "800px" });
+            if (reasonResult == null)
+                return;
         }
 
         private void HandleBoolChange(bool newValue)

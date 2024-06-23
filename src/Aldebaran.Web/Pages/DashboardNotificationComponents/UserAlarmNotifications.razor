@@ -5,7 +5,8 @@
     <NotificationTitle TogglePanel="@TogglePanel" AlertVisible="@alarmsAlertVisible" DataUpdate="@GridData_Update" GridTimer="@GridTimer" Title="Alarmas del día"
                        IsPanelCollapsed="@isPanelCollapsed" Timers="@Timers" DataUpdateOnTimerChange="@GridaData_UpdateOnTimerChange" OnBoolChange="@HandleBoolChange" />
     <RadzenCard Visible="!isPanelCollapsed">
-        <LocalizedDataGrid Style="height: 100%" PageSize="@pageSize" @ref="alarmsGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" Data="@alarms" TItem="Alarm" IsLoading="@GridTimer.IsLoading">
+        <LocalizedDataGrid Style="height: 100%" PageSize="@pageSize" @ref="alarmsGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true" 
+                           ShowPagingSummary="true" Data="@alarms" TItem="Alarm" IsLoading="@(GridTimer.IsLoading||isLoadingInProgress)">
             <Columns>
                 <RadzenDataGridColumn TItem="Alarm" Title="Documento" Width="80%">
                     <Template Context="alarm">
