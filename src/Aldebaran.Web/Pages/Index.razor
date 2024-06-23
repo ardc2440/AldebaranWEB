@@ -10,18 +10,12 @@
 
 @if (!isLoadingInProgress)
 {
-    <RadzenRow class="mb-2">
-        <MinimumQuantityNotifications PendingStatusOrderId="@pendingStatusOrder.StatusDocumentTypeId" />
-    </RadzenRow>
-    <RadzenRow class="mb-2">
-        <OutOfStockNotifications PendingStatusOrderId="@pendingStatusOrder.StatusDocumentTypeId" />
-    </RadzenRow>
-
+    
     <RadzenRow class="mb-2">
         <RadzenColumn SizeLG="6" SizeXL="6" SizeMD="6" SizeSM="6" SizeXX="12" SizeXS="12" class="d-flex align-items-end">
-            <RadzenText Text="Consulta de notificaciones activas" TextStyle="Radzen.Blazor.TextStyle.DisplayH5" TagName="Radzen.Blazor.TagName.Auto" class="p-0 m-0"></RadzenText>
+            <RadzenText Text="Tablero de notificaciones" TextStyle="Radzen.Blazor.TextStyle.DisplayH5" TagName="Radzen.Blazor.TagName.Auto" class="p-0 m-0"></RadzenText>
         </RadzenColumn>
-        <RadzenColumn SizeLG="6" SizeXL="6" SizeMD="6" SizeSM="6" SizeXX="12" SizeXS="12">
+        @*<RadzenColumn SizeLG="6" SizeXL="6" SizeMD="6" SizeSM="6" SizeXX="12" SizeXS="12">
             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.End" Gap="1rem" Wrap="FlexWrap.Wrap" JustifyContent="JustifyContent.End">
                 <RadzenImage Click="@GeneralAlertClick" Visible="@generalAlertVisible" Path="images/alert.gif" style="width: 40px"></RadzenImage>
                 <RadzenFormField Variant="Variant.Text">
@@ -34,8 +28,15 @@
                     Última actualización: @GridTimer.LastUpdate.ToString(SharedLocalizer["datetime:format"])
                 </p>
             </RadzenStack>
-        </RadzenColumn>
+    </RadzenColumn>*@
     </RadzenRow>
+    <RadzenRow class="mb-2">
+        <MinimumQuantityNotifications PendingStatusOrderId="@pendingStatusOrder.StatusDocumentTypeId" />
+    </RadzenRow>
+    <RadzenRow class="mb-2">
+        <OutOfStockNotifications PendingStatusOrderId="@pendingStatusOrder.StatusDocumentTypeId" />
+    </RadzenRow>
+
     <RadzenPanel style="border: 2px solid rgba(0,0,0,.08);">
         <RadzenPanel style="border: 2px solid rgba(0,0,0,.08);">
             <RadzenSplitter Orientation="Orientation.Horizontal">

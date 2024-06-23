@@ -3,10 +3,10 @@
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer ;
 
 <RadzenCard class="rz-col-12" Style="max-width: 100%">
-    <NotificationTitle TogglePanel="@TogglePanel" AlertVisible="@outOfStockAlertVisible" DataUpdate="@GridData_Update" GridTimer="@GridTimer" Title="Sobrepaso de cantidades mínimas"
+    <NotificationTitle TogglePanel="@TogglePanel" AlertVisible="@outOfStockAlertVisible" DataUpdate="@GridData_Update" GridTimer="@GridTimer" Title="Referencias sin stock"
                        IsPanelCollapsed="@isPanelCollapsed" Timers="@Timers" DataUpdateOnTimerChange="@GridaData_UpdateOnTimerChange" OnBoolChange="@HandleBoolChange" />
     <RadzenCard Visible="!isPanelCollapsed">
-        <LocalizedDataGrid Style="height: 100%" PageSize="@pageSize" @ref="outOfStockArticlesGrid" AllowFiltering="true" AllowPaging="true" Title="Referencias sin stock"
+        <LocalizedDataGrid Style="height: 100%" PageSize="@pageSize" @ref="outOfStockArticlesGrid" AllowFiltering="true" AllowPaging="true"
                            AllowSorting="true" ShowPagingSummary="true" Data="@outOfStockArticles" TItem="OutOfStockArticle" IsLoading="@(GridTimer.IsLoading || isLoadingInProgress)">
             <Columns>
                 <RadzenDataGridColumn TItem="OutOfStockArticle" Property="ArticleName" Title="Referencia" Width="80%" />

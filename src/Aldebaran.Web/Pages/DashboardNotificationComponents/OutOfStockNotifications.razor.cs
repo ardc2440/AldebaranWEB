@@ -92,7 +92,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
                 GridTimer.LastUpdate = DateTime.Now;
                 Console.WriteLine($"{GridTimer.LastUpdate}");
                 var detailInTransit = await DashBoardService.GetTransitDetailOrdersAsync(PendingStatusOrderId);
-                await UpdateItemsOutOfStockAsync(detailInTransit.ToList(), (await DashBoardService.GetAllReferencesWithMinimumQuantityAsync()).ToList());
+                await UpdateItemsOutOfStockAsync(detailInTransit.ToList(), (await DashBoardService.GetAllOutOfStockReferences()).ToList());
             }
             finally
             {
@@ -162,7 +162,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         {
             var originalData = await GetCache<OutOfStockArticle>("OutOfStockArticle");
             outOfStockArticles = OutOfStockArticle.GetOutOfStockArticleList(itemReferences, mydetailInTransit);
-            outOfStockAlertVisible = outOfStockArticles.OrderBy(o => o.ArticleName).ToList().IsEqual<OutOfStockArticle>(originalData.OrderBy(o => o.ArticleName).ToList());
+            outOfStockAlertVisible = !outOfStockArticles.OrderBy(o => o.ArticleName).ToList().IsEqual<OutOfStockArticle>(originalData.OrderBy(o => o.ArticleName).ToList());
             await UpdateCache<OutOfStockArticle>("OutOfStockArticle", outOfStockArticles);
             if (outOfStockArticlesGrid != null)
                 await outOfStockArticlesGrid.Reload();
