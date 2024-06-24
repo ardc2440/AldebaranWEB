@@ -10,7 +10,7 @@
 
 @if (!isLoadingInProgress)
 {
-    
+
     <RadzenRow class="mb-2">
         <RadzenColumn SizeLG="6" SizeXL="6" SizeMD="6" SizeSM="6" SizeXX="12" SizeXS="12" class="d-flex align-items-end">
             <RadzenText Text="Tablero de notificaciones" TextStyle="Radzen.Blazor.TextStyle.DisplayH5" TagName="Radzen.Blazor.TagName.Auto" class="p-0 m-0"></RadzenText>
@@ -27,19 +27,26 @@
                     Última actualización: @GridTimer.LastUpdate.ToString(SharedLocalizer["datetime:format"])
                 </p>
             </RadzenStack>
-    </RadzenColumn>
+        </RadzenColumn>
     </RadzenRow>
+
     <RadzenRow class="mb-2">
-        <MinimumQuantityNotifications PendingStatusOrderId="@pendingStatusOrder.StatusDocumentTypeId" />
-    </RadzenRow>
-    <RadzenRow class="mb-2">
-        <OutOfStockNotifications PendingStatusOrderId="@pendingStatusOrder.StatusDocumentTypeId" />
-    </RadzenRow>
-    <RadzenRow class="mb-2">
-        <UserAlarmNotifications />
-    </RadzenRow>
-    <RadzenRow class="mb-2">
-        <ExpiredReservationNotifications />
+        <RadzenColumn SizeLG="6" SizeXL="6" SizeMD="6" SizeSM="6" SizeXX="12" SizeXS="12">
+            <RadzenRow class="mb-2">
+                <MinimumQuantityNotifications PendingStatusOrderId="@pendingStatusOrder.StatusDocumentTypeId" />
+            </RadzenRow>
+            <RadzenRow class="mb-2">
+                <UserAlarmNotifications />
+            </RadzenRow>
+        </RadzenColumn>
+        <RadzenColumn SizeLG="6" SizeXL="6" SizeMD="6" SizeSM="6" SizeXX="12" SizeXS="12">
+            <RadzenRow class="mb-2">
+                <OutOfStockNotifications PendingStatusOrderId="@pendingStatusOrder.StatusDocumentTypeId" />
+            </RadzenRow>
+            <RadzenRow class="mb-2">
+                <ExpiredReservationNotifications />
+            </RadzenRow>
+        </RadzenColumn>
     </RadzenRow>
     <RadzenRow class="mb-2">
         <CustomerOrderExpirationNotifications />
