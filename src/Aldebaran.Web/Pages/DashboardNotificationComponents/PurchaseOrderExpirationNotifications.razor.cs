@@ -66,6 +66,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         protected int pageSize = 7;
         readonly GridTimer GridTimer = new GridTimer("ExpiredPurchaseOrder-GridTimer");
         List<DataTimer> Timers;
+        protected string search = "";
 
         protected IEnumerable<PurchaseOrder> purchaseOrderExpirations = new List<PurchaseOrder>();
         protected LocalizedDataGrid<PurchaseOrder> purchaseOrderExpirationsGrid;
@@ -94,28 +95,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         #region Events
 
         #region Timer
-
-        public async Task Update()
-        {
-            await GridData_Update();
-        }
-
-        private async Task GridData_Update()
-        {
-            try
-            {
-                isLoadingInProgress = true;
-                GridTimer.LastUpdate = DateTime.Now;
-                Console.WriteLine($"{GridTimer.LastUpdate}");
-                await UpdatePurchaseOrderExpirationsAsync();
-            }
-            finally
-            {
-                isLoadingInProgress = false;
-            }
-            StateHasChanged();
-        }
-
+        
         async Task InitializeGridTimers()
         {
             await GridTimer.InitializeTimer(TimerPreferenceService.GetTimerPreferences(GridTimer.Key), async (sender, e) =>
@@ -148,7 +128,6 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         }
         #endregion
 
-
         #region Cache
 
         protected string GetCacheKey(string key)
@@ -173,12 +152,43 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         }
 
         #endregion
-                
+
+        public async Task Update()
+        {
+            await GridData_Update();
+        }
+
+        private async Task GridData_Update()
+        {
+            try
+            {
+                isLoadingInProgress = true;
+                GridTimer.LastUpdate = DateTime.Now;
+                Console.WriteLine($"{GridTimer.LastUpdate}");
+                await UpdatePurchaseOrderExpirationsAsync();
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+            StateHasChanged();
+        }
+
+        protected async Task Search(ChangeEventArgs args)
+        {
+
+            search = $"{args.Value}";
+
+            await purchaseOrderExpirationsGrid.GoToPage(0);
+
+            await GridData_Update();
+        }
+
         public async Task UpdatePurchaseOrderExpirationsAsync(CancellationToken ct = default)
         {
             var originalData = await GetCache<PurchaseOrder>("PurchaseOrder");
 
-            purchaseOrderExpirations = await DashBoardService.GetPurchaseOrderExpirationsAsync(Settings.Value.PurchaseOrderWhiteFlag, ct);
+            purchaseOrderExpirations = await DashBoardService.GetPurchaseOrderExpirationsAsync(Settings.Value.PurchaseOrderWhiteFlag, search, ct);
             expiredPurchasesAlertVisible = !purchaseOrderExpirations.OrderBy(o => o.PurchaseOrderId).ToList().IsEqual<PurchaseOrder>(originalData.OrderBy(o => o.PurchaseOrderId).ToList());
             await UpdateCache<PurchaseOrder>("PurchaseOrder", purchaseOrderExpirations.ToList());
             if (purchaseOrderExpirationsGrid != null)

@@ -58,6 +58,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         protected int pageSize = 7;
         readonly GridTimer GridTimer = new GridTimer("ExpiredReservations-GridTimer");
         List<DataTimer> Timers;
+        protected string search = "";
 
         protected List<CustomerReservation> expiredReservations = new List<CustomerReservation>();
         protected LocalizedDataGrid<CustomerReservation> expiredReservationsGrid;
@@ -85,28 +86,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         #region Events
 
         #region Timer
-
-        public async Task Update()
-        {
-            await GridData_Update();
-        }
-
-        private async Task GridData_Update()
-        {
-            try
-            {
-                isLoadingInProgress = true;
-                GridTimer.LastUpdate = DateTime.Now;
-                Console.WriteLine($"{GridTimer.LastUpdate}");
-                await UpdateExpiredReservationsAsync();
-            }
-            finally
-            {
-                isLoadingInProgress = false;
-            }
-            StateHasChanged();
-        }
-
+        
         async Task InitializeGridTimers()
         {
             await GridTimer.InitializeTimer(TimerPreferenceService.GetTimerPreferences(GridTimer.Key), async (sender, e) =>
@@ -139,7 +119,6 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         }
         #endregion
 
-
         #region Cache
 
         protected string GetCacheKey(string key)
@@ -167,11 +146,42 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
 
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
 
+        public async Task Update()
+        {
+            await GridData_Update();
+        }
+
+        private async Task GridData_Update()
+        {
+            try
+            {
+                isLoadingInProgress = true;
+                GridTimer.LastUpdate = DateTime.Now;
+                Console.WriteLine($"{GridTimer.LastUpdate}");
+                await UpdateExpiredReservationsAsync();
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+            StateHasChanged();
+        }
+
+        protected async Task Search(ChangeEventArgs args)
+        {
+
+            search = $"{args.Value}";
+
+            await expiredReservationsGrid.GoToPage(0);
+
+            await GridData_Update();
+        }
+
         async Task UpdateExpiredReservationsAsync(CancellationToken ct = default)
         {
             var originalData = await GetCache<CustomerReservation>("CustomerReservation");
 
-            expiredReservations = (await DashBoardService.GetExpiredReservationsAsync(ct)).ToList();
+            expiredReservations = (await DashBoardService.GetExpiredReservationsAsync(search, ct)).ToList();
             expiredReservationsAlertVisible = !expiredReservations.OrderBy(o => o.CustomerReservationId).ToList().IsEqual<CustomerReservation>(originalData.OrderBy(o => o.CustomerReservationId).ToList());
             await UpdateCache<CustomerReservation>("CustomerReservation", expiredReservations);
             if (expiredReservationsGrid != null)

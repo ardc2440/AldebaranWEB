@@ -1,59 +1,117 @@
 ﻿using Aldebaran.DataAccess.Entities;
+using Aldebaran.Infraestructure.Common.Utils;
 using Microsoft.EntityFrameworkCore;
+
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
     public class DashBoardRepository : RepositoryBase<AldebaranDbContext>, IDashBoardRepository
     {
-        public DashBoardRepository(IServiceProvider serviceProvider) : base(serviceProvider)
+        private readonly ISharedStringLocalizer _SharedLocalizer;
+
+        public DashBoardRepository(IServiceProvider serviceProvider, ISharedStringLocalizer sharedLocalizer) : base(serviceProvider)
         {
+            _SharedLocalizer = sharedLocalizer ?? throw new ArgumentNullException(nameof(ISharedStringLocalizer));
         }
 
-        public async Task<IEnumerable<PurchaseOrderDetail>> GetByReferenceIdAndStatusOrderAsync(int statusOrder, int? referenceId = null, CancellationToken ct = default)
+        public async Task<IEnumerable<PurchaseOrderDetail>> GetByReferenceIdAndStatusOrderAsync(int statusOrder, string? searchKey = null, int? referenceId = null, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
             {
-                return await dbContext.PurchaseOrderDetails.AsNoTracking()
-                            .Include(p => p.PurchaseOrder)
-                            .Include(p => p.ItemReference.Item.Line)
-                            .Include(p => p.Warehouse)
-                            .Where(p => (p.ReferenceId == referenceId || !referenceId.HasValue) && p.PurchaseOrder.StatusDocumentTypeId == statusOrder)
-                            .ToListAsync(ct);
+                return await (string.IsNullOrEmpty(searchKey) ?
+                                dbContext.PurchaseOrderDetails.AsNoTracking()
+                                    .Include(p => p.PurchaseOrder)
+                                    .Include(p => p.ItemReference.Item.Line)
+                                    .Include(p => p.Warehouse)
+                                    .Where(p => (p.ReferenceId == referenceId || !referenceId.HasValue) && p.PurchaseOrder.StatusDocumentTypeId == statusOrder)
+                                    .ToListAsync(ct) :
+                                dbContext.PurchaseOrderDetails.AsNoTracking()
+                                    .Include(p => p.PurchaseOrder)
+                                    .Include(p => p.ItemReference.Item.Line)
+                                    .Include(p => p.Warehouse)
+                                    .Where(p => (p.ReferenceId == referenceId || !referenceId.HasValue) &&
+                                                p.PurchaseOrder.StatusDocumentTypeId == statusOrder &&
+                                                (p.ItemReference.Item.Line.LineCode.Contains(searchKey) ||
+                                                 p.ItemReference.Item.Line.LineName.Contains(searchKey) ||
+                                                 p.ItemReference.Item.InternalReference.Contains(searchKey) ||
+                                                 p.ItemReference.Item.ItemName.Contains(searchKey) ||
+                                                 p.ItemReference.ReferenceCode.Contains(searchKey) ||
+                                                 p.ItemReference.ReferenceName.Contains(searchKey)))
+                                    .ToListAsync(ct));
             }, ct);
         }
 
-        public async Task<IEnumerable<ItemReference>> GetAllReferencesWithMinimumQuantityAsync(CancellationToken ct = default)
+        public async Task<IEnumerable<ItemReference>> GetAllReferencesWithMinimumQuantityAsync(string? searchKey = null, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
             {
-                return await dbContext.ItemReferences.AsNoTracking()
-                            .Include(i => i.Item.Line)
-                            .Where(i => i.InventoryQuantity <= i.AlarmMinimumQuantity && i.AlarmMinimumQuantity > 0 && i.IsActive && i.Item.IsActive) 
-                            .ToListAsync(ct);
+                return await (string.IsNullOrEmpty(searchKey) ?
+                                dbContext.ItemReferences.AsNoTracking()
+                                    .Include(i => i.Item.Line)
+                                    .Where(i => i.InventoryQuantity <= i.AlarmMinimumQuantity && i.AlarmMinimumQuantity > 0 && i.IsActive && i.Item.IsActive)
+                                    .ToListAsync(ct) :
+                                dbContext.ItemReferences.AsNoTracking()
+                                    .Include(i => i.Item.Line)
+                                    .Where(i => i.InventoryQuantity <= i.AlarmMinimumQuantity && i.AlarmMinimumQuantity > 0 &&
+                                                i.IsActive && i.Item.IsActive &&
+                                                (i.Item.Line.LineCode.Contains(searchKey) ||
+                                                 i.Item.Line.LineName.Contains(searchKey) ||
+                                                 i.Item.InternalReference.Contains(searchKey) ||
+                                                 i.Item.ItemName.Contains(searchKey) ||
+                                                 i.ReferenceCode.Contains(searchKey) ||
+                                                 i.ReferenceName.Contains(searchKey)
+                                                 ))
+                                    .ToListAsync(ct));
             }, ct);
         }
 
-        public async Task<IEnumerable<ItemReference>> GetAllOutOfStockReferences(CancellationToken ct = default)
+        public async Task<IEnumerable<ItemReference>> GetAllOutOfStockReferences(string? searchKey = null, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
             {
-                return await dbContext.ItemReferences.AsNoTracking()
-                            .Include(i => i.Item.Line)
-                            .Where(i => i.InventoryQuantity <= 0 && i.AlarmMinimumQuantity <= 0 && i.IsActive && i.Item.IsActive) 
-                            .ToListAsync(ct);
+                return await (string.IsNullOrEmpty(searchKey) ?
+                                dbContext.ItemReferences.AsNoTracking()
+                                    .Include(i => i.Item.Line)
+                                    .Where(i => i.InventoryQuantity <= 0 && i.AlarmMinimumQuantity <= 0 && i.IsActive && i.Item.IsActive)
+                                    .ToListAsync(ct) :
+                                dbContext.ItemReferences.AsNoTracking()
+                                    .Include(i => i.Item.Line)
+                                    .Where(i => i.InventoryQuantity <= 0 && i.AlarmMinimumQuantity <= 0 &&
+                                                i.IsActive && i.Item.IsActive &&
+                                                (i.Item.Line.LineCode.Contains(searchKey) ||
+                                                 i.Item.Line.LineName.Contains(searchKey) ||
+                                                 i.Item.InternalReference.Contains(searchKey) ||
+                                                 i.Item.ItemName.Contains(searchKey) ||
+                                                 i.ReferenceCode.Contains(searchKey) ||
+                                                 i.ReferenceName.Contains(searchKey)
+                                                 ))
+                                    .ToListAsync(ct));
             }, ct);
         }
 
-        public async Task<IEnumerable<CustomerReservation>> GetExpiredReservationsAsync(CancellationToken ct = default)
+        public async Task<IEnumerable<CustomerReservation>> GetExpiredReservationsAsync(string? searchKey = null, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
             {
-                return await dbContext.CustomerReservations.AsNoTracking()
-                            .Include(i => i.Customer.City.Department.Country)
-                            .Include(i => i.Customer.IdentityType)
-                            .Include(i => i.StatusDocumentType.DocumentType)
-                            .Include(i => i.Employee.IdentityType)
-                            .Where(i => i.ExpirationDate.Date <= DateTime.Today && i.StatusDocumentType.StatusOrder == 1)
-                            .ToListAsync(ct);
+                return await (string.IsNullOrEmpty(searchKey) ?
+                                dbContext.CustomerReservations.AsNoTracking()
+                                    .Include(i => i.Customer.City.Department.Country)
+                                    .Include(i => i.Customer.IdentityType)
+                                    .Include(i => i.StatusDocumentType.DocumentType)
+                                    .Include(i => i.Employee.IdentityType)
+                                    .Where(i => i.ExpirationDate.Date <= DateTime.Today && i.StatusDocumentType.StatusOrder == 1)
+                                    .ToListAsync(ct) :
+                                dbContext.CustomerReservations.AsNoTracking()
+                                    .Include(i => i.Customer.City.Department.Country)
+                                    .Include(i => i.Customer.IdentityType)
+                                    .Include(i => i.StatusDocumentType.DocumentType)
+                                    .Include(i => i.Employee.IdentityType)
+                                    .Where(i => i.ExpirationDate.Date <= DateTime.Today &&
+                                                i.StatusDocumentType.StatusOrder == 1 &&
+                                                (i.Customer.CustomerName.Contains(searchKey) ||
+                                                 i.ReservationNumber.Contains(searchKey) ||
+                                                 dbContext.Format(i.ReservationDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
+                                                 dbContext.Format(i.ExpirationDate, _SharedLocalizer["date:format"]).Contains(searchKey)))
+                                    .ToListAsync(ct));
             }, ct);
         }
         public async Task<IEnumerable<Alarm>> GetByEmployeeIdAsync(int employeeId, CancellationToken ct = default)
@@ -61,13 +119,13 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             return await ExecuteQueryAsync(async dbContext =>
             {
                 return await dbContext.Alarms.AsNoTracking()
-                           .Include(i => i.AlarmMessage.AlarmType.DocumentType)
-                           .Where(i => i.ExecutionDate <= DateTime.Now && i.IsActive &&
-                                       !dbContext.VisualizedAlarms.AsNoTracking().Any(j => j.AlarmId == i.AlarmId) &&
-                                        dbContext.UsersAlarmTypes.AsNoTracking().Any(k => k.Visualize &&
-                                                                                         k.EmployeeId == employeeId &&
-                                                                                         k.AlarmTypeId == i.AlarmMessage.AlarmTypeId))
-                           .ToListAsync(ct);
+                                   .Include(i => i.AlarmMessage.AlarmType.DocumentType)
+                                   .Where(i => i.ExecutionDate <= DateTime.Now && i.IsActive &&
+                                               !dbContext.VisualizedAlarms.AsNoTracking().Any(j => j.AlarmId == i.AlarmId) &&
+                                                dbContext.UsersAlarmTypes.AsNoTracking().Any(k => k.Visualize &&
+                                                                                                 k.EmployeeId == employeeId &&
+                                                                                                 k.AlarmTypeId == i.AlarmMessage.AlarmTypeId))
+                                   .ToListAsync(ct);
             }, ct);
         }
         public async Task<StatusDocumentType?> FindByDocumentAndOrderAsync(int documentTypeId, int order, CancellationToken ct = default)
@@ -95,48 +153,92 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             }, ct);
         }
 
-        public async Task<IEnumerable<PurchaseOrderTransitAlarm>> GetAllTransitAlarmAsync(int employeeId, CancellationToken ct = default)
+        public async Task<IEnumerable<PurchaseOrderTransitAlarm>> GetAllTransitAlarmAsync(int employeeId, string? searchKey = null, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
             {
-                return await dbContext.PurchaseOrderTransitAlarms.AsNoTracking()
-                            .Include(i => i.ModifiedPurchaseOrder.PurchaseOrder.StatusDocumentType)
-                            .Include(i => i.ModifiedPurchaseOrder.PurchaseOrder.Provider)
-                            .Include(i => i.ModifiedPurchaseOrder.ModificationReason)
-                            .Where(w => w.ModifiedPurchaseOrder.PurchaseOrder.StatusDocumentType.StatusOrder == 1 &&
-                                        !dbContext.VisualizedPurchaseOrderTransitAlarms.AsNoTracking().Any(j => j.PurchaseOrderTransitAlarmId == w.PurchaseOrderTransitAlarmId &&
-                                                                                                               j.EmployeeId == employeeId))
-                            .ToListAsync(ct);
+                return await (string.IsNullOrEmpty(searchKey) ?
+                                dbContext.PurchaseOrderTransitAlarms.AsNoTracking()
+                                    .Include(i => i.ModifiedPurchaseOrder.PurchaseOrder.StatusDocumentType)
+                                    .Include(i => i.ModifiedPurchaseOrder.PurchaseOrder.Provider)
+                                    .Include(i => i.ModifiedPurchaseOrder.ModificationReason)
+                                    .Where(w => w.ModifiedPurchaseOrder.PurchaseOrder.StatusDocumentType.StatusOrder == 1 &&
+                                                !dbContext.VisualizedPurchaseOrderTransitAlarms.AsNoTracking().Any(j => j.PurchaseOrderTransitAlarmId == w.PurchaseOrderTransitAlarmId &&
+                                                                                                                       j.EmployeeId == employeeId))
+                                    .ToListAsync(ct) :
+                                dbContext.PurchaseOrderTransitAlarms.AsNoTracking()
+                                    .Include(i => i.ModifiedPurchaseOrder.PurchaseOrder.StatusDocumentType)
+                                    .Include(i => i.ModifiedPurchaseOrder.PurchaseOrder.Provider)
+                                    .Include(i => i.ModifiedPurchaseOrder.ModificationReason)
+                                    .Where(w => w.ModifiedPurchaseOrder.PurchaseOrder.StatusDocumentType.StatusOrder == 1 &&
+                                                !dbContext.VisualizedPurchaseOrderTransitAlarms.AsNoTracking().Any(j => j.PurchaseOrderTransitAlarmId == w.PurchaseOrderTransitAlarmId &&
+                                                                                                                       j.EmployeeId == employeeId) &&
+                                                (w.ModifiedPurchaseOrder.PurchaseOrder.OrderNumber.Contains(searchKey) ||
+                                                 dbContext.Format(w.OldExpectedReceiptDate, _SharedLocalizer["date:format"]).Contains(searchKey)||
+                                                 dbContext.Format(w.ModifiedPurchaseOrder.PurchaseOrder.ExpectedReceiptDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
+                                                 w.ModifiedPurchaseOrder.PurchaseOrder.Provider.ProviderName.Contains(searchKey)||
+                                                 dbContext.Format(w.ModifiedPurchaseOrder.ModificationDate, _SharedLocalizer["date:format"]).Contains(searchKey) || 
+                                                 w.ModifiedPurchaseOrder.ModificationReason.ModificationReasonName.Contains(searchKey)))
+                                    .ToListAsync(ct));
             }, ct);
         }
 
-        public async Task<IEnumerable<PurchaseOrder>> GetPurchaseOrderExpirationsAsync(int purchaseOrderWitheFlag, CancellationToken ct = default)
+        public async Task<IEnumerable<PurchaseOrder>> GetPurchaseOrderExpirationsAsync(int purchaseOrderWitheFlag, string? searchKey = null, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
             {
-                return await dbContext.PurchaseOrders.AsNoTracking()
-                            .Include(i => i.Provider)
-                            .Include(i => i.StatusDocumentType)
-                            .Include(i => i.ShipmentForwarderAgentMethod.ForwarderAgent.Forwarder)
-                            .Include(i => i.ShipmentForwarderAgentMethod.ShipmentMethod)
-                            .Where(w => w.StatusDocumentType.StatusOrder == 1 &&
-                                        EF.Functions.DateDiffDay(DateTime.Today, w.ExpectedReceiptDate) <= purchaseOrderWitheFlag)
-                            .ToListAsync(ct);
+                return await (string.IsNullOrEmpty(searchKey) ?
+                                dbContext.PurchaseOrders.AsNoTracking()
+                                    .Include(i => i.Provider)
+                                    .Include(i => i.StatusDocumentType)
+                                    .Include(i => i.ShipmentForwarderAgentMethod.ForwarderAgent.Forwarder)
+                                    .Include(i => i.ShipmentForwarderAgentMethod.ShipmentMethod)
+                                    .Where(w => w.StatusDocumentType.StatusOrder == 1 &&
+                                                EF.Functions.DateDiffDay(DateTime.Today, w.ExpectedReceiptDate) <= purchaseOrderWitheFlag)
+                                    .ToListAsync(ct) :
+                                dbContext.PurchaseOrders.AsNoTracking()
+                                    .Include(i => i.Provider)
+                                    .Include(i => i.StatusDocumentType)
+                                    .Include(i => i.ShipmentForwarderAgentMethod.ForwarderAgent.Forwarder)
+                                    .Include(i => i.ShipmentForwarderAgentMethod.ShipmentMethod)
+                                    .Where(w => w.StatusDocumentType.StatusOrder == 1 &&
+                                                EF.Functions.DateDiffDay(DateTime.Today, w.ExpectedReceiptDate) <= purchaseOrderWitheFlag &&
+                                                (w.OrderNumber.Contains(searchKey) ||
+                                                 dbContext.Format(w.ExpectedReceiptDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
+                                                 w.Provider.ProviderName.Contains(searchKey) ||
+                                                 w.ShipmentForwarderAgentMethod.ForwarderAgent.Forwarder.ForwarderName.Contains(searchKey)||
+                                                 w.ShipmentForwarderAgentMethod.ForwarderAgent.ForwarderAgentName.Contains(searchKey)||
+                                                 w.ShipmentForwarderAgentMethod.ShipmentMethod.ShipmentMethodName.Contains(searchKey)))
+                                    .ToListAsync(ct));
             }, ct);
         }
 
-        public async Task<IEnumerable<CustomerOrder>> GetExpiredCustomerOrdersAsync(CancellationToken ct = default)
+        public async Task<IEnumerable<CustomerOrder>> GetExpiredCustomerOrdersAsync(string? searchKey = null, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
             {
-                return await dbContext.CustomerOrders.AsNoTracking()
-                            .Include(i => i.Customer)
-                            .Include(i => i.StatusDocumentType)
-                            .Where(i => i.EstimatedDeliveryDate.Date <= DateTime.Today &&
-                                        (i.StatusDocumentType.StatusOrder == 1 ||
-                                         i.StatusDocumentType.StatusOrder == 2 ||
-                                         i.StatusDocumentType.StatusOrder == 3))
-                            .ToListAsync(ct);
+                return await (string.IsNullOrEmpty(searchKey) ?
+                                dbContext.CustomerOrders.AsNoTracking()
+                                    .Include(i => i.Customer)
+                                    .Include(i => i.StatusDocumentType)
+                                    .Where(i => i.EstimatedDeliveryDate.Date <= DateTime.Today &&
+                                                (i.StatusDocumentType.StatusOrder == 1 ||
+                                                 i.StatusDocumentType.StatusOrder == 2 ||
+                                                 i.StatusDocumentType.StatusOrder == 3))
+                                    .ToListAsync(ct) :
+                                dbContext.CustomerOrders.AsNoTracking()
+                                    .Include(i => i.Customer)
+                                    .Include(i => i.StatusDocumentType)
+                                    .Where(i => i.EstimatedDeliveryDate.Date <= DateTime.Today &&
+                                                (i.StatusDocumentType.StatusOrder == 1 ||
+                                                 i.StatusDocumentType.StatusOrder == 2 ||
+                                                 i.StatusDocumentType.StatusOrder == 3) &&
+                                                (i.Customer.CustomerName.Contains(searchKey) ||
+                                                 i.OrderNumber.Contains(searchKey)||
+                                                 dbContext.Format(i.OrderDate, _SharedLocalizer["date:format"]).Contains(searchKey)||
+                                                 dbContext.Format(i.EstimatedDeliveryDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
+                                                 i.StatusDocumentType.StatusDocumentTypeName.Contains(searchKey)))
+                                    .ToListAsync(ct));
             }, ct);
         }
     }

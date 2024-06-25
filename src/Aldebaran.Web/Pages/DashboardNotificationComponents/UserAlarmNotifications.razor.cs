@@ -61,6 +61,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         protected int pageSize = 7;
         readonly GridTimer GridTimer = new GridTimer("UserAlarms-GridTimer");
         List<DataTimer> Timers;
+        protected string search = "";
 
         protected List<Models.ViewModels.Alarm> alarms = new List<Models.ViewModels.Alarm>();
         protected LocalizedDataGrid<Models.ViewModels.Alarm> alarmsGrid;
@@ -88,28 +89,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         #region Events
 
         #region Timer
-
-        public async Task Update()
-        {
-            await GridData_Update();
-        }
-
-        private async Task GridData_Update()
-        {
-            try
-            {
-                isLoadingInProgress = true;
-                GridTimer.LastUpdate = DateTime.Now;
-                Console.WriteLine($"{GridTimer.LastUpdate}");
-                await UpdateUserAlarmsAsync();
-            }
-            finally
-            {
-                isLoadingInProgress = false;
-            }
-            StateHasChanged();
-        }
-
+        
         async Task InitializeGridTimers()
         {
             await GridTimer.InitializeTimer(TimerPreferenceService.GetTimerPreferences(GridTimer.Key), async (sender, e) =>
@@ -165,12 +145,51 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         }
         #endregion
 
+        public async Task Update()
+        {
+            await GridData_Update();
+        }
+
+        private async Task GridData_Update()
+        {
+            try
+            {
+                isLoadingInProgress = true;
+                GridTimer.LastUpdate = DateTime.Now;
+                Console.WriteLine($"{GridTimer.LastUpdate}");
+                await UpdateUserAlarmsAsync();
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+            StateHasChanged();
+        }
+
+        protected async Task Search(ChangeEventArgs args)
+        {
+
+            search = $"{args.Value}";
+
+            await alarmsGrid.GoToPage(0);
+
+            await GridData_Update();
+        }
+
         async Task UpdateUserAlarmsAsync(CancellationToken ct = default)
         {
             var originalData = await GetCache<Models.ViewModels.Alarm>("Alarm");
 
             var alarmList = await DashBoardService.GetByEmployeeIdAsync(employee.EmployeeId, ct);
             alarms = await Models.ViewModels.Alarm.GetAlarmsListAsync(alarmList.ToList(), AlarmService, ct);
+
+            if (!string.IsNullOrEmpty(search))
+                alarms = alarms.Where(w => w.AlarmMessage.Contains(search) ||
+                                           w.CreationDate.ToString(SharedLocalizer["date:format"]).Contains(search) ||
+                                           w.ExecutionDate.ToString(SharedLocalizer["date:format"]).Contains(search) ||
+                                           w.DocumentTypeName.Contains(search) ||
+                                           w.DocumentNumber.Contains(search)).ToList();
+
             alarmsAlertVisible = !alarms.OrderBy(o => o.AlarmId).ToList().IsEqual<Models.ViewModels.Alarm>(originalData.OrderBy(o => o.AlarmId).ToList());
             await UpdateCache<Models.ViewModels.Alarm>("Alarm", alarms);
             if (alarmsGrid != null)

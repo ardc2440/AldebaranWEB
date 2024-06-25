@@ -64,6 +64,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         protected Employee employee;
         readonly GridTimer GridTimer = new GridTimer("ExpiredReservations-GridTimer");
         List<DataTimer> Timers;
+        protected string search = "";
 
         protected IEnumerable<PurchaseOrderNotification> purchaseOrderNotifications = new List<PurchaseOrderNotification>();
         protected LocalizedDataGrid<PurchaseOrderNotification> PurchaseOrderNotificationsDataGrid;
@@ -94,28 +95,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         #region Events
 
         #region Timer
-
-        public async Task Update()
-        {
-            await GridData_Update();
-        }
-
-        private async Task GridData_Update()
-        {
-            try
-            {
-                isLoadingInProgress = true;
-                GridTimer.LastUpdate = DateTime.Now;
-                Console.WriteLine($"{GridTimer.LastUpdate}");
-                await UpdatePurchaseOrderTransitAlarmsAsync();
-            }
-            finally
-            {
-                isLoadingInProgress = false;
-            }
-            StateHasChanged();
-        }
-
+        
         async Task InitializeGridTimers()
         {
             await GridTimer.InitializeTimer(TimerPreferenceService.GetTimerPreferences(GridTimer.Key), async (sender, e) =>
@@ -175,11 +155,42 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
 
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
 
+        public async Task Update()
+        {
+            await GridData_Update();
+        }
+
+        private async Task GridData_Update()
+        {
+            try
+            {
+                isLoadingInProgress = true;
+                GridTimer.LastUpdate = DateTime.Now;
+                Console.WriteLine($"{GridTimer.LastUpdate}");
+                await UpdatePurchaseOrderTransitAlarmsAsync();
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+            StateHasChanged();
+        }
+
+        protected async Task Search(ChangeEventArgs args)
+        {
+
+            search = $"{args.Value}";
+
+            await purchaseOrderTransitAlarmsGrid.GoToPage(0);
+
+            await GridData_Update();
+        }
+
         async Task UpdatePurchaseOrderTransitAlarmsAsync(CancellationToken ct = default)
         {
             var originalData = await GetCache<PurchaseOrderTransitAlarm>("PurchaseOrderTransitAlarm");
 
-            purchaseOrderTransitAlarms = await DashBoardService.GetAllTransitAlarmAsync(employee.EmployeeId, ct);
+            purchaseOrderTransitAlarms = await DashBoardService.GetAllTransitAlarmAsync(employee.EmployeeId, search, ct);
             purchaseAlarmsAlertVisible = !purchaseOrderTransitAlarms.OrderBy(o => o.PurchaseOrderTransitAlarmId).ToList().IsEqual<PurchaseOrderTransitAlarm>(originalData.OrderBy(o => o.PurchaseOrderTransitAlarmId).ToList());
             await UpdateCache<PurchaseOrderTransitAlarm>("PurchaseOrderTransitAlarm", purchaseOrderTransitAlarms.ToList());
             if (purchaseOrderTransitAlarmsGrid != null)

@@ -50,6 +50,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         protected int pageSize = 7;
         readonly GridTimer GridTimer = new GridTimer("OutOfStock-GridTimer");
         List<DataTimer> Timers;
+        protected string search = "";
 
         protected List<OutOfStockArticle> outOfStockArticles = new List<OutOfStockArticle>();
         protected LocalizedDataGrid<OutOfStockArticle> outOfStockArticlesGrid;
@@ -76,29 +77,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         #region Events
 
         #region Timer
-
-        public async Task Update()
-        {
-            await GridData_Update();
-        }
-
-        private async Task GridData_Update()
-        {
-            try
-            {
-                isLoadingInProgress = true;
-                GridTimer.LastUpdate = DateTime.Now;
-                Console.WriteLine($"{GridTimer.LastUpdate}");
-                var detailInTransit = await DashBoardService.GetTransitDetailOrdersAsync(PendingStatusOrderId);
-                await UpdateItemsOutOfStockAsync(detailInTransit.ToList(), (await DashBoardService.GetAllOutOfStockReferences()).ToList());
-            }
-            finally
-            {
-                isLoadingInProgress = false;
-            }
-            StateHasChanged();
-        }
-
+        
         async Task InitializeGridTimers()
         {
             await GridTimer.InitializeTimer(TimerPreferenceService.GetTimerPreferences(GridTimer.Key), async (sender, e) =>
@@ -131,7 +110,6 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         }
         #endregion
 
-
         #region Cache
 
         protected string GetCacheKey(string key)
@@ -156,6 +134,38 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         }
 
         #endregion
+
+        public async Task Update()
+        {
+            await GridData_Update();
+        }
+
+        private async Task GridData_Update()
+        {
+            try
+            {
+                isLoadingInProgress = true;
+                GridTimer.LastUpdate = DateTime.Now;
+                Console.WriteLine($"{GridTimer.LastUpdate}");
+                var detailInTransit = await DashBoardService.GetTransitDetailOrdersAsync(PendingStatusOrderId, search);
+                await UpdateItemsOutOfStockAsync(detailInTransit.ToList(), (await DashBoardService.GetAllOutOfStockReferences(search)).ToList());
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+            StateHasChanged();
+        }
+
+        protected async Task Search(ChangeEventArgs args)
+        {
+
+            search = $"{args.Value}";
+
+            await outOfStockArticlesGrid.GoToPage(0);
+
+            await GridData_Update();
+        }
 
         async Task UpdateItemsOutOfStockAsync(List<PurchaseOrderDetail> mydetailInTransit, List<ItemReference> itemReferences)
         {

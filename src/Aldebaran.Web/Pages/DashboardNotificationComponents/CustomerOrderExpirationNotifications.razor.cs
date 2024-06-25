@@ -52,6 +52,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         protected int pageSize = 7;
         readonly GridTimer GridTimer = new GridTimer("ExpiredCustomerOrders-GridTimer");
         List<DataTimer> Timers;
+        protected string search = ""; 
 
         protected IEnumerable<CustomerOrder> expiredCustomerOrders = new List<CustomerOrder>();
         protected LocalizedDataGrid<CustomerOrder> expiredCustomerOrdersGrid;
@@ -78,27 +79,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         #region Events
 
         #region Timer
-        public async Task Update()
-        {
-            await GridData_Update();
-        }
-
-        private async Task GridData_Update()
-        {
-            try
-            {
-                isLoadingInProgress = true;
-                GridTimer.LastUpdate = DateTime.Now;
-                Console.WriteLine($"{GridTimer.LastUpdate}");
-                await UpdateExpiredCustomerOrdersAsync();
-            }
-            finally
-            {
-                isLoadingInProgress = false;
-            }
-            StateHasChanged();
-        }
-
+        
         async Task InitializeGridTimers()
         {
             await GridTimer.InitializeTimer(TimerPreferenceService.GetTimerPreferences(GridTimer.Key), async (sender, e) =>
@@ -156,11 +137,42 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
 
         #endregion
 
+        public async Task Update()
+        {
+            await GridData_Update();
+        }
+
+        private async Task GridData_Update()
+        {
+            try
+            {
+                isLoadingInProgress = true;
+                GridTimer.LastUpdate = DateTime.Now;
+                Console.WriteLine($"{GridTimer.LastUpdate}");
+                await UpdateExpiredCustomerOrdersAsync();
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+            StateHasChanged();
+        }
+
+        protected async Task Search(ChangeEventArgs args)
+        {
+
+            search = $"{args.Value}";
+
+            await expiredCustomerOrdersGrid.GoToPage(0);
+
+            await GridData_Update();
+        }
+
         async Task UpdateExpiredCustomerOrdersAsync(CancellationToken ct = default)
         {
             var originalData = await GetCache<CustomerOrder>("CustomerOrder");
 
-            expiredCustomerOrders = (await DashBoardService.GetExpiredCustomerOrdersAsync(ct)).ToList();
+            expiredCustomerOrders = (await DashBoardService.GetExpiredCustomerOrdersAsync(search, ct)).ToList();
             expiredCustomerOrdersAlertVisible = !expiredCustomerOrders.OrderBy(o => o.CustomerOrderId).ToList().IsEqual<CustomerOrder>(originalData.OrderBy(o => o.CustomerOrderId).ToList());
             await UpdateCache<CustomerOrder>("CustomerOrder", expiredCustomerOrders.ToList());
             if (expiredCustomerOrdersGrid != null)

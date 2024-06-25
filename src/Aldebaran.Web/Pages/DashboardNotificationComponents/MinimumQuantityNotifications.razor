@@ -5,39 +5,43 @@
 <RadzenCard class="rz-col-12" Style="max-width: 100%">
     <NotificationTitle TogglePanel="@TogglePanel" AlertVisible="@minimumAlertVisible" DataUpdate="@GridData_Update" GridTimer="@GridTimer" Title="Sobrepaso de cantidades mínimas"
                        IsPanelCollapsed="@isPanelCollapsed" Timers="@Timers" OnBoolChange="@HandleBoolChange" />
-    
-    <RadzenCard Visible="!isPanelCollapsed">
-        <LocalizedDataGrid PageSize="@pageSize" @ref="minimumQuantityArticlesGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true" 
-                           ShowPagingSummary="true" Data="@minimumQuantityArticles" TItem="MinimumQuantityArticle" IsLoading="@(isLoadingInProgress||GridTimer.IsLoading)">
-            <Columns>
-                <RadzenDataGridColumn TItem="MinimumQuantityArticle" Property="ArticleName" Title="Referencia" Width="80%" />
-                <RadzenDataGridColumn TItem="MinimumQuantityArticle" Title="Cant. Mínima" Width="30%" Filterable="false">
-                    <Template Context="detail">
-                        @detail.MinimumQuantity.ToString("N0")
-                    </Template>
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="MinimumQuantityArticle" Title="Inventario" Width="30%" Filterable="false">
-                    <Template Context="detail">
-                        @detail.AvailableQuantity.ToString("N0")
-                    </Template>
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="MinimumQuantityArticle" Title="En Tránsito" Width="30%" Filterable="false">
-                    <Template Context="detail">
-                        @detail.InTransitQuantity.ToString("N0")
-                    </Template>
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="MinimumQuantityArticle" Title="Reservado" Width="30%" Filterable="false">
-                    <Template Context="detail">
-                        @detail.ReservedQuantity.ToString("N0")
-                    </Template>
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="MinimumQuantityArticle" Title="Pedido" Width="30%" Filterable="false">
-                    <Template Context="detail">
-                        @detail.OrderedQuantity.ToString("N0")
-                    </Template>
-                </RadzenDataGridColumn>
-            </Columns>
-        </LocalizedDataGrid>
+    <RadzenCard class="rz-m-1" Visible="!isPanelCollapsed">
+        <RadzenRow>
+            <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
+        </RadzenRow>
+        <RadzenRow class="rz-m-1">
+            <LocalizedDataGrid PageSize="@pageSize" @ref="minimumQuantityArticlesGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true"
+                               ShowPagingSummary="true" Data="@minimumQuantityArticles" TItem="MinimumQuantityArticle" IsLoading="@(isLoadingInProgress||GridTimer.IsLoading)">
+                <Columns>
+                    <RadzenDataGridColumn TItem="MinimumQuantityArticle" Property="ArticleName" Title="Referencia" Width="80%" />
+                    <RadzenDataGridColumn TItem="MinimumQuantityArticle" Title="Cant. Mínima" Width="30%" Filterable="false">
+                        <Template Context="detail">
+                            @detail.MinimumQuantity.ToString("N0")
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="MinimumQuantityArticle" Title="Inventario" Width="30%" Filterable="false">
+                        <Template Context="detail">
+                            @detail.AvailableQuantity.ToString("N0")
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="MinimumQuantityArticle" Title="En Tránsito" Width="30%" Filterable="false">
+                        <Template Context="detail">
+                            @detail.InTransitQuantity.ToString("N0")
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="MinimumQuantityArticle" Title="Reservado" Width="30%" Filterable="false">
+                        <Template Context="detail">
+                            @detail.ReservedQuantity.ToString("N0")
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="MinimumQuantityArticle" Title="Pedido" Width="30%" Filterable="false">
+                        <Template Context="detail">
+                            @detail.OrderedQuantity.ToString("N0")
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </LocalizedDataGrid>
+        </RadzenRow>
     </RadzenCard>
 </RadzenCard>
 @code {
@@ -47,5 +51,5 @@
     private void TogglePanel()
     {
         isPanelCollapsed = !isPanelCollapsed;
-    }   
+    }
 }

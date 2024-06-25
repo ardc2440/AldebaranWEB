@@ -14,30 +14,30 @@ namespace Aldebaran.Application.Services
         public DashBoardService(IDashBoardRepository repository, IMapper mapper)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(IDashBoardRepository));
-            _mapper = mapper ?? throw new ArgumentNullException(nameof(IMapper));            
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(IMapper));
         }
-                
-        public async Task<IEnumerable<PurchaseOrderDetail>> GetTransitDetailOrdersAsync(int statusOrder, int? referenceId = null, CancellationToken ct = default)
+
+        public async Task<IEnumerable<PurchaseOrderDetail>> GetTransitDetailOrdersAsync(int statusOrder, string? searchKey = null, int? referenceId = null, CancellationToken ct = default)
         {
-            var data = await _repository.GetByReferenceIdAndStatusOrderAsync(statusOrder, referenceId, ct);
+            var data = await _repository.GetByReferenceIdAndStatusOrderAsync(statusOrder, searchKey, referenceId, ct);
             return _mapper.Map<IEnumerable<PurchaseOrderDetail>>(data);
         }
 
-        public async Task<IEnumerable<ItemReference>> GetAllReferencesWithMinimumQuantityAsync(CancellationToken ct = default)
+        public async Task<IEnumerable<ItemReference>> GetAllReferencesWithMinimumQuantityAsync(string? searchKey = null, CancellationToken ct = default)
         {
-            var data = await _repository.GetAllReferencesWithMinimumQuantityAsync(ct);
+            var data = await _repository.GetAllReferencesWithMinimumQuantityAsync(searchKey, ct);
             return _mapper.Map<List<ItemReference>>(data);
         }
 
-        public async Task<IEnumerable<ItemReference>> GetAllOutOfStockReferences(CancellationToken ct = default)
+        public async Task<IEnumerable<ItemReference>> GetAllOutOfStockReferences(string? searchKey = null, CancellationToken ct = default)
         {
-            var data = await _repository.GetAllOutOfStockReferences(ct);
+            var data = await _repository.GetAllOutOfStockReferences(searchKey, ct);
             return _mapper.Map<List<ItemReference>>(data);
         }
-        
-        public async Task<IEnumerable<CustomerReservation>> GetExpiredReservationsAsync(CancellationToken ct = default)
+
+        public async Task<IEnumerable<CustomerReservation>> GetExpiredReservationsAsync(string? searchKey = null, CancellationToken ct = default)
         {
-            var data = await _repository.GetExpiredReservationsAsync(ct);
+            var data = await _repository.GetExpiredReservationsAsync(searchKey, ct);
             return _mapper.Map<IEnumerable<CustomerReservation>>(data);
         }
 
@@ -63,21 +63,21 @@ namespace Aldebaran.Application.Services
             return _mapper.Map<StatusDocumentType?>(data);
         }
 
-        public async Task<IEnumerable<PurchaseOrderTransitAlarm>> GetAllTransitAlarmAsync(int employeeId, CancellationToken ct = default)
+        public async Task<IEnumerable<PurchaseOrderTransitAlarm>> GetAllTransitAlarmAsync(int employeeId, string? searchKey = null, CancellationToken ct = default)
         {
-            var data = await _repository.GetAllTransitAlarmAsync(employeeId, ct);
+            var data = await _repository.GetAllTransitAlarmAsync(employeeId, searchKey, ct);
             return _mapper.Map<IEnumerable<PurchaseOrderTransitAlarm>>(data);
         }
 
-        public async Task<IEnumerable<PurchaseOrder>> GetPurchaseOrderExpirationsAsync(int purchaseOrderWitheFlag, CancellationToken ct = default)
+        public async Task<IEnumerable<PurchaseOrder>> GetPurchaseOrderExpirationsAsync(int purchaseOrderWitheFlag, string? searchKey = null, CancellationToken ct = default)
         {
-            var data = await _repository.GetPurchaseOrderExpirationsAsync(purchaseOrderWitheFlag, ct);
+            var data = await _repository.GetPurchaseOrderExpirationsAsync(purchaseOrderWitheFlag, searchKey,  ct);
             return _mapper.Map<IEnumerable<PurchaseOrder>>(data);
         }
 
-        public async Task<IEnumerable<CustomerOrder>> GetExpiredCustomerOrdersAsync(CancellationToken ct = default)
+        public async Task<IEnumerable<CustomerOrder>> GetExpiredCustomerOrdersAsync(string? searchKey = null, CancellationToken ct = default)
         {
-            var data = await _repository.GetExpiredCustomerOrdersAsync(ct);
+            var data = await _repository.GetExpiredCustomerOrdersAsync(searchKey, ct);
             return _mapper.Map<IEnumerable<CustomerOrder>>(data);
         }
     }

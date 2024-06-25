@@ -7,6 +7,7 @@ using Aldebaran.Infraestructure.Common.Extensions;
 using Microsoft.Extensions.Caching.Memory;
 using Aldebaran.Web.Utils;
 using Radzen;
+using Aldebaran.Web.Pages.CustomerOrderPages;
 
 namespace Aldebaran.Web.Pages.DashboardNotificationComponents
 {
@@ -24,7 +25,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
 
         [Inject]
         public IDashBoardService DashBoardService { get; set; }
-        
+
         [Inject]
         public ITimerPreferenceService TimerPreferenceService { get; set; }
 
@@ -50,7 +51,8 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         protected int pageSize = 7;
         readonly GridTimer GridTimer = new GridTimer("MinimumQuantity-GridTimer");
         List<DataTimer> Timers;
-                
+        protected string search = "";
+
         protected List<MinimumQuantityArticle> minimumQuantityArticles = new List<MinimumQuantityArticle>();
         protected LocalizedDataGrid<MinimumQuantityArticle> minimumQuantityArticlesGrid;
 
@@ -76,29 +78,6 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         #region Events
 
         #region Timer
-        
-        public async Task Update()
-        {
-            await GridData_Update();
-        }
-
-        private async Task GridData_Update()
-        {
-            try
-            {
-                isLoadingInProgress = true;
-                GridTimer.LastUpdate = DateTime.Now;
-                Console.WriteLine($"{GridTimer.LastUpdate}");
-                var detailInTransit = await DashBoardService.GetTransitDetailOrdersAsync(PendingStatusOrderId);
-                await UpdateMinimumQuantitiesAsync(detailInTransit.ToList(), (await DashBoardService.GetAllReferencesWithMinimumQuantityAsync()).ToList());                
-            }
-            finally
-            {
-                isLoadingInProgress = false;
-            }
-            StateHasChanged();
-        }
-
         async Task InitializeGridTimers()
         {
             await GridTimer.InitializeTimer(TimerPreferenceService.GetTimerPreferences(GridTimer.Key), async (sender, e) =>
@@ -131,7 +110,6 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         }
         #endregion
 
-
         #region Cache
 
         protected string GetCacheKey(string key)
@@ -156,6 +134,40 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         }
 
         #endregion
+
+        public async Task Update()
+        {
+            await GridData_Update();
+        }
+
+        private async Task GridData_Update()
+        {
+            try
+            {
+                isLoadingInProgress = true;
+                GridTimer.LastUpdate = DateTime.Now;
+                Console.WriteLine($"{GridTimer.LastUpdate}");
+
+                var detailInTransit = await DashBoardService.GetTransitDetailOrdersAsync(PendingStatusOrderId, search);
+
+                await UpdateMinimumQuantitiesAsync(detailInTransit.ToList(), (await DashBoardService.GetAllReferencesWithMinimumQuantityAsync(search)).ToList());
+            }
+            finally
+            {
+                isLoadingInProgress = false;
+            }
+            StateHasChanged();
+        }        
+
+        protected async Task Search(ChangeEventArgs args)
+        {
+
+            search = $"{args.Value}";
+
+            await minimumQuantityArticlesGrid.GoToPage(0);
+
+            await GridData_Update();
+        }
 
         async Task UpdateMinimumQuantitiesAsync(List<PurchaseOrderDetail> referencesInTransit, List<ItemReference> references)
         {
