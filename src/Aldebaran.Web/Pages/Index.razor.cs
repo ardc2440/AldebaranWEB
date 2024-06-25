@@ -2,12 +2,15 @@ using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Models;
 using Aldebaran.Web.Models.ViewModels;
+using Aldebaran.Web.Pages.DashboardNotificationComponents;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Utils;
+using DocumentFormat.OpenXml.Vml.Spreadsheet;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Radzen;
+using System.Configuration;
 
 namespace Aldebaran.Web.Pages
 {
@@ -26,7 +29,8 @@ namespace Aldebaran.Web.Pages
         [Inject]
         public ITimerPreferenceService TimerPreferenceService { get; set; }
 
-
+        [Inject]
+        protected SecurityService Security { get; set; }
         #endregion
 
         #region Global Variables
@@ -35,6 +39,22 @@ namespace Aldebaran.Web.Pages
         readonly GridTimer GridTimer = new GridTimer("Dahsboard-GridTimer");
         private MemoryCacheEntryOptions _cacheEntryOptions;
         protected bool isLoadingInProgress;
+
+        protected bool minimumQuantityNotificatioVisible;
+        protected bool userAlarmNotificationVisible;
+        protected bool outOfStockNotificatioVisible;
+        protected bool expiredReservationNotificationVisible;
+        protected bool customerOrderExpirationNotificationVisible;
+        protected bool purchaseOrderExpirationNotificationVisible;
+        protected bool purchaseOrderTransitAlarmNotificationsVisible;
+
+        protected MinimumQuantityNotifications minimumQuantityNotifications;
+        protected UserAlarmNotifications userAlarmNotifications;
+        protected OutOfStockNotifications outOfStockNotifications;
+        protected ExpiredReservationNotifications expiredReservationNotifications;
+        protected CustomerOrderExpirationNotifications customerOrderExpirationNotifications;
+        protected PurchaseOrderExpirationNotifications purchaseOrderExpirationNotifications;
+        protected PurchaseOrderTransitAlarmNotifications purchaseOrderTransitAlarmNotifications;
         #endregion
 
         #region Overrides
@@ -42,12 +62,12 @@ namespace Aldebaran.Web.Pages
         {
             try
             {
+                await SetPermissions();
                 isLoadingInProgress = true;
                 Timers = TimerPreferenceService.Timers;
                 await InitializeGridTimers();
                 pendingStatusOrder = await DashBoardService.FindByDocumentAndOrderAsync((await DashBoardService.FindByCodeAsync("O")).DocumentTypeId, 1);
                 _cacheEntryOptions = new MemoryCacheEntryOptions { SlidingExpiration = TimeSpan.FromDays(1) };
-                await GridData_Update();
             }
             finally
             {
@@ -57,6 +77,16 @@ namespace Aldebaran.Web.Pages
         #endregion
 
         #region Events
+        protected async Task SetPermissions()
+        {
+            minimumQuantityNotificatioVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por cantidades mínimas");
+            userAlarmNotificationVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por alarmas del día");
+            outOfStockNotificatioVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por artículos sin disponible");
+            expiredReservationNotificationVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por reservas vencidas");
+            customerOrderExpirationNotificationVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por pedidos vencidos");
+            purchaseOrderExpirationNotificationVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por órdenes próximas a su vencimiento");
+            purchaseOrderTransitAlarmNotificationsVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por alarmas de órdenes modificadas con afectación en pedido");
+        }
 
         async Task InitializeGridTimers()
         {
@@ -91,29 +121,27 @@ namespace Aldebaran.Web.Pages
 
         private async Task GridData_Update()
         {
-            try
-            {
-                isLoadingInProgress = true;
-                GridTimer.LastUpdate = DateTime.Now;
-                Console.WriteLine($"{GridTimer.LastUpdate}");
-            }
-            finally
-            {
-                isLoadingInProgress = false;
-            }
+            GridTimer.LastUpdate = DateTime.Now;
+            Console.WriteLine($"{GridTimer.LastUpdate}");
+            if (minimumQuantityNotificatioVisible) await minimumQuantityNotifications.Update();
+            if (userAlarmNotificationVisible) await userAlarmNotifications.Update();
+            if (outOfStockNotificatioVisible) await outOfStockNotifications.Update();
+            if (expiredReservationNotificationVisible) await expiredReservationNotifications.Update();
+            if (customerOrderExpirationNotificationVisible) await customerOrderExpirationNotifications.Update();
+            if (purchaseOrderExpirationNotificationVisible) await purchaseOrderExpirationNotifications.Update();
+            if (purchaseOrderTransitAlarmNotificationsVisible) await purchaseOrderTransitAlarmNotifications.Update();
         }
-
-        private async Task GridaData_UpdateOnTimerChange(object value)
+        protected async Task GridaData_UpdateOnTimerChange(object value)
         {
             var milliseconds = (double)value;
             GridTimer.UpdateTimerInterval(milliseconds);
             TimerPreferenceService.UpdateTimerPreferences(GridTimer.Key, milliseconds);
         }
-        
+
         public void Dispose()
         {
             GridTimer.Dispose();
-        }        
+        }
         #endregion
     }
 }

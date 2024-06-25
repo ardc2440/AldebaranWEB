@@ -95,11 +95,9 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
 
         #region Timer
 
-        private async Task GridaData_UpdateOnTimerChange(object value)
+        public async Task Update()
         {
-            var milliseconds = (double)value;
-            GridTimer.UpdateTimerInterval(milliseconds);
-            TimerPreferenceService.UpdateTimerPreferences(GridTimer.Key, milliseconds);
+            await GridData_Update();
         }
 
         private async Task GridData_Update()
@@ -115,6 +113,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
             {
                 isLoadingInProgress = false;
             }
+            StateHasChanged();
         }
 
         async Task InitializeGridTimers()

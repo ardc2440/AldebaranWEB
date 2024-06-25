@@ -132,4 +132,7 @@
   <data name="page:loading-text" xml:space="preserve">
     <value>Cargando la página. Un momento por favor...</value>
   </data>
+  <data name="time:format" xml:space="preserve">
+    <value>hh:mm:ss tt</value>
+  </data>
 </root>

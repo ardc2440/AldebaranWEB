@@ -4,7 +4,7 @@
 
 <RadzenCard class="rz-col-12" Style="max-width: 100%">
     <NotificationTitle TogglePanel="@TogglePanel" AlertVisible="@expiredReservationsAlertVisible" DataUpdate="@GridData_Update" GridTimer="@GridTimer" Title="Reservas vencidas"
-                       IsPanelCollapsed="@isPanelCollapsed" Timers="@Timers" DataUpdateOnTimerChange="@GridaData_UpdateOnTimerChange" OnBoolChange="@HandleBoolChange" />
+                       IsPanelCollapsed="@isPanelCollapsed" Timers="@Timers" OnBoolChange="@HandleBoolChange" />
     <RadzenCard Visible="!isPanelCollapsed">
         <LocalizedDataGrid Style="height: 100%" PageSize="@pageSize" @ref="expiredReservationsGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" Data="@expiredReservations" TItem="Aldebaran.Application.Services.Models.CustomerReservation" IsLoading="@(GridTimer.IsLoading||isLoadingInProgress)">
             <Columns>

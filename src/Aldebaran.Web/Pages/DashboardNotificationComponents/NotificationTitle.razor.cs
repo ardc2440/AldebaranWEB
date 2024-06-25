@@ -11,8 +11,6 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         [Parameter]
         public EventCallback<MouseEventArgs> DataUpdate { get; set; }
         [Parameter]
-        public EventCallback<Object> DataUpdateOnTimerChange { get ; set; }
-        [Parameter]
         public EventCallback<bool> OnBoolChange { get; set; }
         [Parameter]
         public bool IsPanelCollapsed { get; set; }

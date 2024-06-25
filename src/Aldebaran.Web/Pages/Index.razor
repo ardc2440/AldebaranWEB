@@ -10,7 +10,6 @@
 
 @if (!isLoadingInProgress)
 {
-
     <RadzenRow class="mb-2">
         <RadzenColumn SizeLG="6" SizeXL="6" SizeMD="6" SizeSM="6" SizeXX="12" SizeXS="12" class="d-flex align-items-end">
             <RadzenText Text="Tablero de notificaciones" TextStyle="Radzen.Blazor.TextStyle.DisplayH5" TagName="Radzen.Blazor.TagName.Auto" class="p-0 m-0"></RadzenText>
@@ -30,31 +29,31 @@
         </RadzenColumn>
     </RadzenRow>
 
-    <RadzenRow class="mb-2">
-        <RadzenColumn SizeLG="6" SizeXL="6" SizeMD="6" SizeSM="6" SizeXX="12" SizeXS="12">
-            <RadzenRow class="mb-2">
-                <MinimumQuantityNotifications PendingStatusOrderId="@pendingStatusOrder.StatusDocumentTypeId" />
+    <RadzenRow Visible="@(minimumQuantityNotificatioVisible||userAlarmNotificationVisible||outOfStockNotificatioVisible||expiredReservationNotificationVisible)" class="mb-2">
+        <RadzenColumn Visible="@(minimumQuantityNotificatioVisible||userAlarmNotificationVisible)" SizeLG="6" SizeXL="6" SizeMD="6" SizeSM="6" SizeXX="12" SizeXS="12">
+            <RadzenRow Visible="@(minimumQuantityNotificatioVisible)" class="mb-2">
+                <MinimumQuantityNotifications @ref="minimumQuantityNotifications" PendingStatusOrderId="@pendingStatusOrder.StatusDocumentTypeId" />
             </RadzenRow>
-            <RadzenRow class="mb-2">
-                <UserAlarmNotifications />
-            </RadzenRow>
-        </RadzenColumn>
-        <RadzenColumn SizeLG="6" SizeXL="6" SizeMD="6" SizeSM="6" SizeXX="12" SizeXS="12">
-            <RadzenRow class="mb-2">
-                <OutOfStockNotifications PendingStatusOrderId="@pendingStatusOrder.StatusDocumentTypeId" />
-            </RadzenRow>
-            <RadzenRow class="mb-2">
-                <ExpiredReservationNotifications />
+            <RadzenRow Visible="@(userAlarmNotificationVisible)" class="mb-2">
+                <UserAlarmNotifications @ref="userAlarmNotifications" />
             </RadzenRow>
         </RadzenColumn>
+        <RadzenColumn Visible="@(outOfStockNotificatioVisible||expiredReservationNotificationVisible)" SizeLG="6" SizeXL="6" SizeMD="6" SizeSM="6" SizeXX="12" SizeXS="12">
+            <RadzenRow Visible="@(outOfStockNotificatioVisible)" class="mb-2">
+                <OutOfStockNotifications @ref="outOfStockNotifications" PendingStatusOrderId="@pendingStatusOrder.StatusDocumentTypeId" />
+            </RadzenRow>
+            <RadzenRow Visible="@(outOfStockNotificatioVisible||expiredReservationNotificationVisible)" class="mb-2">
+                <ExpiredReservationNotifications @ref="expiredReservationNotifications" />
+            </RadzenRow>
+        </RadzenColumn>
     </RadzenRow>
-    <RadzenRow class="mb-2">
-        <CustomerOrderExpirationNotifications />
+    <RadzenRow Visible="@(customerOrderExpirationNotificationVisible)" class="mb-2">
+        <CustomerOrderExpirationNotifications @ref="customerOrderExpirationNotifications" />
     </RadzenRow>
-    <RadzenRow class="mb-2">
-        <PurchaseOrderExpirationNotifications />
+    <RadzenRow Visible="(purchaseOrderExpirationNotificationVisible)" class="mb-2">
+        <PurchaseOrderExpirationNotifications @ref="purchaseOrderExpirationNotifications" />
     </RadzenRow>
-    <RadzenRow class="mb-2">
-        <PurchaseOrderTransitAlarmNotifications />
+    <RadzenRow Visible="(purchaseOrderTransitAlarmNotificationsVisible)" class="mb-2">
+        <PurchaseOrderTransitAlarmNotifications @ref="purchaseOrderTransitAlarmNotifications" />
     </RadzenRow>
 }

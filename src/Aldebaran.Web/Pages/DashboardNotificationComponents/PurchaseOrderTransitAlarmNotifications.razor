@@ -4,7 +4,7 @@
 
 <RadzenCard class="rz-col-12" Style="max-width: 100%">
     <NotificationTitle TogglePanel="@TogglePanel" AlertVisible="@purchaseAlarmsAlertVisible" DataUpdate="@GridData_Update" GridTimer="@GridTimer" Title="Ordenes de compra modificadas con pedido afectado"
-                       IsPanelCollapsed="@isPanelCollapsed" Timers="@Timers" DataUpdateOnTimerChange="@GridaData_UpdateOnTimerChange" OnBoolChange="@HandleBoolChange" />
+                       IsPanelCollapsed="@isPanelCollapsed" Timers="@Timers" OnBoolChange="@HandleBoolChange" />
     <RadzenCard Visible="!isPanelCollapsed">
         <LocalizedDataGrid RowExpand=@GetAlarmChildData ExpandMode="DataGridExpandMode.Single" Style="height: 100%" PageSize="@pageSize" @ref="purchaseOrderTransitAlarmsGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" Data="@purchaseOrderTransitAlarms" TItem="Aldebaran.Application.Services.Models.PurchaseOrderTransitAlarm" IsLoading="@GridTimer.IsLoading">
             <Columns>

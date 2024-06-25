@@ -1,27 +1,28 @@
 ﻿@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer ;
 <RadzenRow Gap="1rem" JustifyContent="JustifyContent.Normal" AlignItems="AlignItems.Center">
-    <RadzenColumn Size="5">
+    <RadzenColumn Size="9">
         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Start" Gap="1rem" Wrap="FlexWrap.Wrap" JustifyContent="JustifyContent.Start">
             <RadzenButton Click="@TogglePanel" Icon="@ToggleIcon" Variant="Variant.Filled" ButtonStyle="ButtonStyle.Secondary" Size="ButtonSize.Medium" class="d-flex align-items-start rz-button-icon-only rz-border-radius-10" />
-            <RadzenText Text="@Title" TextStyle="TextStyle.H6" Class="rz-display-flex rz-align-items-start rz-m-0" />
+            <RadzenColumn>
+                <RadzenRow>
+                   <RadzenText Text="@Title" TextStyle="TextStyle.H6" Class="rz-display-flex rz-align-items-start rz-m-0" />
+                </RadzenRow>
+                <RadzenRow>
+                    <p class="p-0 m-0 text-end fw-lighter text-muted">
+                        <b><strong>Actualizado:</strong></b> @GridTimer.LastUpdate.ToString(SharedLocalizer["time:format"])
+                    </p>
+                </RadzenRow>
+            </RadzenColumn>
         </RadzenStack>
     </RadzenColumn>
-    <RadzenColumn Size="7">
-        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.End" Gap="1rem" Wrap="FlexWrap.Wrap" JustifyContent="JustifyContent.End">
-            <RadzenImage Click="@AlertClick" Visible="@AlertVisible" Path="images/alert.gif" style="width: 30px"></RadzenImage>
-            <RadzenFormField Variant="Variant.Text">
-                <RadzenDropDown @bind-Value="@GridTimer.SelectedTimer" Data="@Timers" ValueProperty="Milliseconds" TextProperty="Description" Name="MinimumQuantityDropDownTimer" Change="@(async (args)=> await DataUpdateOnTimerChange.InvokeAsync(args))" />
-            </RadzenFormField>
+    <RadzenColumn Size="3">
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="1rem" Wrap="FlexWrap.Wrap" JustifyContent="JustifyContent.End">
+            <RadzenImage Click="@AlertClick" Visible="@AlertVisible" Path="images/alert.gif" style="width: 30px"></RadzenImage>           
             <RadzenButton Click="@DataUpdate" Icon="refresh" Variant="Variant.Filled" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Small" class="d-flex align-items-end rz-button-icon-only rz-border-radius-10" />
-        </RadzenStack>
-        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.End" Gap="1rem" Wrap="FlexWrap.Wrap" JustifyContent="JustifyContent.End" class="pt-1">
-            <p class="p-0 m-0 text-end fw-lighter text-muted">
-                Última actualización: @GridTimer.LastUpdate.ToString(SharedLocalizer["datetime:format"])
-            </p>
         </RadzenStack>
     </RadzenColumn>
 </RadzenRow>
 
-@code{
-    protected string ToggleIcon => IsPanelCollapsed ? "expand_more" : "expand_less";    
+@code {
+    protected string ToggleIcon => IsPanelCollapsed ? "expand_more" : "expand_less";
 }

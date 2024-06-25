@@ -4,7 +4,7 @@
 
 <RadzenCard class="rz-col-12" Style="max-width: 100%">
     <NotificationTitle TogglePanel="@TogglePanel" AlertVisible="@expiredCustomerOrdersAlertVisible" DataUpdate="@GridData_Update" GridTimer="@GridTimer" Title="Pedidos vencidos"
-                       IsPanelCollapsed="@isPanelCollapsed" Timers="@Timers" DataUpdateOnTimerChange="@GridaData_UpdateOnTimerChange" OnBoolChange="@HandleBoolChange" />
+                       IsPanelCollapsed="@isPanelCollapsed" Timers="@Timers" OnBoolChange="@HandleBoolChange" />
     <RadzenCard Visible="!isPanelCollapsed">
         <LocalizedDataGrid Style="height: 100%" PageSize="@pageSize" @ref="expiredCustomerOrdersGrid" AllowFiltering="true" AllowPaging="true" 
                            AllowSorting="true" ShowPagingSummary="true" Data="@expiredCustomerOrders" TItem="Aldebaran.Application.Services.Models.CustomerOrder" IsLoading="@(GridTimer.IsLoading||isLoadingInProgress)">
