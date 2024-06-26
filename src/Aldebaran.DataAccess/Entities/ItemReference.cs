@@ -18,6 +18,8 @@ namespace Aldebaran.DataAccess.Entities
         public bool IsActive { get; set; }
         public bool IsSoldOut { get; set; }
         public int AlarmMinimumQuantity { get; set; }
+        public int PurchaseOrderVariation { get; set; }
+
         // Reverse navigation
         public ICollection<AdjustmentDetail> AdjustmentDetails { get; set; }
         public ICollection<CustomerOrderDetail> CustomerOrderDetails { get; set; }
@@ -36,6 +38,7 @@ namespace Aldebaran.DataAccess.Entities
             IsActive = true;
             IsSoldOut = false;
             AlarmMinimumQuantity = 0;
+            PurchaseOrderVariation = 0;
             AdjustmentDetails = new List<AdjustmentDetail>();
             CustomerOrderDetails = new List<CustomerOrderDetail>();
             CustomerReservationDetails = new List<CustomerReservationDetail>();

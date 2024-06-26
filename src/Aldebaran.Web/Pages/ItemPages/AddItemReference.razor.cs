@@ -77,6 +77,13 @@ namespace Aldebaran.Web.Pages.ItemPages
                     IsErrorVisible = true;
                     return;
                 }
+
+                if (ItemReference.PurchaseOrderVariation == 0)
+                    if (await DialogService.Confirm("No ha definido el porcentaje de variacion para las ordenes de compra. Desea continuar?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == false)
+                    {
+                        return;
+                    }
+
                 await ItemReferenceService.AddAsync(ItemReference);
                 DialogService.Close(true);
             }

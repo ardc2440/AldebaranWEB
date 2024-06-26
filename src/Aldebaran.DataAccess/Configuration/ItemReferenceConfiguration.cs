@@ -22,6 +22,7 @@ namespace Aldebaran.DataAccess.Entities
             builder.Property(x => x.IsActive).HasColumnName(@"IS_ACTIVE").HasColumnType("bit").IsRequired();
             builder.Property(x => x.IsSoldOut).HasColumnName(@"IS_SOLD_OUT").HasColumnType("bit").IsRequired();
             builder.Property(x => x.AlarmMinimumQuantity).HasColumnName(@"ALARM_MINIMUM_QUANTITY").HasColumnType("int").IsRequired();
+            builder.Property(x => x.PurchaseOrderVariation).HasColumnName(@"PURCHASE_ORDER_VARIATION").HasColumnType("int").IsRequired();
             // Foreign keys
             builder.HasOne(a => a.Item).WithMany(b => b.ItemReferences).HasForeignKey(c => c.ItemId).OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_REFERENCE_ITEM");
             builder.HasIndex(x => x.ProviderReferenceCode).HasDatabaseName("IND_REFERENCES_INTERNAL_REFERENCE_CODE");

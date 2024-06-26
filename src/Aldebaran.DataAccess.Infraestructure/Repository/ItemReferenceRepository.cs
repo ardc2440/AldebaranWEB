@@ -111,6 +111,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 entity.IsActive = itemReference.IsActive;
                 entity.IsSoldOut = itemReference.IsSoldOut;
                 entity.AlarmMinimumQuantity = itemReference.AlarmMinimumQuantity;
+                entity.PurchaseOrderVariation = itemReference.PurchaseOrderVariation;
                 await dbContext.SaveChangesAsync(ct);
             }, ct);
         }
@@ -147,18 +148,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                             .ToListAsync(ct);
             }, ct);
         }
-
-        public async Task<IEnumerable<ItemReference>> GetAllReferencesOutOfStockAsync(CancellationToken ct = default)
-        {
-            return await ExecuteQueryAsync(async dbContext =>
-            {
-                return await dbContext.ItemReferences.AsNoTracking()
-               .Include(i => i.Item.Line)
-               .Where(i => i.InventoryQuantity <= 0 && i.AlarmMinimumQuantity == 0 && i.IsActive && i.Item.IsActive)
-               .ToListAsync(ct);
-            }, ct);
-        }
-
+        
         public async Task<IEnumerable<ItemReference>> GetReportsReferencesAsync(bool? isReferenceActive = null, bool? isItemActive = null, bool? isExternalInventory = null, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>

@@ -124,6 +124,11 @@
                                     </RadzenDataGridColumn>
                                     <RadzenDataGridColumn TItem="ServiceModel.ItemReference" Property="AlarmMinimumQuantity" Title="Cantidad mínima" Visible="true" Width="50%">
                                     </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="ServiceModel.ItemReference" Property="PurchaseOrderVariation" Title="Variación en ordenes" Visible="true" Width="50%">
+                                        <Template Context="itemReference">
+                                            <span>@itemReference.PurchaseOrderVariation.ToString("0\\%")</span>
+                                        </Template>
+                                    </RadzenDataGridColumn>
                                     <RadzenDataGridColumn TItem="ServiceModel.ItemReference" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Administrador","Modificación de artículos")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                                         <Template Context="itemReference">
                                             <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Editar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
