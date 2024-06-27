@@ -1,5 +1,7 @@
 ﻿using Aldebaran.DataAccess.Entities;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
@@ -99,6 +101,33 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     dbContext.Entry(entity).State = EntityState.Unchanged;
                     throw;
                 }
+            }, ct);
+        }
+
+        public async Task<bool> IsValidPurchaseOrderVariation(int providerId, int referenceId, int? purchaseOrderId = null, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                var IsValidVariation = new SqlParameter();
+
+                IsValidVariation.ParameterName = "@IS_VALID_VARIATION";
+                IsValidVariation.SqlDbType = SqlDbType.Bit;
+                    IsValidVariation.Direction = ParameterDirection.Output;
+                
+                try
+                {
+                    await dbContext.Database
+                        .ExecuteSqlRawAsync("EXEC SP_IS_VALID_PURCHASE_ORDER_VARIATION @PROVIDER_ID={0}, @REFERENCE_ID={1}, @PURCHASE_ORDER_ID={2}, @IS_VALID_VARIATION = {3} OUT",
+                        providerId, referenceId, purchaseOrderId.HasValue ? purchaseOrderId : -1, IsValidVariation);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception(ex.Message);
+                }
+
+                bool result = (bool)IsValidVariation.Value;
+
+                return await Task.FromResult(result);
             }, ct);
         }
     }

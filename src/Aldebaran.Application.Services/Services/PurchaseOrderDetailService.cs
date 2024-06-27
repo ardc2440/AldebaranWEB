@@ -48,5 +48,10 @@ namespace Aldebaran.Application.Services
             var entity = _mapper.Map<Entities.PurchaseOrderDetail>(purchaseOrder) ?? throw new ArgumentNullException("Referencia de la orden de compra no puede ser nula.");
             await _repository.UpdateAsync(purchaseOrderDetailId, entity, ct);
         }
+
+        public async Task<bool> IsValidPurchaseOrderVariation(int providerId, int referenceId, int? purchaseOrderId = null, CancellationToken ct = default)
+        {
+            return await _repository.IsValidPurchaseOrderVariation(providerId, referenceId, purchaseOrderId, ct);
+        }
     }
 }

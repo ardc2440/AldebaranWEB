@@ -174,7 +174,8 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                     { "ProviderItemReferences", itemReferences.ToList() },
                     { "PurchaseOrderDetails", PurchaseOrderDetails.ToList() },                     
                     { "LastReferenceId", lastReferenceId },
-                    { "LastWarehouseId", lastWarehouseId}
+                    { "LastWarehouseId", lastWarehouseId},
+                    { "ProviderId", PurchaseOrder.ProviderId}
                 });
             if (result == null)
                 return;
@@ -199,7 +200,8 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
             var result = await DialogService.OpenAsync<EditPurchaseOrderDetail>("Actualizar referencia",
                 new Dictionary<string, object> {
                     { "PurchaseOrderDetail", item },
-                    { "PurchaseOrderDetails", PurchaseOrderDetails.ToList() }
+                    { "PurchaseOrderDetails", PurchaseOrderDetails.ToList() },
+                    { "ProviderId", PurchaseOrder.ProviderId}
                 });
             if (result == null)
                 return;

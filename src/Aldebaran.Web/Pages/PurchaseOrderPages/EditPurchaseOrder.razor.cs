@@ -84,6 +84,8 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         protected bool IsSubmitInProgress;
         protected bool isLoadingInProgress;
         protected string Error;
+        protected int lastReferenceId = 0;
+        protected short lastWarehouseId = 0;
         #endregion
 
         #region Overrides
@@ -239,12 +241,18 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
             var result = await DialogService.OpenAsync<AddPurchaseOrderDetail>("Nueva referencia",
                 new Dictionary<string, object> {
                     { "ProviderItemReferences", itemReferences.ToList() },
-                    { "PurchaseOrderDetails", PurchaseOrderDetails.ToList() }
+                    { "PurchaseOrderDetails", PurchaseOrderDetails.ToList() },
+                    { "LastReferenceId", lastReferenceId },
+                    { "LastWarehouseId", lastWarehouseId},
+                    { "ProviderId", PurchaseOrder.ProviderId},
+                    { "PurchaseOrderId", PurchaseOrder.PurchaseOrderId}
                 });
             if (result == null)
                 return;
             var detail = (ServiceModel.PurchaseOrderDetail)result;
             PurchaseOrderDetails.Add(detail);
+            lastReferenceId = detail.ReferenceId;
+            lastWarehouseId = detail.WarehouseId;
             await PurchaseOrderDetailGrid.Reload();
         }
         protected async Task DeletePurchaseOrderDetail(MouseEventArgs args, ServiceModel.PurchaseOrderDetail item)
@@ -262,7 +270,9 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
             var result = await DialogService.OpenAsync<EditPurchaseOrderDetail>("Actualizar referencia",
                 new Dictionary<string, object> {
                     { "PurchaseOrderDetail", item },
-                    { "PurchaseOrderDetails", PurchaseOrderDetails.ToList() }
+                    { "PurchaseOrderDetails", PurchaseOrderDetails.ToList() },
+                    { "ProviderId", PurchaseOrder.ProviderId},
+                    { "PurchaseOrderId", PurchaseOrder.PurchaseOrderId}
                 });
             if (result == null)
                 return;

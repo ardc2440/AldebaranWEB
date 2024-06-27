@@ -14,6 +14,10 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
 
         [Inject]
         protected IWarehouseService WarehouseService { get; set; }
+
+        [Inject]
+        protected IPurchaseOrderDetailService PurchaseOrderDetailService { get; set; }
+
         #endregion
 
         #region Parameters
@@ -25,6 +29,8 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         public int LastReferenceId { get; set; }
         [Parameter]
         public short LastWarehouseId { get; set; }
+        [Parameter]
+        public int ProviderId { get; set; }
         #endregion
 
         #region Variables
@@ -72,6 +78,9 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                     Error = "Ya existe una referencia para la misma bodega adicionada a esta orden de compra";
                     return;
                 }
+                if (!await PurchaseOrderDetailService.IsValidPurchaseOrderVariation(ProviderId,PurchaseOrderDetail.ReferenceId))
+                    if (await DialogService.Confirm("Ha ingresado una cantidad fuera del rango promedio de ordenes de compra de la referencia " +
+                            "con este proveedor. Desea continuar con el proceso?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar cantidad") == false) return; 
                 PurchaseOrderDetail.Warehouse = Warehouses.Single(s => s.WarehouseId == PurchaseOrderDetail.WarehouseId);
                 DialogService.Close(PurchaseOrderDetail);
             }
