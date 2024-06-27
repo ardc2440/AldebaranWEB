@@ -10,6 +10,6 @@ namespace Aldebaran.Application.Services
         Task UpdateAsync(int purchaseOrderDetailId, PurchaseOrderDetail purchaseOrder, CancellationToken ct = default);
         Task<IEnumerable<PurchaseOrderDetail>> GetTransitDetailOrdersAsync(int statusOrder, int? referenceId = null, CancellationToken ct = default);
         Task<IEnumerable<PurchaseOrderDetail>> GetByPurchaseOrderIdAsync(int purchaseOrderId, CancellationToken ct = default);
-        Task<bool> IsValidPurchaseOrderVariation(int providerId, int referenceId, int? purchaseOrderId = null, CancellationToken ct = default);
+        Task<bool> IsValidPurchaseOrderVariation(int providerId, int referenceId, int quantity, int? purchaseOrderId = null, CancellationToken ct = default);
     }
 }

@@ -104,7 +104,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             }, ct);
         }
 
-        public async Task<bool> IsValidPurchaseOrderVariation(int providerId, int referenceId, int? purchaseOrderId = null, CancellationToken ct = default)
+        public async Task<bool> IsValidPurchaseOrderVariation(int providerId, int referenceId, int quantity, int? purchaseOrderId = null, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
             {
@@ -117,8 +117,8 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 try
                 {
                     await dbContext.Database
-                        .ExecuteSqlRawAsync("EXEC SP_IS_VALID_PURCHASE_ORDER_VARIATION @PROVIDER_ID={0}, @REFERENCE_ID={1}, @PURCHASE_ORDER_ID={2}, @IS_VALID_VARIATION = {3} OUT",
-                        providerId, referenceId, purchaseOrderId.HasValue ? purchaseOrderId : -1, IsValidVariation);
+                        .ExecuteSqlRawAsync("EXEC SP_IS_VALID_PURCHASE_ORDER_VARIATION @PROVIDER_ID={0}, @REFERENCE_ID={1}, @QUANTITY={2}, @PURCHASE_ORDER_ID={3}, @IS_VALID_VARIATION = {4} OUT",
+                        providerId, referenceId, quantity, purchaseOrderId.HasValue ? purchaseOrderId : -1, IsValidVariation);
                 }
                 catch (Exception ex)
                 {

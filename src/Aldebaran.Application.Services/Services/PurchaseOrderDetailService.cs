@@ -49,9 +49,9 @@ namespace Aldebaran.Application.Services
             await _repository.UpdateAsync(purchaseOrderDetailId, entity, ct);
         }
 
-        public async Task<bool> IsValidPurchaseOrderVariation(int providerId, int referenceId, int? purchaseOrderId = null, CancellationToken ct = default)
+        public async Task<bool> IsValidPurchaseOrderVariation(int providerId, int referenceId, int quantity, int? purchaseOrderId = null, CancellationToken ct = default)
         {
-            return await _repository.IsValidPurchaseOrderVariation(providerId, referenceId, purchaseOrderId, ct);
+            return await _repository.IsValidPurchaseOrderVariation(providerId, referenceId, quantity, purchaseOrderId, ct);
         }
     }
 }

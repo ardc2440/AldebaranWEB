@@ -88,7 +88,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                     return;
                 }
 
-                if (!await PurchaseOrderDetailService.IsValidPurchaseOrderVariation(ProviderId, PurchaseOrderDetail.ReferenceId, PurchaseOrderId))
+                if (!await PurchaseOrderDetailService.IsValidPurchaseOrderVariation(ProviderId, PurchaseOrderDetail.ReferenceId, PurchaseOrderDetail.RequestedQuantity, PurchaseOrderId))
                     if (await DialogService.Confirm("Ha ingresado una cantidad fuera del rango promedio de ordenes de compra de la referencia " +
                             "con este proveedor. Desea continuar con el proceso?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar cantidad") == false) return;
 
