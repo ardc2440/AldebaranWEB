@@ -49,3 +49,55 @@ BEGIN
 	SET @IS_VALID_VARIATION = 0
 END 
 GO
+
+CREATE OR ALTER PROCEDURE SP_GET_NOTFICATIONS_WITH_SEND_ERROR
+	@SEARCHKEY VARCHAR(MAX) = NULL
+AS
+BEGIN
+	DECLARE @Notifications TABLE (
+		Description VARCHAR(MAX), 
+		CUSTOMER_NAME VARCHAR(50),
+		Reason VARCHAR(100),	
+		NOTIFIED_MAIL_LIST	VARCHAR(MAX),
+		NOTIFICATION_DATE DATETIME,
+		NOTIFICATION_SENDING_ERROR_MESSAGE VARCHAR(MAX))
+
+	INSERT INTO @Notifications
+		SELECT 'Notificación para el pedido no. '+d.ORDER_NUMBER+' del '+CONVERT(varchar,d.ORDER_DATE,3) + ' por modificación de la orden de compra No. '+
+			   c.ORDER_NUMBER Description, f.CUSTOMER_NAME, e.MODIFICATION_REASON_NAME Reason, a.NOTIFIED_MAIL_LIST, a.NOTIFICATION_DATE, a.NOTIFICATION_SENDING_ERROR_MESSAGE
+		  FROM purchase_order_notifications a 
+		  JOIN modified_purchase_orders b ON b.MODIFIED_PURCHASE_ORDER_ID = a.MODIFIED_PURCHASE_ORDER_ID
+		  JOIN purchase_orders c ON c.PURCHASE_ORDER_ID = b.PURCHASE_ORDER_ID
+		  JOIN customer_orders d ON d.CUSTOMER_ORDER_ID = a.CUSTOMER_ORDER_ID  
+		  JOIN modification_reasons e ON e.MODIFICATION_REASON_ID = b.MODIFICATION_REASON_ID
+		  JOIN customers f ON f.CUSTOMER_ID = d.CUSTOMER_ID
+		 WHERE NOTIFICATION_STATE = -1
+		UNION 
+		SELECT 'Notificación para el pedido no. '+b.ORDER_NUMBER+' del '+CONVERT(varchar,b.ORDER_DATE,3) Description, 
+			   c.CUSTOMER_NAME, d.SUBJECT Reason, a.NOTIFIED_MAIL_LIST, a.NOTIFICATION_DATE, a.NOTIFICATION_SENDING_ERROR_MESSAGE
+		  FROM customer_order_notifications a
+		  JOIN customer_orders b ON b.CUSTOMER_ORDER_ID = a.CUSTOMER_ORDER_ID
+		  JOIN customers c ON c.CUSTOMER_ID = b.CUSTOMER_ID
+		  JOIN notification_templates d ON d.NOTIFICATION_TEMPLATE_ID = a.NOTIFICATION_TEMPLATE_ID
+		 WHERE NOTIFICATION_STATE = -1
+		UNION
+		SELECT 'Notificación para la reserva no. '+b.RESERVATION_NUMBER+' del '+CONVERT(varchar,b.RESERVATION_DATE,3) Description, 
+			   c.CUSTOMER_NAME, d.SUBJECT Reason, a.NOTIFIED_MAIL_LIST, a.NOTIFICATION_DATE, a.NOTIFICATION_SENDING_ERROR_MESSAGE
+		  FROM customer_reservation_notifications a
+		  JOIN customer_reservations b ON b.CUSTOMER_RESERVATION_ID = a.CUSTOMER_RESERVATION_ID
+		  JOIN customers c ON c.CUSTOMER_ID = b.CUSTOMER_ID
+		  JOIN notification_templates d ON d.NOTIFICATION_TEMPLATE_ID = a.NOTIFICATION_TEMPLATE_ID
+		 WHERE NOTIFICATION_STATE = -1
+
+	SELECT * 
+	  FROM @Notifications
+	 WHERE @SearchKey IS NULL 
+	    OR Description LIKE '%'+@SearchKey+'%' 
+		OR CUSTOMER_NAME LIKE '%'+@SearchKey+'%' 
+		OR Reason LIKE '%'+@SearchKey+'%' 
+		OR NOTIFIED_MAIL_LIST LIKE '%'+@SearchKey+'%' 
+		OR CONVERT(VARCHAR, NOTIFICATION_DATE, 3) LIKE '%'+@SearchKey+'%' 
+		OR NOTIFICATION_SENDING_ERROR_MESSAGE LIKE '%'+@SearchKey+'%' 
+ 
+END 
+GO

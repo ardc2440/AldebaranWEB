@@ -9,7 +9,7 @@ using Radzen;
 
 namespace Aldebaran.Web.Pages.DashboardNotificationComponents
 {
-    public partial class CustomerOrderExpirationNotifications
+    public partial class EmailWithErrorNotifications
     {
         #region Injections       
 
@@ -42,19 +42,19 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         #endregion
 
         #region properties
-    
+
         #endregion
 
         #region Variables
         protected bool isLoadingInProgress;
-        protected bool expiredCustomerOrdersAlertVisible = false;
+        protected bool emailNotificationsAlertVisible = false;
         protected int pageSize = 7;
-        readonly GridTimer GridTimer = new GridTimer("ExpiredCustomerOrders-GridTimer");
+        readonly GridTimer GridTimer = new GridTimer("EmailErrors-GridTimer");
         List<DataTimer> Timers;
-        protected string search = ""; 
+        protected string search = "";
 
-        protected IEnumerable<CustomerOrder> expiredCustomerOrders = new List<CustomerOrder>();
-        protected LocalizedDataGrid<CustomerOrder> expiredCustomerOrdersGrid;
+        protected IEnumerable<NotificationWithError> notificationsWithError = new List<NotificationWithError>();
+        protected LocalizedDataGrid<NotificationWithError> notificationsWithErrorGrid;
 
         #endregion
 
@@ -78,7 +78,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         #region Events
 
         #region Timer
-        
+
         async Task InitializeGridTimers()
         {
             await GridTimer.InitializeTimer(TimerPreferenceService.GetTimerPreferences(GridTimer.Key), async (sender, e) =>
@@ -148,7 +148,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
                 isLoadingInProgress = true;
                 GridTimer.LastUpdate = DateTime.Now;
                 Console.WriteLine($"{GridTimer.LastUpdate}");
-                await UpdateExpiredCustomerOrdersAsync();
+                await UpdateMailErrorNotificationsAsync();
             }
             finally
             {
@@ -162,32 +162,25 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
 
             search = $"{args.Value}";
 
-            await expiredCustomerOrdersGrid.GoToPage(0);
+            await notificationsWithErrorGrid.GoToPage(0);
 
             await GridData_Update();
         }
 
-        async Task UpdateExpiredCustomerOrdersAsync(CancellationToken ct = default)
+        async Task UpdateMailErrorNotificationsAsync(CancellationToken ct = default)
         {
-            var originalData = await GetCache<CustomerOrder>("CustomerOrder");
+            var originalData = await GetCache<NotificationWithError>("NotificationWithError");
 
-            expiredCustomerOrders = (await DashBoardService.GetExpiredCustomerOrdersAsync(search, ct)).ToList();
-            expiredCustomerOrdersAlertVisible = !expiredCustomerOrders.OrderBy(o => o.CustomerOrderId).ToList().IsEqual<CustomerOrder>(originalData.OrderBy(o => o.CustomerOrderId).ToList());
-            await UpdateCache<CustomerOrder>("CustomerOrder", expiredCustomerOrders.ToList());
-            if (expiredCustomerOrdersGrid != null)
-                await expiredCustomerOrdersGrid.Reload();
+            notificationsWithError = (await DashBoardService.GetNotificationsWithError(search, ct)).ToList();
+            emailNotificationsAlertVisible = !notificationsWithError.OrderBy(o => o.NotificationDate).ToList().IsEqual<NotificationWithError>(originalData.OrderBy(o => o.NotificationDate).ToList());
+            await UpdateCache<NotificationWithError>("NotificationWithError", notificationsWithError.ToList());
+            if (notificationsWithErrorGrid != null)
+                await notificationsWithErrorGrid.Reload();
         }
-
-        public async Task CustomerOrderDetailInfo(int customerOrderId)
-        {
-            var reasonResult = await DialogService.OpenAsync<CustomerOrderPages.CustomerOrderDetails>("Detalles del pedido", new Dictionary<string, object> { { "CustomerOrderId", customerOrderId } }, options: new DialogOptions { CloseDialogOnOverlayClick = false, Width = "800px" });
-            if (reasonResult == null)
-                return;
-        }
-
+        
         private void HandleBoolChange(bool newValue)
         {
-            expiredCustomerOrdersAlertVisible = newValue;
+            emailNotificationsAlertVisible = newValue;
         }
         #endregion
     }

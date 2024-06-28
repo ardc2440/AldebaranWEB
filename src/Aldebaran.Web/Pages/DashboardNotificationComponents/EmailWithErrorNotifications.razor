@@ -1,0 +1,46 @@
+﻿@using Aldebaran.Web.Models.ViewModels;
+@using Aldebaran.Web.Resources.LocalizedControls;
+@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer ;
+
+<RadzenCard class="rz-col-12" Style="max-width: 100%">
+    <NotificationTitle TogglePanel="@TogglePanel" AlertVisible="@emailNotificationsAlertVisible" DataUpdate="@GridData_Update" GridTimer="@GridTimer" Title="Correo con error de envio"
+                       IsPanelCollapsed="@isPanelCollapsed" Timers="@Timers" OnBoolChange="@HandleBoolChange" />
+    <RadzenCard class="rz-m-1" Visible="!isPanelCollapsed">
+        <RadzenRow>
+            <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
+        </RadzenRow>
+        <RadzenRow class="rz-m-1">
+            <LocalizedDataGrid Style="height: 100%" PageSize="@pageSize" @ref="notificationsWithErrorGrid" AllowFiltering="true" AllowPaging="true"
+                               AllowSorting="true" ShowPagingSummary="true" Data="@notificationsWithError" TItem="Aldebaran.Application.Services.Models.NotificationWithError" IsLoading="@(GridTimer.IsLoading||isLoadingInProgress)">
+                <Columns>
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.NotificationWithError" Property="Description" Title="Notificación" Width="80%"></RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.NotificationWithError" Property="CustomerName" Title="Cliente" Width="80%"></RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.NotificationWithError" Property="Reason" Title="Motivo" Width="80%"></RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.NotificationWithError" Property="NotifiedMailList" Title="Correo(s) notificado(s)" Width="80%">
+                        <Template Context="emailError">
+                            @foreach (string mail in emailError.NotifiedMailList.Split(';'))
+                            {
+                                <li>@mail</li>
+                            }
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.NotificationWithError" Property="NotificationDate" Title="Fecha envio" Width="70%">
+                        <Template Context="emailError">
+                            <span>@emailError.NotificationDate.ToString(SharedLocalizer["date:format"])</span>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.NotificationWithError" Property="NotificationSendingErrorMessage" Title="Error" Width="80%"></RadzenDataGridColumn>
+                </Columns>
+            </LocalizedDataGrid>
+        </RadzenRow>
+    </RadzenCard>
+</RadzenCard>
+@code {
+    private bool isPanelCollapsed = true;
+    private string ToggleIcon => isPanelCollapsed ? "expand_more" : "expand_less";
+
+    private void TogglePanel()
+    {
+        isPanelCollapsed = !isPanelCollapsed;
+    }
+}

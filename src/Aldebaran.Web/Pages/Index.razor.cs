@@ -47,6 +47,7 @@ namespace Aldebaran.Web.Pages
         protected bool customerOrderExpirationNotificationVisible;
         protected bool purchaseOrderExpirationNotificationVisible;
         protected bool purchaseOrderTransitAlarmNotificationsVisible;
+        protected bool emailErrorNotificationsVisible;
 
         protected MinimumQuantityNotifications minimumQuantityNotifications;
         protected UserAlarmNotifications userAlarmNotifications;
@@ -55,6 +56,8 @@ namespace Aldebaran.Web.Pages
         protected CustomerOrderExpirationNotifications customerOrderExpirationNotifications;
         protected PurchaseOrderExpirationNotifications purchaseOrderExpirationNotifications;
         protected PurchaseOrderTransitAlarmNotifications purchaseOrderTransitAlarmNotifications;
+        protected EmailWithErrorNotifications emailWithErrorNotifications;
+
         #endregion
 
         #region Overrides
@@ -86,6 +89,7 @@ namespace Aldebaran.Web.Pages
             customerOrderExpirationNotificationVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por pedidos vencidos");
             purchaseOrderExpirationNotificationVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por órdenes próximas a su vencimiento");
             purchaseOrderTransitAlarmNotificationsVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por alarmas de órdenes modificadas con afectación en pedido");
+            emailErrorNotificationsVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por envio de correo con error");
         }
 
         async Task InitializeGridTimers()
@@ -130,6 +134,7 @@ namespace Aldebaran.Web.Pages
             if (customerOrderExpirationNotificationVisible) await customerOrderExpirationNotifications.Update();
             if (purchaseOrderExpirationNotificationVisible) await purchaseOrderExpirationNotifications.Update();
             if (purchaseOrderTransitAlarmNotificationsVisible) await purchaseOrderTransitAlarmNotifications.Update();
+            if (emailErrorNotificationsVisible) await emailWithErrorNotifications.Update();
         }
         protected async Task GridaData_UpdateOnTimerChange(object value)
         {

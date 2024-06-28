@@ -213,7 +213,16 @@ namespace Aldebaran.DataAccess
                 iar.Property(x => x.EstimatedDeliveryDate).HasColumnName(@"ESTIMATEDDELIVERYDATE").HasColumnType("DATE").IsRequired();
                 iar.Property(x => x.Status).HasColumnName(@"STATUS_DOCUMENT_TYPE_NAME").HasColumnType("VARCHAR(30)").IsRequired().IsUnicode(false).HasMaxLength(30);
             });
-
+            modelBuilder.Entity<NotificationWithError>(iar =>
+            {
+                iar.HasNoKey();
+                iar.Property(x => x.Description).HasColumnName(@"DESCRIPTION").HasColumnType("VARCHAR(MAX)").IsRequired();
+                iar.Property(x => x.CustomerName).HasColumnName(@"CUSTOMER_NAME").HasColumnType("VARCHAR(50)").IsRequired().IsUnicode(false).HasMaxLength(50);
+                iar.Property(x => x.Reason).HasColumnName(@"REASON").HasColumnType("VARCHAR(100)").IsUnicode(false).HasMaxLength(100);
+                iar.Property(x => x.NotifiedMailList).HasColumnName(@"NOTIFIED_MAIL_LIST").HasColumnType("VARCHAR(MAX)").IsRequired();
+                iar.Property(x => x.NotificationDate).HasColumnName(@"NOTIFICATION_DATE").HasColumnType("DATETIME").IsRequired();
+                iar.Property(x => x.NotificationSendingErrorMessage).HasColumnName(@"NOTIFICATION_SENDING_ERROR_MESSAGE").HasColumnType("VARCHAR(MAX)").IsUnicode(false);
+            });
             modelBuilder.ApplyConfiguration(new TrackConfiguration());
         }
 

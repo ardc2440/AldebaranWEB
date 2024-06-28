@@ -1,6 +1,9 @@
 ﻿using Aldebaran.DataAccess.Entities;
 using Aldebaran.Infraestructure.Common.Utils;
+using DocumentFormat.OpenXml.Drawing.Diagrams;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
@@ -174,10 +177,10 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                                                 !dbContext.VisualizedPurchaseOrderTransitAlarms.AsNoTracking().Any(j => j.PurchaseOrderTransitAlarmId == w.PurchaseOrderTransitAlarmId &&
                                                                                                                        j.EmployeeId == employeeId) &&
                                                 (w.ModifiedPurchaseOrder.PurchaseOrder.OrderNumber.Contains(searchKey) ||
-                                                 dbContext.Format(w.OldExpectedReceiptDate, _SharedLocalizer["date:format"]).Contains(searchKey)||
+                                                 dbContext.Format(w.OldExpectedReceiptDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
                                                  dbContext.Format(w.ModifiedPurchaseOrder.PurchaseOrder.ExpectedReceiptDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
-                                                 w.ModifiedPurchaseOrder.PurchaseOrder.Provider.ProviderName.Contains(searchKey)||
-                                                 dbContext.Format(w.ModifiedPurchaseOrder.ModificationDate, _SharedLocalizer["date:format"]).Contains(searchKey) || 
+                                                 w.ModifiedPurchaseOrder.PurchaseOrder.Provider.ProviderName.Contains(searchKey) ||
+                                                 dbContext.Format(w.ModifiedPurchaseOrder.ModificationDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
                                                  w.ModifiedPurchaseOrder.ModificationReason.ModificationReasonName.Contains(searchKey)))
                                     .ToListAsync(ct));
             }, ct);
@@ -206,8 +209,8 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                                                 (w.OrderNumber.Contains(searchKey) ||
                                                  dbContext.Format(w.ExpectedReceiptDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
                                                  w.Provider.ProviderName.Contains(searchKey) ||
-                                                 w.ShipmentForwarderAgentMethod.ForwarderAgent.Forwarder.ForwarderName.Contains(searchKey)||
-                                                 w.ShipmentForwarderAgentMethod.ForwarderAgent.ForwarderAgentName.Contains(searchKey)||
+                                                 w.ShipmentForwarderAgentMethod.ForwarderAgent.Forwarder.ForwarderName.Contains(searchKey) ||
+                                                 w.ShipmentForwarderAgentMethod.ForwarderAgent.ForwarderAgentName.Contains(searchKey) ||
                                                  w.ShipmentForwarderAgentMethod.ShipmentMethod.ShipmentMethodName.Contains(searchKey)))
                                     .ToListAsync(ct));
             }, ct);
@@ -234,11 +237,30 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                                                  i.StatusDocumentType.StatusOrder == 2 ||
                                                  i.StatusDocumentType.StatusOrder == 3) &&
                                                 (i.Customer.CustomerName.Contains(searchKey) ||
-                                                 i.OrderNumber.Contains(searchKey)||
-                                                 dbContext.Format(i.OrderDate, _SharedLocalizer["date:format"]).Contains(searchKey)||
+                                                 i.OrderNumber.Contains(searchKey) ||
+                                                 dbContext.Format(i.OrderDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
                                                  dbContext.Format(i.EstimatedDeliveryDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
                                                  i.StatusDocumentType.StatusDocumentTypeName.Contains(searchKey)))
                                     .ToListAsync(ct));
+            }, ct);
+        }
+
+        public async Task<IEnumerable<NotificationWithError>> GetNotificationsWithError(string? searchKey = null, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                if (searchKey.IsNullOrEmpty())
+                    return await dbContext.Set<NotificationWithError>()
+                    .FromSqlRaw($"EXEC SP_GET_NOTFICATIONS_WITH_SEND_ERROR").ToListAsync(ct);
+                else
+                {
+                    var search = new SqlParameter("@SEARCHKEY", searchKey);
+
+                    return await dbContext.Set<NotificationWithError>()
+                        .FromSqlRaw($"EXEC SP_GET_NOTFICATIONS_WITH_SEND_ERROR " +
+                        $"@SEARCHKEY",
+                        search).ToListAsync(ct);
+                }
             }, ct);
         }
     }

@@ -152,6 +152,7 @@ INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) 
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'C3B6C037-DF62-467A-B4D3-9B374104DC66', N'50FE4921-1F22-465B-999F-BB9DF5DCDA71', N'Consulta de notificaciones por alarmas de órdenes modificadas con afectación en pedido', N'CONSULTA DE NOTIFICACIONES POR ALARMAS DE ÓRDENES MODIFICADAS CON AFECTACIÓN EN PEDIDO')
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'8DC9A444-A36A-447E-BF36-EF17B576E45D', N'6D765C29-3580-4BA4-AB6C-A5F7EA2A3DBF', N'Consulta de notificaciones por órdenes próximas a su vencimiento', N'CONSULTA DE NOTIFICACIONES POR ÓRDENES PRÓXIMAS A SU VENCIMIENTO')
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'B370C85A-8407-478B-8CAC-9D8DE2E6F171', N'6870FA88-034A-4E88-98BA-3F45C5E08872', N'Consulta de notificaciones por pedidos vencidos', N'CONSULTA DE NOTIFICACIONES POR PEDIDOS VENCIDOS')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'5573C87B-1F0A-49EE-8125-CFAFFB940D88', N'05953D91-D898-4647-82AA-2EEFCE9F7AFB', N'Consulta de notificaciones por envio de correo con error', N'CONSULTA DE NOTIFICACIONES POR ENVIO DE CORREO CON ERROR')
 GO
 
 /*

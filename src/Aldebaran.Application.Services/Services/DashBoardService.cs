@@ -80,5 +80,11 @@ namespace Aldebaran.Application.Services
             var data = await _repository.GetExpiredCustomerOrdersAsync(searchKey, ct);
             return _mapper.Map<IEnumerable<CustomerOrder>>(data);
         }
+
+        public async Task<IEnumerable<NotificationWithError>> GetNotificationsWithError(string? searchKey = null, CancellationToken ct = default)
+        {
+            var data = await _repository.GetNotificationsWithError(searchKey, ct);
+            return _mapper.Map<List<NotificationWithError>>(data.OrderBy(o => o.NotificationDate));
+        }
     }
 }

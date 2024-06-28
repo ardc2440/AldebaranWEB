@@ -101,7 +101,7 @@ namespace Aldebaran.Application.Services.Mappings
             CreateMap<PurchaseOrderTransitAlarm, Entities.PurchaseOrderTransitAlarm>().ReverseMap();
             CreateMap<VisualizedPurchaseOrderTransitAlarm, Entities.VisualizedPurchaseOrderTransitAlarm>().ReverseMap();
             CreateMap<NotificationStatus, Enums.NotificationStatus>().ReverseMap();
-
+            CreateMap<NotificationWithError, Entities.NotificationWithError>().ReverseMap();
         }
     }
 }
