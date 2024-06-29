@@ -55,6 +55,8 @@ CREATE OR ALTER PROCEDURE SP_GET_NOTFICATIONS_WITH_SEND_ERROR
 AS
 BEGIN
 	DECLARE @Notifications TABLE (
+		EMAIL_TYPE SMALLINT,
+		EMAIL_ID INT,
 		Description VARCHAR(MAX), 
 		CUSTOMER_NAME VARCHAR(50),
 		Reason VARCHAR(100),	
@@ -63,7 +65,7 @@ BEGIN
 		NOTIFICATION_SENDING_ERROR_MESSAGE VARCHAR(MAX))
 
 	INSERT INTO @Notifications
-		SELECT 'Notificación para el pedido no. '+d.ORDER_NUMBER+' del '+CONVERT(varchar,d.ORDER_DATE,3) + ' por modificación de la orden de compra No. '+
+		SELECT 0, a.PURCHASE_ORDER_NOTIFICATION_ID, 'Notificación para el pedido no. '+d.ORDER_NUMBER+' del '+CONVERT(varchar,d.ORDER_DATE,3) + ' por modificación de la orden de compra No. '+
 			   c.ORDER_NUMBER Description, f.CUSTOMER_NAME, e.MODIFICATION_REASON_NAME Reason, a.NOTIFIED_MAIL_LIST, a.NOTIFICATION_DATE, a.NOTIFICATION_SENDING_ERROR_MESSAGE
 		  FROM purchase_order_notifications a 
 		  JOIN modified_purchase_orders b ON b.MODIFIED_PURCHASE_ORDER_ID = a.MODIFIED_PURCHASE_ORDER_ID
@@ -73,7 +75,7 @@ BEGIN
 		  JOIN customers f ON f.CUSTOMER_ID = d.CUSTOMER_ID
 		 WHERE NOTIFICATION_STATE = -1
 		UNION 
-		SELECT 'Notificación para el pedido no. '+b.ORDER_NUMBER+' del '+CONVERT(varchar,b.ORDER_DATE,3) Description, 
+		SELECT 1, a.CUSTOMER_ORDER_NOTIFICATION_ID, 'Notificación para el pedido no. '+b.ORDER_NUMBER+' del '+CONVERT(varchar,b.ORDER_DATE,3) Description, 
 			   c.CUSTOMER_NAME, d.SUBJECT Reason, a.NOTIFIED_MAIL_LIST, a.NOTIFICATION_DATE, a.NOTIFICATION_SENDING_ERROR_MESSAGE
 		  FROM customer_order_notifications a
 		  JOIN customer_orders b ON b.CUSTOMER_ORDER_ID = a.CUSTOMER_ORDER_ID
@@ -81,7 +83,7 @@ BEGIN
 		  JOIN notification_templates d ON d.NOTIFICATION_TEMPLATE_ID = a.NOTIFICATION_TEMPLATE_ID
 		 WHERE NOTIFICATION_STATE = -1
 		UNION
-		SELECT 'Notificación para la reserva no. '+b.RESERVATION_NUMBER+' del '+CONVERT(varchar,b.RESERVATION_DATE,3) Description, 
+		SELECT 2, a.CUSTOMER_RESERVATION_NOTIFICATION_ID, 'Notificación para la reserva no. '+b.RESERVATION_NUMBER+' del '+CONVERT(varchar,b.RESERVATION_DATE,3) Description, 
 			   c.CUSTOMER_NAME, d.SUBJECT Reason, a.NOTIFIED_MAIL_LIST, a.NOTIFICATION_DATE, a.NOTIFICATION_SENDING_ERROR_MESSAGE
 		  FROM customer_reservation_notifications a
 		  JOIN customer_reservations b ON b.CUSTOMER_RESERVATION_ID = a.CUSTOMER_RESERVATION_ID

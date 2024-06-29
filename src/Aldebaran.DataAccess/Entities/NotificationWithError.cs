@@ -8,6 +8,8 @@ namespace Aldebaran.DataAccess.Entities
 {
     public class NotificationWithError
     {
+        public short EmailType { get; set; }
+        public int EmailId { get; set; }
         public string Description { get; set; }
         public string CustomerName { get; set; }
         public string? Reason { get; set; }

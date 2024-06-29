@@ -10,6 +10,18 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         {
         }
 
+        public async Task<CustomerReservationNotification?> FindAsync(int customerReservationNotificationId, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.CustomerReservationNotifications.AsNoTracking()
+                                .Include(i => i.CustomerReservation.Customer)
+                                .Include(i => i.NotificationTemplate)
+                                .Where(w => w.CustomerReservationNotificationId == customerReservationNotificationId)
+                                .FirstOrDefaultAsync(ct);
+            }, ct);
+        }
+
         public async Task AddAsync(CustomerReservationNotification customerReservationNotification, CancellationToken ct = default)
         {
             await ExecuteCommandAsync(async dbContext =>

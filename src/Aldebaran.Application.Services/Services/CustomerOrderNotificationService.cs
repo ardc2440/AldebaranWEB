@@ -17,6 +17,12 @@ namespace Aldebaran.Application.Services
             _mapper = mapper ?? throw new ArgumentNullException(nameof(IMapper));
         }
 
+        public async Task<CustomerOrderNotification?> FindAsync(int customerOrderNotificationId, CancellationToken ct = default)
+        {
+            var entity = await _repository.FindAsync(customerOrderNotificationId, ct);
+            return _mapper.Map<CustomerOrderNotification>(entity);
+        }
+
         public async  Task AddAsync(CustomerOrderNotification customerOrderNotification, CancellationToken ct = default)
         {
             var entity = _mapper.Map<Entities.CustomerOrderNotification>(customerOrderNotification) ?? throw new ArgumentNullException("Notificacion no puede ser nulo.");

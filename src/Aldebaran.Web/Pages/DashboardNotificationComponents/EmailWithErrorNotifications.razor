@@ -24,12 +24,20 @@
                             }
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.NotificationWithError" Property="NotificationDate" Title="Fecha envio" Width="70%">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.NotificationWithError" Property="NotificationDate" Title="Fecha envio" Width="40%">
                         <Template Context="emailError">
                             <span>@emailError.NotificationDate.ToString(SharedLocalizer["date:format"])</span>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.NotificationWithError" Property="NotificationSendingErrorMessage" Title="Error" Width="80%"></RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.NotificationWithError" Filterable="false" Sortable="false" Width="40%" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                        <Template Context="emailError">
+                            <RadzenLink href="javascript:void(0);" @onclick="@(async (args) => await ReSendMail(emailError.EmailType, emailError.EmailId))">
+                                Reenviar
+                            </RadzenLink>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.NotificationWithError" Property="NotificationSendingErrorMessage" Title="Error" Width="90%"></RadzenDataGridColumn>
                 </Columns>
             </LocalizedDataGrid>
         </RadzenRow>

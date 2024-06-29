@@ -10,6 +10,19 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         {
         }
 
+        public async Task<CustomerOrderNotification?> FindAsync(int customerOrderNotificationId, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.CustomerOrderNotifications.AsNoTracking()
+                                .Include(i => i.CustomerOrder.Customer)
+                                .Include(i => i.CustomerOrder.StatusDocumentType)
+                                .Include(i => i.NotificationTemplate)
+                                .Where(w => w.CustomerOrderNotificationId == customerOrderNotificationId)
+                                .FirstOrDefaultAsync(ct);
+            }, ct);
+        }
+
         public async Task AddAsync(CustomerOrderNotification customerOrderNotification, CancellationToken ct = default)
         {
             await ExecuteCommandAsync(async dbContext =>
@@ -32,10 +45,10 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             return await ExecuteQueryAsync(async dbContext =>
             {
                 return await dbContext.CustomerOrderNotifications.AsNoTracking()
-                           .Include(i => i.CustomerOrder.Customer)
-                           .Include(i => i.NotificationTemplate)
-                           .Where(w => w.CustomerOrderId == customerOrderId)
-                           .ToListAsync(ct);
+                               .Include(i => i.CustomerOrder.Customer)
+                               .Include(i => i.NotificationTemplate)
+                               .Where(w => w.CustomerOrderId == customerOrderId)
+                               .ToListAsync(ct);
             }, ct);
         }
 

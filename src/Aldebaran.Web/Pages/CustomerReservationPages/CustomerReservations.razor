@@ -71,7 +71,7 @@
                                     <RadzenTabsItem Text="Referencias">
                                         <LocalizedDataGrid ColumnWidth="200px" Visible="@(customerReservation != null)" @ref=CustomerReservationDetailsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                                            ExpandMode="DataGridExpandMode.Single" Data="@customerReservation?.CustomerReservationDetails" TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail">
-                                            <Columns>                                                
+                                            <Columns>
                                                 <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Title="Referencia">
                                                     <Template Context="detail">
                                                         <RadzenLabel MouseEnter="@(args => ShowTooltip(args,GetReferenceHint(@detail.ItemReference).Result, new TooltipOptions(){ Position = TooltipPosition.Left }))">
@@ -180,6 +180,9 @@
                                                                     return;
                                                                 case ServiceModel.NotificationStatus.Pending:
                                                                     <span>Pendiente</span>
+                                                                    return;
+                                                                case ServiceModel.NotificationStatus.ReSend:
+                                                                    <span>Reenviada</span>
                                                                     return;
                                                             }
                                                         </Template>

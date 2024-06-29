@@ -148,7 +148,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 PurchaseOrder.PurchaseOrderDetails = purchaseOrderDetails;
 
                 var modifiedPurchaseOrderId = await PurchaseOrderService.UpdateAsync(PurchaseOrder.PurchaseOrderId, PurchaseOrder, reason, ordersAffected);
-                await NotifyToCustomers(modifiedPurchaseOrderId);
+                await PurchaseOrderNotificationService.NotifyToCustomers(modifiedPurchaseOrderId, NavigationManager.BaseUri);
 
                 NavigationManager.NavigateTo($"purchase-orders/edit/{PurchaseOrder.PurchaseOrderId}");
             }
@@ -163,36 +163,38 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 IsSubmitInProgress = false;
             }
         }
-        protected async Task NotifyToCustomers(int modifiedPurchaseOrderId, CancellationToken ct = default)
-        {
-            var NotificationTemplateName = "PurchaseOrder:Update:Customer:Order";
-            var purchaseOrderNotifications = await PurchaseOrderNotificationService.GetByModifiedPurchaseOrder(modifiedPurchaseOrderId, ct);
-            foreach (var pon in purchaseOrderNotifications)
-            {
-                string[] emails = pon.NotifiedMailList.Split(";");
-                var uid = Guid.NewGuid().ToString();
-                var message = new MessageModel
-                {
-                    HookUrl = new Uri($"{NavigationManager.BaseUri.TrimEnd('/')}/Notification/PurchaseOrderUpdate"),
-                    Header = new MessageModel.EnvelopeHeader
-                    {
-                        MessageUid = uid,
-                        ReceiverUrn = emails.Where(s => s != null).ToArray(),
-                        Subject = "Sales",
-                    },
-                    Body = new MessageModel.EnvelopeBody
-                    {
-                        Template = NotificationTemplateName,
-                    }
-                };
-                var additionalBodyMessage = $"<p>Datos del pedido afectado: <br /><br />" +
-                                            $"Pedido No.: {pon.CustomerOrder.OrderNumber}<br />" +
-                                            $"Fecha de pedido: {pon.CustomerOrder.OrderDate.ToString(SharedLocalizer["date:format"])}<br />" +
-                                            $"Fecha estimada de entrega: {pon.CustomerOrder.EstimatedDeliveryDate.ToString(SharedLocalizer["date:format"])}</p>";
-                await PurchaseOrderNotificationService.UpdateAsync(pon.PurchaseOrderNotificationId, uid, ServiceModel.NotificationStatus.InProcess, ct);
-                await NotificationService.Send(message, additionalBodyMessage, ct);
-            }
-        }
+
+        //protected async Task NotifyToCustomers(int modifiedPurchaseOrderId, CancellationToken ct = default)
+        //{
+        //    var NotificationTemplateName = "PurchaseOrder:Update:Customer:Order";
+        //    var purchaseOrderNotifications = await PurchaseOrderNotificationService.GetByModifiedPurchaseOrder(modifiedPurchaseOrderId, ct);
+        //    foreach (var pon in purchaseOrderNotifications)
+        //    {
+        //        string[] emails = pon.NotifiedMailList.Split(";");
+        //        var uid = Guid.NewGuid().ToString();
+        //        var message = new MessageModel
+        //        {
+        //            HookUrl = new Uri($"{NavigationManager.BaseUri.TrimEnd('/')}/Notification/PurchaseOrderUpdate"),
+        //            Header = new MessageModel.EnvelopeHeader
+        //            {
+        //                MessageUid = uid,
+        //                ReceiverUrn = emails.Where(s => s != null).ToArray(),
+        //                Subject = "Sales",
+        //            },
+        //            Body = new MessageModel.EnvelopeBody
+        //            {
+        //                Template = NotificationTemplateName,
+        //            }
+        //        };
+        //        var additionalBodyMessage = $"<p>Datos del pedido afectado: <br /><br />" +
+        //                                    $"Pedido No.: {pon.CustomerOrder.OrderNumber}<br />" +
+        //                                    $"Fecha de pedido: {pon.CustomerOrder.OrderDate.ToString(SharedLocalizer["date:format"])}<br />" +
+        //                                    $"Fecha estimada de entrega: {pon.CustomerOrder.EstimatedDeliveryDate.ToString(SharedLocalizer["date:format"])}</p>";
+        //        await PurchaseOrderNotificationService.UpdateAsync(pon.PurchaseOrderNotificationId, uid, ServiceModel.NotificationStatus.InProcess, ct);
+        //        await NotificationService.Send(message, additionalBodyMessage, ct);
+        //    }
+        //}
+
         protected async Task AgentForwarderHandler(ServiceModel.ForwarderAgent agent)
         {
             PurchaseOrder.ForwarderAgentId = agent?.ForwarderAgentId ?? 0;

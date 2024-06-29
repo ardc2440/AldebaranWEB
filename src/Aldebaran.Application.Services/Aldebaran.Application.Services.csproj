@@ -11,6 +11,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\Aldebaran.Application.Services.Notificator\Aldebaran.Application.Services.Notificator.csproj" />
 	  <ProjectReference Include="..\Aldebaran.DataAccess.Infraestructure\Aldebaran.DataAccess.Infraestructure.csproj" />
 	</ItemGroup>
 	<ItemGroup>

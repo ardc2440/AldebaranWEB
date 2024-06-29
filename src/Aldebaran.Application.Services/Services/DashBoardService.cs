@@ -1,8 +1,6 @@
 ﻿using Aldebaran.Application.Services.Models;
 using Aldebaran.DataAccess.Infraestructure.Repository;
 using AutoMapper;
-using DocumentFormat.OpenXml.Wordprocessing;
-using Microsoft.Extensions.Options;
 
 namespace Aldebaran.Application.Services
 {
@@ -10,7 +8,7 @@ namespace Aldebaran.Application.Services
     {
         private readonly IDashBoardRepository _repository;
         private readonly IMapper _mapper;
-
+        
         public DashBoardService(IDashBoardRepository repository, IMapper mapper)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(IDashBoardRepository));
@@ -71,7 +69,7 @@ namespace Aldebaran.Application.Services
 
         public async Task<IEnumerable<PurchaseOrder>> GetPurchaseOrderExpirationsAsync(int purchaseOrderWitheFlag, string? searchKey = null, CancellationToken ct = default)
         {
-            var data = await _repository.GetPurchaseOrderExpirationsAsync(purchaseOrderWitheFlag, searchKey,  ct);
+            var data = await _repository.GetPurchaseOrderExpirationsAsync(purchaseOrderWitheFlag, searchKey, ct);
             return _mapper.Map<IEnumerable<PurchaseOrder>>(data);
         }
 
@@ -85,6 +83,6 @@ namespace Aldebaran.Application.Services
         {
             var data = await _repository.GetNotificationsWithError(searchKey, ct);
             return _mapper.Map<List<NotificationWithError>>(data.OrderBy(o => o.NotificationDate));
-        }
+        }        
     }
 }

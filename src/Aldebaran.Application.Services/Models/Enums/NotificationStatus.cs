@@ -5,6 +5,7 @@
         Pending = 0,
         InProcess = 1,
         Error = -1,
-        Success = 2
+        Success = 2,
+        ReSend = 3
     }
 }

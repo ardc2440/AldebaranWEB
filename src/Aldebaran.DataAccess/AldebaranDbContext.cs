@@ -216,6 +216,8 @@ namespace Aldebaran.DataAccess
             modelBuilder.Entity<NotificationWithError>(iar =>
             {
                 iar.HasNoKey();
+                iar.Property(x => x.EmailType).HasColumnName(@"EMAIL_TYPE").HasColumnType("SMALLINT").IsRequired();
+                iar.Property(x => x.EmailId).HasColumnName(@"EMAIL_ID").HasColumnType("INT").IsRequired();
                 iar.Property(x => x.Description).HasColumnName(@"DESCRIPTION").HasColumnType("VARCHAR(MAX)").IsRequired();
                 iar.Property(x => x.CustomerName).HasColumnName(@"CUSTOMER_NAME").HasColumnType("VARCHAR(50)").IsRequired().IsUnicode(false).HasMaxLength(50);
                 iar.Property(x => x.Reason).HasColumnName(@"REASON").HasColumnType("VARCHAR(100)").IsUnicode(false).HasMaxLength(100);

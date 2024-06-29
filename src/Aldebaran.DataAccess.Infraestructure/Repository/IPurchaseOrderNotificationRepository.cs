@@ -5,6 +5,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
     public interface IPurchaseOrderNotificationRepository
     {
+        Task<PurchaseOrderNotification?> FindAsync(int purchaseOrderNotificationId, CancellationToken ct = default);
         Task<IEnumerable<PurchaseOrderNotification>> GetByPurchaseOrderId(int purchaseOrderId, CancellationToken ct = default);
         Task<IEnumerable<PurchaseOrderNotification>> GetByModifiedPurchaseOrder(int modifiedPurchaseOrderId, CancellationToken ct = default);
         Task AddAsync(PurchaseOrderNotification purchaseOrderNotification, CancellationToken ct = default);

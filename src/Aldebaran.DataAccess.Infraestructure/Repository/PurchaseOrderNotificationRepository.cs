@@ -10,6 +10,18 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         {
         }
 
+        public async Task<PurchaseOrderNotification?> FindAsync(int purchaseOrderNotificationId, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.PurchaseOrderNotifications.AsNoTracking()
+                                        .Include(i => i.ModifiedPurchaseOrder.ModificationReason)
+                                        .Include(i => i.CustomerOrder.Customer)
+                                        .Where(w => w.PurchaseOrderNotificationId == purchaseOrderNotificationId)
+                                        .FirstOrDefaultAsync(ct) ;                                        
+            }, ct);
+        }
+
         public async Task<IEnumerable<PurchaseOrderNotification>> GetByPurchaseOrderId(int purchaseOrderId, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
@@ -29,7 +41,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 return await dbContext.PurchaseOrderNotifications.AsNoTracking()
                                         .Include(i => i.ModifiedPurchaseOrder.ModificationReason)
                                         .Include(i => i.CustomerOrder.Customer)
-                                        .Where(w => w.ModifiedPurchaseOrder.ModifiedPurchaseOrderId == modifiedPurchaseOrderId)
+                                        .Where(w => w.ModifiedPurchaseOrder.ModifiedPurchaseOrderId == modifiedPurchaseOrderId && w.NotificationState == NotificationStatus.Pending)
                                         .ToListAsync(ct);
             }, ct);
         }
