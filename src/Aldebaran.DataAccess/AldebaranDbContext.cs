@@ -225,6 +225,15 @@ namespace Aldebaran.DataAccess
                 iar.Property(x => x.NotificationDate).HasColumnName(@"NOTIFICATION_DATE").HasColumnType("DATETIME").IsRequired();
                 iar.Property(x => x.NotificationSendingErrorMessage).HasColumnName(@"NOTIFICATION_SENDING_ERROR_MESSAGE").HasColumnType("VARCHAR(MAX)").IsUnicode(false);
             });
+            modelBuilder.Entity<PurchaseOrderVariation>(iar =>
+            {
+                iar.HasNoKey();
+                iar.Property(x => x.IsValid).HasColumnName(@"IS_VALID_VARIATION").HasColumnType("BIT").IsRequired();
+                iar.Property(x => x.Average).HasColumnName(@"AVERAGE").HasColumnType("INT").IsRequired();
+                iar.Property(x => x.MinimumRange).HasColumnName(@"MINIMUM_RANGE").HasColumnType("INT").IsRequired();
+                iar.Property(x => x.MaximumRange).HasColumnName(@"MAXIMUM_RANGE").HasColumnType("INT").IsRequired();
+            });
+
             modelBuilder.ApplyConfiguration(new TrackConfiguration());
         }
 

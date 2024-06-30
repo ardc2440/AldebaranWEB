@@ -108,7 +108,7 @@
                                                     <Template Context="detail">
                                                         @detail.ReceivedQuantity?.ToString("N0")
                                                     </Template>
-                                                </RadzenDataGridColumn>                                                
+                                                </RadzenDataGridColumn>
                                                 <RadzenDataGridColumn Width="50%" TItem="ServiceModel.PurchaseOrderDetail" Property="Warehouse.WarehouseName" Title="Bodega">
                                                 </RadzenDataGridColumn>
                                             </Columns>
@@ -234,10 +234,12 @@
                                                 </RadzenDataGridColumn>
                                                 <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderNotification" Title="Correo(s) Notificado(s)" Width="70%">
                                                     <Template Context="notification">
-                                                        @foreach (string mail in notification.NotifiedMailList.Split(';'))
-                                                        {
-                                                            <li>@mail</li>
-                                                        }
+                                                        <ul style="list-style:none">
+                                                            @foreach (string mail in notification.NotifiedMailList.Split(';'))
+                                                            {
+                                                                <li>@mail</li>
+                                                            }
+                                                        </ul>
                                                     </Template>
                                                 </RadzenDataGridColumn>
                                                 <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderNotification" Title="Estado notificación" Width="70%">

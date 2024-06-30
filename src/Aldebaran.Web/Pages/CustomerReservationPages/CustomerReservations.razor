@@ -159,10 +159,12 @@
                                                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservationNotification" Property="CustomerReservation.Customer.CustomerName" Title="Cliente" Width="100%"></RadzenDataGridColumn>
                                                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservationNotification" Title="Correo(s) Notificado(s)" Width="100%">
                                                         <Template Context="notification">
-                                                            @foreach (string mail in notification.NotifiedMailList.Split(';'))
-                                                            {
-                                                                <li>@mail</li>
-                                                            }
+                                                            <ul style="list-style:none">
+                                                                @foreach (string mail in notification.NotifiedMailList.Split(';'))
+                                                                {
+                                                                    <li>@mail</li>
+                                                                }
+                                                            </ul>
                                                         </Template>
                                                     </RadzenDataGridColumn>
                                                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservationNotification" Title="Estado notificación" Width="70%">

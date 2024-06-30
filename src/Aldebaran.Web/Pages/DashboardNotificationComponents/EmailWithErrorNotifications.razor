@@ -18,10 +18,12 @@
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.NotificationWithError" Property="Reason" Title="Motivo" Width="80%"></RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.NotificationWithError" Property="NotifiedMailList" Title="Correo(s) notificado(s)" Width="80%">
                         <Template Context="emailError">
-                            @foreach (string mail in emailError.NotifiedMailList.Split(';'))
-                            {
-                                <li>@mail</li>
-                            }
+                            <ul style="list-style:none">
+                                @foreach (string mail in emailError.NotifiedMailList.Split(';'))
+                                {
+                                    <li>@mail</li>
+                                }
+                            </ul>
                         </Template>
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.NotificationWithError" Property="NotificationDate" Title="Fecha envio" Width="40%">
@@ -36,7 +38,7 @@
                             </RadzenLink>
                         </Template>
                     </RadzenDataGridColumn>
-                    
+
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.NotificationWithError" Property="NotificationSendingErrorMessage" Title="Error" Width="90%"></RadzenDataGridColumn>
                 </Columns>
             </LocalizedDataGrid>

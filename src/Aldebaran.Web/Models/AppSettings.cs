@@ -9,5 +9,6 @@
         public int PurchaseOrderYellowFlag { get; set; }
         public int PurchaseOrderRedFlag { get; set; }
         public bool TrackEnabled { get; set; }
+        public int VariationMonthNumber { get; set; }
     }
 }

@@ -1,6 +1,8 @@
 using Aldebaran.Application.Services;
+using Aldebaran.Web.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.Extensions.Options;
 using Radzen;
 using ServiceModel = Aldebaran.Application.Services.Models;
 
@@ -9,9 +11,6 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
     public partial class EditPurchaseOrderDetail
     {
         #region Injections
-        [Inject]
-        protected ILogger<EditPurchaseOrderDetail> Logger { get; set; }
-
         [Inject]
         protected DialogService DialogService { get; set; }
 
@@ -23,6 +22,9 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
 
         [Inject]
         protected IItemReferenceService ItemReferenceService { get; set; }
+
+        [Inject]
+        public IOptions<AppSettings> Settings { get; set; }
 
         #endregion
 
@@ -88,9 +90,11 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                     return;
                 }
 
-                if (!await PurchaseOrderDetailService.IsValidPurchaseOrderVariation(ProviderId, PurchaseOrderDetail.ReferenceId, PurchaseOrderDetail.RequestedQuantity, PurchaseOrderId))
-                    if (await DialogService.Confirm("Ha ingresado una cantidad fuera del rango promedio de ordenes de compra de la referencia " +
-                            "con este proveedor. Desea continuar con el proceso?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar cantidad") == false) return;
+                var purchaseOrderVariation = (await PurchaseOrderDetailService.IsValidPurchaseOrderVariation(ProviderId, PurchaseOrderDetail.ReferenceId, PurchaseOrderDetail.RequestedQuantity, Settings.Value.VariationMonthNumber, PurchaseOrderId)).FirstOrDefault();
+
+                if (!purchaseOrderVariation.IsValid)
+                    if (await DialogService.Confirm($"Ha ingresado una cantidad fuera del rango entre {purchaseOrderVariation.MinimumRange} y {purchaseOrderVariation.MaximumRange}, de {purchaseOrderVariation.Average} unidades solicitadas en promedio durante los ultimos {Settings.Value.VariationMonthNumber} meses, " +
+                            "en las ordenes de compra del proveedor seleccionado.<br><br>Desea continuar con el proceso?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar cantidad") == false) return;
 
                 PurchaseOrderDetail.Warehouse = Warehouses.Single(s => s.WarehouseId == PurchaseOrderDetail.WarehouseId);
                 DialogService.Close(PurchaseOrderDetail);

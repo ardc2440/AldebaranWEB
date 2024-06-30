@@ -23,6 +23,9 @@
 	  <Compile Update="Models\Enums\NotificationStatus.cs">
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>
+	  <Compile Update="Models\PurchaseOrderVariation.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
 	  <Compile Update="Models\Reports\InventoryAdjustmentReport.cs">
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>

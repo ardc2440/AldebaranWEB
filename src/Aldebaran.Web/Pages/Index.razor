@@ -30,7 +30,7 @@
     </RadzenRow>
 
     <RadzenRow Visible="@(minimumQuantityNotificatioVisible||userAlarmNotificationVisible||outOfStockNotificatioVisible||expiredReservationNotificationVisible)" class="mb-2">
-        <RadzenColumn Visible="@(minimumQuantityNotificatioVisible||userAlarmNotificationVisible)" SizeLG="6" SizeXL="6" SizeMD="6" SizeSM="6" SizeXX="12" SizeXS="12">
+        <RadzenColumn Visible="@(minimumQuantityNotificatioVisible||userAlarmNotificationVisible)" SizeLG=@GetSizePanelA() SizeXL=@GetSizePanelA() SizeMD=@GetSizePanelA() SizeSM=@GetSizePanelA() SizeXX="12" SizeXS="12">
             <RadzenRow Visible="@(minimumQuantityNotificatioVisible)" class="mb-2">
                 <MinimumQuantityNotifications @ref="minimumQuantityNotifications" PendingStatusOrderId="@pendingStatusOrder.StatusDocumentTypeId" />
             </RadzenRow>
@@ -38,7 +38,7 @@
                 <UserAlarmNotifications @ref="userAlarmNotifications" />
             </RadzenRow>
         </RadzenColumn>
-        <RadzenColumn Visible="@(outOfStockNotificatioVisible||expiredReservationNotificationVisible)" SizeLG="6" SizeXL="6" SizeMD="6" SizeSM="6" SizeXX="12" SizeXS="12">
+        <RadzenColumn Visible="@(outOfStockNotificatioVisible||expiredReservationNotificationVisible)" SizeLG=@GetSizePanelB() SizeXL=@GetSizePanelB() SizeMD=@GetSizePanelB() SizeSM=@GetSizePanelB() SizeXX="12" SizeXS="12">
             <RadzenRow Visible="@(outOfStockNotificatioVisible)" class="mb-2">
                 <OutOfStockNotifications @ref="outOfStockNotifications" PendingStatusOrderId="@pendingStatusOrder.StatusDocumentTypeId" />
             </RadzenRow>
@@ -59,4 +59,25 @@
     <RadzenRow Visible="(emailErrorNotificationsVisible)" class="mb-2">
         <EmailWithErrorNotifications @ref="emailWithErrorNotifications" />
     </RadzenRow>
+}
+@code {
+    private int sizePanelA = 6;
+    private int sizePanelB = 6;
+
+    private int GetSizePanelA()
+    {
+        if (!(outOfStockNotificatioVisible||expiredReservationNotificationVisible)){
+            sizePanelA = 12;
+        }
+        return sizePanelA;
+    }
+
+    private int GetSizePanelB()
+    {
+        if (!(minimumQuantityNotificatioVisible || userAlarmNotificationVisible))
+        {
+            sizePanelB = 12;
+        }
+        return sizePanelA;
+    }
 }
