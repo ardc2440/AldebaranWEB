@@ -42,7 +42,7 @@
             <RadzenRow Visible="@(outOfStockNotificatioVisible)" class="mb-2">
                 <OutOfStockNotifications @ref="outOfStockNotifications" PendingStatusOrderId="@pendingStatusOrder.StatusDocumentTypeId" />
             </RadzenRow>
-            <RadzenRow Visible="@(outOfStockNotificatioVisible||expiredReservationNotificationVisible)" class="mb-2">
+            <RadzenRow Visible="@(expiredReservationNotificationVisible||expiredReservationNotificationVisible)" class="mb-2">
                 <ExpiredReservationNotifications @ref="expiredReservationNotifications" />
             </RadzenRow>
         </RadzenColumn>
@@ -78,6 +78,6 @@
         {
             sizePanelB = 12;
         }
-        return sizePanelA;
+        return sizePanelB;
     }
 }
