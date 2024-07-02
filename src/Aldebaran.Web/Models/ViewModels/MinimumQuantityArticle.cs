@@ -2,6 +2,7 @@
 {
     public class MinimumQuantityArticle
     {
+        public int ReferenceId { get; set; }
         public string ArticleName { get; set; }
         public int MinimumQuantity { get; set; }
         public int AvailableQuantity { get; set; }
@@ -17,6 +18,7 @@
             {
                 var minimumQuantityArticle = new MinimumQuantityArticle
                 {
+                    ReferenceId = minimumQuantityReference.ReferenceId,
                     ArticleName = $"[{minimumQuantityReference.Item.InternalReference}] ({minimumQuantityReference.Item.Line.LineName}) {minimumQuantityReference.Item.ItemName} - {minimumQuantityReference.ReferenceName}",
                     AvailableQuantity = minimumQuantityReference.InventoryQuantity,
                     MinimumQuantity = minimumQuantityReference.AlarmMinimumQuantity,

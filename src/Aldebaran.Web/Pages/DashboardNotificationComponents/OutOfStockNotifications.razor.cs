@@ -2,6 +2,7 @@
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Infraestructure.Common.Extensions;
 using Aldebaran.Web.Models.ViewModels;
+using Aldebaran.Web.Pages.ReportPages.Reference_Movement;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Utils;
 using Microsoft.AspNetCore.Components;
@@ -12,7 +13,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
 {
     public partial class OutOfStockNotifications
     {
-        #region Injections       
+        #region Injections
 
         [Inject]
         protected SecurityService Security { get; set; }
@@ -20,7 +21,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         [Inject]
         private IMemoryCache MemoryCache { get; set; }
 
-        private static MemoryCacheEntryOptions _cacheEntryOptions = new MemoryCacheEntryOptions { SlidingExpiration = TimeSpan.FromDays(1) };
+        private static readonly MemoryCacheEntryOptions _cacheEntryOptions = new MemoryCacheEntryOptions { SlidingExpiration = TimeSpan.FromDays(1) };
 
         [Inject]
         public IDashBoardService DashBoardService { get; set; }
@@ -36,10 +37,14 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
 
         [Inject]
         protected ICacheHelper CacheHelper { get; set; }
-
+        [Inject]
+        protected DialogService DialogService { get; set; }
         #endregion
 
-        #region properties
+        #region Parameters
+        [Parameter]
+        public bool IsModal { get; set; } = false;
+
         [Parameter]
         public int PendingStatusOrderId { get; set; }
         #endregion
@@ -77,7 +82,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         #region Events
 
         #region Timer
-        
+
         async Task InitializeGridTimers()
         {
             await GridTimer.InitializeTimer(TimerPreferenceService.GetTimerPreferences(GridTimer.Key), async (sender, e) =>
@@ -180,6 +185,13 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         private void HandleBoolChange(bool newValue)
         {
             outOfStockAlertVisible = newValue;
+        }
+
+        async Task ReferenceMovementReport(int referenceId)
+        {
+            var result = await DialogService.OpenAsync<ReferenceMovementReport>("Reporte de movimientos de artículos", parameters: new Dictionary<string, object> { { "ReferenceId", referenceId }, { "IsModal", true } }, options: new DialogOptions { Width = "80%", ContentCssClass = "pt-0" });
+            if (result == null)
+                return;
         }
         #endregion
 

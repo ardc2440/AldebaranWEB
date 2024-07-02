@@ -40,12 +40,13 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         [Inject]
         protected ICustomerReservationNotificationService CustomerReservationNotificationService { get; set; }
 
-        private static MemoryCacheEntryOptions _cacheEntryOptions = new MemoryCacheEntryOptions { SlidingExpiration = TimeSpan.FromDays(1) };
+        private static readonly MemoryCacheEntryOptions _cacheEntryOptions = new MemoryCacheEntryOptions { SlidingExpiration = TimeSpan.FromDays(1) };
 
         #endregion
 
-        #region properties
-
+        #region Parameters
+        [Parameter]
+        public bool IsModal { get; set; } = false;
         #endregion
 
         #region Variables
@@ -214,13 +215,14 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         internal async Task SendPurchaseOrderEmail(int emailId, string baseUri, CancellationToken ct = default)
         {
             var purchaseOrderNotification = await PurchaseOrderNotificationService.FindAsync(emailId, ct) ?? throw new Exception("No se encontró informacion pra e elnvio del correo");
-            await PurchaseOrderNotificationService.AddAsync(new PurchaseOrderNotification { 
-                                                                    CustomerOrderId= purchaseOrderNotification.CustomerOrderId,
-                                                                    ModifiedPurchaseOrderId= purchaseOrderNotification.ModifiedPurchaseOrderId,
-                                                                    NotificationState= NotificationStatus.Pending,
-                                                                    NotifiedMailList=purchaseOrderNotification.NotifiedMailList,
-                                                                    NotificationDate= DateTime.Now,
-                                                                    },ct);
+            await PurchaseOrderNotificationService.AddAsync(new PurchaseOrderNotification
+            {
+                CustomerOrderId = purchaseOrderNotification.CustomerOrderId,
+                ModifiedPurchaseOrderId = purchaseOrderNotification.ModifiedPurchaseOrderId,
+                NotificationState = NotificationStatus.Pending,
+                NotifiedMailList = purchaseOrderNotification.NotifiedMailList,
+                NotificationDate = DateTime.Now,
+            }, ct);
 
             await PurchaseOrderNotificationService.NotifyToCustomers(purchaseOrderNotification.ModifiedPurchaseOrderId, baseUri, ct);
             await PurchaseOrderNotificationService.UpdateAsync(emailId, purchaseOrderNotification.NotificationId, NotificationStatus.ReSend, ct);
@@ -230,7 +232,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         {
             var customerOrderNotification = await CustomerOrderNotificationService.FindAsync(emailId, ct);
             var customerOrder = customerOrderNotification.CustomerOrder;
-            var templateCode = customerOrderNotification.NotificationTemplate.Name ;
+            var templateCode = customerOrderNotification.NotificationTemplate.Name;
 
             var result = await DialogService.OpenAsync<CustomerOrderSummary>(null, new Dictionary<string, object> { { "Id", customerOrder.CustomerOrderId }, { "NotificationTemplateName", templateCode } }, options: new DialogOptions { ShowTitle = false, ShowClose = false, CloseDialogOnEsc = false, CloseDialogOnOverlayClick = false, Width = "800px" });
             if ((bool)result)

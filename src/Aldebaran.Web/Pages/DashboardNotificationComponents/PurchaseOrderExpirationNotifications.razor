@@ -4,9 +4,9 @@
 
 <RadzenCard class="rz-col-12" Style="max-width: 100%">
     <NotificationTitle TogglePanel="@TogglePanel" AlertVisible="@expiredPurchasesAlertVisible" DataUpdate="@GridData_Update" GridTimer="@GridTimer" Title="Ordenes de compra vencidas"
-                       IsPanelCollapsed="@isPanelCollapsed" Timers="@Timers" OnBoolChange="@HandleBoolChange" />
-    <RadzenCard class="rz-m-1" Visible="!isPanelCollapsed">
-        <RadzenRow>
+                       IsPanelCollapsed="@isPanelCollapsed" Timers="@Timers" OnBoolChange="@HandleBoolChange"/>
+    <RadzenCard Visible="!isPanelCollapsed" Variant="Radzen.Variant.Text" class="px-0">
+        <RadzenRow class="rz-m-1">
             <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
         </RadzenRow>
         <RadzenRow class="rz-m-1">

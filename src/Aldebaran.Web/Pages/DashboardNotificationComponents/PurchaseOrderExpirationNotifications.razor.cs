@@ -1,13 +1,13 @@
 ﻿using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Infraestructure.Common.Extensions;
-using Microsoft.Extensions.Options;
+using Aldebaran.Web.Models;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Utils;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 using Radzen;
-using Aldebaran.Web.Models;
 
 namespace Aldebaran.Web.Pages.DashboardNotificationComponents
 {
@@ -29,7 +29,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
 
         [Inject]
         protected DialogService DialogService { get; set; }
-                
+
         [Inject]
         public IDashBoardService DashBoardService { get; set; }
 
@@ -41,21 +41,24 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
 
         [Inject]
         protected ILogger<Index> Logger { get; set; }
-       
+
         [Inject]
         public IOptions<AppSettings> Settings { get; set; }
 
         [Inject]
         private IMemoryCache MemoryCache { get; set; }
 
-        private static MemoryCacheEntryOptions _cacheEntryOptions = new MemoryCacheEntryOptions { SlidingExpiration = TimeSpan.FromDays(1) };
+        private static readonly MemoryCacheEntryOptions _cacheEntryOptions = new MemoryCacheEntryOptions { SlidingExpiration = TimeSpan.FromDays(1) };
 
         [Inject]
         protected ICacheHelper CacheHelper { get; set; }
 
         #endregion
 
-        #region properties
+        #region Parameters
+        [Parameter]
+        public bool IsModal { get; set; } = false;
+
         [Parameter]
         public int PendingStatusOrderId { get; set; }
         #endregion
@@ -95,7 +98,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         #region Events
 
         #region Timer
-        
+
         async Task InitializeGridTimers()
         {
             await GridTimer.InitializeTimer(TimerPreferenceService.GetTimerPreferences(GridTimer.Key), async (sender, e) =>

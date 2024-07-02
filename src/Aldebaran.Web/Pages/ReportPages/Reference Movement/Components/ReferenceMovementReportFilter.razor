@@ -30,7 +30,7 @@
             </RadzenColumn>
         </RadzenRow>
         <RadzenRow style="margin-bottom: 1rem">
-            <MultiReferencePicker @ref="referencePicker" OnChange="ItemReferenceHandler"></MultiReferencePicker>
+            <MultiReferencePicker @ref="referencePicker" OnChange="ItemReferenceHandler" ReadOnly="Filter.LockReferenceSelection"></MultiReferencePicker>
         </RadzenRow>
         <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
             <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="filter_alt" Text="Filtrar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />

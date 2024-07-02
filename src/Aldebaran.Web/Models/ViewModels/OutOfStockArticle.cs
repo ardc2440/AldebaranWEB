@@ -2,6 +2,7 @@
 {
     public class OutOfStockArticle
     {
+        public int ReferenceId { get; set; }
         public string ArticleName { get; set; }
         public int AvailableQuantity { get; set; }
         public int InTransitQuantity { get; set; }
@@ -16,6 +17,7 @@
             {
                 var outOfStockArticle = new OutOfStockArticle
                 {
+                    ReferenceId = outOfStockReference.ReferenceId,
                     ArticleName = $"[{outOfStockReference.Item.InternalReference}] ({outOfStockReference.Item.Line.LineName}) {outOfStockReference.Item.ItemName} - {outOfStockReference.ReferenceName}",
                     AvailableQuantity = outOfStockReference.InventoryQuantity,
                     InTransitQuantity = referencesInTransit.Where(i => i.ReferenceId == outOfStockReference.ReferenceId).Sum(i => i.RequestedQuantity),

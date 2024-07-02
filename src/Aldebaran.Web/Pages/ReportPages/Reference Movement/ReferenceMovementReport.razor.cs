@@ -1,6 +1,6 @@
-﻿using Aldebaran.Application.Services.Reports;
+﻿using Aldebaran.Application.Services;
+using Aldebaran.Application.Services.Reports;
 using Aldebaran.Infraestructure.Common.Utils;
-using Aldebaran.Web.Pages.ReportPages.Customer_Reservations.ViewModel;
 using Aldebaran.Web.Pages.ReportPages.Reference_Movement.Components;
 using Aldebaran.Web.Pages.ReportPages.Reference_Movement.ViewModel;
 using Microsoft.AspNetCore.Components;
@@ -28,9 +28,16 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
 
         [Inject]
         protected IReferenceMovementReportService ReferenceMovementReportService { get; set; }
-
+        [Inject]
+        protected IItemReferenceService ItemReferenceService { get; set; }
         #endregion
 
+        #region Parameters
+        [Parameter]
+        public int? ReferenceId { get; set; }
+        [Parameter]
+        public bool IsModal { get; set; } = false;
+        #endregion
         #region Variables
         protected ReferenceMovementFilter Filter;
         protected ReferenceMovementViewModel ViewModel;
@@ -40,9 +47,29 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
         #endregion
 
         #region Overrides
-        protected override async Task OnInitializedAsync()
+        public override async Task SetParametersAsync(ParameterView parameters)
         {
-            await RedrawReportAsync();
+            await base.SetParametersAsync(parameters);
+            if (ReferenceId != null)
+            {
+                await SetDefaultFilters(ReferenceId.Value);
+                await OpenFilters();
+            }
+            else
+            {
+                await RedrawReportAsync();
+                StateHasChanged();
+            }
+        }
+        async Task SetDefaultFilters(int referenceId)
+        {
+            var reference = await ItemReferenceService.FindAsync(referenceId);
+            Filter = new ReferenceMovementFilter
+            {
+                ItemReferences = new List<Application.Services.Models.ItemReference> { reference },
+                LockReferenceSelection = true
+            };
+            StateHasChanged();
         }
         #endregion
 
@@ -73,23 +100,37 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
 
             if (filter.MovementDate.StartDate.HasValue)
                 filterResult += $"@InitialMovementDate = '{(DateTime)filter.MovementDate.StartDate:yyyyMMdd}', @FinalMovementDate = '{(DateTime)filter.MovementDate.EndDate:yyyyMMdd}'";
-                        
+
             if (filter.ItemReferences.Count > 0)
                 filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReferenceIds = '{String.Join(",", Filter.ItemReferences.Select(s => s.ReferenceId))}'";
-                        
+
             return filterResult;
         }
 
         async Task OpenFilters()
         {
-            var result = await DialogService.OpenAsync<ReferenceMovementReportFilter>("Filtrar reporte de movimientos de artículos", parameters: new Dictionary<string, object> { { "Filter", Filter } }, options: new DialogOptions { Width = "800px" });
+            var dialogOptions = new DialogOptions
+            {
+                Width = "800px"
+            };
+            if (Filter.LockReferenceSelection)
+            {
+                dialogOptions.CloseDialogOnEsc = false;
+            }
+            var result = await DialogService.OpenAsync<ReferenceMovementReportFilter>("Filtrar reporte de movimientos de artículos", parameters: new Dictionary<string, object> { { "Filter", Filter } }, options: dialogOptions);
             if (result == null)
+            {
+                if (IsModal && !Filter.AllRequiredFieldsCompleted)
+                {
+                    DialogService.Close(null);
+                }
                 return;
+            }
             Filter = (ReferenceMovementFilter)result;
 
             await RedrawReportAsync(await SetReportFilterAsync(Filter));
-
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
+            StateHasChanged();
         }
 
         async Task RemoveFilters()
@@ -97,9 +138,15 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
             if (await DialogService.Confirm("Está seguro que desea eliminar los filtros establecidos?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
             {
                 Filter = null;
+                if (ReferenceId != null)
+                {
+                    ViewModel = null;
+                    await SetDefaultFilters(ReferenceId.Value);
+                    await OpenFilters();
+                    return;
+                }
 
                 await RedrawReportAsync();
-
                 await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
             }
         }
@@ -231,7 +278,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
 
             foreach (var detail in DataReport.Where(w => w.ReferenceId == referenceId && w.TitleId == titleId)
                                         .Select(s => new { s.Code, s.Date, s.Owner, s.MovementAmount, s.Status })
-                                        .DistinctBy(d=>d.Code)
+                                        .DistinctBy(d => d.Code)
                                         .OrderBy(o => o.Date)
                                         .OrderBy(o => o.Code))
             {

@@ -29,7 +29,7 @@
         </RadzenColumn>
     </RadzenRow>
 
-    <RadzenRow Visible="@(minimumQuantityNotificatioVisible||userAlarmNotificationVisible||outOfStockNotificatioVisible||expiredReservationNotificationVisible)" class="mb-2">
+    <RadzenRow Visible="@(minimumQuantityNotificatioVisible||userAlarmNotificationVisible||outOfStockNotificatioVisible||expiredReservationNotificationVisible)">
         <RadzenColumn Visible="@(minimumQuantityNotificatioVisible||userAlarmNotificationVisible)" SizeLG=@GetSizePanelA() SizeXL=@GetSizePanelA() SizeMD=@GetSizePanelA() SizeSM=@GetSizePanelA() SizeXX="12" SizeXS="12">
             <RadzenRow Visible="@(minimumQuantityNotificatioVisible)" class="mb-2">
                 <MinimumQuantityNotifications @ref="minimumQuantityNotifications" PendingStatusOrderId="@pendingStatusOrder.StatusDocumentTypeId" />

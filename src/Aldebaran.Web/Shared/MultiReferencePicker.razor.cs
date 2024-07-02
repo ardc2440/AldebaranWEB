@@ -60,6 +60,16 @@ namespace Aldebaran.Web.Shared
                 CleanReferences();
             }
         }
+
+        public override async Task SetParametersAsync(ParameterView parameters)
+        {
+            await base.SetParametersAsync(parameters);
+            if (ReadOnly == true)
+            {
+                CollapsedPanel = true;
+                StateHasChanged();
+            }
+        }
         #endregion
 
         #region Events

@@ -46,15 +46,16 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         [Inject]
         private IMemoryCache MemoryCache { get; set; }
 
-        private static MemoryCacheEntryOptions _cacheEntryOptions = new MemoryCacheEntryOptions { SlidingExpiration = TimeSpan.FromDays(1) };
+        private static readonly MemoryCacheEntryOptions _cacheEntryOptions = new MemoryCacheEntryOptions { SlidingExpiration = TimeSpan.FromDays(1) };
 
         [Inject]
         protected ICacheHelper CacheHelper { get; set; }
 
         #endregion
 
-        #region properties
-
+        #region Parameters
+        [Parameter]
+        public bool IsModal { get; set; } = false;
         #endregion
 
         #region Variables
@@ -95,7 +96,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         #region Events
 
         #region Timer
-        
+
         async Task InitializeGridTimers()
         {
             await GridTimer.InitializeTimer(TimerPreferenceService.GetTimerPreferences(GridTimer.Key), async (sender, e) =>
@@ -217,7 +218,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
                 purchaseOrderNotifications = notificationsResult.ToList();
             }
         }
-        
+
         public async Task CustomerOrderDetailInfo(int customerOrderId)
         {
             var reasonResult = await DialogService.OpenAsync<CustomerOrderPages.CustomerOrderDetails>("Detalles del pedido", new Dictionary<string, object> { { "CustomerOrderId", customerOrderId } }, options: new DialogOptions { CloseDialogOnOverlayClick = false, Width = "800px" });

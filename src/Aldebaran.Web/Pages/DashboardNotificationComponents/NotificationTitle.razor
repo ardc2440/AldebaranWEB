@@ -5,11 +5,11 @@
             <RadzenButton Click="@TogglePanel" Icon="@ToggleIcon" Variant="Variant.Filled" ButtonStyle="ButtonStyle.Secondary" Size="ButtonSize.Medium" class="d-flex align-items-start rz-button-icon-only rz-border-radius-10" />
             <RadzenColumn>
                 <RadzenRow>
-                   <RadzenText Text="@Title" TextStyle="TextStyle.H6" Class="rz-display-flex rz-align-items-start rz-m-0" />
+                    <RadzenText Text="@Title" TextStyle="TextStyle.H6" Class="rz-display-flex rz-align-items-start rz-m-0" />
                 </RadzenRow>
                 <RadzenRow>
                     <p class="p-0 m-0 text-end fw-lighter text-muted">
-                        <b><strong>Actualizado:</strong></b> @GridTimer.LastUpdate.ToString(SharedLocalizer["time:format"])
+                        <small>Actualizado: @GridTimer.LastUpdate.ToString(SharedLocalizer["time:format"])</small>
                     </p>
                 </RadzenRow>
             </RadzenColumn>
@@ -17,8 +17,8 @@
     </RadzenColumn>
     <RadzenColumn Size="3">
         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="1rem" Wrap="FlexWrap.Wrap" JustifyContent="JustifyContent.End">
-            <RadzenImage Click="@AlertClick" Visible="@AlertVisible" Path="images/alert.gif" style="width: 30px"></RadzenImage>           
-            <RadzenButton Click="@DataUpdate" Icon="refresh" Variant="Variant.Filled" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Small" class="d-flex align-items-end rz-button-icon-only rz-border-radius-10" />
+            <RadzenImage Click="@AlertClick" Visible="@AlertVisible" Path="images/alert.gif" style="width: 30px"></RadzenImage>
+            <RadzenButton Click="@DataUpdate" Icon="refresh" Variant="Variant.Filled" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Medium" class="d-flex align-items-end rz-button-icon-only rz-border-radius-10" />
         </RadzenStack>
     </RadzenColumn>
 </RadzenRow>

@@ -19,7 +19,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         [Inject]
         private IMemoryCache MemoryCache { get; set; }
 
-        private static MemoryCacheEntryOptions _cacheEntryOptions = new MemoryCacheEntryOptions { SlidingExpiration = TimeSpan.FromDays(1) };
+        private static readonly MemoryCacheEntryOptions _cacheEntryOptions = new MemoryCacheEntryOptions { SlidingExpiration = TimeSpan.FromDays(1) };
 
         [Inject]
         public IDashBoardService DashBoardService { get; set; }
@@ -50,8 +50,9 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
 
         #endregion
 
-        #region properties
-        
+        #region Parameters
+        [Parameter]
+        public bool IsModal { get; set; } = false;
         #endregion
 
         #region Variables
@@ -89,7 +90,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         #region Events
 
         #region Timer
-        
+
         async Task InitializeGridTimers()
         {
             await GridTimer.InitializeTimer(TimerPreferenceService.GetTimerPreferences(GridTimer.Key), async (sender, e) =>
