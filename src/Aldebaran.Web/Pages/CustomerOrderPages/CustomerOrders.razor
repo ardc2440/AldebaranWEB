@@ -72,7 +72,7 @@
                                 <Tabs>
                                     <RadzenTabsItem Text="Referencias">
                                         <LocalizedDataGrid ColumnWidth="200px" Visible="@(customerOrder != null)" @ref=CustomerOrderDetailsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                                           ExpandMode="DataGridExpandMode.Single" Data="@customerOrder?.CustomerOrderDetails" TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail">
+                                                           ExpandMode="DataGridExpandMode.Single" Data="@CustomerOrderDetails" TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail">
                                             <Columns>
                                                 <RadzenDataGridColumn Width="80%" TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Title="Referencia">
                                                     <Template Context="detail">

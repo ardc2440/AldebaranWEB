@@ -40,12 +40,12 @@
                                             </RadzenRow>
                                             <div class="text-secondary-color">
                                                 <RadzenLabel Text="Correo: " />
-                                                @{
-                                                    foreach (string mail in @customerOrder.Customer.Email.Split(';'))
+                                                <ul style="list-style:none">
+                                                    @foreach (string mail in @customerOrder.Customer.Email.Split(';'))
                                                     {
-                                                    <li>@mail</li>
+                                                        <li>@mail</li>
                                                     }
-                                                }
+                                                </ul>
                                             </div>
                                             <RadzenRow>
                                                 <span>@customerOrder.Customer.CustomerAddress, (@customerOrder.Customer.City.Department.Country.CountryCode) @customerOrder.Customer.City.Department.DepartmentName - @customerOrder.Customer.City.CityName </span>

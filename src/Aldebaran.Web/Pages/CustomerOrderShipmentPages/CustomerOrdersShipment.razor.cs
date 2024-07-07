@@ -143,8 +143,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
         }
 
         async Task<bool> CanDispach(CustomerOrder customerOrder,CancellationToken ct = default)
-        {            
-            return dispachStatus.Any(a=>a.StatusDocumentTypeId == customerOrder.StatusDocumentTypeId) && Security.IsInRole("Administrador", "Modificación de despachos");
+        {
+            var havePendingProcessQuantity = customerOrder.CustomerOrderDetails.Any(a => a.ProcessedQuantity > 0);
+            return havePendingProcessQuantity && dispachStatus.Any(a=>a.StatusDocumentTypeId == customerOrder.StatusDocumentTypeId) && Security.IsInRole("Administrador", "Modificación de despachos");
         }
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
 

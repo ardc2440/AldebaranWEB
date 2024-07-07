@@ -69,6 +69,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected LocalizedDataGrid<CustomerOrder> CustomerOrdersGrid;
         protected CustomerOrder customerOrder;
         protected CustomerOrderActivity customerOrderActivity;
+        protected IEnumerable<CustomerOrderDetail> CustomerOrderDetails;
         protected LocalizedDataGrid<CustomerOrderDetail> CustomerOrderDetailsDataGrid;
         protected LocalizedDataGrid<CustomerOrderActivity> CustomerOrderActivitiesDataGrid;
         protected LocalizedDataGrid<CustomerOrderActivityDetail> CustomerOrderActivityDetailsDataGrid;
@@ -297,7 +298,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             var customerOrderDetailsResult = await CustomerOrderDetailService.GetByCustomerOrderIdAsync(args.CustomerOrderId);
             if (customerOrderDetailsResult != null)
             {
-                args.CustomerOrderDetails = customerOrderDetailsResult.ToList();
+                CustomerOrderDetails = customerOrderDetailsResult.ToList();
             }
         }
 
@@ -363,7 +364,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             try
             {
                 if ((await CustomerOrderDetailService.GetByCustomerOrderIdAsync(args.CustomerOrderId)).Any(i => i.ProcessedQuantity > 0))
-                    throw new Exception("Existen cantidades en proceso, no se puede cerrar el pedido");
+                    throw new Exception("Existen cantidades en proceso");
 
                 dialogResult = null;
                 var reasonResult = await DialogService.OpenAsync<CloseCustomerOrderReasonDialog>("Confirmar cierre de pedido", new Dictionary<string, object> { { "TITLE", "Está seguro que desea cerrar este pedido?" } });
@@ -387,8 +388,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 NotificationService.Notify(new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
-                    Summary = $"Error",
-                    Detail = $"No se ha podido cerrar el pedido."
+                    Detail = $"No se ha podido cerrar el pedido. <br>"+ex.Message
                 });
             }
         }

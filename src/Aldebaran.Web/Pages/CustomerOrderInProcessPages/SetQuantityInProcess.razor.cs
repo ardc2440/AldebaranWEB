@@ -60,7 +60,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                     CUSTOMER_ORDER_DETAIL_ID = DetailInProcess.CUSTOMER_ORDER_DETAIL_ID,
                     DELIVERED_QUANTITY = DetailInProcess.DELIVERED_QUANTITY,
                     BRAND = DetailInProcess.BRAND,
-                    WAREHOUSE_ID = DetailInProcess.WAREHOUSE_ID,
+                    WAREHOUSE_ID = (await WarehouseService.FindByCodeAsync(1)).WarehouseId,
                     THIS_QUANTITY = DetailInProcess.THIS_QUANTITY,
                     PENDING_QUANTITY = DetailInProcess.PENDING_QUANTITY,
                     PROCESSED_QUANTITY = DetailInProcess.PROCESSED_QUANTITY,

@@ -170,6 +170,22 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     };
                     dbContext.ModifiedCustomerReservations.Add(reasonEntity);
                 }
+
+                var alarms = new List<Alarm>();
+                var statusDocument = await dbContext.StatusDocumentTypes.AsNoTracking().FirstAsync(f => f.StatusDocumentTypeId == customerReservation.StatusDocumentTypeId);
+
+                if (statusDocument.StatusOrder == 2)
+                {
+                    alarms = await (from a in dbContext.Alarms
+                                    join b in dbContext.AlarmMessages on a.AlarmMessageId equals b.AlarmMessageId
+                                    join c in dbContext.AlarmTypes on b.AlarmTypeId equals c.AlarmTypeId
+                                    join d in dbContext.DocumentTypes on c.DocumentTypeId equals d.DocumentTypeId
+                                    where d.DocumentTypeCode.Equals("R") && a.DocumentId == entity.CustomerReservationId && a.IsActive == true
+                                    select (Alarm)a).ToListAsync();
+
+                    foreach (var alarm in alarms) alarm.IsActive = false;
+                }
+
                 try
                 {
                     await dbContext.SaveChangesAsync(ct);
@@ -179,6 +195,12 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     dbContext.Entry(entity).State = EntityState.Unchanged;
                     if (reasonEntity != null)
                         dbContext.Entry(reasonEntity).State = EntityState.Unchanged;
+
+                    if (statusDocument.StatusOrder == 2)
+                        foreach (var alarm in alarms)
+                        {
+                            dbContext.Entry(alarm).State = EntityState.Unchanged;
+                        }
                     throw;
                 }
             }, ct);
@@ -200,11 +222,11 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 };
 
                 var alarms = await (from a in dbContext.Alarms
-                                join b in dbContext.AlarmMessages on a.AlarmMessageId equals b.AlarmMessageId
-                                join c in dbContext.AlarmTypes on b.AlarmTypeId equals c.AlarmTypeId
-                                join d in dbContext.DocumentTypes on c.DocumentTypeId equals d.DocumentTypeId
-                                where d.DocumentTypeCode.Equals("P") && a.DocumentId == entity.CustomerOrderId && a.IsActive == true
-                                select (Alarm)a).ToListAsync();
+                                    join b in dbContext.AlarmMessages on a.AlarmMessageId equals b.AlarmMessageId
+                                    join c in dbContext.AlarmTypes on b.AlarmTypeId equals c.AlarmTypeId
+                                    join d in dbContext.DocumentTypes on c.DocumentTypeId equals d.DocumentTypeId
+                                    where d.DocumentTypeCode.Equals("R") && a.DocumentId == entity.CustomerReservationId && a.IsActive == true
+                                    select (Alarm)a).ToListAsync();
 
                 foreach (var alarm in alarms) alarm.IsActive = false;
 
@@ -219,7 +241,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     {
                         dbContext.Entry(alarm).State = EntityState.Unchanged;
                     }
-                    
+
                     dbContext.Entry(entity).State = EntityState.Unchanged;
                     dbContext.Entry(reasonEntity).State = EntityState.Unchanged;
                     throw;

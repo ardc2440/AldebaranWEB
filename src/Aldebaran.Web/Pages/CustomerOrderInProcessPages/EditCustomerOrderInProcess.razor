@@ -39,18 +39,20 @@
                                             </div>
                                             <div class="text-secondary-color">
                                                 <RadzenLabel Text="Correo: " />
-                                                @foreach (string mail in @customerOrder.Customer.Email.Split(';'))
-                                                {
-                                            <li>@mail</li>
-                                                }
-                                        </div>
-                                        <div class="text-secondary-color">
-                                            <RadzenLabel Text="Dirección: " />
-                                            <span>@customerOrder.Customer.CustomerAddress</span>
-                                        </div>
-                                        <div class="text-secondary-color">
-                                            <span>(@customerOrder.Customer.City.Department.Country.CountryCode) @customerOrder.Customer.City.Department.DepartmentName - @customerOrder.Customer.City.CityName </span>
-                                        </div>
+                                                <ul style="list-style:none">
+                                                    @foreach (string mail in @customerOrder.Customer.Email.Split(';'))
+                                                    {
+                                                        <li>@mail</li>
+                                                    }
+                                                </ul>
+                                            </div>
+                                            <div class="text-secondary-color">
+                                                <RadzenLabel Text="Dirección: " />
+                                                <span>@customerOrder.Customer.CustomerAddress</span>
+                                            </div>
+                                            <div class="text-secondary-color">
+                                                <span>(@customerOrder.Customer.City.Department.Country.CountryCode) @customerOrder.Customer.City.Department.DepartmentName - @customerOrder.Customer.City.CityName </span>
+                                            </div>
                                         </div>
                                     </RadzenStack>
                                 </RadzenColumn>
