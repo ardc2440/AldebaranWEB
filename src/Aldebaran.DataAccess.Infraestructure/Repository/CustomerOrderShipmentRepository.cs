@@ -38,23 +38,26 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                         CustomerOrderDetailId = item.CustomerOrderDetailId
                     });
                 }
+                
+                var orderEntity = await dbContext.CustomerOrders.FirstAsync(f => f.CustomerOrderId == entity.CustomerOrderId,ct);
 
-                /*var orderDetail = dbContext.CustomerOrderDetails.Where(w => w.CustomerOrderId == entity.CustomerOrderId);
+                orderEntity.StatusDocumentTypeId = customerOrderShipment.CustomerOrder.StatusDocumentTypeId;
 
-                var totalRequestedQuantity = orderDetail.Sum(s => s.RequestedQuantity);
-                var totalDeliveryQuantity = orderDetail.Sum(s => s.DeliveredQuantity) + entity.CustomerOrderShipmentDetails.Sum(s => s.DeliveredQuantity);
+                var statusDocument = await dbContext.StatusDocumentTypes.AsNoTracking().FirstAsync(f => f.StatusDocumentTypeId == orderEntity.StatusDocumentTypeId);
 
-                var documentType = dbContext.DocumentTypes.First(w => w.DocumentTypeCode.Equals("P"));
+                var alarms = new List<Alarm>();
 
-                var newStatus = dbContext.StatusDocumentTypes.First(w => w.DocumentTypeId == documentType.DocumentTypeId && w.StatusOrder == (totalDeliveryQuantity == totalRequestedQuantity ? 4 : 3));
+                if (statusDocument.StatusOrder == 4)
+                {
+                    alarms = await (from a in dbContext.Alarms
+                                    join b in dbContext.AlarmMessages on a.AlarmMessageId equals b.AlarmMessageId
+                                    join c in dbContext.AlarmTypes on b.AlarmTypeId equals c.AlarmTypeId
+                                    join d in dbContext.DocumentTypes on c.DocumentTypeId equals d.DocumentTypeId
+                                    where d.DocumentTypeCode.Equals("P") && a.DocumentId == entity.CustomerOrderId && a.IsActive == true
+                                    select (Alarm)a).ToListAsync();
 
-                var orderEntity = dbContext.CustomerOrders.First(w => w.CustomerOrderId == entity.CustomerOrderId);
-
-                orderEntity.StatusDocumentTypeId = newStatus.StatusDocumentTypeId;*/
-
-                var orderEntity = dbContext.CustomerOrders.First(w => w.CustomerOrderId == entity.CustomerOrderId);
-
-                orderEntity.StatusDocumentTypeId = customerOrderShipment.CustomerOrder.StatusDocumentTypeId; 
+                    foreach (var alarm in alarms) alarm.IsActive = false;
+                }
 
                 try
                 {
@@ -63,6 +66,11 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 }
                 catch (Exception)
                 {
+                    if (statusDocument.StatusOrder == 4)
+                        foreach (var alarm in alarms)
+                        {
+                            dbContext.Entry(alarm).State = EntityState.Unchanged;
+                        } 
                     dbContext.Entry(orderEntity).State = EntityState.Unchanged;
                     dbContext.Entry(entity).State = EntityState.Unchanged;
                     throw;
@@ -138,24 +146,26 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     EmployeeId = reason.EmployeeId,
                     ModificationDate = reason.Date
                 };
-
-                /*                var orderDetail = dbContext.CustomerOrderDetails.Where(w=>w.CustomerOrderId==entity.CustomerOrderId);
-
-                                var totalRequestedQuantity = orderDetail.Sum(s => s.RequestedQuantity);
-                                var totalDeliveryQuantity = orderDetail.Sum(s => s.DeliveredQuantity) - oldDetailSum + entity.CustomerOrderShipmentDetails.Sum(s => s.DeliveredQuantity);
-
-                                var documentType = dbContext.DocumentTypes.First(w=>w.DocumentTypeCode.Equals("P"));
-
-                                var newStatus = dbContext.StatusDocumentTypes.First(w=>w.DocumentTypeId==documentType.DocumentTypeId && w.StatusOrder == (totalDeliveryQuantity == totalRequestedQuantity ? 4 : 3));
-
-                                var orderEntity = dbContext.CustomerOrders.First(w => w.CustomerOrderId == entity.CustomerOrderId);
-
-                                orderEntity.StatusDocumentTypeId = newStatus.StatusDocumentTypeId; 
-                */
-
+                                
                 var orderEntity = dbContext.CustomerOrders.First(w => w.CustomerOrderId == entity.CustomerOrderId);
 
                 orderEntity.StatusDocumentTypeId = customerOrderShipment.CustomerOrder.StatusDocumentTypeId;
+
+                var statusDocument = await dbContext.StatusDocumentTypes.AsNoTracking().FirstAsync(f => f.StatusDocumentTypeId == orderEntity.StatusDocumentTypeId);
+
+                var alarms = new List<Alarm>();
+
+                if (statusDocument.StatusOrder == 4)
+                {
+                    alarms = await (from a in dbContext.Alarms
+                                    join b in dbContext.AlarmMessages on a.AlarmMessageId equals b.AlarmMessageId
+                                    join c in dbContext.AlarmTypes on b.AlarmTypeId equals c.AlarmTypeId
+                                    join d in dbContext.DocumentTypes on c.DocumentTypeId equals d.DocumentTypeId
+                                    where d.DocumentTypeCode.Equals("P") && a.DocumentId == entity.CustomerOrderId && a.IsActive == true
+                                    select (Alarm)a).ToListAsync();
+
+                    foreach (var alarm in alarms) alarm.IsActive = false;
+                }
 
                 try
                 {
@@ -164,6 +174,11 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 }
                 catch (Exception)
                 {
+                    if (statusDocument.StatusOrder == 4)
+                        foreach (var alarm in alarms)
+                        {
+                            dbContext.Entry(alarm).State = EntityState.Unchanged;
+                        }
                     dbContext.Entry(orderEntity).State = EntityState.Unchanged;
                     dbContext.Entry(entity).State = EntityState.Unchanged;
                     dbContext.Entry(reasonEntity).State = EntityState.Unchanged;

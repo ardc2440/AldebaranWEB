@@ -67,7 +67,8 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                             .Include(i => i.Customer.City.Department.Country)
                             .Include(i => i.Customer.IdentityType)
                             .Include(i => i.StatusDocumentType.DocumentType)
-                            .Include(i => i.Employee.IdentityType)
+                            .Include(i => i.Employee.IdentityType) 
+                            .Include(i => i.CustomerOrderDetails)
                             .OrderBy(o => o.OrderNumber)
                             .ToListAsync(ct);
             }, ct);
@@ -82,6 +83,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                             .Include(i => i.Customer.IdentityType)
                             .Include(i => i.StatusDocumentType.DocumentType)
                             .Include(i => i.Employee.IdentityType)
+                            .Include(i => i.CustomerOrderDetails)
                             .Where(i => i.InternalNotes.Contains(searchKey) ||
                                         i.CustomerNotes.Contains(searchKey) ||
                                         i.OrderNumber.Contains(searchKey) ||
@@ -196,6 +198,16 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     EmployeeId = reason.EmployeeId,
                     CancellationDate = reason.Date
                 };
+
+                var alarms = await (from a in dbContext.Alarms
+                                    join b in dbContext.AlarmMessages on a.AlarmMessageId equals b.AlarmMessageId
+                                    join c in dbContext.AlarmTypes on b.AlarmTypeId equals c.AlarmTypeId
+                                    join d in dbContext.DocumentTypes on c.DocumentTypeId equals d.DocumentTypeId
+                                    where d.DocumentTypeCode.Equals("P") && a.DocumentId == customerOrderId && a.IsActive == true
+                                    select (Alarm)a).ToListAsync();
+
+                foreach (var alarm in alarms) alarm.IsActive = false;
+
                 try
                 {
                     dbContext.CanceledCustomerOrders.Add(reasonEntity);
@@ -203,6 +215,10 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 }
                 catch (Exception)
                 {
+                    foreach (var alarm in alarms)
+                    {
+                        dbContext.Entry(alarm).State = EntityState.Unchanged;
+                    }
                     dbContext.Entry(entity).State = EntityState.Unchanged;
                     dbContext.Entry(reasonEntity).State = EntityState.Unchanged;
                     throw;
@@ -223,6 +239,16 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     EmployeeId = reason.EmployeeId,
                     CloseDate = reason.Date
                 };
+
+                var alarms = await (from a in dbContext.Alarms
+                                    join b in dbContext.AlarmMessages on a.AlarmMessageId equals b.AlarmMessageId
+                                    join c in dbContext.AlarmTypes on b.AlarmTypeId equals c.AlarmTypeId
+                                    join d in dbContext.DocumentTypes on c.DocumentTypeId equals d.DocumentTypeId
+                                    where d.DocumentTypeCode.Equals("P") && a.DocumentId == customerOrderId && a.IsActive == true
+                                    select (Alarm)a).ToListAsync();
+
+                foreach (var alarm in alarms) alarm.IsActive = false;
+
                 try
                 {
                     dbContext.ClosedCustomerOrders.Add(reasonEntity);
@@ -230,6 +256,10 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 }
                 catch (Exception)
                 {
+                    foreach (var alarm in alarms)
+                    {
+                        dbContext.Entry(alarm).State = EntityState.Unchanged;
+                    }
                     dbContext.Entry(entity).State = EntityState.Unchanged;
                     dbContext.Entry(reasonEntity).State = EntityState.Unchanged;
                     throw;

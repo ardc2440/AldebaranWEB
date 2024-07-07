@@ -58,7 +58,10 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 }
                 catch
                 {
-                    dbContext.Entry(alarms).State = EntityState.Unchanged;
+                    foreach (var alarm in alarms)
+                    {
+                        dbContext.Entry(alarm).State = EntityState.Unchanged;
+                    };
                     dbContext.Entry(reasonEntity).State = EntityState.Unchanged;
                     dbContext.Entry(entity).State = EntityState.Unchanged;
                     throw;
@@ -109,7 +112,10 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 }
                 catch
                 {
-                    dbContext.Entry(alarms).State = EntityState.Unchanged;
+                    foreach (var alarm in alarms)
+                    {
+                        dbContext.Entry(alarm).State = EntityState.Unchanged;
+                    }
                     dbContext.Entry(details).State = EntityState.Unchanged;
                     dbContext.Entry(entity).State = EntityState.Unchanged;
                     throw;
