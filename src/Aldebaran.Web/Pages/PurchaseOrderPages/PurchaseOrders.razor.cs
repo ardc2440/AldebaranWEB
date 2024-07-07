@@ -309,16 +309,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         #endregion
 
         #region Alarms
-
-        protected async Task<bool> CanEditAlarm(bool alarm, int statusOrder)
-        {
-            if (!alarm)
-                return false;
-
-            int[] validStatusOrder = { 1 };
-            return Security.IsInRole("Administrador", "Modificación de pedidos") && validStatusOrder.Contains(statusOrder);
-        }
-
+        
         protected async Task DisableAlarm(Application.Services.Models.Alarm alarm)
         {
             try

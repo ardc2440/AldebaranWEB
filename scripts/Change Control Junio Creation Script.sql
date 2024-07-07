@@ -98,3 +98,32 @@ BEGIN
  
 END 
 GO
+
+DELETE FROM AspNetRoles WHERE Id=N'D9326438-F865-407F-AECB-88835E5684DF'
+DELETE FROM AspNetRoles WHERE Id=N'6237D7AE-B500-4BC3-A3F0-C481C39C7537'
+DELETE FROM AspNetRoles WHERE Id=N'CEFCF7BA-8051-4834-A71E-9EDF6D00994F'
+DELETE FROM AspNetRoles WHERE Id=N'C04E9671-031F-412D-90C1-39FC449475C0'
+DELETE FROM AspNetRoles WHERE Id=N'CF36761A-287D-4510-BAD5-D17073C125EA'
+
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'91691696-9306-4B13-8092-87860C032D73', N'49F3AD59-8050-45B1-AE01-232C3FA00E0A', N'Consulta de notificaciones por cantidades mínimas', N'CONSULTA DE NOTIFICACIONES POR CANTIDADES MÍNIMAS')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'B8986382-DACC-4E65-A20A-726312BFB656', N'00950DDF-FD40-46B0-9EA0-712F6F091C25', N'Consulta de notificaciones por artículos sin disponible', N'CONSULTA DE NOTIFICACIONES POR ARTÍCULOS SIN DISPONIBLE')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'F03670C4-F79C-405E-AE7B-6FAD489668BE', N'1D3D399D-7DDE-446A-A2DA-3C7DE2C00FC6', N'Consulta de notificaciones por reservas vencidas', N'CONSULTA DE NOTIFICACIONES POR RESERVAS VENCIDAS')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'444E388D-A9FA-46E8-A3C9-FE14ABC05DC2', N'FE761A84-68D7-4D95-8515-572D43F1254D', N'Consulta de notificaciones por alarmas del día', N'CONSULTA DE NOTIFICACIONES POR ALARMAS DEL DÍA')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'C3B6C037-DF62-467A-B4D3-9B374104DC66', N'50FE4921-1F22-465B-999F-BB9DF5DCDA71', N'Consulta de notificaciones por alarmas de órdenes modificadas con afectación en pedido', N'CONSULTA DE NOTIFICACIONES POR ALARMAS DE ÓRDENES MODIFICADAS CON AFECTACIÓN EN PEDIDO')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'8DC9A444-A36A-447E-BF36-EF17B576E45D', N'6D765C29-3580-4BA4-AB6C-A5F7EA2A3DBF', N'Consulta de notificaciones por órdenes próximas a su vencimiento', N'CONSULTA DE NOTIFICACIONES POR ÓRDENES PRÓXIMAS A SU VENCIMIENTO')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'B370C85A-8407-478B-8CAC-9D8DE2E6F171', N'6870FA88-034A-4E88-98BA-3F45C5E08872', N'Consulta de notificaciones por pedidos vencidos', N'CONSULTA DE NOTIFICACIONES POR PEDIDOS VENCIDOS')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'5573C87B-1F0A-49EE-8125-CFAFFB940D88', N'05953D91-D898-4647-82AA-2EEFCE9F7AFB', N'Consulta de notificaciones por envio de correo con error', N'CONSULTA DE NOTIFICACIONES POR ENVIO DE CORREO CON ERROR')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'3D78286C-E66D-4336-AE3C-5366CEAFE790', N'13CD8934-6C97-41C3-984D-7A8BDC82786B', N'Creación de órdenes de compra','CREACIÓN DE ÓRDENES DE COMPRA')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'9B10B24F-70F3-41C7-9FEE-32113289C774', N'1A3E4DFA-8DE9-4AD1-B9C7-62C6549314B3', N'Modificación de órdenes de compra','MODIFICACIÓN DE ÓRDENES DE COMPRA')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'9E6647C7-D68F-40CA-97C6-76F94F082C10', N'1A3E4DFA-8DE9-4AD1-B9C7-62C6549314B3', N'Confirmación de órdenes de compra','CONFIRMACIÓN DE ÓRDENES DE COMPRA')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'65C45C3F-0005-4133-9C7C-6FC96AB52EA1', N'1A3E4DFA-8DE9-4AD1-B9C7-62C6549314B3', N'Cancelación de órdenes de compra','CANCELACIÓN DE ÓRDENES DE COMPRA')
+
+
+
+GO
+/*
+SELECT NEWID()
+SELECT NEWID()
+SELECT NEWID()
+SELECT NEWID()
+*/

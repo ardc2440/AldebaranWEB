@@ -65,7 +65,7 @@
                 }
             </RadzenPanelMenuItem>
             <RadzenPanelMenuItem Text="Movimientos de Inventario" Icon="extension">
-                <RadzenPanelMenuItem Text="Ordenes de compra" Path="purchase-orders" Visible=@Security.IsInRole("Administrador","Modificación de órdenes de compra", "Consulta de órdenes de compra") />
+                <RadzenPanelMenuItem Text="Ordenes de compra" Path="purchase-orders" Visible=@Security.IsInRole("Administrador","Consulta de órdenes de compra","Creación de órdenes de compra","Modificación de órdenes de compra","Confirmación de órdenes de compra","Cancelación de órdenes de compra") />
                 <RadzenPanelMenuItem Text="Reserva de artículos" Path="customer-reservations" Visible=@Security.IsInRole("Administrador","Consulta de reservas","Modificación de reservas","Modificación de pedidos") />
                 <RadzenPanelMenuItem Text="Pedido de artículos" Path="customer-orders" Visible=@Security.IsInRole("Administrador","Consulta de pedidos","Modificación de pedidos") />
                 <RadzenPanelMenuItem Text="Traslado de pedidos a proceso " Path="process-customer-orders" Visible=@Security.IsInRole("Administrador","Consulta de pedidos en proceso","Modificación de pedidos en proceso") />

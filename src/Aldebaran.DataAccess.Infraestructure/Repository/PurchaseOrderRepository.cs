@@ -2,6 +2,7 @@ using Aldebaran.DataAccess.Entities;
 using Aldebaran.DataAccess.Enums;
 using Aldebaran.DataAccess.Infraestructure.Models;
 using Aldebaran.Infraestructure.Common.Utils;
+using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
@@ -34,6 +35,15 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 var statutsDocumentType = await dbContext.StatusDocumentTypes.AsNoTracking().FirstAsync(f => f.DocumentTypeId == documentType.DocumentTypeId && f.StatusOrder == 3, ct);
                 entity.StatusDocumentTypeId = statutsDocumentType.StatusDocumentTypeId;
 
+                var alarms = await (from a in dbContext.Alarms
+                                    join b in dbContext.AlarmMessages on a.AlarmMessageId equals b.AlarmMessageId
+                                    join c in dbContext.AlarmTypes on b.AlarmTypeId equals c.AlarmTypeId
+                                    join d in dbContext.DocumentTypes on c.DocumentTypeId equals d.DocumentTypeId
+                                    where d.DocumentTypeCode.Equals("O") && a.DocumentId == purchaseOrderId && a.IsActive == true
+                                    select (Alarm)a).ToListAsync();
+                
+                foreach (var alarm in alarms) alarm.IsActive = false;
+               
                 var reasonEntity = new CanceledPurchaseOrder
                 {
                     PurchaseOrderId = purchaseOrderId,
@@ -48,8 +58,9 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 }
                 catch
                 {
-                    dbContext.Entry(entity).State = EntityState.Unchanged;
+                    dbContext.Entry(alarms).State = EntityState.Unchanged;
                     dbContext.Entry(reasonEntity).State = EntityState.Unchanged;
+                    dbContext.Entry(entity).State = EntityState.Unchanged;
                     throw;
                 }
             }, ct);
@@ -82,12 +93,24 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                             detailToUpdate.WarehouseId = detail.WarehouseId;
                     }
                 }
+                // Alarms
+                var alarms = await (from a in dbContext.Alarms
+                                    join b in dbContext.AlarmMessages on a.AlarmMessageId equals b.AlarmMessageId
+                                    join c in dbContext.AlarmTypes on b.AlarmTypeId equals c.AlarmTypeId
+                                    join d in dbContext.DocumentTypes on c.DocumentTypeId equals d.DocumentTypeId
+                                    where d.DocumentTypeCode.Equals("O") && a.DocumentId == entity.PurchaseOrderId && a.IsActive == true
+                                    select (Alarm)a).ToListAsync();
+
+                foreach (var alarm in alarms) alarm.IsActive = false;                
+
                 try
                 {
                     await dbContext.SaveChangesAsync(ct);
                 }
                 catch
                 {
+                    dbContext.Entry(alarms).State = EntityState.Unchanged;
+                    dbContext.Entry(details).State = EntityState.Unchanged;
                     dbContext.Entry(entity).State = EntityState.Unchanged;
                     throw;
                 }
