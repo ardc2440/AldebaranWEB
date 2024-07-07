@@ -67,15 +67,15 @@
                         </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Filterable="false" Sortable="false" Width="130px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Administrador","Modificación de órdenes de compra","Confirmación de órdenes de compra","Cancelación de órdenes de compra")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                             <Template Context="purchaseOrder">
-                                <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="done_all" Size="ButtonSize.Medium" Visible="@(purchaseOrder.StatusDocumentType.StatusOrder==1 && Security.IsInRole("Administrador","Confirmación de órdenes de compra") && purchaseOrder.StatusDocumentType.EditMode == true)" MouseEnter="@(args => ShowTooltip(args,"Confirmar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
+                                <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="done_all" Size="ButtonSize.Medium" Visible="@(Security.IsInRole("Administrador","Confirmación de órdenes de compra") && purchaseOrder.StatusDocumentType.EditMode == true)" MouseEnter="@(args => ShowTooltip(args,"Confirmar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
                                               Shade="Shade.Lighter" Variant="Variant.Flat"
                                               Click=@(args => ConfirmPurchaseOrder(args, purchaseOrder)) @onclick:stopPropagation="true" />
 
-                                <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="edit" Size="ButtonSize.Medium" Visible="@(purchaseOrder.StatusDocumentType.StatusOrder==1 && Security.IsInRole("Administrador","Modificación de órdenes de compra") && purchaseOrder.StatusDocumentType.EditMode == true)" MouseEnter="@(args => ShowTooltip(args,"Editar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
+                                <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="edit" Size="ButtonSize.Medium" Visible="@(Security.IsInRole("Administrador","Modificación de órdenes de compra") && purchaseOrder.StatusDocumentType.EditMode == true)" MouseEnter="@(args => ShowTooltip(args,"Editar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
                                               Shade="Shade.Lighter" Variant="Variant.Flat"
                                               Click=@(args => EditPurchaseOrder(args, purchaseOrder)) @onclick:stopPropagation="true" />
 
-                                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Visible="@(purchaseOrder.StatusDocumentType.StatusOrder==1 && Security.IsInRole("Administrador","Cancelación de órdenes de compra") && purchaseOrder.StatusDocumentType.EditMode == true)" MouseEnter="@(args => ShowTooltip(args,"Cancelar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
+                                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Visible="@(Security.IsInRole("Administrador","Cancelación de órdenes de compra") && purchaseOrder.StatusDocumentType.EditMode == true)" MouseEnter="@(args => ShowTooltip(args,"Cancelar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
                                               Shade="Shade.Lighter" Variant="Variant.Flat"
                                               Click=@(args => CancelPurchaseOrder(args, purchaseOrder)) @onclick:stopPropagation="true" />
                             </Template>

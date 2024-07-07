@@ -36,7 +36,7 @@ namespace Aldebaran.Web.Pages.IdentityPages
                 isLoadingInProgress = true;
                 ApplicationUser = await Security.GetUserById($"{Id}");
                 UserRoles = ApplicationUser.Roles.Select(role => role.Id);
-                ApplicationRoles = await Security.GetRoles();
+                ApplicationRoles = (await Security.GetRoles()).OrderBy(o => o.Name);
             }
             finally
             {

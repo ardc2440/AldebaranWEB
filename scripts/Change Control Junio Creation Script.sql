@@ -117,13 +117,13 @@ INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) 
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'9B10B24F-70F3-41C7-9FEE-32113289C774', N'1A3E4DFA-8DE9-4AD1-B9C7-62C6549314B3', N'Modificación de órdenes de compra','MODIFICACIÓN DE ÓRDENES DE COMPRA')
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'9E6647C7-D68F-40CA-97C6-76F94F082C10', N'1A3E4DFA-8DE9-4AD1-B9C7-62C6549314B3', N'Confirmación de órdenes de compra','CONFIRMACIÓN DE ÓRDENES DE COMPRA')
 INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'65C45C3F-0005-4133-9C7C-6FC96AB52EA1', N'1A3E4DFA-8DE9-4AD1-B9C7-62C6549314B3', N'Cancelación de órdenes de compra','CANCELACIÓN DE ÓRDENES DE COMPRA')
-
-
-
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'3E55B995-B331-4911-A850-01E165ED23AC', N'7E4F8093-DDBF-423C-A224-53D4DD78B77B', N'Modificación de pedidos','MODIFICACIÓN DE PEDIDOS')  
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'22009B3D-D6CC-4BF1-A3CD-344A5E282032', N'68603CF6-63D5-4C82-9768-695A5D0E4C1F', N'Creación de pedidos','CREACIÓN DE PEDIDOS')  
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'A6ABDEE5-DE7A-43AC-AD4F-08CCB80A7A15', N'A6ABDEE5-DE7A-43AC-AD4F-08CCB80A7A15', N'Cierre de pedidos','CIERRE DE PEDIDOS')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'AB0D1257-B491-45C0-9DCA-0EFF6DD56DD2', N'68355298-258D-42BF-88EF-DC259365DB50', N'Cancelción de pedidos','CANCELACIÓN DE PEDIDOS')
+INSERT [dbo].[AspNetRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName]) VALUES (N'302D116A-7596-4500-A8A1-5D9357646196', N'CC5AEFB7-3373-47C4-BF6B-2A2B7A0570DD', N'Descarga de formato de pedidos','DESCARGA DE FORMATO DE PEDIDOS')
 GO
 /*
-SELECT NEWID()
-SELECT NEWID()
 SELECT NEWID()
 SELECT NEWID()
 */
