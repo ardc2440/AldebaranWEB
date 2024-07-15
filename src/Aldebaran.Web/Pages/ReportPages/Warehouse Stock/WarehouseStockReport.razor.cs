@@ -38,14 +38,24 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Stock
         #endregion
 
         #region Overrides
-        protected override async Task OnInitializedAsync()
+        protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            await RedrawReport();
+            if (firstRender)
+            {
+                await Reset();
+            }
         }
         #endregion
 
         #region Events
-
+        async Task Reset()
+        {
+            Filter = null;
+            ViewModel = null;
+            StateHasChanged();
+            await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
+            await OpenFilters();
+        }
         async Task RedrawReport(string filter = "", CancellationToken ct = default)
         {
             try
@@ -63,6 +73,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Stock
             finally
             {
                 IsLoadingData = false;
+                StateHasChanged();
             }
 
         }
@@ -96,11 +107,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Stock
         {
             if (await DialogService.Confirm("Está seguro que desea eliminar los filtros establecidos?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
             {
-                Filter = null;
-
-                await RedrawReport();
-
-                await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
+                await Reset();
             }
         }
         async Task Save(RadzenSplitButtonItem args)

@@ -39,14 +39,24 @@ namespace Aldebaran.Web.Pages.ReportPages.Freezone_vs_Available
         #endregion
 
         #region Overrides
-        protected override async Task OnInitializedAsync()
+        protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            await RedrawReportAsync();
+            if (firstRender)
+            {
+                await Reset();
+            }
         }
         #endregion
 
         #region Events
-
+        async Task Reset()
+        {
+            Filter = null;
+            ViewModel = null;
+            StateHasChanged();
+            await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
+            await OpenFilters();
+        }
         async Task RedrawReportAsync(string filter = "", CancellationToken ct = default)
         {
             try
@@ -63,6 +73,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Freezone_vs_Available
             finally
             {
                 IsLoadingData = false;
+                StateHasChanged();
             }
         }
         async Task OpenFilters()
@@ -85,11 +96,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Freezone_vs_Available
         {
             if (await DialogService.Confirm("Está seguro que desea eliminar los filtros establecidos?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
             {
-                Filter = null;
-
-                await RedrawReportAsync();
-
-                await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
+                await Reset();
             }
         }
 

@@ -59,7 +59,7 @@
         </RadzenColumn>
         <RadzenColumn Size="6" class="align-self-end">
             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.End" JustifyContent="JustifyContent.End" Gap="0.5rem">
-                <RadzenSplitButton Icon="build" Text="Acciones" Click="@Save" Variant="Variant.Flat" Shade="Shade.Lighter" IsBusy="@IsBusy">
+                <RadzenSplitButton Icon="build" Text="Acciones" Click="@Save" Variant="Variant.Flat" Shade="Shade.Lighter" IsBusy="@IsBusy" Disabled="ViewModel==null">
                     <RadzenSplitButtonItem Text="Imprimir" Icon="print" Value="print" Style="cursor:pointer" />
                     <RadzenSplitButtonItem Text="Guardar PDF" Icon="picture_as_pdf" Value="save" Style="cursor:pointer" />
                 </RadzenSplitButton>
@@ -68,7 +68,7 @@
     </RadzenRow>
     <RadzenRow AlignItems="AlignItems.Start">
         <RadzenColumn Size="12">
-            <RadzenCard style="min-height:600px; overflow-y:auto">
+            <RadzenCard style="min-height:600px; overflow-y:auto; position:relative">
                 <div id="inventory-movement-report-container">
                     <div class="report">
                         <table>
@@ -215,6 +215,12 @@
                                         <h4>@SharedLocalizer["report:no-data"]</h4>
                                     </div>
                                 }
+                            }
+                            else
+                            {
+                                <div class="no-data-container">
+                                    <h4>@SharedLocalizer["report:unfiltered"]</h4>
+                                </div>
                             }
                         </div>
                     </div>

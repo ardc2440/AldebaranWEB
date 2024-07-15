@@ -40,19 +40,24 @@ namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
         #endregion
 
         #region Overrides
-        protected override async Task OnInitializedAsync()
+        protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            await RedrawReportAsync();
-
-            UniqueWarehouses = ViewModel.Lines.SelectMany(s => s.Items)
-                .SelectMany(item => item.References.SelectMany(reference => reference.Warehouses))
-                .DistinctBy(w => w.WarehouseId)
-                .ToList();
+            if (firstRender)
+            {
+                await Reset();
+            }
         }
         #endregion
 
         #region Events
-
+        async Task Reset()
+        {
+            Filter = null;
+            ViewModel = null;
+            StateHasChanged();
+            await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
+            await OpenFilters();
+        }
         protected async Task RedrawReportAsync(string filter = "", CancellationToken ct = default)
         {
             try
@@ -66,10 +71,15 @@ namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
                     Lines = await GetReporLinesAsync()
                 };
 
+                UniqueWarehouses = ViewModel.Lines.SelectMany(s => s.Items)
+                .SelectMany(item => item.References.SelectMany(reference => reference.Warehouses))
+                .DistinctBy(w => w.WarehouseId)
+                .ToList();
             }
             finally
             {
                 IsLoadingData = false;
+                StateHasChanged();
             }
         }
 
@@ -94,11 +104,7 @@ namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
         {
             if (await DialogService.Confirm("Está seguro que desea eliminar los filtros establecidos?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
             {
-                Filter = null;
-
-                await RedrawReportAsync();
-
-                await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
+                await Reset();
             }
         }
 
@@ -152,7 +158,7 @@ namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
             foreach (var item in DataReport.Where(w => w.LineId == lineId)
                                     .Select(s => new { s.ItemId, s.InternalReference, s.ItemName })
                                     .DistinctBy(d => d.ItemId)
-                                    .OrderBy(o=>o.ItemName))
+                                    .OrderBy(o => o.ItemName))
             {
                 items.Add(new InProcessInventoryViewModel.Item
                 {
