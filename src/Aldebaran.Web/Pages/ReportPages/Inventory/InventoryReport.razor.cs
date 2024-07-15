@@ -36,18 +36,27 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
         private bool IsBusy = false;
         private bool IsLoadingData = false;
         private IEnumerable<Application.Services.Models.Reports.InventoryReport> DataReport { get; set; }
-
         #endregion
 
         #region Overrides
-        protected override async Task OnInitializedAsync()
+        protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            await RedrawReportAsync();
+            if (firstRender)
+            {
+                await Reset();
+            }
         }
         #endregion
 
         #region Events
-
+        async Task Reset()
+        {
+            Filter = null;
+            ViewModel = null;
+            StateHasChanged();
+            await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
+            await OpenFilters();
+        }
         async Task RedrawReportAsync(string filter = "", CancellationToken ct = default)
         {
             try
@@ -64,6 +73,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
             finally
             {
                 IsLoadingData = false;
+                StateHasChanged();
             }
         }
 
@@ -88,11 +98,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
         {
             if (await DialogService.Confirm("Está seguro que desea eliminar los filtros establecidos?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
             {
-                Filter = null;
-
-                await RedrawReportAsync();
-
-                await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
+                await Reset();
             }
         }
 
@@ -189,8 +195,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
             var activities = new List<InventoryViewModel.Activity>();
 
             foreach (var item in DataReport.Where(w => w.PurchaseOrderId == purchaseOrderId && w.ReferenceId == referenceId && w.Description != null && w.ActivityId != null)
-                                        .Select(s => new { s.ActivityDate, s.Description, s.ActivityId})
-                                        .DistinctBy(d=>d.ActivityId)
+                                        .Select(s => new { s.ActivityDate, s.Description, s.ActivityId })
+                                        .DistinctBy(d => d.ActivityId)
                                         .Select(s => new InventoryViewModel.Activity
                                         {
                                             Date = s.ActivityDate,

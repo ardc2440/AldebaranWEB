@@ -35,7 +35,6 @@ namespace Aldebaran.Web.Shared
             CleanReferences();
             AvailableItemReferencesForSelection = references;
             Lines = AvailableItemReferencesForSelection?.Select(s => s.Item.Line).DistinctBy(d => d.LineId).ToList().OrderBy(o => o.LineName);
-            CollapsedPanel = (references?.Any()) != true;
         }
         public void SetSelectedItemReferences(List<int> referenceIds)
         {
@@ -51,7 +50,6 @@ namespace Aldebaran.Web.Shared
                 OnItemChange();
                 SelectedReferenceIds = selectedReferences.Select(s => s.ReferenceId).Distinct().ToList();
                 OnReferenceChange();
-                CollapsedPanel = false;
             }
             else
             {
@@ -66,7 +64,6 @@ namespace Aldebaran.Web.Shared
             await base.SetParametersAsync(parameters);
             if (ReadOnly == true)
             {
-                CollapsedPanel = true;
                 StateHasChanged();
             }
         }

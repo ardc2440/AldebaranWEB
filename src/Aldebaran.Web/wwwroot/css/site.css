@@ -391,11 +391,17 @@ hr.divider {
         margin: 5px 5px 5px 0px;
         align-items: center;
     }
+
         .chip-input .chip-text input {
             border: none;
             width: 100%;
             outline: none;
         }
-.rz-datatable-no-header table.rz-grid-table thead{
-    display:none;
+
+.rz-datatable-no-header table.rz-grid-table thead {
+    display: none;
+}
+
+i.rz-button-icon-left.rzi + span.rz-button-text {
+    margin-left: 8px;
 }

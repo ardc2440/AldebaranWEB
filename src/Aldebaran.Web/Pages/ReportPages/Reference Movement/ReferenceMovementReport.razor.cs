@@ -47,34 +47,51 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
         #endregion
 
         #region Overrides
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (firstRender)
+            {
+                await OpenFilters();
+            }
+        }
+
         public override async Task SetParametersAsync(ParameterView parameters)
         {
             await base.SetParametersAsync(parameters);
             if (ReferenceId != null)
             {
-                await SetDefaultFilters(ReferenceId.Value);
-                await OpenFilters();
-            }
-            else
-            {
-                await RedrawReportAsync();
-                StateHasChanged();
+                await SetFiltersByParameters();
             }
         }
-        async Task SetDefaultFilters(int referenceId)
-        {
-            var reference = await ItemReferenceService.FindAsync(referenceId);
-            Filter = new ReferenceMovementFilter
-            {
-                ItemReferences = new List<Application.Services.Models.ItemReference> { reference },
-                LockReferenceSelection = true
-            };
-            StateHasChanged();
-        }
+
         #endregion
 
         #region Events
-
+        async Task Reset()
+        {
+            await SetFiltersByParameters();
+            ViewModel = null;
+            StateHasChanged();
+            await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
+            await OpenFilters();
+        }
+        async Task SetFiltersByParameters()
+        {
+            if (ReferenceId != null)
+            {
+                var reference = await ItemReferenceService.FindAsync(ReferenceId.Value);
+                Filter = new ReferenceMovementFilter
+                {
+                    ItemReferences = new List<Application.Services.Models.ItemReference> { reference },
+                    LockReferenceSelection = true
+                };
+            }
+            else
+            {
+                Filter = null;
+            }
+        }
         async Task RedrawReportAsync(string filter = "", CancellationToken ct = default)
         {
             try
@@ -91,6 +108,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
             finally
             {
                 IsLoadingData = false;
+                StateHasChanged();
             }
         }
 
@@ -113,7 +131,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
             {
                 Width = "800px"
             };
-            if (Filter.LockReferenceSelection)
+            if (Filter != null && Filter.LockReferenceSelection)
             {
                 dialogOptions.CloseDialogOnEsc = false;
             }
@@ -137,17 +155,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
         {
             if (await DialogService.Confirm("Está seguro que desea eliminar los filtros establecidos?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
             {
-                Filter = null;
-                if (ReferenceId != null)
-                {
-                    ViewModel = null;
-                    await SetDefaultFilters(ReferenceId.Value);
-                    await OpenFilters();
-                    return;
-                }
-
-                await RedrawReportAsync();
-                await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
+                await Reset();
             }
         }
         async Task Save(RadzenSplitButtonItem args)

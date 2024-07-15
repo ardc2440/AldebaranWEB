@@ -126,7 +126,10 @@
   <data name="report:no-data" xml:space="preserve">
     <value>No hay información disponible en este momento para visualizar.</value>
   </data>
-  <data name="report:loading-text" xml:space="preserve">
+  <data name="report:unfiltered" xml:space="preserve">
+    <value>No se ha seleccionado ningún filtro.</value>
+  </data>
+	<data name="report:loading-text" xml:space="preserve">
     <value>Consultando...</value>
   </data>
   <data name="page:loading-text" xml:space="preserve">

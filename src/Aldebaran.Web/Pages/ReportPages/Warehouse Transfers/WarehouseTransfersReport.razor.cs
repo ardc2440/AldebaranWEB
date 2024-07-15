@@ -38,13 +38,24 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Transfers
         #endregion
 
         #region Overrides
-        protected override async Task OnInitializedAsync()
+        protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            await RedrawReport();
+            if (firstRender)
+            {
+                await Reset();
+            }
         }
         #endregion
 
         #region Events
+        async Task Reset()
+        {
+            Filter = null;
+            ViewModel = null;
+            StateHasChanged();
+            await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
+            await OpenFilters();
+        }
         async Task OpenFilters()
         {
             var result = await DialogService.OpenAsync<WarehouseTransfersReportFilter>("Filtrar reporte de traslados entre bodegas", parameters: new Dictionary<string, object> { { "Filter", Filter } }, options: new DialogOptions { Width = "800px" });
@@ -60,11 +71,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Transfers
         {
             if (await DialogService.Confirm("Está seguro que desea eliminar los filtros establecidos?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
             {
-                Filter = null;
-
-                await RedrawReport();
-
-                await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
+                await Reset();
             }
         }
         async Task Save(RadzenSplitButtonItem args)
@@ -104,6 +111,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Transfers
             finally
             {
                 IsLoadingData = false;
+                StateHasChanged();
             }
 
         }
