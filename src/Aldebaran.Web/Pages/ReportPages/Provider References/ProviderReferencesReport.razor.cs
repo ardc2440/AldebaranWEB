@@ -133,6 +133,10 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References
         {
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink");
         }
+        async Task ToggleReadMorePage()
+        {
+            await JSRuntime.InvokeVoidAsync("readMoreTogglePage", "toggleLinkPage");
+        }
 
         #endregion
 

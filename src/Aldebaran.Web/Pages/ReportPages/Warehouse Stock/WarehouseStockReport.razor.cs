@@ -132,6 +132,10 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Stock
         {
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink");
         }
+        async Task ToggleReadMorePage()
+        {
+            await JSRuntime.InvokeVoidAsync("readMoreTogglePage", "toggleLinkPage");
+        }
         #endregion
 
         #region Fill Data Report

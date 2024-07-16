@@ -122,6 +122,11 @@ namespace Aldebaran.Web.Pages.ReportPages.Freezone_vs_Available
         {
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink");
         }
+
+        async Task ToggleReadMorePage()
+        {
+            await JSRuntime.InvokeVoidAsync("readMoreTogglePage", "toggleLinkPage");
+        }
         #endregion
 
         #region Fill Data Report

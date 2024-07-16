@@ -95,6 +95,10 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Transfers
         {
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink");
         }
+        async Task ToggleReadMorePage()
+        {
+            await JSRuntime.InvokeVoidAsync("readMoreTogglePage", "toggleLinkPage");
+        }
         async Task RedrawReport(string filter = "", CancellationToken ct = default)
         {
             try

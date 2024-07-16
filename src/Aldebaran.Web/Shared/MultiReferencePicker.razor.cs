@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using Radzen;
 using Radzen.Blazor;
 using ServiceModel = Aldebaran.Application.Services.Models;
@@ -7,6 +8,9 @@ namespace Aldebaran.Web.Shared
 {
     public partial class MultiReferencePicker
     {
+        [Inject]
+        protected IJSRuntime JSRuntime { get; set; }
+
         #region Parameters
         [Parameter]
         public bool ReadOnly { get; set; } = false;
@@ -190,6 +194,10 @@ namespace Aldebaran.Web.Shared
                 CollapsedPanel = false;
             if (Command == "Collapse")
                 CollapsedPanel = true;
+        }
+        async Task ToggleReadMore()
+        {
+            await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink");
         }
         #endregion
     }

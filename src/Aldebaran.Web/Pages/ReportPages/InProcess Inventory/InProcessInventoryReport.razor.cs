@@ -129,6 +129,10 @@ namespace Aldebaran.Web.Pages.ReportPages.InProcess_Inventory
         {
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink");
         }
+        async Task ToggleReadMorePage()
+        {
+            await JSRuntime.InvokeVoidAsync("readMoreTogglePage", "toggleLinkPage");
+        }
 
         #endregion
 

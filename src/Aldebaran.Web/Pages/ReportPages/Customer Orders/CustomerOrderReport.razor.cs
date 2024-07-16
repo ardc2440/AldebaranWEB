@@ -274,6 +274,10 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders
         {
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink");
         }
+        async Task ToggleReadMorePage()
+        {
+            await JSRuntime.InvokeVoidAsync("readMoreTogglePage", "toggleLinkPage");
+        }
         #endregion
     }
 }
