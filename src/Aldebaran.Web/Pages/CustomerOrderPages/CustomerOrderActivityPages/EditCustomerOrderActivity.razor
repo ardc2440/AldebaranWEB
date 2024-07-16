@@ -1,6 +1,6 @@
 @page "/edit-customer-order-activity/{CustomerOrderActivityId}"
 
-@attribute [Authorize(Roles = "Administrador,Modificación de actividades de un pedido")]
+@attribute [Authorize(Roles = "Administrador,Modificación de pedidos,Creación de pedidos")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
 

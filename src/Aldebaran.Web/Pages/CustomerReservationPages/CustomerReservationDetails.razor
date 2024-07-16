@@ -1,5 +1,5 @@
 ﻿@page "/customer-reservation-detail/{CustomerReservationId}"
-@attribute [Authorize(Roles = "Administrador,Consulta de reservas")]
+@attribute [Authorize(Roles = "Administrador,Consulta de reservas,Consulta de notificaciones por reservas vencidas")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer ;
 
