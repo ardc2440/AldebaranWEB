@@ -95,7 +95,12 @@ namespace Aldebaran.Web.Shared
                     ItemName = x.ItemName,
                     InternalReference = x.InternalReference,
                     FullName = $"{x.InternalReference} {x.ItemName}"
-                }))).ToList();
+                }))).Where(w => !string.IsNullOrEmpty(w.ItemName)).ToList();
+        }
+        protected void OnItemHeaderToggleSelection(bool args)
+        {
+            SelectedItemIds = args ? itemsGrid.View.Cast<GroupItemData>().Select(c => c.ItemId).ToList() : SelectedItemIds = new List<int>();
+            OnItemChange();
         }
         protected void OnItemChange()
         {

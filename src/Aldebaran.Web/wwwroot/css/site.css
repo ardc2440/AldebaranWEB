@@ -405,3 +405,7 @@ hr.divider {
 i.rz-button-icon-left.rzi + span.rz-button-text {
     margin-left: 8px;
 }
+
+.rz-dropdown.rz-clear .rz-dropdown-label {
+    padding: .25rem .375rem;
+}
