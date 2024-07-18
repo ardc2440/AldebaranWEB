@@ -68,6 +68,8 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         protected ServiceModel.PurchaseOrder PurchaseOrder;
         protected IEnumerable<ServiceModel.PurchaseOrder> PurchaseOrdersList;
         protected RadzenDataGrid<ServiceModel.PurchaseOrder> PurchaseOrderGrid;
+        private int dataCount;
+
         protected string search = "";
         protected bool isLoadingInProgress;
 
@@ -84,7 +86,6 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
             {
                 isLoadingInProgress = true;
                 documentType = await DocumentTypeService.FindByCodeAsync("O");
-                await GetPurchaseOrdersAsync();
                 await DialogResultResolver();
             }
             finally
@@ -139,13 +140,13 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         async Task GetPurchaseOrdersAsync(string searchKey = null, CancellationToken ct = default)
         {
             await Task.Yield();
-            PurchaseOrdersList = string.IsNullOrEmpty(searchKey) ? await PurchaseOrderService.GetAsync(ct) : await PurchaseOrderService.GetAsync(searchKey, ct);
+            await PurchaseOrderGrid.Reload();
         }
-        protected async Task Search(ChangeEventArgs args)
+        async Task LoadData(LoadDataArgs args)
         {
-            search = $"{args.Value}";
-            await PurchaseOrderGrid.GoToPage(0);
-            await GetPurchaseOrdersAsync(search);
+            isLoadingInProgress = true;
+            (PurchaseOrdersList, dataCount) = await PurchaseOrderService.GetAsync(args.Skip ?? 0, args.Top ?? 0, args.Filter, args.OrderBy);
+            isLoadingInProgress = false;
         }
         protected async Task AddPurchaseOrder(MouseEventArgs args)
         {
@@ -309,7 +310,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         #endregion
 
         #region Alarms
-        
+
         protected async Task DisableAlarm(Application.Services.Models.Alarm alarm)
         {
             try

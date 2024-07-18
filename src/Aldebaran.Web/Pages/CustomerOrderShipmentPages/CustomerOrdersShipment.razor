@@ -6,159 +6,154 @@
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer ;
 
 <PageTitle>Despacho de artículos procesados</PageTitle>
-<LoadingData IsLoadingData="@isLoadingInProgress" />
 
-@if (!isLoadingInProgress)
-{
-    <RadzenStack>
-        @if (dialogResult != null && dialogResult.Success)
-        {
-            <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Success">
-                @dialogResult.Message
-            </RadzenAlert>
-        }
-        @if (dialogResult != null && !dialogResult.Success)
-        {
-            <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger">
-                @dialogResult.Message
-            </RadzenAlert>
-        }
-        <RadzenRow AlignItems="AlignItems.Center">
-            <RadzenColumn Size="12" SizeMD="6">
-                <RadzenText Text="Despacho de artículos procesados" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
-            </RadzenColumn>
-        </RadzenRow>
-        <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
-        <RadzenRow>
-            <RadzenColumn SizeMD=12>
-                <LocalizedDataGrid @ref="CustomerOrdersGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                   ExpandMode="DataGridExpandMode.Single" Data="@customerOrders" TItem="Aldebaran.Application.Services.Models.CustomerOrder" RowExpand=@GetChildData AllowColumnPicking="true" IsLoading="@isLoadingInProgress">
-                    <Columns>
-                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="OrderNumber" Title="No. pedido">
-                        </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="Customer.CustomerName" Title="Cliente">
-                        </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="OrderDate" Title="Fecha pedido">
-                            <Template Context="customerOrder">
-                                <span>@customerOrder.OrderDate.ToString(SharedLocalizer["date:format"])</span>
-                            </Template>
-                        </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="EstimatedDeliveryDate" Title="Fecha estimada de entrega">
-                            <Template Context="customerOrder">
-                                <span>@customerOrder.EstimatedDeliveryDate.ToString(SharedLocalizer["date:format"])</span>
-                            </Template>
-                        </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="StatusDocumentType.StatusDocumentTypeName" Title="Estado">
-                        </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="CustomerNotes" Title="Notas del cliente" Visible="false">
-                        </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="InternalNotes" Title="Notas internas" Visible="false">
-                        </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Filterable="false" Sortable="false" Width="110px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
-                            <Template Context="customerOrder">
-                                <RadzenButton Icon="assignment_ind" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
-                                              Click="@(args => SendToShipment(customerOrder))" @onclick:stopPropagation="true"
-                                              Visible="@CanDispach(customerOrder).Result" title="Despachar Cantidades">
-                                </RadzenButton>
-                            </Template>
-                        </RadzenDataGridColumn>
-                    </Columns>
-                    <Template Context="customerOrder">
-                        <RadzenStack Class="rz-my-8">
-                            <RadzenTabs Visible="@(customerOrder != null)">
-                                <Tabs>
-                                    <RadzenTabsItem Text="Referencias del pedido">
-                                        <LocalizedDataGrid ColumnWidth="200px" Visible="@(customerOrder != null)" @ref=CustomerOrderDetailsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                                           ExpandMode="DataGridExpandMode.Single" Data="@detailInProcesses" TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess">
-                                            <Columns>
-                                                <RadzenDataGridColumn Width="80%" TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Title="Referencia">
-                                                    <Template Context="detail">
-                                                        <RadzenLabel MouseEnter="@(args => ShowTooltip(args,detail.REFERENCE_DESCRIPTION, new TooltipOptions(){ Position = TooltipPosition.Left }))">
-                                                            @detail.REFERENCE_DESCRIPTION
-                                                        </RadzenLabel>
-                                                    </Template>
-                                                </RadzenDataGridColumn>
-                                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Title="Pendiente">
-                                                    <Template Context="detail">
-                                                        @detail.PENDING_QUANTITY.ToString("N0")
-                                                    </Template>
-                                                </RadzenDataGridColumn>
-                                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Title="En proceso">
-                                                    <Template Context="detail">
-                                                        @detail.PROCESSED_QUANTITY.ToString("N0")
-                                                    </Template>
-                                                </RadzenDataGridColumn>
-                                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Title="Despachado">
-                                                    <Template Context="detail">
-                                                        @detail.DELIVERED_QUANTITY.ToString("N0")
-                                                    </Template>
-                                                </RadzenDataGridColumn>
-                                            </Columns>
-                                        </LocalizedDataGrid>
-                                    </RadzenTabsItem>
-                                    <RadzenTabsItem Text="Despachos realizados al cliente">
-                                        <LocalizedDataGrid @ref="CustomerOrderShipmentDataGrid" ColumnWidth="200px" Visible="@(customerOrderShipments != null)" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                                           ExpandMode="DataGridExpandMode.Single" Data="@customerOrderShipments" RowExpand=@GetChildShipmentData TItem="Aldebaran.Application.Services.Models.CustomerOrderShipment">
-                                            <Columns>
-                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipment" Property="ShippingDate" Title="Fecha de despacho">
-                                                    <Template Context="customerOrderShipment">
-                                                        <span>@customerOrderShipment.ShippingDate.ToString(SharedLocalizer["date:format"])</span>
-                                                    </Template>
-                                                </RadzenDataGridColumn>
-                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipment" Property="TrackingNumber" Title="Número de rastreo">
-                                                </RadzenDataGridColumn>
-                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipment" Property="ShippingMethod.ShippingMethodName" Title="Método de envio">
-                                                </RadzenDataGridColumn>
-                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipment" Property="Employee.FullName" Title="Responsable">
-                                                </RadzenDataGridColumn>
-                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipment" Property="StatusDocumentType.StatusDocumentTypeName" Title="Estado">
-                                                </RadzenDataGridColumn>
-                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipment" Filterable="false" Sortable="false" Width="110px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
-                                                    <Template Context="customerOrderShipment">
-                                                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
-                                                                      Click="@(args => EditProcessRow(customerOrderShipment))" @onclick:stopPropagation="true"
-                                                                      Visible="@CanEditProcess(customerOrderShipment).Result" MouseEnter="@(args => ShowTooltip(args,"Editar", new TooltipOptions(){ Position = TooltipPosition.Left }))">
-                                                        </RadzenButton>
-                                                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
-                                                                      Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@CanEditProcess(customerOrderShipment).Result"
-                                                                      Click=@(args => CancelCustomerOrderShipment(args, customerOrderShipment)) @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Cancelar", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
-                                                    </Template>
-                                                </RadzenDataGridColumn>
-                                            </Columns>
-                                            <Template Context="customerOrderShipment">
-                                                <RadzenStack Class="rz-my-8">
-                                                    <RadzenRow Gap="0" AlignItems="AlignItems.Center">
-                                                        <RadzenColumn Size="12" SizeMD="6">
-                                                            <RadzenText Visible="@(customerOrder != null)" Text="Referencias Incluidas en el Traslado" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
-                                                        </RadzenColumn>
-                                                    </RadzenRow>
-                                                    <LocalizedDataGrid ColumnWidth="200px" Visible="@(customerOrder != null)" @ref=CustomerOrderShipmentDetailDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                                                       ExpandMode="DataGridExpandMode.Single" Data="@customerOrderShipmentDetails" TItem="Aldebaran.Application.Services.Models.CustomerOrderShipmentDetail">
-                                                        <Columns>
-                                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipmentDetail" Title="Referencia">
-                                                                <Template Context="detail">
-                                                                    <RadzenLabel MouseEnter="@(args => ShowTooltip(args,GetReferenceHint(@detail.CustomerOrderDetail.ItemReference).Result, new TooltipOptions(){ Position = TooltipPosition.Left }))">
-                                                                        [@detail.CustomerOrderDetail.ItemReference.Item.InternalReference] (@detail.CustomerOrderDetail.ItemReference.Item.Line.LineName) @detail.CustomerOrderDetail.ItemReference.Item.ItemName - @detail.CustomerOrderDetail.ItemReference.ReferenceName
-                                                                    </RadzenLabel>
-                                                                </Template>
-                                                            </RadzenDataGridColumn>
-                                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipmentDetail" Title="Cantidad despachada">
-                                                                <Template Context="detail">
-                                                                    @detail.DeliveredQuantity.ToString("N0")
-                                                                </Template>
-                                                            </RadzenDataGridColumn>
-                                                        </Columns>
-                                                    </LocalizedDataGrid>
-                                                </RadzenStack>
-                                            </Template>
-                                        </LocalizedDataGrid>
-                                    </RadzenTabsItem>
-                                </Tabs>
-                            </RadzenTabs>
-                        </RadzenStack>
-                    </Template>
-                </LocalizedDataGrid>
-            </RadzenColumn>
-        </RadzenRow>
-    </RadzenStack>
-}
+<RadzenStack>
+    @if (dialogResult != null && dialogResult.Success)
+    {
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Success">
+            @dialogResult.Message
+        </RadzenAlert>
+    }
+    @if (dialogResult != null && !dialogResult.Success)
+    {
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger">
+            @dialogResult.Message
+        </RadzenAlert>
+    }
+    <RadzenRow AlignItems="AlignItems.Center">
+        <RadzenColumn Size="12" SizeMD="6">
+            <RadzenText Text="Despacho de artículos procesados" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenRow>
+        <RadzenColumn SizeMD=12>
+            <LocalizedDataGrid @ref="CustomerOrdersGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                               ExpandMode="DataGridExpandMode.Single" Data="@customerOrders" TItem="Aldebaran.Application.Services.Models.CustomerOrder" RowExpand=@GetChildData AllowColumnPicking="true" IsLoading="@isLoadingInProgress" LoadData="@LoadData" Count="@dataCount">
+                <Columns>
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="OrderNumber" Title="No. pedido" SortProperty="OrderNumber" SortOrder="SortOrder.Descending">
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="Customer.CustomerName" Title="Cliente">
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="OrderDate" Title="Fecha pedido">
+                        <Template Context="customerOrder">
+                            <span>@customerOrder.OrderDate.ToString(SharedLocalizer["date:format"])</span>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="EstimatedDeliveryDate" Title="Fecha estimada de entrega">
+                        <Template Context="customerOrder">
+                            <span>@customerOrder.EstimatedDeliveryDate.ToString(SharedLocalizer["date:format"])</span>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="StatusDocumentType.StatusDocumentTypeName" Title="Estado">
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="CustomerNotes" Title="Notas del cliente" Visible="false">
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="InternalNotes" Title="Notas internas" Visible="false">
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Filterable="false" Sortable="false" Width="110px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                        <Template Context="customerOrder">
+                            <RadzenButton Icon="assignment_ind" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                          Click="@(args => SendToShipment(customerOrder))" @onclick:stopPropagation="true"
+                                          Visible="@CanDispach(customerOrder).Result" title="Despachar Cantidades">
+                            </RadzenButton>
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+                <Template Context="customerOrder">
+                    <RadzenStack Class="rz-my-8">
+                        <RadzenTabs Visible="@(customerOrder != null)">
+                            <Tabs>
+                                <RadzenTabsItem Text="Referencias del pedido">
+                                    <LocalizedDataGrid ColumnWidth="200px" Visible="@(customerOrder != null)" @ref=CustomerOrderDetailsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                                       ExpandMode="DataGridExpandMode.Single" Data="@detailInProcesses" TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess">
+                                        <Columns>
+                                            <RadzenDataGridColumn Width="80%" TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Title="Referencia">
+                                                <Template Context="detail">
+                                                    <RadzenLabel MouseEnter="@(args => ShowTooltip(args,detail.REFERENCE_DESCRIPTION, new TooltipOptions(){ Position = TooltipPosition.Left }))">
+                                                        @detail.REFERENCE_DESCRIPTION
+                                                    </RadzenLabel>
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Title="Pendiente">
+                                                <Template Context="detail">
+                                                    @detail.PENDING_QUANTITY.ToString("N0")
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Title="En proceso">
+                                                <Template Context="detail">
+                                                    @detail.PROCESSED_QUANTITY.ToString("N0")
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Title="Despachado">
+                                                <Template Context="detail">
+                                                    @detail.DELIVERED_QUANTITY.ToString("N0")
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                        </Columns>
+                                    </LocalizedDataGrid>
+                                </RadzenTabsItem>
+                                <RadzenTabsItem Text="Despachos realizados al cliente">
+                                    <LocalizedDataGrid @ref="CustomerOrderShipmentDataGrid" ColumnWidth="200px" Visible="@(customerOrderShipments != null)" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                                       ExpandMode="DataGridExpandMode.Single" Data="@customerOrderShipments" RowExpand=@GetChildShipmentData TItem="Aldebaran.Application.Services.Models.CustomerOrderShipment">
+                                        <Columns>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipment" Property="ShippingDate" Title="Fecha de despacho">
+                                                <Template Context="customerOrderShipment">
+                                                    <span>@customerOrderShipment.ShippingDate.ToString(SharedLocalizer["date:format"])</span>
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipment" Property="TrackingNumber" Title="Número de rastreo">
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipment" Property="ShippingMethod.ShippingMethodName" Title="Método de envio">
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipment" Property="Employee.FullName" Title="Responsable">
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipment" Property="StatusDocumentType.StatusDocumentTypeName" Title="Estado">
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipment" Filterable="false" Sortable="false" Width="110px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                                                <Template Context="customerOrderShipment">
+                                                    <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                                                  Click="@(args => EditProcessRow(customerOrderShipment))" @onclick:stopPropagation="true"
+                                                                  Visible="@CanEditProcess(customerOrderShipment).Result" MouseEnter="@(args => ShowTooltip(args,"Editar", new TooltipOptions(){ Position = TooltipPosition.Left }))">
+                                                    </RadzenButton>
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
+                                                                  Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@CanEditProcess(customerOrderShipment).Result"
+                                                                  Click=@(args => CancelCustomerOrderShipment(args, customerOrderShipment)) @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Cancelar", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                        </Columns>
+                                        <Template Context="customerOrderShipment">
+                                            <RadzenStack Class="rz-my-8">
+                                                <RadzenRow Gap="0" AlignItems="AlignItems.Center">
+                                                    <RadzenColumn Size="12" SizeMD="6">
+                                                        <RadzenText Visible="@(customerOrder != null)" Text="Referencias Incluidas en el Traslado" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
+                                                    </RadzenColumn>
+                                                </RadzenRow>
+                                                <LocalizedDataGrid ColumnWidth="200px" Visible="@(customerOrder != null)" @ref=CustomerOrderShipmentDetailDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                                                   ExpandMode="DataGridExpandMode.Single" Data="@customerOrderShipmentDetails" TItem="Aldebaran.Application.Services.Models.CustomerOrderShipmentDetail">
+                                                    <Columns>
+                                                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipmentDetail" Title="Referencia">
+                                                            <Template Context="detail">
+                                                                <RadzenLabel MouseEnter="@(args => ShowTooltip(args,GetReferenceHint(@detail.CustomerOrderDetail.ItemReference).Result, new TooltipOptions(){ Position = TooltipPosition.Left }))">
+                                                                    [@detail.CustomerOrderDetail.ItemReference.Item.InternalReference] (@detail.CustomerOrderDetail.ItemReference.Item.Line.LineName) @detail.CustomerOrderDetail.ItemReference.Item.ItemName - @detail.CustomerOrderDetail.ItemReference.ReferenceName
+                                                                </RadzenLabel>
+                                                            </Template>
+                                                        </RadzenDataGridColumn>
+                                                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipmentDetail" Title="Cantidad despachada">
+                                                            <Template Context="detail">
+                                                                @detail.DeliveredQuantity.ToString("N0")
+                                                            </Template>
+                                                        </RadzenDataGridColumn>
+                                                    </Columns>
+                                                </LocalizedDataGrid>
+                                            </RadzenStack>
+                                        </Template>
+                                    </LocalizedDataGrid>
+                                </RadzenTabsItem>
+                            </Tabs>
+                        </RadzenTabs>
+                    </RadzenStack>
+                </Template>
+            </LocalizedDataGrid>
+        </RadzenColumn>
+    </RadzenRow>
+</RadzenStack>

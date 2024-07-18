@@ -44,7 +44,12 @@ namespace Aldebaran.Application.Services
             var data = await _repository.GetAsync(filter, ct);
             return _mapper.Map<List<Adjustment>>(data);
         }
-
+        public async Task<(IEnumerable<Adjustment> adjustments, int count)> GetAsync(int skip, int take, string filter, string orderBy, CancellationToken ct = default)
+        {
+            var (o, r) = await _repository.GetAsync(skip, take, filter, orderBy, ct);
+            var data = _mapper.Map<IEnumerable<Adjustment>>(o);
+            return (data, r);
+        }
         public async Task UpdateAsync(int adjustmentId, Adjustment adjustment, CancellationToken ct = default)
         {
             var entity = _mapper.Map<Entities.Adjustment>(adjustment) ?? throw new ArgumentNullException("Ajuste no puede ser nulo.");

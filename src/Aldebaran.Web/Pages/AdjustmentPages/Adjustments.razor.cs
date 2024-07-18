@@ -36,8 +36,8 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         #region Global Variables
 
         protected IEnumerable<Adjustment> adjustments;
+        private int dataCount;
         protected IEnumerable<AdjustmentDetail> adjustmentDetails;
-
         protected LocalizedDataGrid<Adjustment> AdjustmentsGrid;
         protected DialogResult DialogResult { get; set; }
         protected string search = "";
@@ -65,7 +65,6 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
                 isLoadingInProgress = true;
                 await Task.Yield();
                 documentType = await DocumentTypeService.FindByCodeAsync("A");
-                await GetAdjustmentsAsync();
                 await DialogResultResolver();
             }
             finally
@@ -92,7 +91,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
             var adjustment = await AdjustmentService.FindAsync(adjustmentId, ct);
             if (adjustment == null)
                 return;
-            
+
             NotificationService.Notify(new NotificationMessage
             {
                 Summary = "Ajuste de inventario",
@@ -101,20 +100,14 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
             });
         }
 
-        async Task GetAdjustmentsAsync(string searchKey = null, CancellationToken ct = default)
+        async Task LoadData(LoadDataArgs args)
         {
-            await Task.Yield();
-            adjustments = string.IsNullOrEmpty(searchKey) ? await AdjustmentService.GetAsync(ct) : await AdjustmentService.GetAsync(searchKey, ct);
+            isLoadingInProgress = true;
+            (adjustments, dataCount) = await AdjustmentService.GetAsync(args.Skip ?? 0, args.Top ?? 0, args.Filter, args.OrderBy);
+            isLoadingInProgress = false;
         }
 
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
-
-        protected async Task Search(ChangeEventArgs args)
-        {
-            search = $"{args.Value}";
-            await AdjustmentsGrid.GoToPage(0);
-            await GetAdjustmentsAsync(search);
-        }
 
         protected async Task AddAdjustmentClick(MouseEventArgs args)
         {

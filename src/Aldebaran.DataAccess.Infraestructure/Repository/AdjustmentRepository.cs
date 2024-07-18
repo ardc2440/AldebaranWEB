@@ -2,6 +2,7 @@
 using Aldebaran.Infraestructure.Common.Extensions;
 using Aldebaran.Infraestructure.Common.Utils;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Dynamic.Core;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
@@ -98,7 +99,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .Include(i => i.AdjustmentType)
                 .Include(i => i.Employee)
                 .Include(i => i.AdjustmentDetails)
-                .OrderBy(o=>o.AdjustmentId)
+                .OrderBy(o => o.AdjustmentId)
                 .ToListAsync(ct);
             }, ct);
         }
@@ -182,6 +183,30 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 }
             }, ct);
         }
-    }
 
+        public async Task<(IEnumerable<Adjustment> adjustments, int count)> GetAsync(int skip, int take, string filter, string orderBy, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                var query = dbContext.Adjustments.AsNoTracking()
+                    .Include(i => i.StatusDocumentType)
+                    .Include(i => i.AdjustmentReason)
+                    .Include(i => i.AdjustmentType)
+                    .Include(i => i.Employee)
+                    .Include(i => i.AdjustmentDetails)
+                    .AsQueryable();
+                if (!string.IsNullOrEmpty(filter))
+                {
+                    query = query.Where(filter);
+                }
+                if (!string.IsNullOrEmpty(orderBy))
+                {
+                    query = query.OrderBy(orderBy);
+                }
+                var count = query.Count();
+                var data = await query.Skip(skip).Take(take).ToListAsync(ct);
+                return (data, count);
+            }, ct);
+        }
+    }
 }

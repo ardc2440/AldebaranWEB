@@ -12,5 +12,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         Task AddAsync(Item item, CancellationToken ct = default);
         Task UpdateAsync(int itemId, Item item, CancellationToken ct = default);
         Task DeleteAsync(int itemId, CancellationToken ct = default);
+        Task<(IEnumerable<Item> Items, int count)> GetAsync(int skip, int take, string filter, string orderBy, CancellationToken ct = default);
     }
 }

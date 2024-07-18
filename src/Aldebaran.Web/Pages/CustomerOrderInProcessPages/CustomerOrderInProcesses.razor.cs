@@ -69,6 +69,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         protected LocalizedDataGrid<CustomerOrdersInProcess> CustomerOrderInProcessesDataGrid;
         protected LocalizedDataGrid<CustomerOrderInProcessDetail> CustomerOrderInProcessDetailDataGrid;
         protected LocalizedDataGrid<CustomerOrder> CustomerOrdersGrid;
+        private int dataCount;
         protected string search = "";
         protected bool isLoadingInProgress;
         protected bool IsErrorVisible = false;
@@ -83,12 +84,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
             try
             {
                 documentType = await DocumentTypeService.FindByCodeAsync("P");
-
                 isLoadingInProgress = true;
-
                 await Task.Yield();
 
-                await GetCustomerOrderInProcessAsync();
                 await DialogResultResolver();
             }
             finally
@@ -102,13 +100,17 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
         #region Events
 
-        async Task GetCustomerOrderInProcessAsync(string searchKey = null, CancellationToken ct = default)
+        async Task GetCustomerOrderInProcessAsync()
         {
             await Task.Yield();
-            var orders = string.IsNullOrEmpty(searchKey) ? await CustomerOrderService.GetAsync(ct) : await CustomerOrderService.GetAsync(searchKey, ct);
-            customerOrders = orders.Where(x => x.StatusDocumentType.EditMode);
+            await CustomerOrdersGrid.Reload();
         }
-
+        async Task LoadData(LoadDataArgs args)
+        {
+            isLoadingInProgress = true;
+            (customerOrders, dataCount) = await CustomerOrderService.GetCustomerOrderInProcessAsync(args.Skip ?? 0, args.Top ?? 0, args.Filter, args.OrderBy);
+            isLoadingInProgress = false;
+        }
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
 
         async Task DialogResultResolver(CancellationToken ct = default)
@@ -146,15 +148,6 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         }
 
         protected async Task<string> GetReferenceHint(ItemReference reference) => $"({reference.Item.Line.LineName}) {reference.Item.ItemName} - {reference.ReferenceName}";
-
-        protected async Task Search(ChangeEventArgs args)
-        {
-            search = $"{args.Value}";
-
-            await CustomerOrdersGrid.GoToPage(0);
-
-            customerOrders = (await CustomerOrderService.GetAsync(search)).Where(x => x.StatusDocumentType.EditMode).ToList();
-        }
 
         protected async Task GetOrderDetails(CustomerOrder args)
         {
@@ -234,9 +227,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
                 var reason = (Reason)reasonResult;
 
-                var statusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync((await DocumentTypeService.FindByCodeAsync("T")).DocumentTypeId, 2);                
+                var statusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync((await DocumentTypeService.FindByCodeAsync("T")).DocumentTypeId, 2);
                 await CustomerOrdersInProcessService.CancelAsync(customerOrderInProcess.CustomerOrderInProcessId, statusDocumentType.StatusDocumentTypeId, reason);
-                await GetCustomerOrderInProcessAsync(search);
+                await GetCustomerOrderInProcessAsync();
 
                 NotificationService.Notify(new NotificationMessage
                 {

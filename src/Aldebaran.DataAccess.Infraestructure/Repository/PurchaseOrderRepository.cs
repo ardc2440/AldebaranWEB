@@ -2,9 +2,9 @@ using Aldebaran.DataAccess.Entities;
 using Aldebaran.DataAccess.Enums;
 using Aldebaran.DataAccess.Infraestructure.Models;
 using Aldebaran.Infraestructure.Common.Utils;
-using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Dynamic.Core;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
@@ -41,9 +41,9 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                                     join d in dbContext.DocumentTypes on c.DocumentTypeId equals d.DocumentTypeId
                                     where d.DocumentTypeCode.Equals("O") && a.DocumentId == purchaseOrderId && a.IsActive == true
                                     select (Alarm)a).ToListAsync();
-                
+
                 foreach (var alarm in alarms) alarm.IsActive = false;
-               
+
                 var reasonEntity = new CanceledPurchaseOrder
                 {
                     PurchaseOrderId = purchaseOrderId,
@@ -104,7 +104,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                                     where d.DocumentTypeCode.Equals("O") && a.DocumentId == entity.PurchaseOrderId && a.IsActive == true
                                     select (Alarm)a).ToListAsync();
 
-                foreach (var alarm in alarms) alarm.IsActive = false;                
+                foreach (var alarm in alarms) alarm.IsActive = false;
 
                 try
                 {
@@ -288,6 +288,33 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     .FromSqlRaw($"EXEC SP_CUSTOMER_ORDERS_POSSIBLY_AFFECTED_BY_PURCHASE_ORDER_ID " +
                     $"@PURCHASEORDERID",
                     purchaseOrderIdParameter).ToListAsync(ct);
+            }, ct);
+        }
+
+        public async Task<(IEnumerable<PurchaseOrder> purchaseOrders, int count)> GetAsync(int skip, int take, string filter, string orderBy, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                var query = dbContext.PurchaseOrders.AsNoTracking()
+                    .Include(i => i.Employee.Area)
+                    .Include(i => i.Employee.IdentityType)
+                    .Include(i => i.ForwarderAgent.Forwarder)
+                    .Include(i => i.Provider.IdentityType)
+                    .Include(i => i.ShipmentForwarderAgentMethod.ShipmentMethod)
+                    .Include(i => i.ShipmentForwarderAgentMethod.ForwarderAgent)
+                    .Include(i => i.StatusDocumentType.DocumentType)
+                    .AsQueryable();
+                if (!string.IsNullOrEmpty(filter))
+                {
+                    query = query.Where(filter);
+                }
+                if (!string.IsNullOrEmpty(orderBy))
+                {
+                    query = query.OrderBy(orderBy);
+                }
+                var count = query.Count();
+                var data = await query.Skip(skip).Take(take).ToListAsync(ct);
+                return (data, count);
             }, ct);
         }
     }

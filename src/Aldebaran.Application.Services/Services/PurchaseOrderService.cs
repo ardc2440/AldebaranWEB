@@ -80,5 +80,11 @@ namespace Aldebaran.Application.Services
             var data = await _repository.GetAffectedCustomerOrders(purchaseOrderId, ct);
             return _mapper.Map<List<CustomerOrderAffectedByPurchaseOrderUpdate>>(data.OrderBy(o => o.OrderNumber));
         }
+        public async Task<(IEnumerable<PurchaseOrder> purchaseOrders, int count)> GetAsync(int skip, int take, string filter, string orderBy, CancellationToken ct = default)
+        {
+            var (d, r) = await _repository.GetAsync(skip, take, filter, orderBy, ct);
+            var data = _mapper.Map<IEnumerable<PurchaseOrder>>(d);
+            return (data, r);
+        }
     }
 }

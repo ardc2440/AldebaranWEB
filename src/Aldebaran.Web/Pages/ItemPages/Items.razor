@@ -4,10 +4,7 @@
 @using ServiceModel = Aldebaran.Application.Services.Models;
 
 <PageTitle>Artículos</PageTitle>
-<LoadingData IsLoadingData="@isLoadingInProgress" />
 
-@if (!isLoadingInProgress)
-{
     <RadzenStack>
         <RadzenRow AlignItems="AlignItems.Center">
             <RadzenColumn Size="12">
@@ -23,11 +20,10 @@
                 </RadzenStack>
             </RadzenColumn>
         </RadzenRow>
-        <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
         <RadzenRow>
-            <RadzenColumn SizeMD=12>                
+            <RadzenColumn SizeMD=12>
                 <LocalizedDataGrid @ref="ItemsDataGrid" ColumnWidth="120px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                   Data="@ItemsList" TItem="ServiceModel.Item" RowExpand=@GetItemReferences AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowGrouping="true" AllowColumnReorder="true" Render="@OnItemDataGridRender">
+                               Data="@ItemsList" TItem="ServiceModel.Item" RowExpand=@GetItemReferences AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowGrouping="true" AllowColumnReorder="true" Render="@OnItemDataGridRender" LoadData="@LoadData" Count="@dataCount">
                     <Columns>
                         <RadzenDataGridColumn TItem="ServiceModel.Item" Property="Line.LineName" Title="Linea" Visible="false" Width="40%">
                         </RadzenDataGridColumn>
@@ -146,4 +142,3 @@
             </RadzenColumn>
         </RadzenRow>
     </RadzenStack>
-}

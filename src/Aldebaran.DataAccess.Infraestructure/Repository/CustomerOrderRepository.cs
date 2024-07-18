@@ -2,6 +2,7 @@
 using Aldebaran.DataAccess.Infraestructure.Models;
 using Aldebaran.Infraestructure.Common.Utils;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Dynamic.Core;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
@@ -67,7 +68,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                             .Include(i => i.Customer.City.Department.Country)
                             .Include(i => i.Customer.IdentityType)
                             .Include(i => i.StatusDocumentType.DocumentType)
-                            .Include(i => i.Employee.IdentityType) 
+                            .Include(i => i.Employee.IdentityType)
                             .Include(i => i.CustomerOrderDetails)
                             .OrderBy(o => o.OrderNumber)
                             .ToListAsync(ct);
@@ -266,6 +267,81 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 }
             }, ct);
         }
-    }
 
+        public async Task<(IEnumerable<CustomerOrder> customerOrders, int count)> GetAsync(int skip, int take, string filter, string orderBy, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                var query = dbContext.CustomerOrders.AsNoTracking()
+                    .Include(i => i.Customer.City.Department.Country)
+                    .Include(i => i.Customer.IdentityType)
+                    .Include(i => i.StatusDocumentType.DocumentType)
+                    .Include(i => i.Employee.IdentityType)
+                    .Include(i => i.CustomerOrderDetails)
+                    .AsQueryable();
+                if (!string.IsNullOrEmpty(filter))
+                {
+                    query = query.Where(filter);
+                }
+                if (!string.IsNullOrEmpty(orderBy))
+                {
+                    query = query.OrderBy(orderBy);
+                }
+                var count = query.Count();
+                var data = await query.Skip(skip).Take(take).ToListAsync(ct);
+                return (data, count);
+            }, ct);
+        }
+
+        public async Task<(IEnumerable<CustomerOrder> customerOrders, int count)> GetCustomerOrderShipmentAsync(int skip, int take, string filter, string orderBy, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                var query = dbContext.CustomerOrders.AsNoTracking()
+                    .Include(i => i.Customer.City.Department.Country)
+                    .Include(i => i.Customer.IdentityType)
+                    .Include(i => i.StatusDocumentType.DocumentType)
+                    .Include(i => i.Employee.IdentityType)
+                    .Include(i => i.CustomerOrderDetails)
+                    .Where(x => x.StatusDocumentType.StatusOrder == 2 || x.StatusDocumentType.StatusOrder == 3 || x.StatusDocumentType.StatusOrder == 4)
+                    .AsQueryable();
+                if (!string.IsNullOrEmpty(filter))
+                {
+                    query = query.Where(filter);
+                }
+                if (!string.IsNullOrEmpty(orderBy))
+                {
+                    query = query.OrderBy(orderBy);
+                }
+                var count = query.Count();
+                var data = await query.Skip(skip).Take(take).ToListAsync(ct);
+                return (data, count);
+            }, ct);
+        }
+        public async Task<(IEnumerable<CustomerOrder> customerOrders, int count)> GetCustomerOrderInProcessAsync(int skip, int take, string filter, string orderBy, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                var query = dbContext.CustomerOrders.AsNoTracking()
+                    .Include(i => i.Customer.City.Department.Country)
+                    .Include(i => i.Customer.IdentityType)
+                    .Include(i => i.StatusDocumentType.DocumentType)
+                    .Include(i => i.Employee.IdentityType)
+                    .Include(i => i.CustomerOrderDetails)
+                    .Where(x => x.StatusDocumentType.EditMode)
+                    .AsQueryable();
+                if (!string.IsNullOrEmpty(filter))
+                {
+                    query = query.Where(filter);
+                }
+                if (!string.IsNullOrEmpty(orderBy))
+                {
+                    query = query.OrderBy(orderBy);
+                }
+                var count = query.Count();
+                var data = await query.Skip(skip).Take(take).ToListAsync(ct);
+                return (data, count);
+            }, ct);
+        }
+    }
 }

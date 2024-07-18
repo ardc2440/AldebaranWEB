@@ -5,7 +5,6 @@ using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.Identity.Client;
 using Radzen;
 
 namespace Aldebaran.Web.Pages.CustomerReservationPages
@@ -65,6 +64,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         protected DialogResult dialogResult;
         protected IEnumerable<CustomerReservation> customerReservations;
         protected LocalizedDataGrid<CustomerReservation> CustomerReservationGrid;
+        private int dataCount;
         protected DialogResult DialogResult { get; set; }
         protected string search = "";
         protected bool isLoadingInProgress;
@@ -84,12 +84,9 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             try
             {
                 documentType = await DocumentTypeService.FindByCodeAsync("R");
-
                 isLoadingInProgress = true;
-
                 await Task.Yield();
 
-                await GetCustomerReservationAsync();
                 await DialogResultResolver();
             }
             finally
@@ -105,9 +102,14 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         async Task GetCustomerReservationAsync(string searchKey = null, CancellationToken ct = default)
         {
             await Task.Yield();
-            customerReservations = string.IsNullOrEmpty(searchKey) ? await CustomerReservationService.GetAsync(ct) : await CustomerReservationService.GetAsync(searchKey, ct);
+            await CustomerReservationGrid.Reload();
         }
-
+        async Task LoadData(LoadDataArgs args)
+        {
+            isLoadingInProgress = true;
+            (customerReservations, dataCount) = await CustomerReservationService.GetAsync(args.Skip ?? 0, args.Top ?? 0, args.Filter, args.OrderBy);
+            isLoadingInProgress = false;
+        }
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
 
         protected async Task<string> GetReferenceHint(ItemReference reference) => $"({reference.Item.Line.LineName}) {reference.Item.ItemName} - {reference.ReferenceName}";
@@ -168,20 +170,11 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             });
         }
 
-        protected async Task Search(ChangeEventArgs args)
-        {
-
-            search = $"{args.Value}";
-
-            await CustomerReservationGrid.GoToPage(0);
-
-            await GetCustomerReservationAsync(search);
-        }
-
         protected async Task AddButtonClick(MouseEventArgs args)
         {
             NavigationManager.NavigateTo("add-customer-reservation");
         }
+
         protected async Task EditRow(CustomerReservation args)
         {
             NavigationManager.NavigateTo("edit-customer-reservation/" + args.CustomerReservationId);
@@ -202,7 +195,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                 customerReservation.StatusDocumentType = cancelStatusDocumentType;
                 customerReservation.StatusDocumentTypeId = cancelStatusDocumentType.StatusDocumentTypeId;
 
-                await GetCustomerReservationAsync(search);
+                await GetCustomerReservationAsync();
 
                 NotificationService.Notify(new NotificationMessage
                 {

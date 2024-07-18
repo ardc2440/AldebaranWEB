@@ -58,6 +58,12 @@ namespace Aldebaran.Application.Services
             var entity = _mapper.Map<Entities.Item>(item) ?? throw new ArgumentNullException("Artículo no puede ser nulo.");
             await _repository.UpdateAsync(itemId, entity, ct);
         }
-    }
 
+        public async Task<(IEnumerable<Item> Items, int count)> GetAsync(int skip, int take, string filter, string orderBy, CancellationToken ct = default)
+        {
+            var (d, r) = await _repository.GetAsync(skip, take, filter, orderBy, ct);
+            var data = _mapper.Map<IEnumerable<Item>>(d);
+            return (data, r);
+        }
+    }
 }

@@ -39,6 +39,7 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
         protected IEnumerable<WarehouseTransferDetail> warehouseTransferDetails;
 
         protected LocalizedDataGrid<WarehouseTransfer> WarehouseTransfersGrid;
+        private int dataCount;
         protected DialogResult DialogResult { get; set; }
         protected string search = "";
         protected bool isLoadingInProgress;
@@ -65,7 +66,6 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
                 isLoadingInProgress = true;
                 await Task.Yield();
                 documentType = await DocumentTypeService.FindByCodeAsync("B");
-                await GetWarehousetransferssAsync();
                 await DialogResultResolver();
             }
             finally
@@ -115,17 +115,15 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
         async Task GetWarehousetransferssAsync(string searchKey = null, CancellationToken ct = default)
         {
             await Task.Yield();
-            warehouseTransfers = string.IsNullOrEmpty(searchKey) ? await WarehouseTransferService.GetAsync(ct) : await WarehouseTransferService.GetAsync(searchKey, ct);
+            await WarehouseTransfersGrid.Reload();
         }
-
-        void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
-
-        protected async Task Search(ChangeEventArgs args)
+        async Task LoadData(LoadDataArgs args)
         {
-            search = $"{args.Value}";
-            await WarehouseTransfersGrid.GoToPage(0);
-            await GetWarehousetransferssAsync(search);
+            isLoadingInProgress = true;
+            (warehouseTransfers, dataCount) = await WarehouseTransferService.GetAsync(args.Skip ?? 0, args.Top ?? 0, args.Filter, args.OrderBy);
+            isLoadingInProgress = false;
         }
+        void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
 
         protected async Task AddWarehouseTransferClick(MouseEventArgs args)
         {

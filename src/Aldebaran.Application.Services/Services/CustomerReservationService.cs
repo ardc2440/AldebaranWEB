@@ -51,6 +51,13 @@ namespace Aldebaran.Application.Services
             var entity = _mapper.Map<Entities.CustomerReservation>(customerReservation) ?? throw new ArgumentNullException("Reserva no puede ser nula.");
             var mapReason = _mapper.Map<DataAccess.Infraestructure.Models.Reason?>(reason);
             await _repository.UpdateAsync(customerReservationId, entity, mapReason, ct);
-        }              
+        }
+
+        public async Task<(IEnumerable<CustomerReservation> customerReservations, int count)> GetAsync(int skip, int take, string filter, string orderBy, CancellationToken ct = default)
+        {
+            var (d, r) = await _repository.GetAsync(skip, take, filter, orderBy, ct);
+            var data = _mapper.Map<IEnumerable<CustomerReservation>>(d);
+            return (data, r);
+        }
     }
 }

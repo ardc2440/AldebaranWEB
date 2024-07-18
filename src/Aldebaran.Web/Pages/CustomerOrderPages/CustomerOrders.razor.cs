@@ -66,6 +66,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected DialogResult dialogResult;
         protected DocumentType documentType;
         protected IEnumerable<CustomerOrder> customerOrders;
+        private int dataCount;
         protected LocalizedDataGrid<CustomerOrder> CustomerOrdersGrid;
         protected CustomerOrder customerOrder;
         protected CustomerOrderActivity customerOrderActivity;
@@ -73,7 +74,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected LocalizedDataGrid<CustomerOrderDetail> CustomerOrderDetailsDataGrid;
         protected LocalizedDataGrid<CustomerOrderActivity> CustomerOrderActivitiesDataGrid;
         protected LocalizedDataGrid<CustomerOrderActivityDetail> CustomerOrderActivityDetailsDataGrid;
-        protected LocalizedDataGrid<CustomerOrderNotification> CustomerOrderNotificationsDataGrid;        
+        protected LocalizedDataGrid<CustomerOrderNotification> CustomerOrderNotificationsDataGrid;
         protected string search = "";
         protected bool isLoadingInProgress;
 
@@ -90,8 +91,6 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 documentType = await DocumentTypeService.FindByCodeAsync("P");
                 isLoadingInProgress = true;
                 await Task.Yield();
-
-                await GetCustomerOrdersAsync();
                 await DialogResultResolver();
             }
             catch (Exception ex)
@@ -166,22 +165,17 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
 
-        async Task GetCustomerOrdersAsync(string searchKey = null, CancellationToken ct = default)
+        async Task GetCustomerOrdersAsync()
         {
             await Task.Yield();
-            customerOrders = string.IsNullOrEmpty(searchKey) ? await CustomerOrderService.GetAsync(ct) : await CustomerOrderService.GetAsync(searchKey, ct);
+            await CustomerOrdersGrid.Reload();
         }
-
-        protected async Task Search(ChangeEventArgs args)
+        async Task LoadData(LoadDataArgs args)
         {
-
-            search = $"{args.Value}";
-
-            await CustomerOrdersGrid.GoToPage(0);
-
-            await GetCustomerOrdersAsync(search);
+            isLoadingInProgress = true;
+            (customerOrders, dataCount) = await CustomerOrderService.GetAsync(args.Skip ?? 0, args.Top ?? 0, args.Filter, args.OrderBy);
+            isLoadingInProgress = false;
         }
-
         protected async Task AddButtonClick(MouseEventArgs args)
         {
             NavigationManager.NavigateTo("add-customer-order");
@@ -388,14 +382,14 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 NotificationService.Notify(new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
-                    Detail = $"No se ha podido cerrar el pedido. <br>"+ex.Message
+                    Detail = $"No se ha podido cerrar el pedido. <br>" + ex.Message
                 });
             }
         }
 
         protected async Task<bool> CanEditActivities(CustomerOrder customerOrder)
         {
-            return Security.IsInRole("Administrador", "Modificación de pedidos","Creación de pedidos") && customerOrder.StatusDocumentType.EditMode;
+            return Security.IsInRole("Administrador", "Modificación de pedidos", "Creación de pedidos") && customerOrder.StatusDocumentType.EditMode;
         }
 
         #region Alarms

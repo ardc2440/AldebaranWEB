@@ -46,6 +46,7 @@ namespace Aldebaran.Web.Pages.ItemPages
         protected IEnumerable<ServiceModel.Item> ItemsList;
         protected ServiceModel.Item Item;
         protected LocalizedDataGrid<ServiceModel.Item> ItemsDataGrid;
+        private int dataCount;
         protected LocalizedDataGrid<ServiceModel.ItemReference> ItemReferencesDataGrid;
         protected string search = "";
         protected bool isLoadingInProgress;
@@ -57,7 +58,6 @@ namespace Aldebaran.Web.Pages.ItemPages
             try
             {
                 isLoadingInProgress = true;
-                await GetItemsAsync();
             }
             finally
             {
@@ -72,14 +72,14 @@ namespace Aldebaran.Web.Pages.ItemPages
         async Task GetItemsAsync(string searchKey = null, CancellationToken ct = default)
         {
             await Task.Yield();
-            ItemsList = string.IsNullOrEmpty(searchKey) ? await ItemService.GetAsync(ct) : await ItemService.GetAsync(searchKey, ct);
+            await ItemsDataGrid.Reload();
         }
 
-        protected async Task Search(ChangeEventArgs args)
+        async Task LoadData(LoadDataArgs args)
         {
-            search = $"{args.Value}";
-            await ItemsDataGrid.GoToPage(0);
-            await GetItemsAsync(search);
+            isLoadingInProgress = true;
+            (ItemsList, dataCount) = await ItemService.GetAsync(args.Skip ?? 0, args.Top ?? 0, args.Filter, args.OrderBy);
+            isLoadingInProgress = false;
         }
 
         void OnItemDataGridRender(DataGridRenderEventArgs<ServiceModel.Item> args)

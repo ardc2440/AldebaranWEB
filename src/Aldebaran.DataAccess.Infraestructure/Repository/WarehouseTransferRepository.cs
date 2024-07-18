@@ -1,5 +1,6 @@
 ﻿using Aldebaran.DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Dynamic.Core;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
@@ -111,6 +112,30 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 }
 
                 return entity;
+            }, ct);
+        }
+
+        public async Task<(IEnumerable<WarehouseTransfer> warehouseTransfers, int count)> GetAsync(int skip, int take, string filter, string orderBy, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                var query = dbContext.WarehouseTransfers.AsNoTracking()
+                   .Include(i => i.OriginWarehouse)
+                   .Include(i => i.DestinationWarehouse)
+                   .Include(i => i.Employee)
+                   .Include(i => i.StatusDocumentType)
+                    .AsQueryable();
+                if (!string.IsNullOrEmpty(filter))
+                {
+                    query = query.Where(filter);
+                }
+                if (!string.IsNullOrEmpty(orderBy))
+                {
+                    query = query.OrderBy(orderBy);
+                }
+                var count = query.Count();
+                var data = await query.Skip(skip).Take(take).ToListAsync(ct);
+                return (data, count);
             }, ct);
         }
     }

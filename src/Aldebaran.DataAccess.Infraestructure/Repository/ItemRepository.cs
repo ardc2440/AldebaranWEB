@@ -1,5 +1,6 @@
 ﻿using Aldebaran.DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Dynamic.Core;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
@@ -123,9 +124,33 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 entity.IsDomesticProduct = item.IsDomesticProduct;
                 entity.IsActive = item.IsActive;
                 entity.IsCatalogVisible = item.IsCatalogVisible;
-                entity.Packagings = item.Packagings; 
+                entity.Packagings = item.Packagings;
 
                 await dbContext.SaveChangesAsync(ct);
+            }, ct);
+        }
+
+        public async Task<(IEnumerable<Item> Items, int count)> GetAsync(int skip, int take, string filter, string orderBy, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                var query = dbContext.Items.AsNoTracking()
+                          .Include(i => i.Currency)
+                          .Include(i => i.Line)
+                          .Include(i => i.CifMeasureUnit)
+                          .Include(i => i.FobMeasureUnit)
+                   .AsQueryable();
+                if (!string.IsNullOrEmpty(filter))
+                {
+                    query = query.Where(filter);
+                }
+                if (!string.IsNullOrEmpty(orderBy))
+                {
+                    query = query.OrderBy(orderBy);
+                }
+                var count = query.Count();
+                var data = await query.Skip(skip).Take(take).ToListAsync(ct);
+                return (data, count);
             }, ct);
         }
     }

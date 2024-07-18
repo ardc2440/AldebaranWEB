@@ -6,10 +6,6 @@
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer ;
 
 <PageTitle>Traslado entre bodegas</PageTitle>
-<LoadingData IsLoadingData="@isLoadingInProgress" />
-
-@if (!isLoadingInProgress)
-{
     <RadzenStack>
         <RadzenRow AlignItems="AlignItems.Center">
             <RadzenColumn Size="12">
@@ -21,12 +17,13 @@
                 </RadzenStack>
             </RadzenColumn>
         </RadzenRow>
-        <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
         <RadzenRow>
             <RadzenColumn SizeMD=12>
                 <LocalizedDataGrid @ref="WarehouseTransfersGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                   ExpandMode="DataGridExpandMode.Single" Data="@warehouseTransfers" TItem="Aldebaran.Application.Services.Models.WarehouseTransfer" RowExpand=@GetChildData AllowColumnPicking="true" IsLoading="@isLoadingInProgress">
+                               ExpandMode="DataGridExpandMode.Single" Data="@warehouseTransfers" TItem="Aldebaran.Application.Services.Models.WarehouseTransfer" RowExpand=@GetChildData AllowColumnPicking="true" IsLoading="@isLoadingInProgress" LoadData="@LoadData" Count="@dataCount">
                     <Columns>
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransfer" Property="WarehouseTransferId" Title="Id" Visible="false" Filterable="false" Groupable="false" SortProperty="WarehouseTransferId" SortOrder="SortOrder.Descending" >
+                    </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransfer" Title="Fecha de traslado">
                             <Template Context="detail">
                                 @detail.TransferDate.ToString(SharedLocalizer["date:format"])
@@ -64,7 +61,7 @@
                                         <Template Context="detail">
                                             @detail.Quantity.ToString("N0")
                                         </Template>
-                                    </RadzenDataGridColumn>                                    
+                                    </RadzenDataGridColumn>
                                 </Columns>
                             </LocalizedDataGrid>
                         </RadzenStack>
@@ -74,4 +71,3 @@
             </RadzenColumn>
         </RadzenRow>
     </RadzenStack>
-}
