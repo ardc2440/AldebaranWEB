@@ -13,10 +13,16 @@
                         <div>
                             <span class="component-label">Referencias:</span>
                         </div>
-                        @foreach (var reference in SelectedReferences)
+                        @for (int i = 0; i < SelectedReferences.Count(); i++)
                         {
                             <div>
-                                <span class="component-label">[@reference.Item.InternalReference] (@reference.Item.Line.LineName) @reference.Item.ItemName - @reference.ReferenceName</span>
+                                <span class="@(i>=2 ? "read-more" : "")" style="@(i>=2 ? "display: none" : "")">[@SelectedReferences[i].Item.InternalReference] (@SelectedReferences[i].Item.Line.LineName) @SelectedReferences[i].Item.ItemName - @SelectedReferences[i].ReferenceName</span>
+                            </div>
+                        }
+                        @if (SelectedReferences.Count() > 2)
+                        {
+                            <div>
+                                <a href="javascript:;" id="toggleLink" @onclick="ToggleReadMore">Ver más</a>
                             </div>
                         }
                     }

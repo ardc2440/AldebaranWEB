@@ -150,6 +150,10 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Sales
         {
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink");
         }
+        async Task ToggleReadMorePage()
+        {
+            await JSRuntime.InvokeVoidAsync("readMoreTogglePage", "toggleLinkPage");
+        }
         #endregion
 
         #region Fill Data Report

@@ -26,7 +26,7 @@
                             <p class="component-label m-0 fw-bold">Referencias: </p>
                             @for (int i = 0; i < Filter.ItemReferences.Count(); i++)
                             {
-                                <span class="@(i>=2 ? "read-more" : "")" style="@(i>=2 ? "display: none" : "")">(@Filter.ItemReferences[i].Item.Line.LineName) @Filter.ItemReferences[i].Item.ItemName - @Filter.ItemReferences[i].ReferenceName</span>
+                                <span class="@(i>=2 ? "read-more" : "")" style="@(i>=2 ? "display: none" : "")">[@Filter.ItemReferences[i].Item.InternalReference] (@Filter.ItemReferences[i].Item.Line.LineName) @Filter.ItemReferences[i].Item.ItemName - @Filter.ItemReferences[i].ReferenceName</span>
                             }
                             @if (Filter.ItemReferences.Count() > 2)
                             {
@@ -71,7 +71,13 @@
                                                         <div class="type">Referencias: </div>
                                                         @for (int i = 0; i < Filter.ItemReferences.Count(); i++)
                                                         {
-                                                            <p>(@Filter.ItemReferences[i].Item.Line.LineName) @Filter.ItemReferences[i].Item.ItemName - @Filter.ItemReferences[i].ReferenceName</p>
+                                                            <span class="@(i>=2 ? "read-more-page" : "")" style="@(i>=2 ? "display: none" : "")"> [@Filter.ItemReferences[i].Item.InternalReference] (@Filter.ItemReferences[i].Item.Line.LineName) @Filter.ItemReferences[i].Item.ItemName - @Filter.ItemReferences[i].ReferenceName</span>
+                                                        }
+                                                        @if (Filter.ItemReferences.Count() > 2)
+                                                        {
+                                                            <div>
+                                                                <a href="javascript:;" id="toggleLinkPage" @onclick="ToggleReadMorePage">Ver más</a>
+                                                            </div>
                                                         }
                                                     </div>
                                                 }

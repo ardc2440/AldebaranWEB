@@ -263,6 +263,11 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
         {
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink");
         }
+
+        async Task ToggleReadMorePage()
+        {
+            await JSRuntime.InvokeVoidAsync("readMoreTogglePage", "toggleLinkPage");
+        }
         #endregion
     }
 }
