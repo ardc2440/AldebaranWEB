@@ -21,15 +21,15 @@ namespace Aldebaran.Application.Services
             return _mapper.Map<CustomerOrder>(await _repository.AddAsync(entity, ct));
         }
 
-        public async Task<IEnumerable<CustomerOrder>> GetAsync(CancellationToken ct = default)
+        public async Task<IEnumerable<CustomerOrder>> GetAsync(int skip, int top, CancellationToken ct = default)
         {
-            var data = await _repository.GetAsync(ct);
+            var data = await _repository.GetAsync(skip, top, ct);
             return _mapper.Map<IEnumerable<CustomerOrder>>(data);
         }
 
-        public async Task<IEnumerable<CustomerOrder>> GetAsync(string searchKey, CancellationToken ct = default)
+        public async Task<IEnumerable<CustomerOrder>> GetAsync(int skip, int top, string searchKey, CancellationToken ct = default)
         {
-            var data = await _repository.GetAsync(searchKey, ct);
+            var data = await _repository.GetAsync(skip, top, searchKey, ct);
             return _mapper.Map<IEnumerable<CustomerOrder>>(data);
         }
 

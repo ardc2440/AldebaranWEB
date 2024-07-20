@@ -5,6 +5,7 @@ using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Radzen;
 
 namespace Aldebaran.Web.Pages.CustomerOrderPages
@@ -77,6 +78,10 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected string search = "";
         protected bool isLoadingInProgress;
 
+        protected int skip = 0;
+        protected int top = 0;
+        protected int count = 0;
+
         protected IEnumerable<Application.Services.Models.Alarm> alarms;
         protected LocalizedDataGrid<Application.Services.Models.Alarm> alarmsGrid;
 
@@ -107,6 +112,14 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         #endregion
 
         #region Events
+
+        protected async Task LoadData(LoadDataArgs args)
+        {
+            skip = args.Skip.Value;
+            top = args.Top.Value;
+            await GetCustomerOrdersAsync(search);
+            count = 800;
+        }
 
         protected async Task<string> GetReferenceHint(ItemReference reference) => $"({reference.Item.Line.LineName}) {reference.Item.ItemName} - {reference.ReferenceName}";
 
@@ -169,7 +182,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         async Task GetCustomerOrdersAsync(string searchKey = null, CancellationToken ct = default)
         {
             await Task.Yield();
-            customerOrders = string.IsNullOrEmpty(searchKey) ? await CustomerOrderService.GetAsync(ct) : await CustomerOrderService.GetAsync(searchKey, ct);
+            customerOrders = string.IsNullOrEmpty(searchKey) ? await CustomerOrderService.GetAsync(skip, top, ct) : await CustomerOrderService.GetAsync(skip, top, searchKey, ct);
         }
 
         protected async Task Search(ChangeEventArgs args)

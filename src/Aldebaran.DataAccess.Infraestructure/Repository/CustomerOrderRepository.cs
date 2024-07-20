@@ -59,7 +59,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             }, ct);
         }
 
-        public async Task<IEnumerable<CustomerOrder>> GetAsync(CancellationToken ct = default)
+        public async Task<IEnumerable<CustomerOrder>> GetAsync(int skip, int top, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
             {
@@ -68,13 +68,14 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                             .Include(i => i.Customer.IdentityType)
                             .Include(i => i.StatusDocumentType.DocumentType)
                             .Include(i => i.Employee.IdentityType) 
-                            .Include(i => i.CustomerOrderDetails)
+                            .Include(i => i.CustomerOrderDetails)                            
                             .OrderBy(o => o.OrderNumber)
+                            .Skip(skip).Take(top)
                             .ToListAsync(ct);
             }, ct);
         }
 
-        public async Task<IEnumerable<CustomerOrder>> GetAsync(string searchKey, CancellationToken ct = default)
+        public async Task<IEnumerable<CustomerOrder>> GetAsync(int skip, int top, string searchKey, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
             {
@@ -105,6 +106,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                                         dbContext.Format(i.EstimatedDeliveryDate, _SharedLocalizer["date:format"]).Contains(searchKey)
                                         )
                             .OrderBy(o => o.OrderNumber)
+                            .Skip(skip).Take(top)
                             .ToListAsync(ct);
             }, ct);
         }

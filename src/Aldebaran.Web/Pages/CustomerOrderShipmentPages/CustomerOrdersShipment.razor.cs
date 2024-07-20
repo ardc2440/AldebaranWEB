@@ -74,6 +74,10 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
         protected string search = "";
         protected bool isLoadingInProgress;
 
+        protected int skip = 0;
+        protected int top = 0;
+        protected int count = 0;
+
         #endregion
 
         #region Overrides
@@ -138,7 +142,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
         async Task GetCustomerOrderShipmentAsync(string searchKey = null, CancellationToken ct = default)
         {
             await Task.Yield();
-            var orders = string.IsNullOrEmpty(searchKey) ? await CustomerOrderService.GetAsync(ct) : await CustomerOrderService.GetAsync(searchKey, ct);
+            var orders = string.IsNullOrEmpty(searchKey) ? await CustomerOrderService.GetAsync(skip, top, ct) : await CustomerOrderService.GetAsync(skip, top, searchKey, ct);
             customerOrders = orders.Where(x => x.StatusDocumentType.StatusOrder == 2 || x.StatusDocumentType.StatusOrder == 3 || x.StatusDocumentType.StatusOrder == 4);
         }
 

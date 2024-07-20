@@ -3,6 +3,8 @@ using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Shared;
+using DocumentFormat.OpenXml.Drawing.Charts;
+using Humanizer;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
@@ -74,6 +76,10 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         protected bool IsErrorVisible = false;
         protected string Error = "";
 
+        protected int skip = 0;
+        protected int top = 0;
+        protected int count = 0;
+
         #endregion
 
         #region Overrides
@@ -105,7 +111,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         async Task GetCustomerOrderInProcessAsync(string searchKey = null, CancellationToken ct = default)
         {
             await Task.Yield();
-            var orders = string.IsNullOrEmpty(searchKey) ? await CustomerOrderService.GetAsync(ct) : await CustomerOrderService.GetAsync(searchKey, ct);
+            var orders = string.IsNullOrEmpty(searchKey) ? await CustomerOrderService.GetAsync(skip, top, ct) : await CustomerOrderService.GetAsync(skip, top, searchKey, ct);
             customerOrders = orders.Where(x => x.StatusDocumentType.EditMode);
         }
 
@@ -153,7 +159,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
             await CustomerOrdersGrid.GoToPage(0);
 
-            customerOrders = (await CustomerOrderService.GetAsync(search)).Where(x => x.StatusDocumentType.EditMode).ToList();
+            customerOrders = (await CustomerOrderService.GetAsync(skip, top, search)).Where(x => x.StatusDocumentType.EditMode).ToList();
         }
 
         protected async Task GetOrderDetails(CustomerOrder args)
