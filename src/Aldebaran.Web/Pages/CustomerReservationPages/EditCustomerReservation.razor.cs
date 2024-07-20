@@ -58,7 +58,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             try
             {
                 isLoadingInProgress = true;
-                customersForCUSTOMERID = await CustomerService.GetAsync();
+                customersForCUSTOMERID = (await CustomerService.GetAsync()).Customers;
 
                 Now = DateTime.UtcNow.AddDays(-1);
 

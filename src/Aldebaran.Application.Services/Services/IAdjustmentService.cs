@@ -9,8 +9,6 @@ namespace Aldebaran.Application.Services
         Task<Adjustment?> FindAsync(int adjustmentId, CancellationToken ct = default);
         Task<Adjustment> AddAsync(Adjustment adjustment, CancellationToken ct = default);
         Task UpdateAsync(int adjustmentId, Adjustment adjustment, CancellationToken ct = default);
-        Task CancelAsync(int adjustmentId, CancellationToken ct = default);
-        Task<(IEnumerable<Adjustment> adjustments, int count)> GetAsync(int skip, int take, string filter, string orderBy, CancellationToken ct = default);
-
+        Task CancelAsync(int adjustmentId, CancellationToken ct = default);        
     }
 }

@@ -70,7 +70,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
                 await Task.Yield();
 
-                customersForCUSTOMERID = await CustomerService.GetAsync();
+                customersForCUSTOMERID = (await CustomerService.GetAsync()).Customers;
 
                 documentType = await DocumentTypeService.FindByCodeAsync("P");
 

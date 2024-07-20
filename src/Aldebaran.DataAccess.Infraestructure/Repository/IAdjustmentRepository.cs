@@ -9,9 +9,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         Task<Adjustment?> FindAsync(int adjustmentId, CancellationToken ct = default);
         Task<(IEnumerable<Adjustment>, int)> GetAsync(int skip, int top, CancellationToken ct = default);
         Task<(IEnumerable<Adjustment>, int)> GetAsync(int skip, int top, string searchKey, CancellationToken ct = default);
-        Task UpdateAsync(int adjustmentId, Adjustment adjustment, CancellationToken ct = default);
-        Task<(IEnumerable<Adjustment> adjustments, int count)> GetAsync(int skip, int take, string filter, string orderBy, CancellationToken ct = default);
-
+        Task UpdateAsync(int adjustmentId, Adjustment adjustment, CancellationToken ct = default);        
     }
 
 }

@@ -34,39 +34,44 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 return await dbContext.Customers.AsNoTracking().AnyAsync(i => i.IdentityNumber.Trim().ToLower() == identificationNumber.Trim().ToLower(), ct);
             }, ct);
         }
-        public async Task<IEnumerable<Customer>> GetAsync(CancellationToken ct = default)
+        public async Task<(IEnumerable<Customer>, int)> GetAsync(int? skip=null, int? top= null, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
             {
-                return await dbContext.Customers
+                var a = dbContext.Customers
                             .AsNoTracking()
                             .Include(i => i.IdentityType)
-                            .Include(i => i.City.Department.Country)
-                            .ToListAsync();
+                            .Include(i => i.City.Department.Country);
+                if (skip != null && top != null)
+                    return (await a.Skip(skip.Value).Take(top.Value).ToListAsync(), await a.CountAsync(ct));
+
+                return (await a.ToListAsync(), await a.CountAsync(ct));
+
             }, ct);
         }
 
-        public async Task<IEnumerable<Customer>> GetAsync(string searchKey, CancellationToken ct = default)
+        public async Task<(IEnumerable<Customer>, int)> GetAsync(int skip, int top, string searchKey, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
             {
-                return await dbContext.Customers
-               .AsNoTracking()
-               .Include(i => i.IdentityType)
-               .Include(i => i.City.Department.Country)
-               .Where(i => i.IdentityType.IdentityTypeName.Equals(searchKey) ||
-                           i.IdentityNumber.Equals(searchKey) ||
-                           i.City.Department.Country.CountryName.Equals(searchKey) ||
-                           i.City.Department.Country.CountryCode.Equals(searchKey) ||
-                           i.City.Department.DepartmentName.Equals(searchKey) ||
-                           i.City.CityName.Equals(searchKey) ||
-                           i.CustomerAddress.Contains(searchKey) ||
-                           i.CustomerName.Contains(searchKey) ||
-                           i.Email.Contains(searchKey) ||
-                           i.Fax.Contains(searchKey) ||
-                           i.Phone1.Contains(searchKey) ||
-                           i.Phone2.Contains(searchKey))
-               .ToListAsync();
+                var a = dbContext.Customers
+                       .AsNoTracking()
+                       .Include(i => i.IdentityType)
+                       .Include(i => i.City.Department.Country)
+                       .Where(i => i.IdentityType.IdentityTypeName.Equals(searchKey) ||
+                                   i.IdentityNumber.Equals(searchKey) ||
+                                   i.City.Department.Country.CountryName.Equals(searchKey) ||
+                                   i.City.Department.Country.CountryCode.Equals(searchKey) ||
+                                   i.City.Department.DepartmentName.Equals(searchKey) ||
+                                   i.City.CityName.Equals(searchKey) ||
+                                   i.CustomerAddress.Contains(searchKey) ||
+                                   i.CustomerName.Contains(searchKey) ||
+                                   i.Email.Contains(searchKey) ||
+                                   i.Fax.Contains(searchKey) ||
+                                   i.Phone1.Contains(searchKey) ||
+                                   i.Phone2.Contains(searchKey));
+
+                return (await a.Skip(skip).Take(top).ToListAsync(), await a.CountAsync(ct));
             }, ct);
         }
 

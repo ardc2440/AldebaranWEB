@@ -41,16 +41,16 @@ namespace Aldebaran.Application.Services
             return _mapper.Map<Customer?>(data);
         }
 
-        public async Task<IEnumerable<Customer>> GetAsync(CancellationToken ct = default)
+        public async Task<(IEnumerable<Customer>, int)> GetAsync(int? skip = null, int? top = null, CancellationToken ct = default)
         {
-            var data = await _repository.GetAsync(ct);
-            return _mapper.Map<List<Customer>>(data);
+            var (data, count) = await _repository.GetAsync(skip, top, ct);
+            return (_mapper.Map<List<Customer>>(data), count);
         }
 
-        public async Task<IEnumerable<Customer>> GetAsync(string searchKey, CancellationToken ct = default)
+        public async Task<(IEnumerable<Customer>, int)> GetAsync(int skip, int top, string searchKey, CancellationToken ct = default)
         {
-            var data = await _repository.GetAsync(searchKey, ct);
-            return _mapper.Map<List<Customer>>(data);
+            var (data, count) = await _repository.GetAsync(skip, top, searchKey, ct);
+            return (_mapper.Map<List<Customer>>(data), count);
         }
 
         public async Task UpdateAsync(int customerId, Customer customer, CancellationToken ct = default)

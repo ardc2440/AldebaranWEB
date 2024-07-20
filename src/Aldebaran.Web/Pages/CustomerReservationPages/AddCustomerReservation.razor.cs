@@ -63,7 +63,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             try
             {
                 isLoadingInProgress = true;
-                customersForCUSTOMERID = await CustomerService.GetAsync();
+                customersForCUSTOMERID = (await CustomerService.GetAsync()).Customers;
 
                 documentType = await DocumentTypeService.FindByCodeAsync("R");
 

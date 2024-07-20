@@ -77,7 +77,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 if (!int.TryParse(CustomerOrderId, out var customerOrderId))
                     throw new Exception("El Id de pedido recibido no es valido");
 
-                customersForCUSTOMERID = await CustomerService.GetAsync();
+                customersForCUSTOMERID = (await CustomerService.GetAsync()).Customers;
 
                 documentType = await DocumentTypeService.FindByCodeAsync("P");
 

@@ -87,7 +87,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
                 await Task.Yield();
 
-                customersForCUSTOMERID = await CustomerService.GetAsync();
+                customersForCUSTOMERID = (await CustomerService.GetAsync()).Customers;
 
                 if (!int.TryParse(CustomerReservationId, out var customerReservationId))
                     throw new Exception("El Id de referencia recibido no es valido");

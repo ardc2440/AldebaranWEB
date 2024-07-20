@@ -4,6 +4,7 @@ using Aldebaran.Web.Pages.AreaPages;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Radzen;
 
 namespace Aldebaran.Web.Pages.CustomerPages
@@ -43,6 +44,10 @@ namespace Aldebaran.Web.Pages.CustomerPages
         protected LocalizedDataGrid<CustomerContact> CustomerContactsDataGrid;
         protected bool isLoadingInProgress;
 
+        protected int skip = 0;
+        protected int top = 0;
+        protected int count = 0 ;
+
         #endregion
 
         #region Override
@@ -51,8 +56,7 @@ namespace Aldebaran.Web.Pages.CustomerPages
         {
             try
             {
-                isLoadingInProgress = true;
-                await GetCustomersAsync();
+                isLoadingInProgress = true;                
             }
             finally
             {
@@ -62,13 +66,20 @@ namespace Aldebaran.Web.Pages.CustomerPages
 
         #endregion
 
+        protected async Task LoadData(LoadDataArgs args)
+        {
+            skip = args.Skip.Value;
+            top = args.Top.Value; 
+            await GetCustomersAsync(search);
+        }
+
         #region Events
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
 
         async Task GetCustomersAsync(string searchKey = null, CancellationToken ct = default)
         {
             await Task.Yield();
-            CustomersList = string.IsNullOrEmpty(searchKey) ? await CustomerService.GetAsync(ct) : await CustomerService.GetAsync(searchKey, ct);
+            (CustomersList, count) = string.IsNullOrEmpty(searchKey) ? await CustomerService.GetAsync(skip, top, ct) : await CustomerService.GetAsync(skip, top, searchKey, ct);
         }
         protected async Task Search(ChangeEventArgs args)
         {

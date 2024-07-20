@@ -58,7 +58,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Sales.Components
             referencePicker.SetAvailableItemReferencesForSelection(AvailableItemReferencesForSelection);
             var documentType = await DocumentTypeService.FindByCodeAsync("P");
             StatusDocumentTypes = (await StatusDocumentTypeService.GetByDocumentTypeIdAsync(documentType.DocumentTypeId)).ToList();
-            Customers = (await CustomerService.GetAsync()).ToList();
+            Customers = (await CustomerService.GetAsync()).Customers.ToList();
         }
 
         public override async Task SetParametersAsync(ParameterView parameters)

@@ -56,25 +56,6 @@ namespace Aldebaran.Application.Services
             var entity = _mapper.Map<Entities.CustomerOrder>(customerOrder) ?? throw new ArgumentNullException("Pedido no puede ser nulo.");
             var mapReason = _mapper.Map<DataAccess.Infraestructure.Models.Reason>(reason);
             await _repository.UpdateAsync(customerOrderId, entity, mapReason, ct);
-        }
-
-        public async Task<(IEnumerable<CustomerOrder> customerOrders, int count)> GetAsync(int skip, int take, string filter, string orderBy, CancellationToken ct = default)
-        {
-            var (d, r) = await _repository.GetAsync(skip, take, filter, orderBy, ct);
-            var data = _mapper.Map<IEnumerable<CustomerOrder>>(d);
-            return (data, r);
-        }
-        public async Task<(IEnumerable<CustomerOrder> customerOrders, int count)> GetCustomerOrderShipmentAsync(int skip, int take, string filter, string orderBy, CancellationToken ct = default)
-        {
-            var (d, r) = await _repository.GetCustomerOrderShipmentAsync(skip, take, filter, orderBy, ct);
-            var data = _mapper.Map<IEnumerable<CustomerOrder>>(d);
-            return (data, r);
-        }
-        public async Task<(IEnumerable<CustomerOrder> customerOrders, int count)> GetCustomerOrderInProcessAsync(int skip, int take, string filter, string orderBy, CancellationToken ct = default)
-        {
-            var (d, r) = await _repository.GetCustomerOrderInProcessAsync(skip, take, filter, orderBy, ct);
-            var data = _mapper.Map<IEnumerable<CustomerOrder>>(d);
-            return (data, r);
-        }
+        }        
     }
 }
