@@ -1,5 +1,6 @@
 ﻿using Aldebaran.DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
+using System.Threading;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
@@ -42,24 +43,26 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             }, ct);
         }
 
-        public async Task<IEnumerable<WarehouseTransfer>> GetAsync(CancellationToken ct = default)
+        public async Task<(IEnumerable<WarehouseTransfer>, int)> GetAsync(int skip, int top, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
             {
-                return await dbContext.WarehouseTransfers.AsNoTracking()
-                   .Include(i => i.OriginWarehouse)
-                   .Include(i => i.DestinationWarehouse)
-                   .Include(i => i.Employee)
-                   .Include(i => i.StatusDocumentType)
-                   .ToListAsync(ct);
+                var a = dbContext.WarehouseTransfers.AsNoTracking()
+                    .Include(i => i.OriginWarehouse)
+                    .Include(i => i.DestinationWarehouse)
+                    .Include(i => i.Employee)
+                    .Include(i => i.StatusDocumentType)
+                    .OrderByDescending(o => o.WarehouseTransferId);
+
+                return (await a.Skip(skip).Take(top).ToListAsync(ct), await a.CountAsync(ct));
             }, ct);
         }
 
-        public async Task<IEnumerable<WarehouseTransfer>> GetAsync(string search, CancellationToken ct = default)
+        public async Task<(IEnumerable<WarehouseTransfer>, int)> GetAsync(int skip, int top, string search, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
             {
-                return await dbContext.WarehouseTransfers.AsNoTracking()
+                var a = dbContext.WarehouseTransfers.AsNoTracking()
                             .Include(i => i.OriginWarehouse)
                             .Include(i => i.DestinationWarehouse)
                             .Include(i => i.Employee)
@@ -71,7 +74,9 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                                       i.DestinationWarehouse.WarehouseName.Contains(search) ||
                                       i.OriginWarehouse.WarehouseName.Contains(search) ||
                                       i.Employee.FullName.Contains(search))
-                            .ToListAsync(ct);
+                            .OrderByDescending(o => o.WarehouseTransferId);
+
+                return (await a.Skip(skip).Take(top).ToListAsync(ct), await a.CountAsync(ct));
             }, ct);
         }
 

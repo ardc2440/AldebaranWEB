@@ -140,11 +140,11 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             }, ct);
         }
 
-        public async Task<IEnumerable<PurchaseOrder>> GetAsync(CancellationToken ct = default)
+        public async Task<(IEnumerable<PurchaseOrder>,int)> GetAsync(int skip, int top, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
             {
-                return await dbContext.PurchaseOrders.AsNoTracking()
+                var a = dbContext.PurchaseOrders.AsNoTracking()
                         .Include(i => i.Employee.Area)
                         .Include(i => i.Employee.IdentityType)
                         .Include(i => i.ForwarderAgent.Forwarder)
@@ -152,16 +152,17 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                         .Include(i => i.ShipmentForwarderAgentMethod.ShipmentMethod)
                         .Include(i => i.ShipmentForwarderAgentMethod.ForwarderAgent)
                         .Include(i => i.StatusDocumentType.DocumentType)
-                        .OrderBy(o => o.OrderNumber)
-                        .ToListAsync(ct);
+                        .OrderByDescending(o => o.OrderNumber);
+
+                return (await a.Skip(skip).Take(top).ToListAsync(ct), await a.CountAsync(ct));
             }, ct);
         }
 
-        public async Task<IEnumerable<PurchaseOrder>> GetAsync(string searchKey, CancellationToken ct = default)
+        public async Task<(IEnumerable<PurchaseOrder>,int)> GetAsync(int skip, int top, string searchKey, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
             {
-                return await dbContext.PurchaseOrders.AsNoTracking()
+                var a = dbContext.PurchaseOrders.AsNoTracking()
                            .Include(i => i.Employee.Area)
                            .Include(i => i.Employee.IdentityType)
                            .Include(i => i.ForwarderAgent.Forwarder)
@@ -177,8 +178,9 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                                        dbContext.Format(w.ExpectedReceiptDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
                                        dbContext.Format(w.RequestDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
                                        (w.RealReceiptDate.HasValue && dbContext.Format(w.RealReceiptDate.Value, _SharedLocalizer["date:format"]).Contains(searchKey)))
-                           .OrderBy(o => o.OrderNumber)
-                           .ToListAsync();
+                           .OrderByDescending(o => o.OrderNumber);
+
+                return (await a.Skip(skip).Take(top).ToListAsync(), await a.CountAsync(ct));
             }, ct);
         }
 

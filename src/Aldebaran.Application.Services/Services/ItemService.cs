@@ -41,7 +41,19 @@ namespace Aldebaran.Application.Services
             var exists = await _repository.ExistsByItemName(itemName, ct);
             return exists;
         }
-        public async Task<IEnumerable<Item>> GetAsync(CancellationToken ct = default)
+        public async Task<(IEnumerable<Item>, int)> GetAsync(int skip, int top, CancellationToken ct = default)
+        {
+            var (data, count) = await _repository.GetAsync(skip, top, ct);
+            return (_mapper.Map<List<Item>>(data), count);
+        }
+
+        public async Task<(IEnumerable<Item>, int)> GetAsync(int skip, int top, string searchKey, CancellationToken ct = default)
+        {
+            var (data, count) = await _repository.GetAsync(skip, top, searchKey, ct);
+            return (_mapper.Map<List<Item>>(data), count);
+        }
+
+        public async Task<IEnumerable<Item>> GetAsync( CancellationToken ct = default)
         {
             var data = await _repository.GetAsync(ct);
             return _mapper.Map<List<Item>>(data);

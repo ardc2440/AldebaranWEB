@@ -45,6 +45,10 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
         protected DocumentType documentType;
         protected WarehouseTransfer warehouseTransfer;
 
+        protected int skip = 0;
+        protected int top = 0;
+        protected int count = 0;
+
         #endregion
 
         #region Parameters
@@ -65,7 +69,7 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
                 isLoadingInProgress = true;
                 await Task.Yield();
                 documentType = await DocumentTypeService.FindByCodeAsync("B");
-                await GetWarehousetransferssAsync();
+                
                 await DialogResultResolver();
             }
             finally
@@ -78,6 +82,12 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
 
         #region Events
 
+        protected async Task LoadData(LoadDataArgs args)
+        {
+            skip = args.Skip.Value;
+            top = args.Top.Value; 
+            await GetWarehousetransferssAsync(search);
+        }
         protected async Task<string> GetReferenceHint(ItemReference reference) => $"({reference.Item.Line.LineName}) {reference.Item.ItemName} - {reference.ReferenceName}";
 
         async Task DialogResultResolver(CancellationToken ct = default)
@@ -115,7 +125,7 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
         async Task GetWarehousetransferssAsync(string searchKey = null, CancellationToken ct = default)
         {
             await Task.Yield();
-            warehouseTransfers = string.IsNullOrEmpty(searchKey) ? await WarehouseTransferService.GetAsync(ct) : await WarehouseTransferService.GetAsync(searchKey, ct);
+            (warehouseTransfers, count) = string.IsNullOrEmpty(searchKey) ? await WarehouseTransferService.GetAsync(skip, top, ct) : await WarehouseTransferService.GetAsync(skip, top, searchKey, ct);
         }
 
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);

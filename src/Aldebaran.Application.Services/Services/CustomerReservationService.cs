@@ -22,16 +22,17 @@ namespace Aldebaran.Application.Services
             return _mapper.Map<CustomerReservation>(result);
         }
 
-        public async Task<IEnumerable<CustomerReservation>> GetAsync(CancellationToken ct = default)
+        public async Task<(IEnumerable<CustomerReservation>, int)> GetAsync(int skip, int top, CancellationToken ct = default)
         {
-            var data = await _repository.GetAsync(ct);
-            return _mapper.Map<IEnumerable<CustomerReservation>>(data);
+            var (data, count) = await _repository.GetAsync(skip, top, ct);
+            return (_mapper.Map<IEnumerable<CustomerReservation>>(data), count);
         }
 
-        public async Task<IEnumerable<CustomerReservation>> GetAsync(string searchKey, CancellationToken ct = default)
+        public async Task<(IEnumerable<CustomerReservation>, int)> GetAsync(int skip, int top, string searchKey, CancellationToken ct = default)
         {
-            var data = await _repository.GetAsync(searchKey, ct);
-            return _mapper.Map<IEnumerable<CustomerReservation>>(data);
+            var (data, count) = await _repository.GetAsync(skip, top, searchKey, ct);
+            
+            return (_mapper.Map<IEnumerable<CustomerReservation>>(data), count);
         }
 
         public async Task<CustomerReservation?> FindAsync(int customerReservationId, CancellationToken ct = default)

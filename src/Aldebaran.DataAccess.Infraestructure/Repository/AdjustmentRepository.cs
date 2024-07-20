@@ -88,26 +88,27 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             }, ct);
         }
 
-        public async Task<IEnumerable<Adjustment>> GetAsync(CancellationToken ct = default)
+        public async Task<(IEnumerable<Adjustment>, int)> GetAsync(int skip, int top, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
             {
-                return await dbContext.Adjustments.AsNoTracking()
+                var a = dbContext.Adjustments.AsNoTracking()
                 .Include(i => i.StatusDocumentType)
                 .Include(i => i.AdjustmentReason)
                 .Include(i => i.AdjustmentType)
                 .Include(i => i.Employee)
                 .Include(i => i.AdjustmentDetails)
-                .OrderBy(o=>o.AdjustmentId)
-                .ToListAsync(ct);
+                .OrderByDescending(o => o.AdjustmentId);
+
+                return (await a.Skip(skip).Take(top).ToListAsync(ct), await a.CountAsync(ct));
             }, ct);
         }
 
-        public async Task<IEnumerable<Adjustment>> GetAsync(string searchKey, CancellationToken ct = default)
+        public async Task<(IEnumerable<Adjustment>, int)> GetAsync(int skip, int top, string searchKey, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
             {
-                return await dbContext.Adjustments.AsNoTracking()
+                var a = dbContext.Adjustments.AsNoTracking()
                 .Include(i => i.StatusDocumentType)
                 .Include(i => i.AdjustmentReason)
                 .Include(i => i.AdjustmentType)
@@ -122,8 +123,9 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                           i.Employee.FullName.Contains(searchKey) ||
                           i.AdjustmentReason.AdjustmentReasonNotes.Contains(searchKey) ||
                           i.Notes.Contains(searchKey))
-                .OrderBy(o => o.AdjustmentId)
-                .ToListAsync(ct);
+                .OrderByDescending(o => o.AdjustmentId);
+
+                return (await a.Skip(skip).Take(top).ToListAsync(ct),await a.CountAsync(ct));
             }, ct);
         }
 

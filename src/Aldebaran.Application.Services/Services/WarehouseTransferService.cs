@@ -33,16 +33,16 @@ namespace Aldebaran.Application.Services
             return _mapper.Map<WarehouseTransfer?>(data);
         }
 
-        public async Task<IEnumerable<WarehouseTransfer>> GetAsync(CancellationToken ct = default)
+        public async Task<(IEnumerable<WarehouseTransfer>, int)> GetAsync(int skip, int top, CancellationToken ct = default)
         {
-            var data = await _repository.GetAsync(ct);
-            return _mapper.Map<List<WarehouseTransfer>>(data);
+            var (data, count) = await _repository.GetAsync(skip, top, ct);
+            return (_mapper.Map<List<WarehouseTransfer>>(data), count);
         }
 
-        public async Task<IEnumerable<WarehouseTransfer>> GetAsync(string search, CancellationToken ct = default)
+        public async Task<(IEnumerable<WarehouseTransfer>, int)> GetAsync(int skip, int top, string search, CancellationToken ct = default)
         {
-            var data = await _repository.GetAsync(search, ct);
-            return _mapper.Map<List<WarehouseTransfer>>(data);
+            var (data, count) = await _repository.GetAsync(skip, top, search, ct);
+            return (_mapper.Map<List<WarehouseTransfer>>(data), count);
         }
     }
 

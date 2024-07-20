@@ -25,8 +25,9 @@
         <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
         <RadzenRow>
             <RadzenColumn SizeMD=12>
-                <LocalizedDataGrid @ref="PurchaseOrderGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                   Data="@PurchaseOrdersList" TItem="ServiceModel.PurchaseOrder" RowExpand=@GetChildData AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" ExpandMode="Radzen.DataGridExpandMode.Single" AllowGrouping="true" AllowColumnReorder="true" IsLoading="@isLoadingInProgress">
+                <LocalizedDataGrid Count="@count" LoadData="@LoadData" @ref="PurchaseOrderGrid" ColumnWidth="200px" AllowPaging="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                   Data="@PurchaseOrdersList" TItem="ServiceModel.PurchaseOrder" RowExpand=@GetChildData AllowColumnResize="true"  
+                                   ExpandMode="Radzen.DataGridExpandMode.Single" IsLoading="@isLoadingInProgress">
                     <Columns>
                         <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrder" Property="OrderNumber" Title="Número de orden">
                         </RadzenDataGridColumn>

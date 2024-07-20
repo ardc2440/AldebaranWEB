@@ -2,6 +2,7 @@ using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Resources.LocalizedControls;
+using DocumentFormat.OpenXml.Drawing.Charts;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
@@ -45,6 +46,10 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         protected DocumentType documentType;
         protected Adjustment adjustment;
 
+        protected int skip = 0;
+        protected int top = 0;
+        protected int count = 0;
+
         #endregion
 
         #region Parameters
@@ -65,7 +70,6 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
                 isLoadingInProgress = true;
                 await Task.Yield();
                 documentType = await DocumentTypeService.FindByCodeAsync("A");
-                await GetAdjustmentsAsync();
                 await DialogResultResolver();
             }
             finally
@@ -77,6 +81,13 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         #endregion
 
         #region Events
+
+        protected async Task LoadData(LoadDataArgs args)
+        {
+            skip = args.Skip.Value;
+            top = args.Top.Value;
+            await GetAdjustmentsAsync();
+        }
 
         protected async Task<string> GetReferenceHint(ItemReference reference) => $"({reference.Item.Line.LineName}) {reference.Item.ItemName} - {reference.ReferenceName}";
 
@@ -104,7 +115,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         async Task GetAdjustmentsAsync(string searchKey = null, CancellationToken ct = default)
         {
             await Task.Yield();
-            adjustments = string.IsNullOrEmpty(searchKey) ? await AdjustmentService.GetAsync(ct) : await AdjustmentService.GetAsync(searchKey, ct);
+            (adjustments, count) = string.IsNullOrEmpty(searchKey) ? await AdjustmentService.GetAsync(skip, top, ct) : await AdjustmentService.GetAsync(skip, top, searchKey, ct);
         }
 
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);

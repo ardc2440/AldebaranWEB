@@ -76,6 +76,9 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         protected IEnumerable<Application.Services.Models.Alarm> alarms;
         protected LocalizedDataGrid<Application.Services.Models.Alarm> alarmsGrid;
 
+        protected int skip = 0;
+        protected int top = 0;
+        protected int count = 0;
         #endregion
 
         #region Overrides
@@ -88,8 +91,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                 isLoadingInProgress = true;
 
                 await Task.Yield();
-
-                await GetCustomerReservationAsync();
+                                
                 await DialogResultResolver();
             }
             finally
@@ -102,10 +104,17 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
         #region Events
 
+        protected async Task LoadData(LoadDataArgs args)
+        {
+            skip = args.Skip.Value;
+            top = args.Top.Value;
+            await GetCustomerReservationAsync(search);
+        }
+
         async Task GetCustomerReservationAsync(string searchKey = null, CancellationToken ct = default)
         {
             await Task.Yield();
-            customerReservations = string.IsNullOrEmpty(searchKey) ? await CustomerReservationService.GetAsync(ct) : await CustomerReservationService.GetAsync(searchKey, ct);
+            (customerReservations, count) = string.IsNullOrEmpty(searchKey) ? await CustomerReservationService.GetAsync(skip, top, ct) : await CustomerReservationService.GetAsync(skip, top, searchKey, ct);
         }
 
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);

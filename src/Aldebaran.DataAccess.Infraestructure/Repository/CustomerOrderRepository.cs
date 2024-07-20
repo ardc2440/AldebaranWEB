@@ -74,8 +74,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                                          (editMode == -1))
                             .OrderByDescending(o => o.OrderNumber);
 
-                var c = a.Count();
-                return (await a.Skip(skip).Take(top).ToListAsync(), c);
+                return (await a.Skip(skip).Take(top).ToListAsync(), await a.CountAsync(ct));
             }, ct);
         }
 
@@ -99,8 +98,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                                          i.StatusDocumentType.StatusDocumentTypeName.Contains(searchKey)))
                             .OrderByDescending(o => o.OrderNumber);
 
-                var c = a.Count();
-                return (await a.Skip(skip).Take(top).ToListAsync(), c);
+                return (await a.Skip(skip).Take(top).ToListAsync(), await a.CountAsync(ct));
             }, ct);
         }
 

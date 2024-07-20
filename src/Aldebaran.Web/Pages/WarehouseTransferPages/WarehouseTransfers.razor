@@ -24,8 +24,9 @@
         <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
         <RadzenRow>
             <RadzenColumn SizeMD=12>
-                <LocalizedDataGrid @ref="WarehouseTransfersGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                   ExpandMode="DataGridExpandMode.Single" Data="@warehouseTransfers" TItem="Aldebaran.Application.Services.Models.WarehouseTransfer" RowExpand=@GetChildData AllowColumnPicking="true" IsLoading="@isLoadingInProgress">
+                <LocalizedDataGrid Count="@count" LoadData="@LoadData" @ref="WarehouseTransfersGrid" ColumnWidth="200px" AllowPaging="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                   ExpandMode="DataGridExpandMode.Single" Data="@warehouseTransfers" TItem="Aldebaran.Application.Services.Models.WarehouseTransfer" 
+                                   RowExpand=@GetChildData IsLoading="@isLoadingInProgress">
                     <Columns>
                         <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransfer" Title="Fecha de traslado">
                             <Template Context="detail">

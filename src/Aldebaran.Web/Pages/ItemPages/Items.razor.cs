@@ -49,6 +49,10 @@ namespace Aldebaran.Web.Pages.ItemPages
         protected LocalizedDataGrid<ServiceModel.ItemReference> ItemReferencesDataGrid;
         protected string search = "";
         protected bool isLoadingInProgress;
+
+        protected int skip = 0;
+        protected int top = 0;
+        protected int count = 0;
         #endregion
 
         #region Overrides
@@ -57,7 +61,7 @@ namespace Aldebaran.Web.Pages.ItemPages
             try
             {
                 isLoadingInProgress = true;
-                await GetItemsAsync();
+                
             }
             finally
             {
@@ -67,12 +71,20 @@ namespace Aldebaran.Web.Pages.ItemPages
         #endregion
 
         #region Events
+
+        protected async Task LoadData(LoadDataArgs args)
+        {
+            skip = args.Skip.Value;
+            top = args.Top.Value;
+            await GetItemsAsync(search);
+        }
+
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
 
         async Task GetItemsAsync(string searchKey = null, CancellationToken ct = default)
         {
             await Task.Yield();
-            ItemsList = string.IsNullOrEmpty(searchKey) ? await ItemService.GetAsync(ct) : await ItemService.GetAsync(searchKey, ct);
+            (ItemsList, count) = string.IsNullOrEmpty(searchKey) ? await ItemService.GetAsync(skip, top, ct) : await ItemService.GetAsync(skip, top, searchKey, ct);
         }
 
         protected async Task Search(ChangeEventArgs args)
@@ -81,15 +93,7 @@ namespace Aldebaran.Web.Pages.ItemPages
             await ItemsDataGrid.GoToPage(0);
             await GetItemsAsync(search);
         }
-
-        void OnItemDataGridRender(DataGridRenderEventArgs<ServiceModel.Item> args)
-        {
-            if (!args.FirstRender)
-                return;
-            args.Grid.Groups.Add(new GroupDescriptor() { Title = "Línea", Property = "Line.LineName", SortOrder = SortOrder.Descending });
-            StateHasChanged();
-        }
-
+        
         protected async Task AddItem(MouseEventArgs args)
         {
             var result = await DialogService.OpenAsync<AddItem>("Nuevo artículo");

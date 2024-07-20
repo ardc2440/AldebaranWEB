@@ -4,6 +4,8 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
     public interface IItemRepository
     {
+        Task<(IEnumerable<Item>, int)> GetAsync(int skip, int top, CancellationToken ct = default);
+        Task<(IEnumerable<Item>, int)> GetAsync(int skip, int top, string searchKey, CancellationToken ct = default);
         Task<IEnumerable<Item>> GetAsync(CancellationToken ct = default);
         Task<IEnumerable<Item>> GetAsync(string searchKey, CancellationToken ct = default);
         Task<Item?> FindAsync(int itemId, CancellationToken ct = default);
