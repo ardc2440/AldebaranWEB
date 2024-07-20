@@ -33,16 +33,16 @@ namespace Aldebaran.Application.Services
             return _mapper.Map<Adjustment?>(data);
         }
 
-        public async Task<IEnumerable<Adjustment>> GetAsync(CancellationToken ct = default)
+        public async Task<(IEnumerable<Adjustment>, int)> GetAsync(int skip, int top, CancellationToken ct = default)
         {
-            var data = await _repository.GetAsync(ct);
-            return _mapper.Map<List<Adjustment>>(data);
+            var (data,count) = await _repository.GetAsync(skip, top, ct);
+            return (_mapper.Map<List<Adjustment>>(data),count);
         }
 
-        public async Task<IEnumerable<Adjustment>> GetAsync(string filter, CancellationToken ct = default)
+        public async Task<(IEnumerable<Adjustment>, int)> GetAsync(int skip, int top, string filter, CancellationToken ct = default)
         {
-            var data = await _repository.GetAsync(filter, ct);
-            return _mapper.Map<List<Adjustment>>(data);
+            var (data,count) = await _repository.GetAsync(skip, top, filter, ct);
+            return (_mapper.Map<List<Adjustment>>(data), count);
         }
         public async Task<(IEnumerable<Adjustment> adjustments, int count)> GetAsync(int skip, int take, string filter, string orderBy, CancellationToken ct = default)
         {

@@ -69,16 +69,51 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             }, ct);
         }
 
+        public async Task<(IEnumerable<Item>, int)> GetAsync(int skip, int top, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                var a = dbContext.Items.AsNoTracking()
+                            .Include(i => i.Currency)
+                            .Include(i => i.Line)
+                            .Include(i => i.CifMeasureUnit)
+                            .Include(i => i.FobMeasureUnit);
+
+                return (await a.Skip(skip).Take(top).ToListAsync(ct), await a.CountAsync(ct));
+            }, ct);
+        }
+
+        public async Task<(IEnumerable<Item>, int)> GetAsync(int skip, int top, string searchKey, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                var a = dbContext.Items.AsNoTracking()
+                           .Include(i => i.Currency)
+                           .Include(i => i.Line)
+                           .Include(i => i.CifMeasureUnit)
+                           .Include(i => i.FobMeasureUnit)
+                           .Where(w => w.InternalReference.Contains(searchKey) ||
+                                       w.ItemName.Contains(searchKey) ||
+                                       w.ProviderReference.Contains(searchKey) ||
+                                       w.ProviderItemName.Contains(searchKey) ||
+                                       w.Notes.Contains(searchKey) ||
+                                       w.Line.LineName.Equals(searchKey) ||
+                                       w.Line.LineCode.Equals(searchKey) ||
+                                       w.Currency.CurrencyName.Equals(searchKey));
+                return (await a.Skip(skip).Take(top).ToListAsync(ct), await a.CountAsync(ct));
+            }, ct);
+        }
+
         public async Task<IEnumerable<Item>> GetAsync(CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
             {
                 return await dbContext.Items.AsNoTracking()
-                          .Include(i => i.Currency)
-                          .Include(i => i.Line)
-                          .Include(i => i.CifMeasureUnit)
-                          .Include(i => i.FobMeasureUnit)
-                          .ToListAsync(ct);
+                            .Include(i => i.Currency)
+                            .Include(i => i.Line)
+                            .Include(i => i.CifMeasureUnit)
+                            .Include(i => i.FobMeasureUnit)
+                            .ToListAsync(ct);
             }, ct);
         }
 
@@ -87,19 +122,19 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             return await ExecuteQueryAsync(async dbContext =>
             {
                 return await dbContext.Items.AsNoTracking()
-               .Include(i => i.Currency)
-               .Include(i => i.Line)
-               .Include(i => i.CifMeasureUnit)
-               .Include(i => i.FobMeasureUnit)
-               .Where(w => w.InternalReference.Contains(searchKey) ||
-                           w.ItemName.Contains(searchKey) ||
-                           w.ProviderReference.Contains(searchKey) ||
-                           w.ProviderItemName.Contains(searchKey) ||
-                           w.Notes.Contains(searchKey) ||
-                           w.Line.LineName.Equals(searchKey) ||
-                           w.Line.LineCode.Equals(searchKey) ||
-                           w.Currency.CurrencyName.Equals(searchKey))
-               .ToListAsync(ct);
+                               .Include(i => i.Currency)
+                               .Include(i => i.Line)
+                               .Include(i => i.CifMeasureUnit)
+                               .Include(i => i.FobMeasureUnit)
+                               .Where(w => w.InternalReference.Contains(searchKey) ||
+                                           w.ItemName.Contains(searchKey) ||
+                                           w.ProviderReference.Contains(searchKey) ||
+                                           w.ProviderItemName.Contains(searchKey) ||
+                                           w.Notes.Contains(searchKey) ||
+                                           w.Line.LineName.Equals(searchKey) ||
+                                           w.Line.LineCode.Equals(searchKey) ||
+                                           w.Currency.CurrencyName.Equals(searchKey))
+                               .ToListAsync(ct);
             }, ct);
         }
 

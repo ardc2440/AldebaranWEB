@@ -2,6 +2,7 @@ using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Resources.LocalizedControls;
+using DocumentFormat.OpenXml.Drawing.Charts;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
@@ -36,14 +37,18 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         #region Global Variables
 
         protected IEnumerable<Adjustment> adjustments;
-        private int dataCount;
         protected IEnumerable<AdjustmentDetail> adjustmentDetails;
+
         protected LocalizedDataGrid<Adjustment> AdjustmentsGrid;
         protected DialogResult DialogResult { get; set; }
         protected string search = "";
         protected bool isLoadingInProgress;
         protected DocumentType documentType;
         protected Adjustment adjustment;
+
+        protected int skip = 0;
+        protected int top = 0;
+        protected int count = 0;
 
         #endregion
 
@@ -77,6 +82,13 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         #region Events
 
+        protected async Task LoadData(LoadDataArgs args)
+        {
+            skip = args.Skip.Value;
+            top = args.Top.Value;
+            await GetAdjustmentsAsync();
+        }
+
         protected async Task<string> GetReferenceHint(ItemReference reference) => $"({reference.Item.Line.LineName}) {reference.Item.ItemName} - {reference.ReferenceName}";
 
         async Task DialogResultResolver(CancellationToken ct = default)
@@ -91,7 +103,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
             var adjustment = await AdjustmentService.FindAsync(adjustmentId, ct);
             if (adjustment == null)
                 return;
-
+            
             NotificationService.Notify(new NotificationMessage
             {
                 Summary = "Ajuste de inventario",
@@ -100,14 +112,20 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
             });
         }
 
-        async Task LoadData(LoadDataArgs args)
+        async Task GetAdjustmentsAsync(string searchKey = null, CancellationToken ct = default)
         {
-            isLoadingInProgress = true;
-            (adjustments, dataCount) = await AdjustmentService.GetAsync(args.Skip ?? 0, args.Top ?? 0, args.Filter, args.OrderBy);
-            isLoadingInProgress = false;
+            await Task.Yield();
+            (adjustments, count) = string.IsNullOrEmpty(searchKey) ? await AdjustmentService.GetAsync(skip, top, ct) : await AdjustmentService.GetAsync(skip, top, searchKey, ct);
         }
 
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
+
+        protected async Task Search(ChangeEventArgs args)
+        {
+            search = $"{args.Value}";
+            await AdjustmentsGrid.GoToPage(0);
+            await GetAdjustmentsAsync(search);
+        }
 
         protected async Task AddAdjustmentClick(MouseEventArgs args)
         {

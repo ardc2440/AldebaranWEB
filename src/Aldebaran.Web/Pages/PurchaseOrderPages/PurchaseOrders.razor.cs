@@ -68,10 +68,12 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         protected ServiceModel.PurchaseOrder PurchaseOrder;
         protected IEnumerable<ServiceModel.PurchaseOrder> PurchaseOrdersList;
         protected RadzenDataGrid<ServiceModel.PurchaseOrder> PurchaseOrderGrid;
-        private int dataCount;
-
         protected string search = "";
         protected bool isLoadingInProgress;
+
+        protected int skip = 0;
+        protected int top = 0;
+        protected int count;
 
         protected ServiceModel.DocumentType documentType;
         protected IEnumerable<ServiceModel.Alarm> alarms;
@@ -86,6 +88,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
             {
                 isLoadingInProgress = true;
                 documentType = await DocumentTypeService.FindByCodeAsync("O");
+                
                 await DialogResultResolver();
             }
             finally
@@ -97,6 +100,14 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         #endregion
 
         #region Events
+
+        protected async Task LoadData(LoadDataArgs args)
+        {
+            skip = args.Skip.Value;
+            top = args.Top.Value;
+            await GetPurchaseOrdersAsync(search);
+        }
+
         async Task DialogResultResolver(CancellationToken ct = default)
         {
             if (PURCHASE_ORDER_ID == null)
@@ -140,13 +151,13 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         async Task GetPurchaseOrdersAsync(string searchKey = null, CancellationToken ct = default)
         {
             await Task.Yield();
-            await PurchaseOrderGrid.Reload();
+            (PurchaseOrdersList, count) = string.IsNullOrEmpty(searchKey) ? await PurchaseOrderService.GetAsync(skip, top, ct) : await PurchaseOrderService.GetAsync(skip, top, searchKey, ct);
         }
-        async Task LoadData(LoadDataArgs args)
+        protected async Task Search(ChangeEventArgs args)
         {
-            isLoadingInProgress = true;
-            (PurchaseOrdersList, dataCount) = await PurchaseOrderService.GetAsync(args.Skip ?? 0, args.Top ?? 0, args.Filter, args.OrderBy);
-            isLoadingInProgress = false;
+            search = $"{args.Value}";
+            await PurchaseOrderGrid.GoToPage(0);
+            await GetPurchaseOrdersAsync(search);
         }
         protected async Task AddPurchaseOrder(MouseEventArgs args)
         {
@@ -310,7 +321,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         #endregion
 
         #region Alarms
-
+        
         protected async Task DisableAlarm(Application.Services.Models.Alarm alarm)
         {
             try

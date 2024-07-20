@@ -46,10 +46,13 @@ namespace Aldebaran.Web.Pages.ItemPages
         protected IEnumerable<ServiceModel.Item> ItemsList;
         protected ServiceModel.Item Item;
         protected LocalizedDataGrid<ServiceModel.Item> ItemsDataGrid;
-        private int dataCount;
         protected LocalizedDataGrid<ServiceModel.ItemReference> ItemReferencesDataGrid;
         protected string search = "";
         protected bool isLoadingInProgress;
+
+        protected int skip = 0;
+        protected int top = 0;
+        protected int count = 0;
         #endregion
 
         #region Overrides
@@ -58,6 +61,7 @@ namespace Aldebaran.Web.Pages.ItemPages
             try
             {
                 isLoadingInProgress = true;
+                
             }
             finally
             {
@@ -67,29 +71,29 @@ namespace Aldebaran.Web.Pages.ItemPages
         #endregion
 
         #region Events
+
+        protected async Task LoadData(LoadDataArgs args)
+        {
+            skip = args.Skip.Value;
+            top = args.Top.Value;
+            await GetItemsAsync(search);
+        }
+
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
 
         async Task GetItemsAsync(string searchKey = null, CancellationToken ct = default)
         {
             await Task.Yield();
-            await ItemsDataGrid.Reload();
+            (ItemsList, count) = string.IsNullOrEmpty(searchKey) ? await ItemService.GetAsync(skip, top, ct) : await ItemService.GetAsync(skip, top, searchKey, ct);
         }
 
-        async Task LoadData(LoadDataArgs args)
+        protected async Task Search(ChangeEventArgs args)
         {
-            isLoadingInProgress = true;
-            (ItemsList, dataCount) = await ItemService.GetAsync(args.Skip ?? 0, args.Top ?? 0, args.Filter, args.OrderBy);
-            isLoadingInProgress = false;
+            search = $"{args.Value}";
+            await ItemsDataGrid.GoToPage(0);
+            await GetItemsAsync(search);
         }
-
-        void OnItemDataGridRender(DataGridRenderEventArgs<ServiceModel.Item> args)
-        {
-            if (!args.FirstRender)
-                return;
-            args.Grid.Groups.Add(new GroupDescriptor() { Title = "Línea", Property = "Line.LineName", SortOrder = SortOrder.Descending });
-            StateHasChanged();
-        }
-
+        
         protected async Task AddItem(MouseEventArgs args)
         {
             var result = await DialogService.OpenAsync<AddItem>("Nuevo artículo");

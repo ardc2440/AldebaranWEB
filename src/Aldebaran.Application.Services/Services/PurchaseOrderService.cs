@@ -41,16 +41,16 @@ namespace Aldebaran.Application.Services
             return _mapper.Map<PurchaseOrder?>(data);
         }
 
-        public async Task<IEnumerable<PurchaseOrder>> GetAsync(CancellationToken ct = default)
+        public async Task<(IEnumerable<PurchaseOrder>, int)> GetAsync(int skip, int top, CancellationToken ct = default)
         {
-            var data = await _repository.GetAsync(ct);
-            return _mapper.Map<List<PurchaseOrder>>(data);
+            var (data, count) = await _repository.GetAsync(skip, top, ct);
+            return (_mapper.Map<List<PurchaseOrder>>(data), count);
         }
 
-        public async Task<IEnumerable<PurchaseOrder>> GetAsync(string searchKey, CancellationToken ct = default)
+        public async Task<(IEnumerable<PurchaseOrder>, int)> GetAsync(int skip, int top, string searchKey, CancellationToken ct = default)
         {
-            var data = await _repository.GetAsync(searchKey, ct);
-            return _mapper.Map<List<PurchaseOrder>>(data);
+            var (data, count) = await _repository.GetAsync(skip, top, searchKey, ct);
+            return (_mapper.Map<List<PurchaseOrder>>(data), count);
         }
 
         public async Task<int> UpdateAsync(int purchaseOrderId, PurchaseOrder purchaseOrder, Reason reason, IEnumerable<CustomerOrderAffectedByPurchaseOrderUpdate> ordersAffected, CancellationToken ct = default)

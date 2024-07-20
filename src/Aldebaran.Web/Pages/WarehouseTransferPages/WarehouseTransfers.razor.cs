@@ -39,12 +39,15 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
         protected IEnumerable<WarehouseTransferDetail> warehouseTransferDetails;
 
         protected LocalizedDataGrid<WarehouseTransfer> WarehouseTransfersGrid;
-        private int dataCount;
         protected DialogResult DialogResult { get; set; }
         protected string search = "";
         protected bool isLoadingInProgress;
         protected DocumentType documentType;
         protected WarehouseTransfer warehouseTransfer;
+
+        protected int skip = 0;
+        protected int top = 0;
+        protected int count = 0;
 
         #endregion
 
@@ -66,6 +69,7 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
                 isLoadingInProgress = true;
                 await Task.Yield();
                 documentType = await DocumentTypeService.FindByCodeAsync("B");
+                
                 await DialogResultResolver();
             }
             finally
@@ -78,6 +82,12 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
 
         #region Events
 
+        protected async Task LoadData(LoadDataArgs args)
+        {
+            skip = args.Skip.Value;
+            top = args.Top.Value; 
+            await GetWarehousetransferssAsync(search);
+        }
         protected async Task<string> GetReferenceHint(ItemReference reference) => $"({reference.Item.Line.LineName}) {reference.Item.ItemName} - {reference.ReferenceName}";
 
         async Task DialogResultResolver(CancellationToken ct = default)
@@ -115,15 +125,17 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
         async Task GetWarehousetransferssAsync(string searchKey = null, CancellationToken ct = default)
         {
             await Task.Yield();
-            await WarehouseTransfersGrid.Reload();
+            (warehouseTransfers, count) = string.IsNullOrEmpty(searchKey) ? await WarehouseTransferService.GetAsync(skip, top, ct) : await WarehouseTransferService.GetAsync(skip, top, searchKey, ct);
         }
-        async Task LoadData(LoadDataArgs args)
-        {
-            isLoadingInProgress = true;
-            (warehouseTransfers, dataCount) = await WarehouseTransferService.GetAsync(args.Skip ?? 0, args.Top ?? 0, args.Filter, args.OrderBy);
-            isLoadingInProgress = false;
-        }
+
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
+
+        protected async Task Search(ChangeEventArgs args)
+        {
+            search = $"{args.Value}";
+            await WarehouseTransfersGrid.GoToPage(0);
+            await GetWarehousetransferssAsync(search);
+        }
 
         protected async Task AddWarehouseTransferClick(MouseEventArgs args)
         {
