@@ -2,7 +2,6 @@
 using Aldebaran.DataAccess.Infraestructure.Models;
 using Aldebaran.Infraestructure.Common.Utils;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Dynamic.Core;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
@@ -60,53 +59,48 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             }, ct);
         }
 
-        public async Task<IEnumerable<CustomerOrder>> GetAsync(CancellationToken ct = default)
+        public async Task<(IEnumerable<CustomerOrder>, int count)> GetAsync(int skip, int top, short editMode, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
             {
-                return await dbContext.CustomerOrders.AsNoTracking()
+                var a = dbContext.CustomerOrders.AsNoTracking()
                             .Include(i => i.Customer.City.Department.Country)
                             .Include(i => i.Customer.IdentityType)
                             .Include(i => i.StatusDocumentType.DocumentType)
                             .Include(i => i.Employee.IdentityType)
                             .Include(i => i.CustomerOrderDetails)
-                            .OrderBy(o => o.OrderNumber)
-                            .ToListAsync(ct);
+                            .Where (i => (i.StatusDocumentType.EditMode && editMode == 0) || 
+                                         ((new List<int>{2,3,4}).Contains(i.StatusDocumentType.StatusOrder) && editMode==1)||    
+                                         (editMode == -1))
+                            .OrderByDescending(o => o.OrderNumber);
+
+                var c = a.Count();
+                return (await a.Skip(skip).Take(top).ToListAsync(), c);
             }, ct);
         }
 
-        public async Task<IEnumerable<CustomerOrder>> GetAsync(string searchKey, CancellationToken ct = default)
+        public async Task<(IEnumerable<CustomerOrder>, int count)> GetAsync(int skip, int top, string searchKey, short editMode, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
             {
-                return await dbContext.CustomerOrders.AsNoTracking()
+                var a = dbContext.CustomerOrders.AsNoTracking()
                             .Include(i => i.Customer.City.Department.Country)
                             .Include(i => i.Customer.IdentityType)
                             .Include(i => i.StatusDocumentType.DocumentType)
                             .Include(i => i.Employee.IdentityType)
                             .Include(i => i.CustomerOrderDetails)
-                            .Where(i => i.InternalNotes.Contains(searchKey) ||
-                                        i.CustomerNotes.Contains(searchKey) ||
-                                        i.OrderNumber.Contains(searchKey) ||
-                                        i.StatusDocumentType.StatusDocumentTypeName.Contains(searchKey) ||
-                                        i.Employee.FullName.Contains(searchKey) ||
-                                        i.Employee.DisplayName.Contains(searchKey) ||
-                                        i.Employee.Area.AreaName.Contains(searchKey) ||
-                                        i.Customer.City.Department.Country.CountryCode.Contains(searchKey) ||
-                                        i.Customer.City.Department.Country.CountryName.Contains(searchKey) ||
-                                        i.Customer.City.Department.DepartmentName.Contains(searchKey) ||
-                                        i.Customer.City.CityName.Contains(searchKey) ||
-                                        i.Customer.CustomerName.Contains(searchKey) ||
-                                        i.Customer.CustomerAddress.Contains(searchKey) ||
-                                        i.Customer.IdentityType.IdentityTypeCode.Contains(searchKey) ||
-                                        i.Customer.IdentityType.IdentityTypeName.Contains(searchKey) ||
-                                        i.Customer.IdentityNumber.Contains(searchKey) ||
-                                        dbContext.Format(i.CreationDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
-                                        dbContext.Format(i.OrderDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
-                                        dbContext.Format(i.EstimatedDeliveryDate, _SharedLocalizer["date:format"]).Contains(searchKey)
-                                        )
-                            .OrderBy(o => o.OrderNumber)
-                            .ToListAsync(ct);
+                            .Where(i => ((i.StatusDocumentType.EditMode && editMode == 0) ||
+                                         ((new List<int> { 2, 3, 4 }).Contains(i.StatusDocumentType.StatusOrder) && editMode == 1) ||
+                                         (editMode == -1)) &&
+                                        (i.OrderNumber.Contains(searchKey) ||
+                                         i.Customer.CustomerName.Contains(searchKey) ||
+                                         dbContext.Format(i.OrderDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
+                                         dbContext.Format(i.EstimatedDeliveryDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
+                                         i.StatusDocumentType.StatusDocumentTypeName.Contains(searchKey)))
+                            .OrderByDescending(o => o.OrderNumber);
+
+                var c = a.Count();
+                return (await a.Skip(skip).Take(top).ToListAsync(), c);
             }, ct);
         }
 
@@ -267,81 +261,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 }
             }, ct);
         }
-
-        public async Task<(IEnumerable<CustomerOrder> customerOrders, int count)> GetAsync(int skip, int take, string filter, string orderBy, CancellationToken ct = default)
-        {
-            return await ExecuteQueryAsync(async dbContext =>
-            {
-                var query = dbContext.CustomerOrders.AsNoTracking()
-                    .Include(i => i.Customer.City.Department.Country)
-                    .Include(i => i.Customer.IdentityType)
-                    .Include(i => i.StatusDocumentType.DocumentType)
-                    .Include(i => i.Employee.IdentityType)
-                    .Include(i => i.CustomerOrderDetails)
-                    .AsQueryable();
-                if (!string.IsNullOrEmpty(filter))
-                {
-                    query = query.Where(filter);
-                }
-                if (!string.IsNullOrEmpty(orderBy))
-                {
-                    query = query.OrderBy(orderBy);
-                }
-                var count = query.Count();
-                var data = await query.Skip(skip).Take(take).ToListAsync(ct);
-                return (data, count);
-            }, ct);
-        }
-
-        public async Task<(IEnumerable<CustomerOrder> customerOrders, int count)> GetCustomerOrderShipmentAsync(int skip, int take, string filter, string orderBy, CancellationToken ct = default)
-        {
-            return await ExecuteQueryAsync(async dbContext =>
-            {
-                var query = dbContext.CustomerOrders.AsNoTracking()
-                    .Include(i => i.Customer.City.Department.Country)
-                    .Include(i => i.Customer.IdentityType)
-                    .Include(i => i.StatusDocumentType.DocumentType)
-                    .Include(i => i.Employee.IdentityType)
-                    .Include(i => i.CustomerOrderDetails)
-                    .Where(x => x.StatusDocumentType.StatusOrder == 2 || x.StatusDocumentType.StatusOrder == 3 || x.StatusDocumentType.StatusOrder == 4)
-                    .AsQueryable();
-                if (!string.IsNullOrEmpty(filter))
-                {
-                    query = query.Where(filter);
-                }
-                if (!string.IsNullOrEmpty(orderBy))
-                {
-                    query = query.OrderBy(orderBy);
-                }
-                var count = query.Count();
-                var data = await query.Skip(skip).Take(take).ToListAsync(ct);
-                return (data, count);
-            }, ct);
-        }
-        public async Task<(IEnumerable<CustomerOrder> customerOrders, int count)> GetCustomerOrderInProcessAsync(int skip, int take, string filter, string orderBy, CancellationToken ct = default)
-        {
-            return await ExecuteQueryAsync(async dbContext =>
-            {
-                var query = dbContext.CustomerOrders.AsNoTracking()
-                    .Include(i => i.Customer.City.Department.Country)
-                    .Include(i => i.Customer.IdentityType)
-                    .Include(i => i.StatusDocumentType.DocumentType)
-                    .Include(i => i.Employee.IdentityType)
-                    .Include(i => i.CustomerOrderDetails)
-                    .Where(x => x.StatusDocumentType.EditMode)
-                    .AsQueryable();
-                if (!string.IsNullOrEmpty(filter))
-                {
-                    query = query.Where(filter);
-                }
-                if (!string.IsNullOrEmpty(orderBy))
-                {
-                    query = query.OrderBy(orderBy);
-                }
-                var count = query.Count();
-                var data = await query.Skip(skip).Take(take).ToListAsync(ct);
-                return (data, count);
-            }, ct);
-        }
     }
+
 }

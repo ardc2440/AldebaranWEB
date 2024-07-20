@@ -6,6 +6,7 @@ using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
+using System.Security.Cryptography;
 
 namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
 {
@@ -70,9 +71,12 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
         protected LocalizedDataGrid<CustomerOrderShipment> CustomerOrderShipmentDataGrid;
         protected LocalizedDataGrid<CustomerOrderShipmentDetail> CustomerOrderShipmentDetailDataGrid;
         protected LocalizedDataGrid<CustomerOrder> CustomerOrdersGrid;
-        private int dataCount;
         protected string search = "";
         protected bool isLoadingInProgress;
+
+        protected int skip = 0;
+        protected int top = 0;
+        protected int count = 0;
 
         #endregion
 
@@ -83,10 +87,13 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
             try
             {
                 isLoadingInProgress = true;
-                documentType = await DocumentTypeService.FindByCodeAsync("P");
-                dispachStatus = (await StatusDocumentTypeService.GetByDocumentTypeIdAsync(documentType.DocumentTypeId)).Where(w => w.StatusOrder == 2 || w.StatusOrder == 3);
-                await Task.Yield();
 
+                documentType = await DocumentTypeService.FindByCodeAsync("P");
+
+                dispachStatus = (await StatusDocumentTypeService.GetByDocumentTypeIdAsync(documentType.DocumentTypeId)).Where(w=>w.StatusOrder == 2 || w.StatusOrder == 3);
+                
+                await Task.Yield();
+                                
                 await DialogResultResolver();
             }
             finally
@@ -98,6 +105,13 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
         #endregion
 
         #region Events
+        
+        protected async Task LoadData(LoadDataArgs args)
+        {
+            skip = args.Skip.Value;
+            top = args.Top.Value;
+            await GetCustomerOrderShipmentAsync(search);
+        }
 
         async Task DialogResultResolver(CancellationToken ct = default)
         {
@@ -134,22 +148,26 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
         async Task GetCustomerOrderShipmentAsync(string searchKey = null, CancellationToken ct = default)
         {
             await Task.Yield();
-            await CustomerOrdersGrid.Reload();
+            (customerOrders, count) = string.IsNullOrEmpty(searchKey) ? await CustomerOrderService.GetAsync(skip, top, 1, ct) : await CustomerOrderService.GetAsync(skip, top, searchKey, 1, ct);            
         }
-        async Task LoadData(LoadDataArgs args)
-        {
-            isLoadingInProgress = true;
-            (customerOrders, dataCount) = await CustomerOrderService.GetCustomerOrderShipmentAsync(args.Skip ?? 0, args.Top ?? 0, args.Filter, args.OrderBy);
-            isLoadingInProgress = false;
-        }
-        async Task<bool> CanDispach(CustomerOrder customerOrder, CancellationToken ct = default)
+
+        async Task<bool> CanDispach(CustomerOrder customerOrder,CancellationToken ct = default)
         {
             var havePendingProcessQuantity = customerOrder.CustomerOrderDetails.Any(a => a.ProcessedQuantity > 0);
-            return havePendingProcessQuantity && dispachStatus.Any(a => a.StatusDocumentTypeId == customerOrder.StatusDocumentTypeId) && Security.IsInRole("Administrador", "Modificación de despachos");
+            return havePendingProcessQuantity && dispachStatus.Any(a=>a.StatusDocumentTypeId == customerOrder.StatusDocumentTypeId) && Security.IsInRole("Administrador", "Modificación de despachos");
         }
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
 
         protected async Task<string> GetReferenceHint(ItemReference reference) => $"({reference.Item.Line.LineName}) {reference.Item.ItemName} - {reference.ReferenceName}";
+
+        protected async Task Search(ChangeEventArgs args)
+        {
+            search = $"{args.Value}";
+
+            await CustomerOrdersGrid.GoToPage(0);
+
+            await GetCustomerOrderShipmentAsync(search);
+        }
 
         protected async Task GetOrderDetails(CustomerOrder args)
         {
@@ -217,7 +235,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
                 var statusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync((await DocumentTypeService.FindByCodeAsync("D")).DocumentTypeId, 2);
 
                 await CustomerOrderShipmentService.CancelAsync(customerOrderShipment.CustomerOrderShipmentId, statusDocumentType.StatusDocumentTypeId, reason);
-                await GetCustomerOrderShipmentAsync();
+                await GetCustomerOrderShipmentAsync(search);
 
                 NotificationService.Notify(new NotificationMessage
                 {

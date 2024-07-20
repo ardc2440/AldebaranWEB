@@ -3,6 +3,8 @@ using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Shared;
+using DocumentFormat.OpenXml.Drawing.Charts;
+using Humanizer;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
@@ -69,11 +71,14 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         protected LocalizedDataGrid<CustomerOrdersInProcess> CustomerOrderInProcessesDataGrid;
         protected LocalizedDataGrid<CustomerOrderInProcessDetail> CustomerOrderInProcessDetailDataGrid;
         protected LocalizedDataGrid<CustomerOrder> CustomerOrdersGrid;
-        private int dataCount;
         protected string search = "";
         protected bool isLoadingInProgress;
         protected bool IsErrorVisible = false;
         protected string Error = "";
+
+        protected int skip = 0;
+        protected int top = 0;
+        protected int count = 0;
 
         #endregion
 
@@ -84,9 +89,11 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
             try
             {
                 documentType = await DocumentTypeService.FindByCodeAsync("P");
-                isLoadingInProgress = true;
-                await Task.Yield();
 
+                isLoadingInProgress = true;
+
+                await Task.Yield();
+                                
                 await DialogResultResolver();
             }
             finally
@@ -100,17 +107,19 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
         #region Events
 
-        async Task GetCustomerOrderInProcessAsync()
+        protected async Task LoadData(LoadDataArgs args)
+        {
+            skip = args.Skip.Value;
+            top = args.Top.Value;
+            await GetCustomerOrderInProcessAsync(search);
+        }
+
+        async Task GetCustomerOrderInProcessAsync(string searchKey = null, CancellationToken ct = default)
         {
             await Task.Yield();
-            await CustomerOrdersGrid.Reload();
+            (customerOrders, count) = string.IsNullOrEmpty(searchKey) ? await CustomerOrderService.GetAsync(skip, top, 0, ct) : await CustomerOrderService.GetAsync(skip, top, searchKey, 0, ct);            
         }
-        async Task LoadData(LoadDataArgs args)
-        {
-            isLoadingInProgress = true;
-            (customerOrders, dataCount) = await CustomerOrderService.GetCustomerOrderInProcessAsync(args.Skip ?? 0, args.Top ?? 0, args.Filter, args.OrderBy);
-            isLoadingInProgress = false;
-        }
+
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
 
         async Task DialogResultResolver(CancellationToken ct = default)
@@ -148,6 +157,15 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         }
 
         protected async Task<string> GetReferenceHint(ItemReference reference) => $"({reference.Item.Line.LineName}) {reference.Item.ItemName} - {reference.ReferenceName}";
+
+        protected async Task Search(ChangeEventArgs args)
+        {
+            search = $"{args.Value}";
+
+            await CustomerOrdersGrid.GoToPage(0);
+
+            await GetCustomerOrderInProcessAsync(search);            
+        }
 
         protected async Task GetOrderDetails(CustomerOrder args)
         {
@@ -227,9 +245,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
                 var reason = (Reason)reasonResult;
 
-                var statusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync((await DocumentTypeService.FindByCodeAsync("T")).DocumentTypeId, 2);
+                var statusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync((await DocumentTypeService.FindByCodeAsync("T")).DocumentTypeId, 2);                
                 await CustomerOrdersInProcessService.CancelAsync(customerOrderInProcess.CustomerOrderInProcessId, statusDocumentType.StatusDocumentTypeId, reason);
-                await GetCustomerOrderInProcessAsync();
+                await GetCustomerOrderInProcessAsync(search);
 
                 NotificationService.Notify(new NotificationMessage
                 {
