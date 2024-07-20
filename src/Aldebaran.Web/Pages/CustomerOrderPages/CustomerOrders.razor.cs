@@ -96,7 +96,6 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 isLoadingInProgress = true;
                 await Task.Yield();
 
-                await GetCustomerOrdersAsync();
                 await DialogResultResolver();
             }
             catch (Exception ex)
@@ -117,8 +116,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         {
             skip = args.Skip.Value;
             top = args.Top.Value;
-            await GetCustomerOrdersAsync(search);
-            count = 800;
+            await GetCustomerOrdersAsync(search);            
         }
 
         protected async Task<string> GetReferenceHint(ItemReference reference) => $"({reference.Item.Line.LineName}) {reference.Item.ItemName} - {reference.ReferenceName}";
@@ -182,7 +180,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         async Task GetCustomerOrdersAsync(string searchKey = null, CancellationToken ct = default)
         {
             await Task.Yield();
-            customerOrders = string.IsNullOrEmpty(searchKey) ? await CustomerOrderService.GetAsync(skip, top, ct) : await CustomerOrderService.GetAsync(skip, top, searchKey, ct);
+            (customerOrders, count) = string.IsNullOrEmpty(searchKey) ? await CustomerOrderService.GetAsync(skip, top, ct: ct) : await CustomerOrderService.GetAsync(skip, top, searchKey, ct: ct);
         }
 
         protected async Task Search(ChangeEventArgs args)

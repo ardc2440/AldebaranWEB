@@ -93,8 +93,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                 isLoadingInProgress = true;
 
                 await Task.Yield();
-
-                await GetCustomerOrderInProcessAsync();
+                                
                 await DialogResultResolver();
             }
             finally
@@ -108,11 +107,17 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
         #region Events
 
+        protected async Task LoadData(LoadDataArgs args)
+        {
+            skip = args.Skip.Value;
+            top = args.Top.Value;
+            await GetCustomerOrderInProcessAsync(search);
+        }
+
         async Task GetCustomerOrderInProcessAsync(string searchKey = null, CancellationToken ct = default)
         {
             await Task.Yield();
-            var orders = string.IsNullOrEmpty(searchKey) ? await CustomerOrderService.GetAsync(skip, top, ct) : await CustomerOrderService.GetAsync(skip, top, searchKey, ct);
-            customerOrders = orders.Where(x => x.StatusDocumentType.EditMode);
+            (customerOrders, count) = string.IsNullOrEmpty(searchKey) ? await CustomerOrderService.GetAsync(skip, top, 0, ct) : await CustomerOrderService.GetAsync(skip, top, searchKey, 0, ct);            
         }
 
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
@@ -159,7 +164,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
             await CustomerOrdersGrid.GoToPage(0);
 
-            customerOrders = (await CustomerOrderService.GetAsync(skip, top, search)).Where(x => x.StatusDocumentType.EditMode).ToList();
+            await GetCustomerOrderInProcessAsync(search);            
         }
 
         protected async Task GetOrderDetails(CustomerOrder args)

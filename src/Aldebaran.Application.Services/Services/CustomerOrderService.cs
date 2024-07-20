@@ -21,16 +21,16 @@ namespace Aldebaran.Application.Services
             return _mapper.Map<CustomerOrder>(await _repository.AddAsync(entity, ct));
         }
 
-        public async Task<IEnumerable<CustomerOrder>> GetAsync(int skip, int top, CancellationToken ct = default)
+        public async Task<(IEnumerable<CustomerOrder>, int count)> GetAsync(int skip, int top, short editMode = -1, CancellationToken ct = default)
         {
-            var data = await _repository.GetAsync(skip, top, ct);
-            return _mapper.Map<IEnumerable<CustomerOrder>>(data);
+            var (data, c) = await _repository.GetAsync(skip, top, editMode, ct);
+            return (_mapper.Map<IEnumerable<CustomerOrder>>(data), c);
         }
 
-        public async Task<IEnumerable<CustomerOrder>> GetAsync(int skip, int top, string searchKey, CancellationToken ct = default)
+        public async Task<(IEnumerable<CustomerOrder>, int count)> GetAsync(int skip, int top, string searchKey, short editMode = -1, CancellationToken ct = default)
         {
-            var data = await _repository.GetAsync(skip, top, searchKey, ct);
-            return _mapper.Map<IEnumerable<CustomerOrder>>(data);
+            var (data, c) = await _repository.GetAsync(skip, top, searchKey, editMode, ct);
+            return (_mapper.Map<IEnumerable<CustomerOrder>>(data), c);
         }
 
         public async Task<CustomerOrder?> FindAsync(int customerOrderId, CancellationToken ct = default)

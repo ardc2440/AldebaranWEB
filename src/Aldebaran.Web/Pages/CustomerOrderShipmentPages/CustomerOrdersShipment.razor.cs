@@ -93,8 +93,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
                 dispachStatus = (await StatusDocumentTypeService.GetByDocumentTypeIdAsync(documentType.DocumentTypeId)).Where(w=>w.StatusOrder == 2 || w.StatusOrder == 3);
                 
                 await Task.Yield();
-
-                await GetCustomerOrderShipmentAsync();
+                                
                 await DialogResultResolver();
             }
             finally
@@ -106,6 +105,13 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
         #endregion
 
         #region Events
+        
+        protected async Task LoadData(LoadDataArgs args)
+        {
+            skip = args.Skip.Value;
+            top = args.Top.Value;
+            await GetCustomerOrderShipmentAsync(search);
+        }
 
         async Task DialogResultResolver(CancellationToken ct = default)
         {
@@ -142,8 +148,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
         async Task GetCustomerOrderShipmentAsync(string searchKey = null, CancellationToken ct = default)
         {
             await Task.Yield();
-            var orders = string.IsNullOrEmpty(searchKey) ? await CustomerOrderService.GetAsync(skip, top, ct) : await CustomerOrderService.GetAsync(skip, top, searchKey, ct);
-            customerOrders = orders.Where(x => x.StatusDocumentType.StatusOrder == 2 || x.StatusDocumentType.StatusOrder == 3 || x.StatusDocumentType.StatusOrder == 4);
+            (customerOrders, count) = string.IsNullOrEmpty(searchKey) ? await CustomerOrderService.GetAsync(skip, top, 1, ct) : await CustomerOrderService.GetAsync(skip, top, searchKey, 1, ct);            
         }
 
         async Task<bool> CanDispach(CustomerOrder customerOrder,CancellationToken ct = default)
