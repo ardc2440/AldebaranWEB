@@ -5,25 +5,25 @@ namespace Aldebaran.DataAccess.Entities.Reports
     public class CustomerOrderExport
     {
         [DisplayName("Pedido")]
-        public string OrderNumber { get; set; }
+        public string? OrderNumber { get; set; }
         [DisplayName("Cliente")]
-        public string CustomerName { get; set; }
+        public string? CustomerName { get; set; }
         [DisplayName("Nit")]
-        public string IdentityNumber { get; set; }
+        public string? IdentityNumber { get; set; }
         [DisplayName("Telefono")]
-        public string Phone { get; set; }
+        public string? Phone { get; set; }
         [DisplayName("Ciudad")]
-        public string CityName { get; set; }
+        public string? CityName { get; set; }
         [DisplayName("Fecha Pedido")]
         public DateTime OrderDate { get; set; }
         [DisplayName("Nombre Item")]
-        public string ItemName { get; set; }
+        public string? ItemName { get; set; }
         [DisplayName("Código Item")]
-        public string ItemCode { get; set; }
+        public string? ItemCode { get; set; }
         [DisplayName("Nombre Referencia")]
-        public string ReferenceName { get; set; }
+        public string? ReferenceName { get; set; }
         [DisplayName("Código Referencia")]
-        public string ReferenceCode { get; set; }
+        public string? ReferenceCode { get; set; }
         [DisplayName("Cant Pedido")]
         public int Amount { get; set; }
         [DisplayName("Cant. Enviada")]
@@ -45,6 +45,6 @@ namespace Aldebaran.DataAccess.Entities.Reports
         [DisplayName("Observaciones Envio")]
         public string? ShippingNotes { get; set; }
         [DisplayName("Estado")]
-        public string Status { get; set; }
+        public string? Status { get; set; }
     }
 }

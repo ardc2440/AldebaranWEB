@@ -63,6 +63,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected bool isLoadingInProgress;
         protected string title;
         protected bool Submitted = false;
+
+        protected int count = 0;
         #endregion
 
         #region Overrides
@@ -77,7 +79,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 if (!int.TryParse(CustomerOrderId, out var customerOrderId))
                     throw new Exception("El Id de pedido recibido no es valido");
 
-                customersForCUSTOMERID = (await CustomerService.GetAsync()).Customers;
+                var (customers, _count) = await CustomerService.GetAsync(0, 5);
+                customersForCUSTOMERID = customers.ToList();
+                count = _count;
 
                 documentType = await DocumentTypeService.FindByCodeAsync("P");
 
@@ -98,7 +102,14 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         #endregion
 
         #region Events
-        
+        protected async Task LoadData(LoadDataArgs args)
+        {
+            await Task.Yield();
+            var (customers, _count) = string.IsNullOrEmpty(args.Filter) ? await CustomerService.GetAsync(args.Skip.Value, args.Top.Value) : await CustomerService.GetAsync(args.Skip.Value, args.Top.Value, args.Filter);
+            customersForCUSTOMERID = customers.ToList();
+            count = _count;
+        }
+
         protected async Task<string> GetReferenceHint(ItemReference reference) => $"({reference.Item.Line.LineName}) {reference.Item.ItemName} - {reference.ReferenceName}";
 
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);

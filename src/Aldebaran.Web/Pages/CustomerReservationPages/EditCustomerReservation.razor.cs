@@ -50,6 +50,8 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         protected bool isLoadingInProgress;
         protected string Error;
 
+        protected int count = 0;
+
         #endregion
 
         #region Overrides
@@ -58,7 +60,10 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             try
             {
                 isLoadingInProgress = true;
-                customersForCUSTOMERID = (await CustomerService.GetAsync()).Customers;
+
+                var (customers, _count) = await CustomerService.GetAsync(0, 5);
+                customersForCUSTOMERID = customers.ToList();
+                count = _count;
 
                 Now = DateTime.UtcNow.AddDays(-1);
 
@@ -81,6 +86,13 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         #endregion
 
         #region Events
+        protected async Task LoadData(LoadDataArgs args)
+        {
+            await Task.Yield();
+            var (customers, _count) = string.IsNullOrEmpty(args.Filter) ? await CustomerService.GetAsync(args.Skip.Value, args.Top.Value) : await CustomerService.GetAsync(args.Skip.Value, args.Top.Value, args.Filter);
+            customersForCUSTOMERID = customers.ToList();
+            count = _count;
+        }
 
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
 

@@ -81,6 +81,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 return await dbContext.Providers.AsNoTracking()
               .Include(i => i.City.Department.Country)
               .Include(i => i.IdentityType)
+              .OrderBy(o=> o.ProviderName)
               .ToListAsync(ct);
             }, ct);
         }
@@ -93,6 +94,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                           .Where(w => w.IdentityNumber.Contains(searchKey) || w.ProviderCode.Contains(searchKey) || w.ProviderName.Contains(searchKey) || w.ProviderAddress.Contains(searchKey) || w.Phone.Contains(searchKey) || w.Fax.Contains(searchKey) || w.Email.Contains(searchKey) || w.ContactPerson.Contains(searchKey))
                           .Include(i => i.City.Department.Country)
                           .Include(i => i.IdentityType)
+                          .OrderBy(o => o.ProviderName)
                           .ToListAsync(ct);
             }, ct);
         }

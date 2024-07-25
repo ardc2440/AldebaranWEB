@@ -41,7 +41,9 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 var a = dbContext.Customers
                             .AsNoTracking()
                             .Include(i => i.IdentityType)
-                            .Include(i => i.City.Department.Country);
+                            .Include(i => i.City.Department.Country)
+                            .OrderBy(o=>o.CustomerName);
+
                 if (skip != null && top != null)
                     return (await a.Skip(skip.Value).Take(top.Value).ToListAsync(), await a.CountAsync(ct));
 
@@ -58,18 +60,9 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                        .AsNoTracking()
                        .Include(i => i.IdentityType)
                        .Include(i => i.City.Department.Country)
-                       .Where(i => i.IdentityType.IdentityTypeName.Equals(searchKey) ||
-                                   i.IdentityNumber.Equals(searchKey) ||
-                                   i.City.Department.Country.CountryName.Equals(searchKey) ||
-                                   i.City.Department.Country.CountryCode.Equals(searchKey) ||
-                                   i.City.Department.DepartmentName.Equals(searchKey) ||
-                                   i.City.CityName.Equals(searchKey) ||
-                                   i.CustomerAddress.Contains(searchKey) ||
-                                   i.CustomerName.Contains(searchKey) ||
-                                   i.Email.Contains(searchKey) ||
-                                   i.Fax.Contains(searchKey) ||
-                                   i.Phone1.Contains(searchKey) ||
-                                   i.Phone2.Contains(searchKey));
+                       .Where(i => i.IdentityNumber.Contains(searchKey) ||
+                                   i.CustomerName.Contains(searchKey))
+                       .OrderBy(o => o.CustomerName); 
 
                 return (await a.Skip(skip).Take(top).ToListAsync(), await a.CountAsync(ct));
             }, ct);

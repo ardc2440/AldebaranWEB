@@ -55,6 +55,8 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         protected string Error;
         protected int lastReferenceId = 0;
 
+        protected int count = 0;
+
         #endregion
 
         #region Overrides
@@ -63,7 +65,10 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             try
             {
                 isLoadingInProgress = true;
-                customersForCUSTOMERID = (await CustomerService.GetAsync()).Customers;
+
+                var (customers, _count) = await CustomerService.GetAsync(0, 5);
+                customersForCUSTOMERID = customers.ToList();
+                count = _count;
 
                 documentType = await DocumentTypeService.FindByCodeAsync("R");
 
@@ -89,6 +94,15 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         #endregion
 
         #region Events
+
+        protected async Task LoadData(LoadDataArgs args)
+        {
+            await Task.Yield();
+            var (customers, _count) = string.IsNullOrEmpty(args.Filter) ? await CustomerService.GetAsync(args.Skip.Value, args.Top.Value) : await CustomerService.GetAsync(args.Skip.Value, args.Top.Value, args.Filter);
+            customersForCUSTOMERID = customers.ToList();
+            count = _count;
+        }
+
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
 
         protected async Task<string> GetReferenceHint(ItemReference reference) => $"({reference.Item.Line.LineName}) {reference.Item.ItemName} - {reference.ReferenceName}";
