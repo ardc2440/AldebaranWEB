@@ -5,17 +5,11 @@
         <RadzenRow style="margin-bottom: 1rem">
             <RadzenFormField Text="Proveedor" Variant="Variant.Text" Style="width: 100%;">
                 <ChildContent>
-                    <RadzenDropDownDataGrid @ref="providersDropdown" Data="@Providers" TextProperty="ProviderName" ValueProperty="ProviderId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                    <RadzenDropDownDataGrid Count="@count" LoadData="@LoadData" @ref="providersDropdown" Data="@Providers" TextProperty="ProviderName" ValueProperty="ProviderId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                             style="display: block; width: 100%" @bind-Value="@Filter.ProviderId" Name="ProviderId" AllowFilteringByAllStringColumns="true">
                         <Columns>
                             <RadzenDropDownDataGridColumn Property="ProviderCode" Title="Código" />
-                            <RadzenDropDownDataGridColumn Property="ProviderName" Title="Nombre" />
-                            <RadzenDropDownDataGridColumn Property="ContactPerson" Title="Contacto" />
-                            <RadzenDropDownDataGridColumn Property="City.CityId" Title="Ubicación">
-                                <Template Context="provider">
-                                    <span>(@provider.City.Department.Country.CountryCode) @provider.City.Department.DepartmentName - @provider.City.CityName</span>
-                                </Template>
-                            </RadzenDropDownDataGridColumn>
+                            <RadzenDropDownDataGridColumn Property="ProviderName" Title="Nombre" />                            
                         </Columns>
                     </RadzenDropDownDataGrid>
                 </ChildContent>

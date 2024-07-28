@@ -75,7 +75,7 @@
             </RadzenColumn>
         </RadzenRow>
         <RadzenRow style="margin-bottom: 1rem">            
-            <RadzenColumn Size="4">
+            <RadzenColumn Size="6">
                 <RadzenStack>
                     <RadzenFormField Text="Estado" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
@@ -86,23 +86,19 @@
                     </RadzenFormField>
                 </RadzenStack>
             </RadzenColumn>
-            <RadzenColumn Size="4">
+            <RadzenColumn Size="6">
                 <RadzenStack>
                     <RadzenFormField Text="Cliente" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDownDataGrid @ref="customerDropdown" Data="@Customers" TextProperty="CustomerName" ValueProperty="CustomerId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                                    style="display: block; width: 100%" @bind-Value="@Filter.CustomerId" Name="CustomerId" AllowFilteringByAllStringColumns="true">
+                            <RadzenDropDownDataGrid @ref="customerDropdown" AllowClear="true" @bind-Value="@Filter.CustomerId"
+                                                    LoadData=@LoadData AllowFiltering="true"
+                                                    Data=@Customers Count=@count TextProperty="CustomerName" ValueProperty="CustomerId"
+                                                    Name="CustomerId" ShowPagingSummary="true" style="display: block; width: 100%">
                                 <Columns>
-                                    <RadzenDropDownDataGridColumn Property="IdentityType.IdentityTypeName" Title="Tipo de documento" />
                                     <RadzenDropDownDataGridColumn Property="IdentityNumber" Title="Identificación" />
                                     <RadzenDropDownDataGridColumn Property="CustomerName" Title="Nombre" />
-                                    <RadzenDropDownDataGridColumn Property="City.CityId" Title="Ubicación">
-                                        <Template Context="customer">
-                                            <span>(@customer.City.Department.Country.CountryCode) @customer.City.Department.DepartmentName - @customer.City.CityName</span>
-                                        </Template>
-                                    </RadzenDropDownDataGridColumn>
                                 </Columns>
-                            </RadzenDropDownDataGrid>
+                            </RadzenDropDownDataGrid>                            
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenStack>

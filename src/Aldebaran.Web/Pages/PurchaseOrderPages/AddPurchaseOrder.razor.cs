@@ -63,6 +63,8 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         protected string Error;
         protected int lastReferenceId = 0;
         protected short lastWarehouseId = 0;
+
+        protected int count = 0;
         #endregion
 
         #region Overrides
@@ -72,7 +74,10 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
             {
                 isLoadingInProgress = true;
                 PurchaseOrder = new ServiceModel.PurchaseOrder { RequestDate = DateTime.Now };
-                Providers = await ProviderService.GetAsync();
+
+                var (providers, _count) = await ProviderService.GetAsync(0, 5);
+                Providers = providers.ToList();
+                count = _count;                
             }
             finally
             {
@@ -83,6 +88,14 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         #endregion
 
         #region Events
+
+        protected async Task LoadData(LoadDataArgs args)
+        {
+            await Task.Yield();
+            var (providers, _count) = string.IsNullOrEmpty(args.Filter) ? await ProviderService.GetAsync(args.Skip.Value, args.Top.Value) : await ProviderService.GetAsync(args.Skip.Value, args.Top.Value, args.Filter);
+            Providers = providers.ToList();
+            count = _count;
+        }
 
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
 

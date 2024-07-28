@@ -41,6 +41,10 @@ namespace Aldebaran.Web.Pages.ProviderPages
         protected string search = "";
         protected bool isLoadingInProgress;
 
+        protected int skip = 0;
+        protected int top = 0;
+        protected int count = 0;
+
         #endregion
 
         #region Overrides
@@ -48,8 +52,7 @@ namespace Aldebaran.Web.Pages.ProviderPages
         {
             try
             {
-                isLoadingInProgress = true;
-                await GetProvidersAsync();
+                isLoadingInProgress = true;                
             }
             finally
             {
@@ -59,12 +62,19 @@ namespace Aldebaran.Web.Pages.ProviderPages
         #endregion
 
         #region Events
+        protected async Task LoadData(LoadDataArgs args)
+        {
+            skip = args.Skip.Value;
+            top = args.Top.Value;
+            await GetProvidersAsync(search);
+        }
+
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
 
         async Task GetProvidersAsync(string searchKey = null, CancellationToken ct = default)
         {
             await Task.Yield();
-            ProvidersList = string.IsNullOrEmpty(searchKey) ? await ProviderService.GetAsync(ct) : await ProviderService.GetAsync(searchKey, ct);
+            (ProvidersList,count) = string.IsNullOrEmpty(searchKey) ? await ProviderService.GetAsync(skip, top, ct) : await ProviderService.GetAsync(skip, top, searchKey, ct);
         }
         protected async Task Search(ChangeEventArgs args)
         {

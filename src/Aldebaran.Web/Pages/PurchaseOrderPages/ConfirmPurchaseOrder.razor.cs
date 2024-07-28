@@ -20,22 +20,8 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected SecurityService Security { get; set; }
-
-        [Inject]
         protected TooltipService TooltipService { get; set; }
 
-        [Inject]
-        protected IProviderService ProviderService { get; set; }
-
-        [Inject]
-        protected IEmployeeService EmployeeService { get; set; }
-
-        [Inject]
-        protected IDocumentTypeService DocumentTypeService { get; set; }
-
-        [Inject]
-        protected IStatusDocumentTypeService StatusDocumentTypeService { get; set; }
 
         [Inject]
         protected IPurchaseOrderService PurchaseOrderService { get; set; }
@@ -63,7 +49,6 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         protected bool IsErrorVisible;
         protected ServiceModel.PurchaseOrder PurchaseOrder;
         protected IEnumerable<ServiceModel.Warehouse> Warehouses;
-        protected IEnumerable<ServiceModel.Provider> Providers;
         protected IEnumerable<ServiceModel.ShipmentForwarderAgentMethod> ShipmentForwarderAgentMethods;
         protected RadzenDropDownDataGrid<int> ProviderDropDownDataGrid;
 
@@ -118,8 +103,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
             await Task.Yield();
             var orderDetails = await PurchaseOrderDetailService.GetByPurchaseOrderIdAsync(purchaseOrderId);
             PurchaseOrderDetails = orderDetails.ToList();
-            PurchaseOrderDetails.ForEach(f => f.ReceivedQuantity = f.ReceivedQuantity == 0 ? null : f.ReceivedQuantity);
-            Providers = await ProviderService.GetAsync();
+            PurchaseOrderDetails.ForEach(f => f.ReceivedQuantity = f.ReceivedQuantity == 0 ? null : f.ReceivedQuantity);            
         }
         #region PurchaseOrder
         private int PROVIDER_ID { get; set; }
@@ -173,26 +157,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         protected async Task CancelPurchaseOrder(MouseEventArgs args)
         {
             NavigationManager.NavigateTo("purchase-orders");
-        }
-        protected async Task ProviderSelectionChange(object providerId)
-        {
-            int id = (int)providerId;
-            if (!PurchaseOrderDetails.Any())
-            {
-                PROVIDER_ID = id;
-                return;
-            }
-
-            if (await DialogService.Confirm("Al realizar cambio de proveedor, las referencias agregadas serán borradas, esta seguro que desea cambiar de proveedor?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
-            {
-                PurchaseOrderDetails = new List<ServiceModel.PurchaseOrderDetail>();
-                PROVIDER_ID = id;
-                return;
-            }
-            PurchaseOrder.ProviderId = PROVIDER_ID;
-            var p = Providers.First(p => p.ProviderId == PROVIDER_ID);
-            await ProviderDropDownDataGrid.DataGrid.SelectRow(p, false);
-        }
+        }        
         #endregion
 
         #region PurchaseOrderDetail

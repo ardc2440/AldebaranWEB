@@ -1,5 +1,6 @@
 ﻿using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
+using Aldebaran.Web.Pages.CustomerPages;
 using Aldebaran.Web.Pages.ReportPages.Provider_References.ViewModel;
 using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
@@ -40,6 +41,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References.Components
         protected MultiReferencePicker referencePicker;
         protected RadzenDropDownDataGrid<int?> providersDropdown;
         protected bool ValidationError = false;
+
+        protected int count = 0;
         #endregion
 
         protected override async Task OnInitializedAsync()
@@ -48,7 +51,11 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References.Components
             var references = (await ItemReferenceService.GetReportsReferencesAsync()).ToList();
             AvailableItemReferencesForSelection = references;
             referencePicker.SetAvailableItemReferencesForSelection(AvailableItemReferencesForSelection);
-            Providers = (await ProviderService.GetAsync()).ToList();
+
+            var (providers, _count) = await ProviderService.GetAsync(0, 5);
+            Providers = providers.ToList();
+            count = _count;
+            
         }
         protected bool FirstRender = true;
         public override async Task SetParametersAsync(ParameterView parameters)
@@ -63,6 +70,14 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References.Components
             StateHasChanged();
         }
         #region Events
+        protected async Task LoadData(LoadDataArgs args)
+        {
+            await Task.Yield();
+            var (providers, _count) = string.IsNullOrEmpty(args.Filter) ? await ProviderService.GetAsync(args.Skip.Value, args.Top.Value) : await ProviderService.GetAsync(args.Skip.Value, args.Top.Value, args.Filter);
+            Providers = providers.ToList();
+            count = _count;
+        }
+
         protected async Task FormSubmit()
         {
             try

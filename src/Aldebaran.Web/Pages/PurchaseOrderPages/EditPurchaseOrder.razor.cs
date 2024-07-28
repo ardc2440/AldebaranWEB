@@ -86,6 +86,8 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         protected string Error;
         protected int lastReferenceId = 0;
         protected short lastWarehouseId = 0;
+
+        protected int count = 0;
         #endregion
 
         #region Overrides
@@ -106,7 +108,10 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                     NavigationManager.NavigateTo("purchase-orders");
                 var orderDetails = await PurchaseOrderDetailService.GetByPurchaseOrderIdAsync(purchaseOrderId);
                 PurchaseOrderDetails = orderDetails.ToList();
-                Providers = await ProviderService.GetAsync();
+
+                await LoadData(new LoadDataArgs { Filter = PurchaseOrder.Provider.ProviderName, Skip = 0, Top = 1 });
+
+                PROVIDER_ID = PurchaseOrder.ProviderId;
             }
             finally
             {
@@ -117,7 +122,14 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         #endregion
 
         #region Events
+        protected async Task LoadData(LoadDataArgs args)
+        {
+            await Task.Yield();
 
+            var (providers, _count) = string.IsNullOrEmpty(args.Filter) ? await ProviderService.GetAsync(args.Skip.Value, args.Top.Value) : await ProviderService.GetAsync(args.Skip.Value, args.Top.Value, args.Filter);
+            Providers = providers.ToList();
+            count = _count;
+        }
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
 
         #region PurchaseOrder
@@ -209,6 +221,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         {
             NavigationManager.NavigateTo("purchase-orders");
         }
+
         protected async Task ProviderSelectionChange(object providerId)
         {
             int id = (int)providerId;
@@ -224,10 +237,13 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 PROVIDER_ID = id;
                 return;
             }
+
             PurchaseOrder.ProviderId = PROVIDER_ID;
+
             var p = Providers.First(p => p.ProviderId == PROVIDER_ID);
             await ProviderDropDownDataGrid.DataGrid.SelectRow(p, false);
         }
+
         #endregion
 
         #region PurchaseOrderDetail

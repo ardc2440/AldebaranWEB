@@ -46,6 +46,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities.Components
         protected bool ValidationCreationDate = false;
         protected bool ValidationOrderDate = false;
         protected bool ValidationEstimatedDeliveryDate = false;
+
+        protected int count = 0;
         #endregion
 
         #region Ovverride
@@ -57,7 +59,9 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities.Components
             referencePicker.SetAvailableItemReferencesForSelection(AvailableItemReferencesForSelection);
             var documentType = await DocumentTypeService.FindByCodeAsync("P");
             StatusDocumentTypes = (await StatusDocumentTypeService.GetByDocumentTypeIdAsync(documentType.DocumentTypeId)).ToList();
-            Customers = (await CustomerService.GetAsync()).Customers.ToList();
+            var (customers, _count) = await CustomerService.GetAsync(0, 5);
+            Customers = customers.ToList();
+            count = _count;
         }
         protected bool FirstRender = true;
         public override async Task SetParametersAsync(ParameterView parameters)
@@ -74,6 +78,15 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities.Components
         #endregion
 
         #region Events
+
+        protected async Task LoadData(LoadDataArgs args)
+        {
+            await Task.Yield();
+            var (customers, _count) = string.IsNullOrEmpty(args.Filter) ? await CustomerService.GetAsync(args.Skip.Value, args.Top.Value) : await CustomerService.GetAsync(args.Skip.Value, args.Top.Value, args.Filter);
+            Customers = customers.ToList();
+            count = _count;
+        }
+
         protected async Task FormSubmit()
         {
             try

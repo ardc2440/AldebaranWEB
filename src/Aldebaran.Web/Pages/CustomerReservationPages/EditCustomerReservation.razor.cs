@@ -60,11 +60,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             try
             {
                 isLoadingInProgress = true;
-
-                var (customers, _count) = await CustomerService.GetAsync(0, 5);
-                customersForCUSTOMERID = customers.ToList();
-                count = _count;
-
+                
                 Now = DateTime.UtcNow.AddDays(-1);
 
                 customerReservationDetails = new List<CustomerReservationDetail>();
@@ -72,6 +68,9 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                 _ = int.TryParse(CustomerReservationId, out var customerReservationId);
 
                 customerReservation = await CustomerReservationService.FindAsync(customerReservationId);
+
+                await LoadData(new LoadDataArgs { Filter = customerReservation.Customer.CustomerName, Skip = 0, Top = 1 });
+
 
                 title = $"Actualizar la Reserva No. {customerReservation.ReservationNumber}";
 

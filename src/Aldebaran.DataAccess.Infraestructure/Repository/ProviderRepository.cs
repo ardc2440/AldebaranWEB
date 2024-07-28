@@ -74,28 +74,34 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             }, ct);
         }
 
-        public async Task<IEnumerable<Provider>> GetAsync(CancellationToken ct = default)
+        public async Task<(IEnumerable<Provider>, int)> GetAsync(int? skip=null, int? top = null, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
             {
-                return await dbContext.Providers.AsNoTracking()
-              .Include(i => i.City.Department.Country)
-              .Include(i => i.IdentityType)
-              .OrderBy(o=> o.ProviderName)
-              .ToListAsync(ct);
+                var a = dbContext.Providers.AsNoTracking()
+                  .Include(i => i.City.Department.Country)
+                  .Include(i => i.IdentityType)
+                  .OrderBy(o => o.ProviderName);
+
+              if (skip != null && top != null)
+                    return (await a.Skip(skip.Value).Take(top.Value).ToListAsync(), await a.CountAsync(ct));
+
+              return (await a.ToListAsync(), await a.CountAsync(ct));
             }, ct);
         }
 
-        public async Task<IEnumerable<Provider>> GetAsync(string searchKey, CancellationToken ct = default)
+        public async Task<(IEnumerable<Provider>, int)> GetAsync(int skip, int top, string searchKey, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
             {
-                return await dbContext.Providers.AsNoTracking()
+                var a = dbContext.Providers.AsNoTracking()
                           .Where(w => w.IdentityNumber.Contains(searchKey) || w.ProviderCode.Contains(searchKey) || w.ProviderName.Contains(searchKey) || w.ProviderAddress.Contains(searchKey) || w.Phone.Contains(searchKey) || w.Fax.Contains(searchKey) || w.Email.Contains(searchKey) || w.ContactPerson.Contains(searchKey))
                           .Include(i => i.City.Department.Country)
                           .Include(i => i.IdentityType)
-                          .OrderBy(o => o.ProviderName)
-                          .ToListAsync(ct);
+                          .OrderBy(o => o.ProviderName);
+
+                return (await a.Skip(skip).Take(top).ToListAsync(), await a.CountAsync(ct));
+
             }, ct);
         }
 

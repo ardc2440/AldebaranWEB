@@ -1,6 +1,8 @@
 ﻿using Aldebaran.Application.Services.Models;
 using Aldebaran.DataAccess.Infraestructure.Repository;
 using AutoMapper;
+using DocumentFormat.OpenXml.Bibliography;
+using System.ComponentModel;
 using Entities = Aldebaran.DataAccess.Entities;
 
 namespace Aldebaran.Application.Services
@@ -43,16 +45,16 @@ namespace Aldebaran.Application.Services
             return _mapper.Map<Provider?>(data);
         }
 
-        public async Task<IEnumerable<Provider>> GetAsync(CancellationToken ct = default)
+        public async Task<(IEnumerable<Provider>, int)> GetAsync(int? skip = null, int? top = null, CancellationToken ct = default)
         {
-            var data = await _repository.GetAsync(ct);
-            return _mapper.Map<List<Provider>>(data);
+            var (data, count) = await _repository.GetAsync(skip, top, ct);
+            return (_mapper.Map<List<Provider>>(data), count);
         }
 
-        public async Task<IEnumerable<Provider>> GetAsync(string searchKey, CancellationToken ct = default)
+        public async Task<(IEnumerable<Provider>,int)> GetAsync(int skip, int top, string searchKey, CancellationToken ct = default)
         {
-            var data = await _repository.GetAsync(searchKey, ct);
-            return _mapper.Map<List<Provider>>(data);
+            var (data, count) = await _repository.GetAsync(skip, top, searchKey, ct);
+            return (_mapper.Map<List<Provider>>(data), count);
         }
 
         public async Task UpdateAsync(int providerId, Provider provider, CancellationToken ct = default)

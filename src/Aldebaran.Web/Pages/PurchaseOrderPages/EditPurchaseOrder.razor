@@ -25,17 +25,11 @@
                         <RadzenStack>
                             <RadzenFormField Text="Proveedor" Variant="Variant.Text" Style="width: 100%;">
                                 <ChildContent>
-                                    <RadzenDropDownDataGrid @ref="ProviderDropDownDataGrid" Data="@Providers" TextProperty="ProviderName" ValueProperty="ProviderId" AllowClear=false FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    <RadzenDropDownDataGrid Count="@count" LoadData="@LoadData" @ref="ProviderDropDownDataGrid" Data="@Providers" TextProperty="ProviderName" ValueProperty="ProviderId" AllowClear=false FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                                             style="display: block; width: 100%" @bind-Value="@PurchaseOrder.ProviderId" Name="ProviderId" AllowFilteringByAllStringColumns="true" Change="@ProviderSelectionChange">
                                         <Columns>
                                             <RadzenDropDownDataGridColumn Property="ProviderCode" Title="Código" />
-                                            <RadzenDropDownDataGridColumn Property="ProviderName" Title="Nombre" />
-                                            <RadzenDropDownDataGridColumn Property="ContactPerson" Title="Contacto" />
-                                            <RadzenDropDownDataGridColumn Property="City.CityId" Title="Ubicación">
-                                                <Template Context="provider">
-                                                    <span>(@provider.City.Department.Country.CountryCode) @provider.City.Department.DepartmentName - @provider.City.CityName</span>
-                                                </Template>
-                                            </RadzenDropDownDataGridColumn>
+                                            <RadzenDropDownDataGridColumn Property="ProviderName" Title="Nombre" />                                            
                                         </Columns>
                                     </RadzenDropDownDataGrid>
                                 </ChildContent>

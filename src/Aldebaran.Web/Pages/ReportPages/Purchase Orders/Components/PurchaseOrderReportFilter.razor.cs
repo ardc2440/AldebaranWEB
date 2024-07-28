@@ -74,6 +74,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Purchase_Orders.Components
         protected short? ShipmentMethodId;
         protected bool FirstRender = true;
 
+        protected int count = 0;
+
         #endregion
 
         #region Override
@@ -82,12 +84,15 @@ namespace Aldebaran.Web.Pages.ReportPages.Purchase_Orders.Components
             Filter ??= new Purchase_Orders.ViewModel.PurchaseOrderFilter();
             var references = (await ItemReferenceService.GetReportsReferencesAsync()).ToList();
             AvailableItemReferencesForSelection = references;
-            referencePicker.SetAvailableItemReferencesForSelection(AvailableItemReferencesForSelection);
-            Providers = (await ProviderService.GetAsync()).ToList();
+            referencePicker.SetAvailableItemReferencesForSelection(AvailableItemReferencesForSelection);            
             Forwarders = (await ForwarderService.GetAsync()).ToList();
             Warehouses = (await WarehouseService.GetAsync()).ToList();
             var documentType = await DocumentTypeService.FindByCodeAsync("O");
             StatusDocumentTypes = (await StatusDocumentTypeService.GetByDocumentTypeIdAsync(documentType.DocumentTypeId)).ToList();
+
+            var (providers, _count) = await ProviderService.GetAsync(0, 5);
+            Providers = providers.ToList();
+            count = _count;
         }
 
         public override async Task SetParametersAsync(ParameterView parameters)
@@ -130,6 +135,14 @@ namespace Aldebaran.Web.Pages.ReportPages.Purchase_Orders.Components
         #endregion
 
         #region Events
+        protected async Task LoadData(LoadDataArgs args)
+        {
+            await Task.Yield();
+            var (providers, _count) = string.IsNullOrEmpty(args.Filter) ? await ProviderService.GetAsync(args.Skip.Value, args.Top.Value) : await ProviderService.GetAsync(args.Skip.Value, args.Top.Value, args.Filter);
+            Providers = providers.ToList();
+            count = _count;
+        }
+
         protected async Task FormSubmit()
         {
             try
