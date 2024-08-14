@@ -28,5 +28,6 @@
         public string? Owner { get; set; }
         public int? MovementAmount { get; set; }
         public string? Status { get; set; }
+        public short? Operator { get; set; }
     }
 }

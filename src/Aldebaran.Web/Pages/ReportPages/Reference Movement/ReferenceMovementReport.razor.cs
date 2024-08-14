@@ -289,7 +289,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
             var movementDetails = new List<ReferenceMovementViewModel.MovementDetail>();
 
             foreach (var detail in DataReport.Where(w => w.ReferenceId == referenceId && w.TitleId == titleId)
-                                        .Select(s => new { s.Code, s.Date, s.Owner, s.MovementAmount, s.Status })
+                                        .Select(s => new { s.Code, s.Date, s.Owner, s.MovementAmount, s.Status, s.Operator })
                                         .DistinctBy(d => d.Code)
                                         .OrderBy(o => o.Date)
                                         .OrderBy(o => o.Code))
@@ -300,7 +300,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
                     Date = (DateTime)detail.Date,
                     Owner = detail.Owner,
                     Amount = (int)detail.MovementAmount,
-                    Status = detail.Status
+                    Status = detail.Status,
+                    Operator = (short)detail.Operator 
                 });
             }
 

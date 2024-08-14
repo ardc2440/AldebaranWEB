@@ -156,15 +156,17 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         {
             if (master.StatusDocumentType.StatusOrder == 6)
                 return "Cancelado";
-
+            if (detail.DeliveredQuantity == detail.RequestedQuantity && detail.ProcessedQuantity == 0)
+                return "Totalmente atentido";            
+            if (master.StatusDocumentType.StatusOrder == 5)
+                return "Cerrado";
             if (detail.DeliveredQuantity == 0 && detail.ProcessedQuantity == 0)
                 return "Pendiente";
             if (detail.ProcessedQuantity > 0)
                 return "En proceso";
             if (detail.DeliveredQuantity < detail.RequestedQuantity)
                 return "Parcialmente atentido";
-            if (detail.DeliveredQuantity == detail.RequestedQuantity && detail.ProcessedQuantity == 0)
-                return "Totalmente atentido";
+            
             return null;
         }
         #endregion
