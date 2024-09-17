@@ -172,6 +172,9 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                            .Include(i => i.StatusDocumentType.DocumentType)
                            .Where(w => w.OrderNumber.Contains(searchKey) ||
                                        w.ImportNumber.Contains(searchKey) ||
+                                       w.Provider.ProviderName.Contains(searchKey) ||
+                                       w.ForwarderAgent.Forwarder.ForwarderName.Contains(searchKey) ||
+                                       w.ForwarderAgent.ForwarderAgentName.Contains(searchKey) ||
                                        w.EmbarkationPort.Contains(searchKey) ||
                                        w.ProformaNumber.Contains(searchKey) ||
                                        dbContext.Format(w.CreationDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||

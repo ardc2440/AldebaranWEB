@@ -14,25 +14,7 @@ namespace Aldebaran.Application.Services
             _repository = repository ?? throw new ArgumentNullException(nameof(IDashBoardRepository));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(IMapper));
         }
-
-        public async Task<IEnumerable<PurchaseOrderDetail>> GetTransitDetailOrdersAsync(int statusOrder, string? searchKey = null, int? referenceId = null, CancellationToken ct = default)
-        {
-            var data = await _repository.GetByReferenceIdAndStatusOrderAsync(statusOrder, searchKey, referenceId, ct);
-            return _mapper.Map<IEnumerable<PurchaseOrderDetail>>(data);
-        }
-
-        public async Task<IEnumerable<ItemReference>> GetAllReferencesWithMinimumQuantityAsync(string? searchKey = null, CancellationToken ct = default)
-        {
-            var data = await _repository.GetAllReferencesWithMinimumQuantityAsync(searchKey, ct);
-            return _mapper.Map<List<ItemReference>>(data);
-        }
-
-        public async Task<IEnumerable<ItemReference>> GetAllOutOfStockReferences(string? searchKey = null, CancellationToken ct = default)
-        {
-            var data = await _repository.GetAllOutOfStockReferences(searchKey, ct);
-            return _mapper.Map<List<ItemReference>>(data);
-        }
-
+                
         public async Task<IEnumerable<CustomerReservation>> GetExpiredReservationsAsync(string? searchKey = null, CancellationToken ct = default)
         {
             var data = await _repository.GetExpiredReservationsAsync(searchKey, ct);
@@ -83,6 +65,18 @@ namespace Aldebaran.Application.Services
         {
             var data = await _repository.GetNotificationsWithError(searchKey, ct);
             return _mapper.Map<List<NotificationWithError>>(data.OrderBy(o => o.NotificationDate));
-        }        
+        }
+
+        public async Task<IEnumerable<OutOfStockArticle>> GetOutOfStockAlarmsAsync(int employeeId, string? searchKey = null, CancellationToken ct = default)
+        {
+            var data = await _repository.GetOutOfStockAlarmsAsync(employeeId, searchKey, ct);
+            return _mapper.Map<IEnumerable<OutOfStockArticle>>(data);
+        }
+
+        public async Task<IEnumerable<MinimumQuantityArticle>> GetMinimumQuantityAlarmsAsync(int employeeId, string? searchKey = null, CancellationToken ct = default)
+        {
+            var data = await _repository.GetMinimumQuantityAlarmsAsync(employeeId, searchKey, ct);
+            return _mapper.Map<IEnumerable<MinimumQuantityArticle>>(data);
+        }
     }
 }

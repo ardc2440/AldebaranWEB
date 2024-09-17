@@ -103,6 +103,8 @@ namespace Aldebaran.Application.Services.Mappings
             CreateMap<NotificationStatus, Enums.NotificationStatus>().ReverseMap();
             CreateMap<NotificationWithError, Entities.NotificationWithError>().ReverseMap();
             CreateMap<PurchaseOrderVariation, Entities.PurchaseOrderVariation>().ReverseMap();
+            CreateMap<MinimumQuantityArticle, Entities.MinimumQuantityArticle>().ReverseMap();
+            CreateMap<OutOfStockArticle, Entities.OutOfStockArticle>().ReverseMap();
         }
     }
 }

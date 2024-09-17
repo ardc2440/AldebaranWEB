@@ -1,7 +1,6 @@
 ﻿using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Infraestructure.Common.Extensions;
-using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Pages.ReportPages.Reference_Movement;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Utils;
@@ -36,8 +35,6 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         protected NotificationService NotificationService { get; set; }
 
         [Inject]
-        protected ICacheHelper CacheHelper { get; set; }
-        [Inject]
         protected DialogService DialogService { get; set; }
         #endregion
 
@@ -57,9 +54,9 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         List<DataTimer> Timers;
         protected string search = "";
 
-        protected List<OutOfStockArticle> outOfStockArticles = new List<OutOfStockArticle>();
+        protected IEnumerable<OutOfStockArticle> outOfStockArticles = new List<OutOfStockArticle>();
         protected LocalizedDataGrid<OutOfStockArticle> outOfStockArticlesGrid;
-
+        protected Employee employee;
         #endregion
 
         #region Override
@@ -69,6 +66,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
             {
                 isLoadingInProgress = true;
                 Timers = TimerPreferenceService.Timers;
+                employee = await DashBoardService.FindByLoginUserIdAsync(Security.User.Id);
                 await InitializeGridTimers();
                 await GridData_Update();
             }
@@ -152,8 +150,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
                 isLoadingInProgress = true;
                 GridTimer.LastUpdate = DateTime.Now;
                 Console.WriteLine($"{GridTimer.LastUpdate}");
-                var detailInTransit = await DashBoardService.GetTransitDetailOrdersAsync(PendingStatusOrderId, search);
-                await UpdateItemsOutOfStockAsync(detailInTransit.ToList(), (await DashBoardService.GetAllOutOfStockReferences(search)).ToList());
+                await UpdateItemsOutOfStockAsync();
             }
             finally
             {
@@ -172,12 +169,14 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
             await GridData_Update();
         }
 
-        async Task UpdateItemsOutOfStockAsync(List<PurchaseOrderDetail> mydetailInTransit, List<ItemReference> itemReferences)
+        async Task UpdateItemsOutOfStockAsync(CancellationToken ct = default)
         {
             var originalData = await GetCache<OutOfStockArticle>("OutOfStockArticle");
-            outOfStockArticles = OutOfStockArticle.GetOutOfStockArticleList(itemReferences, mydetailInTransit);
+
+            outOfStockArticles = await DashBoardService.GetOutOfStockAlarmsAsync(employee.EmployeeId, search, ct);
+
             outOfStockAlertVisible = !outOfStockArticles.OrderBy(o => o.ArticleName).ToList().IsEqual<OutOfStockArticle>(originalData.OrderBy(o => o.ArticleName).ToList());
-            await UpdateCache<OutOfStockArticle>("OutOfStockArticle", outOfStockArticles);
+            await UpdateCache<OutOfStockArticle>("OutOfStockArticle", outOfStockArticles.ToList());
             if (outOfStockArticlesGrid != null)
                 await outOfStockArticlesGrid.Reload();
         }

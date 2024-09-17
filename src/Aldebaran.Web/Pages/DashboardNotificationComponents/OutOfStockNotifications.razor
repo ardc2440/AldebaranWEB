@@ -11,29 +11,29 @@
         </RadzenRow>
         <RadzenRow class="rz-m-1">
             <LocalizedDataGrid Style="height: 100%" PageSize="@pageSize" @ref="outOfStockArticlesGrid" AllowFiltering="true" AllowPaging="true"
-                               AllowSorting="true" ShowPagingSummary="true" Data="@outOfStockArticles" TItem="OutOfStockArticle" IsLoading="@(GridTimer.IsLoading || isLoadingInProgress)">
+                               AllowSorting="true" ShowPagingSummary="true" Data="@outOfStockArticles" TItem="Aldebaran.Application.Services.Models.OutOfStockArticle" IsLoading="@(GridTimer.IsLoading || isLoadingInProgress)">
                 <Columns>
-                    <RadzenDataGridColumn TItem="OutOfStockArticle" Property="ArticleName" Title="Referencia" Width="80%">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.OutOfStockArticle" Property="ArticleName" Title="Referencia" Width="80%">
                         <Template Context="detail">
                             <a href="javascript:;" title="@detail.ArticleName" @onclick="() => ReferenceMovementReport(detail.ReferenceId)">@detail.ArticleName</a>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="OutOfStockArticle" Title="Inventario" Width="30%" Filterable="false">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.OutOfStockArticle" Title="Inventario" Width="30%" Filterable="false">
                         <Template Context="detail">
                             @detail.AvailableQuantity.ToString("N0")
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="OutOfStockArticle" Title="En Tránsito" Width="30%" Filterable="false">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.OutOfStockArticle" Title="En Tránsito" Width="30%" Filterable="false">
                         <Template Context="detail">
                             @detail.InTransitQuantity.ToString("N0")
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="OutOfStockArticle" Title="Reservado" Width="30%" Filterable="false">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.OutOfStockArticle" Title="Reservado" Width="30%" Filterable="false">
                         <Template Context="detail">
                             @detail.ReservedQuantity.ToString("N0")
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="OutOfStockArticle" Title="Pedido" Width="30%" Filterable="false">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.OutOfStockArticle" Title="Pedido" Width="30%" Filterable="false">
                         <Template Context="detail">
                             @detail.OrderedQuantity.ToString("N0")
                         </Template>

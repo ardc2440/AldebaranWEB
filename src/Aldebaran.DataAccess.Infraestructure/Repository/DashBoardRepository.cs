@@ -16,81 +16,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             _SharedLocalizer = sharedLocalizer ?? throw new ArgumentNullException(nameof(ISharedStringLocalizer));
         }
 
-        public async Task<IEnumerable<PurchaseOrderDetail>> GetByReferenceIdAndStatusOrderAsync(int statusOrder, string? searchKey = null, int? referenceId = null, CancellationToken ct = default)
-        {
-            return await ExecuteQueryAsync(async dbContext =>
-            {
-                return await (string.IsNullOrEmpty(searchKey) ?
-                                dbContext.PurchaseOrderDetails.AsNoTracking()
-                                    .Include(p => p.PurchaseOrder)
-                                    .Include(p => p.ItemReference.Item.Line)
-                                    .Include(p => p.Warehouse)
-                                    .Where(p => (p.ReferenceId == referenceId || !referenceId.HasValue) && p.PurchaseOrder.StatusDocumentTypeId == statusOrder)
-                                    .ToListAsync(ct) :
-                                dbContext.PurchaseOrderDetails.AsNoTracking()
-                                    .Include(p => p.PurchaseOrder)
-                                    .Include(p => p.ItemReference.Item.Line)
-                                    .Include(p => p.Warehouse)
-                                    .Where(p => (p.ReferenceId == referenceId || !referenceId.HasValue) &&
-                                                p.PurchaseOrder.StatusDocumentTypeId == statusOrder &&
-                                                (p.ItemReference.Item.Line.LineCode.Contains(searchKey) ||
-                                                 p.ItemReference.Item.Line.LineName.Contains(searchKey) ||
-                                                 p.ItemReference.Item.InternalReference.Contains(searchKey) ||
-                                                 p.ItemReference.Item.ItemName.Contains(searchKey) ||
-                                                 p.ItemReference.ReferenceCode.Contains(searchKey) ||
-                                                 p.ItemReference.ReferenceName.Contains(searchKey)))
-                                    .ToListAsync(ct));
-            }, ct);
-        }
-
-        public async Task<IEnumerable<ItemReference>> GetAllReferencesWithMinimumQuantityAsync(string? searchKey = null, CancellationToken ct = default)
-        {
-            return await ExecuteQueryAsync(async dbContext =>
-            {
-                return await (string.IsNullOrEmpty(searchKey) ?
-                                dbContext.ItemReferences.AsNoTracking()
-                                    .Include(i => i.Item.Line)
-                                    .Where(i => i.InventoryQuantity <= i.AlarmMinimumQuantity && i.AlarmMinimumQuantity > 0 && i.IsActive && i.Item.IsActive)
-                                    .ToListAsync(ct) :
-                                dbContext.ItemReferences.AsNoTracking()
-                                    .Include(i => i.Item.Line)
-                                    .Where(i => i.InventoryQuantity <= i.AlarmMinimumQuantity && i.AlarmMinimumQuantity > 0 &&
-                                                i.IsActive && i.Item.IsActive &&
-                                                (i.Item.Line.LineCode.Contains(searchKey) ||
-                                                 i.Item.Line.LineName.Contains(searchKey) ||
-                                                 i.Item.InternalReference.Contains(searchKey) ||
-                                                 i.Item.ItemName.Contains(searchKey) ||
-                                                 i.ReferenceCode.Contains(searchKey) ||
-                                                 i.ReferenceName.Contains(searchKey)
-                                                 ))
-                                    .ToListAsync(ct));
-            }, ct);
-        }
-
-        public async Task<IEnumerable<ItemReference>> GetAllOutOfStockReferences(string? searchKey = null, CancellationToken ct = default)
-        {
-            return await ExecuteQueryAsync(async dbContext =>
-            {
-                return await (string.IsNullOrEmpty(searchKey) ?
-                                dbContext.ItemReferences.AsNoTracking()
-                                    .Include(i => i.Item.Line)
-                                    .Where(i => i.InventoryQuantity <= 0 && i.AlarmMinimumQuantity <= 0 && i.IsActive && i.Item.IsActive)
-                                    .ToListAsync(ct) :
-                                dbContext.ItemReferences.AsNoTracking()
-                                    .Include(i => i.Item.Line)
-                                    .Where(i => i.InventoryQuantity <= 0 && i.AlarmMinimumQuantity <= 0 &&
-                                                i.IsActive && i.Item.IsActive &&
-                                                (i.Item.Line.LineCode.Contains(searchKey) ||
-                                                 i.Item.Line.LineName.Contains(searchKey) ||
-                                                 i.Item.InternalReference.Contains(searchKey) ||
-                                                 i.Item.ItemName.Contains(searchKey) ||
-                                                 i.ReferenceCode.Contains(searchKey) ||
-                                                 i.ReferenceName.Contains(searchKey)
-                                                 ))
-                                    .ToListAsync(ct));
-            }, ct);
-        }
-
         public async Task<IEnumerable<CustomerReservation>> GetExpiredReservationsAsync(string? searchKey = null, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
@@ -155,7 +80,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                             .FirstOrDefaultAsync(f => f.LoginUserId == loginUserId, ct);
             }, ct);
         }
-
         public async Task<IEnumerable<PurchaseOrderTransitAlarm>> GetAllTransitAlarmAsync(int employeeId, string? searchKey = null, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
@@ -185,7 +109,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                                     .ToListAsync(ct));
             }, ct);
         }
-
         public async Task<IEnumerable<PurchaseOrder>> GetPurchaseOrderExpirationsAsync(int purchaseOrderWitheFlag, string? searchKey = null, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
@@ -215,7 +138,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                                     .ToListAsync(ct));
             }, ct);
         }
-
         public async Task<IEnumerable<CustomerOrder>> GetExpiredCustomerOrdersAsync(string? searchKey = null, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
@@ -244,7 +166,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                                     .ToListAsync(ct));
             }, ct);
         }
-
         public async Task<IEnumerable<NotificationWithError>> GetNotificationsWithError(string? searchKey = null, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
@@ -260,6 +181,52 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                         .FromSqlRaw($"EXEC SP_GET_NOTFICATIONS_WITH_SEND_ERROR " +
                         $"@SEARCHKEY",
                         search).ToListAsync(ct);
+                }
+            }, ct);
+        }
+        public async Task<IEnumerable<OutOfStockArticle>> GetOutOfStockAlarmsAsync(int employeeId, string? searchKey = null, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                var employee_Id = new SqlParameter("@EmployeeId", employeeId);
+
+                if (searchKey.IsNullOrEmpty())
+                    return await dbContext.Set<OutOfStockArticle>()
+                        .FromSqlRaw($"EXEC SP_GET_OUT_OF_STOCK_INVENTORY_ALARMS " +
+                        $"@EmployeeId",
+                        employee_Id).ToListAsync(ct);
+                else
+                {
+                    var search = new SqlParameter("@SEARCHKEY", searchKey);
+
+                    return await dbContext.Set<OutOfStockArticle>()
+                        .FromSqlRaw($"EXEC SP_GET_OUT_OF_STOCK_INVENTORY_ALARMS " +
+                        $"@EmployeeId, " +
+                        $"@SEARCHKEY ",
+                        employee_Id, search).ToListAsync(ct);
+                }
+            }, ct);
+        }
+        public async Task<IEnumerable<MinimumQuantityArticle>> GetMinimumQuantityAlarmsAsync(int employeeId, string? searchKey = null, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                var employee_Id = new SqlParameter("@EmployeeId", employeeId);
+
+                if (searchKey.IsNullOrEmpty())
+                    return await dbContext.Set<MinimumQuantityArticle>()
+                        .FromSqlRaw($"EXEC SP_GET_MINIMUM_QUANTITY_ALARMS " +
+                        $"@EmployeeId",
+                        employee_Id).ToListAsync(ct);
+                else
+                {
+                    var search = new SqlParameter("@SEARCHKEY", searchKey);
+
+                    return await dbContext.Set<MinimumQuantityArticle>()
+                        .FromSqlRaw($"EXEC SP_GET_MINIMUM_QUANTITY_ALARMS " +
+                        $"@EmployeeId, " +
+                        $"@SEARCHKEY ",
+                        employee_Id, search).ToListAsync(ct);
                 }
             }, ct);
         }

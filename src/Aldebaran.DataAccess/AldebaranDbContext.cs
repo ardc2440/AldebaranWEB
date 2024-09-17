@@ -225,6 +225,27 @@ namespace Aldebaran.DataAccess
                 iar.Property(x => x.NotificationDate).HasColumnName(@"NOTIFICATION_DATE").HasColumnType("DATETIME").IsRequired();
                 iar.Property(x => x.NotificationSendingErrorMessage).HasColumnName(@"NOTIFICATION_SENDING_ERROR_MESSAGE").HasColumnType("VARCHAR(MAX)").IsUnicode(false);
             });
+            modelBuilder.Entity<MinimumQuantityArticle>(iar =>
+            {
+                iar.HasNoKey();
+                iar.Property(x => x.ReferenceId).HasColumnName(@"ReferenceId").HasColumnType("INT").IsRequired();
+                iar.Property(x => x.ArticleName).HasColumnName(@"ArticleName").HasColumnType("VARCHAR(150)").IsUnicode(false).HasMaxLength(150).IsRequired();
+                iar.Property(x => x.InTransitQuantity).HasColumnName(@"InTransitQuantity").HasColumnType("INT").IsRequired();
+                iar.Property(x => x.AvailableQuantity).HasColumnName(@"AvailableQuantity").HasColumnType("INT").IsRequired();
+                iar.Property(x => x.OrderedQuantity).HasColumnName(@"OrderedQuantity").HasColumnType("INT").IsRequired();
+                iar.Property(x => x.ReservedQuantity).HasColumnName(@"ReservedQuantity").HasColumnType("INT").IsRequired();
+                iar.Property(x => x.MinimumQuantity).HasColumnName(@"MinimumQuantity").HasColumnType("INT").IsRequired();
+            });
+            modelBuilder.Entity<OutOfStockArticle>(iar =>
+            {
+                iar.HasNoKey();
+                iar.Property(x => x.ReferenceId).HasColumnName(@"ReferenceId").HasColumnType("INT").IsRequired();
+                iar.Property(x => x.ArticleName).HasColumnName(@"ArticleName").HasColumnType("VARCHAR(150)").IsUnicode(false).HasMaxLength(150).IsRequired();
+                iar.Property(x => x.InTransitQuantity).HasColumnName(@"InTransitQuantity").HasColumnType("INT").IsRequired();
+                iar.Property(x => x.AvailableQuantity).HasColumnName(@"AvailableQuantity").HasColumnType("INT").IsRequired();
+                iar.Property(x => x.OrderedQuantity).HasColumnName(@"OrderedQuantity").HasColumnType("INT").IsRequired();
+                iar.Property(x => x.ReservedQuantity).HasColumnName(@"ReservedQuantity").HasColumnType("INT").IsRequired();
+            });
             modelBuilder.Entity<PurchaseOrderVariation>(iar =>
             {
                 iar.HasNoKey();

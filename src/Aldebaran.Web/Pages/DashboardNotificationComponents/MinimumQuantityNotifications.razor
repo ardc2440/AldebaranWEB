@@ -11,34 +11,34 @@
         </RadzenRow>
         <RadzenRow class="rz-m-1">
             <LocalizedDataGrid PageSize="@pageSize" @ref="minimumQuantityArticlesGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true"
-                               ShowPagingSummary="true" Data="@minimumQuantityArticles" TItem="MinimumQuantityArticle" IsLoading="@(isLoadingInProgress||GridTimer.IsLoading)">
+                               ShowPagingSummary="true" Data="@minimumQuantityArticles" TItem="Aldebaran.Application.Services.Models.MinimumQuantityArticle" IsLoading="@(isLoadingInProgress||GridTimer.IsLoading)">
                 <Columns>
-                    <RadzenDataGridColumn TItem="MinimumQuantityArticle" Property="ArticleName" Title="Referencia" Width="80%">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.MinimumQuantityArticle" Property="ArticleName" Title="Referencia" Width="80%">
                         <Template Context="detail">
                             <a href="javascript:;" title="@detail.ArticleName" @onclick="() => ReferenceMovementReport(detail.ReferenceId)">@detail.ArticleName</a>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="MinimumQuantityArticle" Title="Cant. Mínima" Width="30%" Filterable="false">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.MinimumQuantityArticle" Title="Cant. Mínima" Width="30%" Filterable="false">
                         <Template Context="detail">
                             @detail.MinimumQuantity.ToString("N0")
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="MinimumQuantityArticle" Title="Inventario" Width="30%" Filterable="false">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.MinimumQuantityArticle" Title="Inventario" Width="30%" Filterable="false">
                         <Template Context="detail">
                             @detail.AvailableQuantity.ToString("N0")
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="MinimumQuantityArticle" Title="En Tránsito" Width="30%" Filterable="false">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.MinimumQuantityArticle" Title="En Tránsito" Width="30%" Filterable="false">
                         <Template Context="detail">
                             @detail.InTransitQuantity.ToString("N0")
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="MinimumQuantityArticle" Title="Reservado" Width="30%" Filterable="false">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.MinimumQuantityArticle" Title="Reservado" Width="30%" Filterable="false">
                         <Template Context="detail">
                             @detail.ReservedQuantity.ToString("N0")
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="MinimumQuantityArticle" Title="Pedido" Width="30%" Filterable="false">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.MinimumQuantityArticle" Title="Pedido" Width="30%" Filterable="false">
                         <Template Context="detail">
                             @detail.OrderedQuantity.ToString("N0")
                         </Template>

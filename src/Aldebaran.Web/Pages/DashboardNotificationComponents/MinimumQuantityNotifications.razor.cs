@@ -1,7 +1,6 @@
 ﻿using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Infraestructure.Common.Extensions;
-using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Pages.ReportPages.Reference_Movement;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Utils;
@@ -34,10 +33,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
 
         [Inject]
         protected NotificationService NotificationService { get; set; }
-
-        [Inject]
-        protected ICacheHelper CacheHelper { get; set; }
-
+        
         [Inject]
         protected DialogService DialogService { get; set; }
 
@@ -55,8 +51,9 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         readonly GridTimer GridTimer = new GridTimer("MinimumQuantity-GridTimer");
         List<DataTimer> Timers;
         protected string search = "";
+        protected Employee employee;
 
-        protected List<MinimumQuantityArticle> minimumQuantityArticles = new List<MinimumQuantityArticle>();
+        protected IEnumerable<MinimumQuantityArticle> minimumQuantityArticles = new List<MinimumQuantityArticle>();
         protected LocalizedDataGrid<MinimumQuantityArticle> minimumQuantityArticlesGrid;
 
         #endregion
@@ -68,6 +65,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
             {
                 isLoadingInProgress = true;
                 Timers = TimerPreferenceService.Timers;
+                employee = await DashBoardService.FindByLoginUserIdAsync(Security.User.Id);
                 await InitializeGridTimers();
                 await GridData_Update();
             }
@@ -150,10 +148,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
                 isLoadingInProgress = true;
                 GridTimer.LastUpdate = DateTime.Now;
                 Console.WriteLine($"{GridTimer.LastUpdate}");
-
-                var detailInTransit = await DashBoardService.GetTransitDetailOrdersAsync(PendingStatusOrderId, search);
-
-                await UpdateMinimumQuantitiesAsync(detailInTransit.ToList(), (await DashBoardService.GetAllReferencesWithMinimumQuantityAsync(search)).ToList());
+                await UpdateMinimumQuantitiesAsync();
             }
             finally
             {
@@ -172,13 +167,13 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
             await GridData_Update();
         }
 
-        async Task UpdateMinimumQuantitiesAsync(List<PurchaseOrderDetail> referencesInTransit, List<ItemReference> references)
+        async Task UpdateMinimumQuantitiesAsync(CancellationToken ct = default)
         {
             var originalData = await GetCache<MinimumQuantityArticle>("MinimumQuantityArticle");
 
-            minimumQuantityArticles = MinimumQuantityArticle.GetMinimuQuantityArticleList(references, referencesInTransit);
+            minimumQuantityArticles = await DashBoardService.GetMinimumQuantityAlarmsAsync(employee.EmployeeId, search, ct);
             minimumAlertVisible = !minimumQuantityArticles.OrderBy(o => o.ArticleName).ToList().IsEqual<MinimumQuantityArticle>(originalData.OrderBy(o => o.ArticleName).ToList());
-            await UpdateCache<MinimumQuantityArticle>("MinimumQuantityArticle", minimumQuantityArticles);
+            await UpdateCache<MinimumQuantityArticle>("MinimumQuantityArticle", minimumQuantityArticles.ToList());
             if (minimumQuantityArticlesGrid != null)
                 await minimumQuantityArticlesGrid.Reload();
         }
