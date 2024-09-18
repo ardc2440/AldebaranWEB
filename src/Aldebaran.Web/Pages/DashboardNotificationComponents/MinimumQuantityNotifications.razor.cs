@@ -1,5 +1,6 @@
 ﻿using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
+using Aldebaran.Application.Services.Services;
 using Aldebaran.Infraestructure.Common.Extensions;
 using Aldebaran.Web.Pages.ReportPages.Reference_Movement;
 using Aldebaran.Web.Resources.LocalizedControls;
@@ -37,6 +38,11 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         [Inject]
         protected DialogService DialogService { get; set; }
 
+        [Inject]
+        protected IVisualizedMinimumQuantityAlarmService VisualizedMinimumQuantityAlarmService { get; set; }
+
+        [Inject]
+        protected TooltipService TooltipService { get; set; }
         #endregion
 
         #region Parameters
@@ -188,6 +194,20 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
             var result = await DialogService.OpenAsync<ReferenceMovementReport>("Reporte de movimientos de artículos", parameters: new Dictionary<string, object> { { "ReferenceId", referenceId }, { "IsModal", true } }, options: new DialogOptions { Width = "80%", ContentCssClass = "pt-0" });
             if (result == null)
                 return;
+        }
+
+        void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
+
+        protected async Task DisableAlarm(MinimumQuantityArticle args)
+        {
+            var alertVisible = minimumAlertVisible;
+
+            if (await DialogService.Confirm("Desea marcar esta alarma como leída?. No volverá a salir en su Home", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Marcar alarma leída") == true)
+            {
+                await VisualizedMinimumQuantityAlarmService.AddAsync(new VisualizedMinimumQuantityAlarm { MinimumQuantityAlarmId = args.AlarmId, EmployeeId = employee.EmployeeId });
+                await UpdateMinimumQuantitiesAsync();
+                minimumAlertVisible = alertVisible;
+            }
         }
         #endregion
     }

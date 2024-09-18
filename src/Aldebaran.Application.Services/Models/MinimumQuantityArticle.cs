@@ -2,6 +2,7 @@
 {
     public class MinimumQuantityArticle
     {
+        public int AlarmId { get; set; }
         public int ReferenceId { get; set; }
         public required string ArticleName { get; set; }
         public int MinimumQuantity { get; set; }

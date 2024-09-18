@@ -101,6 +101,8 @@ namespace Aldebaran.DataAccess
         public DbSet<CustomerOrderNotification> CustomerOrderNotifications { get; set; }
         public DbSet<CustomerReservationNotification> CustomerReservationNotifications { get; set; }
         public virtual DbSet<Track> Tracks { get; set; }
+        public DbSet<VisualizedMinimumQuantityAlarm> VisualizedMinimumQuantityAlarms { get; set; }
+        public DbSet<VisualizedOutOfStockInventoryAlarm> VisualizedOutOfStockInventoryAlarms { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -188,6 +190,8 @@ namespace Aldebaran.DataAccess
             modelBuilder.ApplyConfiguration(new VisualizedPurchaseOrderTransitAlarmConfiguration());
             modelBuilder.ApplyConfiguration(new CustomerOrderNotificationConfiguration());
             modelBuilder.ApplyConfiguration(new CustomerReservationNotificationConfiguration());
+            modelBuilder.ApplyConfiguration(new VisualizedMinimumQuantityAlarmConfiguration());
+            modelBuilder.ApplyConfiguration(new VisualizedOutOfStockInventoryAlarmConfiguration());
 
             modelBuilder.Entity<InventoryAdjustmentReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<InProcessInventoryReport>(iar => { iar.HasNoKey(); });
@@ -228,6 +232,7 @@ namespace Aldebaran.DataAccess
             modelBuilder.Entity<MinimumQuantityArticle>(iar =>
             {
                 iar.HasNoKey();
+                iar.Property(x => x.AlarmId).HasColumnName(@"AlarmId").HasColumnType("INT").IsRequired();
                 iar.Property(x => x.ReferenceId).HasColumnName(@"ReferenceId").HasColumnType("INT").IsRequired();
                 iar.Property(x => x.ArticleName).HasColumnName(@"ArticleName").HasColumnType("VARCHAR(150)").IsUnicode(false).HasMaxLength(150).IsRequired();
                 iar.Property(x => x.InTransitQuantity).HasColumnName(@"InTransitQuantity").HasColumnType("INT").IsRequired();
@@ -239,6 +244,7 @@ namespace Aldebaran.DataAccess
             modelBuilder.Entity<OutOfStockArticle>(iar =>
             {
                 iar.HasNoKey();
+                iar.Property(x => x.AlarmId).HasColumnName(@"AlarmId").HasColumnType("INT").IsRequired();
                 iar.Property(x => x.ReferenceId).HasColumnName(@"ReferenceId").HasColumnType("INT").IsRequired();
                 iar.Property(x => x.ArticleName).HasColumnName(@"ArticleName").HasColumnType("VARCHAR(150)").IsUnicode(false).HasMaxLength(150).IsRequired();
                 iar.Property(x => x.InTransitQuantity).HasColumnName(@"InTransitQuantity").HasColumnType("INT").IsRequired();

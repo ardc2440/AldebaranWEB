@@ -105,6 +105,9 @@ namespace Aldebaran.Application.Services.Mappings
             CreateMap<PurchaseOrderVariation, Entities.PurchaseOrderVariation>().ReverseMap();
             CreateMap<MinimumQuantityArticle, Entities.MinimumQuantityArticle>().ReverseMap();
             CreateMap<OutOfStockArticle, Entities.OutOfStockArticle>().ReverseMap();
+            CreateMap<VisualizedMinimumQuantityAlarm, Entities.VisualizedMinimumQuantityAlarm>().ReverseMap();
+            CreateMap<VisualizedOutOfStockInventoryAlarm, Entities.VisualizedOutOfStockInventoryAlarm>().ReverseMap();
+
         }
     }
 }
