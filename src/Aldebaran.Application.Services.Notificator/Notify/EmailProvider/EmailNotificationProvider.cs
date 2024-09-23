@@ -69,8 +69,13 @@ namespace Aldebaran.Application.Services.Notificator.EmailProvider
             if (string.IsNullOrEmpty(body))
                 throw new ArgumentException("Message cannot be null or empty");
             var to = message.Header.ReceiverUrn;
-            var cc = message.Header.ReceiverUrnCc;
-            var bcc = message.Header.ReceiverUrnBcc;
+            var cc = message.Header.ReceiverUrnCc;            
+
+            var bcc = message.Header.ReceiverUrnBcc == null ? Array.Empty<string>() : message.Header.ReceiverUrnCc; ;
+            
+            Array.Resize(ref bcc, bcc.Length + 1); // Aumenta el tamaño del array en 1
+            bcc[bcc.Length - 1] = "pedidos@catalogospromocionales.com";
+            
             var attachments = message.Body.Medias?.Select(s => new Models.Attachment() { ContentType = s.ContentType, FileName = s.FileName, Hash = s.Hash }).ToArray();
 
             await _emailService.SendAsync(subject,
