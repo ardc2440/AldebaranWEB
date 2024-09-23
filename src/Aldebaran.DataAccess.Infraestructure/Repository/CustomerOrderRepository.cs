@@ -161,8 +161,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 {
                     CustomerOrderId = customerOrderId,
                     ModificationReasonId = reason.ReasonId,
-                    EmployeeId = reason.EmployeeId,
-                    ModificationDate = reason.Date
+                    EmployeeId = reason.EmployeeId
                 };
                 try
                 {
@@ -188,8 +187,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 {
                     CustomerOrderId = customerOrderId,
                     CancellationReasonId = reason.ReasonId,
-                    EmployeeId = reason.EmployeeId,
-                    CancellationDate = reason.Date
+                    EmployeeId = reason.EmployeeId
                 };
 
                 var alarms = await (from a in dbContext.Alarms
@@ -229,8 +227,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 {
                     CustomerOrderId = customerOrderId,
                     CloseCustomerOrderReasonId = reason.ReasonId,
-                    EmployeeId = reason.EmployeeId,
-                    CloseDate = reason.Date
+                    EmployeeId = reason.EmployeeId
                 };
 
                 var alarms = await (from a in dbContext.Alarms
