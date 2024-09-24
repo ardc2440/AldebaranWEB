@@ -8,7 +8,7 @@
             <RadzenColumn Size="8">
                 @if (CustomerOrder != null)
                 {
-                    <RadzenCard style="max-height:350px; overflow-y:auto">
+                    <RadzenCard style="max-height:400px; overflow-y:auto">
                         <div id="customer-order-summary">
                             <div class="report">
                                 <h2>Pedido</h2>
@@ -29,7 +29,8 @@
                                             </td>
                                         </tr>
                                         <tr class="border border-bottom-0 emphasys">
-                                            <td colspan="4">Pedido: @CustomerOrder.OrderNumber</td>                                            
+                                            <td colspan="2">Pedido: @CustomerOrder.OrderNumber</td>
+                                            <td colspan="2">Fecha de Creación: @CustomerOrder.CreationDate.ToString(SharedLocalizer["datetime:format"])</td>
                                         </tr>
                                         <tr class="border border-top-0 emphasys">
                                             <td colspan="2">Fecha de pedido: @CustomerOrder.OrderDate.ToString(SharedLocalizer["date:format"])</td>
