@@ -26,7 +26,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                                     .Include(i => i.Customer.IdentityType)
                                     .Include(i => i.StatusDocumentType.DocumentType)
                                     .Include(i => i.Employee.IdentityType)
-                                    .Where(i => i.ExpirationDate.Date <= DateTime.Today && i.StatusDocumentType.StatusOrder == 1)
+                                    .Where(i => i.ExpirationDate.Date == DateTime.Today && i.StatusDocumentType.StatusOrder == 4)
                                     .ToListAsync(ct) :
                                 dbContext.CustomerReservations.AsNoTracking()
                                     .Include(i => i.Customer.City.Department.Country)
