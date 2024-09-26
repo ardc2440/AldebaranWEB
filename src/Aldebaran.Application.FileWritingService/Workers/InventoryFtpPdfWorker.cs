@@ -78,7 +78,7 @@ namespace Aldebaran.Application.FileWritingService.Workers
         }
         async Task<string> GetTemplateHtmlAsync(CancellationToken ct)
         {
-            var data = await inventoryReportRepository.GetInventoryReportDataAsync("", ct);
+            var data = await inventoryReportRepository.GetInventoryReportDataAsync("2094,2095,2096,2097", ct);
             var dLines = data.Select(s => new { s.LineId, s.LineName }).DistinctBy(d => d.LineId).OrderBy(o => o.LineName);
             var model = new InventoryPdfViewModel
             {
@@ -105,7 +105,7 @@ namespace Aldebaran.Application.FileWritingService.Workers
                                         FreeZone = reference.FreeZone,
                                         PurchaseOrders = purchaseOrdersByReference.Select(purchaseOrder =>
                                         {
-                                            var activitiesByPurchaseOrder = data.Where(w => w.PurchaseOrderId == purchaseOrder.PurchaseOrderId && w.Description != null && w.Description.Trim().Length > 0);
+                                            var activitiesByPurchaseOrder = data.Where(w => w.ReferenceId == reference.ReferenceId && w.PurchaseOrderId == purchaseOrder.PurchaseOrderId && w.Description != null && w.Description.Trim().Length > 0);
                                             return new InventoryPdfViewModel.PurchaseOrder
                                             {
                                                 Date = purchaseOrder.OrderDate,
