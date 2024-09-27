@@ -17,9 +17,6 @@ namespace Aldebaran.DataAccess
     {
         public Dictionary<string, bool> Events = new();
         private readonly IContextConfiguration _configuration;
-        public AldebaranDbContext()
-        {
-        }
         public AldebaranDbContext(DbContextOptions<AldebaranDbContext> options, IContextConfiguration contextConfiguration)
             : base(options)
         {

@@ -1,4 +1,5 @@
-﻿using Aldebaran.Application.FileWritingService.Workers;
+﻿using Aldebaran.Application.FileWritingService.Settings;
+using Aldebaran.Application.FileWritingService.Workers;
 using Aldebaran.DataAccess;
 using Aldebaran.DataAccess.Infraestructure.Repository.Reports;
 using Aldebaran.Infraestructure.Common.Utils;
@@ -29,6 +30,7 @@ services.Configure<FtpSettings>(configuration.GetSection("FtpSettings"));
 var logDbConnection = configuration.GetConnectionString("LogDbConnection") ?? throw new KeyNotFoundException("LogDbConnection");
 var dbConnection = configuration.GetConnectionString("AldebaranDbConnection") ?? throw new KeyNotFoundException("AldebaranDbConnection");
 services.AddDbContext<AldebaranDbContext>(options => { options.UseSqlServer(dbConnection); }, ServiceLifetime.Transient, ServiceLifetime.Transient);
+services.AddScoped<IContextConfiguration, ContextConfiguration>();
 
 // Logging
 builder.Logging.ClearProviders();
@@ -53,7 +55,7 @@ Log.Logger = new LoggerConfiguration()
 
 // HostedServices
 services.AddHostedService<InventoryFtpPdfWorker>();
-services.AddHostedService<InventoryFtpExcelWorker>();
+//services.AddHostedService<InventoryFtpExcelWorker>();
 services.AddTransient<IInventoryReportRepository, InventoryReportRepository>();
 services.AddTransient<IFileBytesGeneratorService, FileBytesGeneratorService>();
 services.AddTransient<IFtpClient, FtpClient>();
