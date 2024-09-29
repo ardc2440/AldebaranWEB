@@ -78,7 +78,7 @@ namespace Aldebaran.Application.FileWritingService.Workers
         }
         async Task<string> GetTemplateHtmlAsync(CancellationToken ct)
         {
-            var data = await inventoryReportRepository.GetInventoryReportDataAsync("2094,2095,2096,2097", ct);
+            var data = await inventoryReportRepository.GetInventoryReportDataAsync("", ct);
             var dLines = data.Select(s => new { s.LineId, s.LineName }).DistinctBy(d => d.LineId).OrderBy(o => o.LineName);
             var model = new InventoryPdfViewModel
             {

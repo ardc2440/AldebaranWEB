@@ -55,7 +55,7 @@ Log.Logger = new LoggerConfiguration()
 
 // HostedServices
 services.AddHostedService<InventoryFtpPdfWorker>();
-//services.AddHostedService<InventoryFtpExcelWorker>();
+services.AddHostedService<InventoryFtpExcelWorker>();
 services.AddTransient<IInventoryReportRepository, InventoryReportRepository>();
 services.AddTransient<IFileBytesGeneratorService, FileBytesGeneratorService>();
 services.AddTransient<IFtpClient, FtpClient>();
