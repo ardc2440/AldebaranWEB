@@ -139,7 +139,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Transfers
                 filters.Add($"@AdjustmentDateTo = '{filter.AdjustmentDate.EndDate.Value:yyyyMMdd}'");
 
             if (!string.IsNullOrEmpty(filter.NationalizationNumber))
-                filters.Add($"@NationalizationNumber = {filter.NationalizationNumber.Trim()}");
+                filters.Add($"@NationalizationNumber = '{filter.NationalizationNumber.Trim()}'");
 
             if (filter.StatusDocumentTypeId.HasValue)
                 filters.Add($"@StatusId = {filter.StatusDocumentTypeId}");
