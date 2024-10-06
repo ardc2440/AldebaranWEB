@@ -46,17 +46,13 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         #endregion
 
         #region Parameters
-        [Parameter]
-        public bool IsModal { get; set; } = false;
-
-        [Parameter]
-        public int PendingStatusOrderId { get; set; }
+        [Parameter] public EventCallback<(int, bool)> OnAlertVisibleChanged { get; set; }
         #endregion
 
         #region Variables
         protected bool isLoadingInProgress;
         protected bool outOfStockAlertVisible = false;
-        protected int pageSize = 7;
+        protected int pageSize = 10;
         readonly GridTimer GridTimer = new GridTimer("OutOfStock-GridTimer");
         List<DataTimer> Timers;
         protected string search = "";
@@ -182,15 +178,16 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
 
             outOfStockArticles = await DashBoardService.GetOutOfStockAlarmsAsync(employee.EmployeeId, search, ct);
 
-            outOfStockAlertVisible = !outOfStockArticles.OrderBy(o => o.ArticleName).ToList().IsEqual<OutOfStockArticle>(originalData.OrderBy(o => o.ArticleName).ToList());
+            await AlertVisibleChange(!outOfStockArticles.OrderBy(o => o.ArticleName).ToList().IsEqual<OutOfStockArticle>(originalData.OrderBy(o => o.ArticleName).ToList()));
             await UpdateCache<OutOfStockArticle>("OutOfStockArticle", outOfStockArticles.ToList());
             if (outOfStockArticlesGrid != null)
                 await outOfStockArticlesGrid.Reload();
         }
 
-        private void HandleBoolChange(bool newValue)
+        private async Task AlertVisibleChange(bool value)
         {
-            outOfStockAlertVisible = newValue;
+            outOfStockAlertVisible = value;
+            await OnAlertVisibleChanged.InvokeAsync((2, outOfStockAlertVisible));
         }
 
         async Task ReferenceMovementReport(int referenceId)
@@ -210,7 +207,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
             {
                 await VisualizedOutOfStockInventoryAlarmService.AddAsync(new VisualizedOutOfStockInventoryAlarm { OutOfStockInventoryAlarmId = args.AlarmId, EmployeeId = employee.EmployeeId });
                 await UpdateItemsOutOfStockAsync();
-                outOfStockAlertVisible = alertVisible;
+                await AlertVisibleChange(alertVisible);
             }
         }
         #endregion

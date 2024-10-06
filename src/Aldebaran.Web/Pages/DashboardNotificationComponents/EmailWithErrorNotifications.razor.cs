@@ -45,14 +45,13 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         #endregion
 
         #region Parameters
-        [Parameter]
-        public bool IsModal { get; set; } = false;
+        [Parameter] public EventCallback<(int, bool)> OnAlertVisibleChanged { get; set; }
         #endregion
 
         #region Variables
         protected bool isLoadingInProgress;
         protected bool emailNotificationsAlertVisible = false;
-        protected int pageSize = 7;
+        protected int pageSize = 10;
         readonly GridTimer GridTimer = new GridTimer("EmailErrors-GridTimer");
         List<DataTimer> Timers;
         protected string search = "";
@@ -176,7 +175,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
             var originalData = await GetCache<NotificationWithError>("NotificationWithError");
 
             notificationsWithError = (await DashBoardService.GetNotificationsWithError(search, ct)).ToList();
-            emailNotificationsAlertVisible = !notificationsWithError.OrderBy(o => o.NotificationDate).ToList().IsEqual<NotificationWithError>(originalData.OrderBy(o => o.NotificationDate).ToList());
+            await AlertVisibleChange(!notificationsWithError.OrderBy(o => o.NotificationDate).ToList().IsEqual<NotificationWithError>(originalData.OrderBy(o => o.NotificationDate).ToList()));
             await UpdateCache<NotificationWithError>("NotificationWithError", notificationsWithError.ToList());
             if (notificationsWithErrorGrid != null)
                 await notificationsWithErrorGrid.Reload();
@@ -190,13 +189,14 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
             {
                 await ResendEmailFromError(EmailType, EmailId, NavigationManager.BaseUri, ct);
                 await UpdateMailErrorNotificationsAsync(ct);
-                emailNotificationsAlertVisible = alertVisible;
+                await AlertVisibleChange(alertVisible);
             }
         }
 
-        private void HandleBoolChange(bool newValue)
+        private async Task AlertVisibleChange(bool value)
         {
-            emailNotificationsAlertVisible = newValue;
+            emailNotificationsAlertVisible = value;
+            await OnAlertVisibleChanged.InvokeAsync((8, emailNotificationsAlertVisible));
         }
 
         #region EmailResernd

@@ -48,17 +48,13 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         #endregion
 
         #region Parameters
-        [Parameter]
-        public bool IsModal { get; set; } = false;
-
-        [Parameter]
-        public int PendingStatusOrderId { get; set; }
+        [Parameter] public EventCallback<(int, bool)> OnAlertVisibleChanged { get; set; }
         #endregion
 
         #region Variables
         protected bool isLoadingInProgress;
         protected bool expiredReservationsAlertVisible = false;
-        protected int pageSize = 7;
+        protected int pageSize = 10;
         readonly GridTimer GridTimer = new GridTimer("ExpiredReservations-GridTimer");
         List<DataTimer> Timers;
         protected string search = "";
@@ -185,7 +181,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
             var originalData = await GetCache<CustomerReservation>("CustomerReservation");
 
             expiredReservations = (await DashBoardService.GetExpiredReservationsAsync(search, ct)).ToList();
-            expiredReservationsAlertVisible = !expiredReservations.OrderBy(o => o.CustomerReservationId).ToList().IsEqual<CustomerReservation>(originalData.OrderBy(o => o.CustomerReservationId).ToList());
+            await AlertVisibleChange(!expiredReservations.OrderBy(o => o.CustomerReservationId).ToList().IsEqual<CustomerReservation>(originalData.OrderBy(o => o.CustomerReservationId).ToList()));
             await UpdateCache<CustomerReservation>("CustomerReservation", expiredReservations);
             if (expiredReservationsGrid != null)
                 await expiredReservationsGrid.Reload();
@@ -198,9 +194,10 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
                 return;
         }
 
-        private void HandleBoolChange(bool newValue)
+        private async Task AlertVisibleChange(bool value)
         {
-            expiredReservationsAlertVisible = newValue;
+            expiredReservationsAlertVisible = value;
+            await OnAlertVisibleChanged.InvokeAsync((4, expiredReservationsAlertVisible));
         }
         #endregion
     }

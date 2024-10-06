@@ -41,15 +41,14 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
 
         #endregion
 
-        #region Parameters
-        [Parameter]
-        public bool IsModal { get; set; } = false;
+        #region Parameters        
+        [Parameter] public EventCallback<(int, bool)> OnAlertVisibleChanged { get; set; }
         #endregion
 
         #region Variables
         protected bool isLoadingInProgress;
         protected bool expiredCustomerOrdersAlertVisible = false;
-        protected int pageSize = 7;
+        protected int pageSize = 10;
         readonly GridTimer GridTimer = new GridTimer("ExpiredCustomerOrders-GridTimer");
         List<DataTimer> Timers;
         protected string search = "";
@@ -173,7 +172,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
             var originalData = await GetCache<CustomerOrder>("CustomerOrder");
 
             expiredCustomerOrders = (await DashBoardService.GetExpiredCustomerOrdersAsync(search, ct)).ToList();
-            expiredCustomerOrdersAlertVisible = !expiredCustomerOrders.OrderBy(o => o.CustomerOrderId).ToList().IsEqual<CustomerOrder>(originalData.OrderBy(o => o.CustomerOrderId).ToList());
+            await AlertVisibleChange(!expiredCustomerOrders.OrderBy(o => o.CustomerOrderId).ToList().IsEqual<CustomerOrder>(originalData.OrderBy(o => o.CustomerOrderId).ToList()));
             await UpdateCache<CustomerOrder>("CustomerOrder", expiredCustomerOrders.ToList());
             if (expiredCustomerOrdersGrid != null)
                 await expiredCustomerOrdersGrid.Reload();
@@ -186,9 +185,10 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
                 return;
         }
 
-        private void HandleBoolChange(bool newValue)
+        private async Task AlertVisibleChange(bool value)
         {
-            expiredCustomerOrdersAlertVisible = newValue;
+            expiredCustomerOrdersAlertVisible = value;
+            await OnAlertVisibleChanged.InvokeAsync((5, expiredCustomerOrdersAlertVisible));
         }
         #endregion
     }

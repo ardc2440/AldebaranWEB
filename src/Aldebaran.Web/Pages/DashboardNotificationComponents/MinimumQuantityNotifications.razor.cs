@@ -5,6 +5,7 @@ using Aldebaran.Infraestructure.Common.Extensions;
 using Aldebaran.Web.Pages.ReportPages.Reference_Movement;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Utils;
+using DocumentFormat.OpenXml.VariantTypes;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Caching.Memory;
 using Radzen;
@@ -46,14 +47,14 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         #endregion
 
         #region Parameters
-        [Parameter]
-        public int PendingStatusOrderId { get; set; }
+        [Parameter] public EventCallback<(int, bool)> OnAlertVisibleChanged { get; set; }
+
         #endregion
 
         #region Variables
         protected bool isLoadingInProgress;
         protected bool minimumAlertVisible = false;
-        protected int pageSize = 7;
+        protected int pageSize = 10;
         readonly GridTimer GridTimer = new GridTimer("MinimumQuantity-GridTimer");
         List<DataTimer> Timers;
         protected string search = "";
@@ -178,15 +179,16 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
             var originalData = await GetCache<MinimumQuantityArticle>("MinimumQuantityArticle");
 
             minimumQuantityArticles = await DashBoardService.GetMinimumQuantityAlarmsAsync(employee.EmployeeId, search, ct);
-            minimumAlertVisible = !minimumQuantityArticles.OrderBy(o => o.ArticleName).ToList().IsEqual<MinimumQuantityArticle>(originalData.OrderBy(o => o.ArticleName).ToList());
+            await AlertVisibleChange(!minimumQuantityArticles.OrderBy(o => o.ArticleName).ToList().IsEqual<MinimumQuantityArticle>(originalData.OrderBy(o => o.ArticleName).ToList()));
             await UpdateCache<MinimumQuantityArticle>("MinimumQuantityArticle", minimumQuantityArticles.ToList());
             if (minimumQuantityArticlesGrid != null)
                 await minimumQuantityArticlesGrid.Reload();
         }
 
-        private void HandleBoolChange(bool newValue)
+        private async Task AlertVisibleChange(bool value)
         {
-            minimumAlertVisible = newValue;
+            minimumAlertVisible = value;
+            await OnAlertVisibleChanged.InvokeAsync((1, minimumAlertVisible));
         }
 
         async Task ReferenceMovementReport(int referenceId)
@@ -206,7 +208,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
             {
                 await VisualizedMinimumQuantityAlarmService.AddAsync(new VisualizedMinimumQuantityAlarm { MinimumQuantityAlarmId = args.AlarmId, EmployeeId = employee.EmployeeId });
                 await UpdateMinimumQuantitiesAsync();
-                minimumAlertVisible = alertVisible;
+                await AlertVisibleChange(alertVisible);
             }
         }
         #endregion

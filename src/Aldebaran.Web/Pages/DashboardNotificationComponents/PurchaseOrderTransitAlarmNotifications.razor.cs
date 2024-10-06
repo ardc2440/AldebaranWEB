@@ -54,14 +54,13 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         #endregion
 
         #region Parameters
-        [Parameter]
-        public bool IsModal { get; set; } = false;
+        [Parameter] public EventCallback<(int, bool)> OnAlertVisibleChanged { get; set; }
         #endregion
 
         #region Variables
         protected bool isLoadingInProgress;
         protected bool purchaseAlarmsAlertVisible = false;
-        protected int pageSize = 7;
+        protected int pageSize = 10;
         protected Employee employee;
         readonly GridTimer GridTimer = new GridTimer("ExpiredReservations-GridTimer");
         List<DataTimer> Timers;
@@ -192,7 +191,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
             var originalData = await GetCache<PurchaseOrderTransitAlarm>("PurchaseOrderTransitAlarm");
 
             purchaseOrderTransitAlarms = await DashBoardService.GetAllTransitAlarmAsync(employee.EmployeeId, search, ct);
-            purchaseAlarmsAlertVisible = !purchaseOrderTransitAlarms.OrderBy(o => o.PurchaseOrderTransitAlarmId).ToList().IsEqual<PurchaseOrderTransitAlarm>(originalData.OrderBy(o => o.PurchaseOrderTransitAlarmId).ToList());
+            await AlertVisibleChange(!purchaseOrderTransitAlarms.OrderBy(o => o.PurchaseOrderTransitAlarmId).ToList().IsEqual<PurchaseOrderTransitAlarm>(originalData.OrderBy(o => o.PurchaseOrderTransitAlarmId).ToList()));
             await UpdateCache<PurchaseOrderTransitAlarm>("PurchaseOrderTransitAlarm", purchaseOrderTransitAlarms.ToList());
             if (purchaseOrderTransitAlarmsGrid != null)
                 await purchaseOrderTransitAlarmsGrid.Reload();
@@ -205,7 +204,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
             {
                 await VisualizedPurchaseOrderTransitAlarmService.AddAsync(new VisualizedPurchaseOrderTransitAlarm { PurchaseOrderTransitAlarmId = args.PurchaseOrderTransitAlarmId, EmployeeId = employee.EmployeeId, VisualizedDate = System.DateTime.Now });
                 await UpdatePurchaseOrderTransitAlarmsAsync();
-                purchaseAlarmsAlertVisible = alarmVisible;
+                await AlertVisibleChange(alarmVisible);
             }
         }
 
@@ -226,9 +225,10 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
                 return;
         }
 
-        private void HandleBoolChange(bool newValue)
+        private async Task AlertVisibleChange(bool value)
         {
-            purchaseAlarmsAlertVisible = newValue;
+            purchaseAlarmsAlertVisible = value;
+            await OnAlertVisibleChanged.InvokeAsync((7, purchaseAlarmsAlertVisible));
         }
         #endregion
     }

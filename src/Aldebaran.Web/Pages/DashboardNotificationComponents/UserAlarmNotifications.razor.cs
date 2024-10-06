@@ -51,15 +51,14 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         #endregion
 
         #region Parameters
-        [Parameter]
-        public bool IsModal { get; set; } = false;
+        [Parameter] public EventCallback<(int, bool)> OnAlertVisibleChanged { get; set; }
         #endregion
 
         #region Variables
         protected bool isLoadingInProgress;
         protected bool alarmsAlertVisible = false;
         protected Employee employee;
-        protected int pageSize = 7;
+        protected int pageSize = 10;
         readonly GridTimer GridTimer = new GridTimer("UserAlarms-GridTimer");
         List<DataTimer> Timers;
         protected string search = "";
@@ -191,7 +190,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
                                            w.DocumentTypeName.Contains(search) ||
                                            w.DocumentNumber.Contains(search)).ToList();
 
-            alarmsAlertVisible = !alarms.OrderBy(o => o.AlarmId).ToList().IsEqual<Models.ViewModels.Alarm>(originalData.OrderBy(o => o.AlarmId).ToList());
+            await AlertVisibleChange(!alarms.OrderBy(o => o.AlarmId).ToList().IsEqual<Models.ViewModels.Alarm>(originalData.OrderBy(o => o.AlarmId).ToList()));
             await UpdateCache<Models.ViewModels.Alarm>("Alarm", alarms);
             if (alarmsGrid != null)
                 await alarmsGrid.Reload();
@@ -205,15 +204,16 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
             {
                 await VisualizedAlarmService.AddAsync(new VisualizedAlarm { AlarmId = args.AlarmId, EmployeeId = employee.EmployeeId });
                 await UpdateUserAlarmsAsync();
-                alarmsAlertVisible = alertVisible;
+                await AlertVisibleChange(alertVisible);
             }
         }
 
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
 
-        private void HandleBoolChange(bool newValue)
+        private async Task AlertVisibleChange(bool value)
         {
-            alarmsAlertVisible = newValue;
+            alarmsAlertVisible = value;
+            await OnAlertVisibleChanged.InvokeAsync((3, alarmsAlertVisible));
         }
         #endregion
     }

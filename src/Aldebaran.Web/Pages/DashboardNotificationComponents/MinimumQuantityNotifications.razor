@@ -2,9 +2,8 @@
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer ;
 
 <RadzenCard class="rz-col-12" Style="max-width: 100%">
-    <NotificationTitle TogglePanel="@TogglePanel" AlertVisible="@minimumAlertVisible" DataUpdate="@GridData_Update" GridTimer="@GridTimer" Title="Sobrepaso de cantidades mínimas"
-                       IsPanelCollapsed="@isPanelCollapsed" Timers="@Timers" OnBoolChange="@HandleBoolChange"/>
-    <RadzenCard Visible="!isPanelCollapsed" Variant="Radzen.Variant.Text" class="px-0">
+    <NotificationTitle DataUpdate="@GridData_Update" GridTimer="@GridTimer" Title="Sobrepaso de cantidades mínimas" Timers="@Timers" />
+    <RadzenCard Variant="Radzen.Variant.Text" class="px-0">
         <RadzenRow class="rz-m-1">
             <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
         </RadzenRow>
@@ -53,12 +52,3 @@
         </RadzenRow>
     </RadzenCard>
 </RadzenCard>
-@code {
-    private bool isPanelCollapsed = true;
-    private string ToggleIcon => isPanelCollapsed ? "expand_more" : "expand_less";
-
-    private void TogglePanel()
-    {
-        isPanelCollapsed = !isPanelCollapsed;
-    }
-}

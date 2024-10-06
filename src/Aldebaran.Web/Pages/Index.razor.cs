@@ -32,14 +32,14 @@ namespace Aldebaran.Web.Pages
         [Inject]
         protected SecurityService Security { get; set; }
         #endregion
-
+                
         #region Global Variables
         protected StatusDocumentType pendingStatusOrder;
         List<DataTimer> Timers;
         readonly GridTimer GridTimer = new GridTimer("Dahsboard-GridTimer");
         private MemoryCacheEntryOptions _cacheEntryOptions;
         protected bool isLoadingInProgress;
-
+        
         protected bool minimumQuantityNotificatioVisible;
         protected bool userAlarmNotificationVisible;
         protected bool outOfStockNotificatioVisible;
@@ -48,6 +48,15 @@ namespace Aldebaran.Web.Pages
         protected bool purchaseOrderExpirationNotificationVisible;
         protected bool purchaseOrderTransitAlarmNotificationsVisible;
         protected bool emailErrorNotificationsVisible;
+
+        protected bool minimumQuantityAlertVisible;
+        protected bool outOfStockAlertVisible;
+        protected bool userAlarmAlertVisible;
+        protected bool expiredReservationAlertVisible;
+        protected bool customerOrderExpirationAlertVisible;
+        protected bool purchaseOrderExpirationAlertVisible;
+        protected bool purchaseOrderTransitAlertVisible;
+        protected bool emailErrorAlertVisible;
 
         protected MinimumQuantityNotifications minimumQuantityNotifications;
         protected UserAlarmNotifications userAlarmNotifications;
@@ -127,7 +136,7 @@ namespace Aldebaran.Web.Pages
         {
             GridTimer.LastUpdate = DateTime.Now;
             Console.WriteLine($"{GridTimer.LastUpdate}");
-            if (minimumQuantityNotificatioVisible) await minimumQuantityNotifications.Update();
+            if (minimumQuantityNotificatioVisible) await minimumQuantityNotifications.Update();            
             if (userAlarmNotificationVisible) await userAlarmNotifications.Update();
             if (outOfStockNotificatioVisible) await outOfStockNotifications.Update();
             if (expiredReservationNotificationVisible) await expiredReservationNotifications.Update();
@@ -147,6 +156,75 @@ namespace Aldebaran.Web.Pages
         {
             GridTimer.Dispose();
         }
-        #endregion
+        #endregion               
+
+        protected async Task AlertClick(int idObject)
+        {
+            switch (idObject)
+            {
+                case 1:
+                    minimumQuantityAlertVisible = false;
+                    break;
+                case 2:
+                    outOfStockAlertVisible = false;
+                    break;
+                case 3:
+                    userAlarmAlertVisible = false;
+                    break;
+                case 4:
+                    expiredReservationAlertVisible = false;
+                    break;
+                case 5:
+                    customerOrderExpirationAlertVisible = false;
+                    break;
+                case 6:
+                    purchaseOrderExpirationAlertVisible = false;
+                    break;
+                case 7:
+                    purchaseOrderTransitAlertVisible = false;
+                    break;
+                case 8:
+                    emailErrorAlertVisible = false;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        protected async Task UpdateAlert((int idObject, bool value) data) 
+        {
+            var idObject = data.idObject;
+            var value = data.value;
+
+            switch (idObject)
+            {
+                case 1:
+                    minimumQuantityAlertVisible = value;
+                    break;
+                case 2:
+                    outOfStockAlertVisible = value;
+                    break;
+                case 3:
+                    userAlarmAlertVisible = value;
+                    break;
+                case 4:
+                    expiredReservationAlertVisible = value;
+                    break;
+                case 5:
+                    customerOrderExpirationAlertVisible = value;
+                    break;
+                case 6:
+                    purchaseOrderExpirationAlertVisible = value;
+                    break;
+                case 7:
+                    purchaseOrderTransitAlertVisible = value;
+                    break;
+                case 8:
+                    emailErrorAlertVisible = value;
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 }

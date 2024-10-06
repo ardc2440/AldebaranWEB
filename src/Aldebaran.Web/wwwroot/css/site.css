@@ -409,3 +409,9 @@ i.rz-button-icon-left.rzi + span.rz-button-text {
 .rz-dropdown.rz-clear .rz-dropdown-label {
     padding: .25rem .375rem;
 }
+
+.tab-selected {
+    background-color: #007BFF; /* Cambia el color del tab seleccionado */
+    color: white; /* Cambia el color del texto del tab seleccionado */
+    font-weight: bold; /* Resalta el texto */
+}

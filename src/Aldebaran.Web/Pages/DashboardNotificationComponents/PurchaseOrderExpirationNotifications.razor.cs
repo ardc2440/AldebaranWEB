@@ -56,17 +56,13 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         #endregion
 
         #region Parameters
-        [Parameter]
-        public bool IsModal { get; set; } = false;
-
-        [Parameter]
-        public int PendingStatusOrderId { get; set; }
+        [Parameter] public EventCallback<(int, bool)> OnAlertVisibleChanged { get; set; }
         #endregion
 
         #region Variables
         protected bool isLoadingInProgress;
         protected bool expiredPurchasesAlertVisible = false;
-        protected int pageSize = 7;
+        protected int pageSize = 10;
         readonly GridTimer GridTimer = new GridTimer("ExpiredPurchaseOrder-GridTimer");
         List<DataTimer> Timers;
         protected string search = "";
@@ -192,7 +188,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
             var originalData = await GetCache<PurchaseOrder>("PurchaseOrder");
 
             purchaseOrderExpirations = await DashBoardService.GetPurchaseOrderExpirationsAsync(Settings.Value.PurchaseOrderWhiteFlag, search, ct);
-            expiredPurchasesAlertVisible = !purchaseOrderExpirations.OrderBy(o => o.PurchaseOrderId).ToList().IsEqual<PurchaseOrder>(originalData.OrderBy(o => o.PurchaseOrderId).ToList());
+            await AlertVisibleChange(!purchaseOrderExpirations.OrderBy(o => o.PurchaseOrderId).ToList().IsEqual<PurchaseOrder>(originalData.OrderBy(o => o.PurchaseOrderId).ToList()));
             await UpdateCache<PurchaseOrder>("PurchaseOrder", purchaseOrderExpirations.ToList());
             if (purchaseOrderExpirationsGrid != null)
                 await purchaseOrderExpirationsGrid.Reload();
@@ -243,9 +239,10 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
                 return;
         }
 
-        private void HandleBoolChange(bool newValue)
+        private async Task AlertVisibleChange(bool value)
         {
-            expiredPurchasesAlertVisible = newValue;
+            expiredPurchasesAlertVisible = value;
+            await OnAlertVisibleChanged.InvokeAsync((6, expiredPurchasesAlertVisible));
         }
         #endregion
     }

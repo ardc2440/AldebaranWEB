@@ -2,11 +2,7 @@
 <RadzenRow Gap="1rem" JustifyContent="JustifyContent.Normal" AlignItems="AlignItems.Center">
     <RadzenColumn Size="9">
         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Start" Gap="1rem" Wrap="FlexWrap.Wrap" JustifyContent="JustifyContent.Start">
-            <RadzenButton Click="@TogglePanel" Icon="@ToggleIcon" Variant="Variant.Filled" ButtonStyle="ButtonStyle.Secondary" Size="ButtonSize.Medium" class="d-flex align-items-start rz-button-icon-only rz-border-radius-10" />
             <RadzenColumn>
-                <RadzenRow>
-                    <RadzenText Text="@Title" TextStyle="TextStyle.H6" Class="rz-display-flex rz-align-items-start rz-m-0" />
-                </RadzenRow>
                 <RadzenRow>
                     <p class="p-0 m-0 text-end fw-lighter text-muted">
                         <small>Actualizado: @GridTimer.LastUpdate.ToString(SharedLocalizer["time:format"])</small>
