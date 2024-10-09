@@ -13,7 +13,7 @@
                     <RadzenColumn Size="12" SizeMD="6">
                         <RadzenFormField Text="Nombre artículo" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
-                                <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Item.ItemName" Name="ItemName" MaxLength="50" ReadOnly="true" />
+                                <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Item.ItemName" Name="ItemName" MaxLength="50" />
                             </ChildContent>
                             <Helper>
                                 <RadzenRequiredValidator Component="ItemName" Text="Nombre es requerido" />
