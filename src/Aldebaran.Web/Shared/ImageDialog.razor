@@ -1,0 +1,10 @@
+@page "/image-demo"
+<h3>Imagen</h3>
+<img src="@imageUrl" alt="Imagen de Promoción" style="max-width:100%; height:auto;" />
+
+@code {
+    [Parameter] public string InternalReference { get; set; }
+
+
+    private string imageUrl { get; set; } = "images/RepositoryCatalog/" + InternalReeference + ".jpg"
+}

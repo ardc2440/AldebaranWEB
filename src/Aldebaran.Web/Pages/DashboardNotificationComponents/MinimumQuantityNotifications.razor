@@ -1,5 +1,6 @@
-﻿@using Aldebaran.Web.Resources.LocalizedControls;
-@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer ;
+﻿@using Aldebaran.Web.Resources.LocalizedControls
+@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer 
+@inject Radzen.DialogService dialogService
 
 <RadzenCard class="rz-col-12" Style="max-width: 100%">
     <NotificationTitle DataUpdate="@GridData_Update" GridTimer="@GridTimer" Title="Sobrepaso de cantidades mínimas" Timers="@Timers" />
@@ -11,6 +12,20 @@
             <LocalizedDataGrid PageSize="@pageSize" @ref="minimumQuantityArticlesGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true"
                                ShowPagingSummary="true" Data="@minimumQuantityArticles" TItem="Aldebaran.Application.Services.Models.MinimumQuantityArticle" IsLoading="@(isLoadingInProgress||GridTimer.IsLoading)">
                 <Columns>
+                    @* 
+                            COMO EJEMPLO SE USA EL VA-990 
+                            pero para la implementacion se debe enviar el InternalReference de la tabla Items, 
+                            en casi todo lado esta, pero en algunas consultas que vienen de sp, hay que agregar la columna ya que el ArticleName 
+                            viene concatenado desde la base de datos
+
+                            Se debe pasar el ShowImageDialog a Shared para poder dejarlo habilitado para toda la aplicacion
+
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.MinimumQuantityArticle" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                        <Template Context="alarm">
+                    <RadzenButton Icon="image" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => ShowImageDialog("VA-990"))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Ver imagen del producto", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                        </Template>
+                    </RadzenDataGridColumn> *@
+
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.MinimumQuantityArticle" Property="ArticleName" Title="Referencia" Width="80%">
                         <Template Context="detail">
                             <a href="javascript:;" title="@detail.ArticleName" @onclick="() => ReferenceMovementReport(detail.ReferenceId)">@detail.ArticleName</a>
@@ -43,8 +58,7 @@
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.MinimumQuantityArticle" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
                         <Template Context="alarm">
-                            <RadzenButton Icon="assignment_turned_in" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => DisableAlarm(alarm))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Marcar alarma como leída", new TooltipOptions(){ Position = TooltipPosition.Left }))">
-                            </RadzenButton>
+                            <RadzenButton Icon="assignment_turned_in" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => DisableAlarm(alarm))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Marcar alarma como leída", new TooltipOptions(){ Position = TooltipPosition.Left }))"/>
                         </Template>
                     </RadzenDataGridColumn>
                 </Columns>
@@ -52,3 +66,10 @@
         </RadzenRow>
     </RadzenCard>
 </RadzenCard>
+@* @code {
+    private void ShowImageDialog(string internalReference) => dialogService.Open<ImageDialog>("Ver Imagen", new Dictionary<string, object>
+        {
+            { "InternalReference", internalReference }
+        });
+} *@
+ 
