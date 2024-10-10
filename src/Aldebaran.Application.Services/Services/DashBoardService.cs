@@ -78,5 +78,11 @@ namespace Aldebaran.Application.Services
             var data = await _repository.GetMinimumQuantityAlarmsAsync(employeeId, searchKey, ct);
             return _mapper.Map<IEnumerable<MinimumQuantityArticle>>(data);
         }
+
+        public async Task<IEnumerable<PurchaseOrderNotification>> GetNotificationsByModifiedPurchaseOrder(int modifiedPurchaseOrderId, CancellationToken ct = default)
+        {
+            var entity = await _repository.GetNotificationsByModifiedPurchaseOrder(modifiedPurchaseOrderId, ct);
+            return _mapper.Map<List<PurchaseOrderNotification>>(entity);
+        }
     }
 }

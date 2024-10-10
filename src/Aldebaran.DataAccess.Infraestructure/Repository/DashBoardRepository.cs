@@ -1,4 +1,5 @@
 ﻿using Aldebaran.DataAccess.Entities;
+using Aldebaran.DataAccess.Enums;
 using Aldebaran.Infraestructure.Common.Utils;
 using DocumentFormat.OpenXml.Drawing.Diagrams;
 using Microsoft.Data.SqlClient;
@@ -228,6 +229,17 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                         $"@SEARCHKEY ",
                         employee_Id, search).ToListAsync(ct);
                 }
+            }, ct);
+        }
+        public async Task<IEnumerable<PurchaseOrderNotification>> GetNotificationsByModifiedPurchaseOrder(int modifiedPurchaseOrderId, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.PurchaseOrderNotifications.AsNoTracking()
+                                        .Include(i => i.ModifiedPurchaseOrder.ModificationReason)
+                                        .Include(i => i.CustomerOrder.Customer)
+                                        .Where(w => w.ModifiedPurchaseOrder.ModifiedPurchaseOrderId == modifiedPurchaseOrderId)
+                                        .ToListAsync(ct);
             }, ct);
         }
     }

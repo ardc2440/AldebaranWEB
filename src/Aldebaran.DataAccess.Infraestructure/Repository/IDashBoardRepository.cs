@@ -15,5 +15,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         Task<IEnumerable<NotificationWithError>> GetNotificationsWithError(string? searchKey = null, CancellationToken ct = default);
         Task<IEnumerable<OutOfStockArticle>> GetOutOfStockAlarmsAsync(int employeeId, string? searchKey = null, CancellationToken ct = default);
         Task<IEnumerable<MinimumQuantityArticle>> GetMinimumQuantityAlarmsAsync(int employeeId, string? searchKey = null, CancellationToken ct = default);
+        Task<IEnumerable<PurchaseOrderNotification>> GetNotificationsByModifiedPurchaseOrder(int modifiedPurchaseOrderId, CancellationToken ct = default);
     }
 }

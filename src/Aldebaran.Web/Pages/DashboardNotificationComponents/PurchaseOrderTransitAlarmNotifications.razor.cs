@@ -209,8 +209,8 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         }
 
         protected async Task GetAlarmChildData(PurchaseOrderTransitAlarm args)
-        {
-            var notificationsResult = await PurchaseOrderNotificationService.GetByModifiedPurchaseOrder(args.ModifiedPurchaseOrder.ModifiedPurchaseOrderId);
+        {            
+            var notificationsResult = await DashBoardService.GetNotificationsByModifiedPurchaseOrder(args.ModifiedPurchaseOrder.ModifiedPurchaseOrderId);
 
             if (notificationsResult != null)
             {
