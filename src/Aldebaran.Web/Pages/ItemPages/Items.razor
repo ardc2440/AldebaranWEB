@@ -99,11 +99,7 @@
                                             <RadzenCheckBox @bind-Value="@itemReference.IsActive" Name="IsActive" Disabled="true"></RadzenCheckBox>
                                         </Template>
                                     </RadzenDataGridColumn>
-                                    <RadzenDataGridColumn TItem="ServiceModel.ItemReference" Property="IsSoldOut" Title="Agotado" Visible="false">
-                                        <Template Context="itemReference">
-                                            <RadzenCheckBox @bind-Value="@itemReference.IsSoldOut" Name="IsSoldOut" Disabled="true"></RadzenCheckBox>
-                                        </Template>
-                                    </RadzenDataGridColumn>
+                                    colcoar concicional para mostrar AlarmMinimumQuantityo MinimumQuantityPercent
                                     <RadzenDataGridColumn TItem="ServiceModel.ItemReference" Property="AlarmMinimumQuantity" Title="Cantidad mínima" Visible="true" Width="50%">
                                     </RadzenDataGridColumn>
                                     <RadzenDataGridColumn TItem="ServiceModel.ItemReference" Property="PurchaseOrderVariation" Title="Variación en ordenes" Visible="true" Width="50%">
