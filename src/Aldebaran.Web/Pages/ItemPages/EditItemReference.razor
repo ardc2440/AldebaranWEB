@@ -68,14 +68,25 @@
                 </RadzenRow>
                 <RadzenRow AlignItems="Radzen.AlignItems.Start">
                     <RadzenColumn Size="6" SizeMD="6">
-                        <RadzenFormField Text="Alarma para cantidad mínima" Variant="Variant.Text" Style="width: 100%;">
-                            <ChildContent>
-                                <RadzenNumeric style="display: block; width: 100%" @bind-Value="@ItemReference.AlarmMinimumQuantity" Name="AlarmMinimumQuantity" Min="0" Max="999999999" />
-                            </ChildContent>
-                            <Helper>
-                                <RadzenRequiredValidator Component="AlarmMinimumQuantity" Text="Cantidad mínima es requerida" />
-                            </Helper>
-                        </RadzenFormField>
+                        <RadzenRow AlignItems="Radzen.AlignItems.Start">
+                            <RadzenColumn Size="6" SizeMD="6">
+                                <RadzenFormField Text="Cantidad mínima" Variant="Variant.Text" Style="width: 100%;">
+                                    <ChildContent>
+                                        <RadzenNumeric style="display: block; width: 100%" @bind-Value="@ItemReference.AlarmMinimumQuantity" Name="AlarmMinimumQuantity" Min="0" Max="1000000" />
+                                    </ChildContent>                                    
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            @if (!Item.IsDomesticProduct && !ItemReference.HavePurchaseOrderDetail)
+                            {
+                                <RadzenColumn Size="6" SizeMD="6">
+                                    <RadzenFormField Text="% Cant. mínima" Variant="Variant.Text" Style="width: 100%;">
+                                        <ChildContent>
+                                            <RadzenNumeric style="display: block; width: 100%" @bind-Value="@ItemReference.MinimumQuantityPercent" Name="MinimumQuantityPercent" Min="0" Max="99" />
+                                        </ChildContent>                                        
+                                    </RadzenFormField>
+                                </RadzenColumn>
+                            }
+                        </RadzenRow>
                     </RadzenColumn>
                     <RadzenColumn Size="6" SizeMD="6">
                         <RadzenFormField Text="% Variación en orden de compra" Variant="Variant.Text" Style="width: 100%;">

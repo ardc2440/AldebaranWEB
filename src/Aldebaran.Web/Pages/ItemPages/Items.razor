@@ -25,9 +25,9 @@
         </RadzenRow>
         <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
         <RadzenRow>
-            <RadzenColumn SizeMD=12>                
+            <RadzenColumn SizeMD=12>
                 <LocalizedDataGrid Count="@count" LoadData="@LoadData" @ref="ItemsDataGrid" ColumnWidth="120px" AllowPaging="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                   Data="@ItemsList" TItem="ServiceModel.Item" RowExpand=@GetItemReferences AllowColumnResize="true" EditMode="Radzen.DataGridEditMode.Single" 
+                                   Data="@ItemsList" TItem="ServiceModel.Item" RowExpand=@GetItemReferences AllowColumnResize="true" EditMode="Radzen.DataGridEditMode.Single"
                                    ExpandMode="Radzen.DataGridExpandMode.Single">
                     <Columns>
                         <RadzenDataGridColumn TItem="ServiceModel.Item" Property="InternalReference" Title="Referencia interna" Width="40%">
@@ -82,7 +82,7 @@
                                 </RadzenColumn>
                             </RadzenRow>
                             <LocalizedDataGrid ColumnWidth="80px" Visible="@(item != null)" @ref=ItemReferencesDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                               Data="@item?.ItemReferences" TItem="ServiceModel.ItemReference" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" AllowGrouping="true" AllowColumnReorder="true" >
+                                               Data="@item?.ItemReferences" TItem="ServiceModel.ItemReference" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" AllowGrouping="true" AllowColumnReorder="true">
                                 <Columns>
                                     <RadzenDataGridColumn TItem="ServiceModel.ItemReference" Property="ReferenceCode" Title="Referencia" Width="40%">
                                     </RadzenDataGridColumn>
@@ -99,10 +99,21 @@
                                             <RadzenCheckBox @bind-Value="@itemReference.IsActive" Name="IsActive" Disabled="true"></RadzenCheckBox>
                                         </Template>
                                     </RadzenDataGridColumn>
-                                    colcoar concicional para mostrar AlarmMinimumQuantityo MinimumQuantityPercent
-                                    <RadzenDataGridColumn TItem="ServiceModel.ItemReference" Property="AlarmMinimumQuantity" Title="Cantidad mínima" Visible="true" Width="50%">
+                                    <RadzenDataGridColumn TItem="ServiceModel.ItemReference" Property="AlarmMinimumQuantity" Title="Cant. mínima" Visible="true" Width="50%">                                        
                                     </RadzenDataGridColumn>
-                                    <RadzenDataGridColumn TItem="ServiceModel.ItemReference" Property="PurchaseOrderVariation" Title="Variación en ordenes" Visible="true" Width="50%">
+                                    <RadzenDataGridColumn TItem="ServiceModel.ItemReference" Title="% Cant. mínima" Visible="true" Width="50%">
+                                        <Template Context="itemReference">
+                                            @if (itemReference.Item.IsDomesticProduct || (!itemReference.Item.IsDomesticProduct && itemReference.HavePurchaseOrderDetail))
+                                            {
+                                                <span>No aplica</span>
+                                            }
+                                            else
+                                            {
+                                                <span>@itemReference.MinimumQuantityPercent.ToString("0\\%")</span>
+                                            }
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="ServiceModel.ItemReference" Property="PurchaseOrderVariation" Title="Variación ordenes" Visible="true" Width="50%">
                                         <Template Context="itemReference">
                                             <span>@itemReference.PurchaseOrderVariation.ToString("0\\%")</span>
                                         </Template>

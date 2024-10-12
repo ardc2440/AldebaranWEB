@@ -68,30 +68,25 @@
                 </RadzenRow>
                 <RadzenRow AlignItems="Radzen.AlignItems.Start">
                     <RadzenColumn Size="6" SizeMD="6">
-                        @{
-                            if (Item.IsDomesticProduct)
-                            {
-                                <RadzenFormField Text="Alarma para cantidad mínima" Variant="Variant.Text" Style="width: 100%;">
+                        <RadzenRow AlignItems="Radzen.AlignItems.Start">
+                            <RadzenColumn Size="6" SizeMD="6">
+                                <RadzenFormField Text="Cantidad mínima" Variant="Variant.Text" Style="width: 100%;">
                                     <ChildContent>
-                                        <RadzenNumeric style="display: block; width: 100%" @bind-Value="@ItemReference.AlarmMinimumQuantity" Name="AlarmMinimumQuantity" Min="0" Max="999999999" />
-                                    </ChildContent>
-                                    <Helper>
-                                        <RadzenRequiredValidator Component="AlarmMinimumQuantity" Text="Cantidad mínima es requerida" />
-                                    </Helper>
+                                        <RadzenNumeric style="display: block; width: 100%" @bind-Value="@ItemReference.AlarmMinimumQuantity" Name="AlarmMinimumQuantity" Min="0" Max="1000000" />
+                                    </ChildContent>                                    
                                 </RadzenFormField>
-                            }
-                            else
+                            </RadzenColumn>
+                            @if (!Item.IsDomesticProduct && !ItemReference.HavePurchaseOrderDetail)
                             {
-                                <RadzenFormField Text="% Cantidad mínima" Variant="Variant.Text" Style="width: 100%;">
-                                    <ChildContent>
-                                        <RadzenNumeric style="display: block; width: 100%" @bind-Value="@ItemReference.MinimumQuantityPercent" Name="MinimumQuantityPercent" Min="0" Max="99" />
-                                    </ChildContent>
-                                    <Helper>
-                                        <RadzenRequiredValidator Component="MinimumQuantityPercent" Text="Porcentaje para cantidad mínima es requerido" />
-                                    </Helper>
-                                </RadzenFormField>
+                                <RadzenColumn Size="6" SizeMD="6">
+                                    <RadzenFormField Text="% Cant. mínima" Variant="Variant.Text" Style="width: 100%;">
+                                        <ChildContent>
+                                            <RadzenNumeric style="display: block; width: 100%" @bind-Value="@ItemReference.MinimumQuantityPercent" Name="MinimumQuantityPercent" Min="0" Max="99" />
+                                        </ChildContent>                                        
+                                    </RadzenFormField>
+                                </RadzenColumn>
                             }
-                        }
+                        </RadzenRow>
                     </RadzenColumn>
                     <RadzenColumn Size="6" SizeMD="6">
                         <RadzenFormField Text="% Variacion en orden de compra" Variant="Variant.Text" Style="width: 100%;">

@@ -25,6 +25,7 @@ namespace Aldebaran.Web.Pages.ItemPages
         #region Variables
         protected ServiceModel.ItemReference ItemReference;
         protected ServiceModel.Item Item;
+
         protected bool IsSubmitInProgress;
         protected bool isLoadingInProgress;
         protected bool IsErrorVisible;
@@ -38,7 +39,7 @@ namespace Aldebaran.Web.Pages.ItemPages
             {
                 isLoadingInProgress = true;
                 ItemReference = await ItemReferenceService.FindAsync(REFERENCE_ID);
-                Item = ItemReference.Item;
+                Item = ItemReference.Item;                
             }
             finally
             {
@@ -58,6 +59,17 @@ namespace Aldebaran.Web.Pages.ItemPages
 
                 var references = await ItemReferenceService.GetByItemIdAsync(ItemReference.ItemId);
                 var nameAlreadyExists = references.Where(w => w.ReferenceId != REFERENCE_ID).Any(w => w.ReferenceName.Trim().ToLower() == ItemReference.ReferenceName.Trim().ToLower());
+
+                if (!Item.IsDomesticProduct) 
+                    if (!ItemReference.HavePurchaseOrderDetail)
+                    {
+                        if (ItemReference.AlarmMinimumQuantity <= 0 && ItemReference.MinimumQuantityPercent <= 0)
+                            ValidationErrors.Add("Para los productos importados debe ingresar cantidad mínima o % cantidad mínima");
+                    }
+                    else
+                        if (ItemReference.AlarmMinimumQuantity <= 0)
+                            ValidationErrors.Add("Para los productos importados debe ingresar cantidad mínima");
+                
                 if (nameAlreadyExists)
                 {
                     ValidationErrors.Add("Ya existe una referencia con el mismo nombre.");

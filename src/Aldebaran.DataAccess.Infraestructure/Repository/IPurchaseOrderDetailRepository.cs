@@ -12,5 +12,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         Task<IEnumerable<PurchaseOrderDetail>> GetByReferenceIdAndStatusOrderAsync(int statusOrder, int? referenceId = null, CancellationToken ct = default);
         Task<IEnumerable<PurchaseOrderDetail>> GetByPurchaseOrderIdAsync(int purchaseOrderId, CancellationToken ct = default);
         Task<IEnumerable<PurchaseOrderVariation>> IsValidPurchaseOrderVariation(int providerId, int referenceId, int quantity, int VariationMontNumber, int? purchaseOrderId = null, CancellationToken ct = default);
+        Task<bool> ExistsDetailByReferenceId(int referenceId, CancellationToken ct = default);
     }
 }

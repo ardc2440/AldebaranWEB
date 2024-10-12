@@ -53,6 +53,8 @@ namespace Aldebaran.Application.Services
         {
             var data = await _repository.IsValidPurchaseOrderVariation(providerId, referenceId, quantity, variationMontNumber, purchaseOrderId, ct);
             return _mapper.Map<IEnumerable<PurchaseOrderVariation>>(data);
-        }        
+        }
+
+        public async Task<bool> ExistsDetailByReferenceId(int referenceId, CancellationToken ct = default) => await _repository.ExistsDetailByReferenceId(referenceId, ct);
     }
 }

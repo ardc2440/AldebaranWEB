@@ -129,5 +129,14 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
 
             }, ct);
         }        
+
+        public async Task<bool> ExistsDetailByReferenceId(int referenceId, CancellationToken ct = default)
+        {   
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.PurchaseOrderDetails.AsNoTracking()
+               .Where(p => p.ReferenceId == referenceId).AnyAsync(ct);
+            }, ct);
+        }
     }
 }

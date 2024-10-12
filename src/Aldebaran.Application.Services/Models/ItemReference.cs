@@ -1,3 +1,5 @@
+using DocumentFormat.OpenXml.Office2010.PowerPoint;
+
 namespace Aldebaran.Application.Services.Models
 {
     public class ItemReference
@@ -19,6 +21,7 @@ namespace Aldebaran.Application.Services.Models
         public int PurchaseOrderVariation { get; set; }
         public int MinimumQuantityPercent { get; set; }        
 
+        public bool HavePurchaseOrderDetail { get; set; }
         // Reverse navigation
         public ICollection<AdjustmentDetail> AdjustmentDetails { get; set; }
         public ICollection<CustomerOrderDetail> CustomerOrderDetails { get; set; }

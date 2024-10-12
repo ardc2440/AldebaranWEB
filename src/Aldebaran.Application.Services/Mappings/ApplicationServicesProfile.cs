@@ -50,7 +50,7 @@ namespace Aldebaran.Application.Services.Mappings
             CreateMap<ForwarderAgent, Entities.ForwarderAgent>().ReverseMap();
             CreateMap<IdentityType, Entities.IdentityType>().ReverseMap();
             CreateMap<Item, Entities.Item>().ReverseMap();
-            CreateMap<ItemReference, Entities.ItemReference>().ReverseMap();
+            CreateMap<ItemReference, Entities.ItemReference>().ReverseMap().ForMember(fm=>fm.HavePurchaseOrderDetail, opt=>opt.Ignore());
             CreateMap<ItemsArea, Entities.ItemsArea>().ReverseMap();
             CreateMap<Line, Entities.Line>().ReverseMap();
             CreateMap<MeasureUnit, Entities.MeasureUnit>().ReverseMap();
