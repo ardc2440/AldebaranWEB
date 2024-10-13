@@ -20,6 +20,8 @@ namespace Aldebaran.Application.Services.Models
         public bool IsDomesticProduct { get; set; }
         public bool IsActive { get; set; }
         public bool IsCatalogVisible { get; set; }
+        public bool IsSpecialImport { get; set; }
+
         // Reverse navigation
         public ICollection<ItemReference> ItemReferences { get; set; }
         public ICollection<ItemsArea> ItemsAreas { get; set; }
@@ -34,6 +36,7 @@ namespace Aldebaran.Application.Services.Models
             IsDomesticProduct = false;
             IsActive = true;
             IsCatalogVisible = false;
+            IsSpecialImport = false;
             ItemReferences = new List<ItemReference>();
             ItemsAreas = new List<ItemsArea>();
             Packagings = new List<Packaging>();

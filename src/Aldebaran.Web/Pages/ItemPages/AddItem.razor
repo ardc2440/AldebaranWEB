@@ -166,6 +166,12 @@
                                     <RadzenLabel Text="Producto Nacional" Component="IsDomesticProduct" />
                                 </div>
                             </div>
+                            <div class="d-flex gap-4 flex-row mt-2">
+                                <div>
+                                    <RadzenCheckBox @bind-Value="@Item.IsSpecialImport" Name="IsSpecialImport" />
+                                    <RadzenLabel Text="Importado especial" Component="IsSpecialImport" />
+                                </div>
+                            </div>
                         </div>
                     </RadzenColumn>
                     <RadzenColumn Size="12" SizeMD="6">

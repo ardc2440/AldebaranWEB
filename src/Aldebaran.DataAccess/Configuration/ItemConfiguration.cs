@@ -26,6 +26,7 @@ namespace Aldebaran.DataAccess.Entities
             builder.Property(x => x.IsDomesticProduct).HasColumnName(@"IS_DOMESTIC_PRODUCT").HasColumnType("bit").IsRequired();
             builder.Property(x => x.IsActive).HasColumnName(@"IS_ACTIVE").HasColumnType("bit").IsRequired();
             builder.Property(x => x.IsCatalogVisible).HasColumnName(@"IS_CATALOG_VISIBLE").HasColumnType("bit").IsRequired();
+            builder.Property(x => x.IsSpecialImport).HasColumnName(@"IS_SPECIAL_IMPORT").HasColumnType("bit").IsRequired();
             // Foreign keys
             builder.HasOne(a => a.CifMeasureUnit).WithMany(b => b.Items_CifMeasureUnitId).HasForeignKey(c => c.CifMeasureUnitId).IsRequired(false).OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_ITEM_MEASURE_UNIT_CIF");
             builder.HasOne(a => a.Currency).WithMany(b => b.Items).HasForeignKey(c => c.CurrencyId).OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_ITEM_CURRENCY");
@@ -37,6 +38,7 @@ namespace Aldebaran.DataAccess.Entities
             builder.HasIndex(x => x.InternalReference).HasDatabaseName("UQ_INTERNAL_REF").IsUnique();
             builder.HasIndex(x => x.ItemName).HasDatabaseName("UQ_ITEM_NAME").IsUnique();
             builder.ToTable(tb => tb.HasTrigger("TRGINSERTRITEMS"));
+            builder.ToTable(tb => tb.HasTrigger("Trg_Is_Special_Import"));
         }
     }
 }

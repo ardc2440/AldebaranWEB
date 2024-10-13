@@ -53,9 +53,14 @@
                                 <RadzenCheckBox @bind-Value="@item.IsActive" Name="IsActive" Disabled="true"></RadzenCheckBox>
                             </Template>
                         </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="ServiceModel.Item" Property="IsCatalogVisible" Title="Visible en catálogo" Width="40%">
+                        <RadzenDataGridColumn TItem="ServiceModel.Item" Property="IsCatalogVisible" Title="Catálogo visible" Width="40%">
                             <Template Context="item">
                                 <RadzenCheckBox @bind-Value="@item.IsCatalogVisible" Name="IsCatalogVisible" Disabled="true"></RadzenCheckBox>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.Item" Property="IsSpecialImport" Title="Imp. Especial" Width="40%">
+                            <Template Context="item">
+                                <RadzenCheckBox @bind-Value="@item.IsSpecialImport" Name="IsSpecialImport" Disabled="true"></RadzenCheckBox>
                             </Template>
                         </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="ServiceModel.Item" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Administrador","Modificación de artículos")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
