@@ -20,6 +20,15 @@ namespace Aldebaran.Web.Pages.ItemPages
         #region Parameters
         [Parameter]
         public int REFERENCE_ID { get; set; }
+
+        [Parameter]
+        public bool UPDATE_MINIMUM_QUANTITY { get; set; } = false;
+
+        [Parameter]
+        public bool PURCHASE_ORDER_VARIATION { get; set; } = false;
+
+        [Parameter]
+        public bool MINIMUM_QUANTITY_PERCENT { get; set; } = false;
         #endregion
 
         #region Variables
@@ -29,6 +38,7 @@ namespace Aldebaran.Web.Pages.ItemPages
         protected bool IsSubmitInProgress;
         protected bool isLoadingInProgress;
         protected bool IsErrorVisible;
+        protected bool IsReadOnlyFullEditing;
         protected List<string> ValidationErrors;
         #endregion
 
@@ -39,7 +49,8 @@ namespace Aldebaran.Web.Pages.ItemPages
             {
                 isLoadingInProgress = true;
                 ItemReference = await ItemReferenceService.FindAsync(REFERENCE_ID);
-                Item = ItemReference.Item;                
+                Item = ItemReference.Item;
+                IsReadOnlyFullEditing = (UPDATE_MINIMUM_QUANTITY || PURCHASE_ORDER_VARIATION || MINIMUM_QUANTITY_PERCENT);
             }
             finally
             {

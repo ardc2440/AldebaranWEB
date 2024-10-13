@@ -1,5 +1,6 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Web.Models;
+using Aldebaran.Web.Pages.ItemPages;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Options;
@@ -25,6 +26,9 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
 
         [Inject]
         public IOptions<AppSettings> Settings { get; set; }
+
+        [Inject]
+        protected NotificationService NotificationService { get; set; }
 
         #endregion
 
@@ -97,6 +101,9 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                             "en las ordenes de compra del proveedor seleccionado.<br><br>Desea continuar con el proceso?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar cantidad") == false) return;
 
                 PurchaseOrderDetail.Warehouse = Warehouses.Single(s => s.WarehouseId == PurchaseOrderDetail.WarehouseId);
+
+                await ValidateReferenceConfiguration(PurchaseOrderDetail.ReferenceId);
+
                 DialogService.Close(PurchaseOrderDetail);
             }
             catch (Exception ex)
@@ -118,6 +125,45 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         {
             PurchaseOrderDetail.WarehouseId = WarehouseId;
             PurchaseOrderDetail.RequestedQuantity = RequestedQuantity;
+        }
+
+        protected async Task ValidateReferenceConfiguration(int referenceId)
+        {
+            var itemReference = await ItemReferenceService.FindAsync(referenceId);
+            var message = "";
+
+            if (itemReference.MinimumQuantityPercent <= 0 || itemReference.AlarmMinimumQuantity <= 0 || itemReference.PurchaseOrderVariation <= 0)
+            {
+                if (itemReference.AlarmMinimumQuantity <= 0)
+                    message += message + "la cantidad mínima";
+
+                if (itemReference.MinimumQuantityPercent <= 0 && !itemReference.HavePurchaseOrderDetail)
+                    message += (message != "" ? " o " : "") + "el % de cantidad mínima";
+
+                if (itemReference.PurchaseOrderVariation <= 0)
+                    message += (message != "" ? " y " : "") + "el % Variación en orden de compra";
+
+                if (await DialogService.Confirm($"Desea configurar {message} para esta referencia?",
+                        options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" },
+                        title: "Cantidad mínima") == true)
+                {
+                    var result = await DialogService.OpenAsync<EditItemReference>("Actualizar referencia",
+                                    new Dictionary<string, object> {
+                                        { "REFERENCE_ID", itemReference.ReferenceId },
+                                        { "UPDATE_MINIMUM_QUANTITY", itemReference.AlarmMinimumQuantity <= 0 },
+                                        { "PURCHASE_ORDER_VARIATION", itemReference.PurchaseOrderVariation <= 0 },
+                                        { "MINIMUM_QUANTITY_PERCENT", itemReference.MinimumQuantityPercent <= 0 && !itemReference.HavePurchaseOrderDetail } });
+                    if (result == true)
+                    {
+                        NotificationService.Notify(new NotificationMessage
+                        {
+                            Summary = "Referencia",
+                            Severity = NotificationSeverity.Success,
+                            Detail = $"Referencia actualizada correctamente."
+                        });
+                    }
+                }
+            }
         }
         #endregion
     }

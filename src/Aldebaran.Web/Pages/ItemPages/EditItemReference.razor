@@ -30,7 +30,7 @@
                     <RadzenColumn Size="12" SizeMD="6">
                         <RadzenFormField Text="Nombre referencia" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
-                                <RadzenTextBox style="display: block; width: 100%" @bind-Value="@ItemReference.ReferenceName" Name="ReferenceName" MaxLength="30" />
+                                <RadzenTextBox ReadOnly="@(IsReadOnlyFullEditing)" style="display: block; width: 100%" @bind-Value="@ItemReference.ReferenceName" Name="ReferenceName" MaxLength="30" />
                             </ChildContent>
                             <Helper>
                                 <RadzenRequiredValidator Component="ReferenceName" Text="Nombre es requerido" />
@@ -41,7 +41,7 @@
                         <RadzenColumn Size="12" SizeMD="6">
                             <RadzenFormField Text="Código referencia" Variant="Variant.Text" Style="width: 100%;">
                                 <ChildContent>
-                                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@ItemReference.ReferenceCode" Name="ReferenceCode" MaxLength="30" />
+                                    <RadzenTextBox ReadOnly="@(IsReadOnlyFullEditing)" style="display: block; width: 100%" @bind-Value="@ItemReference.ReferenceCode" Name="ReferenceCode" MaxLength="30" />
                                 </ChildContent>
                                 <Helper>
                                     <RadzenRequiredValidator Component="ReferenceCode" Text="Referencia es requerida" />
@@ -54,14 +54,14 @@
                     <RadzenColumn Size="12" SizeMD="6">
                         <RadzenFormField Text="Nombre referencia del proveedor" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
-                                <RadzenTextBox style="display: block; width: 100%" @bind-Value="@ItemReference.ProviderReferenceName" Name="ProviderReferenceName" MaxLength="30" />
+                                <RadzenTextBox ReadOnly="@(IsReadOnlyFullEditing)" style="display: block; width: 100%" @bind-Value="@ItemReference.ProviderReferenceName" Name="ProviderReferenceName" MaxLength="30" />
                             </ChildContent>
                         </RadzenFormField>
                     </RadzenColumn>
                     <RadzenColumn Size="12" SizeMD="6">
                         <RadzenFormField Text="Código referencia del proveedor" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
-                                <RadzenTextBox style="display: block; width: 100%" @bind-Value="@ItemReference.ProviderReferenceCode" Name="ProviderReferenceCode" MaxLength="10" />
+                                <RadzenTextBox ReadOnly="@(IsReadOnlyFullEditing)" style="display: block; width: 100%" @bind-Value="@ItemReference.ProviderReferenceCode" Name="ProviderReferenceCode" MaxLength="10" />
                             </ChildContent>
                         </RadzenFormField>
                     </RadzenColumn>
@@ -72,7 +72,7 @@
                             <RadzenColumn Size="6" SizeMD="6">
                                 <RadzenFormField Text="Cantidad mínima" Variant="Variant.Text" Style="width: 100%;">
                                     <ChildContent>
-                                        <RadzenNumeric style="display: block; width: 100%" @bind-Value="@ItemReference.AlarmMinimumQuantity" Name="AlarmMinimumQuantity" Min="0" Max="1000000" />
+                                        <RadzenNumeric ReadOnly="@(IsReadOnlyFullEditing && !UPDATE_MINIMUM_QUANTITY)" style="display: block; width: 100%" @bind-Value="@ItemReference.AlarmMinimumQuantity" Name="AlarmMinimumQuantity" Min="0" Max="1000000" />
                                     </ChildContent>                                    
                                 </RadzenFormField>
                             </RadzenColumn>
@@ -81,7 +81,7 @@
                                 <RadzenColumn Size="6" SizeMD="6">
                                     <RadzenFormField Text="% Cant. mínima" Variant="Variant.Text" Style="width: 100%;">
                                         <ChildContent>
-                                            <RadzenNumeric style="display: block; width: 100%" @bind-Value="@ItemReference.MinimumQuantityPercent" Name="MinimumQuantityPercent" Min="0" Max="99" />
+                                            <RadzenNumeric ReadOnly="@(IsReadOnlyFullEditing && !MINIMUM_QUANTITY_PERCENT)" style="display: block; width: 100%" @bind-Value="@ItemReference.MinimumQuantityPercent" Name="MinimumQuantityPercent" Min="0" Max="99" />
                                         </ChildContent>                                        
                                     </RadzenFormField>
                                 </RadzenColumn>
@@ -91,7 +91,7 @@
                     <RadzenColumn Size="6" SizeMD="6">
                         <RadzenFormField Text="% Variación en orden de compra" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
-                                <RadzenNumeric style="display: block; width: 100%" @bind-Value="@ItemReference.PurchaseOrderVariation" Name="PurchaseOrderVariation" Min="0" Max="100" />
+                                <RadzenNumeric ReadOnly="@(IsReadOnlyFullEditing && !PURCHASE_ORDER_VARIATION)" style="display: block; width: 100%" @bind-Value="@ItemReference.PurchaseOrderVariation" Name="PurchaseOrderVariation" Min="0" Max="100" />
                             </ChildContent>
                             <Helper>
                                 <RadzenRequiredValidator Component="PurchaseOrderVariation" Text="Cantidad mínima es requerida" />
@@ -103,11 +103,11 @@
                     <RadzenColumn Size="12">
                         <div class="d-flex gap-4 flex-row mt-2">
                             <div>
-                                <RadzenCheckBox @bind-Value="@ItemReference.IsSoldOut" Name="IsSoldOut" />
+                                <RadzenCheckBox ReadOnly="@(IsReadOnlyFullEditing)" @bind-Value="@ItemReference.IsSoldOut" Name="IsSoldOut" />
                                 <RadzenLabel Text="Agotado" Component="IsSoldOut" />
                             </div>
                             <div>
-                                <RadzenCheckBox @bind-Value="@ItemReference.IsActive" Name="IsActive" />
+                                <RadzenCheckBox ReadOnly="@(IsReadOnlyFullEditing)" @bind-Value="@ItemReference.IsActive" Name="IsActive" />
                                 <RadzenLabel Text="Activo" Component="IsActive" />
                             </div>
                         </div>
@@ -115,7 +115,7 @@
                 </RadzenRow>
                 <RadzenFormField Text="Notas" Variant="Variant.Text">
                     <ChildContent>
-                        <RadzenTextArea style="display: block; width: 100%" @bind-Value="ItemReference.Notes" Name="Notes" Rows="3" MaxLength="250"></RadzenTextArea>
+                        <RadzenTextArea ReadOnly="@(IsReadOnlyFullEditing)" style="display: block; width: 100%" @bind-Value="ItemReference.Notes" Name="Notes" Rows="3" MaxLength="250"></RadzenTextArea>
                     </ChildContent>
                 </RadzenFormField>
             </RadzenStack>
