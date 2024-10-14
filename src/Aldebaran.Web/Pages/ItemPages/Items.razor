@@ -30,20 +30,15 @@
                                    Data="@ItemsList" TItem="ServiceModel.Item" RowExpand=@GetItemReferences AllowColumnResize="true" EditMode="Radzen.DataGridEditMode.Single"
                                    ExpandMode="Radzen.DataGridExpandMode.Single">
                     <Columns>
-                        <RadzenDataGridColumn TItem="ServiceModel.Item" Property="InternalReference" Title="Referencia interna" Width="40%">
+                        <RadzenDataGridColumn TItem="ServiceModel.Item" Property="InternalReference" Title="Referencia interna" Width="60%">
                         </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="ServiceModel.Item" Property="ItemName" Title="Nombre" Width="40%">
+                        <RadzenDataGridColumn TItem="ServiceModel.Item" Property="ItemName" Title="Nombre" Width="90%">
                         </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="ServiceModel.Item" Property="ProviderReference" Title="Referencia proveedor" Width="40%">
+                        <RadzenDataGridColumn TItem="ServiceModel.Item" Property="ProviderReference" Title="Ref. proveedor" Width="50%">
                         </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="ServiceModel.Item" Property="ProviderItemName" Title="Nombre item proveedor" Width="40%">
-                        </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="ServiceModel.Item" Property="IsExternalInventory" Title="Inventario externo" Width="40%">
-                            <Template Context="item">
-                                <RadzenCheckBox @bind-Value="@item.IsExternalInventory" Name="IsExternalInventory" Disabled="true"></RadzenCheckBox>
-                            </Template>
-                        </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="ServiceModel.Item" Property="IsDomesticProduct" Title="Producto Nacional" Width="40%">
+                        <RadzenDataGridColumn TItem="ServiceModel.Item" Property="ProviderItemName" Title="Item proveedor" Width="50%">
+                        </RadzenDataGridColumn>                        
+                        <RadzenDataGridColumn TItem="ServiceModel.Item" Property="IsDomesticProduct" Title="Producto Nacional" Width="60%">
                             <Template Context="item">
                                 <RadzenCheckBox @bind-Value="@item.IsDomesticProduct" Name="IsDomesticProduct" Disabled="true"></RadzenCheckBox>
                             </Template>
@@ -53,7 +48,7 @@
                                 <RadzenCheckBox @bind-Value="@item.IsActive" Name="IsActive" Disabled="true"></RadzenCheckBox>
                             </Template>
                         </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="ServiceModel.Item" Property="IsCatalogVisible" Title="Catálogo visible" Width="40%">
+                        <RadzenDataGridColumn TItem="ServiceModel.Item" Property="IsCatalogVisible" Title="Catálogo visible" Width="50%">
                             <Template Context="item">
                                 <RadzenCheckBox @bind-Value="@item.IsCatalogVisible" Name="IsCatalogVisible" Disabled="true"></RadzenCheckBox>
                             </Template>
@@ -66,6 +61,11 @@
                         <RadzenDataGridColumn TItem="ServiceModel.Item" Property="IsSaleOff" Title="En oferta" Width="40%">
                             <Template Context="item">
                                 <RadzenCheckBox @bind-Value="@item.IsSaleOff" Name="IsSaleOff" Disabled="true"></RadzenCheckBox>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.Item" Property="ApplyPreorder" Title="Preorden" Width="40%">
+                            <Template Context="item">
+                                <RadzenCheckBox @bind-Value="@item.ApplyPreorder" Name="ApplyPreorder" Disabled="true"></RadzenCheckBox>
                             </Template>
                         </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="ServiceModel.Item" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Administrador","Modificación de artículos")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">

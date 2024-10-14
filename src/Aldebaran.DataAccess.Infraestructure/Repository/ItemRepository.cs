@@ -162,6 +162,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 entity.Packagings = item.Packagings;
                 entity.IsSpecialImport = item.IsSpecialImport;
                 entity.IsSaleOff = item.IsSaleOff;
+                entity.ApplyPreorder = item.ApplyPreorder;
 
 
                 await dbContext.SaveChangesAsync(ct);

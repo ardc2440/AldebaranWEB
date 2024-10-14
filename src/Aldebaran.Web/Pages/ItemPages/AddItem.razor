@@ -152,7 +152,7 @@
                 </RadzenRow>
                 <RadzenText Text="Embalaje artículo" TextStyle="TextStyle.H5" TagName="TagName.H2" />
                 <RadzenRow AlignItems="Radzen.AlignItems.Center">
-                    <RadzenColumn Size="12" SizeMD="6">
+                    <RadzenColumn Size="12" SizeMD="4">
                         <div>
                             <div class="d-flex gap-4 flex-row mt-2">
                                 <div>
@@ -166,26 +166,36 @@
                                     <RadzenLabel Text="Producto Nacional" Component="IsDomesticProduct" />
                                 </div>
                             </div>
+                        </div>
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="4">
+                        <div>                            
                             <div class="d-flex gap-4 flex-row mt-2">
                                 <div>
                                     <RadzenCheckBox @bind-Value="@Item.IsSpecialImport" Name="IsSpecialImport" />
                                     <RadzenLabel Text="Importado especial" Component="IsSpecialImport" />
                                 </div>
                             </div>
-                        </div>
-                    </RadzenColumn>
-                    <RadzenColumn Size="12" SizeMD="6">
-                        <div>
                             <div class="d-flex gap-4 flex-row mt-2">
                                 <div>
                                     <RadzenCheckBox @bind-Value="@Item.IsExternalInventory" Name="IsExternalInventory" />
                                     <RadzenLabel Text="Inventario externo" Component="IsExternalInventory" />
                                 </div>
                             </div>
+                        </div>
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="4">
+                        <div>                            
                             <div class="d-flex gap-4 flex-row mt-2">
                                 <div>
                                     <RadzenCheckBox @bind-Value="@Item.IsCatalogVisible" Name="IsCatalogVisible" />
                                     <RadzenLabel Text="Visible en catálogo" Component="IsCatalogVisible" />
+                                </div>
+                            </div>
+                            <div class="d-flex gap-4 flex-row mt-2">
+                                <div>
+                                    <RadzenCheckBox @bind-Value="@Item.ApplyPreorder" Name="ApplyPreorder" />
+                                    <RadzenLabel Text="Aplica preorden" Component="ApplayPreorder" />
                                 </div>
                             </div>
                         </div>
@@ -204,14 +214,14 @@
                         <RadzenFormField Text="Altura" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
                                 <RadzenNumeric style="display: block; width: 100%" @bind-Value="@Height" Name="Height" MaxLength="10" />
-                            </ChildContent>                           
+                            </ChildContent>
                         </RadzenFormField>
                     </RadzenColumn>
                     <RadzenColumn Size="12" SizeMD="4">
                         <RadzenFormField Text="Ancho" Variant="Variant.Text" Style="width: 100%;">
                             <ChildContent>
                                 <RadzenNumeric style="display: block; width: 100%" @bind-Value="@Width" Name="Width" MaxLength="10" />
-                            </ChildContent>                           
+                            </ChildContent>
                         </RadzenFormField>
                     </RadzenColumn>
                 </RadzenRow>
