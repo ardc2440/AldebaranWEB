@@ -4,6 +4,7 @@ using Aldebaran.Application.Services.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
+using System.Text.RegularExpressions;
 using ServiceModel = Aldebaran.Application.Services.Models;
 
 namespace Aldebaran.Web.Pages.ItemPages
@@ -39,13 +40,14 @@ namespace Aldebaran.Web.Pages.ItemPages
         protected bool IsSubmitInProgress;
         protected bool isLoadingInProgress;
         protected bool IsErrorVisible;
-        protected ServiceModel.Item Item;
-        protected IEnumerable<ServiceModel.MeasureUnit> MeasureUnits;
-        protected IEnumerable<ServiceModel.Currency> Currencies;
-        protected IEnumerable<ServiceModel.Line> Lines;
+        protected Item Item;
+        protected string errorMessage = "";
+        protected IEnumerable<MeasureUnit> MeasureUnits;
+        protected IEnumerable<Currency> Currencies;
+        protected IEnumerable<Line> Lines;
 
         protected Packaging packaging { get; set; }
-        
+
         #endregion
 
         #region Overrides
@@ -58,7 +60,7 @@ namespace Aldebaran.Web.Pages.ItemPages
                 MeasureUnits = await MeasureUnitService.GetAsync();
                 Currencies = await CurrencyService.GetAsync();
                 Lines = await LineService.GetAsync();
-                packaging = await PackagingService.FindByItemId(Item.ItemId)??new Packaging { ItemId = Item.ItemId};                
+                packaging = await PackagingService.FindByItemId(Item.ItemId) ?? new Packaging { ItemId = Item.ItemId };
             }
             finally
             {
@@ -80,6 +82,7 @@ namespace Aldebaran.Web.Pages.ItemPages
             }
             catch (Exception ex)
             {
+                errorMessage = ex.Message;
                 IsErrorVisible = true;
             }
             finally
@@ -91,6 +94,39 @@ namespace Aldebaran.Web.Pages.ItemPages
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
             DialogService.Close(null);
+        }
+
+        protected async Task OnIfSaleOffChanged()
+        {
+            errorMessage = "";
+            IsErrorVisible = false;
+                        
+            // Verifica si el checkbox está marcado
+            if (Item.IsSaleOff)
+            {
+                var itemName = Item.ItemName;
+                if (itemName.ToUpper().Contains("OFERTA"))
+                    itemName = Regex.Replace(itemName, "Oferta", "", RegexOptions.IgnoreCase).Trim();
+                
+                // Si no sobrepasa los 50 caracteres, agrega " - Oferta".
+                if (itemName.Trim().Length + " - Oferta".Length <= 50)
+                    Item.ItemName = itemName.Trim() + " - Oferta";
+                else
+                {
+                    // Si sobrepasa los 50 caracteres, muestra un error y cancela el cambio.
+                    errorMessage = "El nombre del producto no puede exceder los 50 caracteres al agregar ' - Oferta'. \n\nModifique el nombre para que tenga maimo 40 caracteres";
+                    Item.IsSaleOff = false; // Revierte el cambio del checkbox.
+                    IsErrorVisible = true;
+                }
+            }
+            else
+            {
+                // Si no está marcado, elimina " - Oferta" si está presente.
+                Item.ItemName = Item.ItemName.Replace(" - Oferta", "");
+            }
+
+            StateHasChanged();
+
         }
         #endregion
     }

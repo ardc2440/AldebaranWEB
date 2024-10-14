@@ -6,7 +6,9 @@
 @if (!isLoadingInProgress)
 {
     <RadzenColumn SizeMD=12>
-        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">No se ha podido actualizar el artículo</RadzenAlert>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">
+            @errorMessage
+        </RadzenAlert>            
         <RadzenTemplateForm TItem="ServiceModel.Item" Data="@Item" Visible="@(Item != null)" Submit="@FormSubmit">
             <RadzenStack>
                 <RadzenRow AlignItems="Radzen.AlignItems.Start">
@@ -144,7 +146,7 @@
                     </RadzenColumn>
                 </RadzenRow>
                 <RadzenRow AlignItems="Radzen.AlignItems.Center">
-                    <RadzenColumn Size="12" SizeMD="6">
+                    <RadzenColumn Size="12" SizeMD="4">
                         <div>
                             <div class="d-flex gap-4 flex-row mt-2">
                                 <div>
@@ -157,27 +159,37 @@
                                     <RadzenCheckBox @bind-Value="@Item.IsDomesticProduct" Name="IsDomesticProduct" />
                                     <RadzenLabel Text="Producto Nacional" Component="IsDomesticProduct" />
                                 </div>
-                            </div>
+                            </div>                            
+                        </div>
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="4">
+                        <div>
                             <div class="d-flex gap-4 flex-row mt-2">
                                 <div>
                                     <RadzenCheckBox @bind-Value="@Item.IsSpecialImport" Name="IsSpecialImport" />
                                     <RadzenLabel Text="Importado especial" Component="IsSpecialImport" />
                                 </div>
                             </div>
-                        </div>
-                    </RadzenColumn>
-                    <RadzenColumn Size="12" SizeMD="6">
-                        <div>
                             <div class="d-flex gap-4 flex-row mt-2">
                                 <div>
                                     <RadzenCheckBox @bind-Value="@Item.IsExternalInventory" Name="IsExternalInventory" />
                                     <RadzenLabel Text="Inventario externo" Component="IsExternalInventory" />
                                 </div>
-                            </div>
+                            </div>                            
+                        </div>
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="4">
+                        <div>
                             <div class="d-flex gap-4 flex-row mt-2">
                                 <div>
                                     <RadzenCheckBox @bind-Value="@Item.IsCatalogVisible" Name="IsCatalogVisible" />
                                     <RadzenLabel Text="Visible en catálogo" Component="IsCatalogVisible" />
+                                </div>
+                            </div>
+                            <div class="d-flex gap-4 flex-row mt-2">
+                                <div>
+                                    <RadzenCheckBox TValue="bool" @bind-Value="@Item.IsSaleOff" Name="IsSaleOff" Change="@OnIfSaleOffChanged" />
+                                    <RadzenLabel Text="Artículo en oferta" Component="IsSaleOff" />
                                 </div>
                             </div>
                         </div>

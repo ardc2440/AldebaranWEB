@@ -21,6 +21,7 @@ namespace Aldebaran.Application.Services.Models
         public bool IsActive { get; set; }
         public bool IsCatalogVisible { get; set; }
         public bool IsSpecialImport { get; set; }
+        public bool IsSaleOff {  get; set; }
 
         // Reverse navigation
         public ICollection<ItemReference> ItemReferences { get; set; }

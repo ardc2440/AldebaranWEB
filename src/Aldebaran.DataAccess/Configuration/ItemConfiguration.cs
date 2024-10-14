@@ -27,6 +27,8 @@ namespace Aldebaran.DataAccess.Entities
             builder.Property(x => x.IsActive).HasColumnName(@"IS_ACTIVE").HasColumnType("bit").IsRequired();
             builder.Property(x => x.IsCatalogVisible).HasColumnName(@"IS_CATALOG_VISIBLE").HasColumnType("bit").IsRequired();
             builder.Property(x => x.IsSpecialImport).HasColumnName(@"IS_SPECIAL_IMPORT").HasColumnType("bit").IsRequired();
+            builder.Property(x => x.IsSaleOff).HasColumnName(@"IS_SALE_OFF").HasColumnType("bit").IsRequired();
+
             // Foreign keys
             builder.HasOne(a => a.CifMeasureUnit).WithMany(b => b.Items_CifMeasureUnitId).HasForeignKey(c => c.CifMeasureUnitId).IsRequired(false).OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_ITEM_MEASURE_UNIT_CIF");
             builder.HasOne(a => a.Currency).WithMany(b => b.Items).HasForeignKey(c => c.CurrencyId).OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_ITEM_CURRENCY");

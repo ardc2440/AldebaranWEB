@@ -161,6 +161,8 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 entity.IsCatalogVisible = item.IsCatalogVisible;
                 entity.Packagings = item.Packagings;
                 entity.IsSpecialImport = item.IsSpecialImport;
+                entity.IsSaleOff = item.IsSaleOff;
+
 
                 await dbContext.SaveChangesAsync(ct);
             }, ct);

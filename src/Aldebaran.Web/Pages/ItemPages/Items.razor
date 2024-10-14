@@ -63,6 +63,11 @@
                                 <RadzenCheckBox @bind-Value="@item.IsSpecialImport" Name="IsSpecialImport" Disabled="true"></RadzenCheckBox>
                             </Template>
                         </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.Item" Property="IsSaleOff" Title="En oferta" Width="40%">
+                            <Template Context="item">
+                                <RadzenCheckBox @bind-Value="@item.IsSaleOff" Name="IsSaleOff" Disabled="true"></RadzenCheckBox>
+                            </Template>
+                        </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="ServiceModel.Item" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Administrador","Modificación de artículos")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                             <Template Context="item">
                                 <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Editar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
