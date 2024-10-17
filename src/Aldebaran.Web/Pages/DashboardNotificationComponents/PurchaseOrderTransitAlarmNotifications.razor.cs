@@ -1,5 +1,6 @@
 ﻿using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
+using Aldebaran.Application.Services.Services;
 using Aldebaran.Infraestructure.Common.Extensions;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Utils;
@@ -65,6 +66,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         readonly GridTimer GridTimer = new GridTimer("ExpiredReservations-GridTimer");
         List<DataTimer> Timers;
         protected string search = "";
+        protected IList<PurchaseOrderTransitAlarm> selectedAlarms;
 
         protected IEnumerable<PurchaseOrderNotification> purchaseOrderNotifications = new List<PurchaseOrderNotification>();
         protected LocalizedDataGrid<PurchaseOrderNotification> PurchaseOrderNotificationsDataGrid;
@@ -166,6 +168,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
             {
                 isLoadingInProgress = true;
                 GridTimer.LastUpdate = DateTime.Now;
+                selectedAlarms = new List<PurchaseOrderTransitAlarm>();
                 Console.WriteLine($"{GridTimer.LastUpdate}");
                 await UpdatePurchaseOrderTransitAlarmsAsync();
             }
@@ -200,7 +203,27 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         protected async Task DisablePurchaseOrderTransitAlarm(PurchaseOrderTransitAlarm args)
         {
             var alarmVisible = purchaseAlarmsAlertVisible;
-            if (await DialogService.Confirm("Desea marcar esta alarma como leída?. No volverá a salir en su Home", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Marcar alarma leída") == true)
+            if (selectedAlarms.Any())
+            {
+                if (await DialogService.Confirm("Desea ocultar las alarmas seleccionadas?. No volverán a salir en su Home", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Ocultar alarmas") == true)
+                {
+                    try
+                    {
+                        isLoadingInProgress = true;
+                        foreach (var alarm in selectedAlarms)
+                            await VisualizedPurchaseOrderTransitAlarmService.AddAsync(new VisualizedPurchaseOrderTransitAlarm { PurchaseOrderTransitAlarmId = args.PurchaseOrderTransitAlarmId, EmployeeId = employee.EmployeeId });
+                    }
+                    finally
+                    {
+                        selectedAlarms = new List<PurchaseOrderTransitAlarm>();
+                        isLoadingInProgress = false;
+                    }
+
+                    await UpdatePurchaseOrderTransitAlarmsAsync();
+                    await AlertVisibleChange(alarmVisible);
+                }
+            }
+            else if (await DialogService.Confirm("Desea ocultar esta alarma?. No volverá a salir en su Home", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Ocultar alarma") == true)
             {
                 await VisualizedPurchaseOrderTransitAlarmService.AddAsync(new VisualizedPurchaseOrderTransitAlarm { PurchaseOrderTransitAlarmId = args.PurchaseOrderTransitAlarmId, EmployeeId = employee.EmployeeId, VisualizedDate = System.DateTime.Now });
                 await UpdatePurchaseOrderTransitAlarmsAsync();

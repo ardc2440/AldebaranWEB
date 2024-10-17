@@ -5,6 +5,7 @@ using Aldebaran.Infraestructure.Common.Extensions;
 using Aldebaran.Web.Pages.ReportPages.Reference_Movement;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Utils;
+using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Caching.Memory;
 using Radzen;
@@ -56,6 +57,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         readonly GridTimer GridTimer = new GridTimer("OutOfStock-GridTimer");
         List<DataTimer> Timers;
         protected string search = "";
+        protected IList<OutOfStockArticle> selectedAlarms;
 
         protected IEnumerable<OutOfStockArticle> outOfStockArticles = new List<OutOfStockArticle>();
         protected LocalizedDataGrid<OutOfStockArticle> outOfStockArticlesGrid;
@@ -151,6 +153,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
             try
             {
                 isLoadingInProgress = true;
+                selectedAlarms = new List<OutOfStockArticle>();
                 GridTimer.LastUpdate = DateTime.Now;
                 Console.WriteLine($"{GridTimer.LastUpdate}");
                 await UpdateItemsOutOfStockAsync();
@@ -202,8 +205,27 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         protected async Task DisableAlarm(OutOfStockArticle args)
         {
             var alertVisible = outOfStockAlertVisible;
+            if (selectedAlarms.Any())
+            {
+                if (await DialogService.Confirm("Desea ocultar las alarmas seleccionadas?. No volverán a salir en su Home", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Ocultar alarmas") == true)
+                {
+                    try
+                    {
+                        isLoadingInProgress = true;
+                        foreach (var alarm in selectedAlarms)
+                            await VisualizedOutOfStockInventoryAlarmService.AddAsync(new VisualizedOutOfStockInventoryAlarm { OutOfStockInventoryAlarmId = alarm.AlarmId, EmployeeId = employee.EmployeeId });
+                    }
+                    finally
+                    {
+                        selectedAlarms = new List<OutOfStockArticle>();
+                        isLoadingInProgress = false;
+                    }
 
-            if (await DialogService.Confirm("Desea marcar esta alarma como leída?. No volverá a salir en su Home", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Marcar alarma leída") == true)
+                    await UpdateItemsOutOfStockAsync();
+                    await AlertVisibleChange(alertVisible);
+                }
+            }
+            else if (await DialogService.Confirm("Desea ocultar esta alarma?. No volverá a salir en su Home", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Ocultar alarma") == true)
             {
                 await VisualizedOutOfStockInventoryAlarmService.AddAsync(new VisualizedOutOfStockInventoryAlarm { OutOfStockInventoryAlarmId = args.AlarmId, EmployeeId = employee.EmployeeId });
                 await UpdateItemsOutOfStockAsync();

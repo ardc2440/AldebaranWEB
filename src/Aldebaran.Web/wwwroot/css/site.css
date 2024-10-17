@@ -409,3 +409,9 @@ i.rz-button-icon-left.rzi + span.rz-button-text {
 .rz-dropdown.rz-clear .rz-dropdown-label {
     padding: .25rem .375rem;
 }
+
+
+    /* Cambiar el color del enlace dentro de la fila seleccionada */
+.rz-data-row.rz-state-highlight a {
+    color: blue !important; /* Ajustar el color del enlace */
+}

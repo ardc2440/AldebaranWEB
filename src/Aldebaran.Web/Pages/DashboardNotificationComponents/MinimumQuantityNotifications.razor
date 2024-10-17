@@ -1,5 +1,5 @@
 ﻿@using Aldebaran.Web.Resources.LocalizedControls
-@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer 
+@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
 @inject Radzen.DialogService dialogService
 
 <RadzenCard class="rz-col-12" Style="max-width: 100%">
@@ -9,23 +9,24 @@
             <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
         </RadzenRow>
         <RadzenRow class="rz-m-1">
-            <LocalizedDataGrid PageSize="@pageSize" @ref="minimumQuantityArticlesGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true"
-                               ShowPagingSummary="true" Data="@minimumQuantityArticles" TItem="Aldebaran.Application.Services.Models.MinimumQuantityArticle" IsLoading="@(isLoadingInProgress||GridTimer.IsLoading)">
+            <LocalizedDataGrid AllowRowSelectOnRowClick="false" PageSize="@pageSize" @ref="minimumQuantityArticlesGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true"
+                               ShowPagingSummary="true" Data="@minimumQuantityArticles" TItem="Aldebaran.Application.Services.Models.MinimumQuantityArticle"
+                               IsLoading="@(isLoadingInProgress||GridTimer.IsLoading)"
+                               SelectionMode="DataGridSelectionMode.Multiple" @bind-Value=@selectedAlarms>
                 <Columns>
-                    @* 
-                            COMO EJEMPLO SE USA EL VA-990 
-                            pero para la implementacion se debe enviar el InternalReference de la tabla Items, 
-                            en casi todo lado esta, pero en algunas consultas que vienen de sp, hay que agregar la columna ya que el ArticleName 
-                            viene concatenado desde la base de datos
-
-                            Se debe pasar el ShowImageDialog a Shared para poder dejarlo habilitado para toda la aplicacion
-
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.MinimumQuantityArticle" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
-                        <Template Context="alarm">
-                    <RadzenButton Icon="image" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => ShowImageDialog("VA-990"))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Ver imagen del producto", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.MinimumQuantityArticle" Width="60px" Sortable="false" Filterable="false">
+                        <HeaderTemplate>
+                            <RadzenCheckBox TabIndex="-1" TriState="false" TValue="bool?" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select all items" }})"
+                                            Value="@(selectedAlarms == null || selectedAlarms?.Any() != true ? false : !minimumQuantityArticles.All(i => selectedAlarms.Contains(i)) ? null : minimumQuantityArticles.Any(i => selectedAlarms.Contains(i)))"
+                                            Change="@(args => selectedAlarms = args == true ? minimumQuantityArticles.ToList() : null)"
+                                            MouseEnter="@(args => ShowTooltip(args,"Marcar todas", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                        </HeaderTemplate>
+                        <Template Context="data">
+                            <RadzenCheckBox TabIndex="-1" TriState="false" Value="@(selectedAlarms != null && selectedAlarms.Contains(data))" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select item" }})"
+                                            TValue="bool" Change=@(args => { minimumQuantityArticlesGrid.SelectRow(data); })
+                                            MouseEnter="@(args => ShowTooltip(args,"Marcar", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
                         </Template>
-                    </RadzenDataGridColumn> *@
-
+                    </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.MinimumQuantityArticle" Property="ArticleName" Title="Referencia" Width="80%">
                         <Template Context="detail">
                             <a href="javascript:;" title="@detail.ArticleName" @onclick="() => ReferenceMovementReport(detail.ReferenceId)">@detail.ArticleName</a>
@@ -58,7 +59,7 @@
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.MinimumQuantityArticle" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
                         <Template Context="alarm">
-                            <RadzenButton Icon="assignment_turned_in" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => DisableAlarm(alarm))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Marcar alarma como leída", new TooltipOptions(){ Position = TooltipPosition.Left }))"/>
+                            <RadzenButton Icon="assignment_turned_in" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => DisableAlarm(alarm))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Ocultar alarma", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
                         </Template>
                     </RadzenDataGridColumn>
                 </Columns>
@@ -72,4 +73,3 @@
             { "InternalReference", internalReference }
         });
 } *@
- 

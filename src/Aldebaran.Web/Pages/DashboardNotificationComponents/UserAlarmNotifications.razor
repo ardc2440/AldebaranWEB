@@ -9,9 +9,23 @@
             <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
         </RadzenRow>
         <RadzenRow class="rz-m-1">
-            <LocalizedDataGrid Style="height: 100%" PageSize="@pageSize" @ref="alarmsGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true"
-                               ShowPagingSummary="true" Data="@alarms" TItem="Alarm" IsLoading="@(GridTimer.IsLoading||isLoadingInProgress)">
+            <LocalizedDataGrid AllowRowSelectOnRowClick="false" Style="height: 100%" PageSize="@pageSize" @ref="alarmsGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true"
+                               ShowPagingSummary="true" Data="@alarms" TItem="Alarm" IsLoading="@(GridTimer.IsLoading||isLoadingInProgress)"
+                               SelectionMode="DataGridSelectionMode.Multiple" @bind-Value=@selectedAlarms>
                 <Columns>
+                    <RadzenDataGridColumn TItem="Alarm" Width="60px" Sortable="false" Filterable="false">
+                        <HeaderTemplate>
+                            <RadzenCheckBox TabIndex="-1" TriState="false" TValue="bool?" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select all items" }})"
+                                            Value="@(selectedAlarms == null || selectedAlarms?.Any() != true ? false : !alarms.All(i => selectedAlarms.Contains(i)) ? null : alarms.Any(i => selectedAlarms.Contains(i)))"
+                                            Change="@(args => selectedAlarms = args == true ? alarms.ToList() : null)"
+                                            MouseEnter="@(args => ShowTooltip(args,"Marcar todas", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                        </HeaderTemplate>
+                        <Template Context="data">
+                            <RadzenCheckBox TabIndex="-1" TriState="false" Value="@(selectedAlarms != null && selectedAlarms.Contains(data))" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select item" }})"
+                                            TValue="bool" Change=@(args => { alarmsGrid.SelectRow(data); })
+                                            MouseEnter="@(args => ShowTooltip(args,"Marcar", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                        </Template>
+                    </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Alarm" Title="Documento" Width="80%">
                         <Template Context="alarm">
                             <RadzenLabel>
@@ -32,7 +46,7 @@
                     <RadzenDataGridColumn TItem="Alarm" Property="AlarmMessage" Title="Mensaje" Width="80%"></RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Alarm" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
                         <Template Context="alarm">
-                            <RadzenButton Icon="assignment_turned_in" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => DisableAlarm(alarm))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Marcar alarma como leída", new TooltipOptions(){ Position = TooltipPosition.Left }))">
+                            <RadzenButton Icon="assignment_turned_in" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => DisableAlarm(alarm))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Ocultar alarma", new TooltipOptions(){ Position = TooltipPosition.Left }))">
                             </RadzenButton>
                         </Template>
                     </RadzenDataGridColumn>

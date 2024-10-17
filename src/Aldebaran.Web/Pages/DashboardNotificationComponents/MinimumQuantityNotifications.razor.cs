@@ -35,7 +35,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
 
         [Inject]
         protected NotificationService NotificationService { get; set; }
-        
+
         [Inject]
         protected DialogService DialogService { get; set; }
 
@@ -59,6 +59,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         List<DataTimer> Timers;
         protected string search = "";
         protected Employee employee;
+        protected IList<MinimumQuantityArticle> selectedAlarms;
 
         protected IEnumerable<MinimumQuantityArticle> minimumQuantityArticles = new List<MinimumQuantityArticle>();
         protected LocalizedDataGrid<MinimumQuantityArticle> minimumQuantityArticlesGrid;
@@ -71,7 +72,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
             try
             {
                 isLoadingInProgress = true;
-                Timers = TimerPreferenceService.Timers;
+                Timers = TimerPreferenceService.Timers;                
                 employee = await DashBoardService.FindByLoginUserIdAsync(Security.User.Id);
                 await InitializeGridTimers();
                 await GridData_Update();
@@ -153,6 +154,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
             try
             {
                 isLoadingInProgress = true;
+                selectedAlarms = new List<MinimumQuantityArticle>();
                 GridTimer.LastUpdate = DateTime.Now;
                 Console.WriteLine($"{GridTimer.LastUpdate}");
                 await UpdateMinimumQuantitiesAsync();
@@ -177,7 +179,6 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         async Task UpdateMinimumQuantitiesAsync(CancellationToken ct = default)
         {
             var originalData = await GetCache<MinimumQuantityArticle>("MinimumQuantityArticle");
-
             minimumQuantityArticles = await DashBoardService.GetMinimumQuantityAlarmsAsync(employee.EmployeeId, search, ct);
             await AlertVisibleChange(!minimumQuantityArticles.OrderBy(o => o.ArticleName).ToList().IsEqual<MinimumQuantityArticle>(originalData.OrderBy(o => o.ArticleName).ToList()));
             await UpdateCache<MinimumQuantityArticle>("MinimumQuantityArticle", minimumQuantityArticles.ToList());
@@ -204,7 +205,27 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         {
             var alertVisible = minimumAlertVisible;
 
-            if (await DialogService.Confirm("Desea marcar esta alarma como leída?. No volverá a salir en su Home", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Marcar alarma leída") == true)
+            if (selectedAlarms.Any())
+            {
+                if (await DialogService.Confirm("Desea ocultar las alarmas seleccionadas?. No volverán a salir en su Home", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Ocultar alarmas") == true)
+                {
+                    try
+                    {
+                        isLoadingInProgress = true;
+                        foreach (var alarm in selectedAlarms)
+                            await VisualizedMinimumQuantityAlarmService.AddAsync(new VisualizedMinimumQuantityAlarm { MinimumQuantityAlarmId = alarm.AlarmId, EmployeeId = employee.EmployeeId });
+                    }
+                    finally
+                    {
+                        selectedAlarms = new List<MinimumQuantityArticle>();
+                        isLoadingInProgress = false;
+                    }
+
+                    await UpdateMinimumQuantitiesAsync();
+                    await AlertVisibleChange(alertVisible);
+                }
+            }
+            else if (await DialogService.Confirm("Desea ocultar esta alarma?. No volverá a salir en su Home", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Ocultar alarma") == true)
             {
                 await VisualizedMinimumQuantityAlarmService.AddAsync(new VisualizedMinimumQuantityAlarm { MinimumQuantityAlarmId = args.AlarmId, EmployeeId = employee.EmployeeId });
                 await UpdateMinimumQuantitiesAsync();
