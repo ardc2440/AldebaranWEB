@@ -1,6 +1,7 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Shared;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
@@ -12,9 +13,12 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         #region Injections
         [Inject]
         protected DialogService DialogService { get; set; }
-
         [Inject]
         protected IItemReferenceService ItemReferenceService { get; set; }
+        [Inject]
+        protected IWarehouseService WarehouseService { get; set; }
+        [Inject]
+        protected IReferencesWarehouseService ReferencesWarehouseService { get; set; }
         #endregion
 
         #region Parameters
@@ -64,10 +68,13 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         #region Events
         protected async Task FormSubmit()
         {
+
             try
             {
                 IsErrorVisible = false;
                 IsSubmitInProgress = true;
+
+                await ValidateWarehouseStock();
 
                 if (CustomerOrderDetails.Any(ad => ad.ReferenceId == customerOrderDetail.ReferenceId))
                     throw new Exception("La referencia seleccionada ya existe dentro de esta reserva.");
@@ -95,6 +102,26 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             customerOrderDetail.ReferenceId = reference?.ReferenceId ?? 0;
             customerOrderDetail.ItemReference = customerOrderDetail.ReferenceId == 0 ? null : itemReferencesForREFERENCEID.Single(s => s.ReferenceId == customerOrderDetail.ReferenceId);
         }
+
+        protected async Task ValidateWarehouseStock()
+        {
+            if (!(customerOrderDetail.ItemReference.Item.IsSpecialImport || customerOrderDetail.ItemReference.Item.IsDomesticProduct))
+            {
+                var warehouse = await WarehouseService.FindByCodeAsync(1);
+                var localWarehouseStock = await ReferencesWarehouseService.GetByReferenceAndWarehouseIdAsync(customerOrderDetail.ReferenceId, warehouse.WarehouseId);
+
+                if (customerOrderDetail.RequestedQuantity > localWarehouseStock.Quantity)
+                {
+                    var temp = customerOrderDetail;
+                    await DialogService.Alert($"La cantidad ingresada supera la existencia en bodega local. Verifique disponibilidad de la referencia.",
+                        options: new AlertOptions() { OkButtonText = "Cerrar" }, title: "Stock en bodega local");
+
+                    customerOrderDetail = temp;
+                    StateHasChanged();
+                }
+            }
+        }
+
         #endregion
     }
 }

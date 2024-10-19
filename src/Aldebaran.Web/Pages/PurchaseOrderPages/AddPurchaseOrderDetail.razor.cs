@@ -161,7 +161,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                                     new Dictionary<string, object> {
                                         { "REFERENCE_ID", itemReference.ReferenceId },
 
-                                        { "UPDATE_MINIMUM_QUANTITY", !itemReference.Item.IsDomesticProduct &&
+                                        { "MINIMUM_QUANTITY", !itemReference.Item.IsDomesticProduct &&
                                                                      !itemReference.Item.IsSpecialImport &&
                                                                      !itemReference.Item.IsSaleOff && itemReference.AlarmMinimumQuantity <= 0 &&
                                                                       (itemReference.MinimumQuantityPercent <= 0 || (itemReference.MinimumQuantityPercent > 0 && itemReference.HavePurchaseOrderDetail))},

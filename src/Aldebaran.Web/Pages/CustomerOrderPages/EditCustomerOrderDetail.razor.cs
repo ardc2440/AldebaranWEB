@@ -11,10 +11,12 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         #region Injection
         [Inject]
         protected DialogService DialogService { get; set; }
-
         [Inject]
         protected IItemReferenceService ItemReferenceService { get; set; }
-
+        [Inject]
+        protected IWarehouseService WarehouseService { get; set; }
+        [Inject]
+        protected IReferencesWarehouseService ReferencesWarehouseService { get; set; }
         #endregion
 
         #region Parameters
@@ -73,10 +75,13 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         #region Events
         protected async Task FormSubmit()
         {
+            await ValidateWarehouseStock();
+
             try
             {
                 IsErrorVisible = false;
                 IsSubmitInProgress = true;
+
                 DialogService.Close(customerOrderDetail);
             }
             catch (Exception ex)
@@ -95,6 +100,24 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             DialogService.Close(null);
         }
 
+        protected async Task ValidateWarehouseStock()
+        {
+            if (!(customerOrderDetail.ItemReference.Item.IsSpecialImport || customerOrderDetail.ItemReference.Item.IsDomesticProduct))
+            {
+                var warehouse = await WarehouseService.FindByCodeAsync(1);
+                var localWarehouseStock = await ReferencesWarehouseService.GetByReferenceAndWarehouseIdAsync(customerOrderDetail.ReferenceId, warehouse.WarehouseId);
+
+                if (customerOrderDetail.RequestedQuantity > localWarehouseStock.Quantity)
+                {
+                    var temp = customerOrderDetail;
+                    await DialogService.Alert($"La cantidad ingresada supera la existencia en bodega local. Verifique disponibilidad de la referencia.",
+                        options: new AlertOptions() { OkButtonText = "Cerrar" }, title: "Stock en bodega local");
+
+                    customerOrderDetail = temp;
+                    StateHasChanged();
+                }
+            }
+        }
         #endregion
 
     }

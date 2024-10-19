@@ -22,7 +22,7 @@ namespace Aldebaran.Web.Pages.ItemPages
         public int REFERENCE_ID { get; set; }
 
         [Parameter]
-        public bool UPDATE_MINIMUM_QUANTITY { get; set; } = false;
+        public bool MINIMUM_QUANTITY { get; set; } = false;
 
         [Parameter]
         public bool PURCHASE_ORDER_VARIATION { get; set; } = false;
@@ -50,7 +50,8 @@ namespace Aldebaran.Web.Pages.ItemPages
                 isLoadingInProgress = true;
                 ItemReference = await ItemReferenceService.FindAsync(REFERENCE_ID);
                 Item = ItemReference.Item;
-                IsReadOnlyFullEditing = (UPDATE_MINIMUM_QUANTITY || PURCHASE_ORDER_VARIATION || MINIMUM_QUANTITY_PERCENT);
+
+                IsReadOnlyFullEditing = MINIMUM_QUANTITY || PURCHASE_ORDER_VARIATION || MINIMUM_QUANTITY_PERCENT;
             }
             finally
             {

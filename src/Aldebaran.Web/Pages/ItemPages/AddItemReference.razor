@@ -69,20 +69,20 @@
                 <RadzenRow AlignItems="Radzen.AlignItems.Start">
                     <RadzenColumn Size="6" SizeMD="6">
                         <RadzenRow AlignItems="Radzen.AlignItems.Start">
-                            <RadzenColumn Size="6" SizeMD="6">
-                                <RadzenFormField Text="Cantidad mínima" Variant="Variant.Text" Style="width: 100%;">
-                                    <ChildContent>
-                                        <RadzenNumeric style="display: block; width: 100%" @bind-Value="@ItemReference.AlarmMinimumQuantity" Name="AlarmMinimumQuantity" Min="0" Max="1000000" />
-                                    </ChildContent>                                    
-                                </RadzenFormField>
-                            </RadzenColumn>
-                            @if (!Item.IsDomesticProduct && !ItemReference.HavePurchaseOrderDetail)
+                            @if (!Item.IsDomesticProduct && !Item.IsSpecialImport && !Item.IsSaleOff)
                             {
+                                <RadzenColumn Size="6" SizeMD="6">
+                                    <RadzenFormField Text="Cantidad mínima" Variant="Variant.Text" Style="width: 100%;">
+                                        <ChildContent>
+                                            <RadzenNumeric style="display: block; width: 100%" @bind-Value="@ItemReference.AlarmMinimumQuantity" Name="AlarmMinimumQuantity" Min="0" Max="1000000" />
+                                        </ChildContent>
+                                    </RadzenFormField>
+                                </RadzenColumn>
                                 <RadzenColumn Size="6" SizeMD="6">
                                     <RadzenFormField Text="% Cant. mínima" Variant="Variant.Text" Style="width: 100%;">
                                         <ChildContent>
                                             <RadzenNumeric style="display: block; width: 100%" @bind-Value="@ItemReference.MinimumQuantityPercent" Name="MinimumQuantityPercent" Min="0" Max="99" />
-                                        </ChildContent>                                        
+                                        </ChildContent>
                                     </RadzenFormField>
                                 </RadzenColumn>
                             }
