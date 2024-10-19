@@ -132,12 +132,21 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
             var itemReference = await ItemReferenceService.FindAsync(referenceId);
             var message = "";
 
-            if (itemReference.MinimumQuantityPercent <= 0 || itemReference.AlarmMinimumQuantity <= 0 || itemReference.PurchaseOrderVariation <= 0)
+            if ((!itemReference.Item.IsDomesticProduct &&
+                 !itemReference.Item.IsSpecialImport &&
+                 !itemReference.Item.IsSaleOff &&
+                  itemReference.MinimumQuantityPercent <= 0 && itemReference.AlarmMinimumQuantity <= 0) ||
+                itemReference.PurchaseOrderVariation <= 0)
             {
-                if (itemReference.AlarmMinimumQuantity <= 0)
+                if (!itemReference.Item.IsDomesticProduct &&
+                    !itemReference.Item.IsSpecialImport &&
+                    !itemReference.Item.IsSaleOff && itemReference.AlarmMinimumQuantity <= 0 &&
+                    (itemReference.MinimumQuantityPercent <= 0 || (itemReference.MinimumQuantityPercent > 0 && itemReference.HavePurchaseOrderDetail)))
                     message += message + "la cantidad mínima";
 
-                if (itemReference.MinimumQuantityPercent <= 0 && !itemReference.HavePurchaseOrderDetail)
+                if (!itemReference.Item.IsDomesticProduct &&
+                    !itemReference.Item.IsSpecialImport &&
+                    !itemReference.Item.IsSaleOff && itemReference.MinimumQuantityPercent <= 0 && !itemReference.HavePurchaseOrderDetail)
                     message += (message != "" ? " o " : "") + "el % de cantidad mínima";
 
                 if (itemReference.PurchaseOrderVariation <= 0)
@@ -150,9 +159,17 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                     var result = await DialogService.OpenAsync<EditItemReference>("Actualizar referencia",
                                     new Dictionary<string, object> {
                                         { "REFERENCE_ID", itemReference.ReferenceId },
-                                        { "UPDATE_MINIMUM_QUANTITY", itemReference.AlarmMinimumQuantity <= 0 },
+
+                                        { "UPDATE_MINIMUM_QUANTITY", !itemReference.Item.IsDomesticProduct &&
+                                                                     !itemReference.Item.IsSpecialImport &&
+                                                                     !itemReference.Item.IsSaleOff && itemReference.AlarmMinimumQuantity <= 0 &&
+                                                                      (itemReference.MinimumQuantityPercent <= 0 || (itemReference.MinimumQuantityPercent > 0 && itemReference.HavePurchaseOrderDetail))},
+
                                         { "PURCHASE_ORDER_VARIATION", itemReference.PurchaseOrderVariation <= 0 },
-                                        { "MINIMUM_QUANTITY_PERCENT", itemReference.MinimumQuantityPercent <= 0 && !itemReference.HavePurchaseOrderDetail } });
+
+                                        { "MINIMUM_QUANTITY_PERCENT",!itemReference.Item.IsDomesticProduct &&
+                                                                     !itemReference.Item.IsSpecialImport &&
+                                                                     !itemReference.Item.IsSaleOff && itemReference.MinimumQuantityPercent <= 0 && !itemReference.HavePurchaseOrderDetail } });
                     if (result == true)
                     {
                         NotificationService.Notify(new NotificationMessage

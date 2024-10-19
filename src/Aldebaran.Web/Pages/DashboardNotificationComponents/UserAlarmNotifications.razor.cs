@@ -210,7 +210,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
                     {
                         isLoadingInProgress = true;
                         foreach (var alarm in selectedAlarms)
-                            await VisualizedAlarmService.AddAsync(new VisualizedAlarm { AlarmId = args.AlarmId, EmployeeId = employee.EmployeeId });
+                            await VisualizedAlarmService.AddAsync(new VisualizedAlarm { AlarmId = alarm.AlarmId, EmployeeId = employee.EmployeeId });
                     }
                     finally
                     {

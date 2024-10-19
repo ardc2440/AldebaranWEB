@@ -211,7 +211,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
                     {
                         isLoadingInProgress = true;
                         foreach (var alarm in selectedAlarms)
-                            await VisualizedPurchaseOrderTransitAlarmService.AddAsync(new VisualizedPurchaseOrderTransitAlarm { PurchaseOrderTransitAlarmId = args.PurchaseOrderTransitAlarmId, EmployeeId = employee.EmployeeId });
+                            await VisualizedPurchaseOrderTransitAlarmService.AddAsync(new VisualizedPurchaseOrderTransitAlarm { PurchaseOrderTransitAlarmId = alarm.PurchaseOrderTransitAlarmId, EmployeeId = employee.EmployeeId, VisualizedDate = System.DateTime.Now });
                     }
                     finally
                     {

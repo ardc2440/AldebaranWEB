@@ -63,7 +63,7 @@ namespace Aldebaran.Web.Pages.ItemPages
                 IsSubmitInProgress = true;
                 ValidationErrors = new List<string>();
                 var referenceNameAlreadyExists = await ItemReferenceService.ExistsByReferenceName(ItemReference.ReferenceName, ItemReference.ItemId);
-                if (!Item.IsDomesticProduct)
+                if (!Item.IsDomesticProduct && !Item.IsSaleOff && !Item.IsSpecialImport)
                     if (ItemReference.AlarmMinimumQuantity <= 0 && ItemReference.MinimumQuantityPercent <= 0)
                         ValidationErrors.Add("Para los productos importados debe ingresar cantidad mínima o % cantidad mínima");
                 

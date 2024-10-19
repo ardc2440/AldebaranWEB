@@ -71,7 +71,7 @@ namespace Aldebaran.Web.Pages.ItemPages
                 var references = await ItemReferenceService.GetByItemIdAsync(ItemReference.ItemId);
                 var nameAlreadyExists = references.Where(w => w.ReferenceId != REFERENCE_ID).Any(w => w.ReferenceName.Trim().ToLower() == ItemReference.ReferenceName.Trim().ToLower());
 
-                if (!Item.IsDomesticProduct) 
+                if (!Item.IsDomesticProduct && !Item.IsSaleOff && !Item.IsSpecialImport)
                     if (!ItemReference.HavePurchaseOrderDetail)
                     {
                         if (ItemReference.AlarmMinimumQuantity <= 0 && ItemReference.MinimumQuantityPercent <= 0)
