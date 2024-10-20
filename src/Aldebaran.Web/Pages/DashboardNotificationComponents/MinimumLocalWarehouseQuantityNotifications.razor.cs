@@ -12,7 +12,7 @@ using Radzen;
 
 namespace Aldebaran.Web.Pages.DashboardNotificationComponents
 {
-    public partial class MinimumQuantityNotifications
+    public partial class MinimumLocalWarehouseQuantityNotifications
     {
         #region Injections
 
@@ -40,7 +40,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         protected DialogService DialogService { get; set; }
 
         [Inject]
-        protected IVisualizedMinimumQuantityAlarmService VisualizedMinimumQuantityAlarmService { get; set; }
+        protected IVisualizedMinimumLocalWarehouseQuantityAlarmService VisualizedMinimumLocalWarehouseQuantityAlarmService { get; set; }
 
         [Inject]
         protected TooltipService TooltipService { get; set; }
@@ -55,14 +55,15 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         protected bool isLoadingInProgress;
         protected bool minimumAlertVisible = false;
         protected int pageSize = 10;
-        readonly GridTimer GridTimer = new GridTimer("MinimumQuantity-GridTimer");
+        readonly GridTimer GridTimer = new GridTimer("MinimumLocalWarehouseQuantity-GridTimer");
         List<DataTimer> Timers;
         protected string search = "";
         protected Employee employee;
-        protected IList<MinimumQuantityArticle> selectedAlarms;
+        protected IList<MinimumLocalWarehouseQuantityArticle> selectedAlarms;
 
-        protected IEnumerable<MinimumQuantityArticle> minimumQuantityArticles = new List<MinimumQuantityArticle>();
-        protected LocalizedDataGrid<MinimumQuantityArticle> minimumQuantityArticlesGrid;
+        protected IEnumerable<MinimumLocalWarehouseQuantityArticle> minimumQuantityArticles = new List<MinimumLocalWarehouseQuantityArticle>();
+        protected LocalizedDataGrid<MinimumLocalWarehouseQuantityArticle> minimumQuantityArticlesGrid;
+
         #endregion
 
         #region Override
@@ -82,8 +83,6 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
             }
         }
         #endregion
-
-        #region Events
 
         #region Timer
         async Task InitializeGridTimers()
@@ -143,6 +142,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
 
         #endregion
 
+        #region Events
         public async Task Update()
         {
             await GridData_Update();
@@ -153,7 +153,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
             try
             {
                 isLoadingInProgress = true;
-                selectedAlarms = new List<MinimumQuantityArticle>();
+                selectedAlarms = new List<MinimumLocalWarehouseQuantityArticle>();
                 GridTimer.LastUpdate = DateTime.Now;
                 Console.WriteLine($"{GridTimer.LastUpdate}");
                 await UpdateMinimumQuantitiesAsync();
@@ -177,10 +177,10 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
 
         async Task UpdateMinimumQuantitiesAsync(CancellationToken ct = default)
         {
-            var originalData = await GetCache<MinimumQuantityArticle>("MinimumQuantityArticle");
-            minimumQuantityArticles = await DashBoardService.GetMinimumQuantityAlarmsAsync(employee.EmployeeId, search, ct);
-            await AlertVisibleChange(!minimumQuantityArticles.OrderBy(o => o.ArticleName).ToList().IsEqual<MinimumQuantityArticle>(originalData.OrderBy(o => o.ArticleName).ToList()));
-            await UpdateCache<MinimumQuantityArticle>("MinimumQuantityArticle", minimumQuantityArticles.ToList());
+            var originalData = await GetCache<MinimumLocalWarehouseQuantityArticle>("MinimumLocalWarehouseQuantityArticle");
+            minimumQuantityArticles = await DashBoardService.GetMinimumLocalWarehouseQuantityAlarmsAsync(employee.EmployeeId, search, ct);
+            await AlertVisibleChange(!minimumQuantityArticles.OrderBy(o => o.ArticleName).ToList().IsEqual<MinimumLocalWarehouseQuantityArticle>(originalData.OrderBy(o => o.ArticleName).ToList()));
+            await UpdateCache<MinimumLocalWarehouseQuantityArticle>("MinimumLocalWarehouseQuantityArticle", minimumQuantityArticles.ToList());
             if (minimumQuantityArticlesGrid != null)
                 await minimumQuantityArticlesGrid.Reload();
         }
@@ -188,7 +188,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         private async Task AlertVisibleChange(bool value)
         {
             minimumAlertVisible = value;
-            await OnAlertVisibleChanged.InvokeAsync((1, minimumAlertVisible));
+            await OnAlertVisibleChanged.InvokeAsync((9, minimumAlertVisible));
         }
 
         async Task ReferenceMovementReport(int referenceId)
@@ -200,7 +200,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
 
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
 
-        protected async Task DisableAlarm(MinimumQuantityArticle args)
+        protected async Task DisableAlarm(MinimumLocalWarehouseQuantityArticle args)
         {
             var alertVisible = minimumAlertVisible;
 
@@ -212,11 +212,11 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
                     {
                         isLoadingInProgress = true;
                         foreach (var alarm in selectedAlarms)
-                            await VisualizedMinimumQuantityAlarmService.AddAsync(new VisualizedMinimumQuantityAlarm { MinimumQuantityAlarmId = alarm.AlarmId, EmployeeId = employee.EmployeeId });
+                            await VisualizedMinimumLocalWarehouseQuantityAlarmService.AddAsync(new VisualizedMinimumLocalWarehouseQuantityAlarm { AlarmId = alarm.AlarmId, EmployeeId = employee.EmployeeId });
                     }
                     finally
                     {
-                        selectedAlarms = new List<MinimumQuantityArticle>();
+                        selectedAlarms = new List<MinimumLocalWarehouseQuantityArticle>();
                         isLoadingInProgress = false;
                     }
 
@@ -226,7 +226,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
             }
             else if (await DialogService.Confirm("Desea ocultar esta alarma?. No volverá a salir en su Home", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Ocultar alarma") == true)
             {
-                await VisualizedMinimumQuantityAlarmService.AddAsync(new VisualizedMinimumQuantityAlarm { MinimumQuantityAlarmId = args.AlarmId, EmployeeId = employee.EmployeeId });
+                await VisualizedMinimumLocalWarehouseQuantityAlarmService.AddAsync(new VisualizedMinimumLocalWarehouseQuantityAlarm { AlarmId = args.AlarmId, EmployeeId = employee.EmployeeId });
                 await UpdateMinimumQuantitiesAsync();
                 await AlertVisibleChange(alertVisible);
             }

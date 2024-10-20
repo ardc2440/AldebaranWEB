@@ -31,6 +31,9 @@
 		</Compile>
 	</ItemGroup>
 	<ItemGroup>
+	  <Compile Update="Configuration\VisualizedMinimumLocalWarehouseQuantityAlarmConfiguration.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
 	  <Compile Update="Configuration\WarehouseTransferDetailConfiguration.cs">
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>
@@ -100,6 +103,9 @@
 	  <Compile Update="Core\Triggers\Transfers\AdjustWarehouseFromNewWarehouseTransferDetail.cs">
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>
+	  <Compile Update="Entities\MinimumLocalWarehouseQuantityArticle.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
 	  <Compile Update="Entities\MinimumQuantityArticle.cs">
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>
@@ -113,6 +119,9 @@
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>
 	  <Compile Update="Entities\Reports\InventoryAdjustmentReport.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
+	  <Compile Update="Entities\VisualizedMinimumLocalWarehouseQuantityAlarm.cs">
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>
 	</ItemGroup>

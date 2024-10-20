@@ -3,18 +3,18 @@
 @inject Radzen.DialogService dialogService
 
 <RadzenCard class="rz-col-12" Style="max-width: 100%">
-    <NotificationTitle DataUpdate="@GridData_Update" GridTimer="@GridTimer" Title="Sobrepaso de cantidades mínimas" Timers="@Timers" />
+    <NotificationTitle DataUpdate="@GridData_Update" GridTimer="@GridTimer" Title="Sobrepaso de cantidades mínimas en bodega local" Timers="@Timers" />
     <RadzenCard Variant="Radzen.Variant.Text" class="px-0">
         <RadzenRow class="rz-m-1">
             <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
         </RadzenRow>
         <RadzenRow class="rz-m-1">
-            <LocalizedDataGrid AllowRowSelectOnRowClick="false" @ref="minimumQuantityArticlesGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true" PageSize="@pageSize"
-                               ShowPagingSummary="true" Data="@minimumQuantityArticles" TItem="Aldebaran.Application.Services.Models.MinimumQuantityArticle"
+            <LocalizedDataGrid AllowRowSelectOnRowClick="false" PageSize="@pageSize" @ref="minimumQuantityArticlesGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true"
+                               ShowPagingSummary="true" Data="@minimumQuantityArticles" TItem="Aldebaran.Application.Services.Models.MinimumLocalWarehouseQuantityArticle"
                                IsLoading="@(isLoadingInProgress||GridTimer.IsLoading)"
                                SelectionMode="DataGridSelectionMode.Multiple" @bind-Value=@selectedAlarms>
                 <Columns>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.MinimumQuantityArticle" Width="60px" Sortable="false" Filterable="false">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.MinimumLocalWarehouseQuantityArticle" Width="60px" Sortable="false" Filterable="false">
                         <HeaderTemplate>
                             <RadzenCheckBox TabIndex="-1" TriState="false" TValue="bool?" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select all items" }})"
                                             Value="@(selectedAlarms == null || selectedAlarms?.Any() != true ? false : !minimumQuantityArticles.All(i => selectedAlarms.Contains(i)) ? null : minimumQuantityArticles.Any(i => selectedAlarms.Contains(i)))"
@@ -27,37 +27,37 @@
                                             MouseEnter="@(args => ShowTooltip(args,"Marcar", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.MinimumQuantityArticle" Property="ArticleName" Title="Referencia" Width="80%">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.MinimumLocalWarehouseQuantityArticle" Property="ArticleName" Title="Referencia" Width="80%">
                         <Template Context="detail">
                             <a href="javascript:;" title="@detail.ArticleName" @onclick="() => ReferenceMovementReport(detail.ReferenceId)">@detail.ArticleName</a>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.MinimumQuantityArticle" Title="Cant. Mínima" Width="30%" Filterable="false">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.MinimumLocalWarehouseQuantityArticle" Title="Cant. Mínima" Width="30%" Filterable="false">
                         <Template Context="detail">
                             @detail.MinimumQuantity.ToString("N0")
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.MinimumQuantityArticle" Title="Inventario" Width="30%" Filterable="false">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.MinimumLocalWarehouseQuantityArticle" Title="Inventario" Width="30%" Filterable="false">
                         <Template Context="detail">
                             @detail.AvailableQuantity.ToString("N0")
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.MinimumQuantityArticle" Title="En Tránsito" Width="30%" Filterable="false">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.MinimumLocalWarehouseQuantityArticle" Title="En Tránsito" Width="30%" Filterable="false">
                         <Template Context="detail">
                             @detail.InTransitQuantity.ToString("N0")
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.MinimumQuantityArticle" Title="Reservado" Width="30%" Filterable="false">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.MinimumLocalWarehouseQuantityArticle" Title="Reservado" Width="30%" Filterable="false">
                         <Template Context="detail">
                             @detail.ReservedQuantity.ToString("N0")
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.MinimumQuantityArticle" Title="Pedido" Width="30%" Filterable="false">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.MinimumLocalWarehouseQuantityArticle" Title="Pedido" Width="30%" Filterable="false">
                         <Template Context="detail">
                             @detail.OrderedQuantity.ToString("N0")
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.MinimumQuantityArticle" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.MinimumLocalWarehouseQuantityArticle" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
                         <Template Context="alarm">
                             <RadzenButton Icon="assignment_turned_in" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => DisableAlarm(alarm))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Ocultar alarma", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
                         </Template>

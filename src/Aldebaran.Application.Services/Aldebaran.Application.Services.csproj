@@ -23,6 +23,9 @@
 	  <Compile Update="Models\Enums\NotificationStatus.cs">
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>
+	  <Compile Update="Models\MinimumLocalWarehouseQuantityArticle.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
 	  <Compile Update="Models\PurchaseOrderVariation.cs">
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>
@@ -32,10 +35,16 @@
 	  <Compile Update="Models\Reports\InventoryReport.cs">
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>
+	  <Compile Update="Models\VisualizedMinimumLocalWarehouseQuantityAlarm.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
 	  <Compile Update="Models\VisualizedMinimumQuantityAlarm.cs">
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>
 	  <Compile Update="Models\VisualizedOutOfStockInventoryAlarm.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
+	  <Compile Update="Services\IVisualizedMinimumLocalWarehouseQuantityAlarmService.cs">
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>
 	  <Compile Update="Services\Reports\IInProcessInventoryReportService.cs">
@@ -46,6 +55,9 @@
 	  </Compile>
 	  <Compile Update="Services\Reports\OrderShipmentReportService.cs">
 	    <DependentUpon>IPurchaseOrderReportService.cs</DependentUpon>
+	  </Compile>
+	  <Compile Update="Services\VisualizedMinimumQuantityAlarmService - Copia.cs">
+	    <DependentUpon>IVisualizedMinimumLocalWarehouseQuantityAlarmService.cs</DependentUpon>
 	  </Compile>
 	</ItemGroup>
 </Project>

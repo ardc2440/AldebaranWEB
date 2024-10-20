@@ -1,6 +1,7 @@
 ﻿using Aldebaran.DataAccess.Entities;
 using Aldebaran.DataAccess.Enums;
 using Aldebaran.Infraestructure.Common.Utils;
+using DocumentFormat.OpenXml.Drawing.Charts;
 using DocumentFormat.OpenXml.Drawing.Diagrams;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -215,10 +216,12 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 var employee_Id = new SqlParameter("@EmployeeId", employeeId);
 
                 if (searchKey.IsNullOrEmpty())
+                {
                     return await dbContext.Set<MinimumQuantityArticle>()
                         .FromSqlRaw($"EXEC SP_GET_MINIMUM_QUANTITY_ALARMS " +
                         $"@EmployeeId",
-                        employee_Id).ToListAsync(ct);
+                        employee_Id).ToListAsync(ct);                    
+                }
                 else
                 {
                     var search = new SqlParameter("@SEARCHKEY", searchKey);
@@ -227,7 +230,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                         .FromSqlRaw($"EXEC SP_GET_MINIMUM_QUANTITY_ALARMS " +
                         $"@EmployeeId, " +
                         $"@SEARCHKEY ",
-                        employee_Id, search).ToListAsync(ct);
+                        employee_Id, search).ToListAsync(ct);                    
                 }
             }, ct);
         }
@@ -242,5 +245,29 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                                         .ToListAsync(ct);
             }, ct);
         }
+        public async Task<IEnumerable<MinimumLocalWarehouseQuantityArticle>> GetMinimumLocalWarehouseQuantityAlarmsAsync(int employeeId, string? searchKey = null, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                var employee_Id = new SqlParameter("@EmployeeId", employeeId);
+
+                if (searchKey.IsNullOrEmpty())
+                    return await dbContext.Set<MinimumLocalWarehouseQuantityArticle>()
+                        .FromSqlRaw($"EXEC SP_GET_MINIMUM_LOCAL_WAREHOUSE_QUANTITY_ALARMS " +
+                        $"@EmployeeId",
+                        employee_Id).ToListAsync(ct);
+                else
+                {
+                    var search = new SqlParameter("@SEARCHKEY", searchKey);
+
+                    return await dbContext.Set<MinimumLocalWarehouseQuantityArticle>()
+                        .FromSqlRaw($"EXEC SP_GET_MINIMUM_LOCAL_WAREHOUSE_QUANTITY_ALARMS " +
+                        $"@EmployeeId, " +
+                        $"@SEARCHKEY ",
+                        employee_Id, search).ToListAsync(ct);
+                }
+            }, ct);
+        }
+
     }
 }

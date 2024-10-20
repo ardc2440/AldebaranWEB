@@ -30,12 +30,12 @@
     </RadzenRow>
 
     <RadzenColumn>
-        <RadzenTabs TabPosition="TabPosition.Left" RenderMode="TabRenderMode.Client" >
+        <RadzenTabs TabPosition="TabPosition.Left" RenderMode="TabRenderMode.Client">
             <Tabs>
-                <RadzenTabsItem Visible="@(minimumQuantityNotificatioVisible)" >
+                <RadzenTabsItem Visible="@(minimumQuantityNotificatioVisible)">
                     <Template>
                         <div style="display: flex; align-items: center; margin-bottom: 5px; height: 40px; width: 150px">
-                            <RadzenImage Click="@(() => AlertClick(1))" Visible="@minimumQuantityAlertVisible" Path="images/alert.gif" Style="width: 25px; height: 20px; vertical-align: middle; margin-right: 2px;" />Sobrepaso de<br>cantidades mínimas
+                            <RadzenImage Click="@(() => AlertClick(1))" Visible="@minimumQuantityAlertVisible" Path="images/alert.gif" Style="width: 25px; height: 20px; vertical-align: middle; margin-right: 2px;" />Sobrepaso de<br>cantidades mínimas<br>por referencia
                         </div>
                     </Template>
                     <ChildContent>
@@ -44,7 +44,8 @@
                         </RadzenRow>
                     </ChildContent>
                 </RadzenTabsItem>
-                <RadzenTabsItem Visible="@(outOfStockNotificatioVisible)" >
+
+                <RadzenTabsItem Visible="@(outOfStockNotificatioVisible)">
                     <Template>
                         <div style="display: flex; align-items: center; margin-bottom: 5px; height: 40px; width: 150px">
                             <RadzenImage Click="@(() => AlertClick(2))" Visible="@outOfStockAlertVisible" Path="images/alert.gif" Style="width: 25px; height: 20px; vertical-align: middle; margin-right: 2px;" />Inventario sin stock
@@ -56,7 +57,8 @@
                         </RadzenRow>
                     </ChildContent>
                 </RadzenTabsItem>
-                <RadzenTabsItem Visible="@(userAlarmNotificationVisible)" >
+
+                <RadzenTabsItem Visible="@(userAlarmNotificationVisible)">
                     <Template>
                         <div style="display: flex; align-items: center; margin-bottom: 5px; height: 40px; width: 150px">
                             <RadzenImage Click="@(() => AlertClick(3))" Visible="@userAlarmAlertVisible" Path="images/alert.gif" Style="width: 25px; height: 20px; vertical-align: middle; margin-right: 2px;" />Alarmas del día
@@ -68,7 +70,21 @@
                         </RadzenRow>
                     </ChildContent>
                 </RadzenTabsItem>
-                <RadzenTabsItem Visible="@(expiredReservationNotificationVisible)" >
+
+                <RadzenTabsItem Visible="@(minimumLocalWarehouseQuantityNotificatioVisible)">
+                    <Template>
+                        <div style="display: flex; align-items: center; margin-bottom: 5px; height: 40px; width: 150px">
+                            <RadzenImage Click="@(() => AlertClick(9))" Visible="@minimumLocalWarehouseQuantityAlertVisible" Path="images/alert.gif" Style="width: 25px; height: 20px; vertical-align: middle; margin-right: 2px;" />Sobrepaso de<br>cantidades mínimas<br>en bodega local
+                        </div>
+                    </Template>
+                    <ChildContent>
+                        <RadzenRow class="mb-2">
+                            <MinimumLocalWarehouseQuantityNotifications @ref="minimumLocalWarehouseQuantityNotifications" OnAlertVisibleChanged="@UpdateAlert" />
+                        </RadzenRow>
+                    </ChildContent>
+                </RadzenTabsItem>
+
+                <RadzenTabsItem Visible="@(expiredReservationNotificationVisible)">
                     <Template>
                         <div style="display: flex; align-items: center; margin-bottom: 5px; height: 40px; width: 150px">
                             <RadzenImage Click="@(() => AlertClick(4))" Visible="@expiredReservationAlertVisible" Path="images/alert.gif" Style="width: 25px; height: 20px; vertical-align: middle; margin-right: 2px;" />Reservas vencidas
@@ -80,7 +96,8 @@
                         </RadzenRow>
                     </ChildContent>
                 </RadzenTabsItem>
-                <RadzenTabsItem Visible="@(customerOrderExpirationNotificationVisible)" >
+
+                <RadzenTabsItem Visible="@(customerOrderExpirationNotificationVisible)">
                     <Template>
                         <div style="display: flex; align-items: center; margin-bottom: 5px; height: 40px; width: 150px">
                             <RadzenImage Click="@(() => AlertClick(5))" Visible="@customerOrderExpirationAlertVisible" Path="images/alert.gif" Style="width: 25px; height: 20px; vertical-align: middle; margin-right: 2px;" />Pedidos vencidos
@@ -92,7 +109,8 @@
                         </RadzenRow>
                     </ChildContent>
                 </RadzenTabsItem>
-                <RadzenTabsItem Visible="@(purchaseOrderExpirationNotificationVisible)" >
+
+                <RadzenTabsItem Visible="@(purchaseOrderExpirationNotificationVisible)">
                     <Template>
                         <div style="display: flex; align-items: center; margin-bottom: 5px; height: 40px; width: 150px">
                             <RadzenImage Click="@(() => AlertClick(6))" Visible="@purchaseOrderExpirationAlertVisible" Path="images/alert.gif" Style="width: 25px; height: 20px; vertical-align: middle; margin-right: 2px;" />Ordenes de compra <br>vencidas
@@ -104,7 +122,8 @@
                         </RadzenRow>
                     </ChildContent>
                 </RadzenTabsItem>
-                <RadzenTabsItem Visible="@(purchaseOrderTransitAlarmNotificationsVisible)" >
+
+                <RadzenTabsItem Visible="@(purchaseOrderTransitAlarmNotificationsVisible)">
                     <Template>
                         <div style="display: flex; align-items: center; margin-bottom: 5px; height: 40px; width: 150px">
                             <RadzenImage Click="@(() => AlertClick(7))" Visible="@purchaseOrderTransitAlertVisible" Path="images/alert.gif" Style="width: 25px; height: 20px; vertical-align: middle; margin-right: 2px;" />Ordenes de compra <br>modificadas con <br>pedido afectado
@@ -116,7 +135,8 @@
                         </RadzenRow>
                     </ChildContent>
                 </RadzenTabsItem>
-                <RadzenTabsItem Visible="@(emailErrorNotificationsVisible)" >
+
+                <RadzenTabsItem Visible="@(emailErrorNotificationsVisible)">
                     <Template>
                         <div style="display: flex; align-items: center; margin-bottom: 5px; height: 40px; width: 150px">
                             <RadzenImage Click="@(() => AlertClick(8))" Visible="@emailErrorAlertVisible" Path="images/alert.gif" Style="width: 25px; height: 20px; vertical-align: middle; margin-right: 2px;" />Correos con error <br>de envío

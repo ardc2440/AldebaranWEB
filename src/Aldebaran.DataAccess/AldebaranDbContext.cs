@@ -100,10 +100,9 @@ namespace Aldebaran.DataAccess
         public virtual DbSet<Track> Tracks { get; set; }
         public DbSet<VisualizedMinimumQuantityAlarm> VisualizedMinimumQuantityAlarms { get; set; }
         public DbSet<VisualizedOutOfStockInventoryAlarm> VisualizedOutOfStockInventoryAlarms { get; set; }
-
+        public DbSet<VisualizedMinimumLocalWarehouseQuantityAlarm> VisualizedMinimumLocalWarehouseQuantityAlarms { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-
         }
 
         public string Format(DateTime date, string format) => throw new NotSupportedException();
@@ -188,6 +187,7 @@ namespace Aldebaran.DataAccess
             modelBuilder.ApplyConfiguration(new CustomerOrderNotificationConfiguration());
             modelBuilder.ApplyConfiguration(new CustomerReservationNotificationConfiguration());
             modelBuilder.ApplyConfiguration(new VisualizedMinimumQuantityAlarmConfiguration());
+            modelBuilder.ApplyConfiguration(new VisualizedMinimumLocalWarehouseQuantityAlarmConfiguration());
             modelBuilder.ApplyConfiguration(new VisualizedOutOfStockInventoryAlarmConfiguration());
 
             modelBuilder.Entity<InventoryAdjustmentReport>(iar => { iar.HasNoKey(); });
@@ -227,6 +227,18 @@ namespace Aldebaran.DataAccess
                 iar.Property(x => x.NotificationSendingErrorMessage).HasColumnName(@"NOTIFICATION_SENDING_ERROR_MESSAGE").HasColumnType("VARCHAR(MAX)").IsUnicode(false);
             });
             modelBuilder.Entity<MinimumQuantityArticle>(iar =>
+            {
+                iar.HasNoKey();
+                iar.Property(x => x.AlarmId).HasColumnName(@"AlarmId").HasColumnType("INT").IsRequired();
+                iar.Property(x => x.ReferenceId).HasColumnName(@"ReferenceId").HasColumnType("INT").IsRequired();
+                iar.Property(x => x.ArticleName).HasColumnName(@"ArticleName").HasColumnType("VARCHAR(150)").IsUnicode(false).HasMaxLength(150).IsRequired();
+                iar.Property(x => x.InTransitQuantity).HasColumnName(@"InTransitQuantity").HasColumnType("INT").IsRequired();
+                iar.Property(x => x.AvailableQuantity).HasColumnName(@"AvailableQuantity").HasColumnType("INT").IsRequired();
+                iar.Property(x => x.OrderedQuantity).HasColumnName(@"OrderedQuantity").HasColumnType("INT").IsRequired();
+                iar.Property(x => x.ReservedQuantity).HasColumnName(@"ReservedQuantity").HasColumnType("INT").IsRequired();
+                iar.Property(x => x.MinimumQuantity).HasColumnName(@"MinimumQuantity").HasColumnType("INT").IsRequired();
+            });
+            modelBuilder.Entity<MinimumLocalWarehouseQuantityArticle>(iar =>
             {
                 iar.HasNoKey();
                 iar.Property(x => x.AlarmId).HasColumnName(@"AlarmId").HasColumnType("INT").IsRequired();

@@ -259,6 +259,7 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IPackagingRepository, PackagingRepository>();
             services.AddTransient<IVisualizedMinimumQuantityAlarmRepository, VisualizedMinimumQuantityAlarmRepository>();
             services.AddTransient<IVisualizedOutOfStockInventoryAlarmRepository, VisualizedOutOfStockInventoryAlarmRepository>();
+            services.AddTransient<IVisualizedMinimumLocalWarehouseQuantityAlarmRepository, VisualizedMinimumLocalWarehouseQuantityAlarmRepository>();
 
 
             #endregion
@@ -343,6 +344,7 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IPackagingService,PackagingService>();
             services.AddTransient<IVisualizedMinimumQuantityAlarmService, VisualizedMinimumQuantityAlarmService>();
             services.AddTransient<IVisualizedOutOfStockInventoryAlarmService, VisualizedOutOfStockInventoryAlarmService>();
+            services.AddTransient<IVisualizedMinimumLocalWarehouseQuantityAlarmService, VisualizedMinimumLocalWarehouseQuantityAlarmService>();
 
             #endregion
 

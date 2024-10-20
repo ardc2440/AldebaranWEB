@@ -8,19 +8,17 @@ namespace Aldebaran.Application.Services
     {
         private readonly IDashBoardRepository _repository;
         private readonly IMapper _mapper;
-        
+
         public DashBoardService(IDashBoardRepository repository, IMapper mapper)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(IDashBoardRepository));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(IMapper));
         }
-                
         public async Task<IEnumerable<CustomerReservation>> GetExpiredReservationsAsync(string? searchKey = null, CancellationToken ct = default)
         {
             var data = await _repository.GetExpiredReservationsAsync(searchKey, ct);
             return _mapper.Map<IEnumerable<CustomerReservation>>(data);
         }
-
         public async Task<IEnumerable<Alarm>> GetByEmployeeIdAsync(int employeeId, CancellationToken ct = default)
         {
             var data = await _repository.GetByEmployeeIdAsync(employeeId, ct);
@@ -36,53 +34,51 @@ namespace Aldebaran.Application.Services
             var data = await _repository.FindByCodeAsync(code, ct);
             return _mapper.Map<Models.DocumentType?>(data);
         }
-
         public async Task<StatusDocumentType?> FindByDocumentAndOrderAsync(int documentTypeId, int order, CancellationToken ct = default)
         {
             var data = await _repository.FindByDocumentAndOrderAsync(documentTypeId, order, ct);
             return _mapper.Map<StatusDocumentType?>(data);
         }
-
         public async Task<IEnumerable<PurchaseOrderTransitAlarm>> GetAllTransitAlarmAsync(int employeeId, string? searchKey = null, CancellationToken ct = default)
         {
             var data = await _repository.GetAllTransitAlarmAsync(employeeId, searchKey, ct);
             return _mapper.Map<IEnumerable<PurchaseOrderTransitAlarm>>(data);
         }
-
         public async Task<IEnumerable<PurchaseOrder>> GetPurchaseOrderExpirationsAsync(int purchaseOrderWitheFlag, string? searchKey = null, CancellationToken ct = default)
         {
             var data = await _repository.GetPurchaseOrderExpirationsAsync(purchaseOrderWitheFlag, searchKey, ct);
             return _mapper.Map<IEnumerable<PurchaseOrder>>(data);
         }
-
         public async Task<IEnumerable<CustomerOrder>> GetExpiredCustomerOrdersAsync(string? searchKey = null, CancellationToken ct = default)
         {
             var data = await _repository.GetExpiredCustomerOrdersAsync(searchKey, ct);
             return _mapper.Map<IEnumerable<CustomerOrder>>(data);
         }
-
         public async Task<IEnumerable<NotificationWithError>> GetNotificationsWithError(string? searchKey = null, CancellationToken ct = default)
         {
             var data = await _repository.GetNotificationsWithError(searchKey, ct);
             return _mapper.Map<List<NotificationWithError>>(data.OrderBy(o => o.NotificationDate));
         }
-
         public async Task<IEnumerable<OutOfStockArticle>> GetOutOfStockAlarmsAsync(int employeeId, string? searchKey = null, CancellationToken ct = default)
         {
             var data = await _repository.GetOutOfStockAlarmsAsync(employeeId, searchKey, ct);
             return _mapper.Map<IEnumerable<OutOfStockArticle>>(data);
         }
-
         public async Task<IEnumerable<MinimumQuantityArticle>> GetMinimumQuantityAlarmsAsync(int employeeId, string? searchKey = null, CancellationToken ct = default)
         {
             var data = await _repository.GetMinimumQuantityAlarmsAsync(employeeId, searchKey, ct);
             return _mapper.Map<IEnumerable<MinimumQuantityArticle>>(data);
         }
-
         public async Task<IEnumerable<PurchaseOrderNotification>> GetNotificationsByModifiedPurchaseOrder(int modifiedPurchaseOrderId, CancellationToken ct = default)
         {
             var entity = await _repository.GetNotificationsByModifiedPurchaseOrder(modifiedPurchaseOrderId, ct);
             return _mapper.Map<List<PurchaseOrderNotification>>(entity);
         }
+        public async Task<IEnumerable<MinimumLocalWarehouseQuantityArticle>> GetMinimumLocalWarehouseQuantityAlarmsAsync(int employeeId, string? searchKey = null, CancellationToken ct = default)
+        {
+            var data = await _repository.GetMinimumLocalWarehouseQuantityAlarmsAsync(employeeId, searchKey, ct);
+            return _mapper.Map<IEnumerable<MinimumLocalWarehouseQuantityArticle>>(data);
+        }
+
     }
 }
