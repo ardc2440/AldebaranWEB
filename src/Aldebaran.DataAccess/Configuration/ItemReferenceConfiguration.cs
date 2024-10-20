@@ -24,6 +24,8 @@ namespace Aldebaran.DataAccess.Entities
             builder.Property(x => x.AlarmMinimumQuantity).HasColumnName(@"ALARM_MINIMUM_QUANTITY").HasColumnType("int").IsRequired();
             builder.Property(x => x.PurchaseOrderVariation).HasColumnName(@"PURCHASE_ORDER_VARIATION").HasColumnType("int").IsRequired();
             builder.Property(x => x.MinimumQuantityPercent).HasColumnName(@"MINIMUM_QUANTITY_PERCENT").HasColumnType("int").IsRequired();
+            builder.Property(x => x.MinimumLocalWarehouseQuantity).HasColumnName(@"MINIMUM_LOCAL_WAREHOUSE_QUANTITY").HasColumnType("int").IsRequired();
+                        
             // Foreign keys
             builder.HasOne(a => a.Item).WithMany(b => b.ItemReferences).HasForeignKey(c => c.ItemId).OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_REFERENCE_ITEM");
             builder.HasIndex(x => x.ProviderReferenceCode).HasDatabaseName("IND_REFERENCES_INTERNAL_REFERENCE_CODE");

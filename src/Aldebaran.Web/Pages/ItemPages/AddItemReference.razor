@@ -76,6 +76,9 @@
                                         <ChildContent>
                                             <RadzenNumeric style="display: block; width: 100%" @bind-Value="@ItemReference.AlarmMinimumQuantity" Name="AlarmMinimumQuantity" Min="0" Max="1000000" />
                                         </ChildContent>
+                                        <Helper>
+                                            <RadzenRequiredValidator Component="MinimumQuantityPercent" Text="La cantidad mínima es requerida" />
+                                        </Helper>
                                     </RadzenFormField>
                                 </RadzenColumn>
                                 <RadzenColumn Size="6" SizeMD="6">
@@ -83,20 +86,42 @@
                                         <ChildContent>
                                             <RadzenNumeric style="display: block; width: 100%" @bind-Value="@ItemReference.MinimumQuantityPercent" Name="MinimumQuantityPercent" Min="0" Max="99" />
                                         </ChildContent>
+                                        <Helper>
+                                            <RadzenRequiredValidator Component="MinimumQuantityPercent" Text="El % de cantidad mínima es requerido" />
+                                        </Helper>
                                     </RadzenFormField>
                                 </RadzenColumn>
                             }
                         </RadzenRow>
                     </RadzenColumn>
                     <RadzenColumn Size="6" SizeMD="6">
-                        <RadzenFormField Text="% Variacion en orden de compra" Variant="Variant.Text" Style="width: 100%;">
-                            <ChildContent>
-                                <RadzenNumeric style="display: block; width: 100%" @bind-Value="@ItemReference.PurchaseOrderVariation" Name="PurchaseOrderVariation" Min="0" Max="100" />
-                            </ChildContent>
-                            <Helper>
-                                <RadzenRequiredValidator Component="PurchaseOrderVariation" Text="Cantidad mínima es requerida" />
-                            </Helper>
-                        </RadzenFormField>
+                        <RadzenRow AlignItems="Radzen.AlignItems.Start">
+                            <RadzenColumn Size="6" SizeMD="6">
+                                <RadzenFormField Text="% Var. compra" Variant="Variant.Text" Style="width: 100%;">
+                                    <ChildContent>
+                                        <RadzenNumeric style="display: block; width: 100%" @bind-Value="@ItemReference.PurchaseOrderVariation" Name="PurchaseOrderVariation" Min="0" Max="100" />
+                                    </ChildContent>
+                                    <Helper>
+                                        <RadzenRequiredValidator Component="PurchaseOrderVariation" Text="El % de variacion en compra es requerido" />
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn Size="6" SizeMD="6">
+                                @if (!Item.IsDomesticProduct && !Item.IsSpecialImport)
+                                {
+                                    <RadzenColumn Size="6" SizeMD="6">
+                                        <RadzenFormField Text="Mí. bodega local" Variant="Variant.Text" Style="width: 100%;">
+                                            <ChildContent>
+                                                <RadzenNumeric style="display: block; width: 100%" @bind-Value="@ItemReference.MinimumLocalWarehouseQuantity" Name="MinimumLocalWarehouseQuantity" Min="0" Max="1000000" />
+                                            </ChildContent>
+                                            <Helper>
+                                                <RadzenRequiredValidator Component="MinimumLocalWarehouseQuantity" Text="El mínimo en bodega local es requerido" />
+                                            </Helper>
+                                        </RadzenFormField>
+                                    </RadzenColumn>
+                                }
+                            </RadzenColumn>
+                        </RadzenRow>
                     </RadzenColumn>
                 </RadzenRow>
                 <RadzenRow AlignItems="Radzen.AlignItems.Start">

@@ -113,6 +113,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 entity.AlarmMinimumQuantity = itemReference.AlarmMinimumQuantity;
                 entity.MinimumQuantityPercent = itemReference.MinimumQuantityPercent;
                 entity.PurchaseOrderVariation = itemReference.PurchaseOrderVariation;
+                entity.MinimumLocalWarehouseQuantity = itemReference.MinimumLocalWarehouseQuantity;
                 await dbContext.SaveChangesAsync(ct);
             }, ct);
         }

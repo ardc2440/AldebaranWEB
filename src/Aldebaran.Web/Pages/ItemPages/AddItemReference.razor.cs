@@ -65,8 +65,12 @@ namespace Aldebaran.Web.Pages.ItemPages
                 var referenceNameAlreadyExists = await ItemReferenceService.ExistsByReferenceName(ItemReference.ReferenceName, ItemReference.ItemId);
                 if (!Item.IsDomesticProduct && !Item.IsSaleOff && !Item.IsSpecialImport)
                     if (ItemReference.AlarmMinimumQuantity <= 0 && ItemReference.MinimumQuantityPercent <= 0)
-                        ValidationErrors.Add("Para los productos importados debe ingresar cantidad mínima o % cantidad mínima");
-                
+                        ValidationErrors.Add("Debe ingresar cantidad mínima o % cantidad mínima");
+
+                if (!Item.IsDomesticProduct && !Item.IsSpecialImport)
+                    if (ItemReference.MinimumLocalWarehouseQuantity <= 0)
+                        ValidationErrors.Add("Debe ingresar cantidad mínima para bodega local");
+
                 if (referenceNameAlreadyExists)
                 {
                     ValidationErrors.Add("Ya existe una referencia con el mismo nombre.");

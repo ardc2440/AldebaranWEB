@@ -20,6 +20,7 @@ namespace Aldebaran.DataAccess.Entities
         public int AlarmMinimumQuantity { get; set; }
         public int PurchaseOrderVariation { get; set; }
         public int MinimumQuantityPercent {  get; set; } 
+        public int MinimumLocalWarehouseQuantity { get; set; }
 
         // Reverse navigation
         public ICollection<AdjustmentDetail> AdjustmentDetails { get; set; }
@@ -41,6 +42,7 @@ namespace Aldebaran.DataAccess.Entities
             AlarmMinimumQuantity = 0;
             PurchaseOrderVariation = 0;
             MinimumQuantityPercent = 0;
+            MinimumLocalWarehouseQuantity = 0;
             AdjustmentDetails = new List<AdjustmentDetail>();
             CustomerOrderDetails = new List<CustomerOrderDetail>();
             CustomerReservationDetails = new List<CustomerReservationDetail>();

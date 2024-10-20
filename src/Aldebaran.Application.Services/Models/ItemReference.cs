@@ -19,7 +19,8 @@ namespace Aldebaran.Application.Services.Models
         public bool IsSoldOut { get; set; }
         public int AlarmMinimumQuantity { get; set; }
         public int PurchaseOrderVariation { get; set; }
-        public int MinimumQuantityPercent { get; set; }        
+        public int MinimumQuantityPercent { get; set; }
+        public int MinimumLocalWarehouseQuantity { get; set; }
 
         public bool HavePurchaseOrderDetail { get; set; }
         // Reverse navigation
@@ -42,6 +43,7 @@ namespace Aldebaran.Application.Services.Models
             AlarmMinimumQuantity = 0;
             PurchaseOrderVariation = 0; 
             MinimumQuantityPercent = 0;
+            MinimumLocalWarehouseQuantity = 0;
             AdjustmentDetails = new List<AdjustmentDetail>();
             CustomerOrderDetails = new List<CustomerOrderDetail>();
             CustomerReservationDetails = new List<CustomerReservationDetail>();

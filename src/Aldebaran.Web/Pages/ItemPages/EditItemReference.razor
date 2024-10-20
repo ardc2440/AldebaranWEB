@@ -92,14 +92,30 @@
                         </RadzenRow>
                     </RadzenColumn>
                     <RadzenColumn Size="6" SizeMD="6">
-                        <RadzenFormField Text="% Variación en orden de compra" Variant="Variant.Text" Style="width: 100%;">
-                            <ChildContent>
-                                <RadzenNumeric ReadOnly="@(IsReadOnlyFullEditing && !PURCHASE_ORDER_VARIATION)" style="display: block; width: 100%" @bind-Value="@ItemReference.PurchaseOrderVariation" Name="PurchaseOrderVariation" Min="0" Max="100" />
-                            </ChildContent>
-                            <Helper>
-                                <RadzenRequiredValidator Component="PurchaseOrderVariation" Text="Cantidad mínima es requerida" />
-                            </Helper>
-                        </RadzenFormField>
+                        <RadzenRow AlignItems="Radzen.AlignItems.Start">
+                            <RadzenColumn Size="6" SizeMD="6">
+                                <RadzenFormField Text="% Var. compra" Variant="Variant.Text" Style="width: 100%;">
+                                    <ChildContent>
+                                        <RadzenNumeric ReadOnly="@(IsReadOnlyFullEditing && !PURCHASE_ORDER_VARIATION)" style="display: block; width: 100%" @bind-Value="@ItemReference.PurchaseOrderVariation" Name="PurchaseOrderVariation" Min="0" Max="100" />
+                                    </ChildContent>
+                                    <Helper>
+                                        <RadzenRequiredValidator Component="PurchaseOrderVariation" Text="Cantidad mínima es requerida" />
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn Size="6" SizeMD="6">
+                                @if (!Item.IsDomesticProduct && !Item.IsSpecialImport)
+                                {
+                                    <RadzenColumn Size="6" SizeMD="6">
+                                        <RadzenFormField Text="Mín. bodega local" Variant="Variant.Text" Style="width: 100%;">
+                                            <ChildContent>
+                                                <RadzenNumeric ReadOnly="@(IsReadOnlyFullEditing)" style="display: block; width: 100%" @bind-Value="@ItemReference.MinimumLocalWarehouseQuantity" Name="MinimumLocalWarehouseQuantity" Min="0" Max="1000000" />
+                                            </ChildContent>
+                                        </RadzenFormField>
+                                    </RadzenColumn>
+                                }
+                            </RadzenColumn>
+                        </RadzenRow>
                     </RadzenColumn>
                 </RadzenRow>
                 <RadzenRow AlignItems="Radzen.AlignItems.Start">
