@@ -57,6 +57,14 @@
                             @detail.OrderedQuantity.ToString("N0")
                         </Template>
                     </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.MinimumQuantityArticle" Title="Disponible" Width="30%" Filterable="false">
+                        <Template Context="detail">
+                            @{
+                                var available = (@detail.AvailableQuantity + @detail.InTransitQuantity) - @detail.OrderedQuantity;
+                             }
+                            @available.ToString("N0")                            
+                        </Template>
+                    </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.MinimumQuantityArticle" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
                         <Template Context="alarm">
                             <RadzenButton Icon="assignment_turned_in" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => DisableAlarm(alarm))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Ocultar alarma", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
