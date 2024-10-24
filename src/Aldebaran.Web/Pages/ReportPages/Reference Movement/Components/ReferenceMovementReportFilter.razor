@@ -3,15 +3,19 @@
 
 <RadzenColumn SizeMD=12>
     <RadzenTemplateForm TItem="ViewModel.ReferenceMovementFilter" Data="Filter" Submit="@FormSubmit">
+        <RadzenRow class="rz-p-2 rz-text-align-start" Visible="@Filter.AllMovementCheckVisible">
+            <RadzenCheckBox onclick="@OnClick" TValue="bool" @bind-Value="@Filter.ShowAllMovement" Name="ShowAllMovement" Change="@(args => StateHasChanged())"/>
+            <RadzenLabel Text="Incluir todos los movimientos" Component="ShowAllMovement" class="rz-ms-2" />            
+        </RadzenRow>
         <RadzenRow style="margin-bottom: 1rem">
             <RadzenColumn Size="6">
                 <RadzenStack>
                     <RadzenFormField Text="Fecha de movimiento inicial" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.MovementDate.StartDate" Name="MovementDateStartDate" AllowClear=true Change="()=> Filter.MovementDate.EndDate = Filter.MovementDate.EndDate < Filter.MovementDate.StartDate ? Filter.MovementDate.StartDate : Filter.MovementDate.EndDate" />
+                            <RadzenDatePicker Disabled="Filter.ShowAllMovement" DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.MovementDate.StartDate" Name="MovementDateStartDate" AllowClear=true Change="()=> Filter.MovementDate.EndDate = Filter.MovementDate.EndDate < Filter.MovementDate.StartDate ? Filter.MovementDate.StartDate : Filter.MovementDate.EndDate" />
                         </ChildContent>
                         <Helper>
-                            <RadzenRequiredValidator Text="La fecha inicial del movimiento es requerida" Component="MovementDateStartDate" />
+                            <RadzenRequiredValidator Visible="!Filter.ShowAllMovement" Text="La fecha inicial del movimiento es requerida" Component="MovementDateStartDate" />
                         </Helper>
                     </RadzenFormField>
                 </RadzenStack>
@@ -20,10 +24,10 @@
                 <RadzenStack>
                     <RadzenFormField Text="Fecha de movimiento final" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.MovementDate.EndDate" Name="MovementDateEndDate" AllowClear=true Min="Filter.MovementDate.StartDate" />
+                            <RadzenDatePicker Disabled="Filter.ShowAllMovement" DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.MovementDate.EndDate" Name="MovementDateEndDate" AllowClear=true Min="Filter.MovementDate.StartDate" />
                         </ChildContent>
                         <Helper>
-                            <RadzenRequiredValidator Text="La fecha final del movimiento es requerida" Component="MovementDateEndDate" />
+                            <RadzenRequiredValidator Visible="!Filter.ShowAllMovement" Text="La fecha final del movimiento es requerida" Component="MovementDateEndDate" />
                         </Helper>
                     </RadzenFormField>
                 </RadzenStack>

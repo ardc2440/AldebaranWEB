@@ -52,7 +52,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
         {
             if (firstRender)
             {
-                await OpenFilters();
+                await Reset();
             }
         }
 
@@ -84,7 +84,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
                 Filter = new ReferenceMovementFilter
                 {
                     ItemReferences = new List<Application.Services.Models.ItemReference> { reference },
-                    LockReferenceSelection = true
+                    LockReferenceSelection = true,
+                    AllMovementCheckVisible = true
                 };
             }
             else

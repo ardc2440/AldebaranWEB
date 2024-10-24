@@ -31,10 +31,23 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement.Components
 
         #endregion
 
+        protected async Task OnClick()
+        {
+            Console.WriteLine(Filter.ShowAllMovement);
+            StateHasChanged();
+        }
+
         protected override async Task OnInitializedAsync()
         {
             Filter ??= new ReferenceMovementFilter();
-            var references = (await ItemReferenceService.GetReportsReferencesAsync()).ToList();
+
+            var references = new List<ItemReference>();
+            
+            if (Filter?.ItemReferences?.Any() == true)
+                references.Add(await ItemReferenceService.FindAsync(Filter.ItemReferences.FirstOrDefault().ReferenceId));
+            else
+                references = (await ItemReferenceService.GetReportsReferencesAsync()).ToList();
+            
             AvailableItemReferencesForSelection = references;
             referencePicker.SetAvailableItemReferencesForSelection(AvailableItemReferencesForSelection);
         }
