@@ -1,4 +1,5 @@
 using Aldebaran.Web.Extensions;
+using Microsoft.Extensions.FileProviders;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.MSSqlServer;
@@ -74,5 +75,12 @@ static void Configure(WebApplication app)
     app.MapControllers();
     app.MapBlazorHub();
     app.MapFallbackToPage("/_Host");
+    var imageRepositoryPath = app.Configuration.GetValue<string>("AppSettings:ImageRepositoryPath");
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = new PhysicalFileProvider(
+        Path.Combine(Directory.GetCurrentDirectory(), imageRepositoryPath)),
+        RequestPath = "/externalimages"
+    });
     //app.Services.CreateScope().ServiceProvider.GetRequiredService<ApplicationIdentityDbContext>().Database.Migrate();
 }

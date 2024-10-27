@@ -16,7 +16,8 @@
                         @for (int i = 0; i < SelectedReferences.Count(); i++)
                         {
                             <div>
-                                <span class="@(i>=2 ? "read-more" : "")" style="@(i>=2 ? "display: none" : "")">[@SelectedReferences[i].Item.InternalReference] (@SelectedReferences[i].Item.Line.LineName) @SelectedReferences[i].Item.ItemName - @SelectedReferences[i].ReferenceName</span>
+                                <span class="@(i>=2 ? "read-more" : "")" style="@(i>=2 ? "display: none" : "display: block")">
+                                    [@SelectedReferences[i].Item.InternalReference] @SelectedReferences[i].Item.ItemName - @SelectedReferences[i].ReferenceName</span>
                             </div>
                         }
                         @if (SelectedReferences.Count() > 2)
@@ -49,7 +50,7 @@
                 <RadzenColumn SizeLG="4" SizeXL="4" SizeMD="4" SizeSM="12" SizeXS="12" SizeXX="12">
                     <RadzenFormField Text="Artículo" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDownDataGrid @ref="itemsGrid" Data="@Items" MaxSelectedLabels="2" TextProperty="FullName" ValueProperty="ItemId" SelectedItemsText="artículos seleccionados" Chips="true" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Multiple="true" Disabled="@ReadOnly"
+                            <RadzenDropDownDataGrid id="itemsDropdown" @ref="itemsGrid" Data="@Items" MaxSelectedLabels="2" TextProperty="FullName" ValueProperty="ItemId" SelectedItemsText="artículos seleccionados" Chips="true" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Multiple="true" Disabled="@ReadOnly"
                                                     style="display: block; width: 100%" @bind-Value="SelectedItemIds" Name="ItemId" Change="@OnItemChange" AllowFiltering="true" AllowSelectAll="true">
                                 <Columns>
 
@@ -63,6 +64,15 @@
                                                             TValue="bool" Change=@(args => itemsGrid.SelectItem(data)) @onclick:stopPropagation />
                                         </Template>
                                     </RadzenDropDownDataGridColumn>
+
+                                    <RadzenDropDownDataGridColumn Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                                        <Template Context="data">
+                                            <RadzenButton Icon="image" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                                          Click="@(args => ShowImageDialog(((GroupItemData)data).InternalReference))"
+                                                          @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Ver imagen del producto", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                                        </Template>
+                                    </RadzenDropDownDataGridColumn>
+
                                     <RadzenDropDownDataGridColumn Property="InternalReference" Title="Ref. interna" />
                                     <RadzenDropDownDataGridColumn Property="ItemName" Title="Nombre" />
                                 </Columns>
@@ -86,3 +96,11 @@
         </RadzenCard>
     </ChildContent>
 </RadzenPanel>
+<script>
+    window.openDropdown = function (elementId) {
+        const dropdown = document.getElementById(elementId);
+        if (dropdown) {
+            dropdown.click(); // Simula el clic para abrir el dropdown
+        }
+    }
+</script>

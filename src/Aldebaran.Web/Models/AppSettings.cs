@@ -10,5 +10,6 @@
         public int PurchaseOrderRedFlag { get; set; }
         public bool TrackEnabled { get; set; }
         public int VariationMonthNumber { get; set; }
+        public string ImageRepositoryPath { get; set; }
     }
 }

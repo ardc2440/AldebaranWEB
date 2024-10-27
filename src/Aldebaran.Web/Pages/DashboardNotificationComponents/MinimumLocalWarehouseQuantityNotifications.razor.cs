@@ -4,7 +4,9 @@ using Aldebaran.Application.Services.Services;
 using Aldebaran.Infraestructure.Common.Extensions;
 using Aldebaran.Web.Pages.ReportPages.Reference_Movement;
 using Aldebaran.Web.Resources.LocalizedControls;
+using Aldebaran.Web.Shared;
 using Aldebaran.Web.Utils;
+using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.VariantTypes;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Caching.Memory;
@@ -72,7 +74,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
             try
             {
                 isLoadingInProgress = true;
-                Timers = TimerPreferenceService.Timers;                
+                Timers = TimerPreferenceService.Timers;
                 employee = await DashBoardService.FindByLoginUserIdAsync(Security.User.Id);
                 await InitializeGridTimers();
                 await GridData_Update();
@@ -231,6 +233,12 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
                 await AlertVisibleChange(alertVisible);
             }
         }
+
+        private async Task ShowImageDialogAsync(string articleName) => await DialogService.OpenAsync<ImageDialog>("", new Dictionary<string, object>
+            {
+                { "ArticleName", articleName }
+            });
+
         #endregion
     }
 }

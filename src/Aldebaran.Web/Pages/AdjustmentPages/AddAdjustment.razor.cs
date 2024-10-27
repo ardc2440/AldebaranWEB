@@ -1,9 +1,11 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Resources.LocalizedControls;
+using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
+using Serilog.Configuration;
 
 namespace Aldebaran.Web.Pages.AdjustmentPages
 {
@@ -158,6 +160,11 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
             await adjustmentDetailGrid.Reload();
         }
+
+        private async Task ShowImageDialog(string articleName) => DialogService.Open<ImageDialog>("", new Dictionary<string, object>
+            {
+                { "ArticleName", articleName }
+            });
         #endregion
     }
 }

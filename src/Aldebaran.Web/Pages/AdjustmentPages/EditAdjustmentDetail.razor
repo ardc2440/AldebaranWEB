@@ -1,4 +1,7 @@
 @attribute [Authorize(Roles = "Administrador,Modificación de ajustes de inventario")]
+@using Microsoft.Extensions.Options
+@using Aldebaran.Web.Models
+@inject IOptions<AppSettings> settings;
 
 <PageTitle>Actualizar Referencia del Ajuste</PageTitle>
 
@@ -12,12 +15,36 @@
         <RadzenStack>
             <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.AdjustmentDetail" Data="@adjustmentDetail" Visible="@(adjustmentDetail != null)" Submit="@FormSubmit">
                 <RadzenStack style="margin-bottom: 1rem">
+                    <RadzenStack Orientation="Orientation.Vertical" Style="margin-bottom: 15px;">
+                        <RadzenRow Gap="2rem"
+                                   Style="margin-bottom: 5px;"
+                                   Visible="@(adjustmentDetail.ItemReference != null)">
+                            <RadzenColumn Size="12" Style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                                @{
+                                    AppSettings _settings = _settings = settings?.Value ?? throw new ArgumentNullException(nameof(IOptions<AppSettings>));
+                                    string imagePath = Path.Combine(_settings.ImageRepositoryPath, adjustmentDetail.ItemReference.Item.InternalReference + ".jpg");
+
+                                    // Validar si el archivo existe
+                                    var imageExists = System.IO.File.Exists(imagePath);
+                                    if (imageExists)
+                                    {
+                                        var imageUrl = "/externalimages/" + adjustmentDetail.ItemReference.Item.InternalReference + ".jpg";
+                                        <RadzenImage Path=@imageUrl style="max-width:30%; height:auto;" />
+                                    }
+                                    else
+                                    {
+                                        <p>Imagen no disponible.</p>
+                                    }
+                                }
+                            </RadzenColumn>
+                        </RadzenRow>                        
+                    </RadzenStack>
                     <RadzenRow SizeMD="9">
                         <RadzenColumn SizeMD="3">
                             <RadzenLabel Text="Referencia" Component="REFERENCE" style="width: 100%" />
                         </RadzenColumn>
                         <RadzenColumn SizeMD="9">
-                            <span>[@adjustmentDetail.ItemReference.Item.InternalReference] (@adjustmentDetail.ItemReference.Item.Line.LineName) @adjustmentDetail.ItemReference.Item.ItemName - @adjustmentDetail.ItemReference.ReferenceName</span>
+                            <span>[@adjustmentDetail.ItemReference.Item.InternalReference] @adjustmentDetail.ItemReference.Item.ItemName - @adjustmentDetail.ItemReference.ReferenceName</span>
                         </RadzenColumn>
                     </RadzenRow>
                     <RadzenRow style="margin-bottom: 1rem">

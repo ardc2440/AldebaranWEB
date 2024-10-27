@@ -14,7 +14,7 @@
                                IsLoading="@(isLoadingInProgress||GridTimer.IsLoading)"
                                SelectionMode="DataGridSelectionMode.Multiple" @bind-Value=@selectedAlarms>
                 <Columns>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.MinimumQuantityArticle" Width="60px" Sortable="false" Filterable="false">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.MinimumQuantityArticle" Width="40px" Sortable="false" Filterable="false">
                         <HeaderTemplate>
                             <RadzenCheckBox TabIndex="-1" TriState="false" TValue="bool?" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select all items" }})"
                                             Value="@(selectedAlarms == null || selectedAlarms?.Any() != true ? false : !minimumQuantityArticles.All(i => selectedAlarms.Contains(i)) ? null : minimumQuantityArticles.Any(i => selectedAlarms.Contains(i)))"
@@ -25,6 +25,13 @@
                             <RadzenCheckBox TabIndex="-1" TriState="false" Value="@(selectedAlarms != null && selectedAlarms.Contains(data))" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select item" }})"
                                             TValue="bool" Change=@(args => { minimumQuantityArticlesGrid.SelectRow(data); })
                                             MouseEnter="@(args => ShowTooltip(args,"Marcar", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.MinimumQuantityArticle" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                        <Template Context="detail">
+                            <RadzenButton Icon="image" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                          Click="@(args => ShowImageDialogAsync(@detail.ArticleName))"
+                                          @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Ver imagen del producto", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
                         </Template>
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.MinimumQuantityArticle" Property="ArticleName" Title="Referencia" Width="80%">
@@ -75,9 +82,3 @@
         </RadzenRow>
     </RadzenCard>
 </RadzenCard>
-@* @code {
-    private void ShowImageDialog(string internalReference) => dialogService.Open<ImageDialog>("Ver Imagen", new Dictionary<string, object>
-        {
-            { "InternalReference", internalReference }
-        });
-} *@

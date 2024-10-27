@@ -1,4 +1,31 @@
-﻿<RadzenPanel AllowCollapse="false" Collapsed="@CollapsedPanel" Class="rz-mx-auto toggle-panel" Expand=@(() => PanelCollapseChange("Expand")) Collapse=@(() => PanelCollapseChange("Collapse"))>
+﻿@using Microsoft.Extensions.Options
+@using Aldebaran.Web.Models
+@inject IOptions<AppSettings> settings;
+<RadzenStack Orientation="Orientation.Vertical" Style="margin-bottom: 15px;">
+    <RadzenRow Gap="2rem"
+               Style="margin-bottom: 5px;"
+               Visible="@(SelectedItem != null)">
+        <RadzenColumn Size="12" Style="display: flex; justify-content: center; align-items: center; height: 100%;">
+            @{
+                AppSettings _settings = _settings = settings?.Value ?? throw new ArgumentNullException(nameof(IOptions<AppSettings>));
+                string imagePath = Path.Combine(_settings.ImageRepositoryPath, SelectedItem?.InternalReference + ".jpg");
+
+                // Validar si el archivo existe
+                var imageExists = System.IO.File.Exists(imagePath);
+                if (imageExists)
+                {
+                    var imageUrl = "/externalimages/" + SelectedItem?.InternalReference + ".jpg";
+                    <RadzenImage Path=@imageUrl style="max-width:30%; height:auto;" />
+                }
+                else
+                {
+                    <p>Imagen no disponible.</p>
+                }
+            }
+        </RadzenColumn>
+    </RadzenRow>
+</RadzenStack>
+<RadzenPanel AllowCollapse="false" Collapsed="@CollapsedPanel" Class="rz-mx-auto toggle-panel" Expand=@(() => PanelCollapseChange("Expand")) Collapse=@(() => PanelCollapseChange("Collapse"))>
     <HeaderTemplate>
         <RadzenButton Click="@PanelCollapseToggle" class="@(CollapsedPanel ? "panel-collapsed":"panel-expanded")" Disabled="@ReadOnly">
             @if (SelectedItem == null)
@@ -9,7 +36,7 @@
             {
                 <div class="component-section d-flex flex-column justify-content-start">
                     <span class="component-label">Artículo</span>
-                    <span>(@SelectedLine?.LineName) @SelectedItem?.FullName</span>
+                    <span>[@SelectedItem?.InternalReference] @SelectedItem?.FullName</span>
                 </div>
             }
         </RadzenButton>

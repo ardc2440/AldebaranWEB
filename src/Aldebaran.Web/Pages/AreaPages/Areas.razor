@@ -41,6 +41,13 @@
                         <LocalizedDataGrid ColumnWidth="200px" Visible="@(area != null)" @ref=ItemsAreasDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                            Data="@area?.ItemsAreas" TItem="ServiceModel.ItemsArea" AllowColumnPicking="true" AllowColumnResize="true" AllowMultiColumnSorting="true" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single" AllowGrouping="true" AllowColumnReorder="true" >
                             <Columns>
+                                    <RadzenDataGridColumn TItem="ServiceModel.ItemsArea" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                                        <Template Context="detail">
+                                            <RadzenButton Icon="image" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                                          Click="@(args => ShowImageDialog(@detail.Item.InternalReference))"
+                                                          @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Ver imagen del producto", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                                        </Template>
+                                    </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="ServiceModel.ItemsArea" Property="Item.InternalReference" Title="Referencia interna">
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="ServiceModel.ItemsArea" Property="Item.ItemName" Title="Nombre">

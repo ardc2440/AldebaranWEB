@@ -25,6 +25,13 @@
                                             MouseEnter="@(args => ShowTooltip(args,"Marcar", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
                         </Template>
                     </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.OutOfStockArticle" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                        <Template Context="detail">
+                            <RadzenButton Icon="image" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                          Click="@(args => ShowImageDialogAsync(@detail.ArticleName))"
+                                          @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Ver imagen del producto", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                        </Template>
+                    </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.OutOfStockArticle" Property="ArticleName" Title="Referencia" Width="80%">
                         <Template Context="detail">
                             <a href="javascript:;" title="@detail.ArticleName" @onclick="() => ReferenceMovementReport(detail.ReferenceId)">@detail.ArticleName</a>

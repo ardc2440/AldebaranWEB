@@ -1,4 +1,7 @@
 @attribute [Authorize(Roles = "Administrador,Modificación de pedidos")]
+@using Microsoft.Extensions.Options
+@using Aldebaran.Web.Models
+@inject IOptions<AppSettings> settings;
 
 <PageTitle>Agregar Referencia al Pedido</PageTitle>
 <LoadingData IsLoadingData="@isLoadingInProgress" />
@@ -9,6 +12,30 @@
             @Error
         </RadzenAlert>
         <RadzenTemplateForm TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Data="@detailInProcess" Visible="@(detailInProcess != null)" Submit="@FormSubmit" InvalidSubmit="()=>Submitted=true">
+            <RadzenStack Orientation="Orientation.Vertical" Style="margin-bottom: 15px;">
+                <RadzenRow Gap="2rem"
+                           Style="margin-bottom: 5px;"
+                           Visible="@(detailInProcess.ItemReference != null)">
+                    <RadzenColumn Size="12" Style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                        @{
+                            AppSettings _settings = _settings = settings?.Value ?? throw new ArgumentNullException(nameof(IOptions<AppSettings>));
+                            string imagePath = Path.Combine(_settings.ImageRepositoryPath, detailInProcess.ItemReference.Item.InternalReference + ".jpg");
+
+                            // Validar si el archivo existe
+                            var imageExists = System.IO.File.Exists(imagePath);
+                            if (imageExists)
+                            {
+                                var imageUrl = "/externalimages/" + detailInProcess.ItemReference.Item.InternalReference + ".jpg";
+                                <RadzenImage Path=@imageUrl style="max-width:30%; height:auto;" />
+                            }
+                            else
+                            {
+                                <p>Imagen no disponible.</p>
+                            }
+                        }
+                    </RadzenColumn>
+                </RadzenRow>
+            </RadzenStack>
             <RadzenStack style="margin-bottom: 1rem">
                 <RadzenRow SizeMD="9">
                     <RadzenColumn SizeMD="3">

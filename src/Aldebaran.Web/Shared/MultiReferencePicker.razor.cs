@@ -10,6 +10,10 @@ namespace Aldebaran.Web.Shared
     {
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
+        [Inject]
+        protected DialogService DialogService { get; set; }
+        [Inject]
+        protected TooltipService TooltipService { get; set; }
 
         #region Parameters
         [Parameter]
@@ -199,6 +203,17 @@ namespace Aldebaran.Web.Shared
         {
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink");
         }
+
+        private async Task ShowImageDialog(string articleName)
+        {
+            await DialogService.OpenAsync<ImageDialog>("", new Dictionary<string, object>
+            {
+                { "ArticleName", articleName }
+            });
+            await JSRuntime.InvokeVoidAsync("openDropdown", "itemsDropdown");
+        }
+        void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
+
         #endregion
     }
     class GroupItemData

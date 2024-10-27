@@ -1,9 +1,53 @@
 @page "/image-demo"
-<h3>Imagen</h3>
-<img src="@imageUrl" alt="Imagen de Promoción" style="max-width:100%; height:auto;" />
+@using System.Text.RegularExpressions;
+@using Aldebaran.Web.Models
+@using Microsoft.Extensions.Options
+@inject IOptions<AppSettings> settings;
+
+<h5>@articleName</h5>
+@if (imageExists)
+{
+    <RadzenImage Path="@imageUrl" style="max-width:100%; height:auto;" />
+}
+else
+{
+    <p>La imagen para este artículo no está disponible.</p>
+}
 
 @code {
-    [Parameter] public string InternalReference { get; set; }
+    [Parameter] public string ArticleName { get; set; }
 
-    private string imageUrl { get; set; } = "images/RepositoryCatalog/VA-990.jpg";// + InternalReference + ".jpg";
+    private string imageUrl { get; set; } 
+    private string articleName { get; set; } 
+    private bool imageExists { get; set; }
+    private AppSettings _settings;
+
+    protected override void OnInitialized()
+    {
+        _settings = settings?.Value ?? throw new ArgumentNullException(nameof(IOptions<AppSettings>));
+        string input = ArticleName;
+        string code = ArticleName;
+        
+        if (input.Contains("[") && input.Contains("]"))
+        {
+            string pattern = @"\[(.*?)\]";
+            Match match = Regex.Match(input, pattern);
+
+            code = match.Groups[1].Value;
+        }
+
+        string imagePath = Path.Combine(_settings.ImageRepositoryPath, code + ".jpg");
+
+        // Validar si el archivo existe
+        imageExists = System.IO.File.Exists(imagePath);
+        articleName = ArticleName;
+
+        // Ruta URL para la imagen (si existe)
+        if (imageExists)
+        {
+            imageUrl = "/externalimages/" + code + ".jpg";
+        }
+
+        StateHasChanged();
+    }
 }
