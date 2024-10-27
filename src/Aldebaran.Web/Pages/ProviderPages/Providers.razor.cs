@@ -1,5 +1,7 @@
 using Aldebaran.Application.Services;
+using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Resources.LocalizedControls;
+using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
@@ -40,6 +42,7 @@ namespace Aldebaran.Web.Pages.ProviderPages
         protected LocalizedDataGrid<ServiceModel.ProviderReference> ProviderReferencesDataGrid;
         protected string search = "";
         protected bool isLoadingInProgress;
+        private Dictionary<string, string> groupKeys = new Dictionary<string, string>();
 
         protected int skip = 0;
         protected int top = 0;
@@ -52,7 +55,7 @@ namespace Aldebaran.Web.Pages.ProviderPages
         {
             try
             {
-                isLoadingInProgress = true;                
+                isLoadingInProgress = true;
             }
             finally
             {
@@ -74,7 +77,7 @@ namespace Aldebaran.Web.Pages.ProviderPages
         async Task GetProvidersAsync(string searchKey = null, CancellationToken ct = default)
         {
             await Task.Yield();
-            (ProvidersList,count) = string.IsNullOrEmpty(searchKey) ? await ProviderService.GetAsync(skip, top, ct) : await ProviderService.GetAsync(skip, top, searchKey, ct);
+            (ProvidersList, count) = string.IsNullOrEmpty(searchKey) ? await ProviderService.GetAsync(skip, top, ct) : await ProviderService.GetAsync(skip, top, searchKey, ct);
         }
         protected async Task Search(ChangeEventArgs args)
         {
@@ -140,16 +143,7 @@ namespace Aldebaran.Web.Pages.ProviderPages
                 });
             }
         }
-
-        void OnProviderReferenceRender(DataGridRenderEventArgs<ServiceModel.ProviderReference> args)
-        {
-            if (args.FirstRender)
-            {
-                args.Grid.Groups.Add(new GroupDescriptor() { Title = "Línea", Property = "ItemReference.Item.Line.LineName", SortOrder = SortOrder.Descending });
-                args.Grid.Groups.Add(new GroupDescriptor() { Title = "Artículo", Property = "ItemReference.Item.ItemName", SortOrder = SortOrder.Descending });
-                StateHasChanged();
-            }
-        }
+                
         protected async Task GetProviderReferences(ServiceModel.Provider args)
         {
             Provider = args;
@@ -200,6 +194,14 @@ namespace Aldebaran.Web.Pages.ProviderPages
                 });
             }
         }
+
+        private async Task ShowImageDialog(string articleName) => DialogService.Open<ImageDialog>("", new Dictionary<string, object>
+            {
+                { "ArticleName", articleName }
+            });
+
+        protected async Task<string> GetReferenceHint(ItemReference reference) => $"[{reference.Item.InternalReference}] {reference.Item.ItemName} - {reference.ReferenceName}";
+
         #endregion
     }
 }

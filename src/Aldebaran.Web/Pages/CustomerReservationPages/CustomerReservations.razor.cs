@@ -119,7 +119,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
 
-        protected async Task<string> GetReferenceHint(ItemReference reference) => $"({reference.Item.Line.LineName}) {reference.Item.ItemName} - {reference.ReferenceName}";
+        protected async Task<string> GetReferenceHint(ItemReference reference) => $"[{reference.Item.InternalReference}] {reference.Item.ItemName} - {reference.ReferenceName}";
 
         async Task DialogResultResolver(CancellationToken ct = default)
         {
@@ -297,6 +297,11 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         {
             NavigationManager.NavigateTo("send-to-customer-order/" + args.CustomerReservationId);
         }
+
+        private async Task ShowImageDialog(string articleName) => DialogService.Open<ImageDialog>("", new Dictionary<string, object>
+            {
+                { "ArticleName", articleName }
+            });
 
         #region Alarms
 

@@ -2,6 +2,7 @@ using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Resources.LocalizedControls;
+using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
@@ -88,7 +89,7 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
             top = args.Top.Value; 
             await GetWarehousetransferssAsync(search);
         }
-        protected async Task<string> GetReferenceHint(ItemReference reference) => $"({reference.Item.Line.LineName}) {reference.Item.ItemName} - {reference.ReferenceName}";
+        protected async Task<string> GetReferenceHint(ItemReference reference) => $"[{reference.Item.InternalReference}] {reference.Item.ItemName} - {reference.ReferenceName}";
 
         async Task DialogResultResolver(CancellationToken ct = default)
         {
@@ -156,6 +157,10 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
             }
         }
 
+        private async Task ShowImageDialog(string articleName) => DialogService.Open<ImageDialog>("", new Dictionary<string, object>
+            {
+                { "ArticleName", articleName }
+            });
         #endregion
 
     }

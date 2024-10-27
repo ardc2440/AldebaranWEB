@@ -1,5 +1,6 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Web.Resources.LocalizedControls;
+using Aldebaran.Web.Shared;
 using Aldebaran.Web.Utils;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -239,6 +240,11 @@ namespace Aldebaran.Web.Pages.ItemPages
                 });
             }
         }
+
+        private async Task ShowImageDialog(string articleName) => DialogService.Open<ImageDialog>("", new Dictionary<string, object>
+            {
+                { "ArticleName", articleName }
+            });
         #endregion
     }
 }

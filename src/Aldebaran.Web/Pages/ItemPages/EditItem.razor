@@ -1,5 +1,8 @@
 @attribute [Authorize(Roles = "Administrador,Modificación de artículos")]
 @using ServiceModel = Aldebaran.Application.Services.Models;
+@using Microsoft.Extensions.Options
+@using Aldebaran.Web.Models
+@inject IOptions<AppSettings> settings;
 
 <LoadingData IsLoadingData="@isLoadingInProgress" />
 
@@ -8,9 +11,42 @@
     <RadzenColumn SizeMD=12>
         <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">
             @errorMessage
-        </RadzenAlert>            
+        </RadzenAlert>
         <RadzenTemplateForm TItem="ServiceModel.Item" Data="@Item" Visible="@(Item != null)" Submit="@FormSubmit">
             <RadzenStack>
+                <RadzenPanel AllowCollapse="true" class="rz-my-00 rz-mx-auto" Style="width: 100%;">
+                    <HeaderTemplate>
+                        <RadzenText TextStyle="TextStyle.Body2" class="rz-display-flex rz-align-items-center rz-m-0">
+                            <RadzenIcon Icon="image" class="rz-me-1" /><b>Imagen del artículo</b>
+                        </RadzenText>
+                    </HeaderTemplate>
+                    <ChildContent>
+                        <RadzenStack Orientation="Orientation.Vertical" Style="margin-bottom: 15px;">
+                            <RadzenRow Gap="2rem"
+                                       Style="margin-bottom: 5px;"
+                                       Visible="@(Item != null)">
+                                <RadzenColumn Size="12" Style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                                    @{
+                                        AppSettings _settings = _settings = settings?.Value ?? throw new ArgumentNullException(nameof(IOptions<AppSettings>));
+                                        string imagePath = Path.Combine(_settings.ImageRepositoryPath, Item.InternalReference + ".jpg");
+
+                                        // Validar si el archivo existe
+                                        var imageExists = System.IO.File.Exists(imagePath);
+                                        if (imageExists)
+                                        {
+                                            var imageUrl = "/externalimages/" + Item.InternalReference + ".jpg";
+                                            <RadzenImage Path=@imageUrl style="max-width:30%; height:auto;" />
+                                        }
+                                        else
+                                        {
+                                            <p>Imagen no disponible.</p>
+                                        }
+                                    }
+                                </RadzenColumn>
+                            </RadzenRow>
+                        </RadzenStack>
+                    </ChildContent>
+                </RadzenPanel>
                 <RadzenRow AlignItems="Radzen.AlignItems.Start">
                     <RadzenColumn Size="12" SizeMD="6">
                         <RadzenFormField Text="Nombre artículo" Variant="Variant.Text" Style="width: 100%;">
@@ -159,7 +195,7 @@
                                     <RadzenCheckBox @bind-Value="@Item.IsDomesticProduct" Name="IsDomesticProduct" />
                                     <RadzenLabel Text="Producto Nacional" Component="IsDomesticProduct" />
                                 </div>
-                            </div>                            
+                            </div>
                         </div>
                     </RadzenColumn>
                     <RadzenColumn Size="12" SizeMD="4">
@@ -175,7 +211,7 @@
                                     <RadzenCheckBox @bind-Value="@Item.IsExternalInventory" Name="IsExternalInventory" />
                                     <RadzenLabel Text="Inventario externo" Component="IsExternalInventory" />
                                 </div>
-                            </div>                            
+                            </div>
                         </div>
                     </RadzenColumn>
                     <RadzenColumn Size="12" SizeMD="4">
@@ -185,7 +221,7 @@
                                     <RadzenCheckBox @bind-Value="@Item.IsCatalogVisible" Name="IsCatalogVisible" />
                                     <RadzenLabel Text="Visible en catálogo" Component="IsCatalogVisible" />
                                 </div>
-                            </div>                            
+                            </div>
                             <div class="d-flex gap-4 flex-row mt-2">
                                 <div>
                                     <RadzenCheckBox @bind-Value="@Item.ApplyPreorder" Name="ApplyPreorder" />
@@ -240,7 +276,7 @@
                             </ChildContent>
                         </RadzenFormField>
                     </RadzenColumn>
-                </RadzenRow>                
+                </RadzenRow>
                 <RadzenFormField Text="Notas" Variant="Variant.Text">
                     <ChildContent>
                         <RadzenTextArea style="display: block; width: 100%" @bind-Value="@Item.Notes" Name="Notes" Rows="3" MaxLength="250"></RadzenTextArea>

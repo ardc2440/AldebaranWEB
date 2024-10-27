@@ -1,4 +1,5 @@
 using Aldebaran.Application.Services;
+using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
@@ -157,7 +158,12 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         protected async Task CancelPurchaseOrder(MouseEventArgs args)
         {
             NavigationManager.NavigateTo("purchase-orders");
-        }        
+        }
+
+        private async Task ShowImageDialog(string articleName) => DialogService.Open<ImageDialog>("", new Dictionary<string, object>
+            {
+                { "ArticleName", articleName }
+            });
         #endregion
 
         #region PurchaseOrderDetail

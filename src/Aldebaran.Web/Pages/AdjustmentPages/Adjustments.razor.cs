@@ -90,7 +90,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
             await GetAdjustmentsAsync();
         }
 
-        protected async Task<string> GetReferenceHint(ItemReference reference) => $"({reference.Item.Line.LineName}) {reference.Item.ItemName} - {reference.ReferenceName}";
+        protected async Task<string> GetReferenceHint(ItemReference reference) => $"[{reference.Item.InternalReference}] {reference.Item.ItemName} - {reference.ReferenceName}";
 
         async Task DialogResultResolver(CancellationToken ct = default)
         {

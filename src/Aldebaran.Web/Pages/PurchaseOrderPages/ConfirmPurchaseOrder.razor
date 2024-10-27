@@ -90,10 +90,17 @@
                             <LocalizedDataGrid @ref="PurchaseOrderDetailGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                                Data="@PurchaseOrderDetails" TItem="ServiceModel.PurchaseOrderDetail" AllowColumnResize="true" AllowMultiColumnSorting="true" AllowColumnReorder="true">
                                 <Columns>
+                                    <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                                        <Template Context="detail">
+                                            <RadzenButton Icon="image" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                                          Click="@(args => ShowImageDialog($"[{@detail.ItemReference.Item.InternalReference}] {@detail.ItemReference.Item.ItemName}"))"
+                                                          @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Ver imagen del producto", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                                        </Template>
+                                    </RadzenDataGridColumn>
                                     <RadzenDataGridColumn Width="100%" TItem="ServiceModel.PurchaseOrderDetail" Title="Referencia">
                                         <Template Context="detail">
                                             <RadzenLabel MouseEnter="@(args => ShowTooltip(args,GetReferenceHint(@detail.ItemReference).Result, new TooltipOptions(){ Position = TooltipPosition.Left }))">
-                                                [@detail.ItemReference.Item.InternalReference] (@detail.ItemReference.Item.Line.LineName) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName
+                                                [@detail.ItemReference.Item.InternalReference] @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName
                                             </RadzenLabel>
                                         </Template>
                                     </RadzenDataGridColumn>                                    

@@ -146,6 +146,11 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
             });
         }
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
+        private async Task ShowImageDialog(string articleName) => DialogService.Open<ImageDialog>("", new Dictionary<string, object>
+            {
+                { "ArticleName", articleName }
+            });
+        #endregion
 
         #region PurchaseOrder
         async Task GetPurchaseOrdersAsync(string searchKey = null, CancellationToken ct = default)
@@ -406,6 +411,6 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         }
         #endregion
 
-        #endregion
+        
     }
 }

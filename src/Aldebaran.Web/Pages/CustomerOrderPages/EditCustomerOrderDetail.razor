@@ -14,30 +14,39 @@
         </RadzenAlert>
         <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Data="@customerOrderDetail" Visible="@(customerOrderDetail != null)" Submit="@FormSubmit">
             <RadzenStack style="margin-bottom: 1rem">
-                <RadzenStack Orientation="Orientation.Vertical" Style="margin-bottom: 15px;">
-                    <RadzenRow Gap="2rem"
-                               Style="margin-bottom: 5px;"
-                               Visible="@(customerOrderDetail.ItemReference != null)">
-                        <RadzenColumn Size="12" Style="display: flex; justify-content: center; align-items: center; height: 100%;">
-                            @{
-                                AppSettings _settings = _settings = settings?.Value ?? throw new ArgumentNullException(nameof(IOptions<AppSettings>));
-                                string imagePath = Path.Combine(_settings.ImageRepositoryPath, customerOrderDetail.ItemReference.Item.InternalReference + ".jpg");
+                <RadzenPanel AllowCollapse="true" class="rz-my-00 rz-mx-auto" Style="width: 100%;">
+                    <HeaderTemplate>
+                        <RadzenText TextStyle="TextStyle.Body2" class="rz-display-flex rz-align-items-center rz-m-0">
+                            <RadzenIcon Icon="image" class="rz-me-1" /><b>Imagen del artículo</b>
+                        </RadzenText>
+                    </HeaderTemplate>
+                    <ChildContent>
+                        <RadzenStack Orientation="Orientation.Vertical" Style="margin-bottom: 15px;">
+                            <RadzenRow Gap="2rem"
+                                       Style="margin-bottom: 5px;"
+                                       Visible="@(customerOrderDetail.ItemReference != null)">
+                                <RadzenColumn Size="12" Style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                                    @{
+                                        AppSettings _settings = _settings = settings?.Value ?? throw new ArgumentNullException(nameof(IOptions<AppSettings>));
+                                        string imagePath = Path.Combine(_settings.ImageRepositoryPath, customerOrderDetail.ItemReference.Item.InternalReference + ".jpg");
 
-                                // Validar si el archivo existe
-                                var imageExists = System.IO.File.Exists(imagePath);
-                                if (imageExists)
-                                {
-                                    var imageUrl = "/externalimages/" + customerOrderDetail.ItemReference.Item.InternalReference + ".jpg";
-                                    <RadzenImage Path=@imageUrl style="max-width:30%; height:auto;" />
-                                }
-                                else
-                                {
-                                    <p>Imagen no disponible.</p>
-                                }
-                            }
-                        </RadzenColumn>
-                    </RadzenRow>
-                </RadzenStack>
+                                        // Validar si el archivo existe
+                                        var imageExists = System.IO.File.Exists(imagePath);
+                                        if (imageExists)
+                                        {
+                                            var imageUrl = "/externalimages/" + customerOrderDetail.ItemReference.Item.InternalReference + ".jpg";
+                                            <RadzenImage Path=@imageUrl style="max-width:30%; height:auto;" />
+                                        }
+                                        else
+                                        {
+                                            <p>Imagen no disponible.</p>
+                                        }
+                                    }
+                                </RadzenColumn>
+                            </RadzenRow>
+                        </RadzenStack>
+                    </ChildContent>
+                </RadzenPanel>
                 <RadzenRow SizeMD="9">
                     <RadzenColumn SizeMD="3">
                         <RadzenLabel Text="Referencia" Component="REFERENCE" style="width: 100%" />
@@ -49,7 +58,7 @@
                 <RadzenFormField Text="Cantidad" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                     <ChildContent>
                         <RadzenNumeric style="display: block; width: 100%" @bind-Value="@customerOrderDetail.RequestedQuantity" Name="REQUESTED_QUANTITY"
-                                       TabIndex="0" Placeholder="Ingrese la cantidad a reservar" Format="N0"/>
+                                       TabIndex="0" Placeholder="Ingrese la cantidad a reservar" Format="N0" />
                     </ChildContent>
                     <Helper>
                         <RadzenRequiredValidator Component="REQUESTED_QUANTITY" Text="La Cantidad es Requerida" />

@@ -1,5 +1,8 @@
 @attribute [Authorize(Roles = "Administrador,Creación de órdenes de compra,Modificación de órdenes de compra")]
 @using ServiceModel = Aldebaran.Application.Services.Models;
+@using Microsoft.Extensions.Options
+@using Aldebaran.Web.Models
+@inject IOptions<AppSettings> settings;
 
 <LoadingData IsLoadingData="@isLoadingInProgress" />
 
@@ -11,11 +14,44 @@
         </RadzenAlert>
         <RadzenTemplateForm TItem="ServiceModel.PurchaseOrderDetail" Data="@PurchaseOrderDetail" Submit="@FormSubmit" Visible="@(PurchaseOrderDetail != null)">
             <RadzenStack>
+                <RadzenPanel AllowCollapse="true" class="rz-my-00 rz-mx-auto" Style="width: 100%;">
+                    <HeaderTemplate>
+                        <RadzenText TextStyle="TextStyle.Body2" class="rz-display-flex rz-align-items-center rz-m-0">
+                            <RadzenIcon Icon="image" class="rz-me-1" /><b>Imagen del artículo</b>
+                        </RadzenText>
+                    </HeaderTemplate>
+                    <ChildContent>
+                        <RadzenStack Orientation="Orientation.Vertical" Style="margin-bottom: 15px;">
+                            <RadzenRow Gap="2rem"
+                                       Style="margin-bottom: 5px;"
+                                       Visible="@(PurchaseOrderDetail.ItemReference != null)">
+                                <RadzenColumn Size="12" Style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                                    @{
+                                        AppSettings _settings = _settings = settings?.Value ?? throw new ArgumentNullException(nameof(IOptions<AppSettings>));
+                                        string imagePath = Path.Combine(_settings.ImageRepositoryPath, PurchaseOrderDetail.ItemReference.Item.InternalReference + ".jpg");
+
+                                        // Validar si el archivo existe
+                                        var imageExists = System.IO.File.Exists(imagePath);
+                                        if (imageExists)
+                                        {
+                                            var imageUrl = "/externalimages/" + PurchaseOrderDetail.ItemReference.Item.InternalReference + ".jpg";
+                                            <RadzenImage Path=@imageUrl style="max-width:30%; height:auto;" />
+                                        }
+                                        else
+                                        {
+                                            <p>Imagen no disponible.</p>
+                                        }
+                                    }
+                                </RadzenColumn>
+                            </RadzenRow>
+                        </RadzenStack>
+                    </ChildContent>
+                </RadzenPanel>
                 <div class="flex-shrink-0">                    
                     <div class="text-secondary-color">
                         <RadzenLabel Text="Referencia: " />
                         @{
-                            var fullName = $"[{@PurchaseOrderDetail.ItemReference.Item.InternalReference}] ({@PurchaseOrderDetail.ItemReference.Item.Line.LineName}) {@PurchaseOrderDetail.ItemReference.Item.ItemName} - {@PurchaseOrderDetail.ItemReference.ReferenceName}";
+                            var fullName = $"[{PurchaseOrderDetail.ItemReference.Item.InternalReference}] {PurchaseOrderDetail.ItemReference.Item.ItemName} - {PurchaseOrderDetail.ItemReference.ReferenceName}";
                         }
                         <RadzenLabel Text="@fullName" />
                     </div>                    

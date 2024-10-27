@@ -1,5 +1,8 @@
 @attribute [Authorize(Roles = "Administrador,Modificación de artículos")]
 @using ServiceModel = Aldebaran.Application.Services.Models;
+@using Microsoft.Extensions.Options
+@using Aldebaran.Web.Models
+@inject IOptions<AppSettings> settings;
 
 <LoadingData IsLoadingData="@isLoadingInProgress" />
 
@@ -16,6 +19,39 @@
         </RadzenAlert>
         <RadzenTemplateForm TItem="ServiceModel.ItemReference" Data="@ItemReference" Visible="@(ItemReference != null)" Submit="@FormSubmit">
             <RadzenStack>
+                <RadzenPanel AllowCollapse="true" class="rz-my-00 rz-mx-auto" Style="width: 100%;">
+                    <HeaderTemplate>
+                        <RadzenText TextStyle="TextStyle.Body2" class="rz-display-flex rz-align-items-center rz-m-0">
+                            <RadzenIcon Icon="image" class="rz-me-1" /><b>Imagen del artículo</b>
+                        </RadzenText>
+                    </HeaderTemplate>
+                    <ChildContent>
+                        <RadzenStack Orientation="Orientation.Vertical" Style="margin-bottom: 15px;">
+                            <RadzenRow Gap="2rem"
+                                       Style="margin-bottom: 5px;"
+                                       Visible="@(Item != null)">
+                                <RadzenColumn Size="12" Style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                                    @{
+                                        AppSettings _settings = _settings = settings?.Value ?? throw new ArgumentNullException(nameof(IOptions<AppSettings>));
+                                        string imagePath = Path.Combine(_settings.ImageRepositoryPath, Item.InternalReference + ".jpg");
+
+                                        // Validar si el archivo existe
+                                        var imageExists = System.IO.File.Exists(imagePath);
+                                        if (imageExists)
+                                        {
+                                            var imageUrl = "/externalimages/" + Item.InternalReference + ".jpg";
+                                            <RadzenImage Path=@imageUrl style="max-width:30%; height:auto;" />
+                                        }
+                                        else
+                                        {
+                                            <p>Imagen no disponible.</p>
+                                        }
+                                    }
+                                </RadzenColumn>
+                            </RadzenRow>
+                        </RadzenStack>
+                    </ChildContent>
+                </RadzenPanel>
                 <div class="flex-shrink-0">
                     <div class="text-primary-color" style="font-size: 16px">
                         <RadzenLabel Text="Item: " Style="font-weight: bold" />

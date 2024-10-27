@@ -125,7 +125,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
         #region Events
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
 
-        protected async Task<string> GetReferenceHint(ItemReference reference) => $"({reference.Item.Line.LineName}) {reference.Item.ItemName} - {reference.ReferenceName}";
+        protected async Task<string> GetReferenceHint(ItemReference reference) => $"[{reference.Item.InternalReference}] {reference.Item.ItemName} - {reference.ReferenceName}";
 
         protected async Task<List<DetailInProcess>> GetDetailsInProcess(CustomerOrder customerOrder)
         {

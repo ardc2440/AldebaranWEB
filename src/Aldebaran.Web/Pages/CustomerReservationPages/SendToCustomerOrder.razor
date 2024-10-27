@@ -93,10 +93,17 @@
                                             <RadzenCheckBox @bind-Value="@detail.SendToCustomerOrder" Name="SEND_TO_CUSTOMER_ORDER" MouseEnter="@(args => ShowTooltip(args,"Enviar a pedido", new TooltipOptions(){ Position = TooltipPosition.Left }))"></RadzenCheckBox>
                                         </Template>
                                     </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                                        <Template Context="detail">
+                                            <RadzenButton Icon="image" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                                          Click="@(args => ShowImageDialog($"[{@detail.ItemReference.Item.InternalReference}] {@detail.ItemReference.Item.ItemName}"))"
+                                                          @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Ver imagen del producto", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                                        </Template>
+                                    </RadzenDataGridColumn>
                                     <RadzenDataGridColumn Width="200px" TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Title="Referencia">
                                         <Template Context="detail">
                                             <RadzenLabel MouseEnter="@(args => ShowTooltip(args,GetReferenceHint(@detail.ItemReference).Result, new TooltipOptions(){ Position = TooltipPosition.Left }))">
-                                                [@detail.ItemReference.Item.InternalReference] (@detail.ItemReference.Item.Line.LineName) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName
+                                                [@detail.ItemReference.Item.InternalReference] @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName
                                             </RadzenLabel>
                                         </Template>
                                     </RadzenDataGridColumn>

@@ -156,7 +156,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
             });
         }
 
-        protected async Task<string> GetReferenceHint(ItemReference reference) => $"({reference.Item.Line.LineName}) {reference.Item.ItemName} - {reference.ReferenceName}";
+        protected async Task<string> GetReferenceHint(ItemReference reference) => $"[{reference.Item.InternalReference}] {reference.Item.ItemName} - {reference.ReferenceName}";
 
         protected async Task Search(ChangeEventArgs args)
         {
@@ -184,7 +184,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                     REFERENCE_DESCRIPTION = $"[{item.ItemReference.Item.InternalReference}] {item.ItemReference.Item.ItemName} - {item.ItemReference.ReferenceName}",
                     PENDING_QUANTITY = item.RequestedQuantity - item.ProcessedQuantity - item.DeliveredQuantity,
                     PROCESSED_QUANTITY = item.ProcessedQuantity,
-                    DELIVERED_QUANTITY = item.DeliveredQuantity
+                    DELIVERED_QUANTITY = item.DeliveredQuantity,
+                    ItemReference = item.ItemReference
                 };
                 detailInProcesses.Add(viewOrderDetail);
             }

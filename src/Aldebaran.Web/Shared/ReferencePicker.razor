@@ -1,30 +1,39 @@
 @using Microsoft.Extensions.Options
 @using Aldebaran.Web.Models
 @inject IOptions<AppSettings> settings;
-<RadzenStack Orientation="Orientation.Vertical" Style="margin-bottom: 15px;">
-    <RadzenRow Gap="2rem"
-               Style="margin-bottom: 5px;"
-               Visible="@(SelectedItem != null)">
-        <RadzenColumn Size="12" Style="display: flex; justify-content: center; align-items: center; height: 100%;">
-            @{
-                AppSettings _settings = _settings = settings?.Value ?? throw new ArgumentNullException(nameof(IOptions<AppSettings>));
-                string imagePath = Path.Combine(_settings.ImageRepositoryPath, SelectedItem?.InternalReference + ".jpg");
 
-                // Validar si el archivo existe
-                var imageExists = System.IO.File.Exists(imagePath);
-                if (imageExists)
-                {
-                    var imageUrl = "/externalimages/" + SelectedItem?.InternalReference + ".jpg";
-                    <RadzenImage Path=@imageUrl style="max-width:30%; height:auto;" />
-                }
-                else
-                {
-                    <p>Imagen no disponible.</p>
-                }
-            }
-        </RadzenColumn>
-    </RadzenRow>    
-</RadzenStack>
+<RadzenPanel AllowCollapse="true" class="rz-my-00 rz-mx-auto" Style="width: 100%;" Visible="@(SelectedItem != null)">
+    <HeaderTemplate>
+        <RadzenText TextStyle="TextStyle.Body2" class="rz-display-flex rz-align-items-center rz-m-0">
+            <RadzenIcon Icon="image" class="rz-me-1" /><b>Imagen del artículo</b>
+        </RadzenText>
+    </HeaderTemplate>
+    <ChildContent>
+        <RadzenStack Orientation="Orientation.Vertical" Style="margin-bottom: 15px;">
+            <RadzenRow Gap="2rem"
+                       Style="margin-bottom: 5px;">
+                <RadzenColumn Size="12" Style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                    @{
+                        AppSettings _settings = _settings = settings?.Value ?? throw new ArgumentNullException(nameof(IOptions<AppSettings>));
+                        string imagePath = Path.Combine(_settings.ImageRepositoryPath, SelectedItem?.InternalReference + ".jpg");
+
+                        // Validar si el archivo existe
+                        var imageExists = System.IO.File.Exists(imagePath);
+                        if (imageExists)
+                        {
+                            var imageUrl = "/externalimages/" + SelectedItem?.InternalReference + ".jpg";
+                            <RadzenImage Path=@imageUrl style="max-width:30%; height:auto;" />
+                        }
+                        else
+                        {
+                            <p>Imagen no disponible.</p>
+                        }
+                    }
+                </RadzenColumn>
+            </RadzenRow>
+        </RadzenStack>
+    </ChildContent>
+</RadzenPanel>
 <RadzenPanel AllowCollapse="false" Collapsed="@CollapsedPanel" Class="rz-mx-auto toggle-panel" Expand=@(() => PanelCollapseChange("Expand")) Collapse=@(() => PanelCollapseChange("Collapse"))>
     <HeaderTemplate>
         <RadzenButton Click="@PanelCollapseToggle" class="@(CollapsedPanel ? "panel-collapsed":"panel-expanded")" Disabled="@ReadOnly">
@@ -59,7 +68,7 @@
                                                     style="display: block; width: 100%" @bind-Value="ITEM_ID" Name="ItemId" Change="@OnItemChange" AllowFiltering="true" AllowSelectAll="true">
                                 <Columns>
                                     <RadzenDropDownDataGridColumn Property="InternalReference" Title="Ref. interna" />
-                                    <RadzenDropDownDataGridColumn Property="ItemName" Title="Nombre" />                                    
+                                    <RadzenDropDownDataGridColumn Property="ItemName" Title="Nombre" />
                                 </Columns>
                             </RadzenDropDownDataGrid>
                         </ChildContent>

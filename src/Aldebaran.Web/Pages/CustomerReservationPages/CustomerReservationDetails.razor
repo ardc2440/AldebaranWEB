@@ -41,18 +41,25 @@
                 <LocalizedDataGrid ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                    Data="@customerReservationDetails" TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail">
                     <Columns>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                            <Template Context="detail">
+                                <RadzenButton Icon="image" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                              Click="@(args => ShowImageDialog($"[{@detail.ItemReference.Item.InternalReference}] {@detail.ItemReference.Item.ItemName}"))"
+                                              @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Ver imagen del producto", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn Width="140px" TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Title="Referencia">
+                            <Template Context="detail">
+                                <RadzenLabel MouseEnter="@(args => ShowTooltip(args,GetReferenceHint(@detail.ItemReference).Result, new TooltipOptions(){ Position = TooltipPosition.Left }))">
+                                    [@detail.ItemReference.Item.InternalReference] @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName
+                                </RadzenLabel>
+                            </Template>
+                        </RadzenDataGridColumn>
                         <RadzenDataGridColumn Width="60px" TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Title="Cantidad" >
                             <Template Context="detail">
                                 @detail.ReservedQuantity.ToString("N0")
                             </Template>
                         </RadzenDataGridColumn>                        
-                        <RadzenDataGridColumn Width="140px" TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Title="Referencia">
-                            <Template Context="detail">
-                                <RadzenLabel MouseEnter="@(args => ShowTooltip(args,GetReferenceHint(@detail.ItemReference).Result, new TooltipOptions(){ Position = TooltipPosition.Left }))">
-                                    [@detail.ItemReference.Item.InternalReference] (@detail.ItemReference.Item.Line.LineName) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName
-                                </RadzenLabel>
-                            </Template>
-                        </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Title="Existencias" Width="100px" Filterable="false" Sortable="false">
                             <Template Context="detail">
                                 <LocalizedDataGrid class="rz-datatable-no-header"  ColumnWidth="200px" AllowFiltering="false" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="false" AllowSorting="false" ShowPagingSummary="false" PageSizeOptions=@(new int[]{5, 10, 20, 30})
