@@ -409,6 +409,11 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             return Security.IsInRole("Administrador", "Modificación de pedidos","Creación de pedidos") && customerOrder.StatusDocumentType.EditMode;
         }
 
+        private async Task ShowImageDialog(string articleName) => DialogService.Open<ImageDialog>("", new Dictionary<string, object>
+            {
+                { "ArticleName", articleName }
+            });
+
         #region Alarms
 
         protected async Task<bool> CanEditAlarm(bool alarm, int statusOrder)

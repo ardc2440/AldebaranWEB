@@ -71,6 +71,13 @@
                                         <LocalizedDataGrid ColumnWidth="200px" Visible="@(customerOrder != null)" @ref=CustomerOrderDetailsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                                            ExpandMode="DataGridExpandMode.Single" Data="@detailInProcesses" TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess">
                                             <Columns>
+                                                <RadzenDataGridColumn TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                                                    <Template Context="detail">
+                                                        <RadzenButton Icon="image" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                                                      Click="@(args => ShowImageDialog(@detail.REFERENCE_DESCRIPTION))"
+                                                                      @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Ver imagen del producto", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                                                    </Template>
+                                                </RadzenDataGridColumn>
                                                 <RadzenDataGridColumn Width="80%" TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Title="Referencia">
                                                     <Template Context="detail">
                                                         <RadzenLabel MouseEnter="@(args => ShowTooltip(args,detail.REFERENCE_DESCRIPTION, new TooltipOptions(){ Position = TooltipPosition.Left }))">
@@ -113,7 +120,9 @@
                                                 </RadzenDataGridColumn>
                                                 <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipment" Property="StatusDocumentType.StatusDocumentTypeName" Title="Estado">
                                                 </RadzenDataGridColumn>
-                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipment" Filterable="false" Sortable="false" Width="110px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipment" Filterable="false" Sortable="false" Width="110px" 
+                                                                      TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false" Frozen="true" 
+                                                                      FrozenPosition="FrozenColumnPosition.Right">
                                                     <Template Context="customerOrderShipment">
                                                         <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
                                                                       Click="@(args => EditProcessRow(customerOrderShipment))" @onclick:stopPropagation="true"

@@ -1,5 +1,6 @@
 ﻿using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
+using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Radzen;
 
@@ -87,7 +88,11 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected async Task<string> GetReferenceHint(ItemReference reference) => $"({reference.Item.Line.LineName}) {reference.Item.ItemName} - {reference.ReferenceName}";
 
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
-        
+
+        private async Task ShowImageDialog(string articleName) => DialogService.Open<ImageDialog>("", new Dictionary<string, object>
+            {
+                { "ArticleName", articleName }
+            });
         #endregion
     }
 }

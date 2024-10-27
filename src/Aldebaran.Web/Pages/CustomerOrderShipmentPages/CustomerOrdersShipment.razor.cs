@@ -183,7 +183,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
                 {
                     REFERENCE_ID = item.ReferenceId,
                     CUSTOMER_ORDER_DETAIL_ID = item.CustomerOrderDetailId,
-                    REFERENCE_DESCRIPTION = $"[{item.ItemReference.Item.InternalReference}] ({item.ItemReference.Item.Line.LineName}) {item.ItemReference.Item.ItemName} - {item.ItemReference.ReferenceName}",
+                    REFERENCE_DESCRIPTION = $"[{item.ItemReference.Item.InternalReference}] {item.ItemReference.Item.ItemName} - {item.ItemReference.ReferenceName}",
                     PENDING_QUANTITY = item.RequestedQuantity - item.ProcessedQuantity - item.DeliveredQuantity,
                     PROCESSED_QUANTITY = item.ProcessedQuantity,
                     DELIVERED_QUANTITY = item.DeliveredQuantity
@@ -257,6 +257,10 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
             }
         }
 
+        private async Task ShowImageDialog(string articleName) => DialogService.Open<ImageDialog>("", new Dictionary<string, object>
+            {
+                { "ArticleName", articleName }
+            });
         #endregion
     }
 }

@@ -85,18 +85,25 @@
                             <LocalizedDataGrid @ref="customerOrderDetailGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                                Data="@customerOrderDetails" TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail">
                                 <Columns>
-                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Title="Cantidad" Width="100px">
+                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
                                         <Template Context="detail">
-                                            @detail.RequestedQuantity.ToString("N0")
+                                            <RadzenButton Icon="image" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                                          Click="@(args => ShowImageDialog(@detail.ItemReference.Item.InternalReference))"
+                                                          @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Ver imagen del producto", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
                                         </Template>
                                     </RadzenDataGridColumn>
                                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Title="Referencia">
                                         <Template Context="detail">
                                             <RadzenLabel MouseEnter="@(args => ShowTooltip(args,GetReferenceHint(@detail.ItemReference).Result, new TooltipOptions(){ Position = TooltipPosition.Left }))">
-                                                [@detail.ItemReference.Item.InternalReference] (@detail.ItemReference.Item.Line.LineName) @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName
+                                                [@detail.ItemReference.Item.InternalReference] @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName
                                             </RadzenLabel>
                                         </Template>
                                     </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Title="Cantidad" Width="100px">
+                                        <Template Context="detail">
+                                            @detail.RequestedQuantity.ToString("N0")
+                                        </Template>
+                                    </RadzenDataGridColumn>                                    
                                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderDetail" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                                         <Template Context="detail">
                                             <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"

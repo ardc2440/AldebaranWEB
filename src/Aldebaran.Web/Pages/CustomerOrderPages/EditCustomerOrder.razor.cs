@@ -158,7 +158,11 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
             await customerOrderDetailGrid.Reload();
         }
-                
+
+        private async Task ShowImageDialog(string articleName) => DialogService.Open<ImageDialog>("", new Dictionary<string, object>
+            {
+                { "ArticleName", articleName }
+            });
         #endregion
     }
 }
