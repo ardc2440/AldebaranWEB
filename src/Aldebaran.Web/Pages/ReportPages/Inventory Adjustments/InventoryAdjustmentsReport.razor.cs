@@ -3,6 +3,7 @@ using Aldebaran.Application.Services.Reports;
 using Aldebaran.Infraestructure.Common.Utils;
 using Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments.Components;
 using Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments.ViewModel;
+using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Radzen;
@@ -268,6 +269,10 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
         {
             await JSRuntime.InvokeVoidAsync("readMoreTogglePage", "toggleLinkPage");
         }
+        private async Task ShowImageDialog(string articleName) => DialogService.Open<ImageDialog>("", new Dictionary<string, object>
+            {
+                { "ArticleName", articleName }
+            });
         #endregion
     }
 }

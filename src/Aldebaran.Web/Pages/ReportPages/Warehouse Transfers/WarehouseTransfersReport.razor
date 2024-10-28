@@ -231,8 +231,16 @@
                                                                     @foreach (var reference in warehouse.References)
                                                                     {
                                                                         <tr>
-                                                                            <td width="20%" colspan="2">@reference.ItemReference</td>
-                                                                            <td width="30%" colspan="3">@reference.ItemName</td>
+                                                                            <td title="Click para ver imagen" @onclick="@(args => ShowImageDialog($"[{@reference.ItemReference}] {@reference.ItemName}"))"
+                                                                                style="cursor: pointer;"
+                                                                                width="20%" colspan="2">
+                                                                                <strong>@reference.ItemReference</strong>
+                                                                            </td>
+                                                                            <td title="Click para ver imagen" @onclick="@(args => ShowImageDialog($"[{@reference.ItemReference}] {@reference.ItemName}"))"
+                                                                                style="cursor: pointer;"
+                                                                                width="30%" colspan="3">
+                                                                                @reference.ItemName
+                                                                            </td>
                                                                             <td width="30%" colspan="3">@(string.IsNullOrEmpty(reference.ReferenceCode) ? string.Empty : $"{reference.ReferenceCode} - ")@reference.ReferenceName</td>
                                                                             <td width="20%" colspan="2">@(reference.Amount.ToString("N0"))</td>
                                                                         </tr>

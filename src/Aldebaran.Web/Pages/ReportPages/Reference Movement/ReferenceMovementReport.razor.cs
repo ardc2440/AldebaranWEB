@@ -3,6 +3,7 @@ using Aldebaran.Application.Services.Reports;
 using Aldebaran.Infraestructure.Common.Utils;
 using Aldebaran.Web.Pages.ReportPages.Reference_Movement.Components;
 using Aldebaran.Web.Pages.ReportPages.Reference_Movement.ViewModel;
+using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.JSInterop;
@@ -185,6 +186,11 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
         {
             await JSRuntime.InvokeVoidAsync("readMoreTogglePage", "toggleLinkPage");
         }
+
+        private async Task ShowImageDialog(string articleName) => DialogService.Open<ImageDialog>("", new Dictionary<string, object>
+            {
+                { "ArticleName", articleName }
+            });
         #endregion
 
         #region Fill Data Report

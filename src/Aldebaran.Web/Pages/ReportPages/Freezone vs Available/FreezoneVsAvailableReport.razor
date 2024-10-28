@@ -109,8 +109,9 @@
                                                     <tr>
                                                         <td colspan="4" style="padding:0 !important">
                                                             <div style="padding: 1em 1em 0 1em !important;">
-                                                                <h3 class="text-left m-0">
-                                                                    @item.ItemName
+                                                                <h3 title="Click para ver imagen" @onclick="@(args => ShowImageDialog($"[{item.InternalReference}] {item.ItemName}"))"
+                                                                    style="cursor: pointer;" 
+                                                                    class="text-left m-0">@item.ItemName
                                                                 </h3>
                                                                 <p class="m-0">
                                                                     Referencia interna: @item.InternalReference

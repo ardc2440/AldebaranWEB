@@ -2,6 +2,7 @@
 using Aldebaran.Infraestructure.Common.Utils;
 using Aldebaran.Web.Pages.ReportPages.Inventory.Components;
 using Aldebaran.Web.Pages.ReportPages.Inventory.ViewModel;
+using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
@@ -36,6 +37,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
         protected InventoryViewModel ViewModel;
         private bool IsBusy = false;
         private bool IsLoadingData = false;
+        private ElementReference h3ElementRef;
+
         private IEnumerable<Application.Services.Models.Reports.InventoryReport> DataReport { get; set; }
         #endregion
 
@@ -128,7 +131,11 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
         {
             await JSRuntime.InvokeVoidAsync("readMoreTogglePage", "toggleLinkPage");
         }
-
+        private async Task ShowImageDialog(string articleName) => DialogService.Open<ImageDialog>("", new Dictionary<string, object>
+            {
+                { "ArticleName", articleName }
+            });
+                
         #endregion
 
         #region Fill Data Report

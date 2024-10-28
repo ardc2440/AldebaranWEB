@@ -331,8 +331,16 @@
                                                         }
 
                                                         <tr>
-                                                            <td width="10%">@reference.ItemReference</td>
-                                                            <td width="20%" colspan="2">@reference.ItemName</td>
+                                                            <td title="Click para ver imagen" @onclick="@(args => ShowImageDialog($"[{reference.ItemReference}] {reference.ItemName}"))"
+                                                                style="cursor: pointer;"
+                                                                width="10%">
+                                                                <strong>@reference.ItemReference</strong>
+                                                            </td>
+                                                            <td title="Click para ver imagen" @onclick="@(args => ShowImageDialog($"[{reference.ItemReference}] {reference.ItemName}"))"
+                                                                style="cursor: pointer;"
+                                                                width="20%" colspan="2">
+                                                                @reference.ItemName
+                                                            </td>
                                                             <td width="30%" colspan="3">@(string.IsNullOrEmpty(reference.ReferenceCode) ? string.Empty : $"{reference.ReferenceCode} - ")@reference.ReferenceName</td>
                                                             <td width="10%">@(reference.Amount.ToString("N0"))</td>
                                                             <td width="10%">@(reference.DeliveredAmount == 0 ? "" : reference.DeliveredAmount.ToString("N0"))</td>

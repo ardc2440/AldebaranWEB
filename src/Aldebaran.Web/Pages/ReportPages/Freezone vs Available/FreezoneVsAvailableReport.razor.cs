@@ -2,6 +2,7 @@
 using Aldebaran.Infraestructure.Common.Utils;
 using Aldebaran.Web.Pages.ReportPages.Freezone_vs_Available.Components;
 using Aldebaran.Web.Pages.ReportPages.Freezone_vs_Available.ViewModel;
+using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Radzen;
@@ -127,6 +128,10 @@ namespace Aldebaran.Web.Pages.ReportPages.Freezone_vs_Available
         {
             await JSRuntime.InvokeVoidAsync("readMoreTogglePage", "toggleLinkPage");
         }
+        private async Task ShowImageDialog(string articleName) => DialogService.Open<ImageDialog>("", new Dictionary<string, object>
+            {
+                { "ArticleName", articleName }
+            });
         #endregion
 
         #region Fill Data Report

@@ -2,6 +2,7 @@
 using Aldebaran.Infraestructure.Common.Utils;
 using Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities.Components;
 using Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities.ViewModel;
+using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.JSInterop;
@@ -152,6 +153,11 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
         {
             await JSRuntime.InvokeVoidAsync("readMoreTogglePage", "toggleLinkPage");
         }
+
+        private async Task ShowImageDialog(string articleName) => DialogService.Open<ImageDialog>("", new Dictionary<string, object>
+            {
+                { "ArticleName", articleName }
+            });
         #endregion
 
         #region Fill Data Report

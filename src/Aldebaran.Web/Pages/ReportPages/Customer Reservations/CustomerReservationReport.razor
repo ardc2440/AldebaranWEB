@@ -159,7 +159,7 @@
                                                         {
                                                             @if (Filter.ReservationDate?.StartDate != null)
                                                             {
-                                                                <span > - </span>
+                                                                <span> - </span>
                                                             }
                                                             <span>@Filter.ReservationDate.EndDate.Value.ToString(SharedLocalizer["date:format"])</span>
                                                         }
@@ -278,8 +278,15 @@
                                                         @foreach (var reference in item.References)
                                                         {
                                                             <tr>
-                                                                <td width="20%">@item.InternalReference</td>
-                                                                <td colspan="2" width="40%">@item.ItemName</td>
+                                                                <td title="Click para ver imagen" @onclick="@(args => ShowImageDialog($"[{item.InternalReference}] {item.ItemName}"))"
+                                                                    style="cursor: pointer;"
+                                                                    width="20%">
+                                                                    <strong>@item.InternalReference</strong>
+                                                                </td>
+                                                                <td title="Click para ver imagen" @onclick="@(args => ShowImageDialog($"[{item.InternalReference}] {item.ItemName}"))"
+                                                                    style="cursor: pointer;" colspan="2" width="40%">
+                                                                    @item.ItemName
+                                                                </td>
                                                                 <td width="20%">@(string.IsNullOrEmpty(reference.ReferenceCode) ? string.Empty : $"{reference.ReferenceCode} - ")@reference.ReferenceName</td>
                                                                 <td width="20%">@(reference.Amount.ToString("N0"))</td>
                                                             </tr>

@@ -2,6 +2,7 @@
 using Aldebaran.Infraestructure.Common.Utils;
 using Aldebaran.Web.Pages.ReportPages.Warehouse_Stock.Components;
 using Aldebaran.Web.Pages.ReportPages.Warehouse_Stock.ViewModel;
+using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.JSInterop;
@@ -136,6 +137,10 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Stock
         {
             await JSRuntime.InvokeVoidAsync("readMoreTogglePage", "toggleLinkPage");
         }
+        private async Task ShowImageDialog(string articleName) => DialogService.Open<ImageDialog>("", new Dictionary<string, object>
+            {
+                { "ArticleName", articleName }
+            });
         #endregion
 
         #region Fill Data Report
