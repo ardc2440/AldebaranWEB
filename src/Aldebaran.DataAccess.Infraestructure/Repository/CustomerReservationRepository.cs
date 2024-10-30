@@ -201,7 +201,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         {
             await ExecuteCommandAsync(async dbContext =>
             {
-                var entity = await dbContext.CustomerReservations.FirstOrDefaultAsync(x => x.CustomerReservationId == customerReservationId, ct) ?? throw new KeyNotFoundException($"Reserva con id {customerReservationId} no existe.");
+                var entity = await dbContext.CustomerReservations.Include(i=>i.CustomerReservationDetails).FirstOrDefaultAsync(x => x.CustomerReservationId == customerReservationId, ct) ?? throw new KeyNotFoundException($"Reserva con id {customerReservationId} no existe.");
                 entity.StatusDocumentTypeId = canceledStatusDocumentId;
 
                 var reasonEntity = new CanceledCustomerReservation

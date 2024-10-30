@@ -45,6 +45,12 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
         protected ICustomerOrderShipmentDetailService CustomerOrderShipmentDetailService { get; set; }
 
         [Inject]
+        protected ICustomerOrderInProcessDetailService CustomerOrderInProcessDetailService { get; set; }
+
+        [Inject]
+        protected ICustomerOrdersInProcessService CustomerOrdersInProcessService { get; set; }        
+
+        [Inject]
         protected IStatusDocumentTypeService StatusDocumentTypeService { get; set; }
 
         #endregion
@@ -64,13 +70,17 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
         protected DocumentType documentType;
         protected IEnumerable<StatusDocumentType> dispachStatus;
         protected IEnumerable<CustomerOrder> customerOrders;
-        protected IEnumerable<CustomerOrderShipment> customerOrderShipments;
+        //protected IEnumerable<CustomerOrderShipment> customerOrderShipments;
         protected IEnumerable<CustomerOrderShipmentDetail> customerOrderShipmentDetails;
         protected IEnumerable<DetailInProcess> detailInProcesses;
         protected LocalizedDataGrid<DetailInProcess> CustomerOrderDetailsDataGrid;
         protected LocalizedDataGrid<CustomerOrderShipment> CustomerOrderShipmentDataGrid;
         protected LocalizedDataGrid<CustomerOrderShipmentDetail> CustomerOrderShipmentDetailDataGrid;
         protected LocalizedDataGrid<CustomerOrder> CustomerOrdersGrid;
+        protected IEnumerable<CustomerOrderInProcessDetail> customerOrderInProcessDetails;
+        protected LocalizedDataGrid<CustomerOrdersInProcess> CustomerOrderInProcessesDataGrid;
+        protected LocalizedDataGrid<CustomerOrderInProcessDetail> CustomerOrderInProcessDetailDataGrid;
+
         protected string search = "";
         protected bool isLoadingInProgress;
 
@@ -110,7 +120,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
         {
             skip = args.Skip.Value;
             top = args.Top.Value;
-            await GetCustomerOrderShipmentAsync(search);
+            await GetCustomerOrdersAsync(search);
         }
 
         async Task DialogResultResolver(CancellationToken ct = default)
@@ -145,7 +155,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
             });
         }
 
-        async Task GetCustomerOrderShipmentAsync(string searchKey = null, CancellationToken ct = default)
+        async Task GetCustomerOrdersAsync(string searchKey = null, CancellationToken ct = default)
         {
             await Task.Yield();
             (customerOrders, count) = string.IsNullOrEmpty(searchKey) ? await CustomerOrderService.GetAsync(skip, top, 1, ct) : await CustomerOrderService.GetAsync(skip, top, searchKey, 1, ct);            
@@ -166,7 +176,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
 
             await CustomerOrdersGrid.GoToPage(0);
 
-            await GetCustomerOrderShipmentAsync(search);
+            await GetCustomerOrdersAsync(search);
         }
 
         protected async Task GetOrderDetails(CustomerOrder args)
@@ -198,7 +208,19 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
         protected async Task GetChildData(CustomerOrder args)
         {
             await GetOrderDetails(args);
-            customerOrderShipments = await CustomerOrderShipmentService.GetByCustomerOrderIdAsync(args.CustomerOrderId);
+
+            await GetCustomerOrderInProcessAsync(args);
+
+            await GetCustomerOrderShipmentAsync(args);
+        }
+
+        private async Task GetCustomerOrderShipmentAsync(CustomerOrder args)
+        {
+            var customerOrderShipmentResult = await CustomerOrderShipmentService.GetByCustomerOrderIdAsync(args.CustomerOrderId);
+            if (customerOrderShipmentResult != null)
+            {
+                args.CustomerOrderShipments = customerOrderShipmentResult.ToList();
+            }
         }
 
         protected async Task GetChildShipmentData(CustomerOrderShipment args)
@@ -236,7 +258,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
                 var statusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync((await DocumentTypeService.FindByCodeAsync("D")).DocumentTypeId, 2);
 
                 await CustomerOrderShipmentService.CancelAsync(customerOrderShipment.CustomerOrderShipmentId, statusDocumentType.StatusDocumentTypeId, reason);
-                await GetCustomerOrderShipmentAsync(search);
+                await GetCustomerOrdersAsync(search);
 
                 NotificationService.Notify(new NotificationMessage
                 {
@@ -263,5 +285,21 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
                 { "ArticleName", articleName }
             });
         #endregion
+
+        #region CustomerOrderInProcess
+        private async Task GetCustomerOrderInProcessAsync(CustomerOrder args)
+        {
+            var customerOrderinProcessResult = await CustomerOrdersInProcessService.GetByCustomerOrderIdAsync(args.CustomerOrderId);
+            if (customerOrderinProcessResult != null)
+            {
+                args.CustomerOrdersInProcesses = customerOrderinProcessResult.ToList();
+            }
+        }
+        protected async Task GetChildInProcessData(CustomerOrdersInProcess args)
+        {
+            customerOrderInProcessDetails = await CustomerOrderInProcessDetailService.GetByCustomerOrderInProcessIdAsync(args.CustomerOrderInProcessId);
+        }
+        #endregion
+
     }
 }

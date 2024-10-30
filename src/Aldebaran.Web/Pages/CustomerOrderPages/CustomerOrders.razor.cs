@@ -47,6 +47,18 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected ICustomerOrderNotificationService CustomerOrderNotificationService { get; set; }
 
         [Inject]
+        protected ICustomerOrderInProcessDetailService CustomerOrderInProcessDetailService { get; set; }
+
+        [Inject]
+        protected ICustomerOrdersInProcessService CustomerOrdersInProcessService { get; set; }
+
+        [Inject]
+        protected ICustomerOrderShipmentService CustomerOrderShipmentService { get; set; }
+
+        [Inject]
+        protected ICustomerOrderShipmentDetailService CustomerOrderShipmentDetailService { get; set; }
+
+        [Inject]
         protected TooltipService TooltipService { get; set; }
 
         [Inject]
@@ -75,6 +87,13 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected LocalizedDataGrid<CustomerOrderActivity> CustomerOrderActivitiesDataGrid;
         protected LocalizedDataGrid<CustomerOrderActivityDetail> CustomerOrderActivityDetailsDataGrid;
         protected LocalizedDataGrid<CustomerOrderNotification> CustomerOrderNotificationsDataGrid;        
+        protected IEnumerable<CustomerOrderInProcessDetail> customerOrderInProcessDetails;
+        protected LocalizedDataGrid<CustomerOrdersInProcess> CustomerOrderInProcessesDataGrid;
+        protected LocalizedDataGrid<CustomerOrderInProcessDetail> CustomerOrderInProcessDetailDataGrid;
+        protected IEnumerable<CustomerOrderShipmentDetail> customerOrderShipmentDetails;
+        protected LocalizedDataGrid<CustomerOrderShipment> CustomerOrderShipmentDataGrid;
+        protected LocalizedDataGrid<CustomerOrderShipmentDetail> CustomerOrderShipmentDetailDataGrid;
+
         protected string search = "";
         protected bool isLoadingInProgress;
 
@@ -353,6 +372,10 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             await GetCustomerOrderAlarmsAsync(args);
 
             await GetCustomerOrderNotificationsAsync(args);
+
+            await GetCustomerOrderInProcessAsync(args);
+
+            await GetCustomerOrderShipmentAsync(args);
         }
 
         protected async Task<bool> CanEdit(CustomerOrder customerOrder)
@@ -413,6 +436,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             {
                 { "ArticleName", articleName }
             });
+        #endregion
 
         #region Alarms
 
@@ -499,6 +523,34 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         #endregion
 
+        #region CustomerOrderInProcess
+        private async Task GetCustomerOrderInProcessAsync(CustomerOrder args)
+        {
+            var customerOrderinProcessResult = await CustomerOrdersInProcessService.GetByCustomerOrderIdAsync(args.CustomerOrderId);
+            if (customerOrderinProcessResult != null)
+            {
+                args.CustomerOrdersInProcesses = customerOrderinProcessResult.ToList();
+            }
+        }
+        protected async Task GetChildInProcessData(CustomerOrdersInProcess args)
+        {
+            customerOrderInProcessDetails = await CustomerOrderInProcessDetailService.GetByCustomerOrderInProcessIdAsync(args.CustomerOrderInProcessId);
+        }
+        #endregion
+
+        #region CustomerOrderShipment
+        private async Task GetCustomerOrderShipmentAsync(CustomerOrder args)
+        {
+            var customerOrderShipmentResult = await CustomerOrderShipmentService.GetByCustomerOrderIdAsync(args.CustomerOrderId);
+            if (customerOrderShipmentResult != null)
+            {
+                args.CustomerOrderShipments = customerOrderShipmentResult.ToList();
+            }
+        }
+        protected async Task GetChildShipmentData(CustomerOrderShipment args)
+        {
+            customerOrderShipmentDetails = await CustomerOrderShipmentDetailService.GetByCustomerOrderShipmentIdAsync(args.CustomerOrderShipmentId);
+        }
         #endregion
 
     }

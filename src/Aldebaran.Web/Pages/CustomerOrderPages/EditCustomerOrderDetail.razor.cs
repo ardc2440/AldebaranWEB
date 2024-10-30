@@ -107,7 +107,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 var warehouse = await WarehouseService.FindByCodeAsync(1);
                 var localWarehouseStock = await ReferencesWarehouseService.GetByReferenceAndWarehouseIdAsync(customerOrderDetail.ReferenceId, warehouse.WarehouseId);
 
-                if (customerOrderDetail.RequestedQuantity > localWarehouseStock.Quantity)
+                if (customerOrderDetail.RequestedQuantity > localWarehouseStock.Quantity - customerOrderDetail.ItemReference.OrderedQuantity - customerOrderDetail.ItemReference.ReservedQuantity)
                 {
                     var temp = customerOrderDetail;
                     await DialogService.Alert($"La cantidad ingresada supera la existencia en bodega local. Verifique disponibilidad de la referencia.",
