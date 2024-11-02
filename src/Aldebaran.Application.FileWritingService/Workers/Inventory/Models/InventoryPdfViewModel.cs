@@ -20,6 +20,7 @@
         {
             public string ReferenceName { get; set; }
             public int AvailableAmount { get; set; }
+            public int LocalWarehouse { get; set; }
             public int FreeZone { get; set; }
             public List<PurchaseOrder> PurchaseOrders { get; set; }
         }

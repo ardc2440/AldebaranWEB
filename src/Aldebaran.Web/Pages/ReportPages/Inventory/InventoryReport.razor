@@ -110,7 +110,7 @@
                                                             <table class="edged m-0">
                                                                 <thead>
                                                                     <tr>
-                                                                        <td colspan="3" width="50%">
+                                                                        <td colspan="4" width="50%">
                                                                             <div style="padding-bottom:0.5rem !important">
                                                                                 <h3 title="Click para ver imagen" @onclick="@(args => ShowImageDialog($"[{item.InternalReference}] {item.ItemName}"))"                                                                                    
                                                                                     style="cursor: pointer;"
@@ -127,12 +127,16 @@
                                                                         </td>
                                                                     </tr>
                                                                     <tr>
-                                                                        <th width="20%">
+                                                                        <th width="10%">
                                                                             <b>Referencia</b>
                                                                         </th>
-                                                                        <th width="15%">
-                                                                            <b>DISPONIBLE</b>
+                                                                        <th width="10%">
+                                                                            <b>DISPONIBLE   =</b>
                                                                             <p class="m-0"><small>Total para la venta</small></p>
+                                                                        </th>
+                                                                        <th width="15%">
+                                                                            <b>BODEGA LOCAL +</b>
+                                                                            <p class="m-0"><small>Entrega inmediata</small></p>
                                                                         </th>
                                                                         <th width="15%">
                                                                             <b>ZONA FRANCA</b>
@@ -158,13 +162,16 @@
                                                                         var reference = item.References[r];
                                                                         var odd = (r + 1) % 2 != 0;
                                                                         <tr style='@(odd?"background: #f5f5f5;":"")'>
-                                                                            <td width="20%" rowspan="@(reference.PurchaseOrders.Any()?reference.PurchaseOrders.Count()+1: 2)">
+                                                                            <td width="10%" rowspan="@(reference.PurchaseOrders.Any()?reference.PurchaseOrders.Count()+1: 2)">
                                                                                 @reference.ReferenceName
                                                                             </td>
                                                                             <td width="15%" rowspan="@(reference.PurchaseOrders.Any()?reference.PurchaseOrders.Count()+1: 2)">
                                                                                 @reference.AvailableAmount.ToString("N0")
                                                                             </td>
                                                                             <td width="15%" rowspan="@(reference.PurchaseOrders.Any()?reference.PurchaseOrders.Count()+1: 2)">
+                                                                                @reference.LocalWarehouse.ToString("N0")
+                                                                            </td>
+                                                                            <td width="10%" rowspan="@(reference.PurchaseOrders.Any()?reference.PurchaseOrders.Count()+1: 2)">
                                                                                 @reference.FreeZone.ToString("N0")
                                                                             </td>
                                                                         </tr>

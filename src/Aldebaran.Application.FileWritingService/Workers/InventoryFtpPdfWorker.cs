@@ -90,7 +90,7 @@ namespace Aldebaran.Application.FileWritingService.Workers
                         LineName = line.LineName,
                         Items = itemsByLine.Select(item =>
                         {
-                            var referencesByItem = data.Where(w => w.ItemId == item.ItemId).Select(s => new { s.ReferenceId, s.ReferenceName, s.AvailableAmount, s.FreeZone }).DistinctBy(d => d.ReferenceId).OrderBy(o => o.ReferenceName);
+                            var referencesByItem = data.Where(w => w.ItemId == item.ItemId).Select(s => new { s.ReferenceId, s.ReferenceName, s.AvailableAmount, s.FreeZone, s.LocalWarehouse }).DistinctBy(d => d.ReferenceId).OrderBy(o => o.ReferenceName);
                             return new InventoryPdfViewModel.Item
                             {
                                 InternalReference = item.InternalReference,
@@ -102,6 +102,7 @@ namespace Aldebaran.Application.FileWritingService.Workers
                                     {
                                         ReferenceName = reference.ReferenceName,
                                         AvailableAmount = reference.AvailableAmount,
+                                        LocalWarehouse = reference.LocalWarehouse,
                                         FreeZone = reference.FreeZone,
                                         PurchaseOrders = purchaseOrdersByReference.Select(purchaseOrder =>
                                         {

@@ -11,6 +11,7 @@
 
         public string ReferenceName { get; set; }
         public int AvailableAmount { get; set; }
+        public int LocalWarehouse { get; set; }
         public int FreeZone { get; set; }
         public int ReferenceId { get; set; }
 

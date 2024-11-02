@@ -167,13 +167,14 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
         {
             var inventoryReferences = new List<InventoryViewModel.Reference>();
 
-            foreach (var reference in DataReport.Where(w => w.ItemId == itemId).Select(s => new { s.ReferenceId, s.ReferenceName, s.AvailableAmount, s.FreeZone }).DistinctBy(d => d.ReferenceId).OrderBy(o => o.ReferenceName))
+            foreach (var reference in DataReport.Where(w => w.ItemId == itemId).Select(s => new { s.ReferenceId, s.ReferenceName, s.AvailableAmount, s.FreeZone, s.LocalWarehouse }).DistinctBy(d => d.ReferenceId).OrderBy(o => o.ReferenceName))
             //references.Where(w => w.ItemId == itemId && w.IsActive).OrderBy(o=>o.ReferenceCode))
             {
                 inventoryReferences.Add(new InventoryViewModel.Reference
                 {
                     ReferenceName = reference.ReferenceName,
                     AvailableAmount = reference.AvailableAmount,
+                    LocalWarehouse = reference.LocalWarehouse,
                     FreeZone = reference.FreeZone,
                     PurchaseOrders = (await GetPurchaseOrderPerReferenceAsync(reference.ReferenceId, ct)).ToList()
                 });
