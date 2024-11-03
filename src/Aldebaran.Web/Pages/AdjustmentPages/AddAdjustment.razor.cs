@@ -105,6 +105,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
                 adjustment.AdjustmentDetails = AdjustmentDetails;
                 var result = await AdjustmentService.AddAsync(adjustment);
+                await DialogService.OpenAsync<AdjustmentSummary>(null, new Dictionary<string, object> { { "Id", result.AdjustmentId } }, options: new DialogOptions { ShowTitle = false, ShowClose = true, CloseDialogOnEsc = false, CloseDialogOnOverlayClick = false, Width = "800px" });
                 NavigationManager.NavigateTo($"adjustments/{result.AdjustmentId}");
             }
             catch (Exception ex)

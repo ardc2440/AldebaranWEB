@@ -76,4 +76,9 @@
   <ItemGroup>
     <Folder Include="wwwroot\shared\" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Update="Pages\AdjustmentPages\AdjustmentSummary.razor">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+  </ItemGroup>
 </Project>

@@ -1,0 +1,143 @@
+﻿@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
+
+<LoadingData IsLoadingData="@isLoadingInProgress" />
+
+@if (!isLoadingInProgress)
+{
+    <RadzenStack>
+        <RadzenRow AlignItems="AlignItems.Start">
+            <RadzenColumn Size="8">
+                @if (Adjustment != null)
+                {
+                    <RadzenCard style="max-height:350px; overflow-y:auto">
+                        <div id="adjustment-summary">
+                            <div class="report">
+                                <h2>Ajuste de Inventario</h2>
+                                <table class="border-top">
+                                    <thead>
+                                        <tr class="emphasys-2x font-size-2x">
+                                            <td colspan="4" width="100%">
+                                                <span class="bold">Número: </span>@Adjustment.AdjustmentId
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td width="25%">
+                                                <span class="bold">Fecha de creación: </span><br />
+                                                @Adjustment.CreationDate.ToString(SharedLocalizer["datetime:format"])
+                                            </td>
+                                            <td width="25%">
+                                                <span class="bold">Fecha del ajuste: </span><br />
+                                                @Adjustment.AdjustmentDate.ToString(SharedLocalizer["datetime:format"])
+                                            </td>
+                                            <td width="25%">
+                                                <span class="bold">Tipo de ajuste: </span>@Adjustment.AdjustmentType.AdjustmentTypeName
+                                            </td>
+                                            <td width="25%">
+                                                <span class="bold">Motivo del ajuste: </span>@Adjustment.AdjustmentReason.AdjustmentReasonName
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td width="25%">
+                                                <span class="bold">Empleado: </span>@Adjustment.Employee.FullName
+                                            </td>
+                                            <td colspan="3" width="75%">
+                                                <span class="bold">Observaciones: </span> <br />
+                                                @Adjustment.Notes
+                                            </td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var warehouse in AdjustmentDetails
+                                                                    .Select(s => new { s.Warehouse.WarehouseId, s.Warehouse.WarehouseName })
+                                                                    .DistinctBy(d => d.WarehouseId))
+                                        {
+                                            <tr>
+                                                <td colspan="4" style="padding:0 !important">
+                                                    <p class="title">Bodega: @warehouse.WarehouseName</p>
+                                                </td>
+                                            </tr>
+                                            @foreach (var line in AdjustmentDetails
+                                                                    .Where(w => w.WarehouseId == warehouse.WarehouseId)
+                                                                    .Select(s => new { s.ItemReference.Item.Line.LineId, s.ItemReference.Item.Line.LineName, s.ItemReference.Item.Line.LineCode })
+                                                                    .DistinctBy(d => d.LineId))
+                                            {
+                                                <tr>
+                                                    <td colspan="4" style="padding:0 !important">
+                                                        <p class="title" style="padding-left: 1em;">Línea: @line.LineCode  - @line.LineName</p>
+                                                    </td>
+                                                </tr>
+                                                firstLine = true;
+                                                @foreach (var item in AdjustmentDetails
+                                                                       .Where(w => w.WarehouseId == warehouse.WarehouseId && w.ItemReference.Item.LineId == line.LineId)
+                                                                       .Select(s => new { s.ItemReference.Item.ItemId, s.ItemReference.Item.ItemName, s.ItemReference.Item.InternalReference })
+                                                                       .DistinctBy(d => d.ItemId))
+                                                {
+                                                    <tr>
+                                                        <td colspan="4" style="padding:0 !important">
+                                                            <div style="padding: 1em 1em 0 1em !important;">
+                                                                @if (!firstLine)
+                                                                {
+                                                                    <hr class="mb-2" />
+                                                                    firstLine = false;
+                                                                }
+                                                                <h3 style="cursor: pointer;"
+                                                                    class="text-left m-0">
+                                                                    @item.ItemName
+                                                                </h3>
+                                                                <p class="m-0">
+                                                                    Referencia interna: @item.InternalReference
+                                                                </p>
+                                                            </div>
+                                                            <div style="margin: 1em;">
+                                                                <table class="striped edged">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th width="30%">Código</th>
+                                                                            <th width="40%">Referencia</th>
+                                                                            <th width="30%">Cantidad</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        @foreach (var reference in AdjustmentDetails
+                                                                                                    .Where(w => w.WarehouseId == warehouse.WarehouseId && w.ItemReference.ItemId == item.ItemId)
+                                                                                                    .Select(s => new { s.ItemReference.ReferenceCode, s.ItemReference.ReferenceName, s.Quantity}))
+                                                                        {
+                                                                            <tr>
+                                                                                <td width="30%">@reference.ReferenceCode</td>
+                                                                                <td width="40%">@reference.ReferenceName</td>
+                                                                                <td width="30%">@reference.Quantity.ToString("N0")</td>
+                                                                            </tr>
+                                                                        }
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </RadzenCard>
+                }
+            </RadzenColumn>
+            <RadzenColumn Size="4">
+                <div class="d-flex flex-column gap-4 flex-shrink-0">
+                    <div>
+                        <RadzenSplitButton Icon="build" Text="Acciones" Click="@Save" Variant="Variant.Flat" Shade="Shade.Lighter" IsBusy="@IsBusy">
+                            <RadzenSplitButtonItem Text="Imprimir" Icon="print" Value="print" Style="cursor:pointer" />
+                            <RadzenSplitButtonItem Text="Guardar PDF" Icon="picture_as_pdf" Value="save" Style="cursor:pointer" />
+                        </RadzenSplitButton>
+                    </div>
+                    <div>
+                        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Start" JustifyContent="JustifyContent.Left" Gap="0.5rem">
+                            <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cerrar" Variant="Variant.Flat" Click="@CloseWindow" IsBusy="@IsBusy" />
+                        </RadzenStack>
+                    </div>
+                </div>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenStack>
+}

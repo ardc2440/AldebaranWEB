@@ -1,6 +1,7 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Models.ViewModels;
+using Aldebaran.Web.Pages.CustomerReservationPages;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Shared;
 using DocumentFormat.OpenXml.Drawing.Charts;
@@ -151,6 +152,11 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
             {
                 { "ArticleName", articleName }
             });
+
+        protected async Task DownloadAsync(MouseEventArgs arg, Adjustment adjustment)
+        {
+            await DialogService.OpenAsync<AdjustmentSummary>(null, new Dictionary<string, object> { { "Id", adjustment.AdjustmentId } }, options: new DialogOptions { ShowTitle = false, ShowClose = false, CloseDialogOnEsc = false, CloseDialogOnOverlayClick = false, Width = "800px" });            
+        }
         #endregion
 
     }

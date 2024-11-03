@@ -48,6 +48,12 @@
                         </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Adjustment" Property="Notes" Title="Notas" Visible="false">
                         </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Adjustment" Filterable="false" Sortable="false" Width="164px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                            <Template Context="adjustment">
+                                <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="file_download" Size="ButtonSize.Medium"
+                                              Shade="Shade.Lighter" Variant="Variant.Flat" Click="@(args => DownloadAsync(args, adjustment))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Descargar", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                            </Template>
+                        </RadzenDataGridColumn>
                     </Columns>
                     <Template Context="adjustment">
                         <RadzenStack Class="rz-my-8">
