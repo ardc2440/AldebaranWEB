@@ -143,7 +143,7 @@ namespace Aldebaran.Web
 
             var result = await response.ReadAsync<ODataServiceResult<ApplicationUser>>();
 
-            return result.Value.Where(w => w.Name.Contains(searchKey) || w.UserName.Contains(searchKey));
+            return result.Value.Where(w => w.Name.ToUpper().Contains(searchKey.ToUpper()) || w.UserName.ToUpper().Contains(searchKey.ToUpper()) || w.Email.ToUpper().Contains(searchKey.ToUpper()));
         }
 
         public async Task<ApplicationUser> CreateUser(ApplicationUser user)

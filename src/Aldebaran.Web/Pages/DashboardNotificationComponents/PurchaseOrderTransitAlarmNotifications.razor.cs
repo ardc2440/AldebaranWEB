@@ -1,12 +1,12 @@
 ﻿using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
-using Aldebaran.Application.Services.Services;
 using Aldebaran.Infraestructure.Common.Extensions;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Utils;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Caching.Memory;
 using Radzen;
+using System.Linq;
 
 namespace Aldebaran.Web.Pages.DashboardNotificationComponents
 {
@@ -66,8 +66,11 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         readonly GridTimer GridTimer = new GridTimer("ExpiredReservations-GridTimer");
         List<DataTimer> Timers;
         protected string search = "";
-        protected IList<PurchaseOrderTransitAlarm> selectedAlarms;
 
+        private int currentPage = 1;
+        protected IList<PurchaseOrderTransitAlarm> selectedAlarms = new List<PurchaseOrderTransitAlarm>();
+        protected IList<PurchaseOrderTransitAlarm> visibleItems = new List<PurchaseOrderTransitAlarm>();
+        
         protected IEnumerable<PurchaseOrderNotification> purchaseOrderNotifications = new List<PurchaseOrderNotification>();
         protected LocalizedDataGrid<PurchaseOrderNotification> PurchaseOrderNotificationsDataGrid;
 
@@ -86,6 +89,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
                 employee = await DashBoardService.FindByLoginUserIdAsync(Security.User.Id);
                 await InitializeGridTimers();
                 await GridData_Update();
+                await LoadVisibleItems();
             }
             finally
             {
@@ -259,6 +263,68 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         {
             purchaseAlarmsAlertVisible = value;
             await OnAlertVisibleChanged.InvokeAsync((7, purchaseAlarmsAlertVisible));
+        }
+
+        private async Task OnPageChanged(object args)
+        {
+            if (args is PagerEventArgs pageArgs)
+            {
+                currentPage = pageArgs.PageIndex + 1;
+                await LoadVisibleItems();
+            }
+        }
+
+        private async Task LoadVisibleItems()
+        {
+            visibleItems = purchaseOrderTransitAlarms
+                .Skip((currentPage - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+        }
+
+        private async Task<bool> IsAllPageSelected()
+        {
+            return visibleItems.All(item => selectedAlarms.Contains(item)) && (selectedAlarms.Any());
+        }
+
+        private async Task SelectAllItems(bool select)
+        {
+            if (select)
+            {
+                // Añadir los ítems visibles a la lista de selección, si no están ya seleccionados
+                foreach (var item in visibleItems)
+                {
+                    if (!selectedAlarms.Contains(item))
+                    {
+                        selectedAlarms.Add(item);
+                    }
+                }
+            }
+            else
+            {
+                // Eliminar los ítems visibles de la lista de selección
+                foreach (var item in visibleItems)
+                {
+                    selectedAlarms.Remove(item);
+                }
+            }
+        }
+
+        private async Task ToggleSelection(PurchaseOrderTransitAlarm item, bool isSelected)
+        {
+            if (isSelected)
+            {
+                // Asegurarse de que el ítem se añada a la lista global de selección
+                if (!selectedAlarms.Contains(item))
+                {
+                    selectedAlarms.Add(item);
+                }
+            }
+            else
+            {
+                // Si se desmarca, eliminamos el ítem de la lista de selección
+                selectedAlarms.Remove(item);
+            }
         }
         #endregion
     }

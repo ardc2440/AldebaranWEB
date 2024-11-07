@@ -11,18 +11,19 @@
         <RadzenRow class="rz-m-1">
             <LocalizedDataGrid AllowRowSelectOnRowClick="false" RowExpand=@GetAlarmChildData ExpandMode="DataGridExpandMode.Single" Style="height: 100%" PageSize="@pageSize" @ref="purchaseOrderTransitAlarmsGrid" 
                                AllowFiltering="true" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" Data="@purchaseOrderTransitAlarms" TItem="Aldebaran.Application.Services.Models.PurchaseOrderTransitAlarm" IsLoading="@GridTimer.IsLoading"
-                               SelectionMode="DataGridSelectionMode.Multiple" @bind-Value=@selectedAlarms>
+                               SelectionMode="DataGridSelectionMode.Multiple" @bind-Value=@selectedAlarms Page="OnPageChanged">
                 <Columns>
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrderTransitAlarm" Width="60px" Sortable="false" Filterable="false">
                         <HeaderTemplate>
                             <RadzenCheckBox TabIndex="-1" TriState="false" TValue="bool?" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select all items" }})"
-                                            Value="@(selectedAlarms == null || selectedAlarms?.Any() != true ? false : !purchaseOrderTransitAlarms.All(i => selectedAlarms.Contains(i)) ? null : purchaseOrderTransitAlarms.Any(i => selectedAlarms.Contains(i)))"
-                                            Change="@(args => selectedAlarms = args == true ? purchaseOrderTransitAlarms.ToList() : null)"
-                                            MouseEnter="@(args => ShowTooltip(args,"Marcar todas", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                                            Value="@(IsAllPageSelected().Result ? true : (selectedAlarms?.Any() ?? false ? null : false))"
+                                            Change="@(args => SelectAllItems((bool)args))"
+                                            MouseEnter="@(args => ShowTooltip(args,"Marcar toda la página", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
                         </HeaderTemplate>
                         <Template Context="data">
                             <RadzenCheckBox TabIndex="-1" TriState="false" Value="@(selectedAlarms != null && selectedAlarms.Contains(data))" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select item" }})"
-                                            TValue="bool" Change=@(args => { purchaseOrderTransitAlarmsGrid.SelectRow(data); })
+                                            TValue="bool"
+                                            Change="@(args => ToggleSelection(data, args))"
                                             MouseEnter="@(args => ShowTooltip(args,"Marcar", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
                         </Template>
                     </RadzenDataGridColumn>

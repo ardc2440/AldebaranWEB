@@ -10,6 +10,7 @@ using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Caching.Memory;
 using Radzen;
+using System.Linq;
 
 namespace Aldebaran.Web.Pages.DashboardNotificationComponents
 {
@@ -58,8 +59,11 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         readonly GridTimer GridTimer = new GridTimer("OutOfStock-GridTimer");
         List<DataTimer> Timers;
         protected string search = "";
-        protected IList<OutOfStockArticle> selectedAlarms;
 
+        private int currentPage = 1;
+        protected IList<OutOfStockArticle> selectedAlarms = new List<OutOfStockArticle>();
+        protected IList<OutOfStockArticle> visibleItems = new List<OutOfStockArticle>();
+        
         protected IEnumerable<OutOfStockArticle> outOfStockArticles = new List<OutOfStockArticle>();
         protected LocalizedDataGrid<OutOfStockArticle> outOfStockArticlesGrid;
         protected Employee employee;
@@ -75,6 +79,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
                 employee = await DashBoardService.FindByLoginUserIdAsync(Security.User.Id);
                 await InitializeGridTimers();
                 await GridData_Update();
+                await LoadVisibleItems();
             }
             finally
             {
@@ -244,6 +249,68 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
             {
                 { "ArticleName", articleName }
             });
+
+        private async Task OnPageChanged(object args)
+        {
+            if (args is PagerEventArgs pageArgs)
+            {
+                currentPage = pageArgs.PageIndex + 1;
+                await LoadVisibleItems();
+            }
+        }
+
+        private async Task LoadVisibleItems()
+        {
+            visibleItems = outOfStockArticles
+                .Skip((currentPage - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+        }
+
+        private async Task<bool> IsAllPageSelected()
+        {
+            return visibleItems.All(item => selectedAlarms.Contains(item)) && (selectedAlarms.Any());
+        }
+
+        private async Task SelectAllItems(bool select)
+        {
+            if (select)
+            {
+                // Añadir los ítems visibles a la lista de selección, si no están ya seleccionados
+                foreach (var item in visibleItems)
+                {
+                    if (!selectedAlarms.Contains(item))
+                    {
+                        selectedAlarms.Add(item);
+                    }
+                }
+            }
+            else
+            {
+                // Eliminar los ítems visibles de la lista de selección
+                foreach (var item in visibleItems)
+                {
+                    selectedAlarms.Remove(item);
+                }
+            }
+        }
+
+        private async Task ToggleSelection(OutOfStockArticle item, bool isSelected)
+        {
+            if (isSelected)
+            {
+                // Asegurarse de que el ítem se añada a la lista global de selección
+                if (!selectedAlarms.Contains(item))
+                {
+                    selectedAlarms.Add(item);
+                }
+            }
+            else
+            {
+                // Si se desmarca, eliminamos el ítem de la lista de selección
+                selectedAlarms.Remove(item);
+            }
+        }
         #endregion
 
     }

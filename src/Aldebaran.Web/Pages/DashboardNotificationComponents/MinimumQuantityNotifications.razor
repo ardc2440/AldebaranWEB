@@ -11,19 +11,20 @@
         <RadzenRow class="rz-m-1">
             <LocalizedDataGrid AllowRowSelectOnRowClick="false" @ref="minimumQuantityArticlesGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true" PageSize="@pageSize"
                                ShowPagingSummary="true" Data="@minimumQuantityArticles" TItem="Aldebaran.Application.Services.Models.MinimumQuantityArticle"
-                               IsLoading="@(isLoadingInProgress||GridTimer.IsLoading)"
+                               IsLoading="@(isLoadingInProgress||GridTimer.IsLoading)" Page="OnPageChanged"
                                SelectionMode="DataGridSelectionMode.Multiple" @bind-Value=@selectedAlarms>
                 <Columns>
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.MinimumQuantityArticle" Width="40px" Sortable="false" Filterable="false">
                         <HeaderTemplate>
                             <RadzenCheckBox TabIndex="-1" TriState="false" TValue="bool?" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select all items" }})"
-                                            Value="@(selectedAlarms == null || selectedAlarms?.Any() != true ? false : !minimumQuantityArticles.All(i => selectedAlarms.Contains(i)) ? null : minimumQuantityArticles.Any(i => selectedAlarms.Contains(i)))"
-                                            Change="@(args => selectedAlarms = args == true ? minimumQuantityArticles.ToList() : null)"
-                                            MouseEnter="@(args => ShowTooltip(args,"Marcar todas", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                                            Value="@(IsAllPageSelected().Result ? true : (selectedAlarms?.Any() ?? false ? null : false))"       
+                                            Change="@(args => SelectAllItems((bool)args))"
+                                            MouseEnter="@(args => ShowTooltip(args,"Marcar toda la página", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
                         </HeaderTemplate>
                         <Template Context="data">
                             <RadzenCheckBox TabIndex="-1" TriState="false" Value="@(selectedAlarms != null && selectedAlarms.Contains(data))" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select item" }})"
-                                            TValue="bool" Change=@(args => { minimumQuantityArticlesGrid.SelectRow(data); })
+                                            TValue="bool" 
+                                            Change="@(args => ToggleSelection(data, args))"
                                             MouseEnter="@(args => ShowTooltip(args,"Marcar", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
                         </Template>
                     </RadzenDataGridColumn>

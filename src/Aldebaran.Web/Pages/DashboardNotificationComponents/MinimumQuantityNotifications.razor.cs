@@ -10,6 +10,8 @@ using DocumentFormat.OpenXml.VariantTypes;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Caching.Memory;
 using Radzen;
+using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace Aldebaran.Web.Pages.DashboardNotificationComponents
 {
@@ -60,7 +62,10 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         List<DataTimer> Timers;
         protected string search = "";
         protected Employee employee;
-        protected IList<MinimumQuantityArticle> selectedAlarms;
+
+        private int currentPage = 1;  
+        protected IList<MinimumQuantityArticle> selectedAlarms = new List<MinimumQuantityArticle>();
+        protected IList<MinimumQuantityArticle> visibleItems = new List<MinimumQuantityArticle>();
 
         protected IEnumerable<MinimumQuantityArticle> minimumQuantityArticles = new List<MinimumQuantityArticle>();
         protected LocalizedDataGrid<MinimumQuantityArticle> minimumQuantityArticlesGrid;
@@ -70,12 +75,13 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         protected override async Task OnInitializedAsync()
         {
             try
-            {
+            {                
                 isLoadingInProgress = true;
                 Timers = TimerPreferenceService.Timers;
                 employee = await DashBoardService.FindByLoginUserIdAsync(Security.User.Id);
                 await InitializeGridTimers();
                 await GridData_Update();
+                await LoadVisibleItems();
             }
             finally
             {
@@ -243,6 +249,68 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
             {
                 { "ArticleName", articleName }
             });
+                
+        private async Task OnPageChanged(object args)
+        {
+            if (args is PagerEventArgs pageArgs)
+            {
+                currentPage = pageArgs.PageIndex + 1;
+                await LoadVisibleItems();
+            }
+        }
+               
+        private async Task LoadVisibleItems()
+        {
+            visibleItems = minimumQuantityArticles
+                .Skip((currentPage - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+        }
+
+        private async Task<bool> IsAllPageSelected()
+        {
+            return visibleItems.All(item => selectedAlarms.Contains(item)) && (selectedAlarms.Any());
+        }
+
+        private async Task SelectAllItems(bool select)
+        {
+            if (select)
+            {
+                // Añadir los ítems visibles a la lista de selección, si no están ya seleccionados
+                foreach (var item in visibleItems)
+                {
+                    if (!selectedAlarms.Contains(item))
+                    {
+                        selectedAlarms.Add(item);
+                    }
+                }
+            }
+            else
+            {
+                // Eliminar los ítems visibles de la lista de selección
+                foreach (var item in visibleItems)
+                {
+                    selectedAlarms.Remove(item);
+                }
+            }
+        }
+
+        private async Task ToggleSelection(MinimumQuantityArticle item, bool isSelected)
+        {
+            if (isSelected)
+            {
+                // Asegurarse de que el ítem se añada a la lista global de selección
+                if (!selectedAlarms.Contains(item))
+                {
+                    selectedAlarms.Add(item);
+                }
+            }
+            else
+            {
+                // Si se desmarca, eliminamos el ítem de la lista de selección
+                selectedAlarms.Remove(item);
+            }
+        }
         #endregion
     }
 }
