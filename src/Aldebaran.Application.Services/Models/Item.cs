@@ -23,6 +23,7 @@ namespace Aldebaran.Application.Services.Models
         public bool IsSpecialImport { get; set; }
         public bool IsSaleOff {  get; set; }
         public bool ApplyPreorder { get; set; }
+        public bool DisableAlarms { get; set; }
 
         // Reverse navigation
         public ICollection<ItemReference> ItemReferences { get; set; }
@@ -41,6 +42,7 @@ namespace Aldebaran.Application.Services.Models
             IsSpecialImport = false;
             IsSaleOff = false;
             ApplyPreorder = false;
+            DisableAlarms = false;
             ItemReferences = new List<ItemReference>();
             ItemsAreas = new List<ItemsArea>();
             Packagings = new List<Packaging>();

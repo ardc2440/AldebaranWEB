@@ -230,7 +230,14 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
             }
         }
 
-        void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
+        async Task ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null)
+        {
+            TooltipService.Open(elementReference, content, options);
+
+            await Task.Delay(1000);
+
+            TooltipService.Close();
+        }
 
         private async Task AlertVisibleChange(bool value)
         {

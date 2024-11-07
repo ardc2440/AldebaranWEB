@@ -72,7 +72,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
             try
             {
                 isLoadingInProgress = true;
-                Timers = TimerPreferenceService.Timers;                
+                Timers = TimerPreferenceService.Timers;
                 employee = await DashBoardService.FindByLoginUserIdAsync(Security.User.Id);
                 await InitializeGridTimers();
                 await GridData_Update();
@@ -198,8 +198,14 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
             if (result == null)
                 return;
         }
+        async Task ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null)
+        {
+            TooltipService.Open(elementReference, content, options);
 
-        void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
+            await Task.Delay(1000);
+
+            TooltipService.Close();
+        }
 
         protected async Task DisableAlarm(MinimumQuantityArticle args)
         {

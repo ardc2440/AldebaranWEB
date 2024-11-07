@@ -212,6 +212,12 @@
                                     <RadzenLabel Text="Inventario externo" Component="IsExternalInventory" />
                                 </div>
                             </div>
+                            <div class="d-flex gap-4 flex-row mt-2">
+                                <div>
+                                    <RadzenCheckBox @bind-Value="@Item.DisableAlarms" Name="DisableAlarms" />
+                                    <RadzenLabel Text="Desabilitar alarmas" Component="DisableAlarms" />
+                                </div>
+                            </div>
                         </div>
                     </RadzenColumn>
                     <RadzenColumn Size="12" SizeMD="4">

@@ -163,7 +163,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 entity.IsSpecialImport = item.IsSpecialImport;
                 entity.IsSaleOff = item.IsSaleOff;
                 entity.ApplyPreorder = item.ApplyPreorder;
-
+                entity.DisableAlarms = item.DisableAlarms;
 
                 await dbContext.SaveChangesAsync(ct);
             }, ct);

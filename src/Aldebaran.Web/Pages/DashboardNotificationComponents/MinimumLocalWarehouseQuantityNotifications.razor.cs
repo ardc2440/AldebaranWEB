@@ -200,7 +200,14 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
                 return;
         }
 
-        void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
+        async Task ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null)
+        {
+            TooltipService.Open(elementReference, content, options);
+
+            await Task.Delay(1000);
+
+            TooltipService.Close();
+        }
 
         protected async Task DisableAlarm(MinimumLocalWarehouseQuantityArticle args)
         {
