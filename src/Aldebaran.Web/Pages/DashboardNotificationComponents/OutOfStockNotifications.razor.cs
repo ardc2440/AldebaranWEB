@@ -8,6 +8,7 @@ using Aldebaran.Web.Shared;
 using Aldebaran.Web.Utils;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.AspNetCore.Components;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Caching.Memory;
 using Radzen;
 using System.Linq;
@@ -217,32 +218,29 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         protected async Task DisableAlarm(OutOfStockArticle args)
         {
             var alertVisible = outOfStockAlertVisible;
-            if (selectedAlarms.Any())
-            {
-                if (await DialogService.Confirm("Desea ocultar las alarmas seleccionadas?. No volverán a salir en su Home", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Ocultar alarmas") == true)
-                {
-                    try
-                    {
-                        isLoadingInProgress = true;
-                        foreach (var alarm in selectedAlarms)
-                            await VisualizedOutOfStockInventoryAlarmService.AddAsync(new VisualizedOutOfStockInventoryAlarm { OutOfStockInventoryAlarmId = alarm.AlarmId, EmployeeId = employee.EmployeeId });
-                    }
-                    finally
-                    {
-                        selectedAlarms = new List<OutOfStockArticle>();
-                        isLoadingInProgress = false;
-                    }
+            if (await DialogService.Confirm("Desea ocultar las alarmas seleccionadas?. No volverán a salir en su Home", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Ocultar alarmas") == false)
+                return;
 
-                    await UpdateItemsOutOfStockAsync();
-                    await AlertVisibleChange(alertVisible);
-                }
-            }
-            else if (await DialogService.Confirm("Desea ocultar esta alarma?. No volverá a salir en su Home", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Ocultar alarma") == true)
+            try
             {
-                await VisualizedOutOfStockInventoryAlarmService.AddAsync(new VisualizedOutOfStockInventoryAlarm { OutOfStockInventoryAlarmId = args.AlarmId, EmployeeId = employee.EmployeeId });
+                if (!selectedAlarms.Any())
+                {
+                    await VisualizedOutOfStockInventoryAlarmService.AddAsync(new VisualizedOutOfStockInventoryAlarm { OutOfStockInventoryAlarmId = args.AlarmId, EmployeeId = employee.EmployeeId });
+                    return;
+                }
+
+                isLoadingInProgress = true;
+                foreach (var alarm in selectedAlarms)
+                    await VisualizedOutOfStockInventoryAlarmService.AddAsync(new VisualizedOutOfStockInventoryAlarm { OutOfStockInventoryAlarmId = alarm.AlarmId, EmployeeId = employee.EmployeeId });
+            }
+            finally
+            {
                 await UpdateItemsOutOfStockAsync();
                 await AlertVisibleChange(alertVisible);
-            }
+                selectedAlarms = new List<OutOfStockArticle>();
+                await LoadVisibleItems();
+                isLoadingInProgress = false;
+            }            
         }
 
         private async Task ShowImageDialogAsync(string articleName) => await DialogService.OpenAsync<ImageDialog>("", new Dictionary<string, object>

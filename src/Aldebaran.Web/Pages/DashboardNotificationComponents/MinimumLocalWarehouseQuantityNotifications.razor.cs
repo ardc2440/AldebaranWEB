@@ -218,32 +218,29 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         {
             var alertVisible = minimumAlertVisible;
 
-            if (selectedAlarms.Any())
-            {
-                if (await DialogService.Confirm("Desea ocultar las alarmas seleccionadas?. No volverán a salir en su Home", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Ocultar alarmas") == true)
-                {
-                    try
-                    {
-                        isLoadingInProgress = true;
-                        foreach (var alarm in selectedAlarms)
-                            await VisualizedMinimumLocalWarehouseQuantityAlarmService.AddAsync(new VisualizedMinimumLocalWarehouseQuantityAlarm { AlarmId = alarm.AlarmId, EmployeeId = employee.EmployeeId });
-                    }
-                    finally
-                    {
-                        selectedAlarms = new List<MinimumLocalWarehouseQuantityArticle>();
-                        isLoadingInProgress = false;
-                    }
+            if (await DialogService.Confirm("Desea ocultar las alarmas seleccionadas?. No volverán a salir en su Home", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Ocultar alarmas") == false)
+                return;
 
-                    await UpdateMinimumQuantitiesAsync();
-                    await AlertVisibleChange(alertVisible);
-                }
-            }
-            else if (await DialogService.Confirm("Desea ocultar esta alarma?. No volverá a salir en su Home", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Ocultar alarma") == true)
+            try
             {
-                await VisualizedMinimumLocalWarehouseQuantityAlarmService.AddAsync(new VisualizedMinimumLocalWarehouseQuantityAlarm { AlarmId = args.AlarmId, EmployeeId = employee.EmployeeId });
+                if (!selectedAlarms.Any())
+                {
+                    await VisualizedMinimumLocalWarehouseQuantityAlarmService.AddAsync(new VisualizedMinimumLocalWarehouseQuantityAlarm { AlarmId = args.AlarmId, EmployeeId = employee.EmployeeId });
+                    return;
+                }
+
+                isLoadingInProgress = true;
+                foreach (var alarm in selectedAlarms)
+                    await VisualizedMinimumLocalWarehouseQuantityAlarmService.AddAsync(new VisualizedMinimumLocalWarehouseQuantityAlarm { AlarmId = alarm.AlarmId, EmployeeId = employee.EmployeeId });
+            }
+            finally
+            {
                 await UpdateMinimumQuantitiesAsync();
                 await AlertVisibleChange(alertVisible);
-            }
+                selectedAlarms = new List<MinimumLocalWarehouseQuantityArticle>();
+                await LoadVisibleItems();
+                isLoadingInProgress = false;
+            }                        
         }
 
         private async Task ShowImageDialogAsync(string articleName) => await DialogService.OpenAsync<ImageDialog>("", new Dictionary<string, object>

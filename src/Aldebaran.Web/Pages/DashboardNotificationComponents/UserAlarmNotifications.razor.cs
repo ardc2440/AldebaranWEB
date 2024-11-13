@@ -1,13 +1,11 @@
 ﻿using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Infraestructure.Common.Extensions;
-using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Utils;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Caching.Memory;
 using Radzen;
-using System.Linq;
 
 namespace Aldebaran.Web.Pages.DashboardNotificationComponents
 {
@@ -207,31 +205,29 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         protected async Task DisableAlarm(Models.ViewModels.Alarm args)
         {
             var alertVisible = alarmsAlertVisible;
-            if (selectedAlarms.Any())
+            
+            if (await DialogService.Confirm("Desea ocultar las alarmas seleccionadas?. No volverán a salir en su Home", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Ocultar alarmas") == false)
+                return;
+                        
+            try
             {
-                if (await DialogService.Confirm("Desea ocultar las alarmas seleccionadas?. No volverán a salir en su Home", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Ocultar alarmas") == true)
+                if (!selectedAlarms.Any())
                 {
-                    try
-                    {
-                        isLoadingInProgress = true;
-                        foreach (var alarm in selectedAlarms)
-                            await VisualizedAlarmService.AddAsync(new VisualizedAlarm { AlarmId = alarm.AlarmId, EmployeeId = employee.EmployeeId });
-                    }
-                    finally
-                    {
-                        selectedAlarms = new List<Models.ViewModels.Alarm>();
-                        isLoadingInProgress = false;
-                    }
-
-                    await UpdateUserAlarmsAsync();
-                    await AlertVisibleChange(alertVisible);
+                    await VisualizedAlarmService.AddAsync(new VisualizedAlarm { AlarmId = args.AlarmId, EmployeeId = employee.EmployeeId });
+                    return;
                 }
+
+                isLoadingInProgress = true;
+                foreach (var alarm in selectedAlarms)
+                    await VisualizedAlarmService.AddAsync(new VisualizedAlarm { AlarmId = alarm.AlarmId, EmployeeId = employee.EmployeeId });
             }
-            else if (await DialogService.Confirm("Desea ocultar esta alarma?. No volverá a salir en su Home", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Ocultar alarma") == true)
+            finally
             {
-                await VisualizedAlarmService.AddAsync(new VisualizedAlarm { AlarmId = args.AlarmId, EmployeeId = employee.EmployeeId });
                 await UpdateUserAlarmsAsync();
                 await AlertVisibleChange(alertVisible);
+                selectedAlarms = new List<Models.ViewModels.Alarm>();
+                await LoadVisibleItems();
+                isLoadingInProgress = false;
             }
         }
 
