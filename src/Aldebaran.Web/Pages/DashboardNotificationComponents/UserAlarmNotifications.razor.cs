@@ -164,6 +164,8 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
                 selectedAlarms = new List<Models.ViewModels.Alarm>();
                 Console.WriteLine($"{GridTimer.LastUpdate}");
                 await UpdateUserAlarmsAsync();
+                selectedAlarms = new List<Models.ViewModels.Alarm>();
+                await LoadVisibleItems();
             }
             finally
             {

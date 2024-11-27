@@ -98,11 +98,11 @@ namespace Aldebaran.Web.Pages
             minimumLocalWarehouseQuantityNotificatioVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por cantidad mínima bodega local");
             userAlarmNotificationVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por alarmas del día");
             outOfStockNotificatioVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por artículos sin disponible");
-            expiredReservationNotificationVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por reservas vencidas");
-            customerOrderExpirationNotificationVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por pedidos vencidos");
-            purchaseOrderExpirationNotificationVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por órdenes próximas a su vencimiento");
-            purchaseOrderTransitAlarmNotificationsVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por alarmas de órdenes modificadas con afectación en pedido");
-            emailErrorNotificationsVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por envio de correo con error");
+            //expiredReservationNotificationVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por reservas vencidas");
+            //customerOrderExpirationNotificationVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por pedidos vencidos");
+            //purchaseOrderExpirationNotificationVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por órdenes próximas a su vencimiento");
+            //purchaseOrderTransitAlarmNotificationsVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por alarmas de órdenes modificadas con afectación en pedido");
+            //emailErrorNotificationsVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por envio de correo con error");
         }
 
         async Task InitializeGridTimers()

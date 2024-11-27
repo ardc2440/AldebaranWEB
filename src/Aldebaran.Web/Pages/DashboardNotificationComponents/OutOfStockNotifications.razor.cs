@@ -164,6 +164,8 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
                 GridTimer.LastUpdate = DateTime.Now;
                 Console.WriteLine($"{GridTimer.LastUpdate}");
                 await UpdateItemsOutOfStockAsync();
+                selectedAlarms = new List<OutOfStockArticle>();
+                await LoadVisibleItems();
             }
             finally
             {

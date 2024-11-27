@@ -1,5 +1,6 @@
 ﻿using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
+using Aldebaran.Application.Services.Services;
 using Aldebaran.Infraestructure.Common.Extensions;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Utils;
@@ -182,6 +183,9 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
                 selectedAlarms = new List<PurchaseOrderTransitAlarm>();
                 Console.WriteLine($"{GridTimer.LastUpdate}");
                 await UpdatePurchaseOrderTransitAlarmsAsync();
+                selectedAlarms = new List<PurchaseOrderTransitAlarm>();
+                await LoadVisibleItems();
+
             }
             finally
             {
@@ -213,33 +217,30 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
 
         protected async Task DisablePurchaseOrderTransitAlarm(PurchaseOrderTransitAlarm args)
         {
-            var alarmVisible = purchaseAlarmsAlertVisible;
-            if (selectedAlarms.Any())
-            {
-                if (await DialogService.Confirm("Desea ocultar las alarmas seleccionadas?. No volverán a salir en su Home", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Ocultar alarmas") == true)
-                {
-                    try
-                    {
-                        isLoadingInProgress = true;
-                        foreach (var alarm in selectedAlarms)
-                            await VisualizedPurchaseOrderTransitAlarmService.AddAsync(new VisualizedPurchaseOrderTransitAlarm { PurchaseOrderTransitAlarmId = alarm.PurchaseOrderTransitAlarmId, EmployeeId = employee.EmployeeId, VisualizedDate = System.DateTime.Now });
-                    }
-                    finally
-                    {
-                        selectedAlarms = new List<PurchaseOrderTransitAlarm>();
-                        isLoadingInProgress = false;
-                    }
+            var alertVisible = purchaseAlarmsAlertVisible;
+            if (await DialogService.Confirm("Desea ocultar las alarmas seleccionadas?. No volverán a salir en su Home", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Ocultar alarmas") == false)
+                return;
 
-                    await UpdatePurchaseOrderTransitAlarmsAsync();
-                    await AlertVisibleChange(alarmVisible);
-                }
-            }
-            else if (await DialogService.Confirm("Desea ocultar esta alarma?. No volverá a salir en su Home", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Ocultar alarma") == true)
+            try
             {
-                await VisualizedPurchaseOrderTransitAlarmService.AddAsync(new VisualizedPurchaseOrderTransitAlarm { PurchaseOrderTransitAlarmId = args.PurchaseOrderTransitAlarmId, EmployeeId = employee.EmployeeId, VisualizedDate = System.DateTime.Now });
-                await UpdatePurchaseOrderTransitAlarmsAsync();
-                await AlertVisibleChange(alarmVisible);
+                if (!selectedAlarms.Any())
+                {
+                    await VisualizedPurchaseOrderTransitAlarmService.AddAsync(new VisualizedPurchaseOrderTransitAlarm { PurchaseOrderTransitAlarmId = args.PurchaseOrderTransitAlarmId, EmployeeId = employee.EmployeeId });
+                    return;
+                }
+
+                isLoadingInProgress = true;
+                foreach (var alarm in selectedAlarms)
+                    await VisualizedPurchaseOrderTransitAlarmService.AddAsync(new VisualizedPurchaseOrderTransitAlarm { PurchaseOrderTransitAlarmId = alarm.PurchaseOrderTransitAlarmId, EmployeeId = employee.EmployeeId });
             }
+            finally
+            {
+                await UpdatePurchaseOrderTransitAlarmsAsync();
+                await AlertVisibleChange(alertVisible);
+                selectedAlarms = new List<PurchaseOrderTransitAlarm>();
+                await LoadVisibleItems();
+                isLoadingInProgress = false;
+            }            
         }
 
         protected async Task GetAlarmChildData(PurchaseOrderTransitAlarm args)
