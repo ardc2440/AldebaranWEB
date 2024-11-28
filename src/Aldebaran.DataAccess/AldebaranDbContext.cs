@@ -101,6 +101,8 @@ namespace Aldebaran.DataAccess
         public DbSet<VisualizedMinimumQuantityAlarm> VisualizedMinimumQuantityAlarms { get; set; }
         public DbSet<VisualizedOutOfStockInventoryAlarm> VisualizedOutOfStockInventoryAlarms { get; set; }
         public DbSet<VisualizedMinimumLocalWarehouseQuantityAlarm> VisualizedMinimumLocalWarehouseQuantityAlarms { get; set; }
+        public DbSet<CancellationRequest> CancellationRequests { get; set; }
+        
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
         }
@@ -189,6 +191,7 @@ namespace Aldebaran.DataAccess
             modelBuilder.ApplyConfiguration(new VisualizedMinimumQuantityAlarmConfiguration());
             modelBuilder.ApplyConfiguration(new VisualizedMinimumLocalWarehouseQuantityAlarmConfiguration());
             modelBuilder.ApplyConfiguration(new VisualizedOutOfStockInventoryAlarmConfiguration());
+            modelBuilder.ApplyConfiguration(new CancellationRequestConfiguration());
 
             modelBuilder.Entity<InventoryAdjustmentReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<InProcessInventoryReport>(iar => { iar.HasNoKey(); });

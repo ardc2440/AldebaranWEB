@@ -18,6 +18,7 @@ namespace Aldebaran.DataAccess.Entities
         public ICollection<CustomerReservation> CustomerReservations { get; set; }
         public ICollection<PurchaseOrder> PurchaseOrders { get; set; }
         public ICollection<WarehouseTransfer> WarehouseTransfers { get; set; }
+        public ICollection<CancellationRequest> CancellationRequests { get; set; }
 
         public StatusDocumentType()
         {

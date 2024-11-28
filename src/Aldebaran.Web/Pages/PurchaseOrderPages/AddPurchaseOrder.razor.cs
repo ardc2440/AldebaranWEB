@@ -115,7 +115,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 Submitted = true;
                 if (!PurchaseOrderDetails.Any())
                     return;
-                var now = DateTime.UtcNow;
+                var now = DateTime.Now;
                 // Complementar la orden compra
                 var employee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id);
                 var documentType = await DocumentTypeService.FindByCodeAsync("O");

@@ -10,6 +10,8 @@ namespace Aldebaran.DataAccess.Entities
         public ICollection<CancellationReason> CancellationReasons { get; set; }
         public ICollection<ModificationReason> ModificationReasons { get; set; }
         public ICollection<StatusDocumentType> StatusDocumentTypes { get; set; }
+        public ICollection<CancellationRequest> CancellationRequests { get; set; }
+
         public DocumentType()
         {
             AlarmTypes = new List<AlarmType>();

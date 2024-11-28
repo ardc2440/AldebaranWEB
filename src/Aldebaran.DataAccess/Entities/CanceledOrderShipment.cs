@@ -1,6 +1,8 @@
+using Aldebaran.DataAccess.Core;
+
 namespace Aldebaran.DataAccess.Entities
 {
-    public class CanceledOrderShipment
+    public class CanceledOrderShipment : ITrackeable
     {
         public int CustomerOrderShipmentId { get; set; }
         public short CancellationReasonId { get; set; }

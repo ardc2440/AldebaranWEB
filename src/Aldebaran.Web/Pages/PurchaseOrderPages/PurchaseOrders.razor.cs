@@ -1,4 +1,5 @@
 using Aldebaran.Application.Services;
+using Aldebaran.Application.Services.Services;
 using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Shared;
@@ -52,7 +53,13 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         protected IDocumentTypeService DocumentTypeService { get; set; }
 
         [Inject]
+        protected IStatusDocumentTypeService StatusDocumentTypeService { get; set; }
+
+        [Inject]
         protected IPurchaseOrderNotificationService PurchaseOrderNotificationService { get; set; }
+
+        [Inject]
+        protected ICancellationRequestService CancellationRequestService { get; set; }
 
         #endregion
 
@@ -192,18 +199,43 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         {
             try
             {
-                var reasonResult = await DialogService.OpenAsync<CancellationReasonDialog>("Confirmar cancelación", new Dictionary<string, object> { { "DOCUMENT_TYPE_CODE", "O" }, { "TITLE", "Está seguro que desea cancelar esta orden de compra?" } });
+                var documentType = await DocumentTypeService.FindByCodeAsync("C");
+
+                if (await CancellationRequestService.ExistsAnyPendingRequestAsync(documentType.DocumentTypeId, purchaseOrder.PurchaseOrderId))
+                {
+                    NotificationService.Notify(new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Info,
+                        Summary = $"Warning",
+                        Detail = $"Ya existe una solicitud en estudio para cancelar esta orden de compra."
+                    });
+                    return;
+                }
+
+                var reasonResult = await DialogService.OpenAsync<CancellationReasonDialog>("Confirmar solicitud de cancelación", new Dictionary<string, object> { { "DOCUMENT_TYPE_CODE", "O" }, { "TITLE", "Está seguro que desea solicitar cancelar esta orden de compra?" } });
                 if (reasonResult == null)
                     return;
                 var reason = (ServiceModel.Reason)reasonResult;
-                await PurchaseOrderService.CancelAsync(purchaseOrder.PurchaseOrderId, reason);
-                await GetPurchaseOrdersAsync();
+
+                await CancellationRequestService.AddAsync(new ServiceModel.CancellationRequest 
+                {
+                    RequestEmployeeId = reason.EmployeeId, 
+                    DocumentNumber = purchaseOrder.PurchaseOrderId,
+                    DocumentType = documentType,
+                    StatusDocumentTypeId = (await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 1)).StatusDocumentTypeId                    
+                }, reason);
+                
+               // await PurchaseOrderService.CancelAsync(purchaseOrder.PurchaseOrderId, reason);
+                
+                //await GetPurchaseOrdersAsync();
+                
                 NotificationService.Notify(new NotificationMessage
                 {
                     Summary = "Orden de compra",
                     Severity = NotificationSeverity.Success,
-                    Detail = $"Orden de compra ha sido cancelada correctamente."
+                    Detail = $"Solicitud de cancelación enviada correctamente."
                 });
+
                 await PurchaseOrderGrid.Reload();
             }
             catch (Exception ex)

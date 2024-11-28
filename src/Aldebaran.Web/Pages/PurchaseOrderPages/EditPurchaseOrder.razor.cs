@@ -161,7 +161,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                     return;
 
                 var reason = (ServiceModel.Reason)reasonResult;
-                var now = DateTime.UtcNow;
+                var now = DateTime.Now;
                 // Complementar la orden compra
                 PurchaseOrder.PurchaseOrderDetails = purchaseOrderDetails;
 

@@ -46,7 +46,7 @@
     <RadzenSidebar Expanded="@sidebarExpanded" style="z-index: 2">
         <RadzenStack AlignItems="Radzen.AlignItems.Center" class="rz-py-4 rz-py-lg-6" Style="padding: var(--rz-panel-menu-item-padding); border-bottom: var(--rz-panel-menu-item-border);">
             <RadzenImage Path="images/aldebaran-icon.svg" style="width: 32px;"></RadzenImage>
-            <RadzenImage Path="images/aldebaran-text.svg" style="width: 150px;"></RadzenImage>            
+            <RadzenImage Path="images/aldebaran-text.svg" style="width: 150px;"></RadzenImage>
         </RadzenStack>
         <RadzenPanelMenu>
             <RadzenPanelMenuItem Text="Inicio" Path="" />
@@ -72,6 +72,14 @@
                 <RadzenPanelMenuItem Text="Despacho de pedidos procesados" Path="shipment-customer-orders" Visible=@Security.IsInRole("Administrador","Consulta de despachos","Modificación de despachos") />
                 <RadzenPanelMenuItem Text="Ajustes de inventario" Path="adjustments" Visible=@Security.IsInRole("Administrador","Modificación de ajustes de inventario","Consulta de ajustes de inventario") />
                 <RadzenPanelMenuItem Text="Traslado entre bodegas" Path="warehouse-transfers" Visible=@Security.IsInRole("Administrador","Modificación de traslados entre bodegas","Consulta de traslados entre bodegas") />
+                @if (Security.IsInRole("Administrador","Gestión de solicitudes operativas","Consulta de solicitudes operativas"))
+                {
+                    <hr class="divider">
+                    <RadzenPanelMenuItem Text="Gestion de Solicitudes Operativas" Icon="assessment">
+                        <RadzenPanelMenuItem Text="Solicitudes operativas atendidas" Path="items" />
+                        <RadzenPanelMenuItem Text="Solicitudes operativas pendientes" Path="areas" />
+                    </RadzenPanelMenuItem>
+                }
             </RadzenPanelMenuItem>
             <RadzenPanelMenuItem Text="Reportes" Icon="summarize">
                 <RadzenPanelMenuItem Text="Inventario" Icon="summarize">

@@ -260,7 +260,7 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IVisualizedMinimumQuantityAlarmRepository, VisualizedMinimumQuantityAlarmRepository>();
             services.AddTransient<IVisualizedOutOfStockInventoryAlarmRepository, VisualizedOutOfStockInventoryAlarmRepository>();
             services.AddTransient<IVisualizedMinimumLocalWarehouseQuantityAlarmRepository, VisualizedMinimumLocalWarehouseQuantityAlarmRepository>();
-
+            services.AddTransient<ICancellationRequestRepository, CancellationRequestRepository>();
 
             #endregion
             // Services
@@ -345,6 +345,7 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IVisualizedMinimumQuantityAlarmService, VisualizedMinimumQuantityAlarmService>();
             services.AddTransient<IVisualizedOutOfStockInventoryAlarmService, VisualizedOutOfStockInventoryAlarmService>();
             services.AddTransient<IVisualizedMinimumLocalWarehouseQuantityAlarmService, VisualizedMinimumLocalWarehouseQuantityAlarmService>();
+            services.AddTransient<ICancellationRequestService, CancellationRequestService>();
 
             #endregion
 

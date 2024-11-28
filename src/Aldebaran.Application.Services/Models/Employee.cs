@@ -40,6 +40,8 @@ namespace Aldebaran.Application.Services.Models
         public ICollection<VisualizedMinimumQuantityAlarm> VisualizedMinimumQuantityAlarms { get; set; }
         public ICollection<VisualizedMinimumLocalWarehouseQuantityAlarm> VisualizedMinimumLocalWarehouseQuantityAlarms { get; set; }
         public ICollection<WarehouseTransfer> WarehouseTransfers { get; set; }
+        public ICollection<CancellationRequest> RequestEmployees { get; set; }
+        public ICollection<CancellationRequest> ResponseEmployees { get; set; }
         public Area Area { get; set; }
         public IdentityType IdentityType { get; set; }
         public Employee()

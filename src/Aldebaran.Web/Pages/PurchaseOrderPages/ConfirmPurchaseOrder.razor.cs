@@ -121,7 +121,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                     return;
                 if (await DialogService.Confirm("Desea confirmar la orden de compra?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar orden de compra") == true)
                 {
-                    var now = DateTime.UtcNow;
+                    var now = DateTime.Now;
                     // Complementar la orden compra
                     PurchaseOrder.PurchaseOrderDetails = PurchaseOrderDetails.Select(s => new ServiceModel.PurchaseOrderDetail
                     {

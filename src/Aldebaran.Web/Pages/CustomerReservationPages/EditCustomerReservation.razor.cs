@@ -61,7 +61,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             {
                 isLoadingInProgress = true;
                 
-                Now = DateTime.UtcNow.AddDays(-1);
+                Now = DateTime.Now.AddDays(-1);
 
                 customerReservationDetails = new List<CustomerReservationDetail>();
 

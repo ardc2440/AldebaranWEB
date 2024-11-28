@@ -47,6 +47,10 @@ namespace Aldebaran.DataAccess.Entities
         public ICollection<VisualizedMinimumLocalWarehouseQuantityAlarm> VisualizedMinimumLocalWarehouseQuantityAlarms { get; set; }
         public ICollection<VisualizedOutOfStockInventoryAlarm> VisualizedOutOfStockInventoryAlarms { get; set; }
 
+        public ICollection<CancellationRequest> CancellationEmployeeRequests { get; set; }
+        public ICollection<CancellationRequest> CancellationEmployeeResponses { get; set; }
+
+
         public Employee()
         {
             Adjustments = new List<Adjustment>();
