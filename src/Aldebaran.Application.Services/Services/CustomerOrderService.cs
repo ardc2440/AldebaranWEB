@@ -20,6 +20,18 @@ namespace Aldebaran.Application.Services
             var entity = _mapper.Map<Entities.CustomerOrder>(customerOrder) ?? throw new ArgumentNullException("Reserva no puede ser nula.");
             return _mapper.Map<CustomerOrder>(await _repository.AddAsync(entity, ct));
         }
+                
+        public async Task<(IEnumerable<CustomerOrder>, int count)> GetWhitOutCancellationRequestAsync(int skip, int top, short editMode = -1, CancellationToken ct = default)
+        {
+            var (data, c) = await _repository.GetWhitOutCancellationRequestAsync(skip, top, editMode, ct);
+            return (_mapper.Map<IEnumerable<CustomerOrder>>(data), c);
+        }
+
+        public async Task<(IEnumerable<CustomerOrder>, int count)> GetWhitOutCancellationRequestAsync(int skip, int top, string searchKey, short editMode = -1, CancellationToken ct = default)
+        {
+            var (data, c) = await _repository.GetWhitOutCancellationRequestAsync(skip, top, searchKey, editMode, ct);
+            return (_mapper.Map<IEnumerable<CustomerOrder>>(data), c);
+        }
 
         public async Task<(IEnumerable<CustomerOrder>, int count)> GetAsync(int skip, int top, short editMode = -1, CancellationToken ct = default)
         {

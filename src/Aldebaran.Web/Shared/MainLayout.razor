@@ -49,7 +49,7 @@
             <RadzenImage Path="images/aldebaran-text.svg" style="width: 150px;"></RadzenImage>
         </RadzenStack>
         <RadzenPanelMenu>
-            <RadzenPanelMenuItem Text="Inicio" Path="" />
+            <RadzenPanelMenuItem Text="Tablero de notificaciones" Icon="dashboard" Path="" />
             <RadzenPanelMenuItem Text="Administración" Icon="admin_panel_settings">
                 <RadzenPanelMenuItem Text="Artículos" Path="items" Visible="@Security.IsInRole("Administrador","Modificación de artículos","Consulta de artículos")" />
                 <RadzenPanelMenuItem Text="Artículos por áreas" Path="areas" Visible="@Security.IsInRole("Administrador","Modificación de artículos por área","Consulta de artículos por área")" />

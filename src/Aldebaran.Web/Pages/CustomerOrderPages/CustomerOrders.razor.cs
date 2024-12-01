@@ -1,5 +1,6 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
+using Aldebaran.Application.Services.Services;
 using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Shared;
@@ -63,6 +64,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         [Inject]
         protected IAlarmService AlarmService { get; set; }
+
+        [Inject]
+        protected ICancellationRequestService CancellationRequestService { get; set; }
 
         #endregion
 
@@ -159,6 +163,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 {
                     Summary = "Pedido de artículos",
                     Severity = NotificationSeverity.Success,
+                    Duration = 6000,
                     Detail = $"El pedido {customerOrder.OrderNumber} ha sido actualizado correctamente."
                 });
                 return;
@@ -170,6 +175,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 {
                     Summary = "Pedido de artículos",
                     Severity = NotificationSeverity.Success,
+                    Duration = 6000,
                     Detail = $"La actividad para el pedido {customerOrder.OrderNumber} ha sido creada correctamente."
                 });
                 return;
@@ -181,6 +187,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 {
                     Summary = "Pedido de artículos",
                     Severity = NotificationSeverity.Success,
+                    Duration = 6000,
                     Detail = $"La actividad para el pedido {customerOrder.OrderNumber} ha sido actualizada correctamente."
                 });
                 return;
@@ -190,6 +197,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             {
                 Summary = "Pedido de artículos",
                 Severity = NotificationSeverity.Success,
+                Duration = 6000,
                 Detail = $"El pedido ha sido creado correctamente, con el consecutivo {customerOrder.OrderNumber}."
             });
         }
@@ -219,34 +227,44 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task EditRow(CustomerOrder args)
         {
-            NavigationManager.NavigateTo("edit-customer-order/" + args.CustomerOrderId);
+            if (!await HasCancellationRequest(args, "No se puede modificar.") && !await HasClosedRequest(args, "No se puede modificar."))
+                NavigationManager.NavigateTo("edit-customer-order/" + args.CustomerOrderId);
         }
 
         protected async Task AddActivityButtonClick(MouseEventArgs args)
         {
-            NavigationManager.NavigateTo("add-customer-order-activity/" + customerOrder.CustomerOrderId);
+            if (!await HasCancellationRequest(customerOrder, "No se pueden agregar actividades.") && !await HasClosedRequest(customerOrder, "No se pueden agregar actividades."))
+                NavigationManager.NavigateTo("add-customer-order-activity/" + customerOrder.CustomerOrderId);
         }
 
         protected async Task EditActivityRow(CustomerOrderActivity args)
         {
-            NavigationManager.NavigateTo("edit-customer-order-activity/" + args.CustomerOrderActivityId);
+            var customerOrder = await CustomerOrderService.FindAsync(args.CustomerOrderId);
+
+            if (!await HasCancellationRequest(customerOrder, "No se pueden editar actividades.") && !await HasClosedRequest(customerOrder, "No se pueden editar actividades."))
+                NavigationManager.NavigateTo("edit-customer-order-activity/" + args.CustomerOrderActivityId);
         }
 
         protected async Task DeleteActivity(MouseEventArgs arg, CustomerOrderActivity customerOrderActivity)
         {
             try
             {
+                var customerOrder = await CustomerOrderService.FindAsync(customerOrderActivity.CustomerOrderId);
+
+                if (await HasCancellationRequest(customerOrder, "No se pueden eliminar actividades.") || await HasClosedRequest(customerOrder, "No se pueden eliminar actividades."))
+                    return;
+
                 dialogResult = null;
 
                 if (await DialogService.Confirm("Está seguro que desea eliminar esta actividad?") == true)
                 {
                     await CustomerOrderActivityService.DeleteAsync(customerOrderActivity.CustomerOrderActivityId);
-                    var customerOrder = await CustomerOrderService.FindAsync(customerOrderActivity.CustomerOrderId);
                     await GetCustomerOrderActivitiesAsync(customerOrder);
                     NotificationService.Notify(new NotificationMessage
                     {
                         Summary = "Actividad de pedido",
                         Severity = NotificationSeverity.Success,
+                        Duration = 6000,
                         Detail = $"La Actividad del pedido ha sido eliminada correctamente."
                     });
                     await CustomerOrderActivitiesDataGrid.Reload();
@@ -258,6 +276,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
+                    Duration = 6000,
                     Detail = $"No se ha podido eliminar la actividad."
                 });
             }
@@ -267,36 +286,52 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         {
             try
             {
+                if (await HasClosedRequest(customerOrder, "") || await HasCancellationRequest(customerOrder, ""))
+                    return;
+
                 dialogResult = null;
                 var reasonResult = await DialogService.OpenAsync<CancellationReasonDialog>("Confirmar cancelación", new Dictionary<string, object> { { "DOCUMENT_TYPE_CODE", "P" }, { "TITLE", "Está seguro que desea cancelar este pedido?" } });
                 if (reasonResult == null)
                     return;
                 var reason = (Reason)reasonResult;
 
-                var cancelStatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 6);
-                await CustomerOrderService.CancelAsync(customerOrder.CustomerOrderId, cancelStatusDocumentType.StatusDocumentTypeId, reason);
-                await GetCustomerOrdersAsync();
+                await CancellationRequestService.AddAsync(new CancellationRequest
+                {
+                    RequestEmployeeId = reason.EmployeeId,
+                    DocumentNumber = customerOrder.CustomerOrderId,
+                    DocumentType = documentType,
+                    StatusDocumentTypeId = (await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 1)).StatusDocumentTypeId
+                }, reason);
+
+// OJO Esto pasa a hacerlo al momento de aprobarse la solicitud de cancelación
+
+                //var cancelStatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 6);
+                //await CustomerOrderService.CancelAsync(customerOrder.CustomerOrderId, cancelStatusDocumentType.StatusDocumentTypeId, reason);
+
                 NotificationService.Notify(new NotificationMessage
                 {
                     Summary = "Pedido de artículos",
                     Severity = NotificationSeverity.Success,
                     Duration = 6000,
-                    Detail = $"El pedido ha sido cancelado correctamente."
+                    Detail = $"Solicitud de cancelación para el pedido No. {customerOrder.OrderNumber} enviada correctamente."
                 });
                 await CustomerOrdersGrid.Reload();
 
-                var result = await DialogService.OpenAsync<CustomerOrderSummary>(null, new Dictionary<string, object> { { "Id", customerOrder.CustomerOrderId }, { "NotificationTemplateName", "Customer:Order:Cancellation" } }, options: new DialogOptions { ShowTitle = false, ShowClose = false, CloseDialogOnEsc = false, CloseDialogOnOverlayClick = false, Width = "800px" });
-                var summaryResult = (bool)result;
-                if (summaryResult)
-                {
-                    NotificationService.Notify(new NotificationMessage
-                    {
-                        Severity = NotificationSeverity.Success,
-                        Summary = $"Notificación",
-                        Duration = 6000,
-                        Detail = $"Se ha enviado un correo al cliente con el detalle del pedido."
-                    });
-                }
+// OJO Esto pasa a hacerlo al momento de aprobarse la solicitud de cancelación
+
+                //var result = await DialogService.OpenAsync<CustomerOrderSummary>(null, new Dictionary<string, object> { { "Id", customerOrder.CustomerOrderId }, { "NotificationTemplateName", "Customer:Order:Cancellation" } }, options: new DialogOptions { ShowTitle = false, ShowClose = false, CloseDialogOnEsc = false, CloseDialogOnOverlayClick = false, Width = "800px" });
+                //var summaryResult = (bool)result;
+                //if (summaryResult)
+                //{
+                //    NotificationService.Notify(new NotificationMessage
+                //    {
+                //        Severity = NotificationSeverity.Success,
+                //        Summary = $"Notificación",
+                //        Duration = 6000,
+                //        Detail = $"Se ha enviado un correo al cliente con el detalle del pedido."
+                //    });
+                //}
+
             }
             catch (Exception ex)
             {
@@ -304,6 +339,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
+                    Duration = 6000,
                     Detail = $"No se ha podido cancelar el pedido."
                 });
             }
@@ -319,6 +355,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 {
                     Severity = NotificationSeverity.Success,
                     Summary = $"Notificación",
+                    Duration = 6000,
                     Detail = $"Se ha enviado un correo al cliente con el detalle del pedido."
                 });
             }
@@ -397,6 +434,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         {
             try
             {
+                if (await HasCancellationRequest(args, "") || await HasClosedRequest(args, ""))
+                    return;
+
                 if ((await CustomerOrderDetailService.GetByCustomerOrderIdAsync(args.CustomerOrderId)).Any(i => i.ProcessedQuantity > 0))
                     throw new Exception("Existen cantidades en proceso");
 
@@ -406,15 +446,26 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                     return;
                 var reason = (Reason)reasonResult;
 
-                var closeStatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 5);
-                await CustomerOrderService.CloseAsync(args.CustomerOrderId, closeStatusDocumentType.StatusDocumentTypeId, reason);
-                await GetCustomerOrdersAsync();
+                await CancellationRequestService.AddAsync(new CancellationRequest
+                {
+                    RequestEmployeeId = reason.EmployeeId,
+                    DocumentNumber = args.CustomerOrderId,
+                    DocumentType = documentType,
+                    StatusDocumentTypeId = (await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 1)).StatusDocumentTypeId
+                }, reason);
+
+// OJO Esto pasa a hacerlo al momento de aprobarse la solicitud de cancelación
+                //var closeStatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 5);
+                //await CustomerOrderService.CloseAsync(args.CustomerOrderId, closeStatusDocumentType.StatusDocumentTypeId, reason);
+
                 NotificationService.Notify(new NotificationMessage
                 {
                     Severity = NotificationSeverity.Success,
                     Summary = $"Pedido de artículos",
-                    Detail = $"El pedido No. {args.OrderNumber} ha sido cerrado correctamente."
+                    Duration = 6000,
+                    Detail = $"Solicitud de cierre para el pedido No. {args.OrderNumber} enviada correctamente."
                 });
+
                 await CustomerOrdersGrid.Reload();
             }
             catch (Exception ex)
@@ -422,6 +473,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 NotificationService.Notify(new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
+                    Duration = 6000,
                     Detail = $"No se ha podido cerrar el pedido. <br>"+ex.Message
                 });
             }
@@ -436,6 +488,45 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             {
                 { "ArticleName", articleName }
             });
+
+        protected async Task<bool> HasCancellationRequest(CustomerOrder customerOrder, string message)
+        {
+            var documentType = await DocumentTypeService.FindByCodeAsync("E");
+
+            if (await CancellationRequestService.ExistsAnyPendingRequestAsync(documentType.DocumentTypeId, customerOrder.CustomerOrderId))
+            {
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Warning,
+                    Summary = $"Alerta",
+                    Duration = 6000,
+                    Detail = "Existe una solicitud en estudio para cancelar este pedido. " + message,
+                    Style = "background-color: #db2001; color: white; font-size: 16px; padding: 1px;"
+                });
+                return true;
+            }
+            return false;
+        }
+
+        protected async Task<bool> HasClosedRequest(CustomerOrder customerOrder, string message)
+        {
+            var documentType = await DocumentTypeService.FindByCodeAsync("F");
+
+            if (await CancellationRequestService.ExistsAnyPendingRequestAsync(documentType.DocumentTypeId, customerOrder.CustomerOrderId))
+            {
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Warning,
+                    Summary = $"Alerta",
+                    Duration = 6000,
+                    Detail = "Existe una solicitud en estudio para cerrar este pedido. "+message,
+                    Style = "background-color: #db2001; color: white; font-size: 16px; padding: 1px;"
+                });
+                return true;
+            }
+            return false;
+        }
+
         #endregion
 
         #region Alarms
@@ -464,6 +555,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                     {
                         Summary = "Alarma de pedido",
                         Severity = NotificationSeverity.Success,
+                        Duration = 6000,
                         Detail = $"La alarma ha sido desactivada correctamente."
                     });
 
@@ -476,6 +568,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
+                    Duration = 6000,
                     Detail = $"No se ha podido desactivar la alarma."
                 });
             }
@@ -492,6 +585,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task AddAlarmButtonClick(MouseEventArgs args)
         {
+            if (await HasCancellationRequest(customerOrder, "No se pueden agregar alarmas.") || await HasClosedRequest(customerOrder, "No se pueden agregar alarmas."))
+                return;
+
             try
             {
                 dialogResult = null;
@@ -506,6 +602,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 {
                     Severity = NotificationSeverity.Success,
                     Summary = $"Alarma para pedido de artículos",
+                    Duration = 6000,
                     Detail = $"La alarma para el pedido No. {customerOrder.OrderNumber} ha sido creada correctamente."
                 });
                 await alarmsGrid.Reload();
@@ -516,6 +613,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
+                    Duration = 6000,
                     Detail = $"No se ha podido crear la alarma."
                 });
             }

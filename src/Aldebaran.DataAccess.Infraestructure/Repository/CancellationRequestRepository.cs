@@ -14,12 +14,10 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
 
         public async Task AddAsync(CancellationRequest cancellationRequest, Reason reason, CancellationToken ct = default)
         {
-            var reasonEntity = CreateInstance(cancellationRequest.DocumentType.DocumentTypeCode, cancellationRequest.DocumentNumber);
+            var reasonEntity = CreateInstance(cancellationRequest.DocumentType.DocumentTypeCode, reason, cancellationRequest.DocumentNumber);
 
-            reasonEntity.CancellationReasonId = reason.ReasonId;
             reasonEntity.EmployeeId = reason.EmployeeId;
-            reasonEntity.CancellationDate = reason.Date;
-
+            
             var cancellationRequestEntity = new CancellationRequest
             {
                 DocumentTypeId = cancellationRequest.DocumentType.DocumentTypeId,
@@ -63,13 +61,13 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     }, ct);
         }
 
-        private static dynamic CreateInstance(string documentTypeCode, int documentNumber)
+        private static dynamic CreateInstance(string documentTypeCode, Reason reason, int documentNumber)
         {
             return documentTypeCode switch
             {
-                "C" => new CanceledPurchaseOrder { PurchaseOrderId = documentNumber },
-                "E" => new CanceledCustomerOrder { CustomerOrderId = documentNumber },
-                "F" => new ClosedCustomerOrder { CustomerOrderId = documentNumber },
+                "C" => new CanceledPurchaseOrder { PurchaseOrderId = documentNumber, CancellationReasonId = reason.ReasonId, CancellationDate = DateTime.Now },
+                "E" => new CanceledCustomerOrder { CustomerOrderId = documentNumber, CancellationReasonId = reason.ReasonId, CancellationDate = DateTime.Now },
+                "F" => new ClosedCustomerOrder { CustomerOrderId = documentNumber, CloseCustomerOrderReasonId = reason.ReasonId, CloseDate = DateTime.Now },
                 _ => throw new NotImplementedException()
             };
         }

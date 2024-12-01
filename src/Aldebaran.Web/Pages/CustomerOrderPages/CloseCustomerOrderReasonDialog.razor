@@ -16,7 +16,7 @@
                 <span>@TITLE</span>
             </div>
             <RadzenRow AlignItems="AlignItems.Center" class="my-4">
-                <RadzenFormField Text="Motivo de cancelación" Variant="Variant.Text" Style="width: 100%;">
+                <RadzenFormField Text="Motivo de cierre" Variant="Variant.Text" Style="width: 100%;">
                     <ChildContent>
                         <RadzenDropDown Data="@CloseCustomerOrderReasons" TextProperty="CloseReasonName" ValueProperty="CloseCustomerOrderReasonId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                         style="display: block; width: 100%" @bind-Value="@CloseCustomerOrderReason.CloseCustomerOrderReasonId" Name="CloseReasonName">

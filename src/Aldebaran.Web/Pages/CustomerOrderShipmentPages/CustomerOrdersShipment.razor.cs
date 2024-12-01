@@ -158,7 +158,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
         async Task GetCustomerOrdersAsync(string searchKey = null, CancellationToken ct = default)
         {
             await Task.Yield();
-            (customerOrders, count) = string.IsNullOrEmpty(searchKey) ? await CustomerOrderService.GetAsync(skip, top, 1, ct) : await CustomerOrderService.GetAsync(skip, top, searchKey, 1, ct);            
+            (customerOrders, count) = string.IsNullOrEmpty(searchKey) ? await CustomerOrderService.GetWhitOutCancellationRequestAsync(skip, top, 1, ct) : await CustomerOrderService.GetWhitOutCancellationRequestAsync(skip, top, searchKey, 1, ct);            
         }
 
         async Task<bool> CanDispach(CustomerOrder customerOrder,CancellationToken ct = default)

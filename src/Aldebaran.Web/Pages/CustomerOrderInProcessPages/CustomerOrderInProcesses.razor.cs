@@ -117,7 +117,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         async Task GetCustomerOrderInProcessAsync(string searchKey = null, CancellationToken ct = default)
         {
             await Task.Yield();
-            (customerOrders, count) = string.IsNullOrEmpty(searchKey) ? await CustomerOrderService.GetAsync(skip, top, 0, ct) : await CustomerOrderService.GetAsync(skip, top, searchKey, 0, ct);            
+            (customerOrders, count) = string.IsNullOrEmpty(searchKey) ? await CustomerOrderService.GetWhitOutCancellationRequestAsync(skip, top, 0, ct) : await CustomerOrderService.GetWhitOutCancellationRequestAsync(skip, top, searchKey, 0, ct);            
         }
 
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);

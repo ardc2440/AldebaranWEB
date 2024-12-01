@@ -1,4 +1,5 @@
 using Aldebaran.Application.Services;
+using Aldebaran.Application.Services.Models;
 using Aldebaran.Application.Services.Services;
 using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Resources.LocalizedControls;
@@ -95,7 +96,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
             {
                 isLoadingInProgress = true;
                 documentType = await DocumentTypeService.FindByCodeAsync("O");
-                
+
                 await DialogResultResolver();
             }
             finally
@@ -131,6 +132,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 {
                     Summary = "Orden de compra",
                     Severity = NotificationSeverity.Success,
+                    Duration = 6000,
                     Detail = $"Orden de compra {purchaseOrder.OrderNumber} ha sido actualizada correctamente."
                 });
                 return;
@@ -141,6 +143,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 {
                     Summary = "Orden de compra",
                     Severity = NotificationSeverity.Success,
+                    Duration = 6000,
                     Detail = $"Orden de compra {purchaseOrder.OrderNumber} ha sido confirmada correctamente."
                 });
                 return;
@@ -149,6 +152,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
             {
                 Summary = "Orden de compra",
                 Severity = NotificationSeverity.Success,
+                Duration = 6000,
                 Detail = $"Orden de compra {purchaseOrder.OrderNumber} ha sido creada correctamente."
             });
         }
@@ -189,51 +193,63 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         }
         protected async Task EditPurchaseOrder(MouseEventArgs args, ServiceModel.PurchaseOrder purchaseOrder)
         {
-            NavigationManager.NavigateTo($"edit-purchase-order/{purchaseOrder.PurchaseOrderId}");
+            if (!await HasCancellationRequest(purchaseOrder, "Existe una solicitud en estudio para cancelar esta orden de compra. No se puede modificar."))
+                NavigationManager.NavigateTo($"edit-purchase-order/{purchaseOrder.PurchaseOrderId}");
         }
+
+        protected async Task<bool> HasCancellationRequest(PurchaseOrder purchaseOrder, string message)
+        {
+            var documentType = await DocumentTypeService.FindByCodeAsync("C");
+
+            if (await CancellationRequestService.ExistsAnyPendingRequestAsync(documentType.DocumentTypeId, purchaseOrder.PurchaseOrderId))
+            {
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Warning,
+                    Summary = $"Alerta",
+                    Duration = 6000,
+                    Detail = message,
+                    Style = "background-color: #db2001; color: white; font-size: 16px; padding: 1px;"
+                });
+                return true;
+            }
+            return false;
+        }
+
         protected async Task ConfirmPurchaseOrder(MouseEventArgs args, ServiceModel.PurchaseOrder purchaseOrder)
         {
-            NavigationManager.NavigateTo($"confirm-purchase-order/{purchaseOrder.PurchaseOrderId}");
+            if (!await HasCancellationRequest(purchaseOrder, "Existe una solicitud en estudio para cancelar esta orden de compra. No se puede confirmar."))
+                NavigationManager.NavigateTo($"confirm-purchase-order/{purchaseOrder.PurchaseOrderId}");
         }
         protected async Task CancelPurchaseOrder(MouseEventArgs args, ServiceModel.PurchaseOrder purchaseOrder)
         {
             try
             {
-                var documentType = await DocumentTypeService.FindByCodeAsync("C");
-
-                if (await CancellationRequestService.ExistsAnyPendingRequestAsync(documentType.DocumentTypeId, purchaseOrder.PurchaseOrderId))
-                {
-                    NotificationService.Notify(new NotificationMessage
-                    {
-                        Severity = NotificationSeverity.Info,
-                        Summary = $"Warning",
-                        Detail = $"Ya existe una solicitud en estudio para cancelar esta orden de compra."
-                    });
+                if (await HasCancellationRequest(purchaseOrder, "Ya existe una solicitud en estudio para cancelar esta orden de compra.")) 
                     return;
-                }
 
                 var reasonResult = await DialogService.OpenAsync<CancellationReasonDialog>("Confirmar solicitud de cancelación", new Dictionary<string, object> { { "DOCUMENT_TYPE_CODE", "O" }, { "TITLE", "Está seguro que desea solicitar cancelar esta orden de compra?" } });
-                if (reasonResult == null)
-                    return;
+                if (reasonResult == null) return;
+
                 var reason = (ServiceModel.Reason)reasonResult;
 
-                await CancellationRequestService.AddAsync(new ServiceModel.CancellationRequest 
+                await CancellationRequestService.AddAsync(new ServiceModel.CancellationRequest
                 {
-                    RequestEmployeeId = reason.EmployeeId, 
+                    RequestEmployeeId = reason.EmployeeId,
                     DocumentNumber = purchaseOrder.PurchaseOrderId,
                     DocumentType = documentType,
-                    StatusDocumentTypeId = (await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 1)).StatusDocumentTypeId                    
+                    StatusDocumentTypeId = (await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 1)).StatusDocumentTypeId
                 }, reason);
-                
-               // await PurchaseOrderService.CancelAsync(purchaseOrder.PurchaseOrderId, reason);
-                
-                //await GetPurchaseOrdersAsync();
-                
+
+                // OJO Esto pasa a hacerlo al momento de aprobarse la solicitud de cancelación
+                // await PurchaseOrderService.CancelAsync(purchaseOrder.PurchaseOrderId, reason);
+
                 NotificationService.Notify(new NotificationMessage
                 {
                     Summary = "Orden de compra",
                     Severity = NotificationSeverity.Success,
-                    Detail = $"Solicitud de cancelación enviada correctamente."
+                    Duration = 6000,
+                    Detail = $"Solicitud de cancelación para la orden de compra No. {purchaseOrder.OrderNumber} enviada correctamente."
                 });
 
                 await PurchaseOrderGrid.Reload();
@@ -245,6 +261,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
+                    Duration = 6000,
                     Detail = $"No se ha podido cancelar la orden de compra."
                 });
             }
@@ -258,6 +275,9 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         protected RadzenDataGrid<ServiceModel.PurchaseOrderActivity> PurchaseOrderActivitiesDataGrid;
         protected async Task AddPurchaseOrderActivity(MouseEventArgs args, ServiceModel.PurchaseOrder data)
         {
+            if (await HasCancellationRequest(data, "Existe una solicitud en estudio para cancelar esta orden de compra. No se pueden agregar actividades."))
+                return;
+
             var result = await DialogService.OpenAsync<AddPurchaseOrderActivity>("Nueva actividad");
             if (result == null)
                 return;
@@ -278,6 +298,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 {
                     Summary = "Actividad",
                     Severity = NotificationSeverity.Success,
+                    Duration = 6000,
                     Detail = $"Actividad ha sido agregada correctamente a la orden {data.OrderNumber}."
                 });
                 await GetChildData(data);
@@ -290,12 +311,16 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
+                    Duration = 6000,
                     Detail = $"No se ha podido agregar la actividad."
                 });
             }
         }
         protected async Task EditPurchaseOrderActivity(ServiceModel.PurchaseOrderActivity args, ServiceModel.PurchaseOrder data)
         {
+            if (await HasCancellationRequest(data, "Existe una solicitud en estudio para cancelar esta orden de compra. No se pueden modificar actividades."))
+                return;
+
             var result = await DialogService.OpenAsync<EditPurchaseOrderActivity>("Actualizar actividad", new Dictionary<string, object> { { "PURCHASE_ORDER_ACTIVITY_ID", args.PurchaseOrderActivityId } });
             if (result == null)
                 return;
@@ -307,6 +332,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 {
                     Summary = "Actividad",
                     Severity = NotificationSeverity.Success,
+                    Duration = 6000,
                     Detail = $"Actividad ha sido actualizada correctamente."
                 });
                 await GetChildData(data);
@@ -319,12 +345,16 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
+                    Duration = 6000,
                     Detail = $"No se ha podido actualizar la actividad."
                 });
             }
         }
         protected async Task DeletePurchaseOrderActivity(MouseEventArgs args, ServiceModel.PurchaseOrder data, ServiceModel.PurchaseOrderActivity purchaseOrderActivity)
         {
+            if (await HasCancellationRequest(data, "Existe una solicitud en estudio para cancelar esta orden de compra. No se pueden eliminar actividades."))
+                return;
+
             if (await DialogService.Confirm("Está seguro que desea eliminar esta actividad?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
             {
                 try
@@ -334,6 +364,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                     {
                         Summary = "Actividad",
                         Severity = NotificationSeverity.Success,
+                        Duration = 6000,
                         Detail = $"Actividad ha sido eliminada correctamente."
                     });
                     await GetChildData(data);
@@ -346,6 +377,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                     {
                         Severity = NotificationSeverity.Error,
                         Summary = $"Error",
+                        Duration = 6000,
                         Detail = $"No se ha podido eliminar la actividad."
                     });
                 }
@@ -358,7 +390,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         #endregion
 
         #region Alarms
-        
+
         protected async Task DisableAlarm(Application.Services.Models.Alarm alarm)
         {
             try
@@ -374,6 +406,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                     {
                         Summary = "Alarma de pedido",
                         Severity = NotificationSeverity.Success,
+                        Duration = 6000,
                         Detail = $"La alarma ha sido desactivada correctamente."
                     });
 
@@ -386,6 +419,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
+                    Duration = 6000,
                     Detail = $"No se ha podido desactivar la alarma."
                 });
             }
@@ -404,6 +438,9 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         {
             try
             {
+                if (await HasCancellationRequest(PurchaseOrder, "Existe una solicitud en estudio para cancelar esta orden de compra. No se pueden agregar alarmas."))
+                    return;
+
                 dialogResult = null;
                 var alarmResult = await DialogService.OpenAsync<AlarmDialog>("Crear alarma para pedido", new Dictionary<string, object> { { "Title", "Creación de alarma" }, { "DocumentTypeId", documentType.DocumentTypeId }, { "DocumentId", PurchaseOrder.PurchaseOrderId } });
 
@@ -416,6 +453,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 {
                     Severity = NotificationSeverity.Success,
                     Summary = $"Alarma para orden de compra",
+                    Duration = 6000,
                     Detail = $"La alarma para la orden de compra No. {PurchaseOrder.OrderNumber} ha sido creada correctamente."
                 });
                 await alarmsGrid.Reload();
@@ -426,6 +464,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = $"Error",
+                    Duration = 6000,
                     Detail = $"No se ha podido crear la alarma."
                 });
             }
@@ -443,6 +482,6 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         }
         #endregion
 
-        
+
     }
 }

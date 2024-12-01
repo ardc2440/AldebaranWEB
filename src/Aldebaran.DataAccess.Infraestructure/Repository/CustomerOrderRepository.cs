@@ -59,6 +59,63 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             }, ct);
         }
 
+        public async Task<(IEnumerable<CustomerOrder>, int count)> GetWhitOutCancellationRequestAsync(int skip, int top, short editMode, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                var excludedQuery = dbContext.CancellationRequests
+                            .Include(i => i.StatusDocumentType.DocumentType)
+                            .Where(w => (new List<string> { "E", "F" }).Contains(w.StatusDocumentType.DocumentType.DocumentTypeCode)
+                                && w.StatusDocumentType.StatusOrder == 1)
+                            .Select(cr => cr.DocumentNumber);
+
+                var a = dbContext.CustomerOrders.AsNoTracking()
+                            .Include(i => i.Customer.City.Department.Country)
+                            .Include(i => i.Customer.IdentityType)
+                            .Include(i => i.StatusDocumentType.DocumentType)
+                            .Include(i => i.Employee.IdentityType)
+                            .Include(i => i.CustomerOrderDetails)
+                            .Where(i => !excludedQuery.Contains(i.CustomerOrderId) && // Excluir los CustomerOrders relacionados
+                                 ((i.StatusDocumentType.EditMode && editMode == 0) ||
+                                  (new List<int> { 2, 3, 4 }).Contains(i.StatusDocumentType.StatusOrder) && editMode == 1 ||
+                                  editMode == -1))
+                            .OrderByDescending(o => o.OrderNumber);
+
+                return (await a.Skip(skip).Take(top).ToListAsync(), await a.CountAsync(ct));
+            }, ct);
+        }
+
+        public async Task<(IEnumerable<CustomerOrder>, int count)> GetWhitOutCancellationRequestAsync(int skip, int top, string searchKey, short editMode, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                var excludedQuery = dbContext.CancellationRequests
+                            .Include(i => i.StatusDocumentType.DocumentType)
+                            .Where(w => (new List<string> { "E", "F" }).Contains(w.StatusDocumentType.DocumentType.DocumentTypeCode)
+                                && w.StatusDocumentType.StatusOrder == 1)
+                            .Select(cr => cr.DocumentNumber);
+
+                var a = dbContext.CustomerOrders.AsNoTracking()
+                            .Include(i => i.Customer.City.Department.Country)
+                            .Include(i => i.Customer.IdentityType)
+                            .Include(i => i.StatusDocumentType.DocumentType)
+                            .Include(i => i.Employee.IdentityType)
+                            .Include(i => i.CustomerOrderDetails)
+                            .Where(i => !excludedQuery.Contains(i.CustomerOrderId) && // Excluir los CustomerOrders relacionados
+                                        ((i.StatusDocumentType.EditMode && editMode == 0) ||
+                                         ((new List<int> { 2, 3, 4 }).Contains(i.StatusDocumentType.StatusOrder) && editMode == 1) ||
+                                         (editMode == -1)) &&
+                                        (i.OrderNumber.Contains(searchKey) ||
+                                         i.Customer.CustomerName.Contains(searchKey) ||
+                                         dbContext.Format(i.OrderDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
+                                         dbContext.Format(i.EstimatedDeliveryDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
+                                         i.StatusDocumentType.StatusDocumentTypeName.Contains(searchKey)))
+                            .OrderByDescending(o => o.OrderNumber);
+
+                return (await a.Skip(skip).Take(top).ToListAsync(), await a.CountAsync(ct));
+            }, ct);
+        }
+
         public async Task<(IEnumerable<CustomerOrder>, int count)> GetAsync(int skip, int top, short editMode, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
@@ -69,9 +126,9 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                             .Include(i => i.StatusDocumentType.DocumentType)
                             .Include(i => i.Employee.IdentityType)
                             .Include(i => i.CustomerOrderDetails)
-                            .Where (i => (i.StatusDocumentType.EditMode && editMode == 0) || 
-                                         ((new List<int>{2,3,4}).Contains(i.StatusDocumentType.StatusOrder) && editMode==1)||    
-                                         (editMode == -1))
+                            .Where(i => (i.StatusDocumentType.EditMode && editMode == 0) ||
+                                        ((new List<int> { 2, 3, 4 }).Contains(i.StatusDocumentType.StatusOrder) && editMode == 1) ||
+                                        editMode == -1)
                             .OrderByDescending(o => o.OrderNumber);
 
                 return (await a.Skip(skip).Take(top).ToListAsync(), await a.CountAsync(ct));
