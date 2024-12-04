@@ -2,13 +2,8 @@
 using Entities = Aldebaran.DataAccess.Entities;
 using Aldebaran.DataAccess.Infraestructure.Repository;
 using AutoMapper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Aldebaran.Application.Services.Services
+namespace Aldebaran.Application.Services
 {
     public class CancellationRequestService: ICancellationRequestService
     {
@@ -28,6 +23,24 @@ namespace Aldebaran.Application.Services.Services
             await _repository.AddAsync(mapCancellationRequest, mapReason, ct);
         }
 
-        public Task<bool> ExistsAnyPendingRequestAsync(short documentTypeId, int documentNumber, CancellationToken ct = default) => _repository.ExistsAnyPendingRequestAsync(documentTypeId, documentNumber, ct);
+        public async Task<bool> ExistsAnyPendingRequestAsync(short documentTypeId, int documentNumber, CancellationToken ct = default) => await _repository.ExistsAnyPendingRequestAsync(documentTypeId, documentNumber, ct);
+
+        public async Task<CancellationRequest?> FindAsync(int requestId, CancellationToken ct = default)
+        {
+            var data = await _repository.FindAsync(requestId, ct);
+            return _mapper.Map<CancellationRequest?>(data);
+        }
+
+        public async Task<(IEnumerable<CancellationRequestModel>, int)> GetAllByStatusOrderAsync(int skip, int top, string search, bool getPendingRequest, CancellationToken ct = default)
+        {
+            var (data, c) = await _repository.GetAllByStatusOrderAsync(skip, top, search, getPendingRequest, ct);
+            return (_mapper.Map<IEnumerable<CancellationRequestModel>>(data), c);
+        }
+
+        public async Task<CancellationRequest> UpdateAsync(CancellationRequest cancellationRequest, CancellationToken ct = default)
+        {
+            var mapCancellationRequest = _mapper.Map<Entities.CancellationRequest>(cancellationRequest);
+            return _mapper.Map<CancellationRequest>(await _repository.UpdateAsync(mapCancellationRequest, ct));
+        }
     }
 }

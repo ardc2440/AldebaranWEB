@@ -2,7 +2,12 @@
 using Aldebaran.DataAccess.Entities;
 using Aldebaran.DataAccess.Infraestructure.Models;
 using Aldebaran.Infraestructure.Common.Extensions;
+using DocumentFormat.OpenXml.Drawing.Charts;
+using DocumentFormat.OpenXml.Wordprocessing;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Data;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
@@ -17,7 +22,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             var reasonEntity = CreateInstance(cancellationRequest.DocumentType.DocumentTypeCode, reason, cancellationRequest.DocumentNumber);
 
             reasonEntity.EmployeeId = reason.EmployeeId;
-            
+
             var cancellationRequestEntity = new CancellationRequest
             {
                 DocumentTypeId = cancellationRequest.DocumentType.DocumentTypeId,
@@ -48,6 +53,30 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             }, ct);
         }
 
+        public async Task<CancellationRequest> UpdateAsync(CancellationRequest cancellationRequest, CancellationToken ct = default)
+        {
+            return await ExecuteCommandAsync(async dbContext =>
+            {
+                var entity = await dbContext.CancellationRequests.FirstOrDefaultAsync(x => x.RequestId == cancellationRequest.RequestId, ct) ?? throw new KeyNotFoundException($"Solicitud con id {cancellationRequest.RequestId} no existe.");
+                entity.StatusDocumentTypeId = cancellationRequest.StatusDocumentTypeId;
+                entity.ResponseDate = DateTime.Now;
+                entity.ResponseEmployeeId = cancellationRequest.ResponseEmployeeId;
+                entity.ResponseReason  = cancellationRequest.ResponseReason;
+                                
+                try
+                {
+                    await dbContext.SaveChangesAsync(ct);
+                }
+                catch (Exception)
+                {
+                    dbContext.Entry(entity).State = EntityState.Unchanged;
+                    throw;
+                }
+
+                return entity;
+            }, ct);
+        }
+
         public async Task<bool> ExistsAnyPendingRequestAsync(short documentTypeId, int documentNumber, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
@@ -71,5 +100,38 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 _ => throw new NotImplementedException()
             };
         }
+
+        public async Task<(IEnumerable<CancellationRequestModel>,int)> GetAllByStatusOrderAsync(int skip, int top, string? searchKey, bool getPendingRequest, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                var pendingRequest = new SqlParameter("@GetPendingRequest", getPendingRequest);
+                var searchParam = new SqlParameter("@SearchKey", searchKey ?? (object)DBNull.Value);
+                var skipParam = new SqlParameter("@Skip", skip);
+                var topParam = new SqlParameter("@Top", top);
+                var totalCountParam = new SqlParameter("@TotalCount", SqlDbType.Int);
+                totalCountParam.Direction = ParameterDirection.Output;
+
+                return (await dbContext.Set<CancellationRequestModel>()
+                        .FromSqlRaw($"EXEC SP_GET_CANCELLATION_REQUESTS " +
+                        $"@GetPendingRequest, @SEARCHKEY, @Skip, @Top, @TotalCount OUT",
+                        pendingRequest, searchParam, skipParam, topParam, totalCountParam).ToListAsync(ct), (int)totalCountParam.Value);
+                
+            }, ct);
+        }
+    
+        public async Task<CancellationRequest?> FindAsync(int requestId, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.CancellationRequests
+                    .Include(i => i.StatusDocumentType)
+                    .Include(i => i.DocumentType)
+                    .Include(i => i.RequestEmployee)
+                    .Include(i => i.ResponseEmployee)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(a => a.RequestId == requestId, ct);
+            }, ct);
+        } 
     }
 }

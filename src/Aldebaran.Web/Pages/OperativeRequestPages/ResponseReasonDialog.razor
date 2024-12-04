@@ -1,0 +1,34 @@
+﻿@inject DialogService DialogService
+
+<RadzenTextArea @bind-Value="Reason" Placeholder="@placeHolder" Style="width:100%" MaxLength="255" Rows="5" />
+<RadzenButton Text="@submitText" Click="SubmitReason" Style="margin-top: 10px" />
+<RadzenButton Text="Cancelar" Click="Cancel" ButtonStyle="ButtonStyle.Light" Style="margin-top: 10px; margin-left: 10px;" />
+
+@code {
+    [Parameter] public string Reason { get; set; } = string.Empty;
+
+    [Parameter] public string Action { get; set; } = "Approve";
+
+    string placeHolder = "Indique el motivo de aprobación";
+    string submitText = "Aprobar";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.Yield();
+        if (Action != "Approve")
+        {
+            placeHolder = "Indique el motivo de rechazo";
+            submitText = "Rechazar";
+        }
+    }
+    
+    private async Task SubmitReason()
+    {
+        DialogService.Close(Reason);
+    }
+
+    private async Task Cancel()
+    {
+        DialogService.Close(null); 
+    }
+}

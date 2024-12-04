@@ -1,0 +1,52 @@
+﻿@page "/pending-operative-request"
+
+@attribute [Authorize(Roles = "Administrador,Consulta de solicitudes operativas,Gestión de solicitudes operativas")]
+@using Aldebaran.Web.Resources.LocalizedControls;
+@using ServiceModel = Aldebaran.Application.Services.Models;
+@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer ;
+
+<PageTitle>Gestion de solicitudes operativas pendientes</PageTitle>
+<LoadingData IsLoadingData="@isLoadingInProgress" />
+
+@if (!isLoadingInProgress)
+{
+    <RadzenStack>
+        <RadzenRow AlignItems="AlignItems.Center">
+            <RadzenColumn Size="12">
+                <RadzenText Text="Solicitudes operativas pendientes" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
+        <RadzenRow>
+            <RadzenColumn SizeMD=12>
+                <LocalizedDataGrid Count="@count" LoadData="@LoadData" @ref="cancellationRequestGrid" ColumnWidth="200px" AllowFiltering="false" FilterMode="FilterMode.Simple" AllowPaging="true" AllowSorting="false" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                   Data="@cancellationRequests" TItem="ServiceModel.CancellationRequestModel" AllowColumnPicking="false" AllowColumnResize="true" AllowMultiColumnSorting="false" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single"
+                                   AllowGrouping="false" AllowColumnReorder="false" IsLoading="@isLoadingInProgress">
+                    <Columns>
+                        <RadzenDataGridColumn TItem="ServiceModel.CancellationRequestModel" Property="DocumentTypeName" Title="Tipo de solicitud" />
+                        <RadzenDataGridColumn TItem="ServiceModel.CancellationRequestModel" Property="OrderNumber" Title="Número de pedido/orden" />
+                        <RadzenDataGridColumn TItem="ServiceModel.CancellationRequestModel" Property="IdentityNumber" Title="Identificación" />
+                        <RadzenDataGridColumn TItem="ServiceModel.CancellationRequestModel" Property="ThirdPart" Title="Cliente/Proveedor" />
+                        <RadzenDataGridColumn TItem="ServiceModel.CancellationRequestModel" Property="RequestBy" Title="Solicitado por" />
+                        <RadzenDataGridColumn TItem="ServiceModel.CancellationRequestModel" Property="RequestDate" Title="Fecha solicitud">
+                            <Template Context="data">
+                                <span>@data.RequestDate.ToString(SharedLocalizer["date:format"])</span>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.CancellationRequestModel" Filterable="false" Sortable="false" Width="164px" TextAlign="TextAlign.Center"
+                                              Pickable="false" Reorderable="false" Resizable="false" Frozen="true" FrozenPosition="FrozenColumnPosition.Right"
+                                              Visible="@Security.IsInRole("Administrador","Gestión de solicitudes operativas")">
+                            <Template Context="data">
+                                <RadzenButton Icon="approval" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                              Click="@(args => ApproveRequest(data))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Aprobar solicitud", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+
+                                <RadzenButton Icon="block" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                              Click="@(args => DenyRequest(data))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Rechazar solicitud", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </Columns>
+                </LocalizedDataGrid>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenStack>
+}

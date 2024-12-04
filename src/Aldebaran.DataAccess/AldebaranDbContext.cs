@@ -102,7 +102,7 @@ namespace Aldebaran.DataAccess
         public DbSet<VisualizedOutOfStockInventoryAlarm> VisualizedOutOfStockInventoryAlarms { get; set; }
         public DbSet<VisualizedMinimumLocalWarehouseQuantityAlarm> VisualizedMinimumLocalWarehouseQuantityAlarms { get; set; }
         public DbSet<CancellationRequest> CancellationRequests { get; set; }
-        
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
         }
@@ -271,6 +271,23 @@ namespace Aldebaran.DataAccess
                 iar.Property(x => x.Average).HasColumnName(@"AVERAGE").HasColumnType("INT").IsRequired();
                 iar.Property(x => x.MinimumRange).HasColumnName(@"MINIMUM_RANGE").HasColumnType("INT").IsRequired();
                 iar.Property(x => x.MaximumRange).HasColumnName(@"MAXIMUM_RANGE").HasColumnType("INT").IsRequired();
+            });
+
+            modelBuilder.Entity<CancellationRequestModel>(iar =>
+            {
+                iar.HasNoKey();
+                iar.Property(x => x.CancellationRequestId).HasColumnName(@"CANCELLATION_REQUEST_ID").HasColumnType("int").IsRequired();
+                iar.Property(x => x.DocumentTypeName).HasColumnName(@"DOCUMENT_TYPE_NAME").HasColumnType("VARCHAR(30)").IsRequired();
+                iar.Property(x => x.DocumentNumber).HasColumnName(@"DOCUMENT_NUMBER").HasColumnType("int").IsRequired();
+                iar.Property(x => x.RequestBy).HasColumnName(@"REQUEST_BY").HasColumnType("VARCHAR(100)").IsRequired();
+                iar.Property(x => x.ResponseBy).HasColumnName(@"RESPONSE_BY").HasColumnType("VARCHAR(100)");
+                iar.Property(x => x.StatusDocumentTypeName).HasColumnName(@"STATUS_DOCUMENT_TYPE_NAME").HasColumnType("VARCHAR(30)").IsRequired();
+                iar.Property(x => x.RequestDate).HasColumnName(@"REQUEST_DATE").HasColumnType("DATETIME").IsRequired();
+                iar.Property(x => x.ResponseDate).HasColumnName(@"RESPONSE_DATE").HasColumnType("DATETIME");
+                iar.Property(x => x.ResponseReason).HasColumnName(@"RESPONSE_REASON").HasColumnType("VARCHAR(250)");
+                iar.Property(x => x.OrderNumber).HasColumnName(@"ORDER_NUMBER").HasColumnType("VARCHAR(30)").IsRequired();
+                iar.Property(x => x.ThirdPart).HasColumnName(@"THIRD_PART").HasColumnType("VARCHAR(50)").IsRequired();
+                iar.Property(x => x.IdentityNumber).HasColumnName(@"IDENTITY_NUMBER").HasColumnType("VARCHAR(30)").IsRequired();
             });
 
             modelBuilder.ApplyConfiguration(new TrackConfiguration());
