@@ -1,6 +1,6 @@
 ﻿@page "/pending-operative-request"
 
-@attribute [Authorize(Roles = "Administrador,Consulta de solicitudes operativas,Gestión de solicitudes operativas")]
+@attribute [Authorize(Roles = "Administrador,Consulta de solicitudes de cancelación de ordenes de compra,Consulta de solicitudes de cancelación de pedidos,Consulta de solicitudes de cierre de pedidos,Aprobación de solicitudes de cancelación de ordenes de compra,Aprobación de solicitudes de cancelación de pedidos,Aprobación de solicitudes de cierre de pedidos")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @using ServiceModel = Aldebaran.Application.Services.Models;
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer ;
@@ -20,8 +20,8 @@
         <RadzenRow>
             <RadzenColumn SizeMD=12>
                 <LocalizedDataGrid Count="@count" LoadData="@LoadData" @ref="cancellationRequestGrid" ColumnWidth="200px" AllowFiltering="false" FilterMode="FilterMode.Simple" AllowPaging="true" AllowSorting="false" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                   Data="@cancellationRequests" TItem="ServiceModel.CancellationRequestModel" AllowColumnPicking="false" AllowColumnResize="true" AllowMultiColumnSorting="false" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single"
-                                   AllowGrouping="false" AllowColumnReorder="false" IsLoading="@isLoadingInProgress">
+                Data="@cancellationRequests" TItem="ServiceModel.CancellationRequestModel" AllowColumnPicking="false" AllowColumnResize="true" AllowMultiColumnSorting="false" EditMode="Radzen.DataGridEditMode.Single" ExpandMode="Radzen.DataGridExpandMode.Single"
+                AllowGrouping="false" AllowColumnReorder="false" IsLoading="@isLoadingInProgress">
                     <Columns>
                         <RadzenDataGridColumn TItem="ServiceModel.CancellationRequestModel" Property="DocumentTypeName" Title="Tipo de solicitud" />
                         <RadzenDataGridColumn TItem="ServiceModel.CancellationRequestModel" Property="OrderNumber" Title="Número de pedido/orden" />
@@ -34,14 +34,13 @@
                             </Template>
                         </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="ServiceModel.CancellationRequestModel" Filterable="false" Sortable="false" Width="164px" TextAlign="TextAlign.Center"
-                                              Pickable="false" Reorderable="false" Resizable="false" Frozen="true" FrozenPosition="FrozenColumnPosition.Right"
-                                              Visible="@Security.IsInRole("Administrador","Gestión de solicitudes operativas")">
+                        Pickable="false" Reorderable="false" Resizable="false" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                             <Template Context="data">
                                 <RadzenButton Icon="approval" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Size="ButtonSize.Medium"
-                                              Click="@(args => ApproveRequest(data))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Aprobar solicitud", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                                              Visible="CanApproveRequest(data.DocumentTypeCode)" Click="@(args => ApproveRequest(data))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Aprobar solicitud", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
 
                                 <RadzenButton Icon="block" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Flat" Size="ButtonSize.Medium"
-                                              Click="@(args => DenyRequest(data))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Rechazar solicitud", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                                              Visible="CanApproveRequest(data.DocumentTypeCode)" Click="@(args => DenyRequest(data))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Rechazar solicitud", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
                             </Template>
                         </RadzenDataGridColumn>
                     </Columns>
@@ -49,4 +48,16 @@
             </RadzenColumn>
         </RadzenRow>
     </RadzenStack>
+}
+@code{
+    bool CanApproveRequest(string type) 
+    {
+        return type switch
+        {
+            "C" => Security.IsInRole("Administrador", "Aprobación de solicitudes de cancelación de ordenes de compra"),
+            "E" => Security.IsInRole("Administrador", "Aprobación de solicitudes de cancelación de pedidos"),
+            "F" => Security.IsInRole("Administrador", "Aprobación de solicitudes de cierre de pedidos"),
+            _ => false
+        };
+    }    
 }

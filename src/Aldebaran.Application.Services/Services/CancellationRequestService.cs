@@ -31,9 +31,9 @@ namespace Aldebaran.Application.Services
             return _mapper.Map<CancellationRequest?>(data);
         }
 
-        public async Task<(IEnumerable<CancellationRequestModel>, int)> GetAllByStatusOrderAsync(int skip, int top, string search, bool getPendingRequest, CancellationToken ct = default)
+        public async Task<(IEnumerable<CancellationRequestModel>, int)> GetAllByStatusOrderAsync(int skip, int top, string search, string type, bool getPendingRequest, CancellationToken ct = default)
         {
-            var (data, c) = await _repository.GetAllByStatusOrderAsync(skip, top, search, getPendingRequest, ct);
+            var (data, c) = await _repository.GetAllByStatusOrderAsync(skip, top, search, type, getPendingRequest, ct);
             return (_mapper.Map<IEnumerable<CancellationRequestModel>>(data), c);
         }
 

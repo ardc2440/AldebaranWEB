@@ -75,7 +75,36 @@ namespace Aldebaran.Web.Pages.OperativeRequestPages
         protected async Task GetAttendedOperationalRequestAsync() 
         {
             await Task.Yield();
-            (cancellationRequests, count)  = await CancellationRequestService.GetAllByStatusOrderAsync(skip, top, search, false);
+            (cancellationRequests, count)  = await CancellationRequestService.GetAllByStatusOrderAsync(skip, top, search, await GetStatusFilter(), false);
+        }
+
+        public async Task<string> GetStatusFilter()
+        {
+            var conditions = new List<string>();
+
+            // Validaciones
+            if (Security.IsInRole("Administrador", "Consulta de solicitudes de cancelación de ordenes de compra"))
+            {
+                conditions.Add("C"); // Agregar condición para "C"
+            }
+
+            if (Security.IsInRole("Administrador", "Consulta de solicitudes de cancelación de pedidos"))
+            {
+                conditions.Add("E"); // Agregar condición para "E"
+            }
+
+            if (Security.IsInRole("Administrador", "Consulta de solicitudes de cierre de pedidos"))
+            {
+                conditions.Add("F"); // Agregar condición para "F"
+            }
+
+            // Generar filtro SQL dinámico
+            if (conditions.Any())
+            {
+                return string.Join(",", conditions);
+            }
+
+            return "X";
         }
 
         #endregion

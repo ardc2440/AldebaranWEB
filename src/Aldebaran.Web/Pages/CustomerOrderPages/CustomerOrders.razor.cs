@@ -295,12 +295,14 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                     return;
                 var reason = (Reason)reasonResult;
 
+                var cancellationDocumentType = await DocumentTypeService.FindByCodeAsync("E");
+                
                 await CancellationRequestService.AddAsync(new CancellationRequest
                 {
                     RequestEmployeeId = reason.EmployeeId,
                     DocumentNumber = customerOrder.CustomerOrderId,
-                    DocumentType = documentType,
-                    StatusDocumentTypeId = (await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 1)).StatusDocumentTypeId
+                    DocumentType = cancellationDocumentType,
+                    StatusDocumentTypeId = (await StatusDocumentTypeService.FindByDocumentAndOrderAsync(cancellationDocumentType.DocumentTypeId, 1)).StatusDocumentTypeId
                 }, reason);
 
 // OJO Esto pasa a hacerlo al momento de aprobarse la solicitud de cancelación
@@ -446,12 +448,14 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                     return;
                 var reason = (Reason)reasonResult;
 
+                var closeDocumentType = await DocumentTypeService.FindByCodeAsync("F");
+
                 await CancellationRequestService.AddAsync(new CancellationRequest
                 {
                     RequestEmployeeId = reason.EmployeeId,
                     DocumentNumber = args.CustomerOrderId,
-                    DocumentType = documentType,
-                    StatusDocumentTypeId = (await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 1)).StatusDocumentTypeId
+                    DocumentType = closeDocumentType,
+                    StatusDocumentTypeId = (await StatusDocumentTypeService.FindByDocumentAndOrderAsync(closeDocumentType.DocumentTypeId, 1)).StatusDocumentTypeId
                 }, reason);
 
 // OJO Esto pasa a hacerlo al momento de aprobarse la solicitud de cancelación

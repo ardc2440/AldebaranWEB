@@ -233,12 +233,14 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
 
                 var reason = (ServiceModel.Reason)reasonResult;
 
+                var cancellationDocumentType = await DocumentTypeService.FindByCodeAsync("C");
+
                 await CancellationRequestService.AddAsync(new ServiceModel.CancellationRequest
                 {
                     RequestEmployeeId = reason.EmployeeId,
                     DocumentNumber = purchaseOrder.PurchaseOrderId,
-                    DocumentType = documentType,
-                    StatusDocumentTypeId = (await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 1)).StatusDocumentTypeId
+                    DocumentType = cancellationDocumentType,
+                    StatusDocumentTypeId = (await StatusDocumentTypeService.FindByDocumentAndOrderAsync(cancellationDocumentType.DocumentTypeId, 1)).StatusDocumentTypeId
                 }, reason);
 
                 // OJO Esto pasa a hacerlo al momento de aprobarse la solicitud de cancelación

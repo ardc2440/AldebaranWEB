@@ -1,6 +1,6 @@
 ﻿@page "/attended-operative-request"
 
-@attribute [Authorize(Roles = "Administrador,Consulta de solicitudes operativas,Gestión de solicitudes operativas")]
+@attribute [Authorize(Roles = "Administrador,Consulta de solicitudes de cancelación de ordenes de compra,Consulta de solicitudes de cancelación de pedidos,Consulta de solicitudes de cierre de pedidos")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @using ServiceModel = Aldebaran.Application.Services.Models;
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer ;

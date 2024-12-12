@@ -288,6 +288,7 @@ namespace Aldebaran.DataAccess
                 iar.Property(x => x.OrderNumber).HasColumnName(@"ORDER_NUMBER").HasColumnType("VARCHAR(30)").IsRequired();
                 iar.Property(x => x.ThirdPart).HasColumnName(@"THIRD_PART").HasColumnType("VARCHAR(50)").IsRequired();
                 iar.Property(x => x.IdentityNumber).HasColumnName(@"IDENTITY_NUMBER").HasColumnType("VARCHAR(30)").IsRequired();
+                iar.Property(x => x.DocumentTypeCode).HasColumnName(@"DOCUMENT_TYPE_CODE").HasColumnType("CHAR(1)").IsRequired();
             });
 
             modelBuilder.ApplyConfiguration(new TrackConfiguration());

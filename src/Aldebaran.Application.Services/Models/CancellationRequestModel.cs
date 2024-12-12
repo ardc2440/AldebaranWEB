@@ -16,5 +16,6 @@ namespace Aldebaran.Application.Services.Models
         public string OrderNumber { get; set; }
         public string ThirdPart { get; set; }
         public string IdentityNumber { get; set; }
+        public string DocumentTypeCode { get; set; }
     }
 }

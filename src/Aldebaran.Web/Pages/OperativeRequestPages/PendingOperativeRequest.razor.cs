@@ -86,23 +86,20 @@ namespace Aldebaran.Web.Pages.OperativeRequestPages
         protected async Task GetAttendedOperationalRequestAsync()
         {
             await Task.Yield();
-            (cancellationRequests, count) = await CancellationRequestService.GetAllByStatusOrderAsync(skip, top, search, true);
+            (cancellationRequests, count) = await CancellationRequestService.GetAllByStatusOrderAsync(skip, top, search, await GetStatusFilter(),  true);
         }
 
         protected async Task ApproveRequest(CancellationRequestModel request)
         {
             var cancellationRequest = await CancellationRequestService.FindAsync(request.CancellationRequestId);
             var approvedStatus = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(cancellationRequest.DocumentType.DocumentTypeId, 2);
-            var responseReason = "";
-
             var dialogResult = await DialogService.OpenAsync<ResponseReasonDialog>("Motivo de aprobación",
                                     new Dictionary<string, object> { { "Reason", "" }, { "Action", "Approve" } },
                                     new DialogOptions { Width = "400px", Height = "300px", Draggable = true, Resizable = true });
 
             if (!string.IsNullOrEmpty(dialogResult))
             {
-                responseReason = (string)dialogResult;
-
+                string responseReason = (string)dialogResult;
                 cancellationRequest.StatusDocumentTypeId = approvedStatus.StatusDocumentTypeId;
                 cancellationRequest.StatusDocumentType = approvedStatus;
                 cancellationRequest.ResponseDate = DateTime.Now;
@@ -181,6 +178,35 @@ namespace Aldebaran.Web.Pages.OperativeRequestPages
                     });                    
                 }
             }
+        }
+
+        public async Task<string> GetStatusFilter()
+        {
+            var conditions = new List<string>();
+
+            // Validaciones
+            if (Security.IsInRole("Administrador", "Consulta de solicitudes de cancelación de ordenes de compra"))
+            {
+                conditions.Add("C"); // Agregar condición para "C"
+            }
+
+            if (Security.IsInRole("Administrador", "Consulta de solicitudes de cancelación de pedidos"))
+            {
+                conditions.Add("E"); // Agregar condición para "E"
+            }
+
+            if (Security.IsInRole("Administrador", "Consulta de solicitudes de cierre de pedidos"))
+            {
+                conditions.Add("F"); // Agregar condición para "F"
+            }
+
+            // Generar filtro SQL dinámico
+            if (conditions.Any())
+            {
+                return string.Join(",", conditions);
+            }
+
+            return "X";
         }
 
         #endregion
