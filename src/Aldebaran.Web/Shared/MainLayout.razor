@@ -72,24 +72,12 @@
                 <RadzenPanelMenuItem Text="Despacho de pedidos procesados" Path="shipment-customer-orders" Visible=@Security.IsInRole("Administrador","Consulta de despachos","Modificación de despachos") />
                 <RadzenPanelMenuItem Text="Ajustes de inventario" Path="adjustments" Visible=@Security.IsInRole("Administrador","Modificación de ajustes de inventario","Consulta de ajustes de inventario") />
                 <RadzenPanelMenuItem Text="Traslado entre bodegas" Path="warehouse-transfers" Visible=@Security.IsInRole("Administrador","Modificación de traslados entre bodegas","Consulta de traslados entre bodegas") />
-                @if (Security.IsInRole("Administrador",
-                "Consulta de solicitudes de cancelación de ordenes de compra",
-                "Consulta de solicitudes de cancelación de pedidos",
-                "Consulta de solicitudes de cierre de pedidos",
-                "Aprobación de solicitudes de cancelación de ordenes de compra",
-                "Aprobación de solicitudes de cancelación de pedidos",
-                "Aprobación de solicitudes de cierre de pedidos"))
+                @if (Security.IsInRole("Administrador","Consulta de solicitudes de cancelación de ordenes de compra","Consulta de solicitudes de cancelación de pedidos","Consulta de solicitudes de cierre de pedidos","Aprobación de solicitudes de cancelación de ordenes de compra","Aprobación de solicitudes de cancelación de pedidos","Aprobación de solicitudes de cierre de pedidos"))
                 {
                     <hr class="divider">
                     <RadzenPanelMenuItem Text="Gestion de Solicitudes Operativas" Icon="assessment">
-                        <RadzenPanelMenuItem Text="Solicitudes operativas atendidas" Path="attended-operative-request" Visible=@Security.IsInRole("Administrador",
-                                         "Consulta de solicitudes de cancelación de ordenes de compra",
-                                         "Consulta de solicitudes de cancelación de pedidos",
-                                         "Consulta de solicitudes de cierre de pedidos") />
-                        <RadzenPanelMenuItem Text="Solicitudes operativas pendientes" Path="pending-operative-request" Visible=@Security.IsInRole("Administrador",
-                                         "Aprobación de solicitudes de cancelación de ordenes de compra",
-                                         "Aprobación de solicitudes de cancelación de pedidos",
-                                         "Aprobación de solicitudes de cierre de pedidos") />/>
+                        <RadzenPanelMenuItem Text="Solicitudes operativas atendidas" Path="attended-operative-request" Visible=@Security.IsInRole("Administrador","Consulta de solicitudes de cancelación de ordenes de compra","Consulta de solicitudes de cancelación de pedidos","Consulta de solicitudes de cierre de pedidos") />
+                        <RadzenPanelMenuItem Text="Solicitudes operativas pendientes" Path="pending-operative-request" Visible=@Security.IsInRole("Administrador","Aprobación de solicitudes de cancelación de ordenes de compra","Aprobación de solicitudes de cancelación de pedidos","Aprobación de solicitudes de cierre de pedidos") />
                     </RadzenPanelMenuItem>
                 }
             </RadzenPanelMenuItem>
