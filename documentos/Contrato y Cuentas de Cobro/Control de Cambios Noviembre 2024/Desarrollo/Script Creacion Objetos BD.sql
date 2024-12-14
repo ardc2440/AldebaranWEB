@@ -65,7 +65,7 @@ CREATE TABLE cancellation_requests (
 )
 GO
 
-ALTER   PROCEDURE [dbo].[SP_GET_CANCELLATION_REQUESTS]
+CREATE OR ALTER   PROCEDURE [dbo].[SP_GET_CANCELLATION_REQUESTS]
 	@GetPendingRequest bit,
 	@SearchKey VARCHAR(100) = '',
 	@Skip INT,
@@ -80,9 +80,7 @@ BEGIN
 
 	INSERT INTO @DocumentType (Document_Type_Code)
 		 SELECT VALUE FROM STRING_SPLIT(@Type,',')
-
-	UPDATE @DocumentType SET Document_Type_Code = REPLACE(Document_Type_Code, '''','')
-
+	
 	DECLARE @TABLA TABLE 
 	(
 		CANCELLATION_REQUEST_ID INT, 
