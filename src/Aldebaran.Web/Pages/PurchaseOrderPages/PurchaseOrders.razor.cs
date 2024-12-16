@@ -1,6 +1,5 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
-using Aldebaran.Application.Services.Services;
 using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Shared;

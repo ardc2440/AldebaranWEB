@@ -1,8 +1,4 @@
 ﻿using Aldebaran.DataAccess.Core;
-using DocumentFormat.OpenXml.Drawing.Charts;
-using DocumentFormat.OpenXml.Office2010.Excel;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using PuppeteerSharp;
 
 namespace Aldebaran.DataAccess.Entities
 {

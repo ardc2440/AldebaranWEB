@@ -1,5 +1,3 @@
-using DocumentFormat.OpenXml.Office2010.PowerPoint;
-
 namespace Aldebaran.Application.Services.Models
 {
     public class ItemReference

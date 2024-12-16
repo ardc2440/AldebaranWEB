@@ -1,11 +1,6 @@
 ﻿using Aldebaran.Application.Services.Models.Reports;
 using Aldebaran.DataAccess.Infraestructure.Repository.Reports;
 using AutoMapper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Aldebaran.Application.Services.Reports
 {

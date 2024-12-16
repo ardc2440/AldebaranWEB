@@ -1,6 +1,5 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Notificator;
-using Aldebaran.Application.Services.Notificator.Model;
 using Aldebaran.Web.Pages.PurchaseOrderPages.Components;
 using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;

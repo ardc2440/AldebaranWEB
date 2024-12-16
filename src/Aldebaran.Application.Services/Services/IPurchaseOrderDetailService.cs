@@ -1,6 +1,4 @@
 ﻿using Aldebaran.Application.Services.Models;
-using PuppeteerSharp.PageCoverage;
-using static Aldebaran.Application.Services.PurchaseOrderDetailService;
 
 namespace Aldebaran.Application.Services
 {

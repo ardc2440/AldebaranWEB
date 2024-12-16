@@ -1,5 +1,3 @@
-using Aldebaran.DataAccess.Enums;
-
 namespace Aldebaran.Application.Services.Models
 {
     public class PurchaseOrderNotification : NotificationBase

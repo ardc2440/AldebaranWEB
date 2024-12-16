@@ -1,7 +1,6 @@
 ﻿using Aldebaran.DataAccess.Entities;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
 using System.Data;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository

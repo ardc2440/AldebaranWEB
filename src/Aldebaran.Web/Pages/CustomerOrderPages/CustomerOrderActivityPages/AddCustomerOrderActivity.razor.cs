@@ -56,7 +56,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages.CustomerOrderActivityPages
         protected RadzenDropDownDataGrid<short> areasGrid;
         protected short AreaId { get; set; }
         protected bool IsErrorVisible;
-        private bool Submitted = false;
+        private bool Submitted;
         protected bool IsSubmitInProgress;
         protected bool isLoadingInProgress;
         protected string Error;

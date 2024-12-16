@@ -1,14 +1,9 @@
 ﻿
 using Aldebaran.DataAccess.Entities;
 using Aldebaran.DataAccess.Infraestructure.Models;
-using Aldebaran.Infraestructure.Common.Extensions;
-using DocumentFormat.OpenXml.Drawing.Charts;
-using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using System.Data;
-using System.IO.Compression;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {

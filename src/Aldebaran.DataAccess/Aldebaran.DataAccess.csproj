@@ -40,6 +40,9 @@
 	  <Compile Update="Configuration\WarehouseTransferConfiguration.cs">
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>
+	  <Compile Update="Core\Triggers\WarehouseAlarmManagementBase.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
 	  <Compile Update="Core\Triggers\CustomerOrderDetailManagementBase.cs">
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>
@@ -89,9 +92,6 @@
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>
 	  <Compile Update="Core\Triggers\Shipments\ModifyCustomerOrderFromOrderShipmentCancelled.cs">
-	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
-	  </Compile>
-	  <Compile Update="Core\Triggers\Transfers\AdjustWarehouseFromWarehouseTransferCancelled.cs">
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>
 	  <Compile Update="Core\Triggers\Transfers\AdjustWarehouseFromDeletedWarehouseTransferDetail.cs">

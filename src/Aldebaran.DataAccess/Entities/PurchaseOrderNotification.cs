@@ -1,6 +1,4 @@
-﻿using Aldebaran.DataAccess.Enums;
-
-namespace Aldebaran.DataAccess.Entities
+﻿namespace Aldebaran.DataAccess.Entities
 {
     public class PurchaseOrderNotification : NotificationBase
     {

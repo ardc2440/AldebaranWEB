@@ -1,16 +1,10 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
-using Aldebaran.Web.Models;
-using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Pages.DashboardNotificationComponents;
-using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Utils;
-using DocumentFormat.OpenXml.Vml.Spreadsheet;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Options;
 using Radzen;
-using System.Configuration;
 
 namespace Aldebaran.Web.Pages
 {

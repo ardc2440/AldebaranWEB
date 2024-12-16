@@ -4,7 +4,6 @@ using Aldebaran.Web.Pages.AreaPages;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Radzen;
 
 namespace Aldebaran.Web.Pages.CustomerPages

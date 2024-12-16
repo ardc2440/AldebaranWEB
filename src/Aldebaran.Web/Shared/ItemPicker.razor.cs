@@ -1,5 +1,4 @@
-﻿using Aldebaran.Application.Services;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using ServiceModel = Aldebaran.Application.Services.Models;
 
 namespace Aldebaran.Web.Shared

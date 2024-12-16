@@ -1,5 +1,4 @@
 ﻿using Aldebaran.DataAccess.Entities;
-using static Aldebaran.DataAccess.Infraestructure.Repository.PurchaseOrderDetailRepository;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {

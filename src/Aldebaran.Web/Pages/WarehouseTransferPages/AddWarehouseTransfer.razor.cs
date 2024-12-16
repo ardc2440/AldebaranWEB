@@ -51,7 +51,7 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
         protected LocalizedDataGrid<WarehouseTransferDetail> warehouseTransferDetailGrid;
         protected DocumentType documentType;
         protected bool IsErrorVisible;
-        private bool Submitted = false;
+        private bool Submitted;
         protected bool IsSubmitInProgress;
         protected bool isLoadingInProgress;
         protected string Error;

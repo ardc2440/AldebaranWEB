@@ -68,7 +68,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         protected IEnumerable<Employee> employeesFOREMPLOYEEID;
         protected IEnumerable<ProcessSatellite> processSatellitesFORPROCESSSATELLITEID;
         protected bool IsErrorVisible;
-        private bool Submitted = false;
+        private bool Submitted;
         protected bool IsSubmitInProgress;
         protected string Error;
 

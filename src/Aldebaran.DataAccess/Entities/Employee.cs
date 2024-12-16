@@ -46,10 +46,9 @@ namespace Aldebaran.DataAccess.Entities
         public ICollection<VisualizedMinimumQuantityAlarm> VisualizedMinimumQuantityAlarms { get; set; }
         public ICollection<VisualizedMinimumLocalWarehouseQuantityAlarm> VisualizedMinimumLocalWarehouseQuantityAlarms { get; set; }
         public ICollection<VisualizedOutOfStockInventoryAlarm> VisualizedOutOfStockInventoryAlarms { get; set; }
-
         public ICollection<CancellationRequest> CancellationEmployeeRequests { get; set; }
         public ICollection<CancellationRequest> CancellationEmployeeResponses { get; set; }
-
+        public ICollection<VisualizedLocalWarehouseAlarm> VisualizedLocalWarehouseAlarms { get; set; }
 
         public Employee()
         {
@@ -82,6 +81,7 @@ namespace Aldebaran.DataAccess.Entities
             VisualizedMinimumLocalWarehouseQuantityAlarms = new List<VisualizedMinimumLocalWarehouseQuantityAlarm>();
             VisualizedOutOfStockInventoryAlarms = new List<VisualizedOutOfStockInventoryAlarm>();
             VisualizedPurchaseOrderTransitAlarms = new List<VisualizedPurchaseOrderTransitAlarm>();
+            VisualizedLocalWarehouseAlarms = new List<VisualizedLocalWarehouseAlarm>();
         }
     }
 }

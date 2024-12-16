@@ -1,9 +1,10 @@
 ﻿using Aldebaran.DataAccess.Entities;
 using EntityFrameworkCore.Triggered;
+using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Core.Triggers.Purchases
 {
-    public class AdjustInventoryFromConfirmedPurchaseOrder : InventoryManagementBase, IBeforeSaveTrigger<PurchaseOrder>
+    public class AdjustInventoryFromConfirmedPurchaseOrder : WarehouseAlarmManagementBase, IBeforeSaveTrigger<PurchaseOrder>
     {
         private readonly AldebaranDbContext _context;
 
@@ -33,7 +34,18 @@ namespace Aldebaran.DataAccess.Core.Triggers.Purchases
             foreach (var item in context.Entity.PurchaseOrderDetails)
             {
                 await UpdateInventoryQuantityAsync(item.ReferenceId, item.ReceivedQuantity ?? 0, 1, cancellationToken);
-                await UpdateWarehouseReferenceQuantityAsync(item.WarehouseId, item.ReferenceId, item.ReceivedQuantity ?? 0, 1, cancellationToken);
+                await UpdateWarehouseReferenceQuantityAsync(item.WarehouseId, item.ReferenceId, item.ReceivedQuantity ?? 0, 1, cancellationToken);                
+            }
+
+            /* Obtener la bodega local */
+            var localWarehouse = _context.Warehouses.AsNoTracking().FirstOrDefault(f => f.WarehouseCode == 1);
+
+            var purchaseOrderDetails = context.Entity.PurchaseOrderDetails.Where(a => a.WarehouseId == localWarehouse!.WarehouseId && a.ReceivedQuantity > 0);
+            
+            /* Validar si en la orden hay algun detalle cuyo destino sea la bodega local y la cantidad recibida sea > 0 */
+            if (purchaseOrderDetails.Any())
+            {   
+                await AddWarehouseAlarmAsync("O", context.Entity.PurchaseOrderId, purchaseOrderDetails, detail => detail.ReferenceId, cancellationToken);
             }
         }
     }

@@ -1,8 +1,6 @@
 ﻿using Aldebaran.Application.Services.Models;
 using Aldebaran.DataAccess.Infraestructure.Repository;
 using AutoMapper;
-using DocumentFormat.OpenXml.Bibliography;
-using System.ComponentModel;
 using Entities = Aldebaran.DataAccess.Entities;
 
 namespace Aldebaran.Application.Services

@@ -50,7 +50,9 @@ namespace Aldebaran.Application.Services.Mappings
             CreateMap<ForwarderAgent, Entities.ForwarderAgent>().ReverseMap();
             CreateMap<IdentityType, Entities.IdentityType>().ReverseMap();
             CreateMap<Item, Entities.Item>().ReverseMap();
-            CreateMap<ItemReference, Entities.ItemReference>().ReverseMap().ForMember(fm=>fm.HavePurchaseOrderDetail, opt=>opt.Ignore());
+            CreateMap<ItemReference, Entities.ItemReference>()
+                .ReverseMap()
+                .ForMember(fm => fm.HavePurchaseOrderDetail, opt => opt.Ignore());
             CreateMap<ItemsArea, Entities.ItemsArea>().ReverseMap();
             CreateMap<Line, Entities.Line>().ReverseMap();
             CreateMap<MeasureUnit, Entities.MeasureUnit>().ReverseMap();
@@ -111,6 +113,11 @@ namespace Aldebaran.Application.Services.Mappings
             CreateMap<VisualizedMinimumLocalWarehouseQuantityAlarm, Entities.VisualizedMinimumLocalWarehouseQuantityAlarm>().ReverseMap();
             CreateMap<CancellationRequest, Entities.CancellationRequest>().ReverseMap();
             CreateMap<CancellationRequestModel, Entities.CancellationRequestModel>().ReverseMap();
+            CreateMap<VisualizedLocalWarehouseAlarm, Entities.VisualizedLocalWarehouseAlarm>().ReverseMap();
+            CreateMap<LocalWarehouseAlarm, Entities.LocalWarehouseAlarm>()
+                .ReverseMap()
+                .ForMember(m => m.AlarmReferences, opt => opt.Ignore())
+                .ForMember(m => m.AlarmCustomerOrders, opt => opt.Ignore()) ;
         }
     }
 }

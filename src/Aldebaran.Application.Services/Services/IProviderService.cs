@@ -1,5 +1,4 @@
 ﻿using Aldebaran.Application.Services.Models;
-using DocumentFormat.OpenXml.Bibliography;
 
 namespace Aldebaran.Application.Services
 {

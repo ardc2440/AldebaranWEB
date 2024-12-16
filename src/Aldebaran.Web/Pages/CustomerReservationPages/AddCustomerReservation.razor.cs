@@ -2,7 +2,6 @@ using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Shared;
-using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
@@ -50,7 +49,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         protected LocalizedDataGrid<CustomerReservationDetail> customerReservationDetailGrid;
         protected DocumentType documentType;
         protected bool IsErrorVisible;
-        private bool Submitted = false;
+        private bool Submitted;
         protected bool IsSubmitInProgress;
         protected bool isLoadingInProgress;
         protected string Error;

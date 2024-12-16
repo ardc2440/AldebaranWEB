@@ -1,13 +1,11 @@
 ﻿using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
-using Aldebaran.Application.Services.Services;
 using Aldebaran.Infraestructure.Common.Extensions;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Utils;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Caching.Memory;
 using Radzen;
-using System.Linq;
 
 namespace Aldebaran.Web.Pages.DashboardNotificationComponents
 {

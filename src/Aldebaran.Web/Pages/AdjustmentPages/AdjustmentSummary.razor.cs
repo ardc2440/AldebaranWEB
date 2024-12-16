@@ -1,7 +1,5 @@
 ﻿using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
-using Aldebaran.Application.Services.Notificator;
-using Aldebaran.Application.Services.Notificator.Model;
 using Aldebaran.Infraestructure.Common.Utils;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;

@@ -34,7 +34,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         protected CustomerReservationDetail customerReservationDetail;
         protected InventoryQuantities QuantitiesPanel;
         protected bool IsErrorVisible;
-        private bool Submitted = false;
+        private bool Submitted;
         protected bool IsSubmitInProgress;
         protected bool isLoadingInProgress;
         protected string Error;

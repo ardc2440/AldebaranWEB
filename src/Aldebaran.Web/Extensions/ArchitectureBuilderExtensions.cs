@@ -167,8 +167,7 @@ namespace Aldebaran.Web.Extensions
                 triggerOptions.AddTrigger<AdjustWarehouseFromDeletedWarehouseTransferDetail>();
                 triggerOptions.AddTrigger<AdjustWarehouseFromModifiedWarehouseTransferDetail>();
                 triggerOptions.AddTrigger<AdjustWarehouseFromNewWarehouseTransferDetail>();
-                triggerOptions.AddTrigger<AdjustWarehouseFromWarehousesModified>();
-                triggerOptions.AddTrigger<AdjustWarehouseFromWarehouseTransferCancelled>();
+                triggerOptions.AddTrigger<AlarmWarehouseFromNewWarehouseTransfer>();
             });
             return dbContextBuilder;
         }
@@ -261,7 +260,8 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IVisualizedOutOfStockInventoryAlarmRepository, VisualizedOutOfStockInventoryAlarmRepository>();
             services.AddTransient<IVisualizedMinimumLocalWarehouseQuantityAlarmRepository, VisualizedMinimumLocalWarehouseQuantityAlarmRepository>();
             services.AddTransient<ICancellationRequestRepository, CancellationRequestRepository>();
-
+            services.AddTransient<IVisualizedLocalWarehouseAlarmRepository, VisualizedLocalWarehouseAlarmRepository>();
+            
             #endregion
             // Services
             #region Services
@@ -346,6 +346,8 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IVisualizedOutOfStockInventoryAlarmService, VisualizedOutOfStockInventoryAlarmService>();
             services.AddTransient<IVisualizedMinimumLocalWarehouseQuantityAlarmService, VisualizedMinimumLocalWarehouseQuantityAlarmService>();
             services.AddTransient<ICancellationRequestService, CancellationRequestService>();
+            services.AddTransient<IVisualizedLocalWarehouseAlarmService, VisualizedLocalWarehouseAlarmService>();
+
 
             #endregion
 
@@ -353,6 +355,7 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IQueueSettings, QueueSettings>();
             services.AddTransient<Notificator.INotificationService, Notificator.NotificationService>();
             services.AddTransient<IFtpClient, FtpClient>();
+
             return services;
         }
     }

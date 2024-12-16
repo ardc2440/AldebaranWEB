@@ -5,7 +5,6 @@ using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.Identity.Client;
 using Radzen;
 
 namespace Aldebaran.Web.Pages.CustomerReservationPages

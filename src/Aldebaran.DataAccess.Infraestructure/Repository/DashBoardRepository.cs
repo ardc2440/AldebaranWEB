@@ -1,8 +1,5 @@
 ﻿using Aldebaran.DataAccess.Entities;
-using Aldebaran.DataAccess.Enums;
 using Aldebaran.Infraestructure.Common.Utils;
-using DocumentFormat.OpenXml.Drawing.Charts;
-using DocumentFormat.OpenXml.Drawing.Diagrams;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -269,5 +266,16 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             }, ct);
         }
 
+        public async Task<IEnumerable<LocalWarehouseAlarm>> GetLocalWarehouseAlarm(int employeeId, string? searchKey = null, CancellationToken ct = default)
+        {
+            var localWarehouseAlarmList = await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.LocalWarehouseAlarms.AsNoTracking()
+                                        .Include(i=>i.DocumentType)
+                                        .ToListAsync(ct);
+            }, ct);
+
+            throw new NotImplementedException();
+        }
     }
 }

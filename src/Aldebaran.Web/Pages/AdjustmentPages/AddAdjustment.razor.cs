@@ -5,7 +5,6 @@ using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
-using Serilog.Configuration;
 
 namespace Aldebaran.Web.Pages.AdjustmentPages
 {
@@ -55,7 +54,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         protected LocalizedDataGrid<AdjustmentDetail> adjustmentDetailGrid;
         protected DocumentType documentType;
         protected bool IsErrorVisible;
-        private bool Submitted = false;
+        private bool Submitted;
         protected bool IsSubmitInProgress;
         protected bool isLoadingInProgress;
         protected string Error;

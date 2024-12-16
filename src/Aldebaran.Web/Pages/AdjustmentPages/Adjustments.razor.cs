@@ -1,10 +1,8 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Models.ViewModels;
-using Aldebaran.Web.Pages.CustomerReservationPages;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Shared;
-using DocumentFormat.OpenXml.Drawing.Charts;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;

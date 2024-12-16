@@ -3,10 +3,8 @@ using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Shared;
-using DocumentFormat.OpenXml.Vml.Office;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.EntityFrameworkCore;
 using Radzen;
 
 namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
@@ -70,7 +68,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
         protected IEnumerable<Employee> employeesFOREMPLOYEEID;
         protected IEnumerable<ShippingMethod> shippingMethodsFORSHIPPINGMETHODID;
         protected bool IsErrorVisible;
-        private bool Submitted = false;
+        private bool Submitted;
         protected bool IsSubmitInProgress;
         protected string Error;
 

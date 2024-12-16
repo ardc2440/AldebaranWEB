@@ -1,6 +1,4 @@
-﻿using ServiceModel = Aldebaran.Application.Services.Models;
-
-namespace Aldebaran.Application.Services.Models
+﻿namespace Aldebaran.Application.Services.Models
 {
     public class CancellationRequestModel 
     {

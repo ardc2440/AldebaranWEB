@@ -35,8 +35,7 @@ namespace Aldebaran.Web.Pages.EmployeeAlarmsPages
         protected bool IsSubmitInProgress;
         protected bool isLoadingInProgress;
         protected bool ValidationError = false;
-        protected string search = "";
-        readonly bool allowRowSelectOnRowClick = true;
+        protected string search = "";        
         #endregion
 
         #region Overrides

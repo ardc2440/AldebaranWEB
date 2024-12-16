@@ -6,12 +6,9 @@ using Aldebaran.Web.Pages.ReportPages.Reference_Movement;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Shared;
 using Aldebaran.Web.Utils;
-using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.AspNetCore.Components;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Caching.Memory;
 using Radzen;
-using System.Linq;
 
 namespace Aldebaran.Web.Pages.DashboardNotificationComponents
 {

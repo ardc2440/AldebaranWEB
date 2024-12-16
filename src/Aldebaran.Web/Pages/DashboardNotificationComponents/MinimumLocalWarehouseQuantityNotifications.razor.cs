@@ -7,11 +7,9 @@ using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Shared;
 using Aldebaran.Web.Utils;
 using DocumentFormat.OpenXml.Spreadsheet;
-using DocumentFormat.OpenXml.VariantTypes;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Caching.Memory;
 using Radzen;
-using System.Linq;
 
 namespace Aldebaran.Web.Pages.DashboardNotificationComponents
 {

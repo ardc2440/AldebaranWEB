@@ -1,6 +1,5 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
-using Aldebaran.Web.Pages.CustomerPages;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
@@ -54,7 +53,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected IEnumerable<Customer> customersForCUSTOMERID;
         protected IEnumerable<Employee> employeesForEMPLOYEEID;
         protected bool IsErrorVisible;
-        private bool Submitted = false;
+        private bool Submitted;
         protected bool IsSubmitInProgress;
         protected bool isLoadingInProgress;
         protected string Error;
