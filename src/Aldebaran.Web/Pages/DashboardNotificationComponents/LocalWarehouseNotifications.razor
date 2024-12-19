@@ -12,7 +12,7 @@
         <RadzenRow class="rz-m-1">
             <LocalizedDataGrid AllowRowSelectOnRowClick="false" PageSize="@pageSize" @ref="localWarehouseAlarmsGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true"
                                ShowPagingSummary="true" Data="@localWarehouseAlarms" TItem="Models.ViewModels.LocalWarehouseAlarm"
-                               IsLoading="@(isLoadingInProgress||GridTimer.IsLoading)" Page="OnPageChanged"
+                               IsLoading="@(isLoadingInProgress||GridTimer.IsLoading)" Page="OnPageChanged" RowExpand=@GetChildData
                                SelectionMode="DataGridSelectionMode.Multiple" @bind-Value=@selectedAlarms>
                 <Columns>
                     <RadzenDataGridColumn TItem="Models.ViewModels.LocalWarehouseAlarm" Width="40px" Sortable="false" Filterable="false">

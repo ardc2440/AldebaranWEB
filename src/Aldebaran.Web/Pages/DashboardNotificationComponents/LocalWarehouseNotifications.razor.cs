@@ -10,7 +10,6 @@ using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Pages.ReportPages.Reference_Movement;
 using Newtonsoft.Json;
 using Aldebaran.Infraestructure.Common.Extensions;
-using DocumentFormat.OpenXml.Vml.Office;
 
 namespace Aldebaran.Web.Pages.DashboardNotificationComponents
 {
@@ -209,31 +208,45 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
             {
                 var entity = new Models.ViewModels.LocalWarehouseAlarm { WarehouseAlarm = item };
 
-                entity.AlarmReferences = JsonConvert.DeserializeObject<ICollection<Models.ViewModels.AlarmReference>>(entity.WarehouseAlarm.ReferenceList);
-                entity.AlarmCustomerOrders = JsonConvert.DeserializeObject<ICollection<Models.ViewModels.AlarmOrder>>(entity.WarehouseAlarm.CustomerOrderList);
                 switch (entity.WarehouseAlarm.DocumentType.DocumentTypeCode)
                 {
                     case "O":
                         entity.PurchaseOrder = await PurchaseOrderService.FindAsync(entity.WarehouseAlarm.DocumentNumber, ct);
-                        entity.PurchaseOrder.PurchaseOrderDetails = (await PurchaseOrderDetailService.GetByPurchaseOrderIdAsync(entity.PurchaseOrder.PurchaseOrderId, ct)).ToList();
                         break;
                     case "B":
                         entity.WarehouseTransfer = await WarehouseTransferService.FindAsync(entity.WarehouseAlarm.DocumentNumber, ct);
-                        entity.WarehouseTransfer.WarehouseTransferDetails = (await WarehouseTransferDetailService.GetByWarehouseTransferIdAsync(entity.WarehouseTransfer.WarehouseTransferId, ct)).ToList();
                         break;
                     default:
                         throw new InvalidDataException($"El tipo de documento {entity.WarehouseAlarm.DocumentType.DocumentTypeCode} no se encuentra habilitado para esta notificación.");
-                }
-
-                foreach (var alarmOrder in entity.AlarmCustomerOrders)
-                {
-                    entity.CustomerOrders.Add(await CustomerOrderService.FindAsync(alarmOrder.AlarmOrderId, ct));
                 }
 
                 alarmList.Add(entity);
             }
 
             return alarmList;
+        }
+
+        protected async Task GetChildData(Models.ViewModels.LocalWarehouseAlarm args)
+        {
+            var entity = args;
+
+            entity.AlarmReferences = JsonConvert.DeserializeObject<ICollection<Models.ViewModels.AlarmReference>>(entity.WarehouseAlarm.ReferenceList);
+            entity.AlarmCustomerOrders = JsonConvert.DeserializeObject<ICollection<Models.ViewModels.AlarmOrder>>(entity.WarehouseAlarm.CustomerOrderList);
+            switch (entity.WarehouseAlarm.DocumentType.DocumentTypeCode)
+            {
+                case "O":
+                    entity.PurchaseOrder.PurchaseOrderDetails = (await PurchaseOrderDetailService.GetByPurchaseOrderIdAsync(entity.PurchaseOrder.PurchaseOrderId)).ToList();
+                    break;
+                case "B":
+                    entity.WarehouseTransfer.WarehouseTransferDetails = (await WarehouseTransferDetailService.GetByWarehouseTransferIdAsync(entity.WarehouseTransfer.WarehouseTransferId)).ToList();
+                    break;
+                default:
+                    throw new InvalidDataException($"El tipo de documento {entity.WarehouseAlarm.DocumentType.DocumentTypeCode} no se encuentra habilitado para esta notificación.");
+            }
+
+            foreach (var alarmOrder in entity.AlarmCustomerOrders) entity.CustomerOrders.Add(await CustomerOrderService.FindAsync(alarmOrder.AlarmOrderId));
+            
+            StateHasChanged();
         }
 
         public async Task CustomerOrderDetailInfo(int customerOrderId)
