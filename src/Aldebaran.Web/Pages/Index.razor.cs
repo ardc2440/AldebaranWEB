@@ -36,6 +36,7 @@ namespace Aldebaran.Web.Pages
         
         protected bool minimumQuantityNotificatioVisible;
         protected bool minimumLocalWarehouseQuantityNotificatioVisible;
+        protected bool LocalWarehouseNotificatioVisible;
         protected bool userAlarmNotificationVisible;
         protected bool outOfStockNotificatioVisible;
         protected bool expiredReservationNotificationVisible;
@@ -46,6 +47,7 @@ namespace Aldebaran.Web.Pages
 
         protected bool minimumQuantityAlertVisible;
         protected bool minimumLocalWarehouseQuantityAlertVisible;
+        protected bool LocalWarehouseAlertVisible;
         protected bool outOfStockAlertVisible;
         protected bool userAlarmAlertVisible;
         protected bool expiredReservationAlertVisible;
@@ -56,6 +58,7 @@ namespace Aldebaran.Web.Pages
 
         protected MinimumQuantityNotifications minimumQuantityNotifications;
         protected MinimumLocalWarehouseQuantityNotifications minimumLocalWarehouseQuantityNotifications;
+        protected LocalWarehouseNotifications localWarehouseNotifications;
         protected UserAlarmNotifications userAlarmNotifications;
         protected OutOfStockNotifications outOfStockNotifications;
         protected ExpiredReservationNotifications expiredReservationNotifications;
@@ -90,6 +93,7 @@ namespace Aldebaran.Web.Pages
         {
             minimumQuantityNotificatioVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por cantidades mínimas");
             minimumLocalWarehouseQuantityNotificatioVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por cantidad mínima bodega local");
+            LocalWarehouseNotificatioVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por ingreso de mercancía a bodega local");
             userAlarmNotificationVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por alarmas del día");
             outOfStockNotificatioVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por artículos sin disponible");
             expiredReservationNotificationVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por reservas vencidas");
@@ -136,6 +140,7 @@ namespace Aldebaran.Web.Pages
             Console.WriteLine($"{GridTimer.LastUpdate}");
             if (minimumQuantityNotificatioVisible) await minimumQuantityNotifications.Update();
             if (minimumLocalWarehouseQuantityNotificatioVisible) await minimumLocalWarehouseQuantityNotifications.Update();
+            if (LocalWarehouseNotificatioVisible) await localWarehouseNotifications.Update(); 
             if (userAlarmNotificationVisible) await userAlarmNotifications.Update();
             if (outOfStockNotificatioVisible) await outOfStockNotifications.Update();
             if (expiredReservationNotificationVisible) await expiredReservationNotifications.Update();
@@ -159,38 +164,43 @@ namespace Aldebaran.Web.Pages
 
         protected async Task AlertClick(int idObject)
         {
-            switch (idObject)
-            {
-                case 1:
-                    minimumQuantityAlertVisible = false;
-                    break;
-                case 2:
-                    outOfStockAlertVisible = false;
-                    break;
-                case 3:
-                    userAlarmAlertVisible = false;
-                    break;
-                case 4:
-                    expiredReservationAlertVisible = false;
-                    break;
-                case 5:
-                    customerOrderExpirationAlertVisible = false;
-                    break;
-                case 6:
-                    purchaseOrderExpirationAlertVisible = false;
-                    break;
-                case 7:
-                    purchaseOrderTransitAlertVisible = false;
-                    break;
-                case 8:
-                    emailErrorAlertVisible = false;
-                    break;
-                case 9:
-                    minimumLocalWarehouseQuantityAlertVisible = false;
-                    break;
-                default:
-                    break;
-            }
+            await UpdateAlert((idObject, false));
+
+            //switch (idObject)
+            //{
+            //    case 1:
+            //        minimumQuantityAlertVisible = false;
+            //        break;
+            //    case 2:
+            //        outOfStockAlertVisible = false;
+            //        break;
+            //    case 3:
+            //        userAlarmAlertVisible = false;
+            //        break;
+            //    case 4:
+            //        expiredReservationAlertVisible = false;
+            //        break;
+            //    case 5:
+            //        customerOrderExpirationAlertVisible = false;
+            //        break;
+            //    case 6:
+            //        purchaseOrderExpirationAlertVisible = false;
+            //        break;
+            //    case 7:
+            //        purchaseOrderTransitAlertVisible = false;
+            //        break;
+            //    case 8:
+            //        emailErrorAlertVisible = false;
+            //        break;
+            //    case 9:
+            //        minimumLocalWarehouseQuantityAlertVisible = false;
+            //        break;
+            //    case 10:
+            //        LocalWarehouseAlertVisible = false;
+            //        break;
+            //    default:
+            //        break;
+            //}
         }
 
         protected async Task UpdateAlert((int idObject, bool value) data) 
@@ -226,6 +236,9 @@ namespace Aldebaran.Web.Pages
                     break;
                 case 9:
                     minimumLocalWarehouseQuantityAlertVisible = value;
+                    break;
+                case 10:
+                    LocalWarehouseAlertVisible = value;
                     break;
                 default:
                     break;

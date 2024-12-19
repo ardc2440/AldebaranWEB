@@ -58,6 +58,19 @@
                     </ChildContent>
                 </RadzenTabsItem>
 
+                <RadzenTabsItem Visible="@(LocalWarehouseNotificatioVisible)">
+                    <Template>
+                        <div style="display: flex; align-items: center; margin-bottom: 5px; height: 40px; width: 150px">
+                            <RadzenImage Click="@(() => AlertClick(10))" Visible="@LocalWarehouseAlertVisible" Path="images/alert.gif" Style="width: 25px; height: 20px; vertical-align: middle; margin-right: 2px;" />Ingreso de<br>mercancía a<br>bodega local
+                        </div>
+                    </Template>
+                    <ChildContent>
+                        <RadzenRow class="mb-2">
+                            <LocalWarehouseNotifications @ref="@localWarehouseNotifications" OnAlertVisibleChanged="@UpdateAlert" />
+                        </RadzenRow>
+                    </ChildContent>
+                </RadzenTabsItem>
+
                 <RadzenTabsItem Visible="@(userAlarmNotificationVisible)">
                     <Template>
                         <div style="display: flex; align-items: center; margin-bottom: 5px; height: 40px; width: 150px">
@@ -69,7 +82,7 @@
                             <UserAlarmNotifications @ref="userAlarmNotifications" OnAlertVisibleChanged="@UpdateAlert" />
                         </RadzenRow>
                     </ChildContent>
-                </RadzenTabsItem>
+                </RadzenTabsItem>               
 
                 <RadzenTabsItem Visible="@(minimumLocalWarehouseQuantityNotificatioVisible)">
                     <Template>

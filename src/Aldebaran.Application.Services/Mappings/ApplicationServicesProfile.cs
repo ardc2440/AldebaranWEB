@@ -114,10 +114,7 @@ namespace Aldebaran.Application.Services.Mappings
             CreateMap<CancellationRequest, Entities.CancellationRequest>().ReverseMap();
             CreateMap<CancellationRequestModel, Entities.CancellationRequestModel>().ReverseMap();
             CreateMap<VisualizedLocalWarehouseAlarm, Entities.VisualizedLocalWarehouseAlarm>().ReverseMap();
-            CreateMap<LocalWarehouseAlarm, Entities.LocalWarehouseAlarm>()
-                .ReverseMap()
-                .ForMember(m => m.AlarmReferences, opt => opt.Ignore())
-                .ForMember(m => m.AlarmCustomerOrders, opt => opt.Ignore()) ;
+            CreateMap<LocalWarehouseAlarm, Entities.LocalWarehouseAlarm>().ReverseMap();
         }
     }
 }

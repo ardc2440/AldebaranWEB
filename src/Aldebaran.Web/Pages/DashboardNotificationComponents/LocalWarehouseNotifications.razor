@@ -1,0 +1,186 @@
+﻿@using Aldebaran.Application.Services.Models
+@using Aldebaran.Web.Resources.LocalizedControls
+@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
+@inject Radzen.DialogService dialogService
+
+<RadzenCard class="rz-col-12" Style="max-width: 100%">
+    <NotificationTitle DataUpdate="@GridData_Update" GridTimer="@GridTimer" Title="Sobrepaso de cantidades mínimas en bodega local" Timers="@Timers" />
+    <RadzenCard Variant="Radzen.Variant.Text" class="px-0">
+        <RadzenRow class="rz-m-1">
+            <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
+        </RadzenRow>
+        <RadzenRow class="rz-m-1">
+            <LocalizedDataGrid AllowRowSelectOnRowClick="false" PageSize="@pageSize" @ref="localWarehouseAlarmsGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true"
+                               ShowPagingSummary="true" Data="@localWarehouseAlarms" TItem="Models.ViewModels.LocalWarehouseAlarm"
+                               IsLoading="@(isLoadingInProgress||GridTimer.IsLoading)" Page="OnPageChanged"
+                               SelectionMode="DataGridSelectionMode.Multiple" @bind-Value=@selectedAlarms>
+                <Columns>
+                    <RadzenDataGridColumn TItem="Models.ViewModels.LocalWarehouseAlarm" Width="40px" Sortable="false" Filterable="false">
+                        <HeaderTemplate>
+                            <RadzenCheckBox TabIndex="-1" TriState="false" TValue="bool?" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select all items" }})"
+                                            Value="@(IsAllPageSelected().Result ? true : (selectedAlarms?.Any() ?? false ? null : false))"
+                                            Change="@(args => SelectAllItems((bool)args))"
+                                            MouseEnter="@(args => ShowTooltip(args,"Marcar toda la página", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                        </HeaderTemplate>
+                        <Template Context="data">
+                            <RadzenCheckBox TabIndex="-1" TriState="false" Value="@(selectedAlarms != null && selectedAlarms.Contains(data))" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select item" }})"
+                                            TValue="bool"
+                                            Change="@(args => ToggleSelection(data, args))"
+                                            MouseEnter="@(args => ShowTooltip(args,"Marcar", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Models.ViewModels.LocalWarehouseAlarm" Property="WarehouseAlarm.DocumentType.DocumentTypeName" Title="Tipo de documento" Width="80%" />
+                    <RadzenDataGridColumn TItem="Models.ViewModels.LocalWarehouseAlarm" Title="Número de documento" Width="50%">
+                        <Template Context="alarm">
+                            @{
+                                var documentNumber = "";
+
+                                if (alarm.WarehouseAlarm.DocumentType.DocumentTypeCode == "O")
+                                {
+                                    documentNumber = alarm.PurchaseOrder.OrderNumber;
+                                }
+                                else
+                                {
+                                    documentNumber = alarm.WarehouseTransfer.WarehouseTransferId.ToString();
+                                }
+                                @documentNumber
+                            }
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Models.ViewModels.LocalWarehouseAlarm" Title="Proveedor" Width="100%">
+                        <Template Context="alarm">
+                            @{
+                                var proveedor = "";
+
+                                if (alarm.WarehouseAlarm.DocumentType.DocumentTypeCode == "O")
+                                {
+                                    proveedor = alarm.PurchaseOrder.Provider.ProviderName;
+                                }
+                                else
+                                {
+                                    proveedor = alarm.WarehouseTransfer.OriginWarehouse.WarehouseName;
+                                }
+                                @proveedor
+                            }
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Models.ViewModels.LocalWarehouseAlarm" Property="AlarmDate" Title="Fecha alarma" Width="50%">
+                        <Template Context="alarm">
+                            <span>@alarm.WarehouseAlarm.AlarmDate.ToString(SharedLocalizer["date:format"])</span>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Models.ViewModels.LocalWarehouseAlarm" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                        <Template Context="alarm">
+                            <RadzenButton Icon="assignment_turned_in" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => DisableAlarm(alarm))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Ocultar alarma", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+                <Template Context="alarm">
+                    <RadzenStack Class="rz-my-8">
+                        <RadzenTabs Visible="@(alarm.AlarmReferences.Any())">
+                            <Tabs>
+                                @{
+                                    var referencesPurchaseOrder = new List<Aldebaran.Application.Services.Models.PurchaseOrderDetail>();
+                                    var referencesWarehouseTransfer = new List<Aldebaran.Application.Services.Models.WarehouseTransferDetail>();
+                                    if (@alarm.WarehouseAlarm.DocumentType.DocumentTypeCode.Equals("O"))
+                                    {
+                                        referencesPurchaseOrder = alarm.PurchaseOrder.PurchaseOrderDetails.Where(w => alarm.AlarmReferences.Select(s => s.ReferenceId).Contains(w.ReferenceId)).ToList();
+                                    }
+                                    else
+                                    {
+                                        referencesWarehouseTransfer = alarm.WarehouseTransfer.WarehouseTransferDetails.Where(w => alarm.AlarmReferences.Select(s => s.ReferenceId).Contains(w.ReferenceId)).ToList();
+                                    }
+                                    var isPurchaseorder = @alarm.WarehouseAlarm.DocumentType.DocumentTypeCode.Equals("O");
+                                }
+                                <RadzenTabsItem Selected="@isPurchaseorder" Visible="@alarm.WarehouseAlarm.DocumentType.DocumentTypeCode.Equals("O")" Text="Referencias">
+                                    <LocalizedDataGrid ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                                       ExpandMode="DataGridExpandMode.Single" Data="@referencesPurchaseOrder" TItem="Aldebaran.Application.Services.Models.PurchaseOrderDetail">
+                                        <Columns>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrderDetail" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                                                <Template Context="detail">
+                                                    <RadzenButton Icon="image" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                                                  Click="@(args => ShowImageDialogAsync($"[{@detail.ItemReference.Item.InternalReference}] {@detail.ItemReference.Item.ItemName}"))"
+                                                                  @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Ver imagen del producto", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn Width="80%" TItem="Aldebaran.Application.Services.Models.PurchaseOrderDetail" Title="Referencia">
+                                                <Template Context="detail">
+                                                    <RadzenLabel MouseEnter="@(args => ShowTooltip(args,GetReferenceHint(@detail.ItemReference).Result, new TooltipOptions(){ Position = TooltipPosition.Left }))">
+                                                        [@detail.ItemReference.Item.InternalReference] @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName
+                                                    </RadzenLabel>
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrderDetail" Title="Solicitado">
+                                                <Template Context="detail">
+                                                    @detail.RequestedQuantity.ToString("N0")
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrderDetail" Title="Recibido">
+                                                <Template Context="detail">
+                                                    @detail.ReceivedQuantity?.ToString("N0")
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                        </Columns>
+                                    </LocalizedDataGrid>
+                                </RadzenTabsItem>
+                                <RadzenTabsItem Selected="@(!isPurchaseorder)" Visible="@alarm.WarehouseAlarm.DocumentType.DocumentTypeCode.Equals("B")" Text="Referencias">
+                                    <LocalizedDataGrid ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                                       ExpandMode="DataGridExpandMode.Single" Data="@referencesWarehouseTransfer" TItem="Aldebaran.Application.Services.Models.WarehouseTransferDetail">
+                                        <Columns>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransferDetail" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                                                <Template Context="detail">
+                                                    <RadzenButton Icon="image" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                                                  Click="@(args => ShowImageDialogAsync($"[{@detail.ItemReference.Item.InternalReference}] {@detail.ItemReference.Item.ItemName}"))"
+                                                                  @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Ver imagen del producto", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn Width="80%" TItem="Aldebaran.Application.Services.Models.WarehouseTransferDetail" Title="Referencia">
+                                                <Template Context="detail">
+                                                    <RadzenLabel MouseEnter="@(args => ShowTooltip(args,GetReferenceHint(@detail.ItemReference).Result, new TooltipOptions(){ Position = TooltipPosition.Left }))">
+                                                        [@detail.ItemReference.Item.InternalReference] @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName
+                                                    </RadzenLabel>
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.WarehouseTransferDetail" Title="Cantidad">
+                                                <Template Context="detail">
+                                                    @detail.Quantity.ToString("N0")
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                        </Columns>
+                                    </LocalizedDataGrid>
+                                </RadzenTabsItem>
+                                <RadzenTabsItem Text="Pedidos relacionados">
+                                    <LocalizedDataGrid Visible="@(alarm.CustomerOrders != null)" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true"
+                                                       AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30}) Data="@alarm.CustomerOrders"
+                                                       TItem="Aldebaran.Application.Services.Models.CustomerOrder">
+                                        <Columns>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="CustomerOrder.Customer.CustomerName" Title="Cliente"></RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Title="Fecha pedido">
+                                                <Template Context="customerOrder">
+                                                    <span>@customerOrder.OrderDate.ToString(SharedLocalizer["date:format"])</span>
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Title="No. Pedido">
+                                                <Template Context="customerOrder">
+                                                    <RadzenLink href="javascript:void(0);" @onclick="@(async (args) => await CustomerOrderDetailInfo(customerOrder.CustomerOrderId))">
+                                                        @customerOrder.OrderNumber
+                                                    </RadzenLink>
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Title="Fecha pactada de entrega">
+                                                <Template Context="customerOrder">
+                                                    <span>@customerOrder.EstimatedDeliveryDate.ToString(SharedLocalizer["date:format"])</span>
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="StatusDocumentType.StatusDocumentTypeName" Title="Estado"></RadzenDataGridColumn>
+                                        </Columns>
+                                    </LocalizedDataGrid>
+                                </RadzenTabsItem>
+                            </Tabs>
+                        </RadzenTabs>
+                    </RadzenStack>
+                </Template>
+            </LocalizedDataGrid>
+        </RadzenRow>
+    </RadzenCard>
+</RadzenCard>

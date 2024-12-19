@@ -217,7 +217,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     return await dbContext.Set<MinimumQuantityArticle>()
                         .FromSqlRaw($"EXEC SP_GET_MINIMUM_QUANTITY_ALARMS " +
                         $"@EmployeeId",
-                        employee_Id).ToListAsync(ct);                    
+                        employee_Id).ToListAsync(ct);
                 }
                 else
                 {
@@ -227,7 +227,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                         .FromSqlRaw($"EXEC SP_GET_MINIMUM_QUANTITY_ALARMS " +
                         $"@EmployeeId, " +
                         $"@SEARCHKEY ",
-                        employee_Id, search).ToListAsync(ct);                    
+                        employee_Id, search).ToListAsync(ct);
                 }
             }, ct);
         }
@@ -266,16 +266,26 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             }, ct);
         }
 
-        public async Task<IEnumerable<LocalWarehouseAlarm>> GetLocalWarehouseAlarm(int employeeId, string? searchKey = null, CancellationToken ct = default)
+        public async Task<IEnumerable<LocalWarehouseAlarm>> GetLocalWarehouseAlarmAsync(int employeeId, string? searchKey = null, CancellationToken ct = default)
         {
-            var localWarehouseAlarmList = await ExecuteQueryAsync(async dbContext =>
+            return await ExecuteQueryAsync(async dbContext =>
             {
-                return await dbContext.LocalWarehouseAlarms.AsNoTracking()
-                                        .Include(i=>i.DocumentType)
-                                        .ToListAsync(ct);
-            }, ct);
 
-            throw new NotImplementedException();
+                return await (string.IsNullOrEmpty(searchKey) ?
+                    dbContext.LocalWarehouseAlarms.AsNoTracking()
+                        .Include(i => i.DocumentType)
+                        .Where(w => !dbContext.VisualizedLocalWarehouseAlarms.AsNoTracking().Any(j => j.LocalWarehouseAlarmId == w.LocalWarehouseAlarmId &&
+                                                                                                        j.EmployeeId == employeeId))
+                        .ToListAsync(ct) :
+                    dbContext.LocalWarehouseAlarms.AsNoTracking()
+                        .Include(i => i.DocumentType)
+                        .Where(w => (dbContext.Format(w.AlarmDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
+                                    w.DocumentType!.DocumentTypeName.Contains(searchKey) ||
+                                    w.DocumentNumber.ToString().Contains(searchKey)) &&
+                                    !dbContext.VisualizedLocalWarehouseAlarms.AsNoTracking().Any(j => j.LocalWarehouseAlarmId == w.LocalWarehouseAlarmId &&
+                                                                                                      j.EmployeeId == employeeId))
+                        .ToListAsync(ct));
+            }, ct);
         }
     }
 }

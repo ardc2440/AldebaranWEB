@@ -134,7 +134,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                       .Include(i => i.Provider.IdentityType)
                       .Include(i => i.ShipmentForwarderAgentMethod.ShipmentMethod)
                       .Include(i => i.ShipmentForwarderAgentMethod.ForwarderAgent)
-                      .Include(i => i.StatusDocumentType.DocumentType)
+                      .Include(i => i.StatusDocumentType.DocumentType)                      
                       .Where(w => w.PurchaseOrderId == purchaseOrderId)
                       .FirstOrDefaultAsync(ct);
             }, ct);

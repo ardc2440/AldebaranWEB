@@ -29,7 +29,7 @@ namespace Aldebaran.DataAccess.Core.Triggers
 
             var referenceList = await _context.ItemReferences
                 .AsNoTracking()
-                .Where(r => referenceIds.Contains(r.ReferenceId))
+                .Where(w => referenceIds.Contains(w.ReferenceId))
                 .ToListAsync(cancellationToken);
 
             if (referenceList.Count != referenceIds.Count)
@@ -40,18 +40,20 @@ namespace Aldebaran.DataAccess.Core.Triggers
 
             var customerOrderList = await _context.CustomerOrders
                 .AsNoTracking()
-                .Where(w => w.CustomerOrderDetails.Any(a => referenceIds.Contains(a.ReferenceId) &&
+                .Include(i=>i.StatusDocumentType)
+                .Where(w => (new[] {1,2,3 }).Contains(w.StatusDocumentType.StatusOrder) &&
+                            w.CustomerOrderDetails.Any(a => referenceIds.Contains(a.ReferenceId) &&
                                                             (a.RequestedQuantity - a.ProcessedQuantity - a.DeliveredQuantity) > 0))
-                .Select(order => new {
-                    order.CustomerOrderId,
-                    RelevantDetails = order.CustomerOrderDetails
-                                        .Where(a => referenceIds.Contains(a.ReferenceId) &&
-                                                    (a.RequestedQuantity - a.ProcessedQuantity - a.DeliveredQuantity) > 0)
-                                        .Select(a => new
-                                        {
-                                            a.ReferenceId,
-                                            PendingQuantity = a.RequestedQuantity - a.ProcessedQuantity - a.DeliveredQuantity
-                                        })
+                .Select(s => new {
+                    AlarmOrderId = s.CustomerOrderId,
+                    Details = s.CustomerOrderDetails
+                                    .Where(w => referenceIds.Contains(w.ReferenceId) &&
+                                                (w.RequestedQuantity - w.ProcessedQuantity - w.DeliveredQuantity) > 0)
+                                    .Select(s => new
+                                    {
+                                        s.ReferenceId,
+                                        PendingQuantity = s.RequestedQuantity - s.ProcessedQuantity - s.DeliveredQuantity
+                                    })
                 }).ToListAsync(cancellationToken);
 
             var jReferenceList = JsonConvert.SerializeObject(referenceList.Select(s => new { s.ReferenceId }));

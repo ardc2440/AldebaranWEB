@@ -17,5 +17,6 @@ namespace Aldebaran.Application.Services
         Task<IEnumerable<MinimumQuantityArticle>> GetMinimumQuantityAlarmsAsync(int employeeId, string? searchKey = null, CancellationToken ct = default);
         Task<IEnumerable<PurchaseOrderNotification>> GetNotificationsByModifiedPurchaseOrder(int modifiedPurchaseOrderId, CancellationToken ct = default);
         Task<IEnumerable<MinimumLocalWarehouseQuantityArticle>> GetMinimumLocalWarehouseQuantityAlarmsAsync(int employeeId, string? searchKey = null, CancellationToken ct = default);
+        Task<IEnumerable<LocalWarehouseAlarm>> GetLocalWarehouseAlarm(int employeeId, string? searchKey = null, CancellationToken ct = default);
     }
 }

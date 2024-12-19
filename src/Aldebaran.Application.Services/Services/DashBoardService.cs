@@ -80,5 +80,10 @@ namespace Aldebaran.Application.Services
             return _mapper.Map<IEnumerable<MinimumLocalWarehouseQuantityArticle>>(data);
         }
 
+        public async Task<IEnumerable<LocalWarehouseAlarm>> GetLocalWarehouseAlarm(int employeeId, string? searchKey = null, CancellationToken ct = default)
+        {
+            var data = await _repository.GetLocalWarehouseAlarmAsync(employeeId, searchKey, ct);
+            return _mapper.Map<IEnumerable<LocalWarehouseAlarm>>(data);
+        }
     }
 }
