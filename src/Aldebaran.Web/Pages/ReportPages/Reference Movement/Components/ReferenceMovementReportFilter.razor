@@ -4,8 +4,18 @@
 <RadzenColumn SizeMD=12>
     <RadzenTemplateForm TItem="ViewModel.ReferenceMovementFilter" Data="Filter" Submit="@FormSubmit">
         <RadzenRow class="rz-p-2 rz-text-align-start" Visible="@Filter.AllMovementCheckVisible">
-            <RadzenCheckBox onclick="@OnClick" TValue="bool" @bind-Value="@Filter.ShowAllMovement" Name="ShowAllMovement" Change="@(args => StateHasChanged())"/>
-            <RadzenLabel Text="Incluir todos los movimientos" Component="ShowAllMovement" class="rz-ms-2" />            
+            <RadzenCheckBox TValue="bool" @bind-Value="@Filter.ShowAllMovement" Name="ShowAllMovement" Change="@(args => StateHasChanged())" />
+            <RadzenLabel Text="Incluir todos los movimientos" Component="ShowAllMovement" class="rz-ms-2" />
+        </RadzenRow>
+        <RadzenRow class="rz-p-2 rz-text-align-start" Visible="@(!Filter.AllMovementCheckVisible)">
+            <RadzenColumn Size="6">
+                <RadzenCheckBox TValue="bool" @bind-Value="@Filter.ShowInactiveItems" Name="ShowInactiveItems" onclick="@OnItemCheckboxClick" />
+                <RadzenLabel Text="Items Inactivos" Component="ShowInactiveItems" class="rz-ms-2" />                
+            </RadzenColumn>
+            <RadzenColumn Size="6">
+                <RadzenCheckBox Disabled="Filter.ShowInactiveItems" TValue="bool" @bind-Value="@Filter.ShowInactiveReferences" Name="ShowInactiveReferences" onclick="@OnReferenceCheckboxClick" />
+                <RadzenLabel Text="Referencias Inactivas" Component="ShowInactiveReferences" class="rz-ms-2" />                
+            </RadzenColumn>
         </RadzenRow>
         <RadzenRow style="margin-bottom: 1rem">
             <RadzenColumn Size="6">

@@ -31,26 +31,12 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement.Components
 
         #endregion
 
-        protected async Task OnClick()
-        {
-            Console.WriteLine(Filter.ShowAllMovement);
-            StateHasChanged();
-        }
-
+        #region Overrides
         protected override async Task OnInitializedAsync()
         {
-            Filter ??= new ReferenceMovementFilter();
-
-            var references = new List<ItemReference>();
-            
-            if (Filter?.ItemReferences?.Any() == true)
-                references.Add(await ItemReferenceService.FindAsync(Filter.ItemReferences.FirstOrDefault().ReferenceId));
-            else
-                references = (await ItemReferenceService.GetReportsReferencesAsync()).ToList();
-            
-            AvailableItemReferencesForSelection = references;
-            referencePicker.SetAvailableItemReferencesForSelection(AvailableItemReferencesForSelection);
+            await AvailableReferenceFilter();
         }
+
         public override async Task SetParametersAsync(ParameterView parameters)
         {
             await base.SetParametersAsync(parameters);
@@ -60,7 +46,49 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement.Components
             }
             StateHasChanged();
         }
+        #endregion
+
         #region Events
+        protected async Task OnItemCheckboxClick()
+        {
+            Filter.ShowInactiveReferences = false;
+            
+            Filter?.ItemReferences.Clear();
+            await AvailableReferenceFilter();
+        }
+
+        protected async Task OnReferenceCheckboxClick()
+        {
+            if (Filter.ShowInactiveItems)
+            {
+                Filter.ShowInactiveReferences = false;
+                return;
+            }
+
+            Filter?.ItemReferences.Clear();
+            await AvailableReferenceFilter();
+        }
+
+        protected async Task AvailableReferenceFilter()
+        {
+            Filter ??= new ReferenceMovementFilter();
+
+            var references = new List<ItemReference>();
+
+            if (Filter?.ItemReferences?.Any() == true && Filter.AllMovementCheckVisible) /* Muestra solo la referencia seleccionada en las alarmas*/
+                references.Add(await ItemReferenceService.FindAsync(Filter.ItemReferences.FirstOrDefault().ReferenceId));
+            else if ((bool)Filter?.ShowInactiveItems) /* Lista solo items inactivos */
+                references = (await ItemReferenceService.GetReportsReferencesAsync(isItemActive: false)).ToList();
+            else if ((bool)Filter?.ShowInactiveReferences) /* lista solo referencias inactivas y los items asociados a esas refrencias*/
+                references = (await ItemReferenceService.GetReportsReferencesAsync(isReferenceActive: false)).ToList();
+            else /* Muestra solo Items y referencias activas */
+                references = (await ItemReferenceService.GetReportsReferencesAsync(isItemActive: true, isReferenceActive: true)).ToList();
+
+            AvailableItemReferencesForSelection = references;
+            referencePicker.SetAvailableItemReferencesForSelection(AvailableItemReferencesForSelection);
+
+            StateHasChanged();
+        }
         protected async Task FormSubmit()
         {
             try

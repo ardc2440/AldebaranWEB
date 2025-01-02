@@ -10,5 +10,9 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement.ViewModel
         public bool AllMovementCheckVisible { get; set; } = false;
         public bool ShowAllMovement { get; set; } = false;
         public bool AllRequiredFieldsCompleted => MovementDate.StartDate != null && MovementDate.EndDate != null && ItemReferences.Any();
+        public bool ShowInactiveItems { get; set; } = false;
+        public bool ShowInactiveReferences { get; set; } = false;
+
+
     }
 }

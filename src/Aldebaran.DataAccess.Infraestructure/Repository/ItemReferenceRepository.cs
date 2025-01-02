@@ -157,7 +157,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             {
                 return await dbContext.ItemReferences.AsNoTracking()
                .Include(i => i.Item.Line)
-               .Where(i => (i.IsActive || isReferenceActive == null) && (i.Item.IsActive || isItemActive == null) && (i.Item.IsExternalInventory || isExternalInventory == null))
+               .Where(i => ((i.IsActive == isReferenceActive) || (isReferenceActive == null)) && ((i.Item.IsActive == isItemActive) || (isItemActive == null)) && (i.Item.IsExternalInventory || isExternalInventory == null))
                .ToListAsync(ct);
             }, ct);
         }
