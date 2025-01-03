@@ -86,5 +86,17 @@ namespace Aldebaran.Application.Services
             var data = _mapper.Map<IEnumerable<PurchaseOrder>>(d);
             return (data, r);
         }
+
+        /* Logs */
+        public async Task<(IEnumerable<ModifiedPurchaseOrder>, int count)> GetPurchaseOrderModificationsLogAsync(int skip, int top, string searchKey, CancellationToken ct = default)
+        {
+            var (data, c) = await _repository.GetPurchaseOrderModificationsLogAsync(skip, top, searchKey, ct);
+            return (_mapper.Map<IEnumerable<ModifiedPurchaseOrder>>(data), c);
+        }
+        public async Task<(IEnumerable<CanceledPurchaseOrder>, int count)> GetPurchaseOrderCancellationsLogAsync(int skip, int top, string searchKey, CancellationToken ct = default)
+        {
+            var (data, c) = await _repository.GetPurchaseOrderCancellationsLogAsync(skip, top, searchKey, ct);
+            return (_mapper.Map<IEnumerable<CanceledPurchaseOrder>>(data), c);
+        }
     }
 }

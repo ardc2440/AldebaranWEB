@@ -1,5 +1,5 @@
 ﻿@page "/customer_order_modify_log"
-@attribute [Authorize(Roles = "Administrador,Consulta de artículos,Modificación de artículos")]
+@attribute [Authorize(Roles = "Administrador,Log de pedidos")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @using ServiceModel = Aldebaran.Application.Services.Models;
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer ;
@@ -45,8 +45,8 @@
                                 <span>@modification.ModificationDate.ToString(SharedLocalizer["date:format"])</span>
                             </Template>
                         </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="ServiceModel.ModifiedCustomerOrder" Property="ModificationReason.ModificationReasonName" Title="Motivo cancelación" Width="90%" />
-                        <RadzenDataGridColumn TItem="ServiceModel.ModifiedCustomerOrder" Property="Employee.FullName" Title="Cancelado por" Width="50%" />
+                        <RadzenDataGridColumn TItem="ServiceModel.ModifiedCustomerOrder" Property="ModificationReason.ModificationReasonName" Title="Motivo modificación" Width="90%" />
+                        <RadzenDataGridColumn TItem="ServiceModel.ModifiedCustomerOrder" Property="Employee.FullName" Title="Moddificado por" Width="50%" />
                     </Columns>
                 </LocalizedDataGrid>
             </RadzenColumn>

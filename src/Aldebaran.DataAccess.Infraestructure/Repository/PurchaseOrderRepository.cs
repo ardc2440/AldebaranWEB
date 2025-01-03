@@ -4,6 +4,7 @@ using Aldebaran.DataAccess.Infraestructure.Models;
 using Aldebaran.Infraestructure.Common.Utils;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.Linq.Dynamic.Core;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
@@ -320,6 +321,55 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 var count = query.Count();
                 var data = await query.Skip(skip).Take(take).ToListAsync(ct);
                 return (data, count);
+            }, ct);
+        }
+
+        /* Logs */
+        public async Task<(IEnumerable<ModifiedPurchaseOrder>, int count)> GetPurchaseOrderModificationsLogAsync(int skip, int top, string searchKey, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                var a = dbContext.ModifiedPurchaseOrders.AsNoTracking()
+                            .Include(i => i.PurchaseOrder.Provider)
+                            .Include(i => i.PurchaseOrder.Employee)
+                            .Include(i => i.Employee)
+                            .Include(i => i.ModificationReason)
+                            .Where(i => (i.PurchaseOrder.OrderNumber.Contains(searchKey) ||
+                                         i.PurchaseOrder.Provider.ProviderName.Contains(searchKey) ||
+                                         i.PurchaseOrder.Provider.IdentityNumber.Contains(searchKey) ||
+                                         i.Employee.FullName.Contains(searchKey) ||
+                                         i.ModificationReason.ModificationReasonName.Contains(searchKey) ||
+                                         dbContext.Format(i.ModificationDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
+                                         dbContext.Format(i.PurchaseOrder.RequestDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
+                                         dbContext.Format(i.PurchaseOrder.ExpectedReceiptDate, _SharedLocalizer["date:format"]).Contains(searchKey))
+                                         || searchKey.IsNullOrEmpty())
+                            .OrderByDescending(o => o.PurchaseOrder.OrderNumber);
+
+                return (await a.Skip(skip).Take(top).ToListAsync(), await a.CountAsync(ct));
+            }, ct);
+        }
+
+        public async Task<(IEnumerable<CanceledPurchaseOrder>, int count)> GetPurchaseOrderCancellationsLogAsync(int skip, int top, string searchKey, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                var a = dbContext.CanceledPurchaseOrders.AsNoTracking()
+                            .Include(i => i.PurchaseOrder.Provider)
+                            .Include(i => i.PurchaseOrder.Employee)
+                            .Include(i => i.Employee)
+                            .Include(i => i.CancellationReason)
+                            .Where(i => (i.PurchaseOrder.OrderNumber.Contains(searchKey) ||
+                                         i.PurchaseOrder.Provider.ProviderName.Contains(searchKey) ||
+                                         i.PurchaseOrder.Provider.IdentityNumber.Contains(searchKey) ||
+                                         i.Employee.FullName.Contains(searchKey) ||
+                                         i.CancellationReason.CancellationReasonName.Contains(searchKey) ||
+                                         dbContext.Format(i.CancellationDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
+                                         dbContext.Format(i.PurchaseOrder.RequestDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
+                                         dbContext.Format(i.PurchaseOrder.ExpectedReceiptDate, _SharedLocalizer["date:format"]).Contains(searchKey))
+                                         || searchKey.IsNullOrEmpty())
+                            .OrderByDescending(o => o.PurchaseOrder.OrderNumber);
+
+                return (await a.Skip(skip).Take(top).ToListAsync(), await a.CountAsync(ct));
             }, ct);
         }
     }

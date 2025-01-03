@@ -60,5 +60,17 @@ namespace Aldebaran.Application.Services
             var data = _mapper.Map<IEnumerable<CustomerReservation>>(d);
             return (data, r);
         }
+
+        /* Logs */
+        public async Task<(IEnumerable<ModifiedCustomerReservation>, int count)> GetCustomerReservationModificationsLogAsync(int skip, int top, string searchKey, CancellationToken ct = default)
+        {
+            var (data, c) = await _repository.GetCustomerReservationModificationsLogAsync(skip, top, searchKey, ct);
+            return (_mapper.Map<IEnumerable<ModifiedCustomerReservation>>(data), c);
+        }
+        public async Task<(IEnumerable<CanceledCustomerReservation>, int count)> GetCustomerReservationCancellationsLogAsync(int skip, int top, string searchKey, CancellationToken ct = default)
+        {
+            var (data, c) = await _repository.GetCustomerReservationCancellationsLogAsync(skip, top, searchKey, ct);
+            return (_mapper.Map<IEnumerable<CanceledCustomerReservation>>(data), c);
+        }
     }
 }

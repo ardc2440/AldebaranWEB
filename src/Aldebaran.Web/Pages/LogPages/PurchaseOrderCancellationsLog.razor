@@ -1,5 +1,55 @@
-﻿<h3>PurchaseOrderCancellationsLog</h3>
+﻿@page "/purchase_order_cancel_log"
+@attribute [Authorize(Roles = "Administrador,Log de ordenes de compra")]
+@using Aldebaran.Web.Resources.LocalizedControls;
+@using ServiceModel = Aldebaran.Application.Services.Models;
+@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer ;
 
-@code {
+<PageTitle>Artículos</PageTitle>
+<LoadingData IsLoadingData="@isLoadingInProgress" />
 
+@if (!isLoadingInProgress)
+{
+    <RadzenStack>
+        <RadzenRow AlignItems="AlignItems.Center">
+            <RadzenColumn Size="12">
+                <RadzenText Text="Log de cancelación de pedidos" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
+        <RadzenRow>
+            <RadzenColumn SizeMD=12>
+                <LocalizedDataGrid Count="@count" LoadData="@LoadData" @ref="CanceledPurchaseOrdersDataGrid" ColumnWidth="120px" AllowPaging="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                   Data="@CanceledPurchaseOrders" TItem="ServiceModel.CanceledPurchaseOrder" AllowColumnResize="true" EditMode="Radzen.DataGridEditMode.Single"
+                                   ExpandMode="Radzen.DataGridExpandMode.Single">
+                    <Columns>
+                        <RadzenDataGridColumn TItem="ServiceModel.CanceledPurchaseOrder" Property="PurchaseOrder.Provider.ProviderName" Title="Proveedor" Width="90%" />
+                        <RadzenDataGridColumn TItem="ServiceModel.CanceledPurchaseOrder" Property="PurchaseOrder.OrderNumber" Title="Número de orden" Width="40%">
+                            <Template Context="cancellation">
+                                <RadzenLink href="javascript:void(0);" @onclick="@(async (args) => await PurchaseOrderDetailInfo(cancellation.PurchaseOrder.PurchaseOrderId))">
+                                    @cancellation.PurchaseOrder.OrderNumber
+                                </RadzenLink>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.CanceledPurchaseOrder" Property="PurchaseOrder.RequestDate" Title="Fecha de solicitud" Width="40%">
+                            <Template Context="cancellation">
+                                <span>@cancellation.PurchaseOrder.RequestDate.ToString(SharedLocalizer["date:format"])</span>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.CanceledPurchaseOrder" Property="PurchaseOrder.ExpectedReceiptDate" Title="Llegada esperada" Width="40%">
+                            <Template Context="cancellation">
+                                <span>@cancellation.PurchaseOrder.ExpectedReceiptDate.ToString(SharedLocalizer["date:format"])</span>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.CanceledPurchaseOrder" Property="CancellationDate" Title="Fecha de cancelación" Width="50%">
+                            <Template Context="cancellation">
+                                <span>@cancellation.CancellationDate.ToString(SharedLocalizer["date:format"])</span>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.CanceledPurchaseOrder" Property="CancellationReason.CancellationReasonName" Title="Motivo cancelación" Width="90%" />
+                        <RadzenDataGridColumn TItem="ServiceModel.CanceledPurchaseOrder" Property="Employee.FullName" Title="Cancelado por" Width="50%" />
+                    </Columns>
+                </LocalizedDataGrid>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenStack>
 }

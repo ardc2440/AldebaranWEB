@@ -2,6 +2,7 @@
 using Aldebaran.DataAccess.Infraestructure.Models;
 using Aldebaran.Infraestructure.Common.Utils;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.Linq.Dynamic.Core;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
@@ -263,5 +264,54 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 return (data, count);
             }, ct);
         }
+
+        /* Logs */
+        public async Task<(IEnumerable<ModifiedCustomerReservation>, int count)> GetCustomerReservationModificationsLogAsync(int skip, int top, string searchKey, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                var a = dbContext.ModifiedCustomerReservations.AsNoTracking()
+                            .Include(i => i.CustomerReservation.Customer)
+                            .Include(i => i.CustomerReservation.Employee)
+                            .Include(i => i.Employee)
+                            .Include(i => i.ModificationReason)
+                            .Where(i => (i.CustomerReservation.ReservationNumber.Contains(searchKey) ||
+                                         i.CustomerReservation.Customer.CustomerName.Contains(searchKey) ||
+                                         i.CustomerReservation.Customer.IdentityNumber.Contains(searchKey) ||
+                                         i.Employee.FullName.Contains(searchKey) ||
+                                         i.ModificationReason.ModificationReasonName.Contains(searchKey) ||
+                                         dbContext.Format(i.ModificationDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
+                                         dbContext.Format(i.CustomerReservation.ReservationDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
+                                         dbContext.Format(i.CustomerReservation.ExpirationDate, _SharedLocalizer["date:format"]).Contains(searchKey))
+                                         || searchKey.IsNullOrEmpty())
+                            .OrderByDescending(o => o.CustomerReservation.ReservationNumber);
+
+                return (await a.Skip(skip).Take(top).ToListAsync(), await a.CountAsync(ct));
+            }, ct);
+        }
+
+        public async Task<(IEnumerable<CanceledCustomerReservation>, int count)> GetCustomerReservationCancellationsLogAsync(int skip, int top, string searchKey, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                var a = dbContext.CanceledCustomerReservations.AsNoTracking()
+                            .Include(i => i.CustomerReservation.Customer)
+                            .Include(i => i.CustomerReservation.Employee)
+                            .Include(i => i.Employee)
+                            .Include(i => i.CancellationReason)
+                            .Where(i => (i.CustomerReservation.ReservationNumber.Contains(searchKey) ||
+                                         i.CustomerReservation.Customer.CustomerName.Contains(searchKey) ||
+                                         i.CustomerReservation.Customer.IdentityNumber.Contains(searchKey) ||
+                                         i.Employee.FullName.Contains(searchKey) ||
+                                         i.CancellationReason.CancellationReasonName.Contains(searchKey) ||
+                                         dbContext.Format(i.CancellationDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
+                                         dbContext.Format(i.CustomerReservation.ReservationDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
+                                         dbContext.Format(i.CustomerReservation.ExpirationDate, _SharedLocalizer["date:format"]).Contains(searchKey))
+                                         || searchKey.IsNullOrEmpty())
+                            .OrderByDescending(o => o.CustomerReservation.ReservationNumber);
+
+                return (await a.Skip(skip).Take(top).ToListAsync(), await a.CountAsync(ct));
+            }, ct);
+        }              
     }
 }
