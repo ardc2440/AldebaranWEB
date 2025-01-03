@@ -124,6 +124,12 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
             if (filter.ItemReferences.Count > 0)
                 filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReferenceIds = '{String.Join(",", Filter.ItemReferences.Select(s => s.ReferenceId))}'";
 
+            if (filter.ShowInactiveItems)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + "@InactiveItems = 1";
+
+            if (filter.ShowInactiveReferences)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + "@InactiveReferences = 1";
+
             return filterResult;
         }
 

@@ -72,12 +72,31 @@
                 <RadzenPanelMenuItem Text="Despacho de pedidos procesados" Path="shipment-customer-orders" Visible=@Security.IsInRole("Administrador","Consulta de despachos","Modificación de despachos") />
                 <RadzenPanelMenuItem Text="Ajustes de inventario" Path="adjustments" Visible=@Security.IsInRole("Administrador","Modificación de ajustes de inventario","Consulta de ajustes de inventario") />
                 <RadzenPanelMenuItem Text="Traslado entre bodegas" Path="warehouse-transfers" Visible=@Security.IsInRole("Administrador","Modificación de traslados entre bodegas","Consulta de traslados entre bodegas") />
-                @if (Security.IsInRole("Administrador","Consulta de solicitudes de cancelación de ordenes de compra","Consulta de solicitudes de cancelación de pedidos","Consulta de solicitudes de cierre de pedidos","Aprobación de solicitudes de cancelación de ordenes de compra","Aprobación de solicitudes de cancelación de pedidos","Aprobación de solicitudes de cierre de pedidos"))
+                @if (Security.IsInRole("Administrador", "Consulta de solicitudes de cancelación de ordenes de compra", "Consulta de solicitudes de cancelación de pedidos", "Consulta de solicitudes de cierre de pedidos", "Aprobación de solicitudes de cancelación de ordenes de compra", "Aprobación de solicitudes de cancelación de pedidos", "Aprobación de solicitudes de cierre de pedidos"))
                 {
                     <hr class="divider">
                     <RadzenPanelMenuItem Text="Gestion de Solicitudes Operativas" Icon="assessment">
                         <RadzenPanelMenuItem Text="Solicitudes operativas atendidas" Path="attended-operative-request" Visible=@Security.IsInRole("Administrador","Consulta de solicitudes de cancelación de ordenes de compra","Consulta de solicitudes de cancelación de pedidos","Consulta de solicitudes de cierre de pedidos") />
                         <RadzenPanelMenuItem Text="Solicitudes operativas pendientes" Path="pending-operative-request" Visible=@Security.IsInRole("Administrador","Aprobación de solicitudes de cancelación de ordenes de compra","Aprobación de solicitudes de cancelación de pedidos","Aprobación de solicitudes de cierre de pedidos") />
+                    </RadzenPanelMenuItem>
+                }
+                @if (Security.IsInRole("Administrador", "Log de ordenes de compra", "Log de pedidos", "Log de reservas"))
+                {
+                    <hr class="divider">
+                    <RadzenPanelMenuItem Text="Consulta de Log" Icon="history">
+                        <RadzenPanelMenuItem Text="Log de ordenes" Icon="shopping_bag" Visible=@Security.IsInRole("Administrador","Log de ordenes de compra")>
+                            <RadzenPanelMenuItem Text="Modificación" Path="purchase_order_modify_log"/>
+                            <RadzenPanelMenuItem Text="Cancelación" Path="purchase_order_cancel_log" />
+                        </RadzenPanelMenuItem>
+                        <RadzenPanelMenuItem Text="Log de pedidos" Icon="shopping_cart" Visible=@Security.IsInRole("Administrador","Log de pedidos")>
+                            <RadzenPanelMenuItem Text="Modificación" Path="customer_order_modify_log" />
+                            <RadzenPanelMenuItem Text="Cancelación" Path="customer_order_cancel_log" />
+                            <RadzenPanelMenuItem Text="Cierre" Path="customer_order_close_log" />
+                        </RadzenPanelMenuItem>
+                        <RadzenPanelMenuItem Text="Log de reservas" Icon="shopping_basket" Visible=@Security.IsInRole("Administrador","Log de reservas")>
+                            <RadzenPanelMenuItem Text="Modificación" Path="customer_reservation_modify_log" />
+                            <RadzenPanelMenuItem Text="Cancelación" Path="customer_reservation_cancel_log" />
+                        </RadzenPanelMenuItem>
                     </RadzenPanelMenuItem>
                 }
             </RadzenPanelMenuItem>
@@ -104,7 +123,7 @@
             </RadzenPanelMenuItem>
         </RadzenPanelMenu>
         <RadzenStack AlignItems="Radzen.AlignItems.Center" Gap="0" class="rz-py-4 rz-py-lg-6" Style="padding: var(--rz-panel-menu-item-padding);">
-            <RadzenText Text="Aldebaran.Web v5.7.0" TextStyle="Radzen.Blazor.TextStyle.Caption" style="color: var(--rz-text-disabled-color);" TagName="Radzen.Blazor.TagName.P" TextAlign="Radzen.TextAlign.Center" />
+            <RadzenText Text="Aldebaran.Web v5.8.0" TextStyle="Radzen.Blazor.TextStyle.Caption" style="color: var(--rz-text-disabled-color);" TagName="Radzen.Blazor.TagName.P" TextAlign="Radzen.TextAlign.Center" />
             <RadzenText Text="Copyright Ⓒ 2024" TextStyle="Radzen.Blazor.TextStyle.Caption" class="rz-mb-0" style="color: var(--rz-text-disabled-color);" TagName="Radzen.Blazor.TagName.P" TextAlign="Radzen.TextAlign.Center" />
         </RadzenStack>
     </RadzenSidebar>

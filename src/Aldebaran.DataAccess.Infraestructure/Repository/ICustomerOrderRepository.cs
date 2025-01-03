@@ -13,6 +13,11 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         Task<CustomerOrder?> FindAsync(int customerOrderId, CancellationToken ct = default);
         Task CancelAsync(int customerOrderId, short canceledStatusDocumentId, Reason reason, CancellationToken ct = default);
         Task CloseAsync(int customerOrderId, short closedStatusDocumentId, Reason reason, CancellationToken ct = default);
-        Task UpdateAsync(int customerOrderId, CustomerOrder customerOrder, Reason reason, CancellationToken ct = default);        
+        Task UpdateAsync(int customerOrderId, CustomerOrder customerOrder, Reason reason, CancellationToken ct = default);
+
+        /* Logs */
+        Task<(IEnumerable<ModifiedCustomerOrder>, int count)> GetCustomerOrderModificationsLogAsync(int skip, int top, string searchKey, CancellationToken ct = default);
+        Task<(IEnumerable<CanceledCustomerOrder>, int count)> GetCustomerOrderCancellationsLogAsync(int skip, int top, string searchKey, CancellationToken ct = default);
+        Task<(IEnumerable<ClosedCustomerOrder>, int count)> GetCustomerOrderClosesLogAsync(int skip, int top, string searchKey, CancellationToken ct = default);
     }
 }

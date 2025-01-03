@@ -2,6 +2,7 @@
 using Aldebaran.DataAccess.Infraestructure.Models;
 using Aldebaran.Infraestructure.Common.Utils;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
@@ -311,6 +312,77 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     dbContext.Entry(reasonEntity).State = EntityState.Unchanged;
                     throw;
                 }
+            }, ct);
+        }
+
+        /* Logs */
+        public async Task<(IEnumerable<ModifiedCustomerOrder>, int count)> GetCustomerOrderModificationsLogAsync(int skip, int top, string searchKey, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                var a = dbContext.ModifiedCustomerOrders.AsNoTracking()
+                            .Include(i => i.CustomerOrder.Customer)
+                            .Include(i => i.CustomerOrder.Employee)
+                            .Include(i => i.Employee)
+                            .Include(i => i.ModificationReason)
+                            .Where(i => (i.CustomerOrder.OrderNumber.Contains(searchKey) ||
+                                         i.CustomerOrder.Customer.CustomerName.Contains(searchKey) ||
+                                         i.CustomerOrder.Customer.IdentityNumber.Contains(searchKey) ||
+                                         i.Employee.FullName.Contains(searchKey) ||
+                                         i.ModificationReason.ModificationReasonName.Contains(searchKey) ||
+                                         dbContext.Format(i.ModificationDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
+                                         dbContext.Format(i.CustomerOrder.OrderDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
+                                         dbContext.Format(i.CustomerOrder.EstimatedDeliveryDate, _SharedLocalizer["date:format"]).Contains(searchKey))
+                                         || searchKey.IsNullOrEmpty())
+                            .OrderByDescending(o => o.CustomerOrder.OrderNumber);
+
+                return (await a.Skip(skip).Take(top).ToListAsync(), await a.CountAsync(ct));
+            }, ct);
+        }
+        public async Task<(IEnumerable<CanceledCustomerOrder>, int count)> GetCustomerOrderCancellationsLogAsync(int skip, int top, string searchKey, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                var a = dbContext.CanceledCustomerOrders.AsNoTracking()
+                            .Include(i => i.CustomerOrder.Customer)
+                            .Include(i => i.CustomerOrder.Employee)
+                            .Include(i => i.Employee)
+                            .Include(i => i.CancellationReason)
+                            .Where(i => (i.CustomerOrder.OrderNumber.Contains(searchKey) ||
+                                         i.CustomerOrder.Customer.CustomerName.Contains(searchKey) ||
+                                         i.CustomerOrder.Customer.IdentityNumber.Contains(searchKey) ||
+                                         i.Employee.FullName.Contains(searchKey) ||
+                                         i.CancellationReason.CancellationReasonName.Contains(searchKey) ||
+                                         dbContext.Format(i.CancellationDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
+                                         dbContext.Format(i.CustomerOrder.OrderDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
+                                         dbContext.Format(i.CustomerOrder.EstimatedDeliveryDate, _SharedLocalizer["date:format"]).Contains(searchKey))
+                                         || searchKey.IsNullOrEmpty())
+                            .OrderByDescending(o => o.CustomerOrder.OrderNumber);
+
+                return (await a.Skip(skip).Take(top).ToListAsync(), await a.CountAsync(ct));
+            }, ct);
+        }
+        public async Task<(IEnumerable<ClosedCustomerOrder>, int count)> GetCustomerOrderClosesLogAsync(int skip, int top, string searchKey, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                var a = dbContext.ClosedCustomerOrders.AsNoTracking()
+                            .Include(i => i.CustomerOrder.Customer)
+                            .Include(i => i.CustomerOrder.Employee)
+                            .Include(i => i.Employee)
+                            .Include(i => i.CloseCustomerOrderReason)
+                            .Where(i => (i.CustomerOrder.OrderNumber.Contains(searchKey) ||
+                                         i.CustomerOrder.Customer.CustomerName.Contains(searchKey) ||
+                                         i.CustomerOrder.Customer.IdentityNumber.Contains(searchKey) ||
+                                         i.Employee.FullName.Contains(searchKey) ||
+                                         i.CloseCustomerOrderReason.CloseReasonName.Contains(searchKey) ||
+                                         dbContext.Format(i.CloseDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
+                                         dbContext.Format(i.CustomerOrder.OrderDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
+                                         dbContext.Format(i.CustomerOrder.EstimatedDeliveryDate, _SharedLocalizer["date:format"]).Contains(searchKey))
+                                         || searchKey.IsNullOrEmpty())
+                            .OrderByDescending(o => o.CustomerOrder.OrderNumber);
+
+                return (await a.Skip(skip).Take(top).ToListAsync(), await a.CountAsync(ct));
             }, ct);
         }
     }

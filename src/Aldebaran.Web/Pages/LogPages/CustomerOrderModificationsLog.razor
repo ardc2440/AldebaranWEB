@@ -1,0 +1,55 @@
+﻿@page "/customer_order_modify_log"
+@attribute [Authorize(Roles = "Administrador,Consulta de artículos,Modificación de artículos")]
+@using Aldebaran.Web.Resources.LocalizedControls;
+@using ServiceModel = Aldebaran.Application.Services.Models;
+@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer ;
+
+<PageTitle>Artículos</PageTitle>
+<LoadingData IsLoadingData="@isLoadingInProgress" />
+
+@if (!isLoadingInProgress)
+{
+    <RadzenStack>
+        <RadzenRow AlignItems="AlignItems.Center">
+            <RadzenColumn Size="12">
+                <RadzenText Text="Log de cancelación de pedidos" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
+        <RadzenRow>
+            <RadzenColumn SizeMD=12>
+                <LocalizedDataGrid Count="@count" LoadData="@LoadData" @ref="ModifiedCustomerOrdersDataGrid" ColumnWidth="120px" AllowPaging="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                   Data="@ModifiedCustomerOrders" TItem="ServiceModel.ModifiedCustomerOrder" AllowColumnResize="true" EditMode="Radzen.DataGridEditMode.Single"
+                                   ExpandMode="Radzen.DataGridExpandMode.Single">
+                    <Columns>
+                        <RadzenDataGridColumn TItem="ServiceModel.ModifiedCustomerOrder" Property="CustomerOrder.Customer.CustomerName" Title="Cliente" Width="90%" />
+                        <RadzenDataGridColumn TItem="ServiceModel.ModifiedCustomerOrder" Property="CustomerOrder.OrderNumber" Title="Número de pedido" Width="40%">
+                            <Template Context="modification">
+                                <RadzenLink href="javascript:void(0);" @onclick="@(async (args) => await CustomerOrderDetailInfo(modification.CustomerOrder.CustomerOrderId))">
+                                    @modification.CustomerOrder.OrderNumber
+                                </RadzenLink>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.ModifiedCustomerOrder" Property="CustomerOrder.OrderDate" Title="Fecha de pedido" Width="40%">
+                            <Template Context="modification">
+                                <span>@modification.CustomerOrder.OrderDate.ToString(SharedLocalizer["date:format"])</span>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.ModifiedCustomerOrder" Property="CustomerOrder.EstimatedDeliveryDate" Title="Entrega estimada" Width="40%">
+                            <Template Context="modification">
+                                <span>@modification.CustomerOrder.EstimatedDeliveryDate.ToString(SharedLocalizer["date:format"])</span>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.ModifiedCustomerOrder" Property="ModificationDate" Title="Fecha de modificación" Width="50%">
+                            <Template Context="modification">
+                                <span>@modification.ModificationDate.ToString(SharedLocalizer["date:format"])</span>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.ModifiedCustomerOrder" Property="ModificationReason.ModificationReasonName" Title="Motivo cancelación" Width="90%" />
+                        <RadzenDataGridColumn TItem="ServiceModel.ModifiedCustomerOrder" Property="Employee.FullName" Title="Cancelado por" Width="50%" />
+                    </Columns>
+                </LocalizedDataGrid>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenStack>
+}

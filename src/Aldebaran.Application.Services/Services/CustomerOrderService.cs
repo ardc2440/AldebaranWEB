@@ -68,6 +68,23 @@ namespace Aldebaran.Application.Services
             var entity = _mapper.Map<Entities.CustomerOrder>(customerOrder) ?? throw new ArgumentNullException("Pedido no puede ser nulo.");
             var mapReason = _mapper.Map<DataAccess.Infraestructure.Models.Reason>(reason);
             await _repository.UpdateAsync(customerOrderId, entity, mapReason, ct);
-        }        
+        }
+
+        /* Logs */
+        public async Task<(IEnumerable<ModifiedCustomerOrder>, int count)> GetCustomerOrderModificationsLogAsync(int skip, int top, string searchKey, CancellationToken ct = default)
+        {
+            var (data, c) = await _repository.GetCustomerOrderModificationsLogAsync(skip, top, searchKey, ct);
+            return (_mapper.Map<IEnumerable<ModifiedCustomerOrder>>(data), c);
+        }
+        public async Task<(IEnumerable<CanceledCustomerOrder>, int count)> GetCustomerOrderCancellationsLogAsync(int skip, int top, string searchKey, CancellationToken ct = default)
+        {
+            var (data, c) = await _repository.GetCustomerOrderCancellationsLogAsync(skip, top, searchKey, ct);
+            return (_mapper.Map<IEnumerable<CanceledCustomerOrder>>(data), c);
+        }
+        public async Task<(IEnumerable<ClosedCustomerOrder>, int count)> GetCustomerOrderClosesLogAsync(int skip, int top, string searchKey, CancellationToken ct = default)
+        {
+            var (data, c) = await _repository.GetCustomerOrderClosesLogAsync(skip, top, searchKey, ct);
+            return (_mapper.Map<IEnumerable<ClosedCustomerOrder>>(data), c);
+        }
     }
 }
