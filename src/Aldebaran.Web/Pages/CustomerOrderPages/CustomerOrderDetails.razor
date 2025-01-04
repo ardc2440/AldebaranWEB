@@ -1,9 +1,9 @@
 ﻿@page "/customer-order-detail/{CustomerOrderId}"
-@attribute [Authorize(Roles = "Administrador,Consulta de pedidos,Consulta de notificaciones por pedidos vencidos,Consulta de notificaciones por órdenes próximas a su vencimiento,Consulta de notificaciones por alarmas de órdenes modificadas con afectación en pedido")]
+@attribute [Authorize(Roles = "Administrador,Log de pedidos,Consulta de pedidos,Consulta de notificaciones por pedidos vencidos,Consulta de notificaciones por órdenes próximas a su vencimiento,Consulta de notificaciones por alarmas de órdenes modificadas con afectación en pedido")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer ;
 
-<PageTitle>Detalles del Pedido</PageTitle>
+<PageTitle>Detalles de la orden de compra</PageTitle>
 <LoadingData IsLoadingData="@isLoadingInProgress" />
 
 @if (!isLoadingInProgress)

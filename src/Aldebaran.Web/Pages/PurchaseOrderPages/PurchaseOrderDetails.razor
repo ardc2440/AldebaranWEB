@@ -1,9 +1,9 @@
-﻿@page "/customer-reservation-detail/{CustomerReservationId}"
-@attribute [Authorize(Roles = "Administrador,Log de reservas,Consulta de reservas,Consulta de notificaciones por reservas vencidas")]
+﻿@page "/purchase-order-detail/{PurchaseOrderId}"
+@attribute [Authorize(Roles = "Administrador,Log de ordenes de compra")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer ;
 
-<PageTitle>Detalles de la reserva</PageTitle>
+<PageTitle>Detalles del pedido</PageTitle>
 <LoadingData IsLoadingData="@isLoadingInProgress" />
 
 @if (!isLoadingInProgress)
@@ -13,24 +13,24 @@
             <RadzenColumn Size="12">
                 <div class="flex-shrink-0">
                     <div class="text-primary-color" style="font-size: 16px">
-                        <RadzenLabel Text="Cliente: " Style="font-weight: bold" />
-                        <RadzenLabel Text="@customerReservation.Customer.CustomerName" />
+                        <RadzenLabel Text="Proveedor: " Style="font-weight: bold" />
+                        <RadzenLabel Text="@PurchaseOrder.Provider.ProviderName" />
                     </div>
                     <div class="text-secondary-color">
-                        <RadzenLabel Text="Fecha de reserva: " />
-                        <span>@customerReservation.ReservationDate.ToString(SharedLocalizer["date:format"])</span>
+                        <RadzenLabel Text="Fecha de solicitud: " />
+                        <span>@PurchaseOrder.RequestDate.ToString(SharedLocalizer["date:format"])</span>
                     </div>
                     <div class="text-secondary-color">
-                        <RadzenLabel Text="Fecha Vencimiento: " />
-                        <span>@customerReservation.ExpirationDate.ToString(SharedLocalizer["date:format"])</span>
+                        <RadzenLabel Text="Llegada esperada: " />
+                        <span>@PurchaseOrder.ExpectedReceiptDate.ToString(SharedLocalizer["date:format"])</span>
                     </div>
                     <div class="text-secondary-color">
-                        <RadzenLabel Text="Notas del cliente: " />
-                        <span>@customerReservation.Notes</span>
+                        <RadzenLabel Text="Proforma: " />
+                        <span>@PurchaseOrder.ProformaNumber</span>
                     </div>
                     <div class="text-secondary-color">
                         <RadzenLabel Text="Estado: " />
-                        <span>@customerReservation.StatusDocumentType.StatusDocumentTypeName</span>
+                        <span>@PurchaseOrder.StatusDocumentType.StatusDocumentTypeName</span>
                     </div>
                 </div>
             </RadzenColumn>
@@ -39,31 +39,31 @@
             <RadzenColumn Size="12">
                 <RadzenText Text="Referencias" TextStyle="TextStyle.H5" TagName="TagName.H1" style="margin-bottom: 0.5rem;" />
                 <LocalizedDataGrid ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                   Data="@customerReservationDetails" TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail">
+                                   Data="@PurchaseOrderDetailList" TItem="Aldebaran.Application.Services.Models.PurchaseOrderDetail">
                     <Columns>
-                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrderDetail" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
                             <Template Context="detail">
                                 <RadzenButton Icon="image" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
                                               Click="@(args => ShowImageDialog($"[{@detail.ItemReference.Item.InternalReference}] {@detail.ItemReference.Item.ItemName}"))"
                                               @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Ver imagen del producto", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
                             </Template>
                         </RadzenDataGridColumn>
-                        <RadzenDataGridColumn Width="140px" TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Title="Referencia">
+                        <RadzenDataGridColumn Width="140px" TItem="Aldebaran.Application.Services.Models.PurchaseOrderDetail" Title="Referencia">
                             <Template Context="detail">
                                 <RadzenLabel MouseEnter="@(args => ShowTooltip(args,GetReferenceHint(@detail.ItemReference).Result, new TooltipOptions(){ Position = TooltipPosition.Left }))">
                                     [@detail.ItemReference.Item.InternalReference] @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName
                                 </RadzenLabel>
                             </Template>
                         </RadzenDataGridColumn>
-                        <RadzenDataGridColumn Width="60px" TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Title="Cantidad" >
+                        <RadzenDataGridColumn Width="60px" TItem="Aldebaran.Application.Services.Models.PurchaseOrderDetail" Title="Cantidad">
                             <Template Context="detail">
-                                @detail.ReservedQuantity.ToString("N0")
+                                @detail.RequestedQuantity.ToString("N0")
                             </Template>
-                        </RadzenDataGridColumn>                        
-                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Title="Existencias" Width="100px" Filterable="false" Sortable="false">
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.PurchaseOrderDetail" Title="Existencias" Width="100px" Filterable="false" Sortable="false">
                             <Template Context="detail">
-                                <LocalizedDataGrid class="rz-datatable-no-header"  ColumnWidth="200px" AllowFiltering="false" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="false" AllowSorting="false" ShowPagingSummary="false" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-                                                   Data="detail.ItemReference.ReferencesWarehouses" TItem="Aldebaran.Application.Services.Models.ReferencesWarehouse" >
+                                <LocalizedDataGrid class="rz-datatable-no-header" ColumnWidth="200px" AllowFiltering="false" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="false" AllowSorting="false" ShowPagingSummary="false" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                                   Data="detail.ItemReference.ReferencesWarehouses" TItem="Aldebaran.Application.Services.Models.ReferencesWarehouse">
                                     <Columns>
                                         <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.ReferencesWarehouse" Property="Warehouse.WarehouseName" Title="Bodega" Width="60px" />
                                         <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.ReferencesWarehouse" Property="Quantity" Title="Cantidad" Width="40px" />
