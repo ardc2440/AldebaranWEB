@@ -62,9 +62,9 @@ namespace Aldebaran.Web.Pages.LogPages
 
         public async Task PurchaseOrderDetailInfo(int PurchaseOrderId)
         {
-            //var reasonResult = await DialogService.OpenAsync<PurchaseOrderPages.PurchaseOrderDetails>("Detalles de la reserva", new Dictionary<string, object> { { "PurchaseOrderId", PurchaseOrderId } }, options: new DialogOptions { CloseDialogOnOverlayClick = false, Width = "800px" });
-            //if (reasonResult == null)
-            //    return;
+            var reasonResult = await DialogService.OpenAsync<PurchaseOrderPages.PurchaseOrderDetails>("Detalles de la orden de compra", new Dictionary<string, object> { { "PurchaseOrderId", PurchaseOrderId } }, options: new DialogOptions { CloseDialogOnOverlayClick = false, Width = "800px" });
+            if (reasonResult == null)
+                return;
         }
         #endregion
     }
