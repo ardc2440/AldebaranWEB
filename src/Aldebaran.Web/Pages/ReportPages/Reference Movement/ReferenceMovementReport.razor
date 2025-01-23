@@ -141,7 +141,7 @@
                                                     <hr class="mb-2" />
                                                 }
                                                 <h3 title="Click para ver imagen" @onclick="@(args => ShowImageDialog($"[{item.InternalReference}] {item.ItemName}"))"
-                                                    style="cursor: pointer;"
+                                                    style="cursor: pointer; color: #f7620b; text-decoration: underline; text-decoration-color: black;"
                                                     class='text-left m-0'>
                                                     @item.ItemName
                                                 </h3>
@@ -163,7 +163,11 @@
                                                         @foreach (var reference in item.References)
                                                         {
                                                             <tr>
-                                                                <td width="40%" style="padding-left: 1.5em !important;">@reference.ReferenceName</td>
+                                                                <td width="40%" style="padding-left: 1.5em !important;">
+                                                                    <h3 class='text-left m-0' style="color: #f7620b; text-decoration: underline; text-decoration-color: black;">
+                                                                        @reference.ReferenceName
+                                                                    </h3>
+                                                                </td>
                                                                 <td width="15%">@reference.RequestedQuantity.ToString("N0")</td>
                                                                 <td width="15%">@reference.ReservedQuantity.ToString("N0")</td>
                                                                 <td width="30%" colspan="2" style="padding: 0 !important;">
