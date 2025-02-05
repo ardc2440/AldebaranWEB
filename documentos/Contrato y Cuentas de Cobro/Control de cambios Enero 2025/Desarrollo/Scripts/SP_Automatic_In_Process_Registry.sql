@@ -1,0 +1,19 @@
+CREATE OR ALTER PROCEDURE SP_Automatic_In_Process_Registry
+	@PurchaseOrderId INT,
+	@CustomerOrderId INT,
+	@CustomerOrderInProcessId INT
+AS
+BEGIN	
+	INSERT INTO automatic_in_process (CUSTOMER_ORDER_IN_PROCESS_ID, CUSTOMER_ORDER, PURCHASE_ORDER_ID)
+		 VALUES (@CustomerOrderInProcessId, @CustomerOrderId, @PurchaseOrderId)
+	
+	DECLARE @AutomaticInProcessId INT = SCOPE_IDENTITY()
+
+	INSERT INTO automatic_in_process_detail (AUTOMATIC_IN_PROCESS_ID, CUSTOMER_ORDER_IN_PROCESS_DETAIL_ID, CUSTOMER_ORDER_DETAIL_ID, REFERENCE_ID, WAREHOUSE_ID, ASSIGNED_QUANTITY, BRAND)
+		 SELECT @AutomaticInProcessId, a.CUSTOMER_ORDER_IN_PROCESS_DETAIL_ID, b.CUSTOMER_ORDER_DETAIL_ID, b.REFERENCE_ID, a.WAREHOUSE_ID, a.PROCESSED_QUANTITY, a.BRAND
+		   FROM customer_order_in_process_details a
+		   JOIN customer_order_details b ON b.CUSTOMER_ORDER_DETAIL_ID = a.CUSTOMER_ORDER_DETAIL_ID
+										AND b.CUSTOMER_ORDER_ID = @CustomerOrderId
+		  WHERE CUSTOMER_ORDER_IN_PROCESS_ID = @CustomerOrderInProcessId		   
+END
+GO
