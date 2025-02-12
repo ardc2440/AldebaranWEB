@@ -80,5 +80,8 @@
     <Content Update="Pages\AdjustmentPages\AdjustmentSummary.razor">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
+    <Content Update="Pages\DashboardNotificationComponents\ConfirmedPurchaseOrderNotifications.razor">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
   </ItemGroup>
 </Project>

@@ -20,6 +20,9 @@
 		</Compile>
 	</ItemGroup>
 	<ItemGroup>
+	  <Compile Update="Models\ConfirmedPurchaseOrder.cs">
+	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
+	  </Compile>
 	  <Compile Update="Models\Enums\NotificationStatus.cs">
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>
@@ -58,6 +61,9 @@
 	  </Compile>
 	  <Compile Update="Services\Reports\OrderShipmentReportService.cs">
 	    <DependentUpon>IPurchaseOrderReportService.cs</DependentUpon>
+	  </Compile>
+	  <Compile Update="Services\VisualizedMinimumLocalWarehouseQuantityAlarmService - Copia.cs">
+	    <DependentUpon>IVisualizedAutomaticInProcessAlarmService.cs</DependentUpon>
 	  </Compile>
 	  <Compile Update="Services\VisualizedMinimumQuantityAlarmService - Copia.cs">
 	    <DependentUpon>IVisualizedMinimumLocalWarehouseQuantityAlarmService.cs</DependentUpon>

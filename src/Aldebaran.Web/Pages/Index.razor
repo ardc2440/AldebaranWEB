@@ -110,6 +110,19 @@
                     </ChildContent>
                 </RadzenTabsItem>
 
+                <RadzenTabsItem Visible="@(confirmedPurchaseOrderNotificationsVisible)">
+                    <Template>
+                        <div style="display: flex; align-items: center; margin-bottom: 5px; height: 40px; width: 150px">
+                            <RadzenImage Click="@(() => AlertClick(11))" Visible="@confirmedPurchaseOrderAlertVisible" Path="images/alert.gif" Style="width: 25px; height: 20px; vertical-align: middle; margin-right: 2px;" />Confirmación automatica <br>de pedidos
+                        </div>
+                    </Template>
+                    <ChildContent>
+                        <RadzenRow class="mb-2">
+                            <ConfirmedPurchaseOrderNotifications @ref="confirmedPurchaseOrderNotifications" OnAlertVisibleChanged="@UpdateAlert" />
+                        </RadzenRow>
+                    </ChildContent>
+                </RadzenTabsItem>
+
                 <RadzenTabsItem Visible="@(customerOrderExpirationNotificationVisible)">
                     <Template>
                         <div style="display: flex; align-items: center; margin-bottom: 5px; height: 40px; width: 150px">

@@ -104,7 +104,10 @@ namespace Aldebaran.DataAccess
         public DbSet<CancellationRequest> CancellationRequests { get; set; }
         public DbSet<VisualizedLocalWarehouseAlarm> VisualizedLocalWarehouseAlarms { get; set; }
         public DbSet<LocalWarehouseAlarm> LocalWarehouseAlarms { get; set; }
-
+        public DbSet<VisualizedAutomaticInProcess> VisualizedAutomaticInProcesses { get; set; }
+        public DbSet<ConfirmedPurchaseOrder> ConfirmedPurchaseOrders { get; set; }
+        public DbSet<AutomaticCustomerOrder> AutomaticCustomerOrders { get; set; }
+        public DbSet<AutomaticCustomerOrderDetail> AutomaticCustomerOrderDetails { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -197,7 +200,10 @@ namespace Aldebaran.DataAccess
             modelBuilder.ApplyConfiguration(new CancellationRequestConfiguration());
             modelBuilder.ApplyConfiguration(new LocalWarehouseAlarmConfiguration());
             modelBuilder.ApplyConfiguration(new VisualizedLocalWarehouseAlarmConfiguration());
-
+            modelBuilder.ApplyConfiguration(new VisualizedAutomaticInProcessConfiguration());
+            modelBuilder.ApplyConfiguration(new ConfirmedPurchaseOrderConfiguration());
+            modelBuilder.ApplyConfiguration(new AutomaticCustomerOrderConfiguration());
+            modelBuilder.ApplyConfiguration(new AutomaticCustomerOrderDetailConfiguration());
 
             modelBuilder.Entity<InventoryAdjustmentReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<InProcessInventoryReport>(iar => { iar.HasNoKey(); });

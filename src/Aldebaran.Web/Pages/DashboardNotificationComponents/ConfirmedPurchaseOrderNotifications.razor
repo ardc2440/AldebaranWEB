@@ -1,0 +1,132 @@
+﻿@using Aldebaran.Web.Resources.LocalizedControls
+@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
+@inject Radzen.DialogService dialogService
+
+<RadzenCard class="rz-col-12" Style="max-width: 100%">
+    <NotificationTitle DataUpdate="@GridData_Update" GridTimer="@GridTimer" Title="Sobrepaso de cantidades mínimas en bodega local" Timers="@Timers" />
+    <RadzenCard Variant="Radzen.Variant.Text" class="px-0">
+        <RadzenRow class="rz-m-1">
+            <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
+        </RadzenRow>
+        <RadzenRow class="rz-m-1">
+            <LocalizedDataGrid AllowRowSelectOnRowClick="false" RowExpand=@GetCustomerOrders ExpandMode="DataGridExpandMode.Single" PageSize="@pageSize"
+                               @ref="confirmedPurchaseOrdersGrid" AllowPaging="true" ShowPagingSummary="true" Data="@confirmedPurchaseOrders"
+                               TItem="Aldebaran.Application.Services.Models.ConfirmedPurchaseOrder" IsLoading="@(isLoadingInProgress||GridTimer.IsLoading)"
+                               Page="OnPageChanged" SelectionMode="DataGridSelectionMode.Multiple" @bind-Value=@selectedAlarms>
+                <Columns>
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.ConfirmedPurchaseOrder" Width="40px" Sortable="false" Filterable="false">
+                        <HeaderTemplate>
+                            <RadzenCheckBox TabIndex="-1" TriState="false" TValue="bool?" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select all items" }})"
+                                            Value="@(IsAllPageSelected().Result ? true : (selectedAlarms?.Any() ?? false ? null : false))"
+                                            Change="@(args => SelectAllItems((bool)args))"
+                                            MouseEnter="@(args => ShowTooltip(args,"Marcar toda la página", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                        </HeaderTemplate>
+                        <Template Context="data">
+                            <RadzenCheckBox TabIndex="-1" TriState="false" Value="@(selectedAlarms != null && selectedAlarms.Contains(data))" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select item" }})"
+                                            TValue="bool"
+                                            Change="@(args => ToggleSelection(data, args))"
+                                            MouseEnter="@(args => ShowTooltip(args,"Marcar", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.ConfirmedPurchaseOrder" Property="OrderNumber" Title="Número de orden" Width="40%">
+                        <Template Context="confirmedPurchaseOrder">
+                            <RadzenLink href="javascript:void(0);" @onclick="@(async (args) => await PurchaseOrderDetailInfo(confirmedPurchaseOrder.PurchaseOrderId))">
+                                @confirmedPurchaseOrder.OrderNumber
+                            </RadzenLink>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.ConfirmedPurchaseOrder" Title="Identificación" Property="IdentityNumber" Width="30%" Filterable="false" />
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.ConfirmedPurchaseOrder" Title="Proveedor" Property="ProviderName" Width="30%" Filterable="false" />
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.ConfirmedPurchaseOrder" Title="Proforma" Property="ProformaNumber" Width="30%" Filterable="false" />
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.ConfirmedPurchaseOrder" Title="No. importación" Property="ImportNumber" Width="30%" Filterable="false" />
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.ConfirmedPurchaseOrder" Title="Fecha recibo" Property="ReceptionDate" Width="30%" Filterable="false" />
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.ConfirmedPurchaseOrder" Title="Fecha confirmación" Property="ConfirmationDate" Width="30%" Filterable="false" />
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.ConfirmedPurchaseOrder" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                        <Template Context="alarm">
+                            <RadzenButton Icon="assignment_turned_in" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => DisableAlarm(alarm))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Ocultar alarma", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+                <Template Context="alarmNotifications">
+                    <RadzenStack Class="rz-my-8">
+                        <RadzenRow Gap="0" AlignItems="AlignItems.Center">
+                            <RadzenColumn Size="12" SizeMD="6">
+                                <RadzenText Visible="@(confirmedPurchaseOrders != null)" Text="Pedidos asignados automáticamente" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
+                            </RadzenColumn>
+                        </RadzenRow>
+                        <LocalizedDataGrid Visible="@(confirmedPurchaseOrders != null)" @ref=automaticCustomerOrdersGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced"
+                                           RowExpand=@GetCustomerOrderDetails ExpandMode="DataGridExpandMode.Single"
+                                           AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                           Data="@automaticCustomerOrders" TItem="Aldebaran.Application.Services.Models.AutomaticCustomerOrder">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AutomaticCustomerOrder" Title="No. Pedido">
+                                    <Template Context="notification">
+                                        <RadzenLink href="javascript:void(0);" @onclick="@(async (args) => await DownloadAsync(args, notification.CustomerOrderId))">
+                                            @notification.OrderNumber
+                                        </RadzenLink>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AutomaticCustomerOrder" Property="CustomerName" Title="Cliente"></RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AutomaticCustomerOrder" Property="IdentityNumber" Title="Identificación"></RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AutomaticCustomerOrder" Title="Fecha pedido">
+                                    <Template Context="notification">
+                                        <span>@notification.OrderDate.ToString(SharedLocalizer["date:format"])</span>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AutomaticCustomerOrder" Title="Fecha pactada de entrega">
+                                    <Template Context="notification">
+                                        <span>@notification.EstimatedDeliveryDate.ToString(SharedLocalizer["date:format"])</span>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AutomaticCustomerOrder" Property="StatusDocumentTypeName" Title="Estado"></RadzenDataGridColumn>
+                            </Columns>
+                            <Template Context="orderDertail">
+                                <RadzenStack Class="rz-my-8">
+                                    <RadzenRow Gap="0" AlignItems="AlignItems.Center">
+                                        <RadzenColumn Size="12" SizeMD="6">
+                                            <RadzenText Visible="@(automaticCustomerOrders != null)" Text="Detalle asignado automáticamente" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0" />
+                                        </RadzenColumn>
+                                    </RadzenRow>
+                                    <LocalizedDataGrid Visible="@(automaticCustomerOrders != null)" @ref=automaticCustomerOrderDetailsGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced"
+                                                       AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                                                       Data="@automaticCustomerOrderDetails" TItem="Aldebaran.Application.Services.Models.AutomaticCustomerOrderDetail">
+                                        <Columns>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AutomaticCustomerOrderDetail" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
+                                                <Template Context="detail">
+                                                    <RadzenButton Icon="image" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                                                  Click="@(args => ShowImageDialogAsync(@detail.ArticleName))"
+                                                                  @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Ver imagen del producto", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AutomaticCustomerOrderDetail" Property="ArticleName" Title="Referencia" Width="70%">
+                                                <Template Context="detail">
+                                                    <a href="javascript:;" title="@detail.ArticleName" @onclick="() => ReferenceMovementReport(detail.ReferenceId)">@detail.ArticleName</a>
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AutomaticCustomerOrderDetail" Title="Pedido ori." Width="30%" Filterable="false">
+                                                <Template Context="detail">
+                                                    @detail.Requested.ToString("N0")
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AutomaticCustomerOrderDetail" Title="Asignado auto." Width="30%" Filterable="false">
+                                                <Template Context="detail">
+                                                    @detail.Assigned.ToString("N0")
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AutomaticCustomerOrderDetail" Title="Pendiente act." Width="30%" Filterable="false">
+                                                <Template Context="detail">
+                                                    @detail.Pending.ToString("N0")
+                                                </Template>
+                                            </RadzenDataGridColumn>                                            
+                                        </Columns>
+                                    </LocalizedDataGrid>
+                                </RadzenStack>
+                            </Template>
+                        </LocalizedDataGrid>
+                    </RadzenStack>
+                </Template>
+            </LocalizedDataGrid>
+        </RadzenRow>
+    </RadzenCard>
+</RadzenCard>
+

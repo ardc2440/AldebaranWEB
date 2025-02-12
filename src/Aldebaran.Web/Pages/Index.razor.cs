@@ -44,6 +44,7 @@ namespace Aldebaran.Web.Pages
         protected bool purchaseOrderExpirationNotificationVisible;
         protected bool purchaseOrderTransitAlarmNotificationsVisible;
         protected bool emailErrorNotificationsVisible;
+        protected bool confirmedPurchaseOrderNotificationsVisible;
 
         protected bool minimumQuantityAlertVisible;
         protected bool minimumLocalWarehouseQuantityAlertVisible;
@@ -55,6 +56,7 @@ namespace Aldebaran.Web.Pages
         protected bool purchaseOrderExpirationAlertVisible;
         protected bool purchaseOrderTransitAlertVisible;
         protected bool emailErrorAlertVisible;
+        protected bool confirmedPurchaseOrderAlertVisible;
 
         protected MinimumQuantityNotifications minimumQuantityNotifications;
         protected MinimumLocalWarehouseQuantityNotifications minimumLocalWarehouseQuantityNotifications;
@@ -66,6 +68,7 @@ namespace Aldebaran.Web.Pages
         protected PurchaseOrderExpirationNotifications purchaseOrderExpirationNotifications;
         protected PurchaseOrderTransitAlarmNotifications purchaseOrderTransitAlarmNotifications;
         protected EmailWithErrorNotifications emailWithErrorNotifications;
+        protected ConfirmedPurchaseOrderNotifications confirmedPurchaseOrderNotifications;
 
         #endregion
 
@@ -101,6 +104,7 @@ namespace Aldebaran.Web.Pages
             purchaseOrderExpirationNotificationVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por órdenes próximas a su vencimiento");
             purchaseOrderTransitAlarmNotificationsVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por alarmas de órdenes modificadas con afectación en pedido");
             emailErrorNotificationsVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por envio de correo con error");
+            confirmedPurchaseOrderNotificationsVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por asignación automática de pedidos");
         }
 
         async Task InitializeGridTimers()
@@ -148,6 +152,7 @@ namespace Aldebaran.Web.Pages
             if (purchaseOrderExpirationNotificationVisible) await purchaseOrderExpirationNotifications.Update();
             if (purchaseOrderTransitAlarmNotificationsVisible) await purchaseOrderTransitAlarmNotifications.Update();
             if (emailErrorNotificationsVisible) await emailWithErrorNotifications.Update();
+            if (confirmedPurchaseOrderNotificationsVisible) await confirmedPurchaseOrderNotifications.Update();
         }
         protected async Task GridaData_UpdateOnTimerChange(object value)
         {
@@ -164,43 +169,7 @@ namespace Aldebaran.Web.Pages
 
         protected async Task AlertClick(int idObject)
         {
-            await UpdateAlert((idObject, false));
-
-            //switch (idObject)
-            //{
-            //    case 1:
-            //        minimumQuantityAlertVisible = false;
-            //        break;
-            //    case 2:
-            //        outOfStockAlertVisible = false;
-            //        break;
-            //    case 3:
-            //        userAlarmAlertVisible = false;
-            //        break;
-            //    case 4:
-            //        expiredReservationAlertVisible = false;
-            //        break;
-            //    case 5:
-            //        customerOrderExpirationAlertVisible = false;
-            //        break;
-            //    case 6:
-            //        purchaseOrderExpirationAlertVisible = false;
-            //        break;
-            //    case 7:
-            //        purchaseOrderTransitAlertVisible = false;
-            //        break;
-            //    case 8:
-            //        emailErrorAlertVisible = false;
-            //        break;
-            //    case 9:
-            //        minimumLocalWarehouseQuantityAlertVisible = false;
-            //        break;
-            //    case 10:
-            //        LocalWarehouseAlertVisible = false;
-            //        break;
-            //    default:
-            //        break;
-            //}
+            await UpdateAlert((idObject, false));            
         }
 
         protected async Task UpdateAlert((int idObject, bool value) data) 
@@ -239,6 +208,9 @@ namespace Aldebaran.Web.Pages
                     break;
                 case 10:
                     LocalWarehouseAlertVisible = value;
+                    break;
+                case 11:
+                    confirmedPurchaseOrderAlertVisible = value;
                     break;
                 default:
                     break;

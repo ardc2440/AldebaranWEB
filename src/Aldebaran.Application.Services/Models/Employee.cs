@@ -39,6 +39,8 @@ namespace Aldebaran.Application.Services.Models
         public ICollection<VisualizedOutOfStockInventoryAlarm> VisualizedOutOfStockInventoryAlarms { get; set; }
         public ICollection<VisualizedMinimumQuantityAlarm> VisualizedMinimumQuantityAlarms { get; set; }
         public ICollection<VisualizedMinimumLocalWarehouseQuantityAlarm> VisualizedMinimumLocalWarehouseQuantityAlarms { get; set; }
+        public ICollection<VisualizedAutomaticInProcess> VisualizedAutomaticInProcesses { get; set; }
+
         public ICollection<WarehouseTransfer> WarehouseTransfers { get; set; }
         public ICollection<CancellationRequest> RequestEmployees { get; set; }
         public ICollection<CancellationRequest> ResponseEmployees { get; set; }

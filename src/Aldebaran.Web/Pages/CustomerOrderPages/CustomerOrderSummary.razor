@@ -34,7 +34,7 @@
                                         </tr>
                                         <tr class="border border-top-0 emphasys">
                                             <td colspan="2">Fecha de pedido: @CustomerOrder.OrderDate.ToString(SharedLocalizer["date:format"])</td>
-                                            <td colspan="2">Fecha estimada de entrega: @CustomerOrder.EstimatedDeliveryDate.ToString(SharedLocalizer["date:format"])</td>                                            
+                                            <td colspan="2">Fecha estimada de entrega: @CustomerOrder.EstimatedDeliveryDate.ToString(SharedLocalizer["date:format"])</td>
                                         </tr>
                                         <tr>
                                             <td colspan="2">
@@ -149,13 +149,16 @@
                             <RadzenSplitButtonItem Text="Guardar PDF" Icon="picture_as_pdf" Value="save" Style="cursor:pointer" />
                         </RadzenSplitButton>
                     </div>
-                    <div>
-                        <p>Desea enviar un correo al cliente con el detalle del pedido?</p>
-                        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Start" JustifyContent="JustifyContent.Left" Gap="0.5rem">
-                            <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Si" Variant="Variant.Flat" BusyText="Procesando" Click="@Notify" IsBusy="@IsBusy" />
-                            <RadzenButton ButtonStyle="ButtonStyle.Light" Text="No" Variant="Variant.Flat" Click="@CancelNotify" IsBusy="@IsBusy" />
-                        </RadzenStack>
-                    </div>
+                    @if (ShowMailDialog)
+                    {
+                        <div>
+                            <p>Desea enviar un correo al cliente con el detalle del pedido?</p>
+                            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Start" JustifyContent="JustifyContent.Left" Gap="0.5rem">
+                                <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Si" Variant="Variant.Flat" BusyText="Procesando" Click="@Notify" IsBusy="@IsBusy" />
+                                <RadzenButton ButtonStyle="ButtonStyle.Light" Text="No" Variant="Variant.Flat" Click="@CancelNotify" IsBusy="@IsBusy" />
+                            </RadzenStack>
+                        </div>
+                    }
                 </div>
             </RadzenColumn>
         </RadzenRow>

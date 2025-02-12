@@ -85,5 +85,20 @@ namespace Aldebaran.Application.Services
             var data = await _repository.GetLocalWarehouseAlarmAsync(employeeId, searchKey, ct);
             return _mapper.Map<IEnumerable<LocalWarehouseAlarm>>(data);
         }
+        public async Task<IEnumerable<ConfirmedPurchaseOrder>> GetConfirmedPurchasesWithAutomaticAssigment(int employeeId, string? searchKey = null, CancellationToken ct = default)
+        {
+            var data = await _repository.GetConfirmedPurchasesWithAutomaticAssigment(employeeId, searchKey, ct);
+            return _mapper.Map<IEnumerable<ConfirmedPurchaseOrder>>(data);
+        }
+        public async Task<IEnumerable<AutomaticCustomerOrder>> GetAutomaticCustomerOrdersAssigment(int processId, CancellationToken ct = default)
+        {
+            var data = await _repository.GetAutomaticCustomerOrdersAssigment(processId, ct);
+            return _mapper.Map<IEnumerable<AutomaticCustomerOrder>>(data);
+        }
+        public async Task<IEnumerable<AutomaticCustomerOrderDetail>> GetAutomaticCustomerOrderDetailsAssigment(int processOrderId, CancellationToken ct = default)
+        {
+            var data = await _repository.GetAutomaticCustomerOrderDetailsAssigment(processOrderId, ct);
+            return _mapper.Map<IEnumerable<AutomaticCustomerOrderDetail>>(data);
+        }
     }
 }

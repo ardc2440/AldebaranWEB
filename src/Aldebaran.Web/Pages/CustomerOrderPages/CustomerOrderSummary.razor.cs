@@ -50,6 +50,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         public int Id { get; set; }
         [Parameter]
         public string NotificationTemplateName { get; set; }
+        [Parameter]
+        public bool ShowMailDialog { get; set; } = true;
         #endregion
 
         #region Variables

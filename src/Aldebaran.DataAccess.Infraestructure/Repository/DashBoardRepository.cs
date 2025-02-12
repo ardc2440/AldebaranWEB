@@ -287,5 +287,55 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                         .ToListAsync(ct));
             }, ct);
         }
+
+        public async Task<IEnumerable<ConfirmedPurchaseOrder>> GetConfirmedPurchasesWithAutomaticAssigment(int employeeId, string? searchKey = null, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                var employee_Id = new SqlParameter("@EmployeeId", employeeId);
+
+                if (searchKey.IsNullOrEmpty())
+                    return await dbContext.Set<ConfirmedPurchaseOrder>()
+                        .FromSqlRaw($"EXEC SP_GET_CONFIRMED_PURCHASES_WITH_AUTOMATIC_ASSIGMENT " +
+                        $"@EmployeeId",
+                        employee_Id).ToListAsync(ct);
+                else
+                {
+                    var search = new SqlParameter("@SEARCHKEY", searchKey);
+
+                    return await dbContext.Set<ConfirmedPurchaseOrder>()
+                        .FromSqlRaw($"EXEC SP_GET_CONFIRMED_PURCHASES_WITH_AUTOMATIC_ASSIGMENT " +
+                        $"@EmployeeId, " +
+                        $"@SEARCHKEY ",
+                        employee_Id, search).ToListAsync(ct);
+                }
+            }, ct);
+        }
+
+        public async Task<IEnumerable<AutomaticCustomerOrder>> GetAutomaticCustomerOrdersAssigment(int processId, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                var process_Id = new SqlParameter("@ProcessId", processId);
+
+                return await dbContext.Set<AutomaticCustomerOrder>()
+                        .FromSqlRaw($"EXEC SP_GET_CUSTOMER_ORDERS_WITH_AUTOMATIC_ASSIGMENT " +
+                        $"@ProcessId",
+                        process_Id).ToListAsync(ct);                
+            }, ct);
+        }
+
+        public async Task<IEnumerable<AutomaticCustomerOrderDetail>> GetAutomaticCustomerOrderDetailsAssigment(int processOrderId, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                var processOrder_Id = new SqlParameter("@ProcessOrderId", processOrderId);
+
+                return await dbContext.Set<AutomaticCustomerOrderDetail>()
+                        .FromSqlRaw($"EXEC SP_GET_CUSTOMER_ORDER_DETAILS_WITH_AUTOMATIC_ASSIGMENT " +
+                        $"@ProcessOrderId",
+                        processOrder_Id).ToListAsync(ct);
+            }, ct);
+        }
     }
 }

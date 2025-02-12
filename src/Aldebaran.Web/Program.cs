@@ -67,7 +67,6 @@ static void Configure(WebApplication app)
     app.UseHttpsRedirection();
     app.UseStaticFiles();
     app.UseHeaderPropagation();
-    //app.UseRequestLocalization(options => options.AddSupportedCultures("es-CO").AddSupportedUICultures("es-CO").SetDefaultCulture("es-CO"));
     app.UseRequestLocalization();
     app.UseRouting();
     app.UseAuthentication();
@@ -82,5 +81,4 @@ static void Configure(WebApplication app)
         Path.Combine(Directory.GetCurrentDirectory(), imageRepositoryPath)),
         RequestPath = "/externalimages"
     });
-    //app.Services.CreateScope().ServiceProvider.GetRequiredService<ApplicationIdentityDbContext>().Database.Migrate();
 }

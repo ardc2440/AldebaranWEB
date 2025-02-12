@@ -49,6 +49,8 @@ namespace Aldebaran.DataAccess.Entities
         public ICollection<CancellationRequest> CancellationEmployeeRequests { get; set; }
         public ICollection<CancellationRequest> CancellationEmployeeResponses { get; set; }
         public ICollection<VisualizedLocalWarehouseAlarm> VisualizedLocalWarehouseAlarms { get; set; }
+        public ICollection<VisualizedAutomaticInProcess> VisualizedAutomaticInProcesses { get; set; }
+
 
         public Employee()
         {

@@ -18,5 +18,9 @@ namespace Aldebaran.Application.Services
         Task<IEnumerable<PurchaseOrderNotification>> GetNotificationsByModifiedPurchaseOrder(int modifiedPurchaseOrderId, CancellationToken ct = default);
         Task<IEnumerable<MinimumLocalWarehouseQuantityArticle>> GetMinimumLocalWarehouseQuantityAlarmsAsync(int employeeId, string? searchKey = null, CancellationToken ct = default);
         Task<IEnumerable<LocalWarehouseAlarm>> GetLocalWarehouseAlarm(int employeeId, string? searchKey = null, CancellationToken ct = default);
+        Task<IEnumerable<ConfirmedPurchaseOrder>> GetConfirmedPurchasesWithAutomaticAssigment(int employeeId, string? searchKey = null, CancellationToken ct = default);
+        Task<IEnumerable<AutomaticCustomerOrder>> GetAutomaticCustomerOrdersAssigment(int processId, CancellationToken ct = default);
+        Task<IEnumerable<AutomaticCustomerOrderDetail>> GetAutomaticCustomerOrderDetailsAssigment(int processOrderId, CancellationToken ct = default);
+
     }
 }
