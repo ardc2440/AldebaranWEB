@@ -94,6 +94,7 @@ namespace Aldebaran.Application.Services.Mappings
             CreateMap<FreezoneVsAvailableReport, Entities.Reports.FreezoneVsAvailableReport>().ReverseMap();
             CreateMap<CustomerSaleReport, Entities.Reports.CustomerSaleReport>().ReverseMap();
             CreateMap<CustomerOrderExport, Entities.Reports.CustomerOrderExport>().ReverseMap();
+            CreateMap<AutomaticCustomerOrderAssigmentReport, Entities.Reports.AutomaticCustomerOrderAssigmentReport>().ReverseMap();
             CreateMap<EmailNotificationProvider, DataAccess.Infraestructure.Models.EmailNotificationProvider>().ReverseMap();
             CreateMap<NotificationTemplate, Entities.NotificationTemplate>().ReverseMap();
             CreateMap<PurchaseOrderNotification, Entities.PurchaseOrderNotification>().ReverseMap();

@@ -45,6 +45,9 @@
 	  <Compile Update="Repository\Reports\OrderShipmentReportRepository.cs">
 	    <DependentUpon>IPurchaseOrderReportRepository.cs</DependentUpon>
 	  </Compile>
+	  <Compile Update="Repository\Reports\PurchaseOrderReportRepository - Copia.cs">
+	    <DependentUpon>IAutomaticPurchaseOrderAssigmentReportRepository .cs</DependentUpon>
+	  </Compile>
 	  <Compile Update="Repository\VisualizedAutomaticInProcessAlarmRepository.cs">
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>

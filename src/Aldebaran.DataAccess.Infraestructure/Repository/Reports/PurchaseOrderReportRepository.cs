@@ -15,6 +15,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository.Reports
             {
                 return await dbContext.Set<PurchaseOrderReport>().FromSqlRaw($"EXEC SP_GET_PURCHASE_ORDER_REPORT {filter}").ToListAsync(ct);
             }, ct);
-        }
+        }        
     }
 }

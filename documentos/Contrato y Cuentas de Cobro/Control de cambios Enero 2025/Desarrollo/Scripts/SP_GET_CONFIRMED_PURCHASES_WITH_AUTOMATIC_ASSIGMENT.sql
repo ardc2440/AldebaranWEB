@@ -5,11 +5,11 @@ AS
 BEGIN
 	SELECT a.AUTOMATIC_IN_PROCESS_ID, a.PURCHASE_ORDER_ID, b.ORDER_NUMBER, c.IDENTITY_NUMBER, c.PROVIDER_NAME, b.PROFORMA_NUMBER,
 		   b.IMPORT_NUMBER, b.REAL_RECEIPT_DATE, CAST (a.Creation_Date AS date) CREATION_DATE
-	  FROM automatic_in_process a
-	  JOIN purchase_orders b ON b.PURCHASE_ORDER_ID = a.PURCHASE_ORDER_ID
-	  JOIN providers c ON c.PROVIDER_ID = b.PROVIDER_ID	  
+	  FROM automatic_in_process a WITH (NOLOCK)
+	  JOIN purchase_orders b WITH (NOLOCK) ON b.PURCHASE_ORDER_ID = a.PURCHASE_ORDER_ID
+	  JOIN providers c WITH (NOLOCK) ON c.PROVIDER_ID = b.PROVIDER_ID	  
 	 WHERE NOT EXISTS (SELECT 1 
-						 FROM visualized_automatic_in_process va 
+						 FROM visualized_automatic_in_process va WITH (NOLOCK)
 						WHERE va.AUTOMATIC_IN_PROCESS_ID = a.AUTOMATIC_IN_PROCESS_ID
 						  AND (va.EMPLOYEE_ID = @EmployeeId or @EmployeeId IS NULL)) 
 	   AND (@SearchKey IS NULL 

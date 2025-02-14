@@ -38,6 +38,10 @@
         border: 1px solid #dee2e6 !important;
     }
 
+    .report .font-size-1x * {
+        font-size: 14px !important;
+    }
+
     .report .font-size-2x * {
         font-size: 16px !important;
     }

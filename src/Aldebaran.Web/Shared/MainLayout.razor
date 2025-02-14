@@ -119,6 +119,7 @@
                 <RadzenPanelMenuItem Text="Proveedores" Icon="summarize">
                     <RadzenPanelMenuItem Text="Referencias del proveedor" Path="report/provider-references" Visible=@Security.IsInRole("Administrador","Consulta de reportes") />
                     <RadzenPanelMenuItem Text="Ordenes de compra" Path="report/purchase-orders" Visible=@Security.IsInRole("Administrador","Consulta de reportes") />
+                    <RadzenPanelMenuItem Text="Notificación de pedidos atendidos automáticamente" Path="report/automatic-purchase-order-assigment" Visible=@Security.IsInRole("Administrador","Consulta de notificaciones por asignación automática de pedidos") />
                 </RadzenPanelMenuItem>
             </RadzenPanelMenuItem>
         </RadzenPanelMenu>
