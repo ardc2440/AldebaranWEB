@@ -1,10 +1,12 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
+using Aldebaran.Web.Models;
 using Aldebaran.Web.Models.ViewModels;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.Extensions.Options;
 using Radzen;
 
 namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
@@ -51,6 +53,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
 
         [Inject]
         protected IStatusDocumentTypeService StatusDocumentTypeService { get; set; }
+
+        [Inject]
+        public IOptions<AppSettings> Settings { get; set; }
 
         #endregion
 
@@ -229,6 +234,20 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
 
         protected async Task SendToShipment(CustomerOrder args)
         {
+            if (await CustomerOrdersInProcessService.ExistsAutomaticCustomerOrderInProcess(args.CustomerOrderId, Settings.Value.ProcessSatelliteId))
+            {
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Warning,
+                    Summary = $"Alerta",
+                    Duration = 6000,
+                    Detail = "Existe traslados a proceso automáticos sin satelite asignado. Asigne el satelite para continuar con el despacho.",
+                    Style = "background-color: #db2001; color: white; font-size: 16px; padding: 1px;"
+                });
+
+                return;
+            }
+
             NavigationManager.NavigateTo("add-customer-order-shipment/" + args.CustomerOrderId);
         }
 

@@ -9,5 +9,6 @@ namespace Aldebaran.Application.Services
         Task UpdateAsync(int customerOrderInProcessId, CustomerOrdersInProcess customerOrderInProcess, Reason reason, CancellationToken ct = default);
         Task<CustomerOrdersInProcess?> FindAsync(int customerOrderInProcessId, CancellationToken ct = default);
         Task CancelAsync(int customerOrderInProcessId, short canceledStatusDocumentId, Reason reason, CancellationToken ct = default);
+        Task<bool> ExistsAutomaticCustomerOrderInProcess(int customerOrderId, int processSatelliteId, CancellationToken ct = default);
     }
 }

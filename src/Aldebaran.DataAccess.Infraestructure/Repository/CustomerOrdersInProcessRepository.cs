@@ -55,6 +55,17 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             }, ct);
         }
 
+        public async Task<bool> ExistsAutomaticCustomerOrderInProcess(int customerOrderId, int processSatelliteId, CancellationToken ct)
+        {
+            return await ExecuteQueryAsync(dbContext =>
+            {
+                return Task.FromResult(dbContext.CustomerOrdersInProcesses
+                                        .AsNoTracking()
+                                        .Any(i => i.CustomerOrderId == customerOrderId && i.ProcessSatelliteId == processSatelliteId));
+
+            }, ct);
+        }
+
         public async Task<IEnumerable<CustomerOrdersInProcess>> GetByCustomerOrderIdAsync(int customerOrderId, CancellationToken ct)
         {
             return await ExecuteQueryAsync(async dbContext =>
@@ -81,6 +92,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 entity.CustomerOrderId = customerOrdersInProcess.CustomerOrderId;
                 entity.EmployeeRecipientId = customerOrdersInProcess.EmployeeRecipientId;
                 entity.EmployeeId = customerOrdersInProcess.EmployeeId;
+                entity.ProcessSatelliteId = customerOrdersInProcess.ProcessSatelliteId;
                 entity.StatusDocumentTypeId = customerOrdersInProcess.StatusDocumentTypeId;
                 entity.Notes = customerOrdersInProcess.Notes;
 

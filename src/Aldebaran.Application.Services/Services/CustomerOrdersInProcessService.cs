@@ -46,6 +46,11 @@ namespace Aldebaran.Application.Services
             var mapReason = _mapper.Map<DataAccess.Infraestructure.Models.Reason>(reason);
             await _repository.CancelAsync(customerOrderInProcessId, canceledStatusDocumentId, mapReason, ct);
         }
+
+        public async Task<bool> ExistsAutomaticCustomerOrderInProcess(int customerOrderId, int processSatelliteId, CancellationToken ct = default)
+        {
+            return await _repository.ExistsAutomaticCustomerOrderInProcess(customerOrderId, processSatelliteId, ct); 
+        }
     }
 
 }

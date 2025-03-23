@@ -11,5 +11,6 @@
         public bool TrackEnabled { get; set; }
         public int VariationMonthNumber { get; set; }
         public string ImageRepositoryPath { get; set; }
+        public int ProcessSatelliteId { get; set; }
     }
 }
