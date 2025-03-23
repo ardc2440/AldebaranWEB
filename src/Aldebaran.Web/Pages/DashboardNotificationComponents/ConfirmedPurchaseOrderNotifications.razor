@@ -28,19 +28,35 @@
                                             MouseEnter="@(args => ShowTooltip(args,"Marcar", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.ConfirmedPurchaseOrder" Property="OrderNumber" Title="Número de orden" Width="40%">
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.ConfirmedPurchaseOrder" Property="OrderNumber" Title="Documento" Width="40%">
                         <Template Context="confirmedPurchaseOrder">
-                            <RadzenLink href="javascript:void(0);" @onclick="@(async (args) => await PurchaseOrderDetailInfo(confirmedPurchaseOrder.PurchaseOrderId))">
-                                @confirmedPurchaseOrder.OrderNumber
+                            <RadzenLink href="javascript:void(0);" @onclick="@(async (args) => await PurchaseOrderDetailInfo(confirmedPurchaseOrder.DocumentType, confirmedPurchaseOrder.DocumentId))">
+                                @{
+                                    var texto = "";
+
+                                    if (confirmedPurchaseOrder.DocumentType == "O")
+                                        texto = $" Orden. {@confirmedPurchaseOrder.OrderNumber}";
+                                    else
+                                        texto = $" Traslado. {@confirmedPurchaseOrder.OrderNumber}";
+                                }
+                                @texto
                             </RadzenLink>
                         </Template>
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.ConfirmedPurchaseOrder" Title="Identificación" Property="IdentityNumber" Width="30%" Filterable="false" />
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.ConfirmedPurchaseOrder" Title="Proveedor" Property="ProviderName" Width="30%" Filterable="false" />
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.ConfirmedPurchaseOrder" Title="Origen" Property="ProviderName" Width="30%" Filterable="false" />
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.ConfirmedPurchaseOrder" Title="Proforma" Property="ProformaNumber" Width="30%" Filterable="false" />
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.ConfirmedPurchaseOrder" Title="No. importación" Property="ImportNumber" Width="30%" Filterable="false" />
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.ConfirmedPurchaseOrder" Title="Fecha recibo" Property="ReceptionDate" Width="30%" Filterable="false" />
-                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.ConfirmedPurchaseOrder" Title="Fecha confirmación" Property="ConfirmationDate" Width="30%" Filterable="false" />
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.ConfirmedPurchaseOrder" Title="Import/National" Property="ImportNumber" Width="30%" Filterable="false" />
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.ConfirmedPurchaseOrder" Title="Recibo/Traslado" Property="ReceptionDate" Width="30%" Filterable="false">
+                        <Template Context="confirmedPurchaseOrder">
+                            <span>@confirmedPurchaseOrder.ReceptionDate.ToString(SharedLocalizer["date:format"])</span>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.ConfirmedPurchaseOrder" Title="Creación" Property="ConfirmationDate" Width="30%" Filterable="false">
+                        <Template Context="confirmedPurchaseOrder">
+                            <span>@confirmedPurchaseOrder.ConfirmationDate.ToString(SharedLocalizer["date:format"])</span>
+                        </Template>
+                    </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.ConfirmedPurchaseOrder" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
                         <Template Context="alarm">
                             <RadzenButton Icon="assignment_turned_in" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => DisableAlarm(alarm))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Ocultar alarma", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
@@ -117,7 +133,7 @@
                                                 <Template Context="detail">
                                                     @detail.Pending.ToString("N0")
                                                 </Template>
-                                            </RadzenDataGridColumn>                                            
+                                            </RadzenDataGridColumn>
                                         </Columns>
                                     </LocalizedDataGrid>
                                 </RadzenStack>

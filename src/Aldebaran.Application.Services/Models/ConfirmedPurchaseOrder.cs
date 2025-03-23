@@ -9,7 +9,8 @@ namespace Aldebaran.Application.Services.Models
     public class ConfirmedPurchaseOrder
     {
         public int AlarmId { get; set; }
-        public int PurchaseOrderId { get; set; }
+        public required string DocumentType { get; set; }
+        public int DocumentId { get; set; }
         public required string OrderNumber { get; set; }
         public required string IdentityNumber { get; set; }
         public required string ProviderName { get; set; }

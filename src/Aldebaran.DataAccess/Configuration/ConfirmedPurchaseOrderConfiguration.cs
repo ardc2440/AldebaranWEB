@@ -15,7 +15,8 @@ namespace Aldebaran.DataAccess.Configuration
         {
             builder.HasNoKey();
             builder.Property(x => x.AlarmId).HasColumnName(@"AUTOMATIC_IN_PROCESS_ID").HasColumnType("INT");
-            builder.Property(x => x.PurchaseOrderId).HasColumnName(@"PURCHASE_ORDER_ID").HasColumnType("INT");
+            builder.Property(x => x.DocumentType).HasColumnName(@"DOCUMENT_TYPE").HasColumnType("VARCHAR(1)");
+            builder.Property(x => x.DocumentId).HasColumnName(@"DOCUMENT_ID").HasColumnType("INT");
             builder.Property(x => x.OrderNumber).HasColumnName(@"ORDER_NUMBER").HasColumnType("VARCHAR(10)") ;
             builder.Property(x => x.IdentityNumber).HasColumnName(@"IDENTITY_NUMBER").HasColumnType("VARCHAR(15)");
             builder.Property(x => x.ProviderName).HasColumnName(@"PROVIDER_NAME").HasColumnType("VARCHAR(50)");

@@ -83,6 +83,8 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         {
             return await ExecuteCommandAsync(async dbContext =>
             {
+                var localWarehouse = dbContext.Warehouses.AsNoTracking().FirstOrDefault(f => f.WarehouseCode == 1);
+
                 var entity = new WarehouseTransfer
                 {
                     WarehouseTransferDetails = new List<WarehouseTransferDetail>(),
@@ -107,6 +109,9 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 {
                     await dbContext.WarehouseTransfers.AddAsync(entity, ct);
                     await dbContext.SaveChangesAsync(ct);
+
+                    if (entity.DestinationWarehouseId == localWarehouse?.WarehouseId)
+                        await dbContext.Database.ExecuteSqlInterpolatedAsync($"EXEC dbo.SP_AUTOMATIC_CUSTOMER_ORDER_IN_PROCESS_GENERATION @DocumentType = 'B', @DocumentId = {entity.WarehouseTransferId}", ct);
                 }
                 catch (Exception)
                 {

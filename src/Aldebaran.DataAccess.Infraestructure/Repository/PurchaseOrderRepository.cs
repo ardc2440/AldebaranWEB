@@ -114,7 +114,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 {
                     await dbContext.SaveChangesAsync(ct);
 
-                    await dbContext.Database.ExecuteSqlInterpolatedAsync($"EXEC dbo.SP_Gen_Orders_In_Proc_From_Confirmed_Purchase_Order {purchaseOrderId}", ct);
+                    await dbContext.Database.ExecuteSqlInterpolatedAsync($"EXEC dbo.SP_AUTOMATIC_CUSTOMER_ORDER_IN_PROCESS_GENERATION @DocumentType = 'O', @DocumentId = {purchaseOrderId}", ct);
                 }
                 catch
                 {

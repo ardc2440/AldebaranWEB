@@ -1,16 +1,22 @@
-CREATE OR ALTER   PROCEDURE [dbo].[SP_Automatic_In_Process_Registry]
+CREATE OR ALTER   PROCEDURE [dbo].[SP_AUTOMATIC_IN_PROCESS_REGISTRY]
 	@AutomaticInProcessId INT = NULL,
-	@PurchaseOrderId INT,
+	@DocumentType CHAR(1),
+	@DocumentId INT,
 	@CustomerOrderId INT,
 	@CustomerOrderInProcessId INT,
 	@NewAutomaticInProcessId INT OUT
 AS
 BEGIN	
-	
+	DECLARE @DocumentTypeId SMALLINT
+
 	IF @AutomaticInProcessId IS NULL
 	BEGIN
-		INSERT INTO automatic_in_process (PURCHASE_ORDER_ID)
-			 VALUES (@PurchaseOrderId)
+		SELECT @DocumentTypeId = DOCUMENT_TYPE_ID
+		  FROM document_types 
+		 WHERE DOCUMENT_TYPE_CODE = @DocumentType
+
+		INSERT INTO automatic_in_process (DOCUMENT_TYPE_ID, DOCUMENT_ID)
+			 VALUES (@DocumentTypeId, @DocumentId)
 	
 		SET @NewAutomaticInProcessId = SCOPE_IDENTITY()
 	END 

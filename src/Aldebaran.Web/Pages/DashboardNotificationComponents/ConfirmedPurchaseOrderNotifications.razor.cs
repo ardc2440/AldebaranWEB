@@ -342,11 +342,14 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
                 return;
         }
 
-        public async Task PurchaseOrderDetailInfo(int PurchaseOrderId)
+        public async Task PurchaseOrderDetailInfo(string documentType, int purchaseOrderId)        
         {
-            var reasonResult = await DialogService.OpenAsync<PurchaseOrderPages.PurchaseOrderDetails>("Detalles de la orden de compra", new Dictionary<string, object> { { "PurchaseOrderId", PurchaseOrderId } }, options: new DialogOptions { CloseDialogOnOverlayClick = false, Width = "800px" });
-            if (reasonResult == null)
-                return;
+            if (documentType == "O")
+            {
+                var reasonResult = await DialogService.OpenAsync<PurchaseOrderPages.PurchaseOrderDetails>("Detalles de la orden de compra", new Dictionary<string, object> { { "PurchaseOrderId", purchaseOrderId } }, options: new DialogOptions { CloseDialogOnOverlayClick = false, Width = "800px" });
+                if (reasonResult == null)
+                    return;
+            }
         }
 
         protected async Task DownloadAsync(MouseEventArgs arg, int customerOrderId)
