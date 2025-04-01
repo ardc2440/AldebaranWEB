@@ -636,6 +636,15 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         {
             customerOrderInProcessDetails = await CustomerOrderInProcessDetailService.GetByCustomerOrderInProcessIdAsync(args.CustomerOrderInProcessId);
         }
+        private async Task ShowNotesDialog(string notes)
+        {
+            await DialogService.OpenAsync("Notas del traslado", ds => (RenderFragment)(builder =>
+            {
+                builder.OpenElement(0, "div");
+                builder.AddContent(1, notes);
+                builder.CloseElement();
+            }), new DialogOptions() { CloseDialogOnOverlayClick = true });
+        }
         #endregion
 
         #region CustomerOrderShipment

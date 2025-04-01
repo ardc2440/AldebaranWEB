@@ -112,6 +112,16 @@
                                                 </RadzenDataGridColumn>
                                                 <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrdersInProcess" Property="ProcessSatellite.ProcessSatelliteName" Title="Satelite">
                                                 </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrdersInProcess" Property="Notes" Title="Notas">
+                                                    <Template Context="customerOrderInProcess">
+                                                        @if (!string.IsNullOrWhiteSpace(customerOrderInProcess.Notes))
+                                                        {
+                                                            <RadzenButton Icon="note" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                                                          Click="@(args => ShowNotesDialog(customerOrderInProcess.Notes))"
+                                                                          @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Ver notas", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                                                        }
+                                                    </Template>
+                                                </RadzenDataGridColumn>
                                                 <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrdersInProcess" Property="Employee.FullName" Title="Creado por">
                                                 </RadzenDataGridColumn>
                                                 <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrdersInProcess" Property="EmployeeRecipient.FullName" Title="Recibido por">

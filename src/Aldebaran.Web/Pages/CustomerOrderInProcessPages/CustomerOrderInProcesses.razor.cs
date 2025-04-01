@@ -91,7 +91,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                 isLoadingInProgress = true;
 
                 await Task.Yield();
-                                
+
                 await DialogResultResolver();
             }
             finally
@@ -115,7 +115,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         async Task GetCustomerOrderInProcessAsync(string searchKey = null, CancellationToken ct = default)
         {
             await Task.Yield();
-            (customerOrders, count) = string.IsNullOrEmpty(searchKey) ? await CustomerOrderService.GetWhitOutCancellationRequestAsync(skip, top, 0, ct) : await CustomerOrderService.GetWhitOutCancellationRequestAsync(skip, top, searchKey, 0, ct);            
+            (customerOrders, count) = string.IsNullOrEmpty(searchKey) ? await CustomerOrderService.GetWhitOutCancellationRequestAsync(skip, top, 0, ct) : await CustomerOrderService.GetWhitOutCancellationRequestAsync(skip, top, searchKey, 0, ct);
         }
 
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
@@ -162,7 +162,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
             await CustomerOrdersGrid.GoToPage(0);
 
-            await GetCustomerOrderInProcessAsync(search);            
+            await GetCustomerOrderInProcessAsync(search);
         }
 
         protected async Task GetOrderDetails(CustomerOrder args)
@@ -244,7 +244,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
                 var reason = (Reason)reasonResult;
 
-                var statusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync((await DocumentTypeService.FindByCodeAsync("T")).DocumentTypeId, 2);                
+                var statusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync((await DocumentTypeService.FindByCodeAsync("T")).DocumentTypeId, 2);
                 await CustomerOrdersInProcessService.CancelAsync(customerOrderInProcess.CustomerOrderInProcessId, statusDocumentType.StatusDocumentTypeId, reason);
                 await GetCustomerOrderInProcessAsync(search);
 
@@ -268,6 +268,17 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
             {
                 { "ArticleName", articleName }
             });
+
+        private async Task ShowNotesDialog(string notes)
+        {
+            await DialogService.OpenAsync("Notas del traslado", ds => (RenderFragment)(builder =>
+            {
+                builder.OpenElement(0, "div");
+                builder.AddContent(1, notes);
+                builder.CloseElement();
+            }), new DialogOptions() { CloseDialogOnOverlayClick = true });            
+        }
+
         #endregion
     }
 }
