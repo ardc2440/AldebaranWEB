@@ -1,11 +1,12 @@
 ﻿using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Shared.ViewModel;
 
-namespace Aldebaran.Web.Pages.ReportPages.Automatic_Purchase_Order_Assigment.ViewModel
+namespace Aldebaran.Web.Pages.ReportPages.Automatic_Customer_Ordert_In_Process_Creation.ViewModel
 {
     public class AutomaticAssigmentFilter : ICloneable
     {
-        public string PurchaseOrderNumber { get; set; }
+        public string DocumentType { get; set; }
+        public string DocumentNumber { get; set; }
         public int? ProviderId { get; set; }
         public Provider Provider { get; set; }
         public string ProformaNumber { get; set; }

@@ -6,7 +6,7 @@ using Radzen.Blazor;
 using Radzen;
 using Aldebaran.Application.Services.Models;
 
-namespace Aldebaran.Web.Pages.ReportPages.Automatic_Purchase_Order_Assigment.Components
+namespace Aldebaran.Web.Pages.ReportPages.Automatic_Customer_Ordert_In_Process_Creation.Components
 {
     public partial class AutomaticAssigmentReporFilter
     {
@@ -54,8 +54,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Automatic_Purchase_Order_Assigment.Com
         protected bool ValidationOrderDate = false;
         protected bool FirstRender = true;
         protected int countProviders = 0;
-        protected int countCustomers = 0;
-
+        protected int countCustomers = 0;        
+        
         #endregion
 
         #region Override
@@ -130,7 +130,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Automatic_Purchase_Order_Assigment.Com
                 IsSubmitInProgress = true;
 
                 // Si no se han incluido filtros, mostrar mensaje de error
-                if (string.IsNullOrEmpty(Filter.PurchaseOrderNumber) &&
+                if (string.IsNullOrEmpty(Filter.DocumentType) &&
+                    string.IsNullOrEmpty(Filter.DocumentNumber) &&
                     string.IsNullOrEmpty(Filter.CustomerOrderNumber) &&
                     string.IsNullOrEmpty(Filter.ProformaNumber) &&
                     string.IsNullOrEmpty(Filter.ImportNumber) &&
@@ -172,7 +173,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Automatic_Purchase_Order_Assigment.Com
                     ValidationOrderDate = true;
                     return;
                 }
-                Filter.PurchaseOrderNumber = string.IsNullOrEmpty(Filter.PurchaseOrderNumber) ? null : Filter.PurchaseOrderNumber;
+                Filter.DocumentType = string.IsNullOrEmpty(Filter.DocumentType) ? null : Filter.DocumentType;
+                Filter.DocumentNumber = string.IsNullOrEmpty(Filter.DocumentNumber) ? null : Filter.DocumentNumber;
                 Filter.ImportNumber = string.IsNullOrEmpty(Filter.ImportNumber) ? null : Filter.ImportNumber;
                 Filter.ProformaNumber = string.IsNullOrEmpty(Filter.ProformaNumber) ? null : Filter.ProformaNumber;
                 Filter.Provider = Filter.ProviderId != null ? Providers.FirstOrDefault(s => s.ProviderId == Filter.ProviderId.Value) : null;

@@ -6,15 +6,14 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.JSInterop;
 using Radzen.Blazor;
 using Radzen;
-using Aldebaran.Web.Pages.ReportPages.Automatic_Purchase_Order_Assigment;
 
-namespace Aldebaran.Web.Pages.ReportPages.Automatic_Purchase_Order_Assigment
+namespace Aldebaran.Web.Pages.ReportPages.Automatic_Customer_Ordert_In_Process_Creation
 {
-    public partial class AutomaticPurchaseOrderAssigmentReport
+    public partial class AutomaticCustomerOrderInProcessReport
     {
         #region Injections
         [Inject]
-        protected ILogger<AutomaticPurchaseOrderAssigmentReport> Logger { get; set; }
+        protected ILogger<AutomaticCustomerOrderInProcessReport> Logger { get; set; }
 
         [Inject]
         protected DialogService DialogService { get; set; }
@@ -67,7 +66,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Automatic_Purchase_Order_Assigment
 
                 ViewModel = new ViewModel.AutomaticAssigmentViewModel()
                 {
-                    PurchaseOrders = await GetPurchaseOrdersAsync(ct)
+                    Documents = await GetDocumentsAsync(ct)
                 };
             }
             finally
@@ -92,8 +91,11 @@ namespace Aldebaran.Web.Pages.ReportPages.Automatic_Purchase_Order_Assigment
             if (filter.EstimatedDeliveryDate.StartDate.HasValue)
                 filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@EstimatedDeliveryDateFrom = '{(DateTime)filter.EstimatedDeliveryDate.StartDate:yyyyMMdd}', @EstimatedDeliveryDateFrom = '{(DateTime)filter.EstimatedDeliveryDate.EndDate:yyyyMMdd}'";
 
-            if (!filter.PurchaseOrderNumber.IsNullOrEmpty())
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@PurchaseOrderNumber = '{filter.PurchaseOrderNumber}'";
+            if (!filter.DocumentType.IsNullOrEmpty())
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@DocumentType = '{filter.DocumentType}'";
+
+            if (!filter.DocumentNumber.IsNullOrEmpty())
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@DocumentNumber = '{filter.DocumentNumber}'";
 
             if (!filter.CustomerOrderNumber.IsNullOrEmpty())
                 filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@CustomerOrderNumber = '{filter.CustomerOrderNumber}'";
@@ -169,35 +171,37 @@ namespace Aldebaran.Web.Pages.ReportPages.Automatic_Purchase_Order_Assigment
 
         #region Fill Data Report
 
-        async Task<List<ViewModel.AutomaticAssigmentViewModel.PurchaseOrder>> GetPurchaseOrdersAsync(CancellationToken ct = default)
+        async Task<List<ViewModel.AutomaticAssigmentViewModel.Document>> GetDocumentsAsync(CancellationToken ct = default)
         {
-            var orders = new List<ViewModel.AutomaticAssigmentViewModel.PurchaseOrder>();
+            var orders = new List<ViewModel.AutomaticAssigmentViewModel.Document>();
 
-            foreach (var order in DataReport.Select(s => new { s.PurchaseOrderId, s.PurchaseOrderNumber, s.ProviderIdentity, s.ProviderName, s.ProformaNumber, s.ImportNumber, s.ReceipDate, s.ConfirmationDate })
-                                    .DistinctBy(d => d.PurchaseOrderId)
-                                    .OrderBy(o => o.PurchaseOrderNumber))
+            foreach (var order in DataReport.Select(s => new { s.DocumentType, s.DocumentId, s.DocumentNumber, s.ProviderIdentity, s.ProviderName, s.ProformaNumber, s.ImportNumber, s.ReceipDate, s.ConfirmationDate })
+                                    .DistinctBy(d => new { d.DocumentType, d.DocumentId })
+                                    .OrderBy(o => o.DocumentType)
+                                    .ThenBy(o => o.DocumentNumber))
             {
-                orders.Add(new ViewModel.AutomaticAssigmentViewModel.PurchaseOrder
+                orders.Add(new ViewModel.AutomaticAssigmentViewModel.Document
                 {
-                    PurchaseOrderId = order.PurchaseOrderId,
-                    PurchaseOrderNumber = order.PurchaseOrderNumber,
+                    DocumentType = order.DocumentType,
+                    DocumentId = order.DocumentId,
+                    DocumentNumber = order.DocumentNumber,
                     ProviderIdentity = order.ProviderIdentity,
                     ProviderName = order.ProviderName,
                     ProformaNumber = order.ProformaNumber,
                     ImportNumber = order.ImportNumber,
                     ReceiptDate = order.ReceipDate,
                     ConfirmationDate = order.ConfirmationDate,
-                    CustomerOrders = await GetCustomerOrders(order.PurchaseOrderId, ct)
+                    CustomerOrders = await GetCustomerOrders(order.DocumentType, order.DocumentId, ct)
                 });
             }
 
             return orders;
         }
-        async Task<List<ViewModel.AutomaticAssigmentViewModel.CustomerOrder>> GetCustomerOrders(int purchaseOrderId, CancellationToken ct = default)
+        async Task<List<ViewModel.AutomaticAssigmentViewModel.CustomerOrder>> GetCustomerOrders(string documentType, int documentId, CancellationToken ct = default)
         {
             var customerOrders = new List<ViewModel.AutomaticAssigmentViewModel.CustomerOrder>();
 
-            foreach (var customerOrder in DataReport.Where(w => w.PurchaseOrderId == purchaseOrderId)
+            foreach (var customerOrder in DataReport.Where(w => w.DocumentType == documentType && w.DocumentId == documentId)
                                             .Select(s => new { s.CustomerOrderId, s.CustomerOrderNumber, s.CustomerIdentity, s.CustomerName, s.OrderDate, s.EstimatedDeliveryDate, s.StatusOrderName })
                                             .DistinctBy(d => d.CustomerOrderId)
                                             .OrderBy(o => o.CustomerOrderNumber))
@@ -211,17 +215,18 @@ namespace Aldebaran.Web.Pages.ReportPages.Automatic_Purchase_Order_Assigment
                     OrderDate = customerOrder.OrderDate,
                     EstimatedDeliveryDate = customerOrder.EstimatedDeliveryDate,
                     StatusOrderName = customerOrder.StatusOrderName,
-                    CustomerOrderArticles = await GetCustomerOrderArticles(purchaseOrderId, customerOrder.CustomerOrderId, ct)
+                    CustomerOrderArticles = await GetCustomerOrderArticles(documentType, documentId, customerOrder.CustomerOrderId, ct)
                 });
             }
 
             return customerOrders;
         }
-        async Task<List<ViewModel.AutomaticAssigmentViewModel.CustomerOrderArticle>> GetCustomerOrderArticles(int purchaseOrderId, int customerOrderId, CancellationToken ct = default)
+        async Task<List<ViewModel.AutomaticAssigmentViewModel.CustomerOrderArticle>> GetCustomerOrderArticles(string documentType, int documentId, int customerOrderId, CancellationToken ct = default)
         {
             var customerOrderArticles = new List<ViewModel.AutomaticAssigmentViewModel.CustomerOrderArticle>();
 
-            foreach (var customerOrderArticle in DataReport.Where(w => w.PurchaseOrderId == purchaseOrderId &&
+            foreach (var customerOrderArticle in DataReport.Where(w => w.DocumentType == documentType && 
+                                                                       w.DocumentId == documentId &&
                                                                        w.CustomerOrderId == customerOrderId)
                                                     .Select(s => new { s.ItemId, s.InternalReference, s.ItemName })
                                                     .DistinctBy(d => d.ItemId)
@@ -232,17 +237,18 @@ namespace Aldebaran.Web.Pages.ReportPages.Automatic_Purchase_Order_Assigment
                     ItemId = customerOrderArticle.ItemId,
                     ItemName = customerOrderArticle.ItemName,
                     InternalReference = customerOrderArticle.InternalReference,
-                    CustomerOrderDetails = await GetCustomerOrderDetails(purchaseOrderId, customerOrderId, customerOrderArticle.ItemId, ct)
+                    CustomerOrderDetails = await GetCustomerOrderDetails(documentType, documentId, customerOrderId, customerOrderArticle.ItemId, ct)
                 });
             }
 
             return customerOrderArticles;
         }
-        async Task<List<ViewModel.AutomaticAssigmentViewModel.CustomerOrderDetail>> GetCustomerOrderDetails(int purchaseOrderId, int customerOrderId, int itemId, CancellationToken ct = default)
+        async Task<List<ViewModel.AutomaticAssigmentViewModel.CustomerOrderDetail>> GetCustomerOrderDetails(string documentType, int documentId, int customerOrderId, int itemId, CancellationToken ct = default)
         {
             var customerOrderDetails = new List<ViewModel.AutomaticAssigmentViewModel.CustomerOrderDetail>();
 
-            foreach (var customerOrderArticle in DataReport.Where(w => w.PurchaseOrderId == purchaseOrderId &&
+            foreach (var customerOrderArticle in DataReport.Where(w => w.DocumentType == documentType && 
+                                                                       w.DocumentId == documentId &&
                                                                        w.CustomerOrderId == customerOrderId &&
                                                                        w.ItemId == itemId)
                                                     .Select(s => new { s.ReferenceName, s.Requested, s.Assigned, s.Pending })

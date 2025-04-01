@@ -10,6 +10,7 @@ CREATE OR ALTER   PROCEDURE [dbo].[SP_AUTOMATIC_CUSTOMER_ORDER_ASSIGMENT_REPORT]
 	@OrderDateFrom DATE = NULL, @OrderDateTo DATE = NULL, 
 	@EstimatedDeliveryDateFrom DATE = NULL, @EstimatedDeliveryDateTo DATE = NULL,
 	@StatusDocumentTypeId INT = NULL, 
+	@DocumentType VARCHAR(1) = NULL, 
 	@ReferenceIds VARCHAR(MAX) = ''
 AS
 BEGIN
@@ -23,14 +24,20 @@ BEGIN
 			 SELECT REFERENCE_ID 
 			   FROM item_references
 
-	SELECT b.PURCHASE_ORDER_ID PurchaseOrderId, b.ORDER_NUMBER PurchaseOrderNumber, c.IDENTITY_NUMBER ProviderIdentity, c.PROVIDER_NAME ProviderName, 
+	DECLARE @PurchaseDocumentTypeId SMALLINT 
+
+	SELECT @PurchaseDocumentTypeId = DOCUMENT_TYPE_ID 
+	  FROM document_types 
+	 WHERE DOCUMENT_TYPE_CODE = 'O'
+	
+	SELECT 'O' DocumentType, b.PURCHASE_ORDER_ID DocumentId, b.ORDER_NUMBER DocumentNumber, c.IDENTITY_NUMBER ProviderIdentity, c.PROVIDER_NAME ProviderName, 
 		   b.PROFORMA_NUMBER ProformaNumber, b.IMPORT_NUMBER ImportNumber, b.REAL_RECEIPT_DATE ReceipDate, CAST (a.Creation_Date AS date) ConfirmationDate, 
 		   e.CUSTOMER_ORDER_ID CustomerOrderId, e.ORDER_NUMBER CustomerOrderNumber, f.IDENTITY_NUMBER CustomerIdentity, f.CUSTOMER_NAME CustomerName, 
 		   e.ORDER_DATE OrderDate, e.ESTIMATED_DELIVERY_DATE EstimatedDeliveryDate, g.STATUS_DOCUMENT_TYPE_NAME StatusOrderName, j.ITEM_ID ItemId, 
 		   j.INTERNAL_REFERENCE InternalReference, j.ITEM_NAME ItemName, i.REFERENCE_NAME ReferenceName, k.REQUESTED_QUANTITY Requested, 
 		   h.ASSIGNED_QUANTITY Assigned, (k.REQUESTED_QUANTITY - k.DELIVERED_QUANTITY - k.PROCESSED_QUANTITY) Pending 
 	  FROM automatic_in_process a
-	  JOIN purchase_orders b ON b.PURCHASE_ORDER_ID = a.PURCHASE_ORDER_ID
+	  JOIN purchase_orders b ON b.PURCHASE_ORDER_ID = a.DOCUMENT_ID
 	  JOIN providers c ON c.PROVIDER_ID = b.PROVIDER_ID	  	 
 
 	  JOIN automatic_in_process_orders d ON d.AUTOMATIC_IN_PROCESS_ID = a.AUTOMATIC_IN_PROCESS_ID 	  
@@ -42,7 +49,8 @@ BEGIN
 	  JOIN item_references i ON i.REFERENCE_ID = h.REFERENCE_ID
 	  JOIN items j ON j.ITEM_ID = i.ITEM_ID
 	  JOIN customer_order_details k on k.CUSTOMER_ORDER_DETAIL_ID = h.CUSTOMER_ORDER_DETAIL_ID
-	 WHERE EXISTS (SELECT 1 FROM @FilterReferences fr WHERE fr.ReferenceId = i.REFERENCE_ID)
+	 WHERE a.DOCUMENT_TYPE_ID = @PurchaseDocumentTypeId
+	   AND EXISTS (SELECT 1 FROM @FilterReferences fr WHERE fr.ReferenceId = i.REFERENCE_ID)
 	   AND (b.ORDER_NUMBER like '%'+@PurchaseOrderNumber+'%' OR @PurchaseOrderNumber IS NULL)
 	   AND (c.PROVIDER_ID = @ProviderId OR @ProviderId IS NULL)
 	   AND (b.PROFORMA_NUMBER like '%'+@ProformaNumber+'%' OR @ProformaNumber IS NULL)
@@ -54,6 +62,38 @@ BEGIN
 	   AND (e.ORDER_DATE BETWEEN @OrderDateFrom AND @OrderDateTo OR @OrderDateFrom IS NULL)
 	   AND (e.ESTIMATED_DELIVERY_DATE BETWEEN @EstimatedDeliveryDateFrom AND @EstimatedDeliveryDateTo OR @EstimatedDeliveryDateFrom IS NULL)
 	   AND (g.STATUS_DOCUMENT_TYPE_ID = @StatusDocumentTypeId OR @StatusDocumentTypeId IS NULL)	   
+	   AND (@DocumentType = 'O' OR @DocumentType IS NULL)
+	UNION
+	SELECT 'B' DocumentType, b.WAREHOUSE_TRANSFER_ID DocumentId, CAST(b.WAREHOUSE_TRANSFER_ID AS VARCHAR(10)) DocumentNumber, 'N/A' ProviderIdentity, 'Bodega Zona Franca' ProviderName, 
+		   'N/A' ProformaNumber, 'N/A' ImportNumber, b.TRANSFER_DATE ReceipDate, CAST (a.Creation_Date AS date) ConfirmationDate, 
+		   e.CUSTOMER_ORDER_ID CustomerOrderId, e.ORDER_NUMBER CustomerOrderNumber, f.IDENTITY_NUMBER CustomerIdentity, f.CUSTOMER_NAME CustomerName, 
+		   e.ORDER_DATE OrderDate, e.ESTIMATED_DELIVERY_DATE EstimatedDeliveryDate, g.STATUS_DOCUMENT_TYPE_NAME StatusOrderName, j.ITEM_ID ItemId, 
+		   j.INTERNAL_REFERENCE InternalReference, j.ITEM_NAME ItemName, i.REFERENCE_NAME ReferenceName, k.REQUESTED_QUANTITY Requested, 
+		   h.ASSIGNED_QUANTITY Assigned, (k.REQUESTED_QUANTITY - k.DELIVERED_QUANTITY - k.PROCESSED_QUANTITY) Pending 
+	  FROM automatic_in_process a
+	  JOIN warehouse_transfers b ON b.WAREHOUSE_TRANSFER_ID = a.DOCUMENT_ID
+	  
+	  JOIN automatic_in_process_orders d ON d.AUTOMATIC_IN_PROCESS_ID = a.AUTOMATIC_IN_PROCESS_ID 	  
+	  JOIN customer_orders e ON e.CUSTOMER_ORDER_ID = d.CUSTOMER_ORDER_ID
+	  JOIN customers f ON f.CUSTOMER_ID = e.CUSTOMER_ID 
+	  JOIN status_document_types g ON g.STATUS_DOCUMENT_TYPE_ID = e.STATUS_DOCUMENT_TYPE_ID		 
+
+	  JOIN automatic_in_process_detail h ON h.AUTOMATIC_IN_PROCESS_ORDER_ID = d.AUTOMATIC_IN_PROCESS_ORDER_ID	  
+	  JOIN item_references i ON i.REFERENCE_ID = h.REFERENCE_ID
+	  JOIN items j ON j.ITEM_ID = i.ITEM_ID
+	  JOIN customer_order_details k on k.CUSTOMER_ORDER_DETAIL_ID = h.CUSTOMER_ORDER_DETAIL_ID
+	 WHERE a.DOCUMENT_TYPE_ID <> @PurchaseDocumentTypeId
+	   AND EXISTS (SELECT 1 FROM @FilterReferences fr WHERE fr.ReferenceId = i.REFERENCE_ID)
+	   AND (b.WAREHOUSE_TRANSFER_ID like '%'+@PurchaseOrderNumber+'%' OR @PurchaseOrderNumber IS NULL)
+	   AND (b.NATIONALIZATION like '%'+@ImportNumber+'%' OR @ImportNumber IS NULL)
+	   AND (b.TRANSFER_DATE BETWEEN @ReceiptDateFrom AND @ReceiptDateTo OR @ReceiptDateFrom IS NULL)
+	   AND (a.CREATION_DATE BETWEEN @ConfirmedDateFrom AND @ConfirmedDateTo OR @ConfirmedDateFrom IS NULL)
+	   AND (e.ORDER_NUMBER like '%'+@CustomerOrderNumber+'%' OR @CustomerOrderNumber IS NULL)
+	   AND (f.CUSTOMER_ID = @CustomerId OR @CustomerId IS NULL)
+	   AND (e.ORDER_DATE BETWEEN @OrderDateFrom AND @OrderDateTo OR @OrderDateFrom IS NULL)
+	   AND (e.ESTIMATED_DELIVERY_DATE BETWEEN @EstimatedDeliveryDateFrom AND @EstimatedDeliveryDateTo OR @EstimatedDeliveryDateFrom IS NULL)
+	   AND (g.STATUS_DOCUMENT_TYPE_ID = @StatusDocumentTypeId OR @StatusDocumentTypeId IS NULL)	  
+	   AND (@DocumentType = 'B' OR @DocumentType IS NULL)
 END
 	 
 GO

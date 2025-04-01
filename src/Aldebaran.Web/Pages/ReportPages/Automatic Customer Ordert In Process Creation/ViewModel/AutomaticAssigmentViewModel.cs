@@ -1,13 +1,14 @@
-﻿namespace Aldebaran.Web.Pages.ReportPages.Automatic_Purchase_Order_Assigment.ViewModel
+﻿namespace Aldebaran.Web.Pages.ReportPages.Automatic_Customer_Ordert_In_Process_Creation.ViewModel
 {
     public class AutomaticAssigmentViewModel
     {
-        public List <PurchaseOrder> PurchaseOrders { get; set; }
+        public List <Document> Documents { get; set; }
 
-        public class PurchaseOrder
+        public class Document
         {
-            public int PurchaseOrderId { get; set; }
-            public string PurchaseOrderNumber { get; set; }
+            public string DocumentType { get; set; }
+            public int DocumentId { get; set; }
+            public string DocumentNumber { get; set; }
             public string ProviderIdentity { get; set; }
             public string ProviderName { get; set; }
             public string ProformaNumber { get; set; }

@@ -20,11 +20,26 @@
             <div class="component-section d-flex flex-column justify-content-start text-secondary-color">
                 @if (Filter != null)
                 {
-                    @if (!string.IsNullOrEmpty(Filter.PurchaseOrderNumber))
+                    @if (!string.IsNullOrEmpty(Filter.DocumentType))
                     {
                         <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
-                            <p class="component-label m-0 fw-bold">Número de la orden de compra: </p>
-                            <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.PurchaseOrderNumber</span>
+                            <p class="component-label m-0 fw-bold">Tipo de documento: </p>
+                            @if (Filter.DocumentType == "O")
+                            {
+                                <span style="line-height: 1rem;transform: translate(0, -2px);">Orden de compra</span>
+                            }
+                            else
+                            {
+                                <span style="line-height: 1rem;transform: translate(0, -2px);">Traslado entre bodegas</span>
+                            }                            
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Filter.DocumentNumber))
+                    {
+                        <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
+                            <p class="component-label m-0 fw-bold">Número del documento: </p>
+                            <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.DocumentNumber</span>
                         </div>
                     }
                     @if (Filter.ReceiptDate?.StartDate != null || Filter.ReceiptDate?.EndDate != null)
@@ -73,7 +88,7 @@
                     @if (Filter.ImportNumber != null)
                     {
                         <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
-                            <p class="component-label m-0 fw-bold">Número de importación: </p>
+                            <p class="component-label m-0 fw-bold">Número de importación/Nacionalización: </p>
                             <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.ImportNumber</span>
                         </div>
                     }
@@ -178,7 +193,7 @@
                         <table>
                             <tr>
                                 <td width="50%">
-                                    <h2 class="text-left mb-0">Ordenes de compra confirmadas</h2>
+                                    <h2 class="text-left mb-0">Ordenes de compra confirmadas y Traslados realizados a bodega local</h2>
                                     <span class="mb-1">@DateTime.Now.ToString(SharedLocalizer["datetime:format"])</span>
                                 </td>
                                 <td width="50%">
@@ -187,11 +202,25 @@
                                         <div class="filters">
                                             <div class="title">Filtros:</div>
                                             <div>
-                                                @if (!string.IsNullOrEmpty(Filter.PurchaseOrderNumber))
+                                                @if (!string.IsNullOrEmpty(Filter.DocumentType))
+                                                {
+                                                    <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
+                                                        <p class="component-label m-0 fw-bold">Tipo de documento: </p>
+                                                        @if (Filter.DocumentType == "O")
+                                                        {
+                                                            <span style="line-height: 1rem;transform: translate(0, -2px);">Orden de compra</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span style="line-height: 1rem;transform: translate(0, -2px);">Traslado entre bodegas</span>
+                                                        }
+                                                    </div>
+                                                }
+                                                @if (!string.IsNullOrEmpty(Filter.DocumentNumber))
                                                 {
                                                     <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
-                                                        <div class="type" style="display:inline-block">Número de la orden de compra: </div>
-                                                        <span>@Filter.PurchaseOrderNumber</span>
+                                                        <div class="type" style="display:inline-block">Número del documento: </div>
+                                                        <span>@Filter.DocumentNumber</span>
                                                     </div>
                                                 }
                                                 @if (Filter.ReceiptDate?.StartDate != null || Filter.ReceiptDate?.EndDate != null)
@@ -233,7 +262,7 @@
                                                 @if (Filter.ImportNumber != null)
                                                 {
                                                     <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
-                                                        <div class="type">Número de importación: </div>
+                                                        <div class="type">Número de importación/nacionalización: </div>
                                                         <span>@Filter.ImportNumber</span>
                                                     </div>
                                                 }
@@ -335,16 +364,27 @@
                             <LoadingData IsLoadingData="@IsLoadingData" />
                             @if (ViewModel != null)
                             {
-                                @if (ViewModel.PurchaseOrders?.Any() == true)
+                                @if (ViewModel.Documents?.Any() == true)
                                 {
-                                    @for (int o = 0; o < ViewModel.PurchaseOrders.Count(); o++)
+                                    @for (int o = 0; o < ViewModel.Documents.Count(); o++)
                                     {
-                                        var order = ViewModel.PurchaseOrders[o];
+                                        var order = ViewModel.Documents[o];
                                         <table class="edged">
                                             <thead>
                                                 <tr class="emphasys-2x font-size-2x border-bottom-1">
                                                     <td colspan="4" width="100%">
-                                                        <span class="bold">Orden de compra número: </span>@order.PurchaseOrderNumber
+                                                        @if (order.DocumentType == "O")
+                                                        {
+                                                            <span class="bold">Orden de compra número: </span>
+
+                                                            @order.DocumentNumber
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="bold">Traslado entre bodegas número: </span>
+
+                                                            @order.DocumentNumber
+                                                        }                                                        
                                                     </td>
                                                 </tr>
                                                 <tr class="border-bottom-1">

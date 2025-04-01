@@ -1,14 +1,39 @@
-﻿@using ViewModel = Aldebaran.Web.Pages.ReportPages.Automatic_Purchase_Order_Assigment.ViewModel
+﻿@using ViewModel = Aldebaran.Web.Pages.ReportPages.Automatic_Customer_Ordert_In_Process_Creation.ViewModel
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
 
 <RadzenColumn SizeMD=12>
     <RadzenTemplateForm TItem="ViewModel.AutomaticAssigmentFilter" Data="Filter" Submit="@FormSubmit">
         <RadzenRow style="margin-bottom: 1rem">
-            <RadzenColumn Size="12">
+            <RadzenColumn Size="6">
                 <RadzenStack>
-                    <RadzenFormField Text="Número de la orden de compra" Variant="Variant.Text" Style="width: 100%;">
+                    <RadzenFormField Text="Tipo del documento origen" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Filter.PurchaseOrderNumber" Name="PurchaseOrderNumber" />
+                            @code {
+                                 class DocumentTypes
+                                 {
+                                     public string DocumentTypeId { get; set; }
+                                     public string DocumentTypeName { get; set; }
+                                 }
+
+                                    IEnumerable<DocumentTypes> documentTypeSelection = new List<DocumentTypes>
+                                                        {
+                                                        new DocumentTypes { DocumentTypeId = "O", DocumentTypeName = "Orden de compra" },
+                                                        new DocumentTypes { DocumentTypeId = "B", DocumentTypeName = "Traslado entre bodegas" }
+                                                        };
+                            }
+                            <RadzenDropDown Data="@documentTypeSelection" TextProperty="DocumentTypeName" ValueProperty="DocumentTypeId" 
+                                            AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            style="display: block; width: 100%" @bind-Value="@Filter.DocumentType" Name="DocumentType">
+                            </RadzenDropDown>                            
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+            <RadzenColumn Size="6">
+                <RadzenStack>
+                    <RadzenFormField Text="Número del documento origen" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Filter.DocumentNumber" Name="PurchaseOrderNumber" />
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenStack>
