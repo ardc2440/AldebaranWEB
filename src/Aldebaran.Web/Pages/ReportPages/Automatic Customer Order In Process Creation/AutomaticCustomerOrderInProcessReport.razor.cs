@@ -7,7 +7,7 @@ using Microsoft.JSInterop;
 using Radzen.Blazor;
 using Radzen;
 
-namespace Aldebaran.Web.Pages.ReportPages.Automatic_Customer_Ordert_In_Process_Creation
+namespace Aldebaran.Web.Pages.ReportPages.Automatic_Customer_Order_In_Process_Creation
 {
     public partial class AutomaticCustomerOrderInProcessReport
     {
@@ -122,7 +122,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Automatic_Customer_Ordert_In_Process_C
         }
         async Task OpenFilters()
         {
-            var result = await DialogService.OpenAsync<Components.AutomaticAssigmentReporFilter>("Filtrar reporte de asignación automática de referencias a pedidos", parameters: new Dictionary<string, object> { { "Filter", (ViewModel.AutomaticAssigmentFilter)Filter?.Clone() } }, options: new DialogOptions { Width = "800px" });
+            var result = await DialogService.OpenAsync<Components.AutomaticAssigmentReportFilter>("Filtrar reporte de asignación automática de referencias a pedidos", parameters: new Dictionary<string, object> { { "Filter", (ViewModel.AutomaticAssigmentFilter)Filter?.Clone() } }, options: new DialogOptions { Width = "800px" });
             if (result == null)
                 return;
             Filter = (ViewModel.AutomaticAssigmentFilter)result;

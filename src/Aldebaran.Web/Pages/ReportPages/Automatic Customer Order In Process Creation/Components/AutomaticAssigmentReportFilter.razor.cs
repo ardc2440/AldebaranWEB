@@ -6,9 +6,9 @@ using Radzen.Blazor;
 using Radzen;
 using Aldebaran.Application.Services.Models;
 
-namespace Aldebaran.Web.Pages.ReportPages.Automatic_Customer_Ordert_In_Process_Creation.Components
+namespace Aldebaran.Web.Pages.ReportPages.Automatic_Customer_Order_In_Process_Creation.Components
 {
-    public partial class AutomaticAssigmentReporFilter
+    public partial class AutomaticAssigmentReportFilter
     {
         #region Injections
         [Inject]

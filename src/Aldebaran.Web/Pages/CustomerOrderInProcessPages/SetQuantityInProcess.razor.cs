@@ -20,6 +20,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         [Inject]
         protected IItemReferenceService ItemReferenceService { get; set; }
 
+        [Inject]
+        protected IReferencesWarehouseService ReferencesWarehouseService { get; set; }
+
         #endregion
 
         #region Parameters
@@ -43,6 +46,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         protected bool IsSubmitInProgress;
         protected bool isLoadingInProgress;
         protected string Error;
+        protected int oldQuantity;
+        protected Warehouse localWarehouse;
 
         #endregion
 
@@ -54,6 +59,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
             {
                 isLoadingInProgress = true;
                 warehousesForWAREHOUSEID = await WarehouseService.GetAsync();
+
+                localWarehouse = await WarehouseService.FindByCodeAsync(1);
 
                 detailInProcess = new DetailInProcess()
                 {
@@ -68,6 +75,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                     REFERENCE_ID = DetailInProcess.REFERENCE_ID,
                     ItemReference = DetailInProcess.ItemReference
                 };
+
+                oldQuantity = detailInProcess.THIS_QUANTITY;
 
                 if (detailInProcess.THIS_QUANTITY == 0)
                 {
@@ -112,6 +121,13 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
                 if ((detailInProcess.PENDING_QUANTITY + DetailInProcess.THIS_QUANTITY) < detailInProcess.THIS_QUANTITY)
                     throw new Exception("La cantidad de este traslado debe ser menor o igual a la cantidad pendiente del artículo");
+
+                if ((detailInProcess.WAREHOUSE_ID == localWarehouse.WarehouseId) &&
+                    (await ReferencesWarehouseService.GetByReferenceAndWarehouseIdAsync(detailInProcess.REFERENCE_ID, localWarehouse.WarehouseId)).Quantity + oldQuantity - detailInProcess.THIS_QUANTITY <= 0)
+                {
+                    await DialogService.Alert($"La cantidad ingresada supera la existencia en bodega local. Verifique disponibilidad de la referencia.",
+                                            options: new AlertOptions() { OkButtonText = "Cerrar" }, title: "Stock en bodega local");
+                }
 
                 if (await DialogService.Confirm("Está seguro que desea enviar a proceso esta referencia?", "Confirmar") == true)
                 {

@@ -104,7 +104,7 @@ namespace Aldebaran.Web.Pages
             purchaseOrderExpirationNotificationVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por órdenes próximas a su vencimiento");
             purchaseOrderTransitAlarmNotificationsVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por alarmas de órdenes modificadas con afectación en pedido");
             emailErrorNotificationsVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por envio de correo con error");
-            confirmedPurchaseOrderNotificationsVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por asignación automática de pedidos");
+            confirmedPurchaseOrderNotificationsVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por creación automática de traslados a proceso");
         }
 
         async Task InitializeGridTimers()

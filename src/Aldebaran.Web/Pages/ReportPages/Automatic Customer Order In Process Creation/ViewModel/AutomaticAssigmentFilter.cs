@@ -1,7 +1,7 @@
 ﻿using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Shared.ViewModel;
 
-namespace Aldebaran.Web.Pages.ReportPages.Automatic_Customer_Ordert_In_Process_Creation.ViewModel
+namespace Aldebaran.Web.Pages.ReportPages.Automatic_Customer_Order_In_Process_Creation.ViewModel
 {
     public class AutomaticAssigmentFilter : ICloneable
     {
