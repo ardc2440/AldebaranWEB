@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
 using ServiceModel = Aldebaran.Application.Services.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace Aldebaran.Web.Pages.ItemPages
 {
@@ -52,6 +53,9 @@ namespace Aldebaran.Web.Pages.ItemPages
                 Item = ItemReference.Item;
 
                 IsReadOnlyFullEditing = MINIMUM_QUANTITY || PURCHASE_ORDER_VARIATION || MINIMUM_QUANTITY_PERCENT;
+
+                // Sincronizar la propiedad de negocio:
+                ItemReference?.SyncAlarmMinimumQuantityActive();
             }
             finally
             {
@@ -73,15 +77,18 @@ namespace Aldebaran.Web.Pages.ItemPages
                 var nameAlreadyExists = references.Where(w => w.ReferenceId != REFERENCE_ID).Any(w => w.ReferenceName.Trim().ToLower() == ItemReference.ReferenceName.Trim().ToLower());
 
                 if (!Item.IsDomesticProduct && !Item.IsSaleOff && !Item.IsSpecialImport)
-                    if (!ItemReference.HavePurchaseOrderDetail)
+                    if (ItemReference.AlarmMinimumQuantityActive)
                     {
-                        if (ItemReference.AlarmMinimumQuantity <= 0 && ItemReference.MinimumQuantityPercent <= 0)
-                            ValidationErrors.Add("Debe ingresar cantidad mínima o % cantidad mínima");
-                    }
-                    else
-                        if (ItemReference.AlarmMinimumQuantity <= 0)
+                        if (!ItemReference.HavePurchaseOrderDetail)
+                        {
+                            if (ItemReference.AlarmMinimumQuantity <= 0 && ItemReference.MinimumQuantityPercent <= 0)
+                                ValidationErrors.Add("Debe ingresar cantidad mínima o % cantidad mínima");
+                        }
+                        else
+                            if (ItemReference.AlarmMinimumQuantity <= 0)
                             ValidationErrors.Add("Debe ingresar cantidad mínima");
-                
+                    }
+
                 if (!Item.IsDomesticProduct && !Item.IsSpecialImport && !IsReadOnlyFullEditing)
                     if (ItemReference.MinimumLocalWarehouseQuantity <= 0)
                         ValidationErrors.Add("Debe ingresar cantidad mínima para bodega local");

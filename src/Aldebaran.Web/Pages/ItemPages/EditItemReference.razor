@@ -103,30 +103,33 @@
                     </RadzenColumn>
                 </RadzenRow>
                 <RadzenRow AlignItems="Radzen.AlignItems.Start">
-                    <RadzenColumn Size="6" SizeMD="6">
-                        <RadzenRow AlignItems="Radzen.AlignItems.Start">
-                            @if (!Item.IsDomesticProduct && !Item.IsSpecialImport && !Item.IsSaleOff)
-                            {
-                                <RadzenColumn Size="6" SizeMD="6">
-                                    <RadzenFormField Text="Cantidad mínima" Variant="Variant.Text" Style="width: 100%;">
-                                        <ChildContent>
-                                            <RadzenNumeric style="display: block; width: 100%" @bind-Value="@ItemReference.AlarmMinimumQuantity" Name="AlarmMinimumQuantity" Min="0" Max="1000000" />
-                                        </ChildContent>
-                                    </RadzenFormField>
-                                </RadzenColumn>
-                                @if (!ItemReference.HavePurchaseOrderDetail)
+                    @if (ItemReference.AlarmMinimumQuantityActive)
+                    {
+                        <RadzenColumn Size="6" SizeMD="6">
+                            <RadzenRow AlignItems="Radzen.AlignItems.Start">
+                                @if (!Item.IsDomesticProduct && !Item.IsSpecialImport && !Item.IsSaleOff)
                                 {
                                     <RadzenColumn Size="6" SizeMD="6">
-                                        <RadzenFormField Text="% Cant. mínima" Variant="Variant.Text" Style="width: 100%;">
+                                        <RadzenFormField Text="Cantidad mínima" Variant="Variant.Text" Style="width: 100%;">
                                             <ChildContent>
-                                                <RadzenNumeric style="display: block; width: 100%" @bind-Value="@ItemReference.MinimumQuantityPercent" Name="MinimumQuantityPercent" Min="0" Max="99" />
+                                                <RadzenNumeric style="display: block; width: 100%" @bind-Value="@ItemReference.AlarmMinimumQuantity" Name="AlarmMinimumQuantity" Min="0" Max="1000000" />
                                             </ChildContent>
                                         </RadzenFormField>
                                     </RadzenColumn>
+                                    @if (!ItemReference.HavePurchaseOrderDetail)
+                                    {
+                                        <RadzenColumn Size="6" SizeMD="6">
+                                            <RadzenFormField Text="% Cant. mínima" Variant="Variant.Text" Style="width: 100%;">
+                                                <ChildContent>
+                                                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@ItemReference.MinimumQuantityPercent" Name="MinimumQuantityPercent" Min="0" Max="99" />
+                                                </ChildContent>
+                                            </RadzenFormField>
+                                        </RadzenColumn>
+                                    }
                                 }
-                            }
-                        </RadzenRow>
-                    </RadzenColumn>
+                            </RadzenRow>
+                        </RadzenColumn>
+                    }
                     <RadzenColumn Size="6" SizeMD="6">
                         <RadzenRow AlignItems="Radzen.AlignItems.Start">
                             <RadzenColumn Size="6" SizeMD="6">
@@ -165,9 +168,13 @@
                                 <RadzenCheckBox ReadOnly="@(IsReadOnlyFullEditing)" @bind-Value="@ItemReference.IsActive" Name="IsActive" />
                                 <RadzenLabel Text="Activo" Component="IsActive" />
                             </div>
+                            <div>
+                                <RadzenCheckBox ReadOnly="@(IsReadOnlyFullEditing)" @bind-Value="@ItemReference.AlarmMinimumQuantityActive" Name="AlarmMinimumQuantityActive" />
+                                <RadzenLabel Text="Cantidad Mínima Activa" Component="AlarmMinimumQuantityActive" />
+                            </div>
                         </div>
                     </RadzenColumn>
-                </RadzenRow>
+                </RadzenRow>                
                 <RadzenFormField Text="Notas" Variant="Variant.Text">
                     <ChildContent>
                         <RadzenTextArea ReadOnly="@(IsReadOnlyFullEditing)" style="display: block; width: 100%" @bind-Value="ItemReference.Notes" Name="Notes" Rows="3" MaxLength="250"></RadzenTextArea>

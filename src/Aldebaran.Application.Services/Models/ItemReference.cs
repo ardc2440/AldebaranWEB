@@ -30,6 +30,35 @@ namespace Aldebaran.Application.Services.Models
         public ICollection<ReferencesWarehouse> ReferencesWarehouses { get; set; }
         public ICollection<WarehouseTransferDetail> WarehouseTransferDetails { get; set; }
         public Item Item { get; set; }
+
+        /// <summary>
+        /// Propiedad de solo negocio. No mapear con la base de datos ni usar en AutoMapper.
+        /// True si AlarmMinimumQuantity > 0, false si es igual a 0.
+        /// Al setear en false, AlarmMinimumQuantity se pone en 0.
+        /// </summary>
+        private bool _alarmMinimumQuantityActive;
+        public bool AlarmMinimumQuantityActive
+        {
+            get => _alarmMinimumQuantityActive;
+            set
+            {
+                _alarmMinimumQuantityActive = value;
+                if (!value)
+                {
+                    AlarmMinimumQuantity = 0;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sincroniza la propiedad de negocio AlarmMinimumQuantityActive según el valor de AlarmMinimumQuantity.
+        /// Llamar después de mapear o deserializar desde la base de datos.
+        /// </summary>
+        public void SyncAlarmMinimumQuantityActive()
+        {
+            _alarmMinimumQuantityActive = AlarmMinimumQuantity > 0;
+        }
+
         public ItemReference()
         {
             InventoryQuantity = 0;
@@ -48,6 +77,8 @@ namespace Aldebaran.Application.Services.Models
             ProviderReferences = new List<ProviderReference>();
             PurchaseOrderDetails = new List<PurchaseOrderDetail>();
             ReferencesWarehouses = new List<ReferencesWarehouse>();
+            // Inicializa la propiedad de negocio según el valor de AlarmMinimumQuantity
+            _alarmMinimumQuantityActive = AlarmMinimumQuantity > 0;
         }
     }
 }
