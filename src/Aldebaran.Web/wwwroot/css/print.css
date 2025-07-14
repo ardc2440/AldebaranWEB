@@ -284,3 +284,48 @@
     .report .no-border, .report .no-border > * {
         border: 0px !important;
     }
+
+/* Reglas específicas para impresión y saltos de página */
+@media print {
+    .page-break-before {
+        page-break-before: always !important;
+        break-before: page !important;
+    }
+
+    .page-break-after {
+        page-break-after: always !important;
+        break-after: page !important;
+    }
+
+    .no-page-break {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    /* Asegurar que el encabezado del cliente se mantenga junto */
+    .customer-header {
+        page-break-inside: avoid !important;
+        page-break-after: avoid !important;
+    }
+
+    /* Cada orden en nueva página excepto la primera */
+    .order-section:not(:first-child) {
+        page-break-before: always !important;
+    }
+
+    /* Ocultar elementos de navegación en impresión */
+    .rz-stack:not(.report-content),
+    .rz-button,
+    .rz-splitbutton {
+        display: none !important;
+    }
+
+    /* Asegurar que el contenido del reporte sea visible */
+    #customer-order-report-container {
+        display: block !important;
+    }
+
+    .report {
+        display: block !important;
+    }
+}
