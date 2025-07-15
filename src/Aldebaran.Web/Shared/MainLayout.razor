@@ -113,8 +113,11 @@
                 <RadzenPanelMenuItem Text="Clientes" Icon="summarize">
                     <RadzenPanelMenuItem Text="Reservas por cliente" Path="report/customer-reservation" Visible=@Security.IsInRole("Administrador","Consulta de reportes") />
                     <RadzenPanelMenuItem Text="Pedidos por cliente" Path="report/customer-order" Visible=@Security.IsInRole("Administrador","Consulta de reportes") />
-                    <RadzenPanelMenuItem Text="Actividades de pedidos" Path="report/customer-order-activity" Visible=@Security.IsInRole("Administrador","Consulta de reportes") />
-                    <RadzenPanelMenuItem Text="Ventas por cliente" Path="report/customer-sales" Visible=@Security.IsInRole("Administrador","Consulta de reportes") />
+                    <hr class="divider">
+                    <RadzenPanelMenuItem Text="Backorder por cliente" Path="report/back-order" Visible=@Security.IsInRole("Administrador", "Consulta de reportes") />
+                    <hr class="divider">
+                    <RadzenPanelMenuItem Text="Actividades de pedidos" Path="report/customer-order-activity" Visible=@Security.IsInRole("Administrador", "Consulta de reportes") />
+                    <RadzenPanelMenuItem Text="Ventas por cliente" Path="report/customer-sales" Visible=@Security.IsInRole("Administrador","Consulta de reportes") />                    
                 </RadzenPanelMenuItem>
                 <RadzenPanelMenuItem Text="Proveedores" Icon="summarize">
                     <RadzenPanelMenuItem Text="Referencias del proveedor" Path="report/provider-references" Visible=@Security.IsInRole("Administrador","Consulta de reportes") />
