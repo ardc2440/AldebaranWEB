@@ -26,5 +26,17 @@ namespace Aldebaran.Application.Services.Reports
             var data = await _repository.GetCustomerOrderReportDataAsync(filter, ct);
             return _mapper.Map<IEnumerable<CustomerOrderReport>>(data);
         }
+
+        public async Task<IEnumerable<BackOrderExport>> GetBackOrderExportDataAsync(string filter, CancellationToken ct = default)
+        {
+            var data = await _repository.GetBackOrderExportDataAsync(filter, ct);
+            return _mapper.Map<IEnumerable<BackOrderExport>>(data);
+        }
+
+        public async Task<IEnumerable<BackOrderReport>> GetBackOrderReportDataAsync(string filter, CancellationToken ct = default)
+        {
+            var data = await _repository.GetBackOrderReportDataAsync(filter, ct);
+            return _mapper.Map<IEnumerable<BackOrderReport>>(data);
+        }
     }
 }

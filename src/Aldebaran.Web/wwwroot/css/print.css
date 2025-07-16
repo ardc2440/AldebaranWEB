@@ -313,6 +313,28 @@
         page-break-before: always !important;
     }
 
+    /* Asegurar que las tablas de órdenes individuales no se rompan internamente */
+    .report table.edged {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    /* Si una tabla es muy larga, permitir que se rompa pero mantener el encabezado */
+    .report table.edged thead {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    /* Evitar romper filas de encabezado */
+    .report table.edged tr.emphasys,
+    .report table.edged tr.emphasys-2x,
+    .report table.edged tr.emphasys-3x {
+        page-break-inside: avoid !important;
+        page-break-after: avoid !important;
+        break-inside: avoid !important;
+        break-after: avoid !important;
+    }
+
     /* Ocultar elementos de navegación en impresión */
     .rz-stack:not(.report-content),
     .rz-button,

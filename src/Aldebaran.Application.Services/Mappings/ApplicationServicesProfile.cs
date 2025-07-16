@@ -120,6 +120,8 @@ namespace Aldebaran.Application.Services.Mappings
             CreateMap<VisualizedAutomaticInProcess, Entities.VisualizedAutomaticInProcess>().ReverseMap();
             CreateMap<AutomaticCustomerOrder, Entities.AutomaticCustomerOrder>().ReverseMap();
             CreateMap<AutomaticCustomerOrderDetail, Entities.AutomaticCustomerOrderDetail>().ReverseMap();
+            CreateMap<BackOrderReport, Entities.Reports.BackOrderReport>().ReverseMap();
+            CreateMap<BackOrderExport, Entities.Reports.BackOrderExport>().ReverseMap();
         }
     }
 }
