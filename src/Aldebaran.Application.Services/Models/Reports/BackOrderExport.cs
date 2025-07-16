@@ -28,7 +28,7 @@ namespace Aldebaran.Application.Services.Models.Reports
         public int PendingAmount { get; set; }
         [DisplayName("Fecha Estimada Entrega")]
         public DateTime EstimatedDeliveryDate { get; set; }
-        [DisplayName("Nombre del cliente")]
+        [DisplayName("Observaciones Internas")]
         public string? InternalNotes { get; set; }
         [DisplayName("Observaciones Cliente")]
         public string? CustomerNotes { get; set; }

@@ -56,6 +56,28 @@ namespace Aldebaran.Web.Controllers
             return ExportHelper.ToExcel(dataReport.ToList(), fileName);
         }
 
+        [HttpGet("/export/AldebaranDb/back-order/csv")]
+        [HttpGet("/export/AldebaranDb/back-order/csv(fileName='{fileName}',filter='{filter}')")]
+        public async Task<FileStreamResult> ExportBackOrderToCSV(string fileName = null, string filter = null, CancellationToken ct = default)
+        {
+            filter = filter == "NoFilter" ? "" : filter;
+
+            var dataReport = await CustomerOrderReportService.GetBackOrderExportDataAsync(filter, ct);
+
+            return ExportHelper.ToCSV(dataReport.ToList(), fileName);
+        }
+
+        [HttpGet("/export/AldebaranDb/back-order/excel")]
+        [HttpGet("/export/AldebaranDb/back-order/excel(fileName='{fileName}',filter='{filter}')")]
+        public async Task<FileStreamResult> ExportBackOrderToExcel(string fileName = null, string filter = null, CancellationToken ct = default)
+        {
+            filter = filter == "NoFilter" ? "" : filter;
+
+            var dataReport = await CustomerOrderReportService.GetBackOrderExportDataAsync(filter, ct);
+
+            return ExportHelper.ToExcel(dataReport.ToList(), fileName);
+        }
+
         class CustomerOrderFlatData
         {
             [DisplayName("Nombre del cliente")]

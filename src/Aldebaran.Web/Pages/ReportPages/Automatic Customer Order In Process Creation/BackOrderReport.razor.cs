@@ -201,15 +201,15 @@ namespace Aldebaran.Web.Pages.ReportPages.Automatic_Customer_Order_In_Process_Cr
             if (args?.Value == null)
                 return;
             IsBusy = true;
-            var html = await JSRuntime.InvokeAsync<string>("getContent", "customer-order-report-container");
+            var html = await JSRuntime.InvokeAsync<string>("getContent", "back-order-report-container");
             if (args?.Value == "save")
             {
                 var pdfBytes = await FileBytesGeneratorService.GetPdfBytes(html, true);
-                await JSRuntime.InvokeVoidAsync("downloadFile", "Ordenes por cliente.pdf", "application/pdf", Convert.ToBase64String(pdfBytes));
+                await JSRuntime.InvokeVoidAsync("downloadFile", "Backorder por cliente.pdf", "application/pdf", Convert.ToBase64String(pdfBytes));
             }
             if (args?.Value == "print")
             {
-                await JSRuntime.InvokeVoidAsync("print", "customer-order-report-container");
+                await JSRuntime.InvokeVoidAsync("print", "back-order-report-container");
             }
             IsBusy = false;
         }
@@ -219,12 +219,12 @@ namespace Aldebaran.Web.Pages.ReportPages.Automatic_Customer_Order_In_Process_Cr
 
             if (args?.Value == "csv")
             {
-                NavigationManager.NavigateTo($"export/aldebarandb/customer-order/csv(fileName='{UrlEncoder.Default.Encode("Ordenes por cliente")}',filter='{UrlEncoder.Default.Encode(filter)}')", true);
+                NavigationManager.NavigateTo($"export/aldebarandb/back-order/csv(fileName='{UrlEncoder.Default.Encode("Backorder por cliente")}',filter='{UrlEncoder.Default.Encode(filter)}')", true);
             }
 
             if (args == null || args.Value == "xlsx")
             {
-                NavigationManager.NavigateTo($"export/AldebaranDb/customer-order/excel(fileName='{UrlEncoder.Default.Encode("Ordenes por cliente")}',filter='{UrlEncoder.Default.Encode(filter)}')", true);
+                NavigationManager.NavigateTo($"export/AldebaranDb/back-order/excel(fileName='{UrlEncoder.Default.Encode("Backorder por cliente")}',filter='{UrlEncoder.Default.Encode(filter)}')", true);
             }
         }
         async Task ToggleReadMore()
