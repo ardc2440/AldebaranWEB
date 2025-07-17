@@ -1,0 +1,321 @@
+﻿@page "/report/pending-automatic-customer-order-inprocess"
+@using Aldebaran.Web.Pages.ReportPages.Customer_Orders.ViewModel
+@using Aldebaran.Web.Shared
+@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
+
+<PageTitle>Reporte de pedidos bloqueados</PageTitle>
+<RadzenStack Style="gap:0.3em">
+    <RadzenRow AlignItems="AlignItems.Start">
+        <RadzenColumn Size="12">
+            <RadzenText Text="Reporte de pedidos bloqueados por traslado automático a proceso" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenRow AlignItems="AlignItems.Start" class="mb-2">
+        <RadzenColumn SizeXL="10" SizeLG="10" SizeMD="12" SizeSM="12" SizeXS="12" SizeXX="12">
+            <div class="rz-text-align-left d-flex gap-3">
+                <RadzenButton Variant="Variant.Text" Icon="filter_alt" Click="@OpenFilters" Text="Filtros" ButtonStyle="ButtonStyle.Secondary" class="text-primary-color p-0 pb-1" />
+                @if (Filter != null)
+                {
+                    <RadzenButton Variant="Variant.Text" Click="@RemoveFilters" Text="Limpiar filtros" ButtonStyle="ButtonStyle.Secondary" class="text-decoration-underline p-0 pb-1" />
+                }
+            </div>
+            <div class="component-section d-flex flex-column justify-content-start text-secondary-color">
+                @if (Filter != null)
+                {
+                    @if (!string.IsNullOrEmpty(Filter.OrderNumber))
+                    {
+                        <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
+                            <p class="component-label m-0 fw-bold">Número de pedido: </p>
+                            <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.OrderNumber</span>
+                        </div>
+                    }
+                    @if (Filter.OrderDate?.StartDate != null || Filter.OrderDate?.EndDate != null)
+                    {
+                        <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
+                            <p class="component-label m-0 fw-bold">Fecha de pedido: </p>
+                            @if (Filter.OrderDate?.StartDate != null)
+                            {
+                                <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.OrderDate.StartDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                            }
+                            @if (Filter.OrderDate?.EndDate != null)
+                            {
+                                @if (Filter.OrderDate?.StartDate != null)
+                                {
+                                    <p class="component-label m-0"> - </p>
+                                }
+                                <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.OrderDate.EndDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                            }
+                        </div>
+                    }
+                    @if (Filter.ProcessDate?.StartDate != null || Filter.ProcessDate?.EndDate != null)
+                    {
+                        <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
+                            <p class="component-label m-0 fw-bold">Fecha de proceso: </p>
+                            @if (Filter.ProcessDate?.StartDate != null)
+                            {
+                                <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.ProcessDate.StartDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                            }
+                            @if (Filter.ProcessDate?.EndDate != null)
+                            {
+                                @if (Filter.ProcessDate?.StartDate != null)
+                                {
+                                    <p class="component-label m-0"> - </p>
+                                }
+                                <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.ProcessDate.EndDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                            }
+                        </div>
+                    }
+                    @if (Filter.CustomerId != null)
+                    {
+                        <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
+                            <p class="component-label m-0 fw-bold">Cliente: </p>
+                            <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.Customer.CustomerName</span>
+                        </div>
+                    }
+                    @if (Filter.StatusDocumentTypeId != null)
+                    {
+                        <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
+                            <p class="component-label m-0 fw-bold">Estado del proceso: </p>
+                            <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.StatusDocumentType.StatusDocumentTypeName</span>
+                        </div>
+                    }
+                }
+            </div>
+        </RadzenColumn>
+        <RadzenColumn SizeXL="2" SizeLG="2" SizeMD="12" SizeSM="12" SizeXS="12" SizeXX="12" class="align-self-end">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.End" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                <RadzenSplitButton Icon="build" Text="Acciones" OnClick="Save" Variant="Variant.Flat" Shade="Shade.Lighter" IsBusy="@IsBusy" Disabled="ViewModel==null">
+                    <RadzenSplitButtonItem Text="Imprimir" Icon="print" Value="print" Style="cursor:pointer" />
+                    <RadzenSplitButtonItem Text="Guardar PDF" Icon="picture_as_pdf" Value="save" Style="cursor:pointer" />
+                </RadzenSplitButton>
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenRow AlignItems="AlignItems.Start">
+        <RadzenColumn Size="12">
+            <RadzenCard style="min-height:600px; overflow-y:auto; position:relative">
+                <div id="pending-customer-order-inprocess-container">
+                    <div class="report">
+                        <table>
+                            <tr>
+                                <td width="50%">
+                                    <h2 class="text-left mb-0">Pedidos bloqueados por traslado automático a proceso </h2>
+                                    <span class="mb-1">@DateTime.Now.ToString(SharedLocalizer["datetime:format"])</span>
+                                </td>
+                                <td width="50%">
+                                    @if (Filter != null)
+                                    {
+                                        <div class="filters">
+                                            <div class="title">Filtros:</div>
+                                            <div>
+                                                @if (!string.IsNullOrEmpty(Filter.OrderNumber))
+                                                {
+                                                    <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
+                                                        <div class="type" style="display:inline-block">Número de pedido: </div>
+                                                        <span>@Filter.OrderNumber</span>
+                                                    </div>
+                                                }
+                                                @if (Filter.OrderDate?.StartDate != null || Filter.OrderDate?.EndDate != null)
+                                                {
+                                                    <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
+                                                        <div class="type">Fecha de pedido: </div>
+                                                        @if (Filter.OrderDate?.StartDate != null)
+                                                        {
+                                                            <span>@Filter.OrderDate.StartDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                                                        }
+                                                        @if (Filter.OrderDate?.EndDate != null)
+                                                        {
+                                                            @if (Filter.OrderDate?.StartDate != null)
+                                                            {
+                                                                <p> - </p>
+                                                            }
+                                                            <span>@Filter.OrderDate.EndDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                                                        }
+                                                    </div>
+                                                }
+                                                @if (Filter.ProcessDate?.StartDate != null || Filter.ProcessDate?.EndDate != null)
+                                                {
+                                                    <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
+                                                        <div class="type">Fecha de proceso: </div>
+                                                        @if (Filter.ProcessDate?.StartDate != null)
+                                                        {
+                                                            <span>@Filter.ProcessDate.StartDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                                                        }
+                                                        @if (Filter.ProcessDate?.EndDate != null)
+                                                        {
+                                                            @if (Filter.ProcessDate?.StartDate != null)
+                                                            {
+                                                                <p> - </p>
+                                                            }
+                                                            <span>@Filter.ProcessDate.EndDate.Value.ToString(SharedLocalizer["date:format"])</span>
+                                                        }
+                                                    </div>
+                                                }
+                                                @if (Filter.CustomerId != null)
+                                                {
+                                                    <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
+                                                        <div class="type">Cliente: </div>
+                                                        <span>@Filter.Customer.CustomerName</span>
+                                                    </div>
+                                                }
+                                                @if (Filter.StatusDocumentTypeId != null)
+                                                {
+                                                    <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
+                                                        <div class="type">Estado del proceso: </div>
+                                                        <span>@Filter.StatusDocumentType.StatusDocumentTypeName</span>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                </td>
+                            </tr>
+                        </table>
+                        <div class="mt-1">
+                            <LoadingData IsLoadingData="@IsLoadingData" />
+                            @if (ViewModel != null)
+                            {
+                                @if (ViewModel.CustomerOrders?.Any() == true)
+                                {
+                                    @for (int i = 0; i < ViewModel.CustomerOrders.Count(); i++)
+                                    {
+                                        var customerOrder = ViewModel.CustomerOrders[i];
+                                        <table class="edged">
+                                            <thead>
+                                                <tr class="emphasys-2x font-size-2x border-bottom-1">
+                                                    <td colspan="4" width="100%">
+                                                        <span class="bold">Pedido número: </span>@customerOrder.OrderNumber
+                                                    </td>
+                                                </tr>
+                                                <tr class="border-bottom-1">
+                                                    <td width="25%">
+                                                        <span class="bold">Fecha de pedido: </span><br />
+                                                        @customerOrder.OrderDate.ToString(SharedLocalizer["date:format"])
+                                                    </td>
+                                                    <td width="25%">
+                                                        <span class="bold">Fecha estimada de entrega: </span><br />
+                                                        @customerOrder.EstimatedDeliveryDate.ToString(SharedLocalizer["date:format"])
+                                                    </td>
+                                                    <td width="25%">
+                                                        <span class="bold">Estado del pedido: </span><br />
+                                                        @customerOrder.StatusOrderName
+                                                    </td>
+                                                    <td width="25%">
+                                                        <span class="bold">Empleado: </span><br />
+                                                        @customerOrder.EmployeeName
+                                                    </td>
+                                                </tr>
+                                                <tr class="border-bottom-1">
+                                                    <td colspan="2" width="50%">
+                                                        <span class="bold">Cliente: </span>@customerOrder.CustomerName
+                                                    </td>
+                                                    <td colspan="2" width="50%">
+                                                        <span class="bold">Identificación: </span>@customerOrder.CustomerIdentity
+                                                    </td>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var orderInProcess in customerOrder.CustomerOrdersInProcess)
+                                                {
+                                                    <tr>
+                                                        <td colspan="4">
+                                                            <div style="margin: 1em;">
+                                                                <table style="width: 100%;" class="striped edged">
+                                                                    <tr class="emphasys-2x font-size-1x border-bottom-1">
+                                                                        <td colspan="4" width="100%">
+                                                                            <span class="bold">Traslado a proceso número: </span>@orderInProcess.CustomerOrderInProcessId
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr class="border-bottom-1">
+                                                                        <td width="25%" colspan="1" style="border: none;">
+                                                                            <span class="bold">Fecha de proceso: </span><br />
+                                                                            @orderInProcess.ProcessDate.ToString(SharedLocalizer["date:format"])
+                                                                        </td>
+                                                                        <td width="25%" colspan="1" style="border: none;">
+                                                                            <span class="bold">Fecha de transferencia: </span><br />
+                                                                            @orderInProcess.TransferDatetime.ToString(SharedLocalizer["datetime:format"])
+                                                                        </td>
+                                                                        <td width="50%" colspan="1" style="border: none;">
+                                                                            
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr class="border-bottom-1">
+                                                                        <td colspan="2" width="50%" style="border: none;">
+                                                                            <span class="bold">Empleado responsable: </span>@orderInProcess.EmployeeName
+                                                                        </td>
+                                                                        <td colspan="2" width="50%" style="border: none;">
+                                                                            <span class="bold">Empleado receptor: </span>@orderInProcess.EmployeeRecipientName
+                                                                        </td>
+                                                                    </tr>
+                                                                    @if (!string.IsNullOrEmpty(orderInProcess.Notes))
+                                                                    {
+                                                                        <tr class="border-bottom-1">
+                                                                            <td colspan="4" width="100%" style="border: none;">
+                                                                                <span class="bold">Notas: </span>@orderInProcess.Notes
+                                                                            </td>
+                                                                        </tr>
+                                                                    }
+                                                                    <tr>
+                                                                        <td colspan="4" width="100%" style="padding:0 !important">
+                                                                            <div style="margin: 1em;">
+                                                                                <table class="striped edged">
+                                                                                    <thead>
+                                                                                        <tr>
+                                                                                            <th width="35%">Artículo</th>
+                                                                                            <th width="15%">Ref. interna</th>
+                                                                                            <th width="10%">Refeferencia</th>
+                                                                                            <th width="20%">Marca</th>
+                                                                                            <th width="10%">Bodega</th>
+                                                                                            <th width="10%">Cantidad asignada</th>                                                                                            
+                                                                                        </tr>
+                                                                                    </thead>
+                                                                                    <tbody>
+                                                                                        @foreach (var detail in orderInProcess.CustomerOrderInProcessDetails)
+                                                                                        {
+                                                                                            <tr>
+                                                                                                <td width="35%">@detail.ItemName</td>
+                                                                                                <td width="15%">@detail.InternalReference</td>
+                                                                                                <td width="15%">@detail.ReferenceName</td>
+                                                                                                <td width="10%">@detail.Brand</td>
+                                                                                                <td width="10%">@detail.WarehouseName</td>
+                                                                                                <td width="10%">@detail.Quantity.ToString("N0")</td>
+                                                                                            </tr>
+                                                                                        }
+                                                                                    </tbody>
+                                                                                </table>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="no-data-container">
+                                        <h4>@SharedLocalizer["report:no-data"]</h4>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="no-data-container">
+                                    <h4>@SharedLocalizer["report:unfiltered"]</h4>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </RadzenCard>
+        </RadzenColumn>
+    </RadzenRow>
+</RadzenStack>
+
+@code {
+
+}

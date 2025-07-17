@@ -115,6 +115,7 @@
                     <RadzenPanelMenuItem Text="Pedidos por cliente" Path="report/customer-order" Visible=@Security.IsInRole("Administrador","Consulta de reportes") />
                     <hr class="divider">
                     <RadzenPanelMenuItem Text="Backorder por cliente" Path="report/back-order" Visible=@Security.IsInRole("Administrador", "Consulta de reportes") />
+                    <RadzenPanelMenuItem Text="Traslados a proceso sin de cambio de satélite" Path="report/pending-automatic-customer-order-inprocess" Visible=@Security.IsInRole("Administrador", "Consulta de reportes") />
                     <hr class="divider">
                     <RadzenPanelMenuItem Text="Actividades de pedidos" Path="report/customer-order-activity" Visible=@Security.IsInRole("Administrador", "Consulta de reportes") />
                     <RadzenPanelMenuItem Text="Ventas por cliente" Path="report/customer-sales" Visible=@Security.IsInRole("Administrador","Consulta de reportes") />                    
