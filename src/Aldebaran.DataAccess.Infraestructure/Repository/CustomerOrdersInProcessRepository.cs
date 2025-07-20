@@ -61,7 +61,8 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             {
                 return Task.FromResult(dbContext.CustomerOrdersInProcesses
                                         .AsNoTracking()
-                                        .Any(i => i.CustomerOrderId == customerOrderId && i.ProcessSatelliteId == processSatelliteId));
+                                        .Include(i => i.StatusDocumentType)
+                                        .Any(i => i.CustomerOrderId == customerOrderId && i.ProcessSatelliteId == processSatelliteId && i.StatusDocumentType.StatusOrder == 1));
 
             }, ct);
         }
