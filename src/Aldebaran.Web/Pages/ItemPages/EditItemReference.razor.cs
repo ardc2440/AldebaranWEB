@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
 using ServiceModel = Aldebaran.Application.Services.Models;
-using System.ComponentModel.DataAnnotations;
 
 namespace Aldebaran.Web.Pages.ItemPages
 {

@@ -1,6 +1,7 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Pages.ReportPages.Customer_Orders.ViewModel;
+using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
@@ -8,7 +9,7 @@ using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders.Components
 {
-    public partial class PendingCustomerOrderInProcessReportFilter
+    public partial class PendingAutomaticCustomerOrderInProcessReportFilter
     {
         #region Injections
         [Inject]
@@ -22,11 +23,15 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders.Components
 
         [Inject]
         protected DialogService DialogService { get; set; }
+
+        [Inject]
+        protected IItemReferenceService ItemReferenceService { get; set; }
+        
         #endregion
 
         #region Parameters
         [Parameter]
-        public PendingCustomerOrderInProcessFilter Filter { get; set; } = new();
+        public PendingAutomaticCustomerOrderInProcessFilter Filter { get; set; } = new();
         #endregion
 
         #region Variables
@@ -34,7 +39,10 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders.Components
         protected bool IsSubmitInProgress;
         protected RadzenDropDownDataGrid<int?> customerDropdown;
         protected List<StatusDocumentType> StatusDocumentTypes = new();
+        protected List<ItemReference> SelectedReferences = new();
+        protected List<ItemReference> AvailableItemReferencesForSelection = new();
         protected List<Customer> Customers = new();
+        protected MultiReferencePicker referencePicker;
         protected bool FirstRender = true;
         protected bool ValidationError = false;
         protected bool ValidationOrderDate = false;
@@ -46,12 +54,16 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders.Components
         #region Override
         protected override async Task OnInitializedAsync()
         {
-            Filter ??= new PendingCustomerOrderInProcessFilter();
-            
+            Filter ??= new PendingAutomaticCustomerOrderInProcessFilter();
+
             // Get status document types for "Process" documents (T for Traslado/Process)
-            var documentType = await DocumentTypeService.FindByCodeAsync("T");
-            StatusDocumentTypes = (await StatusDocumentTypeService.GetByDocumentTypeIdAsync(documentType.DocumentTypeId)).ToList();
+            var documentType = await DocumentTypeService.FindByCodeAsync("P");
+            StatusDocumentTypes = (await StatusDocumentTypeService.GetByDocumentTypeIdAsync(documentType.DocumentTypeId)).Where(w => w.StatusOrder >= 1 && w.StatusOrder <= 3).ToList();
+
+            var references = (await ItemReferenceService.GetReportsReferencesAsync()).ToList();
+            AvailableItemReferencesForSelection = references;
             
+            referencePicker.SetAvailableItemReferencesForSelection(AvailableItemReferencesForSelection);
             var (customers, _count) = await CustomerService.GetAsync(0, 5);
             Customers = customers.ToList();
             count = _count;
@@ -61,6 +73,10 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders.Components
         {
             await base.SetParametersAsync(parameters);
             if (FirstRender == false) return;
+            if (Filter?.ItemReferences?.Any() == true)
+            {
+                referencePicker.SetSelectedItemReferences(Filter.ItemReferences.Select(s => s.ReferenceId).ToList());
+            }
             FirstRender = false;
             StateHasChanged();
         }
@@ -85,16 +101,6 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders.Components
                 ValidationProcessDate = false;
 
                 IsSubmitInProgress = true;
-                
-                // Si no se han incluido filtros, mostrar mensaje de error
-                if (string.IsNullOrEmpty(Filter.OrderNumber) &&
-                    Filter.OrderDate?.StartDate == null && Filter.OrderDate?.EndDate == null &&
-                    Filter.ProcessDate?.StartDate == null && Filter.ProcessDate?.EndDate == null &&
-                    Filter.StatusDocumentTypeId == null && Filter.CustomerId == null)
-                {
-                    ValidationError = true;
-                    return;
-                }
 
                 if ((Filter.OrderDate?.StartDate == null && Filter.OrderDate?.EndDate != null) ||
                     (Filter.OrderDate?.StartDate != null && Filter.OrderDate?.EndDate == null))
@@ -113,7 +119,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders.Components
                 Filter.OrderNumber = string.IsNullOrEmpty(Filter.OrderNumber) ? null : Filter.OrderNumber;
                 Filter.StatusDocumentType = Filter.StatusDocumentTypeId != null ? StatusDocumentTypes.FirstOrDefault(s => s.StatusDocumentTypeId == Filter.StatusDocumentTypeId.Value) : null;
                 Filter.Customer = Filter.CustomerId != null ? Customers.FirstOrDefault(s => s.CustomerId == Filter.CustomerId.Value) : null;
-                
+                Filter.ItemReferences = SelectedReferences;
+
                 DialogService.Close(Filter);
             }
             catch (Exception ex)
@@ -125,10 +132,15 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders.Components
                 IsSubmitInProgress = false;
             }
         }
-        
+
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
             DialogService.Close(null);
+        }
+
+        protected async Task ItemReferenceHandler(List<ItemReference> references)
+        {
+            SelectedReferences = references ?? new List<ItemReference>();
         }
         #endregion
     }

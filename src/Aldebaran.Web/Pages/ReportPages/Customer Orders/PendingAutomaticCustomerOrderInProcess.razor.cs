@@ -1,11 +1,11 @@
-﻿using Aldebaran.Infraestructure.Common.Utils;
+﻿using Aldebaran.Application.Services.Reports;
+using Aldebaran.Infraestructure.Common.Utils;
 using Aldebaran.Web.Pages.ReportPages.Customer_Orders.Components;
 using Aldebaran.Web.Pages.ReportPages.Customer_Orders.ViewModel;
-using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.JSInterop;
 using Radzen;
-using Radzen.Blazor;
 
 namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders
 {
@@ -27,19 +27,17 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders
         [Inject]
         protected NavigationManager NavigationManager { get; set; }
 
-        // TODO: Inject the appropriate service when created
-        // [Inject]
-        // protected IPendingCustomerOrderInProcessReportService PendingCustomerOrderInProcessReportService { get; set; }
+        [Inject]
+        protected IAutomaticPurchaseOrderAssigmentReportService PendingCustomerOrderInProcessReportService { get; set; }
         #endregion
 
         #region Variables
-        protected PendingCustomerOrderInProcessFilter Filter;
-        protected PendingCustomerOrderInProcessViewModel ViewModel;
+        protected PendingAutomaticCustomerOrderInProcessFilter Filter;
+        protected PendingAutomaticCustomerOrderInProcessViewModel ViewModel;
         private bool IsBusy = false;
         private bool IsLoadingData = false;
-        
-        // TODO: Replace with actual data report model when service is created
-        // protected IEnumerable<Application.Services.Models.Reports.PendingCustomerOrderInProcessReport> DataReport { get; set; }
+
+        protected IEnumerable<Application.Services.Models.Reports.AutomaticPendingCustomerOrderInProcessReport> DataReport { get; set; }
         #endregion
 
         #region Overrides
@@ -67,14 +65,16 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders
             {
                 IsLoadingData = true;
 
-                // TODO: Implement when service is available
-                // DataReport = await PendingCustomerOrderInProcessReportService.GetPendingCustomerOrderInProcessReportDataAsync(filter, ct);
+                // Implement when service is available
+                DataReport = await PendingCustomerOrderInProcessReportService.GetAutomaticPendingCustomerOrderInProcessReportDataAsync(filter, ct);
 
                 // Mock data for now - remove this when implementing real service
-                ViewModel = new PendingCustomerOrderInProcessViewModel
+                ViewModel = new PendingAutomaticCustomerOrderInProcessViewModel
                 {
                     CustomerOrders = await GetCustomerOrdersAsync(ct)
                 };
+
+                Logger.LogInformation("Data report loaded successfully.");
             }
             finally
             {
@@ -85,12 +85,12 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders
 
         async Task OpenFilters()
         {
-            var result = await DialogService.OpenAsync<PendingCustomerOrderInProcessReportFilter>("Filtrar reporte de pedidos bloqueados por traslado automático a proceso", 
-                parameters: new Dictionary<string, object> { { "Filter", (PendingCustomerOrderInProcessFilter)Filter?.Clone() } }, 
+            var result = await DialogService.OpenAsync<PendingAutomaticCustomerOrderInProcessReportFilter>("Filtrar reporte de pedidos bloqueados por traslado automático a proceso",
+                parameters: new Dictionary<string, object> { { "Filter", (PendingAutomaticCustomerOrderInProcessFilter)Filter?.Clone() } },
                 options: new DialogOptions { Width = "800px" });
             if (result == null)
                 return;
-            Filter = (PendingCustomerOrderInProcessFilter)result;
+            Filter = (PendingAutomaticCustomerOrderInProcessFilter)result;
 
             await RedrawReportAsync(await SetReportFilterAsync(Filter));
         }
@@ -100,23 +100,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders
             await Reset();
         }
 
-        async Task Save(RadzenSplitButtonItem args)
-        {
-            IsBusy = true;
-            var html = await JSRuntime.InvokeAsync<string>("getContent", "pending-customer-order-inprocess-container");
-            if (args?.Value == "save")
-            {
-                var pdfBytes = await FileBytesGeneratorService.GetPdfBytes(html, true);
-                await JSRuntime.InvokeVoidAsync("downloadFile", "Pedidos en Proceso Pendientes.pdf", "application/pdf", Convert.ToBase64String(pdfBytes));
-            }
-            if (args?.Value == "print")
-            {
-                await JSRuntime.InvokeVoidAsync("print", "pending-customer-order-inprocess-container");
-            }
-            IsBusy = false;
-        }
-
-        async Task<string> SetReportFilterAsync(PendingCustomerOrderInProcessFilter filter, CancellationToken ct = default)
+        async Task<string> SetReportFilterAsync(PendingAutomaticCustomerOrderInProcessFilter filter, CancellationToken ct = default)
         {
             var filterResult = string.Empty;
 
@@ -141,82 +125,70 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders
             if (filter.StatusDocumentTypeId.HasValue)
                 filterResult += $"@StatusDocumentTypeId = {filter.StatusDocumentTypeId}, ";
 
+            if (filter.ItemReferences.Count > 0)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReferenceIds = '{String.Join(",", Filter.ItemReferences.Select(s => s.ReferenceId))}'";
+
+
             return filterResult.TrimEnd(',', ' ');
         }
         #endregion
 
         #region Fill Data Report - Mock Implementation
-        
-        // TODO: Replace with real data implementation when service is available
-        async Task<List<PendingCustomerOrderInProcessViewModel.CustomerOrder>> GetCustomerOrdersAsync(CancellationToken ct = default)
+        async Task<List<PendingAutomaticCustomerOrderInProcessViewModel.CustomerOrder>> GetCustomerOrdersAsync(CancellationToken ct = default)
         {
-            // Mock data for demonstration - replace with real data service call
-            return new List<PendingCustomerOrderInProcessViewModel.CustomerOrder>
-            {
-                new PendingCustomerOrderInProcessViewModel.CustomerOrder
+
+            var customers = DataReport
+                .Select(s => new { s.CustomerOrderId, s.OrderNumber, s.OrderDate, s.EstimatedDeliveryDate, s.StatusOrderName, s.CustomerName, s.CustomerIdentity, s.CustomerOrderEmployeeName })
+                .DistinctBy(d => d.CustomerOrderId)
+                .OrderBy(o => o.OrderDate)
+                .Select(async customer => new PendingAutomaticCustomerOrderInProcessViewModel.CustomerOrder
                 {
-                    CustomerOrderId = 1,
-                    OrderNumber = "PED-2024-001",
-                    OrderDate = DateTime.Now.AddDays(-15),
-                    EstimatedDeliveryDate = DateTime.Now.AddDays(5),
-                    StatusOrderName = "En Proceso",
-                    CustomerName = "Cliente Ejemplo S.A.",
-                    CustomerIdentity = "900123456-7",
-                    EmployeeName = "Juan Pérez",
-                    CustomerOrdersInProcess = await GetCustomerOrdersInProcessAsync(1, ct)
-                }
-            };
+                    CustomerOrderId = customer.CustomerOrderId,
+                    OrderNumber = customer.OrderNumber,
+                    OrderDate = customer.OrderDate,
+                    EstimatedDeliveryDate = customer.EstimatedDeliveryDate,
+                    StatusOrderName = customer.StatusOrderName,
+                    CustomerName = customer.CustomerName,
+                    CustomerIdentity = customer.CustomerIdentity,
+                    EmployeeName = customer.CustomerOrderEmployeeName,
+                    CustomerOrdersInProcess = await GetCustomerOrdersInProcessAsync(customer.CustomerOrderId, ct)
+                });
+
+            return (await Task.WhenAll(customers)).ToList();
         }
 
-        async Task<List<PendingCustomerOrderInProcessViewModel.CustomerOrderInProcess>> GetCustomerOrdersInProcessAsync(int customerOrderId, CancellationToken ct = default)
+        async Task<List<PendingAutomaticCustomerOrderInProcessViewModel.CustomerOrderInProcess>> GetCustomerOrdersInProcessAsync(int customerOrderId, CancellationToken ct = default)
         {
-            // Mock data for demonstration - replace with real data service call
-            return new List<PendingCustomerOrderInProcessViewModel.CustomerOrderInProcess>
-            {
-                new PendingCustomerOrderInProcessViewModel.CustomerOrderInProcess
-                {
-                    CustomerOrderInProcessId = 1,
-                    ProcessNumber = "PROC-2024-001",
-                    ProcessDate = DateTime.Now.AddDays(-5),
-                    TransferDatetime = DateTime.Now.AddDays(-5),
-                    StatusName = "Pendiente",
-                    ProcessSatelliteName = "Satélite Principal",
-                    EmployeeName = "Juan Pérez",
-                    EmployeeRecipientName = "María García",
-                    Notes = "Proceso pendiente de completar",
-                    CustomerOrderInProcessDetails = await GetCustomerOrderInProcessDetailsAsync(1, ct)
-                }
-            };
+            var inProcessOrders = DataReport.Where(w => w.CustomerOrderId == customerOrderId)
+                                                              .Select(s => new { s.CustomerOrderInProcessId, s.ProcessDate, s.TransferDatetime, s.Notes })
+                                                              .DistinctBy(d => d.CustomerOrderInProcessId)
+                                                              .OrderBy(o => o.ProcessDate)
+                                                              .Select(async inProcessOrder => new PendingAutomaticCustomerOrderInProcessViewModel.CustomerOrderInProcess
+                                                              {
+                                                                  CustomerOrderInProcessId = inProcessOrder.CustomerOrderInProcessId,
+                                                                  ProcessDate = inProcessOrder.ProcessDate,
+                                                                  TransferDatetime = inProcessOrder.TransferDatetime,
+                                                                  Notes = inProcessOrder.Notes,
+                                                                  CustomerOrderInProcessDetails = await GetCustomerOrderInProcessDetailsAsync(inProcessOrder.CustomerOrderInProcessId, ct)
+                                                              });
+            return (await Task.WhenAll(inProcessOrders)).ToList();
         }
 
-        async Task<List<PendingCustomerOrderInProcessViewModel.CustomerOrderInProcessDetail>> GetCustomerOrderInProcessDetailsAsync(int customerOrderInProcessId, CancellationToken ct = default)
+        async Task<List<PendingAutomaticCustomerOrderInProcessViewModel.CustomerOrderInProcessDetail>> GetCustomerOrderInProcessDetailsAsync(int customerOrderInProcessId, CancellationToken ct = default)
         {
-            // Mock data for demonstration - replace with real data service call
-            return new List<PendingCustomerOrderInProcessViewModel.CustomerOrderInProcessDetail>
-            {
-                new PendingCustomerOrderInProcessViewModel.CustomerOrderInProcessDetail
-                {
-                    CustomerOrderInProcessDetailId = 1,
-                    ReferenceName = "REF-001 - Producto Ejemplo",
-                    ItemName = "Producto Ejemplo",
-                    Brand = "Marca A",
-                    WarehouseName = "Bodega Principal",
-                    ProcessedQuantity = 50,
-                    PendingQuantity = 25,
-                    Status = "Pendiente"
-                },
-                new PendingCustomerOrderInProcessViewModel.CustomerOrderInProcessDetail
-                {
-                    CustomerOrderInProcessDetailId = 2,
-                    ReferenceName = "REF-002 - Producto Ejemplo 2",
-                    ItemName = "Producto Ejemplo 2",
-                    Brand = "Marca B",
-                    WarehouseName = "Bodega Secundaria",
-                    ProcessedQuantity = 30,
-                    PendingQuantity = 15,
-                    Status = "En Proceso"
-                }
-            };
+            var inProcessOrderDetails = DataReport.Where(w => w.CustomerOrderInProcessId == customerOrderInProcessId)
+                                                                  .Select(s => new { s.ItemName, s.InternalReference, s.ReferenceName, s.Brand, s.WarehouseName, s.Quantity })
+                                                                  .OrderBy(o => new { o.InternalReference, o.ReferenceName })
+                                                                  .Select(async inProcessOrder => new PendingAutomaticCustomerOrderInProcessViewModel.CustomerOrderInProcessDetail
+                                                                  {
+                                                                      ItemName = inProcessOrder.ItemName,
+                                                                      InternalReference = inProcessOrder.InternalReference,
+                                                                      ReferenceName = inProcessOrder.ReferenceName,
+                                                                      Brand = inProcessOrder.Brand,
+                                                                      WarehouseName = inProcessOrder.WarehouseName,
+                                                                      Quantity = inProcessOrder.Quantity,
+                                                                  });
+            return (await Task.WhenAll(inProcessOrderDetails)).ToList();
         }
 
         #endregion

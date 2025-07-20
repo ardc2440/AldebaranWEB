@@ -1,6 +1,6 @@
 namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders.ViewModel
 {
-    public class PendingCustomerOrderInProcessViewModel
+    public class PendingAutomaticCustomerOrderInProcessViewModel
     {
         public List<CustomerOrder> CustomerOrders { get; set; }
 
@@ -22,17 +22,12 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders.ViewModel
             public int CustomerOrderInProcessId { get; set; }
             public DateTime ProcessDate { get; set; }
             public DateTime TransferDatetime { get; set; }
-            public string StatusName { get; set; }
-            public string ProcessSatelliteName { get; set; }
-            public string EmployeeName { get; set; }
-            public string EmployeeRecipientName { get; set; }
             public string Notes { get; set; }
             public List<CustomerOrderInProcessDetail> CustomerOrderInProcessDetails { get; set; }
         }
 
         public class CustomerOrderInProcessDetail
         {
-            public int CustomerOrderInProcessDetailId { get; set; }
             public string ItemName { get; set; }
             public string InternalReference { get; set; }
             public string ReferenceName { get; set; }

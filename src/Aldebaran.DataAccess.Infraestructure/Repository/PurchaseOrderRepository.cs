@@ -2,13 +2,10 @@ using Aldebaran.DataAccess.Entities;
 using Aldebaran.DataAccess.Enums;
 using Aldebaran.DataAccess.Infraestructure.Models;
 using Aldebaran.Infraestructure.Common.Utils;
-using DocumentFormat.OpenXml.InkML;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.IdentityModel.Tokens;
 using System.Linq.Dynamic.Core;
-using System.Threading;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {

@@ -2,7 +2,7 @@
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
 
 <RadzenColumn SizeMD=12>
-    <RadzenTemplateForm TItem="ViewModel.PendingCustomerOrderInProcessFilter" Data="Filter" Submit="@FormSubmit">
+    <RadzenTemplateForm TItem="ViewModel.PendingAutomaticCustomerOrderInProcessFilter" Data="Filter" Submit="@FormSubmit">
         <RadzenRow style="margin-bottom: 1rem">
             <RadzenColumn Size="12">
                 <RadzenStack>
@@ -57,7 +57,7 @@
         <RadzenRow style="margin-bottom: 1rem">
             <RadzenColumn Size="6">
                 <RadzenStack>
-                    <RadzenFormField Text="Estado del proceso" Variant="Variant.Text" Style="width: 100%;">
+                    <RadzenFormField Text="Estado del pedido" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
                             <RadzenDropDown Data="@StatusDocumentTypes" TextProperty="StatusDocumentTypeName" ValueProperty="StatusDocumentTypeId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                             style="display: block; width: 100%" @bind-Value="@Filter.StatusDocumentTypeId" Name="StatusDocumentTypeId">
@@ -84,6 +84,11 @@
                 </RadzenStack>
             </RadzenColumn>
         </RadzenRow>
+
+        <RadzenRow style="margin-bottom: 1rem">
+            <MultiReferencePicker @ref="referencePicker" OnChange="ItemReferenceHandler"></MultiReferencePicker>
+        </RadzenRow>
+
         @if (ValidationError)
         {
             <div class="rz-message rz-messages-error">Debe seleccionar al menos un filtro</div>

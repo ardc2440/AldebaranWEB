@@ -1,5 +1,4 @@
 ﻿using Aldebaran.DataAccess.Entities;
-using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
