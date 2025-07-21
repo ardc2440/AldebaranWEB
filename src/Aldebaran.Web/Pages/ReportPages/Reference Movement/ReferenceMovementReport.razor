@@ -44,7 +44,7 @@
                             <p class="component-label m-0 fw-bold">Referencias: </p>
                             @for (int i = 0; i < Filter.ItemReferences.Count(); i++)
                             {
-                                <span class="@(i>=2 ? "read-more" : "")" style="@(i>=2 ? "display: none" : "")">(@Filter.ItemReferences[i].Item.Line.LineName) @Filter.ItemReferences[i].Item.ItemName - @Filter.ItemReferences[i].ReferenceName</span>
+                                <span class="@(i >= 2 ? "read-more" : "")" style="@(i >= 2 ? "display: none" : "")">(@Filter.ItemReferences[i].Item.Line.LineName) @Filter.ItemReferences[i].Item.ItemName - @Filter.ItemReferences[i].ReferenceName</span>
                             }
                             @if (Filter.ItemReferences.Count() > 2)
                             {
@@ -59,7 +59,7 @@
         </RadzenColumn>
         <RadzenColumn Size="6" class="align-self-end">
             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.End" JustifyContent="JustifyContent.End" Gap="0.5rem">
-                <RadzenSplitButton Icon="build" Text="Acciones" Click="@Save" Variant="Variant.Flat" Shade="Shade.Lighter" IsBusy="@IsBusy" Disabled="ViewModel==null">
+                <RadzenSplitButton Icon="build" Text="Acciones" Click="@Save" Variant="Variant.Flat" Shade="Shade.Lighter" IsBusy="@IsBusy" Disabled="ViewModel == null">
                     <RadzenSplitButtonItem Text="Imprimir" Icon="print" Value="print" Style="cursor:pointer" />
                     <RadzenSplitButtonItem Text="Guardar PDF" Icon="picture_as_pdf" Value="save" Style="cursor:pointer" />
                 </RadzenSplitButton>
@@ -107,7 +107,7 @@
                                                         <div class="type">Referencias: </div>
                                                         @for (int i = 0; i < Filter.ItemReferences.Count(); i++)
                                                         {
-                                                            <p class="@(i>=2 ? "read-more-page" : "")" style="@(i>=2 ? "display: none" : "")"> [@Filter.ItemReferences[i].Item.InternalReference] (@Filter.ItemReferences[i].Item.Line.LineName) @Filter.ItemReferences[i].Item.ItemName - @Filter.ItemReferences[i].ReferenceName</p>
+                                                            <p class="@(i >= 2 ? "read-more-page" : "")" style="@(i >= 2 ? "display: none" : "")"> [@Filter.ItemReferences[i].Item.InternalReference] (@Filter.ItemReferences[i].Item.Line.LineName) @Filter.ItemReferences[i].Item.ItemName - @Filter.ItemReferences[i].ReferenceName</p>
                                                         }
                                                         @if (Filter.ItemReferences.Count() > 2)
                                                         {
@@ -176,7 +176,7 @@
                                                                             @for (int w = 0; w < reference.Warehouses.Count(); w++)
                                                                             {
                                                                                 var warehouse = reference.Warehouses[w];
-                                                                                <tr class="@(w<reference.Warehouses.Count()-1? "border-bottom-1":"")" style="background:#fff !important">
+                                                                                <tr class="@(w < reference.Warehouses.Count() - 1 ? "border-bottom-1" : "")" style="background:#fff !important">
                                                                                     <td width="50%" style="text-align:left" class="bold">@warehouse.WarehouseName</td>
                                                                                     <td width="50%" style="text-align:center" class="border-left-1">@warehouse.Amount.ToString("N0")</td>
                                                                                 </tr>
@@ -198,7 +198,9 @@
                                                                                     {
                                                                                         <tr>
                                                                                             <td width="15%">@detail.Code</td>
-                                                                                            <td width="20%">@detail.Status</td>
+                                                                                            <td width="20%" style="@(detail.Status.Contains("con traslados automáticos") ? "font-weight: bold;" : "")">
+                                                                                                @detail.Status
+                                                                                            </td>
                                                                                             <td width="10%">@detail.Date.ToString(SharedLocalizer["date:format"])</td>
                                                                                             <td width="40%">@detail.Owner</td>
                                                                                             <td width="15%">@detail.Amount.ToString("N0")</td>
