@@ -141,12 +141,20 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         private int PROVIDER_ID { get; set; }
         protected async Task FormSubmit()
         {
+            // ✅ Protección contra doble submit (sin bloquear validación inline)
+            if (IsSubmitInProgress) return;
+            
             try
             {
                 IsSubmitInProgress = true;
                 Submitted = true;
+                
                 if (!PurchaseOrderDetails.Any())
+                {
+                    // ✅ Mantener Submitted = true para mostrar validación inline
+                    // ✅ NO activar IsErrorVisible para evitar RadzenAlert superior
                     return;
+                }
 
                 var purchaseOrderDetails = PurchaseOrderDetails.Select(s => new ServiceModel.PurchaseOrderDetail
                 {
@@ -157,7 +165,10 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 var ordersAffected = await PurchaseOrderService.GetAffectedCustomerOrders(PurchaseOrder.PurchaseOrderId, PurchaseOrder.ExpectedReceiptDate, purchaseOrderDetails);
                 var reasonResult = await DialogService.OpenAsync<PurchaseOrderModificationReasonDialog>("Confirmar modificación", new Dictionary<string, object> { { "DOCUMENT_TYPE_CODE", "O" }, { "TITLE", "Está seguro que desea actualizar esta orden de compra?" }, { "CUSTOMER_ORDERS", ordersAffected } }, options: new DialogOptions { CloseDialogOnOverlayClick = false, Width = "800px" });
                 if (reasonResult == null)
+                {
+                    Submitted = false; // ✅ Resetear antes del return
                     return;
+                }
 
                 var reason = (ServiceModel.Reason)reasonResult;
                 var now = DateTime.Now;
@@ -174,6 +185,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 Logger.LogError(ex, nameof(FormSubmit));
                 IsErrorVisible = true;
                 Error = ex.Message;
+                Submitted = false; // ✅ Resetear en caso de error para permitir reintento
             }
             finally
             {
@@ -259,6 +271,10 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         {
             if (PurchaseOrder.ProviderId == 0)
                 return;
+            
+            // ✅ Limpiar validación inline cuando el usuario agrega detalles
+            Submitted = false;
+            
             var providerReferences = await ProviderReferenceService.GetByProviderIdAsync(PurchaseOrder.ProviderId);
             var itemReferences = providerReferences.Where(w => w.ItemReference.IsActive && w.ItemReference.Item.IsActive && w.ItemReference.Item.Line.IsActive).Select(s => s.ItemReference).ToList();
             var result = await DialogService.OpenAsync<AddPurchaseOrderDetail>("Nueva referencia",
@@ -278,7 +294,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
             lastWarehouseId = detail.WarehouseId;
             await PurchaseOrderDetailGrid.Reload();
         }
-        protected async Task DeletePurchaseOrderDetail(MouseEventArgs args, ServiceModel.PurchaseOrderDetail item)
+        protected async Task DeletePurchaseOrderDetail(ServiceModel.PurchaseOrderDetail item)
         {
             if (await DialogService.Confirm("Está seguro que desea eliminar esta referencia?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
             {
@@ -286,7 +302,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 await PurchaseOrderDetailGrid.Reload();
             }
         }
-        protected async Task EditPurchaseOrderDetail(MouseEventArgs args, ServiceModel.PurchaseOrderDetail item)
+        protected async Task EditPurchaseOrderDetail(ServiceModel.PurchaseOrderDetail item)
         {
             var providerReferences = await ProviderReferenceService.GetByProviderIdAsync(PurchaseOrder.ProviderId);
             var itemReferences = providerReferences.Select(s => s.ItemReference).ToList();
