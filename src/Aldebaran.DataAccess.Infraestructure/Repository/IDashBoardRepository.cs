@@ -21,7 +21,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         Task<IEnumerable<ConfirmedPurchaseOrder>> GetConfirmedPurchasesWithAutomaticAssigment(int employeeId, string? searchKey = null, CancellationToken ct = default);
         Task<IEnumerable<AutomaticCustomerOrder>> GetAutomaticCustomerOrdersAssigment(int processId, CancellationToken ct = default);
         Task<IEnumerable<AutomaticCustomerOrderDetail>> GetAutomaticCustomerOrderDetailsAssigment(int processOrderId, CancellationToken ct = default);
-        Task<IEnumerable<AutomaticCustomerOrderInProcessModification>> GetModificatedAutomaticCustomerInProcessAlarmsAsync(int employeeId, string? searchKey = null, CancellationToken ct = default)
+        Task<IEnumerable<AutomaticCustomerOrderInProcessModification>> GetModificatedAutomaticCustomerInProcessAlarmsAsync(int employeeId, string? searchKey = null, CancellationToken ct = default);
 
     }
 }
