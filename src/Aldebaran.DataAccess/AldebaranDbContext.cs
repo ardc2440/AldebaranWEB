@@ -108,7 +108,9 @@ namespace Aldebaran.DataAccess
         public DbSet<ConfirmedPurchaseOrder> ConfirmedPurchaseOrders { get; set; }
         public DbSet<AutomaticCustomerOrder> AutomaticCustomerOrders { get; set; }
         public DbSet<AutomaticCustomerOrderDetail> AutomaticCustomerOrderDetails { get; set; }
-
+        public DbSet<AutomaticCustomerOrderInProcessModification> AutomaticCustomerOrderInProcessModifications { get; set; }
+        public DbSet<VisualizedAutomaticCustomerOrderInProcessModification> VisualizedAutomaticCustomerOrderInProcessModifications { get; set; }
+        
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
         }
@@ -204,6 +206,7 @@ namespace Aldebaran.DataAccess
             modelBuilder.ApplyConfiguration(new ConfirmedPurchaseOrderConfiguration());
             modelBuilder.ApplyConfiguration(new AutomaticCustomerOrderConfiguration());
             modelBuilder.ApplyConfiguration(new AutomaticCustomerOrderDetailConfiguration());
+            modelBuilder.ApplyConfiguration(new VisualizedAutomaticCustomerOrderInProcessModificationConfiguration());
 
             modelBuilder.Entity<InventoryAdjustmentReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<InProcessInventoryReport>(iar => { iar.HasNoKey(); });

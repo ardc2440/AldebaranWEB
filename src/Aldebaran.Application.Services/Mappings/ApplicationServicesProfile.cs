@@ -116,14 +116,15 @@ namespace Aldebaran.Application.Services.Mappings
             CreateMap<CancellationRequestModel, Entities.CancellationRequestModel>().ReverseMap();
             CreateMap<VisualizedLocalWarehouseAlarm, Entities.VisualizedLocalWarehouseAlarm>().ReverseMap();
             CreateMap<LocalWarehouseAlarm, Entities.LocalWarehouseAlarm>().ReverseMap();
-            CreateMap<ConfirmedPurchaseOrder, Entities.ConfirmedPurchaseOrder>().ReverseMap();    
+            CreateMap<ConfirmedPurchaseOrder, Entities.ConfirmedPurchaseOrder>().ReverseMap();
             CreateMap<VisualizedAutomaticInProcess, Entities.VisualizedAutomaticInProcess>().ReverseMap();
             CreateMap<AutomaticCustomerOrder, Entities.AutomaticCustomerOrder>().ReverseMap();
             CreateMap<AutomaticCustomerOrderDetail, Entities.AutomaticCustomerOrderDetail>().ReverseMap();
             CreateMap<BackOrderReport, Entities.Reports.BackOrderReport>().ReverseMap();
             CreateMap<BackOrderExport, Entities.Reports.BackOrderExport>().ReverseMap();
             CreateMap<AutomaticPendingCustomerOrderInProcessReport, Entities.Reports.AutomaticPendingCustomerOrderInProcessReport>().ReverseMap();
-
+            CreateMap<VisualizedAutomaticCustomerOrderInProcessModification, Entities.VisualizedAutomaticCustomerOrderInProcessModification>().ReverseMap();
+            CreateMap<AutomaticCustomerOrderInProcessModification, Entities.AutomaticCustomerOrderInProcessModification>().ReverseMap(); 
         }
     }
 }

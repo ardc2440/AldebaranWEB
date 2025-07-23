@@ -90,6 +90,11 @@ namespace Aldebaran.Application.Services
             var data = await _repository.GetConfirmedPurchasesWithAutomaticAssigment(employeeId, searchKey, ct);
             return _mapper.Map<IEnumerable<ConfirmedPurchaseOrder>>(data);
         }
+        public async Task<IEnumerable<AutomaticCustomerOrderInProcessModification>> GetModificatedAutomaticCustomerInProcessAlarmsAsync(int employeeId, string? searchKey = null, CancellationToken ct = default)
+        {
+            var data = await _repository.GetModificatedAutomaticCustomerInProcessAlarmsAsync(employeeId, searchKey, ct);
+            return _mapper.Map<IEnumerable<AutomaticCustomerOrderInProcessModification>>(data);
+        }
         public async Task<IEnumerable<AutomaticCustomerOrder>> GetAutomaticCustomerOrdersAssigment(int processId, CancellationToken ct = default)
         {
             var data = await _repository.GetAutomaticCustomerOrdersAssigment(processId, ct);
