@@ -4,6 +4,7 @@
     {
         public int Id { get; set; }
         public int CUSTOMER_ORDER_IN_PROCESS_ID { get; set; }
+        public int CUSTOMER_ORDER_ID { get; set; }
         public required string ActionType { get; set; }
         public DateTime ActionDate { get; set; } 
         public required string ActionReason { get; set; } 

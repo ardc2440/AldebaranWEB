@@ -123,19 +123,6 @@
                     </ChildContent>
                 </RadzenTabsItem>
 
-                <RadzenTabsItem Visible="@(automaticInProcessModificationNotificationsVisible)">
-                    <Template>
-                        <div style="display: flex; align-items: center; margin-bottom: 5px; height: 40px; width: 200px; font-size: 14px; padding: 0 8px;">
-                            <RadzenImage Click="@(() => AlertClick(12))" Visible="@automaticInProcessModificationAlertVisible" Path="images/alert.gif" Style="width: 25px; height: 20px; vertical-align: middle; margin-right: 8px;" />Modificaciones<br>automáticas de<br>traslados a proceso
-                        </div>
-                    </Template>
-                    <ChildContent>
-                        <RadzenRow class="mb-2">
-                            <AutomaticInProcessModificationNotifications @ref="automaticInProcessModificationNotifications" OnAlertVisibleChanged="@UpdateAlert" />
-                        </RadzenRow>
-                    </ChildContent>
-                </RadzenTabsItem>
-
                 <RadzenTabsItem Visible="@(customerOrderExpirationNotificationVisible)">
                     <Template>
                         <div style="display: flex; align-items: center; margin-bottom: 5px; height: 40px; width: 200px; font-size: 14px; padding: 0 8px;">
@@ -145,6 +132,19 @@
                     <ChildContent>
                         <RadzenRow class="mb-2">
                             <CustomerOrderExpirationNotifications @ref="customerOrderExpirationNotifications" OnAlertVisibleChanged="@UpdateAlert" />
+                        </RadzenRow>
+                    </ChildContent>
+                </RadzenTabsItem>
+
+                <RadzenTabsItem Visible="@(automaticInProcessModificationNotificationsVisible)">
+                    <Template>
+                        <div style="display: flex; align-items: center; margin-bottom: 5px; height: 40px; width: 200px; font-size: 14px; padding: 0 8px;">
+                            <RadzenImage Click="@(() => AlertClick(12))" Visible="@automaticInProcessModificationAlertVisible" Path="images/alert.gif" Style="width: 25px; height: 20px; vertical-align: middle; margin-right: 8px;" />Modificaciones de<br>traslados a proceso<br>automáticos
+                        </div>
+                    </Template>
+                    <ChildContent>
+                        <RadzenRow class="mb-2">
+                            <AutomaticInProcessModificationNotifications @ref="automaticInProcessModificationNotifications" OnAlertVisibleChanged="@UpdateAlert" />
                         </RadzenRow>
                     </ChildContent>
                 </RadzenTabsItem>

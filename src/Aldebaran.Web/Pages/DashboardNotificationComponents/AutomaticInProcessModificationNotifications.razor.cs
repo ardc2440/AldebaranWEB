@@ -31,6 +31,12 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         public ITimerPreferenceService TimerPreferenceService { get; set; }
 
         [Inject]
+        public ICustomerOrdersInProcessService CustomerOrdersInProcessService { get; set; }
+
+        [Inject]
+        public ICustomerOrderService CustomerOrderService { get; set; }
+
+        [Inject]
         protected ILogger<Index> Logger { get; set; }
 
         [Inject]
@@ -61,6 +67,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         protected string search = "";
 
         private int currentPage = 1;
+        protected IList<AutomaticCustomerOrderInProcessModification> selectedModifications = new List<AutomaticCustomerOrderInProcessModification>();
         protected IList<AutomaticCustomerOrderInProcessModification> visibleItems = new List<AutomaticCustomerOrderInProcessModification>();
 
         protected IEnumerable<AutomaticCustomerOrderInProcessModification> modifications = new List<AutomaticCustomerOrderInProcessModification>();
@@ -170,9 +177,11 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
             try
             {
                 isLoadingInProgress = true;
+                selectedModifications = new List<AutomaticCustomerOrderInProcessModification>();
                 GridTimer.LastUpdate = DateTime.Now;
                 Console.WriteLine($"{GridTimer.LastUpdate}");
                 await UpdateModificationsAsync();
+                selectedModifications = new List<AutomaticCustomerOrderInProcessModification>();
                 await LoadVisibleItems();
             }
             finally
@@ -188,6 +197,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
 
             var originalData = await GetCache<AutomaticCustomerOrderInProcessModification>("AutomaticCustomerOrderInProcessModification");
             modifications = await DashBoardService.GetModificatedAutomaticCustomerInProcessAlarmsAsync(employee.EmployeeId, search, ct);
+            
             await AlertVisibleChange(!modifications.OrderBy(o => o.Order_Number).ToList().IsEqual<AutomaticCustomerOrderInProcessModification>(originalData.OrderBy(o => o.Order_Number).ToList()));
             await UpdateCache<AutomaticCustomerOrderInProcessModification>("AutomaticCustomerOrderInProcessModification", modifications.ToList());
             if (modificationsGrid != null)
@@ -203,13 +213,6 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
         protected async Task Search(ChangeEventArgs args)
         {
             search = $"{args.Value}";
-            await modificationsGrid.GoToPage(0);
-            await GridData_Update();
-        }
-
-        protected async Task ClearSearch()
-        {
-            search = "";
             await modificationsGrid.GoToPage(0);
             await GridData_Update();
         }
@@ -231,45 +234,151 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
                 .ToList();
         }
 
+        async Task ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null)
+        {
+            TooltipService.Open(elementReference, content, options);
+            await Task.Delay(1000);
+            TooltipService.Close();
+        }
+
+        private async Task<bool> IsAllPageSelected()
+        {
+            return visibleItems.All(item => selectedModifications.Contains(item)) && (selectedModifications.Any());
+        }
+
+        private async Task SelectAllItems(bool select)
+        {
+            if (select)
+            {
+                foreach (var item in visibleItems)
+                {
+                    if (!selectedModifications.Contains(item))
+                    {
+                        selectedModifications.Add(item);
+                    }
+                }
+            }
+            else
+            {
+                foreach (var item in visibleItems)
+                {
+                    selectedModifications.Remove(item);
+                }
+            }
+        }
+
+        private async Task ToggleSelection(AutomaticCustomerOrderInProcessModification item, bool isSelected)
+        {
+            if (isSelected)
+            {
+                if (!selectedModifications.Contains(item))
+                {
+                    selectedModifications.Add(item);
+                }
+            }
+            else
+            {
+                selectedModifications.Remove(item);
+            }
+        }
+
+        protected async Task DisableModifications(AutomaticCustomerOrderInProcessModification args)
+        {
+            var alertVisible = automaticModificationsAlertVisible;
+
+            if (await DialogService.Confirm("Desea ocultar las modificaciones seleccionadas?. No volverán a salir en su Home", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Ocultar modificaciones") == false)
+                return;
+
+            try
+            {
+                if (!selectedModifications.Any())
+                {
+                    await VisualizedAutomaticCustomerInProcessModificationService.AddAsync(new VisualizedAutomaticCustomerOrderInProcessModification
+                    { 
+                        Id = args.Id, 
+                        ActionType = args.ActionType, 
+                        Employee_Id = employee.EmployeeId 
+                    });
+                    await UpdateModificationsAsync();
+                    await AlertVisibleChange(alertVisible);
+                    await LoadVisibleItems();
+                    return;
+                }
+
+                isLoadingInProgress = true;
+                foreach (var modification in selectedModifications)
+                    await VisualizedAutomaticCustomerInProcessModificationService.AddAsync(new VisualizedAutomaticCustomerOrderInProcessModification 
+                    { 
+                        Id = modification.Id, 
+                        ActionType = modification.ActionType, 
+                        Employee_Id = employee.EmployeeId 
+                    });
+            }
+            finally
+            {
+                await UpdateModificationsAsync();
+                await AlertVisibleChange(alertVisible);
+                selectedModifications = new List<AutomaticCustomerOrderInProcessModification>();
+                await LoadVisibleItems();
+                isLoadingInProgress = false;
+            }
+        }
+
         protected async Task MarkAsVisualized(AutomaticCustomerOrderInProcessModification modification)
+        {
+            await DisableModifications(modification);
+        }
+
+        public async Task ShowOrderInfo(string orderNumber)
         {
             try
             {
-                isLoadingInProgress = true;
-
-                var visualizedModification = new VisualizedAutomaticCustomerOrderInProcessModification
+                // Buscar la modificación por orderNumber para obtener el CUSTOMER_ORDER_ID
+                var modification = modifications.FirstOrDefault(m => m.Order_Number == orderNumber);
+                if (modification?.CUSTOMER_ORDER_ID > 0)
                 {
-                    Id = modification.Id,
-                    ActionType = modification.ActionType,
-                    Employee_Id = employee.EmployeeId,
-                    Visualized_Date = DateTime.Now
-                };
-
-                await VisualizedAutomaticCustomerInProcessModificationService.AddAsync(visualizedModification);
-
-                NotificationService.Notify(new NotificationMessage
+                    // Usar directamente el CUSTOMER_ORDER_ID para abrir el diálogo de detalles del pedido
+                    await DialogService.OpenAsync<CustomerOrderPages.CustomerOrderDetails>("Detalles del pedido", 
+                        new Dictionary<string, object> { { "CustomerOrderId", modification.CUSTOMER_ORDER_ID } }, 
+                        options: new DialogOptions { CloseDialogOnOverlayClick = false, Width = "800px" });
+                    return;
+                }
+                
+                // Si no se puede obtener el CUSTOMER_ORDER_ID, mostrar información básica
+                await DialogService.OpenAsync("Información del Pedido", ds => (RenderFragment)(builder =>
                 {
-                    Summary = "Modificación marcada",
-                    Severity = NotificationSeverity.Success,
-                    Detail = "La modificación ha sido marcada como visualizada."
+                    builder.OpenElement(0, "div");
+                    builder.AddAttribute(1, "style", "padding: 20px;");
+                    
+                    builder.OpenElement(2, "div");
+                    builder.AddAttribute(3, "style", "margin-bottom: 15px;");
+                    builder.OpenElement(4, "strong");
+                    builder.AddContent(5, "Número de Pedido: ");
+                    builder.CloseElement();
+                    builder.AddContent(6, orderNumber);
+                    builder.CloseElement();
+                    
+                    builder.OpenElement(7, "div");
+                    builder.AddAttribute(8, "style", "margin-bottom: 10px; font-size: 14px; color: #666;");
+                    builder.AddContent(9, "Para ver los detalles completos del pedido, navegue a la sección de 'Pedido de artículos' en el menú principal.");
+                    builder.CloseElement();
+                    
+                    builder.CloseElement();
+                }), new DialogOptions() 
+                { 
+                    CloseDialogOnOverlayClick = true,
+                    Width = "400px"
                 });
-
-                await UpdateModificationsAsync();
-                await LoadVisibleItems();
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Error marking modification as visualized");
+                Logger.LogError(ex, "Error showing order info for order: {OrderNumber}", orderNumber);
                 NotificationService.Notify(new NotificationMessage
                 {
                     Summary = "Error",
                     Severity = NotificationSeverity.Error,
-                    Detail = "No se pudo marcar la modificación como visualizada."
+                    Detail = "No se pudo mostrar la información del pedido."
                 });
-            }
-            finally
-            {
-                isLoadingInProgress = false;
             }
         }
 
@@ -280,6 +389,5 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
 
     public abstract class AutomaticInProcessModificationNotificationsBase : ComponentBase
     {
-        // Clase base para facilitar la herencia si es necesario
     }
 }
