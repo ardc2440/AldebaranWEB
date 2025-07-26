@@ -1,0 +1,74 @@
+@using Aldebaran.Application.Services.Models;
+@using Aldebaran.Web.Resources.LocalizedControls;
+@using Aldebaran.Web.Utils;
+@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer ;
+@inherits Aldebaran.Web.Pages.DashboardNotificationComponents.AutomaticInProcessModificationNotificationsBase
+
+<LoadingData IsLoadingData="@isLoadingInProgress" />
+
+@if (!isLoadingInProgress)
+{
+    <RadzenRow class="mb-2">
+        <RadzenColumn SizeLG="6" SizeXL="6" SizeMD="6" SizeSM="6" SizeXX="12" SizeXS="12" class="d-flex align-items-end">
+            <NotificationTitle Title="Modificaciones automáticas de traslados a proceso" Count="@modificationsGrid?.Count" AlertVisible="@automaticModificationsAlertVisible" />
+        </RadzenColumn>
+        <RadzenColumn SizeLG="6" SizeXL="6" SizeMD="6" SizeSM="6" SizeXX="12" SizeXS="12">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.End" Gap="1rem" Wrap="FlexWrap.Wrap" JustifyContent="JustifyContent.End">
+                <RadzenFormField Variant="Variant.Text">
+                    <RadzenTextBox @bind-Value="@search" Placeholder="Buscar..." @oninput="@Search" />
+                </RadzenFormField>
+                <RadzenButton Text="Limpiar" Click="@(async() => await ClearSearch())" Variant="Variant.Text" ButtonStyle="ButtonStyle.Secondary" Size="ButtonSize.Medium" class="d-flex align-items-end" />
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenRow class="mb-2">
+        <RadzenColumn>
+            <LocalizedDataGrid @ref="modificationsGrid" TItem="AutomaticCustomerOrderInProcessModification" 
+                              Data="@modifications" Count="@modifications.Count()" PageSize="@pageSize" 
+                              AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" 
+                              AllowFiltering="true" Page="OnPageChanged"
+                              IsLoading="@(isLoadingInProgress||GridTimer.IsLoading)">
+                <Columns>
+                    <RadzenDataGridColumn TItem="AutomaticCustomerOrderInProcessModification" Property="Order_Number" Title="Número de Pedido" Width="150px" />
+                    <RadzenDataGridColumn TItem="AutomaticCustomerOrderInProcessModification" Property="Customer_Name" Title="Cliente" Width="200px" />
+                    <RadzenDataGridColumn TItem="AutomaticCustomerOrderInProcessModification" Property="ActionType" Title="Tipo de Acción" Width="150px">
+                        <Template Context="modification">
+                            @switch (modification.ActionType.ToUpper())
+                            {
+                                case "C":
+                                    <span class="badge badge-success">Creación</span>
+                                    break;
+                                case "M":
+                                    <span class="badge badge-warning">Modificación</span>
+                                    break;
+                                case "D":
+                                    <span class="badge badge-danger">Eliminación</span>
+                                    break;
+                                default:
+                                    <span class="badge badge-secondary">@modification.ActionType</span>
+                                    break;
+                            }
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="AutomaticCustomerOrderInProcessModification" Property="ActionDate" Title="Fecha de Acción" Width="180px">
+                        <Template Context="modification">
+                            @modification.ActionDate.ToString(SharedLocalizer["datetime:format"])
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="AutomaticCustomerOrderInProcessModification" Property="ActionReason" Title="Razón de la Acción" Width="250px" />
+                    <RadzenDataGridColumn TItem="AutomaticCustomerOrderInProcessModification" Property="EmployeeName" Title="Empleado" Width="200px" />
+                    <RadzenDataGridColumn TItem="AutomaticCustomerOrderInProcessModification" Title="Acciones" Width="100px" Sortable="false">
+                        <Template Context="modification">
+                            <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem">
+                                <RadzenButton Icon="visibility" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Small" 
+                                            Click="@(async () => await MarkAsVisualized(modification))" 
+                                            Disabled="@isLoadingInProgress"
+                                            title="Marcar como visualizada" />
+                            </RadzenStack>
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </LocalizedDataGrid>
+        </RadzenColumn>
+    </RadzenRow>
+}
