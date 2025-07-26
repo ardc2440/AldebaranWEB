@@ -207,7 +207,8 @@ namespace Aldebaran.DataAccess
             modelBuilder.ApplyConfiguration(new AutomaticCustomerOrderConfiguration());
             modelBuilder.ApplyConfiguration(new AutomaticCustomerOrderDetailConfiguration());
             modelBuilder.ApplyConfiguration(new VisualizedAutomaticCustomerOrderInProcessModificationConfiguration());
-
+            modelBuilder.ApplyConfiguration(new AutomaticCustomerOrderInProcessModificationConfiguration());
+            
             modelBuilder.Entity<InventoryAdjustmentReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<InProcessInventoryReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<InventoryReport>(iar => { iar.HasNoKey(); });
