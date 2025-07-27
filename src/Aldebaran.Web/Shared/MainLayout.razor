@@ -105,7 +105,8 @@
                     <RadzenPanelMenuItem Text="Inventario" Path="report/inventory" Visible=@Security.IsInRole("Administrador","Consulta de reportes") />
                     <RadzenPanelMenuItem Text="Inventario en proceso" Path="report/inprocess-inventory" Visible=@Security.IsInRole("Administrador","Consulta de reportes") />
                     <RadzenPanelMenuItem Text="Movimientos de artículos" Path="report/reference-movement" Visible=@Security.IsInRole("Administrador","Consulta de reportes") />
-                    <RadzenPanelMenuItem Text="Existencias en bodega" Path="report/warehouse-stock" Visible=@Security.IsInRole("Administrador","Consulta de reportes") />
+                    <RadzenPanelMenuItem Text="Existencias por bodega" Path="report/warehouse-stock" Visible=@Security.IsInRole("Administrador","Consulta de reportes") />
+                    <RadzenPanelMenuItem Text="Referencias con existencia mínima en bodega" Path="report/minimum-warehouse-stock" Visible=@Security.IsInRole("Administrador","Consulta de reportes") />
                     <RadzenPanelMenuItem Text="Ajustes de inventario" Path="report/inventory-adjustments" Visible=@Security.IsInRole("Administrador","Consulta de reportes") />
                     <RadzenPanelMenuItem Text="Traslados entre bodegas" Path="report/warehouse-transfers" Visible=@Security.IsInRole("Administrador","Consulta de reportes") />
                     <RadzenPanelMenuItem Text="Zona franca vs. Disponible" Path="/report/freezone-vs-available" Visible=@Security.IsInRole("Administrador","Consulta de reportes") />

@@ -1,0 +1,138 @@
+@using ViewModel = Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.ViewModel;
+
+<RadzenColumn SizeMD=12>
+    <RadzenTemplateForm TItem="ViewModel.MinimumWarehouseStockFilter" Data="Filter" Submit="@FormSubmit">
+        <RadzenRow style="margin-bottom: 1rem">
+            <RadzenColumn Size="6">
+                <RadzenStack>
+                    <RadzenFormField Text="Umbral máximo de existencias" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenNumeric TValue="int?" @bind-Value="@UmbralMaximoExistencias" Name="UmbralMaximoExistencias" 
+                                           Placeholder="Ingrese el umbral máximo" Format="N0" style="display: block; width: 100%" />
+                        </ChildContent>
+                        <Helper>
+                            <RadzenRequiredValidator Component="UmbralMaximoExistencias" Text="El umbral máximo de existencias es obligatorio" />
+                        </Helper>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+            <RadzenColumn Size="6">
+                <RadzenStack>
+                    <RadzenFormField Text="Bodega" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenDropDown Data="@Warehouses" TextProperty="WarehouseName" ValueProperty="WarehouseId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            style="display: block; width: 100%" @bind-Value="@WarehouseId" Name="WarehouseId">
+                            </RadzenDropDown>
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow style="margin-bottom: 1rem">
+            <RadzenColumn Size="12">
+                <RadzenStack>
+                    <RadzenFormField Text="Proveedor" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenDropDownDataGrid @ref="providersGrid" Data="@Providers" ValueProperty="ProviderId" TextProperty="ProviderName" AllowClear=true
+                                                    style="display: block; width: 100%" @bind-Value="@SelectedProviderIds" Name="ProviderIds" Multiple="true"
+                                                    FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true" 
+                                                    Change="@OnProvidersChanged" MaxSelectedLabels="2" SelectedItemsText="proveedores seleccionados" AllowSelectAll="true">
+                                <Columns>
+                                    <RadzenDropDownDataGridColumn Width="60px" Sortable="false">
+                                        <HeaderTemplate>
+                                            <RadzenCheckBox Disabled="@(!providersGrid.AllowSelectAll)" TriState="false" TValue="bool" 
+                                                            Value="@(Providers.Any(c => SelectedProviderIds != null && SelectedProviderIds.Contains(c.ProviderId)))"
+                                                            Change="@OnProviderHeaderToggleSelection" />
+                                        </HeaderTemplate>
+                                        <Template Context="provider">
+                                            <RadzenCheckBox TriState="false" Value="@(SelectedProviderIds != null && SelectedProviderIds.Contains(provider.ProviderId))"
+                                                            TValue="bool" Change=@(args => providersGrid.SelectItem(provider)) @onclick:stopPropagation />
+                                        </Template>
+                                    </RadzenDropDownDataGridColumn>
+                                    <RadzenDropDownDataGridColumn Property="ProviderCode" Title="Código" Width="120px" />
+                                    <RadzenDropDownDataGridColumn Property="ProviderName" Title="Nombre" />
+                                </Columns>
+                            </RadzenDropDownDataGrid>
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow style="margin-bottom: 1rem">
+            <RadzenColumn Size="12">
+                <RadzenStack>
+                    <RadzenFormField Text="Artículos" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenDropDownDataGrid @ref="itemsGrid" Data="@AvailableItems" ValueProperty="ItemId" TextProperty="ItemName" AllowClear=true
+                                                    style="display: block; width: 100%" @bind-Value="@SelectedItemIds" Name="ItemIds" Multiple="true"
+                                                    FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true" 
+                                                    Change="@OnItemsChanged" MaxSelectedLabels="2" SelectedItemsText="artículos seleccionados" AllowSelectAll="true">
+                                <Columns>
+                                    <RadzenDropDownDataGridColumn Width="60px" Sortable="false">
+                                        <HeaderTemplate>
+                                            <RadzenCheckBox Disabled="@(!itemsGrid.AllowSelectAll)" TriState="false" TValue="bool" 
+                                                            Value="@(AvailableItems.Any(c => SelectedItemIds != null && SelectedItemIds.Contains(c.ItemId)))"
+                                                            Change="@OnItemHeaderToggleSelection" />
+                                        </HeaderTemplate>
+                                        <Template Context="item">
+                                            <RadzenCheckBox TriState="false" Value="@(SelectedItemIds != null && SelectedItemIds.Contains(item.ItemId))"
+                                                            TValue="bool" Change=@(args => itemsGrid.SelectItem(item)) @onclick:stopPropagation />
+                                        </Template>
+                                    </RadzenDropDownDataGridColumn>
+                                    <RadzenDropDownDataGridColumn Property="InternalReference" Title="Ref. Interna" Width="120px" />
+                                    <RadzenDropDownDataGridColumn Property="ItemName" Title="Nombre" />
+                                </Columns>
+                            </RadzenDropDownDataGrid>
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow style="margin-bottom: 1rem">
+            <RadzenColumn Size="12">
+                <RadzenStack>
+                    <RadzenFormField Text="Referencias" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenDropDownDataGrid @ref="referencesGrid" Data="@AvailableReferences" ValueProperty="ReferenceId" TextProperty="ReferenceName" AllowClear=true
+                                                    style="display: block; width: 100%" @bind-Value="@SelectedReferenceIds" Name="ReferenceIds" Multiple="true"
+                                                    FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true" 
+                                                    Disabled="@(!HasItemsSelected())" Change="@OnReferencesChanged"
+                                                    MaxSelectedLabels="2" SelectedItemsText="referencias seleccionadas" AllowSelectAll="true">
+                                <Columns>
+                                    <RadzenDropDownDataGridColumn Width="60px" Sortable="false">
+                                        <HeaderTemplate>
+                                            <RadzenCheckBox Disabled="@(!referencesGrid.AllowSelectAll || !HasItemsSelected())" TriState="false" TValue="bool" 
+                                                            Value="@(AvailableReferences.Any(c => SelectedReferenceIds != null && SelectedReferenceIds.Contains(c.ReferenceId)))"
+                                                            Change="@OnReferenceHeaderToggleSelection" />
+                                        </HeaderTemplate>
+                                        <Template Context="reference">
+                                            <RadzenCheckBox TriState="false" Value="@(SelectedReferenceIds != null && SelectedReferenceIds.Contains(reference.ReferenceId))"
+                                                            TValue="bool" Change=@(args => referencesGrid.SelectItem(reference)) @onclick:stopPropagation />
+                                        </Template>
+                                    </RadzenDropDownDataGridColumn>
+                                    <RadzenDropDownDataGridColumn Property="ReferenceCode" Title="Código" Width="120px" />
+                                    <RadzenDropDownDataGridColumn Property="ReferenceName" Title="Nombre" />
+                                    <RadzenDropDownDataGridColumn Property="Item.ItemName" Title="Artículo" />
+                                </Columns>
+                            </RadzenDropDownDataGrid>
+                        </ChildContent>
+                    </RadzenFormField>
+                    @if (ShowReferenceValidationMessage)
+                    {
+                        <div style="color: #666; font-size: 12px; margin-top: 4px;">
+                            <i>Para seleccionar referencias debe elegir primero al menos un artículo.</i>
+                        </div>
+                    }
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+        @if (ValidationError)
+        {
+            <div class="rz-message rz-messages-error">@ValidationErrorMessage</div>
+        }
+        <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+            <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="filter_alt" Text="Filtrar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />
+            <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
+        </RadzenStack>
+    </RadzenTemplateForm>
+</RadzenColumn>
