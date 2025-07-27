@@ -98,6 +98,45 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock
             if (!string.IsNullOrEmpty(filter.ReferenceIds))
                 filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReferenceIds = '{filter.ReferenceIds}'";
 
+            // Filtros de texto libre para campos del proveedor
+            if (!string.IsNullOrEmpty(filter.ProviderItemName))
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ProviderItemName = '{filter.ProviderItemName}'";
+
+            if (!string.IsNullOrEmpty(filter.ProviderReference))
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ProviderReference = '{filter.ProviderReference}'";
+
+            if (!string.IsNullOrEmpty(filter.ProviderReferenceName))
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ProviderReferenceName = '{filter.ProviderReferenceName}'";
+
+            if (!string.IsNullOrEmpty(filter.ProviderReferenceCode))
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ProviderReferenceCode = '{filter.ProviderReferenceCode}'";
+
+            // Filtros de checkbox de 3 estados para Artículos (solo se envían si no son null)
+            if (filter.ItemIsActive.HasValue)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ItemIsActive = {(filter.ItemIsActive.Value ? 1 : 0)}";
+
+            if (filter.ItemIsDomesticProduct.HasValue)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ItemIsDomesticProduct = {(filter.ItemIsDomesticProduct.Value ? 1 : 0)}";
+
+            if (filter.ItemIsSpecialImport.HasValue)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ItemIsSpecialImport = {(filter.ItemIsSpecialImport.Value ? 1 : 0)}";
+
+            if (filter.ItemIsSaleOff.HasValue)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ItemIsSaleOff = {(filter.ItemIsSaleOff.Value ? 1 : 0)}";
+
+            if (filter.ItemIsCatalogVisible.HasValue)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ItemIsCatalogVisible = {(filter.ItemIsCatalogVisible.Value ? 1 : 0)}";
+
+            // Filtros de checkbox de 3 estados para Referencias (solo se envían si no son null)
+            if (filter.ReferenceIsActive.HasValue)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReferenceIsActive = {(filter.ReferenceIsActive.Value ? 1 : 0)}";
+
+            if (filter.ReferenceHasAlarmMinimumQuantity.HasValue)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReferenceHasAlarmMinimumQuantity = {(filter.ReferenceHasAlarmMinimumQuantity.Value ? 1 : 0)}";
+
+            if (filter.ReferenceIsSoldOut.HasValue)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReferenceIsSoldOut = {(filter.ReferenceIsSoldOut.Value ? 1 : 0)}";
+
             if (filter.OnlyBelowMinimum)
                 filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@OnlyBelowMinimum = 1";
 

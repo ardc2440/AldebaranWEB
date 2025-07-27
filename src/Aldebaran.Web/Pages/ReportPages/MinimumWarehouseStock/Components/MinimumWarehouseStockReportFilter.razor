@@ -57,7 +57,7 @@
                     </RadzenFormField>
                 </RadzenStack>
             </RadzenColumn>
-        </RadzenRow>
+        </RadzenRow>        
         <RadzenRow style="margin-bottom: 1rem">
             <RadzenColumn Size="12">
                 <RadzenStack>
@@ -88,6 +88,78 @@
                 </RadzenStack>
             </RadzenColumn>
         </RadzenRow>
+        <RadzenRow style="margin-bottom: 1rem">
+            <RadzenColumn Size="6">
+                <RadzenStack>
+                    <RadzenFormField Text="Artículo del proveedor" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenTextBox @bind-Value="@ProviderItemName" Name="ProviderItemName" 
+                                           Placeholder="Nombre del artículo del proveedor" style="display: block; width: 100%" />
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+            <RadzenColumn Size="6">
+                <RadzenStack>
+                    <RadzenFormField Text="Referencia interna del proveedor" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenTextBox @bind-Value="@ProviderReference" Name="ProviderReference" 
+                                           Placeholder="Referencia interna del proveedor" style="display: block; width: 100%" />
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+        
+        <RadzenRow style="margin-bottom: 1rem">
+            <RadzenColumn Size="4">
+                <div class="d-flex gap-4 flex-row mt-2">
+                    <div>
+                        <RadzenCheckBox TriState="true" TValue="bool?" @bind-Value="@ItemIsActive" Name="ItemIsActive" />
+                        <RadzenLabel Text="Activo" Component="ItemIsActive" />
+                    </div>
+                </div>
+            </RadzenColumn>
+            <RadzenColumn Size="4">
+                <div class="d-flex gap-4 flex-row mt-2">
+                    <div>
+                        <RadzenCheckBox TriState="true" TValue="bool?" @bind-Value="@ItemIsDomesticProduct" Name="ItemIsDomesticProduct" />
+                        <RadzenLabel Text="Producto nacional" Component="ItemIsDomesticProduct" />
+                    </div>
+                </div>
+            </RadzenColumn>
+            <RadzenColumn Size="4">
+                <div class="d-flex gap-4 flex-row mt-2">
+                    <div>
+                        <RadzenCheckBox TriState="true" TValue="bool?" @bind-Value="@ItemIsSpecialImport" Name="ItemIsSpecialImport" />
+                        <RadzenLabel Text="Importado especial" Component="ItemIsSpecialImport" />
+                    </div>
+                </div>
+            </RadzenColumn>
+        </RadzenRow>
+
+        <RadzenRow style="margin-bottom: 1rem">
+            <RadzenColumn Size="4">
+                <div class="d-flex gap-4 flex-row mt-2">                   
+                    <div>
+                        <RadzenCheckBox TriState="true" TValue="bool?" @bind-Value="@ItemIsSaleOff" Name="ItemIsSaleOff" />
+                        <RadzenLabel Text="En oferta" Component="ItemIsSaleOff" />
+                    </div>                    
+                </div>
+            </RadzenColumn>
+            <RadzenColumn Size="4">
+                <div class="d-flex gap-4 flex-row mt-2">                    
+                    <div>
+                        <RadzenCheckBox TriState="true" TValue="bool?" @bind-Value="@ItemIsCatalogVisible" Name="ItemIsCatalogVisible" />
+                        <RadzenLabel Text="Visible en catálogo" Component="ItemIsCatalogVisible" />
+                    </div>
+                </div>
+            </RadzenColumn>
+
+            <RadzenColumn Size="4"/>
+
+        </RadzenRow>
+              
         <RadzenRow style="margin-bottom: 1rem">
             <RadzenColumn Size="12">
                 <RadzenStack>
@@ -126,6 +198,56 @@
                 </RadzenStack>
             </RadzenColumn>
         </RadzenRow>
+        <RadzenRow style="margin-bottom: 1rem">
+            <RadzenColumn Size="6">
+                <RadzenStack>
+                    <RadzenFormField Text="Referencia del proveedor" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenTextBox @bind-Value="@ProviderReferenceName" Name="ProviderReferenceName" 
+                                           Placeholder="Nombre de la referencia del proveedor" style="display: block; width: 100%" />
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+            <RadzenColumn Size="6">
+                <RadzenStack>
+                    <RadzenFormField Text="Código de referencia del proveedor" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenTextBox @bind-Value="@ProviderReferenceCode" Name="ProviderReferenceCode" 
+                                           Placeholder="Código de la referencia del proveedor" style="display: block; width: 100%" />
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+        
+        <RadzenRow style="margin-bottom: 1rem">
+            <RadzenColumn Size="4">
+                <div class="d-flex gap-4 flex-row mt-2">
+                    <div>
+                        <RadzenCheckBox TriState="true" TValue="bool?" @bind-Value="@ReferenceIsActive" Name="ReferenceIsActive" />
+                        <RadzenLabel Text="Activa" Component="ReferenceIsActive" />
+                    </div>                   
+                </div>
+            </RadzenColumn>
+            <RadzenColumn Size="4">
+                <div class="d-flex gap-4 flex-row mt-2">
+                    <div>
+                        <RadzenCheckBox TriState="true" TValue="bool?" @bind-Value="@ReferenceHasAlarmMinimumQuantity" Name="ReferenceHasAlarmMinimumQuantity" />
+                        <RadzenLabel Text="Alarma de cantidad mínima" Component="ReferenceHasAlarmMinimumQuantity" />
+                    </div>                    
+                </div>
+            </RadzenColumn>
+            <RadzenColumn Size="4">
+                <div class="d-flex gap-4 flex-row mt-2">
+                    <div>
+                        <RadzenCheckBox TriState="true" TValue="bool?" @bind-Value="@ReferenceIsSoldOut" Name="ReferenceIsSoldOut" />
+                        <RadzenLabel Text="Agotado" Component="ReferenceIsSoldOut" />
+                    </div>
+                </div>
+            </RadzenColumn>
+        </RadzenRow>
+        
         @if (ValidationError)
         {
             <div class="rz-message rz-messages-error">@ValidationErrorMessage</div>

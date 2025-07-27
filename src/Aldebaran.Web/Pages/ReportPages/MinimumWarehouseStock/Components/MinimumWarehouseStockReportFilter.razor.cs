@@ -53,6 +53,24 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.Components
         protected List<int> SelectedReferenceIds = new List<int>();
         protected bool ShowReferenceValidationMessage = false;
 
+        // Filtros de texto libre para campos del proveedor
+        protected string ProviderItemName = string.Empty;
+        protected string ProviderReference = string.Empty;
+        protected string ProviderReferenceName = string.Empty;
+        protected string ProviderReferenceCode = string.Empty;
+
+        // Filtros de checkbox de 3 estados para Artículos
+        protected bool? ItemIsActive = null;
+        protected bool? ItemIsDomesticProduct = null;
+        protected bool? ItemIsSpecialImport = null;
+        protected bool? ItemIsSaleOff = null;
+        protected bool? ItemIsCatalogVisible = null;
+
+        // Filtros de checkbox de 3 estados para Referencias
+        protected bool? ReferenceIsActive = null;
+        protected bool? ReferenceHasAlarmMinimumQuantity = null;
+        protected bool? ReferenceIsSoldOut = null;
+
         // Referencias a los grids
         protected RadzenDropDownDataGrid<List<int>> providersGrid;
         protected RadzenDropDownDataGrid<List<int>> itemsGrid;
@@ -106,6 +124,24 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.Components
                 WarehouseId = Filter.WarehouseId;
                 OnlyBelowMinimum = Filter.OnlyBelowMinimum;
                 UmbralMaximoExistencias = Filter.UmbralMaximoExistencias;
+                
+                // Cargar filtros de texto libre
+                ProviderItemName = Filter.ProviderItemName ?? string.Empty;
+                ProviderReference = Filter.ProviderReference ?? string.Empty;
+                ProviderReferenceName = Filter.ProviderReferenceName ?? string.Empty;
+                ProviderReferenceCode = Filter.ProviderReferenceCode ?? string.Empty;
+                
+                // Cargar filtros de checkbox de 3 estados para Artículos
+                ItemIsActive = Filter.ItemIsActive;
+                ItemIsDomesticProduct = Filter.ItemIsDomesticProduct;
+                ItemIsSpecialImport = Filter.ItemIsSpecialImport;
+                ItemIsSaleOff = Filter.ItemIsSaleOff;
+                ItemIsCatalogVisible = Filter.ItemIsCatalogVisible;
+                
+                // Cargar filtros de checkbox de 3 estados para Referencias
+                ReferenceIsActive = Filter.ReferenceIsActive;
+                ReferenceHasAlarmMinimumQuantity = Filter.ReferenceHasAlarmMinimumQuantity;
+                ReferenceIsSoldOut = Filter.ReferenceIsSoldOut;
                 
                 // Cargar selecciones desde strings de IDs
                 if (!string.IsNullOrEmpty(Filter.ProviderIds))
@@ -323,6 +359,24 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.Components
                 Filter.Warehouse = Filter.WarehouseId != null ? Warehouses.FirstOrDefault(s => s.WarehouseId == Filter.WarehouseId.Value) : null;
                 Filter.OnlyBelowMinimum = OnlyBelowMinimum;
                 Filter.UmbralMaximoExistencias = UmbralMaximoExistencias;
+                
+                // Configurar filtros de texto libre
+                Filter.ProviderItemName = ProviderItemName?.Trim() ?? string.Empty;
+                Filter.ProviderReference = ProviderReference?.Trim() ?? string.Empty;
+                Filter.ProviderReferenceName = ProviderReferenceName?.Trim() ?? string.Empty;
+                Filter.ProviderReferenceCode = ProviderReferenceCode?.Trim() ?? string.Empty;
+                
+                // Configurar filtros de checkbox de 3 estados para Artículos
+                Filter.ItemIsActive = ItemIsActive;
+                Filter.ItemIsDomesticProduct = ItemIsDomesticProduct;
+                Filter.ItemIsSpecialImport = ItemIsSpecialImport;
+                Filter.ItemIsSaleOff = ItemIsSaleOff;
+                Filter.ItemIsCatalogVisible = ItemIsCatalogVisible;
+                
+                // Configurar filtros de checkbox de 3 estados para Referencias
+                Filter.ReferenceIsActive = ReferenceIsActive;
+                Filter.ReferenceHasAlarmMinimumQuantity = ReferenceHasAlarmMinimumQuantity;
+                Filter.ReferenceIsSoldOut = ReferenceIsSoldOut;
                 
                 // Configurar IDs como strings separados por comas
                 Filter.ProviderIds = SelectedProviderIds?.Any() == true ? string.Join(",", SelectedProviderIds) : string.Empty;
