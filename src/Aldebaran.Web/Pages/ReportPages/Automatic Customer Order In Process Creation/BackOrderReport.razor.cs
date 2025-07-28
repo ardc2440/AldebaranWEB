@@ -58,8 +58,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Automatic_Customer_Order_In_Process_Cr
         {
             var customers = new List<BackOrderViewModel.Customer>();
 
-            foreach (var customer in DataReport.Select(s => new { s.CustomerId, s.CustomerName, s.Fax, s.Phone })
-                                        .DistinctBy(d => d.CustomerId).OrderBy(o => o.CustomerName))
+            foreach (var customer in DataReport.Select(s => new { s.CustomerId, s.CustomerName, s.Fax, s.Phone, s.OrderCreationDate })
+                                        .DistinctBy(d => d.CustomerId).OrderBy(o => o.OrderCreationDate).ThenBy(o => o.CustomerName))
             {
 
                 customers.Add(new BackOrderViewModel.Customer
@@ -112,13 +112,13 @@ namespace Aldebaran.Web.Pages.ReportPages.Automatic_Customer_Order_In_Process_Cr
                     ItemName = reference.OrderDetailItemName,
                     ItemReference = reference.OrderDetailItemReference,
                     ReferenceCode = reference.OrderDetailReferenceCode,
-                    ReferenceName = reference.OrderDetailReferenceName                    
+                    ReferenceName = reference.OrderDetailReferenceName
                 });
             }
 
             return orderReferences;
         }
-        
+
         #endregion
 
         #region Events
