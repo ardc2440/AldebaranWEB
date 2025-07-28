@@ -114,16 +114,27 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task FormSubmit()
         {
+            // ? Protección contra doble submit (sin bloquear validación inline)
+            if (IsSubmitInProgress) return;
+            
             try
             {
-                Submitted = true;
                 IsSubmitInProgress = true;
+                Submitted = true;
+                
                 if (!customerOrderDetails.Any())
-                    throw new Exception("No ha ingresado ninguna referencia");
+                {
+                    // ? Mantener Submitted = true para mostrar validación inline
+                    // ? NO activar IsErrorVisible para evitar RadzenAlert superior
+                    return;
+                }
 
                 var reasonResult = await DialogService.OpenAsync<ModificationReasonDialog>("Confirmar modificación", new Dictionary<string, object> { { "DOCUMENT_TYPE_CODE", "P" }, { "TITLE", "Está seguro que desea actualizar este pedido?" } });
                 if (reasonResult == null)
+                {
+                    Submitted = false; // ? Resetear antes del return
                     return;
+                }
                 var reason = (Reason)reasonResult;
                 customerOrder.CustomerOrderDetails = customerOrderDetails;
                 await CustomerOrderService.UpdateAsync(customerOrder.CustomerOrderId, customerOrder, reason);
@@ -136,8 +147,12 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 Logger.LogError(ex, nameof(FormSubmit));
                 IsErrorVisible = true;
                 Error = ex.Message;
+                Submitted = false; // ? Resetear en caso de error para permitir reintento
             }
-            finally { IsSubmitInProgress = false; }
+            finally 
+            { 
+                IsSubmitInProgress = false; 
+            }
         }
 
         protected async Task CancelButtonClick(MouseEventArgs args)

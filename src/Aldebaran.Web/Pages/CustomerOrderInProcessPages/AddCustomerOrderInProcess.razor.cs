@@ -142,6 +142,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                         DELIVERED_QUANTITY = item.DeliveredQuantity,
                         BRAND = item.Brand,
                         THIS_QUANTITY = 0,
+                        ORIGINAL_THIS_QUANTITY = 0, // Para nuevos traslados, la cantidad original es 0
                         ItemReference = item.ItemReference
                     }
                     select viewOrderDetail).ToList();
@@ -149,6 +150,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
         protected async Task SendToProcess(DetailInProcess args)
         {
+            // ? Limpiar validación inline cuando el usuario agrega cantidades
+            Submitted = false;
+            
             if (await DialogService.OpenAsync<SetQuantityInProcess>("Cantidad a trasladar", new Dictionary<string, object> { { "DetailInProcess", args } }) != null)
                 await customerOrderDetailGrid.Reload();
         }
@@ -164,6 +168,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
             args.PROCESSED_QUANTITY -= args.THIS_QUANTITY;
             args.WAREHOUSE_ID = 0;
             args.THIS_QUANTITY = 0;
+            args.ORIGINAL_THIS_QUANTITY = 0; // Resetear también la cantidad original
 
             await customerOrderDetailGrid.Reload();
         }
@@ -174,14 +179,21 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
         protected async Task FormSubmit()
         {
+            // ? Protección contra doble submit (sin bloquear validación inline)
+            if (IsSubmitInProgress) return;
+            
             try
             {
+                IsSubmitInProgress = true;
+                Submitted = true;
                 dialogResult = null;
 
-                IsSubmitInProgress = true;
-
                 if (!detailsInProcess.Any(x => x.THIS_QUANTITY > 0))
-                    throw new Exception("No ha ingresado ninguna cantidad a trasladar");
+                {
+                    // ? Mantener Submitted = true para mostrar validación inline
+                    // ? NO activar IsErrorVisible para evitar RadzenAlert superior
+                    return;
+                }
 
                 customerOrderInProcess.CustomerOrderInProcessDetails = await MapDetailsInProcess(detailsInProcess);
 
@@ -193,8 +205,12 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
             {
                 Error = ex.Message;
                 IsErrorVisible = true;
+                Submitted = false; // ? Resetear en caso de error para permitir reintento
             }
-            finally { IsSubmitInProgress = false; }
+            finally 
+            { 
+                IsSubmitInProgress = false; 
+            }
         }
 
         protected async Task<ICollection<CustomerOrderInProcessDetail>> MapDetailsInProcess(ICollection<DetailInProcess> detailsInProcess)

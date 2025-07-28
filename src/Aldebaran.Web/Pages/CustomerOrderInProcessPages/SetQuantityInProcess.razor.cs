@@ -22,6 +22,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
         [Inject]
         protected IReferencesWarehouseService ReferencesWarehouseService { get; set; }
+        
+        [Inject]
+        protected ICustomerOrderInProcessDetailService CustomerOrderInProcessDetailService { get; set; }
 
         #endregion
 
@@ -62,8 +65,12 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
                 localWarehouse = await WarehouseService.FindByCodeAsync(1);
 
+                // Obtener la cantidad original real desde la base de datos
+                await LoadOriginalProcessedQuantity();
+
                 detailInProcess = new DetailInProcess()
                 {
+                    CustomerOrderInProcessDetailId = DetailInProcess.CustomerOrderInProcessDetailId,  
                     CUSTOMER_ORDER_DETAIL_ID = DetailInProcess.CUSTOMER_ORDER_DETAIL_ID,
                     DELIVERED_QUANTITY = DetailInProcess.DELIVERED_QUANTITY,
                     BRAND = DetailInProcess.BRAND,
@@ -75,8 +82,6 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                     REFERENCE_ID = DetailInProcess.REFERENCE_ID,
                     ItemReference = DetailInProcess.ItemReference
                 };
-
-                oldQuantity = detailInProcess.THIS_QUANTITY;
 
                 if (detailInProcess.THIS_QUANTITY == 0)
                 {
@@ -107,7 +112,37 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
             }
 
             await base.SetParametersAsync(parameters);
+            
+            // Actualizar la cantidad original cada vez que se pasan nuevos parámetros
+            if (DetailInProcess != null)
+            {
+                await LoadOriginalProcessedQuantity();
+            }
         }
+        #endregion
+
+        #region Private Methods
+        
+        /// <summary>
+        /// Obtiene la cantidad procesada original real desde la base de datos del CustomerOrderInProcessDetail específico
+        /// </summary>
+        private async Task LoadOriginalProcessedQuantity()
+        {
+            try
+            {
+                // Ahora simplemente usamos la cantidad original que viene en DetailInProcess.ORIGINAL_THIS_QUANTITY
+                // Esta cantidad ya se establece correctamente cuando se cargan los datos desde:
+                // - EditCustomerOrderInProcess.GetDetailsInProcess() para traslados existentes
+                // - AddCustomerOrderInProcess.GetDetailsInProcess() para nuevos traslados
+                oldQuantity = DetailInProcess?.ORIGINAL_THIS_QUANTITY ?? 0;
+            }
+            catch
+            {
+                // En caso de error, usar 0 para ser conservador
+                oldQuantity = 0;
+            }
+        }
+        
         #endregion
 
         #region Events
@@ -122,11 +157,14 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                 if ((detailInProcess.PENDING_QUANTITY + DetailInProcess.THIS_QUANTITY) < detailInProcess.THIS_QUANTITY)
                     throw new Exception("La cantidad de este traslado debe ser menor o igual a la cantidad pendiente del artículo");
 
+                // Validación de stock: usar oldQuantity (ORIGINAL_THIS_QUANTITY) para liberar la cantidad original del traslado antes de reservar la nueva
+                // oldQuantity representa la cantidad que estaba procesada originalmente en este CustomerOrderInProcessDetail desde la BD
                 if ((detailInProcess.WAREHOUSE_ID == localWarehouse.WarehouseId) &&
-                    (await ReferencesWarehouseService.GetByReferenceAndWarehouseIdAsync(detailInProcess.REFERENCE_ID, localWarehouse.WarehouseId)).Quantity + oldQuantity - detailInProcess.THIS_QUANTITY <= 0)
+                    (await ReferencesWarehouseService.GetByReferenceAndWarehouseIdAsync(detailInProcess.REFERENCE_ID, localWarehouse.WarehouseId)).Quantity + oldQuantity - detailInProcess.THIS_QUANTITY < 0)
                 {
                     await DialogService.Alert($"La cantidad ingresada supera la existencia en bodega local. Verifique disponibilidad de la referencia.",
                                             options: new AlertOptions() { OkButtonText = "Cerrar" }, title: "Stock en bodega local");
+                    return; // Importante: salir sin cerrar el diálogo para permitir corrección
                 }
 
                 if (await DialogService.Confirm("Está seguro que desea enviar a proceso esta referencia?", "Confirmar") == true)

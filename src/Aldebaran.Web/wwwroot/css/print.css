@@ -284,3 +284,170 @@
     .report .no-border, .report .no-border > * {
         border: 0px !important;
     }
+
+/* Reglas específicas para impresión y saltos de página */
+@media print {
+    .page-break-before {
+        page-break-before: always !important;
+        break-before: page !important;
+    }
+
+    .page-break-after {
+        page-break-after: always !important;
+        break-after: page !important;
+    }
+
+    .no-page-break {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    /* Asegurar que el encabezado del cliente se mantenga junto */
+    .customer-header {
+        page-break-inside: avoid !important;
+        page-break-after: avoid !important;
+    }
+
+    /* Cada orden en nueva página excepto la primera */
+    .order-section:not(:first-child) {
+        page-break-before: always !important;
+    }
+
+    /* Asegurar que las tablas de órdenes individuales no se rompan internamente */
+    .report table.edged {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    /* Si una tabla es muy larga, permitir que se rompa pero mantener el encabezado */
+    .report table.edged thead {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    /* Evitar romper filas de encabezado */
+    .report table.edged tr.emphasys,
+    .report table.edged tr.emphasys-2x,
+    .report table.edged tr.emphasys-3x {
+        page-break-inside: avoid !important;
+        page-break-after: avoid !important;
+        break-inside: avoid !important;
+        break-after: avoid !important;
+    }
+
+    /* Ocultar elementos de navegación en impresión */
+    .rz-stack:not(.report-content),
+    .rz-button,
+    .rz-splitbutton {
+        display: none !important;
+    }
+
+    /* Asegurar que el contenido del reporte sea visible */
+    #customer-order-report-container {
+        display: block !important;
+    }
+
+    .report {
+        display: block !important;
+    }
+}
+
+/* Reglas para mostrar paginación visual en pantalla */
+@media screen {
+    .report .page-break-before {
+        /* Simular una nueva página con margen superior y borde visual */
+        margin-top: 3rem !important;
+        padding-top: 2rem !important;
+        border-top: 2px dashed #007acc !important;
+        position: relative;
+    }
+    
+    .report .page-break-before::before {
+        content: "? Página " counter(page-counter) " ?";
+        position: absolute;
+        top: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #ffffff;
+        padding: 0 1rem;
+        font-size: 11px;
+        color: #007acc;
+        font-weight: 500;
+        border: 1px solid #007acc;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0, 123, 204, 0.2);
+    }
+
+    /* Inicializar contador de páginas */
+    .report {
+        counter-reset: page-counter 1;
+    }
+
+    .report .page-break-before {
+        counter-increment: page-counter;
+    }
+
+    /* Agregar sombra sutil para simular separación de páginas */
+    .report .page-break-before {
+        box-shadow: 0 -6px 12px rgba(0, 0, 0, 0.08);
+        background-color: #ffffff;
+        border-radius: 8px 8px 0 0;
+        padding-left: 1.5rem !important;
+        padding-right: 1.5rem !important;
+    }
+
+    /* Estilo para contenedor de cada "página" */
+    .report .no-page-break {
+        background-color: #ffffff;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.12);
+        border: 1px solid #e9ecef;
+    }
+
+    /* Asegurar que la primera sección no tenga margen superior extra */
+    .report .no-page-break:first-child:not(.page-break-before) {
+        margin-top: 0 !important;
+        padding-top: 1.5rem !important;
+        border-top: none !important;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .report .no-page-break:first-child:not(.page-break-before)::before {
+        display: none !important;
+    }
+
+    /* Mejorar el contenedor principal del reporte */
+    .report {
+        padding: 1rem;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    /* Mejorar tablas dentro de las páginas */
+    .report .no-page-break table.edged {
+        border-radius: 6px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Efecto hover para las páginas */
+    .report .no-page-break:hover {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        transform: translateY(-1px);
+        transition: all 0.2s ease-in-out;
+    }
+
+    /* Indicador visual para separación entre páginas */
+    .report .page-break-before + .no-page-break::after {
+        content: "";
+        position: absolute;
+        bottom: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #007acc, transparent);
+    }
+}

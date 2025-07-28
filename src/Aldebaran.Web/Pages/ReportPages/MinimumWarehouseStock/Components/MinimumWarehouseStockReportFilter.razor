@@ -1,0 +1,229 @@
+@using ViewModel = Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.ViewModel;
+
+<RadzenColumn SizeMD=12>
+    <RadzenTemplateForm TItem="ViewModel.MinimumWarehouseStockFilter" Data="Filter" Submit="@FormSubmit">
+        <RadzenRow style="margin-bottom: 1rem">
+            <RadzenColumn Size="6">
+                <RadzenStack>
+                    <RadzenFormField Text="Umbral máximo de existencias" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenNumeric TValue="int?" @bind-Value="@UmbralMaximoExistencias" Name="UmbralMaximoExistencias" 
+                                           Placeholder="Ingrese el umbral máximo" Format="N0" style="display: block; width: 100%" />
+                        </ChildContent>
+                        <Helper>
+                            <RadzenRequiredValidator Component="UmbralMaximoExistencias" Text="El umbral máximo de existencias es obligatorio" />
+                        </Helper>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+            <RadzenColumn Size="6">
+                <RadzenStack>
+                    <RadzenFormField Text="Bodega" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenDropDown Data="@Warehouses" TextProperty="WarehouseName" ValueProperty="WarehouseId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            style="display: block; width: 100%" @bind-Value="@WarehouseId" Name="WarehouseId">
+                            </RadzenDropDown>
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow style="margin-bottom: 1rem">
+            <RadzenColumn Size="12">
+                <RadzenStack>
+                    <RadzenFormField Text="Artículos" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenDropDownDataGrid @ref="itemsGrid" Data="@AvailableItems" ValueProperty="ItemId" TextProperty="ItemName" AllowClear=true
+                                                    style="display: block; width: 100%" @bind-Value="@SelectedItemIds" Name="ItemIds" Multiple="true"
+                                                    FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true" 
+                                                    Change="@OnItemsChanged" MaxSelectedLabels="2" SelectedItemsText="artículos seleccionados" AllowSelectAll="true">
+                                <Columns>
+                                    <RadzenDropDownDataGridColumn Width="60px" Sortable="false">
+                                        <HeaderTemplate>
+                                            <RadzenCheckBox Disabled="@(!itemsGrid.AllowSelectAll)" TriState="false" TValue="bool" 
+                                                            Value="@(AvailableItems.Any(c => SelectedItemIds != null && SelectedItemIds.Contains(c.ItemId)))"
+                                                            Change="@OnItemHeaderToggleSelection" />
+                                        </HeaderTemplate>
+                                        <Template Context="item">
+                                            <RadzenCheckBox TriState="false" Value="@(SelectedItemIds != null && SelectedItemIds.Contains(item.ItemId))"
+                                                            TValue="bool" Change=@(args => itemsGrid.SelectItem(item)) @onclick:stopPropagation />
+                                        </Template>
+                                    </RadzenDropDownDataGridColumn>
+                                    <RadzenDropDownDataGridColumn Property="InternalReference" Title="Ref. Interna" Width="120px" />
+                                    <RadzenDropDownDataGridColumn Property="ItemName" Title="Nombre" />
+                                </Columns>
+                            </RadzenDropDownDataGrid>
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow style="margin-bottom: 1rem">
+            <RadzenColumn Size="6">
+                <RadzenStack>
+                    <RadzenFormField Text="Artículo del proveedor" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenTextBox @bind-Value="@ProviderItemName" Name="ProviderItemName" 
+                                           Placeholder="Nombre del artículo del proveedor" style="display: block; width: 100%" />
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+            <RadzenColumn Size="6">
+                <RadzenStack>
+                    <RadzenFormField Text="Referencia interna del proveedor" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenTextBox @bind-Value="@ProviderReference" Name="ProviderReference" 
+                                           Placeholder="Referencia interna del proveedor" style="display: block; width: 100%" />
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+        
+        <RadzenRow style="margin-bottom: 1rem">
+            <RadzenColumn Size="4">
+                <div class="d-flex gap-4 flex-row mt-2">
+                    <div>
+                        <RadzenCheckBox TriState="true" TValue="bool?" @bind-Value="@ItemIsActive" Name="ItemIsActive" />
+                        <RadzenLabel Text="Activo" Component="ItemIsActive" />
+                    </div>
+                </div>
+            </RadzenColumn>
+            <RadzenColumn Size="4">
+                <div class="d-flex gap-4 flex-row mt-2">
+                    <div>
+                        <RadzenCheckBox TriState="true" TValue="bool?" @bind-Value="@ItemIsDomesticProduct" Name="ItemIsDomesticProduct" />
+                        <RadzenLabel Text="Producto nacional" Component="ItemIsDomesticProduct" />
+                    </div>
+                </div>
+            </RadzenColumn>
+            <RadzenColumn Size="4">
+                <div class="d-flex gap-4 flex-row mt-2">
+                    <div>
+                        <RadzenCheckBox TriState="true" TValue="bool?" @bind-Value="@ItemIsSpecialImport" Name="ItemIsSpecialImport" />
+                        <RadzenLabel Text="Importado especial" Component="ItemIsSpecialImport" />
+                    </div>
+                </div>
+            </RadzenColumn>
+        </RadzenRow>
+
+        <RadzenRow style="margin-bottom: 1rem">
+            <RadzenColumn Size="4">
+                <div class="d-flex gap-4 flex-row mt-2">                   
+                    <div>
+                        <RadzenCheckBox TriState="true" TValue="bool?" @bind-Value="@ItemIsSaleOff" Name="ItemIsSaleOff" />
+                        <RadzenLabel Text="En oferta" Component="ItemIsSaleOff" />
+                    </div>                    
+                </div>
+            </RadzenColumn>
+            <RadzenColumn Size="4">
+                <div class="d-flex gap-4 flex-row mt-2">                    
+                    <div>
+                        <RadzenCheckBox TriState="true" TValue="bool?" @bind-Value="@ItemIsCatalogVisible" Name="ItemIsCatalogVisible" />
+                        <RadzenLabel Text="Visible en catálogo" Component="ItemIsCatalogVisible" />
+                    </div>
+                </div>
+            </RadzenColumn>
+            <RadzenColumn Size="4"/>
+        </RadzenRow>
+              
+        <RadzenRow style="margin-bottom: 1rem">
+            <RadzenColumn Size="12">
+                <RadzenStack>
+                    <RadzenFormField Text="Referencias" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenDropDown Data="@AvailableReferences" ValueProperty="ReferenceId" TextProperty="DisplayText" AllowClear=true
+                                            style="display: block; width: 100%" @bind-Value="@SelectedReferenceIds" Name="ReferenceIds" Multiple="true"
+                                            FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" 
+                                            Disabled="@(!HasItemsSelected())" Change="@OnReferencesChanged" DisabledProperty="IsGroup"
+                                            MaxSelectedLabels="2" SelectedItemsText="referencias seleccionadas" AllowSelectAll="true"
+                                            AllowFiltering="true" ClearSearchAfterSelection="true">
+                                <Template Context="referenceItem">
+                                    @if (referenceItem.IsGroup)
+                                    {
+                                        <div style="font-weight: bold; background-color: #f5f5f5; padding: 8px; margin: 2px 0; border-left: 4px solid #333; color: #333; cursor: not-allowed;">
+                                            <i class="fa fa-cube" style="margin-right: 8px;"></i>
+                                            @referenceItem.DisplayText
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div style="padding: 4px 8px 4px 24px; border-left: 2px solid #e0e0e0; margin-left: 8px;">
+                                            <i class="fa fa-tag" style="margin-right: 8px; color: #757575;"></i>
+                                            @referenceItem.DisplayText
+                                        </div>
+                                    }
+                                </Template>
+                            </RadzenDropDown>
+                        </ChildContent>
+                    </RadzenFormField>
+                    @if (ShowReferenceValidationMessage)
+                    {
+                        <div style="color: #666; font-size: 12px; margin-top: 4px;">
+                            <i>Para seleccionar referencias debe elegir primero al menos un artículo.</i>
+                        </div>
+                    }
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow style="margin-bottom: 1rem">
+            <RadzenColumn Size="6">
+                <RadzenStack>
+                    <RadzenFormField Text="Referencia del proveedor" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenTextBox @bind-Value="@ProviderReferenceName" Name="ProviderReferenceName" 
+                                           Placeholder="Nombre de la referencia del proveedor" style="display: block; width: 100%" />
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+            <RadzenColumn Size="6">
+                <RadzenStack>
+                    <RadzenFormField Text="Código de referencia del proveedor" Variant="Variant.Text" Style="width: 100%;">
+                        <ChildContent>
+                            <RadzenTextBox @bind-Value="@ProviderReferenceCode" Name="ProviderReferenceCode" 
+                                           Placeholder="Código de la referencia del proveedor" style="display: block; width: 100%" />
+                        </ChildContent>
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+        
+        <RadzenRow style="margin-bottom: 1rem">
+            <RadzenColumn Size="4">
+                <div class="d-flex gap-4 flex-row mt-2">
+                    <div>
+                        <RadzenCheckBox TriState="true" TValue="bool?" @bind-Value="@ReferenceIsActive" Name="ReferenceIsActive" />
+                        <RadzenLabel Text="Activa" Component="ReferenceIsActive" />
+                    </div>                   
+                </div>
+            </RadzenColumn>
+            <RadzenColumn Size="4">
+                <div class="d-flex gap-4 flex-row mt-2">
+                    <div>
+                        <RadzenCheckBox TriState="true" TValue="bool?" @bind-Value="@ReferenceHasAlarmMinimumQuantity" Name="ReferenceHasAlarmMinimumQuantity" />
+                        <RadzenLabel Text="Alarma de cantidad mínima" Component="ReferenceHasAlarmMinimumQuantity" />
+                    </div>                    
+                </div>
+            </RadzenColumn>
+            <RadzenColumn Size="4">
+                <div class="d-flex gap-4 flex-row mt-2">
+                    <div>
+                        <RadzenCheckBox TriState="true" TValue="bool?" @bind-Value="@ReferenceIsSoldOut" Name="ReferenceIsSoldOut" />
+                        <RadzenLabel Text="Agotado" Component="ReferenceIsSoldOut" />
+                    </div>
+                </div>
+            </RadzenColumn>
+        </RadzenRow>
+        
+        @if (ValidationError)
+        {
+            <div class="rz-message rz-messages-error">@ValidationErrorMessage</div>
+        }
+        <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+            <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="filter_alt" Text="Filtrar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />
+            <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
+        </RadzenStack>
+    </RadzenTemplateForm>
+</RadzenColumn>

@@ -17,6 +17,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected IWarehouseService WarehouseService { get; set; }
         [Inject]
         protected IReferencesWarehouseService ReferencesWarehouseService { get; set; }
+        [Inject]
+        protected ICustomerOrderDetailService CustomerOrderDetailService { get; set; }
         #endregion
 
         #region Parameters
@@ -33,6 +35,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected bool isLoadingInProgress;
         protected ItemReference ItemReference { get; set; }
         protected CustomerOrderDetail customerOrderDetail { get; set; }
+        protected int originalRequestedQuantity; // Variable para almacenar la cantidad original
 
         #endregion
 
@@ -42,10 +45,14 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             try
             {
                 isLoadingInProgress = true;
+                
+                // Obtener la cantidad original real desde la base de datos
+                await LoadOriginalRequestedQuantity();
+                
                 customerOrderDetail = new CustomerOrderDetail
                 {
                     CustomerOrderId = CustomerOrderDetail.CustomerOrderId,
-                    CustomerOrderDetailId = CustomerOrderDetail.CustomerOrderId,
+                    CustomerOrderDetailId = CustomerOrderDetail.CustomerOrderDetailId, // Corregir: debe ser CustomerOrderDetailId, no CustomerOrderId
                     CustomerOrder = CustomerOrderDetail.CustomerOrder,
                     Brand = CustomerOrderDetail.Brand,
                     ItemReference = CustomerOrderDetail.ItemReference,
@@ -69,7 +76,36 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             CustomerOrderDetail = new CustomerOrderDetail();
 
             await base.SetParametersAsync(parameters);
+            
+            // Actualizar la cantidad original cada vez que se pasan nuevos parámetros
+            if (CustomerOrderDetail?.CustomerOrderDetailId > 0)
+            {
+                await LoadOriginalRequestedQuantity();
+            }
         }
+        #endregion
+
+        #region Private Methods
+        
+        /// <summary>
+        /// Obtiene la cantidad original real desde la base de datos
+        /// </summary>
+        private async Task LoadOriginalRequestedQuantity()
+        {
+            try
+            {
+                var customerOrderDetails = await CustomerOrderDetailService.GetByCustomerOrderIdAsync(CustomerOrderDetail.CustomerOrderId);
+                var originalDetail = customerOrderDetails.FirstOrDefault(d => d.CustomerOrderDetailId == CustomerOrderDetail.CustomerOrderDetailId);
+                
+                originalRequestedQuantity = originalDetail?.RequestedQuantity ?? CustomerOrderDetail.RequestedQuantity;
+            }
+            catch
+            {
+                // En caso de error, usar el valor del parámetro como fallback
+                originalRequestedQuantity = CustomerOrderDetail.RequestedQuantity;
+            }
+        }
+        
         #endregion
 
         #region Events
@@ -107,7 +143,11 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 var warehouse = await WarehouseService.FindByCodeAsync(1);
                 var localWarehouseStock = await ReferencesWarehouseService.GetByReferenceAndWarehouseIdAsync(customerOrderDetail.ReferenceId, warehouse.WarehouseId);
 
-                if (customerOrderDetail.RequestedQuantity > localWarehouseStock.Quantity - customerOrderDetail.ItemReference.OrderedQuantity - customerOrderDetail.ItemReference.ReservedQuantity)
+                // Calcular el stock disponible considerando que se "libera" la cantidad original del pedido
+                // y luego se "reserva" la nueva cantidad
+                var availableStock = localWarehouseStock.Quantity - customerOrderDetail.ItemReference.OrderedQuantity - customerOrderDetail.ItemReference.ReservedQuantity + originalRequestedQuantity;
+                
+                if (customerOrderDetail.RequestedQuantity > availableStock)
                 {
                     var temp = customerOrderDetail;
                     await DialogService.Alert($"La cantidad ingresada supera la existencia en bodega local. Verifique disponibilidad de la referencia.",

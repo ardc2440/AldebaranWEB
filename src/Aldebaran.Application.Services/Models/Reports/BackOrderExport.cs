@@ -1,0 +1,38 @@
+﻿using System.ComponentModel;
+
+namespace Aldebaran.Application.Services.Models.Reports
+{
+    public class BackOrderExport
+    {
+        [DisplayName("Pedido")]
+        public string OrderNumber { get; set; }
+        [DisplayName("Cliente")]
+        public string CustomerName { get; set; }
+        [DisplayName("Nit")]
+        public string IdentityNumber { get; set; }
+        [DisplayName("Telefono")]
+        public string Phone { get; set; }
+        [DisplayName("Ciudad")]
+        public string CityName { get; set; }
+        [DisplayName("Fecha Pedido")]
+        public DateTime OrderDate { get; set; }
+        [DisplayName("Nombre Item")]
+        public string ItemName { get; set; }
+        [DisplayName("Código Item")]
+        public string ItemCode { get; set; }
+        [DisplayName("Nombre Referencia")]
+        public string ReferenceName { get; set; }
+        [DisplayName("Código Referencia")]
+        public string ReferenceCode { get; set; }
+        [DisplayName("Cant. Pendiente")]
+        public int PendingAmount { get; set; }
+        [DisplayName("Fecha Estimada Entrega")]
+        public DateTime EstimatedDeliveryDate { get; set; }
+        [DisplayName("Observaciones Internas")]
+        public string? InternalNotes { get; set; }
+        [DisplayName("Observaciones Cliente")]
+        public string? CustomerNotes { get; set; }
+        [DisplayName("Estado")]
+        public string Status { get; set; }
+    }
+}

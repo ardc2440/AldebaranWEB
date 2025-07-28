@@ -2,7 +2,7 @@
 
 @attribute [Authorize(Roles = "Administrador,Modificación de pedidos")]
 @using Aldebaran.Web.Resources.LocalizedControls;
-@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer ;
+@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
 
 <PageTitle>Actualización de Pedido</PageTitle>
 <LoadingData IsLoadingData="@isLoadingInProgress" />
@@ -109,6 +109,10 @@
                                 </Columns>
                             </LocalizedDataGrid>
                         </RadzenStack>
+                        @if (!customerOrderDetails.Any() && Submitted)
+                        {
+                            <div class="rz-message rz-messages-error">Es requerido ingresar al menos una referencia.</div>
+                        }
                     </RadzenColumn>
                 </RadzenRow>
                 <RadzenRow AlignItems="Radzen.AlignItems.Center">

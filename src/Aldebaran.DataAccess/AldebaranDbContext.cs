@@ -108,7 +108,9 @@ namespace Aldebaran.DataAccess
         public DbSet<ConfirmedPurchaseOrder> ConfirmedPurchaseOrders { get; set; }
         public DbSet<AutomaticCustomerOrder> AutomaticCustomerOrders { get; set; }
         public DbSet<AutomaticCustomerOrderDetail> AutomaticCustomerOrderDetails { get; set; }
-
+        public DbSet<AutomaticCustomerOrderInProcessModification> AutomaticCustomerOrderInProcessModifications { get; set; }
+        public DbSet<VisualizedAutomaticCustomerOrderInProcessModification> VisualizedAutomaticCustomerOrderInProcessModifications { get; set; }
+        
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
         }
@@ -204,11 +206,14 @@ namespace Aldebaran.DataAccess
             modelBuilder.ApplyConfiguration(new ConfirmedPurchaseOrderConfiguration());
             modelBuilder.ApplyConfiguration(new AutomaticCustomerOrderConfiguration());
             modelBuilder.ApplyConfiguration(new AutomaticCustomerOrderDetailConfiguration());
-
+            modelBuilder.ApplyConfiguration(new VisualizedAutomaticCustomerOrderInProcessModificationConfiguration());
+            modelBuilder.ApplyConfiguration(new AutomaticCustomerOrderInProcessModificationConfiguration());
+            
             modelBuilder.Entity<InventoryAdjustmentReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<InProcessInventoryReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<InventoryReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<CustomerOrderReport>(iar => { iar.HasNoKey(); });
+            modelBuilder.Entity<BackOrderReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<CustomerReservationReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<ProviderReferenceReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<ReferenceMovementReport>(iar => { iar.HasNoKey(); });
@@ -219,7 +224,11 @@ namespace Aldebaran.DataAccess
             modelBuilder.Entity<FreezoneVsAvailableReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<CustomerSaleReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<CustomerOrderExport>(iar => { iar.HasNoKey(); });
-            modelBuilder.Entity<AutomaticCustomerOrderAssigmentReport>(iar => { iar.HasNoKey(); }); 
+            modelBuilder.Entity<BackOrderExport>(iar => { iar.HasNoKey(); });
+            modelBuilder.Entity<AutomaticCustomerOrderAssigmentReport>(iar => { iar.HasNoKey(); });
+            modelBuilder.Entity<AutomaticPendingCustomerOrderInProcessReport>(iar => { iar.HasNoKey(); });
+            modelBuilder.Entity<MinimumWarehouseStockReport>(iar => { iar.HasNoKey(); });
+
             modelBuilder.Entity<CustomerOrderAffectedByPurchaseOrderUpdate>(iar =>
             {
                 iar.HasNoKey();

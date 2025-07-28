@@ -68,5 +68,8 @@
 	  <Compile Update="Services\VisualizedMinimumQuantityAlarmService - Copia.cs">
 	    <DependentUpon>IVisualizedMinimumLocalWarehouseQuantityAlarmService.cs</DependentUpon>
 	  </Compile>
+	  <Compile Update="Services\VisualizedPurchaseOrderTransitAlarmService - Copia.cs">
+	    <DependentUpon>IVisualizedAutomaticCustomerInProcessModificationService.cs</DependentUpon>
+	  </Compile>
 	</ItemGroup>
 </Project>

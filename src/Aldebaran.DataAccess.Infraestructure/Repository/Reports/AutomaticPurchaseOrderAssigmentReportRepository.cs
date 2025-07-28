@@ -16,5 +16,14 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository.Reports
                 return await dbContext.Set<AutomaticCustomerOrderAssigmentReport>().FromSqlRaw($"EXEC SP_AUTOMATIC_CUSTOMER_ORDER_ASSIGMENT_REPORT {filter}").ToListAsync(ct);
             }, ct);
         }
+
+        public async Task<IEnumerable<AutomaticPendingCustomerOrderInProcessReport>> GetAutomaticPendingCustomerOrderInProcessReportDataAsync(string filter, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.Set<AutomaticPendingCustomerOrderInProcessReport>().FromSqlRaw($"EXEC SP_GET_AUTOMATIC_CUSTOMER_ORDER_INPROCESS_PENDING_REPORT {filter}").ToListAsync(ct);
+            }, ct);
+        }
+        
     }
 }

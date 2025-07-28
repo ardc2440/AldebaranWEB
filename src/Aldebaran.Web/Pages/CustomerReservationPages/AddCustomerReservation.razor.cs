@@ -109,11 +109,20 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
         protected async Task FormSubmit()
         {
+            // ? Protección contra doble submit (sin bloquear validación inline)
+            if (IsSubmitInProgress) return;
+            
             try
             {
                 IsSubmitInProgress = true;
+                Submitted = true;
+                
                 if (!customerReservationDetails.Any())
-                    throw new Exception("No ha ingresado ninguna referencia");
+                {
+                    // ? Mantener Submitted = true para mostrar validación inline
+                    // ? NO activar IsErrorVisible para evitar RadzenAlert superior
+                    return;
+                }
 
                 if (await DialogService.Confirm("Está seguro que desea crear esta reserva de artículos?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar creación") == true)
                 {
@@ -128,8 +137,12 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             {
                 Error = ex.Message;
                 IsErrorVisible = true;
+                Submitted = false; // ? Resetear en caso de error para permitir reintento
             }
-            finally { IsSubmitInProgress = false; }
+            finally 
+            { 
+                IsSubmitInProgress = false; 
+            }
         }
 
         protected async Task CancelButtonClick(MouseEventArgs args)
@@ -140,6 +153,9 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
         protected async Task AddCustomerReservationDetailButtonClick(MouseEventArgs args)
         {
+            // ? Limpiar validación inline cuando el usuario agrega detalles
+            Submitted = false;
+            
             var result = await DialogService.OpenAsync<AddCustomerReservationDetail>("Agregar referencia", new Dictionary<string, object> { { "CustomerReservationDetails", customerReservationDetails }, { "LastReferenceId", lastReferenceId} });
 
             if (result == null)
@@ -154,7 +170,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             await customerReservationDetailGrid.Reload();
         }
 
-        protected async Task DeleteCustomerReservationDetailButtonClick(CustomerReservationDetail item)
+        protected async Task DeleteCustomerReservationDetailButtonClick(MouseEventArgs args, CustomerReservationDetail item)
         {
             if (await DialogService.Confirm("Está seguro que desea eliminar esta referencia?", "Confirmar") == true)
             {

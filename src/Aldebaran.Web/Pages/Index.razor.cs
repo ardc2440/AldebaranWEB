@@ -45,6 +45,7 @@ namespace Aldebaran.Web.Pages
         protected bool purchaseOrderTransitAlarmNotificationsVisible;
         protected bool emailErrorNotificationsVisible;
         protected bool confirmedPurchaseOrderNotificationsVisible;
+        protected bool automaticInProcessModificationNotificationsVisible;
 
         protected bool minimumQuantityAlertVisible;
         protected bool minimumLocalWarehouseQuantityAlertVisible;
@@ -57,6 +58,7 @@ namespace Aldebaran.Web.Pages
         protected bool purchaseOrderTransitAlertVisible;
         protected bool emailErrorAlertVisible;
         protected bool confirmedPurchaseOrderAlertVisible;
+        protected bool automaticInProcessModificationAlertVisible;
 
         protected MinimumQuantityNotifications minimumQuantityNotifications;
         protected MinimumLocalWarehouseQuantityNotifications minimumLocalWarehouseQuantityNotifications;
@@ -69,6 +71,7 @@ namespace Aldebaran.Web.Pages
         protected PurchaseOrderTransitAlarmNotifications purchaseOrderTransitAlarmNotifications;
         protected EmailWithErrorNotifications emailWithErrorNotifications;
         protected ConfirmedPurchaseOrderNotifications confirmedPurchaseOrderNotifications;
+        protected AutomaticInProcessModificationNotifications automaticInProcessModificationNotifications;
 
         #endregion
 
@@ -105,6 +108,7 @@ namespace Aldebaran.Web.Pages
             purchaseOrderTransitAlarmNotificationsVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por alarmas de órdenes modificadas con afectación en pedido");
             emailErrorNotificationsVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por envio de correo con error");
             confirmedPurchaseOrderNotificationsVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por creación automática de traslados a proceso");
+            automaticInProcessModificationNotificationsVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por modificaciones automáticas de traslados a proceso");
         }
 
         async Task InitializeGridTimers()
@@ -153,6 +157,7 @@ namespace Aldebaran.Web.Pages
             if (purchaseOrderTransitAlarmNotificationsVisible) await purchaseOrderTransitAlarmNotifications.Update();
             if (emailErrorNotificationsVisible) await emailWithErrorNotifications.Update();
             if (confirmedPurchaseOrderNotificationsVisible) await confirmedPurchaseOrderNotifications.Update();
+            if (automaticInProcessModificationNotificationsVisible) await automaticInProcessModificationNotifications.Update();
         }
         protected async Task GridaData_UpdateOnTimerChange(object value)
         {
@@ -211,6 +216,9 @@ namespace Aldebaran.Web.Pages
                     break;
                 case 11:
                     confirmedPurchaseOrderAlertVisible = value;
+                    break;
+                case 12:
+                    automaticInProcessModificationAlertVisible = value;
                     break;
                 default:
                     break;

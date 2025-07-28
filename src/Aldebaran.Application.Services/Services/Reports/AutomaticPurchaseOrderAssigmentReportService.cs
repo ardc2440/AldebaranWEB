@@ -20,5 +20,12 @@ namespace Aldebaran.Application.Services.Reports
             var data = await _repository.GetAutomaticCustomerOrderAssigmentReportDataAsync(filter, ct);
             return _mapper.Map<IEnumerable<AutomaticCustomerOrderAssigmentReport>>(data);
         }
+
+        public async Task<IEnumerable<AutomaticPendingCustomerOrderInProcessReport>> GetAutomaticPendingCustomerOrderInProcessReportDataAsync(string filter, CancellationToken ct = default)
+        {
+            var data = await _repository.GetAutomaticPendingCustomerOrderInProcessReportDataAsync(filter, ct);
+            return _mapper.Map<IEnumerable<AutomaticPendingCustomerOrderInProcessReport>>(data);
+        }
+        
     }
 }

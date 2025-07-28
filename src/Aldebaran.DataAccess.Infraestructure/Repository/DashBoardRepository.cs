@@ -312,6 +312,30 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             }, ct);
         }
 
+        public async Task<IEnumerable<AutomaticCustomerOrderInProcessModification>> GetModificatedAutomaticCustomerInProcessAlarmsAsync(int employeeId, string? searchKey = null, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                var employee_Id = new SqlParameter("@EMPLOYEE_ID", employeeId);
+
+                if (searchKey.IsNullOrEmpty())
+                    return await dbContext.Set<AutomaticCustomerOrderInProcessModification>()
+                        .FromSqlRaw($"EXEC SP_GET_AUTOMATIC_CUSTOMER_IN_PROCESS_MODIFICATIONS " +
+                        $"@EMPLOYEE_ID",
+                        employee_Id).ToListAsync(ct);
+                else
+                {
+                    var search = new SqlParameter("@SEARCHKEY", searchKey);
+
+                    return await dbContext.Set<AutomaticCustomerOrderInProcessModification>()
+                        .FromSqlRaw($"EXEC SP_GET_AUTOMATIC_CUSTOMER_IN_PROCESS_MODIFICATIONS " +
+                        $"@EMPLOYEE_ID, " +
+                        $"@SEARCHKEY ",
+                        employee_Id, search).ToListAsync(ct);
+                }
+            }, ct);
+        }
+
         public async Task<IEnumerable<AutomaticCustomerOrder>> GetAutomaticCustomerOrdersAssigment(int processId, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>

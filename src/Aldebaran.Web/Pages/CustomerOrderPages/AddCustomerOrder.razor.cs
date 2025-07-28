@@ -1,4 +1,4 @@
-using Aldebaran.Application.Services;
+﻿using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Shared;
@@ -117,14 +117,22 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task FormSubmit()
         {
+            // ✅ Protección contra doble submit (sin bloquear validación inline)
+            if (IsSubmitInProgress) return;
+            
             try
             {
-                Submitted = true;
                 IsSubmitInProgress = true;
+                Submitted = true;
 
                 if (!customerOrderDetails.Any())
-                    throw new Exception("No ha ingresado ninguna referencia");
-                if (await DialogService.Confirm("Est� seguro que desea crear este pedido de art�culos?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar creaci�n") == true)
+                {
+                    // ✅ Mantener Submitted = true para mostrar validación inline
+                    // ✅ NO activar IsErrorVisible para evitar RadzenAlert superior
+                    return;
+                }
+                
+                if (await DialogService.Confirm("Está seguro que desea crear este pedido de artículos?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar creación") == true)
                 {
                     customerOrder.CustomerOrderDetails = customerOrderDetails;
                     customerOrder = await CustomerOrderService.AddAsync(customerOrder);
@@ -138,18 +146,25 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 Logger.LogError(ex, nameof(FormSubmit));
                 IsErrorVisible = true;
                 Error = ex.Message;
+                Submitted = false; // ✅ Resetear en caso de error para permitir reintento
             }
-            finally { IsSubmitInProgress = false; }
+            finally 
+            { 
+                IsSubmitInProgress = false; 
+            }
         }
 
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
-            if (await DialogService.Confirm("Est� seguro que desea cancelar la creaci�n del pedido?", "Confirmar") == true)
+            if (await DialogService.Confirm("Está seguro que desea cancelar la creación del pedido?", "Confirmar") == true)
                 NavigationManager.NavigateTo("customer-orders");
         }
 
         protected async Task AddCustomerOrderDetailButtonClick(MouseEventArgs args)
         {
+            // ✅ Limpiar validación inline cuando el usuario agrega detalles
+            Submitted = false;
+            
             var result = await DialogService.OpenAsync<AddCustomerOrderDetail>("Agregar referencia", new Dictionary<string, object> { { "CustomerOrderDetails", customerOrderDetails }, { "LastReferenceId", lastReferenceId } });
 
             if (result == null)
@@ -164,9 +179,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             await customerOrderDetailGrid.Reload();
         }
 
-        protected async Task DeleteCustomerOrderDetailButtonClick(MouseEventArgs arg, CustomerOrderDetail item)
+        protected async Task DeleteCustomerOrderDetailButtonClick(MouseEventArgs args, CustomerOrderDetail item)
         {
-            if (await DialogService.Confirm("Est� seguro que desea eliminar esta referencia?", "Confirmar") == true)
+            if (await DialogService.Confirm("Está seguro que desea eliminar esta referencia?", "Confirmar") == true)
             {
                 customerOrderDetails.Remove(item);
 

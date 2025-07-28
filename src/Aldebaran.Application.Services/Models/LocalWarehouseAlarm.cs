@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace Aldebaran.Application.Services.Models
+﻿namespace Aldebaran.Application.Services.Models
 {
     public class LocalWarehouseAlarm
     {
