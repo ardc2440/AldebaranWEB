@@ -142,6 +142,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                         DELIVERED_QUANTITY = item.DeliveredQuantity,
                         BRAND = item.Brand,
                         THIS_QUANTITY = 0,
+                        ORIGINAL_THIS_QUANTITY = 0, // Para nuevos traslados, la cantidad original es 0
                         ItemReference = item.ItemReference
                     }
                     select viewOrderDetail).ToList();
@@ -167,6 +168,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
             args.PROCESSED_QUANTITY -= args.THIS_QUANTITY;
             args.WAREHOUSE_ID = 0;
             args.THIS_QUANTITY = 0;
+            args.ORIGINAL_THIS_QUANTITY = 0; // Resetear también la cantidad original
 
             await customerOrderDetailGrid.Reload();
         }

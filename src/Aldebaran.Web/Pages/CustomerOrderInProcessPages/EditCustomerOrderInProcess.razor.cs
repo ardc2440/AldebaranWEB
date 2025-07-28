@@ -126,6 +126,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                         BRAND = item.Brand,
                         WAREHOUSE_ID = item.WarehouseId,
                         THIS_QUANTITY = item.ProcessedQuantity,
+                        ORIGINAL_THIS_QUANTITY = item.ProcessedQuantity, // Preservar la cantidad original desde la BD
                         ItemReference = item.CustomerOrderDetail.ItemReference,
                         CustomerOrderInProcessDetailId = item.CustomerOrderInProcessDetailId
                     }
@@ -160,6 +161,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
             args.PROCESSED_QUANTITY -= args.THIS_QUANTITY;
             args.WAREHOUSE_ID = 0;
             args.THIS_QUANTITY = 0;
+            args.ORIGINAL_THIS_QUANTITY = 0; // Resetear también la cantidad original
 
             await customerOrderDetailGrid.Reload();
         }
