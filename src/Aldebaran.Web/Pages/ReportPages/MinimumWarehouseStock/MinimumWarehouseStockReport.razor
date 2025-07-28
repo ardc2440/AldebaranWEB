@@ -41,22 +41,6 @@
                             <span style="line-height: 1rem;transform: translate(0, -2px);">Solo referencias por debajo del mínimo</span>
                         </div>
                     }
-                    @if (!string.IsNullOrEmpty(Filter.ProviderIds) && Filter.SelectedProviders?.Any() == true)
-                    {
-                        <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
-                            <p class="component-label m-0 fw-bold">Proveedores: </p>
-                            <span style="line-height: 1rem;transform: translate(0, -2px);">
-                                @if (Filter.SelectedProviders.Count <= 2)
-                                {
-                                    @string.Join(", ", Filter.SelectedProviders.Select(p => p.ProviderName))
-                                }
-                                else
-                                {
-                                    @($"{Filter.SelectedProviders.Count} proveedores seleccionados")
-                                }
-                            </span>
-                        </div>
-                    }
                     @if (!string.IsNullOrEmpty(Filter.ItemIds) && Filter.SelectedItems?.Any() == true)
                     {
                         <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
@@ -137,22 +121,6 @@
                                                     <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
                                                         <div class="type">Filtro: </div>
                                                         <span>Solo referencias por debajo del mínimo</span>
-                                                    </div>
-                                                }
-                                                @if (!string.IsNullOrEmpty(Filter.ProviderIds) && Filter.SelectedProviders?.Any() == true)
-                                                {
-                                                    <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
-                                                        <div class="type">Proveedores: </div>
-                                                        <span>
-                                                            @if (Filter.SelectedProviders.Count <= 2)
-                                                            {
-                                                                @string.Join(", ", Filter.SelectedProviders.Select(p => p.ProviderName))
-                                                            }
-                                                            else
-                                                            {
-                                                                @($"{Filter.SelectedProviders.Count} proveedores")
-                                                            }
-                                                        </span>
                                                     </div>
                                                 }
                                                 @if (!string.IsNullOrEmpty(Filter.ItemIds) && Filter.SelectedItems?.Any() == true)

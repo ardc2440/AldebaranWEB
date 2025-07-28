@@ -22,12 +22,6 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.Components
         protected IWarehouseService WarehouseService { get; set; }
 
         [Inject]
-        protected IProviderService ProviderService { get; set; }
-
-        [Inject]
-        protected IProviderReferenceService ProviderReferenceService { get; set; }
-
-        [Inject]
         protected IItemService ItemService { get; set; }
         #endregion
 
@@ -40,20 +34,18 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.Components
         protected bool IsErrorVisible;
         protected bool IsSubmitInProgress;
         protected List<Warehouse> Warehouses = new();
-        protected List<ProviderViewModel> Providers = new();
         protected List<ItemViewModel> AvailableItems = new();
-        protected List<ReferenceViewModel> AvailableReferences = new();
+        protected List<GroupedReferenceViewModel> AvailableReferences = new(); // Cambiado para usar agrupamiento
         protected bool ValidationError = false;
         protected string ValidationErrorMessage = string.Empty;
         protected short? WarehouseId;
         protected bool OnlyBelowMinimum = true;
         protected int? UmbralMaximoExistencias;
-        protected List<int> SelectedProviderIds = new List<int>();
         protected List<int> SelectedItemIds = new List<int>();
         protected List<int> SelectedReferenceIds = new List<int>();
         protected bool ShowReferenceValidationMessage = false;
 
-        // Filtros de texto libre para campos del proveedor
+        // Filtros de texto libre para campos descriptivos del proveedor
         protected string ProviderItemName = string.Empty;
         protected string ProviderReference = string.Empty;
         protected string ProviderReferenceName = string.Empty;
@@ -72,19 +64,11 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.Components
         protected bool? ReferenceIsSoldOut = null;
 
         // Referencias a los grids
-        protected RadzenDropDownDataGrid<List<int>> providersGrid;
         protected RadzenDropDownDataGrid<List<int>> itemsGrid;
         protected RadzenDropDownDataGrid<List<int>> referencesGrid;
         #endregion
 
         #region ViewModels para el componente
-        public class ProviderViewModel
-        {
-            public int ProviderId { get; set; }
-            public string ProviderName { get; set; } = string.Empty;
-            public string ProviderCode { get; set; } = string.Empty;
-        }
-
         public class ItemViewModel
         {
             public int ItemId { get; set; }
@@ -93,13 +77,23 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.Components
             public bool IsActive { get; set; }
         }
 
-        public class ReferenceViewModel
+        public class GroupedReferenceViewModel
         {
+            public int ItemId { get; set; }
+            public string ItemName { get; set; } = string.Empty;
+            public string InternalReference { get; set; } = string.Empty;
             public int ReferenceId { get; set; }
             public string ReferenceName { get; set; } = string.Empty;
             public string ReferenceCode { get; set; } = string.Empty;
-            public Item Item { get; set; } = new();
             public bool IsActive { get; set; }
+            public bool IsGroup { get; set; } = false; // Para identificar filas de agrupamiento
+            public string DisplayText 
+            { 
+                get 
+                {
+                    return IsGroup ? $"[{InternalReference}] {ItemName}" : $"{ReferenceCode} - {ReferenceName}";
+                }
+            }
         }
         #endregion
 
@@ -109,7 +103,6 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.Components
             
             // Cargar datos base
             Warehouses = (await WarehouseService.GetAsync()).ToList();
-            await LoadProviders();
             await LoadAvailableItems();
         }
 
@@ -143,12 +136,6 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.Components
                 ReferenceHasAlarmMinimumQuantity = Filter.ReferenceHasAlarmMinimumQuantity;
                 ReferenceIsSoldOut = Filter.ReferenceIsSoldOut;
                 
-                // Cargar selecciones desde strings de IDs
-                if (!string.IsNullOrEmpty(Filter.ProviderIds))
-                {
-                    SelectedProviderIds = Filter.ProviderIds.Split(',').Select(int.Parse).ToList();
-                }
-                
                 if (!string.IsNullOrEmpty(Filter.ItemIds))
                 {
                     SelectedItemIds = Filter.ItemIds.Split(',').Select(int.Parse).ToList();
@@ -166,21 +153,6 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.Components
         }
 
         #region Events
-        protected async Task OnProvidersChanged(object value)
-        {
-            SelectedProviderIds = ((IEnumerable<int>)value)?.ToList() ?? new List<int>();
-            
-            // Limpiar selecciones dependientes
-            SelectedItemIds = new List<int>();
-            SelectedReferenceIds = new List<int>();
-            AvailableReferences.Clear();
-            ShowReferenceValidationMessage = false;
-            
-            // Recargar artículos filtrados por proveedores
-            await LoadAvailableItems();
-            StateHasChanged();
-        }
-
         protected async Task OnItemsChanged(object value)
         {
             SelectedItemIds = ((IEnumerable<int>)value)?.ToList() ?? new List<int>();
@@ -196,24 +168,14 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.Components
 
         protected async Task OnReferencesChanged(object value)
         {
-            SelectedReferenceIds = ((IEnumerable<int>)value)?.ToList() ?? new List<int>();
+            // Simplificado: solo manejar referencias individuales
+            var selectedIds = ((IEnumerable<int>)value)?.ToList() ?? new List<int>();
+            
+            // Filtrar solo referencias (IDs positivos), ignorar grupos
+            SelectedReferenceIds = selectedIds.Where(id => id > 0).ToList();
             ShowReferenceValidationMessage = false;
-        }
-
-        // Métodos para toggle de selección de headers
-        protected async Task OnProviderHeaderToggleSelection(bool value)
-        {
-            if (value)
-            {
-                // Seleccionar todos
-                SelectedProviderIds = Providers.Select(p => p.ProviderId).ToList();
-            }
-            else
-            {
-                // Deseleccionar todos
-                SelectedProviderIds = new List<int>();
-            }
-            await OnProvidersChanged(SelectedProviderIds);
+            
+            StateHasChanged();
         }
 
         protected async Task OnItemHeaderToggleSelection(bool value)
@@ -235,64 +197,31 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.Components
         {
             if (value)
             {
-                // Seleccionar todos
-                SelectedReferenceIds = AvailableReferences.Select(r => r.ReferenceId).ToList();
+                // Seleccionar todas las referencias (no los grupos)
+                SelectedReferenceIds = AvailableReferences.Where(r => !r.IsGroup).Select(r => r.ReferenceId).ToList();
             }
             else
             {
-                // Deseleccionar todos
+                // Deseleccionar todas
                 SelectedReferenceIds = new List<int>();
             }
-            await OnReferencesChanged(SelectedReferenceIds);
-        }
-
-        protected async Task LoadProviders()
-        {
-            var (providers, _) = await ProviderService.GetAsync();
-            Providers = providers.Select(p => new ProviderViewModel
-            {
-                ProviderId = p.ProviderId,
-                ProviderName = p.ProviderName,
-                ProviderCode = p.ProviderCode
-            }).ToList();
+            
+            StateHasChanged();
         }
 
         protected async Task LoadAvailableItems()
         {
             var items = await ItemService.GetAsync();
             
-            if (SelectedProviderIds?.Any() == true)
-            {
-                // Filtrar artículos por proveedores seleccionados
-                var allProviderReferences = new List<ProviderReference>();
-                foreach (var providerId in SelectedProviderIds)
+            // Cargar todos los artículos activos
+            AvailableItems = items.Where(i => i.IsActive)
+                .Select(i => new ItemViewModel
                 {
-                    var providerRefs = await ProviderReferenceService.GetByProviderIdAsync(providerId);
-                    allProviderReferences.AddRange(providerRefs);
-                }
-                
-                var itemIds = allProviderReferences.Select(pr => pr.ItemReference.ItemId).Distinct();
-                AvailableItems = items.Where(i => itemIds.Contains(i.ItemId) && i.IsActive)
-                    .Select(i => new ItemViewModel
-                    {
-                        ItemId = i.ItemId,
-                        ItemName = i.ItemName,
-                        InternalReference = i.InternalReference,
-                        IsActive = i.IsActive
-                    }).ToList();
-            }
-            else
-            {
-                // Cargar todos los artículos activos
-                AvailableItems = items.Where(i => i.IsActive)
-                    .Select(i => new ItemViewModel
-                    {
-                        ItemId = i.ItemId,
-                        ItemName = i.ItemName,
-                        InternalReference = i.InternalReference,
-                        IsActive = i.IsActive
-                    }).ToList();
-            }
+                    ItemId = i.ItemId,
+                    ItemName = i.ItemName,
+                    InternalReference = i.InternalReference,
+                    IsActive = i.IsActive
+                }).ToList();
         }
 
         protected async Task LoadAvailableReferences()
@@ -306,14 +235,38 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.Components
                     allReferences.AddRange(itemRefs.Where(r => r.IsActive));
                 }
                 
-                AvailableReferences = allReferences.Select(r => new ReferenceViewModel
-                {
-                    ReferenceId = r.ReferenceId,
-                    ReferenceName = r.ReferenceName,
-                    ReferenceCode = r.ReferenceCode,
-                    Item = r.Item,
-                    IsActive = r.IsActive
-                }).ToList();
+                // Crear estructura agrupada
+                AvailableReferences = allReferences
+                    .GroupBy(r => new { r.Item.ItemId, r.Item.ItemName, r.Item.InternalReference })
+                    .SelectMany(group => new[]
+                    {
+                        // Fila de agrupamiento (artículo) - usar ID negativo para diferenciarlo
+                        new GroupedReferenceViewModel
+                        {
+                            ItemId = group.Key.ItemId,
+                            ItemName = group.Key.ItemName,
+                            InternalReference = group.Key.InternalReference,
+                            IsGroup = true,
+                            ReferenceId = -group.Key.ItemId // ID negativo para grupos
+                        }
+                    }.Concat(
+                        // Referencias del artículo
+                        group.Select(r => new GroupedReferenceViewModel
+                        {
+                            ItemId = r.Item.ItemId,
+                            ItemName = r.Item.ItemName,
+                            InternalReference = r.Item.InternalReference,
+                            ReferenceId = r.ReferenceId,
+                            ReferenceName = r.ReferenceName,
+                            ReferenceCode = r.ReferenceCode,
+                            IsActive = r.IsActive,
+                            IsGroup = false
+                        })
+                    ))
+                    .OrderBy(x => x.ItemName)
+                    .ThenBy(x => x.IsGroup ? 0 : 1) // Grupos primero
+                    .ThenBy(x => x.ReferenceName)
+                    .ToList();
             }
             else
             {
@@ -360,7 +313,7 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.Components
                 Filter.OnlyBelowMinimum = OnlyBelowMinimum;
                 Filter.UmbralMaximoExistencias = UmbralMaximoExistencias;
                 
-                // Configurar filtros de texto libre
+                // Configurar filtros de texto libre (campos descriptivos)
                 Filter.ProviderItemName = ProviderItemName?.Trim() ?? string.Empty;
                 Filter.ProviderReference = ProviderReference?.Trim() ?? string.Empty;
                 Filter.ProviderReferenceName = ProviderReferenceName?.Trim() ?? string.Empty;
@@ -379,17 +332,10 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.Components
                 Filter.ReferenceIsSoldOut = ReferenceIsSoldOut;
                 
                 // Configurar IDs como strings separados por comas
-                Filter.ProviderIds = SelectedProviderIds?.Any() == true ? string.Join(",", SelectedProviderIds) : string.Empty;
                 Filter.ItemIds = SelectedItemIds?.Any() == true ? string.Join(",", SelectedItemIds) : string.Empty;
                 Filter.ReferenceIds = SelectedReferenceIds?.Any() == true ? string.Join(",", SelectedReferenceIds) : string.Empty;
                 
                 // Cargar objetos para mostrar en la UI (mantener compatibilidad)
-                if (SelectedProviderIds?.Any() == true)
-                {
-                    var (allProviders, _) = await ProviderService.GetAsync();
-                    Filter.SelectedProviders = allProviders.Where(p => SelectedProviderIds.Contains(p.ProviderId)).ToList();
-                }
-                
                 if (SelectedItemIds?.Any() == true)
                 {
                     var allItems = await ItemService.GetAsync();

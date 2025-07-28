@@ -10,12 +10,11 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.ViewModel
         public bool OnlyBelowMinimum { get; set; } = true; // Filtro específico para este reporte
         public int? UmbralMaximoExistencias { get; set; } // Campo obligatorio - Umbral máximo de existencias
         
-        // Nuevos filtros con multiselección usando strings de IDs separados por comas
-        public string ProviderIds { get; set; } = string.Empty; // "1,2,3"
+        // Filtros con multiselección usando strings de IDs separados por comas
         public string ItemIds { get; set; } = string.Empty; // "1,2,3"
         public string ReferenceIds { get; set; } = string.Empty; // "1,2,3"
         
-        // Filtros de texto libre para campos del proveedor
+        // Filtros de texto libre para campos descriptivos del proveedor
         public string ProviderItemName { get; set; } = string.Empty; // Artículo del proveedor
         public string ProviderReference { get; set; } = string.Empty; // Referencia interna del proveedor
         public string ProviderReferenceName { get; set; } = string.Empty; // Referencia del proveedor
@@ -34,7 +33,6 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.ViewModel
         public bool? ReferenceIsSoldOut { get; set; } = null; // Agotado
         
         // Listas para mostrar los nombres seleccionados en la UI
-        public List<Provider> SelectedProviders { get; set; } = new List<Provider>();
         public List<Item> SelectedItems { get; set; } = new List<Item>();
         public List<ItemReference> SelectedReferences { get; set; } = new List<ItemReference>();
     }

@@ -89,16 +89,13 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock
                 if (filter.Warehouse.WarehouseId > 0)
                     filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@WarehouseId = {filter.Warehouse.WarehouseId}";
 
-            if (!string.IsNullOrEmpty(filter.ProviderIds))
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ProviderIds = '{filter.ProviderIds}'";
-
             if (!string.IsNullOrEmpty(filter.ItemIds))
                 filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ItemIds = '{filter.ItemIds}'";
 
             if (!string.IsNullOrEmpty(filter.ReferenceIds))
                 filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReferenceIds = '{filter.ReferenceIds}'";
 
-            // Filtros de texto libre para campos del proveedor
+            // Filtros de texto libre para campos descriptivos del proveedor
             if (!string.IsNullOrEmpty(filter.ProviderItemName))
                 filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ProviderItemName = '{filter.ProviderItemName}'";
 

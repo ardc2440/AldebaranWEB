@@ -31,36 +31,6 @@
         <RadzenRow style="margin-bottom: 1rem">
             <RadzenColumn Size="12">
                 <RadzenStack>
-                    <RadzenFormField Text="Proveedor" Variant="Variant.Text" Style="width: 100%;">
-                        <ChildContent>
-                            <RadzenDropDownDataGrid @ref="providersGrid" Data="@Providers" ValueProperty="ProviderId" TextProperty="ProviderName" AllowClear=true
-                                                    style="display: block; width: 100%" @bind-Value="@SelectedProviderIds" Name="ProviderIds" Multiple="true"
-                                                    FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true" 
-                                                    Change="@OnProvidersChanged" MaxSelectedLabels="2" SelectedItemsText="proveedores seleccionados" AllowSelectAll="true">
-                                <Columns>
-                                    <RadzenDropDownDataGridColumn Width="60px" Sortable="false">
-                                        <HeaderTemplate>
-                                            <RadzenCheckBox Disabled="@(!providersGrid.AllowSelectAll)" TriState="false" TValue="bool" 
-                                                            Value="@(Providers.Any(c => SelectedProviderIds != null && SelectedProviderIds.Contains(c.ProviderId)))"
-                                                            Change="@OnProviderHeaderToggleSelection" />
-                                        </HeaderTemplate>
-                                        <Template Context="provider">
-                                            <RadzenCheckBox TriState="false" Value="@(SelectedProviderIds != null && SelectedProviderIds.Contains(provider.ProviderId))"
-                                                            TValue="bool" Change=@(args => providersGrid.SelectItem(provider)) @onclick:stopPropagation />
-                                        </Template>
-                                    </RadzenDropDownDataGridColumn>
-                                    <RadzenDropDownDataGridColumn Property="ProviderCode" Title="Código" Width="120px" />
-                                    <RadzenDropDownDataGridColumn Property="ProviderName" Title="Nombre" />
-                                </Columns>
-                            </RadzenDropDownDataGrid>
-                        </ChildContent>
-                    </RadzenFormField>
-                </RadzenStack>
-            </RadzenColumn>
-        </RadzenRow>        
-        <RadzenRow style="margin-bottom: 1rem">
-            <RadzenColumn Size="12">
-                <RadzenStack>
                     <RadzenFormField Text="Artículos" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
                             <RadzenDropDownDataGrid @ref="itemsGrid" Data="@AvailableItems" ValueProperty="ItemId" TextProperty="ItemName" AllowClear=true
@@ -155,9 +125,7 @@
                     </div>
                 </div>
             </RadzenColumn>
-
             <RadzenColumn Size="4"/>
-
         </RadzenRow>
               
         <RadzenRow style="margin-bottom: 1rem">
@@ -165,28 +133,29 @@
                 <RadzenStack>
                     <RadzenFormField Text="Referencias" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
-                            <RadzenDropDownDataGrid @ref="referencesGrid" Data="@AvailableReferences" ValueProperty="ReferenceId" TextProperty="ReferenceName" AllowClear=true
-                                                    style="display: block; width: 100%" @bind-Value="@SelectedReferenceIds" Name="ReferenceIds" Multiple="true"
-                                                    FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true" 
-                                                    Disabled="@(!HasItemsSelected())" Change="@OnReferencesChanged"
-                                                    MaxSelectedLabels="2" SelectedItemsText="referencias seleccionadas" AllowSelectAll="true">
-                                <Columns>
-                                    <RadzenDropDownDataGridColumn Width="60px" Sortable="false">
-                                        <HeaderTemplate>
-                                            <RadzenCheckBox Disabled="@(!referencesGrid.AllowSelectAll || !HasItemsSelected())" TriState="false" TValue="bool" 
-                                                            Value="@(AvailableReferences.Any(c => SelectedReferenceIds != null && SelectedReferenceIds.Contains(c.ReferenceId)))"
-                                                            Change="@OnReferenceHeaderToggleSelection" />
-                                        </HeaderTemplate>
-                                        <Template Context="reference">
-                                            <RadzenCheckBox TriState="false" Value="@(SelectedReferenceIds != null && SelectedReferenceIds.Contains(reference.ReferenceId))"
-                                                            TValue="bool" Change=@(args => referencesGrid.SelectItem(reference)) @onclick:stopPropagation />
-                                        </Template>
-                                    </RadzenDropDownDataGridColumn>
-                                    <RadzenDropDownDataGridColumn Property="ReferenceCode" Title="Código" Width="120px" />
-                                    <RadzenDropDownDataGridColumn Property="ReferenceName" Title="Nombre" />
-                                    <RadzenDropDownDataGridColumn Property="Item.ItemName" Title="Artículo" />
-                                </Columns>
-                            </RadzenDropDownDataGrid>
+                            <RadzenDropDown Data="@AvailableReferences" ValueProperty="ReferenceId" TextProperty="DisplayText" AllowClear=true
+                                            style="display: block; width: 100%" @bind-Value="@SelectedReferenceIds" Name="ReferenceIds" Multiple="true"
+                                            FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" 
+                                            Disabled="@(!HasItemsSelected())" Change="@OnReferencesChanged" DisabledProperty="IsGroup"
+                                            MaxSelectedLabels="2" SelectedItemsText="referencias seleccionadas" AllowSelectAll="true"
+                                            AllowFiltering="true" ClearSearchAfterSelection="true">
+                                <Template Context="referenceItem">
+                                    @if (referenceItem.IsGroup)
+                                    {
+                                        <div style="font-weight: bold; background-color: #f5f5f5; padding: 8px; margin: 2px 0; border-left: 4px solid #333; color: #333; cursor: not-allowed;">
+                                            <i class="fa fa-cube" style="margin-right: 8px;"></i>
+                                            @referenceItem.DisplayText
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div style="padding: 4px 8px 4px 24px; border-left: 2px solid #e0e0e0; margin-left: 8px;">
+                                            <i class="fa fa-tag" style="margin-right: 8px; color: #757575;"></i>
+                                            @referenceItem.DisplayText
+                                        </div>
+                                    }
+                                </Template>
+                            </RadzenDropDown>
                         </ChildContent>
                     </RadzenFormField>
                     @if (ShowReferenceValidationMessage)
