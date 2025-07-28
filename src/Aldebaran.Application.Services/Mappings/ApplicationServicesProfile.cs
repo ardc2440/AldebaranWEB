@@ -124,7 +124,8 @@ namespace Aldebaran.Application.Services.Mappings
             CreateMap<BackOrderExport, Entities.Reports.BackOrderExport>().ReverseMap();
             CreateMap<AutomaticPendingCustomerOrderInProcessReport, Entities.Reports.AutomaticPendingCustomerOrderInProcessReport>().ReverseMap();
             CreateMap<VisualizedAutomaticCustomerOrderInProcessModification, Entities.VisualizedAutomaticCustomerOrderInProcessModification>().ReverseMap();
-            CreateMap<AutomaticCustomerOrderInProcessModification, Entities.AutomaticCustomerOrderInProcessModification>().ReverseMap(); 
+            CreateMap<AutomaticCustomerOrderInProcessModification, Entities.AutomaticCustomerOrderInProcessModification>().ReverseMap();
+            CreateMap<MinimumWarehouseStockReport, Entities.Reports.MinimumWarehouseStockReport>().ReverseMap();
         }
     }
 }

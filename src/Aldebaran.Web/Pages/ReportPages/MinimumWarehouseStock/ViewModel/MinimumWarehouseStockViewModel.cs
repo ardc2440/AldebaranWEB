@@ -2,40 +2,33 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.ViewModel
 {
     public class MinimumWarehouseStockViewModel
     {
-        public List<Warehouse> Warehouses { get; set; } = new List<Warehouse>();
+        public List<ItemWithReferences> Items { get; set; } = new List<ItemWithReferences>();
+    }
 
-        public class Warehouse
-        {
-            public short WarehouseId { get; set; }
-            public string WarehouseName { get; set; } = string.Empty;
-            public List<Line> Lines { get; set; } = new List<Line>();
-        }
+    public class ItemWithReferences
+    {
+        public int ItemId { get; set; }
+        public string ItemName { get; set; } = string.Empty;
+        public string InternalReference { get; set; } = string.Empty; // Referencia interna del artículo
+        public string LineName { get; set; } = string.Empty;
+        public List<ReferenceWithStock> References { get; set; } = new List<ReferenceWithStock>();
+    }
 
-        public class Line
-        {
-            public string LineName { get; set; } = string.Empty;
-            public string LineCode { get; set; } = string.Empty;
-            public List<Item> Items { get; set; } = new List<Item>();
-        }
+    public class ReferenceWithStock
+    {
+        public int ReferenceId { get; set; }
+        public string ReferenceName { get; set; } = string.Empty; // Nombre de la referencia
+        public string ReferenceCode { get; set; } = string.Empty; // Código de la referencia
+        public int TotalPhysicalStock { get; set; } // Existencia física total sumando todas las bodegas
+        public int CommittedQuantity { get; set; } // Cantidad comprometida (pedidos + reservas)
+        public int AvailableQuantity { get; set; } // Cantidad disponible (física - comprometida)
+        public List<WarehouseStock> WarehouseStocks { get; set; } = new List<WarehouseStock>();
+    }
 
-        public class Item
-        {
-            public string InternalReference { get; set; } = string.Empty;
-            public string ItemName { get; set; } = string.Empty;
-            public List<Reference> References { get; set; } = new List<Reference>();
-        }
-
-        public class Reference
-        {
-            public string ReferenceName { get; set; } = string.Empty;
-            public string ReferenceCode { get; set; } = string.Empty;
-            public string ProviderReferenceName { get; set; } = string.Empty;
-            public int AvailableAmount { get; set; }
-            public int MinimumQuantity { get; set; }
-            public int AlarmMinimumQuantity { get; set; }
-            public decimal MinimumQuantityPercent { get; set; }
-            public bool IsBelowMinimum { get; set; }
-            public int DeficitAmount { get; set; } // Cantidad faltante para llegar al mínimo
-        }
+    public class WarehouseStock
+    {
+        public short WarehouseId { get; set; } // Cambiado de int a short para coincidir con smallint
+        public string WarehouseName { get; set; } = string.Empty;
+        public int PhysicalStock { get; set; } // Existencia física en esta bodega específica
     }
 }

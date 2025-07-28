@@ -39,7 +39,6 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.Components
         protected bool ValidationError = false;
         protected string ValidationErrorMessage = string.Empty;
         protected short? WarehouseId;
-        protected bool OnlyBelowMinimum = true;
         protected int? UmbralMaximoExistencias;
         protected List<int> SelectedItemIds = new List<int>();
         protected List<int> SelectedReferenceIds = new List<int>();
@@ -115,7 +114,6 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.Components
             if (Filter != null)
             {
                 WarehouseId = Filter.WarehouseId;
-                OnlyBelowMinimum = Filter.OnlyBelowMinimum;
                 UmbralMaximoExistencias = Filter.UmbralMaximoExistencias;
                 
                 // Cargar filtros de texto libre
@@ -310,7 +308,6 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.Components
                 // Configurar filtro básico
                 Filter.WarehouseId = WarehouseId;
                 Filter.Warehouse = Filter.WarehouseId != null ? Warehouses.FirstOrDefault(s => s.WarehouseId == Filter.WarehouseId.Value) : null;
-                Filter.OnlyBelowMinimum = OnlyBelowMinimum;
                 Filter.UmbralMaximoExistencias = UmbralMaximoExistencias;
                 
                 // Configurar filtros de texto libre (campos descriptivos)

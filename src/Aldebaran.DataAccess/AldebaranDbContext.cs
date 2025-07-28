@@ -227,6 +227,7 @@ namespace Aldebaran.DataAccess
             modelBuilder.Entity<BackOrderExport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<AutomaticCustomerOrderAssigmentReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<AutomaticPendingCustomerOrderInProcessReport>(iar => { iar.HasNoKey(); });
+            modelBuilder.Entity<MinimumWarehouseStockReport>(iar => { iar.HasNoKey(); });
 
             modelBuilder.Entity<CustomerOrderAffectedByPurchaseOrderUpdate>(iar =>
             {

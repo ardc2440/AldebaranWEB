@@ -7,7 +7,6 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.ViewModel
         public short? WarehouseId { get; set; }
         public Warehouse Warehouse { get; set; }
         public List<ItemReference> ItemReferences { get; set; } = new List<ItemReference>();
-        public bool OnlyBelowMinimum { get; set; } = true; // Filtro específico para este reporte
         public int? UmbralMaximoExistencias { get; set; } // Campo obligatorio - Umbral máximo de existencias
         
         // Filtros con multiselección usando strings de IDs separados por comas
