@@ -58,43 +58,68 @@ namespace Aldebaran.Web.Pages.ReportPages.Automatic_Customer_Order_In_Process_Cr
         {
             var customers = new List<BackOrderViewModel.Customer>();
 
-            foreach (var customer in DataReport.Select(s => new { s.CustomerId, s.CustomerName, s.Fax, s.Phone, s.OrderCreationDate })
-                                        .DistinctBy(d => d.CustomerId).OrderBy(o => o.OrderCreationDate).ThenBy(o => o.CustomerName))
-            {
+            // Para un backorder, necesitamos ordenar por fecha de creación de cada orden individual
+            // CADA ORDEN SERÁ UNA ENTRADA SEPARADA, NO AGRUPADA POR CLIENTE
+            
+            var allRecords = DataReport.ToList();
+            
+            // Obtener todas las órdenes ordenadas por fecha de creación (más antigua primero)
+            var ordersOrderedByDate = allRecords
+                .Select(x => new { x.OrderId, x.OrderCreationDate, x.CustomerId, x.CustomerName })
+                .DistinctBy(x => x.OrderId)
+                .OrderBy(x => x.OrderCreationDate) // Más antigua primero para backorder
+                .ToList();
 
-                customers.Add(new BackOrderViewModel.Customer
+            // CREAR UNA ENTRADA SEPARADA PARA CADA ORDEN (NO AGRUPAR POR CLIENTE)
+            foreach (var orderInfo in ordersOrderedByDate)
+            {
+                // Obtener información del cliente para esta orden
+                var customerData = allRecords.First(x => x.CustomerId == orderInfo.CustomerId);
+                
+                // SIEMPRE crear un nuevo cliente para cada orden (no agrupar)
+                var customerForThisOrder = new BackOrderViewModel.Customer
                 {
-                    CustomerName = customer.CustomerName,
-                    Fax = customer.Fax,
-                    Phone = customer.Phone,
-                    Orders = await GetCustomerOrdersAsync(customer.CustomerId, ct)
-                });
+                    CustomerName = customerData.CustomerName,
+                    Fax = customerData.Fax,
+                    Phone = customerData.Phone,
+                    Orders = new List<BackOrderViewModel.Order>()
+                };
+
+                // Agregar solo esta orden al cliente
+                var orderDetails = await GetSingleOrderAsync(orderInfo.OrderId, ct);
+                if (orderDetails != null)
+                {
+                    customerForThisOrder.Orders.Add(orderDetails);
+                }
+
+                // Agregar el cliente (con una sola orden) a la lista
+                customers.Add(customerForThisOrder);
             }
 
             return customers;
         }
 
-        async Task<List<BackOrderViewModel.Order>> GetCustomerOrdersAsync(int customerId, CancellationToken ct = default)
+        // Nuevo método para obtener una orden específica
+        async Task<BackOrderViewModel.Order> GetSingleOrderAsync(int orderId, CancellationToken ct = default)
         {
-            var customerOrders = new List<BackOrderViewModel.Order>();
+            var orderData = DataReport.Where(w => w.OrderId == orderId)
+                .Select(s => new { s.OrderId, s.OrderCreationDate, s.OrderDate, s.OrderNumber, s.OrderStatus, s.InternalNotes, s.CustomerNotes, s.EstimatedDeliveryDate })
+                .FirstOrDefault();
 
-            foreach (var order in DataReport.Where(w => w.CustomerId == customerId).Select(s => new { s.OrderId, s.OrderCreationDate, s.OrderDate, s.OrderNumber, s.OrderStatus, s.InternalNotes, s.CustomerNotes, s.EstimatedDeliveryDate })
-                                        .DistinctBy(d => d.OrderId).OrderBy(o => o.OrderNumber))
+            if (orderData == null)
+                return null;
+
+            return new BackOrderViewModel.Order
             {
-                customerOrders.Add(new BackOrderViewModel.Order
-                {
-                    CreationDate = order.OrderCreationDate,
-                    OrderDate = order.OrderDate,
-                    OrderNumber = order.OrderNumber,
-                    Status = order.OrderStatus,
-                    InternalNotes = order.InternalNotes,
-                    CustomerNotes = order.CustomerNotes,
-                    EstimatedDeliveryDate = order.EstimatedDeliveryDate,
-                    References = await GetOrderReferencesAsync(order.OrderId, ct)
-                });
-            }
-
-            return customerOrders;
+                CreationDate = orderData.OrderCreationDate,
+                OrderDate = orderData.OrderDate,
+                OrderNumber = orderData.OrderNumber,
+                Status = orderData.OrderStatus,
+                InternalNotes = orderData.InternalNotes,
+                CustomerNotes = orderData.CustomerNotes,
+                EstimatedDeliveryDate = orderData.EstimatedDeliveryDate,
+                References = await GetOrderReferencesAsync(orderData.OrderId, ct)
+            };
         }
 
         async Task<List<BackOrderViewModel.Reference>> GetOrderReferencesAsync(int orderId, CancellationToken ct = default)
@@ -118,6 +143,32 @@ namespace Aldebaran.Web.Pages.ReportPages.Automatic_Customer_Order_In_Process_Cr
 
             return orderReferences;
         }
+
+        // Método para obtener todas las órdenes ordenadas cronológicamente para mostrar en el reporte
+        protected List<(BackOrderViewModel.Customer Customer, BackOrderViewModel.Order Order)> GetOrdersInChronologicalOrder()
+        {
+            var ordersWithCustomers = new List<(BackOrderViewModel.Customer Customer, BackOrderViewModel.Order Order)>();
+
+            if (ViewModel?.Customers?.Any() == true)
+            {
+                // Ahora cada cliente tiene solo una orden, así que es más simple
+                foreach (var customer in ViewModel.Customers)
+                {
+                    if (customer.Orders?.Any() == true)
+                    {
+                        // Como cada cliente tiene solo una orden, tomamos la primera (y única)
+                        var order = customer.Orders.First();
+                        ordersWithCustomers.Add((customer, order));
+                    }
+                }
+            }
+
+            // Ya vienen ordenadas cronológicamente por el método GetCustomersAsync
+            return ordersWithCustomers;
+        }
+
+        // Propiedad para simplificar el acceso desde Razor
+        protected List<(BackOrderViewModel.Customer Customer, BackOrderViewModel.Order Order)> ChronologicalOrders => GetOrdersInChronologicalOrder();
 
         #endregion
 

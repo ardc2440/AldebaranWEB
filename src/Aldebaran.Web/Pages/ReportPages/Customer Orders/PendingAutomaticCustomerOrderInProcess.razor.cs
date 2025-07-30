@@ -178,7 +178,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders
         {
             var inProcessOrderDetails = DataReport.Where(w => w.CustomerOrderInProcessId == customerOrderInProcessId)
                                                                   .Select(s => new { s.ItemName, s.InternalReference, s.ReferenceName, s.Brand, s.WarehouseName, s.Quantity })
-                                                                  .OrderBy(o => new { o.InternalReference, o.ReferenceName })
+                                                                  .OrderBy(o => o.InternalReference).ThenBy(o => o.ReferenceName)
                                                                   .Select(async inProcessOrder => new PendingAutomaticCustomerOrderInProcessViewModel.CustomerOrderInProcessDetail
                                                                   {
                                                                       ItemName = inProcessOrder.ItemName,
