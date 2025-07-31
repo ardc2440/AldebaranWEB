@@ -1,5 +1,6 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
+using Aldebaran.Application.Services.Services;
 using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -16,6 +17,9 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
         [Inject]
         protected IItemReferenceService ItemReferenceService { get; set; }
+
+        [Inject]
+        protected IWarehouseStockValidationService WarehouseStockValidationService { get; set; }
 
         #endregion
 
@@ -78,6 +82,9 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                 if (CustomerReservationDetails.Any(ad => ad.ReferenceId == customerReservationDetail.ReferenceId))
                     throw new Exception("La referencia seleccionada ya existe dentro de esta reserva.");
 
+                // Validación informativa de stock - no bloquea el proceso
+                await ValidateWarehouseStock();
+
                 DialogService.Close(customerReservationDetail);
             }
             catch (Exception ex)
@@ -100,6 +107,60 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         {
             customerReservationDetail.ReferenceId = reference?.ReferenceId ?? 0;
             customerReservationDetail.ItemReference = customerReservationDetail.ReferenceId == 0 ? null : ItemReferencesForREFERENCEID.Single(s => s.ReferenceId == customerReservationDetail.ReferenceId); ;
+        }
+
+        protected async Task ValidateWarehouseStock()
+        {
+            if (customerReservationDetail?.ReferenceId > 0 && customerReservationDetail?.ReservedQuantity > 0)
+            {
+                try
+                {
+                    // Para una nueva reserva, originalQuantity = 0
+                    var validationResult = await WarehouseStockValidationService.ValidateLocalWarehouseStockAsync(
+                        customerReservationDetail.ReferenceId, 
+                        customerReservationDetail.ReservedQuantity, 
+                        0);
+
+                    if (!validationResult.IsValid)
+                    {
+                        // Guardar referencias importantes antes del alert
+                        var tempReferenceId = customerReservationDetail.ReferenceId;
+                        var tempReservedQuantity = customerReservationDetail.ReservedQuantity;
+                        var tempBrand = customerReservationDetail.Brand;
+                        var tempItemReference = customerReservationDetail.ItemReference;
+                        
+                        // Validación informativa con estilo de warning - mostrar mensaje pero NO bloquear el proceso
+                        await DialogService.Alert($"{validationResult.ErrorMessage}\n\nPuede continuar con el proceso normalmente.",
+                            options: new AlertOptions() 
+                            { 
+                                OkButtonText = "Entendido"
+                            }, 
+                            title: "¡ADVERTENCIA!");
+
+                        // Restaurar las referencias después del alert
+                        customerReservationDetail.ReferenceId = tempReferenceId;
+                        customerReservationDetail.ReservedQuantity = tempReservedQuantity;
+                        customerReservationDetail.Brand = tempBrand;
+                        
+                        // Restaurar ItemReference
+                        if (customerReservationDetail.ItemReference == null && tempItemReference != null)
+                        {
+                            customerReservationDetail.ItemReference = tempItemReference;
+                        }
+                        
+                        // Si aún es null, buscarlo de nuevo
+                        if (customerReservationDetail.ItemReference == null && tempReferenceId > 0)
+                        {
+                            customerReservationDetail.ItemReference = ItemReferencesForREFERENCEID.FirstOrDefault(s => s.ReferenceId == tempReferenceId);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // En caso de error en la validación, no bloquear el proceso
+                    Console.WriteLine($"Error en validación de stock: {ex.Message}");
+                }
+            }
         }
 
         #endregion

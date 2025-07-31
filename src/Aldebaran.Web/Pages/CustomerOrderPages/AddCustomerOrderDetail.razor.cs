@@ -1,5 +1,6 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
+using Aldebaran.Application.Services.Services;
 using Aldebaran.Web.Shared;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Components;
@@ -16,9 +17,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         [Inject]
         protected IItemReferenceService ItemReferenceService { get; set; }
         [Inject]
-        protected IWarehouseService WarehouseService { get; set; }
-        [Inject]
-        protected IReferencesWarehouseService ReferencesWarehouseService { get; set; }
+        protected IWarehouseStockValidationService WarehouseStockValidationService { get; set; }
         #endregion
 
         #region Parameters
@@ -68,8 +67,6 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         #region Events
         protected async Task FormSubmit()
         {
-            await ValidateWarehouseStock();
-
             try
             {
                 IsErrorVisible = false;
@@ -77,6 +74,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 
                 if (CustomerOrderDetails.Any(ad => ad.ReferenceId == customerOrderDetail.ReferenceId))
                     throw new Exception("La referencia seleccionada ya existe dentro de esta reserva.");
+
+                // Validación informativa de stock - no bloquea el proceso
+                await ValidateWarehouseStock();
 
                 DialogService.Close(customerOrderDetail);
             }
@@ -104,19 +104,55 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task ValidateWarehouseStock()
         {
-            if (!(customerOrderDetail.ItemReference.Item.IsSpecialImport || customerOrderDetail.ItemReference.Item.IsDomesticProduct))
+            if (customerOrderDetail?.ReferenceId > 0 && customerOrderDetail?.RequestedQuantity > 0)
             {
-                var warehouse = await WarehouseService.FindByCodeAsync(1);
-                var localWarehouseStock = await ReferencesWarehouseService.GetByReferenceAndWarehouseIdAsync(customerOrderDetail.ReferenceId, warehouse.WarehouseId);
-
-                if (customerOrderDetail.RequestedQuantity > localWarehouseStock.Quantity - customerOrderDetail.ItemReference.OrderedQuantity - customerOrderDetail.ItemReference.ReservedQuantity)
+                try
                 {
-                    var temp = customerOrderDetail;
-                    await DialogService.Alert($"La cantidad ingresada supera la existencia en bodega local. Verifique disponibilidad de la referencia.",
-                        options: new AlertOptions() { OkButtonText = "Cerrar" }, title: "Stock en bodega local");
+                    // Para un nuevo detalle de pedido, originalQuantity = 0
+                    var validationResult = await WarehouseStockValidationService.ValidateLocalWarehouseStockAsync(
+                        customerOrderDetail.ReferenceId, 
+                        customerOrderDetail.RequestedQuantity, 
+                        0);
 
-                    customerOrderDetail = temp;
-                    StateHasChanged();
+                    if (!validationResult.IsValid)
+                    {
+                        // Guardar referencias importantes antes del alert para evitar que se pierdan
+                        var tempReferenceId = customerOrderDetail.ReferenceId;
+                        var tempRequestedQuantity = customerOrderDetail.RequestedQuantity;
+                        var tempBrand = customerOrderDetail.Brand;
+                        var tempItemReference = customerOrderDetail.ItemReference;
+                        
+                        // Validación informativa con estilo de warning - mostrar mensaje pero NO bloquear el proceso
+                        await DialogService.Alert($"{validationResult.ErrorMessage}\n\nPuede continuar con el proceso normalmente.",
+                            options: new AlertOptions() 
+                            { 
+                                OkButtonText = "Entendido"
+                            }, 
+                            title: "¡ADVERTENCIA!");
+
+                        // Restaurar las referencias después del alert
+                        customerOrderDetail.ReferenceId = tempReferenceId;
+                        customerOrderDetail.RequestedQuantity = tempRequestedQuantity;
+                        customerOrderDetail.Brand = tempBrand;
+                        
+                        // Solo restaurar ItemReference si se perdió
+                        if (customerOrderDetail.ItemReference == null && tempItemReference != null)
+                        {
+                            customerOrderDetail.ItemReference = tempItemReference;
+                        }
+                        
+                        // Si aún es null, buscarlo de nuevo
+                        if (customerOrderDetail.ItemReference == null && tempReferenceId > 0)
+                        {
+                            customerOrderDetail.ItemReference = itemReferencesForREFERENCEID.FirstOrDefault(s => s.ReferenceId == tempReferenceId);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // En caso de error en la validación, no bloquear el proceso
+                    // Solo mostrar el error en la consola para debug
+                    Console.WriteLine($"Error en validación de stock: {ex.Message}");
                 }
             }
         }

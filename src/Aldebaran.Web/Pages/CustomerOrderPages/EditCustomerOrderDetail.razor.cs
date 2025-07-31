@@ -1,5 +1,6 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
+using Aldebaran.Application.Services.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
@@ -14,11 +15,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         [Inject]
         protected IItemReferenceService ItemReferenceService { get; set; }
         [Inject]
-        protected IWarehouseService WarehouseService { get; set; }
-        [Inject]
-        protected IReferencesWarehouseService ReferencesWarehouseService { get; set; }
-        [Inject]
         protected ICustomerOrderDetailService CustomerOrderDetailService { get; set; }
+        [Inject]
+        protected IWarehouseStockValidationService WarehouseStockValidationService { get; set; }
         #endregion
 
         #region Parameters
@@ -52,7 +51,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 customerOrderDetail = new CustomerOrderDetail
                 {
                     CustomerOrderId = CustomerOrderDetail.CustomerOrderId,
-                    CustomerOrderDetailId = CustomerOrderDetail.CustomerOrderDetailId, // Corregir: debe ser CustomerOrderDetailId, no CustomerOrderId
+                    CustomerOrderDetailId = CustomerOrderDetail.CustomerOrderDetailId,
                     CustomerOrder = CustomerOrderDetail.CustomerOrder,
                     Brand = CustomerOrderDetail.Brand,
                     ItemReference = CustomerOrderDetail.ItemReference,
@@ -111,12 +110,13 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         #region Events
         protected async Task FormSubmit()
         {
-            await ValidateWarehouseStock();
-
             try
             {
                 IsErrorVisible = false;
                 IsSubmitInProgress = true;
+
+                // Validación informativa de stock - no bloquea el proceso
+                await ValidateWarehouseStock();
 
                 DialogService.Close(customerOrderDetail);
             }
@@ -138,24 +138,88 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task ValidateWarehouseStock()
         {
-            if (!(customerOrderDetail.ItemReference.Item.IsSpecialImport || customerOrderDetail.ItemReference.Item.IsDomesticProduct))
+            if (customerOrderDetail?.ReferenceId > 0 && customerOrderDetail?.RequestedQuantity > 0)
             {
-                var warehouse = await WarehouseService.FindByCodeAsync(1);
-                var localWarehouseStock = await ReferencesWarehouseService.GetByReferenceAndWarehouseIdAsync(customerOrderDetail.ReferenceId, warehouse.WarehouseId);
-
-                // Calcular el stock disponible considerando que se "libera" la cantidad original del pedido
-                // y luego se "reserva" la nueva cantidad
-                var availableStock = localWarehouseStock.Quantity - customerOrderDetail.ItemReference.OrderedQuantity - customerOrderDetail.ItemReference.ReservedQuantity + originalRequestedQuantity;
-                
-                if (customerOrderDetail.RequestedQuantity > availableStock)
+                try
                 {
-                    var temp = customerOrderDetail;
-                    await DialogService.Alert($"La cantidad ingresada supera la existencia en bodega local. Verifique disponibilidad de la referencia.",
-                        options: new AlertOptions() { OkButtonText = "Cerrar" }, title: "Stock en bodega local");
+                    // Determinar si estamos en modo "crear pedido" o "editar pedido existente"
+                    bool isNewOrder = customerOrderDetail.CustomerOrderDetailId == 0;
+                    
+                    if (isNewOrder)
+                    {
+                        // CASO 1: Estamos creando un pedido nuevo (editando detalles antes de guardar)
+                        // La cantidad original es siempre 0 porque aún no está en la BD
+                        var validationResult = await WarehouseStockValidationService.ValidateLocalWarehouseStockAsync(
+                            customerOrderDetail.ReferenceId, 
+                            customerOrderDetail.RequestedQuantity, // Validamos toda la cantidad solicitada
+                            0); // No hay cantidad original porque es nuevo
 
-                    customerOrderDetail = temp;
-                    StateHasChanged();
+                        if (!validationResult.IsValid)
+                        {
+                            await ShowWarningMessage(validationResult.ErrorMessage);
+                        }
+                    }
+                    else
+                    {
+                        // CASO 2: Estamos editando un pedido existente guardado en BD
+                        // Para stock negativo o insuficiente, validar siempre la cantidad total
+                        
+                        // Primero verificar si hay suficiente stock para la cantidad total solicitada
+                        var totalValidationResult = await WarehouseStockValidationService.ValidateLocalWarehouseStockAsync(
+                            customerOrderDetail.ReferenceId, 
+                            customerOrderDetail.RequestedQuantity, 
+                            originalRequestedQuantity); // Liberar la cantidad original
+
+                        if (!totalValidationResult.IsValid)
+                        {
+                            await ShowWarningMessage(totalValidationResult.ErrorMessage);
+                        }
+                    }
                 }
+                catch (Exception ex)
+                {
+                    // En caso de error en la validación, no bloquear el proceso
+                    Console.WriteLine($"Error en validación de stock: {ex.Message}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Muestra el mensaje de warning y restaura las propiedades después del alert
+        /// </summary>
+        private async Task ShowWarningMessage(string errorMessage)
+        {
+            // Guardar referencias importantes antes del alert
+            var tempReferenceId = customerOrderDetail.ReferenceId;
+            var tempRequestedQuantity = customerOrderDetail.RequestedQuantity;
+            var tempBrand = customerOrderDetail.Brand;
+            var tempItemReference = customerOrderDetail.ItemReference;
+            var tempCustomerOrderDetailId = customerOrderDetail.CustomerOrderDetailId;
+            var tempCustomerOrderId = customerOrderDetail.CustomerOrderId;
+            var tempProcessedQuantity = customerOrderDetail.ProcessedQuantity;
+            var tempDeliveredQuantity = customerOrderDetail.DeliveredQuantity;
+            
+            // Validación informativa con estilo de warning - mostrar mensaje pero NO bloquear el proceso
+            await DialogService.Alert($"{errorMessage}\n\nPuede continuar con el proceso normalmente.",
+                options: new AlertOptions() 
+                { 
+                    OkButtonText = "Entendido"
+                }, 
+                title: "¡ADVERTENCIA!");
+
+            // Restaurar todas las propiedades después del alert
+            customerOrderDetail.ReferenceId = tempReferenceId;
+            customerOrderDetail.RequestedQuantity = tempRequestedQuantity;
+            customerOrderDetail.Brand = tempBrand;
+            customerOrderDetail.CustomerOrderDetailId = tempCustomerOrderDetailId;
+            customerOrderDetail.CustomerOrderId = tempCustomerOrderId;
+            customerOrderDetail.ProcessedQuantity = tempProcessedQuantity;
+            customerOrderDetail.DeliveredQuantity = tempDeliveredQuantity;
+            
+            // Restaurar ItemReference
+            if (customerOrderDetail.ItemReference == null && tempItemReference != null)
+            {
+                customerOrderDetail.ItemReference = tempItemReference;
             }
         }
         #endregion

@@ -1,5 +1,6 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
+using Aldebaran.Application.Services.Services;
 using Aldebaran.Web.Models.ViewModels;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -21,10 +22,10 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         protected IItemReferenceService ItemReferenceService { get; set; }
 
         [Inject]
-        protected IReferencesWarehouseService ReferencesWarehouseService { get; set; }
-        
-        [Inject]
         protected ICustomerOrderInProcessDetailService CustomerOrderInProcessDetailService { get; set; }
+
+        [Inject]
+        protected IWarehouseStockValidationService WarehouseStockValidationService { get; set; }
 
         #endregion
 
@@ -157,15 +158,8 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                 if ((detailInProcess.PENDING_QUANTITY + DetailInProcess.THIS_QUANTITY) < detailInProcess.THIS_QUANTITY)
                     throw new Exception("La cantidad de este traslado debe ser menor o igual a la cantidad pendiente del artículo");
 
-                // Validación de stock: usar oldQuantity (ORIGINAL_THIS_QUANTITY) para liberar la cantidad original del traslado antes de reservar la nueva
-                // oldQuantity representa la cantidad que estaba procesada originalmente en este CustomerOrderInProcessDetail desde la BD
-                if ((detailInProcess.WAREHOUSE_ID == localWarehouse.WarehouseId) &&
-                    (await ReferencesWarehouseService.GetByReferenceAndWarehouseIdAsync(detailInProcess.REFERENCE_ID, localWarehouse.WarehouseId)).Quantity + oldQuantity - detailInProcess.THIS_QUANTITY < 0)
-                {
-                    await DialogService.Alert($"La cantidad ingresada supera la existencia en bodega local. Verifique disponibilidad de la referencia.",
-                                            options: new AlertOptions() { OkButtonText = "Cerrar" }, title: "Stock en bodega local");
-                    return; // Importante: salir sin cerrar el diálogo para permitir corrección
-                }
+                // Validación informativa de stock solo para bodega local
+                await ValidateWarehouseStockInformative();
 
                 if (await DialogService.Confirm("Está seguro que desea enviar a proceso esta referencia?", "Confirmar") == true)
                 {
@@ -185,6 +179,38 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
             finally
             {
                 IsSubmitInProgress = false;
+            }
+        }
+
+        /// <summary>
+        /// Validación informativa de stock - no bloquea el proceso
+        /// </summary>
+        protected async Task ValidateWarehouseStockInformative()
+        {
+            if (detailInProcess.WAREHOUSE_ID == localWarehouse.WarehouseId)
+            {
+                // Para traslados a bodega local, siempre validar la cantidad total solicitada
+                // independientemente si es incremento o no, porque el stock puede ser negativo
+                var quantityToValidate = detailInProcess.THIS_QUANTITY;
+                
+                if (quantityToValidate > 0)
+                {
+                    var validationResult = await WarehouseStockValidationService.ValidateLocalWarehouseStockAsync(
+                        detailInProcess.REFERENCE_ID, 
+                        quantityToValidate, // Validamos la cantidad total solicitada
+                        0); // No liberamos cantidad original para traslados
+
+                    if (!validationResult.IsValid)
+                    {
+                        // Validación informativa con estilo de warning - mostrar mensaje pero NO bloquear el proceso
+                        await DialogService.Alert($"{validationResult.ErrorMessage}\n\nPuede continuar con el proceso normalmente.",
+                            options: new AlertOptions() 
+                            { 
+                                OkButtonText = "Entendido"
+                            }, 
+                            title: "¡ADVERTENCIA!");
+                    }
+                }
             }
         }
 

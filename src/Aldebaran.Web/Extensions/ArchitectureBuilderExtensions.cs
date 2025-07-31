@@ -355,6 +355,7 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IAutomaticPurchaseOrderAssigmentReportService, AutomaticPurchaseOrderAssigmentReportService>();
             services.AddTransient<IVisualizedAutomaticCustomerInProcessModificationService, VisualizedAutomaticCustomerInProcessModificationService>();
             services.AddTransient<IMinimumWarehouseStockReportService, MinimumWarehouseStockReportService>();
+            services.AddTransient<IWarehouseStockValidationService, WarehouseStockValidationService>();
 
             #endregion
 

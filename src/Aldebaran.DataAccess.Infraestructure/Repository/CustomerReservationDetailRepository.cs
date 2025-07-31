@@ -9,6 +9,16 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         {
         }
 
+        public async Task<CustomerReservationDetail?> FindAsync(int customerReservationDetailId, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.CustomerReservationDetails.AsNoTracking()
+                            .Include(i => i.ItemReference.Item.Line)
+                            .FirstOrDefaultAsync(i => i.CustomerReservationDetailId == customerReservationDetailId, ct);
+            }, ct);
+        }
+
         public async Task<IEnumerable<CustomerReservationDetail>> GetByCustomerReservationIdAsync(int customerReservationId, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
