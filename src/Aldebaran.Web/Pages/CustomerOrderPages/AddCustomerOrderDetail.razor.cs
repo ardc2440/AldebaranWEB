@@ -151,8 +151,6 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 catch (Exception ex)
                 {
                     // En caso de error en la validación, no bloquear el proceso
-                    // Solo mostrar el error en la consola para debug
-                    Console.WriteLine($"Error en validación de stock: {ex.Message}");
                 }
             }
         }

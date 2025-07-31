@@ -188,7 +188,6 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                 catch (Exception ex)
                 {
                     // En caso de error en la validación, no bloquear el proceso
-                    Console.WriteLine($"Error en validación de stock: {ex.Message}");
                 }
             }
         }
