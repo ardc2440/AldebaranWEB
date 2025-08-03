@@ -19,6 +19,12 @@ namespace Aldebaran.Application.Services
             var data = await _repository.GetByCustomerOrderIdAsync(customerOrderId, ct);
             return _mapper.Map<IEnumerable<CustomerOrderDetail>>(data);
         }
+
+        public async Task<CustomerOrderDetail?> FindAsync(int customerOrderDetailId, CancellationToken ct = default)
+        {
+            var data = await _repository.FindAsync(customerOrderDetailId, ct);
+            return _mapper.Map<CustomerOrderDetail>(data);
+        }
     }
 
 }

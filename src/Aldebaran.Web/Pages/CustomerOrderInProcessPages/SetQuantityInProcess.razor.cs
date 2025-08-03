@@ -195,10 +195,13 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                 
                 if (quantityToValidate > 0)
                 {
-                    var validationResult = await WarehouseStockValidationService.ValidateLocalWarehouseStockAsync(
+                    // Usar el método específico para traslados a proceso que excluye
+                    // las cantidades comprometidas del CustomerOrderDetail actual
+                    var validationResult = await WarehouseStockValidationService.ValidateLocalWarehouseStockForProcessTransferAsync(
                         detailInProcess.REFERENCE_ID, 
                         quantityToValidate, // Validamos la cantidad total solicitada
-                        0); // No liberamos cantidad original para traslados
+                        oldQuantity, // Liberamos la cantidad que ya estaba en este traslado
+                        detailInProcess.CUSTOMER_ORDER_DETAIL_ID); // Excluir el CustomerOrderDetail actual
 
                     if (!validationResult.IsValid)
                     {

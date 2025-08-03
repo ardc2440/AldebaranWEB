@@ -19,6 +19,16 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                                 .ToListAsync(ct);
             }, ct);
         }
+
+        public async Task<CustomerOrderDetail?> FindAsync(int customerOrderDetailId, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.CustomerOrderDetails.AsNoTracking()
+                                .Include(i => i.ItemReference.Item.Line)
+                                .FirstOrDefaultAsync(i => i.CustomerOrderDetailId == customerOrderDetailId, ct);
+            }, ct);
+        }
     }
 
 }

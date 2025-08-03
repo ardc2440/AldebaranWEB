@@ -5,6 +5,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
     public interface ICustomerOrderDetailRepository
     {
         Task<IEnumerable<CustomerOrderDetail>> GetByCustomerOrderIdAsync(int customerOrderId, CancellationToken ct = default);
+        Task<CustomerOrderDetail?> FindAsync(int customerOrderDetailId, CancellationToken ct = default);
     }
 
 }
