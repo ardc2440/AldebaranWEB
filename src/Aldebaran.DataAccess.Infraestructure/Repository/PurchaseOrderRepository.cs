@@ -107,11 +107,23 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
 
                 foreach (var alarm in alarms) alarm.IsActive = false;
 
+                // Obtener referencias con saldo <= 0 antes de guardar
+                var referenceIds = details.Select(d => d.ReferenceId).Distinct().ToList();
+
+                var referencesWithZeroOrLessStock = await dbContext.Set<ReferencesWarehouse>()
+                    .Where(rw => referenceIds.Contains(rw.ReferenceId))
+                    .Where(rw => rw.Quantity <= 0)
+                    .Select(rw => rw.ReferenceId)
+                    .ToListAsync(ct);
+
+                var referenceIdList = string.Join(",", referencesWithZeroOrLessStock);
+
                 try
                 {
                     await dbContext.SaveChangesAsync(ct);
 
-                    await dbContext.Database.ExecuteSqlInterpolatedAsync($"EXEC dbo.SP_AUTOMATIC_CUSTOMER_ORDER_IN_PROCESS_GENERATION @DocumentType = 'O', @DocumentId = {purchaseOrderId}", ct);
+                    if (referencesWithZeroOrLessStock.Any())
+                        await dbContext.Database.ExecuteSqlInterpolatedAsync($"EXEC dbo.SP_AUTOMATIC_CUSTOMER_ORDER_IN_PROCESS_GENERATION @DocumentType = 'O', @DocumentId = {purchaseOrderId}, @ReferenceIdList = {referenceIdList}", ct);
                 }
                 catch
                 {

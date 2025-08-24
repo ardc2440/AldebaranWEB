@@ -105,13 +105,23 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                         Quantity = item.Quantity
                     });
 
+                var referenceIds = entity.WarehouseTransferDetails.Select(d => d.ReferenceId).ToList();
+
+                var referencesWithZeroOrLessStock = await dbContext.Set<ReferencesWarehouse>()
+                    .Where(rw => rw.Warehouse.WarehouseId == localWarehouse!.WarehouseId && referenceIds.Contains(rw.ReferenceId))
+                    .Where(rw => rw.Quantity <= 0)
+                    .Select(rw => rw.ReferenceId)
+                    .ToListAsync(ct);
+
+                var referenceIdList = string.Join(",", referencesWithZeroOrLessStock);
+
                 try
                 {
                     await dbContext.WarehouseTransfers.AddAsync(entity, ct);
                     await dbContext.SaveChangesAsync(ct);
 
-                    if (entity.DestinationWarehouseId == localWarehouse?.WarehouseId)
-                        await dbContext.Database.ExecuteSqlInterpolatedAsync($"EXEC dbo.SP_AUTOMATIC_CUSTOMER_ORDER_IN_PROCESS_GENERATION @DocumentType = 'B', @DocumentId = {entity.WarehouseTransferId}", ct);
+                    if (entity.DestinationWarehouseId == localWarehouse?.WarehouseId && referencesWithZeroOrLessStock.Any())
+                        await dbContext.Database.ExecuteSqlInterpolatedAsync($"EXEC dbo.SP_AUTOMATIC_CUSTOMER_ORDER_IN_PROCESS_GENERATION @DocumentType = 'B', @DocumentId = {entity.WarehouseTransferId}, @ReferenceIdList = {referenceIdList}", ct);
                 }
                 catch (Exception)
                 {
