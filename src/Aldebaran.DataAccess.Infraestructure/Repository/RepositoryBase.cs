@@ -4,11 +4,13 @@ using System.Transactions;
 
 public abstract class RepositoryBase<TContext> where TContext : DbContext
 {
-    private readonly IServiceProvider _serviceProvider;
+    private readonly IServiceScopeFactory _scopeFactory;
 
     protected RepositoryBase(IServiceProvider serviceProvider)
     {
-        _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+        if (serviceProvider == null) throw new ArgumentNullException(nameof(serviceProvider));
+        // Store the root scope factory instead of a scoped IServiceProvider to avoid using a disposed provider
+        _scopeFactory = serviceProvider.GetRequiredService<IServiceScopeFactory>();
     }
     /// <summary>
     /// Ejecuta una operación de consulta dentro de un ámbito de transacción suprimida.
@@ -31,7 +33,7 @@ public abstract class RepositoryBase<TContext> where TContext : DbContext
             },
             TransactionScopeAsyncFlowOption.Enabled))
         // Crea un nuevo ámbito para obtener una instancia de DbContext del proveedor de servicios
-        using (var scope = _serviceProvider.CreateScope())
+        using (var scope = _scopeFactory.CreateScope())
         {
             // Resuelve la instancia de DbContext del ámbito
             var dbContext = scope.ServiceProvider.GetRequiredService<TContext>();
@@ -73,7 +75,7 @@ public abstract class RepositoryBase<TContext> where TContext : DbContext
             },
             TransactionScopeAsyncFlowOption.Enabled))
         // Crea un nuevo ámbito para obtener una instancia de DbContext del proveedor de servicios
-        using (var scope = _serviceProvider.CreateScope())
+        using (var scope = _scopeFactory.CreateScope())
         {
             // Resuelve la instancia de DbContext del ámbito
             var dbContext = scope.ServiceProvider.GetRequiredService<TContext>();
@@ -118,7 +120,7 @@ public abstract class RepositoryBase<TContext> where TContext : DbContext
             },
             TransactionScopeAsyncFlowOption.Enabled))
         // Crea un nuevo ámbito para obtener una instancia de DbContext del proveedor de servicios
-        using (var scope = _serviceProvider.CreateScope())
+        using (var scope = _scopeFactory.CreateScope())
         {
             // Resuelve la instancia de DbContext del ámbito
             var dbContext = scope.ServiceProvider.GetRequiredService<TContext>();
