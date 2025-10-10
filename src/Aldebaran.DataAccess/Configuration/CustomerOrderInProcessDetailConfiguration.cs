@@ -4,7 +4,7 @@ namespace Aldebaran.DataAccess.Entities
 {
     public class CustomerOrderInProcessDetailConfiguration : IEntityTypeConfiguration<CustomerOrderInProcessDetail>
     {
-        public void Configure(EntityTypeBuilder<CustomerOrderInProcessDetail> builder)
+        public void Configure(EntityTypeBuilder<CustomerOrderInProcessDetail> builder)  
         {
             builder.ToTable("customer_order_in_process_details", "dbo", tb => { tb.HasTrigger("TRG_CustomerOrderInProcessDetail_DeleteAutomatic"); });
             builder.HasKey(x => x.CustomerOrderInProcessDetailId).HasName("PK_CUSTMER_ORDER_IN_PROCESS_DETAIL").IsClustered();
@@ -18,7 +18,7 @@ namespace Aldebaran.DataAccess.Entities
             builder.HasOne(a => a.CustomerOrderDetail).WithMany(b => b.CustomerOrderInProcessDetails).HasForeignKey(c => c.CustomerOrderDetailId).OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_CUSTMER_ORDER_IN_PROCESS_DETAIL_CUSTOMER_ORDER_DETAIL");
             builder.HasOne(a => a.CustomerOrdersInProcess).WithMany(b => b.CustomerOrderInProcessDetails).HasForeignKey(c => c.CustomerOrderInProcessId).OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_CUSTMER_ORDER_IN_PROCESS_DETAIL_ORDER_IN_PROCESS");
             builder.HasOne(a => a.Warehouse).WithMany(b => b.CustomerOrderInProcessDetails).HasForeignKey(c => c.WarehouseId).OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_CUSTMER_ORDER_IN_PROCESS_DETAIL_WAREHOUSES");
-            builder.HasIndex(x => new { x.CustomerOrderInProcessId, x.CustomerOrderDetailId }).HasDatabaseName("UQ_CUSTMER_ORDER_IN_PROCESS_DETAIL").IsUnique();
+            builder.HasIndex(x => new { x.CustomerOrderInProcessId, x.CustomerOrderDetailId }).HasDatabaseName("UQ_CUSTMER_ORDER_IN_PROCESS_DETAIL").IsUnique();            
         }
     }
 }

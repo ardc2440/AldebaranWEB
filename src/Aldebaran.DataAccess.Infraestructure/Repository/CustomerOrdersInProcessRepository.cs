@@ -49,7 +49,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 }
                 catch (Exception)
                 {
-                    dbContext.Entry(entity).State = EntityState.Unchanged;
+                    dbContext.Entry(entity).State = EntityState.Detached;
                     throw;
                 }
             }, ct);
@@ -143,7 +143,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 catch (Exception)
                 {
                     dbContext.Entry(entity).State = EntityState.Unchanged;
-                    dbContext.Entry(reasonEntity).State = EntityState.Unchanged;
+                    dbContext.Entry(reasonEntity).State = EntityState.Detached;
                     throw;
                 }
             }, ct);
@@ -185,7 +185,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 catch (Exception)
                 {
                     dbContext.Entry(entity).State = EntityState.Unchanged;
-                    dbContext.Entry(reasonEntity).State = EntityState.Unchanged;
+                    dbContext.Entry(reasonEntity).State = EntityState.Detached;
                     throw;
                 }
             }, ct);
