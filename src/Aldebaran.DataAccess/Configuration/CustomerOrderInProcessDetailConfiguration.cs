@@ -6,7 +6,7 @@ namespace Aldebaran.DataAccess.Entities
     {
         public void Configure(EntityTypeBuilder<CustomerOrderInProcessDetail> builder)
         {
-            builder.ToTable("customer_order_in_process_details", "dbo");
+            builder.ToTable("customer_order_in_process_details", "dbo", tb => { tb.HasTrigger("TRG_CustomerOrderInProcessDetail_DeleteAutomatic"); });
             builder.HasKey(x => x.CustomerOrderInProcessDetailId).HasName("PK_CUSTMER_ORDER_IN_PROCESS_DETAIL").IsClustered();
             builder.Property(x => x.CustomerOrderInProcessDetailId).HasColumnName(@"CUSTOMER_ORDER_IN_PROCESS_DETAIL_ID").HasColumnType("int").IsRequired().ValueGeneratedOnAdd().UseIdentityColumn();
             builder.Property(x => x.CustomerOrderInProcessId).HasColumnName(@"CUSTOMER_ORDER_IN_PROCESS_ID").HasColumnType("int").IsRequired();
