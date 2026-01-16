@@ -110,6 +110,8 @@ namespace Aldebaran.DataAccess
         public DbSet<AutomaticCustomerOrderDetail> AutomaticCustomerOrderDetails { get; set; }
         public DbSet<AutomaticCustomerOrderInProcessModification> AutomaticCustomerOrderInProcessModifications { get; set; }
         public DbSet<VisualizedAutomaticCustomerOrderInProcessModification> VisualizedAutomaticCustomerOrderInProcessModifications { get; set; }
+        public DbSet<InventoryAutomationConnection> InventoryAutomationConnections { get; set; }
+        public DbSet<FtpWritingConnection> FtpWritingConnections { get; set; }
         
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -150,8 +152,6 @@ namespace Aldebaran.DataAccess
             modelBuilder.ApplyConfiguration(new CustomerOrderActivityDetailConfiguration());
             modelBuilder.ApplyConfiguration(new CustomerOrderDetailConfiguration());
             modelBuilder.ApplyConfiguration(new CustomerOrderInProcessDetailConfiguration());
-            modelBuilder.ApplyConfiguration(new CustomerOrderShipmentConfiguration());
-            modelBuilder.ApplyConfiguration(new CustomerOrderShipmentDetailConfiguration());
             modelBuilder.ApplyConfiguration(new CustomerOrdersInProcessConfiguration());
             modelBuilder.ApplyConfiguration(new CustomerReservationConfiguration());
             modelBuilder.ApplyConfiguration(new CustomerReservationDetailConfiguration());
@@ -181,9 +181,10 @@ namespace Aldebaran.DataAccess
             modelBuilder.ApplyConfiguration(new PurchaseOrderDetailConfiguration());
             modelBuilder.ApplyConfiguration(new ReferencesWarehouseConfiguration());
             modelBuilder.ApplyConfiguration(new ShipmentForwarderAgentMethodConfiguration());
-            modelBuilder.ApplyConfiguration(new ShipmentMethodConfiguration());
             modelBuilder.ApplyConfiguration(new ShippingMethodConfiguration());
-            modelBuilder.ApplyConfiguration(new StatusDocumentTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new StatusDocumentTypeConfiguration());            
+            modelBuilder.ApplyConfiguration(new FtpWritingConnectionConfiguration());
+            modelBuilder.ApplyConfiguration(new InventoryAutomationConnectionConfiguration());            
             modelBuilder.ApplyConfiguration(new UsersAlarmTypeConfiguration());
             modelBuilder.ApplyConfiguration(new VisualizedAlarmConfiguration());
             modelBuilder.ApplyConfiguration(new WarehouseConfiguration());
