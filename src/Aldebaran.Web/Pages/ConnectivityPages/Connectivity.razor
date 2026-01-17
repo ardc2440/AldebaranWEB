@@ -35,7 +35,7 @@
             <RadzenRow>
                 <RadzenColumn Size="12" Visible="@Security.IsInRole("Administrador")">
                     <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
-                        <RadzenButton Icon="add_circle_outline" Text="Nueva conexión Automata" Click="@AddInventoryConnection" Variant="Variant.Flat" />
+                        <RadzenButton Icon="add_circle_outline" Text="Nueva conexión Automata" Click="@AddInventoryConnection" Variant="Variant.Flat" MouseEnter="@(args => ShowTooltip(args,"Nueva conexión", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
                     </RadzenStack>
                 </RadzenColumn>
                 <RadzenColumn SizeMD="12">
@@ -52,8 +52,8 @@
                             </RadzenDataGridColumn>
                             <RadzenDataGridColumn TItem="ServiceModel.InventoryAutomationConnection" Filterable="false" Sortable="false" Width="140px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Administrador")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                                 <Template Context="conn">
-                                    <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditInventoryConnection(conn))" @onclick:stopPropagation="true" />
-                                    <RadzenButton Icon="toggle_on" ButtonStyle="ButtonStyle.Primary" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => ToggleInventoryConnectionActive(args, conn))" @onclick:stopPropagation="true" />
+                                    <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Editar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
+                                                  Click="@(args => EditInventoryConnection(conn))" @onclick:stopPropagation="true" />
                                 </Template>
                             </RadzenDataGridColumn>
                         </Columns>
@@ -67,7 +67,7 @@
             <RadzenRow>
                 <RadzenColumn Size="12" Visible="@Security.IsInRole("Administrador")">
                     <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
-                        <RadzenButton Icon="add_circle_outline" Text="Nueva conexión FTP" Click="@AddFtpConnection" Variant="Variant.Flat" />
+                        <RadzenButton Icon="add_circle_outline" Text="Nueva conexión FTP" Click="@AddFtpConnection" Variant="Variant.Flat" MouseEnter="@(args => ShowTooltip(args,"Nueva conexión", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
                     </RadzenStack>
                 </RadzenColumn>
                 <RadzenColumn SizeMD="12">
@@ -83,8 +83,8 @@
                             </RadzenDataGridColumn>
                             <RadzenDataGridColumn TItem="ServiceModel.FtpWritingConnection" Filterable="false" Sortable="false" Width="140px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Administrador")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                                 <Template Context="conn">
-                                    <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditFtpConnection(conn))" @onclick:stopPropagation="true" />
-                                    <RadzenButton Icon="toggle_on" ButtonStyle="ButtonStyle.Primary" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => ToggleFtpConnectionActive(args, conn))" @onclick:stopPropagation="true" />
+                                    <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Editar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
+                                                  Click="@(args => EditFtpConnection(conn))" @onclick:stopPropagation="true" />
                                 </Template>
                             </RadzenDataGridColumn>
                         </Columns>

@@ -32,8 +32,8 @@ namespace Aldebaran.Application.Services.Services
 
         public async Task<InventoryAutomationConnection> ChangeActivationAsync(int id, bool active, CancellationToken ct = default)
         {
-            await _repository.ChangeActivationAsync(id, active, ct);
-            return await GetByIdAsync(id, ct);
+            var result = await _repository.ChangeActivationAsync(id, active, ct);
+            return _mapper.Map<InventoryAutomationConnection>(result);
         }
 
         public async Task<IEnumerable<InventoryAutomationConnection>> GetAllAsync(CancellationToken ct = default)

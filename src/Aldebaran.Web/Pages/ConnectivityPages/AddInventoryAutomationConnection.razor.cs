@@ -19,6 +19,8 @@ namespace Aldebaran.Web.Pages.ConnectivityPages
         protected InventoryAutomationConnection Connection = new();
         protected bool IsSubmitInProgress;
         protected bool isLoadingInProgress;
+        protected bool IsErrorVisible;
+        protected List<string> ValidationErrors = new();
 
         protected async Task FormSubmit()
         {
@@ -26,14 +28,25 @@ namespace Aldebaran.Web.Pages.ConnectivityPages
 
             try
             {
+                IsErrorVisible = false;
+                ValidationErrors.Clear();
+
                 IsSubmitInProgress = true;
                 await InventoryAutomationConnectionService.CreateAsync(Connection);
                 DialogService.Close(true);
             }
+            catch (InvalidOperationException ex)
+            {
+                // Regla de unicidad rota
+                Logger.LogWarning(ex, nameof(FormSubmit));
+                ValidationErrors.Add(ex.Message);
+                IsErrorVisible = true;
+            }
             catch (Exception ex)
             {
                 Logger.LogError(ex, nameof(FormSubmit));
-                // Manejo de error similar a otras pantallas si se requiere
+                ValidationErrors.Add("Se produjo un error al crear la conexión.");
+                IsErrorVisible = true;
             }
             finally
             {
