@@ -1,0 +1,52 @@
+@attribute [Authorize(Roles = "Administrador")]
+@using Aldebaran.Application.Services.Models;
+
+<LoadingData IsLoadingData="@isLoadingInProgress" />
+
+@if (!isLoadingInProgress)
+{
+    <RadzenTemplateForm TItem="FtpWritingConnection" Data="@Connection" Submit="@FormSubmit">
+        <RadzenStack>
+            <RadzenFormField Text="Host" Variant="Variant.Text">
+                <ChildContent>
+                    <RadzenTextBox style="display:block;width:100%" @bind-Value="Connection.HostName" Name="HostName" />
+                </ChildContent>
+                <Helper>
+                    <RadzenRequiredValidator Component="HostName" Text="Host es requerido" />
+                </Helper>
+            </RadzenFormField>
+
+            <RadzenFormField Text="Puerto" Variant="Variant.Text">
+                <ChildContent>
+                    <RadzenTextBox style="display:block;width:100%" @bind-Value="Connection.PortNumber" Name="PortNumber" MaxLength="10" />
+                </ChildContent>
+            </RadzenFormField>
+
+            <RadzenFormField Text="Usuario" Variant="Variant.Text">
+                <ChildContent>
+                    <RadzenTextBox style="display:block;width:100%" @bind-Value="Connection.UserName" Name="UserName" />
+                </ChildContent>
+                <Helper>
+                    <RadzenRequiredValidator Component="UserName" Text="Usuario es requerido" />
+                </Helper>
+            </RadzenFormField>
+
+            <RadzenFormField Text="Contraseña" Variant="Variant.Text">
+                <ChildContent>
+                    <RadzenPassword style="display:block;width:100%" @bind-Value="Connection.Password" Name="Password" />
+                </ChildContent>
+                <Helper>
+                    <RadzenRequiredValidator Component="Password" Text="Contraseña es requerida" />
+                </Helper>
+            </RadzenFormField>
+
+            <RadzenCheckBox @bind-Value="Connection.Active" TValue="bool" />
+            <label class="rz-ml-2">Activa</label>
+        </RadzenStack>
+
+        <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+            <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />
+            <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
+        </RadzenStack>
+    </RadzenTemplateForm>
+}

@@ -1,0 +1,96 @@
+@page "/connectivity"
+@attribute [Authorize(Roles = "Administrador")]
+@using Aldebaran.Web.Resources.LocalizedControls;
+@using ServiceModel = Aldebaran.Application.Services.Models;
+
+<PageTitle>Conectividad</PageTitle>
+
+<LoadingData IsLoadingData="@isLoadingInProgress" />
+
+@if (!isLoadingInProgress)
+{
+    <RadzenStack>
+        <RadzenRow AlignItems="AlignItems.Center">
+            <RadzenColumn Size="12">
+                <RadzenText Text="Conectividad" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
+            </RadzenColumn>
+        </RadzenRow>
+
+        <RadzenRow>
+            <RadzenColumn Size="12">
+                <RadzenDropDown TValue="ConnectivityType"
+                                @bind-Value="SelectedType"
+                                Data="@(new[]{ ConnectivityType.InventoryAutomation, ConnectivityType.FtpWriting })"
+                                Style="width: 250px"
+                                Change="@(args => OnTypeChanged(args))">
+                    <Template Context="type">
+                        @GetConnectivityTypeText(type)
+                    </Template>
+                </RadzenDropDown>
+            </RadzenColumn>
+        </RadzenRow>
+
+        @if (SelectedType == ConnectivityType.InventoryAutomation)
+        {
+            <RadzenRow>
+                <RadzenColumn Size="12" Visible="@Security.IsInRole("Administrador")">
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
+                        <RadzenButton Icon="add_circle_outline" Text="Nueva conexión Automata" Click="@AddInventoryConnection" Variant="Variant.Flat" />
+                    </RadzenStack>
+                </RadzenColumn>
+                <RadzenColumn SizeMD="12">
+                    <LocalizedDataGrid Data="@InventoryConnections" TItem="ServiceModel.InventoryAutomationConnection" @ref="InventoryConnectionsGrid" ColumnWidth="200px" AllowPaging="true" ShowPagingSummary="false" IsLoading="@isLoadingInProgress">
+                        <Columns>
+                            <RadzenDataGridColumn TItem="ServiceModel.InventoryAutomationConnection" Property="ServerName" Title="Servidor" />
+                            <RadzenDataGridColumn TItem="ServiceModel.InventoryAutomationConnection" Property="PortNumber" Title="Puerto" />
+                            <RadzenDataGridColumn TItem="ServiceModel.InventoryAutomationConnection" Property="DatabaseName" Title="Base de datos" />
+                            <RadzenDataGridColumn TItem="ServiceModel.InventoryAutomationConnection" Property="UserId" Title="Usuario" />
+                            <RadzenDataGridColumn TItem="ServiceModel.InventoryAutomationConnection" Property="Active" Title="Activo">
+                                <Template Context="conn">
+                                    @(conn.Active ? "Sí" : "No")
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="ServiceModel.InventoryAutomationConnection" Filterable="false" Sortable="false" Width="140px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Administrador")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                                <Template Context="conn">
+                                    <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditInventoryConnection(conn))" @onclick:stopPropagation="true" />
+                                    <RadzenButton Icon="toggle_on" ButtonStyle="ButtonStyle.Primary" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => ToggleInventoryConnectionActive(args, conn))" @onclick:stopPropagation="true" />
+                                </Template>
+                            </RadzenDataGridColumn>
+                        </Columns>
+                    </LocalizedDataGrid>
+                </RadzenColumn>
+            </RadzenRow>
+        }
+
+        @if (SelectedType == ConnectivityType.FtpWriting)
+        {
+            <RadzenRow>
+                <RadzenColumn Size="12" Visible="@Security.IsInRole("Administrador")">
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
+                        <RadzenButton Icon="add_circle_outline" Text="Nueva conexión FTP" Click="@AddFtpConnection" Variant="Variant.Flat" />
+                    </RadzenStack>
+                </RadzenColumn>
+                <RadzenColumn SizeMD="12">
+                    <LocalizedDataGrid Data="@FtpConnections" TItem="ServiceModel.FtpWritingConnection" @ref="FtpConnectionsGrid" ColumnWidth="200px" AllowPaging="true" ShowPagingSummary="false" IsLoading="@isLoadingInProgress">
+                        <Columns>
+                            <RadzenDataGridColumn TItem="ServiceModel.FtpWritingConnection" Property="HostName" Title="Host" />
+                            <RadzenDataGridColumn TItem="ServiceModel.FtpWritingConnection" Property="PortNumber" Title="Puerto" />
+                            <RadzenDataGridColumn TItem="ServiceModel.FtpWritingConnection" Property="UserName" Title="Usuario" />
+                            <RadzenDataGridColumn TItem="ServiceModel.FtpWritingConnection" Property="Active" Title="Activo">
+                                <Template Context="conn">
+                                    @(conn.Active ? "Sí" : "No")
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="ServiceModel.FtpWritingConnection" Filterable="false" Sortable="false" Width="140px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Administrador")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                                <Template Context="conn">
+                                    <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditFtpConnection(conn))" @onclick:stopPropagation="true" />
+                                    <RadzenButton Icon="toggle_on" ButtonStyle="ButtonStyle.Primary" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => ToggleFtpConnectionActive(args, conn))" @onclick:stopPropagation="true" />
+                                </Template>
+                            </RadzenDataGridColumn>
+                        </Columns>
+                    </LocalizedDataGrid>
+                </RadzenColumn>
+            </RadzenRow>
+        }
+    </RadzenStack>
+}
