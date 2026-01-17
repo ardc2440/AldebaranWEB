@@ -264,7 +264,9 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IVisualizedAutomaticInProcessAlarmRepository, VisualizedAutomaticInProcessAlarmRepository>();
             services.AddTransient<IAutomaticPurchaseOrderAssigmentReportRepository, AutomaticPurchaseOrderAssigmentReportRepository>();
             services.AddTransient<IVisualizedAutomaticCustomerInProcessModificationRepository, VisualizedAutomaticCustomerInProcessModificationRepository>();
-            services.AddTransient<IMinimumWarehouseStockReportRepository, MinimumWarehouseStockReportRepository>();
+            services.AddTransient<IMinimumWarehouseStockReportRepository, MinimumWarehouseStockReportRepository>(); 
+            services.AddScoped<IInventoryAutomationConnectionRepository, InventoryAutomationConnectionRepository>();
+            services.AddScoped<IFtpWritingConnectionRepository, FtpWritingConnectionRepository>();
 
             #endregion
             // Services
@@ -356,6 +358,8 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IVisualizedAutomaticCustomerInProcessModificationService, VisualizedAutomaticCustomerInProcessModificationService>();
             services.AddTransient<IMinimumWarehouseStockReportService, MinimumWarehouseStockReportService>();
             services.AddTransient<IWarehouseStockValidationService, WarehouseStockValidationService>();
+            services.AddScoped<IInventoryAutomationConnectionService, InventoryAutomationConnectionService>();
+            services.AddScoped<IFtpWritingConnectionService, FtpWritingConnectionService>();
 
             #endregion
 
@@ -363,7 +367,7 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IQueueSettings, QueueSettings>();
             services.AddTransient<Notificator.INotificationService, Notificator.NotificationService>();
             services.AddTransient<IFtpClient, FtpClient>();
-
+           
             return services;
         }
     }
