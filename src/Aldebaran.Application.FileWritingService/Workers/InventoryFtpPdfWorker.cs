@@ -31,12 +31,12 @@ namespace Aldebaran.Application.FileWritingService.Workers
             ftpClient = FtpClient ?? throw new ArgumentNullException(nameof(IFtpClient));
             _logger = Logger ?? throw new ArgumentNullException(nameof(ILogger));
             this.ftpWritingConnectionRepository = ftpWritingConnectionRepository ?? throw new ArgumentNullException(nameof(IFtpWritingConnectionRepository));
+            OverwriteExistingFile = Configuration.GetValue<bool>("InventoryFileOutputOptions:Pdf:OverwriteExistingFile");
             TemplatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates", "InventoryTemplate.html");
             if (!File.Exists(TemplatePath))
                 throw new KeyNotFoundException($"Template file not fount in {TemplatePath}");
             var cronExpression = Configuration.GetValue<string>("InventoryFileOutputOptions:Pdf:CronExpression") ?? throw new KeyNotFoundException("InventoryFileOutputOptions:Pdf:CronExpression");
             FileNameBase = Configuration.GetValue<string>("InventoryFileOutputOptions:Pdf:FileName") ?? throw new KeyNotFoundException("InventoryFileOutputOptions:Pdf:FileName");
-            OverwriteExistingFile = Configuration.GetValue<bool>("InventoryFileOutputOptions:Pdf:OverwriteExistingFile");
             _schedule = CrontabSchedule.Parse(cronExpression, new CrontabSchedule.ParseOptions { IncludingSeconds = false });
             var now = DateTime.Now;
             _nextRun = _schedule.GetNextOccurrence(DateTime.Now);
@@ -70,8 +70,19 @@ namespace Aldebaran.Application.FileWritingService.Workers
                             {
                                 int.TryParse(conn.PortNumber, out port);
                             }
-                            var uploaded = await ftpClient.UploadFileAsync(pdfBytes, FileName, conn.HostName, port, conn.UserName, conn.Password, OverwriteExistingFile);
-                            _logger.LogInformation($"InventoryFtpPdfWorker uploaded file '{FileName}' to {conn.HostName}:{port} with result {uploaded}");
+
+                            var overwrite = conn.RewriteFile;
+                            var targetFileName = FileName;
+                            if (!overwrite)
+                            {
+                                var baseName = Path.GetFileNameWithoutExtension(FileName);
+                                var ext = Path.GetExtension(FileName);
+                                var timestamp = now.ToString("yyyyMMdd_HHmmss");
+                                targetFileName = $"{baseName}_{timestamp}{ext}";
+                            }
+
+                            var uploaded = await ftpClient.UploadFileAsync(pdfBytes, targetFileName, conn.HostName, port, conn.UserName, conn.Password, overwrite);
+                            _logger.LogInformation($"InventoryFtpPdfWorker uploaded file '{targetFileName}' to {conn.HostName}:{port} with result {uploaded}");
                         }
 
                         _nextRun = _schedule.GetNextOccurrence(DateTime.Now);

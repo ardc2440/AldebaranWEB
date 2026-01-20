@@ -64,8 +64,19 @@ namespace Aldebaran.Application.FileWritingService.Workers
                             {
                                 int.TryParse(conn.PortNumber, out port);
                             }
-                            var uploaded = await ftpClient.UploadFileAsync(excelBytes, FileName, conn.HostName, port, conn.UserName, conn.Password, OverwriteExistingFile);
-                            _logger.LogInformation($"InventoryFtpExcelWorker uploaded file '{FileName}' to {conn.HostName}:{port} with result {uploaded}");
+
+                            var overwrite = conn.RewriteFile;
+                            var targetFileName = FileName;
+                            if (!overwrite)
+                            {
+                                var baseName = Path.GetFileNameWithoutExtension(FileName);
+                                var ext = Path.GetExtension(FileName);
+                                var timestamp = now.ToString("yyyyMMdd_HHmmss");
+                                targetFileName = $"{baseName}_{timestamp}{ext}";
+                            }
+
+                            var uploaded = await ftpClient.UploadFileAsync(excelBytes, targetFileName, conn.HostName, port, conn.UserName, conn.Password, overwrite);
+                            _logger.LogInformation($"InventoryFtpExcelWorker uploaded file '{targetFileName}' to {conn.HostName}:{port} with result {uploaded}");
                         }
 
                         _nextRun = _schedule.GetNextOccurrence(DateTime.Now);
