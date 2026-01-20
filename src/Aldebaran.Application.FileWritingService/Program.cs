@@ -1,6 +1,7 @@
 ﻿using Aldebaran.Application.FileWritingService.Settings;
 using Aldebaran.Application.FileWritingService.Workers;
 using Aldebaran.DataAccess;
+using Aldebaran.DataAccess.Infraestructure.Repository;
 using Aldebaran.DataAccess.Infraestructure.Repository.Reports;
 using Aldebaran.Infraestructure.Common.Utils;
 using Aldebaran.Infraestructure.Core.Model;
@@ -31,6 +32,7 @@ var logDbConnection = configuration.GetConnectionString("LogDbConnection") ?? th
 var dbConnection = configuration.GetConnectionString("AldebaranDbConnection") ?? throw new KeyNotFoundException("AldebaranDbConnection");
 services.AddDbContext<AldebaranDbContext>(options => { options.UseSqlServer(dbConnection); }, ServiceLifetime.Transient, ServiceLifetime.Transient);
 services.AddScoped<IContextConfiguration, ContextConfiguration>();
+services.AddTransient<IFtpWritingConnectionRepository, FtpWritingConnectionRepository>();
 
 // Logging
 builder.Logging.ClearProviders();
@@ -52,6 +54,18 @@ Log.Logger = new LoggerConfiguration()
         new SqlColumn{ DataType= SqlDbType.NVarChar, ColumnName="Source", DataLength=100 }
     }
 }).CreateLogger();
+
+using (var scope = services.BuildServiceProvider().CreateScope())
+{
+    var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("Startup");
+    var ftpRepo = scope.ServiceProvider.GetRequiredService<IFtpWritingConnectionRepository>();
+    var anyActive = ftpRepo.GetAllAsync().Result.Any(c => c.Active);
+    if (!anyActive)
+    {
+        logger.LogError("No existe ninguna conexión FTP activa en FTP_Writing_Connections. El servicio no se iniciará.");
+        return;
+    }
+}
 
 // HostedServices
 services.AddHostedService<InventoryFtpPdfWorker>();

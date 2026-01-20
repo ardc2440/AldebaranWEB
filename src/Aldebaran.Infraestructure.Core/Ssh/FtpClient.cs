@@ -16,11 +16,16 @@ namespace Aldebaran.Infraestructure.Core.Ssh
             _settings = settings?.Value ?? throw new ArgumentNullException(nameof(IOptions<FtpSettings>));
         }
 
-        public async Task<bool> UploadFileAsync(byte[] fileBytes, string fileName, bool overwrite = true)
+        public Task<bool> UploadFileAsync(byte[] fileBytes, string fileName, bool overwrite = true)
         {
-            using (FluentFTP.AsyncFtpClient ftp = new FluentFTP.AsyncFtpClient(_settings.Host, _settings.Port))
+            return UploadFileAsync(fileBytes, fileName, _settings.Host, _settings.Port, _settings.Username, _settings.Password, overwrite);
+        }
+
+        public async Task<bool> UploadFileAsync(byte[] fileBytes, string fileName, string host, int port, string username, string password, bool overwrite = true)
+        {
+            using (FluentFTP.AsyncFtpClient ftp = new FluentFTP.AsyncFtpClient(host, port))
             {
-                ftp.Credentials = new NetworkCredential(_settings.Username, _settings.Password);
+                ftp.Credentials = new NetworkCredential(username, password);
                 try
                 {
                     await ftp.AutoConnect();

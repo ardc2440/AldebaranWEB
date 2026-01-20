@@ -1,4 +1,5 @@
 ﻿using Aldebaran.Application.FileWritingService.Workers.Inventory.Models;
+using Aldebaran.DataAccess.Infraestructure.Repository;
 using Aldebaran.DataAccess.Infraestructure.Repository.Reports;
 using Aldebaran.Infraestructure.Common.Utils;
 using Aldebaran.Infraestructure.Core.Ssh;
@@ -16,18 +17,20 @@ namespace Aldebaran.Application.FileWritingService.Workers
         private readonly IInventoryReportRepository inventoryReportRepository;
         private readonly IFileBytesGeneratorService fileBytesGeneratorService;
         private readonly IFtpClient ftpClient;
+        private readonly IFtpWritingConnectionRepository ftpWritingConnectionRepository;
         private readonly bool OverwriteExistingFile;
         private readonly CrontabSchedule _schedule;
         private readonly string TemplatePath;
         private readonly string FileNameBase;
         private DateTime _nextRun;
         private string FileName = string.Empty;
-        public InventoryFtpPdfWorker(IConfiguration Configuration, ILogger<InventoryFtpPdfWorker> Logger, IInventoryReportRepository InventoryReportRepository, IFileBytesGeneratorService FileBytesGeneratorService, IFtpClient FtpClient)
+        public InventoryFtpPdfWorker(IConfiguration Configuration, ILogger<InventoryFtpPdfWorker> Logger, IInventoryReportRepository InventoryReportRepository, IFileBytesGeneratorService FileBytesGeneratorService, IFtpClient FtpClient, IFtpWritingConnectionRepository ftpWritingConnectionRepository)
         {
             inventoryReportRepository = InventoryReportRepository ?? throw new ArgumentNullException(nameof(IInventoryReportRepository));
             fileBytesGeneratorService = FileBytesGeneratorService ?? throw new ArgumentNullException(nameof(IFileBytesGeneratorService));
             ftpClient = FtpClient ?? throw new ArgumentNullException(nameof(IFtpClient));
             _logger = Logger ?? throw new ArgumentNullException(nameof(ILogger));
+            this.ftpWritingConnectionRepository = ftpWritingConnectionRepository ?? throw new ArgumentNullException(nameof(IFtpWritingConnectionRepository));
             TemplatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates", "InventoryTemplate.html");
             if (!File.Exists(TemplatePath))
                 throw new KeyNotFoundException($"Template file not fount in {TemplatePath}");
@@ -57,7 +60,20 @@ namespace Aldebaran.Application.FileWritingService.Workers
                         var htmlTemplate = await GetTemplateHtmlAsync(ct);
                         var html = $"<html><head><style>{css}</style></head><body>{htmlTemplate}</body></html>";
                         var pdfBytes = await fileBytesGeneratorService.GetPdfBytes(html, true);
-                        await ftpClient.UploadFileAsync(pdfBytes, FileName, OverwriteExistingFile);
+
+                        var connections = await ftpWritingConnectionRepository.GetAllAsync(ct);
+                        var activeConnections = connections.Where(c => c.Active).ToList();
+                        foreach (var conn in activeConnections)
+                        {
+                            var port = 21;
+                            if (!string.IsNullOrWhiteSpace(conn.PortNumber))
+                            {
+                                int.TryParse(conn.PortNumber, out port);
+                            }
+                            var uploaded = await ftpClient.UploadFileAsync(pdfBytes, FileName, conn.HostName, port, conn.UserName, conn.Password, OverwriteExistingFile);
+                            _logger.LogInformation($"InventoryFtpPdfWorker uploaded file '{FileName}' to {conn.HostName}:{port} with result {uploaded}");
+                        }
+
                         _nextRun = _schedule.GetNextOccurrence(DateTime.Now);
                         _logger.LogInformation($"InventoryFtpPdfWorker has been executed in: {stopwatch.ElapsedMilliseconds} milliseconds | Next Run: {_nextRun}");
                     }
