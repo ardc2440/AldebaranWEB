@@ -58,8 +58,10 @@
                 </Helper>
             </RadzenFormField>
 
-            <RadzenCheckBox @bind-Value="Connection.Active" TValue="bool" />
-            <label class="rz-ml-2">Activa</label>
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                <RadzenCheckBox @bind-Value="Connection.Active" TValue="bool" />
+                <label>Activa</label>
+            </RadzenStack>
         </RadzenStack>
 
         <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">

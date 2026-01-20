@@ -47,7 +47,7 @@
                             <RadzenDataGridColumn TItem="ServiceModel.InventoryAutomationConnection" Property="UserId" Title="Usuario" />
                             <RadzenDataGridColumn TItem="ServiceModel.InventoryAutomationConnection" Property="Active" Title="Activo">
                                 <Template Context="conn">
-                                    @(conn.Active ? "Sí" : "No")
+                                    <RadzenCheckBox @bind-Value="conn.Active" TValue="bool" Disabled="true" />
                                 </Template>
                             </RadzenDataGridColumn>
                             <RadzenDataGridColumn TItem="ServiceModel.InventoryAutomationConnection" Filterable="false" Sortable="false" Width="140px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Administrador")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
@@ -76,9 +76,15 @@
                             <RadzenDataGridColumn TItem="ServiceModel.FtpWritingConnection" Property="HostName" Title="Host" />
                             <RadzenDataGridColumn TItem="ServiceModel.FtpWritingConnection" Property="PortNumber" Title="Puerto" />
                             <RadzenDataGridColumn TItem="ServiceModel.FtpWritingConnection" Property="UserName" Title="Usuario" />
-                            <RadzenDataGridColumn TItem="ServiceModel.FtpWritingConnection" Property="Active" Title="Activo">
+                            <RadzenDataGridColumn TItem="ServiceModel.FtpWritingConnection" Property="CronoExp" Title="Expresión CRON" />
+                            <RadzenDataGridColumn TItem="ServiceModel.FtpWritingConnection" Property="RewriteFile" Title="Sobrescribir" Width="80px">
                                 <Template Context="conn">
-                                    @(conn.Active ? "Sí" : "No")
+                                    <RadzenCheckBox @bind-Value="conn.RewriteFile" TValue="bool" Disabled="true" />
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="ServiceModel.FtpWritingConnection" Property="Active" Title="Activo" Width="70px">
+                                <Template Context="conn">
+                                    <RadzenCheckBox @bind-Value="conn.Active" TValue="bool" Disabled="true" />
                                 </Template>
                             </RadzenDataGridColumn>
                             <RadzenDataGridColumn TItem="ServiceModel.FtpWritingConnection" Filterable="false" Sortable="false" Width="140px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Administrador")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
