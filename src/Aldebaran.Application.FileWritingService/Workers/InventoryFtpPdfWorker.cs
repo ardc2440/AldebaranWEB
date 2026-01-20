@@ -13,16 +13,22 @@ namespace Aldebaran.Application.FileWritingService.Workers
 {
     internal class InventoryFtpPdfWorker : BackgroundService
     {
+        private sealed class FtpScheduleState
+        {
+            public DataAccess.Entities.FtpWritingConnection Connection { get; set; } = null!;
+            public CrontabSchedule Schedule { get; set; } = null!;
+            public DateTime NextRun { get; set; }
+        }
+
         private readonly ILogger<InventoryFtpPdfWorker> _logger;
         private readonly IInventoryReportRepository inventoryReportRepository;
         private readonly IFileBytesGeneratorService fileBytesGeneratorService;
         private readonly IFtpClient ftpClient;
         private readonly IFtpWritingConnectionRepository ftpWritingConnectionRepository;
-        private readonly bool OverwriteExistingFile;
-        private readonly CrontabSchedule _schedule;
         private readonly string TemplatePath;
         private readonly string FileNameBase;
-        private DateTime _nextRun;
+        private readonly List<FtpScheduleState> _ftpSchedules = new();
+        private bool _initialized;
         private string FileName = string.Empty;
         public InventoryFtpPdfWorker(IConfiguration Configuration, ILogger<InventoryFtpPdfWorker> Logger, IInventoryReportRepository InventoryReportRepository, IFileBytesGeneratorService FileBytesGeneratorService, IFtpClient FtpClient, IFtpWritingConnectionRepository ftpWritingConnectionRepository)
         {
@@ -31,16 +37,10 @@ namespace Aldebaran.Application.FileWritingService.Workers
             ftpClient = FtpClient ?? throw new ArgumentNullException(nameof(IFtpClient));
             _logger = Logger ?? throw new ArgumentNullException(nameof(ILogger));
             this.ftpWritingConnectionRepository = ftpWritingConnectionRepository ?? throw new ArgumentNullException(nameof(IFtpWritingConnectionRepository));
-            OverwriteExistingFile = Configuration.GetValue<bool>("InventoryFileOutputOptions:Pdf:OverwriteExistingFile");
             TemplatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates", "InventoryTemplate.html");
             if (!File.Exists(TemplatePath))
                 throw new KeyNotFoundException($"Template file not fount in {TemplatePath}");
-            var cronExpression = Configuration.GetValue<string>("InventoryFileOutputOptions:Pdf:CronExpression") ?? throw new KeyNotFoundException("InventoryFileOutputOptions:Pdf:CronExpression");
             FileNameBase = Configuration.GetValue<string>("InventoryFileOutputOptions:Pdf:FileName") ?? throw new KeyNotFoundException("InventoryFileOutputOptions:Pdf:FileName");
-            _schedule = CrontabSchedule.Parse(cronExpression, new CrontabSchedule.ParseOptions { IncludingSeconds = false });
-            var now = DateTime.Now;
-            _nextRun = _schedule.GetNextOccurrence(DateTime.Now);
-            _logger.LogInformation($"InventoryFtpPdfWorker schedule: {cronExpression} Current Time {now} Next Run: {_nextRun}");
         }
 
         protected override async Task ExecuteAsync(CancellationToken ct)
@@ -49,10 +49,17 @@ namespace Aldebaran.Application.FileWritingService.Workers
             {
                 try
                 {
-                    var now = DateTime.Now;
-                    if (now > _nextRun)
+                    if (!_initialized)
                     {
-                        _logger.LogInformation($"InventoryFtpPdfWorker will be executed at: {now}");
+                        await InitializeSchedulesAsync(ct);
+                    }
+
+                    var now = DateTime.Now;
+                    var dueConnections = _ftpSchedules.Where(s => now > s.NextRun).ToList();
+
+                    if (dueConnections.Any())
+                    {
+                        _logger.LogInformation($"InventoryFtpPdfWorker will be executed at: {now} for {dueConnections.Count} connections");
                         Stopwatch stopwatch = new Stopwatch();
                         stopwatch.Start();
                         FileName = string.Format(FileNameBase, now);
@@ -61,10 +68,9 @@ namespace Aldebaran.Application.FileWritingService.Workers
                         var html = $"<html><head><style>{css}</style></head><body>{htmlTemplate}</body></html>";
                         var pdfBytes = await fileBytesGeneratorService.GetPdfBytes(html, true);
 
-                        var connections = await ftpWritingConnectionRepository.GetAllAsync(ct);
-                        var activeConnections = connections.Where(c => c.Active).ToList();
-                        foreach (var conn in activeConnections)
+                        foreach (var state in dueConnections)
                         {
+                            var conn = state.Connection;
                             var port = 21;
                             if (!string.IsNullOrWhiteSpace(conn.PortNumber))
                             {
@@ -72,21 +78,16 @@ namespace Aldebaran.Application.FileWritingService.Workers
                             }
 
                             var overwrite = conn.RewriteFile;
-                            var targetFileName = FileName;
-                            if (!overwrite)
-                            {
-                                var baseName = Path.GetFileNameWithoutExtension(FileName);
-                                var ext = Path.GetExtension(FileName);
-                                var timestamp = now.ToString("yyyyMMdd_HHmmss");
-                                targetFileName = $"{baseName}_{timestamp}{ext}";
-                            }
+                            var targetFileName = BuildTargetFileName(FileName, now, overwrite);
 
                             var uploaded = await ftpClient.UploadFileAsync(pdfBytes, targetFileName, conn.HostName, port, conn.UserName, conn.Password, overwrite);
                             _logger.LogInformation($"InventoryFtpPdfWorker uploaded file '{targetFileName}' to {conn.HostName}:{port} with result {uploaded}");
+
+                            state.NextRun = state.Schedule.GetNextOccurrence(now);
                         }
 
-                        _nextRun = _schedule.GetNextOccurrence(DateTime.Now);
-                        _logger.LogInformation($"InventoryFtpPdfWorker has been executed in: {stopwatch.ElapsedMilliseconds} milliseconds | Next Run: {_nextRun}");
+                        stopwatch.Stop();
+                        _logger.LogInformation($"InventoryFtpPdfWorker has been executed in: {stopwatch.ElapsedMilliseconds} milliseconds | Next Runs: {string.Join("; ", _ftpSchedules.Select(s => $"{s.Connection.HostName} -> {s.NextRun}"))}");
                     }
                 }
                 catch (Exception ex)
@@ -157,6 +158,43 @@ namespace Aldebaran.Application.FileWritingService.Workers
             var template = Template.Parse(htmlTemplate);
             var result = template.Render(model);
             return result;
+        }
+
+        private async Task InitializeSchedulesAsync(CancellationToken ct)
+        {
+            var connections = await ftpWritingConnectionRepository.GetAllAsync(ct);
+            var activeConnections = connections.Where(c => c.Active).ToList();
+            var now = DateTime.Now;
+
+            foreach (var conn in activeConnections)
+            {
+                var schedule = CrontabSchedule.Parse(conn.CronoExp, new CrontabSchedule.ParseOptions { IncludingSeconds = false });
+                var nextRun = schedule.GetNextOccurrence(now);
+
+                _ftpSchedules.Add(new FtpScheduleState
+                {
+                    Connection = conn,
+                    Schedule = schedule,
+                    NextRun = nextRun
+                });
+
+                _logger.LogInformation($"InventoryFtpPdfWorker schedule for FTP {conn.HostName}: {conn.CronoExp} Next Run: {nextRun}");
+            }
+
+            _initialized = true;
+        }
+
+        private static string BuildTargetFileName(string baseFileName, DateTime now, bool overwrite)
+        {
+            if (overwrite)
+            {
+                return baseFileName;
+            }
+
+            var name = Path.GetFileNameWithoutExtension(baseFileName);
+            var ext = Path.GetExtension(baseFileName);
+            var timestamp = now.ToString("yyyyMMdd_HHmmss");
+            return $"{name}_{timestamp}{ext}";
         }
         //public Task StopAsync(CancellationToken ct)
         //{
