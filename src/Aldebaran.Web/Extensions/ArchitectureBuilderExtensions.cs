@@ -265,8 +265,10 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IAutomaticPurchaseOrderAssigmentReportRepository, AutomaticPurchaseOrderAssigmentReportRepository>();
             services.AddTransient<IVisualizedAutomaticCustomerInProcessModificationRepository, VisualizedAutomaticCustomerInProcessModificationRepository>();
             services.AddTransient<IMinimumWarehouseStockReportRepository, MinimumWarehouseStockReportRepository>(); 
-            services.AddScoped<IInventoryAutomationConnectionRepository, InventoryAutomationConnectionRepository>();
-            services.AddScoped<IFtpWritingConnectionRepository, FtpWritingConnectionRepository>();
+            services.AddTransient<IInventoryAutomationConnectionRepository, InventoryAutomationConnectionRepository>();
+            services.AddTransient<IFtpWritingConnectionRepository, FtpWritingConnectionRepository>();
+            services.AddTransient<IAutomataNotificationRecipientRepository, AutomataNotificationRecipientRepository>();
+            services.AddTransient<IAutomataConnectivityErrorPatternRepository, AutomataConnectivityErrorPatternRepository>();
 
             #endregion
             // Services

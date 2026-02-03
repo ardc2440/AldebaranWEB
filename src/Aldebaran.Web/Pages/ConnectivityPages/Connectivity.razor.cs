@@ -38,6 +38,12 @@ namespace Aldebaran.Web.Pages.ConnectivityPages
         [Inject]
         protected IFtpWritingConnectionService FtpWritingConnectionService { get; set; }
 
+        [Inject]
+        protected IAutomataNotificationRecipientService AutomataNotificationRecipientService { get; set; }
+
+        [Inject]
+        protected IAutomataConnectivityErrorPatternService AutomataConnectivityErrorPatternService { get; set; }
+
         #endregion
 
         #region Variables
@@ -51,6 +57,12 @@ namespace Aldebaran.Web.Pages.ConnectivityPages
 
         protected IEnumerable<FtpWritingConnection> FtpConnections;
         protected LocalizedDataGrid<FtpWritingConnection> FtpConnectionsGrid;
+
+        protected IEnumerable<AutomataNotificationRecipient> NotificationRecipients;
+        protected LocalizedDataGrid<AutomataNotificationRecipient> NotificationRecipientsGrid;
+
+        protected IEnumerable<AutomataConnectivityErrorPattern> ConnectivityErrorPatterns;
+        protected LocalizedDataGrid<AutomataConnectivityErrorPattern> ConnectivityErrorPatternsGrid;
 
         #endregion
 
@@ -91,6 +103,8 @@ namespace Aldebaran.Web.Pages.ConnectivityPages
             {
                 case ConnectivityType.InventoryAutomation:
                     InventoryConnections = await InventoryAutomationConnectionService.GetAllAsync(ct);
+                    NotificationRecipients = await AutomataNotificationRecipientService.GetAllAsync(ct);
+                    ConnectivityErrorPatterns = await AutomataConnectivityErrorPatternService.GetAllAsync(ct);
                     break;
                 case ConnectivityType.FtpWriting:
                     FtpConnections = await FtpWritingConnectionService.GetAllAsync(ct);
@@ -133,6 +147,88 @@ namespace Aldebaran.Web.Pages.ConnectivityPages
 
             await LoadCurrentTypeAsync();
             await InventoryConnectionsGrid.Reload();
+        }
+
+        protected async Task AddNotificationRecipient(MouseEventArgs args)
+        {
+            var result = await DialogService.OpenAsync<AddAutomataNotificationRecipient>("Nuevo destinatario");
+
+            if (result == true)
+            {
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Summary = "Conectividad",
+                    Severity = NotificationSeverity.Success,
+                    Detail = "Destinatario creado correctamente."
+                });
+            }
+
+            await LoadCurrentTypeAsync();
+            await NotificationRecipientsGrid.Reload();
+        }
+
+        protected async Task EditNotificationRecipient(AutomataNotificationRecipient recipient)
+        {
+            var parameters = new Dictionary<string, object>
+            {
+                { "Id", recipient.Id }
+            };
+
+            var result = await DialogService.OpenAsync<EditAutomataNotificationRecipient>("Editar destinatario", parameters);
+
+            if (result == true)
+            {
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Summary = "Conectividad",
+                    Severity = NotificationSeverity.Success,
+                    Detail = "Destinatario actualizado correctamente."
+                });
+            }
+
+            await LoadCurrentTypeAsync();
+            await NotificationRecipientsGrid.Reload();
+        }
+
+        protected async Task AddConnectivityErrorPattern(MouseEventArgs args)
+        {
+            var result = await DialogService.OpenAsync<AddAutomataConnectivityErrorPattern>("Nuevo patrón");
+
+            if (result == true)
+            {
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Summary = "Conectividad",
+                    Severity = NotificationSeverity.Success,
+                    Detail = "Patrón creado correctamente."
+                });
+            }
+
+            await LoadCurrentTypeAsync();
+            await ConnectivityErrorPatternsGrid.Reload();
+        }
+
+        protected async Task EditConnectivityErrorPattern(AutomataConnectivityErrorPattern pattern)
+        {
+            var parameters = new Dictionary<string, object>
+            {
+                { "Id", pattern.Id }
+            };
+
+            var result = await DialogService.OpenAsync<EditAutomataConnectivityErrorPattern>("Editar patrón", parameters);
+
+            if (result == true)
+            {
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Summary = "Conectividad",
+                    Severity = NotificationSeverity.Success,
+                    Detail = "Patrón actualizado correctamente."
+                });
+            }
+
+            await LoadCurrentTypeAsync();
+            await ConnectivityErrorPatternsGrid.Reload();
         }
 
         protected async Task EditInventoryConnection(InventoryAutomationConnection connection)

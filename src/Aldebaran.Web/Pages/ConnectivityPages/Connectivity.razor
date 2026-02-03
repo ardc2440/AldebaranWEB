@@ -33,31 +33,99 @@
         @if (SelectedType == ConnectivityType.InventoryAutomation)
         {
             <RadzenRow>
-                <RadzenColumn Size="12" Visible="@Security.IsInRole("Administrador")">
-                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
-                        <RadzenButton Icon="add_circle_outline" Text="Nueva conexión Automata" Click="@AddInventoryConnection" Variant="Variant.Flat" MouseEnter="@(args => ShowTooltip(args,"Nueva conexión", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
-                    </RadzenStack>
-                </RadzenColumn>
                 <RadzenColumn SizeMD="12">
-                    <LocalizedDataGrid Data="@InventoryConnections" TItem="ServiceModel.InventoryAutomationConnection" @ref="InventoryConnectionsGrid" ColumnWidth="200px" AllowPaging="true" ShowPagingSummary="false" IsLoading="@isLoadingInProgress">
-                        <Columns>
-                            <RadzenDataGridColumn TItem="ServiceModel.InventoryAutomationConnection" Property="ServerName" Title="Servidor" />
-                            <RadzenDataGridColumn TItem="ServiceModel.InventoryAutomationConnection" Property="PortNumber" Title="Puerto" />
-                            <RadzenDataGridColumn TItem="ServiceModel.InventoryAutomationConnection" Property="DatabaseName" Title="Base de datos" />
-                            <RadzenDataGridColumn TItem="ServiceModel.InventoryAutomationConnection" Property="UserId" Title="Usuario" />
-                            <RadzenDataGridColumn TItem="ServiceModel.InventoryAutomationConnection" Property="Active" Title="Activo">
-                                <Template Context="conn">
-                                    <RadzenCheckBox @bind-Value="conn.Active" TValue="bool" Disabled="true" />
-                                </Template>
-                            </RadzenDataGridColumn>
-                            <RadzenDataGridColumn TItem="ServiceModel.InventoryAutomationConnection" Filterable="false" Sortable="false" Width="140px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Administrador")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
-                                <Template Context="conn">
-                                    <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Editar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
-                                                  Click="@(args => EditInventoryConnection(conn))" @onclick:stopPropagation="true" />
-                                </Template>
-                            </RadzenDataGridColumn>
-                        </Columns>
-                    </LocalizedDataGrid>
+                    <RadzenTabs>
+                        <Tabs>
+                            <RadzenTabsItem Text="Conexiones">
+                                <RadzenRow>
+                                    <RadzenColumn Size="12" Visible="@Security.IsInRole("Administrador")">
+                                        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
+                                            <RadzenButton Icon="add_circle_outline" Text="Nueva conexión Automata" Click="@AddInventoryConnection" Variant="Variant.Flat" MouseEnter="@(args => ShowTooltip(args,"Nueva conexión", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                                        </RadzenStack>
+                                    </RadzenColumn>
+                                    <RadzenColumn SizeMD="12">
+                                        <LocalizedDataGrid Data="@InventoryConnections" TItem="ServiceModel.InventoryAutomationConnection" @ref="InventoryConnectionsGrid" ColumnWidth="200px" AllowPaging="true" ShowPagingSummary="false" IsLoading="@isLoadingInProgress">
+                                            <Columns>
+                                                <RadzenDataGridColumn TItem="ServiceModel.InventoryAutomationConnection" Property="ServerName" Title="Servidor" />
+                                                <RadzenDataGridColumn TItem="ServiceModel.InventoryAutomationConnection" Property="PortNumber" Title="Puerto" />
+                                                <RadzenDataGridColumn TItem="ServiceModel.InventoryAutomationConnection" Property="DatabaseName" Title="Base de datos" />
+                                                <RadzenDataGridColumn TItem="ServiceModel.InventoryAutomationConnection" Property="UserId" Title="Usuario" />
+                                                <RadzenDataGridColumn TItem="ServiceModel.InventoryAutomationConnection" Property="Active" Title="Activo">
+                                                    <Template Context="conn">
+                                                        <RadzenCheckBox @bind-Value="conn.Active" TValue="bool" Disabled="true" />
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="ServiceModel.InventoryAutomationConnection" Filterable="false" Sortable="false" Width="140px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Administrador")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                                                    <Template Context="conn">
+                                                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Editar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
+                                                                      Click="@(args => EditInventoryConnection(conn))" @onclick:stopPropagation="true" />
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                            </Columns>
+                                        </LocalizedDataGrid>
+                                    </RadzenColumn>
+                                </RadzenRow>
+                            </RadzenTabsItem>
+
+                            <RadzenTabsItem Text="Notifications">
+                                <RadzenRow>
+                                    <RadzenColumn Size="12" Visible="@Security.IsInRole("Administrador")">
+                                        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
+                                            <RadzenButton Icon="add_circle_outline" Text="Nuevo destinatario" Click="@AddNotificationRecipient" Variant="Variant.Flat" MouseEnter="@(args => ShowTooltip(args,"Nuevo destinatario", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                                        </RadzenStack>
+                                    </RadzenColumn>
+                                    <RadzenColumn SizeMD="12">
+                                        <LocalizedDataGrid Data="@NotificationRecipients" TItem="ServiceModel.AutomataNotificationRecipient" @ref="NotificationRecipientsGrid" ColumnWidth="250px" AllowPaging="true" ShowPagingSummary="false" IsLoading="@isLoadingInProgress">
+                                            <Columns>
+                                                <RadzenDataGridColumn TItem="ServiceModel.AutomataNotificationRecipient" Property="Email" Title="Correo" />
+                                                <RadzenDataGridColumn TItem="ServiceModel.AutomataNotificationRecipient" Property="NotificationType" Title="Tipo" />
+                                                <RadzenDataGridColumn TItem="ServiceModel.AutomataNotificationRecipient" Property="IsActive" Title="Activo" Width="70px">
+                                                    <Template Context="rec">
+                                                        <RadzenCheckBox @bind-Value="rec.IsActive" TValue="bool" Disabled="true" />
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="ServiceModel.AutomataNotificationRecipient" Filterable="false" Sortable="false" Width="180px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Administrador")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                                                    <Template Context="rec">
+                                                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Editar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
+                                                                      Click="@(args => EditNotificationRecipient(rec))" @onclick:stopPropagation="true" />
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                            </Columns>
+                                        </LocalizedDataGrid>
+                                    </RadzenColumn>
+                                </RadzenRow>
+                            </RadzenTabsItem>
+
+                            <RadzenTabsItem Text="Patterns">
+                                <RadzenRow>
+                                    <RadzenColumn Size="12" Visible="@Security.IsInRole("Administrador")">
+                                        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
+                                            <RadzenButton Icon="add_circle_outline" Text="Nuevo patrón" Click="@AddConnectivityErrorPattern" Variant="Variant.Flat" MouseEnter="@(args => ShowTooltip(args,"Nuevo patrón", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                                        </RadzenStack>
+                                    </RadzenColumn>
+                                    <RadzenColumn SizeMD="12">
+                                        <LocalizedDataGrid Data="@ConnectivityErrorPatterns" TItem="ServiceModel.AutomataConnectivityErrorPattern" @ref="ConnectivityErrorPatternsGrid" ColumnWidth="250px" AllowPaging="true" ShowPagingSummary="false" IsLoading="@isLoadingInProgress">
+                                            <Columns>
+                                                <RadzenDataGridColumn TItem="ServiceModel.AutomataConnectivityErrorPattern" Property="Pattern" Title="Patrón" />
+                                                <RadzenDataGridColumn TItem="ServiceModel.AutomataConnectivityErrorPattern" Property="Target" Title="Destino" />
+                                                <RadzenDataGridColumn TItem="ServiceModel.AutomataConnectivityErrorPattern" Property="IsActive" Title="Activo" Width="70px">
+                                                    <Template Context="pat">
+                                                        <RadzenCheckBox @bind-Value="pat.IsActive" TValue="bool" Disabled="true" />
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="ServiceModel.AutomataConnectivityErrorPattern" Filterable="false" Sortable="false" Width="180px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Administrador")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                                                    <Template Context="pat">
+                                                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Editar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
+                                                                      Click="@(args => EditConnectivityErrorPattern(pat))" @onclick:stopPropagation="true" />
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                            </Columns>
+                                        </LocalizedDataGrid>
+                                    </RadzenColumn>
+                                </RadzenRow>
+                            </RadzenTabsItem>
+                        </Tabs>
+                    </RadzenTabs>
                 </RadzenColumn>
             </RadzenRow>
         }

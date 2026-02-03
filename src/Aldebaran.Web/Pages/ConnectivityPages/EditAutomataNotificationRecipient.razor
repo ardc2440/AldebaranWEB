@@ -1,0 +1,45 @@
+@attribute [Authorize(Roles = "Administrador")]
+@using Aldebaran.Application.Services.Models;
+
+<LoadingData IsLoadingData="@isLoadingInProgress" />
+
+@if (!isLoadingInProgress)
+{
+    <RadzenTemplateForm TItem="AutomataNotificationRecipient" Data="@Recipient" Submit="@FormSubmit">
+        <RadzenStack>
+            <RadzenFormField Text="Correo electrónico" Variant="Variant.Text">
+                <ChildContent>
+                    <RadzenTextBox style="display:block;width:100%" @bind-Value="Recipient.Email" Name="Email" MaxLength="256" />
+                </ChildContent>
+                <Helper>
+                    <RadzenRequiredValidator Component="Email" Text="El correo es requerido" />                    
+                </Helper>
+            </RadzenFormField>
+
+            <RadzenFormField Text="Tipo de notificación" Variant="Variant.Text">
+                <ChildContent>
+                    <RadzenDropDown style="display:block;width:100%" Data="NotificationTypes" TextProperty="Text" ValueProperty="Value" @bind-Value="Recipient.NotificationType" Name="NotificationType" />
+                </ChildContent>
+                <Helper>
+                    <RadzenRequiredValidator Component="NotificationType" Text="El tipo de notificación es requerido" />
+                </Helper>
+            </RadzenFormField>
+
+            <RadzenFormField Text="Notas" Variant="Variant.Text">
+                <ChildContent>
+                    <RadzenTextArea style="display:block;width:100%" @bind-Value="Recipient.Notes" Name="Notes" Rows="3" MaxLength="1000" />
+                </ChildContent>
+            </RadzenFormField>
+
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                <RadzenCheckBox @bind-Value="Recipient.IsActive" TValue="bool" />
+                <label>Activo</label>
+            </RadzenStack>
+        </RadzenStack>
+
+        <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+            <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />
+            <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
+        </RadzenStack>
+    </RadzenTemplateForm>
+}
