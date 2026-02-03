@@ -358,8 +358,10 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IVisualizedAutomaticCustomerInProcessModificationService, VisualizedAutomaticCustomerInProcessModificationService>();
             services.AddTransient<IMinimumWarehouseStockReportService, MinimumWarehouseStockReportService>();
             services.AddTransient<IWarehouseStockValidationService, WarehouseStockValidationService>();
-            services.AddScoped<IInventoryAutomationConnectionService, InventoryAutomationConnectionService>();
-            services.AddScoped<IFtpWritingConnectionService, FtpWritingConnectionService>();
+            services.AddTransient<IInventoryAutomationConnectionService, InventoryAutomationConnectionService>();
+            services.AddTransient<IFtpWritingConnectionService, FtpWritingConnectionService>();           
+            services.AddTransient<IAutomataNotificationRecipientService, AutomataNotificationRecipientService>();
+            services.AddTransient<IAutomataConnectivityErrorPatternService, AutomataConnectivityErrorPatternService>();
 
             #endregion
 

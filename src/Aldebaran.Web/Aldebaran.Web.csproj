@@ -61,6 +61,7 @@
     <ProjectReference Include="..\Aldebaran.Application.Services.Notificator\Aldebaran.Application.Services.Notificator.csproj" />
     <ProjectReference Include="..\Aldebaran.Application.Services\Aldebaran.Application.Services.csproj" />
     <ProjectReference Include="..\Aldebaran.Infraestructure.Core\Aldebaran.Infraestructure.Core.csproj" />
+    <ProjectReference Include="..\Aldebaran.DataAccess.Infraestructure\Aldebaran.DataAccess.Infraestructure.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Mappings\ViewModelProfile.cs">

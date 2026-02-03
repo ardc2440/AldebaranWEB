@@ -14,6 +14,8 @@
     <ProjectReference Include="..\Aldebaran.DataAccess\Aldebaran.DataAccess.csproj" />
   </ItemGroup>
 
+  <!-- repository files are included by default -->
+
 	<ItemGroup>
 		<Compile Update="**\*.cs">
 			<DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>

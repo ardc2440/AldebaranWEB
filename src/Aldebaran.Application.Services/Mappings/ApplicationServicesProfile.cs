@@ -128,6 +128,8 @@ namespace Aldebaran.Application.Services.Mappings
             CreateMap<MinimumWarehouseStockReport, Entities.Reports.MinimumWarehouseStockReport>().ReverseMap();
             CreateMap<InventoryAutomationConnection, Entities.InventoryAutomationConnection>().ReverseMap();
             CreateMap<FtpWritingConnection, Entities.FtpWritingConnection>().ReverseMap();
+            CreateMap<AutomataNotificationRecipient, Entities.AutomataNotificationRecipient>().ReverseMap();
+            CreateMap<AutomataConnectivityErrorPattern, Entities.AutomataConnectivityErrorPattern>().ReverseMap();
         }
     }
 }

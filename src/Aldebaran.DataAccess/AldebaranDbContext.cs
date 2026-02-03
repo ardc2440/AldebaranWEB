@@ -112,6 +112,8 @@ namespace Aldebaran.DataAccess
         public DbSet<VisualizedAutomaticCustomerOrderInProcessModification> VisualizedAutomaticCustomerOrderInProcessModifications { get; set; }
         public DbSet<InventoryAutomationConnection> InventoryAutomationConnections { get; set; }
         public DbSet<FtpWritingConnection> FtpWritingConnections { get; set; }
+        public DbSet<AutomataNotificationRecipient> AutomataNotificationRecipients { get; set; }
+        public DbSet<AutomataConnectivityErrorPattern> AutomataConnectivityErrorPatterns { get; set; }
         
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -188,6 +190,8 @@ namespace Aldebaran.DataAccess
             modelBuilder.ApplyConfiguration(new StatusDocumentTypeConfiguration());            
             modelBuilder.ApplyConfiguration(new FtpWritingConnectionConfiguration());
             modelBuilder.ApplyConfiguration(new InventoryAutomationConnectionConfiguration());            
+            modelBuilder.ApplyConfiguration(new AutomataNotificationRecipientConfiguration());
+            modelBuilder.ApplyConfiguration(new AutomataConnectivityErrorPatternConfiguration());            
             modelBuilder.ApplyConfiguration(new UsersAlarmTypeConfiguration());
             modelBuilder.ApplyConfiguration(new VisualizedAlarmConfiguration());
             modelBuilder.ApplyConfiguration(new WarehouseConfiguration());
