@@ -67,6 +67,8 @@ using (var scope = services.BuildServiceProvider().CreateScope())
     }
 }
 
+// Resilience
+services.AddSingleton<Aldebaran.Application.FileWritingService.Resilience.ResilientExecutor>();
 // HostedServices
 services.AddHostedService<InventoryFtpPdfWorker>();
 services.AddHostedService<InventoryFtpExcelWorker>();
@@ -75,4 +77,4 @@ services.AddTransient<IFileBytesGeneratorService, FileBytesGeneratorService>();
 services.AddTransient<IFtpClient, FtpClient>();
 services.AddSingleton<Aldebaran.Application.FileWritingService.Services.IEmailSender, Aldebaran.Application.FileWritingService.Services.EmailSender>();
 var host = builder.Build();
-await host.RunAsync();
+await host.RunAsync();await host.RunAsync();

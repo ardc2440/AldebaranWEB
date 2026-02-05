@@ -9,6 +9,11 @@ using Microsoft.Extensions.Logging;
 using NCrontab;
 using Scriban;
 using System.Diagnostics;
+using Aldebaran.Application.FileWritingService.Resilience;
+using Aldebaran.Application.FileWritingService.Services;
+using Aldebaran.DataAccess.Entities;
+using System.Net;
+
 namespace Aldebaran.Application.FileWritingService.Workers
 {
     internal class InventoryFtpPdfWorker : BackgroundService
@@ -23,13 +28,22 @@ namespace Aldebaran.Application.FileWritingService.Workers
         private readonly CrontabSchedule _schedule;
         private DateTime _nextRun;
         private string FileName = string.Empty;
-        public InventoryFtpPdfWorker(IConfiguration Configuration, ILogger<InventoryFtpPdfWorker> Logger, IInventoryReportRepository InventoryReportRepository, IFileBytesGeneratorService FileBytesGeneratorService, IFtpClient FtpClient, IFtpWritingConnectionRepository ftpWritingConnectionRepository)
+        private readonly ResilientExecutor _executor;
+        private readonly IAutomataNotificationRecipientRepository _recipientRepository;
+        private readonly Aldebaran.Application.FileWritingService.Services.IEmailSender _emailSender;
+        private readonly IConfiguration _configuration;
+
+        public InventoryFtpPdfWorker(IConfiguration Configuration, ILogger<InventoryFtpPdfWorker> Logger, IInventoryReportRepository InventoryReportRepository, IFileBytesGeneratorService FileBytesGeneratorService, IFtpClient FtpClient, IFtpWritingConnectionRepository ftpWritingConnectionRepository, ResilientExecutor executor, IAutomataNotificationRecipientRepository recipientRepository, Aldebaran.Application.FileWritingService.Services.IEmailSender emailSender)
         {
+            _configuration = Configuration ?? throw new ArgumentNullException(nameof(Configuration));
             inventoryReportRepository = InventoryReportRepository ?? throw new ArgumentNullException(nameof(IInventoryReportRepository));
             fileBytesGeneratorService = FileBytesGeneratorService ?? throw new ArgumentNullException(nameof(IFileBytesGeneratorService));
             ftpClient = FtpClient ?? throw new ArgumentNullException(nameof(IFtpClient));
             _logger = Logger ?? throw new ArgumentNullException(nameof(ILogger));
             this.ftpWritingConnectionRepository = ftpWritingConnectionRepository ?? throw new ArgumentNullException(nameof(IFtpWritingConnectionRepository));
+            _executor = executor ?? throw new ArgumentNullException(nameof(executor));
+            _recipientRepository = recipientRepository ?? throw new ArgumentNullException(nameof(IAutomataNotificationRecipientRepository));
+            _emailSender = emailSender ?? throw new ArgumentNullException(nameof(Aldebaran.Application.FileWritingService.Services.IEmailSender));
             TemplatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates", "InventoryTemplate.html");
             if (!File.Exists(TemplatePath))
                 throw new KeyNotFoundException($"Template file not fount in {TemplatePath}");
@@ -51,37 +65,103 @@ namespace Aldebaran.Application.FileWritingService.Workers
                     var now = DateTime.Now;
                     if (now > _nextRun)
                     {
-                        _logger.LogInformation($"InventoryFtpPdfWorker will be executed at: {now}");
+                        var correlationId = Guid.NewGuid().ToString("N");
+                        _logger.LogInformation($"InventoryFtpPdfWorker will be executed at: {now} CorrelationId:{correlationId}");
                         Stopwatch stopwatch = new Stopwatch();
                         stopwatch.Start();
                         FileName = string.Format(FileNameBase, now);
                         var css = GetCss();
-                        var htmlTemplate = await GetTemplateHtmlAsync(ct);
-                        var html = $"<html><head><style>{css}</style></head><body>{htmlTemplate}</body></html>";
-                        var pdfBytes = await fileBytesGeneratorService.GetPdfBytes(html, true);
+
+                        // Generate report
+                        byte[] pdfBytes;
+                        try
+                        {
+                            var htmlTemplate = await GetTemplateHtmlAsync(ct);
+                            var html = $"<html><head><style>{css}</style></head><body>{htmlTemplate}</body></html>";
+                            pdfBytes = await fileBytesGeneratorService.GetPdfBytes(html, true);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "InventoryFtpPdfWorker report generation failed. CorrelationId:{CorrelationId}", correlationId);
+                            try { await SendConnectivityNotification(correlationId, "REPORT_GENERATION", null, 0, FileName, ex.Message, now); } catch (Exception notifyEx) { _logger.LogError(notifyEx, "Error sending report generation notification. CorrelationId:{CorrelationId}", correlationId); }
+
+                            _nextRun = _schedule.GetNextOccurrence(DateTime.Now);
+                            stopwatch.Stop();
+                            continue;
+                        }
 
                         // fetch active destinations at execution time
-                        var connections = await ftpWritingConnectionRepository.GetAllAsync(ct);
+                        IEnumerable<FtpWritingConnection> connections;
+                        try
+                        {
+                            connections = await _executor.ExecuteAsync(async token => await ftpWritingConnectionRepository.GetAllAsync(token), ct);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "InventoryFtpPdfWorker failed reading destinations (DB). CorrelationId:{CorrelationId}", correlationId);
+                            try { await SendConnectivityNotification(correlationId, "DB_SOURCE", null, 0, FileName, ex.Message, now); } catch (Exception notifyEx) { _logger.LogError(notifyEx, "Error sending DB connectivity notification. CorrelationId:{CorrelationId}", correlationId); }
+
+                            _nextRun = _schedule.GetNextOccurrence(DateTime.Now);
+                            stopwatch.Stop();
+                            continue;
+                        }
+
                         var activeConnections = connections.Where(c => c.Active).ToList();
 
-                        foreach (var conn in activeConnections)
+                        // Read MaxParallelUploads only from appsettings.json (ignore environment variables)
+                        var jsonConfig = new Microsoft.Extensions.Configuration.ConfigurationBuilder()
+                            .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                            .Build();
+                        var maxParallel = jsonConfig.GetValue<int>("FtpResilience:MaxParallelUploads", 4);
+                        maxParallel = Math.Max(1, maxParallel);
+
+                        using (var semaphore = new SemaphoreSlim(maxParallel))
                         {
-                            var port = 21;
-                            if (!string.IsNullOrWhiteSpace(conn.PortNumber))
+                            var uploadTasks = activeConnections.Select(async conn =>
                             {
-                                int.TryParse(conn.PortNumber, out port);
-                            }
+                                await semaphore.WaitAsync(ct);
+                                try
+                                {
+                                    var port = 21;
+                                    if (!string.IsNullOrWhiteSpace(conn.PortNumber))
+                                    {
+                                        int.TryParse(conn.PortNumber, out port);
+                                    }
 
-                            var overwrite = conn.RewriteFile ?? true;
-                            var targetFileName = BuildTargetFileName(FileName, now, overwrite);
+                                    var overwrite = conn.RewriteFile ?? true;
+                                    var targetFileName = BuildTargetFileName(FileName, now, overwrite);
 
-                            var uploaded = await ftpClient.UploadFileAsync(pdfBytes, targetFileName, conn.HostName, port, conn.UserName, conn.Password, overwrite);
-                            _logger.LogInformation($"InventoryFtpPdfWorker uploaded file '{targetFileName}' to {conn.HostName}:{port} with result {uploaded}");
+                                    bool uploaded = false;
+                                    try
+                                    {
+                                        uploaded = await _executor.ExecuteAsync(async (token) => await ftpClient.UploadFileAsync(pdfBytes, targetFileName, conn.HostName, port, conn.UserName, conn.Password, overwrite), ct);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        _logger.LogWarning(ex, "Upload attempt failed for {Host}:{Port} target {File} CorrelationId:{CorrelationId}", conn.HostName, port, targetFileName, correlationId);
+                                        uploaded = false;
+                                    }
+
+                                    _logger.LogInformation("InventoryFtpPdfWorker uploaded file '{FileName}' to {Host}:{Port} with result {Result} CorrelationId:{CorrelationId}", targetFileName, conn.HostName, port, uploaded, correlationId);
+
+                                    if (!uploaded)
+                                    {
+                                        try { await SendConnectivityNotification(correlationId, "FTP_DESTINATION", conn.HostName, port, targetFileName, "Upload failed after retries", now); } catch (Exception ex) { _logger.LogError(ex, "Error sending connectivity notification for FTP destination. CorrelationId:{CorrelationId}", correlationId); }
+                                    }
+                                }
+                                finally
+                                {
+                                    semaphore.Release();
+                                }
+                            }).ToList();
+
+                            await Task.WhenAll(uploadTasks);
                         }
 
                         _nextRun = _schedule.GetNextOccurrence(DateTime.Now);
                         stopwatch.Stop();
-                        _logger.LogInformation($"InventoryFtpPdfWorker has been executed in: {stopwatch.ElapsedMilliseconds} milliseconds | Next Run: {_nextRun}");
+                        _logger.LogInformation($"InventoryFtpPdfWorker has been executed in: {stopwatch.ElapsedMilliseconds} milliseconds | Next Run: {_nextRun} CorrelationId:{correlationId}");
                     }
                 }
                 catch (Exception ex)
@@ -91,6 +171,31 @@ namespace Aldebaran.Application.FileWritingService.Workers
                 await Task.Delay(TimeSpan.FromSeconds(10), ct);
             } while (!ct.IsCancellationRequested);
         }
+
+        private async Task SendConnectivityNotification(string correlationId, string failureType, string? host, int port, string fileName, string errorMessage, DateTime snapshotTime)
+        {
+            try
+            {
+                var recipients = await _recipientRepository.GetActiveEmailsByTypeAsync("CONNECTIVITY_DOWN");
+                if (recipients == null || !recipients.Any())
+                {
+                    _logger.LogWarning("No recipients configured for CONNECTIVITY_DOWN. CorrelationId:{CorrelationId}", correlationId);
+                    return;
+                }
+                var localNow = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("SA Pacific Standard Time"));
+                var subject = $"[ALERTA] Fallo de conectividad: FileWritingService - {failureType}";
+                var hostInfo = host != null ? $"<li>Host: {host}:{port}</li>" : string.Empty;
+                var fileInfo = !string.IsNullOrEmpty(fileName) ? $"<li>Archivo: {fileName}</li>" : string.Empty;
+                var body = $"<p>Se detectó un fallo en FileWritingService.</p><ul><li>CorrelationId: {correlationId}</li><li>Timestamp: {localNow}</li><li>Tipo de fallo: {failureType}</li>{hostInfo}{fileInfo}<li>Snapshot generado: {snapshotTime}</li><li>Error: {WebUtility.HtmlEncode(errorMessage)}</li></ul>";
+
+                await _emailSender.SendAsync(recipients.ToArray(), subject, body);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "SendConnectivityNotification failed for CorrelationId:{CorrelationId}", correlationId);
+            }
+        }
+
         static string? GetCss()
         {
             var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Shared", "css", "print.min.css");

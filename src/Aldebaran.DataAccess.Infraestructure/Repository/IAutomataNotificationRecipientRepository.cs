@@ -8,5 +8,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         Task<AutomataNotificationRecipient> UpdateAsync(AutomataNotificationRecipient entity, CancellationToken ct = default);
         Task<IEnumerable<AutomataNotificationRecipient>> GetAllAsync(CancellationToken ct = default);
         Task<AutomataNotificationRecipient> GetByIdAsync(int id, CancellationToken ct = default);
+        Task<List<string>> GetActiveEmailsByTypeAsync(string notificationType, CancellationToken ct = default);
     }
 }

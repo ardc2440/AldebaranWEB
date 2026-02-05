@@ -48,5 +48,15 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
 
             return entity;
         }
+
+        public async Task<List<string>> GetActiveEmailsByTypeAsync(string notificationType, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+                await dbContext.AutomataNotificationRecipients
+                    .AsNoTracking()
+                    .Where(w => w.NotificationType == notificationType && (w.IsActive == true))
+                    .Select(s => s.Email)
+                    .ToListAsync(ct), ct);
+        }
     }
 }
