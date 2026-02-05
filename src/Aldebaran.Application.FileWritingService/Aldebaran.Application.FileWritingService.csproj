@@ -39,6 +39,7 @@
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
     <PackageReference Include="Serilog.Sinks.MSSqlServer" Version="6.6.0" />
     <PackageReference Include="System.Composition.Hosting" Version="8.0.0" />
+    <PackageReference Include="MailKit" Version="4.0.1" />
   </ItemGroup>
 
   <ItemGroup>

@@ -73,5 +73,6 @@ services.AddHostedService<InventoryFtpExcelWorker>();
 services.AddTransient<IInventoryReportRepository, InventoryReportRepository>();
 services.AddTransient<IFileBytesGeneratorService, FileBytesGeneratorService>();
 services.AddTransient<IFtpClient, FtpClient>();
+services.AddSingleton<Aldebaran.Application.FileWritingService.Services.IEmailSender, Aldebaran.Application.FileWritingService.Services.EmailSender>();
 var host = builder.Build();
 await host.RunAsync();
