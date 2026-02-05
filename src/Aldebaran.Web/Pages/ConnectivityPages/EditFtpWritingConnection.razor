@@ -40,15 +40,6 @@
                 </Helper>
             </RadzenFormField>
 
-            <RadzenFormField Text="Expresión CRON" Variant="Variant.Text">
-                <ChildContent>
-                    <RadzenTextBox style="display:block;width:100%" @bind-Value="Connection.CronoExp" Name="CronoExp" Placeholder="Ej: 0 2 * * * (diario a las 02:00)" />
-                </ChildContent>
-                <Helper>
-                    <RadzenRequiredValidator Component="CronoExp" Text="Expresión CRON es requerida" />
-                </Helper>
-            </RadzenFormField>
-
             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
                 <RadzenCheckBox @bind-Value="Connection.RewriteFile" TValue="bool" />
                 <label>Sobrescribir archivo</label>

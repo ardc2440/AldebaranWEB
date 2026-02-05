@@ -13,21 +13,14 @@ namespace Aldebaran.Application.FileWritingService.Workers
 {
     internal class InventoryFtpExcelWorker : BackgroundService
     {
-        private sealed class FtpScheduleState
-        {
-            public DataAccess.Entities.FtpWritingConnection Connection { get; set; } = null!;
-            public CrontabSchedule Schedule { get; set; } = null!;
-            public DateTime NextRun { get; set; }
-        }
-
         private readonly ILogger<InventoryFtpExcelWorker> _logger;
         private readonly IInventoryReportRepository inventoryReportRepository;
         private readonly IFtpClient ftpClient;
         private readonly IFtpWritingConnectionRepository ftpWritingConnectionRepository;
         private readonly IFileBytesGeneratorService fileBytesGeneratorService;
         private readonly string FileNameBase;
-        private readonly List<FtpScheduleState> _ftpSchedules = new();
-        private bool _initialized;
+        private readonly CrontabSchedule _schedule;
+        private DateTime _nextRun;
         private string FileName = string.Empty;
 
         public InventoryFtpExcelWorker(IConfiguration Configuration, ILogger<InventoryFtpExcelWorker> Logger, IInventoryReportRepository InventoryReportRepository, IFileBytesGeneratorService FileBytesGeneratorService, IFtpClient FtpClient, IFtpWritingConnectionRepository ftpWritingConnectionRepository)
@@ -38,6 +31,12 @@ namespace Aldebaran.Application.FileWritingService.Workers
             fileBytesGeneratorService = FileBytesGeneratorService ?? throw new ArgumentNullException(nameof(IFileBytesGeneratorService));
             this.ftpWritingConnectionRepository = ftpWritingConnectionRepository ?? throw new ArgumentNullException(nameof(IFtpWritingConnectionRepository));
             FileNameBase = Configuration.GetValue<string>("InventoryFileOutputOptions:Excel:FileName") ?? throw new KeyNotFoundException("InventoryFileOutputOptions:Excel:FileName");
+
+            var cronExpression = Configuration.GetValue<string>("InventoryFileOutputOptions:Excel:CronExpression") ?? throw new KeyNotFoundException("InventoryFileOutputOptions:Excel:CronExpression");
+            _schedule = CrontabSchedule.Parse(cronExpression, new CrontabSchedule.ParseOptions { IncludingSeconds = false });
+            var now = DateTime.Now;
+            _nextRun = _schedule.GetNextOccurrence(now);
+            _logger.LogInformation($"InventoryFtpExcelWorker schedule: {cronExpression} Current Time {now} Next Run: {_nextRun}");
         }
 
         protected override async Task ExecuteAsync(CancellationToken ct)
@@ -46,43 +45,38 @@ namespace Aldebaran.Application.FileWritingService.Workers
             {
                 try
                 {
-                    if (!_initialized)
-                    {
-                        await InitializeSchedulesAsync(ct);
-                    }
-
                     var now = DateTime.Now;
-                    var dueConnections = _ftpSchedules.Where(s => now > s.NextRun).ToList();
-
-                    if (dueConnections.Any())
+                    if (now > _nextRun)
                     {
-                        _logger.LogInformation($"InventoryFtpExcelWorker will be executed at: {now} for {dueConnections.Count} connections");
+                        _logger.LogInformation($"InventoryFtpExcelWorker will be executed at: {now}");
                         Stopwatch stopwatch = new Stopwatch();
                         stopwatch.Start();
                         FileName = string.Format(FileNameBase, now);
                         var data = await GetDataAsync(ct);
                         var excelBytes = await fileBytesGeneratorService.GetExcelBytes(data);
 
-                        foreach (var state in dueConnections)
+                        // fetch active destinations at execution time
+                        var connections = await ftpWritingConnectionRepository.GetAllAsync(ct);
+                        var activeConnections = connections.Where(c => c.Active).ToList();
+
+                        foreach (var conn in activeConnections)
                         {
-                            var conn = state.Connection;
                             var port = 21;
                             if (!string.IsNullOrWhiteSpace(conn.PortNumber))
                             {
                                 int.TryParse(conn.PortNumber, out port);
                             }
 
-                            var overwrite = conn.RewriteFile;
+                            var overwrite = conn.RewriteFile ?? true;
                             var targetFileName = BuildTargetFileName(FileName, now, overwrite);
 
                             var uploaded = await ftpClient.UploadFileAsync(excelBytes, targetFileName, conn.HostName, port, conn.UserName, conn.Password, overwrite);
                             _logger.LogInformation($"InventoryFtpExcelWorker uploaded file '{targetFileName}' to {conn.HostName}:{port} with result {uploaded}");
-
-                            state.NextRun = state.Schedule.GetNextOccurrence(now);
                         }
 
+                        _nextRun = _schedule.GetNextOccurrence(DateTime.Now);
                         stopwatch.Stop();
-                        _logger.LogInformation($"InventoryFtpExcelWorker has been executed in: {stopwatch.ElapsedMilliseconds} milliseconds | Next Runs: {string.Join("; ", _ftpSchedules.Select(s => $"{s.Connection.HostName} -> {s.NextRun}"))}");
+                        _logger.LogInformation($"InventoryFtpExcelWorker has been executed in: {stopwatch.ElapsedMilliseconds} milliseconds | Next Run: {_nextRun}");
                     }
                 }
                 catch (Exception ex)
@@ -91,30 +85,6 @@ namespace Aldebaran.Application.FileWritingService.Workers
                 }
                 await Task.Delay(TimeSpan.FromSeconds(10), ct);
             } while (!ct.IsCancellationRequested);
-        }
-
-        private async Task InitializeSchedulesAsync(CancellationToken ct)
-        {
-            var connections = await ftpWritingConnectionRepository.GetAllAsync(ct);
-            var activeConnections = connections.Where(c => c.Active).ToList();
-            var now = DateTime.Now;
-
-            foreach (var conn in activeConnections)
-            {
-                var schedule = CrontabSchedule.Parse(conn.CronoExp, new CrontabSchedule.ParseOptions { IncludingSeconds = false });
-                var nextRun = schedule.GetNextOccurrence(now);
-
-                _ftpSchedules.Add(new FtpScheduleState
-                {
-                    Connection = conn,
-                    Schedule = schedule,
-                    NextRun = nextRun
-                });
-
-                _logger.LogInformation($"InventoryFtpExcelWorker schedule for FTP {conn.HostName}: {conn.CronoExp} Next Run: {nextRun}");
-            }
-
-            _initialized = true;
         }
 
         private static string BuildTargetFileName(string baseFileName, DateTime now, bool overwrite)

@@ -7,8 +7,7 @@ namespace Aldebaran.DataAccess.Entities
         public string? PortNumber { get; set; }
         public string UserName { get; set; } = null!;
         public string Password { get; set; } = null!;
-        public string CronoExp { get; set; } = null!;
-        public bool RewriteFile { get; set; }
+        public bool? RewriteFile { get; set; }
         public bool Active { get; set; }
     }
 }

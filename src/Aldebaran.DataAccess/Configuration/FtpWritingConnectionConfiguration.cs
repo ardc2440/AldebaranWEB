@@ -37,15 +37,10 @@ namespace Aldebaran.DataAccess.Configuration
                    .HasColumnType("VARCHAR(50)")
                    .IsRequired();
 
-            builder.Property(e => e.CronoExp)
-                   .HasColumnName("CRONO_EXP")
-                   .HasColumnType("VARCHAR(30)")
-                   .IsRequired();
-
             builder.Property(e => e.RewriteFile)
                    .HasColumnName("REWRITE_FILE")
                    .HasColumnType("BIT")
-                   .IsRequired()
+                   .IsRequired(false)
                    .HasDefaultValue(true);
 
             builder.Property(e => e.Active)
