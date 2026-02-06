@@ -268,7 +268,7 @@ namespace Aldebaran.Application.FileWritingService.Workers
 
             var name = Path.GetFileNameWithoutExtension(baseFileName);
             var ext = Path.GetExtension(baseFileName);
-            var timestamp = now.ToString("yyyyMMdd_HHmmss");
+            var timestamp = now.ToString("yyyyMMdd");
             return $"{name}_{timestamp}{ext}";
         }
         //public Task StopAsync(CancellationToken ct)
