@@ -143,7 +143,7 @@ namespace Aldebaran.Application.FileWritingService.Workers
                                     var uploaded = false;
                                     try
                                     {
-                                        uploaded = await _executor.ExecuteAsync(async (token) => await ftpClient.UploadFileAsync(excelBytes, targetFileName, conn.HostName, port, conn.UserName, conn.Password, overwrite), ct);
+                                        uploaded = await _executor.ExecuteAsync(async (token) => await ftpClient.UploadFileAsync(excelBytes, targetFileName, conn.HostName, port, conn.UserName, conn.Password), ct);
                                     }
                                     catch (Exception ex)
                                     {
@@ -196,7 +196,7 @@ namespace Aldebaran.Application.FileWritingService.Workers
 
             var name = Path.GetFileNameWithoutExtension(baseFileName);
             var ext = Path.GetExtension(baseFileName);
-            var timestamp = now.ToString("yyyyMMdd_HHmmss");
+            var timestamp = now.ToString("yyyyMMdd");
             return $"{name}_{timestamp}{ext}";
         }
 

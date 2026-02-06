@@ -135,7 +135,7 @@ namespace Aldebaran.Application.FileWritingService.Workers
                                     bool uploaded = false;
                                     try
                                     {
-                                        uploaded = await _executor.ExecuteAsync(async (token) => await ftpClient.UploadFileAsync(pdfBytes, targetFileName, conn.HostName, port, conn.UserName, conn.Password, overwrite), ct);
+                                        uploaded = await _executor.ExecuteAsync(async (token) => await ftpClient.UploadFileAsync(pdfBytes, targetFileName, conn.HostName, port, conn.UserName, conn.Password), ct);
                                     }
                                     catch (Exception ex)
                                     {
