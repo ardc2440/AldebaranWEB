@@ -108,6 +108,9 @@ namespace Aldebaran.Web.Pages.ConnectivityPages
                     break;
                 case ConnectivityType.FtpWriting:
                     FtpConnections = await FtpWritingConnectionService.GetAllAsync(ct);
+                    // For FTP view, show only recipients of type CONNECTIVITY_DOWN
+                    var allRecipients = await AutomataNotificationRecipientService.GetAllAsync(ct);
+                    NotificationRecipients = allRecipients?.Where(w => string.Equals(w.NotificationType, "CONNECTIVITY_DOWN", StringComparison.OrdinalIgnoreCase)).ToList();
                     break;
             }
         }
@@ -151,7 +154,7 @@ namespace Aldebaran.Web.Pages.ConnectivityPages
 
         protected async Task AddNotificationRecipient(MouseEventArgs args)
         {
-            var result = await DialogService.OpenAsync<AddAutomataNotificationRecipient>("Nuevo destinatario");
+            var result = await DialogService.OpenAsync<AddAutomataNotificationRecipient>("Nuevo destinatario", new Dictionary<string, object> { { "ParentType", SelectedType } });
 
             if (result == true)
             {
@@ -174,6 +177,7 @@ namespace Aldebaran.Web.Pages.ConnectivityPages
                 { "Id", recipient.Id }
             };
 
+            parameters["ParentType"] = SelectedType;
             var result = await DialogService.OpenAsync<EditAutomataNotificationRecipient>("Editar destinatario", parameters);
 
             if (result == true)

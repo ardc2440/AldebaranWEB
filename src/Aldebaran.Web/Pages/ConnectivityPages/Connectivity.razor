@@ -30,6 +30,34 @@
             </RadzenColumn>
         </RadzenRow>
 
+        <!-- Notifications panel (applies to both InventoryAutomation and FtpWriting) -->
+        <RadzenRow id="notifications-panel">
+            <RadzenColumn Size="12" Visible="@Security.IsInRole("Administrador")">
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
+                    <RadzenButton Icon="add_circle_outline" Text="Nuevo destinatario" Click="@AddNotificationRecipient" Variant="Variant.Flat" MouseEnter="@(args => ShowTooltip(args,"Nuevo destinatario", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                </RadzenStack>
+            </RadzenColumn>
+            <RadzenColumn SizeMD="12">
+                <LocalizedDataGrid Data="@NotificationRecipients" TItem="ServiceModel.AutomataNotificationRecipient" @ref="NotificationRecipientsGrid" ColumnWidth="250px" AllowPaging="true" ShowPagingSummary="false" IsLoading="@isLoadingInProgress">
+                    <Columns>
+                        <RadzenDataGridColumn TItem="ServiceModel.AutomataNotificationRecipient" Property="Email" Title="Correo" />
+                        <RadzenDataGridColumn TItem="ServiceModel.AutomataNotificationRecipient" Property="NotificationType" Title="Tipo" />
+                        <RadzenDataGridColumn TItem="ServiceModel.AutomataNotificationRecipient" Property="IsActive" Title="Activo" Width="70px">
+                            <Template Context="rec">
+                                <RadzenCheckBox @bind-Value="rec.IsActive" TValue="bool" Disabled="true" />
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.AutomataNotificationRecipient" Filterable="false" Sortable="false" Width="180px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Administrador")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                            <Template Context="rec">
+                                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Editar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
+                                              Click="@(args => EditNotificationRecipient(rec))" @onclick:stopPropagation="true" />
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </Columns>
+                </LocalizedDataGrid>
+            </RadzenColumn>
+        </RadzenRow>
+
         @if (SelectedType == ConnectivityType.InventoryAutomation)
         {
             <RadzenRow>
@@ -67,34 +95,7 @@
                                 </RadzenRow>
                             </RadzenTabsItem>
 
-                            <RadzenTabsItem Text="Notifications">
-                                <RadzenRow>
-                                    <RadzenColumn Size="12" Visible="@Security.IsInRole("Administrador")">
-                                        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
-                                            <RadzenButton Icon="add_circle_outline" Text="Nuevo destinatario" Click="@AddNotificationRecipient" Variant="Variant.Flat" MouseEnter="@(args => ShowTooltip(args,"Nuevo destinatario", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
-                                        </RadzenStack>
-                                    </RadzenColumn>
-                                    <RadzenColumn SizeMD="12">
-                                        <LocalizedDataGrid Data="@NotificationRecipients" TItem="ServiceModel.AutomataNotificationRecipient" @ref="NotificationRecipientsGrid" ColumnWidth="250px" AllowPaging="true" ShowPagingSummary="false" IsLoading="@isLoadingInProgress">
-                                            <Columns>
-                                                <RadzenDataGridColumn TItem="ServiceModel.AutomataNotificationRecipient" Property="Email" Title="Correo" />
-                                                <RadzenDataGridColumn TItem="ServiceModel.AutomataNotificationRecipient" Property="NotificationType" Title="Tipo" />
-                                                <RadzenDataGridColumn TItem="ServiceModel.AutomataNotificationRecipient" Property="IsActive" Title="Activo" Width="70px">
-                                                    <Template Context="rec">
-                                                        <RadzenCheckBox @bind-Value="rec.IsActive" TValue="bool" Disabled="true" />
-                                                    </Template>
-                                                </RadzenDataGridColumn>
-                                                <RadzenDataGridColumn TItem="ServiceModel.AutomataNotificationRecipient" Filterable="false" Sortable="false" Width="180px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Groupable="false" Visible="@Security.IsInRole("Administrador")" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
-                                                    <Template Context="rec">
-                                                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Editar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
-                                                                      Click="@(args => EditNotificationRecipient(rec))" @onclick:stopPropagation="true" />
-                                                    </Template>
-                                                </RadzenDataGridColumn>
-                                            </Columns>
-                                        </LocalizedDataGrid>
-                                    </RadzenColumn>
-                                </RadzenRow>
-                            </RadzenTabsItem>
+                            <!-- Notifications moved to top-level panel (applies to both services) -->
 
                             <RadzenTabsItem Text="Patterns">
                                 <RadzenRow>

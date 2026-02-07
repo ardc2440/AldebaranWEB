@@ -9,6 +9,8 @@ namespace Aldebaran.Web.Pages.ConnectivityPages
     public partial class EditAutomataNotificationRecipient
     {
         [Parameter]
+        public ConnectivityType? ParentType { get; set; }
+        [Parameter]
         public int Id { get; set; }
 
         [Inject]
@@ -23,12 +25,25 @@ namespace Aldebaran.Web.Pages.ConnectivityPages
         protected AutomataNotificationRecipient Recipient = null!;
         protected bool IsSubmitInProgress;
         protected bool isLoadingInProgress;
-        protected IReadOnlyList<SelectItem> NotificationTypes { get; } = new List<SelectItem>
+        protected IReadOnlyList<SelectItem> NotificationTypes
         {
-            new SelectItem { Text = "Conectividad caída", Value = "CONNECTIVITY_DOWN" },
-            new SelectItem { Text = "Conectividad recuperada", Value = "CONNECTIVITY_RECOVERED" },
-            new SelectItem { Text = "Error de negocio", Value = "BUSINESS_ERROR" }
-        };
+            get
+            {
+                var all = new List<SelectItem>
+                {
+                    new SelectItem { Text = "Conectividad caída", Value = "CONNECTIVITY_DOWN" },
+                    new SelectItem { Text = "Conectividad recuperada", Value = "CONNECTIVITY_RECOVERED" },
+                    new SelectItem { Text = "Error de negocio", Value = "BUSINESS_ERROR" }
+                };
+
+                if (ParentType == ConnectivityType.FtpWriting)
+                {
+                    return all.Where(w => w.Value == "CONNECTIVITY_DOWN").ToList();
+                }
+
+                return all;
+            }
+        }
 
         protected override async Task OnInitializedAsync()
         {
@@ -36,6 +51,10 @@ namespace Aldebaran.Web.Pages.ConnectivityPages
             {
                 isLoadingInProgress = true;
                 Recipient = await AutomataNotificationRecipientService.GetByIdAsync(Id);
+                if (ParentType == ConnectivityType.FtpWriting && string.IsNullOrEmpty(Recipient.NotificationType))
+                {
+                    Recipient.NotificationType = "CONNECTIVITY_DOWN";
+                }
             }
             catch (Exception ex)
             {
