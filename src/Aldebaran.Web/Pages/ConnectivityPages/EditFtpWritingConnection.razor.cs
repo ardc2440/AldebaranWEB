@@ -40,14 +40,14 @@ namespace Aldebaran.Web.Pages.ConnectivityPages
             }
         }
 
-        protected void FormSubmit()
+        protected async Task FormSubmit()
         {
             if (IsSubmitInProgress) return;
 
             try
             {
                 IsSubmitInProgress = true;
-                FtpWritingConnectionService.UpdateAsync(Connection);
+                await FtpWritingConnectionService.UpdateAsync(Connection);
                 DialogService.Close(true);
             }
             catch (Exception ex)

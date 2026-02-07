@@ -27,7 +27,7 @@ namespace Aldebaran.Web.Pages.ConnectivityPages
             try
             {
                 IsSubmitInProgress = true;
-                FtpWritingConnectionService.CreateAsync(Connection);
+                await FtpWritingConnectionService.CreateAsync(Connection);
                 DialogService.Close(true);
             }
             catch (Exception ex)
