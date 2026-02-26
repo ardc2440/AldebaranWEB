@@ -132,6 +132,97 @@ namespace Aldebaran.Infraestructure.Common.Utils
             return Task.FromResult(stream.ToArray());
         }
 
+        public Task<string> GetExcelTempFile<T>(List<T> data)
+        {
+            var tempDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? ".", "temp");
+            Directory.CreateDirectory(tempDir);
+            var tempFile = Path.Combine(tempDir, $"inventory_{Guid.NewGuid()}.xlsx");
+            var columns = GetProperties(typeof(T));
+
+            using (var fs = new FileStream(tempFile, FileMode.Create, FileAccess.ReadWrite, FileShare.None))
+            using (var document = SpreadsheetDocument.Create(fs, SpreadsheetDocumentType.Workbook))
+            {
+                var workbookPart = document.AddWorkbookPart();
+                workbookPart.Workbook = new Workbook();
+
+                var worksheetPart = workbookPart.AddNewPart<WorksheetPart>();
+                worksheetPart.Worksheet = new Worksheet();
+
+                var workbookStylesPart = workbookPart.AddNewPart<WorkbookStylesPart>();
+                GenerateWorkbookStylesPartContent(workbookStylesPart);
+
+                var sheets = workbookPart.Workbook.AppendChild(new Sheets());
+                var sheet = new Sheet() { Id = workbookPart.GetIdOfPart(worksheetPart), SheetId = 1, Name = "Sheet1" };
+                sheets.Append(sheet);
+
+                workbookPart.Workbook.Save();
+
+                var sheetData = worksheetPart.Worksheet.AppendChild(new SheetData());
+
+                var headerRow = new Row();
+                foreach (var column in columns)
+                {
+                    headerRow.Append(new Cell()
+                    {
+                        CellValue = new CellValue(column.DisplayName ?? column.Name),
+                        DataType = new EnumValue<CellValues>(CellValues.String)
+                    });
+                }
+                sheetData.AppendChild(headerRow);
+
+                foreach (var item in data)
+                {
+                    if (item == null) continue;
+                    var row = new Row();
+                    foreach (var column in columns)
+                    {
+                        var value = GetValue(item, column.Name);
+                        var stringValue = $"{value}".Trim();
+
+                        var cell = new Cell();
+                        var underlyingType = column.Type.IsGenericType && column.Type.GetGenericTypeDefinition() == typeof(Nullable<>) ? Nullable.GetUnderlyingType(column.Type) : column.Type;
+                        var typeCode = Type.GetTypeCode(underlyingType);
+
+                        if (typeCode == TypeCode.DateTime)
+                        {
+                            if (!string.IsNullOrWhiteSpace(stringValue))
+                            {
+                                cell.CellValue = new CellValue() { Text = ((DateTime)value).ToOADate().ToString(System.Globalization.CultureInfo.InvariantCulture) };
+                                cell.DataType = new EnumValue<CellValues>(CellValues.Number);
+                                cell.StyleIndex = (UInt32Value)1U;
+                            }
+                        }
+                        else if (typeCode == TypeCode.Boolean)
+                        {
+                            cell.CellValue = new CellValue(stringValue.ToLowerInvariant());
+                            cell.DataType = new EnumValue<CellValues>(CellValues.Boolean);
+                        }
+                        else if (IsNumeric(typeCode))
+                        {
+                            if (value != null)
+                            {
+                                stringValue = Convert.ToString(value, CultureInfo.InvariantCulture);
+                            }
+                            cell.CellValue = new CellValue(stringValue);
+                            cell.DataType = new EnumValue<CellValues>(CellValues.Number);
+                        }
+                        else
+                        {
+                            cell.CellValue = new CellValue(stringValue);
+                            cell.DataType = new EnumValue<CellValues>(CellValues.String);
+                        }
+
+                        row.Append(cell);
+                    }
+                    sheetData.AppendChild(row);
+                }
+
+                workbookPart.Workbook.Save();
+            }
+
+            return Task.FromResult(tempFile);
+        }
+
         public async Task<byte[]> GetPdfBytes(string content, bool landscape = false)
         {
             // Iniciar una instancia de Chromium a través de PuppeteerSharp
@@ -166,6 +257,46 @@ namespace Aldebaran.Infraestructure.Common.Utils
             await browser.CloseAsync();
 
             return pdfBytes;
+        }
+
+        public async Task<string> GetPdfTempFile(string content, bool landscape = false)
+        {
+            var tempDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? ".", "temp");
+            Directory.CreateDirectory(tempDir);
+            var tempFile = Path.Combine(tempDir, $"inventory_{Guid.NewGuid()}.pdf");
+            await new BrowserFetcher().DownloadAsync();
+            var browser = await Puppeteer.LaunchAsync(new LaunchOptions
+            {
+                Headless = true
+            });
+            var page = await browser.NewPageAsync();
+            await page.SetContentAsync(content);
+
+            using (var pdfStream = await page.PdfStreamAsync(new PdfOptions
+            {
+                Format = PaperFormat.A4,
+                Landscape = landscape,
+                PrintBackground = true,
+                MarginOptions = new MarginOptions
+                {
+                    Top = "2cm",
+                    Bottom = "2cm",
+                    Left = "2cm",
+                    Right = "2cm"
+                },
+                DisplayHeaderFooter = true,
+                FooterTemplate = @"
+                <div style='font-size: 10px; color: #888; text-align: center; display:block; width:100%;'>
+                    <span class='pageNumber'></span> de <span class='totalPages'></span>
+                </div>",
+            }))
+            {
+                using var fs = new FileStream(tempFile, FileMode.Create, FileAccess.Write, FileShare.None);
+                await pdfStream.CopyToAsync(fs);
+            }
+
+            await browser.CloseAsync();
+            return tempFile;
         }
 
         #region Utils

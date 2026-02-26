@@ -36,7 +36,23 @@ namespace Aldebaran.Application.FileWritingService.Resilience
                     attempt++;
                     cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
                     cts.CancelAfter(TimeSpan.FromSeconds(_timeoutPerAttemptSec));
-                    return await operation(cts.Token);
+
+                    var operationTask = operation(cts.Token);
+                    var delayTask = Task.Delay(TimeSpan.FromSeconds(_timeoutPerAttemptSec), ct);
+
+                    var completed = await Task.WhenAny(operationTask, delayTask);
+                    if (completed != operationTask)
+                    {
+                        // timed out
+                        lastEx = new OperationCanceledException("ResilientExecutor: operation timed out");
+                        _logger.LogWarning(lastEx, "ResilientExecutor: attempt {Attempt} timed out", attempt);
+                        try { cts.Cancel(); } catch { }
+                    }
+                    else
+                    {
+                        // operation completed (may fault)
+                        return await operationTask;
+                    }
                 }
                 catch (OperationCanceledException oce)
                 {

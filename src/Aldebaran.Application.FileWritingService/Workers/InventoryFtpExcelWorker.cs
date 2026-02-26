@@ -66,12 +66,12 @@ namespace Aldebaran.Application.FileWritingService.Workers
                         stopwatch.Start();
                         FileName = string.Format(FileNameBase, now);
 
-                        // Generate snapshot (report) - handle failures
-                        byte[] excelBytes;
+                        // Generate snapshot (report) to temp file - handle failures
+                        string excelPath = null;
                         try
                         {
                             var data = await GetDataAsync(ct);
-                            excelBytes = await fileBytesGeneratorService.GetExcelBytes(data);
+                            excelPath = await fileBytesGeneratorService.GetExcelTempFile(data);
                         }
                         catch (Exception ex)
                         {
@@ -143,7 +143,7 @@ namespace Aldebaran.Application.FileWritingService.Workers
                                     var uploaded = false;
                                     try
                                     {
-                                        uploaded = await _executor.ExecuteAsync(async (token) => await ftpClient.UploadFileAsync(excelBytes, targetFileName, conn.HostName, port, conn.UserName, conn.Password), ct);
+                                        uploaded = await _executor.ExecuteAsync(async (token) => await ftpClient.UploadFileFromPathAsync(excelPath, targetFileName, conn.HostName, port, conn.UserName, conn.Password, overwrite, token), ct);
                                     }
                                     catch (Exception ex)
                                     {
@@ -173,6 +173,9 @@ namespace Aldebaran.Application.FileWritingService.Workers
 
                             await Task.WhenAll(uploadTasks);
                         }
+
+                        // Cleanup temp file
+                        try { if (!string.IsNullOrEmpty(excelPath) && File.Exists(excelPath)) File.Delete(excelPath); } catch { }
 
                         _nextRun = _schedule.GetNextOccurrence(DateTime.Now);
                         stopwatch.Stop();

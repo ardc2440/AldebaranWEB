@@ -30,6 +30,20 @@ try
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddEnvironmentVariables()
                 .Build();
+    // Ensure application-local temp folder exists and clean old temp files at startup (best effort).
+    string appTempDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? ".", "temp");
+    try
+    {
+        Directory.CreateDirectory(appTempDir);
+    }
+    catch { }
+
+    try
+    {
+        var cleanupHours = configuration.GetValue<int?>("Temp:CleanupHours") ?? 24;
+        Aldebaran.Infraestructure.Common.Utils.TempFileCleaner.CleanInventoryTempFiles(cleanupHours);
+    }
+    catch { }
     services.Configure<FtpSettings>(configuration.GetSection("FtpSettings"));
     var logDbConnection = configuration.GetConnectionString("LogDbConnection") ?? throw new KeyNotFoundException("LogDbConnection");
     var dbConnection = configuration.GetConnectionString("AldebaranDbConnection") ?? throw new KeyNotFoundException("AldebaranDbConnection");

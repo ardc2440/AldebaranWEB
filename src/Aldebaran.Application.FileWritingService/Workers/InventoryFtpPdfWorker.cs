@@ -72,13 +72,13 @@ namespace Aldebaran.Application.FileWritingService.Workers
                         FileName = string.Format(FileNameBase, now);
                         var css = GetCss();
 
-                        // Generate report
-                        byte[] pdfBytes;
+                        // Generate report to temp file
+                        string pdfPath = null;
                         try
                         {
                             var htmlTemplate = await GetTemplateHtmlAsync(ct);
                             var html = $"<html><head><style>{css}</style></head><body>{htmlTemplate}</body></html>";
-                            pdfBytes = await fileBytesGeneratorService.GetPdfBytes(html, true);
+                            pdfPath = await fileBytesGeneratorService.GetPdfTempFile(html, true);
                         }
                         catch (Exception ex)
                         {
@@ -135,7 +135,7 @@ namespace Aldebaran.Application.FileWritingService.Workers
                                     bool uploaded = false;
                                     try
                                     {
-                                        uploaded = await _executor.ExecuteAsync(async (token) => await ftpClient.UploadFileAsync(pdfBytes, targetFileName, conn.HostName, port, conn.UserName, conn.Password), ct);
+                                        uploaded = await _executor.ExecuteAsync(async (token) => await ftpClient.UploadFileFromPathAsync(pdfPath, targetFileName, conn.HostName, port, conn.UserName, conn.Password, overwrite, token), ct);
                                     }
                                     catch (Exception ex)
                                     {
@@ -158,6 +158,9 @@ namespace Aldebaran.Application.FileWritingService.Workers
 
                             await Task.WhenAll(uploadTasks);
                         }
+
+                        // Cleanup temp file
+                        try { if (!string.IsNullOrEmpty(pdfPath) && File.Exists(pdfPath)) File.Delete(pdfPath); } catch { }
 
                         _nextRun = _schedule.GetNextOccurrence(DateTime.Now);
                         stopwatch.Stop();
