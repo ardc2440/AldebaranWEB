@@ -271,18 +271,30 @@ namespace Aldebaran.Application.FileWritingService.Workers
             // If overwrite == true -> use the filename as-is
             // If overwrite == false -> append _yyyyMMdd before the extension
 
+            var dir = Path.GetDirectoryName(baseFileNameTemplate) ?? string.Empty;
             var fileNameOnly = Path.GetFileName(baseFileNameTemplate);
             var nameOnly = Path.GetFileNameWithoutExtension(fileNameOnly);
             var ext = Path.GetExtension(fileNameOnly);
 
+            // normalize dir to use forward slashes for FTP
+            var normalizedDir = dir.Replace('\\', '/').TrimEnd('/');
+
+            string resultFileName;
             if (overwrite)
             {
-                return fileNameOnly;
+                resultFileName = fileNameOnly;
+            }
+            else
+            {
+                var localNow = now.Kind == DateTimeKind.Utc ? now.ToLocalTime() : now;
+                var daily = localNow.ToString("yyyyMMdd");
+                resultFileName = $"{nameOnly}_{daily}{ext}";
             }
 
-            var localNow = now.Kind == DateTimeKind.Utc ? now.ToLocalTime() : now;
-            var daily = localNow.ToString("yyyyMMdd");
-            return $"{nameOnly}_{daily}{ext}";
+            if (string.IsNullOrEmpty(normalizedDir))
+                return resultFileName;
+
+            return normalizedDir + "/" + resultFileName;
         }
        
     }

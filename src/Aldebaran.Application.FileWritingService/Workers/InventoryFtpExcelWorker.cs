@@ -197,18 +197,29 @@ namespace Aldebaran.Application.FileWritingService.Workers
         {
             // Use literal filename from appsettings. If overwrite==true return it as-is.
             // If overwrite==false append _yyyyMMdd before extension.
+            var dir = Path.GetDirectoryName(baseFileNameTemplate) ?? string.Empty;
             var fileNameOnly = Path.GetFileName(baseFileNameTemplate);
             var nameOnly = Path.GetFileNameWithoutExtension(fileNameOnly);
             var ext = Path.GetExtension(fileNameOnly);
 
+            var normalizedDir = dir.Replace('\\', '/').TrimEnd('/');
+
+            string resultFileName;
             if (overwrite)
             {
-                return fileNameOnly;
+                resultFileName = fileNameOnly;
+            }
+            else
+            {
+                var localNow = now.Kind == DateTimeKind.Utc ? now.ToLocalTime() : now;
+                var daily = localNow.ToString("yyyyMMdd");
+                resultFileName = $"{nameOnly}_{daily}{ext}";
             }
 
-            var localNow = now.Kind == DateTimeKind.Utc ? now.ToLocalTime() : now;
-            var daily = localNow.ToString("yyyyMMdd");
-            return $"{nameOnly}_{daily}{ext}";
+            if (string.IsNullOrEmpty(normalizedDir))
+                return resultFileName;
+
+            return normalizedDir + "/" + resultFileName;
         }
 
         async Task<List<InventoryExcelViewModel>> GetDataAsync(CancellationToken ct)
