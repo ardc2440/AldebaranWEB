@@ -60,84 +60,37 @@ namespace Aldebaran.Infraestructure.Core.Ssh
                             }
                         }
 
-                        // Now place temp into final destination depending on overwrite flag
+                        // Place temp into final destination: always attempt to delete existing remotePath and rename temp into place.
                         var maxRenameAttempts = 3;
-                        if (overwrite)
+                        for (int attempt = 1; attempt <= maxRenameAttempts; attempt++)
                         {
-                            for (int attempt = 1; attempt <= maxRenameAttempts; attempt++)
+                            try
                             {
-                                try
+                                if (await ftp.FileExists(remotePath, ct))
                                 {
-                                    if (await ftp.FileExists(remotePath, ct))
-                                    {
-                                        try { await ftp.DeleteFile(remotePath, ct); } catch (Exception delEx) { _logger.LogWarning(delEx, "Could not delete existing remote file before rename (attempt {Attempt}) {Remote}", attempt, remotePath); }
-                                    }
+                                    try { await ftp.DeleteFile(remotePath, ct); } catch (Exception delEx) { _logger.LogWarning(delEx, "Could not delete existing remote file before rename (attempt {Attempt}) {Remote}", attempt, remotePath); }
+                                }
 
-                                    await ftp.Rename(tempRemote, remotePath, ct);
-                                    return true;
-                                }
-                                catch (OperationCanceledException)
-                                {
-                                    throw;
-                                }
-                                catch (Exception ex)
-                                {
-                                    _logger.LogWarning(ex, "Rename attempt {Attempt} failed for {Temp} -> {Final}", attempt, tempRemote, remotePath);
-                                    if (attempt == maxRenameAttempts)
-                                    {
-                                        try { if (await ftp.FileExists(tempRemote, ct)) await ftp.DeleteFile(tempRemote, ct); } catch { }
-                                        return false;
-                                    }
-                                    try { await Task.Delay(TimeSpan.FromSeconds(1 * attempt), ct); } catch { }
-                                }
+                                await ftp.Rename(tempRemote, remotePath, ct);
+                                return true;
                             }
-
-                            return false;
-                        }
-                        else
-                        {
-                            // overwrite == false: if target does not exist, try rename to it
-                            if (!await ftp.FileExists(remotePath, ct))
+                            catch (OperationCanceledException)
                             {
-                                try
-                                {
-                                    await ftp.Rename(tempRemote, remotePath, ct);
-                                    return true;
-                                }
-                                catch (Exception ex)
-                                {
-                                    _logger.LogWarning(ex, "Rename to initial non-overwrite name failed {Temp} -> {Final}", tempRemote, remotePath);
-                                }
+                                throw;
                             }
-
-                            // Otherwise generate suffixed candidate names and try to rename
-                            var dir = Path.GetDirectoryName(remotePath) ?? string.Empty;
-                            var fileNameOnly = Path.GetFileName(remotePath);
-                            var nameOnly = Path.GetFileNameWithoutExtension(fileNameOnly);
-                            var ext = Path.GetExtension(fileNameOnly);
-
-                            for (int attempt = 1; attempt <= maxRenameAttempts; attempt++)
+                            catch (Exception ex)
                             {
-                                var suffix = DateTime.UtcNow.ToString("yyyyMMddHHmmss") + (attempt > 1 ? $"_{attempt}" : string.Empty);
-                                var candidate = Path.Combine(dir, nameOnly + "_" + suffix + ext).Replace('\\', '/');
-                                try
+                                _logger.LogWarning(ex, "Rename attempt {Attempt} failed for {Temp} -> {Final}", attempt, tempRemote, remotePath);
+                                if (attempt == maxRenameAttempts)
                                 {
-                                    if (!await ftp.FileExists(candidate, ct))
-                                    {
-                                        await ftp.Rename(tempRemote, candidate, ct);
-                                        return true;
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    _logger.LogWarning(ex, "Rename attempt to candidate failed {Temp} -> {Candidate}", tempRemote, candidate);
+                                    try { if (await ftp.FileExists(tempRemote, ct)) await ftp.DeleteFile(tempRemote, ct); } catch { }
+                                    return false;
                                 }
                                 try { await Task.Delay(TimeSpan.FromSeconds(1 * attempt), ct); } catch { }
                             }
-
-                            try { if (await ftp.FileExists(tempRemote, ct)) await ftp.DeleteFile(tempRemote, ct); } catch { }
-                            return false;
                         }
+
+                        return false;
                     }
                     finally
                     {

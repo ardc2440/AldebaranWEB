@@ -24,7 +24,7 @@ namespace Aldebaran.Application.FileWritingService.Workers
         private readonly IFtpClient ftpClient;
         private readonly IFtpWritingConnectionRepository ftpWritingConnectionRepository;
         private readonly string TemplatePath;
-        private readonly string FileNameBase;
+        private readonly string FileNameTemplate;
         private readonly CrontabSchedule _schedule;
         private DateTime _nextRun;
         private string FileName = string.Empty;
@@ -47,7 +47,7 @@ namespace Aldebaran.Application.FileWritingService.Workers
             TemplatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates", "InventoryTemplate.html");
             if (!File.Exists(TemplatePath))
                 throw new KeyNotFoundException($"Template file not fount in {TemplatePath}");
-            FileNameBase = Configuration.GetValue<string>("InventoryFileOutputOptions:Pdf:FileName") ?? throw new KeyNotFoundException("InventoryFileOutputOptions:Pdf:FileName");
+            FileNameTemplate = Configuration.GetValue<string>("InventoryFileOutputOptions:Pdf:FileName") ?? throw new KeyNotFoundException("InventoryFileOutputOptions:Pdf:FileName");
 
             var cronExpression = Configuration.GetValue<string>("InventoryFileOutputOptions:Pdf:CronExpression") ?? throw new KeyNotFoundException("InventoryFileOutputOptions:Pdf:CronExpression");
             _schedule = CrontabSchedule.Parse(cronExpression, new CrontabSchedule.ParseOptions { IncludingSeconds = false });
@@ -69,7 +69,8 @@ namespace Aldebaran.Application.FileWritingService.Workers
                         _logger.LogInformation($"InventoryFtpPdfWorker will be executed at: {now} CorrelationId:{correlationId}");
                         Stopwatch stopwatch = new Stopwatch();
                         stopwatch.Start();
-                        FileName = string.Format(FileNameBase, now);
+                        // Do not pre-format FileName; keep template and build per destination respecting overwrite
+                        FileName = FileNameTemplate; // keep template for notifications
                         var css = GetCss();
 
                         // Generate report to temp file
@@ -130,9 +131,10 @@ namespace Aldebaran.Application.FileWritingService.Workers
                                     }
 
                                     var overwrite = conn.RewriteFile ?? true;
-                                    var targetFileName = BuildTargetFileName(FileName, now, overwrite);
+                                    var targetFileName = BuildTargetFileName(FileNameTemplate, now, overwrite);
 
                                     bool uploaded = false;
+                                    string uploadError = null;
                                     try
                                     {
                                         uploaded = await _executor.ExecuteAsync(async (token) => await ftpClient.UploadFileFromPathAsync(pdfPath, targetFileName, conn.HostName, port, conn.UserName, conn.Password, overwrite, token), ct);
@@ -140,6 +142,7 @@ namespace Aldebaran.Application.FileWritingService.Workers
                                     catch (Exception ex)
                                     {
                                         _logger.LogWarning(ex, "Upload attempt failed for {Host}:{Port} target {File} CorrelationId:{CorrelationId}", conn.HostName, port, targetFileName, correlationId);
+                                        uploadError = ex.Message;
                                         uploaded = false;
                                     }
 
@@ -147,7 +150,7 @@ namespace Aldebaran.Application.FileWritingService.Workers
 
                                     if (!uploaded)
                                     {
-                                        try { await SendConnectivityNotification(correlationId, "FTP_DESTINATION", conn.HostName, port, targetFileName, "Upload failed after retries", now); } catch (Exception ex) { _logger.LogError(ex, "Error sending connectivity notification for FTP destination. CorrelationId:{CorrelationId}", correlationId); }
+                                        try { await SendConnectivityNotification(correlationId, "FTP_DESTINATION", conn.HostName, port, targetFileName, uploadError ?? "Upload failed after retries", now); } catch (Exception ex) { _logger.LogError(ex, "Error sending connectivity notification for FTP destination. CorrelationId:{CorrelationId}", correlationId); }
                                     }
                                 }
                                 finally
@@ -262,21 +265,25 @@ namespace Aldebaran.Application.FileWritingService.Workers
             return result;
         }
 
-        private static string BuildTargetFileName(string baseFileName, DateTime now, bool overwrite)
+        private static string BuildTargetFileName(string baseFileNameTemplate, DateTime now, bool overwrite)
         {
+            // baseFileNameTemplate is expected to be the literal filename configured in appsettings, e.g. "Inventarios_Pdf.pdf"
+            // If overwrite == true -> use the filename as-is
+            // If overwrite == false -> append _yyyyMMdd before the extension
+
+            var fileNameOnly = Path.GetFileName(baseFileNameTemplate);
+            var nameOnly = Path.GetFileNameWithoutExtension(fileNameOnly);
+            var ext = Path.GetExtension(fileNameOnly);
+
             if (overwrite)
             {
-                return baseFileName;
+                return fileNameOnly;
             }
 
-            var name = Path.GetFileNameWithoutExtension(baseFileName);
-            var ext = Path.GetExtension(baseFileName);
-            var timestamp = now.ToString("yyyyMMdd");
-            return $"{name}_{timestamp}{ext}";
+            var localNow = now.Kind == DateTimeKind.Utc ? now.ToLocalTime() : now;
+            var daily = localNow.ToString("yyyyMMdd");
+            return $"{nameOnly}_{daily}{ext}";
         }
-        //public Task StopAsync(CancellationToken ct)
-        //{
-        //    return Task.CompletedTask;
-        //}
+       
     }
 }

@@ -22,7 +22,7 @@ namespace Aldebaran.Application.FileWritingService.Workers
         private readonly IFtpClient ftpClient;
         private readonly IFtpWritingConnectionRepository ftpWritingConnectionRepository;
         private readonly IFileBytesGeneratorService fileBytesGeneratorService;
-        private readonly string FileNameBase;
+        private readonly string FileNameTemplate;
         private readonly CrontabSchedule _schedule;
         private DateTime _nextRun;
         private string FileName = string.Empty;
@@ -42,7 +42,7 @@ namespace Aldebaran.Application.FileWritingService.Workers
             _recipientRepository = recipientRepository ?? throw new ArgumentNullException(nameof(IAutomataNotificationRecipientRepository));
             _emailSender = emailSender ?? throw new ArgumentNullException(nameof(Aldebaran.Application.FileWritingService.Services.IEmailSender));
             _executor = executor ?? throw new ArgumentNullException(nameof(executor));
-            FileNameBase = Configuration.GetValue<string>("InventoryFileOutputOptions:Excel:FileName") ?? throw new KeyNotFoundException("InventoryFileOutputOptions:Excel:FileName");
+            FileNameTemplate = Configuration.GetValue<string>("InventoryFileOutputOptions:Excel:FileName") ?? throw new KeyNotFoundException("InventoryFileOutputOptions:Excel:FileName");
 
             var cronExpression = Configuration.GetValue<string>("InventoryFileOutputOptions:Excel:CronExpression") ?? throw new KeyNotFoundException("InventoryFileOutputOptions:Excel:CronExpression");
             _schedule = CrontabSchedule.Parse(cronExpression, new CrontabSchedule.ParseOptions { IncludingSeconds = false });
@@ -64,7 +64,7 @@ namespace Aldebaran.Application.FileWritingService.Workers
                         _logger.LogInformation($"InventoryFtpExcelWorker will be executed at: {now} CorrelationId:{correlationId}");
                         Stopwatch stopwatch = new Stopwatch();
                         stopwatch.Start();
-                        FileName = string.Format(FileNameBase, now);
+                        FileName = FileNameTemplate;
 
                         // Generate snapshot (report) to temp file - handle failures
                         string excelPath = null;
@@ -138,9 +138,10 @@ namespace Aldebaran.Application.FileWritingService.Workers
                                     }
 
                                     var overwrite = conn.RewriteFile ?? true;
-                                    var targetFileName = BuildTargetFileName(FileName, now, overwrite);
+                                    var targetFileName = BuildTargetFileName(FileNameTemplate, now, overwrite);
 
                                     var uploaded = false;
+                                    string uploadError = null;
                                     try
                                     {
                                         uploaded = await _executor.ExecuteAsync(async (token) => await ftpClient.UploadFileFromPathAsync(excelPath, targetFileName, conn.HostName, port, conn.UserName, conn.Password, overwrite, token), ct);
@@ -148,6 +149,7 @@ namespace Aldebaran.Application.FileWritingService.Workers
                                     catch (Exception ex)
                                     {
                                         _logger.LogWarning(ex, "Upload attempt failed for {Host}:{Port} target {File} CorrelationId:{CorrelationId}", conn.HostName, port, targetFileName, correlationId);
+                                        uploadError = ex.Message;
                                         uploaded = false;
                                     }
 
@@ -157,7 +159,8 @@ namespace Aldebaran.Application.FileWritingService.Workers
                                     {
                                         try
                                         {
-                                            await SendConnectivityNotification(correlationId, "FTP_DESTINATION", conn.HostName, port, targetFileName, "Upload failed after retries", now);
+                                            var err = uploadError ?? "Upload failed after retries";
+                                            await SendConnectivityNotification(correlationId, "FTP_DESTINATION", conn.HostName, port, targetFileName, err, now);
                                         }
                                         catch (Exception ex)
                                         {
@@ -190,17 +193,22 @@ namespace Aldebaran.Application.FileWritingService.Workers
             } while (!ct.IsCancellationRequested);
         }
 
-        private static string BuildTargetFileName(string baseFileName, DateTime now, bool overwrite)
+        private static string BuildTargetFileName(string baseFileNameTemplate, DateTime now, bool overwrite)
         {
+            // Use literal filename from appsettings. If overwrite==true return it as-is.
+            // If overwrite==false append _yyyyMMdd before extension.
+            var fileNameOnly = Path.GetFileName(baseFileNameTemplate);
+            var nameOnly = Path.GetFileNameWithoutExtension(fileNameOnly);
+            var ext = Path.GetExtension(fileNameOnly);
+
             if (overwrite)
             {
-                return baseFileName;
+                return fileNameOnly;
             }
 
-            var name = Path.GetFileNameWithoutExtension(baseFileName);
-            var ext = Path.GetExtension(baseFileName);
-            var timestamp = now.ToString("yyyyMMdd");
-            return $"{name}_{timestamp}{ext}";
+            var localNow = now.Kind == DateTimeKind.Utc ? now.ToLocalTime() : now;
+            var daily = localNow.ToString("yyyyMMdd");
+            return $"{nameOnly}_{daily}{ext}";
         }
 
         async Task<List<InventoryExcelViewModel>> GetDataAsync(CancellationToken ct)
