@@ -11,6 +11,7 @@ using Aldebaran.DataAccess.Core.Triggers.Shipments;
 using Aldebaran.DataAccess.Core.Triggers.Transfers;
 using Aldebaran.DataAccess.Infraestructure.Repository;
 using Aldebaran.DataAccess.Infraestructure.Repository.Reports;
+using Aldebaran.Infraestructure.Common.Browser;
 using Aldebaran.Infraestructure.Common.Utils;
 using Aldebaran.Infraestructure.Core.Model;
 using Aldebaran.Infraestructure.Core.Queue;
@@ -371,7 +372,8 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IQueueSettings, QueueSettings>();
             services.AddTransient<Notificator.INotificationService, Notificator.NotificationService>();
             services.AddTransient<IFtpClient, FtpClient>();
-           
+            services.AddSingleton<IBrowserProvider, BrowserProvider>();
+
             return services;
         }
     }

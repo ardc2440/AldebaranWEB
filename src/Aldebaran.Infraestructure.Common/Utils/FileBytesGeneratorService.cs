@@ -1,4 +1,5 @@
-﻿using DocumentFormat.OpenXml;
+﻿using Aldebaran.Infraestructure.Common.Browser;
+using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using PuppeteerSharp;
@@ -12,6 +13,13 @@ namespace Aldebaran.Infraestructure.Common.Utils
 {
     public class FileBytesGeneratorService : IFileBytesGeneratorService
     {
+        private readonly IBrowserProvider _browserProvider;
+
+        public FileBytesGeneratorService(IBrowserProvider browserProvider)
+        {
+            _browserProvider = browserProvider;
+        }
+
         public Task<byte[]> GetCsvBytes<T>(List<T> data)
         {
             var columns = GetProperties(typeof(T));
@@ -223,7 +231,7 @@ namespace Aldebaran.Infraestructure.Common.Utils
             return Task.FromResult(tempFile);
         }
 
-        public async Task<byte[]> GetPdfBytes(string content, bool landscape = false)
+        /*public async Task<byte[]> GetPdfBytes(string content, bool landscape = false)
         {
             // Iniciar una instancia de Chromium a través de PuppeteerSharp
             await new BrowserFetcher().DownloadAsync();
@@ -257,9 +265,45 @@ namespace Aldebaran.Infraestructure.Common.Utils
             await browser.CloseAsync();
 
             return pdfBytes;
+        }*/
+
+        public async Task<byte[]> GetPdfBytes(string content, bool landscape = false)
+        {
+            var browser = await _browserProvider.GetBrowserAsync();
+            var page = await browser.NewPageAsync();
+
+            try
+            {
+                await page.SetContentAsync(content);
+
+                var pdfBytes = await page.PdfDataAsync(new PdfOptions
+                {
+                    Format = PaperFormat.A4,
+                    Landscape = landscape,
+                    PrintBackground = true,
+                    MarginOptions = new MarginOptions
+                    {
+                        Top = "2cm",
+                        Bottom = "2cm",
+                        Left = "2cm",
+                        Right = "2cm"
+                    },
+                    DisplayHeaderFooter = true,
+                    FooterTemplate = @"
+            <div style='font-size: 10px; color: #888; text-align: center; display:block; width:100%;'>
+                <span class='pageNumber'></span> de <span class='totalPages'></span>
+            </div>"
+                });
+
+                return pdfBytes;
+            }
+            finally
+            {
+                await page.CloseAsync(); // 🔴 obligatorio
+            }
         }
 
-        public async Task<string> GetPdfTempFile(string content, bool landscape = false)
+        /*public async Task<string> GetPdfTempFile(string content, bool landscape = false)
         {
             var tempDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? ".", "temp");
             Directory.CreateDirectory(tempDir);
@@ -296,6 +340,51 @@ namespace Aldebaran.Infraestructure.Common.Utils
             }
 
             await browser.CloseAsync();
+            return tempFile;
+        }*/
+
+        public async Task<string> GetPdfTempFile(string content, bool landscape = false)
+        {
+            var tempDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? ".", "temp");
+            Directory.CreateDirectory(tempDir);
+
+            var tempFile = Path.Combine(tempDir, $"inventory_{Guid.NewGuid()}.pdf");
+
+            var browser = await _browserProvider.GetBrowserAsync();
+            var page = await browser.NewPageAsync();
+
+            try
+            {
+                await page.SetContentAsync(content);
+
+                await using (var pdfStream = await page.PdfStreamAsync(new PdfOptions
+                {
+                    Format = PaperFormat.A4,
+                    Landscape = landscape,
+                    PrintBackground = true,
+                    MarginOptions = new MarginOptions
+                    {
+                        Top = "2cm",
+                        Bottom = "2cm",
+                        Left = "2cm",
+                        Right = "2cm"
+                    },
+                    DisplayHeaderFooter = true,
+                    FooterTemplate = @"
+            <div style='font-size: 10px; color: #888; text-align: center; display:block; width:100%;'>
+                <span class='pageNumber'></span> de <span class='totalPages'></span>
+            </div>"
+                }))
+                {
+                    await using var fs = new FileStream(tempFile, FileMode.Create, FileAccess.Write, FileShare.None);
+                    await pdfStream.CopyToAsync(fs);
+                }
+            }
+            finally
+            {
+                await page.CloseAsync(); // 🔴 ESTO ES CLAVE
+            }
+
             return tempFile;
         }
 

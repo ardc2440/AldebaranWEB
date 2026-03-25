@@ -4,6 +4,7 @@ using Aldebaran.DataAccess;
 using Aldebaran.DataAccess.Infraestructure.Repository;
 using Aldebaran.DataAccess.Infraestructure.Repository.Reports;
 using Aldebaran.Infraestructure.Common.Utils;
+using Aldebaran.Infraestructure.Common.Browser;
 using Aldebaran.Infraestructure.Core.Model;
 using Aldebaran.Infraestructure.Core.Ssh;
 using Microsoft.EntityFrameworkCore;
@@ -95,6 +96,7 @@ try
     services.AddTransient<IFileBytesGeneratorService, FileBytesGeneratorService>();
     services.AddTransient<IFtpClient, FtpClient>();
     services.AddSingleton<Aldebaran.Application.FileWritingService.Services.IEmailSender, Aldebaran.Application.FileWritingService.Services.EmailSender>();
+    services.AddSingleton<IBrowserProvider, BrowserProvider>();
     var host = builder.Build();
     await host.RunAsync();
 }
