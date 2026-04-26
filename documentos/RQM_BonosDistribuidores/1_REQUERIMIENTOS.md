@@ -1,64 +1,53 @@
-# 1. REQUERIMIENTOS FUNCIONALES - Bonificación de Distribuidores 
+# 1. REQUERIMIENTOS FUNCIONALES - Bonificación de Distribuidores
 
 **Identificador**: RQM_BonosDistribuidores_052026  
-**Cliente**: PROMOS | **Estado**: ? REQUERIMIENTOS DEFINIDOS | **Fecha**: 2024
+**Cliente**: PROMOS | **Estado**: REQUERIMIENTOS DEFINIDOS | **Fecha**: 2024
 
 ---
 
 ## 1.1 Descripción General
 
 ### Objetivo
-Sistema de gestión de bonificaciones para distribuidores PROMOS:
-- **Bonificación por Facturación**: Incentivo basado en valor total facturado/período
-- **Bonificación por Pedido**: Incentivo basado en valor total pedido/período
+Sistema de gestión de bonificaciones para distribuidores PROMOS con dos modalidades:
+- **Bonificación por Facturación**: Incentivo basado en valor total facturado en período
+- **Bonificación por Pedido**: Incentivo basado en valor total pedido en período
 
-### Modelo de Negocio - FLUJO INTEGRAL
+### Modelo de Negocio
 
 ```
 PÁGINA PROMOCIONAL (Tercero):
-  ?? Suministra: Lista de precios + Descuentos distribuidores (diariamente)
+  Suministra: Lista de precios + Descuentos distribuidores (diariamente)
 
 ALDEBARAN:
-  ?? Carga diaria: Precios desde página (automático - RF6)
-  ?? Obtiene: Valor facturado desde TOTUS (por período - RF7)
-  ?? Obtiene: Valor pedido de órdenes + precios (RF8)
-  ?? Calcula: Bonos (recomendación) basado en insumos
-  ?? Registra: Historial y FOTO del cierre (RF5)
-  ?? Consulta: Valores dinámicamente SLA 500ms (RF4)
-  ?? Genera: Recomendación de nota crédito para TOTUS
-  ?? Reconcilia: Valor calculado vs valor real aplicado (RF11)
+  Carga diaria: Precios desde página (automático)
+  Obtiene: Valor facturado desde TOTUS (por período)
+  Obtiene: Valor pedido de órdenes + precios
+  Calcula: Bonos (recomendación) basado en insumos
+  Registra: Historial y FOTO del cierre
+  Consulta: Valores dinámicamente (SLA 500ms)
+  Genera: Recomendación de nota crédito para TOTUS
+  Reconcilia: Valor calculado vs valor real aplicado
 
 TOTUS (Tercero):
-  ?? Suministra: Valor facturado (verdad única de facturación)
-  ?? Aplica: Las notas crédito en siguiente período
-  ?? Retorna: Valor real aplicado (para reconciliación)
-  ?? Integración: BD local TOTUS en servidor PROMOS
+  Suministra: Valor facturado (verdad única de facturación)
+  Aplica: Las notas crédito en siguiente período
+  Retorna: Valor real aplicado (para reconciliación)
+  Integración: BD local TOTUS en servidor PROMOS
 
 USUARIO PROMOS:
-  ?? Aplica: Bonos recomendados en TOTUS (responsable valor real)
+  Aplica: Bonos recomendados en TOTUS (responsable valor real)
 ```
-
-### Contexto
-Flujo automático: PÁGINA ? ALDEBARAN (calcula) ? TOTUS (aplica) ? ALDEBARAN (reconcilia)
-
-### Usuarios Finales
-- Administrador: Configura períodos, tipos, vigencias
-- Distribuidor: Beneficiario de bonificaciones
-- Usuario PROMOS: Aplica bonos en TOTUS
-- TOTUS: Sistema que aplica notas crédito
 
 ---
 
 ## 1.2 Actores del Sistema
 
-```
-ADMINISTRADOR (Aldebaran.Web): Gestiona Períodos, Tipos, Vigencias
-DISTRIBUIDOR: Beneficiario de bonificaciones
-PÁGINA PROMOCIONAL (Tercero): Suministra precios diarios
-SISTEMA TOTUS (Tercero): Suministra facturación, aplica notas crédito
-USUARIO PROMOS: Aplica bonos en TOTUS
-PROCESO AUTOMÁTICO: Carga precios, cierre período, reconciliación
-```
+- ADMINISTRADOR (Aldebaran.Web): Gestiona Períodos, Tipos, Vigencias
+- DISTRIBUIDOR: Beneficiario de bonificaciones
+- PÁGINA PROMOCIONAL (Tercero): Suministra precios diarios
+- TOTUS (Tercero): Suministra facturación, aplica notas crédito
+- USUARIO PROMOS: Aplica bonos en TOTUS
+- PROCESO AUTOMÁTICO: Carga precios, cierre período, reconciliación
 
 ---
 
@@ -72,38 +61,20 @@ Admin define Tipo con Afectación (Facturación/Pedido/Entregado) y Período
 
 ### CU3: Crear Vigencia
 Admin define vigencia: rangos valor, porcentaje, fecha inicio
-- Lógica: Vigencia más reciente (fecha ? hoy, Activo) se aplica automáticamente
-- Permite proyección: Crear vigencia con fecha futura
+Lógica: Vigencia más reciente (fecha ? hoy, Activo) se aplica automáticamente
 
 ### CU4: Cargar Lista de Precios (Automático Diario)
 Proceso automático: Descarga ? Procesa ? Carga desde página promocional
-- Almacenamiento: PreciosDistribuidor (actual) + PreciosDistribuidorHistorico (4 meses)
-- Auditoría y Alertas: Éxito/fallo del proceso
+Almacenamiento: PreciosDistribuidor (actual) + PreciosDistribuidorHistorico (4 meses)
 
 ### CU5: Consultar Bono Actual (Dinámico)
-Consulta bono acumulado del período actual
-- Obtiene: Datos según Tipo Afectación (Facturación/Pedido/Entregado)
-- Si Facturación: Descuenta Nota Crédito de período anterior
-- Busca: Vigencia más reciente + rango que contiene valor
-- Retorna: Valor Acumulado, Porcentaje, Vigencia, Tramo
-- SLA: 500ms | No persiste, es DINÁMICO
+Consulta bono acumulado del período actual (SLA: 500ms)
 
 ### CU6: Cierre de Período (Automático)
-Al último día del período ejecuta automáticamente
-- Calcula: Bono final
-- Registra: FOTO en Historial (inmutable)
-  - Insumos detallados (Pedido o Facturación)
-  - Vigencia aplicada, Porcentaje
-- Genera: Información Nota Crédito con ID: BONO_RQM_[Período]_[Distribuidor]
+Al último día ejecuta: Calcula bono final, Registra FOTO, Genera Nota Crédito
 
 ### CU7: Reconciliación de Nota Crédito (Automático)
-Al inicio período N+1, obtiene valor REAL de NC que fue aplicada en período N
-- Consulta: BD TOTUS
-- Busca: NC con identificador BONO_RQM_[Período N]_[Distribuidor]
-- Obtiene: Valor Real aplicado
-- Actualiza: Historial con Valor Real, Diferencia, Porcentaje Diferencia
-- Alerta: Si Diferencia mayor que X%
-- CRÍTICO: Evita doble conteo de notas crédito en cálculos siguientes
+Al inicio período N+1: Obtiene NC REAL de TOTUS, Actualiza historial
 
 ---
 
@@ -111,17 +82,17 @@ Al inicio período N+1, obtiene valor REAL de NC que fue aplicada en período N
 
 | RF | Descripción |
 |----|---|
-| RF1 | Gestionar Períodos: Crear, editar, activar/desactivar |
-| RF2 | Gestionar Tipos de Bono: Crear, editar, activar/desactivar |
-| RF3 | Gestionar Vigencias: Crear, editar, activar. Lógica: más reciente se aplica |
-| RF4 | Consultar Bono Actual Dinámico: SLA 500ms, No persiste |
-| RF5 | Registrar Historial de Bonos: FOTO del cierre, Inmutable |
-| RF6 | Cargar Lista Precios: Descarga automática diaria desde página |
-| RF7 | Capturar Valor Facturado: De Procedimiento TOTUS (Mock parametrizable) |
-| RF8 | Capturar Valor Pedido: De órdenes Aldebaran + precios actuales |
-| RF9 | Capturar Valor Entregado: De entregas Aldebaran confirmadas |
-| RF10 | Gestionar Nota Crédito Anterior: Para no contar dos veces en cálculos |
-| RF11 | Reconciliación Nota Crédito: Obtener REAL de TOTUS y actualizar historial |
+| RF1 | Gestionar Períodos |
+| RF2 | Gestionar Tipos de Bono |
+| RF3 | Gestionar Vigencias |
+| RF4 | Consultar Bono Actual Dinámico |
+| RF5 | Registrar Historial de Bonos |
+| RF6 | Cargar Lista Precios Distribuidores |
+| RF7 | Capturar Valor Facturado (TOTUS) |
+| RF8 | Capturar Valor Pedido (Aldebaran + Precios) |
+| RF9 | Capturar Valor Entregado (Aldebaran) |
+| RF10 | Gestionar Nota Crédito Período Anterior |
+| RF11 | Reconciliación Nota Crédito (TOTUS) |
 
 ---
 
@@ -129,35 +100,249 @@ Al inicio período N+1, obtiene valor REAL de NC que fue aplicada en período N
 
 | Requisito | Especificación |
 |-----------|---|
-| Disponibilidad | 99% |
-| Rendimiento | Consulta bono: 500ms, Cierre período: 5min |
-| Seguridad | Solo Admin modifica, Auditoría completa, Historial inmutable |
-| Escalabilidad | Miles distribuidores, Histórico 5+ años |
-| Integrabilidad | TOTUS + Página Promocional integradas |
-| Mantenibilidad | 100% sin código, Parametrizable |
+| Disponibilidad | 99 porciento |
+| Rendimiento | Consulta: 500ms, Cierre: 5min |
+| Seguridad | Solo Admin, Auditoría, Historial inmutable |
+| Escalabilidad | Miles distribuidores |
+| Integrabilidad | TOTUS + Página Promocional |
+| Mantenibilidad | 100 porciento sin código |
 
 ---
 
 ## 1.6 Restricciones
 
-- Bono se aplica como NOTA CRÉDITO en siguiente período (no directo)
-- Aldebaran: Calcula/recomienda. TOTUS: Aplica. Usuario: Responsable
+- Bono se aplica como NOTA CRÉDITO en siguiente período
+- Aldebaran: Calcula/recomienda, TOTUS: Aplica, Usuario: Responsable
 - Historial inmutable después de cierre
 - .NET 7, SQL Server, Blazor Server
-- Precios: Carga diaria, se usa lista MÁS RECIENTE
+- Precios: Carga diaria, se usa MÁS RECIENTE
 - TOTUS es "verdad única" para valor facturado
-- Vigencia: Nueva vigencia, NO edición de anterior (auditoría)
+- Vigencia: Nueva vigencia, NO edición (auditoría)
 
 ---
 
-## 1.7 Base de Datos TOTUS (Integración Local)
+## 1.7 INSUMOS - OBTENCIÓN DE VALORES PARA CÁLCULO
 
+### 1.7.1 VALOR FACTURADO (De TOTUS via Procedimiento Almacenado)
+
+**Ubicación**: BD TOTUS en servidor local PROMOS (sin problemas conectividad)
+
+**Procedimiento Almacenado**:
+- Nombre: A definir (parametrizable en appSettings, ej: sp_ObtenerFacturacion)
+- STATUS: NO EXISTE AÚN en TOTUS (en construcción)
+- Uso: MOCK parametrizable mientras se construye
+
+**ENTRADA (Parámetros que ALDEBARAN ENVÍA)**:
 ```
-Ubicación: BD TOTUS en servidor local PROMOS
-Procedimiento: A definir (parametrizable en appSettings)
-Entrada: Tipo Doc, Número Doc (Cédula), Fecha Inicio, Fecha Fin
-Salida: Valor Facturado SIN Impuestos, NC, Fletes, Descuentos
-Status: Procedimiento NO existe aún, usar MOCK parametrizable
+- TipoDocumento: "FAC" (Factura)
+- NumeroDocumento: "1234567890" (Cédula del distribuidor)
+- FechaInicio: "2024-01-01" (Primer día del período)
+- FechaFin: "2024-01-31" (Último día del período)
+```
+
+**SALIDA (Lo que TOTUS RETORNA)**:
+```
+- ValorTotalFacturadoSinImpuestos: decimal (CRÍTICO para bono)
+- TotalNotasCredito: decimal (Descuentos acumulados)
+- TotalFletes: decimal (Fletes del período)
+- TotalDescuentos: decimal (Descuentos comerciales)
+```
+
+**CÁLCULO DEL BONO POR FACTURACIÓN - PASO A PASO**:
+```
+Paso 1: Obtiene de TOTUS
+  ValorBruto = ValorTotalFacturadoSinImpuestos
+  Ej: $100,000,000
+
+Paso 2: Descuenta Nota Crédito del período ANTERIOR
+  NC_PeríodoAnterior = Obtiene de Historial (reconciliada)
+  Ej: $1,500,000
+  ValorNeto = ValorBruto - NC_PeríodoAnterior
+  Ej: $100,000,000 - $1,500,000 = $98,500,000
+
+Paso 3: Busca Vigencia más reciente (fecha ? hoy, estado Activo)
+  Vigencia del mes en curso
+
+Paso 4: Busca en qué TRAMO cae ValorNeto
+  Tramos configurados:
+    Tramo 1: $10M - $20M = 58 porciento
+    Tramo 2: $20M - $30M = 59 porciento
+    Tramo 3: $30M - $100M = 60 porciento
+    Tramo 4: >$100M = 61 porciento
+
+  ValorNeto = $98,500,000 ? Cae en Tramo 3 (58-100M) ? 60 porciento
+
+Paso 5: Aplica porcentaje
+  Bono = ValorNeto * Porcentaje
+  Bono = $98,500,000 * 0.60 = $59,100,000
+
+Paso 6: Genera Nota Crédito para siguiente período
+  Distribuidor: DIST-001
+  Valor: $59,100,000
+  Para aplicar en: Febrero
+```
+
+**ESTRATEGIA MOCK**:
+```
+appSettings:
+  "ProcedimientoAlmacenadoTOTUS": "sp_ObtenerFacturacion"
+  "UsarMockTOTUS": true (durante desarrollo)
+  "ValorMockFacturado": 100000000
+  "TotalMockNC": 1500000
+
+Si UsarMockTOTUS = true:
+  Retorna valores de prueba configurables
+  Permite testing sin dependencia de TOTUS real
+```
+
+### 1.7.2 VALOR PEDIDO (De Órdenes Aldebaran + Lista de Precios Página)
+
+**PROBLEMA**: Aldebaran NO tiene precios de artículos. Página Promocional sí.
+
+**SOLUCIÓN**: Cargar archivo Excel diariamente desde página (mejor que servicio 1-a-1)
+
+**FUENTES DE DATOS**:
+```
+Fuente 1: ÓRDENES EN ALDEBARAN (por período)
+  - Referencia del artículo
+  - Cantidad pedida
+  - Fecha de la orden
+
+Fuente 2: LISTA DE PRECIOS (cargada diariamente de Página)
+  - Referencia
+  - PrecioUnitario (precio base)
+  - DescuentoDistribuidor (porcentaje)
+```
+
+**CÁLCULO DEL VALOR PEDIDO - PASO A PASO**:
+```
+Para cada orden del período:
+
+  1. Busca en lista de precios por Referencia
+     Ej: REF-001
+
+  2. Obtiene Precio y Descuento
+     PrecioUnitario = $20
+     DescuentoDistribuidor = 10 porciento
+
+  3. Calcula precio con descuento
+     PrecioConDescuento = PrecioUnitario * (1 - DescuentoDistribuidor)
+     PrecioConDescuento = $20 * (1 - 0.10) = $18
+
+  4. Calcula valor de la orden
+     Cantidad = 100 unidades
+     ValorOrden = Cantidad * PrecioConDescuento
+     ValorOrden = 100 * $18 = $1,800
+
+  5. ACUMULA para el período completo
+     ValorTotalPedido = SUM(todas las órdenes del período)
+     Ej: $1,800,000
+```
+
+**EJEMPLO COMPLETO - PERÍODO 15 DÍAS**:
+```
+Orden 1: REF-001, Cant: 100, Precio: $20, Desc: 10% ? $1,800
+Orden 2: REF-002, Cant: 50, Precio: $100, Desc: 15% ? $4,250
+Orden 3: REF-001, Cant: 200, Precio: $20, Desc: 10% ? $3,600
+Orden 4: REF-003, Cant: 1000, Precio: $5, Desc: 5% ? $4,750
+
+Total período = $1,800 + $4,250 + $3,600 + $4,750 = $14,400
+```
+
+**CÁLCULO DEL BONO POR PEDIDO**:
+```
+Paso 1: Calcula acumulado del período
+  ValorTotalPedido = $14,400,000
+
+Paso 2: Busca Vigencia más reciente (fecha ? hoy)
+  Vigencia del período actual
+
+Paso 3: Busca TRAMO que contiene ValorTotalPedido
+  Tramos (configurables):
+    Tramo 1: $1M - $5M = 5 porciento
+    Tramo 2: $5M - $10M = 6 porciento
+    Tramo 3: $10M - $20M = 7 porciento
+    Tramo 4: >$20M = 8 porciento
+
+  ValorTotalPedido = $14,400,000 ? Tramo 3 ? 7 porciento
+
+Paso 4: Aplica porcentaje
+  Bono = ValorTotalPedido * Porcentaje
+  Bono = $14,400,000 * 0.07 = $1,008,000
+
+Paso 5: Genera Nota Crédito para siguiente período
+  Distribuidor: DIST-001
+  Valor: $1,008,000
+  Para aplicar en: Siguiente período
+```
+
+**DÓNDE SE USA LISTA DE PRECIOS**:
+```
+Tabla: PreciosDistribuidor (se reemplaza diariamente)
+  Referencia, PrecioUnitario, DescuentoDistribuidor, FechaCarga
+
+Tabla: PreciosDistribuidorHistorico (histórico 4 meses)
+  Mismos campos + información de auditoría
+
+Propósito:
+  Auditoría: Qué precios se usaron en cada cálculo
+  Reclamos: Si distribuidor reclama, ver qué lista se usó
+```
+
+**PROCESO AUTOMÁTICO DE CARGA (RF6)**:
+```
+Diariamente (horario a definir):
+  1. Conecta a Página Promocional (protocolo a definir)
+  2. Descarga archivo Excel
+  3. Procesa:
+     - Valida estructura (debe tener 3 columnas)
+     - Valida datos (precios > 0, descuentos 0-100%)
+  4. Carga a BD:
+     - Borra PreciosDistribuidor anterior
+     - Inserta nuevos precios
+     - Copia a PreciosDistribuidorHistorico (con fecha)
+  5. Auditoría: Registra fecha, cantidad registros, resultado
+  6. Alertas:
+     - Si éxito: Log "Precios cargados OK"
+     - Si fallo: Alerta admin, conserva precios anteriores
+
+Si falla durante período:
+  Usa precios del día anterior
+  Calcula bonos con esos precios
+  NO interrumpe la operación
+```
+
+### 1.7.3 VALOR ENTREGADO (De Recibos Aldebaran)
+
+**Fuente**: Entregas/Recibos confirmados en Aldebaran
+
+**Cálculo**:
+```
+ValorTotalEntregado = SUM(Valor de todas entregas confirmadas en período)
+
+Se usa para Tipo de Bono con Afectación = "Entregado"
+```
+
+### 1.7.4 NOTA CRÉDITO DEL PERÍODO ANTERIOR
+
+**Obtención**:
+```
+De: Tabla HistorialBono del período anterior
+Estado = "Aplicado" (reconciliado)
+Valor: ValorReal (no el calculado, sino el que TOTUS realmente aplicó)
+
+Uso en cálculo Bono por Facturación:
+  ValorNetoBono = ValorFacturado - NC_PeríodoAnterior
+```
+
+**CRÍTICO PARA PRECISIÓN**:
+```
+Sin descontar NC anterior = DOBLE CONTEO de bonos
+Ejemplo del desastre:
+  Enero: Facturado $100M ? Bono $60M (NC Enero)
+  Febrero: Facturado $95M
+    SI NO descuenta NC Enero: Calcularía bono sobre $95M (INCORRECTO)
+    SI descuenta NC Enero: Calcula sobre $95M - $60M = $35M (CORRECTO)
 ```
 
 ---
@@ -166,15 +351,14 @@ Status: Procedimiento NO existe aún, usar MOCK parametrizable
 
 ### TOTUS (Sistema Facturación Externa)
 
-DATOS RECIBIMOS:
-- Valor Facturado por distribuidor/período
-- Total Notas Crédito (descuentos previos)
+DATOS RECIBIMOS de TOTUS:
+- Valor Facturado por distribuidor/período (via SP)
+- Total Notas Crédito
 - Total Fletes, Total Descuentos
 
-DATOS ENVIAMOS:
+DATOS ENVIAMOS a TOTUS:
 - Información de Nota Crédito generada por bono
 - Distribuidor, Valor recomendado, Período aplicación
-- Identificador único: BONO_RQM_[Período]_[Distribuidor]
 
 RECONCILIACIÓN:
 - Obtener Nota Crédito REAL que se aplicó en período anterior
@@ -185,107 +369,41 @@ RECONCILIACIÓN:
 DATOS RECIBIMOS:
 - Archivo Excel con lista de precios
 - Estructura: Referencia, Precio Unitario, Descuento Distribuidor
-- Formato: Header + datos planos (sin jerarquías)
-- Frecuencia: Descarga diaria automática
+- Descarga: Automática diaria
 
 PENDIENTE DEFINIR:
 - Protocolo descarga (URL, SFTP, API, etc.)
-- Autenticación requerida
-- Horario de descarga
+- Autenticación
+- Horario
 - Qué hacer si falla
 
 ---
 
 ## 1.9 Expectativas de Negocio
 
-IMPACTO:
-- Bonificación transparente y real-time
-- Control total sin código
-- Información clara para aplicar en TOTUS
-
-BENEFICIOS:
-- Incentivación objetiva
-- Aumento volumen facturado
-- Retención distribuidores
-- Flexibilidad sin código
-- Auditoría completa
-
-MÉTRICAS ÉXITO:
-- 100% precisión en cálculos
+MÉTRICA DE ÉXITO:
+- 100 porciento precisión en cálculos
 - Consulta 500ms
-- Disponibilidad 99%
+- Disponibilidad 99 porciento
 - Cero errores doble conteo NC
 
-STAKEHOLDERS:
-- Admin PROMOS, Distribuidores, Gerencia, TOTUS, Finanzas, Aldebaran
-
 ---
 
-## 1.10 PENDIENTES POR DEFINIR EN FASE DISEÑO
+## ? RESUMEN
 
-### CRÍTICO 1: Identificación de Nota Crédito en TOTUS (RF11)
+INSUMOS NECESARIOS:
+1. Valor Facturado (de TOTUS)
+2. Valor Pedido (de órdenes + precios)
+3. Valor Entregado (de entregas)
+4. Nota Crédito Anterior (del historial)
+5. Lista de Precios (diaria de página)
 
-NECESIDAD: Identificar en TOTUS cuál fue NC REAL que se aplicó para período anterior
+CÁLCULO DEL BONO:
+1. Obtiene insumo según Tipo Afectación
+2. Descuenta NC período anterior (si aplica)
+3. Busca vigencia más reciente
+4. Busca tramo que contiene el valor
+5. Aplica porcentaje del tramo
+6. Genera Nota Crédito
 
-PREGUNTAS:
-1. Cómo se distingue NC de Bono vs otras NC
-2. Hay procedimiento almacenado para consultar NC
-3. Hay identificador único (ID) por NC
-4. Búsqueda exacta o con tolerancia
-
-IMPACTO SI NO SE DEFINE: RF11 no funciona, Cálculo N+1 será INCORRECTO
-
-### CRÍTICO 2: Descarga de Lista de Precios (RF6)
-
-NECESIDAD: Proceso automático descarga precios de página promocional diariamente
-
-PREGUNTAS:
-1. Cómo está disponible el archivo (URL, SFTP, API, etc.)
-2. Horario de disponibilidad
-3. Autenticación requerida
-4. Qué hacer si falla la descarga
-
-IMPACTO SI NO SE DEFINE: RF6 no funciona, Bono por Pedido no se calcula
-
----
-
-## ? RESUMEN INSUMOS NECESARIOS
-
-PARAMETRIZACIONES:
-- Períodos: Crear, editar, activar
-- Tipos de Bono: Crear, editar, activar
-- Vigencias: Crear, editar, activar (con fecha)
-
-DATOS OPERACIONALES:
-- Valor Facturado (de TOTUS)
-- Valor Pedido (de órdenes + precios)
-- Valor Entregado (de entregas)
-- Nota Crédito Período Anterior (del Historial reconciliado)
-- Lista de Precios (cargada diariamente)
-
-REGISTRO HISTÓRICO:
-- Historial de Bonos (FOTO del cierre - inmutable)
-- Histórico de Precios (últimos 4 meses)
-- Reconciliación de Bonos (calculado vs real)
-- Auditoría completa
-
----
-
-## ?? ENTIDADES/TABLAS BASE
-
-```
-PERÍODO: ID, Nombre, DiaInicio, DuracionDias, Estado
-TIPO_AFECTACION: ID, Nombre (Facturación | Pedido | Entregado)
-TIPO_BONO: ID, Nombre, TipoAfectacionID, PeriodoID, Estado
-VIGENCIA_BONO: ID, TipoBonoID, ValorMin, ValorMax, Porcentaje, FechaInicio, Estado
-PRECIOS_DISTRIBUIDOR: ID, Referencia, Precio, Descuento, FechaCarga, Activo
-PRECIOS_DISTRIBUIDOR_HISTORICO: ID, Referencia, Precio, Descuento, FechaCarga (últimos 4 meses)
-HISTORIAL_BONO: ID, Distribuidor, TipoBono, Periodo, ValorCalculado, ValorReal, Vigencia, Porcentaje, Insumos, Estado
-RECONCILIACION_BONOS: ID, Distribuidor, TipoBono, Periodo, ValorCalculado, ValorReal, Diferencia
-CONFIGURACION_SISTEMA: ClaveParametro, Valor, Tipo
-```
-
----
-
-**Estado**: ? COMPLETO
-**Próximo**: 2_ARQUITECTURA.md
+Estado: COMPLETO - Listo para 2_ARQUITECTURA.md
