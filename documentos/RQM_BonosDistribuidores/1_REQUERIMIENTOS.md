@@ -3,6 +3,11 @@
 **Identificador**: RQM_BonosDistribuidores_052026  
 **Cliente**: PROMOS | **Estado**: REQUERIMIENTOS DEFINIDOS | **Fecha**: 2026
 
+> **📝 NOTA DE UNIFICACIÓN (Última Actualización):**  
+> ✅ CU10 fue **reorganizado y unificado**: Ahora es **UN proceso único** con **DOS modalidades de entrada** (Unitario + Masivo).  
+> Antes había confusión: parecían ser 2 flujos diferentes. Ahora está cristalino: mismo objetivo, diferentes formas de ingresar.  
+> Ver sección **"CLARIFICACIÓN - CU10: UN PROCESO ÚNICO CON DOS MODALIDADES"** para detalles de la restructuración.
+
 ---
 
 ## 1.1 Descripción General
@@ -114,7 +119,7 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
   ├─ Obtiene: Facturación de TOTUS (por período)
   ├─ Obtiene: Órdenes y entregas (continuamente)
   ├─ Cierre: Automático último día del período
-  ├─ Reconciliación: Automática primer día período N+1
+  ├─ Conciliación: Manual (Usuario PROMOS la ejecuta en CU10)
   └─ Limpieza: Datos antiguos según política de retención
 ```
 
@@ -159,16 +164,14 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 | **ADMINISTRADOR** | Aldebaran.Web | Todas las funcionalidades de Usuario PROMOS |
 | | | Configurar integraciones (TOTUS, Página Promocional) |
 | | | Ver logs de seguridad (Accesos distribuidores) |
-| **PROCESO AUTOMÁTICO** | Aldebaran.Web | Cargar precios (RF10) |
-| | | Obtener facturación TOTUS (RF11) |
-| | | Obtener pedidos (RF12) |
-| | | Obtener entregas (RF13) |
-| | | Cierre de período (CU8) |
-| | | Reconciliación NC (CU9) |
+| **PROCESO AUTOMÁTICO** | Aldebaran.Web | Obtener facturación TOTUS (CU4) |
+| | | Cargar precios (CU5) |
+| | | Cierre de período (CU9) |
+| **USUARIO PROMOS** | Aldebaran.Web | Conciliación Manual de NC (CU10 - 2 modalidades) |
 
 ---
 
-## 1.3 Casos de Uso (10 Total)
+## 1.3 Casos de Uso (11 Total)
 
 ### CU1: Crear Período
 Admin define período (Mensual/Quincenal/Semanal/Custom): Nombre, Día inicio, Duración (días)
@@ -378,11 +381,89 @@ Total Base para Bono:
 
 
 
-### CU4: Cargar Lista de Precios (Automático Diario)
+### CU4: Obtener Facturación de TOTUS (Integración)
+**Ubicación:** Backend Aldebaran
+**Cuándo:** Dinámicamente (cada vez que se calcula bono) + Al cierre del período
+**Actor:** PROCESO AUTOMÁTICO + MOTOR DE CÁLCULO
+**Objetivo:** Obtener valor facturado desde SP de TOTUS para cálculo de bonos
+
+**Flujo:**
+1. Sistema construye parámetros de consulta:
+   - TipoDocumento: "FAC"
+   - NumeroDocumento: Cédula distribuidor
+   - FechaInicio: Primer día período
+   - FechaFin: Hoy o último día período
+   - ListaArticulos: NULL o array (si vigencia parametrizada)
+   - MapaReferenciasPorArticulo: NULL o mapa (si vigencia parametrizada)
+
+2. Ejecuta SP en BD TOTUS (parámetros configurables en appSettings):
+   - Nombre SP: Configurable (default: sp_ObtenerFacturacion)
+   - Timeout: Configurable (default: 30 segundos)
+   - Reintentos: Configurable (default: 3)
+
+3. Recibe retorno de TOTUS:
+   - ValorTotalFacturadoSinImpuestos: decimal (CRÍTICO)
+   - TotalNotasCredito: decimal
+   - TotalFletes: decimal
+   - TotalDescuentos: decimal
+
+4. Usa valor en cálculo:
+   - **Dinámico**: SLA máximo 500ms (incluida consulta TOTUS)
+   - **Cierre**: Almacena valor congelado en HistorialBono
+
+5. Manejo de errores:
+   - Si falla: Registra error en log
+   - Utiliza MOCK configurable (para desarrollo/testing)
+   - Retorna valor anterior si disponible (fallback)
+
+**Integración con RF11**: Este CU implementa la interfaz de RF11
+
+---
+
+### CU5: Cargar Lista de Precios (Automático Diario)
 Proceso automático: Descarga → Procesa → Carga desde página promocional
 Almacenamiento: PreciosDistribuidor (actual) + PreciosDistribuidorHistorico (4 meses)
 
-### CU5: Autenticar Distribuidor (OTP - Seguridad)
+**Ubicación:** Backend Aldebaran (Scheduled Job)
+**Cuándo:** Automático, horario configurable (default: 6 AM)
+**Actor:** PROCESO AUTOMÁTICO
+**Objetivo:** Cargar lista de precios diaria desde Página Promocional
+
+**Flujo:**
+1. Valida que esté en horario de carga configurado
+2. Descarga archivo desde Página Promocional:
+   - Protocolo: A definir (URL/SFTP/API)
+   - Autenticación: A definir
+   - Validación: Estructura y datos (3 columnas: Ref, Precio, Descuento)
+
+3. Procesa:
+   - Valida: Precios > 0, Descuentos 0-100%
+   - Detecta duplicados
+   - Calcula checksums para auditoria
+
+4. Carga a BD:
+   - Borra PreciosDistribuidor anterior
+   - Inserta nuevos precios
+   - Copia a PreciosDistribuidorHistorico (con FechaCarga = hoy)
+
+5. Limpieza de histórico antiguo:
+   - Ejecuta política de retención (configurable: default 120 días)
+   - Borra precios más antiguos
+   - Registra auditoría: qué se borró, cuándo, cantidad
+
+6. Auditoría:
+   - Registra: Fecha, cantidad registros, resultado
+   - Si éxito: Log "Precios cargados OK"
+   - Si fallo: Alerta admin, conserva precios anteriores
+
+**Reintentos:**
+- Máximo intentos: Configurable (default: 3)
+- Espera entre intentos: Configurable (default: 5 minutos)
+- Si falla completamente: NO interrumpe operación, usa precios del día anterior
+
+---
+
+### CU6: Autenticar Distribuidor (OTP - Seguridad)
 **Ubicación:** Sitio Público Aldebaran
 **Acceso:** Desde Página Promocional (clic en botón/link)
 **Actor:** Distribuidor
@@ -407,7 +488,7 @@ Almacenamiento: PreciosDistribuidor (actual) + PreciosDistribuidorHistorico (4 m
 - Cada solicitud incluye token (validación en cada consulta)
 - Logs de acceso: quién, cuándo, desde dónde
 
-### CU6: Consultar Bonificación (Página Informativa) - DISTRIBUIDOR
+### CU7: Consultar Bonificación (Página Informativa) - DISTRIBUIDOR
 **Ubicación:** Sitio Público Aldebaran
 **Acceso:** Solo con autenticación OTP válida
 **Actor:** Distribuidor (autenticado)
@@ -514,14 +595,14 @@ Se aplicará como Nota Crédito al CIERRE del período
 - Página de solo lectura: Sin campos de entrada, sin acciones
 - Cálculo dinámico: Se ejecuta cada vez que consulta (no está precalculado)
 
-### CU7: Consultar Bono Actual (Dinámico) - PROMOS
+### CU8: Consultar Bono Actual (Dinámico) - PROMOS
 **Ubicación:** Aldebaran.Web
 **Acceso:** Admin - Autenticación interna PROMOS
 **Actor:** Usuario PROMOS
 Consulta bono final para cada distribuidor (preparar recomendación de NC para TOTUS)
 Información: Bono calculado, Historial de cálculo, Auditoría completa
 
-### CU8: Cierre de Período (Automático)
+### CU9: Cierre de Período (Automático)
 **Cuándo:** Último día del período, a hora configurada (ej: 23:59:59)
 
 **IMPORTANTE - RESPONSABILIDADES CLARAS**:
@@ -530,29 +611,28 @@ Información: Bono calculado, Historial de cálculo, Auditoría completa
 │ ALDEBARAN (Este Sistema):                                    │
 │ └─ CALCULA: Bono recomendado al cierre                       │
 │ └─ REGISTRA: FOTO en HistorialBono (inmutable)               │
-│ └─ SUGIERE: Valor de NC a aplicar en TOTUS                  │
-│ └─ NOTIFICA: Usuario PROMOS para revisión                   │
+│ └─ SUGIERE: Valor de NC a aplicar en TOTUS                   │
+│ └─ NOTIFICA: Usuario PROMOS para revisión                    │
 │                                                              │
-│ ❌ NO APLICA DIRECTAMENTE en TOTUS                          │
-│ ❌ NO AFECTA datos en TOTUS                                 │
+│ ❌ NO APLICA DIRECTAMENTE en TOTUS                           │
+│ ❌ NO AFECTA datos en TOTUS                                  │
 │                                                              │
 ├──────────────────────────────────────────────────────────────┤
 │ USUARIO PROMOS (Humano - Responsable):                       │
-│ └─ CONSULTA: Recomendación de NC en Aldebaran.Web           │
-│ └─ REVISA: Montos y detalles (validación manual si desea)   │
-│ └─ APLICA: La NC en TOTUS (responsable del valor real)      │
-│ └─ CONFIRMA: Que la NC se registró en TOTUS                 │
+│ └─ CONSULTA: Recomendación de NC en Aldebaran.Web            │
+│ └─ REVISA: Montos y detalles (validación manual si desea)    │
+│ └─ APLICA: La NC en TOTUS (responsable del valor real)       │
+│ └─ CONFIRMA: Que la NC se registró en TOTUS                  │
 │                                                              │
 ├──────────────────────────────────────────────────────────────┤
 │ TOTUS (Sistema Tercero - Verdad Única):                      │
-│ └─ RECIBE: Recomendación de NC (sugerencia de Aldebaran)    │
-│ └─ APLICA: La NC en el siguiente período (Usuario PROMOS)   │
+│ └─ RECIBE: Recomendación de NC (sugerencia de Aldebaran)     │
+│ └─ APLICA: La NC en el siguiente período (Usuario PROMOS)    │
 │ └─ REGISTRA: NC real aplicada en su BD                       │
-│ └─ RETORNA: Valor real aplicado (para reconciliación)       │
+│ └─ RETORNA: Valor real aplicado (para reconciliación)        │
 │                                                              │
 └──────────────────────────────────────────────────────────────┘
 ```
-
 **Proceso Detallado:**
 
 ```
@@ -589,12 +669,14 @@ Información: Bono calculado, Historial de cálculo, Auditoría completa
    - HistorialBono es INMUTABLE (auditoría)
    - ❌ PERO LA NC AÚN NO ESTÁ APLICADA EN TOTUS
 
-4. Publica evento (RabbitMQ):
+4. Publica evento (RabbitMQ) - ⚠️ PENDIENTE DEFINIR:
    - Event: "PeriodoCerrado"
    - Datos: PeriodoId, Cantidad distribuidores, Timestamp
-   - Consumer: NotificationProcessor
-     └─ Notifica a Usuario PROMOS: 
-        "Revisar X recomendaciones de NC para aplicar en TOTUS"
+   - ⚠️ NOTA: Esquema de publicación debe ser definido
+   - ⚠️ NOTA: Destinatarios de notificación PENDIENTE DEFINIR (¿Cuál Consumer?)
+   - ⚠️ NOTA: ¿Se notifica a Admin? ¿A Usuario PROMOS? ¿A ambos?
+   - ⚠️ NOTA: ¿Por qué canal? (Email, SMS, Banner en Sistema, etc.)
+   - ⚠️ PENDIENTE: Configuración de destinatarios en appSettings
 
 5. Usuario PROMOS (Responsable - Paso Manual):
    - Accede a Aldebaran.Web
@@ -612,100 +694,357 @@ Información: Bono calculado, Historial de cálculo, Auditoría completa
    - Ejemplo: NC de Enero se aplica en Febrero
    - Sistema retiene: Registro de NC real aplicada
 
-7. Primer día período N+1 - Reconciliación Automática (CU9):
-   - Aldebaran consulta TOTUS
-   - Pregunta: "¿Qué NC realmente se aplicó en período anterior?"
-   - TOTUS retorna: NC real aplicada
-   - Aldebaran compara:
-      └─ NC Calculada: $X,XXX,XXX (en HistorialBono)
-      └─ NC Real: $Y,XXX,XXX (retornada por TOTUS)
-      └─ Si diferencia: Registra, Alerta, Audita
-   - Actualiza HistorialBono con ValorReal
-   - Próximos cálculos usan ValorReal (no el calculado)
 ```
 
 **DIFERENCIAS CLAVE - DEBE QUEDAR CRISTALINO**:
 
 ```
 ┌────────────────────────────────────────────────────────────┐
-│ BONO CALCULADO (Aldebaran - Día 15)                        │
+│ BONO CALCULADO (Aldebaran - Día Final del Periodo)         │
 ├────────────────────────────────────────────────────────────┤
-│ • Es un CÁLCULO basado en datos disponibles               │
-│ • Es una RECOMENDACIÓN para aplicar en TOTUS             │
-│ • Es SUGERENTE, no es definitivo                         │
-│ • Se almacena en HistorialBono (auditoría)               │
-│ • Se congela (NO CAMBIA aunque precios cambien)          │
-│ • Se usa para notificar Usuario PROMOS                   │
-│ • ❌ NO se aplica automáticamente en TOTUS               │
-│ • ❌ NO afecta directamente TOTUS                        │
+│ • Es un CÁLCULO basado en datos disponibles                │
+│ • Es una RECOMENDACIÓN para aplicar en TOTUS               │
+│ • Es SUGERENTE, no es definitivo                           │
+│ • Se almacena en HistorialBono (auditoría)                 │
+│ • Se congela (NO CAMBIA aunque precios cambien)            │
+│ • Se usa para notificar Usuario PROMOS                     │
+│ • ❌ NO se aplica automáticamente en TOTUS                 │
+│ • ❌ NO afecta directamente TOTUS                          │
 └────────────────────────────────────────────────────────────┘
 
 ┌────────────────────────────────────────────────────────────┐
-│ NC REAL (TOTUS - Aplicada por Usuario PROMOS)             │
+│ NC REAL (TOTUS - Aplicada por Usuario PROMOS)              │
 ├────────────────────────────────────────────────────────────┤
-│ • Es lo que REALMENTE se aplicó en TOTUS                 │
-│ • Puede ser ≠ del bono calculado (si Usuario decide)     │
-│ • Se registra en BD de TOTUS (tercero)                   │
-│ • Es la VERDAD ÚNICA para el siguiente período            │
-│ • Se recupera mediante reconciliación (CU9)              │
-│ • Se usa para calcular bonos futuros (descuento NC)      │
-│ • ✅ ES lo que realmente afecta al distribuidor         │
+│ • Es lo que REALMENTE se aplicó en TOTUS                   │
+│ • Puede ser ≠ del bono calculado (si Usuario decide)       │
+│ • Se registra en BD de TOTUS (tercero)                     │
+│ • Es la VERDAD ÚNICA para el siguiente período             │
+│ • Se recupera mediante reconciliación (CU9)                │
+│ • Se usa para calcular bonos futuros (descuento NC)        │
+│ • ✅ ES lo que realmente afecta al distribuidor            │ 
 └────────────────────────────────────────────────────────────┘
 ```
+---
+### CU10: Conciliación de Nota Crédito (Manual)
 
-**FLUJO TEMPORAL COMPLETO - EJEMPLO REAL**:
+**Ubicación:** Aldebaran.Web (Ingreso manual de datos)
+**Cuándo:** Usuario PROMOS la ejecuta manualmente, después del cierre del período N y antes de final del período N+1
+**Actor:** USUARIO PROMOS
+**Objetivo:** Registrar el valor REAL de la NC que se aplicó en TOTUS vs la NC calculada en CU9 (FOTO), para usar ese valor en cálculos del siguiente período
 
+**IMPORTANTE - RESPONSABILIDAD DE DATOS**:
 ```
-PERÍODO 1: 1 AL 15 DE ENERO
-═══════════════════════════════════════════════════════════════
-
-DÍA 15 (23:59:59) - CIERRE:
-  └─ Aldebaran CALCULA bono: $1,000,000 (recomendado)
-  └─ Almacena FOTO en HistorialBono
-  └─ Estado: CALCULADO
-  └─ Notifica a Usuario PROMOS: "1 NC recomendada: $1M"
-
-DÍA 16 - USUARIO PROMOS:
-  └─ Accede Aldebaran.Web
-  └─ Ve recomendación: $1,000,000
-  └─ Revisa: Datos, vigencia, tramo (validación)
-  └─ Abre TOTUS (sistema tercero)
-  └─ Aplica NC de $1,000,000 en TOTUS (manual)
-  └─ Confirma en TOTUS: NC registrada
-  └─ ⚠️ Usuario es responsable del valor real
-
-PERÍODO 2: 1 AL 15 DE FEBRERO
-═══════════════════════════════════════════════════════════════
-
-DÍA 1 (00:00:00) - RECONCILIACIÓN AUTOMÁTICA:
-  └─ Aldebaran consulta TOTUS:
-     "¿Qué NC se aplicó en período anterior (Enero)?"
-  └─ TOTUS retorna: $1,000,000 (la que aplicó Usuario)
-  └─ Aldebaran compara:
-     Calculada: $1,000,000
-     Real:      $1,000,000
-     ✓ Match (sin diferencia)
-  └─ Actualiza HistorialBono: ValorReal = $1,000,000
-  └─ Estado: RECONCILIADO
-
-DÍA 11 DE FEBRERO - DISTRIBUIDOR CONSULTA:
-  └─ Aldebaran CALCULA bono dinámico (1 al 11 febrero)
-  └─ Descuenta NC período anterior:
-     Valor Facturado Feb: $50,000,000
-     Menos NC Enero (real): -$1,000,000 (la que TOTUS aplicó)
-     = $49,000,000 (base para bono)
-  └─ Aplica vigencia/tramo: Bono = $2,450,000 (dinámico)
-
-NOTA: Si Usuario PROMOS hubiera aplicado NC diferente:
-  Ejemplo: $900,000 en lugar de $1,000,000
-  └─ TOTUS retorna en reconciliación: $900,000
-  └─ Aldebaran detecta diferencia
-  └─ Registra: Discrepancia $100,000
-  └─ Alerta admin
-  └─ Próximos cálculos usan $900,000 (valor real)
+┌──────────────────────────────────────────────────────────────┐
+│ ¿DE DÓNDE OBTENEMOS LA NC PARA CONCILIAR?                    │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│ NC CALCULADA (Aldebaran - FOTO):                             │
+│ ├─ De: HistorialBono del período N (congelada en CU9)        │
+│ ├─ Campo: BonoRecomendado (FOTO del cierre)                  │
+│ ├─ Estado: CALCULADO (lo que el sistema determinó)           │
+│ ├─ Auditoría: Se registró el día 15 (último día período)     │
+│ └─ Ejemplo: Día 15 Enero se calculó: $1,000,000              │
+│                                                              │
+│ NC REAL (TOTUS - Ingreso Manual del Usuario PROMOS):         │
+│ ├─ De: Usuario PROMOS (ingresa manualmente el valor)         │
+│ ├─ Fuente: TOTUS (pero Usuario consulta TOTUS manualmente)   │
+│ ├─ Usuario VERIFICA en TOTUS: "¿Qué NC se aplicó realmente?" │
+│ ├─ Usuario INGRESA en Aldebaran: El valor REAL de TOTUS      │
+│ ├─ Parámetros: NumeroDocumento, Período N, Valor real        │
+│ ├─ Responsable: Usuario PROMOS (consulta y confirma)         │
+│ └─ Ejemplo: Usuario confirma: En TOTUS se aplicó $950,000    │
+│                                                              │
+│ NOTA CRÍTICA - PRERREQUISITO PARA CÁLCULOS CORRECTOS:        │
+│ • Aldebaran NO consulta TOTUS directamente                   │
+│ • No tenemos acceso a la BD de TOTUS (lectura)               │
+│ • El Usuario PROMOS es quien consulta TOTUS externamente     │
+│ • El Usuario ingresa el valor real en Aldebaran (CU10)       │
+│ • Aldebaran solo REGISTRA lo que el usuario ingresa          │
+│ • ⚠️ Es REQUISITO que el valor NC del período N-1 esté       │
+│   conciliado ANTES de que el distribuidor consulte bonos     │
+│   en el período N (de otro modo, el cálculo usa la FOTO)     │
+│ • Una vez conciliado, todos los cálculos futuros usan        │
+│   el valor REAL (no el calculado)                            │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
 ```
 
-**RESPONSABILIDADES BIEN DEFINIDAS**:
+**Modalidades permitidas para la conciliación**:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ MODALIDAD 1: INGRESO UNITARIO (Uno a Uno)                   │
+├─────────────────────────────────────────────────────────────┤
+│ Entrada: Distribuidor individual                            │
+│ Interfaz: Formulario con campos editables                   │
+│ Botones: [Guardar] [Cancelar] [Siguiente Distribuidor]      │
+│ Uso: Cuando son pocos distribuidores o se requiere revisar  │
+│ Auditoría: TipoConciliacion = UNITARIO, TipoIngreso = MANUAL│
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ MODALIDAD 2: INGRESO MASIVO (CSV - Múltiples)               │
+├─────────────────────────────────────────────────────────────┤
+│ Entrada: Archivo CSV con múltiples distribuidores           │
+│ Interfaz: Carga de archivo, validación, resumen             │
+│ Botones: [Confirmar Carga] [Revisar Errores] [Cancelar]     │
+│ Uso: Cuando son muchos distribuidores para agilizar         │
+│ Auditoría: TipoConciliacion = MASIVO, TipoIngreso = CSV     │
+└─────────────────────────────────────────────────────────────┘
+
+AMBAS MODALIDADES GENERAN IDÉNTICO RESULTADO:
+  HistorialBono.BonoAplicado = Valor real ingresado
+  HistorialBono.Estado = CONCILIADO o CONCILIADO CON DISCREPANCIA
+  Auditoría registra quién, qué, cuándo, modalidad
+```
+### 💡 Ejemplo Práctico
+
+**MODALIDAD UNITARIO:**
+```
+1. Usuario PROMOS selecciona: "Ingreso Unitario"
+2. Sistema muestra formulario para DIST-001
+3. Usuario ingresa: NC Real = $900,000
+4. Sistema guarda: HistorialBono.BonoAplicado = 900K
+                   HistorialBono.TipoConciliacion = UNITARIO
+5. Usuario hace [Siguiente Distribuidor] para DIST-002
+```
+
+**MODALIDAD MASIVO:**
+```
+1. Usuario PROMOS selecciona: "Carga Masiva (CSV)"
+2. Completa CSV:
+   DIST-001 | ENE2026 | 1000000 | 900000   | ...
+   DIST-002 | ENE2026 | 500000  | 500000   | ...
+3. Sistema carga archivo
+4. Para CADA registro:
+   HistorialBono.BonoAplicado = Valor del CSV
+   HistorialBono.TipoConciliacion = MASIVO
+```
+
+**RESULTADO FINAL (Idéntico):**
+```
+HistorialBono:
+  DIST-001: BonoRecomendado = $1,000,000 (FOTO, no cambia)
+            BonoAplicado = $900,000 (valor real ingresado)
+            Estado = CONCILIADO CON DISCREPANCIA
+
+  DIST-002: BonoRecomendado = $500,000 (FOTO, no cambia)
+            BonoAplicado = $500,000 (valor real ingresado)
+            Estado = CONCILIADO
+```
+
+---
+**Estados Posibles del HistorialBono tras CU10 (Conciliación)**:
+
+El OBJETIVO de CU10 es trasitar el HistorialBono de **PENDIENTE CONCILIACIÓN** 
+a **CONCILIADO** registrando el valor REAL que se aplicó en TOTUS.
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ ESTADO INICIAL (antes de CU10)                              │
+│ PENDIENTE CONCILIACIÓN                                      │
+├─────────────────────────────────────────────────────────────┤
+│ ✓ Período cerrado (CU9 ya ejecutado)                        │
+│ ✓ Bono CALCULADO está congelado en HistorialBono (FOTO)     │
+│ ✓ Usuario PROMOS aún no ha ingresado valor REAL             │
+│ ✓ HistorialBono.BonoAplicado = NULL (vacío)                 │
+│ ⚠️ Próximos cálculos USAN: BonoCalculado como FALLBACK      │
+│                                                             │
+│ IMPACTO NEGATIVO SI QUEDA SIN CONCILIAR:                    │
+│ • Distribuidor ve bono basado en FOTO (no REAL)             │
+│ • Es TEMPORAL, solo hasta que CU10 se ejecute               │
+│ • Los cálculos NO reflejan NC que realmente se aplicó       │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ ESTADO FINAL (después de CU10 - SIN DISCREPANCIA)           │
+│ CONCILIADO ✓                                                │
+├─────────────────────────────────────────────────────────────┤
+│ Escenario: Usuario ingresó en CU10 y COINCIDE con calculado │
+│                                                             │
+│ ✓ NC Calculada = NC Real (la que Usuario confirmó en TOTUS) │
+│ ✓ HistorialBono.BonoAplicado = Valor real ingresado         │
+│ ✓ HistorialBono.Diferencia = 0 (sin diferencia)             │
+│ ✓ HistorialBono.Estado = CONCILIADO                         │
+│ ✓ HistorialBono.TipoConciliacion = UNITARIO o MASIVO        │
+│ ✓ HistorialBono.TipoIngreso = MANUAL o CSV                  │
+│ ✓ Auditoría: Completa (quién, qué, cuándo, modalidad)       │
+│                                                             │
+│ IMPACTO POSITIVO EN PRÓXIMOS CÁLCULOS:                      │
+│ • Bonos se calculan con NC REAL (la de TOTUS)               │
+│ • Precisión garantizada                                     │
+│ • No hay doble conteo de bonos                              │
+│ • Valores consistentes en todos los períodos siguientes     │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ ESTADO FINAL (después de CU10 - CON DISCREPANCIA)           │
+│ CONCILIADO CON DISCREPANCIA ⚠️                               │
+├─────────────────────────────────────────────────────────────┤
+│ Escenario: Usuario ingresó en CU10 y NO COINCIDE            │
+│ Ejemplo: Calculada $1M, Real ingresada $900K               │
+│                                                             │
+│ ✓ NC Calculada ≠ NC Real ingresada                          │
+│ ✓ Usuario PROMOS ingresó valor diferente                   │
+│ ✓ Posibles causas:                                          │
+│   • Usuario aplicó monto parcial en TOTUS                   │
+│   • Usuario aplicó monto diferente (ajuste comercial)       │
+│   • TOTUS aplicó valor diferente al recomendado             │
+│   • Error en cálculo de Aldebaran                           │
+│                                                             │
+│ ✓ HistorialBono.BonoAplicado = $900K (valor real ingresado)│
+│ ✓ HistorialBono.Diferencia = -$100K (Real - Calculada)     │
+│ ✓ HistorialBono.PorcentajeVariacion = -10%                 │
+│ ✓ HistorialBono.Motivo = Texto ingresado por Usuario        │
+│ ✓ HistorialBono.Estado = CONCILIADO CON DISCREPANCIA       │
+│ ✓ Alerta generada (configurable: si % > 2%)                │
+│ ✓ Auditoría: Completa, incluyendo discrepancia             │
+│                                                             │
+│ IMPACTO EN PRÓXIMOS CÁLCULOS:                               │
+│ • Bonos se calculan con NC REAL ingresada ($900K)          │
+│ • NO se usa NC Calculada ($1M) - FOTO descartada           │
+│ • Discrepancia queda registrada para investigación         │
+│ • Admin puede revisar en reportes                          │
+│ • Usuario puede documentar motivo en auditoría              │
+│                                                             │
+│ CARACTERÍSTICA IMPORTANTE:                                 │
+│ • La discrepancia NO BLOQUEA el uso de NC real              │
+│ • Se registra pero NO IMPIDE que se use el valor            │
+│ • Permite operación normal con auditoría completa           │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**RESUMEN - Transición de Estados en CU10**:
+
+```
+Flujo de Conciliación - UNA operación, DOS modalidades:
+
+ANTES (CU9 - Cierre):
+  HistorialBono.Estado = CALCULADO
+  HistorialBono.BonoRecomendado = $1,000,000 (FOTO)
+  HistorialBono.BonoAplicado = NULL (vacío)
+
+      ↓ (Ejecuta CU10 - Conciliación)
+
+DESPUÉS (CU10 - Modalidad Unitario o Masivo):
+
+  ├─ Si NC Real = NC Calculada:
+  │  └─ Estado = CONCILIADO ✓
+  │     BonoAplicado = $1,000,000
+  │     Diferencia = 0
+  │
+  └─ Si NC Real ≠ NC Calculada:
+     └─ Estado = CONCILIADO CON DISCREPANCIA ⚠️
+        BonoAplicado = $900,000 (ejemplo)
+        Diferencia = -$100,000
+        Auditoría: Registra discrepancia
+
+IMPACTO INMEDIATO:
+  └─ HistorialBono tiene BonoAplicado (Valor REAL)
+
+IMPACTO EN PERÍODO N+1:
+  └─ Cálculos usan BonoAplicado (NC REAL de TOTUS)
+  └─ No usan BonoRecomendado (FOTO calculada)
+  └─ Precisión garantizada en todos los cálculos
+```
+**Requisitos de Auditoría y Registro**:
+
+El sistema DEBE registrar y mantener disponible para auditoría:
+
+1. **Información de la Conciliación Realizada:**
+   - Bono calculado por el sistema (FOTO congelada del cierre)
+   - Bono real ingresado por Usuario PROMOS (NC real de TOTUS)
+   - Diferencia entre calculado y real (monto y porcentaje)
+   - Motivo de la conciliación (observaciones del usuario)
+   - Tipo de ingreso (unitario o masivo)
+   - Fecha y hora de la conciliación
+   - Usuario responsable (quién realizó la conciliación)
+
+2. **Estados Registrados:**
+   - Cambios de estado: CALCULADO → CONCILIADO
+   - Si hay discrepancia: CONCILIADO CON DISCREPANCIA
+   - Historial completo de todas las transiciones
+
+3. **Alertas Configurables:**
+   - El sistema DEBE permitir configurar umbral de discrepancia (ej: 2%)
+   - Si diferencia supera umbral: Generar alerta automática
+   - Si diferencia es crítica (ej: >10%): Alerta prioritaria a Admin
+   - Registrar todas las alertas generadas
+
+4. **Restricciones de Validación:**
+   - NO permitir valores negativos
+   - NO permitir valores cero (bono debe ser > 0)
+   - Validar que distribuidor existe
+   - Validar que período existe y es correcto
+   - Validar fechas dentro del período
+
+5. **Trazabilidad Completa:**
+   - Quién ingresó el dato
+   - Cuándo se ingresó
+   - Qué modalidad se usó (unitario/masivo)
+   - Si fue ingreso manual o carga CSV
+   - Todas las correcciones posteriores (si las hay)
+
+---
+
+### CU11: Resolver Reclamación (Soporte)
+
+**Ubicación:** Aldebaran.Web
+**Acceso:** Usuario PROMOS (Admin o rol superior)
+**Actor:** Usuario PROMOS
+**Objetivo:** Acceder a información completa del histórico de bonos mostrados al distribuidor durante un período para investigar y resolver reclamaciones
+
+**Problemas que resuelve:**
+- Distribuidor reclama que vio diferentes valores de bonos en diferentes consultas durante el período
+- Distribuidor reclama que el bono final no corresponde con sus cálculos
+- Distribuidor reclama cambios no justificados entre consultas (ej: OC ingresadas después de que él consultó)
+
+**Información que debe poder consultar:**
+
+1. **Historial de Consultas del Distribuidor**
+   - Fecha y hora de cada consulta realizada en el período
+   - Bono mostrado en cada consulta (desglosado por tipo: Facturación, Pedido, Entregado)
+   - Acumulado de insumos en cada momento (Facturación, Pedidos, Entregas, OC Especiales)
+
+2. **Foto Final del Período**
+   - Bono calculado al cierre del período (inmutable)
+   - Desglose completo: cada tipo de bono + OC Especiales incluidas
+
+3. **Análisis de Cambios**
+   - Qué cambió entre cada par de consultas (facturación, pedidos, entregas ingresados)
+   - Por qué cambió el bono de una consulta a otra
+   - Identificar si hubo ingresos manuales (OC Especiales) que afectaron el cálculo
+
+4. **Auditoría de Ingresos Manuales**
+   - OC Especiales ingresadas durante el período (quién, cuándo, monto, estado)
+   - Reconciliaciones de NC realizadas (si aplica)
+   - Aprobaciones de ingresos manuales
+
+5. **Detalles del Cálculo**
+   - Vigencia aplicada en el período
+   - Tramos usados para cada bono
+   - NC período anterior descontada
+   - Precios usados en el cálculo
+
+**Acciones que puede realizar:**
+- Buscar distribuidor y período
+- Ver histórico de consultas del distribuidor
+- Expandir cada consulta para ver detalles del acumulado en ese momento
+- Ver cambios entre consultas y sus causas
+- Ver auditoría de ingresos manuales realizados
+- Generar reporte de investigación para documentar la reclamación
+- Exportar auditoría completa (PDF/Excel) para responder al distribuidor
+- Crear nota interna con conclusiones
+
+**Restricciones:**
+- Solo lectura: No puede modificar datos históricos
+- No puede editar valores congelados en HistorialBono
+- No puede recalcular períodos ya cerrados
+- No puede eliminar o modificar auditoría
+- Si descubre errores en cálculo, requiere apertura de ticket a soporte técnico
+---
+
+## 1.3.1 Responsabilidades Bien Definidas (APLICABLES A TODO EL SISTEMA)
 
 ```
 ┌────────────────────────────────────────────────────────────────┐
@@ -738,9 +1077,9 @@ NOTA: Si Usuario PROMOS hubiera aplicado NC diferente:
 │ ✓ Genera recomendaciones de NC (estado RECOMENDADA)            │
 │ ✓ Cierra período (estado CERRADO)                              │
 │ ✓ Publica evento PeriodoCerrado (RabbitMQ)                     │
+│ ✓ NO realiza conciliación (es manual - CU10)                   │
 │ ✗ NO aplica NC en TOTUS                                        │
 │ ✗ NO modifica datos de TOTUS                                   │
-│ ✗ NO realiza reconciliación automática (requiere acción humana)│
 └────────────────────────────────────────────────────────────────┘
 
 ┌────────────────────────────────────────────────────────────────┐
@@ -910,31 +1249,7 @@ NOTA: Si Usuario PROMOS hubiera aplicado NC diferente:
 │ ✗ NO accede a Aldebaran.Web (admin interno)                    │
 └────────────────────────────────────────────────────────────────┘
 ```
-
-**IMPORTANTE PARA PRÓXIMOS PERÍODOS**:
-
-```
-En cálculos futuros (período N+1, N+2, etc.):
-  └─ Aldebaran SIEMPRE usa NC REAL (del historial reconciliado)
-  └─ No usa NC CALCULADA (aunque esté en FOTO)
-  └─ Esto asegura precisión basada en lo realmente aplicado
-  └─ Ejemplo:
-     Bono por Facturación Feb = Fact Feb - NC REAL Enero
-     NC REAL Enero = lo que TOTUS registró
-     (no lo que se calculó en Aldebaran)
-```
-
-### CU9: Reconciliación de Nota Crédito (Automático)
-Al inicio período N+1: Obtiene NC REAL de TOTUS, Actualiza historial, Valida vs NC calculada
-
-### CU10: Resolver Reclamación (Soporte)
-**Acceso:** Aldebaran.Web (Admin)
-**Actor:** Usuario PROMOS
-Consulta historial completo de cálculo para responder reclamos de distribuidores
-Información: Paso a paso del cálculo, Vigencia usada, Precios aplicados, NC anterior descontada
-
 ---
-
 ## 1.4 Requisitos Funcionales (26 - TODOS ALTA PRIORIDAD)
 
 | RF | Descripción | Categoría |
@@ -2780,27 +3095,30 @@ MÉTRICA DE ÉXITO:
 
 ## RESUMEN
 
-### CASOS DE USO PRINCIPALES (10 Total)
+### CASOS DE USO PRINCIPALES (11 Total)
 
 **Administración (CU1-CU3):**
 - CU1: Crear Período
 - CU2: Crear Tipo de Bono
 - CU3: Crear Vigencia
 
-**Seguridad (CU5):**
-- CU5: Autenticar Distribuidor (OTP - SMS/Email)
+**Integración (CU4-CU5):**
+- CU4: Obtener Facturación de TOTUS
+- CU5: Cargar Lista de Precios
 
-**Operación (CU6-CU10):**
-- CU6: Consultar Bono (Distribuidor - Página Promocional - Autenticado)
-- CU7: Consultar Bono (Admin - Aldebaran.Web)
-- CU8: Cierre de Período (Automático)
-- CU10: Resolver Reclamación
+**Seguridad (CU6):**
+- CU6: Autenticar Distribuidor (OTP - SMS/Email)
 
-**Integración de Datos (CU4):**
-- CU4: Cargar Precios (Automático)
+**Consultas (CU7-CU8):**
+- CU7: Consultar Bonificación (Distribuidor - Página Promocional - Autenticado)
+- CU8: Consultar Bono (Admin - Aldebaran.Web)
 
-**Precisión (CU9):**
-- CU9: Reconciliación NC (Manual - Usuario PROMOS)
+**Automatización (CU9-CU10):**
+- CU9: Cierre de Período (Automático)
+- CU10: Reconciliación NC (Automática)
+
+**Soporte (CU11):**
+- CU11: Resolver Reclamación
 
 ### REQUISITOS FUNCIONALES (26 Total)
 
