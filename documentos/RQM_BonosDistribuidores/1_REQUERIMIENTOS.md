@@ -5,9 +5,9 @@
 
 ---
 
-## 📚 GLOSARIO - Términos Clave del Documento
+## 1.1 📚 GLOSARIO - Términos Clave del Documento
 
-### 🎭 ¿Qué es un CASO DE USO (CU)?
+### 1.1.1 🎭 ¿Qué es un CASO DE USO (CU)?
 
 Un **Caso de Uso** describe **UN FLUJO COMPLETO DE NEGOCIO** desde la perspectiva del usuario/actor.
 
@@ -18,7 +18,7 @@ Un **Caso de Uso** describe **UN FLUJO COMPLETO DE NEGOCIO** desde la perspectiv
 
 **Total en este proyecto: 12 Casos de Uso (CU1 a CU12)**
 
-### ⚙️ ¿Qué es un REQUISITO FUNCIONAL (RF)?
+### 1.1.2 ⚙️ ¿Qué es un REQUISITO FUNCIONAL (RF)?
 
 Un **Requisito Funcional** describe **UNA CAPACIDAD ESPECÍFICA** que el sistema DEBE tener.
 
@@ -30,7 +30,7 @@ Un **Requisito Funcional** describe **UNA CAPACIDAD ESPECÍFICA** que el sistema
 
 **Total en este proyecto: 26 Requisitos Funcionales (RF1 a RF26)**
 
-### 📊 Relación CU ↔ RF (Matriz de Trazabilidad)
+### 1.1.3 📊 Relación CU ↔ RF (Matriz de Trazabilidad)
 
 ```
 UN CASO DE USO (flujo) = MÚLTIPLES REQUISITOS FUNCIONALES (capacidades)
@@ -52,7 +52,7 @@ Ejemplo:
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### 📋 Cómo leer este documento
+### 1.1.4 📋 Cómo leer este documento
 
 1. **Secciones 1.1 - 1.4**: Contexto general, actores, matriz de acceso
 2. **Sección 1.3**: CASOS DE USO (CU1 a CU12) - Flujos de negocio completos
@@ -61,15 +61,15 @@ Ejemplo:
 
 ---
 
-## 📊 MATRIZ DE TRAZABILIDAD CU ↔ RF (Relaciones Completas)
+## 1.2 📊 MATRIZ DE TRAZABILIDAD CU ↔ RF (Relaciones Completas)
 
-### Leyenda
+### 1.2.1 Leyenda
 
 - 🟢 **Verde**: RF crítico para ese CU (funciona completamente si se implementa)
 - 🟡 **Amarillo**: RF complementario (mejora pero no bloquea el CU)
 - 🔵 **Azul**: RF de auditoría/soporte (trazabilidad)
 
-### Matriz Completa
+### 1.2.2 Matriz Completa
 
 | CU | Descripción | RF Críticos 🟢 | RF Complementarios 🟡 | RF Auditoría 🔵 |
 |---|---|---|---|---|
@@ -88,9 +88,9 @@ Ejemplo:
 
 ---
 
-### Vista por Categoría de RF
+### 1.3 Vista por Categoría de RF
 
-#### 🔧 **ADMINISTRACIÓN** (RF1-RF3)
+#### 1.3.1 🔧 **ADMINISTRACIÓN** (RF1-RF3)
 
 ```
 RF1 (Gestionar Períodos)
@@ -110,7 +110,7 @@ RF3 (Gestionar Vigencias)
 └─ CU24 ━ Auditoría de vigencias usadas
 ```
 
-#### 🔐 **SEGURIDAD** (RF4, RF5, RF20)
+#### 1.3.2 🔐 **SEGURIDAD** (RF4, RF5, RF20)
 
 ```
 RF4 (Autenticar por OTP)
@@ -128,7 +128,7 @@ RF20 (Gestión de Aprobaciones)
 └─ CU9 ━━━ Consulta estados pendientes de aprobación
 ```
 
-#### 📊 **CONSULTAS** (RF6, RF7, RF28)
+#### 1.3.3 📊 **CONSULTAS** (RF6, RF7, RF28)
 
 ```
 RF6 (Consultar Bono - Período Actual)
@@ -144,7 +144,7 @@ RF28 (Consultar Histórico - Períodos Anteriores)
 └─ CU12 ━━ Muestra qué vio distribuidor en CU8
 ```
 
-#### 📈 **HISTORIAL & AUDITORÍA** (RF8, RF9)
+#### 1.3.4 📈 **HISTORIAL & AUDITORÍA** (RF8, RF9)
 
 ```
 RF8 (Registrar Historial de Bonos)
@@ -168,7 +168,7 @@ RF9 (Gamificación)
 └─ CU12 ━━ Incluida en resolución de reclamaciones
 ```
 
-#### 🔗 **INTEGRACIÓN DE DATOS** (RF10-RF15)
+#### 1.3.5 🔗 **INTEGRACIÓN DE DATOS** (RF10-RF15)
 
 ```
 RF10 (Cargar Precios)
@@ -205,7 +205,7 @@ RF15 (Reconciliación NC)
 └─ CU7 ━━━ Proximos cálculos usan NC Real
 ```
 
-#### 👤 **USUARIO PROMOS - OPERACIONES** (RF16-RF20)
+#### 1.3.6 👤 **USUARIO PROMOS - OPERACIONES** (RF16-RF20)
 
 ```
 RF16 (Ingreso Manual OC Especiales - Unitario)
@@ -231,7 +231,7 @@ RF20 (Gestión de Aprobaciones)
 └─ CU10 ━━ Cierre solo calcula con OC aprobadas
 ```
 
-#### 📋 **REPORTERÍA** (RF21-RF27)
+#### 1.3.7 📋 **REPORTERÍA** (RF21-RF27)
 
 ```
 RF21 (Bonos Calculados vs Aplicados)
@@ -274,7 +274,7 @@ RF27 (Exportación Reportes)
 
 ---
 
-### Resumen de Cobertura
+### 1.4 Resumen de Cobertura
 
 | Categoría | Cantidad | CU Afectados | RF Críticos |
 |---|---|---|---|
@@ -289,7 +289,7 @@ RF27 (Exportación Reportes)
 
 ---
 
-### Flujo de Dependencias Críticas
+### 1.5 Flujo de Dependencias Críticas
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -328,9 +328,9 @@ RF27 (Exportación Reportes)
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
-## 1.1 Descripción General
+## 1.6 Descripción General
 
-### Problemática de Negocio
+### 1.6.1 Problemática de Negocio
 
 **Situación Actual (Sin Sistema):**
 - Los Distribuidores deben calcular manualmente sus bonificaciones
@@ -341,13 +341,13 @@ RF27 (Exportación Reportes)
 - No hay visibilidad sobre qué falta para acceder al siguiente nivel de bonificación
 - Dificultad para resolver reclamaciones (no hay auditoría del cálculo)
 
-### Objetivo
+### 1.6.2 Objetivo
 Automatizar el cálculo de bonificaciones para distribuidores en la empresa PROMOS con tres modalidades:
 - **Bonificación por Facturación**: Incentivo basado en valor total facturado en período (TOTUS)
 - **Bonificación por Pedido**: Incentivo basado en valor total pedido en período (Cantidad pedida × Precio)
 - **Bonificación por Entregado**: Incentivo basado en valor total entregado en período (Cantidad entregada × Precio)
 
-### Propuesta de Valor
+### 1.6.3 Propuesta de Valor
 
 **Para Distribuidores (Acceso en Sitio Público - Consulta de Bonificación):**
 - ✅ Acceso desde Página Promocional (clic en botón/link)
@@ -367,7 +367,7 @@ Automatizar el cálculo de bonificaciones para distribuidores en la empresa PROM
 - ✅ Reducción de tiempo administrativo: de manual a automático
 - ✅ Precisión 100%: elimina errores de cálculo manual
 
-### Modelo de Negocio
+### 1.6.4 Modelo de Negocio
 
 ```
 CLIENTE DISTRIBUIDOR (en Aldebaran):
@@ -443,7 +443,7 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 
 ---
 
-## 1.2 Actores del Sistema
+## 1.7 Actores del Sistema
 
 **EXTERNOS (Público):**
 - **CLIENTE DISTRIBUIDOR**: Beneficiario de bonificaciones. Accede vía Página Promocional → Sitio Público (con OTP)
@@ -1074,7 +1074,7 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 - Si descubre errores en cálculo, requiere apertura de ticket a soporte técnico
 ---
 
-## 1.3.1 Responsabilidades Bien Definidas (APLICABLES A TODO EL SISTEMA)
+## 1.4 Responsabilidades Bien Definidas (APLICABLES A TODO EL SISTEMA)
 
 ```
 ┌────────────────────────────────────────────────────────────────┐
@@ -1280,7 +1280,8 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 └────────────────────────────────────────────────────────────────┘
 ```
 ---
-## 1.4 Requisitos Funcionales (26 - TODOS ALTA PRIORIDAD)
+## 1.5 Requisitos 
+## 1.5.1 Funcionales (26 - TODOS ALTA PRIORIDAD)
 
 | RF | Descripción | Categoría |
 |----|---|---|
@@ -1315,7 +1316,7 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 
 ---
 
-## 1.5 Requisitos No Funcionales
+## 1.5.2 No Funcionales
 
 | Requisito | Especificación |
 |-----------|---|
@@ -1333,7 +1334,149 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 
 ---
 
-## 1.6.2 RF11 - CAPTURAR VALOR FACTURADO (TOTUS) CON PARAMETRIZACIÓN POR ARTÍCULO/REFERENCIA
+## 1.6 SEGURIDAD - Autenticación Distribuidor (OTP)
+
+### Flujo de Autenticación
+
+```
+PASO 1: INGRESO DE DOCUMENTO
+┌─────────────────────────────────────┐
+│ Distribuidor en Página Promocional  │
+├─────────────────────────────────────┤
+│ 1. Ingresa: Número documento (cédula)
+│ 2. Sistema valida que existe en Aldebaran
+│ 3. Sistema obtiene: Email(s) + Celular
+│ 4. Registra intento: timestamp, IP, documento
+└─────────────────────────────────────┘
+
+PASO 2: GENERACIÓN Y ENVÍO OTP
+┌─────────────────────────────────────┐
+│ Generación de OTP (One Time Password)
+├─────────────────────────────────────┤
+│ 1. Genera código aleatorio: 6 dígitos
+│ 2. Válido por: 10 minutos (configurable)
+│ 3. Almacena en BD: OTP + timestamp + documento
+│ 4. Busca canal preferido (SMS o Email):
+│    - Si tiene celular: Envía SMS
+│    - Si NO tiene celular: Envía Email
+│    - Si tiene ambos: Envía SMS + Email (usuario elige)
+│ 5. Registra: qué OTP, cuándo, por qué canal
+└─────────────────────────────────────┘
+
+PASO 3: VALIDACIÓN OTP
+┌─────────────────────────────────────┐
+│ Distribuidor recibe OTP y lo ingresa
+├─────────────────────────────────────┤
+│ 1. Sistema recibe código ingresado
+│ 2. Valida:
+│    ✓ OTP existe en BD
+│    ✓ OTP no expirado (≤ 10 minutos)
+│    ✓ OTP no fue usado ya
+│    ✓ Intentos < 3
+│ 3. Si válido:
+│    - Marca OTP como USADO
+│    - Genera Token JWT (8 horas de validez)
+│    - Crea Sesión: documento + token + timestamp
+│    - Registra: OTP validado correctamente
+│ 4. Si inválido:
+│    - Incrementa contador de intentos
+│    - Si intentos ≥ 3: Bloquea, debe solicitar nuevo OTP
+│    - Registra: Intento fallido
+└─────────────────────────────────────┘
+
+PASO 4: ACCESO CON TOKEN
+┌─────────────────────────────────────┐
+│ Distribuidor ahora accede a bono
+├─────────────────────────────────────┤
+│ 1. Cada solicitud incluye Token en header
+│ 2. Sistema valida:
+│    ✓ Token existe
+│    ✓ Token no expirado (< 8 horas)
+│    ✓ Token pertenece al documento autenticado
+│ 3. Si válido: Retorna bono del distribuidor
+│ 4. Si inválido: Rechaza (401 Unauthorized)
+│ 5. Registra: Qué información consultó, cuándo
+└─────────────────────────────────────┘
+
+PASO 5: CIERRE DE SESIÓN
+┌─────────────────────────────────────┐
+│ Distribuidor cierra sesión
+├─────────────────────────────────────┤
+│ 1. Token se invalida manualmente
+│ 2. O automáticamente después de 8 horas
+│ 3. Registra: Cierre de sesión, timestamp
+└─────────────────────────────────────┘
+```
+
+### Matriz de Validaciones
+
+| Validación | Cuándo | Acción si FALLA | Registro |
+|-----------|--------|---|---|
+| Documento existe en Aldebaran | Ingresa documento | Rechaza acceso | Intento con doc inválido |
+| Es tipo "DISTRIBUIDOR" | Valida documento | Rechaza acceso | Acceso denegado: no es distribuidor |
+| OTP válido (6 dígitos) | Ingresa OTP | Rechaza | Intento OTP inválido |
+| OTP no expirado | Ingresa OTP | Rechaza | OTP expirado |
+| OTP no usado | Ingresa OTP | Rechaza | OTP ya usado |
+| Intentos < 3 | Falla validación | Bloquea, requiere nuevo OTP | Bloqueado por 3 intentos |
+| Token no expirado | Realiza consulta | Rechaza (401) | Sesión expirada |
+| Token pertenece a documento | Realiza consulta | Rechaza | Intento acceso con token inválido |
+| Distribuidor = documento del token | Consulta bono | Solo retorna su bono | Acceso aislado |
+
+### Configuración de Contacto (Aldebaran)
+
+**Campos requeridos en Cliente/Distribuidor:**
+- Documento (Cédula)
+- Email (obligatorio) - puede ser múltiple separado por comas
+- Celular (opcional, pero si existe se prefiere SMS)
+- Preferencia de contacto (SMS, Email, Ambos)
+
+**Si NO tiene Email ni Celular:**
+- No puede autenticarse
+- Sistema rechaza: "No hay forma de enviar OTP"
+
+### Logs de Auditoría (Seguridad)
+
+**Se registra SIEMPRE:**
+```
+Tabla: AuditoriaSeguridadDistribuidor
+Campos: 
+  - Timestamp
+  - Tipo evento (Intento Login, OTP Generado, OTP Validado, Consulta Bono, Sesión Expirada)
+  - Documento distribuidor
+  - IP origen
+  - Resultado (Éxito/Fallo + motivo)
+  - Detalles adicionales
+  - Usuario que realizó (si aplica)
+```
+
+### Casos de Seguridad Especiales
+
+**Caso 1: Distribuidor olvida OTP**
+- Debe solicitar nuevo OTP (aparece opción)
+- OTP anterior se invalida
+- Se genera nuevo código
+- Se envía nuevamente
+
+**Caso 2: Distribuidor ingresa mal OTP 3 veces**
+- Se bloquea temporalmente
+- Debe solicitar nuevo OTP desde cero
+- Se registra: Intento de fuerza bruta
+
+**Caso 3: OTP expira mientras distribuidor lo ingresa**
+- Sistema rechaza: "OTP expirado"
+- Debe solicitar nuevo
+
+**Caso 4: Token expira durante consulta**
+- Sistema retorna 401 (No autorizado)
+- Distribuidor debe re-autenticarse
+
+**Caso 5: Distribuidor intenta acceder con Token de otro**
+- Sistema rechaza (token no pertenece a su documento)
+- Se registra como intento de acceso no autorizado
+
+---
+
+## 1.6.1 RF11 - CAPTURAR VALOR FACTURADO
 
 ### Descripción
 
@@ -1557,7 +1700,7 @@ Ejemplo 3: ARTÍCULOS + REFERENCIAS ESPECÍFICAS
 
 ---
 
-## 1.6.3 PARAMETRIZACIÓN POR ARTÍCULO/REFERENCIA - IMPACTO EN RF12 y RF13
+## 1.6.2 PARAMETRIZACIÓN POR ARTÍCULO/REFERENCIA - IMPACTO EN RF12 y RF13
 
 ### RF12 - Capturar Valor Pedido (Con Parametrización)
 
@@ -1614,11 +1757,7 @@ CÁLCULO DEL BONO:
 - Precios: Carga diaria, se usa MÁS RECIENTE
 - TOTUS es "verdad única" para valor facturado
 - Vigencia: Nueva vigencia, NO edición (auditoría)
-- **Seguridad:** Distribuidor accede desde Página Promocional → Redirige a Sitio Público Aldebaran (OTP) → Página informativa solo lectura. NO tiene acceso a Aldebaran.Web
-
----
-
-## 1.6.1 SEGURIDAD - Autenticación Distribuidor (OTP)
+## 1.7 INSUMOS - OBTENCIÓN DE VALORES PARA CÁLCULO
 
 ### Flujo de Autenticación
 
@@ -2414,9 +2553,9 @@ Ejemplo del desastre:
 
 ---
 
-## 1.11 MOTOR DE CÁLCULO: LOS 3 TIPOS DE BONO
+## 1.8 MOTOR DE CÁLCULO: LOS 3 TIPOS DE BONO
 
-### 1.11.1 Estructura General de Bonificación
+### 1.8.1 Estructura General de Bonificación
 
 El sistema calcula **3 TIPOS DE BONO INDEPENDIENTES** basados en **2 FUENTES** de información:
 
@@ -2442,7 +2581,7 @@ El sistema calcula **3 TIPOS DE BONO INDEPENDIENTES** basados en **2 FUENTES** d
 └──────────────────────────────────────────────────────────────┘
 ```
 
-### 1.11.2 Diferencia Clave: Pedido vs Entregado
+### 1.8.2 Diferencia Clave: Pedido vs Entregado
 
 | Aspecto | Bono por Pedido | Bono por Entregado |
 |---------|---|---|
@@ -2455,7 +2594,7 @@ El sistema calcula **3 TIPOS DE BONO INDEPENDIENTES** basados en **2 FUENTES** d
 
 ---
 
-### 1.11.3 BONO POR FACTURACIÓN (TOTUS)
+### 1.8.3 BONO POR FACTURACIÓN (TOTUS)
 
 #### Conceptos Clave
 
@@ -2515,7 +2654,7 @@ Paso 8: RESULTADO FINAL
 
 ---
 
-### 1.11.4 BONO POR PEDIDO (Aldebaran)
+### 1.8.4 BONO POR PEDIDO (Aldebaran)
 
 #### Conceptos Clave
 
@@ -2604,7 +2743,7 @@ DÍA 15 (CIERRE): Sistema calcula FINAL
 
 ---
 
-### 1.11.5 BONO POR ENTREGADO (Aldebaran)
+### 1.8.5 BONO POR ENTREGADO (Aldebaran)
 
 #### Conceptos Clave
 
@@ -2712,7 +2851,7 @@ DÍA 15 (CIERRE): Sistema calcula FINAL
 
 ---
 
-### 1.11.6 Comparativa de los 3 Bonos
+### 1.8.6 Comparativa de los 3 Bonos
 
 | Aspecto | Facturación | Pedido | Entregado |
 |---------|---|---|---|
@@ -2727,7 +2866,7 @@ DÍA 15 (CIERRE): Sistema calcula FINAL
 
 ---
 
-### 1.11.7 Resumen: BONO TOTAL = Facturación + Pedido + Entregado
+### 1.8.7 Resumen: BONO TOTAL = Facturación + Pedido + Entregado
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -2760,7 +2899,7 @@ DÍA 15 (CIERRE): Sistema calcula FINAL
 
 ---
 
-## 1.10 NUEVOS REQUISITOS FUNCIONALES - Usuario PROMOS (Complemento a RF1-RF15)
+## 1.9 NUEVOS REQUISITOS FUNCIONALES - Usuario PROMOS (Complemento a RF1-RF15)
 
 ### Descripción General
 
@@ -3445,7 +3584,7 @@ PENDIENTE DEFINIR:
 
 ---
 
-## 1.9 Expectativas de Negocio
+## 1.10 Expectativas de Negocio
 
 MÉTRICA DE ÉXITO:
 - 100 porciento precisión en cálculos
@@ -3455,7 +3594,7 @@ MÉTRICA DE ÉXITO:
 
 ---
 
-## RESUMEN
+## 1.11 RESUMEN
 
 ### CASOS DE USO PRINCIPALES (11 Total)
 
