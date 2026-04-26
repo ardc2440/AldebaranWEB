@@ -80,7 +80,7 @@ Ejemplo:
 | **CU5** | Cargar Precios | RF10 | RF12, RF13 | RF8, RF24 |
 | **CU6** | Autenticar Distribuidor | RF4, RF5 | - | RF8 |
 | **CU7** | Consultar Bonificación (Actual) | RF6, RF11, RF12, RF13, RF9 | RF4, RF5, RF10, RF14 | RF8, RF21 |
-| **CU8** | Consultar Histórico (Anterior) | RF6-B, RF14, RF15 | RF5 | RF8, RF21 |
+| **CU8** | Consultar Histórico (Anterior) | RF28, RF14, RF15 | RF5 | RF8, RF21 |
 | **CU9** | Consultar Bono (Admin) | RF7, RF11, RF12, RF13 | RF1, RF2, RF3, RF14 | RF8, RF23, RF24 |
 | **CU10** | Cierre de Período (Automático) | RF7, RF11, RF12, RF13, RF14, RF15 | RF10, RF16-A, RF16-B | RF8, RF23 |
 | **CU11** | Reconciliación NC (Manual) | RF15, RF17, RF18, RF19 | RF14 | RF8, RF22, RF23, RF25 |
@@ -110,7 +110,7 @@ RF3 (Gestionar Vigencias)
 └─ CU24 ━ Auditoría de vigencias usadas
 ```
 
-#### 🔐 **SEGURIDAD** (RF4, RF5, RF19)
+#### 🔐 **SEGURIDAD** (RF4, RF5, RF20)
 
 ```
 RF4 (Autenticar por OTP)
@@ -122,26 +122,26 @@ RF5 (Validar Seguridad - Aislamiento)
 ├─ CU7 ━━ Solo ve su bono (no de otros)
 └─ CU8 ━━ Solo ve su histórico
 
-RF19 (Gestión de Aprobaciones)
+RF20 (Gestión de Aprobaciones)
 ├─ CU11 ━━━━ Aprueba/Rechaza OC Especiales (entrada principal)
 ├─ CU11 ━━━ Aprueba/Rechaza reconciliaciones
 └─ CU9 ━━━ Consulta estados pendientes de aprobación
 ```
 
-#### 📊 **CONSULTAS** (RF6, RF6-B, RF7)
+#### 📊 **CONSULTAS** (RF6, RF7, RF28)
 
 ```
 RF6 (Consultar Bono - Período Actual)
 ├─ CU7 ━━━━ Calcula dinámicamente en tiempo real
 └─ CU12 ━━ Muestra qué vio distribuidor en CU7
 
-RF6-B (Consultar Histórico - Períodos Anteriores)
-├─ CU8 ━━━━ Retorna bonos congelados (entrada principal)
-└─ CU12 ━━ Muestra qué vio distribuidor en CU8
-
 RF7 (Consultar Bono - Admin)
 ├─ CU9 ━━━━ Admin consulta bono calculado (entrada principal)
 └─ CU10 ━━ Genera recomendación de NC al cierre
+
+RF28 (Consultar Histórico - Períodos Anteriores)
+├─ CU8 ━━━━ Retorna bonos congelados (entrada principal)
+└─ CU12 ━━ Muestra qué vio distribuidor en CU8
 ```
 
 #### 📈 **HISTORIAL & AUDITORÍA** (RF8, RF9)
@@ -205,70 +205,70 @@ RF15 (Reconciliación NC)
 └─ CU7 ━━━ Proximos cálculos usan NC Real
 ```
 
-#### 👤 **USUARIO PROMOS - OPERACIONES** (RF16-RF18, RF19)
+#### 👤 **USUARIO PROMOS - OPERACIONES** (RF16-RF20)
 
 ```
-RF16-A (Ingreso Manual OC Especiales - Unitario)
+RF16 (Ingreso Manual OC Especiales - Unitario)
 ├─ CU11 ━━━━ Ingresa una OC especial (entrada principal)
 └─ CU7 ━━━━ Se suma al bono si está aprobada
 
-RF16-B (Carga Masiva OC Especiales - CSV)
+RF17 (Carga Masiva OC Especiales - CSV)
 ├─ CU11 ━━━━ Carga múltiples OC especiales (entrada principal)
 └─ CU7 ━━━━ Se suman al bono si están aprobadas
 
-RF17 (Aplicación Manual NC en TOTUS)
+RF18 (Aplicación Manual NC en TOTUS)
 ├─ CU11 ━━━━ Aplicar NC en TOTUS con confirmación (entrada principal)
 └─ CU10 ━━━ Cierre genera recomendación de NC
 
-RF18 (Reconciliación Manual NC)
+RF19 (Reconciliación Manual NC)
 ├─ CU11 ━━━━ Ingresa NC Real Unitaria o Masiva (entrada principal)
 ├─ CU7 ━━━ Proximos cálculos usan NC Real
 └─ CU8 ━━━ Bonos históricos usan NC Real reconciliada
 
-RF19 (Gestión de Aprobaciones)
+RF20 (Gestión de Aprobaciones)
 ├─ CU11 ━━━━ Aprueba/Rechaza ingresos manuales (entrada principal)
 ├─ CU7 ━━━ Si aprueba OC, se suma al bono
 └─ CU10 ━━ Cierre solo calcula con OC aprobadas
 ```
 
-#### 📋 **REPORTERÍA** (RF20-RF26)
+#### 📋 **REPORTERÍA** (RF21-RF27)
 
 ```
-RF20 (Bonos Calculados vs Aplicados)
+RF21 (Bonos Calculados vs Aplicados)
 ├─ CU12 ━━━━ Resuelve reclamaciones (entrada principal)
 ├─ CU10 ━━━ Genera datos para reporte post-cierre
 └─ CU11 ━━━ Muestra discrepancias de NC
 
-RF21 (Distribuidores que Consultaron Bonos)
+RF22 (Distribuidores que Consultaron Bonos)
 ├─ CU12 ━━━━ Investiga reclamaciones (entrada principal)
 ├─ CU7 ━━━ Registra cada consulta
 └─ CU8 ━━━ Registra cada consulta de histórico
 
-RF22 (Discrepancias de NC)
+RF23 (Discrepancias de NC)
 ├─ CU12 ━━━━ Resuelve discrepancias (entrada principal)
 ├─ CU11 ━━━ Identifica NC calculada ≠ NC real
 └─ CU8 ━━━ Usa NC real en próximos períodos
 
-RF23 (Auditoría de Acciones Usuario PROMOS)
+RF24 (Auditoría de Acciones Usuario PROMOS)
 ├─ CU12 ━━━━ Investiga decisiones del usuario (entrada principal)
 ├─ CU11 ━━━ Auditoría de aprobaciones
 ├─ CU10 ━━━ Auditoría de cierre automático
 └─ CU9 ━━━ Auditoría de cálculos realizados
 
-RF24 (Precios y Vigencias Usados)
+RF25 (Precios y Vigencias Usados)
 ├─ CU12 ━━━━ Resuelve reclamaciones "¿por qué ese precio?" (entrada principal)
 ├─ CU7 ━━━ Documenta qué precios/vigencias se usaron
 ├─ CU10 ━━ Documenta configuración de cierre
 └─ CU3 ━━━ Vigencia afecta precio usado
 
-RF25 (Ingresos Manuales Aplicados)
+RF26 (Ingresos Manuales Aplicados)
 ├─ CU12 ━━━━ Auditoría de decisiones manuales (entrada principal)
 ├─ CU11 ━━━ Documenta OC Especiales + Reconciliaciones
-└─ CU19 ━━ Auditoría de aprobaciones
+└─ CU20 ━━ Auditoría de aprobaciones
 
-RF26 (Exportación Reportes)
+RF27 (Exportación Reportes)
 ├─ CU12 ━━━━ Exporta para investigación reclamación (entrada principal)
-├─ RF20-RF25 Aplica a TODOS los reportes
+├─ RF21-RF26 Aplica a TODOS los reportes
 └─ Formatos: Excel + PDF
 ```
 
@@ -279,13 +279,13 @@ RF26 (Exportación Reportes)
 | Categoría | Cantidad | CU Afectados | RF Críticos |
 |---|---|---|---|
 | **Administración** | 3 RF | CU1, CU2, CU3, CU9, CU12 | RF1, RF2, RF3 |
-| **Seguridad** | 3 RF | CU6, CU7, CU8, CU9, CU11 | RF4, RF5, RF19 |
-| **Consultas** | 3 RF | CU7, CU8, CU9, CU12 | RF6, RF6-B, RF7 |
+| **Seguridad** | 3 RF | CU6, CU7, CU8, CU9, CU11 | RF4, RF5, RF20 |
+| **Consultas** | 3 RF | CU7, CU8, CU9, CU12 | RF6, RF7, RF28 |
 | **Auditoría** | 2 RF | TODOS (transversal) | RF8, RF9 |
 | **Integración** | 6 RF | CU4, CU5, CU7, CU9, CU10, CU11 | RF10-RF15 |
-| **Operaciones Usuario** | 4 RF | CU10, CU11 | RF16-A, RF16-B, RF17, RF18 |
-| **Reportería** | 7 RF | CU12 (principal) | RF20-RF26 |
-| **TOTAL** | **28 RF** | **12 CU** | **Todos relacionados** |
+| **Operaciones Usuario** | 5 RF | CU11 | RF16-RF20 |
+| **Reportería** | 7 RF | CU12 (principal) | RF21-RF27 |
+| **TOTAL** | **29 RF** | **12 CU** | **Todos relacionados** |
 
 ---
 
@@ -1290,7 +1290,6 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 | RF4 | **Autenticar Distribuidor (OTP - SMS/Email)** | Seguridad |
 | RF5 | Validar Seguridad: Solo distribuidor ve su información | Seguridad |
 | RF6 | Consultar Bonificación - Período Actual (Distribuidor - CU7) | Consultas |
-| RF6-B | Consultar Histórico de Bonos - Períodos Anteriores (Distribuidor - CU8) | Consultas |
 | RF7 | Consultar Bono Actual (Admin - Aldebaran.Web - CU9) | Consultas |
 | RF8 | Registrar Historial de Bonos (Auditoría completa) | Historial |
 | RF9 | Gamificación: Mostrar falta para siguiente nivel | Historial |
@@ -1300,18 +1299,19 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 | RF13 | Capturar Valor Entregado (Aldebaran) | Integración |
 | RF14 | Gestionar Nota Crédito Período Anterior | Integración |
 | RF15 | Reconciliación Nota Crédito (TOTUS - Manual) | Integración |
-| RF16-A | **Ingreso Manual de Órdenes de Compra Especiales (Unitario)** | Usuario PROMOS |
-| RF16-B | **Carga Masiva de Órdenes de Compra Especiales (CSV)** | Usuario PROMOS |
-| RF17 | Aplicación Manual de NC en TOTUS (con Confirmación) | Usuario PROMOS |
-| RF18 | Reconciliación Manual de NC (Unitario + CSV Masivo) | Usuario PROMOS |
-| RF19 | **Gestión de Aprobaciones para Ingresos Manuales** | Seguridad/Control |
-| RF20 | Reporte: Bonos Calculados vs Bonos Aplicados por Período | Reportería |
-| RF21 | Reporte: Distribuidores que Consultaron Bonos (Log) | Reportería |
-| RF22 | Reporte: Discrepancias de NC (Calculada vs Real) | Reportería |
-| RF23 | Reporte: Auditoría de Acciones del Usuario PROMOS | Reportería |
-| RF24 | Reporte: Precios y Vigencias Usados en Período | Reportería |
-| RF25 | Reporte: Ingresos Manuales Aplicados (OC + Reconciliaciones) | Reportería |
-| RF26 | Exportación de Reportes (Excel/PDF) | Reportería |
+| RF16 | **Ingreso Manual de Órdenes de Compra Especiales (Unitario)** | Usuario PROMOS |
+| RF17 | **Carga Masiva de Órdenes de Compra Especiales (CSV)** | Usuario PROMOS |
+| RF18 | Aplicación Manual de NC en TOTUS (con Confirmación) | Usuario PROMOS |
+| RF19 | Reconciliación Manual de NC (Unitario + CSV Masivo) | Usuario PROMOS |
+| RF20 | **Gestión de Aprobaciones para Ingresos Manuales** | Seguridad/Control |
+| RF21 | Reporte: Bonos Calculados vs Bonos Aplicados por Período | Reportería |
+| RF22 | Reporte: Distribuidores que Consultaron Bonos (Log) | Reportería |
+| RF23 | Reporte: Discrepancias de NC (Calculada vs Real) | Reportería |
+| RF24 | Reporte: Auditoría de Acciones del Usuario PROMOS | Reportería |
+| RF25 | Reporte: Precios y Vigencias Usados en Período | Reportería |
+| RF26 | Reporte: Ingresos Manuales Aplicados (OC + Reconciliaciones) | Reportería |
+| RF27 | Exportación de Reportes (Excel/PDF) | Reportería |
+| RF28 | Consultar Histórico de Bonos - Períodos Anteriores (Distribuidor - CU8) | Consultas |
 
 ---
 
@@ -2414,6 +2414,352 @@ Ejemplo del desastre:
 
 ---
 
+## 1.11 MOTOR DE CÁLCULO: LOS 3 TIPOS DE BONO
+
+### 1.11.1 Estructura General de Bonificación
+
+El sistema calcula **3 TIPOS DE BONO INDEPENDIENTES** basados en **2 FUENTES** de información:
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                    2 FUENTES DE BONIFICACIÓN                 │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│ FUENTE 1: FACTURACIÓN (de TOTUS)                             │
+│ └─ Tipo 1: BONO POR FACTURACIÓN                              │
+│    Base: Valor facturado en TOTUS                            │
+│    Ejemplo: Si facturó $100M → Bono = $100M × 6% = $6M      │
+│                                                              │
+│ FUENTE 2: ÓRDENES DE ALDEBARAN (Pedidos + Entregas)         │
+│ ├─ Tipo 2: BONO POR PEDIDO                                   │
+│ │  Base: Valor total de ÓRDENES PEDIDAS                      │
+│ │  Ejemplo: Si pidió por $50M → Bono = $50M × 5% = $2.5M    │
+│ │                                                             │
+│ └─ Tipo 3: BONO POR ENTREGADO                                │
+│    Base: Valor total de lo EFECTIVAMENTE ENTREGADO           │
+│    Ejemplo: Si entregó $45M → Bono = $45M × 4% = $1.8M      │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+```
+
+### 1.11.2 Diferencia Clave: Pedido vs Entregado
+
+| Aspecto | Bono por Pedido | Bono por Entregado |
+|---------|---|---|
+| **Base** | Lo que pidió (cantidad pedida × precio) | Lo que salió del almacén (cantidad entregada × precio) |
+| **Timing** | Se calcula al crear la orden | Se calcula cuando se confirma la entrega |
+| **Incentivo** | Anima a pedir más | Anima a que confirme lo que pidió |
+| **Riesgo** | Puede pedir pero no recibir | Solo cuenta lo recibido |
+| **Precio Usado** | Precio del día del pedido (congelado) | Precio del día del pedido (congelado) |
+| **Ejemplo** | Pide 100 unidades → Cuenta 100 × $20 | Entrega 80 unidades → Cuenta 80 × $20 |
+
+---
+
+### 1.11.3 BONO POR FACTURACIÓN (TOTUS)
+
+#### Conceptos Clave
+
+- **Fuente Única de Verdad**: TOTUS (sistema de facturación)
+- **Base de Cálculo**: Valor facturado real en el período
+- **Descuentos Aplicados**:
+  1. Notas Crédito del período actual (de TOTUS)
+  2. Notas Crédito del período anterior (reconciliadas)
+- **Insumos Adicionales**: OC Especiales ingresadas manualmente (SOLO ESTE BONO)
+- **No es dinámico**: Se calcula SOLO al momento del cierre (congelado)
+
+#### Fórmula
+
+```
+Paso 1: Obtiene de TOTUS
+  ValorFacturadoBruto = ValorTotalFacturadoSinImpuestos
+  Ej: $100,000,000
+
+Paso 2: Descuenta Notas Crédito del PERÍODO ACTUAL (de TOTUS)
+  NotasCredito_PeriodoActual = Obtenido de TOTUS
+  Ej: $5,000,000
+  ValorFacturadoNeto = ValorFacturadoBruto - NotasCredito_PeriodoActual
+  Ej: $100,000,000 - $5,000,000 = $95,000,000
+
+Paso 3: Descuenta Nota Crédito del período ANTERIOR
+  NC_PeríodoAnterior = Obtiene de Historial (reconciliada - valor REAL)
+  Ej: $1,500,000
+  ValorFacturadoFinal = ValorFacturadoNeto - NC_PeríodoAnterior
+  Ej: $95,000,000 - $1,500,000 = $93,500,000
+
+Paso 4: SUMA Órdenes de Compra Especiales (SOLO APROBADAS)
+  OCEspeciales_Aprobadas = SUM(OC Especiales con status APROBADA)
+  Ej: $2,000,000
+  ValorBaseParaBono = ValorFacturadoFinal + OCEspeciales_Aprobadas
+  Ej: $93,500,000 + $2,000,000 = $95,500,000
+
+Paso 5: Busca Vigencia más reciente (fecha ≤ hoy, estado Activo)
+  Vigencia del período en curso
+
+Paso 6: Busca en qué TRAMO cae ValorBaseParaBono
+  Tramos configurados:
+    Tramo 1: $10M - $20M = 58%
+    Tramo 2: $20M - $30M = 59%
+    Tramo 3: $30M - $100M = 60%
+    Tramo 4: >$100M = 61%
+
+  ValorBaseParaBono = $95,500,000 → Cae en Tramo 3 (30M-100M) → 60%
+
+Paso 7: Aplica porcentaje
+  Bono = ValorBaseParaBono * Porcentaje
+  Bono = $95,500,000 * 0.60 = $57,300,000
+
+Paso 8: RESULTADO FINAL
+  Distribuidor DIST-001 recibe: $57,300,000 como Bono por Facturación
+  Se genera Nota Crédito para siguiente período
+```
+
+---
+
+### 1.11.4 BONO POR PEDIDO (Aldebaran)
+
+#### Conceptos Clave
+
+- **Fuente**: Órdenes creadas en Aldebaran
+- **Base de Cálculo**: Cantidad PEDIDA × Precio histórico del día del pedido
+- **Precio**: Se congela el día que se crea el pedido (NO cambia después)
+- **Descuentos**: NO aplican descuentos por NC (eso es solo para Facturación)
+- **Insumos Adicionales**: NINGUNO (OC Especiales NO aplican aquí)
+- **Dinámico**: Se RECALCULA CADA VEZ que el distribuidor consulta
+
+#### Fórmula
+
+```
+Para CADA orden del período:
+
+  1. Obtiene de Orden: Referencia + Cantidad + FechaPedido
+     Ej: REF-001, 100 unidades, Día 5 del período
+
+  2. Busca en HISTÓRICO DE PRECIOS el precio vigente ESE DÍA
+     Referencia = REF-001
+     FechaCarga ≤ FechaPedido
+     Selecciona el precio MÁS RECIENTE antes de esa fecha
+
+  3. Obtiene Precio y Descuento de ese día
+     PrecioUnitario = $20 (del día 5)
+     DescuentoDistribuidor = 10%
+
+  4. Calcula precio con descuento
+     PrecioConDescuento = PrecioUnitario * (1 - DescuentoDistribuidor)
+     PrecioConDescuento = $20 * (1 - 0.10) = $18
+
+  5. Calcula valor de la orden
+     Cantidad = 100 unidades
+     ValorOrden = Cantidad * PrecioConDescuento
+     ValorOrden = 100 * $18 = $1,800
+
+  6. ACUMULA para el período completo
+     ValorTotalPedido = SUM(todas las órdenes del período)
+     Ej: $14,400,000
+
+  7. Busca Vigencia más reciente (fecha ≤ hoy, estado Activo)
+     Vigencia del período actual
+
+  8. Busca TRAMO que contiene ValorTotalPedido
+     Tramos configurables:
+       Tramo 1: $1M - $5M = 5%
+       Tramo 2: $5M - $10M = 6%
+       Tramo 3: $10M - $20M = 7%
+       Tramo 4: >$20M = 8%
+
+     ValorTotalPedido = $14,400,000 → Tramo 3 → 7%
+
+  9. Aplica porcentaje
+     Bono = ValorTotalPedido * Porcentaje
+     Bono = $14,400,000 * 0.07 = $1,008,000
+
+  10. RESULTADO (DINÁMICO - CAMBIA CON CADA CONSULTA)
+      Distribuidor DIST-001 acumula: $1,008,000 como Bono por Pedido
+      (Este valor CAMBIA si ingresa más órdenes antes del cierre)
+```
+
+#### Ejemplo Temporal - Período 1 al 15
+
+```
+DÍA 1: Distribuidor consulta
+  Rango: 1 al 1
+  Pedidos acumulados: $1M
+  Bono calculado: $50K
+
+DÍA 5: Distribuidor consulta nuevamente
+  Rango: 1 al 5
+  Pedidos acumulados: $8M (sumó 4 días más)
+  Bono calculado: $500K (CAMBIÓ porque hay más pedidos)
+
+DÍA 11: Distribuidor consulta
+  Rango: 1 al 11
+  Pedidos acumulados: $14M (sumó 6 días más)
+  Bono calculado: $1M (CAMBIÓ nuevamente)
+
+DÍA 15 (CIERRE): Sistema calcula FINAL
+  Rango: 1 al 15 (período completo)
+  Pedidos acumulados: $18M
+  Bono FINAL: $1.3M
+  Este valor se CONGELA en HistorialBono (inmutable post-cierre)
+```
+
+---
+
+### 1.11.5 BONO POR ENTREGADO (Aldebaran)
+
+#### Conceptos Clave
+
+- **Fuente**: Entregas confirmadas en Aldebaran
+- **Base de Cálculo**: Cantidad EFECTIVAMENTE ENTREGADA × Precio histórico del pedido original
+- **Precio**: Se usa el precio CONGELADO del día que se creó el pedido (NO el actual)
+- **Descuentos**: NO aplican descuentos por NC (eso es solo para Facturación)
+- **Entregas Parciales**: Se acumulan cada entrega con su propio precio congelado
+- **Insumos Adicionales**: NINGUNO (OC Especiales NO aplican aquí)
+- **Dinámico**: Se RECALCULA CADA VEZ que el distribuidor consulta
+
+#### Proceso Real de PROMOS
+
+```
+1. Distribuidor crea PEDIDO (Orden de Compra)
+   ├─ Registra: Artículo, Cantidad pedida
+   ├─ Sistema obtiene: Precio histórico del pedido (del día)
+   ├─ Se CONGELA ese precio
+   └─ Estado: PEDIDO CREADO
+
+2. PROMOS prepara en almacén (puede tomar 1, 3, 8 o N días)
+   └─ Separa mercancía, empaca
+
+3. PROMOS realiza ENTREGA/SALIDA
+   ├─ Usuario ingresa a Aldebaran
+   ├─ Marca: Cantidad entregada (puede ser parcial o total)
+   ├─ Registra: Cantidad que realmente salió del almacén
+   ├─ Genera: Guía de remisión/Documento de salida
+   ├─ Usa: Precio histórico del pedido (el que se registró hace N días)
+   └─ Estado: ENTREGA CONFIRMADA
+
+4. Valuación de lo entregado (CRÍTICO)
+   └─ Cantidad entregada × Precio unitario del MOMENTO DEL PEDIDO
+   └─ NO se usa el precio actual de hoy
+   └─ Se usa el precio que existía cuando se creó el pedido
+```
+
+#### Fórmula
+
+```
+Para CADA entrega confirmada en el período:
+
+  1. Obtiene: Referencia + Cantidad ENTREGADA + Precio CONGELADO del pedido
+     Ej: REF-001, 80 unidades entregadas, $20 (del día del pedido)
+
+  2. Calcula valor con descuento
+     PrecioConDescuento = $20 * (1 - 0.10) = $18
+
+  3. Calcula valor de la entrega
+     Cantidad Entregada = 80 unidades
+     ValorEntrega = 80 * $18 = $1,440
+
+  4. ACUMULA todas las entregas del período
+     ValorTotalEntregado = SUM(todas las entregas confirmadas)
+     Ej: $6,600,000
+
+  5. Busca Vigencia más reciente (fecha ≤ hoy, estado Activo)
+     Vigencia del período actual
+
+  6. Busca TRAMO que contiene ValorTotalEntregado
+     Tramos configurables:
+       Tramo 1: $1M - $5M = 4%
+       Tramo 2: $5M - $10M = 5%
+       Tramo 3: >$10M = 6%
+
+     ValorTotalEntregado = $6,600,000 → Tramo 2 → 5%
+
+  7. Aplica porcentaje
+     Bono = ValorTotalEntregado * Porcentaje
+     Bono = $6,600,000 * 0.05 = $330,000
+
+  8. RESULTADO (DINÁMICO - CAMBIA CON CADA NUEVA ENTREGA)
+     Distribuidor DIST-001 acumula: $330,000 como Bono por Entregado
+     (Este valor CAMBIA si se confirman más entregas antes del cierre)
+```
+
+#### Ejemplo Temporal - Período 1 al 15
+
+```
+DÍA 1: Crea Pedido
+  Pedido 1: 100 unidades, Precio $20 (congelado)
+
+DÍA 5: Distribuidor consulta
+  Entregas confirmadas: 0
+  Bono por Entregado: $0
+
+DÍA 8: Confirma ENTREGA PARCIAL
+  Entrega 80 unidades de Pedido 1 a $20 = $1,600
+  Distribuidor consulta: Bono por Entregado = $80K
+
+DÍA 10: Confirma ENTREGA REST ANTE
+  Entrega 20 unidades más de Pedido 1 a $20 = $400
+  Distribuidor consulta: Bono por Entregado = $100K (CAMBIÓ)
+
+DÍA 12: Crea y entrega Pedido 2
+  Pedido 2: 50 unidades, Precio $100 (congelado)
+  Entrega 50 unidades de Pedido 2 a $100 = $5,000
+  Distribuidor consulta: Bono por Entregado = $300K (CAMBIÓ nuevamente)
+
+DÍA 15 (CIERRE): Sistema calcula FINAL
+  Total Entregado: $6,600
+  Bono FINAL: $330K
+  Este valor se CONGELA en HistorialBono
+```
+
+---
+
+### 1.11.6 Comparativa de los 3 Bonos
+
+| Aspecto | Facturación | Pedido | Entregado |
+|---------|---|---|---|
+| **Fuente** | TOTUS (tercero) | Aldebaran Órdenes | Aldebaran Entregas |
+| **Base** | Facturado - NC Período - NC Anterior + OC Esp. | Cantidad Pedida × Precio | Cantidad Entregada × Precio |
+| **Dinámico** | NO (se congela al cierre) | SÍ (recalcula cada consulta) | SÍ (recalcula cada consulta) |
+| **Descuentos NC** | SÍ (aplica NC) | NO | NO |
+| **OC Especiales** | SÍ (SOLO aquí) | NO | NO |
+| **Precio Usado** | N/A (de TOTUS) | Del día del pedido | Del día del pedido |
+| **Incentiva** | Facturar más | Pedir más | Entregar lo pedido |
+| **Ejemplo** | $100M facturado → $6M bono | $50M pedido → $2.5M bono | $45M entregado → $1.8M bono |
+
+---
+
+### 1.11.7 Resumen: BONO TOTAL = Facturación + Pedido + Entregado
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│ DISTRIBUIDOR DIST-001 - PERÍODO 1 AL 15 DE ENERO            │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│ ✓ BONO POR FACTURACIÓN:                                      │
+│   Base: $95.5M (facturado menos NC + OC Especiales)          │
+│   Porcentaje: 60% (según vigencia)                           │
+│   BONO FACTURACIÓN: $57,300,000                              │
+│                                                              │
+│ ✓ BONO POR PEDIDO:                                           │
+│   Base: $18M (total pedido acumulado)                        │
+│   Porcentaje: 7% (según vigencia)                            │
+│   BONO PEDIDO: $1,260,000                                    │
+│                                                              │
+│ ✓ BONO POR ENTREGADO:                                        │
+│   Base: $6.6M (total entregado acumulado)                    │
+│   Porcentaje: 5% (según vigencia)                            │
+│   BONO ENTREGADO: $330,000                                   │
+│                                                              │
+├──────────────────────────────────────────────────────────────┤
+│ ➜ BONO TOTAL = $57.3M + $1.26M + $0.33M = $58,890,000       │
+│                                                              │
+│ ➜ Se genera una NOTA CRÉDITO de $58.89M                     │
+│   Para aplicar en período siguiente en TOTUS                │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+```
+
+---
+
 ## 1.10 NUEVOS REQUISITOS FUNCIONALES - Usuario PROMOS (Complemento a RF1-RF15)
 
 ### Descripción General
@@ -2460,24 +2806,9 @@ CON OC Especiales ($2M Aprobadas):
   Diferencia: +$1.2M
 ```
 
-| RF | Descripción | Tipo |
-|----|---|---|
-| RF16-A | **Ingreso Manual de OC Especiales (Unitario)** | Manual |
-| RF16-B | **Carga Masiva de OC Especiales (CSV)** | Masivo |
-| RF17 | **Gestión de Aprobaciones para Ingresos Manuales** | Control |
-| RF18 | Reconciliación Manual de NC (Unitario + CSV) | Manual |
-| RF19 | Reporte: Bonos Calculados vs Bonos Aplicados | Reportería |
-| RF20 | Reporte: Distribuidores que Consultaron Bonos | Reportería |
-| RF21 | Reporte: Discrepancias de NC | Reportería |
-| RF22 | Reporte: Discrepancias de NC (Calculada vs Real) |
-| RF23 | Reporte: Auditoría de Acciones del Usuario PROMOS |
-| RF24 | Reporte: Precios y Vigencias Usados en Período |
-| RF25 | Reporte: Ingresos Manuales Aplicados (OC Especiales + Reconciliaciones) |
-| RF26 | Exportación de Reportes (Excel/PDF) |
-
 ---
 
-### RF16-A: Ingreso Manual de Órdenes de Compra Especiales (Unitario)
+### RF16: Ingreso Manual de Órdenes de Compra Especiales (Unitario)
 
 **Justificación:**
 - Órdenes de Compra que NO vienen de Aldebaran ni de TOTUS
@@ -2531,7 +2862,7 @@ Usuario PROMOS debe poder:
 
 ---
 
-### RF16-B: Carga Masiva de Órdenes de Compra Especiales (CSV)
+### RF17: Carga Masiva de Órdenes de Compra Especiales (CSV)
 
 **Justificación:**
 - Permite ingreso rápido de múltiples OC Especiales
@@ -2590,7 +2921,7 @@ Usuario PROMOS debe poder:
 
 ---
 
-### RF17: Aplicación Manual de NC en TOTUS (con Confirmación)
+### RF18: Aplicación Manual de NC en TOTUS (con Confirmación)
 
 **Justificación:**
 - Usuario PROMOS es responsable de aplicar NC en TOTUS
@@ -2621,7 +2952,7 @@ Usuario PROMOS debe poder:
 
 ---
 
-### RF18: Reconciliación Manual de NC (Unitario + CSV Masivo)
+### RF19: Reconciliación Manual de NC (Unitario + CSV Masivo)
 
 **Justificación:**
 - NO es automática (requiere confirmación del Usuario PROMOS)
@@ -2701,7 +3032,7 @@ PARTE 2: MASIVO (CSV)
 
 ---
 
-### RF19: Gestión de Aprobaciones para Ingresos Manuales
+### RF20: Gestión de Aprobaciones para Ingresos Manuales
 
 **Justificación:**
 - Ciertos ingresos requieren autorización (control financiero)
@@ -2758,7 +3089,7 @@ RESTRICCIONES:
 
 ---
 
-### RF20: Reporte - Bonos Calculados vs Bonos Aplicados por Período
+### RF21: Reporte - Bonos Calculados vs Bonos Aplicados por Período
 
 **Justificación:**
 - Usuario PROMOS necesita visibilidad de qué se calculó vs qué se aplicó
@@ -2798,7 +3129,7 @@ FILTROS Y OPCIONES
 
 ---
 
-### RF21: Reporte - Distribuidores que Consultaron Bonos (Log de Consultas)
+### RF22: Reporte - Distribuidores que Consultaron Bonos (Log de Consultas)
 
 **Justificación:**
 - Auditoría: Quién consultó qué y cuándo
@@ -2842,7 +3173,7 @@ ESTADÍSTICAS
 
 ---
 
-### RF22: Reporte - Discrepancias de NC (Calculada vs Real)
+### RF23: Reporte - Discrepancias de NC (Calculada vs Real)
 
 **Justificación:**
 - Detecta problemas de aplicación de NCs
@@ -2882,7 +3213,7 @@ ANÁLISIS
 
 ---
 
-### RF23: Reporte - Auditoría de Acciones del Usuario PROMOS
+### RF24: Reporte - Auditoría de Acciones del Usuario PROMOS
 
 **Justificación:**
 - Rastrear todas las acciones del usuario
@@ -2930,7 +3261,7 @@ ESTADÍSTICAS
 
 ---
 
-### RF24: Reporte - Precios y Vigencias Usados en Período
+### RF25: Reporte - Precios y Vigencias Usados en Período
 
 **Justificación:**
 - Auditoría de qué precios se usaron en cálculos
@@ -2980,7 +3311,7 @@ FILTROS Y OPCIONES
 
 ---
 
-### RF25: Reporte - Ingresos Manuales Aplicados (OC Especiales + Reconciliaciones)
+### RF26: Reporte - Ingresos Manuales Aplicados (OC Especiales + Reconciliaciones)
 
 **Justificación:**
 - Visibilidad de todos los ingresos manuales realizados
@@ -3047,7 +3378,7 @@ ESTADÍSTICAS
 
 ---
 
-### RF26: Exportación de Reportes (Excel/PDF)
+### RF27: Exportación de Reportes (Excel/PDF)
 
 **Justificación:**
 - Facilita auditoría externa
@@ -3167,6 +3498,7 @@ MÉTRICA DE ÉXITO:
 **Consultas Dinámicas (RF6-RF7):**
 - RF6: Consultar Bono (Distribuidor - Página Promocional)
 - RF7: Consultar Bono (Admin - Aldebaran.Web)
+- RF28: Consultar Histórico (Distribuidor - Períodos Anteriores)
 
 **Historial y Gamificación (RF8-RF9):**
 - RF8: Registrar Historial de Bonos (Auditoría completa)
@@ -3180,20 +3512,21 @@ MÉTRICA DE ÉXITO:
 - RF14: Gestionar Nota Crédito Período Anterior
 - RF15: Reconciliación Nota Crédito (TOTUS - Manual)
 
-**Usuario PROMOS - Funciones Operacionales (RF16-RF18):**
-- RF16-A: Ingreso Manual de OC Especiales (Unitario)
-- RF16-B: Carga Masiva de OC Especiales (CSV)
-- RF17: Aplicación Manual de NC en TOTUS (con Confirmación)
-- RF18: Reconciliación Manual de NC (Unitario + CSV Masivo)
+**Usuario PROMOS - Funciones Operacionales (RF16-RF20):**
+- RF16: Ingreso Manual de OC Especiales (Unitario)
+- RF17: Carga Masiva de OC Especiales (CSV)
+- RF18: Aplicación Manual de NC en TOTUS (con Confirmación)
+- RF19: Reconciliación Manual de NC (Unitario + CSV Masivo)
+- RF20: Gestión de Aprobaciones para Ingresos Manuales
 
-**Reportería (RF20-RF26):**
-- RF20: Reporte - Bonos Calculados vs Bonos Aplicados por Período
-- RF21: Reporte - Distribuidores que Consultaron Bonos (Log)
-- RF22: Reporte - Discrepancias de NC (Calculada vs Real)
-- RF23: Reporte - Auditoría de Acciones del Usuario PROMOS
-- RF24: Reporte - Precios y Vigencias Usados en Período
-- RF25: Reporte - Ingresos Manuales Aplicados (OC + Reconciliaciones)
-- RF26: Exportación de Reportes (Excel/PDF)
+**Reportería (RF21-RF27):**
+- RF21: Reporte - Bonos Calculados vs Bonos Aplicados por Período
+- RF22: Reporte - Distribuidores que Consultaron Bonos (Log)
+- RF23: Reporte - Discrepancias de NC (Calculada vs Real)
+- RF24: Reporte - Auditoría de Acciones del Usuario PROMOS
+- RF25: Reporte - Precios y Vigencias Usados en Período
+- RF26: Reporte - Ingresos Manuales Aplicados (OC + Reconciliaciones)
+- RF27: Exportación de Reportes (Excel/PDF)
 
 ### INSUMOS NECESARIOS
 1. Valor Facturado (de TOTUS)
@@ -3312,7 +3645,52 @@ Estado: REFINADO CON SEGURIDAD - Listo para ajustes adicionales
 
 ---
 
-## RESUMEN EJECUTIVO PARA EL CLIENTE
+### RF28: Consultar Histórico de Bonos - Períodos Anteriores (Distribuidor - Sitio Público)
+
+**Ubicación:** Sitio Público Aldebaran  
+**Acceso:** Solo con autenticación OTP válida (CU6 completado)  
+**Actor:** Distribuidor (autenticado)  
+**Objetivo:** Consultar bonos finales congelados de períodos cerrados anteriores
+
+**Problemas que resuelve:**
+- Distribuidor necesita ver qué bonificación recibió en períodos anteriores (histórico)
+- Debe saber si el bono anterior ya fue aplicado como NC o sigue en espera (transparencia de aplicación)
+- Necesita acceder al histórico de todos sus bonos cerrados
+- Página es solo lectura: sin ingreso de datos adicionales
+
+**Información que necesita acceder:**
+- Lista de períodos cerrados disponibles (últimos N períodos)
+- Bono final CONGELADO de cada período anterior (inmutable)
+- Estado de aplicación: "Aplicado como NC" vs "Pendiente de aplicación" vs "Rechazado"
+- Fecha en que se aplicó la NC (si aplica)
+- Desglose del bono por tipo (Facturación, Pedido, Entregado)
+- OC Especiales incluidas en ese período (si aplica)
+
+**Información que RETORNA (sin cálculos - solo lectura):**
+- Bono Final asignado (congelado, inmutable)
+- Estado: "Definitivo" o "En proceso"
+- Aplicación: Estado de la NC (Aplicada, Pendiente, Rechazada)
+- Referencia: Número/ID de la NC si fue aplicada
+
+**Acciones que puede realizar:**
+- Seleccionar período anterior a consultar (dropdown de períodos cerrados)
+- Ver bono final asignado en ese período (congelado)
+- Ver estado de aplicación de la NC
+- Ver desglose del bono por tipo
+- Ver fecha de aplicación (si aplica)
+- Navegar entre períodos anteriores
+- Descargar comprobante/resumen del período (PDF)
+- Consultar múltiples veces (cada consulta retorna lo congelado)
+- Cerrar sesión
+
+**Restricciones:**
+- Página solo lectura (sin ingreso de datos)
+- No puede ver información de otro distribuidor
+- Token debe estar válido (no expirado)
+- Bonos mostrados son INMUTABLES (congelados al cierre del período)
+- Solo puede ver últimos N períodos cerrados (N = configurable por Admin, default = 12)
+- No puede ver períodos activos (en curso) - solo cerrados
+- No puede acceder a datos administrativos (Aldebaran.Web)
 
 ### ✅ Capacidades Entregables
 
@@ -3326,15 +3704,15 @@ Estado: REFINADO CON SEGURIDAD - Listo para ajustes adicionales
 | **Reportería** | 6 reportes + Exportación Excel/PDF |
 | **Automatización** | Descarga de precios + Cierre de períodos |
 
-### 📊 24 Requisitos Funcionales Definidos
+### 📊 29 Requisitos Funcionales Definidos
 
 - **3 de Administración** (Períodos, Tipos, Vigencias)
-- **2 de Seguridad** (OTP, Aislamiento)
-- **2 de Consultas** (Público + Admin)
+- **3 de Seguridad** (OTP, Aislamiento, Aprobaciones)
+- **3 de Consultas** (Dinámicas Público + Admin)
 - **2 de Historial** (Auditoría + Gamificación)
 - **6 de Integración** (TOTUS, Precios, Órdenes, Entregas, NC, Ciclos)
-- **3 de Ingresos Manuales** (OC Especiales + Reconciliación + Aprobaciones)
-- **6 de Reportería** (Bonos vs Aplicados + Consultas + Discrepancias + Auditoría + Precios + Exportación)
+- **5 de Operaciones Usuario** (OC Especiales + Reconciliación + Aprobaciones)
+- **7 de Reportería** (6 reportes específicos + Exportación)
 
 ### 🆕 Novedad: OC Especiales
 
