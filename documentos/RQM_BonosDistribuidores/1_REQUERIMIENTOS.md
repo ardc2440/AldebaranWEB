@@ -3,13 +3,331 @@
 **Identificador**: RQM_BonosDistribuidores_052026  
 **Cliente**: PROMOS | **Estado**: REQUERIMIENTOS DEFINIDOS | **Fecha**: 2026
 
-> **📝 NOTA DE UNIFICACIÓN (Última Actualización):**  
-> ✅ CU10 fue **reorganizado y unificado**: Ahora es **UN proceso único** con **DOS modalidades de entrada** (Unitario + Masivo).  
-> Antes había confusión: parecían ser 2 flujos diferentes. Ahora está cristalino: mismo objetivo, diferentes formas de ingresar.  
-> Ver sección **"CLARIFICACIÓN - CU10: UN PROCESO ÚNICO CON DOS MODALIDADES"** para detalles de la restructuración.
+---
+
+## 📚 GLOSARIO - Términos Clave del Documento
+
+### 🎭 ¿Qué es un CASO DE USO (CU)?
+
+Un **Caso de Uso** describe **UN FLUJO COMPLETO DE NEGOCIO** desde la perspectiva del usuario/actor.
+
+- **Enfoque:** ¿Qué hace el ACTOR? ¿Cuál es el escenario de negocio?
+- **Ejemplo:** CU7 = "Consultar Bonificación - Período Actual"
+  - Un distribuidor autenticado CONSULTA su bono dinámicamente
+  - Es UN proceso completo: se autentica → consulta → ve bonos → cierra sesión
+
+**Total en este proyecto: 12 Casos de Uso (CU1 a CU12)**
+
+### ⚙️ ¿Qué es un REQUISITO FUNCIONAL (RF)?
+
+Un **Requisito Funcional** describe **UNA CAPACIDAD ESPECÍFICA** que el sistema DEBE tener.
+
+- **Enfoque:** ¿Qué DEBE HACER el SISTEMA? ¿Cuál es la funcionalidad concreta?
+- **Ejemplo:** RF6 = "Consultar Bonificación - Período Actual"
+  - El sistema DEBE calcular bono dinámicamente en 500ms
+  - El sistema DEBE retornar desglose por tipo de bono
+  - El sistema DEBE mostrar gamificación
+
+**Total en este proyecto: 26 Requisitos Funcionales (RF1 a RF26)**
+
+### 📊 Relación CU ↔ RF (Matriz de Trazabilidad)
+
+```
+UN CASO DE USO (flujo) = MÚLTIPLES REQUISITOS FUNCIONALES (capacidades)
+
+Ejemplo:
+┌─────────────────────────────────────────────────────────────┐
+│ CU7: Consultar Bonificación - Período Actual                │
+│ (El DISTRIBUIDOR consulta su bono en tiempo real)           │
+├─────────────────────────────────────────────────────────────┤
+│ Soportado por VARIOS RF:                                    │
+│ ├─ RF6: Consultar Bonificación - Período Actual             │
+│ ├─ RF8: Registrar Historial (auditoría de consultas)        │
+│ ├─ RF9: Gamificación (mostrar falta para siguiente nivel)   │
+│ ├─ RF11: Capturar Valor Facturado (TOTUS)                   │
+│ ├─ RF12: Capturar Valor Pedido                              │
+│ ├─ RF13: Capturar Valor Entregado                           │
+│ └─ RF4: Autenticar Distribuidor (OTP)                       │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 📋 Cómo leer este documento
+
+1. **Secciones 1.1 - 1.4**: Contexto general, actores, matriz de acceso
+2. **Sección 1.3**: CASOS DE USO (CU1 a CU12) - Flujos de negocio completos
+3. **Sección 1.4**: REQUISITOS FUNCIONALES (RF1 a RF26) - Capacidades específicas del sistema
+4. **Secciones 1.5+**: Detalles técnicos, insumos, responsabilidades
 
 ---
 
+## 📊 MATRIZ DE TRAZABILIDAD CU ↔ RF (Relaciones Completas)
+
+### Leyenda
+
+- 🟢 **Verde**: RF crítico para ese CU (funciona completamente si se implementa)
+- 🟡 **Amarillo**: RF complementario (mejora pero no bloquea el CU)
+- 🔵 **Azul**: RF de auditoría/soporte (trazabilidad)
+
+### Matriz Completa
+
+| CU | Descripción | RF Críticos 🟢 | RF Complementarios 🟡 | RF Auditoría 🔵 |
+|---|---|---|---|---|
+| **CU1** | Crear Período | RF1 | RF2, RF3 | RF8 |
+| **CU2** | Crear Tipo de Bono | RF2 | RF1, RF3 | RF8 |
+| **CU3** | Crear Vigencia | RF3, RF11 | RF1, RF2, RF12, RF13 | RF8, RF24 |
+| **CU4** | Obtener Facturación (TOTUS) | RF11, RF14 | RF10 | RF8 |
+| **CU5** | Cargar Precios | RF10 | RF12, RF13 | RF8, RF24 |
+| **CU6** | Autenticar Distribuidor | RF4, RF5 | - | RF8 |
+| **CU7** | Consultar Bonificación (Actual) | RF6, RF11, RF12, RF13, RF9 | RF4, RF5, RF10, RF14 | RF8, RF21 |
+| **CU8** | Consultar Histórico (Anterior) | RF6-B, RF14, RF15 | RF5 | RF8, RF21 |
+| **CU9** | Consultar Bono (Admin) | RF7, RF11, RF12, RF13 | RF1, RF2, RF3, RF14 | RF8, RF23, RF24 |
+| **CU10** | Cierre de Período (Automático) | RF7, RF11, RF12, RF13, RF14, RF15 | RF10, RF16-A, RF16-B | RF8, RF23 |
+| **CU11** | Reconciliación NC (Manual) | RF15, RF17, RF18, RF19 | RF14 | RF8, RF22, RF23, RF25 |
+| **CU12** | Resolver Reclamación (Soporte) | RF8, RF21, RF22, RF23, RF24 | RF7 | RF20, RF25, RF26 |
+
+---
+
+### Vista por Categoría de RF
+
+#### 🔧 **ADMINISTRACIÓN** (RF1-RF3)
+
+```
+RF1 (Gestionar Períodos)
+├─ CU1 ━━━━ Crear período (entrada principal)
+├─ CU9 ━━━ Consultar bonos por período
+└─ CU12 ━ Resolver reclamaciones (filtro por período)
+
+RF2 (Gestionar Tipos de Bono)
+├─ CU2 ━━━━ Crear tipo (entrada principal)
+├─ CU3 ━━━ Asociar con vigencia
+└─ CU9 ━━ Mostrar tipo usado en cálculos
+
+RF3 (Gestionar Vigencias)
+├─ CU3 ━━━━ Crear vigencia (entrada principal)
+├─ CU4 ━━━ Parámetros de facturación (si filtrada)
+├─ CU5 ━━━ Parámetros de precios
+└─ CU24 ━ Auditoría de vigencias usadas
+```
+
+#### 🔐 **SEGURIDAD** (RF4, RF5, RF19)
+
+```
+RF4 (Autenticar por OTP)
+├─ CU6 ━━━━ OTP Generation & Validation (entrada principal)
+└─ CU7 ━━━ Acceso al bono (requiere autenticación)
+
+RF5 (Validar Seguridad - Aislamiento)
+├─ CU6 ━━━ OTP valida que sea distribuidor
+├─ CU7 ━━ Solo ve su bono (no de otros)
+└─ CU8 ━━ Solo ve su histórico
+
+RF19 (Gestión de Aprobaciones)
+├─ CU11 ━━━━ Aprueba/Rechaza OC Especiales (entrada principal)
+├─ CU11 ━━━ Aprueba/Rechaza reconciliaciones
+└─ CU9 ━━━ Consulta estados pendientes de aprobación
+```
+
+#### 📊 **CONSULTAS** (RF6, RF6-B, RF7)
+
+```
+RF6 (Consultar Bono - Período Actual)
+├─ CU7 ━━━━ Calcula dinámicamente en tiempo real
+└─ CU12 ━━ Muestra qué vio distribuidor en CU7
+
+RF6-B (Consultar Histórico - Períodos Anteriores)
+├─ CU8 ━━━━ Retorna bonos congelados (entrada principal)
+└─ CU12 ━━ Muestra qué vio distribuidor en CU8
+
+RF7 (Consultar Bono - Admin)
+├─ CU9 ━━━━ Admin consulta bono calculado (entrada principal)
+└─ CU10 ━━ Genera recomendación de NC al cierre
+```
+
+#### 📈 **HISTORIAL & AUDITORÍA** (RF8, RF9)
+
+```
+RF8 (Registrar Historial de Bonos)
+├─ TODOS CU ━━ Auditoría de CADA acción (transversal)
+│  ├─ CU1 - Creación período
+│  ├─ CU2 - Creación tipo bono
+│  ├─ CU3 - Creación vigencia
+│  ├─ CU4 - Consulta TOTUS
+│  ├─ CU5 - Carga precios
+│  ├─ CU6 - OTP attempt
+│  ├─ CU7 - Consulta bono
+│  ├─ CU8 - Consulta histórico
+│  ├─ CU9 - Consulta admin
+│  ├─ CU10 - Cierre período
+│  ├─ CU11 - Reconciliación
+│  └─ CU12 - Investigación reclamación
+└─ CU12 ━━━━ Resolver reclamaciones (acceso principal)
+
+RF9 (Gamificación)
+├─ CU7 ━━━━ Muestra falta para siguiente nivel (entrada principal)
+└─ CU12 ━━ Incluida en resolución de reclamaciones
+```
+
+#### 🔗 **INTEGRACIÓN DE DATOS** (RF10-RF15)
+
+```
+RF10 (Cargar Precios)
+├─ CU5 ━━━━ Carga automática diaria (entrada principal)
+├─ CU7 ━━━ Usa precios históricos en cálculos
+├─ CU9 ━━━ Admin ve precios usados
+└─ CU24 ━━ Auditoría de precios
+
+RF11 (Capturar Facturación TOTUS)
+├─ CU4 ━━━━ Obtiene de TOTUS (entrada principal)
+├─ CU7 ━━━ Calcula Bono por Facturación
+├─ CU9 ━━━ Admin ve valor facturado
+└─ CU10 ━━ Cierre calcula con facturación final
+
+RF12 (Capturar Valor Pedido)
+├─ CU7 ━━━ Calcula Bono por Pedido (entrada principal)
+├─ CU9 ━━━ Admin ve valor pedido
+└─ CU10 ━━ Cierre calcula con pedidos acumulados
+
+RF13 (Capturar Valor Entregado)
+├─ CU7 ━━━ Calcula Bono por Entregado (entrada principal)
+├─ CU9 ━━━ Admin ve valor entregado
+└─ CU10 ━━ Cierre calcula con entregas confirmadas
+
+RF14 (Gestionar NC Período Anterior)
+├─ CU4 ━━━ Obtiene NC de TOTUS
+├─ CU7 ━━━ Descuenta en cálculo dinámico
+├─ CU9 ━━━ Admin ve NC descontada
+└─ CU10 ━━ Cierre calcula con NC anterior
+
+RF15 (Reconciliación NC)
+├─ CU8 ━━━ Usa NC Real para histórico
+├─ CU11 ━━ Ingresa manualmente NC Real (entrada principal)
+└─ CU7 ━━━ Proximos cálculos usan NC Real
+```
+
+#### 👤 **USUARIO PROMOS - OPERACIONES** (RF16-RF18, RF19)
+
+```
+RF16-A (Ingreso Manual OC Especiales - Unitario)
+├─ CU11 ━━━━ Ingresa una OC especial (entrada principal)
+└─ CU7 ━━━━ Se suma al bono si está aprobada
+
+RF16-B (Carga Masiva OC Especiales - CSV)
+├─ CU11 ━━━━ Carga múltiples OC especiales (entrada principal)
+└─ CU7 ━━━━ Se suman al bono si están aprobadas
+
+RF17 (Aplicación Manual NC en TOTUS)
+├─ CU11 ━━━━ Aplicar NC en TOTUS con confirmación (entrada principal)
+└─ CU10 ━━━ Cierre genera recomendación de NC
+
+RF18 (Reconciliación Manual NC)
+├─ CU11 ━━━━ Ingresa NC Real Unitaria o Masiva (entrada principal)
+├─ CU7 ━━━ Proximos cálculos usan NC Real
+└─ CU8 ━━━ Bonos históricos usan NC Real reconciliada
+
+RF19 (Gestión de Aprobaciones)
+├─ CU11 ━━━━ Aprueba/Rechaza ingresos manuales (entrada principal)
+├─ CU7 ━━━ Si aprueba OC, se suma al bono
+└─ CU10 ━━ Cierre solo calcula con OC aprobadas
+```
+
+#### 📋 **REPORTERÍA** (RF20-RF26)
+
+```
+RF20 (Bonos Calculados vs Aplicados)
+├─ CU12 ━━━━ Resuelve reclamaciones (entrada principal)
+├─ CU10 ━━━ Genera datos para reporte post-cierre
+└─ CU11 ━━━ Muestra discrepancias de NC
+
+RF21 (Distribuidores que Consultaron Bonos)
+├─ CU12 ━━━━ Investiga reclamaciones (entrada principal)
+├─ CU7 ━━━ Registra cada consulta
+└─ CU8 ━━━ Registra cada consulta de histórico
+
+RF22 (Discrepancias de NC)
+├─ CU12 ━━━━ Resuelve discrepancias (entrada principal)
+├─ CU11 ━━━ Identifica NC calculada ≠ NC real
+└─ CU8 ━━━ Usa NC real en próximos períodos
+
+RF23 (Auditoría de Acciones Usuario PROMOS)
+├─ CU12 ━━━━ Investiga decisiones del usuario (entrada principal)
+├─ CU11 ━━━ Auditoría de aprobaciones
+├─ CU10 ━━━ Auditoría de cierre automático
+└─ CU9 ━━━ Auditoría de cálculos realizados
+
+RF24 (Precios y Vigencias Usados)
+├─ CU12 ━━━━ Resuelve reclamaciones "¿por qué ese precio?" (entrada principal)
+├─ CU7 ━━━ Documenta qué precios/vigencias se usaron
+├─ CU10 ━━ Documenta configuración de cierre
+└─ CU3 ━━━ Vigencia afecta precio usado
+
+RF25 (Ingresos Manuales Aplicados)
+├─ CU12 ━━━━ Auditoría de decisiones manuales (entrada principal)
+├─ CU11 ━━━ Documenta OC Especiales + Reconciliaciones
+└─ CU19 ━━ Auditoría de aprobaciones
+
+RF26 (Exportación Reportes)
+├─ CU12 ━━━━ Exporta para investigación reclamación (entrada principal)
+├─ RF20-RF25 Aplica a TODOS los reportes
+└─ Formatos: Excel + PDF
+```
+
+---
+
+### Resumen de Cobertura
+
+| Categoría | Cantidad | CU Afectados | RF Críticos |
+|---|---|---|---|
+| **Administración** | 3 RF | CU1, CU2, CU3, CU9, CU12 | RF1, RF2, RF3 |
+| **Seguridad** | 3 RF | CU6, CU7, CU8, CU9, CU11 | RF4, RF5, RF19 |
+| **Consultas** | 3 RF | CU7, CU8, CU9, CU12 | RF6, RF6-B, RF7 |
+| **Auditoría** | 2 RF | TODOS (transversal) | RF8, RF9 |
+| **Integración** | 6 RF | CU4, CU5, CU7, CU9, CU10, CU11 | RF10-RF15 |
+| **Operaciones Usuario** | 4 RF | CU10, CU11 | RF16-A, RF16-B, RF17, RF18 |
+| **Reportería** | 7 RF | CU12 (principal) | RF20-RF26 |
+| **TOTAL** | **28 RF** | **12 CU** | **Todos relacionados** |
+
+---
+
+### Flujo de Dependencias Críticas
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    ORDEN DE IMPLEMENTACIÓN                      │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│ FASE 1: BASES ADMINISTRATIVAS                                   │
+│ CU1 → RF1 (Crear Período)                                       │
+│ CU2 → RF2 (Crear Tipo de Bono)                                  │
+│ CU3 → RF3 (Crear Vigencia)                                      │
+│   ↓                                                             │
+│ FASE 2: INTEGRACIONES EXTERNAS                                  │
+│ CU4 → RF11 (Obtener Facturación TOTUS) ✓ Requerido para CU7     │
+│ CU5 → RF10 (Cargar Precios) ✓ Requerido para CU7                │
+│   ↓                                                             │
+│ FASE 3: SEGURIDAD & ACCESO DISTRIBUIDOR                         │
+│ CU6 → RF4 + RF5 (OTP + Seguridad) ✓ Requerido para CU7/CU8      │
+│   ↓                                                             │
+│ FASE 4: CONSULTAS PÚBLICAS                                      │
+│ CU7 → RF6 + RF11 + RF12 + RF13 + RF9 (Bono Actual)              │
+│ CU8 → RF6-B + RF14 + RF15 (Histórico)                           │
+│   ↓                                                             │
+│ FASE 5: CONSULTAS ADMINISTRATIVAS                               │
+│ CU9 → RF7 (Bono Admin)                                          │ 
+│   ↓                                                             │
+│ FASE 6: AUTOMATIZACIÓN & CIERRE                                 │
+│ CU10 → RF7 + RF11-15 (Cierre Período)                           │
+│   ↓                                                             │
+│ FASE 7: OPERACIONES MANUALES                                    │
+│ CU11 → RF15 + RF16-18 + RF19 (Reconciliación + OC + Aprob)      │
+│   ↓                                                             │
+│ FASE 8: REPORTERÍA & INVESTIGACIÓN                              │
+│ CU12 → RF20-26 (Resolver Reclamaciones)                         │
+│                                                                 │
+│ ⏱️ RF8 (Auditoría) es TRANSVERSAL a TODOS los CU                │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
 ## 1.1 Descripción General
 
 ### Problemática de Negocio
