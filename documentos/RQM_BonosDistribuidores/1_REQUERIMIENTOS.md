@@ -174,214 +174,127 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 ## 1.3 Casos de Uso (11 Total)
 
 ### CU1: Crear Período
-Admin define período (Mensual/Quincenal/Semanal/Custom): Nombre, Día inicio, Duración (días)
+
+**Ubicación:** Aldebaran.Web  
+**Acceso:** Admin - Autenticación interna PROMOS  
+**Actor:** Administrador  
+**Objetivo:** Definir un nuevo período (ventana de tiempo) para calcular bonificaciones
+
+**Problemas que resuelve:**
+- Sistema necesita conocer cuándo inicia y termina cada período de bonificación
+- Permite organizar bonos por períodos (Enero 1-15, Enero 16-31, etc.)
+- Cada período tiene su propia configuración de vigencias y cálculos
+
+**Información que debe poder ingresar:**
+- Nombre del período (texto identificador único, ej: "Enero 2026 - Quincena 1")
+- Tipo de período (Mensual / Quincenal / Semanal / Custom)
+- Día de inicio (primer día del período)
+- Duración en días (cuántos días tiene el período)
+- Fecha inicio (DD/MM/YYYY)
+- Fecha fin (DD/MM/YYYY)
+- Estado (Activo / Inactivo)
+
+**Acciones que puede realizar:**
+- Crear nuevo período
+- Modificar período (antes de que comience a ser usado)
+- Ver listado de períodos activos e históricos
+- Activar/Desactivar período
+- Consultar fechas exactas de cada período
+- Ver cuántos distribuidores se benefician de este período
+
+**Restricciones:**
+- No puede editar período que ya está cerrado
+- No puede crear período con fecha de inicio en el pasado
+- No puede crear período que se superponga con otro existente
+- No puede eliminar período que tiene bonos ya calculados
+- No puede cambiar duración de período activo
+
+---
 
 ### CU2: Crear Tipo de Bono
-Admin define Tipo con Afectación (Facturación/Pedido/Entregado) y Período
+
+**Ubicación:** Aldebaran.Web  
+**Acceso:** Admin - Autenticación interna PROMOS  
+**Actor:** Administrador  
+**Objetivo:** Definir un tipo de bono especificando en qué insumo se basa (Facturación, Pedido o Entregado)
+
+**Problemas que resuelve:**
+- Sistema debe saber qué tipos de bonificación están disponibles
+- Permite estructurar bonos por diferentes criterios de incentivo
+- Cada tipo de bono afecta diferentes comportamientos del distribuidor
+
+**Información que debe poder ingresar:**
+- Nombre del tipo de bono (texto único, ej: "Bono por Facturación")
+- Descripción (opcional, ej: "Incentivo basado en valor facturado")
+- Afectación (qué insumo usa: Facturación / Pedido / Entregado)
+- Período al cual aplica (referencia a CU1)
+- Estado (Activo / Inactivo)
+- Orden de aplicación (si hay múltiples, cuál se aplica primero)
+
+**Acciones que puede realizar:**
+- Crear nuevo tipo de bono
+- Modificar tipo de bono (antes de usar en vigencia)
+- Ver listado de tipos disponibles
+- Activar/Desactivar tipo de bono
+- Consultar cuántas vigencias usan este tipo
+- Ver historial de bonos calculados por tipo
+
+**Restricciones:**
+- No puede eliminar tipo si ya tiene bonos calculados
+- No puede cambiar "Afectación" si ya tiene bonos activos
+- No puede cambiar período de un tipo activo
+- No puede tener dos tipos con mismo nombre en mismo período
+- No puede crear tipo sin asignar Afectación
+
+---
 
 ### CU3: Crear Vigencia (AMPLIADO CON PARAMETRIZACIÓN GRANULAR POR ARTÍCULO/REFERENCIA)
 
-**Definición Base:**
-Admin define vigencia: rangos valor, porcentaje, fecha inicio
-Lógica: Vigencia más reciente (fecha ≤ hoy, Activo) se aplica automáticamente
+**Ubicación:** Aldebaran.Web  
+**Acceso:** Admin - Autenticación interna PROMOS  
+**Actor:** Administrador  
+**Objetivo:** Definir una vigencia (configuración de tramos y porcentajes) para calcular bonos, con opción de restricción por artículos/referencias
 
-El administrador puede, opcionalmente, restringir una vigencia a **artículos y referencias específicos**. Esto permite crear bonos focalizados para **incentivar venta de productos específicos** con stock alto o baja rotación.
+**Problemas que resuelve:**
+- Sistema necesita saber qué porcentaje de bono aplica según el acumulado del distribuidor
+- Permite cambiar incentivos según necesidades de negocio (stock, lanzamientos, etc.)
+- Permite focalizar bonos en artículos específicos sin modificar toda la estructura
 
-#### CUATRO NIVELES DE PARAMETRIZACIÓN
+**Información que debe poder ingresar:**
+- Nombre de vigencia (texto único, ej: "Bono Enero 2026 - Facturación")
+- Período al cual aplica (referencia a CU1)
+- Tipo de bono (referencia a CU2)
+- Fecha inicio vigencia (cuándo comienza a usarse)
+- Estado (Activo / Inactivo)
+- Tramos de valor con porcentajes (ej: "$1M-$5M = 5%", "$5M-$10M = 6%")
+- Opción: Restricción por artículos/referencias específicos (OPCIONAL):
+  - Sin restricción (aplica a TODOS los artículos - DEFAULT)
+  - Artículos específicos (TODAS sus referencias)
+  - Artículos + Referencias específicas (combinación personalizada)
+  - Todas referencias de un artículo (WILDCARD)
+- Moneda del bono (COP, USD, etc.)
+- Monto máximo de bono (tope configurable)
 
-**NIVEL 1: SIN RESTRICCIÓN (Default - Actual)**
-```
-Aplica a: TODOS los artículos y referencias del distribuidor
-Ejemplo: "Bono Enero 2026" → Aplica a TODO lo que venda
+**Acciones que puede realizar:**
+- Crear nueva vigencia
+- Modificar vigencia (antes de que comience a usarse)
+- Ver listado de vigencias activas e históricos
+- Activar/Desactivar vigencia
+- Especificar qué artículos/referencias incluir (si aplica)
+- Ver qué distribuidores se benefician de esta vigencia
+- Consultar histórico de cambios en vigencias
+- Copiar vigencia anterior como template
 
-Configuración: 
-  └─ Ninguna restricción
-  └─ Bono calcula sobre: SUM(TODO el valor del distribuidor)
-```
+**Restricciones:**
+- No puede editar vigencia que ya está en uso (debe crear nueva)
+- No puede cambiar Tipo de Bono de vigencia activa
+- No puede cambiar Período de vigencia activa
+- No puede crear vigencia con fecha inicio en el pasado
+- No puede tener dos vigencias simultáneas para mismo Tipo de Bono en mismo Período (excepto con parametrización diferente)
+- Si parametriza por artículos, debe validar que artículos existan en sistema
+- No puede eliminar vigencia que tiene bonos ya calculados
 
-**NIVEL 2: SOLO ARTÍCULOS ESPECÍFICOS**
-```
-Aplica a: Artículos seleccionados (TODAS sus referencias)
-Ejemplo: "Incentivo Art A y Art B - Enero" 
-  └─ Art A: Todas las referencias (Ref 1, 2, 3, N...)
-  └─ Art B: Todas las referencias (Ref X, Y, Z...)
-  └─ Art C: NO INCLUIDA (ignorada en cálculo)
-
-Configuración: 
-  ├─ Admin selecciona: [Art A, Art B]
-  └─ Bono calcula sobre: SUM(Art A) + SUM(Art B)
-```
-
-**NIVEL 3: ARTÍCULOS + REFERENCIAS ESPECÍFICAS**
-```
-Aplica a: Combinación personalizada de artículos y referencias
-Ejemplo: "Stock Alt Ref 1 - Enero"
-  ├─ Art A: Solo Ref 1 (ignora Ref 2, 3, etc.)
-  ├─ Art B: Todas las referencias (Ref X, Y, Z)
-  └─ Art C: Solo Ref 5
-
-Configuración:
-  ├─ Art A: [Ref 1] ← Específicas
-  ├─ Art B: [] (vacío = TODAS)
-  └─ Art C: [Ref 5] ← Específicas
-
-Bono calcula sobre: 
-  └─ (Art A Ref 1) + (Art B TODAS) + (Art C Ref 5)
-
-Resultado:
-  ├─ Vende Art A Ref 1: ✅ CUENTA
-  ├─ Vende Art A Ref 2: ❌ NO cuenta (no está incluida)
-  ├─ Vende Art B Ref X: ✅ CUENTA (todas del B)
-  └─ Vende Art C Ref 5: ✅ CUENTA
-```
-
-**NIVEL 4: WILDCARD - TODAS LAS REFERENCIAS DE UN ARTÍCULO**
-```
-Aplica a: Artículos completos (todas sus referencias sin limite)
-Ejemplo: "Art A Completo + Art B Ref Específica"
-  ├─ Art A: WILDCARD (todas: Ref 1, 2, 3, 4, N...)
-  ├─ Art B: Ref 5 solamente
-  └─ Art C: Ignorada
-
-Configuración:
-  ├─ Art A: [] ← Vacío = Todas las referencias
-  └─ Art B: [Ref 5]
-
-Bono calcula sobre:
-  └─ (Art A TODAS) + (Art B Ref 5)
-```
-
-#### EJEMPLOS PRÁCTICOS - CASOS DE USO REALES
-
-**CASO 1: STOCK MUY ALTO - INCENTIVAR VENTA DE UN PRODUCTO**
-
-```
-CONTEXTO:
-└─ Artículo A está con stock muy alto (Ref 1 especialmente)
-└─ Artículo A Ref 2 se vende bien (no requiere incentivo)
-└─ Objetivo: Bonificar SOLO Art A Ref 1 con extra 2% en Enero
-
-CONFIGURACIÓN CU3:
-├─ Nombre: "Incentivo Art A Ref 1 - Stock Alto - Enero"
-├─ Período: Enero (1-15)
-├─ Tipo Bono: Pedido
-├─ Vigencia: Tramos especiales para este articulo
-│  ├─ Tramo 1: $500K - $2M = 8%
-│  ├─ Tramo 2: $2M - $5M = 10%
-│  └─ Tramo 3: >$5M = 12%
-│
-└─ 🆕 PARAMETRIZACIÓN:
-   ├─ ☑ Aplicar a artículos/referencias específicas
-   └─ Artículos seleccionados:
-      └─ Art A:
-         ├─ ☐ Todas las referencias
-         ├─ ☑ Referencias específicas: [1]
-         └─ → Solo Ref 1 incluida
-
-IMPACTO EN CÁLCULO:
-  Distribuidor DIST-001 vende en Enero:
-  ├─ Art A Ref 1: $3M ✅ ENTRA en bono (VIGENCIA ESPECIAL)
-  │  └─ Tramo: $2M-$5M = 10%
-  │  └─ Bono: $3M × 0.10 = $300,000
-  │
-  ├─ Art A Ref 2: $1.5M ❌ NO ENTRA (no está parametrizada)
-  │  └─ Se busca OTRA vigencia para Ref 2 (si existe)
-  │  └─ O se ignora (sin bono para esta ref)
-  │
-  └─ Art B (cualquier ref): $2M ❌ NO ENTRA (Art B no está incluida)
-```
-
-**CASO 2: REFERENCIAS MÚLTIPLES - COMBINACIÓN FLEXIBLE**
-
-```
-CONTEXTO:
-└─ Se están liquidando referencias antiguas: Art A (Ref 5, 6, 7)
-└─ Se quiere incentivar Art B (todas las referencias - nuevas)
-└─ Art C Ref 2 es estratégica (cliente importante)
-└─ Objetivo: Bonificar SOLO estas combinaciones
-
-CONFIGURACIÓN CU3:
-├─ Nombre: "Liquidación Ref Antiguas + Nueva Línea - Enero"
-├─ Período: Enero
-├─ Tipo Bono: Pedido
-├─ Vigencia: 
-│  ├─ Tramo 1: $1M - $3M = 6%
-│  └─ Tramo 2: >$3M = 8%
-│
-└─ 🆕 PARAMETRIZACIÓN:
-   ├─ ☑ Aplicar a artículos/referencias específicas
-   └─ Artículos seleccionados:
-      ├─ Art A:
-      │  ├─ ☐ Todas las referencias
-      │  ├─ ☑ Referencias específicas: [5, 6, 7]
-      │  └─ → Solo Ref 5, 6, 7 incluidas
-      │
-      ├─ Art B:
-      │  ├─ ☑ Todas las referencias ← WILDCARD
-      │  └─ → Todas las referencias (nuevas)
-      │
-      └─ Art C:
-         ├─ ☐ Todas las referencias
-         ├─ ☑ Referencias específicas: [2]
-         └─ → Solo Ref 2 incluida
-
-IMPACTO EN CÁLCULO:
-  Distribuidor vende:
-  ├─ Art A Ref 5: $500K ✅ CUENTA
-  ├─ Art A Ref 6: $600K ✅ CUENTA
-  ├─ Art A Ref 3: $200K ❌ NO (no está en lista)
-  ├─ Art B Ref 1: $800K ✅ CUENTA
-  ├─ Art B Ref 2: $1M ✅ CUENTA (TODAS las ref del B)
-  ├─ Art C Ref 2: $300K ✅ CUENTA
-  └─ Art C Ref 4: $150K ❌ NO (solo Ref 2)
-
-Total Base para Bono:
-  = $500K + $600K + $800K + $1M + $300K = $3.2M
-  → Tramo: $3.2M cae en Tramo 2 (>$3M) = 8%
-  → Bono = $3.2M × 0.08 = $256,000
-```
-
-**CASO 3: TODAS LAS REFERENCIAS (WILDCARD) - INCENTIVAR FAMILIA COMPLETA**
-
-```
-CONTEXTO:
-└─ Línea de productos Art D se lanzó recientemente
-└─ Se quiere incentivar TODA la línea (independiente de referencia)
-└─ Objetivo: Más bono para quien compre cualquier Ref de Art D
-
-CONFIGURACIÓN CU3:
-├─ Nombre: "Lanzamiento Art D - Todas las Referencias - Enero"
-├─ Período: Enero
-├─ Tipo Bono: Pedido
-├─ Vigencia:
-│  ├─ Tramo 1: $500K - $2M = 7%
-│  └─ Tramo 2: >$2M = 9%
-│
-└─ 🆕 PARAMETRIZACIÓN:
-   ├─ ☑ Aplicar a artículos/referencias específicas
-   └─ Artículos seleccionados:
-      └─ Art D:
-         ├─ ☑ Todas las referencias ← WILDCARD
-         │  └─ Nota: Campo vacío o checkbox marcado = TODAS
-         └─ → Ref 1, 2, 3, 4, 5, 6, 7, N... TODAS incluidas
-
-IMPACTO EN CÁLCULO:
-  Distribuidor vende:
-  ├─ Art D Ref 1: $600K ✅ CUENTA
-  ├─ Art D Ref 2: $700K ✅ CUENTA
-  ├─ Art D Ref 7: $400K ✅ CUENTA (es nueva referencia)
-  ├─ Art D (cualquier Ref N): XXX ✅ CUENTA (todas)
-  └─ Art E (cualquier Ref): XXX ❌ NO (solo Art D)
-
-Total Base para Bono:
-  = SUM(TODAS Art D) = $2.1M
-  → Tramo: >$2M = 9%
-  → Bono = $2.1M × 0.09 = $189,000
-```
-
-
-
-### CU4: Obtener Facturación de TOTUS (Integración)
+---
 **Ubicación:** Backend Aldebaran
 **Cuándo:** Dinámicamente (cada vez que se calcula bono) + Al cierre del período
 **Actor:** PROCESO AUTOMÁTICO + MOTOR DE CÁLCULO
