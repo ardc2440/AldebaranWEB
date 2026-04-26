@@ -443,7 +443,9 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 
 ---
 
-## 1.7 Actores del Sistema
+## 1.7 Actores del Sistema y Conrol de Acceso
+
+### 1.7.1 Actores del Sistema
 
 **EXTERNOS (Público):**
 - **CLIENTE DISTRIBUIDOR**: Beneficiario de bonificaciones. Accede vía Página Promocional → Sitio Público (con OTP)
@@ -461,7 +463,7 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 
 ---
 
-## 1.2.1 Matriz de Acceso
+### 1.7.2 Matriz de Acceso
 
 | Actor | Plataforma | Funcionalidad |
 |-------|---------|---|
@@ -492,9 +494,9 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 
 ---
 
-## 1.3 Casos de Uso (12 Total)
+## 1.8 Casos de Uso (12 Total)
 
-### CU1: Crear Período
+### 1.8.1 CU1: Crear Período
 
 **Ubicación:** Aldebaran.Web  
 **Acceso:** Admin - Autenticación interna PROMOS  
@@ -532,9 +534,9 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 
 ---
 
-### CU2: Crear Tipo de Bono
+### 1.8.2 CU2: Crear Tipo de Bono
 
-**Ubicación:** Aldebaran.Web  
+**Ubicación:** Aldebaran.Web
 **Acceso:** Admin - Autenticación interna PROMOS  
 **Actor:** Administrador  
 **Objetivo:** Definir un tipo de bono especificando en qué insumo se basa (Facturación, Pedido o Entregado)
@@ -569,9 +571,9 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 
 ---
 
-### CU3: Crear Vigencia (AMPLIADO CON PARAMETRIZACIÓN GRANULAR POR ARTÍCULO/REFERENCIA)
+### 1.8.3 CU3: Crear Vigencia (AMPLIADO CON PARAMETRIZACIÓN GRANULAR POR ARTÍCULO/REFERENCIA)
 
-**Ubicación:** Aldebaran.Web  
+**Ubicación:** Aldebaran.Web
 **Acceso:** Admin - Autenticación interna PROMOS  
 **Actor:** Administrador  
 **Objetivo:** Definir una vigencia (configuración de tramos y porcentajes) para calcular bonos, con opción de restricción por artículos/referencias
@@ -615,9 +617,9 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 - Si parametriza por artículos, debe validar que artículos existan en sistema
 - No puede eliminar vigencia que tiene bonos ya calculados
 
-### CU4: Obtener Facturación de TOTUS (Integración)
+### 1.8.4 CU4: Obtener Facturación de TOTUS (Integración)
 
-**Ubicación:** Backend Aldebaran (Motor de Cálculo)  
+**Ubicación:** Backend Aldebaran (Motor de Cálculo)
 **Cuándo:** Dinámicamente (cada vez que se calcula bono) + Al cierre del período  
 **Actor:** PROCESO AUTOMÁTICO + MOTOR DE CÁLCULO  
 **Objetivo:** Obtener valor facturado real desde el sistema TOTUS para usarlo en cálculo de bonos
@@ -658,9 +660,9 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 
 ---
 
-### CU5: Cargar Lista de Precios (Automático Diario)
+### 1.8.5 CU5: Cargar Lista de Precios (Automático Diario)
 
-**Ubicación:** Backend Aldebaran (Scheduled Job)  
+**Ubicación:** Backend Aldebaran (Scheduled Job)
 **Cuándo:** Automático, horario configurable (default: 6 AM)  
 **Actor:** PROCESO AUTOMÁTICO  
 **Objetivo:** Descargar y cargar la lista de precios diaria desde Página Promocional
@@ -702,9 +704,9 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 
 ---
 
-### CU6: Autenticar Distribuidor (OTP - Seguridad)
+### 1.8.6 CU6: Autenticar Distribuidor (OTP - Seguridad)
 
-**Ubicación:** Sitio Público Aldebaran  
+**Ubicación:** Sitio Público Aldebaran
 **Acceso:** Desde Página Promocional (clic en botón/link)  
 **Actor:** Distribuidor (cliente externo)  
 **Objetivo:** Autenticar distribuidor de forma segura usando OTP (One Time Password) antes de mostrar bonificación
@@ -747,9 +749,9 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 
 ---
 
-### CU7: Consultar Bonificación - Período Actual (Distribuidor - Sitio Público)
+### 1.8.7 CU7: Consultar Bonificación - Período Actual (Distribuidor - Sitio Público)
 
-**Ubicación:** Sitio Público Aldebaran  
+**Ubicación:** Sitio Público Aldebaran
 **Acceso:** Solo con autenticación OTP válida (CU6 completado)  
 **Actor:** Distribuidor (autenticado)  
 **Objetivo:** Consultar bonos acumulados en tiempo real durante el período actual
@@ -795,9 +797,9 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 
 ---
 
-### CU8: Consultar Histórico de Bonos - Períodos Anteriores (Distribuidor - Sitio Público)
+### 1.8.8 CU8: Consultar Histórico de Bonos - Períodos Anteriores (Distribuidor - Sitio Público)
 
-**Ubicación:** Sitio Público Aldebaran  
+**Ubicación:** Sitio Público Aldebaran
 **Acceso:** Solo con autenticación OTP válida (CU6 completado)  
 **Actor:** Distribuidor (autenticado)  
 **Objetivo:** Consultar bonos finales congelados de períodos cerrados anteriores
@@ -844,9 +846,9 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 
 ---
 
-### CU9: Consultar Bono Actual Dinámico - PROMOS
+### 1.8.9 CU9: Consultar Bono Actual Dinámico - PROMOS
 
-**Ubicación:** Aldebaran.Web  
+**Ubicación:** Aldebaran.Web
 **Acceso:** Admin - Autenticación interna PROMOS  
 **Actor:** Usuario PROMOS  
 **Objetivo:** Consultar bono actual de un distribuidor en período activo para preparar recomendación de NC
@@ -894,9 +896,9 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 
 ---
 
-### CU10: Cierre de Período (Automático)
+### 1.8.10 CU10: Cierre de Período (Automático)
 
-**Ubicación:** Backend Aldebaran (Scheduled Job)  
+**Ubicación:** Backend Aldebaran (Scheduled Job)
 **Cuándo:** Último día del período, a hora configurada (ej: 23:59:59)  
 **Actor:** PROCESO AUTOMÁTICO  
 **Objetivo:** Cerrar período y calcular bonos finales recomendados (FOTO congelada)
@@ -962,9 +964,9 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 ```
 
 ---
-### CU11: Conciliación Manual de Nota Crédito (Manual)
+### 1.8.11 CU11: Conciliación Manual de Nota Crédito (Manual)
 
-**Ubicación:** Aldebaran.Web (Ingreso manual de datos)  
+**Ubicación:** Aldebaran.Web (Ingreso manual de datos)
 **Cuándo:** Usuario PROMOS la ejecuta manualmente, después del cierre del período N y antes de final del período N+1  
 **Actor:** USUARIO PROMOS  
 **Objetivo:** Registrar el valor REAL de la NC que se aplicó en TOTUS vs la NC calculada en CU9 (FOTO), para usar ese valor en cálculos del siguiente período
@@ -1017,7 +1019,7 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 
 ---
 
-### CU12: Resolver Reclamación (Soporte)
+### 1.8.12 CU12: Resolver Reclamación (Soporte)
 
 **Ubicación:** Aldebaran.Web
 **Acceso:** Usuario PROMOS (Admin o rol superior)
@@ -1074,7 +1076,7 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 - Si descubre errores en cálculo, requiere apertura de ticket a soporte técnico
 ---
 
-## 1.4 Responsabilidades Bien Definidas (APLICABLES A TODO EL SISTEMA)
+## 1.9 Responsabilidades Bien Definidas (APLICABLES A TODO EL SISTEMA)
 
 ```
 ┌────────────────────────────────────────────────────────────────┐
@@ -1280,8 +1282,9 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 └────────────────────────────────────────────────────────────────┘
 ```
 ---
-## 1.5 Requisitos 
-## 1.5.1 Funcionales (26 - TODOS ALTA PRIORIDAD)
+## 1.10 Requisitos 
+
+## 1.10.1 Funcionales 
 
 | RF | Descripción | Categoría |
 |----|---|---|
@@ -1316,7 +1319,7 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 
 ---
 
-## 1.5.2 No Funcionales
+## 1.10.2 No Funcionales
 
 | Requisito | Especificación |
 |-----------|---|
