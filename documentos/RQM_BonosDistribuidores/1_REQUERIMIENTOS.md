@@ -1,4 +1,4 @@
-# 1. REQUERIMIENTOS FUNCIONALES - Bonificación de Distribuidores
+# 1. REQUERIMIENTOS FUNCIONALES - Bonificación de Distribuidores 
 
 **Identificador**: RQM_BonosDistribuidores_052026  
 **Cliente**: PROMOS | **Estado**: ? REQUERIMIENTOS DEFINIDOS | **Fecha**: 2024
