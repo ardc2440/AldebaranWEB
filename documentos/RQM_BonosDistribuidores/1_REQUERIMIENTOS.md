@@ -510,28 +510,207 @@ NOTA: Si Usuario PROMOS hubiera aplicado NC diferente:
 **RESPONSABILIDADES BIEN DEFINIDAS**:
 
 ```
-ALDEBARAN (Sistema):
-  ? Calcula recomendación
-  ? Almacena FOTO (auditoría)
-  ? Congela valores (no cambian)
-  ? Notifica Usuario
-  ? Reconcilia con TOTUS
-  ? NO aplica en TOTUS
-  ? NO afecta directamente TOTUS
+??????????????????????????????????????????????????????????????????
+? PÁGINA PROMOCIONAL (Tercero - Externo):                        ?
+??????????????????????????????????????????????????????????????????
+? ? Mantiene lista de precios actualizada (diariamente)          ?
+? ? Publica lista de precios en formato especificado (Excel)     ?
+? ? Asegura disponibilidad de descargas (sin downtime)           ?
+? ? Ofrece link/botón "Ver mi bonificación" (redirección)        ?
+? ? Redirecciona a Sitio Público Aldebaran (endpoint configurable)
+? ? Asegura comunicación HTTPS segura                            ?
+? ? NO calcula bonos                                             ?
+? ? NO autentica distribuidores                                  ?
+? ? NO accede a datos de TOTUS                                   ?
+??????????????????????????????????????????????????????????????????
 
-USUARIO PROMOS (Humano - Responsable Final):
-  ? Revisa recomendación
-  ? Aplica manualmente en TOTUS
-  ? Es responsable del valor real
-  ? Confirma que NC se registró
-  ? Toma decisiones (puede aplicar diferente)
+??????????????????????????????????????????????????????????????????
+? ALDEBARAN - SCHEDULED JOBS (Automático):                       ?
+??????????????????????????????????????????????????????????????????
+? ? Descarga lista de precios (horario configurable)             ?
+? ? Valida estructura y datos de precios                         ?
+? ? Almacena precios en PreciosDistribuidor (actual)             ?
+? ? Copia histórico en PreciosDistribuidorHistorico (con fecha)  ?
+? ? Limpia precios antiguos (según política retención)           ?
+? ? Notifica errores a administrador                             ?
+? ? Fallback a precios anteriores si descarga falla              ?
+? ? Realiza cierre de período (último día, hora configurable)    ?
+? ? Calcula bonos recomendados al cierre                         ?
+? ? Almacena FOTO en HistorialBono (inmutable post-cierre)       ?
+? ? Genera recomendaciones de NC (estado RECOMENDADA)            ?
+? ? Cierra período (estado CERRADO)                              ?
+? ? Publica evento PeriodoCerrado (RabbitMQ)                     ?
+? ? NO aplica NC en TOTUS                                        ?
+? ? NO modifica datos de TOTUS                                   ?
+? ? NO realiza reconciliación automática (requiere acción humana)?
+??????????????????????????????????????????????????????????????????
 
-TOTUS (Tercero - Verdad Única):
-  ? Recibe NC (sugerencia de Aldebaran)
-  ? Aplica NC (responsabilidad Usuario PROMOS)
-  ? Registra NC real
-  ? Retorna NC real (para reconciliación)
-  ? Es fuente de verdad para cálculos futuros
+??????????????????????????????????????????????????????????????????
+? ALDEBARAN - MOTOR DE CÁLCULO (En línea):                       ?
+??????????????????????????????????????????????????????????????????
+? ? Obtiene período actual                                       ?
+? ? Suma todas las órdenes (cantidad + precio histórico)         ?
+? ? Suma todas las entregas confirmadas (cantidad + precio)      ?
+? ? Consulta TOTUS: Valor facturado real (tiempo real)           ?
+? ? Busca NC período anterior (de HistorialBono reconciliado)    ?
+? ? Busca vigencia más reciente (activa)                         ?
+? ? Busca tramo correspondiente                                  ?
+? ? Aplica porcentaje del tramo                                  ?
+? ? Calcula gamificación (falta para siguiente nivel)            ?
+? ? Retorna bono dinámico (SLA: 500ms)                           ?
+? ? Registra en auditoría: qué se consultó, cuándo              ?
+? ? NO precalcula bonos                                          ?
+? ? NO modifica TOTUS                                            ?
+? ? NO aplica NC automáticamente                                 ?
+??????????????????????????????????????????????????????????????????
+
+??????????????????????????????????????????????????????????????????
+? ALDEBARAN - CONFIGURACIÓN (Admin):                             ?
+??????????????????????????????????????????????????????????????????
+? ? Crea/modifica Períodos (nombre, inicio, duración)            ?
+? ? Crea Tipos de Bono (afectación, estrategia precio)           ?
+? ? Crea Vigencias (rangos, porcentaje, fecha inicio)            ?
+? ? Configura horario carga precios                              ?
+? ? Configura retención histórico de precios                     ?
+? ? Configura horario y cadencia limpieza                        ?
+? ? Configura horario cierre período                             ?
+? ? Configura reintentos y timeouts                              ?
+? ? Configura integración TOTUS (SP, parámetros)                 ?
+? ? Configura integración Página Promocional (URL, auth)         ?
+? ? Gestiona usuarios, roles, permisos                           ?
+? ? Consulta logs de seguridad                                   ?
+? ? NO modifica datos históricos (auditoría)                     ?
+? ? NO interfiere con cierres ya realizados                      ?
+??????????????????????????????????????????????????????????????????
+
+??????????????????????????????????????????????????????????????????
+? USUARIO PROMOS (Humano - Responsable Final):                   ?
+??????????????????????????????????????????????????????????????????
+?                                                                ?
+? ?? CONSULTA Y REVISIÓN ??                                      ?
+? ? Consulta recomendación de NC en Aldebaran.Web                ?
+? ? Revisa montos calculados por el sistema                      ?
+? ? Accede a historial completo de cálculo                       ?
+? ? Ve detalles: Vigencia usada, Precios aplicados, NC anterior ?
+?                                                                ?
+? ?? INGRESO MANUAL DE DATOS (CRÍTICO) ??                        ?
+? ? Puede ingresar manualmente Valor Facturado REAL de TOTUS     ?
+?   (para casos donde TOTUS no retorna valor en tiempo real)     ?
+? ? Registra la fecha en que se ingresó este valor               ?
+? ? Sistema usa valor ingresado en cálculos futuros si aplica    ?
+? ? Auditoría registra: quién, qué, cuándo ingresó              ?
+?                                                                ?
+? ?? APLICACIÓN EN TOTUS ??                                      ?
+? ? Abre TOTUS (sistema tercero)                                 ?
+? ? APLICA MANUALMENTE cada NC recomendada en TOTUS              ?
+? ? Puede aplicar NC diferente a la recomendada (su decisión)    ?
+? ? Registra en el sistema: valor NC real que aplicó en TOTUS    ?
+? ? Confirma que NC fue registrada en TOTUS                      ?
+?                                                                ?
+? ?? RECONCILIACIÓN MANUAL (NO AUTOMÁTICA) ??                    ?
+? ? Ingresa manualmente: Monto NC que TOTUS confirma aplicó      ?
+? ? Sistema compara: NC calculada vs NC real ingresada           ?
+? ? Si hay diferencia: Sistema alerta y registra discrepancia    ?
+? ? Auditoría: Qué diferencia hubo, por qué, quién la registró   ?
+? ? Próximos cálculos usan NC real ingresada (no la calculada)   ?
+?                                                                ?
+? ?? SOPORTE A DISTRIBUIDORES ??                                 ?
+? ? Resuelve reclamaciones de distribuidores                     ?
+? ? Accede a historial completo de cálculo de cada distribuidor  ?
+? ? Ve exactamente qué bonos se le entregaron en consultas       ?
+? ? Justifica los cálculos con datos congelados en HistorialBono ?
+?                                                                ?
+? ?? GENERACIÓN DE REPORTES ??                                   ?
+? ? Reporte: Bonos calculados vs Bonos realmente aplicados       ?
+?   - Por período y distribuidor                                 ?
+?   - Muestra: Monto calculado + Monto aplicado + Diferencias    ?
+?   - Detecta: NCs aplicadas parcialmente o no aplicadas         ?
+?                                                                ?
+? ? Reporte: Distribuidores que consultaron bonos                ?
+?   - Listado con: Distribuidor, Fecha consulta, Hora, Bono     ?
+?   - Muestra: Exactamente qué información se le mostró          ?
+?   - Filtro: Por período, fecha, rango de bonos                 ?
+?   - Auditoría: Quién consultó, desde dónde, cuándo             ?
+?                                                                ?
+? ? Reporte: Discrepancias de NC (calculada vs real)             ?
+?   - Muestra todas las diferencias encontradas                  ?
+?   - Detalles: Distribuidor, período, monto diferencia          ?
+?   - Causa: Quién registró qué y cuándo                         ?
+?   - Estado: Resuelta o pendiente                               ?
+?                                                                ?
+? ? Reporte: Auditoría de acciones del usuario PROMOS            ?
+?   - Historial: Qué hizo, cuándo, resultado                     ?
+?   - NCs aplicadas, valores ingresados, reconciliaciones        ?
+?   - Modificaciones y decisiones tomadas                        ?
+?                                                                ?
+? ? Reporte: Precios usados en período                           ?
+?   - Muestra: Qué lista de precios se usó en cada cálculo       ?
+?   - Vigencia aplicada para cada tipo de bono                   ?
+?   - Tramos usados en cálculos finales                          ?
+?                                                                ?
+? ? Reporte: Exportación de datos                                ?
+?   - Excel/PDF de cualquier reporte                             ?
+?   - Formato configurable según necesidad                       ?
+?                                                                ?
+? ?? RESTRICCIONES ??                                            ?
+? ? NO calcula bonos (el sistema lo hace)                        ?
+? ? NO modifica TOTUS directamente desde Aldebaran               ?
+? ? NO interfiere con cierres automáticos ya realizados          ?
+? ? NO puede editar valores congelados en HistorialBono          ?
+? ? NO puede eliminar registros de auditoría                     ?
+??????????????????????????????????????????????????????????????????
+
+??????????????????????????????????????????????????????????????????
+? TOTUS (Tercero - Verdad Única - Sistema Facturación):          ?
+??????????????????????????????????????????????????????????????????
+? ? Suministra Valor Facturado (via SP, parámetros configurables)?
+? ? Retorna: ValorFacturado, NC, Fletes, Descuentos             ?
+? ? Recibe recomendación de NC de Aldebaran (sugerencia)         ?
+? ? Aplica NC en siguiente período (responsabilidad Usuario)     ?
+? ? Registra NC real aplicada en su BD                           ?
+? ? Retorna NC real aplicada (para reconciliación Aldebaran)     ?
+? ? Es fuente de verdad para valor facturado                     ?
+? ? Es fuente de verdad para NC realmente aplicadas              ?
+? ? NO calcula bonos                                             ?
+? ? NO interfiere con cálculos de Aldebaran                      ?
+? ? NO aplica NC automáticamente (Usuario es responsable)        ?
+??????????????????????????????????????????????????????????????????
+
+??????????????????????????????????????????????????????????????????
+? SITIO PÚBLICO ALDEBARAN (Portal - Distribuidor):               ?
+??????????????????????????????????????????????????????????????????
+? ? Autentica distribuidor (OTP por SMS/Email)                   ?
+? ? Valida documento distribuidor contra BD Aldebaran            ?
+? ? Genera OTP (6 dígitos, 10 min default, configurable)         ?
+? ? Envía OTP por canal preferido (SMS o Email)                  ?
+? ? Valida OTP ingresado (max 3 intentos)                        ?
+? ? Genera Token JWT (8 horas default, configurable)             ?
+? ? Consulta Motor de Cálculo (obtiene bono dinámico)            ?
+? ? Retorna bono dinámico (SLA: 500ms)                           ?
+? ? Solo muestra información del distribuidor autenticado         ?
+? ? Página solo lectura (sin entrada de datos)                   ?
+? ? Gestiona gamificación (falta para siguiente nivel)            ?
+? ? Registra logs de auditoría (acceso, consultas)               ?
+? ? Invalida token al cierre de sesión                           ?
+? ? NO calcula bonos (delega a Motor de Cálculo)                 ?
+? ? NO aplica NC                                                 ?
+? ? NO modifica datos en BD                                      ?
+??????????????????????????????????????????????????????????????????
+
+??????????????????????????????????????????????????????????????????
+? DISTRIBUIDOR (Cliente - Externo):                              ?
+??????????????????????????????????????????????????????????????????
+? ? Haz clic en "Ver mi bonificación" (Página Promocional)       ?
+? ? Ingresa documento (cédula) en Sitio Público                  ?
+? ? Recibe OTP (SMS o Email)                                     ?
+? ? Ingresa OTP (máx 3 intentos)                                 ?
+? ? Consulta su bonificación acumulada                           ?
+? ? Ve gamificación (falta para siguiente nivel)                 ?
+? ? Cierra sesión                                                ?
+? ? NO calcula bonos (sistema lo hace)                           ?
+? ? NO accede a datos de otros distribuidores                    ?
+? ? NO accede a Aldebaran.Web (admin interno)                    ?
+??????????????????????????????????????????????????????????????????
 ```
 
 **IMPORTANTE PARA PRÓXIMOS PERÍODOS**:
@@ -558,25 +737,37 @@ Información: Paso a paso del cálculo, Vigencia usada, Precios aplicados, NC ante
 
 ---
 
-## 1.4 Requisitos Funcionales (15 - TODOS ALTA PRIORIDAD)
+## 1.4 Requisitos Funcionales (26 - TODOS ALTA PRIORIDAD)
 
-| RF | Descripción |
-|----|---|
-| RF1 | Gestionar Períodos |
-| RF2 | Gestionar Tipos de Bono |
-| RF3 | Gestionar Vigencias |
-| RF4 | **Autenticar Distribuidor (OTP - SMS/Email)** |
-| RF5 | Validar Seguridad: Solo distribuidor ve su información |
-| RF6 | Consultar Bonificación (Distribuidor - Sitio Público - Solo Lectura) |
-| RF7 | Consultar Bono Actual Dinámico (Admin - Aldebaran.Web) |
-| RF8 | Registrar Historial de Bonos (Auditoría completa) |
-| RF9 | Gamificación: Mostrar falta para siguiente nivel |
-| RF10 | Cargar Lista Precios Distribuidores |
-| RF11 | Capturar Valor Facturado (TOTUS) |
-| RF12 | Capturar Valor Pedido (Aldebaran + Precios) |
-| RF13 | Capturar Valor Entregado (Aldebaran) |
-| RF14 | Gestionar Nota Crédito Período Anterior |
-| RF15 | Reconciliación Nota Crédito (TOTUS) |
+| RF | Descripción | Categoría |
+|----|---|---|
+| RF1 | Gestionar Períodos | Administración |
+| RF2 | Gestionar Tipos de Bono | Administración |
+| RF3 | Gestionar Vigencias | Administración |
+| RF4 | **Autenticar Distribuidor (OTP - SMS/Email)** | Seguridad |
+| RF5 | Validar Seguridad: Solo distribuidor ve su información | Seguridad |
+| RF6 | Consultar Bonificación (Distribuidor - Sitio Público - Solo Lectura) | Consultas |
+| RF7 | Consultar Bono Actual Dinámico (Admin - Aldebaran.Web) | Consultas |
+| RF8 | Registrar Historial de Bonos (Auditoría completa) | Historial |
+| RF9 | Gamificación: Mostrar falta para siguiente nivel | Historial |
+| RF10 | Cargar Lista Precios Distribuidores | Integración |
+| RF11 | Capturar Valor Facturado (TOTUS) | Integración |
+| RF12 | Capturar Valor Pedido (Aldebaran + Precios) | Integración |
+| RF13 | Capturar Valor Entregado (Aldebaran) | Integración |
+| RF14 | Gestionar Nota Crédito Período Anterior | Integración |
+| RF15 | Reconciliación Nota Crédito (TOTUS - Manual) | Integración |
+| RF16-A | **Ingreso Manual de Órdenes de Compra Especiales (Unitario)** | Usuario PROMOS |
+| RF16-B | **Carga Masiva de Órdenes de Compra Especiales (CSV)** | Usuario PROMOS |
+| RF17 | Aplicación Manual de NC en TOTUS (con Confirmación) | Usuario PROMOS |
+| RF18 | Reconciliación Manual de NC (Unitario + CSV Masivo) | Usuario PROMOS |
+| RF19 | **Gestión de Aprobaciones para Ingresos Manuales** | Seguridad/Control |
+| RF20 | Reporte: Bonos Calculados vs Bonos Aplicados por Período | Reportería |
+| RF21 | Reporte: Distribuidores que Consultaron Bonos (Log) | Reportería |
+| RF22 | Reporte: Discrepancias de NC (Calculada vs Real) | Reportería |
+| RF23 | Reporte: Auditoría de Acciones del Usuario PROMOS | Reportería |
+| RF24 | Reporte: Precios y Vigencias Usados en Período | Reportería |
+| RF25 | Reporte: Ingresos Manuales Aplicados (OC + Reconciliaciones) | Reportería |
+| RF26 | Exportación de Reportes (Excel/PDF) | Reportería |
 
 ---
 
@@ -780,38 +971,160 @@ Campos:
 - TotalDescuentos: decimal (Descuentos comerciales)
 ```
 
-**CÁLCULO DEL BONO POR FACTURACIÓN - PASO A PASO**:
+**COMPONENTES DEL BONO POR FACTURACIÓN**:
+
+El Bono por Facturación se calcula con 4 insumos:
+
+```
+????????????????????????????????????????????????????????????????
+? INSUMO 1: VALOR FACTURADO (De TOTUS)                         ?
+????????????????????????????????????????????????????????????????
+? Origen: Procedimiento Almacenado en TOTUS                    ?
+? Valor: ValorTotalFacturadoSinImpuestos                       ?
+? Ejemplo: $100,000,000                                        ?
+????????????????????????????????????????????????????????????????
+
+????????????????????????????????????????????????????????????????
+? INSUMO 2: NOTAS CRÉDITO DEL PERÍODO (De TOTUS)               ?
+????????????????????????????????????????????????????????????????
+? Origen: Procedimiento Almacenado en TOTUS                    ?
+? Valor: TotalNotasCredito                                     ?
+? Uso: Se descuentan del valor facturado bruto                 ?
+? Ejemplo: $5,000,000                                          ?
+? Cálculo: ValorFacturado - NotasCreditoDelPeriodo             ?
+????????????????????????????????????????????????????????????????
+
+????????????????????????????????????????????????????????????????
+? INSUMO 3: NOTA CRÉDITO DEL PERÍODO ANTERIOR                  ?
+????????????????????????????????????????????????????????????????
+? Origen: Historial de Bonos (reconciliado)                    ?
+? Valor: NC Real que se aplicó en TOTUS período anterior       ?
+? Uso: Se descuenta del valor neto para no doble contar        ?
+? Ejemplo: $1,500,000                                          ?
+? Cálculo: (Fact - NC_Período) - NC_PeríodoAnterior            ?
+????????????????????????????????????????????????????????????????
+
+????????????????????????????????????????????????????????????????
+? INSUMO 4: ÓRDENES DE COMPRA ESPECIALES (Ingreso Manual)      ?
+????????????????????????????????????????????????????????????????
+? Origen: Usuario PROMOS (ingresa manualmente)                 ?
+? Descripción: Órdenes que NO vienen de Aldebaran ni de TOTUS  ?
+? Razón: PROMOS conoce el valor total (es el único insumo)     ?
+? Valor: Valor total de la OC Especial (NO por artículo)       ?
+? Uso: Se SUMA al valor facturado (es insumo adicional)        ?
+? Ejemplo: $2,000,000                                          ?
+? Nota: Requiere aprobación si excede límite configurado       ?
+? Estado: Puede ser PENDIENTE APROBACIÓN o APROBADA            ?
+????????????????????????????????????????????????????????????????
+```
+
+**FÓRMULA DEL BONO POR FACTURACIÓN**:
+
 ```
 Paso 1: Obtiene de TOTUS
-  ValorBruto = ValorTotalFacturadoSinImpuestos
+  ValorFacturadoBruto = ValorTotalFacturadoSinImpuestos
   Ej: $100,000,000
 
-Paso 2: Descuenta Nota Crédito del período ANTERIOR
-  NC_PeríodoAnterior = Obtiene de Historial (reconciliada)
+Paso 2: Descuenta Notas Crédito del PERÍODO ACTUAL (de TOTUS)
+  NotasCredito_PeriodoActual = Obtenido de TOTUS
+  Ej: $5,000,000
+  ValorFacturadoNeto = ValorFacturadoBruto - NotasCredito_PeriodoActual
+  Ej: $100,000,000 - $5,000,000 = $95,000,000
+
+Paso 3: Descuenta Nota Crédito del período ANTERIOR
+  NC_PeríodoAnterior = Obtiene de Historial (reconciliada - valor REAL)
   Ej: $1,500,000
-  ValorNeto = ValorBruto - NC_PeríodoAnterior
-  Ej: $100,000,000 - $1,500,000 = $98,500,000
+  ValorFacturadoFinal = ValorFacturadoNeto - NC_PeríodoAnterior
+  Ej: $95,000,000 - $1,500,000 = $93,500,000
 
-Paso 3: Busca Vigencia más reciente (fecha ? hoy, estado Activo)
-  Vigencia del mes en curso
+Paso 4: SUMA Órdenes de Compra Especiales (SOLO APROBADAS)
+  OCEspeciales_Aprobadas = SUM(OC Especiales con status APROBADA)
+  Ej: $2,000,000
+  ValorBaseParaBono = ValorFacturadoFinal + OCEspeciales_Aprobadas
+  Ej: $93,500,000 + $2,000,000 = $95,500,000
 
-Paso 4: Busca en qué TRAMO cae ValorNeto
+Paso 5: Busca Vigencia más reciente (fecha ? hoy, estado Activo)
+  Vigencia del período en curso
+
+Paso 6: Busca en qué TRAMO cae ValorBaseParaBono
   Tramos configurados:
-    Tramo 1: $10M - $20M = 58 porciento
-    Tramo 2: $20M - $30M = 59 porciento
-    Tramo 3: $30M - $100M = 60 porciento
-    Tramo 4: >$100M = 61 porciento
+    Tramo 1: $10M - $20M = 58%
+    Tramo 2: $20M - $30M = 59%
+    Tramo 3: $30M - $100M = 60%
+    Tramo 4: >$100M = 61%
 
-  ValorNeto = $98,500,000 ? Cae en Tramo 3 (58-100M) ? 60 porciento
+  ValorBaseParaBono = $95,500,000 ? Cae en Tramo 3 (30M-100M) ? 60%
 
-Paso 5: Aplica porcentaje
-  Bono = ValorNeto * Porcentaje
-  Bono = $98,500,000 * 0.60 = $59,100,000
+Paso 7: Aplica porcentaje
+  Bono = ValorBaseParaBono * Porcentaje
+  Bono = $95,500,000 * 0.60 = $57,300,000
 
-Paso 6: Genera Nota Crédito para siguiente período
+Paso 8: Genera Nota Crédito para siguiente período
   Distribuidor: DIST-001
-  Valor: $59,100,000
-  Para aplicar en: Febrero
+  Valor: $57,300,000
+  Para aplicar en: Siguiente período
+```
+
+**EJEMPLO COMPLETO - CON OC ESPECIALES**:
+
+```
+PERÍODO: 1 AL 15 DE ENERO
+???????????????????????????????????????????????????????????????????
+
+DISTRIBUIDOR: DIST-001
+
+INSUMO 1: Valor Facturado (de TOTUS)
+  Valor Bruto: $100,000,000
+
+INSUMO 2: Notas Crédito del Período (de TOTUS)
+  Total NC: $5,000,000
+  Valor Neto: $95,000,000
+
+INSUMO 3: NC Período Anterior (de Historial)
+  NC_Enero (ya reconciliada): $1,500,000
+  Valor después descuento: $93,500,000
+
+INSUMO 4: Órdenes de Compra Especiales (Ingreso Manual USUARIO PROMOS)
+  OC Especial 1: $1,000,000 ? Status: APROBADA ?
+  OC Especial 2: $500,000 ? Status: APROBADA ?
+  OC Especial 3: $1,000,000 ? Status: PENDIENTE APROBACIÓN ? (no cuenta)
+  Total OC Aprobadas: $1,500,000
+
+CÁLCULO FINAL:
+  Base = $93,500,000 + $1,500,000 = $95,000,000
+  Vigencia: 60%
+  Bono = $95,000,000 × 0.60 = $57,000,000
+```
+
+**DIFERENCIAS CON OTROS BONOS**:
+
+```
+????????????????????????????????????????????????????????????????
+? BONO POR FACTURACIÓN (CON OC ESPECIALES)                     ?
+????????????????????????????????????????????????????????????????
+? Base: Facturado + OC Especiales                              ?
+? OC Especiales: SÍ, aplican (ingreso manual)                  ?
+? Requiere aprobación: SÍ (si excede límite)                   ?
+? Responsable ingreso: Usuario PROMOS                          ?
+????????????????????????????????????????????????????????????????
+
+????????????????????????????????????????????????????????????????
+? BONO POR PEDIDO                                              ?
+????????????????????????????????????????????????????????????????
+? Base: Órdenes de Aldebaran + Precios Históricos              ?
+? OC Especiales: NO, NO aplican                                ?
+? Requiere aprobación: NO                                      ?
+? Responsable: Sistema (cálculo automático)                    ?
+????????????????????????????????????????????????????????????????
+
+????????????????????????????????????????????????????????????????
+? BONO POR ENTREGADO                                           ?
+????????????????????????????????????????????????????????????????
+? Base: Entregas Confirmadas + Precios Históricos              ?
+? OC Especiales: NO, NO aplican                                ?
+? Requiere aprobación: NO                                      ?
+? Responsable: Sistema (cálculo automático)                    ?
+????????????????????????????????????????????????????????????????
 ```
 
 **ESTRATEGIA MOCK**:
@@ -820,7 +1133,8 @@ appSettings:
   "ProcedimientoAlmacenadoTOTUS": "sp_ObtenerFacturacion"
   "UsarMockTOTUS": true (durante desarrollo)
   "ValorMockFacturado": 100000000
-  "TotalMockNC": 1500000
+  "TotalMockNC": 5000000
+  "TotalMockNCAnterior": 1500000
 
 Si UsarMockTOTUS = true:
   Retorna valores de prueba configurables
@@ -858,8 +1172,14 @@ Fuente 1: ÓRDENES EN ALDEBARAN (por período)
 Fuente 2: HISTÓRICO DE PRECIOS (cargado desde Página Promocional)
   - Tabla: PreciosDistribuidorHistorico
   - Estructura: Referencia, PrecioUnitario, DescuentoDistribuidor, FechaCarga
-  - Contiene: Histórico de 4 meses (para auditoría)
+  - Contiene: Histórico configurable (ADMINISTRADOR define período de retención)
   - Se usa para recuperar el precio vigente EN EL DÍA DEL PEDIDO
+
+CONFIGURACIÓN DE RETENCIÓN DE PRECIOS (Política de Administrador):
+  - parámetro appSettings: "HistorialPreciosRetentionDays" (ej: 120 días = 4 meses)
+  - Administrador decide cuánto tiempo mantener el histórico
+  - Limpieza automática: Scheduled Job elimina precios más antiguos
+  - Propósito: Balance entre auditoría (más días = mejor) y espacio BD (menos días = menor)
 ```
 
 **CÁLCULO DEL VALOR PEDIDO - PASO A PASO**:
@@ -892,6 +1212,190 @@ Para cada orden del período:
      Ej: $1,800,000
 
 CRÍTICO: Se usa el precio del HISTÓRICO del día del pedido, NO el precio actual
+```
+
+**ESTRATEGIA DE PRECIOS APLICABLES - CONFIGURABLE POR TIPO DE BONO**:
+
+```
+Los precios pueden VARIAR DIARIAMENTE desde Página Promocional.
+Por esto, hay 4 OPCIONES de cómo aplicar el precio al calcular bonos:
+
+???????????????????????????????????????????????????????????????????????
+? OPCIÓN 1: PRECIO A FECHA DEL PEDIDO (MÁS COMÚN)                   ?
+???????????????????????????????????????????????????????????????????????
+? • Se usa: Precio vigente el DÍA que se creó el pedido              ?
+? • Se congela: No cambia aunque el precio varíe después             ?
+? • Ventaja: Refleja precio exacto que distribuidor vio             ?
+? • Ventaja: Inmune a cambios posteriores de precio                 ?
+? • Auditoría: Fácil trazar qué precio se usó                       ?
+? • Uso recomendado: BONO POR PEDIDO (ambos usan fecha del pedido)  ?
+?                     BONO POR ENTREGADO (precio original congelado) ?
+?                                                                      ?
+? Ejemplo:                                                             ?
+?   Pedido Día 5: 100 unidades, Precio $20                           ?
+?   Día 8 Entrega: Precio actual es $18 (pero usa $20 del día 5)     ?
+?   Bono: 100 × $20 = $2,000 (NO 100 × $18)                          ?
+???????????????????????????????????????????????????????????????????????
+
+???????????????????????????????????????????????????????????????????????
+? OPCIÓN 2: PRECIO A FECHA DEL DÍA (HOY - MÁS ACTUAL)               ?
+???????????????????????????????????????????????????????????????????????
+? • Se usa: Precio vigente HOY (más reciente cargado)               ?
+? • Se actualiza: Refleja cambios de precio en tiempo real           ?
+? • Ventaja: Siempre usa precio más actual                          ?
+? • Desventaja: Bono puede cambiar por variación de precio          ?
+? • Auditoría: Compleja (qué precio se usó?)                        ?
+? • Uso: Consultas dinámicas que necesitan precio más actualizado   ?
+?                                                                      ?
+? Ejemplo:                                                             ?
+?   Pedido Día 5: 100 unidades (precio era $20 ese día)             ?
+?   Consulta Día 8: Precio actual es $18                            ?
+?   Bono: 100 × $18 = $1,800 (cambió porque precio bajó)            ?
+???????????????????????????????????????????????????????????????????????
+
+???????????????????????????????????????????????????????????????????????
+? OPCIÓN 3: PRECIO A FECHA DE ENTREGA                               ?
+???????????????????????????????????????????????????????????????????????
+? • Se usa: Precio vigente el DÍA de la entrega (cuando salió almacén)
+? • Diferente: Al precio del pedido si pasaron N días               ?
+? • Ventaja: Refleja precio vigente cuando se despachó              ?
+? • Desventaja: Distinto al precio que distribuidor vio             ?
+? • Auditoría: Moderada (necesita buscar precio de ese día)         ?
+? • Uso: BONO POR ENTREGADO (alternativa a fecha pedido)            ?
+?                                                                      ?
+? Ejemplo:                                                             ?
+?   Pedido Día 5: 100 unidades, Precio $20                          ?
+?   Entrega Día 8: Precio ese día es $18                            ?
+?   Bono: 100 × $18 = $1,800 (NO 100 × $20)                         ?
+???????????????????????????????????????????????????????????????????????
+
+???????????????????????????????????????????????????????????????????????
+? OPCIÓN 4: PRECIO AL PROMEDIO DEL PERÍODO                          ?
+???????????????????????????????????????????????????????????????????????
+? • Se usa: Promedio de precios de TODOS los días del período       ?
+? • Cálculo: SUM(precios todos los días) / Cantidad de días          ?
+? • Ventaja: Normaliza variaciones diarias (más justo)              ?
+? • Ventaja: Mismo precio para todas las cantidades del período      ?
+? • Desventaja: Más complejo de entender                            ?
+? • Auditoría: Difícil trazar "por qué ese precio"                  ?
+? • Uso: Cuando se quiere estabilizar precio variable               ?
+?                                                                      ?
+? Ejemplo:                                                             ?
+?   Período 1-15 días:                                               ?
+?   Precios cargados: Día 1=$20, Día 2=$20, Día 3=$21, ... Día 15=$18
+?   Promedio: ($20+$20+$21+...+$18) / 15 = $19.33                    ?
+?   Bono: 100 × $19.33 = $1,933 (MISMO para todo el período)        ?
+???????????????????????????????????????????????????????????????????????
+```
+
+**CONFIGURACIÓN DE ESTRATEGIA DE PRECIOS (Por Administrador)**:
+
+```
+El Administrador debe poder definir para cada Tipo de Bono:
+
+BONO POR PEDIDO
+?? Afectación: Basado en cantidad PEDIDA
+?? Estrategia de Precio (seleccionar una opción):
+?  ?? Precio del día en que se hizo el pedido (RECOMENDADO)
+?  ?? Precio de hoy (más reciente)
+?  ?? Precio del día en que se entregó
+?  ?? Precio promedio del período
+?? Se aplica automáticamente en todos los cálculos
+
+BONO POR ENTREGADO
+?? Afectación: Basado en cantidad EFECTIVAMENTE ENTREGADA
+?? Estrategia de Precio (seleccionar una opción):
+?  ?? Precio del día en que se hizo el pedido (RECOMENDADO)
+?  ?? Precio de hoy (más reciente)
+?  ?? Precio del día en que se entregó
+?  ?? Precio promedio del período
+?? Se aplica automáticamente en todos los cálculos
+
+BONO POR FACTURACIÓN
+?? Afectación: Basado en valor FACTURADO (de TOTUS)
+?? Estrategia de Precio: No aplica (facturación viene de TOTUS)
+
+REQUISITOS FUNCIONALES:
+? Administrador elige estrategia para cada tipo de bono
+? La estrategia se aplica automáticamente sin intervención
+? Sistema registra en auditoría cuál estrategia se usó
+? Sistema documenta el precio que se aplicó en cada cálculo
+? Cambios en estrategia solo afectan cálculos futuros
+```
+
+**IMPACTO DE CADA ESTRATEGIA DE PRECIOS**:
+
+```
+Ejemplo: 100 unidades pedidas el Día 5 a $20, entregadas el Día 8 con precio actual $18
+
+Estrategia 1: Precio día del pedido
+?? Bono = 100 × $20 (precio del día 5) = $2,000
+
+Estrategia 2: Precio de hoy
+?? Bono = 100 × $18 (precio actual) = $1,800
+
+Estrategia 3: Precio día entrega
+?? Bono = 100 × $18 (precio del día 8) = $1,800
+
+Estrategia 4: Precio promedio período
+?? Bono = 100 × $19.33 (promedio de todos los días) = $1,933
+
+CADA ESTRATEGIA GENERA DIFERENTES RESULTADOS
+```
+
+**POLÍTICA DE RETENCIÓN DE HISTÓRICO DE PRECIOS - CONFIGURABLE**:
+
+```
+El Administrador debe poder definir:
+
+1. CUÁNTO TIEMPO MANTENER EL HISTÓRICO DE PRECIOS
+   - Opciones: 60 días, 90 días, 120 días (default), 180 días, 365 días
+   - El valor se configura según necesidad del negocio
+   - Ejemplos de uso:
+     * 60 días: Para distribuidores con ciclos cortos
+     * 120 días: Balance recomendado (auditar 4 períodos)
+     * 365 días: Para requisitos legales/compliance rigurosos
+
+2. CUÁNDO EJECUTAR LA LIMPIEZA DE PRECIOS ANTIGUOS
+   - Horario configurable (ej: 2 AM, 4 AM, etc.)
+   - Se recomienda horario de bajo uso para no afectar operaciones
+   - Default: 2 AM
+
+3. CON QUÉ CADENCIA EJECUTAR LA LIMPIEZA
+   - Frecuencia configurable: Diariamente, Semanalmente, Mensualmente
+   - Default: Diariamente (más seguro)
+
+4. HORARIO DE CARGA AUTOMÁTICA DE PRECIOS
+   - Horario configurable (ej: 6 AM)
+   - Reintentos configurables si falla (ej: máximo 3 intentos)
+   - Espera entre reintentos configurable (ej: 5 minutos)
+   - Si falla: Sistema continúa usando precios del día anterior (NO interrumpe)
+   - Notificación automática a administrador si hay error
+
+PROTECCIONES GARANTIZADAS:
+   ? Nunca borra precios del período actual (en uso)
+   ? Nunca borra precios de períodos no cerrados
+   ? Registra auditoría: Qué se borró, cuándo, por qué
+   ? Mantiene backup antes de borrar (recuperación disponible)
+```
+
+**IMPACTO EN EL NEGOCIO**:
+
+```
+? Administrador tiene CONTROL TOTAL sobre retención de datos
+   • Ajusta según auditoría/compliance requerida
+   • Optimize espacio/recursos según necesidad
+   • Configura sin intervención técnica
+
+? Continuidad operativa GARANTIZADA
+   • Horario configurable no interfiere con operaciones
+   • Reintentos automáticos si descarga falla
+   • Fallover a precios anteriores (sin interrupciones)
+
+? Seguridad y auditoría INTEGRADA
+   • Datos críticos nunca se pierden
+   • Todo lo borrado queda registrado
+   • Recuperación disponible si es necesario
 ```
 
 **EJEMPLO COMPLETO - PERÍODO 15 DÍAS**:
@@ -1094,7 +1598,675 @@ Ejemplo del desastre:
 
 ---
 
-## 1.8 Integraciones Terceros
+## 1.10 NUEVOS REQUISITOS FUNCIONALES - Usuario PROMOS (Complemento a RF1-RF15)
+
+### Descripción General
+
+El sistema permite al **Usuario PROMOS** ingresar manualmente datos que impactan el cálculo de bonos:
+
+1. **Órdenes de Compra Especiales (OC Especiales)** ? Se SUMAN solo al Bono por Facturación
+   - Órdenes que PROMOS conoce pero NO están en Aldebaran/TOTUS
+   - Ejemplos: Ajustes comerciales, reembolsos, pedidos especiales
+
+2. **Reconciliación de Notas Crédito** ? Confirma NC real aplicada en TOTUS
+   - Usuario ingresa lo que TOTUS realmente aplicó
+   - Sistema compara con lo calculado y detecta discrepancias
+
+Todos soportan:
+- ? Ingreso UNITARIO (uno a uno)
+- ? Ingreso MASIVO (CSV)
+- ? Aprobaciones configurables por límite
+- ? Auditoría completa e inmutable
+
+### ¿Dónde aplican las OC Especiales?
+
+```
+? BONO POR FACTURACIÓN (SOLO)
+   Base = Facturado - NC_Período - NC_Anterior + OC_Especiales_Aprobadas
+   Bono = Base × % Vigencia
+
+? BONO POR PEDIDO (NO)
+? BONO POR ENTREGADO (NO)
+```
+
+### Ejemplo de Impacto Financiero
+
+```
+Período: 1-15 Enero | Distribuidor: DIST-001 | Vigencia: 60%
+
+SIN OC Especiales:
+  Base: $100M - $5M - $1.5M = $93.5M
+  Bono: $56.1M
+
+CON OC Especiales ($2M Aprobadas):
+  Base: $100M - $5M - $1.5M + $2M = $95.5M
+  Bono: $57.3M
+  Diferencia: +$1.2M
+```
+
+| RF | Descripción | Tipo |
+|----|---|---|
+| RF16-A | **Ingreso Manual de OC Especiales (Unitario)** | Manual |
+| RF16-B | **Carga Masiva de OC Especiales (CSV)** | Masivo |
+| RF17 | **Gestión de Aprobaciones para Ingresos Manuales** | Control |
+| RF18 | Reconciliación Manual de NC (Unitario + CSV) | Manual |
+| RF19 | Reporte: Bonos Calculados vs Bonos Aplicados | Reportería |
+| RF20 | Reporte: Distribuidores que Consultaron Bonos | Reportería |
+| RF21 | Reporte: Discrepancias de NC | Reportería |
+| RF22 | Reporte: Discrepancias de NC (Calculada vs Real) |
+| RF23 | Reporte: Auditoría de Acciones del Usuario PROMOS |
+| RF24 | Reporte: Precios y Vigencias Usados en Período |
+| RF25 | Reporte: Ingresos Manuales Aplicados (OC Especiales + Reconciliaciones) |
+| RF26 | Exportación de Reportes (Excel/PDF) |
+
+---
+
+### RF16-A: Ingreso Manual de Órdenes de Compra Especiales (Unitario)
+
+**Justificación:**
+- Órdenes de Compra que NO vienen de Aldebaran ni de TOTUS
+- PROMOS conoce el valor total (es el único insumo disponible)
+- SOLO aplican al Bono por Facturación (no a Pedido ni Entregado)
+- Usuario PROMOS ingresa valor total, no por artículo
+- Requiere aprobación si excede límite configurado
+
+**Funcionalidad:**
+```
+Usuario PROMOS debe poder:
+
+1. Acceder a: "Órdenes de Compra Especiales"
+2. Opción: "Agregar OC Especial Manual"
+3. Seleccionar: Distribuidor + Período
+4. Ingresar:
+   - Número OC (identificador único)
+   - Valor Total (campo numérico - monto completo)
+   - Descripción (campo texto - opcional)
+   - Fecha OC (fecha cuando se generó la OC)
+5. Sistema valida:
+   - Distribuidor existe
+   - Período existe
+   - Valor > 0
+   - Fecha válida y dentro del período
+6. Sistema registra:
+   - Valor ingresado
+   - Quién lo ingresó
+   - Cuándo se ingresó
+   - Estado: PENDIENTE APROBACIÓN (si excede límite)
+   - Estado: APROBADA (si está dentro del límite automático)
+   - Auditoría completa
+
+7. ESTE VALOR se SUMA al Bono por Facturación:
+   Base = Facturado - NC_Período - NC_Anterior + OC_Especiales_Aprobadas
+   Bono = Base × % Vigencia
+
+8. El bono dinámico del distribuidor incluye automáticamente
+   este valor EN LA PRÓXIMA CONSULTA (si está APROBADO)
+```
+
+**Restricción Importante:**
+```
+? OC Especiales NO aplican a:
+  - Bono por Pedido
+  - Bono por Entregado
+
+? OC Especiales SOLO aplican a:
+  - Bono por Facturación
+```
+
+---
+
+### RF16-B: Carga Masiva de Órdenes de Compra Especiales (CSV)
+
+**Justificación:**
+- Permite ingreso rápido de múltiples OC Especiales
+- Evita ingreso manual uno a uno (muy dispendioso)
+- Validación de estructura y datos
+- Posibilidad de corrección antes de aplicar
+
+**Funcionalidad:**
+```
+Usuario PROMOS debe poder:
+
+1. Acceder a: "Órdenes de Compra Especiales"
+2. Opción: "Cargar OC Especiales (CSV Masivo)"
+3. Descarga plantilla CSV con estructura:
+   ??????????????????????????????????????????????????????????
+   Distribuidor | Período | NumeroOC | ValorTotal | Descripción | Fecha
+   DIST-001     | ENE2026 | OC-1001  | 1000000    | Especial    | 2026-01-10
+   DIST-001     | ENE2026 | OC-1002  | 500000     | Especial    | 2026-01-12
+   DIST-002     | ENE2026 | OC-2001  | 2000000    | Especial    | 2026-01-15
+   ??????????????????????????????????????????????????????????
+
+4. Usuario completa el archivo CSV
+5. Usuario carga archivo
+6. Sistema valida:
+   - Estructura correcta (columnas requeridas)
+   - Distribuidor existe
+   - Período existe
+   - Valores > 0
+   - Fechas válidas y dentro del período
+   - NumeroOC único (no duplicado en BD)
+
+7. Muestra RESUMEN antes de aplicar:
+   ?? Total registros en archivo: XXX
+   ?? Registros válidos: YYY
+   ?? Registros con error: ZZZ
+   ?? Valor total a agregar: $AAAA
+   ?? Registros que requieren aprobación: BBB
+   ?? Registros aprobados automáticamente: CCC
+   ?? Botones: [Confirmar] [Revisar Errores] [Cancelar]
+
+8. Si hay errores:
+   - Descarga reporte de errores (CSV)
+   - Usuario corrige en el archivo
+   - Recarga
+
+9. Si confirma:
+   - Carga todos los registros válidos
+   - Estado: PENDIENTE APROBACIÓN (si excede límite)
+   - Estado: APROBADA (si automático)
+   - Notificación a aprobador (si hay pendientes)
+   - Registra auditoría: quién, qué, cuándo, cuántos, detalles
+
+10. Los valores se SUMAN al Bono por Facturación
+    (solo los que están APROBADOS)
+```
+
+---
+
+### RF17: Aplicación Manual de NC en TOTUS (con Confirmación)
+
+**Justificación:**
+- Usuario PROMOS es responsable de aplicar NC en TOTUS
+- Sistema debe registrar qué NC se aplicó realmente
+- Auditoría debe dejar constancia de la acción
+
+**Funcionalidad:**
+```
+Usuario PROMOS debe poder:
+
+1. Acceder a: "NCs Pendientes de Aplicar"
+2. Ver lista de NCs recomendadas (estado RECOMENDADA)
+3. Por cada NC:
+   - Ver: Distribuidor, Monto recomendado, Período aplicación
+   - Decidir: Aplicar como está, Aplicar monto diferente, o Rechazar
+4. Si decide aplicar:
+   - Abre TOTUS manualmente
+   - Aplica NC en TOTUS
+   - Regresa a Aldebaran
+5. Ingresa en el sistema:
+   - Monto que realmente aplicó en TOTUS
+   - Estado: "APLICADA" (con confirmación)
+6. Sistema registra:
+   - NC calculada vs NC aplicada
+   - Si hay diferencia: Alerta y registra discrepancia
+   - Auditoría: quién, qué, cuándo, cuánto
+```
+
+---
+
+### RF18: Reconciliación Manual de NC (Unitario + CSV Masivo)
+
+**Justificación:**
+- NO es automática (requiere confirmación del Usuario PROMOS)
+- Usuario confirma cuándo terminó de aplicar todas las NCs en TOTUS
+- Permite auditar discrepancias entre calculado y aplicado
+- Debe permitir ingreso masivo (CSV) para velocidad
+
+**Funcionalidad:**
+```
+PARTE 1: UNITARIO (Manual)
+?????????????????????????????????
+
+Usuario PROMOS debe poder:
+
+1. Acceder a: "Reconciliación de NC"
+2. Seleccionar: Período ANTERIOR (cerrado)
+3. Para CADA distribuidor:
+   - Muestra: NC Calculada en Aldebaran
+   - Muestra: NC Aplicada (si la ingresó en RF17)
+   - Campo editable: Monto NC REAL que TOTUS aplicó
+   - Campo: Fecha en que se confirmó en TOTUS
+
+4. Usuario ingresa valor real
+5. Sistema compara:
+   ?? Si coincide: Status "RECONCILIADO" ?
+   ?? Si NO coincide: Status "DISCREPANCIA" ??
+   ?  ?? Muestra: Calculada vs Real vs Diferencia
+   ?? Si hay aprobación pendiente: Status "REQUIERE APROBACIÓN"
+
+6. Usuario puede:
+   ?? Guardar cambio individual
+   ?? Pasar al siguiente distribuidor
+   ?? O cargar masivamente (CSV)
+
+PARTE 2: MASIVO (CSV)
+?????????????????????????????????
+
+1. Opción: "Cargar Reconciliación (CSV Masivo)"
+2. Descarga plantilla CSV:
+   ??????????????????????????????????????????????????????????????
+   Distribuidor | Período | NCCalculada | NCReal | Fecha | Motivo
+   DIST-001     | ENE2026 | 1000000     | 950000 | 2026-02-01 | Parcial
+   DIST-002     | ENE2026 | 500000      | 500000 | 2026-02-02 | OK
+   DIST-003     | ENE2026 | 2000000     | 2000000 | 2026-02-03 | OK
+   ??????????????????????????????????????????????????????????????
+
+3. Usuario completa el archivo CSV
+4. Usuario carga archivo
+5. Sistema valida:
+   - Estructura correcta
+   - Distribuidor existe
+   - Período existe
+   - Valores numéricos válidos
+
+6. Muestra resumen:
+   ?? Total registros: XXX
+   ?? Registros válidos: YYY
+   ?? Registros con error: ZZZ
+   ?? Reconciliados (coinciden): AAA
+   ?? Discrepancias (no coinciden): BBB
+   ?? Botones: [Confirmar] [Revisar Errores] [Cancelar]
+
+7. Si hay discrepancias:
+   - Muestra TODAS las diferencias lado a lado
+   - Permite editar valores en la pantalla
+   - O descargar reporte, corregir en CSV y recargar
+
+8. Si confirma:
+   - Carga todos los registros
+   - Actualiza estado: RECONCILIADO (coincide)
+   - Mantiene: DISCREPANCIA (no coincide, requiere investigación)
+   - Registra auditoría completa: quién, qué, cuándo, diferencias
+
+9. Próximos cálculos de bonos usan NC REAL (reconciliada)
+   NO la calculada
+```
+
+---
+
+### RF19: Gestión de Aprobaciones para Ingresos Manuales
+
+**Justificación:**
+- Ciertos ingresos requieren autorización (control financiero)
+- Límites configurables por rol/usuario
+- Auditoría de quién aprobó qué y por qué
+- Afecta directamente el cálculo de bonos (dinero)
+
+**Funcionalidad:**
+```
+FLUJO DE APROBACIÓN:
+????????????????????
+
+USUARIO PROMOS (rol básico):
+  ?? Ingresa OC Especiales (manual o CSV)
+  ?? Ingresa Reconciliación NC (manual o CSV)
+  ?? Montos menores a $XXX: Se aprueban automáticamente
+  ?? Montos mayores a $XXX: REQUIEREN APROBACIÓN
+  ?? Estado: PENDIENTE APROBACIÓN
+
+APROBADOR (Admin o rol superior):
+  ?? Accede a: "Aprobaciones Pendientes"
+  ?? Ve lista de:
+  ?  ?? OC Especiales pendientes (con monto total)
+  ?  ?? Reconciliaciones con discrepancias (con diferencia)
+  ?  ?? Ingresos manuales por revisar
+  ?? Por cada registro:
+  ?  ?? Ve: Distribuidor, Período, Monto, Quién lo ingresó
+  ?  ?? Puede: Aprobar / Rechazar / Pedir más datos
+  ?  ?? Comenta: Motivo de rechazo o aprobación
+  ?? Acción genera auditoría:
+     ?? Quién aprobó
+     ?? Cuándo
+     ?? Motivo
+     ?? Resultado
+
+LÍMITE DE APROBACIÓN (Configurable por Admin):
+  ?? OC Especiales < $XXX: Aprobación automática
+  ?? OC Especiales >= $XXX: Requiere aprobación humana
+  ?? Reconciliación con diferencia < $XXX: Automática
+  ?? Reconciliación con diferencia >= $XXX: Requiere aprobación
+  ?? Admin configura estos límites en ADMINISTRACIÓN
+
+IMPACTO EN CÁLCULO:
+  ?? Si APROBADO: Se incluye en próximos cálculos de bono ?
+  ?? Si RECHAZADO: No se incluye, se notifica a Usuario
+  ?? Si PENDIENTE: Se EXCLUYE del cálculo hasta aprobación
+  ?? Auditoría registra: quién, qué, cuándo, decisión, motivo
+
+RESTRICCIONES:
+  ? Usuario básico NO puede aprobar sus propios ingresos
+  ? NO puede cambiar estado aprobado a rechazado (solo Admin)
+  ? NO puede eliminar registros (solo marcar como rechazados)
+```
+
+---
+
+### RF20: Reporte - Bonos Calculados vs Bonos Aplicados por Período
+
+**Justificación:**
+- Usuario PROMOS necesita visibilidad de qué se calculó vs qué se aplicó
+- Detecta NCs aplicadas parcialmente o no aplicadas
+- Auditoría de cumplimiento
+
+**Funcionalidad:**
+```
+Reporte debe mostrar:
+
+RESUMEN POR PERÍODO
+?? Período: [1 al 15 de Enero]
+?? Total Bonos Calculados: $X,XXX,XXX
+?? Total Bonos Aplicados: $Y,XXX,XXX
+?? Diferencia: $D,XXX,XXX (si diferencia > 0: ALERTA)
+?? OC Especiales Aprobadas (incluidas en cálculo): $E,XXX,XXX
+?? % Cumplimiento: ZZ%
+
+DETALLE POR DISTRIBUIDOR
+?? Distribuidor: DIST-001
+?? Bono Facturación Calculado: $1,000,000
+?? OC Especiales Incluidas: $200,000
+?? Bono Facturación Aplicado: $950,000 ?? DIFERENCIA $250K
+?? Bono Pedido Calculado: $500,000
+?? Bono Pedido Aplicado: $500,000 ?
+?? Bono Entregado Calculado: $250,000
+?? Bono Entregado Aplicado: $0 ?? NO APLICADO
+?? Causa: [Campo para justificación si aplica]
+
+FILTROS Y OPCIONES
+?? Período: [Dropdown]
+?? Distribuidor: [Búsqueda]
+?? Estado: Solo diferencias / Todos
+?? Incluir OC Especiales: Sí/No
+?? Exportar: Excel/PDF
+```
+
+---
+
+### RF21: Reporte - Distribuidores que Consultaron Bonos (Log de Consultas)
+
+**Justificación:**
+- Auditoría: Quién consultó qué y cuándo
+- Detecta distribuidores inactivos o muy activos
+- Soporte: Qué información exacta se le mostró
+
+**Funcionalidad:**
+```
+Reporte debe mostrar:
+
+LISTADO DE CONSULTAS
+?? Distribuidor: [Nombre]
+?? Documento: [Cédula]
+?? Fecha Consulta: [DD/MM/YYYY]
+?? Hora Consulta: [HH:MM]
+?? Bono Mostrado: $X,XXX,XXX
+?? Incluye OC Especiales: Sí/No
+?? Bono por Facturación: $A,XXX,XXX
+?? Bono por Pedido: $B,XXX,XXX
+?? Bono por Entregado: $C,XXX,XXX
+?? IP Origen: [IP]
+?? Período Consultado: [1 al 15 de Enero]
+?? Estado: Exitosa / Error
+
+FILTROS Y OPCIONES
+?? Período: [Dropdown]
+?? Rango Fechas: [Desde] a [Hasta]
+?? Distribuidor: [Búsqueda]
+?? Estado Consulta: Exitosa / Fallida / Todas
+?? Rango de Bonos: [Desde] a [Hasta]
+?? Mostrar solo con OC Especiales: Sí/No
+?? Exportar: Excel/PDF
+
+ESTADÍSTICAS
+?? Total Consultas: XXX
+?? Distribuidores Únicos: YYY
+?? Consultas Exitosas: ZZ%
+?? Consultas con OC Especiales: AA%
+?? Promedio Bonos Consultados: $X,XXX,XXX
+```
+
+---
+
+### RF22: Reporte - Discrepancias de NC (Calculada vs Real)
+
+**Justificación:**
+- Detecta problemas de aplicación de NCs
+- Ayuda a reconciliar diferencias
+- Auditoría de precisión
+
+**Funcionalidad:**
+```
+Reporte debe mostrar:
+
+DISCREPANCIAS ENCONTRADAS
+?? Distribuidor: DIST-001
+?? Período: Enero
+?? NC Calculada: $1,000,000
+?? NC Real (Ingresada): $950,000
+?? Diferencia: -$50,000 (12% menos)
+?? Causa Probable: [Según usuario/auditoría]
+?? Fecha Detección: [DD/MM/YYYY]
+?? Usuario que Ingresó: [Nombre]
+?? Estado: Investigando / Resuelta / Justificada
+?? Impacto en Próximo Período: Se usa $950K (real) en cálculos
+
+FILTROS Y OPCIONES
+?? Período: [Dropdown]
+?? Tipo Discrepancia: Mayor / Menor / Todas
+?? Rango Diferencia: [Desde] a [Hasta]
+?? Estado: Todas / Investigando / Resueltas
+?? Distribuidor: [Búsqueda]
+?? Exportar: Excel/PDF
+
+ANÁLISIS
+?? Total Discrepancias: XXX
+?? Discrepancias Mayores: YYY
+?? Valor Total Diferencia: $Z,XXX,XXX
+?? % Casos con Discrepancia: AA%
+```
+
+---
+
+### RF23: Reporte - Auditoría de Acciones del Usuario PROMOS
+
+**Justificación:**
+- Rastrear todas las acciones del usuario
+- Cumplimiento y responsabilidad
+- Investigación de problemas
+
+**Funcionalidad:**
+```
+Reporte debe mostrar:
+
+HISTORIAL DE ACCIONES
+?? Timestamp: [DD/MM/YYYY HH:MM:SS]
+?? Acción: Ingresó OC Especial / Ingresó Reconciliación / Aprobó / Rechazó
+?? Tipo Ingreso: Manual / Masivo (CSV)
+?? Detalles:
+?  ?? Distribuidor: [Si aplica]
+?  ?? Período: [Si aplica]
+?  ?? Monto: [Si aplica]
+?  ?? Cantidad registros: [Si es masivo]
+?  ?? Valor Anterior: [Si modificó]
+?  ?? Valor Nuevo: [Si modificó]
+?  ?? Motivo/Observación: [Si agregó nota]
+?? Estado: Exitosa / Error
+?? Resultado: [Si aplica]
+?? Usuario que Realizó: [Nombre]
+
+FILTROS Y OPCIONES
+?? Rango Fechas: [Desde] a [Hasta]
+?? Usuario PROMOS: [Si hay múltiples]
+?? Tipo Acción: Todas / Ingreso / Aprobación / Reconciliación
+?? Tipo Ingreso: Manual / Masivo / Todos
+?? Período: [Dropdown]
+?? Distribuidor: [Búsqueda]
+?? Estado: Todas / Exitosas / Errores
+?? Exportar: Excel/PDF
+
+ESTADÍSTICAS
+?? Total Acciones: XXX
+?? Acciones por Usuario: [Desglose]
+?? Acciones Exitosas: ZZ%
+?? Acciones con Error: AA%
+?? Ingresos Masivos (CSV): BB registros
+?? Últimas Acciones: [Resumen]
+```
+
+---
+
+### RF24: Reporte - Precios y Vigencias Usados en Período
+
+**Justificación:**
+- Auditoría de qué precios se usaron en cálculos
+- Soporte a reclamaciones ("¿Por qué ese precio?")
+- Validación de exactitud
+
+**Funcionalidad:**
+```
+Reporte debe mostrar:
+
+CONFIGURACIÓN USADA EN PERÍODO
+?? Período: [1 al 15 de Enero]
+?? Vigencia Aplicada: [Nombre]
+?? Fecha Vigencia: [DD/MM/YYYY]
+?? Estrategia Precios:
+?  ?? Bono por Facturación: N/A + OC Especiales (Sí/No)
+?  ?? Bono por Pedido: Precio día del pedido
+?  ?? Bono por Entregado: Precio día del pedido
+?? Tramos Configurados:
+?  ?? Tramo 1: $1M - $5M = 5%
+?  ?? Tramo 2: $5M - $10M = 6%
+?  ?? Tramo 3: $10M - $20M = 7%
+?  ?? Tramo 4: >$20M = 8%
+?? Fecha Configuración: [Cuándo se configuró]
+
+PRECIOS USADOS POR DISTRIBUIDOR
+?? Distribuidor: DIST-001
+?? Orden 1: REF-001, Cantidad 100, Precio $20 (Día 5)
+?? Orden 2: REF-002, Cantidad 50, Precio $100 (Día 5)
+?? Orden 3: REF-001, Cantidad 200, Precio $20 (Día 8)
+?? Promedio Precios Usados: $X.XX
+?? Fuente: [Qué lista de precios se usó]
+
+LISTA DE PRECIOS USADA
+?? Fecha Carga: [DD/MM/YYYY]
+?? Cantidad de Artículos: XXX
+?? Rango de Precios: $Y a $Z
+?? Última Actualización: [Si hubo cambios]
+?? Validación: OK / Advertencia
+
+FILTROS Y OPCIONES
+?? Período: [Dropdown]
+?? Distribuidor: [Búsqueda]
+?? Tipo Bono: Todos / Facturación / Pedido / Entregado
+?? Exportar: Excel/PDF
+```
+
+---
+
+### RF25: Reporte - Ingresos Manuales Aplicados (OC Especiales + Reconciliaciones)
+
+**Justificación:**
+- Visibilidad de todos los ingresos manuales realizados
+- Auditoría de controles aplicados
+- Historial de aprobaciones y cambios
+
+**Funcionalidad:**
+```
+Reporte debe mostrar:
+
+ÓRDENES DE COMPRA ESPECIALES INGRESADAS
+?? Período: [1 al 15 de Enero]
+?? Distribuidor: DIST-001
+?? NumeroOC: OC-1001
+?? Valor Total: $1,000,000
+?? Descripción: [Especial]
+?? Fecha OC: 2026-01-10
+?? Tipo Ingreso: Manual / Masivo
+?? Usuario que ingresó: [Nombre]
+?? Estado: APROBADA / RECHAZADA / PENDIENTE APROBACIÓN
+?? Usuario que aprobó: [Nombre] (si aplica)
+?? Fecha aprobación: [DD/MM/YYYY] (si aplica)
+?? Motivo aprobación: [Si hay]
+?? Incluida en cálculo bono: Sí/No
+
+RECONCILIACIONES DE NC INGRESADAS
+?? Período: Enero (período reconciliado)
+?? Distribuidor: DIST-001
+?? NC Calculada: $1,000,000
+?? NC Real Ingresada: $950,000
+?? Diferencia: -$50,000
+?? Fecha reconciliación: 2026-02-01
+?? Usuario que ingresó: [Nombre]
+?? Tipo Ingreso: Manual / Masivo
+?? Estado: RECONCILIADO / DISCREPANCIA / PENDIENTE APROBACIÓN
+?? Motivo: [Si hay]
+?? Usada en próximos cálculos: Sí (valor real)
+
+RESUMEN FINANCIERO
+?? Total OC Especiales Aprobadas: $X,XXX,XXX
+?? Total OC Especiales Rechazadas: $Y,XXX,XXX
+?? Total OC Especiales Pendientes: $Z,XXX,XXX
+?? Total Reconciliaciones con Discrepancia: $AAA,XXX,XXX
+?? Valor Total Diferencias: $BBB,XXX,XXX
+?? Impacto en bonos calculados: $CCC,XXX,XXX
+
+FILTROS Y OPCIONES
+?? Período: [Dropdown]
+?? Tipo Ingreso: OC Especiales / Reconciliaciones / Ambas
+?? Estado: Todas / Aprobadas / Rechazadas / Pendientes
+?? Distribuidor: [Búsqueda]
+?? Usuario: [Búsqueda]
+?? Rango Fechas: [Desde] a [Hasta]
+?? Exportar: Excel/PDF
+
+ESTADÍSTICAS
+?? Total Ingresos Manuales: XXX
+?? Masivos (CSV): YYY
+?? Unitarios: ZZZ
+?? Aprobados: AA%
+?? Rechazados: BB%
+?? Pendientes: CC%
+```
+
+---
+
+### RF26: Exportación de Reportes (Excel/PDF)
+
+**Justificación:**
+- Facilita auditoría externa
+- Permite análisis adicional en Excel
+- Distribución a otros departamentos
+
+**Funcionalidad:**
+```
+Usuario PROMOS debe poder:
+
+1. Después de cualquier reporte:
+   - Botón: "Exportar como Excel"
+   - Botón: "Exportar como PDF"
+
+2. Excel:
+   - Formato tabla: Con encabezados
+   - Valores: Numéricos para cálculos
+   - Fechas: Formato DD/MM/YYYY
+   - Estilos: Encabezados destacados
+   - Fórmulas: Habilitadas para análisis adicional
+
+3. PDF:
+   - Formato: Profesional / Imprimible
+   - Incluye: Título, Período, Filtros aplicados
+   - Incluye: Fecha/Hora generación + Usuario
+   - Pie de página: Logo PROMOS + Confidencial
+   - Resumen: Estadísticas principales
+
+4. Validación:
+   - Los datos exportados coinciden con pantalla
+   - Incluye nota de: "Extraído de sistema Aldebaran"
+   - Incluye: "Este reporte contiene información financiera confidencial"
+```
+
+---
 
 ### TOTUS (Sistema Facturación Externa)
 
@@ -1158,18 +2330,19 @@ MÉTRICA DE ÉXITO:
 - CU4: Cargar Precios (Automático)
 
 **Precisión (CU9):**
-- CU9: Reconciliación NC (Automático)
+- CU9: Reconciliación NC (Manual - Usuario PROMOS)
 
-### REQUISITOS FUNCIONALES (15 Total)
+### REQUISITOS FUNCIONALES (26 Total)
 
 **Administración (RF1-RF3):**
 - RF1: Gestionar Períodos
 - RF2: Gestionar Tipos de Bono
 - RF3: Gestionar Vigencias
 
-**Seguridad (RF4-RF5):**
+**Seguridad (RF4-RF5, RF19):**
 - RF4: Autenticar Distribuidor (OTP - SMS/Email)
 - RF5: Validar Seguridad (Distribuidor solo ve su información)
+- RF19: Gestión de Aprobaciones para Ingresos Manuales
 
 **Consultas Dinámicas (RF6-RF7):**
 - RF6: Consultar Bono (Distribuidor - Página Promocional)
@@ -1179,15 +2352,28 @@ MÉTRICA DE ÉXITO:
 - RF8: Registrar Historial de Bonos (Auditoría completa)
 - RF9: Gamificación (Mostrar falta para siguiente nivel)
 
-**Integración de Datos (RF10-RF13):**
+**Integración de Datos (RF10-RF15):**
 - RF10: Cargar Lista Precios Distribuidores
 - RF11: Capturar Valor Facturado (TOTUS)
 - RF12: Capturar Valor Pedido (Aldebaran + Precios)
 - RF13: Capturar Valor Entregado (Aldebaran)
-
-**Precisión (RF14-RF15):**
 - RF14: Gestionar Nota Crédito Período Anterior
-- RF15: Reconciliación Nota Crédito (TOTUS)
+- RF15: Reconciliación Nota Crédito (TOTUS - Manual)
+
+**Usuario PROMOS - Funciones Operacionales (RF16-RF18):**
+- RF16-A: Ingreso Manual de OC Especiales (Unitario)
+- RF16-B: Carga Masiva de OC Especiales (CSV)
+- RF17: Aplicación Manual de NC en TOTUS (con Confirmación)
+- RF18: Reconciliación Manual de NC (Unitario + CSV Masivo)
+
+**Reportería (RF20-RF26):**
+- RF20: Reporte - Bonos Calculados vs Bonos Aplicados por Período
+- RF21: Reporte - Distribuidores que Consultaron Bonos (Log)
+- RF22: Reporte - Discrepancias de NC (Calculada vs Real)
+- RF23: Reporte - Auditoría de Acciones del Usuario PROMOS
+- RF24: Reporte - Precios y Vigencias Usados en Período
+- RF25: Reporte - Ingresos Manuales Aplicados (OC + Reconciliaciones)
+- RF26: Exportación de Reportes (Excel/PDF)
 
 ### INSUMOS NECESARIOS
 1. Valor Facturado (de TOTUS)
@@ -1303,3 +2489,72 @@ AL CIERRE del período (día 15):
 - Auditoría completa de accesos de distribuidores
 
 Estado: REFINADO CON SEGURIDAD - Listo para ajustes adicionales
+
+---
+
+## RESUMEN EJECUTIVO PARA EL CLIENTE
+
+### ? Capacidades Entregables
+
+| Funcionalidad | Descripción |
+|---|---|
+| **Consulta de Bonos** | Distribuidores ven bonos en tiempo real vía OTP (Sitio Público) |
+| **Tres Tipos de Bonos** | Facturación (TOTUS) + Pedido (Aldebaran) + Entregado (Entregas) |
+| **Ingreso Manual** | OC Especiales + Reconciliación de NC (unitario o CSV masivo) |
+| **Aprobaciones** | Configurables por límite (automática o manual) |
+| **Seguridad** | OTP + Aislamiento de datos + Auditoría completa |
+| **Reportería** | 6 reportes + Exportación Excel/PDF |
+| **Automatización** | Descarga de precios + Cierre de períodos |
+
+### ?? 24 Requisitos Funcionales Definidos
+
+- **3 de Administración** (Períodos, Tipos, Vigencias)
+- **2 de Seguridad** (OTP, Aislamiento)
+- **2 de Consultas** (Público + Admin)
+- **2 de Historial** (Auditoría + Gamificación)
+- **6 de Integración** (TOTUS, Precios, Órdenes, Entregas, NC, Ciclos)
+- **3 de Ingresos Manuales** (OC Especiales + Reconciliación + Aprobaciones)
+- **6 de Reportería** (Bonos vs Aplicados + Consultas + Discrepancias + Auditoría + Precios + Exportación)
+
+### ?? Novedad: OC Especiales
+
+**¿Qué son?**  
+Órdenes de compra que PROMOS conoce pero no están capturadas en Aldebaran/TOTUS
+
+**¿Dónde se aplican?**  
+**SOLO** al Bono por Facturación (se SUMAN a la base)
+
+**Ejemplo:**
+```
+Base sin OC:  $93.5M ? Bono: $56.1M
+Base con OC:  $95.5M ? Bono: $57.3M
+Incremento:            +$1.2M (+2.1%)
+```
+
+**Cómo funcionan:**
+- Usuario PROMOS ingresa (unitario o CSV masivo)
+- Sistema valida
+- Si valor < límite: APROBADA automáticamente
+- Si valor >= límite: Requiere aprobación del Admin
+- Se suman al bono en próxima consulta
+
+### ?? Diferenciales del Proyecto
+
+? Transparencia: Distribuidores ven exactamente cómo se calcula su bono  
+? Automatización: Elimina cálculos manuales y reduce tiempo 70%  
+? Precisión: Auditoría completa, reconciliación automática de NC  
+? Control: Aprobaciones configurables para ingresos manuales  
+? Flexibilidad: Ingreso manual unitario y masivo (CSV)  
+? Escalabilidad: Soporta múltiples bonos simultáneamente  
+
+### ?? Estado del Documento
+
+**Identificador:** RQM_BonosDistribuidores_052026  
+**Cliente:** PROMOS  
+**Estado:** ? REQUERIMIENTOS DEFINIDOS  
+**Versión:** 1.0  
+**Aprobado para:** Propuesta Técnica (siguiente fase)
+
+---
+
+**DOCUMENTO LISTO PARA PRESENTACIÓN AL CLIENTE**
