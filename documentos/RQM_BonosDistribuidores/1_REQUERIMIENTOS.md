@@ -151,9 +151,12 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 | **DISTRIBUIDOR (No Autenticado)** | Sitio Público Aldebaran | Ingresa número documento |
 | | | Recibe OTP por SMS/Email (lifetime configurable) |
 | | | Ingresa OTP (máx 3 intentos) |
-| **DISTRIBUIDOR (Autenticado)** | Sitio Público Aldebaran | Consultar bonos acumulados (RF6) |
+| **DISTRIBUIDOR (Autenticado)** | Sitio Público Aldebaran | Consultar bonos PERÍODO ACTUAL (RF6 - dinámico) |
+| | | Consultar bonos PERÍODOS ANTERIORES (RF6 - histórico) |
+| | | Ver estado aplicación NC en períodos anteriores (RF6) |
 | | | Ver gamificación (falta para siguiente nivel) |
 | | | Ver seguridad: solo su información (RF5) |
+| | | Descargar comprobante/resumen período (RF6) |
 | | | Cierre de sesión |
 | **USUARIO PROMOS** | Aldebaran.Web | Crear/gestionar Períodos (RF1) |
 | | | Crear/gestionar Tipos de Bono (RF2) |
@@ -166,12 +169,12 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 | | | Ver logs de seguridad (Accesos distribuidores) |
 | **PROCESO AUTOMÁTICO** | Aldebaran.Web | Obtener facturación TOTUS (CU4) |
 | | | Cargar precios (CU5) |
-| | | Cierre de período (CU9) |
-| **USUARIO PROMOS** | Aldebaran.Web | Conciliación Manual de NC (CU10 - 2 modalidades) |
+| | | Cierre de período (CU10) |
+| **USUARIO PROMOS** | Aldebaran.Web | Conciliación Manual de NC (CU11 - 2 modalidades) |
 
 ---
 
-## 1.3 Casos de Uso (11 Total)
+## 1.3 Casos de Uso (12 Total)
 
 ### CU1: Crear Período
 
@@ -425,10 +428,19 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 - Token expira después de 8 horas (configurable)
 
 ---
-**Ubicación:** Sitio Público Aldebaran
-**Acceso:** Solo con autenticación OTP válida
-**Actor:** Distribuidor (autenticado)
-**Tipo de Página:** Informativa - Solo lectura (NO hay ingreso de datos)
+
+### CU7: Consultar Bonificación - Período Actual (Distribuidor - Sitio Público)
+
+**Ubicación:** Sitio Público Aldebaran  
+**Acceso:** Solo con autenticación OTP válida (CU6 completado)  
+**Actor:** Distribuidor (autenticado)  
+**Objetivo:** Consultar bonos acumulados en tiempo real durante el período actual
+
+**Problemas que resuelve:**
+- Distribuidor necesita ver su bono actualizado según lo que ha pedido/entregado/facturado en el período EN CURSO
+- Debe conocer cuánto falta para acceder al siguiente nivel de bonificación (gamificación)
+- Necesita transparencia total sin contactar a PROMOS
+- Página es solo lectura: sin ingreso de datos adicionales
 
 **Información que necesita acceder:**
 - Período actual (fechas inicio/fin)
@@ -451,19 +463,70 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 - Ver desglose por tipo de bono (Facturación, Pedido, Entregado)
 - Ver gamificación (falta para siguiente nivel)
 - Ver período actual y días transcurridos
-- Cerrar sesión
 - Consultar múltiples veces (cada consulta recalcula)
+- Cerrar sesión
 
 **Restricciones:**
 - Página solo lectura (sin ingreso de datos)
 - No puede ver información de otro distribuidor
-- No puede ver bonos de otros períodos
 - Token debe estar válido (no expirado)
 - Cálculo es dinámico (se ejecuta cada consulta, no precalculado)
 - Cambios en pedidos/entregas se reflejan en próxima consulta
 - No puede acceder a datos administrativos (Aldebaran.Web)
+- No puede ver períodos anteriores (ver CU8 para eso)
 
-### CU8: Consultar Bono Actual Dinámico - PROMOS
+---
+
+### CU8: Consultar Histórico de Bonos - Períodos Anteriores (Distribuidor - Sitio Público)
+
+**Ubicación:** Sitio Público Aldebaran  
+**Acceso:** Solo con autenticación OTP válida (CU6 completado)  
+**Actor:** Distribuidor (autenticado)  
+**Objetivo:** Consultar bonos finales congelados de períodos cerrados anteriores
+
+**Problemas que resuelve:**
+- Distribuidor necesita ver qué bonificación recibió en períodos anteriores (histórico)
+- Debe saber si el bono anterior ya fue aplicado como NC o sigue en espera (transparencia de aplicación)
+- Necesita acceder al histórico de todos sus bonos cerrados
+- Página es solo lectura: sin ingreso de datos adicionales
+
+**Información que necesita acceder:**
+- Lista de períodos cerrados disponibles (últimos N períodos)
+- Bono final CONGELADO de cada período anterior (inmutable)
+- Estado de aplicación: "Aplicado como NC" vs "Pendiente de aplicación" vs "Rechazado"
+- Fecha en que se aplicó la NC (si aplica)
+- Desglose del bono por tipo (Facturación, Pedido, Entregado)
+- OC Especiales incluidas en ese período (si aplica)
+
+**Información que RETORNA (sin cálculos - solo lectura):**
+- Bono Final asignado (congelado, inmutable)
+- Estado: "Definitivo" o "En proceso"
+- Aplicación: Estado de la NC (Aplicada, Pendiente, Rechazada)
+- Referencia: Número/ID de la NC si fue aplicada
+
+**Acciones que puede realizar:**
+- Seleccionar período anterior a consultar (dropdown de períodos cerrados)
+- Ver bono final asignado en ese período (congelado)
+- Ver estado de aplicación de la NC
+- Ver desglose del bono por tipo
+- Ver fecha de aplicación (si aplica)
+- Navegar entre períodos anteriores
+- Descargar comprobante/resumen del período (PDF)
+- Consultar múltiples veces (cada consulta retorna lo congelado)
+- Cerrar sesión
+
+**Restricciones:**
+- Página solo lectura (sin ingreso de datos)
+- No puede ver información de otro distribuidor
+- Token debe estar válido (no expirado)
+- Bonos mostrados son INMUTABLES (congelados al cierre del período)
+- Solo puede ver últimos N períodos cerrados (N = configurable por Admin, default = 12)
+- No puede ver períodos activos (en curso) - solo cerrados
+- No puede acceder a datos administrativos (Aldebaran.Web)
+
+---
+
+### CU9: Consultar Bono Actual Dinámico - PROMOS
 
 **Ubicación:** Aldebaran.Web  
 **Acceso:** Admin - Autenticación interna PROMOS  
@@ -513,7 +576,7 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 
 ---
 
-### CU9: Cierre de Período (Automático)
+### CU10: Cierre de Período (Automático)
 
 **Ubicación:** Backend Aldebaran (Scheduled Job)  
 **Cuándo:** Último día del período, a hora configurada (ej: 23:59:59)  
@@ -581,7 +644,7 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 ```
 
 ---
-### CU10: Conciliación Manual de Nota Crédito (Manual)
+### CU11: Conciliación Manual de Nota Crédito (Manual)
 
 **Ubicación:** Aldebaran.Web (Ingreso manual de datos)  
 **Cuándo:** Usuario PROMOS la ejecuta manualmente, después del cierre del período N y antes de final del período N+1  
@@ -636,7 +699,7 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 
 ---
 
-### CU11: Resolver Reclamación (Soporte)
+### CU12: Resolver Reclamación (Soporte)
 
 **Ubicación:** Aldebaran.Web
 **Acceso:** Usuario PROMOS (Admin o rol superior)
@@ -908,8 +971,9 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 | RF3 | Gestionar Vigencias | Administración |
 | RF4 | **Autenticar Distribuidor (OTP - SMS/Email)** | Seguridad |
 | RF5 | Validar Seguridad: Solo distribuidor ve su información | Seguridad |
-| RF6 | Consultar Bonificación (Distribuidor - Sitio Público - Solo Lectura) | Consultas |
-| RF7 | Consultar Bono Actual Dinámico (Admin - Aldebaran.Web) | Consultas |
+| RF6 | Consultar Bonificación - Período Actual (Distribuidor - CU7) | Consultas |
+| RF6-B | Consultar Histórico de Bonos - Períodos Anteriores (Distribuidor - CU8) | Consultas |
+| RF7 | Consultar Bono Actual (Admin - Aldebaran.Web - CU9) | Consultas |
 | RF8 | Registrar Historial de Bonos (Auditoría completa) | Historial |
 | RF9 | Gamificación: Mostrar falta para siguiente nivel | Historial |
 | RF10 | Cargar Lista Precios Distribuidores | Integración |
@@ -2758,16 +2822,17 @@ MÉTRICA DE ÉXITO:
 **Seguridad (CU6):**
 - CU6: Autenticar Distribuidor (OTP - SMS/Email)
 
-**Consultas (CU7-CU8):**
-- CU7: Consultar Bonificación (Distribuidor - Página Promocional - Autenticado)
-- CU8: Consultar Bono (Admin - Aldebaran.Web)
+**Consultas (CU7-CU9):**
+- CU7: Consultar Bonificación - Período Actual (Distribuidor - Sitio Público - Dinámico)
+- CU8: Consultar Histórico de Bonos - Períodos Anteriores (Distribuidor - Sitio Público - Histórico)
+- CU9: Consultar Bono (Admin - Aldebaran.Web)
 
-**Automatización (CU9-CU10):**
-- CU9: Cierre de Período (Automático)
-- CU10: Reconciliación NC (Automática)
+**Automatización (CU10-CU11):**
+- CU10: Cierre de Período (Automático)
+- CU11: Reconciliación NC (Automática)
 
-**Soporte (CU11):**
-- CU11: Resolver Reclamación
+**Soporte (CU12):**
+- CU12: Resolver Reclamación
 
 ### REQUISITOS FUNCIONALES (26 Total)
 
