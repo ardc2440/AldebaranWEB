@@ -28,7 +28,7 @@ Un **Requisito Funcional** describe **UNA CAPACIDAD ESPECÍFICA** que el sistema
   - El sistema DEBE retornar desglose por tipo de bono
   - El sistema DEBE mostrar gamificación
 
-**Total en este proyecto: 26 Requisitos Funcionales (RF1 a RF26)**
+**Total en este proyecto: 31 Requisitos Funcionales (RF1 a RF31)**
 
 ### 1.1.3 📊 Relación CU ↔ RF (Matriz de Trazabilidad)
 
@@ -47,7 +47,8 @@ Ejemplo:
 │ ├─ RF11: Capturar Valor Facturado (TOTUS)                   │
 │ ├─ RF12: Capturar Valor Pedido                              │
 │ ├─ RF13: Capturar Valor Entregado                           │
-│ └─ RF4: Autenticar Distribuidor (OTP)                       │
+│ ├─ RF4: Autenticar Distribuidor (OTP)                       │
+│ └─ RF29: Notificaciones Gamificación (SMS/Email)            │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -79,7 +80,7 @@ Ejemplo:
 | **CU4** | Obtener Facturación (TOTUS) | RF11, RF14 | RF10 | RF8 |
 | **CU5** | Cargar Precios | RF10 | RF12, RF13 | RF8, RF24 |
 | **CU6** | Autenticar Distribuidor | RF4, RF5 | - | RF8 |
-| **CU7** | Consultar Bonificación (Actual) | RF6, RF11, RF12, RF13, RF9 | RF4, RF5, RF10, RF14 | RF8, RF21 |
+| **CU7** | Consultar Bonificación (Actual) | RF6, RF11, RF12, RF13, RF9, RF29 | RF4, RF5, RF10, RF14 | RF8, RF21 |
 | **CU8** | Consultar Histórico (Anterior) | RF28, RF14, RF15 | RF5 | RF8, RF21 |
 | **CU9** | Consultar Bono (Admin) | RF7, RF11, RF12, RF13 | RF1, RF2, RF3, RF14 | RF8, RF23, RF24 |
 | **CU10** | Cierre de Período (Automático) | RF7, RF11, RF12, RF13, RF14, RF15 | RF10, RF16-A, RF16-B | RF8, RF23 |
@@ -272,6 +273,31 @@ RF27 (Exportación Reportes)
 └─ Formatos: Excel + PDF
 ```
 
+#### 1.3.8 🔔 **NOTIFICACIONES - GAMIFICACIÓN** (RF29-RF31)
+
+```
+RF29 (Notificación: Alcanzó Nuevo Nivel)
+├─ CU7 ━━━━ Envío automático SMS/Email al alcanzar nivel (entrada principal)
+├─ Evento: Distribuidor sube de tramo (ej: $1M-$5M → $5M-$10M)
+├─ Canales: SMS + Email (configurable por distribuidor)
+└─ Auditoría: Registra envío exitoso/fallido + timestamp
+
+RF30 (Notificación: Cerca del Siguiente Nivel)
+├─ CU7 ━━━━ Envío automático SMS/Email si está a X% del siguiente nivel
+├─ Umbral: Configurable por Admin (default: 80%)
+├─ Canales: SMS + Email (configurable por distribuidor)
+├─ Frecuencia: Máximo 1 notificación por día (evitar spam)
+└─ Auditoría: Registra envío exitoso/fallido + umbral usado
+
+RF31 (Recordatorio Periódico: Progreso de Bonificación)
+├─ CU7 ━━━━ Envío automático SMS/Email con resumen de progreso
+├─ Frecuencia: Configurable por Admin (daily/weekly/monthly, default: weekly)
+├─ Contenido: Bono actual, bono alcanzado, falta para siguiente nivel
+├─ Canales: SMS + Email (configurable por distribuidor)
+├─ Auditoría: Registra envío exitoso/fallido + contenido enviado
+└─ Preferencias: Distribuidor puede desuscribirse de recordatorios
+```
+
 ---
 
 ### 1.4 Resumen de Cobertura
@@ -285,7 +311,8 @@ RF27 (Exportación Reportes)
 | **Integración** | 6 RF | CU4, CU5, CU7, CU9, CU10, CU11 | RF10-RF15 |
 | **Operaciones Usuario** | 5 RF | CU11 | RF16-RF20 |
 | **Reportería** | 7 RF | CU12 (principal) | RF21-RF27 |
-| **TOTAL** | **29 RF** | **12 CU** | **Todos relacionados** |
+| **Notificaciones** | 3 RF | CU7 (principal) | RF29-RF31 |
+| **TOTAL** | **32 RF** | **12 CU** | **Todos relacionados** |
 
 ---
 
@@ -496,41 +523,68 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 
 ## 1.8 Casos de Uso (12 Total)
 
-### 1.8.1 CU1: Crear Período
+### 1.8.1 CU1: Crear Período (Definición de Periodicidad)
 
 **Ubicación:** Aldebaran.Web  
 **Acceso:** Admin - Autenticación interna PROMOS  
 **Actor:** Administrador  
-**Objetivo:** Definir un nuevo período (ventana de tiempo) para calcular bonificaciones
+**Objetivo:** Definir una plantilla de periodicidad (template) que establece la configuración base para calcular bonificaciones
 
 **Problemas que resuelve:**
-- Sistema necesita conocer cuándo inicia y termina cada período de bonificación
-- Permite organizar bonos por períodos (Enero 1-15, Enero 16-31, etc.)
-- Cada período tiene su propia configuración de vigencias y cálculos
+- Sistema necesita conocer la **unidad de medida temporal** para organizar bonificaciones
+- Permite crear **definiciones reutilizables** de periodicidad (Quincenal = 15 días, Mensual = 30 días, etc.)
+- Cada período (template) se usa para generar **Instancias de Período Activas** con fechas específicas
 
 **Información que debe poder ingresar:**
-- Nombre del período (texto identificador único, ej: "Enero 2026 - Quincena 1")
-- Tipo de período (Mensual / Quincenal / Semanal / Custom)
-- Día de inicio (primer día del período)
-- Duración en días (cuántos días tiene el período)
-- Fecha inicio (DD/MM/YYYY)
-- Fecha fin (DD/MM/YYYY)
-- Estado (Activo / Inactivo)
+- **Nombre del período** (texto identificador único, ej: "Quincena PROMOS", "Mes PROMOS")
+- **Tipo de período** (Mensual / Quincenal / Semanal / Diario / Custom)
+- **Duración en días** (unidad de medida base):
+  - Mensual: 30 días
+  - Quincenal: 15 días
+  - Semanal: 7 días
+  - Diario: 1 día
+  - Custom: N días (configurable)
+- **Descripción** (opcional, ej: "Período quincenal para distribuidores")
+- **Estado** (Activo / Inactivo)
 
 **Acciones que puede realizar:**
-- Crear nuevo período
-- Modificar período (antes de que comience a ser usado)
-- Ver listado de períodos activos e históricos
+- Crear nueva definición de período (template)
+- Modificar período (solo si no tiene instancias activas/cerradas)
+- Ver listado de períodos configurados
 - Activar/Desactivar período
-- Consultar fechas exactas de cada período
-- Ver cuántos distribuidores se benefician de este período
+- Ver cuántas **Instancias de Período** se han generado con este template
+- Generar manualmente una **Instancia de Período Activa** (con fecha inicio específica)
 
 **Restricciones:**
-- No puede editar período que ya está cerrado
-- No puede crear período con fecha de inicio en el pasado
-- No puede crear período que se superponga con otro existente
-- No puede eliminar período que tiene bonos ya calculados
-- No puede cambiar duración de período activo
+- No puede editar duración de un período que ya tiene instancias cerradas
+- No puede eliminar período que tiene instancias generadas
+- No puede crear dos períodos con el mismo nombre
+- No puede ingresar duración en días ≤ 0
+
+---
+
+**NOTA IMPORTANTE - Conceptos Clave:**
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ PERÍODO (Template/Definición):                                  │
+│ └─ Es una PLANTILLA reutilizable                                │
+│ └─ Define la DURACIÓN en días (unidad de medida)                │
+│ └─ NO tiene fechas específicas                                  │
+│ └─ Ejemplo: "Quincena PROMOS" = 15 días                         │
+│                                                                 │
+│ INSTANCIA DE PERÍODO (Período Activo):                          │
+│ └─ Es una EJECUCIÓN específica del template                     │
+│ └─ Tiene fecha inicio y fecha fin CALCULADA                     │
+│ └─ Se genera manualmente o automáticamente                      │
+│ └─ Ejemplo: "QUI-2026-01" del 01/01/2026 al 15/01/2026          │
+│                                                                 │
+│ RELACIÓN:                                                       │
+│ └─ 1 Período (Template) → N Instancias de Período               │
+│ └─ Fecha Fin = Fecha Inicio + Duración (del template)           │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
@@ -539,20 +593,24 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 **Ubicación:** Aldebaran.Web
 **Acceso:** Admin - Autenticación interna PROMOS  
 **Actor:** Administrador  
-**Objetivo:** Definir un tipo de bono especificando en qué insumo se basa (Facturación, Pedido o Entregado)
+**Objetivo:** Definir un tipo de bono especificando en qué insumo se basa (Facturación, Pedido o Entregado) y asociarlo a un Período (template de periodicidad)
 
 **Problemas que resuelve:**
 - Sistema debe saber qué tipos de bonificación están disponibles
 - Permite estructurar bonos por diferentes criterios de incentivo
 - Cada tipo de bono afecta diferentes comportamientos del distribuidor
+- Asocia el tipo de bono a una definición de periodicidad (Quincenal, Mensual, etc.)
 
 **Información que debe poder ingresar:**
 - Nombre del tipo de bono (texto único, ej: "Bono por Facturación")
 - Descripción (opcional, ej: "Incentivo basado en valor facturado")
-- Afectación (qué insumo usa: Facturación / Pedido / Entregado)
-- Período al cual aplica (referencia a CU1)
+- **Base del Bono** (qué fuente de datos genera el bono):
+  - Facturación: Usa datos de TOTUS (valor facturado sin impuestos)
+  - Pedido: Usa órdenes de Aldebaran (cantidad pedida × precio)
+  - Entregado: Usa entregas de Aldebaran (cantidad entregada × precio)
+- **Período al cual aplica** (referencia a CU1 - template de periodicidad)
+  - Ejemplo: B1 "Bono por Facturación" → asociado a P1 "Quincena PROMOS"
 - Estado (Activo / Inactivo)
-- Orden de aplicación (si hay múltiples, cuál se aplica primero)
 
 **Acciones que puede realizar:**
 - Crear nuevo tipo de bono
@@ -564,37 +622,47 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 
 **Restricciones:**
 - No puede eliminar tipo si ya tiene bonos calculados
-- No puede cambiar "Afectación" si ya tiene bonos activos
-- No puede cambiar período de un tipo activo
-- No puede tener dos tipos con mismo nombre en mismo período
-- No puede crear tipo sin asignar Afectación
+- No puede cambiar "Base del Bono" si ya tiene vigencias activas
+- No puede cambiar período de un tipo que tiene vigencias activas
+- No puede tener dos tipos con mismo nombre asociados al mismo período
+- No puede crear tipo sin definir Base del Bono
 
 ---
 
-### 1.8.3 CU3: Crear Vigencia (AMPLIADO CON PARAMETRIZACIÓN GRANULAR POR ARTÍCULO/REFERENCIA)
+### 1.8.3 CU3: Crear Vigencia (CON PARAMETRIZACIÓN GRANULAR POR ARTÍCULO/REFERENCIA)
 
 **Ubicación:** Aldebaran.Web
 **Acceso:** Admin - Autenticación interna PROMOS  
 **Actor:** Administrador  
-**Objetivo:** Definir una vigencia (configuración de rango de valor y porcentaje de aplicación del bono) para calcular bonos, con opción de restricción por artículos/referencias
+**Objetivo:** Definir una vigencia (configuración de rangos de valores de compra con porcentajes de bono asociados) para un Tipo de Bono, con opción de restricción por artículos/referencias
 
 **Problemas que resuelve:**
 - Sistema necesita saber qué porcentaje de bono aplica según el acumulado del distribuidor
-- Permite cambiar incentivos según necesidades de negocio (stock, lanzamientos, etc.)
+- Permite cambiar incentivos según necesidades de negocio (nuevas estrategias comerciales)
 - Permite focalizar bonos en artículos específicos sin modificar toda la estructura
+- Solo UNA vigencia puede estar ACTIVA por Tipo de Bono en un momento dado
 
 **Información que debe poder ingresar:**
-- Nombre de vigencia (texto único, ej: "Bono Enero 2026 - Facturación")
-- Período al cual aplica (referencia a CU1)
-- Tipo de bono (referencia a CU2)
-- Fecha inicio vigencia (cuándo comienza a usarse)
+- Nombre de vigencia (texto único, ej: "V3 - Bono Facturación Marzo 2026")
+- **Tipo de Bono al cual aplica** (referencia a CU2)
+  - Ejemplo: Vigencia B1V3 → asociada a Tipo de Bono B1 "Bono por Facturación"
+- **Fecha de Activación** (desde cuándo aplica esta vigencia)
+  - Al activarse, desactiva automáticamente la vigencia anterior
 - Estado (Activo / Inactivo)
-- Tramos de valor con porcentajes (ej: "$1M-$5M = 5%", "$5M-$10M = 6%")
+- **Rangos de Valores** (Relación 1:N - Entidad hija de Vigencia):
+  - **UNA vigencia tiene MÚLTIPLES rangos de valores**
+  - Cada rango es un registro independiente con:
+    - **Valor Mínimo** (numérico, ej: 1000000)
+    - **Valor Máximo** (numérico, ej: 5000000)
+    - **Porcentaje de Bono** (%, ej: 5.0)
+  - Ejemplo de rangos para una vigencia:
+    - Rango 1: Mín=$1M, Máx=$5M, Bono=5%
+    - Rango 2: Mín=$5M, Máx=$10M, Bono=6%
+    - Rango 3: Mín=$10M, Máx=∞, Bono=7%
 - Opción: Restricción por artículos/referencias específicos (OPCIONAL):
   - Sin restricción (aplica a TODOS los artículos - DEFAULT)
   - Artículos específicos (TODAS sus referencias)
   - Artículos + Referencias específicas (combinación personalizada)
-  - Todas referencias de un artículo (WILDCARD)
 - Moneda del bono (COP, USD, etc.)
 - Monto máximo de bono (tope configurable)
 
@@ -609,25 +677,49 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 - Copiar vigencia anterior como template
 
 **Restricciones:**
+- **SOLO UNA vigencia ACTIVA por Tipo de Bono** (al activar una nueva, la anterior pasa a INACTIVA automáticamente)
 - No puede editar vigencia que ya está en uso (debe crear nueva)
-- No puede cambiar Tipo de Bono de vigencia activa
-- No puede cambiar Período de vigencia activa
-- No puede crear vigencia con fecha inicio en el pasado
-- No puede tener dos vigencias simultáneas para mismo Tipo de Bono en mismo Período (excepto con parametrización diferente)
+- No puede cambiar Tipo de Bono de una vigencia existente
+- No puede crear vigencia con fecha de activación en el pasado
 - Si parametriza por artículos, debe validar que artículos existan en sistema
 - No puede eliminar vigencia que tiene bonos ya calculados
 
-### 1.8.4 CU4: Obtener Facturación de TOTUS (Integración)
+**NOTA IMPORTANTE - Vigencia ACTIVA:**
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ TIPO DE BONO B1 (Bono por Facturación):                         │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│ Vigencias (Históricas):                                         │
+│ ├─ B1V1: Activa desde 2026-01-01 → Estado: INACTIVA            │
+│ ├─ B1V2: Activa desde 2026-02-01 → Estado: INACTIVA            │
+│ └─ B1V3: Activa desde 2026-03-01 → Estado: ACTIVA ✓            │
+│    ├─ Rango 1: $1M-$5M → 5% de bono                            │
+│    ├─ Rango 2: $5M-$10M → 6% de bono                           │
+│    └─ Rango 3: $10M+ → 7% de bono                              │
+│                                                                 │
+│ ➜ Cálculos usan VIGENCIA ACTIVA (B1V3)                         │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 1.8.4 CU4: Obtener Facturación de TOTUS (Integración a BD Local)
 
 **Ubicación:** Backend Aldebaran (Motor de Cálculo)
 **Cuándo:** Dinámicamente (cada vez que se calcula bono) + Al cierre del período  
 **Actor:** PROCESO AUTOMÁTICO + MOTOR DE CÁLCULO  
-**Objetivo:** Obtener valor facturado real desde el sistema TOTUS para usarlo en cálculo de bonos
+**Objetivo:** Obtener valor facturado real desde BD TOTUS (local) mediante SP para usarlo en cálculo de bonos
+
+**NOTA TÉCNICA:** La consulta NO es a un sistema externo via API, sino a la **base de datos TOTUS local** mediante **Stored Procedure**. Esto garantiza latencia mínima (< 50ms típicamente).
+
+**⚠️ DEPENDENCIA EXTERNA CRÍTICA:** El SP de TOTUS (`sp_ObtenerFacturacionDistribuidor`) es **desarrollado y mantenido por OTRA FÁBRICA DE SOFTWARE**, NO por Aldebaran. Aldebaran solo CONSUME el SP.
 
 **Problemas que resuelve:**
-- Sistema necesita valor facturado como fuente de verdad (TOTUS es referencia única)
+- Sistema necesita valor facturado como fuente de verdad (BD TOTUS es referencia única)
 - Debe poder filtrar por artículos/referencias si la vigencia está parametrizada
-- Debe manejar fallos de conectividad sin interrumpir operación
+- Debe manejar fallos de BD sin interrumpir operación
+- Debe coordinarse con otra fábrica para asegurar SLA del SP
 
 **Información que necesita:**
 - Tipo documento: "FAC" (Factura)
@@ -637,26 +729,54 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 - Lista de artículos (OPCIONAL - si vigencia está parametrizada)
 - Mapa de referencias por artículo (OPCIONAL - si vigencia está parametrizada)
 
-**Información que retorna de TOTUS:**
+**Información que retorna de BD TOTUS (via SP):**
 - ValorTotalFacturadoSinImpuestos (obligatorio)
 - TotalNotasCredito (obligatorio)
 - TotalFletes (opcional)
 - TotalDescuentos (opcional)
 
 **Acciones que puede realizar:**
-- Consultar SP configurable en TOTUS
-- Usar MOCK configurable si SP no está disponible
-- Filtrar facturación por artículos específicos (si aplica)
-- Cachear resultado para consultas posteriores (mismo día)
-- Registrar auditoría de cada consulta
-- Usar fallback (valor anterior) si TOTUS no responde
+- Ejecutar SP **desarrollado por OTRA FÁBRICA** en BD TOTUS (local)
+- Usar MOCK configurable si SP no está disponible (solo para desarrollo/testing)
+- Filtrar facturación por artículos específicos (parámetros del SP)
+- ⚠️ **IMPORTANTE - SIN CACHE**: **NO cachea** resultado para garantizar información 100% actualizada
+- Registrar auditoría de cada consulta (timestamp, distribuidor, resultado)
+- Usar fallback (último valor conocido) si BD TOTUS no responde + Alerta a Admin + Banner de advertencia
+- **COORDINARSE** con otra fábrica si SP no cumple SLA o tiene errores
 
 **Restricciones:**
-- SLA máximo 500ms (incluida consulta TOTUS) para cálculos dinámicos
+- SLA máximo 500ms para cálculos dinámicos (consulta BD TOTUS típicamente < 50ms)
 - No puede usar valores negativos
 - No puede ignorar filtros de artículos/referencias
-- No puede modificar valores en TOTUS (solo lectura)
-- No puede almacenar datos sensibles en caché
+- No puede modificar valores en BD TOTUS (solo lectura - SELECT via SP)
+- **Sin cache de resultados** (siempre ejecuta SP en tiempo real)
+- Fallback solo en caso de error de BD TOTUS (con advertencia visible al distribuidor)
+- Connection string debe tener pooling habilitado (ADO.NET)
+
+**NOTA IMPORTANTE - Decisión de NO usar Cache:**
+
+```
+RAZÓN PRINCIPAL: Consultas NO son constantes, son ESPORÁDICAS
+
+JUSTIFICACIÓN:
+├─ Distribuidores consultan de forma impredecible (no hay patrón fijo)
+├─ Promesa de información en tiempo real es CRÍTICA para el negocio
+├─ BD TOTUS (local) maneja fácilmente carga concurrente con SP optimizado
+├─ Connection pooling de ADO.NET + Timeouts optimizados son suficientes
+└─ Latencia de BD local (< 50ms) hace cache innecesario
+
+VENTAJAS DE CONSULTA A BD LOCAL:
+├─ Sin dependencia de API/HTTP externa
+├─ Latencia mínima (< 50ms típicamente)
+├─ Connection pooling eficiente (ADO.NET)
+└─ SLA de 500ms FÁCILMENTE alcanzable
+
+VALIDACIÓN REQUERIDA:
+├─ SP en BD TOTUS está optimizado (índices, estadísticas)
+├─ Connection string tiene pooling habilitado
+├─ BD TOTUS puede manejar N consultas concurrentes (típicamente no es problema)
+└─ Latencia promedio del SP < 50ms
+```
 
 ---
 
@@ -747,6 +867,30 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 - No puede reutilizar OTP ya usado
 - Token expira después de 8 horas (configurable)
 
+**NOTA IMPORTANTE - Consideraciones de Costo:**
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ OTP POR EMAIL vs OTP POR SMS:                                   │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│ EMAIL (Recomendado - Sin Costos):                               │
+│ ✅ Proceso local de PROMOS                                      │
+│ ✅ NO requiere suscripción mensual                              │
+│ ✅ NO cargos por envío                                          │
+│                                                                 │
+│ SMS (Opcional - Costos Adicionales):                            │
+│ ⚠️  Requiere proveedor externo (ej: Masivian, Twilio)           │
+│ ⚠️  Suscripción mensual + Cargo por SMS enviado                 │
+│ ⚠️  Si PROMOS ya tiene proveedor SMS → Usar ese                 │
+│                                                                 │
+│ RECOMENDACIÓN:                                                  │
+│ └─ Fase 1: Solo Email (MVP sin costos adicionales)              │
+│ └─ Fase 2: SMS opcional (si distribuidores lo requieren)        │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
 ---
 
 ### 1.8.7 CU7: Consultar Bonificación - Período Actual (Distribuidor - Sitio Público)
@@ -754,12 +898,13 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 **Ubicación:** Sitio Público Aldebaran
 **Acceso:** Solo con autenticación OTP válida (CU6 completado)  
 **Actor:** Distribuidor (autenticado)  
-**Objetivo:** Consultar bonos acumulados en tiempo real durante el período actual
+**Objetivo:** Consultar bonos acumulados en tiempo real durante el período actual, con notificaciones automáticas de gamificación
 
 **Problemas que resuelve:**
 - Distribuidor necesita ver su bono actualizado según lo que ha pedido/entregado/facturado en el período EN CURSO
 - Debe conocer cuánto falta para acceder al siguiente nivel de bonificación (gamificación)
 - Necesita transparencia total sin contactar a PROMOS
+- Debe recibir notificaciones proactivas sobre logros alcanzados y recordatorios de progreso
 - Página es solo lectura: sin ingreso de datos adicionales
 
 **Información que necesita acceder:**
@@ -771,6 +916,7 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 - Vigencia activa más reciente
 - Tramos configurados para cada tipo de bono
 - Precios históricos del día de cada transacción
+- Preferencias de notificación del distribuidor
 
 **Información que calcula dinámicamente:**
 - Bono por Facturación: Base = Facturado - NC_Período - NC_Anterior; Bono = Base × % Vigencia
@@ -780,20 +926,59 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 
 **Acciones que puede realizar:**
 - Ver bonos acumulados en tiempo real (SLA: 500ms)
-- Ver desglose por tipo de bono (Facturación, Pedido, Entregado)
+- **Ver desglose por tipo de bono** con diferentes niveles de detalle:
+  - **Facturación**: Solo totales consolidados (limitación de TOTUS - no desglose)
+  - **Pedido**: Desglose completo por orden, artículo, cantidad y precio
+  - **Entregado**: Desglose completo por entrega, artículo, cantidad y precio
 - Ver gamificación (falta para siguiente nivel)
 - Ver período actual y días transcurridos
 - Consultar múltiples veces (cada consulta recalcula)
+- Configurar preferencias de notificación:
+  - Elegir canales (SMS, Email, ambos)
+  - Decidir si recibir notificaciones al alcanzar nuevo nivel 
+  - Decidir si recibir alertas cuando está cerca del siguiente nivel 
+  - Decidir si recibir recordatorios periódicos de progreso 
 - Cerrar sesión
+
+**Notificaciones Automáticas Integradas:**
+
+**Notificación: Alcanzó Nuevo Nivel**
+- **Cuándo:** Se dispara automáticamente cuando distribuidor sube de tramo en cualquier tipo de bono
+- **Canales:** SMS + Email (según preferencias)
+- **Contenido:** "¡Felicidades! Alcanzaste un nuevo nivel de bonificación. Tu bono por [Tipo] es ahora [%]% sobre [base]. ¡Sigue adelante!"
+- **Restricción:** Máximo 1 notificación por distribuidor por tipo de bono en 24 horas
+- **Auditoría:** Registra envío exitoso/fallido + timestamp
+
+**Notificación: Está Cerca del Siguiente Nivel**
+- **Cuándo:** Job diario verificación (default: 6 AM UTC) si acumulado ≥ X% del siguiente tramo
+- **Canales:** SMS + Email (según preferencias)
+- **Contenido:** "¡Casi lo logras! Estás a poco de alcanzar el siguiente nivel de bonificación en [Tipo de Bono]. Necesitas $[Monto Faltante] más. ¡Adelante!"
+- **Configuración Admin:** Umbral % (50-95%, default 80%), Frecuencia, Horario, Activo/Inactivo
+- **Restricción:** Máximo 1 notificación en 24 horas, anti-spam habilitado
+- **Auditoría:** Registra envío exitoso/fallido + umbral usado
+
+**Recordatorio Periódico: Progreso de Bonificación**
+- **Cuándo:** Job semanal (default: Lunes 8 AM UTC) o configurada por Admin
+- **Canales:** SMS (breve) + Email (detallado, según preferencias)
+- **Contenido Email:** Resumen completo de 3 bonos (Facturación, Pedido, Entregado) con acumulado, tramo, % completado, falta para siguiente
+- **Configuración Admin:** Frecuencia (Diaria/Semanal/Bisemanal/Mensual), Día/Hora, Activo/Inactivo
+- **Preferencias Distribuidor:** Puede desuscribirse, elegir canal preferido, establecer horario
+- **Restricción:** Solo si período está activo, distribuidor no está desuscrito, tiene Email/Celular
+- **Auditoría:** Registra envío exitoso/fallido + contenido enviado
 
 **Restricciones:**
 - Página solo lectura (sin ingreso de datos)
 - No puede ver información de otro distribuidor
 - Token debe estar válido (no expirado)
 - Cálculo es dinámico (se ejecuta cada consulta, no precalculado)
-- Cambios en pedidos/entregas se reflejan en próxima consulta
+- **Cambios en CUALQUIER fuente se reflejan en próxima consulta**:
+  - Nueva factura en TOTUS → Actualiza bono por Facturación
+  - Nueva orden en Aldebaran → Actualiza bono por Pedido
+  - Nueva entrega confirmada en Aldebaran → Actualiza bono por Entregado
+  - Nueva OC Especial aprobada → Actualiza bono por Facturación
 - No puede acceder a datos administrativos (Aldebaran.Web)
 - No puede ver períodos anteriores (ver CU8 para eso)
+- Notificaciones respetan siempre preferencias del distribuidor (desuscripciones, canales, horarios)
 
 ---
 
@@ -899,34 +1084,34 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 ### 1.8.10 CU10: Cierre de Período (Automático)
 
 **Ubicación:** Backend Aldebaran (Scheduled Job)
-**Cuándo:** Último día del período, a hora configurada (ej: 23:59:59)  
+**Cuándo:** Último día de la **Instancia de Período Activa**, a hora configurada (ej: 23:59:59)  
 **Actor:** PROCESO AUTOMÁTICO  
-**Objetivo:** Cerrar período y calcular bonos finales recomendados (FOTO congelada)
+**Objetivo:** Cerrar la **Instancia de Período Activa** y calcular bonos finales recomendados (FOTO congelada)
 
 **Problemas que resuelve:**
-- Necesario congelar cálculos al final del período para auditoría
+- Necesario congelar cálculos al final de la instancia de período para auditoría
 - Genera recomendación de NC para que Usuario PROMOS la aplique en TOTUS
 - Garantiza inmutabilidad de datos post-cierre para cumplimiento normativo
 
 **Información que necesita:**
-- Período actual (verificar que es el último día)
-- Todos los distribuidores con actividad en el período
+- **Instancia de Período Activa** (verificar que es el último día según duración del template)
+- Todos los distribuidores con actividad en la instancia de período
 - Órdenes, entregas y facturación acumulada
 - Vigencias activas
 - Precios del período
 
 **Información que genera:**
 - FOTO congelada en HistorialBono (inmutable post-cierre)
-- Bono Recomendado (cálculo final del período)
-- Recomendación de NC para aplicar en siguiente período
+- Bono Recomendado (cálculo final de la instancia de período)
+- Recomendación de NC para aplicar en siguiente instancia de período
 - Evento de cierre (para notificación)
-- Estado del período: CERRADO
+- Estado de la **Instancia de Período**: CERRADO
 
 **Acciones que realiza automáticamente:**
-- Calcula bono RECOMENDADO del período (período completo, no dinámico)
+- Calcula bono RECOMENDADO de la instancia de período (completo, no dinámico)
 - Almacena FOTO en HistorialBono (estado CALCULADO)
 - Genera recomendación de NC con estado RECOMENDADA
-- Marca período como CERRADO
+- Marca **Instancia de Período** como CERRADO
 - Publica evento de cierre (RabbitMQ)
 - Notifica Usuario PROMOS (configuración pendiente)
 - Registra auditoría completa
@@ -934,9 +1119,9 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 **Restricciones:**
 - No puede modificar datos después del cierre (inmutabilidad)
 - No aplica NC automáticamente en TOTUS (solo recomienda)
-- No puede cerrar período que ya está cerrado
+- No puede cerrar instancia de período que ya está cerrada
 - Usuario PROMOS es responsable de aplicar NC en TOTUS
-- No puede recalcular período cerrado (la FOTO es definitiva)
+- No puede recalcular instancia de período cerrada (la FOTO es definitiva)
 
 **NOTA - RESPONSABILIDADES CLARAS**:
 ```
@@ -1074,11 +1259,30 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 - No puede recalcular períodos ya cerrados
 - No puede eliminar o modificar auditoría
 - Si descubre errores en cálculo, requiere apertura de ticket a soporte técnico
+
 ---
 
 ## 1.9 Responsabilidades Bien Definidas (APLICABLES A TODO EL SISTEMA)
 
 ```
+┌────────────────────────────────────────────────────────────────┐
+│ ALDEBARAN - NOTIFICADOR (Scheduled Jobs + Event-Driven):       │
+├────────────────────────────────────────────────────────────────┤
+│ ✓ Monitorea cambios de tramo en bonos del distribuidor          │
+│ ✓ Envía SMS/Email cuando alcanza nuevo nivel (RF29)             │
+│ ✓ Envía SMS/Email cuando está cerca del siguiente nivel (RF30)  │
+│ ✓ Envía resumen periódico con progreso (RF31 - semanal)         │
+│ ✓ Respeta preferencias de canales del distribuidor              │
+│ ✓ Respeta desuscripciones (recordatorios)                       │
+│ ✓ Registra auditoría: envíos, fallos, canales usados            │
+│ ✓ Maneja reintentos si envío falla                              │
+│ ✓ Cachea datos para evitar consultas excesivas                  │
+│ ✓ Limpia datos de notificaciones antiguas (política retención)  │
+│ ✗ NO modifica datos de distribuidores                           │
+│ ✗ NO interfiere con cálculo de bonos                            │
+│ ✗ NO modifica TOTUS directamente                                │
+└────────────────────────────────────────────────────────────────┘
+
 ┌────────────────────────────────────────────────────────────────┐
 │ PÁGINA PROMOCIONAL (Tercero - Externo):                        │
 ├────────────────────────────────────────────────────────────────┤
@@ -1137,7 +1341,7 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 │ ALDEBARAN - CONFIGURACIÓN (Admin):                             │
 ├────────────────────────────────────────────────────────────────┤
 │ ✓ Crea/modifica Períodos (nombre, inicio, duración)            │
-│ ✓ Crea Tipos de Bono (afectación, estrategia precio)           │
+│ ✓ Crea Tipos de Bono (base del bono, período asociado)         │
 │ ✓ Crea Vigencias (rangos, porcentaje, fecha inicio)            │
 │ ✓ Configura horario carga precios                              │
 │ ✓ Configura retención histórico de precios                     │
@@ -1314,6 +1518,9 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 | RF26 | Reporte: Ingresos Manuales Aplicados (OC + Reconciliaciones) | Reportería |
 | RF27 | Exportación de Reportes (Excel/PDF) | Reportería |
 | RF28 | Consultar Histórico de Bonos - Períodos Anteriores (Distribuidor - CU8) | Consultas |
+| RF29 | **Notificación: Alcanzó Nuevo Nivel de Bonificación (SMS/Email)** | Notificaciones |
+| RF30 | **Notificación: Cerca del Siguiente Nivel (SMS/Email - Umbral Configurable)** | Notificaciones |
+| RF31 | **Recordatorio Periódico: Progreso de Bonificación (SMS/Email)** | Notificaciones |
 
 ---
 
@@ -1474,198 +1681,192 @@ ya sea calculado dinámicamente en una consulta (CU7) o congelado al cierre del 
 
 ### 1.11.4 BONO POR PEDIDO (Aldebaran)
 
-#### Conceptos Clave
+El Bono por Pedido se calcula con base en los pedidos realizados por el distribuidor durante un período específico. 
 
-- **Fuente**: Órdenes creadas en Aldebaran
-- **Base de Cálculo**: Cantidad PEDIDA × Precio histórico del día del pedido
-- **Precio**: Se congela el día que se crea el pedido (NO cambia después)
-- **Descuentos**: NO aplican descuentos por NC (eso es solo para Facturación)
-- **Insumos Adicionales**: NINGUNO (OC Especiales NO aplican aquí)
-- **Dinámico**: Se RECALCULA CADA VEZ que el distribuidor consulta
+Para este cálculo, se toma como insumo el Precio WEB Total del Período y el Descuento por Monto Total del Período, 
+con el fin de determinar el valor final del bono que será aplicado como nota crédito.
 
-#### Fórmula
+El cálculo del bono deberá realizarse en las siguientes etapas:
+
+#### 1. Cálculo del Precio WEB Total del Período
+El sistema deberá sumar el valor de Precio WEB de todos los pedidos realizados por el distribuidor durante el período.
+
+El Precio WEB de cada pedido corresponde a la sumatoria del producto entre el precio unitario de cada referencia, 
+de acuerdo con la fecha del pedido, y la cantidad pedida.
+
+#### 2. Cálculo del Descuento por Monto Total del Período
+El sistema deberá sumar los valores de Descuento por Monto aplicados a cada pedido durante el mismo período.
+
+Este descuento puede variar según el pedido o según la referencia, de acuerdo con la configuración definida para el bono.
+
+#### 3. Cálculo del Bono Quincenal
+Una vez obtenido el Precio WEB Total del Período, el sistema deberá identificar el rango de valor en el que dicho total 
+1. cae, teniendo en cuenta las vigencias activas configuradas para el tipo de bono “Pedido”.
+
+Sobre el valor identificado, se aplicará el porcentaje de bono correspondiente al rango aplicable, obteniendo así el Bono 
+Quincenal.
+
+#### 4. Cálculo del Valor Final del Bono por Pedido
+Al Bono Quincenal calculado en el paso anterior, se le deberá restar el Descuento por Monto Total del Período.
+
+El resultado de esta operación corresponderá al Valor Final del Bono por Pedido, el cual será aplicado como Nota Crédito.
+
+### Fórmula de cálculo
+Para mayor trazabilidad y auditoría, el cálculo puede expresarse de la siguiente manera:
+
+#### Paso 1: Calcular el Precio WEB Total del Período
+
+    A = Σ PrecioWEB de todos los pedidos del período
+
+Donde:
+
+    PrecioWEB de cada pedido = Σ (Precio unitario de cada referencia según fecha del pedido × cantidad pedida)
+    A = Precio WEB Total del Período
+#### Paso 2: Calcular el Descuento por Monto Total del Período
+
+    B = Σ DescuentoPorMonto de todos los pedidos del período
+
+Donde:
+
+    B = Descuento por Monto Total del Período
+
+#### Paso 3: Calcular el Bono Quincenal
+
+    C = A * D
+
+Donde:
+
+    A = Precio WEB Total del Período
+    D = Porcentaje del rango de valor aplicable según la vigencia activa del tipo de bono "Pedido"
+    C = Bono Quincenal
+
+#### Paso 4: Calcular el Valor Final del Bono por Pedido
+
+    E = C - B
+
+Donde:
+  
+    C = Bono Quincenal
+    B = Descuento por Monto Total del Período
+    E = Valor Final del Bono por Pedido
+
+Ejemplo ilustrativo
+
+Supongamos que durante un período, un distribuidor realizó varios pedidos que suman un Precio WEB Total de $100,000,000 (A) y que el Descuento por Monto Total del Período es de $5,000,000 (B).
 
 ```
-Para CADA orden del período:
+A = 100,000,000
+B = 5,000,000
+D = 6% → 0.06
 
-  1. Obtiene de Orden: Referencia + Cantidad + FechaPedido
-     Ej: REF-001, 100 unidades, Día 5 del período
+C = A × D
+C = 100,000,000 × 0.06
+C = 6,000,000
 
-  2. Busca en HISTÓRICO DE PRECIOS el precio vigente ESE DÍA
-     Referencia = REF-001
-     FechaCarga ≤ FechaPedido
-     Selecciona el precio MÁS RECIENTE antes de esa fecha
-
-  3. Obtiene Precio y Descuento de ese día
-     PrecioUnitario = $20 (del día 5)
-     DescuentoDistribuidor = 10%
-
-  4. Calcula precio con descuento
-     PrecioConDescuento = PrecioUnitario * (1 - DescuentoDistribuidor)
-     PrecioConDescuento = $20 * (1 - 0.10) = $18
-
-  5. Calcula valor de la orden
-     Cantidad = 100 unidades
-     ValorOrden = Cantidad * PrecioConDescuento
-     ValorOrden = 100 * $18 = $1,800
-
-  6. ACUMULA para el período completo
-     ValorTotalPedido = SUM(todas las órdenes del período)
-     Ej: $14,400,000
-
-  7. Busca Vigencia más reciente (fecha ≤ hoy, estado Activo)
-     Vigencia del período actual
-
-  8. Busca el RANGO DE VALOR en la Vigencia que contiene ValorTotalPedido
-     La Vigencia tiene rangos de valor configurables:
-       Rango 1: $1M - $5M → Porcentaje de Bono: 5%
-       Rango 2: $5M - $10M → Porcentaje de Bono: 6%
-       Rango 3: $10M - $20M → Porcentaje de Bono: 7%
-       Rango 4: >$20M → Porcentaje de Bono: 8%
-
-     ValorTotalPedido = $14,400,000 → Cae en Rango 3 ($10M-$20M) → Porcentaje = 7%
-
-  9. Aplica el porcentaje del rango
-     Bono = ValorTotalPedido × Porcentaje
-     Bono = $14,400,000 × 0.07 = $1,008,000
-
-  10. RESULTADO (DINÁMICO - CAMBIA CON CADA CONSULTA)
-      Distribuidor DIST-001 acumula: $1,008,000 como Bono por Pedido
-      (Este valor CAMBIA si ingresa más órdenes antes del cierre)
-```
-
-#### Ejemplo Temporal - Período 1 al 15
+E = C - B
+E = 6,000,000 - 5,000,000
+E = 1,000,000
 
 ```
-DÍA 1: Distribuidor consulta
-  Rango: 1 al 1
-  Pedidos acumulados: $1M
-  Bono calculado: $50K
+Resultado final: 
 
-DÍA 5: Distribuidor consulta nuevamente
-  Rango: 1 al 5
-  Pedidos acumulados: $8M (sumó 4 días más)
-  Bono calculado: $500K (CAMBIÓ porque hay más pedidos)
-
-DÍA 11: Distribuidor consulta
-  Rango: 1 al 11
-  Pedidos acumulados: $14M (sumó 6 días más)
-  Bono calculado: $1M (CAMBIÓ nuevamente)
-
-DÍA 15 (CIERRE): Sistema calcula FINAL
-  Rango: 1 al 15 (período completo)
-  Pedidos acumulados: $18M
-  Bono FINAL: $1.3M
-  Este valor se CONGELA en HistorialBono (inmutable post-cierre)
-```
+    El valor del Bono por Pedido sería 1,000,000, el cual se aplicará como Nota Crédito.
 
 ---
 
 ### 1.11.5 BONO POR ENTREGADO (Aldebaran)
 
-#### Conceptos Clave
+El Bono por Entregado se calcula con base en los pedidos realizados por el distribuidor, que fueron entregados durante un período específico. 
 
-- **Fuente**: Entregas confirmadas en Aldebaran
-- **Base de Cálculo**: Cantidad EFECTIVAMENTE ENTREGADA × Precio histórico del pedido original
-- **Precio**: Se usa el precio CONGELADO del día que se creó el pedido (NO el actual)
-- **Descuentos**: NO aplican descuentos por NC (eso es solo para Facturación)
-- **Entregas Parciales**: Se acumulan cada entrega con su propio precio congelado
-- **Insumos Adicionales**: NINGUNO (OC Especiales NO aplican aquí)
-- **Dinámico**: Se RECALCULA CADA VEZ que el distribuidor consulta
+Para este cálculo, se toma como insumo el Precio WEB Total del Período y el Descuento por Monto Total del Período, 
+con el fin de determinar el valor final del bono que será aplicado como nota crédito.
 
-#### Proceso Real de PROMOS
+El cálculo del bono deberá realizarse en las siguientes etapas:
 
-```
-1. Distribuidor crea PEDIDO (Orden de Compra)
-   ├─ Registra: Artículo, Cantidad pedida
-   ├─ Sistema obtiene: Precio histórico del pedido (del día)
-   ├─ Se CONGELA ese precio
-   └─ Estado: PEDIDO CREADO
+#### 1. Cálculo del Precio WEB Total del Período
+El sistema deberá sumar el valor de Precio WEB de todos los pedidos realizados por el distribuidor y que fueron entregados durante el período.
 
-2. PROMOS prepara en almacén (puede tomar 1, 3, 8 o N días)
-   └─ Separa mercancía, empaca
+El Precio WEB de cada pedido corresponde a la sumatoria del producto entre el precio unitario de cada referencia, 
+de acuerdo con la fecha del pedido, y la cantidad entregada de la referencia.
 
-3. PROMOS realiza ENTREGA/SALIDA
-   ├─ Usuario ingresa a Aldebaran
-   ├─ Marca: Cantidad entregada (puede ser parcial o total)
-   ├─ Registra: Cantidad que realmente salió del almacén
-   ├─ Genera: Guía de remisión/Documento de salida
-   ├─ Usa: Precio histórico del pedido (el que se registró hace N días)
-   └─ Estado: ENTREGA CONFIRMADA
+#### 2. Cálculo del Descuento por Monto Total del Período
+El sistema deberá sumar los valores de Descuento por Monto aplicados a cada pedido durante el mismo período.
 
-4. Valuación de lo entregado (CRÍTICO)
-   └─ Cantidad entregada × Precio unitario del MOMENTO DEL PEDIDO
-   └─ NO se usa el precio actual de hoy
-   └─ Se usa el precio que existía cuando se creó el pedido
-```
+Este descuento puede variar según el pedido o según la referencia, de acuerdo con la configuración definida para el bono.
 
-#### Fórmula
+#### 3. Cálculo del Bono Quincenal
+Una vez obtenido el Precio WEB Total del Período, el sistema deberá identificar el rango de valor en el que dicho total 
+1. cae, teniendo en cuenta las vigencias activas configuradas para el tipo de bono “Entregado”.
 
-```
-Para CADA entrega confirmada en el período:
+Sobre el valor identificado, se aplicará el porcentaje de bono correspondiente al rango aplicable, obteniendo así el Bono 
+Quincenal.
 
-  1. Obtiene: Referencia + Cantidad ENTREGADA + Precio CONGELADO del pedido
-     Ej: REF-001, 80 unidades entregadas, $20 (del día del pedido)
+#### 4. Cálculo del Valor Final del Bono por Pedido
+Al Bono Quincenal calculado en el paso anterior, se le deberá restar el Descuento por Monto Total del Período.
 
-  2. Calcula valor con descuento
-     PrecioConDescuento = $20 * (1 - 0.10) = $18
+El resultado de esta operación corresponderá al Valor Final del Bono por Entregado, el cual será aplicado como Nota Crédito.
 
-  3. Calcula valor de la entrega
-     Cantidad Entregada = 80 unidades
-     ValorEntrega = 80 * $18 = $1,440
+### Fórmula de cálculo
+Para mayor trazabilidad y auditoría, el cálculo puede expresarse de la siguiente manera:
 
-  4. ACUMULA todas las entregas del período
-     ValorTotalEntregado = SUM(todas las entregas confirmadas)
-     Ej: $6,600,000
+#### Paso 1: Calcular el Precio WEB Total del Período
 
-  5. Busca Vigencia más reciente (fecha ≤ hoy, estado Activo)
-     Vigencia del período actual
+    A = Σ PrecioWEB de todos los pedidos entregados del período
 
-  6. Busca el RANGO DE VALOR en la Vigencia que contiene ValorTotalEntregado
-     La Vigencia tiene rangos de valor configurables:
-       Rango 1: $1M - $5M → Porcentaje de Bono: 4%
-       Rango 2: $5M - $10M → Porcentaje de Bono: 5%
-       Rango 3: >$10M → Porcentaje de Bono: 6%
+Donde:
 
-     ValorTotalEntregado = $6,600,000 → Cae en Rango 2 ($5M-$10M) → Porcentaje = 5%
+    PrecioWEB de cada pedido = Σ (Precio unitario de cada referencia según fecha del pedido × cantidad Entregada)
+    A = Precio WEB Total del Período
+#### Paso 2: Calcular el Descuento por Monto Total del Período
 
-  7. Aplica el porcentaje del rango
-     Bono = ValorTotalEntregado × Porcentaje
-     Bono = $6,600,000 × 0.05 = $330,000
+    B = Σ DescuentoPorMonto de todos los pedidos entregados del período
 
-  8. RESULTADO (DINÁMICO - CAMBIA CON CADA NUEVA ENTREGA)
-     Distribuidor DIST-001 acumula: $330,000 como Bono por Entregado
-     (Este valor CAMBIA si se confirman más entregas antes del cierre)
-```
+Donde:
 
-#### Ejemplo Temporal - Período 1 al 15
+    B = Descuento por Monto Total del Período
+
+#### Paso 3: Calcular el Bono Quincenal
+
+    C = A * D
+
+Donde:
+
+    A = Precio WEB Total del Período
+    D = Porcentaje del rango de valor aplicable según la vigencia activa del tipo de bono "Pedido"
+    C = Bono Quincenal
+
+#### Paso 4: Calcular el Valor Final del Bono por Pedido
+
+    E = C - B
+
+Donde:
+  
+    C = Bono Quincenal
+    B = Descuento por Monto Total del Período
+    E = Valor Final del Bono por Entregado
+
+Ejemplo ilustrativo
+
+Supongamos que durante un período, un distribuidor realizó varios pedidos de los cuales fueron entregadas algunas cantidades sumando un Precio WEB Total de $100,000,000 (A) y que el Descuento por Monto Total del Período es de $5,000,000 (B).
 
 ```
-DÍA 1: Crea Pedido
-  Pedido 1: 100 unidades, Precio $20 (congelado)
+A = 100,000,000
+B = 5,000,000
+D = 6% → 0.06
 
-DÍA 5: Distribuidor consulta
-  Entregas confirmadas: 0
-  Bono por Entregado: $0
+C = A × D
+C = 100,000,000 × 0.06
+C = 6,000,000
 
-DÍA 8: Confirma ENTREGA PARCIAL
-  Entrega 80 unidades de Pedido 1 a $20 = $1,600
-  Distribuidor consulta: Bono por Entregado = $80K
+E = C - B
+E = 6,000,000 - 5,000,000
+E = 1,000,000
 
-DÍA 10: Confirma ENTREGA REST ANTE
-  Entrega 20 unidades más de Pedido 1 a $20 = $400
-  Distribuidor consulta: Bono por Entregado = $100K (CAMBIÓ)
-
-DÍA 12: Crea y entrega Pedido 2
-  Pedido 2: 50 unidades, Precio $100 (congelado)
-  Entrega 50 unidades de Pedido 2 a $100 = $5,000
-  Distribuidor consulta: Bono por Entregado = $300K (CAMBIÓ nuevamente)
-
-DÍA 15 (CIERRE): Sistema calcula FINAL
-  Total Entregado: $6,600
-  Bono FINAL: $330K
-  Este valor se CONGELA en HistorialBono
 ```
+Resultado final: 
+
+    El valor del Bono por Pedido sería 1,000,000, el cual se aplicará como Nota Crédito.
+
 
 ---
 
@@ -1728,15 +1929,16 @@ DÍA 15 (CIERRE): Sistema calcula FINAL
 | **Reportería** | 6 reportes + Exportación Excel/PDF |
 | **Automatización** | Descarga de precios + Cierre de períodos + Consulta de Facturación|
 
-### 1.12.2 📊 28 Requisitos Funcionales Definidos
+### 1.12.2 📊 31 Requisitos Funcionales Definidos
 
-- **3 de Administración** 
-- **2 de Seguridad** 
-- **3 de Consultas** 
-- **2 de Historial** 
-- **6 de Integración** 
-- **5 de Operaciones Usuario
-- **7 de Reportería
+- **3 de Administración** (RF1-RF3)
+- **3 de Seguridad** (RF4-RF5, RF20)
+- **3 de Consultas** (RF6-RF7, RF28)
+- **2 de Historial** (RF8-RF9)
+- **6 de Integración** (RF10-RF15)
+- **5 de Operaciones Usuario** (RF16-RF20)
+- **7 de Reportería** (RF21-RF27)
+- **3 de Notificaciones** (RF29-RF31) 
 
 ## 1.13 🎯 Diferenciales del Proyecto
 
