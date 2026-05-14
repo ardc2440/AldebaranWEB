@@ -1,7 +1,8 @@
 ﻿# 1. REQUERIMIENTOS FUNCIONALES - Bonificación de Distribuidores
 
 **Identificador**: RQM_BonosDistribuidores_052026  
-**Cliente**: PROMOS | **Estado**: REQUERIMIENTOS DEFINIDOS | **Fecha**: 2026
+**Cliente**: PROMOS | **Estado**: REQUERIMIENTOS DEFINIDOS | **Fecha**: 2026  
+**Versión**: 1.4
 
 ---
 
@@ -16,7 +17,9 @@ Un **Caso de Uso** describe **UN FLUJO COMPLETO DE NEGOCIO** desde la perspectiv
   - Un distribuidor autenticado CONSULTA su bono dinámicamente
   - Es UN proceso completo: se autentica → consulta → ve bonos → cierra sesión
 
-**Total en este proyecto: 12 Casos de Uso (CU1 a CU12)**
+**Total en este proyecto: 13 Casos de Uso (CU0 a CU12)**
+
+**NOTA**: CU0 es un Caso de Uso **Prerequisito Transversal** - debe ejecutarse primero para que todos los demás casos de uso funcionen correctamente
 
 ### 1.1.2 ⚙️ ¿Qué es un REQUISITO FUNCIONAL (RF)?
 
@@ -28,7 +31,7 @@ Un **Requisito Funcional** describe **UNA CAPACIDAD ESPECÍFICA** que el sistema
   - El sistema DEBE retornar desglose por tipo de bono
   - El sistema DEBE mostrar gamificación
 
-**Total en este proyecto: 31 Requisitos Funcionales (RF1 a RF31)**
+**Total en este proyecto: 34 Requisitos Funcionales (RF1 a RF34)**
 
 ### 1.1.3 📊 Relación CU ↔ RF (Matriz de Trazabilidad)
 
@@ -46,9 +49,8 @@ Ejemplo:
 │ ├─ RF9: Gamificación (mostrar falta para siguiente nivel)   │
 │ ├─ RF11: Capturar Valor Facturado (TOTUS)                   │
 │ ├─ RF12: Capturar Valor Pedido                              │
-│ ├─ RF13: Capturar Valor Entregado                           │
-│ ├─ RF4: Autenticar Distribuidor (OTP)                       │
-│ └─ RF29: Notificaciones Gamificación (SMS/Email)            │
+│ ├─ RF4: Autenticar Distribuidor (OTP Email)                 │
+│ └─ RF29: Notificaciones Gamificación (Email)                │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -74,16 +76,17 @@ Ejemplo:
 
 | CU | Descripción | RF Críticos 🟢 | RF Complementarios 🟡 | RF Auditoría 🔵 |
 |---|---|---|---|---|
+| **CU0** | Configurar Tipo de Cliente - Distribuidor + Email de Bonificación | RF32, RF33 | - | RF8 |
 | **CU1** | Crear Período | RF1 | RF2, RF3 | RF8 |
 | **CU2** | Crear Tipo de Bono | RF2 | RF1, RF3 | RF8 |
-| **CU3** | Crear Vigencia | RF3, RF11 | RF1, RF2, RF12, RF13 | RF8, RF24 |
+| **CU3** | Crear Vigencia | RF3, RF11 | RF1, RF2, RF12 | RF8, RF24 |
 | **CU4** | Obtener Facturación (TOTUS) | RF11, RF14 | RF10 | RF8 |
-| **CU5** | Cargar Precios | RF10 | RF12, RF13 | RF8, RF24 |
+| **CU5** | Cargar Precios | RF10 | RF12 | RF8, RF24 |
 | **CU6** | Autenticar Distribuidor | RF4, RF5 | - | RF8 |
-| **CU7** | Consultar Bonificación (Actual) | RF6, RF11, RF12, RF13, RF9, RF29 | RF4, RF5, RF10, RF14 | RF8, RF21 |
+| **CU7** | Consultar Bonificación (Actual) | RF6, RF11, RF12, RF9, RF29 | RF4, RF5, RF10, RF14 | RF8, RF21 |
 | **CU8** | Consultar Histórico (Anterior) | RF28, RF14, RF15 | RF5 | RF8, RF21 |
-| **CU9** | Consultar Bono (Admin) | RF7, RF11, RF12, RF13 | RF1, RF2, RF3, RF14 | RF8, RF23, RF24 |
-| **CU10** | Cierre de Período (Automático) | RF7, RF11, RF12, RF13, RF14, RF15 | RF10, RF16-A, RF16-B | RF8, RF23 |
+| **CU9** | Consultar Bono (Admin) | RF7, RF11, RF12 | RF1, RF2, RF3, RF14 | RF8, RF23, RF24 |
+| **CU10** | Cierre de Período (Automático) | RF7, RF11, RF12, RF14, RF15 | RF10, RF16-A, RF16-B | RF8, RF23 |
 | **CU11** | Reconciliación NC (Manual) | RF15, RF17, RF18, RF19 | RF14 | RF8, RF22, RF23, RF25 |
 | **CU12** | Resolver Reclamación (Soporte) | RF8, RF21, RF22, RF23, RF24 | RF7 | RF20, RF25, RF26 |
 
@@ -91,9 +94,28 @@ Ejemplo:
 
 ### 1.3 Vista por Categoría de RF
 
-#### 1.3.1 🔧 **ADMINISTRACIÓN** (RF1-RF3)
+#### 1.3.1 🔧 **ADMINISTRACIÓN** (RF1-RF3, RF32-RF34)
 
 ```
+RF34 (Gestionar Descuento General de Distribuidor)
+├─ CU0 ━━━━ Configurar descuento general aplicable a TODOS los distribuidores (entrada principal)
+├─ CU7 ━━━ Usa descuento general en cálculo dinámico de Bono por Pedido
+├─ CU10 ━━ Usa descuento general en cierre automático de período
+├─ CU12 ━━ Admin ve descuento usado en análisis de reclamaciones
+└─ CU9 ━━━ Admin consulta descuento general configurado
+
+RF33 (Gestionar Email de Bonificación para Distribuidores)
+├─ CU0 ━━━━ Validar/configurar Email de Bonificación en distribuidores (entrada principal)
+├─ CU6 ━━━ Usar Email de Bonificación para enviar OTP
+├─ CU7 ━━━ Usar Email de Bonificación para notificaciones de gamificación
+└─ CU9 ━━━ Admin ve Email de Bonificación de cada distribuidor
+
+RF32 (Marcar/Identificar Customers como Distribuidores)
+├─ CU0 ━━━━ Marcar clientes tipo DISTRIBUIDOR (entrada principal)
+├─ CU6 ━━━ Validar que documento sea tipo DISTRIBUIDOR en OTP
+├─ CU7 ━━━ Filtra solo distribuidores en consultas de bonificación
+└─ CU9 ━━━ Admin solo consulta bonos de clientes tipo DISTRIBUIDOR
+
 RF1 (Gestionar Períodos)
 ├─ CU1 ━━━━ Crear período (entrada principal)
 ├─ CU9 ━━━ Consultar bonos por período
@@ -114,7 +136,7 @@ RF3 (Gestionar Vigencias)
 #### 1.3.2 🔐 **SEGURIDAD** (RF4, RF5, RF20)
 
 ```
-RF4 (Autenticar por OTP)
+RF4 (Autenticar por OTP - Email Interno)
 ├─ CU6 ━━━━ OTP Generation & Validation (entrada principal)
 └─ CU7 ━━━ Acceso al bono (requiere autenticación)
 
@@ -173,10 +195,11 @@ RF9 (Gamificación)
 
 ```
 RF10 (Cargar Precios)
-├─ CU5 ━━━━ Carga automática diaria (entrada principal)
-├─ CU7 ━━━ Usa precios históricos en cálculos
-├─ CU9 ━━━ Admin ve precios usados
-└─ CU24 ━━ Auditoría de precios
+├─ CU5 ━━━━ Carga automática diaria de PRECIOS UNITARIOS (entrada principal)
+├─ CU7 ━━━ Usa precios históricos en cálculos de bonos
+├─ CU9 ━━━ Admin ve precios usados en cálculos
+├─ RF34 ━ Usa DESCUENTO GENERAL de RF34 para cálculos
+└─ CU24 ━ Auditoría de precios
 
 RF11 (Capturar Facturación TOTUS)
 ├─ CU4 ━━━━ Obtiene de TOTUS (entrada principal)
@@ -188,11 +211,6 @@ RF12 (Capturar Valor Pedido)
 ├─ CU7 ━━━ Calcula Bono por Pedido (entrada principal)
 ├─ CU9 ━━━ Admin ve valor pedido
 └─ CU10 ━━ Cierre calcula con pedidos acumulados
-
-RF13 (Capturar Valor Entregado)
-├─ CU7 ━━━ Calcula Bono por Entregado (entrada principal)
-├─ CU9 ━━━ Admin ve valor entregado
-└─ CU10 ━━ Cierre calcula con entregas confirmadas
 
 RF14 (Gestionar NC Período Anterior)
 ├─ CU4 ━━━ Obtiene NC de TOTUS
@@ -277,23 +295,23 @@ RF27 (Exportación Reportes)
 
 ```
 RF29 (Notificación: Alcanzó Nuevo Nivel)
-├─ CU7 ━━━━ Envío automático SMS/Email al alcanzar nivel (entrada principal)
+├─ CU7 ━━━━ Envío automático Email al alcanzar nivel (entrada principal)
 ├─ Evento: Distribuidor sube de tramo (ej: $1M-$5M → $5M-$10M)
-├─ Canales: SMS + Email (configurable por distribuidor)
+├─ Canal: Email (configurable por distribuidor)
 └─ Auditoría: Registra envío exitoso/fallido + timestamp
 
 RF30 (Notificación: Cerca del Siguiente Nivel)
-├─ CU7 ━━━━ Envío automático SMS/Email si está a X% del siguiente nivel
+├─ CU7 ━━━━ Envío automático Email si está a X% del siguiente nivel
 ├─ Umbral: Configurable por Admin (default: 80%)
-├─ Canales: SMS + Email (configurable por distribuidor)
+├─ Canal: Email (configurable por distribuidor)
 ├─ Frecuencia: Máximo 1 notificación por día (evitar spam)
 └─ Auditoría: Registra envío exitoso/fallido + umbral usado
 
 RF31 (Recordatorio Periódico: Progreso de Bonificación)
-├─ CU7 ━━━━ Envío automático SMS/Email con resumen de progreso
+├─ CU7 ━━━━ Envío automático Email con resumen de progreso
 ├─ Frecuencia: Configurable por Admin (daily/weekly/monthly, default: weekly)
 ├─ Contenido: Bono actual, bono alcanzado, falta para siguiente nivel
-├─ Canales: SMS + Email (configurable por distribuidor)
+├─ Canal: Email (configurable por distribuidor)
 ├─ Auditoría: Registra envío exitoso/fallido + contenido enviado
 └─ Preferencias: Distribuidor puede desuscribirse de recordatorios
 ```
@@ -369,10 +387,9 @@ RF31 (Recordatorio Periódico: Progreso de Bonificación)
 - Dificultad para resolver reclamaciones (no hay auditoría del cálculo)
 
 ### 1.6.2 Objetivo
-Automatizar el cálculo de bonificaciones para distribuidores en la empresa PROMOS con tres modalidades:
+Automatizar el cálculo de bonificaciones para distribuidores en la empresa PROMOS con dos modalidades:
 - **Bonificación por Facturación**: Incentivo basado en valor total facturado en período (TOTUS)
 - **Bonificación por Pedido**: Incentivo basado en valor total pedido en período (Cantidad pedida × Precio)
-- **Bonificación por Entregado**: Incentivo basado en valor total entregado en período (Cantidad entregada × Precio)
 
 ### 1.6.3 Propuesta de Valor
 
@@ -496,7 +513,7 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 |-------|---------|---|
 | **DISTRIBUIDOR (No Autenticado)** | Página Promocional | Clic en botón/link "Ver mi bonificación" |
 | **DISTRIBUIDOR (No Autenticado)** | Sitio Público Aldebaran | Ingresa número documento |
-| | | Recibe OTP por SMS/Email (lifetime configurable) |
+| | | Recibe OTP por Email (lifetime configurable) |
 | | | Ingresa OTP (máx 3 intentos) |
 | **DISTRIBUIDOR (Autenticado)** | Sitio Público Aldebaran | Consultar bonos PERÍODO ACTUAL (RF6 - dinámico) |
 | | | Consultar bonos PERÍODOS ANTERIORES (RF6 - histórico) |
@@ -838,20 +855,20 @@ VALIDACIÓN REQUERIDA:
 
 **Información que necesita ingresar:**
 - Número de documento (cédula)
-- Código OTP recibido por SMS o Email
+- Código OTP recibido por Email
 
 **Información que valida:**
 - Documento existe en BD Aldebaran
 - Es tipo "DISTRIBUIDOR" (no otro tipo de cliente)
-- Tiene Email o Celular configurados
+- Tiene Email configurado
 
 **Información que genera:**
-- Código OTP de 6 dígitos único
+- Código OTP de 6 dígitos único (generado internamente por Aldebaran)
 - Token de sesión JWT
 
 **Acciones que puede realizar:**
-- Enviar OTP por SMS al celular del distribuidor
-- Enviar OTP por Email a direcciones configuradas
+- Generar código OTP internamente (sin terceros)
+- Enviar OTP por Email a dirección configurada
 - Permitir reintentos (máx 3 intentos)
 - Crear sesión con token JWT válido 8 horas
 - Invalidar OTP anterior si distribuidor solicita otro
@@ -861,32 +878,30 @@ VALIDACIÓN REQUERIDA:
 **Restricciones:**
 - OTP válido solo 10 minutos (configurable)
 - Máximo 3 intentos fallidos
-- No puede autenticar si no hay Email ni Celular
-- No puede guardar OTP en texto plano
+- No puede autenticar si no hay Email
+- No puede guardar OTP en texto plano (encriptado)
 - No puede permitir acceso sin validar OTP
 - No puede reutilizar OTP ya usado
 - Token expira después de 8 horas (configurable)
 
-**NOTA IMPORTANTE - Consideraciones de Costo:**
+**NOTA IMPORTANTE - OTP Interno:**
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│ OTP POR EMAIL vs OTP POR SMS:                                   │
+│ OTP GENERADO Y VALIDADO INTERNAMENTE POR ALDEBARAN              │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│ EMAIL (Recomendado - Sin Costos):                               │
-│ ✅ Proceso local de PROMOS                                      │
-│ ✅ NO requiere suscripción mensual                              │
-│ ✅ NO cargos por envío                                          │
+│ IMPLEMENTACIÓN:                                                 │
+│ ✅ OTP de 6 dígitos generado internamente (sin terceros)        │
+│ ✅ Validación interna de código OTP                             │
+│ ✅ Envío por Email via SMTP local de PROMOS                     │
+│ ✅ Sin suscripción mensual                                      │
+│ ✅ Sin cargos adicionales                                       │
 │                                                                 │
-│ SMS (Opcional - Costos Adicionales):                            │
-│ ⚠️  Requiere proveedor externo (ej: Masivian, Twilio)           │
-│ ⚠️  Suscripción mensual + Cargo por SMS enviado                 │
-│ ⚠️  Si PROMOS ya tiene proveedor SMS → Usar ese                 │
-│                                                                 │
-│ RECOMENDACIÓN:                                                  │
-│ └─ Fase 1: Solo Email (MVP sin costos adicionales)              │
-│ └─ Fase 2: SMS opcional (si distribuidores lo requieren)        │
+│ CONFIGURACIÓN:                                                  │
+│ └─ Usar infraestructura de email existente de PROMOS (SMTP)     │
+│ └─ OTP válido: 10 minutos (configurable)                        │
+│ └─ Máximo 3 intentos fallidos                                   │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -921,7 +936,6 @@ VALIDACIÓN REQUERIDA:
 **Información que calcula dinámicamente:**
 - Bono por Facturación: Base = Facturado - NC_Período - NC_Anterior; Bono = Base × % Vigencia
 - Bono por Pedido: Base = Suma órdenes; Bono = Base × % Vigencia
-- Bono por Entregado: Base = Suma entregas confirmadas; Bono = Base × % Vigencia
 - Gamificación: Diferencia entre acumulado actual y siguiente tramo
 
 **Acciones que puede realizar:**
@@ -929,7 +943,6 @@ VALIDACIÓN REQUERIDA:
 - **Ver desglose por tipo de bono** con diferentes niveles de detalle:
   - **Facturación**: Solo totales consolidados (limitación de TOTUS - no desglose)
   - **Pedido**: Desglose completo por orden, artículo, cantidad y precio
-  - **Entregado**: Desglose completo por entrega, artículo, cantidad y precio
 - Ver gamificación (falta para siguiente nivel)
 - Ver período actual y días transcurridos
 - Consultar múltiples veces (cada consulta recalcula)
@@ -944,14 +957,14 @@ VALIDACIÓN REQUERIDA:
 
 **Notificación: Alcanzó Nuevo Nivel**
 - **Cuándo:** Se dispara automáticamente cuando distribuidor sube de tramo en cualquier tipo de bono
-- **Canales:** SMS + Email (según preferencias)
+- **Canal:** Email
 - **Contenido:** "¡Felicidades! Alcanzaste un nuevo nivel de bonificación. Tu bono por [Tipo] es ahora [%]% sobre [base]. ¡Sigue adelante!"
 - **Restricción:** Máximo 1 notificación por distribuidor por tipo de bono en 24 horas
 - **Auditoría:** Registra envío exitoso/fallido + timestamp
 
 **Notificación: Está Cerca del Siguiente Nivel**
 - **Cuándo:** Job diario verificación (default: 6 AM UTC) si acumulado ≥ X% del siguiente tramo
-- **Canales:** SMS + Email (según preferencias)
+- **Canal:** Email
 - **Contenido:** "¡Casi lo logras! Estás a poco de alcanzar el siguiente nivel de bonificación en [Tipo de Bono]. Necesitas $[Monto Faltante] más. ¡Adelante!"
 - **Configuración Admin:** Umbral % (50-95%, default 80%), Frecuencia, Horario, Activo/Inactivo
 - **Restricción:** Máximo 1 notificación en 24 horas, anti-spam habilitado
@@ -959,11 +972,11 @@ VALIDACIÓN REQUERIDA:
 
 **Recordatorio Periódico: Progreso de Bonificación**
 - **Cuándo:** Job semanal (default: Lunes 8 AM UTC) o configurada por Admin
-- **Canales:** SMS (breve) + Email (detallado, según preferencias)
-- **Contenido Email:** Resumen completo de 3 bonos (Facturación, Pedido, Entregado) con acumulado, tramo, % completado, falta para siguiente
+- **Canal:** Email
+- **Contenido Email:** Resumen completo de 2 bonos (Facturación, Pedido) con acumulado, tramo, % completado, falta para siguiente
 - **Configuración Admin:** Frecuencia (Diaria/Semanal/Bisemanal/Mensual), Día/Hora, Activo/Inactivo
-- **Preferencias Distribuidor:** Puede desuscribirse, elegir canal preferido, establecer horario
-- **Restricción:** Solo si período está activo, distribuidor no está desuscrito, tiene Email/Celular
+- **Preferencias Distribuidor:** Puede desuscribirse, establecer horario
+- **Restricción:** Solo si período está activo, distribuidor no está desuscrito, tiene Email
 - **Auditoría:** Registra envío exitoso/fallido + contenido enviado
 
 **Restricciones:**
@@ -1054,7 +1067,6 @@ VALIDACIÓN REQUERIDA:
 **Información que retorna:**
 - Bono por Facturación (desglosado)
 - Bono por Pedido (desglosado)
-- Bono por Entregado (desglosado)
 - Total bonificación
 - Vigencia aplicada
 - Tramos usados
@@ -1220,8 +1232,8 @@ VALIDACIÓN REQUERIDA:
 
 1. **Historial de Consultas del Distribuidor**
    - Fecha y hora de cada consulta realizada en el período
-   - Bono mostrado en cada consulta (desglosado por tipo: Facturación, Pedido, Entregado)
-   - Acumulado de insumos en cada momento (Facturación, Pedidos, Entregas, OC Especiales)
+   - Bono mostrado en cada consulta (desglosado por tipo: Facturación, Pedido)
+   - Acumulado de insumos en cada momento (Facturación, Pedidos, OC Especiales)
 
 2. **Foto Final del Período**
    - Bono calculado al cierre del período (inmutable)
@@ -1493,7 +1505,7 @@ VALIDACIÓN REQUERIDA:
 | RF1 | Gestionar Períodos | Administración |
 | RF2 | Gestionar Tipos de Bono | Administración |
 | RF3 | Gestionar Vigencias | Administración |
-| RF4 | **Autenticar Distribuidor (OTP - SMS/Email)** | Seguridad |
+| RF4 | **Autenticar Distribuidor (OTP - Email Interno)** | Seguridad |
 | RF5 | Validar Seguridad: Solo distribuidor ve su información | Seguridad |
 | RF6 | Consultar Bonificación - Período Actual (Distribuidor - CU7) | Consultas |
 | RF7 | Consultar Bono Actual (Admin - Aldebaran.Web - CU9) | Consultas |
@@ -1502,7 +1514,6 @@ VALIDACIÓN REQUERIDA:
 | RF10 | Cargar Lista Precios Distribuidores | Integración |
 | RF11 | **Capturar Valor Facturado (TOTUS) - CON PARAMETRIZACIÓN OPCIONAL POR ARTÍCULO/REFERENCIA** | Integración |
 | RF12 | Capturar Valor Pedido (Aldebaran + Precios) | Integración |
-| RF13 | Capturar Valor Entregado (Aldebaran) | Integración |
 | RF14 | Gestionar Nota Crédito Período Anterior | Integración |
 | RF15 | Reconciliación Nota Crédito (TOTUS - Manual) | Integración |
 | RF16 | **Ingreso Manual de Órdenes de Compra Especiales (Unitario)** | Usuario PROMOS |
@@ -1518,9 +1529,9 @@ VALIDACIÓN REQUERIDA:
 | RF26 | Reporte: Ingresos Manuales Aplicados (OC + Reconciliaciones) | Reportería |
 | RF27 | Exportación de Reportes (Excel/PDF) | Reportería |
 | RF28 | Consultar Histórico de Bonos - Períodos Anteriores (Distribuidor - CU8) | Consultas |
-| RF29 | **Notificación: Alcanzó Nuevo Nivel de Bonificación (SMS/Email)** | Notificaciones |
-| RF30 | **Notificación: Cerca del Siguiente Nivel (SMS/Email - Umbral Configurable)** | Notificaciones |
-| RF31 | **Recordatorio Periódico: Progreso de Bonificación (SMS/Email)** | Notificaciones |
+| RF29 | **Notificación: Alcanzó Nuevo Nivel de Bonificación (Email)** | Notificaciones |
+| RF30 | **Notificación: Cerca del Siguiente Nivel (Email - Umbral Configurable)** | Notificaciones |
+| RF31 | **Recordatorio Periódico: Progreso de Bonificación (Email)** | Notificaciones |
 
 ---
 
@@ -1870,22 +1881,22 @@ Resultado final:
 
 ---
 
-### 1.11.6 Comparativa de los 3 Bonos
+### 1.11.5 Comparativa de los 2 Bonos
 
-| Aspecto | Facturación | Pedido | Entregado |
-|---------|---|---|---|
-| **Fuente** | TOTUS (tercero) | Aldebaran Órdenes | Aldebaran Entregas |
-| **Base** | Facturado - NC Período - NC Anterior + OC Esp. | Cantidad Pedida × Precio | Cantidad Entregada × Precio |
-| **Dinámico** | NO (se congela al cierre) | SÍ (recalcula cada consulta) | SÍ (recalcula cada consulta) |
-| **Descuentos NC** | SÍ (aplica NC) | NO | NO |
-| **OC Especiales** | SÍ (SOLO aquí) | NO | NO |
-| **Precio Usado** | N/A (de TOTUS) | Del día del pedido | Del día del pedido |
-| **Incentiva** | Facturar más | Pedir más | Entregar lo pedido |
-| **Ejemplo** | $100M facturado → $6M bono | $50M pedido → $2.5M bono | $45M entregado → $1.8M bono |
+| Aspecto | Facturación | Pedido |
+|---------|---|---|
+| **Fuente** | TOTUS (tercero) | Aldebaran Órdenes |
+| **Base** | Facturado - NC Período - NC Anterior + OC Esp. | Cantidad Pedida × Precio |
+| **Dinámico** | NO (se congela al cierre) | SÍ (recalcula cada consulta) |
+| **Descuentos NC** | SÍ (aplica NC) | NO |
+| **OC Especiales** | SÍ (SOLO aquí) | NO |
+| **Precio Usado** | N/A (de TOTUS) | Del día del pedido |
+| **Incentiva** | Facturar más | Pedir más |
+| **Ejemplo** | $100M facturado → $6M bono | $50M pedido → $2.5M bono |
 
 ---
 
-### 1.11.7 Resumen: BONO TOTAL = Facturación + Pedido + Entregado
+### 1.11.6 Resumen: BONO TOTAL = Facturación + Pedido
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -1894,23 +1905,18 @@ Resultado final:
 │                                                              │
 │ ✓ BONO POR FACTURACIÓN:                                      │
 │   Base: $95.5M (facturado menos NC + OC Especiales)          │
-│   Porcentaje: 60% (según vigencia)                           │
-│   BONO FACTURACIÓN: $57,300,000                              │
+│   Porcentaje: 6% (según vigencia)                            │
+│   BONO FACTURACIÓN: $5,730,000                               │
 │                                                              │
 │ ✓ BONO POR PEDIDO:                                           │
 │   Base: $18M (total pedido acumulado)                        │
 │   Porcentaje: 7% (según vigencia)                            │
 │   BONO PEDIDO: $1,260,000                                    │
 │                                                              │
-│ ✓ BONO POR ENTREGADO:                                        │
-│   Base: $6.6M (total entregado acumulado)                    │
-│   Porcentaje: 5% (según vigencia)                            │
-│   BONO ENTREGADO: $330,000                                   │
-│                                                              │
 ├──────────────────────────────────────────────────────────────┤
-│ ➜ BONO TOTAL = $57.3M + $1.26M + $0.33M = $58,890,000       │
+│ ➜ BONO TOTAL = $5.73M + $1.26M = $6,990,000                 │
 │                                                              │
-│ ➜ Se genera una NOTA CRÉDITO de $58.89M                     │
+│ ➜ Se genera una NOTA CRÉDITO de $6.99M                      │
 │   Para aplicar en período siguiente en TOTUS                 │
 │                                                              │
 └──────────────────────────────────────────────────────────────┘
@@ -1923,22 +1929,22 @@ Resultado final:
 | Funcionalidad | Descripción |
 |---|---|
 | **Consulta de Bonos** | Distribuidores ven bonos en tiempo real vía OTP (Sitio Público) |
-| **Tres Tipos de Bonos** | Facturación (TOTUS) + Pedido (Aldebaran) + Entregado (Entregas) |
+| **Dos Tipos de Bonos** | Facturación (TOTUS) + Pedido (Aldebaran) |
 | **Ingreso Manual** | OC Especiales + Reconciliación de NC (unitario o CSV masivo) |
 | **Seguridad** | OTP + Aislamiento de datos + Auditoría completa |
 | **Reportería** | 6 reportes + Exportación Excel/PDF |
 | **Automatización** | Descarga de precios + Cierre de períodos + Consulta de Facturación|
 
-### 1.12.2 📊 31 Requisitos Funcionales Definidos
+### 1.12.2 📊 34 Requisitos Funcionales Definidos
 
-- **3 de Administración** (RF1-RF3)
+- **6 de Administración** (RF1-RF3, RF32-RF34)
 - **3 de Seguridad** (RF4-RF5, RF20)
 - **3 de Consultas** (RF6-RF7, RF28)
 - **2 de Historial** (RF8-RF9)
 - **6 de Integración** (RF10-RF15)
 - **5 de Operaciones Usuario** (RF16-RF20)
 - **7 de Reportería** (RF21-RF27)
-- **3 de Notificaciones** (RF29-RF31) 
+- **3 de Notificaciones** (RF29-RF31)
 
 ## 1.13 🎯 Diferenciales del Proyecto
 
