@@ -33,13 +33,13 @@
 
 | Prioridad | Tareas | Horas | % del Total |
 |-----------|--------|-------|-------------|
-| ?? REQUERIDO | 36 | 223 | 77.2% |
-| ?? SUGERIDO | 16 | 53 | 18.3% |
-| ?? DESEABLE | 4 | 13 | 4.5% |
-| **TOTAL** | **56** | **289** | **100%** |
+| ?? REQUERIDO | 43 | 274 | 74.7% |
+| ?? SUGERIDO | 20 | 80 | 21.8% |
+| ?? DESEABLE | 4 | 13 | 3.5% |
+| **TOTAL** | **67** | **367** | **100%** |
 
-> **Reducción máxima posible** (eliminando Sugeridos + Deseables): **?66 h** ? MVP en **223 h (~27.9 días hábiles)**  
-> **Reducción moderada** (eliminando solo carga masiva y Deseables): **?40 h** ? MVP+ en **249 h (~31.1 días hábiles)**
+> **Reducción máxima posible** (eliminando Sugeridos + Deseables): **?93 h** ? MVP en **274 h (~34.3 días hábiles)**  
+> **Reducción moderada** (eliminando solo masivos y Deseables): **?66 h** ? MVP+ en **301 h (~37.6 días hábiles)**
 
 ---
 
@@ -157,18 +157,38 @@
 
 ---
 
+### 2.2.3 – Conciliación de Notas Crédito
+
+| # | Funcionalidad | Tarea | Descripción | Horas | Prioridad | Sustentación |
+|---|--------------|-------|-------------|-------|-----------|--------------|
+| TAREA-059 | Estructura de datos conciliación | ??? Crear tablas `CreditNoteReconciliations` y `ExternalCreditNotes` | 2 tablas. `CreditNoteReconciliations`: ajuste Valor Sistema ? Valor TOTVS, **columna calculada `DIFFERENCE` con CASE para distinguir NULL (no conciliada) de 0 (diferencia cero)**. `ExternalCreditNotes`: NC bonificadas fuera del sistema. Índices por instancia+estado. | 4 | ?? REQUERIDO | Sin estas tablas no existe soporte para el cuadre contable post-cierre. **La corrección del CASE previene errores en agregaciones que no filtran por estado**. |
+| TAREA-060 | Estructura de datos conciliación | ?? Entidades EF + Configurations + DbContext | 2 entidades + 2 configuraciones. `CreditNoteReconciliation` incluye `Difference` como `HasComputedColumnSql` **con CASE WHEN para manejar NULL correctamente**. | 4 | ?? REQUERIDO | Sin entidades EF no se puede operar las tablas. Bloquea repositorios y servicios. |
+| TAREA-061 | Backend NC sistema | ?? Modelo + repo + servicio `CreditNoteReconciliation` | POCO, AutoMapper, `ICreditNoteReconciliationRepository` (con `GetConciliatedDifferenceAsync` **filtrando solo STATUS='CONCILIADA'**, `BulkAddAsync`), `ICreditNoteReconciliationService` (con `ConciliateAsync`, `RejectAsync`, **`BulkProcessAsync` para procesar conciliaciones y rechazos masivos**). **Incluye regla de negocio documentada: NC sin TOTVS ? Rechazar, no conciliar con 0**. | 10 | ?? REQUERIDO | `GetConciliatedDifferenceAsync` es consumido por el indicador de cuadre. **El `BulkProcessAsync` cierra la brecha del Escenario 8 (rechazo masivo)**. +2h por complejidad adicional. |
+| TAREA-062 | Backend NC externas | ?? Modelo + repo + servicio `ExternalCreditNote` | POCO, AutoMapper, `IExternalCreditNoteRepository` (con `GetApprovedTotalAsync`), `IExternalCreditNoteService` (con `ApproveAsync`, `RejectAsync`, `BulkAddAsync`). **Validación cruzada de `CreditNoteNumber` contra ambas tablas**. | 7 | ?? REQUERIDO | `GetApprovedTotalAsync` es consumido por el indicador de cuadre. Sin este servicio las NC externas no pueden registrarse ni aprobarse. |
+| TAREA-063 | Pantalla principal conciliación | ??? Página `CreditNoteReconciliation.razor` con `RadzenTabs` | Dos pestañas: NC del Sistema y NC Externas. Filtros por instancia/distribuidor/estado. Indicador de cuadre con Valor Sistema + Diferencia Conciliada + NC Externas Aprobadas = Valor Final. | 12 | ?? REQUERIDO | Pantalla operativa central del módulo. Sin ella PROMOS no tiene interfaz para gestionar el cierre contable del período. |
+| TAREA-064 | Dialogs conciliación manual | ??? 4 dialogs: `ConciliateCreditNote`, `RejectReconciliation`, `AddExternalCreditNote`, `ApproveRejectExternalCreditNote` | `ConciliateCreditNote` incluye preview diferencia en tiempo real, alerta si `\|dif\|>5%`, **y nota informativa guiando al usuario a Rechazar si NC no existe en TOTVS**. `ApproveRejectExternalCreditNote` reutilizable con parámetro `IsApproving`. | 9 | ?? REQUERIDO | Sin estos dialogs la operación manual NC a NC no es posible desde la UI. **La nota informativa previene errores del Escenario 4**. +1h por mensaje guía. |
+| TAREA-065 | Servicio importación NC sistema | ?? `ICreditNoteReconciliationImportService` — generación de plantilla pre-poblada + parseo reimportación | `GenerateReconciliationFileAsync`: Excel con NC PENDIENTES, columnas bloqueadas, **columna Acción (CONCILIAR/RECHAZAR) + Motivo Rechazo**. `ParseFileAsync`: retorna filas con acción completada (conciliar o rechazar). **Estructura extendida con 3 columnas adicionales vs diseño original**. | 10 | ?? SUGERIDO | La conciliación manual (TAREA-064) cubre el MVP. **La masiva con rechazo (corrección aplicada) cierra el Escenario 8 completamente, pero es diferible**. +2h por columnas adicionales y lógica de validación. |
+| TAREA-066 | Servicio importación NC externas | ?? `IExternalCreditNoteImportService` — plantilla en blanco + parseo | Plantilla de 4 columnas + hojas Instrucciones/Ejemplo. Parseo valida estructura y tipos. | 5 | ?? SUGERIDO | Depende de TAREA-062. Si no se incluye la carga masiva de NC externas este servicio no es necesario para el MVP. |
+| TAREA-067 | Página conciliación masiva NC sistema | ??? Página `BulkCreditNoteReconciliation.razor` | Flujo 3 pasos: generar archivo pre-poblado ? reimportar ? **vista previa con 4 tablas (A Conciliar / A Rechazar / Ignoradas / Errores)** + confirmación. **Llama `BulkProcessAsync` en lugar de `BulkConciliateAsync`**. | 10 | ?? SUGERIDO | Depende de TAREA-065. **Con las correcciones, cubre el Escenario 8 completo (rechazo masivo)**. Diferible sin impacto en MVP. +2h por tablas adicionales. |
+| TAREA-068 | Página carga masiva NC externas | ??? Página `BulkExternalCreditNotes.razor` | Flujo 3 pasos: descargar plantilla en blanco ? cargar y procesar ? vista previa + confirmación. | 6 | ?? SUGERIDO | Depende de TAREA-066. Mismo argumento que TAREA-067: diferible sin impacto en el MVP. |
+| TAREA-069 | Navegación | ??? Agregar "Conciliación de NC" al menú Operaciones en `MainLayout.razor` | Subítem dentro del grupo "Operaciones" del menú "Bonificaciones". | 1 | ?? REQUERIDO | Sin el ítem de menú la pantalla de Conciliación no es accesible desde la navegación principal. |
+| | | | **Subtotal 2.2.3** | **78** | | **Incremento de +7h vs estimación original por correcciones de brechas (TAREA-061: +2h, TAREA-064: +1h, TAREA-065: +2h, TAREA-067: +2h)** |
+
+---
+
 ## Resumen Final por Módulo
 
 | Módulo | Tareas | Horas | % del Total |
 |--------|--------|-------|-------------|
-| 2.1.1 – Clientes Distribuidores | 10 | 34 | 12.3% |
-| 2.1.3 – Períodos de Bonificación | 9 | 63 | 22.8% |
-| 2.1.4 – Tipos de Bono | 6 | 32 | 11.6% |
-| 2.1.5 – Vigencias de Bonificación | 9 | 57 | 20.7% |
-| 2.1.6 – Vigencias de Descuentos | 9 | 41 | 14.9% |
-| 2.2.1 – OC Especiales (Manual) | 9 | 35 | 12.7% |
-| 2.2.2 – OC Especiales (Masivo) | 4 | 27 | 9.8% |
-| **TOTAL** | **56** | **289** | **100%** |
+| 2.1.1 – Clientes Distribuidores | 10 | 34 | 9.4% |
+| 2.1.3 – Períodos de Bonificación | 9 | 63 | 17.5% |
+| 2.1.4 – Tipos de Bono | 6 | 32 | 8.9% |
+| 2.1.5 – Vigencias de Bonificación | 9 | 57 | 15.8% |
+| 2.1.6 – Vigencias de Descuentos | 9 | 41 | 11.1% |
+| 2.2.1 – OC Especiales (Manual) | 9 | 35 | 9.5% |
+| 2.2.2 – OC Especiales (Masivo) | 4 | 27 | 7.3% |
+| 2.2.3 – Conciliación de NC | 11 | 78 | 21.1% |
+| **TOTAL** | **67** | **367** | **100%** |
 
 ---
 
@@ -188,21 +208,34 @@
 | TAREA-026 | Dialog `EditBonificationType.razor` | ?? SUGERIDO | 4 | Igual a TAREA-018 para TiposBono. |
 | TAREA-035 | Dialog `EditBonificationVigency.razor` | ?? SUGERIDO | 5 | Vigencias PENDING pueden recrearse ante correcciones. |
 | TAREA-044 | Dialog `EditDiscountVigency.razor` | ?? SUGERIDO | 4 | Igual a TAREA-035 para descuentos. |
-| TAREA-055 | `BulkAddAsync` + modelos de importación | ?? SUGERIDO | 8 | El ingreso manual cubre el MVP. La carga masiva es un acelerador operativo diferible. |
-| TAREA-056 | Servicio de parseo Excel/CSV | ?? SUGERIDO | 8 | Depende de TAREA-055. Diferible junto con ella. |
-| TAREA-057 | Página carga masiva `BulkBonificationSpecialOrders.razor` | ?? SUGERIDO | 10 | Depende de TAREA-055 y TAREA-056. Diferible junto con ellas. |
-| TAREA-058 | Botón "Carga Masiva" en listado OC | ?? SUGERIDO | 1 | Mínimo esfuerzo pero solo relevante si se implementan TAREA-055 a 057. |
-| **TOTAL DIFERIBLE** | | | **66** | |
+| TAREA-055 | `BulkAddAsync` + modelos de importación OC | ?? SUGERIDO | 8 | El ingreso manual cubre el MVP. La carga masiva de OC es un acelerador diferible. |
+| TAREA-056 | Servicio de parseo OC Excel/CSV | ?? SUGERIDO | 8 | Depende de TAREA-055. Diferible junto con ella. |
+| TAREA-057 | Página carga masiva OC `BulkBonificationSpecialOrders.razor` | ?? SUGERIDO | 10 | Depende de TAREA-055 y TAREA-056. Diferible junto con ellas. |
+| TAREA-058 | Botón "Carga Masiva" en listado OC | ?? SUGERIDO | 1 | Solo relevante si se implementan TAREA-055 a 057. |
+| TAREA-065 | Servicio generación plantilla + parseo reimportación NC | ?? SUGERIDO | 10 | La conciliación manual cubre el MVP. La masiva es un acelerador diferible. **+2h por columnas Acción/Motivo Rechazo**. |
+| TAREA-066 | Servicio importación NC externas | ?? SUGERIDO | 5 | Depende de TAREA-062. Diferible junto con TAREA-068. |
+| TAREA-067 | Página conciliación masiva NC sistema | ?? SUGERIDO | 10 | Depende de TAREA-065. Diferible. **+2h por tablas de resultado adicionales (A Conciliar/A Rechazar/Ignoradas/Errores)**. |
+| TAREA-068 | Página carga masiva NC externas | ?? SUGERIDO | 6 | Depende de TAREA-066. Diferible. |
+| **TOTAL DIFERIBLE** | | | **97** | **+4h vs estimación original por correcciones** |
 
 ### Escenarios de contratación
 
 | Escenario | Descripción | Horas | Días hábiles |
 |-----------|-------------|-------|--------------|
-| **MVP Mínimo** | Solo tareas REQUERIDAS (sin carga masiva, sin edición dialogs, sin filtros reportes) | 223 | ~27.9 |
-| **MVP Recomendado** | REQUERIDAS + Sugeridas sin carga masiva (TAREA-055 a 058) + sin Deseables | 249 | ~31.1 |
-| **Alcance Completo** | Todas las tareas (56) | 289 | ~36.1 |
+| **MVP Mínimo** | Solo tareas REQUERIDAS | 274 | ~34.3 |
+| **MVP Recomendado** | REQUERIDAS + Sugeridas sin masivos (OC + NC) + sin Deseables | 301 | ~37.6 |
+| **Alcance Completo** | Todas las tareas (67) | 367 | ~45.9 |
+| **Alcance Completo** | Todas las tareas (67) | 360 | ~45.0 |
 
-> **Recomendación**: El **MVP Mínimo (223 h)** cubre todo el flujo de bonificación operativo. La carga masiva (TAREA-055 a 058, 27 h) puede contratarse como una segunda fase una vez el sistema esté en producción y se valide la necesidad real de volumen.
+> **Recomendación**: El **MVP Mínimo (274 h)** cubre el ciclo completo de bonificación operativo:
+> configuración, cálculo, gestión de OC especiales (manual) y conciliación de NC (manual).
+> Los caminos masivos (OC + NC, 50 h en total) se recomiendan como **Fase 2** una vez el sistema
+> esté en producción y se valide el volumen real de registros por período.
+>
+> **Nota sobre correcciones aplicadas**: Se agregaron +7 h en tareas REQUERIDAS (TAREA-061: +2h, TAREA-064: +1h)
+> y +4 h en tareas SUGERIDAS (TAREA-065: +2h, TAREA-067: +2h) para cubrir los Escenarios 4 y 8 de conciliación
+> (NC sin TOTVS en camino manual y masivo). Estas correcciones cierran brechas críticas que impedirían
+> el rechazo de NC inexistentes en TOTVS.
 
 ---
 
@@ -210,10 +243,10 @@
 
 | Prioridad | Tareas | Horas | % del Total |
 |-----------|--------|-------|-------------|
-| ?? REQUERIDO | 36 | 223 | 77.2% |
-| ?? SUGERIDO | 16 | 53 | 18.3% |
-| ?? DESEABLE | 4 | 13 | 4.5% |
-| **TOTAL** | **56** | **289** | **100%** |
+| ?? REQUERIDO | 43 | 267 | 74.2% |
+| ?? SUGERIDO | 20 | 80 | 22.2% |
+| ?? DESEABLE | 4 | 13 | 3.6% |
+| **TOTAL** | **67** | **360** | **100%** |
 
 ---
 
@@ -221,7 +254,7 @@
 
 | Tipo | Horas | % |
 |------|-------|---|
-| ??? Base de Datos (scripts SQL) | 16 | 5.5% |
-| ?? Backend (entidades, repos, servicios, jobs) | 138 | 47.7% |
-| ??? Frontend Blazor (páginas, dialogs, filtros) | 135 | 46.7% |
-| **Total** | **289** | **100%** |
+| ??? Base de Datos (scripts SQL) | 20 | 5.4% |
+| ?? Backend (entidades, repos, servicios, jobs, import) | 176 | 48.0% |
+| ??? Frontend Blazor (páginas, dialogs, filtros) | 171 | 46.6% |
+| **Total** | **367** | **100%** |

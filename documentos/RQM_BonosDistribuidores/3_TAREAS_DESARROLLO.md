@@ -2026,9 +2026,685 @@ services.AddTransient<IBonificationSpecialOrderImportService, BonificationSpecia
 | `BonificationSpecialOrderService.cs` | 055 | Modificar (`BulkAddAsync`) |
 | `ArchitectureBuilderExtensions.cs` | 056 | Modificar |
 | `Pages\BonificationPages\BulkBonificationSpecialOrders.razor` | 057 | Nuevo |
-| `Pages\BonificationPages\BulkBonificationSpecialOrders.razor.cs` | 057 | Nuevo |
-| `Pages\BonificationPages\BonificationSpecialOrders.razor` | 058 | Modificar |
 
 ---
 
-Después de aplicar estas tareas, el sistema contará con un módulo completo de gestión de bonificaciones para distribuidores, que incluye la configuración de clientes distribuidores, la gestión de períodos y tipos de bonificación, la definición de rangos de bonificación y vigencias de descuento, así como la gestión de órdenes de compra especiales, todo ello con las validaciones y la lógica de negocio necesarias para su correcto funcionamiento.
+> ? **Con TAREA-046 a TAREA-058 queda cubierto el módulo completo de Gestión de OC Especiales,**
+> con soporte para ingreso **manual** (una a una) y **masivo** (archivo Excel/CSV).
+> Todas las OC pasan por el mismo flujo de aprobación/rechazo y se integran al cálculo del
+> Bono por Facturación mediante `GetApprovedTotalAsync`.
+
+---
+
+### 2.2.3 Conciliación de Notas Crédito (período cerrado)
+
+> Ref. propuesta funcional: módulo de Operaciones — Conciliación post-cierre.
+>
+> Una vez que un `BonificationPeriodInstance` pasa a estado `CLOSED`, el sistema genera una **foto congelada**
+> del Bono calculado. Sin embargo, PROMOS debe conciliar esos valores contra la información real
+> de **TOTVS** (el ERP), ya que pueden existir:
+>
+> - **NC conciliadas**: NC que el sistema ya conoce (generadas en el proceso de cálculo)
+>   y a las que solo se ajusta el valor real confirmado en TOTVS.
+> - **NC externas**: NC bonificadas **fuera del sistema** (acuerdos directos, ajustes manuales
+>   en TOTVS) que deben registrarse para que el cuadre quede completo.
+>
+> **Tres caminos de operación:**
+> 1. **Conciliación Manual** — Registro y ajuste NC a NC desde la interfaz (TAREA-063 a TAREA-064)
+> 2. **Conciliación Masiva** — Exportar plantilla pre-poblada con las NC del sistema ? usuario
+>    completa valores reales en TOTVS ? reimporta el archivo ajustado (TAREA-065 a TAREA-067)
+> 3. **NC Externas** — Registro de NC bonificadas fuera del sistema, con su propio flujo de
+>    aprobación, manual y masivo (TAREA-062 a TAREA-064 + TAREA-066 + TAREA-068)
+>
+> **El período debe estar en estado `CLOSED`** para que cualquier conciliación sea posible.
+
+---
+
+**Modelo conceptual:**
+
+```
+BonificationPeriodInstance (CLOSED)
+    ??? CreditNoteReconciliations          ? NC que el sistema conoce (ajuste de valor)
+    ?     ??? NC-001  Valor Sistema: $500,000  ?  Valor TOTVS: $480,000  (CONCILIADA)
+    ?     ??? NC-002  Valor Sistema: $300,000  ?  Valor TOTVS: (pendiente) (PENDIENTE)
+    ?     ??? NC-003  Valor Sistema: $150,000  ?  Rechazada con motivo    (RECHAZADA)
+    ?
+    ??? ExternalCreditNotes               ? NC bonificadas fuera del sistema
+          ??? NC-EXT-001  Valor: $200,000  (APROBADA)
+          ??? NC-EXT-002  Valor: $100,000  (PENDIENTE)
+```
+
+**Indicador de cuadre:**
+`Valor Cuadre Final = Valor Sistema + Diferencia Conciliada + NC Externas Aprobadas`
+
+| Aspecto | NC Conciliada | NC Externa |
+|---------|--------------|------------|
+| Origen | Proceso de cálculo del sistema | Acuerdo fuera del sistema |
+| Acción | Ajustar valor Sistema ? valor real TOTVS | Registrar desde cero |
+| Impacto en cuadre | Diferencia (Sistema ? TOTVS) | Valor completo |
+| Requiere aprobación | Sí (si ajuste > umbral configurable) | Siempre |
+
+---
+
+#### TAREA-059 ? ???
+**Crear tablas `CreditNoteReconciliations` y `ExternalCreditNotes`**
+
+**Script SQL a crear:** `scripts/CreateCreditNoteReconciliationTables.sql`
+
+```sql
+-- NC que el sistema conoce: se ajusta Valor Sistema ? Valor TOTVS
+CREATE TABLE dbo.CreditNoteReconciliations (
+    RECONCILIATION_ID                INT             NOT NULL IDENTITY(1,1),
+    BONIFICATION_PERIOD_INSTANCE_ID  INT             NOT NULL,
+    CUSTOMER_ID                      INT             NOT NULL,
+    CREDIT_NOTE_NUMBER               VARCHAR(50)     NOT NULL,
+    SYSTEM_AMOUNT                    DECIMAL(18,2)   NOT NULL,
+    TOTVS_AMOUNT                     DECIMAL(18,2)   NULL,
+    -- ?? CORRECCIÓN: NULL significa "no conciliada aún", 0 significa "diferencia real de cero"
+    DIFFERENCE                       AS (
+        CASE WHEN TOTVS_AMOUNT IS NOT NULL 
+             THEN TOTVS_AMOUNT - SYSTEM_AMOUNT 
+             ELSE NULL 
+        END
+    ) PERSISTED,
+    STATUS                           VARCHAR(20)     NOT NULL DEFAULT 'PENDIENTE',
+    NOTES                            VARCHAR(500)    NULL,
+    CREATED_BY                       INT             NOT NULL,
+    CREATED_AT                       DATETIME        NOT NULL DEFAULT GETUTCDATE(),
+    REVIEWED_BY                      INT             NULL,
+    REVIEWED_AT                      DATETIME        NULL,
+    REJECTION_REASON                 VARCHAR(500)    NULL,
+    CONSTRAINT PK_CREDIT_NOTE_RECONCILIATION  PRIMARY KEY CLUSTERED (RECONCILIATION_ID),
+    CONSTRAINT UQ_CREDIT_NOTE_RECONCILIATION  UNIQUE (BONIFICATION_PERIOD_INSTANCE_ID, CREDIT_NOTE_NUMBER),
+    CONSTRAINT FK_RECONCILIATION_INSTANCE     FOREIGN KEY (BONIFICATION_PERIOD_INSTANCE_ID)
+        REFERENCES dbo.BonificationPeriodInstances (BONIFICATION_PERIOD_INSTANCE_ID),
+    CONSTRAINT FK_RECONCILIATION_CUSTOMER     FOREIGN KEY (CUSTOMER_ID)
+        REFERENCES dbo.Customers (CUSTOMER_ID),
+    CONSTRAINT CK_RECONCILIATION_STATUS       CHECK (STATUS IN ('PENDIENTE','CONCILIADA','RECHAZADA')),
+    CONSTRAINT CK_RECONCILIATION_TOTVS        CHECK (TOTVS_AMOUNT IS NULL OR TOTVS_AMOUNT >= 0)
+);
+CREATE NONCLUSTERED INDEX IX_RECONCILIATION_INSTANCE_STATUS
+    ON dbo.CreditNoteReconciliations (BONIFICATION_PERIOD_INSTANCE_ID, STATUS);
+
+-- NC bonificadas fuera del sistema
+CREATE TABLE dbo.ExternalCreditNotes (
+    EXTERNAL_CREDIT_NOTE_ID          INT             NOT NULL IDENTITY(1,1),
+    BONIFICATION_PERIOD_INSTANCE_ID  INT             NOT NULL,
+    CUSTOMER_ID                      INT             NOT NULL,
+    CREDIT_NOTE_NUMBER               VARCHAR(50)     NOT NULL,
+    AMOUNT                           DECIMAL(18,2)   NOT NULL,
+    DESCRIPTION                      VARCHAR(500)    NOT NULL,
+    STATUS                           VARCHAR(20)     NOT NULL DEFAULT 'PENDIENTE',
+    CREATED_BY                       INT             NOT NULL,
+    CREATED_AT                       DATETIME        NOT NULL DEFAULT GETUTCDATE(),
+    REVIEWED_BY                      INT             NULL,
+    REVIEWED_AT                      DATETIME        NULL,
+    REJECTION_REASON                 VARCHAR(500)    NULL,
+    CONSTRAINT PK_EXTERNAL_CREDIT_NOTE   PRIMARY KEY CLUSTERED (EXTERNAL_CREDIT_NOTE_ID),
+    CONSTRAINT UQ_EXTERNAL_CREDIT_NOTE   UNIQUE (BONIFICATION_PERIOD_INSTANCE_ID, CREDIT_NOTE_NUMBER),
+    CONSTRAINT FK_EXTERNAL_CN_INSTANCE   FOREIGN KEY (BONIFICATION_PERIOD_INSTANCE_ID)
+        REFERENCES dbo.BonificationPeriodInstances (BONIFICATION_PERIOD_INSTANCE_ID),
+    CONSTRAINT FK_EXTERNAL_CN_CUSTOMER   FOREIGN KEY (CUSTOMER_ID)
+        REFERENCES dbo.Customers (CUSTOMER_ID),
+    CONSTRAINT CK_EXTERNAL_CN_STATUS     CHECK (STATUS IN ('PENDIENTE','APROBADA','RECHAZADA')),
+    CONSTRAINT CK_EXTERNAL_CN_AMOUNT     CHECK (AMOUNT >= 0)
+);
+CREATE NONCLUSTERED INDEX IX_EXTERNAL_CN_INSTANCE_STATUS
+    ON dbo.ExternalCreditNotes (BONIFICATION_PERIOD_INSTANCE_ID, STATUS);
+```
+
+---
+
+#### TAREA-060 ? ??
+**Crear entidades EF: `CreditNoteReconciliation` y `ExternalCreditNote`**
+
+**Archivos a crear:**
+
+- `Aldebaran.DataAccess\Entities\CreditNoteReconciliation.cs`
+  ```csharp
+  public class CreditNoteReconciliation
+  {
+      public int ReconciliationId { get; set; }
+      public int BonificationPeriodInstanceId { get; set; }
+      public int CustomerId { get; set; }
+      public string CreditNoteNumber { get; set; }
+      public decimal SystemAmount { get; set; }
+      public decimal? TotvsAmount { get; set; }
+      public decimal? Difference { get; set; }   // columna calculada — solo lectura
+      public string Status { get; set; }          // PENDIENTE | CONCILIADA | RECHAZADA
+      public string Notes { get; set; }
+      public int CreatedBy { get; set; }
+      public DateTime CreatedAt { get; set; }
+      public int? ReviewedBy { get; set; }
+      public DateTime? ReviewedAt { get; set; }
+      public string RejectionReason { get; set; }
+
+      public BonificationPeriodInstance PeriodInstance { get; set; }
+      public Customer Customer { get; set; }
+  }
+  ```
+
+- `Aldebaran.DataAccess\Entities\ExternalCreditNote.cs`
+  ```csharp
+  public class ExternalCreditNote
+  {
+      public int ExternalCreditNoteId { get; set; }
+      public int BonificationPeriodInstanceId { get; set; }
+      public int CustomerId { get; set; }
+      public string CreditNoteNumber { get; set; }
+      public decimal Amount { get; set; }
+      public string Description { get; set; }
+      public string Status { get; set; }          // PENDIENTE | APROBADA | RECHAZADA
+      public int CreatedBy { get; set; }
+      public DateTime CreatedAt { get; set; }
+      public int? ReviewedBy { get; set; }
+      public DateTime? ReviewedAt { get; set; }
+      public string RejectionReason { get; set; }
+
+      public BonificationPeriodInstance PeriodInstance { get; set; }
+      public Customer Customer { get; set; }
+  }
+  ```
+
+- `Aldebaran.DataAccess\Configuration\CreditNoteReconciliationConfiguration.cs`
+  - ?? **CORRECCIÓN**: `Difference` ? `HasComputedColumnSql("CASE WHEN TOTVS_AMOUNT IS NOT NULL THEN TOTVS_AMOUNT - SYSTEM_AMOUNT ELSE NULL END", stored: true)`
+- `Aldebaran.DataAccess\Configuration\ExternalCreditNoteConfiguration.cs`
+
+**Modificar `AldebaranDbContext.cs`:**
+```csharp
+public DbSet<CreditNoteReconciliation> CreditNoteReconciliations { get; set; }
+public DbSet<ExternalCreditNote> ExternalCreditNotes { get; set; }
+```
+
+---
+
+#### TAREA-061 ? ??
+**Crear modelos, repositorio y servicio para `CreditNoteReconciliation`**
+
+**Archivos a crear:**
+- `Models\CreditNoteReconciliation.cs` — POCO puro + mapping AutoMapper
+- `ICreditNoteReconciliationRepository.cs`
+  ```csharp
+  public interface ICreditNoteReconciliationRepository
+  {
+      Task AddAsync(CreditNoteReconciliation item, CancellationToken ct = default);
+      Task UpdateAsync(int id, CreditNoteReconciliation item, CancellationToken ct = default);
+      Task<CreditNoteReconciliation?> FindAsync(int id, CancellationToken ct = default);
+      Task<(IEnumerable<CreditNoteReconciliation>, int)> GetByInstanceAsync(
+          int periodInstanceId, string? status, int? skip, int? top, CancellationToken ct = default);
+      /// <summary>
+      /// ?? CORRECCIÓN: Solo suma NC CONCILIADAS (excluye PENDIENTE y RECHAZADA).
+      /// Implementación: SUM(TOTVS_AMOUNT - SYSTEM_AMOUNT) WHERE STATUS = 'CONCILIADA'
+      /// </summary>
+      Task<decimal> GetConciliatedDifferenceAsync(int periodInstanceId, CancellationToken ct = default);
+      Task UpdateStatusAsync(int id, string newStatus, int reviewedBy, DateTime reviewedAt,
+          decimal? totvsAmount, string? rejectionReason, CancellationToken ct = default);
+      Task<int> BulkAddAsync(IEnumerable<CreditNoteReconciliation> items, CancellationToken ct = default);
+  }
+  ```
+- `ICreditNoteReconciliationService.cs`
+  ```csharp
+  public interface ICreditNoteReconciliationService
+  {
+      Task AddAsync(CreditNoteReconciliation item, CancellationToken ct = default);
+      Task ConciliateAsync(int id, decimal totvsAmount, int reviewedBy, CancellationToken ct = default);
+      Task RejectAsync(int id, int reviewedBy, string rejectionReason, CancellationToken ct = default);
+      Task<CreditNoteReconciliation?> FindAsync(int id, CancellationToken ct = default);
+      Task<(IEnumerable<CreditNoteReconciliation>, int)> GetByInstanceAsync(
+          int periodInstanceId, string? status, int? skip, int? top, CancellationToken ct = default);
+      Task<decimal> GetConciliatedDifferenceAsync(int periodInstanceId, CancellationToken ct = default);
+      /// <summary>
+      /// ?? CORRECCIÓN: Procesa conciliaciones Y rechazos en una sola transacción (reemplaza BulkConciliateAsync).
+      /// </summary>
+      Task<BulkReconciliationResult> BulkProcessAsync(
+          IEnumerable<ReconciliationImportRow> rows, int reviewedBy, CancellationToken ct = default);
+  }
+  ```
+
+**Validaciones de negocio:**
+- Solo se puede operar si la instancia está `CLOSED`
+- Solo se puede conciliar/rechazar si la NC está `PENDIENTE`
+- `TotvsAmount >= 0` (se permite `0` para NC reconocidas en TOTVS con valor cero)
+- **?? DECISIÓN DE NEGOCIO**: Si la NC **no existe en TOTVS** ? usar **Rechazar**, no conciliar con `TotvsAmount = 0`. El dialog `ConciliateCreditNote` debe incluir nota informativa: _"Si la NC no existe en TOTVS, use Rechazar en lugar de ingresar valor cero."_
+- `RejectionReason` obligatoria al rechazar (mín. 10 chars)
+- No se puede modificar una NC en estado `CONCILIADA` o `RECHAZADA`
+
+---
+
+#### TAREA-062 ? ??
+**Crear modelos, repositorio y servicio para `ExternalCreditNote`**
+
+**Archivos a crear:**
+- `Models\ExternalCreditNote.cs` — POCO puro + mapping AutoMapper
+- `IExternalCreditNoteRepository.cs`
+  ```csharp
+  public interface IExternalCreditNoteRepository
+  {
+      Task AddAsync(ExternalCreditNote item, CancellationToken ct = default);
+      Task<ExternalCreditNote?> FindAsync(int id, CancellationToken ct = default);
+      Task<(IEnumerable<ExternalCreditNote>, int)> GetByInstanceAsync(
+          int periodInstanceId, string? status, int? skip, int? top, CancellationToken ct = default);
+      Task<decimal> GetApprovedTotalAsync(int periodInstanceId, CancellationToken ct = default);
+      Task UpdateStatusAsync(int id, string newStatus, int reviewedBy, DateTime reviewedAt,
+          string? rejectionReason, CancellationToken ct = default);
+      Task<int> BulkAddAsync(IEnumerable<ExternalCreditNote> items, CancellationToken ct = default);
+  }
+  ```
+- `IExternalCreditNoteService.cs`
+  ```csharp
+  public interface IExternalCreditNoteService
+  {
+      Task AddAsync(ExternalCreditNote item, CancellationToken ct = default);
+      Task ApproveAsync(int id, int reviewedBy, CancellationToken ct = default);
+      Task RejectAsync(int id, int reviewedBy, string rejectionReason, CancellationToken ct = default);
+      Task<ExternalCreditNote?> FindAsync(int id, CancellationToken ct = default);
+      Task<(IEnumerable<ExternalCreditNote>, int)> GetByInstanceAsync(
+          int periodInstanceId, string? status, int? skip, int? top, CancellationToken ct = default);
+      Task<decimal> GetApprovedTotalAsync(int periodInstanceId, CancellationToken ct = default);
+      Task<BulkExternalCNResult> BulkAddAsync(
+          IEnumerable<ExternalCNImportRow> rows, int createdBy, CancellationToken ct = default);
+  }
+  ```
+
+**Validaciones de negocio:**
+- Solo se puede agregar si la instancia está `CLOSED`
+- `CreditNoteNumber` único dentro del período (valida contra ambas tablas)
+- `Amount >= 0`, `Description` mín. 10 chars
+- Nacen en estado `PENDIENTE`
+
+**Modificar `ArchitectureBuilderExtensions.cs`:**
+```csharp
+services.AddTransient<ICreditNoteReconciliationRepository, CreditNoteReconciliationRepository>();
+services.AddTransient<ICreditNoteReconciliationService, CreditNoteReconciliationService>();
+services.AddTransient<IExternalCreditNoteRepository, ExternalCreditNoteRepository>();
+services.AddTransient<IExternalCreditNoteService, ExternalCreditNoteService>();
+```
+
+---
+
+#### TAREA-063 ? ???
+**Crear página principal `CreditNoteReconciliation.razor` + `.razor.cs`**
+
+**Ruta:** `Pages\BonificationPages\CreditNoteReconciliation.razor`
+**URL:** `/bonification/reconciliation`
+**Rol requerido:** `Administrador`, `Ingreso de OC especiales de bonificación`
+
+**Estructura:**
+- Título: "Conciliación de Notas Crédito"
+- Filtros: **Instancia de Período** (solo `CLOSED`) | **Distribuidor** | **Estado** | Botón "Buscar"
+
+**Dos pestañas (`RadzenTabs`):**
+
+**Pestaña 1 — "NC del Sistema":**
+
+| Columna | Detalle |
+|---------|---------|
+| Número NC | `CreditNoteNumber` |
+| Distribuidor | `Customer.CustomerName` |
+| Valor Sistema | `SystemAmount` |
+| Valor TOTVS | `TotvsAmount` o "Pendiente" |
+| Diferencia | `Difference` (verde=0 / rojo?0 / naranja si `\|dif\|>5%`) |
+| Estado | ?? PENDIENTE / ?? CONCILIADA / ?? RECHAZADA |
+| Acciones | Conciliar / Rechazar (solo PENDIENTE) |
+
+- Botón: "Conciliación Masiva" ? navega a `/bonification/reconciliation/bulk`
+
+**Pestaña 2 — "NC Externas":**
+
+| Columna | Detalle |
+|---------|---------|
+| Número NC | `CreditNoteNumber` |
+| Distribuidor | `Customer.CustomerName` |
+| Valor | `Amount` |
+| Descripción | truncada 60 chars + tooltip |
+| Estado | ?? PENDIENTE / ?? APROBADA / ?? RECHAZADA |
+| Acciones | Aprobar / Rechazar (solo PENDIENTE) |
+
+- Botones: "Nueva NC Externa" | "Carga Masiva NC Externas" ? navega a `/bonification/reconciliation/external/bulk`
+
+**Indicador de cuadre** (se actualiza al seleccionar instancia):
+```
+Valor Sistema Total:    $X,XXX,XXX
+Diferencia Conciliada:  $±X,XXX
+NC Externas Aprobadas:  $X,XXX
+??????????????????????????????????
+Valor Cuadre Final:     $X,XXX,XXX
+```
+
+---
+
+#### TAREA-064 ? ???
+**Crear 4 dialogs de conciliación manual**
+
+**1. `ConciliateCreditNote.razor` + `.razor.cs`** — Conciliar NC del sistema
+- Muestra: Número NC, Distribuidor, Valor Sistema
+- Campo editable: **Valor TOTVS** (`RadzenNumeric`, obligatorio, `>= 0`)
+- Campo opcional: **Notas**
+- Preview en tiempo real: `Diferencia = TotvsAmount ? SystemAmount`
+- Alerta naranja si `|Diferencia| > 5%` del valor sistema
+- **?? NOTA INFORMATIVA**: _"Si esta NC **no existe en TOTVS**, use el botón **Rechazar** en lugar de ingresar valor cero. Valor cero solo debe usarse cuando TOTVS reconoce la NC con monto $0."_
+- Al confirmar ? `CreditNoteReconciliationService.ConciliateAsync`
+
+**2. `RejectReconciliation.razor` + `.razor.cs`** — Rechazar NC del sistema
+- Motivo obligatorio (`RadzenTextArea`, mín. 10 chars, máx. 500)
+- Al confirmar ? `CreditNoteReconciliationService.RejectAsync`
+
+**3. `AddExternalCreditNote.razor` + `.razor.cs`** — Nueva NC externa
+- Distribuidor + Número NC + Valor + Descripción/Justificación obligatoria
+- Nota: "Quedará en estado PENDIENTE hasta aprobación."
+- Al guardar ? `ExternalCreditNoteService.AddAsync`
+
+**4. `ApproveRejectExternalCreditNote.razor` + `.razor.cs`** — Aprobar o rechazar NC externa
+- Modo Aprobar: resumen + confirmación
+- Modo Rechazar: resumen + motivo obligatorio
+- Parámetro `bool IsApproving` para reutilizar el componente
+
+---
+
+#### TAREA-065 ? ??
+**Crear `ICreditNoteReconciliationImportService` — plantilla pre-poblada + reimportación**
+
+> **Flujo diferenciador vs carga masiva de OC:**
+> El archivo que se exporta **ya viene con los datos del sistema** (NC, distribuidor, valor sistema).
+> El usuario **solo completa** la columna `Valor TOTVS`. Las filas sin ese valor son ignoradas.
+
+**Archivos a crear:**
+- `ICreditNoteReconciliationImportService.cs`
+  ```csharp
+  public interface ICreditNoteReconciliationImportService
+  {
+      /// <summary>
+      /// Genera Excel pre-poblado con las NC PENDIENTES de la instancia.
+      /// ?? CORRECCIÓN: Incluye columnas de Acción (CONCILIAR/RECHAZAR) y Motivo Rechazo.
+      /// Columnas bloqueadas: ReconciliationId (oculta), Número NC, Distribuidor, Valor Sistema.
+      /// Columnas editables: Valor TOTVS, Acción (dropdown), Motivo Rechazo, Notas.
+      /// </summary>
+      Task<byte[]> GenerateReconciliationFileAsync(int periodInstanceId, CancellationToken ct = default);
+
+      /// <summary>
+      /// Parsea el archivo reimportado. Retorna filas con Acción = CONCILIAR o RECHAZAR.
+      /// Filas sin acción son ignoradas.
+      /// </summary>
+      Task<IEnumerable<ReconciliationImportRow>> ParseFileAsync(
+          Stream fileStream, string fileName, CancellationToken ct = default);
+  }
+  ```
+
+- `Models\ReconciliationImportRow.cs`
+  ```csharp
+  public class ReconciliationImportRow
+  {
+      public int ReconciliationId { get; set; }
+      public string CreditNoteNumber { get; set; }
+      public string Action { get; set; }           // ?? NUEVO: CONCILIAR | RECHAZAR | (vacío = ignorar)
+      public decimal? TotvsAmount { get; set; }    // ?? CORRECCIÓN: null si Action = RECHAZAR
+      public string Notes { get; set; }
+      public string RejectionReason { get; set; }  // ?? NUEVO: requerido si Action = RECHAZAR
+  }
+  ```
+
+- `Models\BulkReconciliationResult.cs`
+  ```csharp
+  public class BulkReconciliationResult
+  {
+      public int TotalRows { get; set; }
+      public int SuccessCount { get; set; }
+      public int ErrorCount { get; set; }
+      public IEnumerable<BulkReconciliationRowError> Errors { get; set; }
+  }
+  public class BulkReconciliationRowError
+  {
+      public int RowNumber { get; set; }
+      public string CreditNoteNumber { get; set; }
+      public string ErrorMessage { get; set; }
+  }
+  ```
+
+**?? ESTRUCTURA DE LA PLANTILLA EXCEL (CORRECCIÓN):**
+
+| Columna | Estado | Valor por defecto |
+|---------|--------|-------------------|
+| ReconciliationId | Oculta | Pre-poblada por el sistema |
+| Número NC | Bloqueada | Pre-poblada por el sistema |
+| Distribuidor | Bloqueada | Pre-poblada por el sistema |
+| Valor Sistema | Bloqueada | Pre-poblada por el sistema |
+| **Valor TOTVS** | Editable (amarillo) | Vacío |
+| **Acción** | Editable (dropdown) | Vacío — opciones: `CONCILIAR` / `RECHAZAR` |
+| **Motivo Rechazo** | Editable | Vacío — obligatorio si Acción = RECHAZAR |
+| Notas | Editable | Vacío |
+
+**Reglas de validación en `ParseFileAsync`:**
+- Fila sin `Acción` ? ignorada (no es error)
+- `Acción = CONCILIAR` + `Valor TOTVS` vacío ? error: "Valor TOTVS requerido para conciliar"
+- `Acción = RECHAZAR` + `Motivo Rechazo` vacío ? error: "Motivo obligatorio para rechazar"
+- `Acción = RECHAZAR` + `Valor TOTVS` completado ? se ignora el valor TOTVS (solo se procesa el rechazo)
+
+---
+
+#### TAREA-066 ? ??
+**Crear `IExternalCreditNoteImportService` — plantilla en blanco + carga masiva NC externas**
+
+**Archivos a crear:**
+- `IExternalCreditNoteImportService.cs`
+  ```csharp
+  public interface IExternalCreditNoteImportService
+  {
+      Task<byte[]> GenerateTemplateAsync(CancellationToken ct = default);
+      Task<IEnumerable<ExternalCNImportRow>> ParseFileAsync(
+          Stream fileStream, string fileName, CancellationToken ct = default);
+  }
+  ```
+
+- `Models\ExternalCNImportRow.cs`
+  ```csharp
+  public class ExternalCNImportRow
+  {
+      public int RowNumber { get; set; }
+      public string DistributorIdentityNumber { get; set; }
+      public string CreditNoteNumber { get; set; }
+      public decimal Amount { get; set; }
+      public string Description { get; set; }
+  }
+  ```
+
+- `Models\BulkExternalCNResult.cs` (mismo patrón que `BulkReconciliationResult`)
+
+**Plantilla (4 columnas):** Número Doc Distribuidor | Número NC | Valor | Descripción/Justificación
+
+**Modificar `ArchitectureBuilderExtensions.cs`:**
+```csharp
+services.AddTransient<ICreditNoteReconciliationImportService, CreditNoteReconciliationImportService>();
+services.AddTransient<IExternalCreditNoteImportService, ExternalCreditNoteImportService>();
+```
+
+---
+
+#### TAREA-067 ? ???
+**Crear página `BulkCreditNoteReconciliation.razor` + `.razor.cs` — conciliación masiva NC sistema**
+
+**Ruta:** `Pages\BonificationPages\BulkCreditNoteReconciliation.razor`
+**URL:** `/bonification/reconciliation/bulk`
+**Rol requerido:** `Administrador`, `Ingreso de OC especiales de bonificación`
+
+**Flujo en 3 pasos:**
+
+**Paso 1 — Generar archivo:**
+- Dropdown **Instancia de Período** (solo `CLOSED` con NC pendientes)
+- Botón "Generar Archivo de Conciliación"
+  - Llama `CreditNoteReconciliationImportService.GenerateReconciliationFileAsync(instanceId)`
+  - Descarga `Conciliacion_{InstanceCode}_{Fecha}.xlsx`
+- **?? NOTA INFORMATIVA**: "El archivo contiene las NC pendientes. Complete las columnas **Valor TOTVS** (para conciliar) o **Acción = RECHAZAR + Motivo** (para rechazar). Las filas sin acción serán ignoradas."
+
+**Paso 2 — Reimportar:**
+- `RadzenUpload` (`.xlsx`, máx. 5 MB) + Botón "Procesar Archivo"
+  - Llama `ParseFileAsync()` ? muestra filas procesadas
+
+**Paso 3 — Vista previa y confirmación (?? 3 SECCIONES):**
+- **`RadzenAlert`**: "Se procesarán **N conciliaciones**, **M rechazos** y **K filas ignoradas** (sin acción)."
+
+**Tabla 1 — "NC a Conciliar" (verde claro):**
+- Columnas: Número NC | Distribuidor | Valor Sistema | Valor TOTVS | Diferencia
+  - Diferencia coloreada: verde si = 0 / rojo si ? 0 / naranja si `|Diferencia| > 5%`
+
+**Tabla 2 — "NC a Rechazar" (rojo claro):**
+- Columnas: Número NC | Distribuidor | Valor Sistema | Motivo Rechazo
+
+**Tabla 3 — "Filas Ignoradas" (gris):**
+- Columnas: Fila # | Número NC | Motivo
+  - Muestra filas sin acción (no es error, es información)
+
+**Tabla 4 — "Errores de Validación" (solo si existen):**
+- Columnas: Fila # | Número NC | Mensaje Error
+- Botón "Descargar reporte de errores" (Excel con filas fallidas)
+
+**Botón "Confirmar Procesamiento"** (solo si hay al menos 1 fila válida):
+- Llama `CreditNoteReconciliationService.BulkProcessAsync()`
+- Resultado: "Se conciliaron **N NC** y rechazaron **M NC** exitosamente."
+- Link "Ver conciliación" ? navega a `/bonification/reconciliation?instance={id}`
+
+---
+
+#### TAREA-068 ? ???
+**Crear página `BulkExternalCreditNotes.razor` + `.razor.cs` — carga masiva NC externas**
+
+**Ruta:** `Pages\BonificationPages\BulkExternalCreditNotes.razor`
+**URL:** `/bonification/reconciliation/external/bulk`
+**Rol requerido:** `Administrador`, `Ingreso de OC especiales de bonificación`
+
+**Estructura (flujo en 3 pasos — idéntico al patrón TAREA-067 pero para NC externas):**
+
+**Paso 1 — Plantilla y selección de instancia:**
+- Dropdown **Instancia de Período** (solo `CLOSED`) — obligatorio antes de continuar
+- Botón "Descargar Plantilla"
+  - Llama `ExternalCreditNoteImportService.GenerateTemplateAsync()`
+  - Descarga `Plantilla_NC_Externas.xlsx` con instrucciones incluidas
+
+**Paso 2 — Carga y procesamiento:**
+- `RadzenUpload` + Botón "Procesar Archivo"
+  - Llama `ParseFileAsync()` — valida estructura y tipos, no valida contra BD
+
+**Paso 3 — Vista previa y confirmación:**
+- `RadzenAlert`: "N filas válidas y M filas con errores."
+- Tabla válidas: Distribuidor, Número NC, Valor, Descripción
+- Tabla errores: Fila #, Distribuidor, Número NC, Mensaje
+  - Botón "Descargar reporte de errores"
+- Botón "Confirmar Carga" ? `ExternalCreditNoteService.BulkAddAsync()`
+- Resultado: "Se registraron N NC Externas en estado PENDIENTE."
+- Link "Ver NC Externas" ? navega a `/bonification/reconciliation?instance={id}&tab=external`
+
+---
+
+#### TAREA-069 ? ???
+**Agregar "Conciliación de NC" al menú Operaciones en `MainLayout.razor`**
+
+**Cambio en el bloque de TAREA-045:**
+```razor
+<RadzenPanelMenuItem Text="Operaciones" Icon="edit_note">
+    <RadzenPanelMenuItem Text="OC Especiales"
+        Path="bonification/special-orders"
+        Visible="@Security.IsInRole("Administrador","Ingreso de OC especiales de bonificación")" />
+    <RadzenPanelMenuItem Text="Conciliación de NC"
+        Path="bonification/reconciliation"
+        Visible="@Security.IsInRole("Administrador","Ingreso de OC especiales de bonificación")" />
+</RadzenPanelMenuItem>
+```
+
+---
+
+#### Resumen de archivos — Conciliación de NC
+
+| Archivo | Tarea | Tipo |
+|---------|-------|------|
+| `scripts/CreateCreditNoteReconciliationTables.sql` | 059 | Nuevo |
+| `Entities\CreditNoteReconciliation.cs` | 060 | Nuevo |
+| `Entities\ExternalCreditNote.cs` | 060 | Nuevo |
+| `Configuration\CreditNoteReconciliationConfiguration.cs` | 060 | Nuevo |
+| `Configuration\ExternalCreditNoteConfiguration.cs` | 060 | Nuevo |
+| `AldebaranDbContext.cs` | 060 | Modificar |
+| `Models\CreditNoteReconciliation.cs` | 061 | Nuevo |
+| `Models\ExternalCreditNote.cs` | 062 | Nuevo |
+| `Models\ReconciliationImportRow.cs` | 065 | Nuevo |
+| `Models\BulkReconciliationResult.cs` | 065 | Nuevo |
+| `Models\ExternalCNImportRow.cs` | 066 | Nuevo |
+| `Models\BulkExternalCNResult.cs` | 066 | Nuevo |
+| `ApplicationServicesProfile.cs` | 061, 062 | Modificar |
+| `ICreditNoteReconciliationRepository.cs` | 061 | Nuevo |
+| `CreditNoteReconciliationRepository.cs` | 061 | Nuevo |
+| `IExternalCreditNoteRepository.cs` | 062 | Nuevo |
+| `ExternalCreditNoteRepository.cs` | 062 | Nuevo |
+| `ICreditNoteReconciliationService.cs` | 061 | Nuevo |
+| `CreditNoteReconciliationService.cs` | 061 | Nuevo |
+| `IExternalCreditNoteService.cs` | 062 | Nuevo |
+| `ExternalCreditNoteService.cs` | 062 | Nuevo |
+| `ICreditNoteReconciliationImportService.cs` | 065 | Nuevo |
+| `CreditNoteReconciliationImportService.cs` | 065 | Nuevo |
+| `IExternalCreditNoteImportService.cs` | 066 | Nuevo |
+| `ExternalCreditNoteImportService.cs` | 066 | Nuevo |
+| `ArchitectureBuilderExtensions.cs` | 061, 062, 065, 066 | Modificar |
+| `Pages\BonificationPages\CreditNoteReconciliation.razor` | 063 | Nuevo |
+| `Pages\BonificationPages\CreditNoteReconciliation.razor.cs` | 063 | Nuevo |
+| `Pages\BonificationPages\ConciliateCreditNote.razor` | 064 | Nuevo |
+| `Pages\BonificationPages\ConciliateCreditNote.razor.cs` | 064 | Nuevo |
+| `Pages\BonificationPages\RejectReconciliation.razor` | 064 | Nuevo |
+| `Pages\BonificationPages\RejectReconciliation.razor.cs` | 064 | Nuevo |
+| `Pages\BonificationPages\AddExternalCreditNote.razor` | 064 | Nuevo |
+| `Pages\BonificationPages\AddExternalCreditNote.razor.cs` | 064 | Nuevo |
+| `Pages\BonificationPages\ApproveRejectExternalCreditNote.razor` | 064 | Nuevo |
+| `Pages\BonificationPages\ApproveRejectExternalCreditNote.razor.cs` | 064 | Nuevo |
+| `Pages\BonificationPages\BulkCreditNoteReconciliation.razor` | 067 | Nuevo |
+| `Pages\BonificationPages\BulkCreditNoteReconciliation.razor.cs` | 067 | Nuevo |
+| `Pages\BonificationPages\BulkExternalCreditNotes.razor` | 068 | Nuevo |
+| `Pages\BonificationPages\BulkExternalCreditNotes.razor.cs` | 068 | Nuevo |
+| `Shared\MainLayout.razor` | 069 | Modificar |
+
+---
+
+> ? **Con TAREA-059 a TAREA-069 queda cubierto el módulo de Conciliación de Notas Crédito.**
+> El módulo soporta los tres caminos: conciliación manual NC a NC, conciliación masiva con plantilla
+> pre-poblada por el sistema (incluyendo rechazo masivo), y registro de NC externas (manual y masivo).
+>
+> El **indicador de cuadre** en la pantalla principal consolida:
+> `Valor Cuadre Final = Valor Sistema + Diferencia Conciliada + NC Externas Aprobadas`
+> y es el insumo para el cierre contable del período por parte de PROMOS.
+
+---
+
+## Validación de Cobertura de Escenarios de Conciliación
+
+### Matriz de Cobertura
+
+| # | Escenario | Camino | Tareas que lo cubren | Estado |
+|---|-----------|--------|---------------------|--------|
+| 1 | **Manual**: NC con valores iguales Sistema = TOTVS | Manual | TAREA-064 (`ConciliateCreditNote` ? Diferencia = 0 ? verde) | ? Cubierto |
+| 2 | **Manual**: NC con valores diferentes Sistema ? TOTVS | Manual | TAREA-064 (`ConciliateCreditNote` ? Diferencia ? 0 ? rojo/naranja) | ? Cubierto |
+| 3 | **Manual**: NC existe en TOTVS pero NO en Bonificación | Manual | TAREA-064 (`AddExternalCreditNote` ? NC Externa PENDIENTE ? Aprobar) | ? Cubierto |
+| 4 | **Manual**: NC existe en Bonificación pero NO en TOTVS | Manual | TAREA-064 (`RejectReconciliation` con motivo "NC no existe en TOTVS") | ? Cubierto (con correcciones aplicadas) |
+| 5 | **Masiva**: NC con valores iguales Sistema = TOTVS | Masiva | TAREA-067 (Paso 3 ? Tabla "A Conciliar" ? Diferencia = 0 verde) | ? Cubierto |
+| 6 | **Masiva**: NC con valores diferentes Sistema ? TOTVS | Masiva | TAREA-067 (Paso 3 ? Tabla "A Conciliar" ? Diferencia ? 0 rojo/naranja) | ? Cubierto |
+| 7 | **Masiva**: NC existe en TOTVS pero NO en Bonificación | Masiva | TAREA-068 (plantilla en blanco ? carga NC externas) | ? Cubierto |
+| 8 | **Masiva**: NC existe en Bonificación pero NO en TOTVS | Masiva | TAREA-067 (Acción = RECHAZAR + Motivo ? Tabla "A Rechazar") | ? Cubierto (con correcciones aplicadas) |
+
+### Correcciones Aplicadas para Cerrar Brechas
+
+**Brecha 4 (Escenario 4 — Manual: NC en Bonificación sin TOTVS):**
+- ? **Corrección 1 (TAREA-059)**: Columna `DIFFERENCE` usa `CASE WHEN TOTVS_AMOUNT IS NOT NULL` — `NULL` diferencia de `0`
+- ? **Corrección 2 (TAREA-060)**: EF Configuration actualizada con el CASE
+- ? **Corrección 3 (TAREA-061)**: `GetConciliatedDifferenceAsync` **solo suma STATUS = 'CONCILIADA'**, excluye PENDIENTE y RECHAZADA
+- ? **Corrección 4 (TAREA-061 + 064)**: Regla de negocio documentada: _"Si NC no existe en TOTVS ? Rechazar, no conciliar con 0"_
+- ? **Corrección 5 (TAREA-064)**: Dialog `ConciliateCreditNote` incluye nota informativa guiando al usuario
+
+**Brecha 8 (Escenario 8 — Masiva: NC en Bonificación sin TOTVS):**
+- ? **Corrección 6 (TAREA-065)**: Plantilla Excel incluye columna **Acción** (CONCILIAR / RECHAZAR)
+- ? **Corrección 7 (TAREA-065)**: Plantilla Excel incluye columna **Motivo Rechazo** (obligatoria si Acción = RECHAZAR)
+- ? **Corrección 8 (TAREA-065)**: Modelo `ReconciliationImportRow` incluye campos `Action` y `RejectionReason`
+- ? **Corrección 9 (TAREA-061)**: Servicio tiene método `BulkProcessAsync` que procesa conciliaciones **y rechazos** en una transacción
+- ? **Corrección 10 (TAREA-067)**: Pantalla muestra 3 tablas de resultado: NC a Conciliar / NC a Rechazar / Ignoradas
+
+### Resultado Final
+
+**Todos los 8 escenarios están completamente cubiertos** con las correcciones aplicadas:
+- Escenarios 1-7: ya estaban cubiertos en el diseño original
+- Escenario 4 (Manual NC sin TOTVS): cerrado con correcciones 1-5
+- Escenario 8 (Masiva NC sin TOTVS): cerrado con correcciones 6-10
+
+**No quedan brechas pendientes.** El módulo de Conciliación de NC está completo y operativo.
