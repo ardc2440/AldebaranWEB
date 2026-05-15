@@ -829,17 +829,16 @@ services.AddHostedService<BonificationPeriodRolloverJob>();
   }
   ```
 
-- `Aldebaran.Application.Services\Services\BonificationTypeService.cs` — implementación usando `IBonificationTypeRepository` + `IMapper`
+- `Aldebaran.Application.Services\Services\BonificationTypeService.cs` — implementación usando `IBonificationTypeRepository` + `IMapper` (mismo patrón que `AreaService`)
 
-**Validaciones de negocio:**
+**Validaciones de negocio en el servicio:**
 - `TypeName` no puede duplicarse (`ExistsByNameAsync`)
-- `BonificationPeriodId` debe referenciar un período activo (`IsActive = true`)
-- `CalculationBase` debe ser uno de: `BILLING`, `ORDER`, `DELIVERY`
-- No se puede cambiar `BonificationPeriodId` ni `CalculationBase` si el TipoBono tiene instancias activas (`HasActiveInstanceAsync`)
-- No se puede desactivar (`IsActive = false`) si tiene instancias activas (`HasActiveInstanceAsync`)
+- `BonificationPeriodId` debe ser válido
+- `CalculationBase` debe ser uno de los valores permitidos
+- No se puede modificar un TipoBono si tiene instancias activas (`HasActiveInstanceAsync`)
 
 **Modificar:**
-- `Aldebaran.Web\Extensions\ArchitectureBuilderExtensions.cs` ? agregar:
+- `Aldebaran.Web\Extensions\ArchitectureBuilderExtensions.cs` ? registrar:
   ```csharp
   services.AddTransient<IBonificationTypeRepository, BonificationTypeRepository>();
   services.AddTransient<IBonificationTypeService, BonificationTypeService>();
@@ -858,19 +857,11 @@ services.AddHostedService<BonificationPeriodRolloverJob>();
 - Título: "Tipos de Bono"
 - Buscador por nombre
 - `RadzenDataGrid` paginada con columnas:
-
-| Columna | Detalle |
-|---------|---------|
-| Nombre | `TypeName` |
-| Período | `BonificationPeriod.PeriodName` (con duración en días) |
-| Base de Cálculo | BILLING ? "Facturación" / ORDER ? "Pedido" / DELIVERY ? "Entrega" |
-| Estado | Badge: Activo / Inactivo |
-| Instancia Activa | Código de la instancia `IN_PROGRESS` actual (o "Sin instancia") |
-| Acciones | Editar \| Ver Instancias \| Ver Vigencias |
-
-- Botón "Nuevo" (solo rol de modificación)
-- Row expand: muestra `RadzenDataGrid` de instancias del TipoBono (Código, Fecha inicio, Fecha fin, Estado)
-  - Solo lectura — las instancias son automáticas
+  - Nombre
+  - Tipo (BILLING/ORDER/DELIVERY ? mostrar en español)
+  - Estado (badge: Activo/Inactivo)
+  - Acciones: Editar
+- Botón "Nuevo" (solo si tiene rol de modificación)
 
 ---
 
@@ -880,11 +871,10 @@ services.AddHostedService<BonificationPeriodRolloverJob>();
 **Estructura (patrón `AddCustomer.razor`):**
 - Campos:
   - Nombre (texto, obligatorio, único)
-  - Período (`RadzenDropDownDataGrid` con `LoadData`, muestra: Nombre + Tipo + Duración días, solo períodos activos)
-  - Base de Cálculo (`RadzenDropDown`: Facturación / Pedido / Entrega)
+  - Período (`RadzenDropDown`: lista de períodos activos)
+  - Base de cálculo (`RadzenDropDown`: Facturación / Pedido / Entrega)
   - Descripción (texto, opcional)
   - Estado (`RadzenCheckBox` Activo, default: marcado)
-- Al seleccionar Período ? mostrar chip informativo: "Ciclo cada N días"
 - Validaciones client-side con `RadzenRequiredValidator`
 - Botones: Guardar / Cancelar
 
@@ -895,39 +885,596 @@ services.AddHostedService<BonificationPeriodRolloverJob>();
 
 **Estructura (patrón `EditCustomer.razor`):**
 - Mismos campos que TAREA-025
-- Campos `Período` y `Base de Cálculo` ? bloqueados (`Disabled`) si el TipoBono tiene instancias activas
-  - Mostrar mensaje: "No se puede modificar el período ni la base de cálculo mientras existan instancias activas"
 - Al guardar ? llama `BonificationTypeService.UpdateAsync`
 
 ---
 
-#### TAREA-027 ? ???
-**Agregar ítem "Tipos de Bono" al menú de Bonificaciones en `MainLayout.razor`**
+#### TAREA-027 ? ??
+**Actualizar `BonificationPeriods.razor.cs` y `BonificationTypes.razor.cs` para incluir columnas de Actions en el DataGrid**
 
-**Modificar la entrada agregada en TAREA-020:**
+**Cambios:**
+- Ambas páginas ahora tendrán una columna "Acciones" con un botón de edición (icono lápiz) que abre el respetivo diálogo de edición.
+- Se elimina el botón de "Generar Instancia" en `BonificationPeriods`. Las instancias son automáticas y no deben ser manipuladas desde aquí.
+
+---
+
+#### TAREA-028 ? ??
+**Crear vista de cierre de período (CU10)**
+
+> Permite cerrar manualmente un período y generar la próxima instancia si el tipo de bono lo tiene.
+
+**Archivos a crear:**
+- `Application.Services\UseCases\CloseBonificationPeriodCommand.cs`
+  ```csharp
+  public class CloseBonificationPeriodCommand : IRequestHandler<CloseBonificationPeriodRequest, CloseBonificationPeriodResponse>
+  {
+      private readonly IBonificationPeriodRepository _periodRepo;
+      private readonly IBonificationTypeRepository _typeRepo;
+      private readonly IBonificationPeriodInstanceLifecycleService _lifecycleService;
+
+      public async Task<CloseBonificationPeriodResponse> Handle(CloseBonificationPeriodRequest request, CancellationToken cancellationToken)
+      {
+          // 1. Cerrar período actual
+          await _periodRepo.UpdateAsync(request.PeriodId, request.NewEndDate, cancellationToken);
+
+          // 2. Si el TipoBono tiene vigencia activa, crear la siguiente instancia
+          var typeHasActiveVigency = await _typeRepo.HasActiveVigencyAsync(request.TypeId, cancellationToken);
+          if (typeHasActiveVigency)
+          {
+              var newStartDate = request.NewEndDate.AddDays(1);
+              await _lifecycleService.CreateFirstInstanceAsync(request.TypeId, newStartDate, cancellationToken);
+          }
+
+          return new CloseBonificationPeriodResponse { Success = true };
+      }
+  }
+  ```
+
+- `Application.Services\UseCases\CloseBonificationPeriod.csproj`
+  ```xml
+  <ItemGroup>
+    <Protobuf Include="Definitions\bonification_periods.proto" GrpcServices="Server" />
+  </ItemGroup>
+  ```
+
+- `Definitions/bonification_periods.proto`
+  ```protobuf
+  syntax = "proto3";
+
+  option csharp_namespace = "Aldebaran.Services.Definitions.BonificationPeriods";
+
+  import "google/protobuf/timestamp.proto";
+
+  // Mensajes para el cierre de un período de bonificación
+  message CloseBonificationPeriodRequest {
+    int32 period_id = 1;
+    int32 type_id = 2;
+    google.protobuf.Timestamp new_end_date = 3;
+  }
+
+  message CloseBonificationPeriodResponse {
+    bool success = 1;
+  }
+  ```
+
+---
+
+> ? **Con TAREA-011 a TAREA-027 quedan cubiertas todas las modificaciones necesarias relacionadas con Períodos y Tipos de Bono.**  
+> La gestión de sesiones de bono queda registrada como una nueva historia de usuario independiente (requiere definición y diseño específicos).
+
+---
+
+### 2.1.5 Gestión de Rangos y Porcentajes de Bonificación
+
+> Funcionalidad completamente nueva.  
+> Permite crear y gestionar rangos de bonificación con porcentajes asociados a un tipo de bono y período específicos.
+
+---
+
+#### TAREA-029 ? ???
+**Crear tabla `BonificationRanges`**
+
+**Descripción:**  
+- `BonificationRanges`: Define rangos mínimos y máximos con un porcentaje de bonificación asociado.
+
+**Script SQL a crear:** `scripts/CreateBonificationRangesTable.sql`
+
+```sql
+CREATE TABLE dbo.BonificationRanges (
+    BONIFICATION_RANGE_ID    INT             NOT NULL IDENTITY(1,1),
+    BONIFICATION_TYPE_ID     INT             NOT NULL,    -- FK a Tipo de Bono
+    RANGE_MINIMUM            DECIMAL(18,4)   NOT NULL,    -- Mínimo del rango (incluido)
+    RANGE_MAXIMUM            DECIMAL(18,4)   NOT NULL,    -- Máximo del rango (incluido)
+    BONUS_PERCENTAGE         DECIMAL(5,2)    NOT NULL,    -- Porcentaje de bonificación
+    IS_ACTIVE                BIT             NOT NULL DEFAULT 1,
+    CONSTRAINT PK_BONIFICATION_RANGE PRIMARY KEY CLUSTERED (BONIFICATION_RANGE_ID),
+    CONSTRAINT UQ_BONIFICATION_RANGE_UNIQUE UNIQUE (BONIFICATION_TYPE_ID, RANGE_MINIMUM, RANGE_MAXIMUM),
+    CONSTRAINT FK_BONIFICATION_RANGE_TYPE FOREIGN KEY (BONIFICATION_TYPE_ID)
+        REFERENCES dbo.BonificationTypes (BONIFICATION_TYPE_ID)
+);
+```
+
+---
+
+#### TAREA-030 ? ??
+**Crear entidad EF: `BonificationRange`**
+
+**Archivos a crear:**
+
+- `Aldebaran.DataAccess\Entities\BonificationRange.cs`
+  ```csharp
+  public class BonificationRange
+  {
+      public int BonificationRangeId { get; set; }
+      public int BonificationTypeId { get; set; }
+      public decimal RangeMinimum { get; set; }
+      public decimal RangeMaximum { get; set; }
+      public decimal BonusPercentage { get; set; }
+      public bool IsActive { get; set; }
+
+      // Navegación
+      public BonificationType BonificationType { get; set; }
+  }
+  ```
+
+- `Aldebaran.DataAccess\Configuration\BonificationRangeConfiguration.cs` — mapeo EF completo
+
+**Modificar:**
+- `Aldebaran.DataAccess\AldebaranDbContext.cs` ? agregar:
+  ```csharp
+  public DbSet<BonificationRange> BonificationRanges { get; set; }
+  ```
+
+---
+
+#### TAREA-031 ? ??
+**Crear modelo de servicio: `BonificationRange`**
+
+**Archivos a crear:**
+- `Aldebaran.Application.Services\Models\BonificationRange.cs`
+
+Estructura idéntica a la entidad pero sin dependencias de EF (POCO puros).
+
+**Agregar mappings en:**
+- `Aldebaran.Application.Services\Mappings\ApplicationServicesProfile.cs` ? agregar:
+  ```csharp
+  CreateMap<BonificationRange, Entities.BonificationRange>().ReverseMap();
+  ```
+
+---
+
+#### TAREA-032 ? ??
+**Crear `IBonificationRangeRepository` y `BonificationRangeRepository`**
+
+**Archivos a crear:**
+- `Aldebaran.DataAccess.Infraestructure\Repository\IBonificationRangeRepository.cs`
+  ```csharp
+  public interface IBonificationRangeRepository
+  {
+      Task AddAsync(BonificationRange range, CancellationToken ct = default);
+      Task UpdateAsync(int id, BonificationRange range, CancellationToken ct = default);
+      Task<BonificationRange?> FindAsync(int id, CancellationToken ct = default);
+      Task<(IEnumerable<BonificationRange>, int)> GetAsync(int? skip, int? top, CancellationToken ct = default);
+      Task<(IEnumerable<BonificationRange>, int)> GetAsync(int skip, int top, string searchKey, CancellationToken ct = default);
+  }
+  ```
+
+- `Aldebaran.DataAccess.Infraestructure\Repository\BonificationRangeRepository.cs` — implementación usando `RepositoryBase<AldebaranDbContext>` (mismo patrón que `AreaRepository`)
+
+---
+
+#### TAREA-033 ? ??
+**Crear `IBonificationRangeService` y `BonificationRangeService`**
+
+**Archivos a crear:**
+- `Aldebaran.Application.Services\Services\IBonificationRangeService.cs`
+  ```csharp
+  public interface IBonificationRangeService
+  {
+      Task AddAsync(BonificationRange range, CancellationToken ct = default);
+      Task UpdateAsync(int id, BonificationRange range, CancellationToken ct = default);
+      Task<BonificationRange?> FindAsync(int id, CancellationToken ct = default);
+      Task<(IEnumerable<BonificationRange>, int)> GetAsync(int? skip, int? top, CancellationToken ct = default);
+      Task<(IEnumerable<BonificationRange>, int)> GetAsync(int skip, int top, string searchKey, CancellationToken ct = default);
+  }
+  ```
+
+- `Aldebaran.Application.Services\Services\BonificationRangeService.cs` — implementación usando `IBonificationRangeRepository` + `IMapper` (mismo patrón que `AreaService`)
+
+**Validaciones de negocio en el servicio:**
+- `RANGE_MINIMUM` debe ser menor que `RANGE_MAXIMUM`
+- `BonusPercentage` debe estar entre 0 y 100
+- No se puede modificar un rango si está cerrado (`IsActive = 0`)
+
+**Modificar:**
+- `Aldebaran.Web\Extensions\ArchitectureBuilderExtensions.cs` ? registrar:
+  ```csharp
+  services.AddTransient<IBonificationRangeRepository, BonificationRangeRepository>();
+  services.AddTransient<IBonificationRangeService, BonificationRangeService>();
+  ```
+
+---
+
+#### TAREA-034 ? ???
+**Crear página de listado `BonificationRanges.razor` + `BonificationRanges.razor.cs`**
+
+**Ruta:** `Pages\BonificationPages\BonificationRanges.razor`  
+**URL:** `/bonification/ranges`  
+**Rol requerido:** `Administrador`, `Consulta de bonificaciones`, `Modificación de bonificaciones`
+
+**Estructura (patrón `Customers.razor`):**
+- Título: "Rangos de Bonificación"
+- Buscador por nombre
+- `RadzenDataGrid` paginada con columnas:
+  - Tipo de Bono (nombre)
+  - Mínimo
+  - Máximo
+  - Porcentaje
+  - Estado (badge: Activo/Inactivo)
+  - Acciones: Editar
+- Botón "Nuevo" (solo si tiene rol de modificación)
+
+---
+
+#### TAREA-035 ? ???
+**Crear dialog `EditBonificationVigency.razor` + `EditBonificationVigency.razor.cs`**
+
+**Estructura:**
+- Misma estructura que TAREA-034
+- **Si estado = `PENDING`** ? cabecera y rangos son editables (la fecha de activación aún no llegó)
+- **Si estado = `ACTIVE` o `INACTIVE`** ? todo en modo solo lectura con mensaje explicativo: "Esta vigencia está en curso o fue reemplazada. No se pueden modificar sus rangos."
+- Botones: Guardar (solo visible si PENDING) / Cerrar
+
+---
+
+> ? **Con TAREA-029 a TAREA-035 quedan cubiertas todas las modificaciones necesarias relacionadas con Rangos de Bonificación.**
+
+---
+
+### 2.1.6 Vigencias de Descuentos por Total de Pedido
+
+> Ref. propuesta funcional: sección 2.2.0.3 (MD v1.4)  
+> Funcionalidad completamente nueva. **Independiente de las Vigencias de Bonificación.**  
+>  
+> Permite configurar vigencias de descuento que se aplican de forma **uniforme a todos los distribuidores** en el cálculo del **Bono por Pedido**.  
+> Solo puede existir **UNA vigencia ACTIVE** en el sistema en un momento dado (no es por TipoBono, es global).  
+>  
+> Cada vigencia tiene rangos de totales de pedido. Cuando el acumulado del distribuidor cae en un rango, se aplica el descuento correspondiente (porcentual o fijo) **antes** de calcular el bono.
+
+---
+
+**Modelo conceptual:**
+
+```
+Vigencia Descuento "V2 - Desc. Pedido Junio 2026"  (ACTIVE)
+??? ActivationDate: 01/06/2026
+??? Rangos:
+?     ??? Desde $1,000,001  hasta $5,000,000   ? Fijo    $100,000
+?     ??? Desde $5,000,001  hasta $10,000,000  ? %       2%
+?     ??? Desde $10,000,001 hasta ?            ? %       5%
+??? Estado: ACTIVE
+
+Vigencia Descuento "V3 - Desc. Pedido Agosto 2026"  (PENDING)
+??? ActivationDate: 01/08/2026
+??? Estado: PENDING
+```
+
+> **Diferencia clave con Vigencias de Bonificación:**  
+> Las Vigencias de Bono son **por TipoBono** (una activa por cada tipo).  
+> Las Vigencias de Descuento son **globales** — solo existe una activa en todo el sistema.  
+> Los rangos tampoco necesitan iniciar en $0. Si el total del pedido es inferior al primer rango, el descuento es $0.
+
+---
+
+#### TAREA-037 ? ???
+**Crear tablas `DiscountVigencies` y `DiscountVigencyRanges`**
+
+**Script SQL a crear:** `scripts/CreateDiscountVigencyTables.sql`
+
+```sql
+-- Vigencia de descuento por total de pedido (global, una sola activa)
+CREATE TABLE dbo.DiscountVigencies (
+    DISCOUNT_VIGENCY_ID   INT           NOT NULL IDENTITY(1,1),
+    VIGENCY_NAME          VARCHAR(100)  NOT NULL,
+    ACTIVATION_DATE       DATE          NOT NULL,
+    DEACTIVATION_DATE     DATE          NULL,
+    STATUS                VARCHAR(20)   NOT NULL DEFAULT 'PENDING', -- PENDING | ACTIVE | INACTIVE
+    NOTES                 VARCHAR(500)  NULL,
+    CONSTRAINT PK_DISCOUNT_VIGENCY PRIMARY KEY CLUSTERED (DISCOUNT_VIGENCY_ID),
+    CONSTRAINT UQ_DISCOUNT_VIGENCY_NAME UNIQUE (VIGENCY_NAME),
+    CONSTRAINT CK_DISCOUNT_VIGENCY_STATUS CHECK (STATUS IN ('PENDING','ACTIVE','INACTIVE')),
+    CONSTRAINT CK_DISCOUNT_VIGENCY_DATES CHECK (
+        DEACTIVATION_DATE IS NULL OR DEACTIVATION_DATE >= ACTIVATION_DATE
+    )
+);
+
+-- Índice para obtener la vigencia activa rápidamente
+CREATE NONCLUSTERED INDEX IX_DISCOUNT_VIGENCY_STATUS
+    ON dbo.DiscountVigencies (STATUS);
+
+-- Rangos de descuento por total de pedido
+CREATE TABLE dbo.DiscountVigencyRanges (
+    DISCOUNT_VIGENCY_RANGE_ID  INT             NOT NULL IDENTITY(1,1),
+    DISCOUNT_VIGENCY_ID        INT             NOT NULL,
+    RANGE_ORDER                INT             NOT NULL,
+    FROM_AMOUNT                DECIMAL(18,2)   NOT NULL,   -- total mínimo del tramo (inclusive)
+    TO_AMOUNT                  DECIMAL(18,2)   NULL,       -- total máximo del tramo (NULL = sin techo)
+    VALUE_TYPE                 VARCHAR(10)     NOT NULL,   -- PERCENTAGE | FIXED
+    DISCOUNT_VALUE             DECIMAL(18,2)   NOT NULL,   -- si PERCENTAGE: 0-100 / si FIXED: monto exacto
+    CONSTRAINT PK_DISCOUNT_VIGENCY_RANGE PRIMARY KEY CLUSTERED (DISCOUNT_VIGENCY_RANGE_ID),
+    CONSTRAINT FK_DISCOUNT_VIGENCY_RANGE_VIGENCY FOREIGN KEY (DISCOUNT_VIGENCY_ID)
+        REFERENCES dbo.DiscountVigencies (DISCOUNT_VIGENCY_ID),
+    CONSTRAINT CK_DISCOUNT_VIGENCY_RANGE_FROM CHECK (FROM_AMOUNT >= 0),
+    CONSTRAINT CK_DISCOUNT_VIGENCY_RANGE_VALUE_TYPE CHECK (VALUE_TYPE IN ('PERCENTAGE','FIXED')),
+    CONSTRAINT CK_DISCOUNT_VIGENCY_RANGE_VALUE CHECK (DISCOUNT_VALUE >= 0),
+    CONSTRAINT CK_DISCOUNT_VIGENCY_RANGE_TO CHECK (TO_AMOUNT IS NULL OR TO_AMOUNT > FROM_AMOUNT),
+    CONSTRAINT UQ_DISCOUNT_VIGENCY_RANGE_ORDER UNIQUE (DISCOUNT_VIGENCY_ID, RANGE_ORDER)
+);
+```
+
+---
+
+**Ejemplo de rangos:**
+
+| Orden | Desde | Hasta | Tipo | Valor |
+|-------|-------|-------|------|-------|
+| 1 | $1,000,001 | $5,000,000 | Fijo | $100,000 |
+| 2 | $5,000,001 | $10,000,000 | % | 2% |
+| 3 | $10,000,001 | ? (NULL) | % | 5% |
+
+> Si el total del pedido del distribuidor es ? $1,000,000 ? descuento = $0 (no hay rango que lo cubra).
+
+---
+
+#### TAREA-038 ? ??
+**Crear entidades EF: `DiscountVigency` y `DiscountVigencyRange`**
+
+**Archivos a crear:**
+
+- `Aldebaran.DataAccess\Entities\DiscountVigency.cs`
+  ```csharp
+  public class DiscountVigency
+  {
+      public int DiscountVigencyId { get; set; }
+      public string VigencyName { get; set; }
+      public DateTime ActivationDate { get; set; }
+      public DateTime? DeactivationDate { get; set; }
+      public string Status { get; set; }  // PENDING | ACTIVE | INACTIVE
+      public string Notes { get; set; }
+
+      public ICollection<DiscountVigencyRange> Ranges { get; set; } = new List<DiscountVigencyRange>();
+  }
+  ```
+
+- `Aldebaran.DataAccess\Entities\DiscountVigencyRange.cs`
+  ```csharp
+  public class DiscountVigencyRange
+  {
+      public int DiscountVigencyRangeId { get; set; }
+      public int DiscountVigencyId { get; set; }
+      public int RangeOrder { get; set; }
+      public decimal FromAmount { get; set; }
+      public decimal? ToAmount { get; set; }       // null = sin techo
+      public string ValueType { get; set; }        // PERCENTAGE | FIXED
+      public decimal DiscountValue { get; set; }   // si PERCENTAGE: 0-100 / si FIXED: monto exacto
+
+      public DiscountVigency DiscountVigency { get; set; }
+  }
+  ```
+
+- `Aldebaran.DataAccess\Configuration\DiscountVigencyConfiguration.cs` — mapeo EF completo
+- `Aldebaran.DataAccess\Configuration\DiscountVigencyRangeConfiguration.cs` — mapeo EF completo
+
+**Modificar:**
+- `Aldebaran.DataAccess\AldebaranDbContext.cs` ? agregar:
+  ```csharp
+  public DbSet<DiscountVigency> DiscountVigencies { get; set; }
+  public DbSet<DiscountVigencyRange> DiscountVigencyRanges { get; set; }
+  ```
+
+---
+
+#### TAREA-039 ? ??
+**Crear modelos de servicio: `DiscountVigency` y `DiscountVigencyRange`**
+
+**Archivos a crear:**
+- `Aldebaran.Application.Services\Models\DiscountVigency.cs`
+- `Aldebaran.Application.Services\Models\DiscountVigencyRange.cs`
+
+Estructura idéntica a las entidades (POCO puros).
+
+**Agregar mappings en `ApplicationServicesProfile.cs`:**
+```csharp
+CreateMap<DiscountVigency, Entities.DiscountVigency>().ReverseMap();
+CreateMap<DiscountVigencyRange, Entities.DiscountVigencyRange>().ReverseMap();
+```
+
+---
+
+#### TAREA-040 ? ??
+**Crear `IDiscountVigencyRepository` y `DiscountVigencyRepository`**
+
+**Archivos a crear:**
+- `Aldebaran.DataAccess.Infraestructure\Repository\IDiscountVigencyRepository.cs`
+  ```csharp
+  public interface IDiscountVigencyRepository
+  {
+      Task AddAsync(DiscountVigency vigency, CancellationToken ct = default);
+      Task UpdateAsync(int id, DiscountVigency vigency, CancellationToken ct = default);
+      Task<DiscountVigency?> FindAsync(int id, CancellationToken ct = default);
+      Task<DiscountVigency?> FindWithRangesAsync(int id, CancellationToken ct = default);
+      Task<DiscountVigency?> GetActiveAsync(CancellationToken ct = default);
+      Task<(IEnumerable<DiscountVigency>, int)> GetAsync(int? skip, int? top, CancellationToken ct = default);
+      Task<bool> ExistsByNameAsync(string name, CancellationToken ct = default);
+      Task<bool> HasActiveVigencyAsync(CancellationToken ct = default);
+      Task UpdateStatusAsync(int id, string newStatus, DateTime? deactivationDate, CancellationToken ct = default);
+  }
+  ```
+
+- `Aldebaran.DataAccess.Infraestructure\Repository\DiscountVigencyRepository.cs`
+
+> **Diferencia clave vs `BonificationVigencyRepository`:**  
+> `GetActiveAsync()` no recibe `bonificationTypeId` porque la vigencia de descuento es **global** — hay una sola activa en el sistema.
+
+---
+
+#### TAREA-041 ? ??
+**Crear `IDiscountVigencyService` y `DiscountVigencyService`**
+
+**Archivos a crear:**
+- `Aldebaran.Application.Services\Services\IDiscountVigencyService.cs`
+  ```csharp
+  public interface IDiscountVigencyService
+  {
+      Task AddAsync(DiscountVigency vigency, CancellationToken ct = default);
+      Task UpdateAsync(int id, DiscountVigency vigency, CancellationToken ct = default);
+      Task ActivateAsync(int vigencyId, CancellationToken ct = default);
+      Task<DiscountVigency?> FindAsync(int id, CancellationToken ct = default);
+      Task<DiscountVigency?> GetActiveAsync(CancellationToken ct = default);
+      Task<(IEnumerable<DiscountVigency>, int)> GetAsync(int? skip, int? top, CancellationToken ct = default);
+  }
+  ```
+
+- `Aldebaran.Application.Services\Services\DiscountVigencyService.cs`
+
+**Validaciones de negocio:**
+- Una vigencia nueva siempre nace en estado `PENDING`
+- `ActivationDate` no puede ser anterior a la fecha actual
+- **Estado `PENDING`**: `ActivationDate` ? hoy ? rangos **editables**
+- **Estado `ACTIVE` / `INACTIVE`**: rangos **solo lectura**
+- Los rangos son entidad independiente (`DiscountVigencyRange`) — no arreglo embebido
+- Los rangos **no necesitan iniciar en $0**: si el total del pedido es inferior al primer `FromAmount`, descuento = $0
+- Los rangos dentro de la misma vigencia **no pueden solaparse**: `FromAmount` de cada rango > `ToAmount` del anterior
+- El rango superior debe tener `ToAmount = null` (sin techo)
+- `ValueType` debe ser `PERCENTAGE` o `FIXED`:
+  - Si `PERCENTAGE` ? `DiscountValue` entre 0 y 100
+  - Si `FIXED` ? `DiscountValue` ? 0
+- **Solo puede existir UNA vigencia `ACTIVE` en todo el sistema** (al activar una nueva ? la anterior pasa a `INACTIVE`)
+- No se puede eliminar una vigencia `ACTIVE`
+
+**Lógica de `ActivateAsync`:**
+```csharp
+public async Task ActivateAsync(int vigencyId, CancellationToken ct)
+{
+    var vigency = await _repo.FindWithRangesAsync(vigencyId, ct);
+
+    if (!vigency.Ranges.Any())
+        throw new BusinessException("La vigencia debe tener al menos un rango antes de activarse");
+
+    // Desactivar la vigencia global actual (si existe)
+    var currentActive = await _repo.GetActiveAsync(ct);
+    if (currentActive != null)
+        await _repo.UpdateStatusAsync(currentActive.DiscountVigencyId, "INACTIVE", vigency.ActivationDate.AddDays(-1), ct);
+
+    // Activar la nueva
+    await _repo.UpdateStatusAsync(vigencyId, "ACTIVE", null, ct);
+}
+```
+
+> **Nota:** `ActivateAsync` de descuentos **NO dispara creación de instancias de período** — eso es exclusivo de las vigencias de bonificación.
+
+**Modificar:**
+- `Aldebaran.Web\Extensions\ArchitectureBuilderExtensions.cs` ? agregar:
+  ```csharp
+  services.AddTransient<IDiscountVigencyRepository, DiscountVigencyRepository>();
+  services.AddTransient<IDiscountVigencyService, DiscountVigencyService>();
+  ```
+
+---
+
+#### TAREA-042 ? ???
+**Crear página de listado `DiscountVigencies.razor` + `.razor.cs`**
+
+**Ruta:** `Pages\BonificationPages\DiscountVigencies.razor`  
+**URL:** `/bonification/discount-vigencies`  
+**Rol requerido:** `Administrador`, `Consulta de bonificaciones`, `Modificación de bonificaciones`
+
+**Estructura:**
+- Título: "Vigencias de Descuento por Pedido"
+- Indicador visual destacado: **"Vigencia Activa: {VigencyName}"** (o "Sin vigencia activa" si no hay ninguna)
+- `RadzenDataGrid` con columnas:
+
+| Columna | Detalle |
+|---------|---------|
+| Nombre | `VigencyName` |
+| Fecha Activación | `ActivationDate` |
+| Fecha Desactivación | `DeactivationDate` (o "Vigente" si null) |
+| Estado | Badge: ?? PENDING / ?? ACTIVE / ? INACTIVE |
+| Nº Rangos | Count de rangos configurados |
+| Acciones | Editar |
+
+- Botón "Nueva Vigencia" (solo rol modificación)
+- Botón "Activar" ? visible solo si estado = `PENDING` y tiene rangos
+- Row expand: tabla de rangos (Orden, Desde, Hasta, Tipo, Valor) — solo lectura si estado ? `PENDING`
+
+---
+
+#### TAREA-043 ? ???
+**Crear dialog `AddDiscountVigency.razor` + `.razor.cs`**
+
+**Estructura (idéntica a `AddBonificationVigency` — TAREA-034, sin campo TipoBono):**
+- Campos de cabecera:
+  - Nombre de Vigencia (texto, obligatorio, único)
+  - Fecha de Activación (`RadzenDatePicker`, obligatorio, no puede ser anterior a hoy)
+  - Notas (texto, opcional)
+- Sección "Rangos de Descuento" — grilla editable inline:
+  - Columnas: Orden | Desde ($) | Hasta ($) | Tipo | Valor | Acciones (eliminar fila)
+    - **Tipo**: `RadzenDropDown` ? Porcentaje (%) / Valor Fijo ($)
+    - **Valor**: `RadzenNumeric` — si Porcentaje: máximo 100 / si Fijo: ? 0
+  - Botón "+ Agregar rango"
+  - El último rango muestra "Sin límite" en Hasta
+  - Validación en tiempo real: sin solapamiento dentro de la misma vigencia
+- Botones: Guardar como PENDING / Cancelar
+
+---
+
+#### TAREA-044 ? ???
+**Crear dialog `EditDiscountVigency.razor` + `.razor.cs`**
+
+**Estructura:**
+- Misma estructura que TAREA-043
+- **Si estado = `PENDING`** ? cabecera y rangos editables
+- **Si estado = `ACTIVE` o `INACTIVE`** ? todo en modo solo lectura con mensaje: "Esta vigencia está en curso o fue reemplazada. No se pueden modificar sus rangos."
+- Botones: Guardar (solo visible si `PENDING`) / Cerrar
+
+---
+
+#### TAREA-045 ? ???
+**Agregar ítem "Descuentos por Pedido" al menú de Bonificaciones en `MainLayout.razor`**
+
 ```razor
 <RadzenPanelMenuItem Text="Bonificaciones" Icon="percent"
     Visible="@Security.IsInRole(...)">
     <RadzenPanelMenuItem Text="Períodos" Path="bonification/periods" />
     <RadzenPanelMenuItem Text="Tipos de Bono" Path="bonification/types" />
+    <RadzenPanelMenuItem Text="Descuentos por Pedido" Path="bonification/discount-vigencies" />
 </RadzenPanelMenuItem>
 ```
 
 ---
 
-#### Resumen de archivos afectados — 2.1.4 Gestión de Tipos de Bono
+#### Resumen de archivos afectados — 2.1.6 Vigencias de Descuentos por Total de Pedido
 
 | Archivo | Tarea | Tipo |
 |---------|-------|------|
-| `DataAccess.Infraestructure\Repository\IBonificationTypeRepository.cs` | 022 | Nuevo |
-| `DataAccess.Infraestructure\Repository\BonificationTypeRepository.cs` | 022 | Nuevo |
-| `Application.Services\Services\IBonificationTypeService.cs` | 023 | Nuevo |
-| `Application.Services\Services\BonificationTypeService.cs` | 023 | Nuevo |
-| `Web\Extensions\ArchitectureBuilderExtensions.cs` | 023 | Modificar |
-| `Web\Pages\BonificationPages\BonificationTypes.razor` | 024 | Nuevo |
-| `Web\Pages\BonificationPages\BonificationTypes.razor.cs` | 024 | Nuevo |
-| `Web\Pages\BonificationPages\AddBonificationType.razor` | 025 | Nuevo |
-| `Web\Pages\BonificationPages\AddBonificationType.razor.cs` | 025 | Nuevo |
-| `Web\Pages\BonificationPages\EditBonificationType.razor` | 026 | Nuevo |
-| `Web\Pages\BonificationPages\EditBonificationType.razor.cs` | 026 | Nuevo |
-| `Web\Shared\MainLayout.razor` | 027 | Modificar |
+| `scripts/CreateDiscountVigencyTables.sql` | 037 | Nuevo |
+| `DataAccess\Entities\DiscountVigency.cs` | 038 | Nuevo |
+| `DataAccess\Entities\DiscountVigencyRange.cs` | 038 | Nuevo |
+| `DataAccess\Configuration\DiscountVigencyConfiguration.cs` | 038 | Nuevo |
+| `DataAccess\Configuration\DiscountVigencyRangeConfiguration.cs` | 038 | Nuevo |
+| `DataAccess\AldebaranDbContext.cs` | 038 | Modificar |
+| `Application.Services\Models\DiscountVigency.cs` | 039 | Nuevo |
+| `Application.Services\Models\DiscountVigencyRange.cs` | 039 | Nuevo |
+| `Application.Services\Mappings\ApplicationServicesProfile.cs` | 039 | Modificar |
+| `DataAccess.Infraestructure\Repository\IDiscountVigencyRepository.cs` | 040 | Nuevo |
+| `DataAccess.Infraestructure\Repository\DiscountVigencyRepository.cs` | 040 | Nuevo |
+| `Application.Services\Services\IDiscountVigencyService.cs` | 041 | Nuevo |
+| `Application.Services\Services\DiscountVigencyService.cs` | 041 | Nuevo |
+| `Web\Extensions\ArchitectureBuilderExtensions.cs` | 041 | Modificar |
+| `Web\Pages\BonificationPages\DiscountVigencies.razor` | 042 | Nuevo |
+| `Web\Pages\BonificationPages\DiscountVigencies.razor.cs` | 042 | Nuevo |
+| `Web\Pages\BonificationPages\AddDiscountVigency.razor` | 043 | Nuevo |
+| `Web\Pages\BonificationPages\AddDiscountVigency.razor.cs` | 043 | Nuevo |
+| `Web\Pages\BonificationPages\EditDiscountVigency.razor` | 044 | Nuevo |
+| `Web\Pages\BonificationPages\EditDiscountVigency.razor.cs` | 044 | Nuevo |
+| `Web\Shared\MainLayout.razor` | 045 | Modificar |
