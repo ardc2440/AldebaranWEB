@@ -17,9 +17,9 @@ Un **Caso de Uso** describe **UN FLUJO COMPLETO DE NEGOCIO** desde la perspectiv
   - Un distribuidor autenticado CONSULTA su bono dinámicamente
   - Es UN proceso completo: se autentica → consulta → ve bonos → cierra sesión
 
-**Total en este proyecto: 13 Casos de Uso (CU0 a CU12)**
+**Total en este proyecto: 14 Casos de Uso (CU1 a CU14)**
 
-**NOTA**: CU0 es un Caso de Uso **Prerequisito Transversal** - debe ejecutarse primero para que todos los demás casos de uso funcionen correctamente
+**NOTA**: CU13 es un Caso de Uso **Prerequisito Transversal** - debe ejecutarse primero para que todos los demás casos de uso funcionen correctamente
 
 ### 1.1.2 ⚙️ ¿Qué es un REQUISITO FUNCIONAL (RF)?
 
@@ -31,7 +31,7 @@ Un **Requisito Funcional** describe **UNA CAPACIDAD ESPECÍFICA** que el sistema
   - El sistema DEBE retornar desglose por tipo de bono
   - El sistema DEBE mostrar gamificación
 
-**Total en este proyecto: 34 Requisitos Funcionales (RF1 a RF34)**
+**Total en este proyecto: 35 Requisitos Funcionales (RF1 a RF35)**
 
 ### 1.1.3 📊 Relación CU ↔ RF (Matriz de Trazabilidad)
 
@@ -59,7 +59,7 @@ Ejemplo:
 
 1. **Secciones 1.1 - 1.4**: Contexto general, actores, matriz de acceso
 2. **Sección 1.3**: CASOS DE USO (CU1 a CU12) - Flujos de negocio completos
-3. **Sección 1.4**: REQUISITOS FUNCIONALES (RF1 a RF26) - Capacidades específicas del sistema
+3. **Sección 1.4**: REQUISITOS FUNCIONALES (RF1 a RF35) - Capacidades específicas del sistema
 4. **Secciones 1.5+**: Detalles técnicos, insumos, responsabilidades
 
 ---
@@ -76,7 +76,6 @@ Ejemplo:
 
 | CU | Descripción | RF Críticos 🟢 | RF Complementarios 🟡 | RF Auditoría 🔵 |
 |---|---|---|---|---|
-| **CU0** | Configurar Tipo de Cliente - Distribuidor + Email de Bonificación | RF32, RF33 | - | RF8 |
 | **CU1** | Crear Período | RF1 | RF2, RF3 | RF8 |
 | **CU2** | Crear Tipo de Bono | RF2 | RF1, RF3 | RF8 |
 | **CU3** | Crear Vigencia | RF3, RF11 | RF1, RF2, RF12 | RF8, RF24 |
@@ -89,33 +88,16 @@ Ejemplo:
 | **CU10** | Cierre de Período (Automático) | RF7, RF11, RF12, RF14, RF15 | RF10, RF16-A, RF16-B | RF8, RF23 |
 | **CU11** | Reconciliación NC (Manual) | RF15, RF17, RF18, RF19 | RF14 | RF8, RF22, RF23, RF25 |
 | **CU12** | Resolver Reclamación (Soporte) | RF8, RF21, RF22, RF23, RF24 | RF7 | RF20, RF25, RF26 |
+| **CU13** | Configurar Tipo de Cliente - Distribuidor + Email de Bonificación | RF32, RF33 | - | RF8 |
+| **CU14** | Gestionar Exclusión de Pedidos de Bonificación | RF35 | RF12 | RF8 |
 
 ---
 
 ### 1.3 Vista por Categoría de RF
 
-#### 1.3.1 🔧 **ADMINISTRACIÓN** (RF1-RF3, RF32-RF34)
+#### 1.3.1 🔧 **ADMINISTRACIÓN** (RF1-RF3, RF32-RF35)
 
 ```
-RF34 (Gestionar Descuento General de Distribuidor)
-├─ CU0 ━━━━ Configurar descuento general aplicable a TODOS los distribuidores (entrada principal)
-├─ CU7 ━━━ Usa descuento general en cálculo dinámico de Bono por Pedido
-├─ CU10 ━━ Usa descuento general en cierre automático de período
-├─ CU12 ━━ Admin ve descuento usado en análisis de reclamaciones
-└─ CU9 ━━━ Admin consulta descuento general configurado
-
-RF33 (Gestionar Email de Bonificación para Distribuidores)
-├─ CU0 ━━━━ Validar/configurar Email de Bonificación en distribuidores (entrada principal)
-├─ CU6 ━━━ Usar Email de Bonificación para enviar OTP
-├─ CU7 ━━━ Usar Email de Bonificación para notificaciones de gamificación
-└─ CU9 ━━━ Admin ve Email de Bonificación de cada distribuidor
-
-RF32 (Marcar/Identificar Customers como Distribuidores)
-├─ CU0 ━━━━ Marcar clientes tipo DISTRIBUIDOR (entrada principal)
-├─ CU6 ━━━ Validar que documento sea tipo DISTRIBUIDOR en OTP
-├─ CU7 ━━━ Filtra solo distribuidores en consultas de bonificación
-└─ CU9 ━━━ Admin solo consulta bonos de clientes tipo DISTRIBUIDOR
-
 RF1 (Gestionar Períodos)
 ├─ CU1 ━━━━ Crear período (entrada principal)
 ├─ CU9 ━━━ Consultar bonos por período
@@ -131,6 +113,30 @@ RF3 (Gestionar Vigencias)
 ├─ CU4 ━━━ Parámetros de facturación (si filtrada)
 ├─ CU5 ━━━ Parámetros de precios
 └─ CU24 ━ Auditoría de vigencias usadas
+
+RF32 (Marcar/Identificar Customers como Distribuidores)
+├─ CU13 ━━━━ Marcar clientes tipo DISTRIBUIDOR (entrada principal)
+├─ CU6 ━━━ Validar que documento sea tipo DISTRIBUIDOR en OTP
+├─ CU7 ━━━ Filtra solo distribuidores en consultas de bonificación
+└─ CU9 ━━━ Admin solo consulta bonos de clientes tipo DISTRIBUIDOR
+
+RF33 (Gestionar Email de Bonificación para Distribuidores)
+├─ CU13 ━━━━ Validar/configurar Email de Bonificación en distribuidores (entrada principal)
+├─ CU6 ━━━ Usar Email de Bonificación para enviar OTP
+├─ CU7 ━━━ Usar Email de Bonificación para notificaciones de gamificación
+└─ CU9 ━━━ Admin ve Email de Bonificación de cada distribuidor
+
+RF34 (Gestionar Descuento General de Distribuidor)
+├─ CU13 ━━━━ Configurar descuento general aplicable a TODOS los distribuidores (entrada principal)
+├─ CU7 ━━━ Usa descuento general en cálculo dinámico de Bono por Pedido
+├─ CU10 ━━ Usa descuento general en cierre automático de período
+├─ CU12 ━━ Admin ve descuento usado en análisis de reclamaciones
+└─ CU9 ━━━ Admin consulta descuento general configurado
+
+RF35 (Gestionar Exclusión de Pedidos de Bonificación)
+├─ CU14 ━━━━ Marcar pedidos especiales para excluir (entrada principal)
+├─ RF12 ━━━ Filtro de exclusión en cálculo de bonos
+└─ CU12 ━━ Auditoría completa para resolver reclamaciones
 ```
 
 #### 1.3.2 🔐 **SEGURIDAD** (RF4, RF5, RF20)
@@ -183,7 +189,8 @@ RF8 (Registrar Historial de Bonos)
 │  ├─ CU9 - Consulta admin
 │  ├─ CU10 - Cierre período
 │  ├─ CU11 - Reconciliación
-│  └─ CU12 - Investigación reclamación
+│  ├─ CU12 - Investigación reclamación
+│  └─ CU13 - Configurar Tipo de Cliente - Distribuidor + Email de Bonificación
 └─ CU12 ━━━━ Resolver reclamaciones (acceso principal)
 
 RF9 (Gamificación)
@@ -316,21 +323,63 @@ RF31 (Recordatorio Periódico: Progreso de Bonificación)
 └─ Preferencias: Distribuidor puede desuscribirse de recordatorios
 ```
 
+#### 1.3.9 🔒 **GESTIÓN DE EXCLUSIONES** (RF35)
+
+```
+RF35 (Gestionar Exclusión de Pedidos de Bonificación)
+├─ Ubicación: Módulo Pedidos (Creación + Edición)
+├─ Creación: Cualquier usuario con permiso
+│  ├─ Checkbox: "Pedido Especial (excluir de bonificación)"
+│  ├─ Default: SIN MARCAR (incluido en bonificación)
+│  ├─ Congelado al crear (no editable por usuarios normales)
+│  └─ Se registra en auditoría: ID Pedido, valor inicial, usuario, fecha
+│
+├─ Edición: SOLO Rol "ADMIN_EXCLUSION"
+│  ├─ Campo bloqueado para otros roles (visualización sin editar)
+│  ├─ ADMIN_EXCLUSION puede cambiar el flag
+│  ├─ Campo Motivo obligatorio (10-500 caracteres)
+│  ├─ Muestra ADVERTENCIA si distribuidor consultó su bono
+│  ├─ Calcula IMPACTO: muestra bono anterior vs bono nuevo
+│  ├─ REQUIERE confirmación antes de aplicar
+│  ├─ RECALCULA bonos del distribuidor si aplica
+│  └─ NOTIFICA distribuidor si bono disminuye
+│
+├─ Auditoría (PedidosExclusionLog):
+│  ├─ ID Pedido, ID Distribuidor, Valor Anterior/Nuevo
+│  ├─ Motivo, Usuario Admin, Fecha/Hora, IP, User Agent
+│  ├─ Bono Anterior, Bono Nuevo, Diferencia
+│  ├─ Distribuidor Notificado (SÍ/NO)
+│  └─ Fecha Notificación, Estado Notificación
+│
+├─ Impacto RF12:
+│  ├─ Filtro: Excluir pedidos con flag = TRUE de cálculo
+│  ├─ Fórmula actualizada: A = Σ(Pedidos) WHERE EstaExcluido = FALSE
+│  └─ Resultado: Bono se recalcula sin pedidos especiales
+│
+└─ Restricciones:
+   ├─ Flag NO editable después de crear (por usuarios normales)
+   ├─ Solo ADMIN_EXCLUSION puede cambiar flag
+   ├─ Campo Motivo OBLIGATORIO si ADMIN_EXCLUSION cambia
+   ├─ Se registra CADA intento (exitoso o fallido)
+   ├─ Cambio requiere confirmación previa
+   └─ Distribuidor solo notificado si bono DISMINUYE
+```
+
 ---
 
 ### 1.4 Resumen de Cobertura
 
 | Categoría | Cantidad | CU Afectados | RF Críticos |
 |---|---|---|---|
-| **Administración** | 3 RF | CU1, CU2, CU3, CU9, CU12 | RF1, RF2, RF3 |
-| **Seguridad** | 3 RF | CU6, CU7, CU8, CU9, CU11 | RF4, RF5, RF20 |
+| **Administración** | 6 RF | CU13, CU14, CU1, CU2, CU3, CU9, CU12 | RF1, RF2, RF3, RF32-RF35 |
+| **Seguridad** | 3 RF | CU6, CU7, CU8, CU9, CU11, CU14 | RF4, RF5, RF20 |
 | **Consultas** | 3 RF | CU7, CU8, CU9, CU12 | RF6, RF7, RF28 |
 | **Auditoría** | 2 RF | TODOS (transversal) | RF8, RF9 |
-| **Integración** | 6 RF | CU4, CU5, CU7, CU9, CU10, CU11 | RF10-RF15 |
+| **Integración** | 6 RF | CU4, CU5, CU7, CU9, CU10, CU11, CU14 | RF10-RF15 |
 | **Operaciones Usuario** | 5 RF | CU11 | RF16-RF20 |
 | **Reportería** | 7 RF | CU12 (principal) | RF21-RF27 |
-| **Notificaciones** | 3 RF | CU7 (principal) | RF29-RF31 |
-| **TOTAL** | **32 RF** | **12 CU** | **Todos relacionados** |
+| **Notificaciones** | 3 RF | CU7, CU14 (principal) | RF29-RF31 |
+| **TOTAL** | **35 RF** | **14 CU** | **Todos relacionados** |
 
 ---
 
@@ -422,7 +471,7 @@ CLIENTE DISTRIBUIDOR (en Aldebaran):
   └─ Contacto: Email/SMS para OTP
 
 PÁGINA PROMOCIONAL (Tercero):
-  ├─ Suministra: Lista de precios + Descuentos diarios
+  ├─ Suministra: Lista de precios unitarios diarios
   ├─ Aloja: Link/Botón "Ver mi bonificación" 
   └─ Redirecciona: A Sitio Público Aldebaran
 
@@ -538,7 +587,7 @@ PROCESO AUTOMÁTICO (Scheduled Jobs):
 
 ---
 
-## 1.8 Casos de Uso (12 Total)
+## 1.8 Casos de Uso (13 Total)
 
 ### 1.8.1 CU1: Crear Período (Definición de Periodicidad)
 
@@ -1274,6 +1323,104 @@ VALIDACIÓN REQUERIDA:
 
 ---
 
+### 1.8.13 CU13: Configurar Tipo de Cliente - Distribuidor + Email de Bonificación
+
+**Ubicación:** Aldebaran.Web  
+**Acceso:** Admin - Autenticación interna PROMOS  
+**Actor:** Administrador  
+**Objetivo:** Configurar clientes tipo DISTRIBUIDOR, gestionar emails de bonificación y descuentos generales aplicables a todos los distribuidores
+
+**Problemas que resuelve:**
+- Sistema necesita identificar qué clientes son DISTRIBUIDORES (para cálculo de bonificación)
+- Debe gestionar email de cada distribuidor (para envío de OTP y notificaciones automáticas)
+- Debe aplicar descuentos generales en cálculos dinámicos de bonos
+- Requisito previo y TRANSVERSAL: Sin CU13, otros CU no pueden ejecutarse
+
+**Información que debe poder ingresar:**
+- **Cliente a configurar** (búsqueda/selección de cliente existente en BD Aldebaran)
+- **Marcar como DISTRIBUIDOR** (checkbox: Sí/No)
+- **Email de Bonificación** (texto, validación de formato email)
+- **Descuento General de Distribuidor** (número decimal 0-100%)
+- **Estado** (Activo / Inactivo)
+
+**Información que valida:**
+- Cliente existe en BD Aldebaran
+- Email es válido (formato correcto)
+- Email es accesible (envío de prueba opcional)
+- Descuento está en rango 0-100%
+- No puede marcar como DISTRIBUIDOR sin email válido
+
+**Información que registra:**
+- Tabla: `DistribuidoresConfiguracion` (nueva)
+  - ID_Cliente
+  - EsDistribuidor (boolean)
+  - EmailBonificacion (string)
+  - DescuentoGeneral (decimal)
+  - Estado (boolean)
+  - FechaCreacion (datetime)
+  - FechaUltimaModificacion (datetime)
+  - UsuarioModifico (string)
+
+**Acciones que puede realizar:**
+- Buscar cliente existente en BD
+- Marcar cliente como DISTRIBUIDOR
+- Ingresar/cambiar email de bonificación
+- Configurar descuento general (0-100%)
+- Ver listado de todos los distribuidores configurados
+- Activar/Desactivar distribuidor
+- Modificar configuración de distribuidor existente
+- Enviar email de prueba (opcional)
+- Ver historial de cambios
+
+**Restricciones:**
+- ❌ No puede marcar como DISTRIBUIDOR sin email válido
+- ❌ No puede ingresar descuento fuera de rango 0-100%
+- ❌ No puede dejar email vacío si está marcado como DISTRIBUIDOR
+- ❌ Cambios afectan INMEDIATAMENTE a cálculos dinámicos (CU7)
+- ❌ Cambios afectan INMEDIATAMENTE a próximos cierres de período (CU10)
+- ❌ No puede eliminar DISTRIBUIDOR (solo desactivar)
+- ✅ CU13 DEBE ejecutarse ANTES que CU1-CU12
+
+**Impacto en otros CU:**
+
+```
+CU13 → RF32 (Marcar/Identificar Customers como Distribuidores)
+CU13 → RF33 (Gestionar Email de Bonificación para Distribuidores)
+CU13 → RF34 (Gestionar Descuento General de Distribuidor)
+
+Dependencias de CU13:
+├─ CU6 (Autenticar Distribuidor) → Usa Email de CU13 para enviar OTP
+├─ CU7 (Consultar Bonificación) → Usa Descuento General de CU13
+├─ CU9 (Consultar Bono Admin) → Filtra SOLO distribuidores marcados en CU13
+├─ CU10 (Cierre de Período) → Usa Descuento General de CU13
+├─ CU11 (Reconciliación NC) → Valida distribuidores de CU13
+└─ CU12 (Resolver Reclamación) → Usa Email de CU13 para notificaciones
+```
+
+**Ejemplo de uso:**
+
+```
+PASO 1: Admin busca cliente "DIST-COLOMBIA-001"
+        ↓
+PASO 2: Marca checkbox "Es Distribuidor" = SÍ
+        ↓
+PASO 3: Ingresa Email = "bonificacion@distcol.com"
+        ↓
+PASO 4: Ingresa Descuento General = 2.5% (se aplica a TODOS los bonos)
+        ↓
+PASO 5: Selecciona Estado = ACTIVO
+        ↓
+PASO 6: Confirma y GUARDA
+        ↓
+RESULTADO:
+├─ Cliente "DIST-COLOMBIA-001" ahora es DISTRIBUIDOR
+├─ Email registrado para OTP y notificaciones
+├─ Descuento 2.5% aplicará en cálculo de bonos
+└─ INMEDIATAMENTE disponible para CU6, CU7, CU9, CU10...
+```
+
+---
+
 ## 1.9 Responsabilidades Bien Definidas (APLICABLES A TODO EL SISTEMA)
 
 ```
@@ -1532,6 +1679,10 @@ VALIDACIÓN REQUERIDA:
 | RF29 | **Notificación: Alcanzó Nuevo Nivel de Bonificación (Email)** | Notificaciones |
 | RF30 | **Notificación: Cerca del Siguiente Nivel (Email - Umbral Configurable)** | Notificaciones |
 | RF31 | **Recordatorio Periódico: Progreso de Bonificación (Email)** | Notificaciones |
+| RF32 | Marcar/Identificar Customers como Distribuidores | Administración |
+| RF33 | Gestionar Email de Bonificación para Distribuidores | Administración |
+| RF34 | Gestionar Descuento General de Distribuidor | Administración |
+| RF35 | Gestionar Exclusión de Pedidos de Bonificación | Administración |
 
 ---
 
@@ -1935,9 +2086,9 @@ Resultado final:
 | **Reportería** | 6 reportes + Exportación Excel/PDF |
 | **Automatización** | Descarga de precios + Cierre de períodos + Consulta de Facturación|
 
-### 1.12.2 📊 34 Requisitos Funcionales Definidos
+### 1.12.2 📊 35 Requisitos Funcionales Definidos
 
-- **6 de Administración** (RF1-RF3, RF32-RF34)
+- **7 de Administración** (RF1-RF3, RF32-RF35)
 - **3 de Seguridad** (RF4-RF5, RF20)
 - **3 de Consultas** (RF6-RF7, RF28)
 - **2 de Historial** (RF8-RF9)
