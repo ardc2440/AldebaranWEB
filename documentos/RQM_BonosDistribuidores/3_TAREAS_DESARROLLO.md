@@ -792,6 +792,7 @@ services.AddHostedService<BonificationPeriodRolloverJob>();
       Task UpdateAsync(int id, BonificationType bonificationType, CancellationToken ct = default);
       Task<BonificationType?> FindAsync(int id, CancellationToken ct = default);
       Task<BonificationType?> FindWithPeriodAsync(int id, CancellationToken ct = default);
+      Task<BonificationType?> GetActiveAsync(CancellationToken ct = default);
       Task<(IEnumerable<BonificationType>, int)> GetAsync(int? skip, int? top, CancellationToken ct = default);
       Task<(IEnumerable<BonificationType>, int)> GetAsync(int skip, int top, string searchKey, CancellationToken ct = default);
       Task<bool> ExistsByNameAsync(string name, CancellationToken ct = default);
@@ -800,7 +801,7 @@ services.AddHostedService<BonificationPeriodRolloverJob>();
   }
   ```
 
-- `Aldebaran.DataAccess.Infraestructure\Repository\BonificationTypeRepository.cs` — implementación usando `RepositoryBase<AldebaranDbContext>` (mismo patrón que `AreaRepository`)
+- `Aldebaran.DataAccess.Infraestructure\Repository\BonificationTypeRepository.cs` — implementación usando `RepositoryBase<AldebaranDbContext>`
   - `FindWithPeriodAsync`: hace `Include(t => t.BonificationPeriod)` para cargar la duración
   - `HasActiveInstanceAsync`: verifica si existe alguna `BonificationPeriodInstance` con `STATUS IN ('OPEN','IN_PROGRESS')` para este TipoBono
   - `HasActiveVigencyAsync`: verifica si existe alguna `BonificationVigency` activa para este TipoBono (usado por el job de rollover)
@@ -1116,7 +1117,7 @@ Estructura idéntica a la entidad pero sin dependencias de EF (POCO puros).
 **Crear dialog `EditBonificationVigency.razor` + `EditBonificationVigency.razor.cs`**
 
 **Estructura:**
-- Misma estructura que TAREA-034
+- Mismos campos que TAREA-034
 - **Si estado = `PENDING`** ? cabecera y rangos son editables (la fecha de activación aún no llegó)
 - **Si estado = `ACTIVE` o `INACTIVE`** ? todo en modo solo lectura con mensaje explicativo: "Esta vigencia está en curso o fue reemplazada. No se pueden modificar sus rangos."
 - Botones: Guardar (solo visible si PENDING) / Cerrar
@@ -1129,7 +1130,7 @@ Estructura idéntica a la entidad pero sin dependencias de EF (POCO puros).
 
 ### 2.1.6 Vigencias de Descuentos por Total de Pedido
 
-> Ref. propuesta funcional: sección 2.2.0.3 (MD v1.4)  
+> Ref. propuesta funcional: seccion 2.2.0.3 (MD v1.4)  
 > Funcionalidad completamente nueva. **Independiente de las Vigencias de Bonificación.**  
 >  
 > Permite configurar vigencias de descuento que se aplican de forma **uniforme a todos los distribuidores** en el cálculo del **Bono por Pedido**.  
@@ -1413,7 +1414,7 @@ public async Task ActivateAsync(int vigencyId, CancellationToken ct)
 **Crear dialog `EditDiscountVigency.razor` + `EditDiscountVigency.razor.cs`**
 
 **Estructura:**
-- Misma estructura que TAREA-043
+- Mismos campos que TAREA-043
 - **Si estado = `PENDING`** ? cabecera y rangos editables
 - **Si estado = `ACTIVE` o `INACTIVE`** ? todo en modo solo lectura con mensaje: "Esta vigencia está en curso o fue reemplazada. No se pueden modificar sus rangos."
 - Botones: Guardar (solo visible si `PENDING`) / Cerrar
@@ -1440,7 +1441,7 @@ public async Task ActivateAsync(int vigencyId, CancellationToken ct)
 ??? Administración                    ? sin cambios
 ??? Movimientos de Inventario         ? sin cambios
 ??? Bonificaciones                    ? NUEVO ítem de nivel raíz
-?   ??? Configuración
+?   ??? Configuración para Bonificaciones
 ?   ?   ??? Períodos                  ? bonification/periods      (TAREA-016)
 ?   ?   ??? Tipos de Bono             ? bonification/types        (TAREA-024)
 ?   ?   ??? Vigencias                 ? bonification/vigencies    (TAREA-033)
@@ -1463,7 +1464,7 @@ public async Task ActivateAsync(int vigencyId, CancellationToken ct)
 ```razor
 <RadzenPanelMenuItem Text="Bonificaciones" Icon="percent"
     Visible="@Security.IsInRole("Administrador","Consulta de bonificaciones","Modificación de bonificaciones","Ingreso de OC especiales de bonificación")">
-    <RadzenPanelMenuItem Text="Configuración" Icon="settings">
+    <RadzenPanelMenuItem Text="Configuración para Bonificaciones" Icon="settings">
         <RadzenPanelMenuItem Text="Períodos"
             Path="bonification/periods"
             Visible="@Security.IsInRole("Administrador","Consulta de bonificaciones","Modificación de bonificaciones")" />
@@ -1483,3 +1484,551 @@ public async Task ActivateAsync(int vigencyId, CancellationToken ct)
             Visible="@Security.IsInRole("Administrador","Ingreso de OC especiales de bonificación")" />
     </RadzenPanelMenuItem>
 </RadzenPanelMenuItem>
+
+```
+
+---
+
+## 2.2 Modulo de Operaciones de Bonificacion
+
+> Accesible desde el menu **Bonificaciones > Operaciones**.  
+> Contiene las operaciones manuales que el equipo de PROMOS ejecuta durante el ciclo de bonificacion.
+
+---
+
+### 2.2.1 Gestión de Ordenes de Compra Especiales (OC Especiales)
+
+> Ref. propuesta funcional: sección 2.1.3 (modalidad Bonificación por Facturación).  
+> Permite registrar montos de facturación especiales para un distribuidor en un periodo activo,  
+> que deben sumarse a la base de cálculo del **Bono por Facturación** (fuente TOTUS).  
+>  
+> Casos de uso típicos: descuentos retroactivos, ajustes de NC, operaciones fuera de TOTUS que PROMOS  
+> decide reconocer como base de bonificación.  
+>  
+> **Dos caminos de ingreso:**
+> 1. **Manual** — Ingreso OC por OC desde la interfaz (TAREA-051 a TAREA-054)
+> 2. **Masivo** — Carga de archivo Excel/CSV con múltiples OC en un solo paso (TAREA-055 a TAREA-058)
+>
+> En ambos casos las OC nacen en estado `PENDIENTE` y requieren aprobación explícita antes de impactar el cálculo.  
+>  
+> **Solo un usuario con rol `Ingreso de OC especiales de bonificación`** puede registrar y gestionar estas OC.
+
+---
+
+#### TAREA-046 ? ???
+**Crear tabla `BonificationSpecialOrders`**
+
+**Script SQL a crear:** `scripts/CreateBonificationSpecialOrdersTable.sql`
+
+```sql
+CREATE TABLE dbo.BonificationSpecialOrders (
+    SPECIAL_ORDER_ID                 INT             NOT NULL IDENTITY(1,1),
+    CUSTOMER_ID                      INT             NOT NULL,   -- FK a Customers (solo distribuidores)
+    BONIFICATION_PERIOD_INSTANCE_ID  INT             NOT NULL,   -- FK a instancia activa (TipoBono BILLING)
+    AMOUNT                           DECIMAL(18,2)   NOT NULL,   -- monto a sumar en base de calculo
+    DESCRIPTION                      VARCHAR(500)    NOT NULL,   -- motivo obligatorio
+    STATUS                           VARCHAR(20)     NOT NULL DEFAULT 'PENDIENTE',
+    CREATED_BY                       INT             NOT NULL,   -- FK a ApplicationUser
+    CREATED_AT                       DATETIME        NOT NULL DEFAULT GETUTCDATE(),
+    REVIEWED_BY                      INT             NULL,       -- FK a ApplicationUser (quien aprobo/rechazo)
+    REVIEWED_AT                      DATETIME        NULL,
+    REJECTION_REASON                 VARCHAR(500)    NULL,       -- obligatorio si STATUS = RECHAZADA
+    CONSTRAINT PK_BONIFICATION_SPECIAL_ORDER PRIMARY KEY CLUSTERED (SPECIAL_ORDER_ID),
+    CONSTRAINT FK_SPECIAL_ORDER_CUSTOMER FOREIGN KEY (CUSTOMER_ID)
+        REFERENCES dbo.Customers (CUSTOMER_ID),
+    CONSTRAINT FK_SPECIAL_ORDER_PERIOD_INSTANCE FOREIGN KEY (BONIFICATION_PERIOD_INSTANCE_ID)
+        REFERENCES dbo.BonificationPeriodInstances (BONIFICATION_PERIOD_INSTANCE_ID),
+    CONSTRAINT CK_SPECIAL_ORDER_STATUS CHECK (STATUS IN ('PENDIENTE','APROBADA','RECHAZADA')),
+    CONSTRAINT CK_SPECIAL_ORDER_AMOUNT CHECK (AMOUNT >= 0)
+);
+
+-- Indices para busquedas frecuentes
+CREATE NONCLUSTERED INDEX IX_SPECIAL_ORDER_CUSTOMER_INSTANCE
+    ON dbo.BonificationSpecialOrders (CUSTOMER_ID, BONIFICATION_PERIOD_INSTANCE_ID, STATUS);
+
+CREATE NONCLUSTERED INDEX IX_SPECIAL_ORDER_STATUS
+    ON dbo.BonificationSpecialOrders (STATUS);
+```
+
+---
+
+#### TAREA-047 ? ??
+**Crear entidad EF: `BonificationSpecialOrder`**
+
+**Archivo a crear:**
+- `Aldebaran.DataAccess\Entities\BonificationSpecialOrder.cs`
+  ```csharp
+  public class BonificationSpecialOrder
+  {
+      public int SpecialOrderId { get; set; }
+      public int CustomerId { get; set; }
+      public int BonificationPeriodInstanceId { get; set; }
+      public decimal Amount { get; set; }
+      public string Description { get; set; }
+      public string Status { get; set; }  // PENDIENTE | APROBADA | RECHAZADA
+      public int CreatedBy { get; set; }
+      public DateTime CreatedAt { get; set; }
+      public int? ReviewedBy { get; set; }
+      public DateTime? ReviewedAt { get; set; }
+      public string RejectionReason { get; set; }
+
+      // Navegacion
+      public Customer Customer { get; set; }
+      public BonificationPeriodInstance PeriodInstance { get; set; }
+  }
+  ```
+
+- `Aldebaran.DataAccess\Configuration\BonificationSpecialOrderConfiguration.cs` — mapeo EF completo
+
+**Modificar:**
+- `Aldebaran.DataAccess\AldebaranDbContext.cs` ? agregar:
+  ```csharp
+  public DbSet<BonificationSpecialOrder> BonificationSpecialOrders { get; set; }
+  ```
+
+---
+
+#### TAREA-048 ? ??
+**Crear modelo de servicio: `BonificationSpecialOrder`**
+
+**Archivos a crear:**
+- `Aldebaran.Application.Services\Models\BonificationSpecialOrder.cs` — POCO puro
+
+**Agregar mappings en `ApplicationServicesProfile.cs`:**
+```csharp
+CreateMap<BonificationSpecialOrder, Entities.BonificationSpecialOrder>().ReverseMap();
+```
+
+---
+
+#### TAREA-049 ? ??
+**Crear `IBonificationSpecialOrderRepository` y `BonificationSpecialOrderRepository`**
+
+**Archivo a crear:**
+- `Aldebaran.DataAccess.Infraestructure\Repository\IBonificationSpecialOrderRepository.cs`
+  ```csharp
+  public interface IBonificationSpecialOrderRepository
+  {
+      Task AddAsync(BonificationSpecialOrder order, CancellationToken ct = default);
+      Task UpdateAsync(int id, BonificationSpecialOrder order, CancellationToken ct = default);
+      Task<BonificationSpecialOrder?> FindAsync(int id, CancellationToken ct = default);
+      Task<(IEnumerable<BonificationSpecialOrder>, int)> GetAsync(
+          int? skip, int? top,
+          int? customerId, string? status,
+          CancellationToken ct = default);
+      Task<decimal> GetApprovedTotalAsync(
+          int customerId,
+          int periodInstanceId,
+          CancellationToken ct = default);
+      Task UpdateStatusAsync(
+          int id, string newStatus,
+          int reviewedBy, DateTime reviewedAt,
+          string? rejectionReason,
+          CancellationToken ct = default);
+  }
+  ```
+
+- `Aldebaran.DataAccess.Infraestructure\Repository\BonificationSpecialOrderRepository.cs` — implementacion usando `RepositoryBase<AldebaranDbContext>`
+  - `GetApprovedTotalAsync`: `SUM(AMOUNT) WHERE STATUS = 'APROBADA' AND CUSTOMER_ID = x AND PERIOD_INSTANCE_ID = y`
+
+---
+
+#### TAREA-050 ? ??
+**Crear `IBonificationSpecialOrderService` y `BonificationSpecialOrderService`**
+
+**Archivo a crear:**
+- `Aldebaran.Application.Services\Services\IBonificationSpecialOrderService.cs`
+  ```csharp
+  public interface IBonificationSpecialOrderService
+  {
+      Task AddAsync(BonificationSpecialOrder order, CancellationToken ct = default);
+      Task ApproveAsync(int id, int reviewedBy, CancellationToken ct = default);
+      Task RejectAsync(int id, int reviewedBy, string rejectionReason, CancellationToken ct = default);
+      Task<BonificationSpecialOrder?> FindAsync(int id, CancellationToken ct = default);
+      Task<(IEnumerable<BonificationSpecialOrder>, int)> GetAsync(
+          int? skip, int? top,
+          int? customerId, string? status,
+          CancellationToken ct = default);
+      Task<decimal> GetApprovedTotalAsync(int customerId, int periodInstanceId, CancellationToken ct = default);
+  }
+  ```
+
+- `Aldebaran.Application.Services\Services\BonificationSpecialOrderService.cs`
+
+**Validaciones de negocio:**
+- `CustomerId` debe existir y tener `IsDistributor = true`
+- `BonificationPeriodInstanceId` debe existir y tener `STATUS = 'IN_PROGRESS'` con `CalculationBase = 'BILLING'`
+- `Amount` debe ser `>= 0`
+- `Description` obligatoria (minimo 10 caracteres)
+- Una OC solo puede aprobarse o rechazarse si esta en estado `PENDIENTE`
+- `RejectionReason` es obligatoria si el estado cambia a `RECHAZADA` (minimo 10 caracteres)
+- Solo el rol `Ingreso de OC especiales de bonificación` puede crear OC (validacion de rol en el controlador / pagina)
+- No se puede modificar una OC en estado `APROBADA` o `RECHAZADA`
+
+**Modificar:**
+- `Aldebaran.Web\Extensions\ArchitectureBuilderExtensions.cs` ? agregar:
+  ```csharp
+  services.AddTransient<IBonificationSpecialOrderRepository, BonificationSpecialOrderRepository>();
+  services.AddTransient<IBonificationSpecialOrderService, BonificationSpecialOrderService>();
+  ```
+
+---
+
+#### TAREA-051 ? ???
+**Crear pagina de listado `BonificationSpecialOrders.razor` + `.razor.cs`**
+
+**Ruta:** `Pages\BonificationPages\BonificationSpecialOrders.razor`  
+**URL:** `/bonification/special-orders`  
+**Rol requerido:** `Administrador`, `Ingreso de OC especiales de bonificación`
+
+**Estructura:**
+- Titulo: "OC Especiales de Bonificacion"
+- Filtros superiores:
+  - Dropdown **Distribuidor** (`RadzenDropDownDataGrid` — solo clientes con `IsDistributor = true`)
+  - Dropdown **Estado** (Todos / Pendiente / Aprobada / Rechazada)
+  - Boton "Buscar"
+- `RadzenDataGrid` con columnas:
+
+| Columna | Detalle |
+|---------|---------|
+| # | `SpecialOrderId` |
+| Distribuidor | `Customer.CustomerName` |
+| Periodo | `PeriodInstance.InstanceCode` + rango fechas |
+| Monto | `Amount` formateado como moneda |
+| Descripcion | `Description` (truncada a 60 chars con tooltip completo) |
+| Estado | Badge: ?? PENDIENTE / ?? APROBADA / ?? RECHAZADA |
+| Creada por | nombre del usuario + fecha |
+| Revisada por | nombre del usuario + fecha (vacio si PENDIENTE) |
+| Acciones | Ver detalle / Aprobar / Rechazar |
+
+- Boton "Nueva OC Especial" (solo rol `Ingreso de OC especiales de bonificación`)
+- Botones **Aprobar** y **Rechazar** visibles solo si estado = `PENDIENTE`
+- Row expand: muestra `RejectionReason` si estado = `RECHAZADA`
+
+---
+
+#### TAREA-052 ? ???
+**Crear dialog `AddBonificationSpecialOrder.razor` + `.razor.cs`**
+
+**Estructura:**
+- Campos:
+  - **Distribuidor** (`RadzenDropDownDataGrid` — solo `IsDistributor = true`, con buscador)
+  - **Periodo Activo** (`RadzenDropDown` — carga instancias `IN_PROGRESS` con `CalculationBase = BILLING` del distribuidor seleccionado; se recarga al cambiar distribuidor)
+  - **Monto** (`RadzenNumeric`, obligatorio, `>= 0`, formato moneda)
+  - **Descripcion / Motivo** (`RadzenTextArea`, obligatorio, minimo 10 caracteres, maximo 500)
+- Validaciones client-side con `RadzenRequiredValidator`
+- Nota informativa: "Esta OC quedara en estado PENDIENTE hasta ser aprobada o rechazada."
+- Botones: Guardar / Cancelar
+
+---
+
+#### TAREA-053 ? ???
+**Crear dialog `ApproveBonificationSpecialOrder.razor` + `ApproveBonificationSpecialOrder.razor.cs`**
+
+**Estructura (modal de confirmacion simple):**
+- Muestra resumen de la OC:
+  - Distribuidor, Periodo, Monto, Descripción
+- Mensaje: "Al aprobar esta OC, el monto **$[Amount]** sera incluido en la base de calculo del Bono por Facturacion del distribuidor para el periodo **[InstanceCode]**."
+- Botones: Aprobar / Cancelar
+- Al confirmar ? llama `BonificationSpecialOrderService.ApproveAsync`
+
+---
+
+#### TAREA-054 ? ???
+**Crear dialog `RejectBonificationSpecialOrder.razor` + `RejectBonificationSpecialOrder.razor.cs`**
+
+**Estructura:**
+- Muestra resumen de la OC (Distribuidor, Periodo, Monto)
+- Campo obligatorio: **Motivo del Rechazo** (`RadzenTextArea`, minimo 10 caracteres, maximo 500)
+- Mensaje de advertencia: "Esta accion es irreversible. La OC no podra ser reactivada."
+- Botones: Rechazar / Cancelar
+- Al confirmar ? llama `BonificationSpecialOrderService.RejectAsync`
+
+---
+
+### 2.2.2 Carga Masiva de OC Especiales
+
+> Complemento del camino manual (sección 2.2.1).  
+> Permite a PROMOS cargar un archivo **Excel/CSV** con múltiples OC Especiales en un solo paso,  
+> en lugar de ingresarlas una a una. Útil al inicio de un período o en ajustes masivos de NC.  
+>  
+> El archivo es procesado fila a fila; cada fila genera una `BonificationSpecialOrder` en estado `PENDIENTE`.  
+> Las OC generadas son idénticas en estructura a las ingresadas manualmente y pasan por el mismo  
+> flujo de aprobación/rechazo (TAREA-053/054).
+
+---
+
+**Flujo del proceso:**
+
+```
+[Usuario] Descarga plantilla Excel
+       ?
+[Usuario] Completa el archivo con las OC (Distribuidor, Período, Monto, Descripción)
+       ?
+[Usuario] Sube el archivo en la pantalla de Carga Masiva
+       ?
+[Sistema] Valida encabezados y estructura del archivo
+       ?
+[Sistema] Valida fila a fila:
+  - Distribuidor existe y es DISTRIBUIDOR
+  - Período está IN_PROGRESS y es BILLING
+  - Monto >= 0
+  - Descripción >= 10 caracteres
+       ?
+[Sistema] Muestra resumen previo a confirmación:
+  - N filas válidas ? se crearán como PENDIENTE
+  - M filas con errores ? se listan con mensaje específico por fila
+       ?
+[Usuario] Confirma la carga (solo las filas válidas)
+       ?
+[Sistema] Inserta las OC válidas como PENDIENTE
+[Sistema] Descarga reporte de resultado (válidas + errores)
+```
+
+**Reglas de procesamiento:**
+- Una fila con error **no cancela** el resto del lote — se procesan las válidas y se reportan los errores
+- El usuario puede corregir el archivo y volver a subir solo las filas fallidas
+- Máximo **500 filas** por archivo (configurable)
+- Formatos soportados: `.xlsx` y `.csv` (separado por coma o punto y coma)
+
+---
+
+**Estructura de la plantilla Excel/CSV:**
+
+| Columna | Campo | Obligatorio | Validación |
+|---------|-------|-------------|------------|
+| A | Número Documento Distribuidor | Sí | Debe existir en Customers con IsDistributor = true |
+| B | Código Período | Sí | InstanceCode de BonificationPeriodInstance IN_PROGRESS + BILLING |
+| C | Monto | Sí | Decimal >= 0 |
+| D | Descripción / Motivo | Sí | 10 a 500 caracteres |
+
+> **Nota:** La plantilla se descarga directamente desde la pantalla de carga masiva e incluye una hoja de instrucciones y una hoja de ejemplo.
+
+---
+
+#### TAREA-055 ? ??
+**Agregar método `BulkAddAsync` en `IBonificationSpecialOrderRepository` y `BonificationSpecialOrderService`**
+
+**Cambios en `IBonificationSpecialOrderRepository` (TAREA-049):**
+```csharp
+Task<int> BulkAddAsync(IEnumerable<BonificationSpecialOrder> orders, CancellationToken ct = default);
+```
+- Inserta múltiples registros en una sola transacción
+- Retorna el número de registros insertados
+
+**Cambios en `IBonificationSpecialOrderService` (TAREA-050):**
+```csharp
+Task<BulkSpecialOrderResult> BulkAddAsync(
+    IEnumerable<BonificationSpecialOrderImportRow> rows,
+    int createdBy,
+    CancellationToken ct = default);
+```
+
+**Modelo de resultado:**
+- `Aldebaran.Application.Services\Models\BulkSpecialOrderResult.cs`
+  ```csharp
+  public class BulkSpecialOrderResult
+  {
+      public int TotalRows { get; set; }
+      public int SuccessCount { get; set; }
+      public int ErrorCount { get; set; }
+      public IEnumerable<BulkSpecialOrderRowError> Errors { get; set; }
+  }
+
+  public class BulkSpecialOrderRowError
+  {
+      public int RowNumber { get; set; }
+      public string IdentityNumber { get; set; }   // Número doc del distribuidor en el archivo
+      public string PeriodCode { get; set; }        // Código período en el archivo
+      public string ErrorMessage { get; set; }      // Descripción del error
+  }
+  ```
+
+**Modelo de fila de importación:**
+- `Aldebaran.Application.Services\Models\BonificationSpecialOrderImportRow.cs`
+  ```csharp
+  public class BonificationSpecialOrderImportRow
+  {
+      public int RowNumber { get; set; }
+      public string DistributorIdentityNumber { get; set; }
+      public string PeriodInstanceCode { get; set; }
+      public decimal Amount { get; set; }
+      public string Description { get; set; }
+  }
+  ```
+
+**Lógica en `BonificationSpecialOrderService.BulkAddAsync`:**
+```csharp
+public async Task<BulkSpecialOrderResult> BulkAddAsync(
+    IEnumerable<BonificationSpecialOrderImportRow> rows,
+    int createdBy,
+    CancellationToken ct)
+{
+    var errors = new List<BulkSpecialOrderRowError>();
+    var validOrders = new List<BonificationSpecialOrder>();
+
+    foreach (var row in rows)
+    {
+        // Validar distribuidor
+        var customer = await _customerRepo.FindByIdentityNumberAsync(row.DistributorIdentityNumber, ct);
+        if (customer == null || !customer.IsDistributor)
+        {
+            errors.Add(new() { RowNumber = row.RowNumber, IdentityNumber = row.DistributorIdentityNumber,
+                PeriodCode = row.PeriodInstanceCode, ErrorMessage = "Distribuidor no encontrado o no es tipo DISTRIBUIDOR" });
+            continue;
+        }
+
+        // Validar instancia de período
+        var instance = await _instanceRepo.FindByCodeAsync(row.PeriodInstanceCode, ct);
+        if (instance == null || instance.Status != "IN_PROGRESS" || instance.BonificationType.CalculationBase != "BILLING")
+        {
+            errors.Add(new() { RowNumber = row.RowNumber, IdentityNumber = row.DistributorIdentityNumber,
+                PeriodCode = row.PeriodInstanceCode, ErrorMessage = "Período no encontrado, no está activo o no es de tipo Facturación" });
+            continue;
+        }
+
+        // Validar monto
+        if (row.Amount < 0)
+        {
+            errors.Add(new() { RowNumber = row.RowNumber, ErrorMessage = "El monto no puede ser negativo" });
+            continue;
+        }
+
+        // Validar descripción
+        if (string.IsNullOrWhiteSpace(row.Description) || row.Description.Length < 10)
+        {
+            errors.Add(new() { RowNumber = row.RowNumber, ErrorMessage = "La descripción debe tener al menos 10 caracteres" });
+            continue;
+        }
+
+        validOrders.Add(new BonificationSpecialOrder
+        {
+            CustomerId = customer.CustomerId,
+            BonificationPeriodInstanceId = instance.BonificationPeriodInstanceId,
+            Amount = row.Amount,
+            Description = row.Description,
+            Status = "PENDIENTE",
+            CreatedBy = createdBy,
+            CreatedAt = DateTime.UtcNow
+        });
+    }
+
+    if (validOrders.Any())
+        await _repo.BulkAddAsync(_mapper.Map<IEnumerable<Entities.BonificationSpecialOrder>>(validOrders), ct);
+
+    return new BulkSpecialOrderResult
+    {
+        TotalRows = rows.Count(),
+        SuccessCount = validOrders.Count,
+        ErrorCount = errors.Count,
+        Errors = errors
+    };
+}
+```
+
+---
+
+#### TAREA-056 ? ??
+**Crear `IBonificationSpecialOrderImportService` para parseo y validación del archivo**
+
+**Archivo a crear:**
+- `Aldebaran.Application.Services\Services\IBonificationSpecialOrderImportService.cs`
+  ```csharp
+  public interface IBonificationSpecialOrderImportService
+  {
+      /// <summary>
+      /// Parsea el archivo Excel/CSV y retorna las filas como modelos de importación.
+      /// NO valida contra BD — solo estructura y tipos de datos.
+      /// </summary>
+      Task<IEnumerable<BonificationSpecialOrderImportRow>> ParseFileAsync(
+          Stream fileStream,
+          string fileName,
+          CancellationToken ct = default);
+
+      /// <summary>
+      /// Genera la plantilla Excel para descarga.
+      /// </summary>
+      Task<byte[]> GenerateTemplateAsync(CancellationToken ct = default);
+  }
+  ```
+
+- `Aldebaran.Application.Services\Services\BonificationSpecialOrderImportService.cs`
+  - Usa **ClosedXML** para leer `.xlsx` y **CsvHelper** para `.csv` (ambas librerías ya disponibles en el proyecto si se usan en reportes; si no, agregar NuGet)
+  - `ParseFileAsync`: lee encabezados, valida que existan las 4 columnas requeridas, parsea cada fila a `BonificationSpecialOrderImportRow`, asigna `RowNumber`
+  - `GenerateTemplateAsync`: genera un `.xlsx` con:
+    - Hoja 1 "Plantilla": encabezados con formato y columnas bloqueadas
+    - Hoja 2 "Instrucciones": descripción de cada campo y ejemplos
+    - Hoja 3 "Ejemplo": 3 filas de ejemplo con datos ficticios
+
+**Modificar `ArchitectureBuilderExtensions.cs`:**
+```csharp
+services.AddTransient<IBonificationSpecialOrderImportService, BonificationSpecialOrderImportService>();
+```
+
+---
+
+#### TAREA-057 ? ???
+**Crear página `BulkBonificationSpecialOrders.razor` + `.razor.cs`**
+
+**Ruta:** `Pages\BonificationPages\BulkBonificationSpecialOrders.razor`  
+**URL:** `/bonification/special-orders/bulk`  
+**Rol requerido:** `Administrador`, `Ingreso de OC especiales de bonificación`
+
+**Estructura:**
+- Título: "Carga Masiva de OC Especiales"
+- Link "? Volver al listado de OC" (navega a `/bonification/special-orders`)
+
+**Paso 1 — Descarga de plantilla:**
+- Botón "Descargar Plantilla Excel"
+  - Llama `BonificationSpecialOrderImportService.GenerateTemplateAsync()`
+  - Descarga archivo `Plantilla_OC_Especiales.xlsx`
+
+**Paso 2 — Carga del archivo:**
+- `RadzenUpload` (acepta `.xlsx` y `.csv`, máximo 5 MB)
+- Al seleccionar archivo ? muestra nombre y tamaño
+- Botón "Procesar Archivo"
+  - Llama `BonificationSpecialOrderImportService.ParseFileAsync()`
+  - Si hay errores de estructura ? muestra mensaje de error y detiene el proceso
+
+**Paso 3 — Vista previa y confirmación:**
+- Muestra resumen antes de confirmar:
+  - `RadzenAlert` con: "Se encontraron **N filas válidas** y **M filas con errores**."
+- Tabla de filas válidas (solo lectura): Distribuidor, Período, Monto, Descripción
+- Tabla de filas con errores: Fila #, Distribuidor, Período, Mensaje de Error
+  - Botón "Descargar reporte de errores" (Excel con las filas fallidas)
+- Botón "Confirmar Carga" ? solo si hay al menos 1 fila válida
+  - Llama `BonificationSpecialOrderService.BulkAddAsync()`
+  - Muestra resultado final: "Se crearon N OC Especiales en estado PENDIENTE."
+  - Link "Ver OC creadas" ? navega a `/bonification/special-orders?filter=PENDIENTE`
+
+---
+
+#### TAREA-058 ? ???
+**Agregar acceso a Carga Masiva desde `BonificationSpecialOrders.razor`**
+
+**Cambios en `BonificationSpecialOrders.razor` (TAREA-051):**
+- Agregar botón "Carga Masiva" junto al botón "Nueva OC Especial"
+  - Solo visible para rol `Ingreso de OC especiales de bonificación`
+  - Navega a `/bonification/special-orders/bulk`
+
+---
+
+#### Resumen de archivos adicionales — Carga Masiva
+
+| Archivo | Tarea | Tipo |
+|---------|-------|------|
+| `IBonificationSpecialOrderImportService.cs` | 056 | Nuevo |
+| `BonificationSpecialOrderImportService.cs` | 056 | Nuevo |
+| `Models\BonificationSpecialOrderImportRow.cs` | 055 | Nuevo |
+| `Models\BulkSpecialOrderResult.cs` | 055 | Nuevo |
+| `IBonificationSpecialOrderRepository.cs` | 055 | Modificar (`BulkAddAsync`) |
+| `IBonificationSpecialOrderService.cs` | 055 | Modificar (`BulkAddAsync`) |
+| `BonificationSpecialOrderService.cs` | 055 | Modificar (`BulkAddAsync`) |
+| `ArchitectureBuilderExtensions.cs` | 056 | Modificar |
+| `Pages\BonificationPages\BulkBonificationSpecialOrders.razor` | 057 | Nuevo |
+| `Pages\BonificationPages\BulkBonificationSpecialOrders.razor.cs` | 057 | Nuevo |
+| `Pages\BonificationPages\BonificationSpecialOrders.razor` | 058 | Modificar |
+
+---
+
+Después de aplicar estas tareas, el sistema contará con un módulo completo de gestión de bonificaciones para distribuidores, que incluye la configuración de clientes distribuidores, la gestión de períodos y tipos de bonificación, la definición de rangos de bonificación y vigencias de descuento, así como la gestión de órdenes de compra especiales, todo ello con las validaciones y la lógica de negocio necesarias para su correcto funcionamiento.

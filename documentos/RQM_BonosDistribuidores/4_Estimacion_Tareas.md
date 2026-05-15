@@ -33,13 +33,13 @@
 
 | Prioridad | Tareas | Horas | % del Total |
 |-----------|--------|-------|-------------|
-| ?? REQUERIDO | 29 | 170 | 74.6% |
-| ?? SUGERIDO | 10 | 42 | 18.4% |
-| ?? DESEABLE | 4 | 16 | 7.0% |
-| **TOTAL** | **43** | **228** | **100%** |
+| ?? REQUERIDO | 36 | 223 | 77.2% |
+| ?? SUGERIDO | 16 | 53 | 18.3% |
+| ?? DESEABLE | 4 | 13 | 4.5% |
+| **TOTAL** | **56** | **289** | **100%** |
 
-> **Reducción máxima posible** (eliminando Sugeridos + Deseables): **?58 h** ? MVP en **170 h (~21 días hábiles)**  
-> **Reducción moderada** (eliminando solo Deseables): **?16 h** ? MVP+ en **212 h (~26.5 días hábiles)**
+> **Reducción máxima posible** (eliminando Sugeridos + Deseables): **?66 h** ? MVP en **223 h (~27.9 días hábiles)**  
+> **Reducción moderada** (eliminando solo carga masiva y Deseables): **?40 h** ? MVP+ en **249 h (~31.1 días hábiles)**
 
 ---
 
@@ -94,7 +94,7 @@
 
 ---
 
-### 2.1.5 – Gestión de Vigencias de Bonificación
+### 2.1.5 – Vigencias de Bonificación
 
 | # | Funcionalidad | Tarea | Descripción | Horas | Prioridad | Sustentación |
 |---|--------------|-------|-------------|-------|-----------|--------------|
@@ -123,8 +123,37 @@
 | TAREA-042 | Pantalla de descuentos | ??? Página `DiscountVigencies.razor` | Indicador "Vigencia Activa", grid con badges, Activar condicional, row expand rangos. | 8 | ?? REQUERIDO | Sin esta pantalla PROMOS no puede ver ni activar vigencias de descuento. El sistema no tiene interfaz para gestionar este parámetro clave. |
 | TAREA-043 | Pantalla de descuentos | ??? Dialog `AddDiscountVigency.razor` | Grilla rangos editable + Tipo/Valor + validación solapamiento. | 6 | ?? REQUERIDO | Sin el formulario de creación no es posible configurar ninguna vigencia de descuento desde la UI. |
 | TAREA-044 | Pantalla de descuentos | ??? Dialog `EditDiscountVigency.razor` | Igual a TAREA-043 + solo lectura si estado ? PENDING. | 4 | ?? SUGERIDO | Al igual que TAREA-035, una vigencia PENDING puede recrearse en lugar de editarse. Diferible si PROMOS acepta crear nueva vigencia ante cualquier corrección. |
-| TAREA-045 | Navegación | ??? Crear menú "Bonificaciones" como ítem raíz en `MainLayout.razor` | Ítem de nivel raíz (al nivel de Administración, Movimientos de Inventario y Reportes) con subgrupos "Configuración" y "Operaciones". Incluye todos los subitems de bonificación. | 1 | ?? REQUERIDO | Sin el ítem de menú ninguna de las pantallas de Bonificación es accesible desde la navegación principal. |
+| TAREA-045 | Navegación | ??? Crear menú "Bonificaciones" como ítem raíz en `MainLayout.razor` | Ítem de nivel raíz (al nivel de Administración, Movimientos de Inventario y Reportes) con subgrupos "Configuración para Bonificaciones" y "Operaciones". Incluye todos los subitems de bonificación. | 1 | ?? REQUERIDO | Sin el ítem de menú ninguna de las pantallas de Bonificación es accesible desde la navegación principal. |
 | | | | **Subtotal 2.1.6** | **41** | | |
+
+---
+
+### 2.2.1 – Gestión de OC Especiales (Ingreso Manual)
+
+| # | Funcionalidad | Tarea | Descripción | Horas | Prioridad | Sustentación |
+|---|--------------|-------|-------------|-------|-----------|--------------|
+| TAREA-046 | Estructura de datos OC Especiales | ??? Crear tabla `BonificationSpecialOrders` | Tabla con estados PENDIENTE/APROBADA/RECHAZADA, auditoría (creado/revisado por), índices por cliente+instancia y por estado. | 3 | ?? REQUERIDO | Sin esta tabla no existe soporte para los ajustes manuales de facturación. Los distribuidores con NC retroactivas quedarían excluidos de la base de cálculo real. |
+| TAREA-047 | Estructura de datos OC Especiales | ?? Entidad EF `BonificationSpecialOrder` + Configuration + DbContext | Entidad con navegaciones a `Customer` y `BonificationPeriodInstance`. | 3 | ?? REQUERIDO | Sin la entidad EF no se puede operar la tabla desde el código. Bloquea repositorio y servicio. |
+| TAREA-048 | Estructura de datos OC Especiales | ?? Modelo de servicio POCO + AutoMapper | 1 POCO + mapping. | 1 | ?? REQUERIDO | Capa de desacoplamiento obligatoria en la arquitectura de Aldebaran. |
+| TAREA-049 | Repositorio OC Especiales | ?? `IBonificationSpecialOrderRepository` + implementación | CRUD + `GetApprovedTotalAsync` (SUM aprobadas por cliente/período) + `UpdateStatusAsync`. | 5 | ?? REQUERIDO | `GetApprovedTotalAsync` es consumido directamente por el motor de cálculo del Bono por Facturación. Sin él el cálculo ignora los ajustes manuales. |
+| TAREA-050 | Servicio OC Especiales | ?? `IBonificationSpecialOrderService` + `ApproveAsync` + `RejectAsync` | Validaciones: distribuidor real, período IN_PROGRESS+BILLING, estado solo desde PENDIENTE, motivo rechazo obligatorio. | 6 | ?? REQUERIDO | Sin el servicio no hay flujo de aprobación ni validaciones de negocio. Las OC podrían impactar el cálculo sin revisión. |
+| TAREA-051 | Pantalla OC Especiales | ??? Página `BonificationSpecialOrders.razor` | Grid con badges de estado, filtros por distribuidor y estado, botones Aprobar/Rechazar condicionales, row expand motivo rechazo. | 8 | ?? REQUERIDO | Sin esta pantalla PROMOS no tiene interfaz para ver ni gestionar las OC. Es el panel operativo central del módulo. |
+| TAREA-052 | Pantalla OC Especiales | ??? Dialog `AddBonificationSpecialOrder.razor` | Dropdown distribuidor + dropdown período activo BILLING (se recarga al cambiar distribuidor) + monto + descripción. | 5 | ?? REQUERIDO | Sin el formulario de ingreso manual no es posible registrar ninguna OC desde la UI. |
+| TAREA-053 | Pantalla OC Especiales | ??? Dialog `ApproveBonificationSpecialOrder.razor` | Modal de confirmación con resumen del impacto en el cálculo del período. | 2 | ?? REQUERIDO | Sin esta confirmación el usuario podría aprobar accidentalmente. La pantalla muestra el impacto exacto antes de confirmar. |
+| TAREA-054 | Pantalla OC Especiales | ??? Dialog `RejectBonificationSpecialOrder.razor` | Modal con campo obligatorio motivo del rechazo (mín. 10 chars) + advertencia de irreversibilidad. | 2 | ?? REQUERIDO | Sin este dialog el rechazo no puede registrar el motivo, perdiendo trazabilidad de la decisión. |
+| | | | **Subtotal 2.2.1** | **35** | | |
+
+---
+
+### 2.2.2 – Carga Masiva de OC Especiales
+
+| # | Funcionalidad | Tarea | Descripción | Horas | Prioridad | Sustentación |
+|---|--------------|-------|-------------|-------|-----------|--------------|
+| TAREA-055 | Backend carga masiva | ?? `BulkAddAsync` en repositorio y servicio + modelos `BonificationSpecialOrderImportRow` y `BulkSpecialOrderResult` | Inserción en lote en una transacción. Validación fila a fila: distribuidor, período, monto, descripción. Retorna resultado con filas válidas e inválidas. | 8 | ?? SUGERIDO | El ingreso manual (TAREA-052) puede cubrir el MVP. La carga masiva es un acelerador operativo para períodos con muchos ajustes, pero no bloquea el cálculo de bonos. |
+| TAREA-056 | Servicio de parseo | ?? `IBonificationSpecialOrderImportService` — parseo Excel/CSV + generación de plantilla | ClosedXML para `.xlsx`, CsvHelper para `.csv`. Validación de encabezados, parseo de filas. Generación de plantilla con 3 hojas (Plantilla, Instrucciones, Ejemplo). | 8 | ?? SUGERIDO | Depende de TAREA-055. Si no se incluye la carga masiva este servicio no es necesario. |
+| TAREA-057 | Pantalla carga masiva | ??? Página `BulkBonificationSpecialOrders.razor` | Flujo en 3 pasos: descarga plantilla ? upload y procesamiento ? vista previa + confirmación. `RadzenUpload`, tablas de filas válidas/inválidas, descarga reporte de errores. | 10 | ?? SUGERIDO | Depende de TAREA-055 y TAREA-056. Sin esta pantalla la carga masiva no tiene interfaz. |
+| TAREA-058 | Integración navegación | ??? Botón "Carga Masiva" en `BonificationSpecialOrders.razor` | Agregar acceso desde el listado principal. Solo visible para rol `Ingreso de OC especiales de bonificación`. | 1 | ?? SUGERIDO | Pequeño cambio que completa la integración de la carga masiva en la navegación del módulo. Sin él el usuario tendría que escribir la URL directamente. |
+| | | | **Subtotal 2.2.2** | **27** | | |
 
 ---
 
@@ -132,12 +161,14 @@
 
 | Módulo | Tareas | Horas | % del Total |
 |--------|--------|-------|-------------|
-| 2.1.1 – Clientes Distribuidores | 10 | 34 | 14.9% |
-| 2.1.3 – Períodos de Bonificación | 9 | 63 | 27.6% |
-| 2.1.4 – Tipos de Bono | 6 | 32 | 14.0% |
-| 2.1.5 – Vigencias de Bonificación | 9 | 57 | 25.0% |
-| 2.1.6 – Vigencias de Descuentos | 9 | 41 | 18.0% |
-| **TOTAL** | **43** | **228** | **100%** |
+| 2.1.1 – Clientes Distribuidores | 10 | 34 | 12.3% |
+| 2.1.3 – Períodos de Bonificación | 9 | 63 | 22.8% |
+| 2.1.4 – Tipos de Bono | 6 | 32 | 11.6% |
+| 2.1.5 – Vigencias de Bonificación | 9 | 57 | 20.7% |
+| 2.1.6 – Vigencias de Descuentos | 9 | 41 | 14.9% |
+| 2.2.1 – OC Especiales (Manual) | 9 | 35 | 12.7% |
+| 2.2.2 – OC Especiales (Masivo) | 4 | 27 | 9.8% |
+| **TOTAL** | **56** | **289** | **100%** |
 
 ---
 
@@ -157,17 +188,32 @@
 | TAREA-026 | Dialog `EditBonificationType.razor` | ?? SUGERIDO | 4 | Igual a TAREA-018 para TiposBono. |
 | TAREA-035 | Dialog `EditBonificationVigency.razor` | ?? SUGERIDO | 5 | Vigencias PENDING pueden recrearse ante correcciones. |
 | TAREA-044 | Dialog `EditDiscountVigency.razor` | ?? SUGERIDO | 4 | Igual a TAREA-035 para descuentos. |
-| **TOTAL DIFERIBLE** | | | **39** | |
+| TAREA-055 | `BulkAddAsync` + modelos de importación | ?? SUGERIDO | 8 | El ingreso manual cubre el MVP. La carga masiva es un acelerador operativo diferible. |
+| TAREA-056 | Servicio de parseo Excel/CSV | ?? SUGERIDO | 8 | Depende de TAREA-055. Diferible junto con ella. |
+| TAREA-057 | Página carga masiva `BulkBonificationSpecialOrders.razor` | ?? SUGERIDO | 10 | Depende de TAREA-055 y TAREA-056. Diferible junto con ellas. |
+| TAREA-058 | Botón "Carga Masiva" en listado OC | ?? SUGERIDO | 1 | Mínimo esfuerzo pero solo relevante si se implementan TAREA-055 a 057. |
+| **TOTAL DIFERIBLE** | | | **66** | |
 
 ### Escenarios de contratación
 
 | Escenario | Descripción | Horas | Días hábiles |
 |-----------|-------------|-------|--------------|
-| **MVP Mínimo** | Solo tareas REQUERIDAS | 189 | ~23.6 |
-| **MVP Recomendado** | REQUERIDAS + Sugeridas (sin Deseables) | 215 | ~26.9 |
-| **Alcance Completo** | Todas las tareas (43) | 228 | ~28.5 |
+| **MVP Mínimo** | Solo tareas REQUERIDAS (sin carga masiva, sin edición dialogs, sin filtros reportes) | 223 | ~27.9 |
+| **MVP Recomendado** | REQUERIDAS + Sugeridas sin carga masiva (TAREA-055 a 058) + sin Deseables | 249 | ~31.1 |
+| **Alcance Completo** | Todas las tareas (56) | 289 | ~36.1 |
 
-> **Recomendación**: El **MVP Recomendado (215 h)** ofrece el mejor balance entre costo y experiencia de usuario. Las 4 tareas Deseables (TAREA-007 a 010) son filtros de conveniencia en reportes que no aportan al objetivo principal del proyecto y representan 13 horas diferibles con cero impacto en la funcionalidad de bonificación.
+> **Recomendación**: El **MVP Mínimo (223 h)** cubre todo el flujo de bonificación operativo. La carga masiva (TAREA-055 a 058, 27 h) puede contratarse como una segunda fase una vez el sistema esté en producción y se valide la necesidad real de volumen.
+
+---
+
+## Resumen Ejecutivo por Prioridad
+
+| Prioridad | Tareas | Horas | % del Total |
+|-----------|--------|-------|-------------|
+| ?? REQUERIDO | 36 | 223 | 77.2% |
+| ?? SUGERIDO | 16 | 53 | 18.3% |
+| ?? DESEABLE | 4 | 13 | 4.5% |
+| **TOTAL** | **56** | **289** | **100%** |
 
 ---
 
@@ -175,7 +221,7 @@
 
 | Tipo | Horas | % |
 |------|-------|---|
-| ??? Base de Datos (scripts SQL) | 13 | 5.7% |
-| ?? Backend (entidades, repos, servicios, jobs) | 109 | 47.8% |
-| ??? Frontend Blazor (páginas, dialogs, filtros) | 106 | 46.5% |
-| **Total** | **228** | **100%** |
+| ??? Base de Datos (scripts SQL) | 16 | 5.5% |
+| ?? Backend (entidades, repos, servicios, jobs) | 138 | 47.7% |
+| ??? Frontend Blazor (páginas, dialogs, filtros) | 135 | 46.7% |
+| **Total** | **289** | **100%** |
