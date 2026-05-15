@@ -1,4 +1,4 @@
-# 3. TAREAS DE DESARROLLO - Sistema de Bonificación de Distribuidores
+# 3. TAREAS DE DESAROLLO - Sistema de Bonificación de Distribuidores
 
 **Identificador**: RQM_BonosDistribuidores_052026  
 **Rama**: RQM_BonosDistribuidores_052026  
@@ -532,19 +532,47 @@ Estructura idéntica a las entidades pero sin dependencias de EF (POCO puros).
 #### TAREA-019 ? ??
 **Crear servicio de ciclo de vida automático de instancias**
 
-> ?? **ARQUITECTURA AUTOMÁTICA**: Las instancias **NO son creadas manualmente**. Se generan automáticamente al activar una Vigencia y se rotan con un job nocturno.
+> ?? **ARQUITECTURA AUTOMÁTICA**: Las instancias **NO son creadas manualmente**. Se generan automáticamente cuando se activa una Vigencia (la Vigencia pertenece a un TipoBono, y el TipoBono se parametrizó con un Período que define la duración). El job nocturno las rota según esa periodicidad.
+
+---
+
+**Relación de responsabilidades (quién configura a quién):**
+
+```
+BonificationType ???? se parametriza con ???? BonificationPeriod
+   (TipoBono)                                     (Período: duración, tipo)
+        ?
+        ? tiene Vigencias
+        ?
+  BonificationVigencia
+   (rangos de bono %)
+        ?
+        ? al ACTIVARSE genera
+        ?
+  BonificationPeriodInstance
+   (instancia concreta con fechas)
+   StartDate = fecha activación de la Vigencia
+   EndDate   = StartDate + TipoBono.Período.DurationDays - 1
+```
 
 ---
 
 **Ciclo de vida automático:**
 
 ```
-Usuario activa Vigencia (Tipo Bono = "Facturación Quincenal", Fecha Activación = 01/03/2026)
+[Usuario parametriza TipoBono]
+  TipoBono "Bono Facturación Quincenal"
+  ?? se parametriza con Período "Quincena 15 días" (DurationDays=15)
                     ?
-Sistema crea PRIMERA instancia automáticamente:
-  InstanceCode: QUI-2026-05
-  StartDate:    01/03/2026   ? fecha activación vigencia
-  EndDate:      15/03/2026   ? StartDate + DurationDays(15) - 1
+[Usuario activa Vigencia del TipoBono]
+  Vigencia "V1-Facturación-Marzo" (ActivationDate=01/03/2026)
+  ?? pertenece a TipoBono "Bono Facturación Quincenal"
+                    ?
+Sistema crea PRIMERA instancia para ese TipoBono:
+  InstanceCode: FAC-QUI-2026-03
+  BonificationTypeId: 1     ? TipoBono que tiene la vigencia activada
+  StartDate:    01/03/2026  ? fecha de activación de la Vigencia
+  EndDate:      15/03/2026  ? StartDate + TipoBono.Período.DurationDays(15) - 1
   Status:       IN_PROGRESS
                     ?
 Job nocturno (23:59 diario) verifica instancias IN_PROGRESS
@@ -552,12 +580,14 @@ Job nocturno (23:59 diario) verifica instancias IN_PROGRESS
 Cuando hoy == EndDate:
   1. Ejecuta cierre del período (CU10 - FOTO congelada)
   2. Marca Status = CLOSED
-  3. Crea SIGUIENTE instancia:
+  3. Verifica si el TipoBono tiene Vigencia activa
+  4. Si sí ? crea SIGUIENTE instancia:
        StartDate = instancia_cerrada.EndDate + 1
-       EndDate   = nuevo StartDate + DurationDays - 1
+       EndDate   = nuevo StartDate + TipoBono.Período.DurationDays - 1
        Status    = IN_PROGRESS
                     ?
-Ciclo se repite indefinidamente mientras TipoBono.IsActive = true
+Ciclo automático cada 15 días
+Detención: cuando el TipoBono queda sin Vigencia activa
 ```
 
 ---
@@ -570,12 +600,13 @@ Ciclo se repite indefinidamente mientras TipoBono.IsActive = true
   public interface IBonificationPeriodInstanceLifecycleService
   {
       /// <summary>
-      /// Crea la primera instancia del ciclo al activar una Vigencia.
+      /// Crea la primera instancia cuando se activa una Vigencia.
       /// Llamado desde: VigenciaService.ActivateAsync()
+      /// El TipoBono ya contiene el Período con la duración necesaria.
       /// </summary>
       Task CreateFirstInstanceAsync(
-          int bonificationPeriodId, 
-          DateTime activationDate, 
+          int bonificationTypeId,
+          DateTime vigencyActivationDate,
           CancellationToken ct = default);
 
       /// <summary>
@@ -585,10 +616,10 @@ Ciclo se repite indefinidamente mientras TipoBono.IsActive = true
       Task ProcessDailyRolloverAsync(CancellationToken ct = default);
 
       /// <summary>
-      /// Obtiene la instancia IN_PROGRESS de un período (null si no hay).
+      /// Obtiene la instancia IN_PROGRESS de un TipoBono (null si no hay).
       /// </summary>
       Task<BonificationPeriodInstance?> GetActiveInstanceAsync(
-          int bonificationPeriodId, 
+          int bonificationTypeId,
           CancellationToken ct = default);
   }
   ```
@@ -597,62 +628,76 @@ Ciclo se repite indefinidamente mientras TipoBono.IsActive = true
   ```csharp
   public class BonificationPeriodInstanceLifecycleService : IBonificationPeriodInstanceLifecycleService
   {
-      private readonly IBonificationPeriodRepository _periodRepo;
-      private readonly IBonificationClosureService _closureService; // TAREA futura (CU10)
+      private readonly IBonificationTypeRepository _typeRepo;    // TipoBono ? Período ? DurationDays
+      private readonly IBonificationPeriodRepository _instanceRepo;
+      private readonly IBonificationClosureService _closureService; // CU10 (TAREA futura)
       private readonly ILogger<BonificationPeriodInstanceLifecycleService> _logger;
 
-      public async Task CreateFirstInstanceAsync(int periodId, DateTime activationDate, CancellationToken ct)
+      public async Task CreateFirstInstanceAsync(
+          int bonificationTypeId,
+          DateTime vigencyActivationDate,
+          CancellationToken ct)
       {
-          var period = await _periodRepo.FindAsync(periodId, ct);
-          var instanceCode = GenerateInstanceCode(period.PeriodType, activationDate);
+          // TipoBono ya tiene el Período asociado con DurationDays
+          var bonType = await _typeRepo.FindWithPeriodAsync(bonificationTypeId, ct);
+          var duration = bonType.BonificationPeriod.DurationDays;
+          var code = GenerateInstanceCode(
+              bonType.BonificationPeriod.PeriodType,
+              bonType.CalculationBase,
+              vigencyActivationDate);
 
           var instance = new BonificationPeriodInstance
           {
-              BonificationPeriodId = periodId,
-              InstanceCode = instanceCode,
-              StartDate = activationDate,
-              EndDate = activationDate.AddDays(period.DurationDays - 1),
+              BonificationTypeId = bonificationTypeId,
+              InstanceCode = code,
+              StartDate = vigencyActivationDate,
+              EndDate = vigencyActivationDate.AddDays(duration - 1),
               Status = "IN_PROGRESS"
           };
 
-          await _periodRepo.AddInstanceAsync(instance, ct);
-          _logger.LogInformation("Primera instancia creada: {Code}", instanceCode);
+          await _instanceRepo.AddInstanceAsync(instance, ct);
+          _logger.LogInformation("Instancia creada: {Code} para TipoBono {TypeId}", code, bonificationTypeId);
       }
 
       public async Task ProcessDailyRolloverAsync(CancellationToken ct)
       {
-          var expiredInstances = await _periodRepo.GetExpiredActiveInstancesAsync(DateTime.Today, ct);
+          var expiredInstances = await _instanceRepo.GetExpiredActiveInstancesAsync(DateTime.Today, ct);
 
           foreach (var instance in expiredInstances)
           {
-              // 1. Ejecutar cierre del período (FOTO)
               await _closureService.ClosePeriodAsync(instance.BonificationPeriodInstanceId, ct);
+              await _instanceRepo.UpdateInstanceStatusAsync(instance.BonificationPeriodInstanceId, "CLOSED", ct);
 
-              // 2. Marcar como cerrada
-              await _periodRepo.UpdateInstanceStatusAsync(instance.BonificationPeriodInstanceId, "CLOSED", ct);
-
-              // 3. Verificar si TipoBono sigue activo (consultar vigencias)
-              var shouldContinue = await ShouldCreateNextInstanceAsync(instance.BonificationPeriodId, ct);
-
-              if (shouldContinue)
+              // Continúa solo si el TipoBono tiene Vigencia activa
+              var hasActiveVigency = await _typeRepo.HasActiveVigencyAsync(instance.BonificationTypeId, ct);
+              if (hasActiveVigency)
               {
-                  // 4. Crear siguiente instancia
-                  var nextStartDate = instance.EndDate.AddDays(1);
-                  await CreateFirstInstanceAsync(instance.BonificationPeriodId, nextStartDate, ct);
+                  await CreateFirstInstanceAsync(
+                      instance.BonificationTypeId,
+                      instance.EndDate.AddDays(1),
+                      ct);
               }
           }
       }
 
-      private string GenerateInstanceCode(string periodType, DateTime startDate)
+      private string GenerateInstanceCode(string periodType, string calculationBase, DateTime startDate)
       {
-          var prefix = periodType switch
+          var periodPrefix = periodType switch
           {
               "BIWEEKLY" => "QUI",
-              "MONTHLY" => "MES",
-              "WEEKLY" => "SEM",
-              _ => "PER"
+              "MONTHLY"  => "MES",
+              "WEEKLY"   => "SEM",
+              "DAILY"    => "DIA",
+              _          => "PER"
           };
-          return $"{prefix}-{startDate:yyyy}-{startDate:MM}";
+          var basePrefix = calculationBase switch
+          {
+              "BILLING"  => "FAC",
+              "ORDER"    => "PED",
+              "DELIVERY" => "ENT",
+              _          => "BON"
+          };
+          return $"{basePrefix}-{periodPrefix}-{startDate:yyyy}-{startDate:MM}";
       }
   }
   ```
@@ -671,24 +716,21 @@ Ciclo se repite indefinidamente mientras TipoBono.IsActive = true
           {
               var now = DateTime.Now;
               var scheduledTime = new DateTime(now.Year, now.Month, now.Day, 23, 59, 0);
-
               if (now > scheduledTime)
                   scheduledTime = scheduledTime.AddDays(1);
 
-              var delay = scheduledTime - now;
-              await Task.Delay(delay, stoppingToken);
+              await Task.Delay(scheduledTime - now, stoppingToken);
 
               using var scope = _serviceProvider.CreateScope();
-              var lifecycle = scope.ServiceProvider.GetRequiredService<IBonificationPeriodInstanceLifecycleService>();
-
+              var lifecycle = scope.ServiceProvider
+                  .GetRequiredService<IBonificationPeriodInstanceLifecycleService>();
               try
               {
                   await lifecycle.ProcessDailyRolloverAsync(stoppingToken);
-                  _logger.LogInformation("Rollover diario ejecutado exitosamente");
               }
               catch (Exception ex)
               {
-                  _logger.LogError(ex, "Error en rollover diario");
+                  _logger.LogError(ex, "Error en rollover diario de instancias");
               }
           }
       }
@@ -697,111 +739,38 @@ Ciclo se repite indefinidamente mientras TipoBono.IsActive = true
 
 **Modificar `IBonificationPeriodRepository` (TAREA-014):**
 ```csharp
-// Agregar métodos para ciclo de vida:
-Task<BonificationPeriodInstance?> GetActiveInstanceAsync(int periodId, CancellationToken ct = default);
 Task<IEnumerable<BonificationPeriodInstance>> GetExpiredActiveInstancesAsync(DateTime asOfDate, CancellationToken ct = default);
 Task UpdateInstanceStatusAsync(int instanceId, string newStatus, CancellationToken ct = default);
+Task<BonificationPeriodInstance?> GetActiveInstanceByTypeAsync(int bonificationTypeId, CancellationToken ct = default);
+```
+
+**Nueva interfaz `IBonificationTypeRepository` (TAREA-014):**
+```csharp
+Task<BonificationType> FindWithPeriodAsync(int bonificationTypeId, CancellationToken ct = default);
+Task<bool> HasActiveVigencyAsync(int bonificationTypeId, CancellationToken ct = default);
+```
+
+**Punto de disparo en VigenciaService (TAREA futura):**
+```csharp
+// Al activar una Vigencia ? crear primera instancia para su TipoBono
+public async Task ActivateAsync(int vigencyId, CancellationToken ct)
+{
+    var vigency = await _vigencyRepo.FindAsync(vigencyId, ct);
+    // ... lógica de activación y desactivación de vigencia anterior ...
+
+    await _lifecycleService.CreateFirstInstanceAsync(
+        vigency.BonificationTypeId,   // TipoBono de la vigencia
+        vigency.ActivationDate,       // Fecha de activación
+        ct);
+}
 ```
 
 **Modificar `BonificationPeriods.razor` (TAREA-016):**
-- ~~Eliminar botón "Generar Instancia"~~
-- Row expand muestra instancias en **solo lectura**
-- Badge visual para instancia `IN_PROGRESS` (resaltada en amarillo)
-- Columna Estado con íconos: ?? IN_PROGRESS | ? CLOSED
+- Sin botón "Generar Instancia" (las instancias son automáticas)
+- Row expand muestra instancias por TipoBono en **solo lectura**
+- Columna Estado: ?? IN_PROGRESS | ? CLOSED
 
-**Registrar en DI (`ArchitectureBuilderExtensions.cs` - TAREA-015):**
+**Registrar en DI (`ArchitectureBuilderExtensions.cs`):**
 ```csharp
 services.AddTransient<IBonificationPeriodInstanceLifecycleService, BonificationPeriodInstanceLifecycleService>();
 services.AddHostedService<BonificationPeriodRolloverJob>();
-```
-
----
-
-**Flujo completo:**
-
-```
-[Usuario PROMOS]
-    ?
-Activa Vigencia "V1-Facturación-Marzo" con TipoBono="Facturación Quincenal" (Período asociado: "Quincena 15 días")
-    ?
-[VigenciaService.ActivateAsync()] llama:
-    ?
-[IBonificationPeriodInstanceLifecycleService.CreateFirstInstanceAsync(periodId=1, activationDate=01/03/2026)]
-    ?
-Sistema crea instancia QUI-2026-03: 01/03 ? 15/03 (Status=IN_PROGRESS)
-    ?
-[Job nocturno 23:59 del 15/03/2026]
-    ?
-Detecta instancia vencida (EndDate == hoy)
-    ?
-1. Ejecuta cierre (CU10 - FOTO de bonos)
-2. Marca Status=CLOSED
-3. Crea nueva instancia: 16/03 ? 31/03 (Status=IN_PROGRESS)
-    ?
-Ciclo se repite automáticamente cada 15 días
-```
-
----
-
-#### TAREA-020 ? ???
-**Agregar opción de menú "Bonificaciones" en `MainLayout.razor` con ítem "Períodos"**
-
-**Contexto del código:**  
-`MainLayout.razor` tiene el grupo "Administración" con ítems como Artículos, Clientes, Proveedores, etc. Se debe agregar un subgrupo nuevo.
-
-**Cambio en `MainLayout.razor`** — dentro de `<RadzenPanelMenuItem Text="Administración">`:
-```razor
-<RadzenPanelMenuItem Text="Bonificaciones" Icon="percent"
-    Visible="@Security.IsInRole("Administrador","Consulta de bonificaciones","Modificación de bonificaciones")">
-    <RadzenPanelMenuItem Text="Períodos" Path="bonification/periods" />
-</RadzenPanelMenuItem>
-```
-
----
-
-#### TAREA-021 ? ??
-**Crear roles nuevos para el módulo de Bonificaciones**
-
-**Descripción:**  
-Siguiendo el patrón de roles existentes en el sistema (ej: "Consulta de clientes", "Modificación de clientes"), se crean dos roles nuevos.
-
-**Roles a crear en BD** (tabla de roles de Identity/seguridad del sistema):
-- `Consulta de bonificaciones` — permite ver períodos, tipos de bono, vigencias (solo lectura)
-- `Modificación de bonificaciones` — permite crear y editar períodos, tipos de bono, vigencias
-
-**Notas:**
-- `Administrador` siempre tiene acceso a todo (ya cubierto por el patrón existente)
-- Los roles se aplican con `@attribute [Authorize(Roles = "Administrador,Consulta de bonificaciones,Modificación de bonificaciones")]` en los `.razor`
-- La visibilidad del botón "Nuevo/Editar" usa `Security.IsInRole("Administrador","Modificación de bonificaciones")`
-
----
-
-#### Resumen de archivos afectados — 2.1.3 Gestión de Períodos
-
-| Archivo | Tarea | Tipo |
-|---------|-------|------|
-| `scripts/CreateBonificationPeriodsTables.sql` | 011 | Nuevo |
-| `DataAccess\Entities\BonificationPeriod.cs` | 012 | Nuevo |
-| `DataAccess\Entities\BonificationPeriodInstance.cs` | 012 | Nuevo |
-| `DataAccess\Configuration\BonificationPeriodConfiguration.cs` | 012 | Nuevo |
-| `DataAccess\Configuration\BonificationPeriodInstanceConfiguration.cs` | 012 | Nuevo |
-| `DataAccess\AldebaranDbContext.cs` | 012 | Modificar |
-| `Application.Services\Models\BonificationPeriod.cs` | 013 | Nuevo |
-| `Application.Services\Models\BonificationPeriodInstance.cs` | 013 | Nuevo |
-| `Application.Services\Mappings\ApplicationServicesProfile.cs` | 013 | Modificar |
-| `DataAccess.Infraestructure\Repository\IBonificationPeriodRepository.cs` | 014 | Nuevo |
-| `DataAccess.Infraestructure\Repository\BonificationPeriodRepository.cs` | 014 | Nuevo |
-| `Application.Services\Services\IBonificationPeriodService.cs` | 015 | Nuevo |
-| `Application.Services\Services\BonificationPeriodService.cs` | 015 | Nuevo |
-| `Web\Extensions\ArchitectureBuilderExtensions.cs` | 015 | Modificar |
-| `Web\Pages\BonificationPages\BonificationPeriods.razor` | 016 | Nuevo (sin botón generar instancia) |
-| `Web\Pages\BonificationPages\BonificationPeriods.razor.cs` | 016 | Nuevo |
-| `Web\Pages\BonificationPages\AddBonificationPeriod.razor` | 017 | Nuevo |
-| `Web\Pages\BonificationPages\AddBonificationPeriod.razor.cs` | 017 | Nuevo |
-| `Web\Pages\BonificationPages\EditBonificationPeriod.razor` | 018 | Nuevo |
-| `Web\Pages\BonificationPages\EditBonificationPeriod.razor.cs` | 018 | Nuevo |
-| `Application.Services\Services\IBonificationPeriodInstanceLifecycleService.cs` | 019 | Nuevo |
-| `Application.Services\Services\BonificationPeriodInstanceLifecycleService.cs` | 019 | Nuevo |
-| `Application.Services\Jobs\BonificationPeriodRolloverJob.cs` | 019 | Nuevo |
-| `Web\Shared\MainLayout.razor` | 020 | Modificar |
-| `scripts/SeedBonificationRoles.sql` | 021 | Nuevo |
