@@ -774,3 +774,160 @@ public async Task ActivateAsync(int vigencyId, CancellationToken ct)
 ```csharp
 services.AddTransient<IBonificationPeriodInstanceLifecycleService, BonificationPeriodInstanceLifecycleService>();
 services.AddHostedService<BonificationPeriodRolloverJob>();
+
+---
+
+### 2.1.4 Gestión de Tipos de Bono
+
+> Funcionalidad completamente nueva.  
+> Permite crear **Tipos de Bono** que combinan un Período de periodicidad con una Base de Cálculo (Facturación, Pedido o Entrega). Son la unidad de configuración a la que se le asignan Vigencias con rangos y porcentajes.
+
+---
+
+#### TAREA-022 ? ??
+**Crear `IBonificationTypeRepository` y `BonificationTypeRepository`**
+
+> La entidad `BonificationType` ya fue creada en TAREA-012. Esta tarea implementa su repositorio completo incluyendo los métodos requeridos por el ciclo de vida (TAREA-019).
+
+**Archivos a crear:**
+- `Aldebaran.DataAccess.Infraestructure\Repository\IBonificationTypeRepository.cs`
+  ```csharp
+  public interface IBonificationTypeRepository
+  {
+      Task AddAsync(BonificationType bonificationType, CancellationToken ct = default);
+      Task UpdateAsync(int id, BonificationType bonificationType, CancellationToken ct = default);
+      Task<BonificationType?> FindAsync(int id, CancellationToken ct = default);
+      Task<BonificationType?> FindWithPeriodAsync(int id, CancellationToken ct = default);
+      Task<(IEnumerable<BonificationType>, int)> GetAsync(int? skip, int? top, CancellationToken ct = default);
+      Task<(IEnumerable<BonificationType>, int)> GetAsync(int skip, int top, string searchKey, CancellationToken ct = default);
+      Task<bool> ExistsByNameAsync(string name, CancellationToken ct = default);
+      Task<bool> HasActiveInstanceAsync(int id, CancellationToken ct = default);
+      Task<bool> HasActiveVigencyAsync(int id, CancellationToken ct = default);
+  }
+  ```
+
+- `Aldebaran.DataAccess.Infraestructure\Repository\BonificationTypeRepository.cs` — implementación usando `RepositoryBase<AldebaranDbContext>` (mismo patrón que `AreaRepository`)
+  - `FindWithPeriodAsync`: hace `Include(t => t.BonificationPeriod)` para cargar la duración
+  - `HasActiveInstanceAsync`: verifica si existe alguna `BonificationPeriodInstance` con `STATUS IN ('OPEN','IN_PROGRESS')` para este TipoBono
+  - `HasActiveVigencyAsync`: verifica si existe alguna `BonificationVigency` activa para este TipoBono (usado por el job de rollover)
+
+---
+
+#### TAREA-023 ? ??
+**Crear `IBonificationTypeService` y `BonificationTypeService`**
+
+**Archivos a crear:**
+- `Aldebaran.Application.Services\Services\IBonificationTypeService.cs`
+  ```csharp
+  public interface IBonificationTypeService
+  {
+      Task AddAsync(BonificationType bonificationType, CancellationToken ct = default);
+      Task UpdateAsync(int id, BonificationType bonificationType, CancellationToken ct = default);
+      Task<BonificationType?> FindAsync(int id, CancellationToken ct = default);
+      Task<(IEnumerable<BonificationType>, int)> GetAsync(int? skip, int? top, CancellationToken ct = default);
+      Task<(IEnumerable<BonificationType>, int)> GetAsync(int skip, int top, string searchKey, CancellationToken ct = default);
+  }
+  ```
+
+- `Aldebaran.Application.Services\Services\BonificationTypeService.cs` — implementación usando `IBonificationTypeRepository` + `IMapper`
+
+**Validaciones de negocio:**
+- `TypeName` no puede duplicarse (`ExistsByNameAsync`)
+- `BonificationPeriodId` debe referenciar un período activo (`IsActive = true`)
+- `CalculationBase` debe ser uno de: `BILLING`, `ORDER`, `DELIVERY`
+- No se puede cambiar `BonificationPeriodId` ni `CalculationBase` si el TipoBono tiene instancias activas (`HasActiveInstanceAsync`)
+- No se puede desactivar (`IsActive = false`) si tiene instancias activas (`HasActiveInstanceAsync`)
+
+**Modificar:**
+- `Aldebaran.Web\Extensions\ArchitectureBuilderExtensions.cs` ? agregar:
+  ```csharp
+  services.AddTransient<IBonificationTypeRepository, BonificationTypeRepository>();
+  services.AddTransient<IBonificationTypeService, BonificationTypeService>();
+  ```
+
+---
+
+#### TAREA-024 ? ???
+**Crear página de listado `BonificationTypes.razor` + `BonificationTypes.razor.cs`**
+
+**Ruta:** `Pages\BonificationPages\BonificationTypes.razor`  
+**URL:** `/bonification/types`  
+**Rol requerido:** `Administrador`, `Consulta de bonificaciones`, `Modificación de bonificaciones`
+
+**Estructura (patrón `Customers.razor`):**
+- Título: "Tipos de Bono"
+- Buscador por nombre
+- `RadzenDataGrid` paginada con columnas:
+
+| Columna | Detalle |
+|---------|---------|
+| Nombre | `TypeName` |
+| Período | `BonificationPeriod.PeriodName` (con duración en días) |
+| Base de Cálculo | BILLING ? "Facturación" / ORDER ? "Pedido" / DELIVERY ? "Entrega" |
+| Estado | Badge: Activo / Inactivo |
+| Instancia Activa | Código de la instancia `IN_PROGRESS` actual (o "Sin instancia") |
+| Acciones | Editar \| Ver Instancias \| Ver Vigencias |
+
+- Botón "Nuevo" (solo rol de modificación)
+- Row expand: muestra `RadzenDataGrid` de instancias del TipoBono (Código, Fecha inicio, Fecha fin, Estado)
+  - Solo lectura — las instancias son automáticas
+
+---
+
+#### TAREA-025 ? ???
+**Crear dialog `AddBonificationType.razor` + `AddBonificationType.razor.cs`**
+
+**Estructura (patrón `AddCustomer.razor`):**
+- Campos:
+  - Nombre (texto, obligatorio, único)
+  - Período (`RadzenDropDownDataGrid` con `LoadData`, muestra: Nombre + Tipo + Duración días, solo períodos activos)
+  - Base de Cálculo (`RadzenDropDown`: Facturación / Pedido / Entrega)
+  - Descripción (texto, opcional)
+  - Estado (`RadzenCheckBox` Activo, default: marcado)
+- Al seleccionar Período ? mostrar chip informativo: "Ciclo cada N días"
+- Validaciones client-side con `RadzenRequiredValidator`
+- Botones: Guardar / Cancelar
+
+---
+
+#### TAREA-026 ? ???
+**Crear dialog `EditBonificationType.razor` + `EditBonificationType.razor.cs`**
+
+**Estructura (patrón `EditCustomer.razor`):**
+- Mismos campos que TAREA-025
+- Campos `Período` y `Base de Cálculo` ? bloqueados (`Disabled`) si el TipoBono tiene instancias activas
+  - Mostrar mensaje: "No se puede modificar el período ni la base de cálculo mientras existan instancias activas"
+- Al guardar ? llama `BonificationTypeService.UpdateAsync`
+
+---
+
+#### TAREA-027 ? ???
+**Agregar ítem "Tipos de Bono" al menú de Bonificaciones en `MainLayout.razor`**
+
+**Modificar la entrada agregada en TAREA-020:**
+```razor
+<RadzenPanelMenuItem Text="Bonificaciones" Icon="percent"
+    Visible="@Security.IsInRole(...)">
+    <RadzenPanelMenuItem Text="Períodos" Path="bonification/periods" />
+    <RadzenPanelMenuItem Text="Tipos de Bono" Path="bonification/types" />
+</RadzenPanelMenuItem>
+```
+
+---
+
+#### Resumen de archivos afectados — 2.1.4 Gestión de Tipos de Bono
+
+| Archivo | Tarea | Tipo |
+|---------|-------|------|
+| `DataAccess.Infraestructure\Repository\IBonificationTypeRepository.cs` | 022 | Nuevo |
+| `DataAccess.Infraestructure\Repository\BonificationTypeRepository.cs` | 022 | Nuevo |
+| `Application.Services\Services\IBonificationTypeService.cs` | 023 | Nuevo |
+| `Application.Services\Services\BonificationTypeService.cs` | 023 | Nuevo |
+| `Web\Extensions\ArchitectureBuilderExtensions.cs` | 023 | Modificar |
+| `Web\Pages\BonificationPages\BonificationTypes.razor` | 024 | Nuevo |
+| `Web\Pages\BonificationPages\BonificationTypes.razor.cs` | 024 | Nuevo |
+| `Web\Pages\BonificationPages\AddBonificationType.razor` | 025 | Nuevo |
+| `Web\Pages\BonificationPages\AddBonificationType.razor.cs` | 025 | Nuevo |
+| `Web\Pages\BonificationPages\EditBonificationType.razor` | 026 | Nuevo |
+| `Web\Pages\BonificationPages\EditBonificationType.razor.cs` | 026 | Nuevo |
+| `Web\Shared\MainLayout.razor` | 027 | Modificar |
