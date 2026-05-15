@@ -586,6 +586,8 @@ Configurar vigencias (rangos de valores de compra con bonificaciones asociadas) 
 
 ---
 
+---
+
 ### 2.2.2 Módulo de Consulta de Bonificación (Distribuidor - Sitio Público)
 
 Este módulo permite a los distribuidores acceder de forma segura a su información de bonificación sin necesidad de contactar a PROMOS.
@@ -932,6 +934,315 @@ RAZONES:
 **VALIDACIÓN REQUERIDA CON PROMOS Y OTRA FÁBRICA:**
 
 **Con OTRA FÁBRICA (Responsable del SP):**
-- ? Especificar contrato del SP:
+- ✅ Especificar contrato del SP:
   - Nombre del SP: `dbo.sp_ObtenerFacturacionDistribuidor`
-  - Parámetro
+  - Parámetros de entrada: Documento, TipoDoc, FechaInicio, FechaFin, ListaArticulos (opcional)
+  - Retorno: ValorFacturado, NC, Fletes, Descuentos
+- ✅ Acordar SLA: < 50ms (típico consulta BD local)
+- ✅ Definir manejo de errores: Timeout, excepción SQL, BD no disponible
+- ✅ Establecer canal de soporte: Para incidentes relacionados con el SP
+
+**Con PROMOS:**
+- ✅ Validar que BD TOTUS pueda manejar consultas concurrentes
+- ✅ Confirmar que connection pooling está habilitado
+- ✅ Verificar que SP está optimizado con índices apropiados
+
+---
+
+### 2.2.4 Módulo de Gestión de Exclusiones (Usuario PROMOS - Aldebaran.Web)
+
+Este módulo permite al personal de PROMOS gestionar pedidos especiales que deben excluirse del cálculo de bonificación.
+
+#### 2.2.4.1 Gestión de Exclusión de Pedidos de Bonificación
+
+**Descripción:**  
+Permitir marcar pedidos específicos como "excluidos de bonificación" para casos excepcionales donde ciertos pedidos no deben generar bonificación al distribuidor (ej: pedidos internos, pruebas, devoluciones, promociones especiales sin bono, etc.).
+
+**Contexto de Negocio:**
+Existen situaciones especiales donde PROMOS necesita crear pedidos que NO deben generar bonificación para el distribuidor:
+- Pedidos de prueba o demo
+- Pedidos internos de PROMOS
+- Devoluciones o ajustes
+- Promociones especiales que ya tienen otro tipo de beneficio
+- Correcciones administrativas
+
+Sin esta funcionalidad, todos los pedidos automáticamente generan bonificación, lo cual no es deseable en estos casos excepcionales.
+
+**Funcionalidades:**
+
+**1. Durante la Creación del Pedido (Cualquier usuario con permisos):**
+- Campo adicional en formulario de creación de pedido:
+  - **Checkbox**: "Pedido Especial (excluir de bonificación)"
+  - **Default**: SIN MARCAR (incluido en bonificación)
+  - **Ubicación**: Sección "Configuración Adicional" o similar
+  - **Tooltip**: "Marque esta opción solo para pedidos que NO deben generar bonificación (ej: pedidos internos, pruebas, devoluciones)"
+- Una vez creado el pedido:
+  - El flag se **congela** (no editable por usuarios normales)
+  - Solo usuarios con rol **ADMIN_EXCLUSION** pueden modificarlo posteriormente
+- Se registra en auditoría:
+  - ID Pedido
+  - Valor inicial del flag (incluido/excluido)
+  - Usuario que creó el pedido
+  - Fecha/hora de creación
+
+**2. Edición Posterior del Flag (SOLO Rol "ADMIN_EXCLUSION"):**
+- **Ubicación**: Módulo de Pedidos → Detalle de Pedido → Sección "Exclusión de Bonificación"
+- **Visualización para usuarios normales**: Campo bloqueado (solo lectura) con valor actual
+- **Edición para ADMIN_EXCLUSION**:
+  - Puede cambiar el checkbox "Excluir de bonificación"
+  - Al intentar cambiar, sistema muestra modal de confirmación:
+
+    ```
+    ┌──────────────────────────────────────────────────────────┐
+    │ ⚠️ ADVERTENCIA: Cambio de Exclusión de Pedido            │
+    ├──────────────────────────────────────────────────────────┤
+    │                                                          │
+    │ Pedido: PED-2026-00123                                   │
+    │ Distribuidor: DIST-COLOMBIA-001                          │
+    │ Valor Pedido: $5,000,000                                 │
+    │                                                          │
+    │ Estado Actual: INCLUIDO en bonificación                  │
+    │ Cambio a: EXCLUIDO de bonificación                       │
+    │                                                          │
+    │ ⚠️ Este distribuidor YA consultó su bono en este período │
+    │                                                          │
+    │ IMPACTO EN BONIFICACIÓN:                                 │
+    │ ├─ Bono Anterior: $6,500,000                             │
+    │ └─ Bono Nuevo: $6,200,000                                │
+    │                                                          │
+    │ Diferencia: -$300,000 (disminuye)                        │
+    │                                                          │
+    │ Motivo del cambio (obligatorio):                         │
+    │ [____________________________________________________]   │
+    │                                                          │
+    │ ✉️ Se notificará al distribuidor del cambio              │
+    │                                                          │
+    │ [ Cancelar ]  [ Confirmar Exclusión ]                    │
+    └──────────────────────────────────────────────────────────┘
+    ```
+
+  - **Campo Motivo OBLIGATORIO** (10-500 caracteres):
+    - "¿Por qué se está excluyendo/incluyendo este pedido?"
+    - Ejemplos: "Pedido interno de PROMOS", "Corrección administrativa", "Devolución completa"
+  - Sistema calcula IMPACTO en bono:
+    - Recalcula bono SIN/CON el pedido (según cambio)
+    - Muestra bono anterior vs bono nuevo
+    - Muestra diferencia (positiva o negativa)
+  - Sistema verifica si distribuidor ya consultó su bono:
+    - Si SÍ → Muestra advertencia destacada
+    - Si NO → Solo muestra impacto numérico
+  - REQUIERE confirmación explícita del usuario
+  - Al confirmar:
+    - Sistema RECALCULA bonos del distribuidor para el período activo
+    - Sistema ACTUALIZA historial de consultas (marca recálculo)
+    - Si bono DISMINUYE → Sistema NOTIFICA al distribuidor vía email
+    - Sistema REGISTRA auditoría completa
+
+**3. Visualización en Listado de Pedidos:**
+- Columna adicional: "Excluido de Bonificación"
+  - ✅ = Excluido (NO genera bono)
+  - ❌ = Incluido (SÍ genera bono)
+- Filtro: "Mostrar solo pedidos excluidos" / "Mostrar solo incluidos" / "Todos"
+- Color diferenciado (opcional): Pedidos excluidos en gris o con badge "SIN BONO"
+
+**4. Auditoría Completa (Tabla: PedidosExclusionLog):**
+Cada cambio en el flag de exclusión se registra en una tabla dedicada:
+
+| Campo | Descripción |
+|-------|-------------|
+| **IDLog** | ID autoincrementable |
+| **IDPedido** | Referencia al pedido modificado |
+| **IDDistribuidor** | A quién pertenece el pedido |
+| **EstadoAnterior** | INCLUIDO o EXCLUIDO (antes del cambio) |
+| **EstadoNuevo** | INCLUIDO o EXCLUIDO (después del cambio) |
+| **Motivo** | Texto ingresado por ADMIN_EXCLUSION (obligatorio) |
+| **UsuarioAdmin** | Quién realizó el cambio |
+| **FechaHora** | Timestamp del cambio |
+| **IP** | Dirección IP del usuario |
+| **UserAgent** | Navegador/dispositivo usado |
+| **BonoAnterior** | Bono calculado antes del cambio |
+| **BonoNuevo** | Bono calculado después del cambio |
+| **Diferencia** | BonoNuevo - BonoAnterior |
+| **DistribuidorNotificado** | SÍ/NO (si se envió email) |
+| **FechaNotificacion** | Cuándo se notificó |
+| **EstadoNotificacion** | ENVIADO / FALLIDO / NO_APLICA |
+
+**Impacto en RF12 (Capturar Valor Pedido):**
+
+La fórmula de cálculo de Bono por Pedido se actualiza para incluir el filtro de exclusión:
+
+```
+ANTES (sin exclusión):
+A = Σ (Cantidad pedida × Precio del día del pedido)
+    Para TODOS los pedidos del período
+
+DESPUÉS (con exclusión):
+A = Σ (Cantidad pedida × Precio del día del pedido)
+    Para pedidos del período WHERE EstaExcluido = FALSE
+
+RESULTADO:
+Pedidos marcados como "Excluidos" NO se suman en el cálculo del bono
+```
+
+**Flujo de Usuario (Creación de Pedido - Usuario Normal):**
+1. Usuario PROMOS crea nuevo pedido en Aldebaran.Web
+2. Completa datos normales del pedido (distribuidor, artículos, cantidades, etc.)
+3. En sección "Configuración Adicional":
+   - Ve checkbox "Pedido Especial (excluir de bonificación)"
+   - Default: SIN MARCAR
+   - Si es un pedido especial: MARCA el checkbox
+4. Guarda el pedido
+5. Sistema registra el estado inicial en auditoría
+6. **Flag queda congelado** (usuario normal no puede cambiarlo después)
+
+**Flujo de Usuario (Edición Posterior - ADMIN_EXCLUSION):**
+1. Usuario con rol ADMIN_EXCLUSION accede a detalle del pedido
+2. Ve sección "Exclusión de Bonificación" con checkbox editable
+3. Cambia el estado del checkbox
+4. Sistema muestra modal de advertencia con:
+   - Datos del pedido y distribuidor
+   - Estado anterior vs nuevo
+   - Impacto en bonificación (bono antes vs después)
+   - Advertencia si distribuidor ya consultó su bono
+   - Campo obligatorio "Motivo del cambio"
+5. Usuario ingresa motivo y confirma
+6. Sistema ejecuta:
+   - Recalcula bonos del distribuidor
+   - Registra auditoría completa en PedidosExclusionLog
+   - Si bono disminuye → Envía email al distribuidor notificando el cambio
+7. Sistema muestra confirmación: "Exclusión actualizada. Bonos recalculados. Distribuidor notificado (si aplica)."
+
+**Notificación al Distribuidor (Solo si bono DISMINUYE):**
+
+```
+Asunto: Actualización en tu Bonificación - Período [Nombre]
+
+Estimado distribuidor,
+
+Te informamos que se ha realizado un ajuste en tu bonificación 
+del período actual por el siguiente motivo:
+
+Motivo: [Motivo ingresado por ADMIN_EXCLUSION]
+
+Impacto en tu bonificación:
+├─ Bono Anterior: $6,500,000
+└─ Bono Actualizado: $6,200,000
+
+Diferencia: -$300,000
+
+Este ajuste se debe a: [Motivo]
+
+Puedes consultar tu bonificación actualizada ingresando a:
+[Link al Sitio Público]
+
+Si tienes dudas, contacta a soporte de PROMOS.
+
+Saludos,
+Sistema de Bonificación PROMOS
+```
+
+**Reglas de Negocio:**
+- Por defecto, TODOS los pedidos generan bonificación (flag = INCLUIDO)
+- Flag solo puede cambiar:
+  - Durante creación: Cualquier usuario con permisos de crear pedidos
+  - Después de creación: SOLO rol ADMIN_EXCLUSION
+- Cambio de flag SIEMPRE requiere motivo (obligatorio)
+- Cambio de flag SIEMPRE recalcula bonos del período activo
+- Distribuidor SOLO es notificado si su bono DISMINUYE (no si aumenta o no cambia)
+- Cambios NO afectan períodos cerrados (FOTO inmutable)
+- Cambios SÍ afectan cálculos dinámicos de período activo (CU7)
+- Cambios SÍ afectan próximo cierre de período (CU10)
+
+**Restricciones:**
+- Flag NO editable por usuarios normales después de crear pedido
+- SOLO rol ADMIN_EXCLUSION puede cambiar flag en pedidos existentes
+- Campo Motivo es OBLIGATORIO (10-500 caracteres)
+- No se puede cambiar flag sin ingresar motivo
+- No se puede eliminar registro de auditoría (PedidosExclusionLog)
+- Cambio requiere confirmación explícita (modal)
+- Sistema DEBE recalcular bonos inmediatamente al cambiar flag
+- Notificación solo si bono disminuye (evita spam innecesario)
+
+**Validaciones:**
+- Pedido debe existir en BD
+- Usuario debe tener rol ADMIN_EXCLUSION para editar flag
+- Motivo debe tener entre 10 y 500 caracteres
+- Distribuidor del pedido debe existir y estar marcado como DISTRIBUIDOR
+- Período del pedido debe estar activo (no cerrado)
+- Email del distribuidor debe estar configurado (para notificación)
+
+**Casos de Uso Prácticos:**
+
+**Caso 1: Pedido Interno de PROMOS**
+```
+Situación: PROMOS crea pedido para pruebas internas
+Acción: Al crear, marca checkbox "Excluir de bonificación"
+Resultado: Pedido NO suma en bonificación
+```
+
+**Caso 2: Corrección Administrativa (Después de Crear)**
+```
+Situación: Se creó pedido normal, pero era una devolución
+Acción: ADMIN_EXCLUSION cambia flag a "Excluido"
+Motivo: "Devolución completa - No genera bono"
+Resultado: Sistema recalcula bono (disminuye), notifica distribuidor
+```
+
+**Caso 3: Revertir Exclusión Incorrecta**
+```
+Situación: Pedido fue marcado como excluido por error
+Acción: ADMIN_EXCLUSION cambia flag a "Incluido"
+Motivo: "Corrección: Pedido válido, debe generar bono"
+Resultado: Sistema recalcula bono (aumenta), NO notifica distribuidor
+```
+
+**Impacto Transversal:**
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ RF35: Gestionar Exclusión de Pedidos de Bonificación            │
+│ (CU14 - Gestión de Excepciones)                                 │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+        ┌─────────────────────┼─────────────────────┐
+        ↓                     ↓                     ↓
+   RF12 (Cálculo Pedido)  CU7 (Consulta)      CU12 (Reclamación)
+   Filtra pedidos        Bono recalculado     Auditoría completa
+   EstaExcluido=FALSE    si se cambia flag    de cambios
+```
+
+**Relación con CU7 (Consulta de Bonificación):**
+```
+CU7: Distribuidor consulta su bono
+↓
+Sistema calcula Bono por Pedido
+↓
+RF12: Suma pedidos WHERE EstaExcluido = FALSE
+↓
+Sistema excluye automáticamente pedidos marcados
+↓
+Distribuidor ve bono SIN pedidos excluidos
+```
+
+**Relación con CU12 (Resolver Reclamación):**
+```
+Distribuidor reclama: "Mi bono bajó sin razón"
+↓
+CU12: Usuario PROMOS investiga
+↓
+Accede a PedidosExclusionLog
+↓
+Ve: Pedido PED-123 fue excluido el 15/03/2026
+Motivo: "Devolución completa"
+Usuario Admin: Juan Pérez
+↓
+Usuario PROMOS explica al distribuidor con evidencia auditable
+```
+
+**[PLACEHOLDER: Mockup de pantalla "Crear Pedido - Checkbox Exclusión"]**
+
+**[PLACEHOLDER: Mockup de pantalla "Editar Pedido - Modal Advertencia Cambio Exclusión"]**
+
+**[PLACEHOLDER: Mockup de pantalla "Listado Pedidos - Columna Excluido de Bonificación"]**
+
+---
