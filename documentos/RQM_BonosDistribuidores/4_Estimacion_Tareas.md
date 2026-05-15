@@ -33,13 +33,13 @@
 
 | Prioridad | Tareas | Horas | % del Total |
 |-----------|--------|-------|-------------|
-| ?? REQUERIDO | 43 | 274 | 74.7% |
-| ?? SUGERIDO | 20 | 80 | 21.8% |
-| ?? DESEABLE | 4 | 13 | 3.5% |
-| **TOTAL** | **67** | **367** | **100%** |
+| ?? REQUERIDO | 52 | 320 | 77.5% |
+| ?? SUGERIDO | 20 | 80 | 19.4% |
+| ?? DESEABLE | 4 | 13 | 3.1% |
+| **TOTAL** | **76** | **413** | **100%** |
 
-> **Reducción máxima posible** (eliminando Sugeridos + Deseables): **?93 h** ? MVP en **274 h (~34.3 días hábiles)**  
-> **Reducción moderada** (eliminando solo masivos y Deseables): **?66 h** ? MVP+ en **301 h (~37.6 días hábiles)**
+> **Reducción máxima posible** (eliminando Sugeridos + Deseables): **?93 h** ? MVP en **320 h (~40.0 días hábiles)**  
+> **Reducción moderada** (eliminando solo masivos y Deseables): **?66 h** ? MVP+ en **347 h (~43.4 días hábiles)**
 
 ---
 
@@ -176,19 +176,37 @@
 
 ---
 
+### 2.2.4 – Lista de Precios Promocional
+
+| # | Funcionalidad | Tarea | Descripción | Horas | Prioridad | Sustentación |
+|---|--------------|-------|-------------|-------|-----------|--------------|
+| TAREA-070 | Estructura de datos | ??? Crear tablas `PromotionalPriceLists` + `PromotionalPriceListItems` | 2 tablas. `PromotionalPriceLists`: encabezado con fecha, estado (ACTIVE/HISTORICAL), fuente (AUTOMATIC/MANUAL). `PromotionalPriceListItems`: 13 columnas del Excel (Referencia, Nombre, Características, DescPrecio1-5, Precio1-5). Índices por fecha+estado y código de artículo. | 3 | ?? REQUERIDO | Sin estas tablas no existe soporte para almacenar precios del día. El cálculo de Bono por Facturación queda bloqueado. |
+| TAREA-071 | Estructura de datos | ?? Entidades EF + Configurations + Models + Mappings | 2 entidades + 2 configuraciones + 2 modelos POCO. Mapeo completo de las 13 columnas. Registrar en DbContext. | 5 | ?? REQUERIDO | Sin entidades EF no se puede operar las tablas. Bloquea repositorios y servicios. |
+| TAREA-072 | Backend base | ?? `IPromotionalPriceListRepository` + `IPromotionalPriceListService` | Repositorio con `GetActiveForDateAsync`, `GetMostRecentActiveAsync`, `LoadDayListAsync` (archiva anterior + activa nueva), `GetItemPriceAsync` (retorna primer precio > 0). Servicio con validaciones: mínimo 1 ítem, reemplazo total. | 7 | ?? REQUERIDO | `LoadDayListAsync` es consumido por el worker automático y la carga manual. `GetItemPriceAsync` es consumido por el motor de cálculo de bonificación. |
+| TAREA-073 | Descarga automática | ?? `IPriceListFetchService` — descarga HTTP + parseo Excel | Descarga desde URL configurable (`https://www.catalogospromocionales.com/distribuidores/referenciasexcel`). **Doble estrategia**: descarga directa (sin auth) y descarga autenticada (login previo con user/pass). Parseo con ClosedXML de 13 columnas. | 8 | ?? REQUERIDO | Sin este servicio el worker automático no puede descargar la lista del día. **La doble estrategia previene bloqueos futuros si el proveedor cambia política de acceso**. +2h por complejidad de autenticación. |
+| TAREA-074 | Descarga automática | ?? `PriceListFetchWorker` — job programado (BackgroundService) | Worker con NCrontab (hora configurable, default 6 AM). Descarga ? parseo ? `LoadDayListAsync` ? notificación email (éxito/fallo). Usa `ResilientExecutor` para reintentos. Configuración en `appsettings.json` (URL, UseAuthentication, Username, Password, CronExpression, NotificationRecipients). Registrar HttpClient + Worker en DI. | 6 | ?? REQUERIDO | Sin el worker automático, PROMOS debe cargar manualmente la lista todos los días a las 6 AM. La notificación email es crítica para detectar fallos inmediatamente. |
+| TAREA-075 | Contingencia manual | ?? `IPromotionalPriceListImportService` — parseo archivo manual | Parsea archivo Excel subido manualmente. Reutiliza lógica de parseo de TAREA-073 (extracción a clase `PriceListParser`). | 3 | ?? REQUERIDO | Sin este servicio no hay contingencia manual ante fallo del worker o ajustes dentro del día. |
+| TAREA-076 | Contingencia manual | ??? Página `PromotionalPriceLists.razor` + carga manual | Indicador de estado (lista activa hoy / usando lista del día X / sin lista). Grilla de historial con row expand (ítems). Sección de contingencia: `RadzenUpload` + campo Notas obligatorio + preview + confirmación ("Reemplazará lista activa"). Link "Cargar manual" desde alertas. | 12 | ?? REQUERIDO | Sin interfaz de contingencia, ante fallo del worker el sistema queda sin lista de precios y el cálculo no puede ejecutarse. |
+| TAREA-077 | Alertas administrativas | ??? Notificación en Dashboard si no hay lista activa | Verifica en `OnInitializedAsync` del Dashboard si `GetActiveForTodayAsync() == null`. Si no hay, muestra `RadzenAlert` persistente con link a `/bonification/price-lists`. Solo visible para roles de administración/bonificación. | 2 | ?? REQUERIDO | Sin esta alerta, el administrador solo descubre la falta de lista cuando el cálculo falla. Prevención proactiva crítica. |
+| TAREA-078 | Navegación | ??? Agregar "Lista de Precios" al menú Configuración en `MainLayout.razor` | Subítem dentro del grupo "Configuración para Bonificaciones" del menú "Bonificaciones". | 1 | ?? REQUERIDO | Sin el ítem de menú la pantalla no es accesible desde la navegación principal. |
+| | | | **Subtotal 2.2.4** | **46** | | **Módulo completo REQUERIDO — sin lista de precios no hay cálculo de Bono por Facturación** |
+
+---
+
 ## Resumen Final por Módulo
 
 | Módulo | Tareas | Horas | % del Total |
 |--------|--------|-------|-------------|
-| 2.1.1 – Clientes Distribuidores | 10 | 34 | 9.4% |
-| 2.1.3 – Períodos de Bonificación | 9 | 63 | 17.5% |
-| 2.1.4 – Tipos de Bono | 6 | 32 | 8.9% |
-| 2.1.5 – Vigencias de Bonificación | 9 | 57 | 15.8% |
-| 2.1.6 – Vigencias de Descuentos | 9 | 41 | 11.1% |
-| 2.2.1 – OC Especiales (Manual) | 9 | 35 | 9.5% |
-| 2.2.2 – OC Especiales (Masivo) | 4 | 27 | 7.3% |
-| 2.2.3 – Conciliación de NC | 11 | 78 | 21.1% |
-| **TOTAL** | **67** | **367** | **100%** |
+| 2.1.1 – Clientes Distribuidores | 10 | 34 | 8.2% |
+| 2.1.3 – Períodos de Bonificación | 9 | 63 | 15.3% |
+| 2.1.4 – Tipos de Bono | 6 | 32 | 7.7% |
+| 2.1.5 – Vigencias de Bonificación | 9 | 57 | 13.8% |
+| 2.1.6 – Vigencias de Descuentos | 9 | 41 | 9.9% |
+| 2.2.1 – OC Especiales (Manual) | 9 | 35 | 8.5% |
+| 2.2.2 – OC Especiales (Masivo) | 4 | 27 | 6.5% |
+| 2.2.3 – Conciliación de NC | 11 | 78 | 18.9% |
+| 2.2.4 – Lista de Precios Promocional | 9 | 46 | 11.1% |
+| **TOTAL** | **76** | **413** | **100%** |
 
 ---
 
@@ -222,20 +240,22 @@
 
 | Escenario | Descripción | Horas | Días hábiles |
 |-----------|-------------|-------|--------------|
-| **MVP Mínimo** | Solo tareas REQUERIDAS | 274 | ~34.3 |
-| **MVP Recomendado** | REQUERIDAS + Sugeridas sin masivos (OC + NC) + sin Deseables | 301 | ~37.6 |
-| **Alcance Completo** | Todas las tareas (67) | 367 | ~45.9 |
-| **Alcance Completo** | Todas las tareas (67) | 360 | ~45.0 |
+| **MVP Mínimo** | Solo tareas REQUERIDAS | 320 | ~40.0 |
+| **MVP Recomendado** | REQUERIDAS + Sugeridas sin masivos (OC + NC) + sin Deseables | 347 | ~43.4 |
+| **Alcance Completo** | Todas las tareas (76) | 413 | ~51.6 |
 
-> **Recomendación**: El **MVP Mínimo (274 h)** cubre el ciclo completo de bonificación operativo:
-> configuración, cálculo, gestión de OC especiales (manual) y conciliación de NC (manual).
+> **Recomendación**: El **MVP Mínimo (320 h)** cubre el ciclo completo de bonificación operativo:
+> configuración, cálculo, gestión de OC especiales (manual), conciliación de NC (manual), y descarga automática de lista de precios.
 > Los caminos masivos (OC + NC, 50 h en total) se recomiendan como **Fase 2** una vez el sistema
 > esté en producción y se valide el volumen real de registros por período.
 >
 > **Nota sobre correcciones aplicadas**: Se agregaron +7 h en tareas REQUERIDAS (TAREA-061: +2h, TAREA-064: +1h)
 > y +4 h en tareas SUGERIDAS (TAREA-065: +2h, TAREA-067: +2h) para cubrir los Escenarios 4 y 8 de conciliación
-> (NC sin TOTVS en camino manual y masivo). Estas correcciones cierran brechas críticas que impedirían
-> el rechazo de NC inexistentes en TOTVS.
+> (NC sin TOTVS en camino manual y masivo).
+>
+> **Agregado Lista de Precios Promocional**: +46 h en 9 tareas REQUERIDAS (TAREA-070 a 078). Sin este módulo no es posible
+> calcular el Bono por Facturación. Incluye descarga automática con 2 estrategias (directa y autenticada), contingencia manual,
+> y notificación de fallo.
 
 ---
 
@@ -243,10 +263,24 @@
 
 | Prioridad | Tareas | Horas | % del Total |
 |-----------|--------|-------|-------------|
-| ?? REQUERIDO | 43 | 267 | 74.2% |
-| ?? SUGERIDO | 20 | 80 | 22.2% |
-| ?? DESEABLE | 4 | 13 | 3.6% |
-| **TOTAL** | **67** | **360** | **100%** |
+| ?? REQUERIDO | 52 | 320 | 77.5% |
+| ?? SUGERIDO | 20 | 80 | 19.4% |
+| ?? DESEABLE | 4 | 13 | 3.1% |
+| **TOTAL** | **76** | **413** | **100%** |
+
+> **Reducción máxima posible** (eliminando Sugeridos + Deseables): **?93 h** ? MVP en **320 h (~40.0 días hábiles)**  
+> **Reducción moderada** (eliminando solo masivos y Deseables): **?66 h** ? MVP+ en **347 h (~43.4 días hábiles)**
+
+---
+
+## Distribución por Tipo de Tarea
+
+| Tipo | Horas | % |
+|------|-------|---|
+| ??? Base de Datos (scripts SQL) | 23 | 5.6% |
+| ?? Backend (entidades, repos, servicios, jobs, import) | 225 | 54.5% |
+| ??? Frontend Blazor (páginas, dialogs, filtros) | 165 | 40.0% |
+| **Total** | **413** | **100%** |
 
 ---
 

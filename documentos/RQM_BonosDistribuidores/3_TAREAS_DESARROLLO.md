@@ -2708,3 +2708,316 @@ services.AddTransient<IExternalCreditNoteImportService, ExternalCreditNoteImport
 - Escenario 8 (Masiva NC sin TOTVS): cerrado con correcciones 6-10
 
 **No quedan brechas pendientes.** El módulo de Conciliación de NC está completo y operativo.
+
+---
+
+### 2.2.4 Lista de Precios Promocional
+
+> Ref. contexto funcional: La página promocional (https://www.catalogospromocionales.com) publica diariamente un archivo Excel con los precios del día de todos los artículos. Este archivo es el **insumo crítico** para el cálculo del Bono por Facturación, ya que los precios varían día a día.
+>
+> **Proceso automático:** Un job nocturno descarga el archivo a las 6 AM (hora configurable) y lo carga en el sistema, archivando la lista del día anterior.
+>
+> **Contingencia manual:** Si el proceso automático falla o si se publican ajustes dentro del día, un usuario con rol de administración/bonificación puede recargar la lista manualmente.
+>
+> **Escenarios de descarga soportados:**
+> 1. **Descarga directa** — Sin autenticación (actual política del proveedor)
+> 2. **Descarga con autenticación** — Usuario/contraseña de distribuidor configurados (previsión futura)
+
+---
+
+#### Estructura de datos y servicios base
+
+#### TAREA-070 ??? — Crear tablas `PromotionalPriceLists` y `PromotionalPriceListItems`
+
+**Script SQL a crear:** `scripts/CreatePromotionalPriceListTables.sql`
+
+```sql
+-- Encabezado de la lista (una por día)
+CREATE TABLE dbo.PromotionalPriceLists (
+    PRICE_LIST_ID     INT           NOT NULL IDENTITY(1,1),
+    LIST_DATE         DATE          NOT NULL,           -- fecha de vigencia
+    STATUS            VARCHAR(20)   NOT NULL DEFAULT 'ACTIVE', -- ACTIVE | HISTORICAL
+    SOURCE            VARCHAR(20)   NOT NULL DEFAULT 'AUTOMATIC', -- AUTOMATIC | MANUAL
+    LOADED_BY         INT           NULL,               -- NULL si automático, FK ApplicationUser si manual
+    LOADED_AT         DATETIME      NOT NULL DEFAULT GETUTCDATE(),
+    FILE_NAME         VARCHAR(255)  NULL,               -- nombre del archivo fuente
+    NOTES             VARCHAR(500)  NULL,               -- motivo si carga manual o recarga del día
+    CONSTRAINT PK_PROMOTIONAL_PRICE_LIST PRIMARY KEY CLUSTERED (PRICE_LIST_ID),
+    CONSTRAINT UQ_PRICE_LIST_DATE_ACTIVE UNIQUE (LIST_DATE, STATUS), -- solo 1 ACTIVE por fecha
+    CONSTRAINT CK_PRICE_LIST_STATUS CHECK (STATUS IN ('ACTIVE','HISTORICAL')),
+    CONSTRAINT CK_PRICE_LIST_SOURCE CHECK (SOURCE IN ('AUTOMATIC','MANUAL'))
+);
+CREATE NONCLUSTERED INDEX IX_PRICE_LIST_DATE_STATUS
+    ON dbo.PromotionalPriceLists (LIST_DATE, STATUS);
+
+-- Líneas de la lista (columnas A-M del Excel)
+CREATE TABLE dbo.PromotionalPriceListItems (
+    PRICE_LIST_ITEM_ID  INT             NOT NULL IDENTITY(1,1),
+    PRICE_LIST_ID       INT             NOT NULL,
+    ITEM_CODE           VARCHAR(50)     NOT NULL,       -- columna A: Referencia
+    ITEM_NAME           VARCHAR(500)    NULL,           -- columna B: NombreProducto
+    FEATURES            VARCHAR(1000)   NULL,           -- columna C: Caracteristicas
+    PRICE1_DESC         VARCHAR(100)    NULL,           -- columna D: DescPrecio1
+    PRICE1              DECIMAL(18,4)   NULL,           -- columna E: Precio1
+    PRICE2_DESC         VARCHAR(100)    NULL,           -- columna F: DescPrecio2
+    PRICE2              DECIMAL(18,4)   NULL,           -- columna G: Precio2
+    PRICE3_DESC         VARCHAR(100)    NULL,           -- columna H: DescPrecio3
+    PRICE3              DECIMAL(18,4)   NULL,           -- columna I: Precio3
+    PRICE4_DESC         VARCHAR(100)    NULL,           -- columna J: DescPrecio4
+    PRICE4              DECIMAL(18,4)   NULL,           -- columna K: Precio4
+    PRICE5_DESC         VARCHAR(100)    NULL,           -- columna L: DescPrecio5
+    PRICE5              DECIMAL(18,4)   NULL,           -- columna M: Precio5
+    CONSTRAINT PK_PRICE_LIST_ITEM PRIMARY KEY CLUSTERED (PRICE_LIST_ITEM_ID),
+    CONSTRAINT UQ_PRICE_LIST_ITEM UNIQUE (PRICE_LIST_ID, ITEM_CODE),
+    CONSTRAINT FK_PRICE_LIST_ITEM_LIST FOREIGN KEY (PRICE_LIST_ID)
+        REFERENCES dbo.PromotionalPriceLists (PRICE_LIST_ID) ON DELETE CASCADE
+);
+CREATE NONCLUSTERED INDEX IX_PRICE_LIST_ITEM_LIST
+    ON dbo.PromotionalPriceListItems (PRICE_LIST_ID);
+CREATE NONCLUSTERED INDEX IX_PRICE_LIST_ITEM_CODE
+    ON dbo.PromotionalPriceListItems (ITEM_CODE);
+```
+
+**Estimación:** 3 horas | Prioridad: ?? REQUERIDO
+
+---
+
+#### TAREA-071 ?? — Entidades EF + Configurations + Models + Mappings
+
+**Archivos a crear:**
+
+- `Aldebaran.DataAccess\Entities\PromotionalPriceList.cs` + `PromotionalPriceListItem.cs`
+- `Aldebaran.DataAccess\Configuration\PromotionalPriceListConfiguration.cs` + `PromotionalPriceListItemConfiguration.cs`
+- `Aldebaran.Application.Services\Models\PromotionalPriceList.cs` + `PromotionalPriceListItem.cs` (POCO)
+
+**Modificar:**
+- `AldebaranDbContext.cs` ? agregar `DbSet<PromotionalPriceList>` + `DbSet<PromotionalPriceListItem>`
+- `ApplicationServicesProfile.cs` ? mappings AutoMapper
+
+**Estimación:** 5 horas | Prioridad: ?? REQUERIDO
+
+---
+
+#### TAREA-072 ?? — Repositorio y servicio `IPromotionalPriceListRepository` / `IPromotionalPriceListService`
+
+**Archivos a crear:**
+- `IPromotionalPriceListRepository.cs` + `PromotionalPriceListRepository.cs`
+  - `GetActiveForDateAsync(DateTime date)` ? lista activa de una fecha específica
+  - `GetMostRecentActiveAsync()` ? lista activa más reciente (fallback si no hay del día)
+  - `LoadDayListAsync(...)` ? archiva anterior y activa nueva
+  - `GetItemPriceAsync(string itemCode, DateTime date)` ? retorna primer precio > 0 de un artículo
+- `IPromotionalPriceListService.cs` + `PromotionalPriceListService.cs`
+
+**Lógica de `LoadDayListAsync`:**
+1. Archivar lista `ACTIVE` del día (si existe) ? `STATUS = HISTORICAL`
+2. Insertar nueva lista con `STATUS = ACTIVE`
+3. Validación: mínimo 1 ítem
+
+**Lógica de `GetItemPriceAsync`:**
+- Retorna el primer precio > 0 en orden: `Price1`, `Price2`, `Price3`, `Price4`, `Price5`
+- Si no hay lista activa del día ? busca la más reciente
+
+**Modificar `ArchitectureBuilderExtensions.cs`:**
+```csharp
+services.AddTransient<IPromotionalPriceListRepository, PromotionalPriceListRepository>();
+services.AddTransient<IPromotionalPriceListService, PromotionalPriceListService>();
+```
+
+**Estimación:** 7 horas | Prioridad: ?? REQUERIDO
+
+---
+
+#### Proceso automático de descarga
+
+#### TAREA-073 ?? — Servicio de descarga HTTP + parseo `IPriceListFetchService`
+
+**Archivo a crear:** `Aldebaran.Application.FileWritingService\Services\IPriceListFetchService.cs` + implementación
+
+**Responsabilidad:** Descarga el archivo desde `https://www.catalogospromocionales.com/distribuidores/referenciasexcel` y parsea las 13 columnas (A-M).
+
+**Escenarios soportados:**
+1. **Descarga directa** (sin autenticación) — `UseAuthentication = false` en config
+2. **Descarga autenticada** — Login previo con usuario/contraseña de distribuidor
+
+**Configuración en `appsettings.json` del `FileWritingService`:**
+```json
+{
+  "PriceListFetchOptions": {
+    "Url": "https://www.catalogospromocionales.com/distribuidores/referenciasexcel",
+    "UseAuthentication": false,
+    "LoginUrl": "https://www.catalogospromocionales.com/distribuidores/login",
+    "Username": "",
+    "Password": "",
+    "CronExpression": "0 0 6 * * *",
+    "NotificationRecipients": ["bonificacion@promos.com"]
+  }
+}
+```
+
+**Parseo con ClosedXML:**
+- Lee columnas A-M (13 columnas)
+- Valida encabezados mínimos
+- Convierte cada fila a `PromotionalPriceListItem`
+
+**Estimación:** 8 horas | Prioridad: ?? REQUERIDO
+
+---
+
+#### TAREA-074 ?? — Worker automático `PriceListFetchWorker`
+
+**Archivo a crear:** `Aldebaran.Application.FileWritingService\Workers\PriceListFetchWorker.cs`
+
+**Patrón idéntico a `InventoryFtpPdfWorker`:**
+- Programación con NCrontab (configurable, default: 6 AM)
+- Descarga ? parseo ? carga en BD ? notificación email
+
+**Flujo:**
+1. `IPriceListFetchService.FetchTodayListAsync()` ? descarga y parsea
+2. `IPromotionalPriceListService.LoadDayListAsync(items, today, "AUTOMATIC", null, fileName, null)`
+3. Notificación de éxito o fallo vía email
+4. Si falla: `ResilientExecutor` reintenta N veces
+
+**Registrar en `Program.cs` del `FileWritingService`:**
+```csharp
+services.AddHttpClient("PriceListDownloader", client => {
+    client.Timeout = TimeSpan.FromMinutes(5);
+    client.DefaultRequestHeaders.Add("User-Agent", "AldebaranSystem/1.0");
+});
+services.AddHostedService<PriceListFetchWorker>();
+services.AddTransient<IPriceListFetchService, PriceListFetchService>();
+services.AddTransient<IPromotionalPriceListService, PromotionalPriceListService>();
+```
+
+**Estimación:** 6 horas | Prioridad: ?? REQUERIDO
+
+---
+
+#### Contingencia manual
+
+#### TAREA-075 ?? — Servicio de parseo manual `IPromotionalPriceListImportService`
+
+**Archivo a crear:** `Aldebaran.Application.Services\Services\IPromotionalPriceListImportService.cs`
+
+**Responsabilidad:** Parsea un archivo Excel subido manualmente (reutiliza lógica de `IPriceListFetchService`).
+
+**Extracción a clase compartida:** `PriceListParser.ParseExcelAsync(Stream)` — usado por ambos servicios.
+
+**Estimación:** 3 horas | Prioridad: ?? REQUERIDO
+
+---
+
+#### TAREA-076 ??? — Página `PromotionalPriceLists.razor` + carga manual
+
+**Ruta:** `Pages\BonificationPages\PromotionalPriceLists.razor`
+**URL:** `/bonification/price-lists`
+**Rol:** `Administrador`, `Modificación de bonificaciones`
+
+**Estructura:**
+
+**Indicador de estado:**
+```razor
+@if (ActiveToday != null)
+{
+    <RadzenAlert AlertStyle="AlertStyle.Success">
+        Lista activa hoy: @ActiveToday.ListDate — @ActiveToday.Items.Count artículos — 
+        cargada @ActiveToday.LoadedAt vía @(ActiveToday.Source == "AUTOMATIC" ? "automático" : "manual")
+    </RadzenAlert>
+}
+else if (MostRecentActive != null)
+{
+    <RadzenAlert AlertStyle="AlertStyle.Warning">
+        ?? No hay lista activa para hoy. Se está usando la del @MostRecentActive.ListDate 
+        (@MostRecentActive.Items.Count artículos). Cargue la lista del día manualmente.
+    </RadzenAlert>
+}
+else
+{
+    <RadzenAlert AlertStyle="AlertStyle.Danger">
+        ? No hay ninguna lista de precios. El cálculo de bonificación no puede realizarse.
+    </RadzenAlert>
+}
+```
+
+**Grilla historial:**
+- Columnas: Fecha | Estado | Fuente | Cargada | Artículos | Notas | Acciones (Ver ítems)
+- Row expand: tabla de ítems (Código, Nombre, Precio1-5)
+
+**Sección de contingencia manual:**
+- `RadzenUpload` (`.xlsx`/`.xls`, máx. 10 MB)
+- `RadzenTextArea` para notas (obligatorio, mín. 10 chars)
+- Botón "Cargar Lista del Día"
+  - Preview de N ítems parseados
+  - Confirmación: "Reemplazará la lista activa de hoy. La anterior pasará a HISTÓRICO."
+  - Llama `IPromotionalPriceListService.LoadDayListAsync(..., "MANUAL", currentUserId, fileName, notes)`
+
+**Estimación:** 12 horas | Prioridad: ?? REQUERIDO
+
+---
+
+#### TAREA-077 ??? — Notificación en Dashboard cuando no hay lista activa
+
+**Archivo a modificar:** Dashboard o `MainLayout.razor` (componente de alertas administrativas)
+
+**Lógica:**
+```csharp
+var activeToday = await priceListService.GetActiveForTodayAsync();
+if (activeToday == null && Security.IsInRole("Administrador", "Modificación de bonificaciones"))
+{
+    var mostRecent = await priceListService.GetMostRecentActiveAsync();
+    var message = mostRecent != null
+        ? $"?? No hay lista de precios para hoy. Se usa la del {mostRecent.ListDate:dd/MM/yyyy}. <a href='/bonification/price-lists'>Cargar manual</a>"
+        : "? No hay lista de precios. <a href='/bonification/price-lists'>Cargar urgente</a>";
+    NotificationService.Notify(NotificationSeverity.Warning, "Lista de Precios", message, duration: 0);
+}
+```
+
+**Estimación:** 2 horas | Prioridad: ?? REQUERIDO
+
+---
+
+#### TAREA-078 ??? — Agregar "Lista de Precios" al menú Configuración en `MainLayout.razor`
+
+**Modificar el bloque de TAREA-045:**
+```razor
+<RadzenPanelMenuItem Text="Configuración para Bonificaciones" Icon="settings">
+    <RadzenPanelMenuItem Text="Períodos" Path="bonification/periods" ... />
+    <RadzenPanelMenuItem Text="Tipos de Bono" Path="bonification/types" ... />
+    <RadzenPanelMenuItem Text="Vigencias" Path="bonification/vigencies" ... />
+    <RadzenPanelMenuItem Text="Descuentos por Pedido" Path="bonification/discount-vigencies" ... />
+    <RadzenPanelMenuItem Text="Lista de Precios"
+        Path="bonification/price-lists"
+        Visible="@Security.IsInRole("Administrador","Modificación de bonificaciones")" />
+</RadzenPanelMenuItem>
+```
+
+**Estimación:** 1 hora | Prioridad: ?? REQUERIDO
+
+---
+
+### Resumen de archivos — Lista de Precios Promocional
+
+| Archivo | Tarea | Tipo |
+|---------|-------|------|
+| `scripts/CreatePromotionalPriceListTables.sql` | 070 | Nuevo |
+| `Entities\PromotionalPriceList.cs` + `PromotionalPriceListItem.cs` | 071 | Nuevo |
+| `Configuration\PromotionalPriceListConfiguration.cs` + `...ItemConfiguration.cs` | 071 | Nuevo |
+| `Models\PromotionalPriceList.cs` + `PromotionalPriceListItem.cs` | 071 | Nuevo |
+| `AldebaranDbContext.cs` | 071 | Modificar |
+| `ApplicationServicesProfile.cs` | 071 | Modificar |
+| `IPromotionalPriceListRepository.cs` + implementación | 072 | Nuevo |
+| `IPromotionalPriceListService.cs` + implementación | 072 | Nuevo |
+| `ArchitectureBuilderExtensions.cs` (Web) | 072 | Modificar |
+| `IPriceListFetchService.cs` + implementación (FileWritingService) | 073 | Nuevo |
+| `PriceListFetchWorker.cs` (FileWritingService) | 074 | Nuevo |
+| `Program.cs` (FileWritingService) | 074 | Modificar |
+| `appsettings.json` (FileWritingService) | 074 | Modificar |
+| `IPromotionalPriceListImportService.cs` + implementación | 075 | Nuevo |
+| `Pages\BonificationPages\PromotionalPriceLists.razor` + `.cs` | 076 | Nuevo |
+| Dashboard / `MainLayout.razor` (notificación) | 077 | Modificar |
+| `Shared\MainLayout.razor` (menú) | 078 | Modificar |
+
+---
+
+> ? **Con TAREA-070 a TAREA-078 queda cubierto el módulo de Lista de Precios Promocional,**  
+> incluyendo descarga automática diaria, contingencia manual, y notificaciones de alerta.  
+> Este es el **último insumo requerido** para el cálculo de bonificación por facturación.
