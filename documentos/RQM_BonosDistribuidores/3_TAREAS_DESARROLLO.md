@@ -774,13 +774,7 @@ public async Task ActivateAsync(int vigencyId, CancellationToken ct)
 ```csharp
 services.AddTransient<IBonificationPeriodInstanceLifecycleService, BonificationPeriodInstanceLifecycleService>();
 services.AddHostedService<BonificationPeriodRolloverJob>();
-
----
-
-### 2.1.4 Gestión de Tipos de Bono
-
-> Funcionalidad completamente nueva.  
-> Permite crear **Tipos de Bono** que combinan un Período de periodicidad con una Base de Cálculo (Facturación, Pedido o Entrega). Son la unidad de configuración a la que se le asignan Vigencias con rangos y porcentajes.
+```
 
 ---
 
@@ -890,11 +884,13 @@ services.AddHostedService<BonificationPeriodRolloverJob>();
 ---
 
 #### TAREA-027 ? ??
-**Actualizar `BonificationPeriods.razor.cs` y `BonificationTypes.razor.cs` para incluir columnas de Actions en el DataGrid**
+**Actualizar `BonificationPeriods.razor.cs` y `BonificationTypes.razor.cs` para incluir columnas de Acciones en el DataGrid**
 
 **Cambios:**
-- Ambas páginas ahora tendrán una columna "Acciones" con un botón de edición (icono lápiz) que abre el respetivo diálogo de edición.
-- Se elimina el botón de "Generar Instancia" en `BonificationPeriods`. Las instancias son automáticas y no deben ser manipuladas desde aquí.
+- Ambas páginas tendrán una columna "Acciones" con un botón de edición (ícono lápiz) que abre el respectivo diálogo de edición.
+- Se elimina el botón "Generar Instancia" en `BonificationPeriods`. Las instancias son automáticas y no deben ser manipuladas desde aquí.
+
+> ?? **Nota de navegación:** Estas páginas se acceden desde el menú **"Bonificaciones"** como ítem de nivel raíz (ver TAREA-045), **no** desde el menú "Administración".
 
 ---
 
@@ -1214,18 +1210,6 @@ CREATE TABLE dbo.DiscountVigencyRanges (
 
 ---
 
-**Ejemplo de rangos:**
-
-| Orden | Desde | Hasta | Tipo | Valor |
-|-------|-------|-------|------|-------|
-| 1 | $1,000,001 | $5,000,000 | Fijo | $100,000 |
-| 2 | $5,000,001 | $10,000,000 | % | 2% |
-| 3 | $10,000,001 | ? (NULL) | % | 5% |
-
-> Si el total del pedido del distribuidor es ? $1,000,000 ? descuento = $0 (no hay rango que lo cubra).
-
----
-
 #### TAREA-038 ? ??
 **Crear entidades EF: `DiscountVigency` y `DiscountVigencyRange`**
 
@@ -1311,10 +1295,7 @@ CreateMap<DiscountVigencyRange, Entities.DiscountVigencyRange>().ReverseMap();
   }
   ```
 
-- `Aldebaran.DataAccess.Infraestructure\Repository\DiscountVigencyRepository.cs`
-
-> **Diferencia clave vs `BonificationVigencyRepository`:**  
-> `GetActiveAsync()` no recibe `bonificationTypeId` porque la vigencia de descuento es **global** — hay una sola activa en el sistema.
+- `Aldebaran.DataAccess.Infraestructure\Repository\DiscountVigencyRepository.cs` — implementación usando `RepositoryBase<AldebaranDbContext>`
 
 ---
 
@@ -1410,7 +1391,7 @@ public async Task ActivateAsync(int vigencyId, CancellationToken ct)
 ---
 
 #### TAREA-043 ? ???
-**Crear dialog `AddDiscountVigency.razor` + `.razor.cs`**
+**Crear dialog `AddDiscountVigency.razor` + `AddDiscountVigency.razor.cs`**
 
 **Estructura (idéntica a `AddBonificationVigency` — TAREA-034, sin campo TipoBono):**
 - Campos de cabecera:
@@ -1429,7 +1410,7 @@ public async Task ActivateAsync(int vigencyId, CancellationToken ct)
 ---
 
 #### TAREA-044 ? ???
-**Crear dialog `EditDiscountVigency.razor` + `.razor.cs`**
+**Crear dialog `EditDiscountVigency.razor` + `EditDiscountVigency.razor.cs`**
 
 **Estructura:**
 - Misma estructura que TAREA-043
@@ -1440,41 +1421,65 @@ public async Task ActivateAsync(int vigencyId, CancellationToken ct)
 ---
 
 #### TAREA-045 ? ???
-**Agregar ítem "Descuentos por Pedido" al menú de Bonificaciones en `MainLayout.razor`**
+**Crear menú "Bonificaciones" como ítem raíz independiente en `MainLayout.razor`**
+
+> ?? **DECISIÓN ARQUITECTURAL DE NAVEGACIÓN** (documentada — no implementada hasta aprobación del proyecto)
+
+**Decisión:** El módulo de Bonificaciones se ubica como **ítem de nivel raíz** en el menú lateral, al mismo nivel que "Administración", "Movimientos de Inventario" y "Reportes". **No va dentro de Administración.**
+
+**Justificación:**
+- Bonificación es un **dominio de negocio independiente**, no configuración del sistema
+- El módulo tiene 6+ subitems y seguirá creciendo (OC Especiales, Reportes de Bonificación, etc.)
+- Audiencia diferente: el personal de bonificación no necesariamente tiene rol de Administración
+- Patrón consistente con los otros módulos de primer nivel del sistema
+
+**Estructura del menú propuesta:**
+
+```
+??? Tablero de notificaciones
+??? Administración                    ? sin cambios
+??? Movimientos de Inventario         ? sin cambios
+??? Bonificaciones                    ? NUEVO ítem de nivel raíz
+?   ??? Configuración
+?   ?   ??? Períodos                  ? bonification/periods      (TAREA-016)
+?   ?   ??? Tipos de Bono             ? bonification/types        (TAREA-024)
+?   ?   ??? Vigencias                 ? bonification/vigencies    (TAREA-033)
+?   ?   ??? Descuentos por Pedido     ? bonification/discount-vigencies (TAREA-042)
+?   ??? Operaciones
+?       ??? OC Especiales             ? bonification/special-orders (TAREA futura)
+??? Reportes                          ? sin cambios
+```
+
+**Roles por subítem:**
+- `Configuración.*` ? `Administrador`, `Consulta de bonificaciones`, `Modificación de bonificaciones`
+- `Operaciones > OC Especiales` ? `Administrador`, `Ingreso de OC especiales de bonificación`
+- Padre `Bonificaciones` ? visible si tiene **cualquiera** de los roles anteriores
+
+**Archivo a modificar (cuando se apruebe el desarrollo):**
+- `Web\Shared\MainLayout.razor`
+
+**Bloque Razor a agregar (entre `</RadzenPanelMenuItem>` de Movimientos de Inventario y `<RadzenPanelMenuItem Text="Reportes"`):**
 
 ```razor
 <RadzenPanelMenuItem Text="Bonificaciones" Icon="percent"
-    Visible="@Security.IsInRole(...)">
-    <RadzenPanelMenuItem Text="Períodos" Path="bonification/periods" />
-    <RadzenPanelMenuItem Text="Tipos de Bono" Path="bonification/types" />
-    <RadzenPanelMenuItem Text="Descuentos por Pedido" Path="bonification/discount-vigencies" />
+    Visible="@Security.IsInRole("Administrador","Consulta de bonificaciones","Modificación de bonificaciones","Ingreso de OC especiales de bonificación")">
+    <RadzenPanelMenuItem Text="Configuración" Icon="settings">
+        <RadzenPanelMenuItem Text="Períodos"
+            Path="bonification/periods"
+            Visible="@Security.IsInRole("Administrador","Consulta de bonificaciones","Modificación de bonificaciones")" />
+        <RadzenPanelMenuItem Text="Tipos de Bono"
+            Path="bonification/types"
+            Visible="@Security.IsInRole("Administrador","Consulta de bonificaciones","Modificación de bonificaciones")" />
+        <RadzenPanelMenuItem Text="Vigencias"
+            Path="bonification/vigencies"
+            Visible="@Security.IsInRole("Administrador","Consulta de bonificaciones","Modificación de bonificaciones")" />
+        <RadzenPanelMenuItem Text="Descuentos por Pedido"
+            Path="bonification/discount-vigencies"
+            Visible="@Security.IsInRole("Administrador","Consulta de bonificaciones","Modificación de bonificaciones")" />
+    </RadzenPanelMenuItem>
+    <RadzenPanelMenuItem Text="Operaciones" Icon="edit_note">
+        <RadzenPanelMenuItem Text="OC Especiales"
+            Path="bonification/special-orders"
+            Visible="@Security.IsInRole("Administrador","Ingreso de OC especiales de bonificación")" />
+    </RadzenPanelMenuItem>
 </RadzenPanelMenuItem>
-```
-
----
-
-#### Resumen de archivos afectados — 2.1.6 Vigencias de Descuentos por Total de Pedido
-
-| Archivo | Tarea | Tipo |
-|---------|-------|------|
-| `scripts/CreateDiscountVigencyTables.sql` | 037 | Nuevo |
-| `DataAccess\Entities\DiscountVigency.cs` | 038 | Nuevo |
-| `DataAccess\Entities\DiscountVigencyRange.cs` | 038 | Nuevo |
-| `DataAccess\Configuration\DiscountVigencyConfiguration.cs` | 038 | Nuevo |
-| `DataAccess\Configuration\DiscountVigencyRangeConfiguration.cs` | 038 | Nuevo |
-| `DataAccess\AldebaranDbContext.cs` | 038 | Modificar |
-| `Application.Services\Models\DiscountVigency.cs` | 039 | Nuevo |
-| `Application.Services\Models\DiscountVigencyRange.cs` | 039 | Nuevo |
-| `Application.Services\Mappings\ApplicationServicesProfile.cs` | 039 | Modificar |
-| `DataAccess.Infraestructure\Repository\IDiscountVigencyRepository.cs` | 040 | Nuevo |
-| `DataAccess.Infraestructure\Repository\DiscountVigencyRepository.cs` | 040 | Nuevo |
-| `Application.Services\Services\IDiscountVigencyService.cs` | 041 | Nuevo |
-| `Application.Services\Services\DiscountVigencyService.cs` | 041 | Nuevo |
-| `Web\Extensions\ArchitectureBuilderExtensions.cs` | 041 | Modificar |
-| `Web\Pages\BonificationPages\DiscountVigencies.razor` | 042 | Nuevo |
-| `Web\Pages\BonificationPages\DiscountVigencies.razor.cs` | 042 | Nuevo |
-| `Web\Pages\BonificationPages\AddDiscountVigency.razor` | 043 | Nuevo |
-| `Web\Pages\BonificationPages\AddDiscountVigency.razor.cs` | 043 | Nuevo |
-| `Web\Pages\BonificationPages\EditDiscountVigency.razor` | 044 | Nuevo |
-| `Web\Pages\BonificationPages\EditDiscountVigency.razor.cs` | 044 | Nuevo |
-| `Web\Shared\MainLayout.razor` | 045 | Modificar |

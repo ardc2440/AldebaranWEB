@@ -89,7 +89,7 @@
 | TAREA-024 | Pantalla gestión de tipos de bono | ??? Página `BonificationTypes.razor` | Grid paginada con buscador, columnas, row expand instancias, botón "Ver Vigencias". | 8 | ?? REQUERIDO | Sin esta pantalla PROMOS no puede crear TiposBono ni navegar a sus Vigencias. Es el punto de entrada obligatorio para configurar el sistema. |
 | TAREA-025 | Pantalla gestión de tipos de bono | ??? Dialog `AddBonificationType.razor` | Campos + dropdown períodos activos + chip "Ciclo N días" + validaciones. | 5 | ?? REQUERIDO | Sin el formulario de alta no es posible registrar nuevos TiposBono desde la UI. |
 | TAREA-026 | Pantalla gestión de tipos de bono | ??? Dialog `EditBonificationType.razor` | Igual a TAREA-025 + bloqueo si tiene instancias activas. | 4 | ?? SUGERIDO | Si los TiposBono se configuran correctamente desde el inicio, la edición no es crítica para el MVP. La lógica de bloqueo ya vive en el servicio (TAREA-023). Puede diferirse. |
-| TAREA-027 | Navegación | ??? Agregar "Tipos de Bono" al menú `MainLayout.razor` | Subítem en el grupo "Bonificaciones". | 1 | ?? REQUERIDO | Sin el ítem de menú la pantalla de Tipos de Bono (TAREA-024) no es accesible desde la navegación principal. |
+| TAREA-027 | Navegación | ??? Agregar "Tipos de Bono" al menú en `MainLayout.razor` | Subítem en el grupo "Bonificaciones" (ítem raíz, **no** dentro de Administración). | 1 | ?? REQUERIDO | Sin el ítem de menú la pantalla de Tipos de Bono (TAREA-024) no es accesible desde la navegación principal. |
 | | | | **Subtotal 2.1.4** | **32** | | |
 
 ---
@@ -123,7 +123,7 @@
 | TAREA-042 | Pantalla de descuentos | ??? Página `DiscountVigencies.razor` | Indicador "Vigencia Activa", grid con badges, Activar condicional, row expand rangos. | 8 | ?? REQUERIDO | Sin esta pantalla PROMOS no puede ver ni activar vigencias de descuento. El sistema no tiene interfaz para gestionar este parámetro clave. |
 | TAREA-043 | Pantalla de descuentos | ??? Dialog `AddDiscountVigency.razor` | Grilla rangos editable + Tipo/Valor + validación solapamiento. | 6 | ?? REQUERIDO | Sin el formulario de creación no es posible configurar ninguna vigencia de descuento desde la UI. |
 | TAREA-044 | Pantalla de descuentos | ??? Dialog `EditDiscountVigency.razor` | Igual a TAREA-043 + solo lectura si estado ? PENDING. | 4 | ?? SUGERIDO | Al igual que TAREA-035, una vigencia PENDING puede recrearse en lugar de editarse. Diferible si PROMOS acepta crear nueva vigencia ante cualquier corrección. |
-| TAREA-045 | Navegación | ??? Agregar "Descuentos por Pedido" al menú `MainLayout.razor` | Subítem en el grupo "Bonificaciones". | 1 | ?? REQUERIDO | Sin el ítem de menú la pantalla de Descuentos (TAREA-042) no es accesible desde la navegación principal. |
+| TAREA-045 | Navegación | ??? Crear menú "Bonificaciones" como ítem raíz en `MainLayout.razor` | Ítem de nivel raíz (al nivel de Administración, Movimientos de Inventario y Reportes) con subgrupos "Configuración" y "Operaciones". Incluye todos los subitems de bonificación. | 1 | ?? REQUERIDO | Sin el ítem de menú ninguna de las pantallas de Bonificación es accesible desde la navegación principal. |
 | | | | **Subtotal 2.1.6** | **41** | | |
 
 ---
