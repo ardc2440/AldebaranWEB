@@ -1126,6 +1126,22 @@ Estructura idéntica a la entidad pero sin dependencias de EF (POCO puros).
 
 > ? **Con TAREA-029 a TAREA-035 quedan cubiertas todas las modificaciones necesarias relacionadas con Rangos de Bonificación.**
 
+#### TAREA-036 
+**Agregar botón "Ver Vigencias" en `BonificationTypes.razor`**
+
+**Contexto del código:**  
+`BonificationTypes.razor` (TAREA-024) tiene una columna "Acciones" con botón Editar. Sin un vínculo explícito al listado de Vigencias, el usuario debe escribir la URL directamente para acceder a `/bonification/types/{id}/vigencies`.
+
+**Cambios en `BonificationTypes.razor`:**
+- Agregar botón "Ver Vigencias" en la columna Acciones del `RadzenDataGrid`
+  - Ícono: `schedule` o `event_note`
+  - Tooltip: "Ver Vigencias de este Tipo de Bono"
+  - Navega a `/bonification/types/{BonificationTypeId}/vigencies`
+  - Visible para todos los roles con acceso a la pantalla (`Administrador`, `Consulta de bonificaciones`, `Modificación de bonificaciones`)
+
+**Cambios en `BonificationTypes.razor.cs`:**
+- No requiere lógica adicional: la navegación es directa con `NavigationManager.NavigateTo`.
+
 ---
 
 ### 2.1.6 Vigencias de Descuentos por Total de Pedido
