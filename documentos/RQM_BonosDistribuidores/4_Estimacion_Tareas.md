@@ -2,7 +2,7 @@
 
 **Identificador**: RQM_BonosDistribuidores_052026  
 **Fecha**: Mayo 2026  
-**Versión**: 2.0  
+**Versión**: 2.2  
 **Perfil asumido**: Desarrollador humano Senior .NET / Blazor con conocimiento del codebase Aldebaran  
 
 ---
@@ -33,13 +33,13 @@
 
 | Prioridad | Tareas | Horas | % del Total |
 |-----------|--------|-------|-------------|
-| ?? REQUERIDO | 52 | 320 | 77.5% |
-| ?? SUGERIDO | 20 | 80 | 19.4% |
-| ?? DESEABLE | 4 | 13 | 3.1% |
-| **TOTAL** | **76** | **413** | **100%** |
+| ?? REQUERIDO | 65 | 369 | 77.0% |
+| ?? SUGERIDO | 24 | 97 | 20.3% |
+| ?? DESEABLE | 4 | 13 | 2.7% |
+| **TOTAL** | **93** | **479** | **100%** |
 
-> **Reducción máxima posible** (eliminando Sugeridos + Deseables): **?93 h** ? MVP en **320 h (~40.0 días hábiles)**  
-> **Reducción moderada** (eliminando solo masivos y Deseables): **?66 h** ? MVP+ en **347 h (~43.4 días hábiles)**
+> **Reducción máxima posible** (eliminando Sugeridos + Deseables): **?110 h** ? MVP en **369 h (~46.1 días hábiles)**  
+> **Reducción moderada** (eliminando solo masivos y Deseables): **?66 h** ? MVP+ en **413 h (~51.6 días hábiles)**
 
 ---
 
@@ -55,11 +55,19 @@
 | TAREA-004 | Gestión visual de distribuidores | ??? Columna y filtro en `Customers.razor` | Nueva columna con badge, dropdown filtro Todos/Distribuidores/No Distribuidores. | 5 | ?? SUGERIDO | PROMOS necesita identificar visualmente qué clientes son distribuidores. Sin esto, la gestión debe hacerse abriendo cada registro individualmente. Impacto operativo alto pero no bloquea el cálculo de bonos. |
 | TAREA-005 | Gestión visual de distribuidores | ??? Campos distribuidor en `EditCustomer.razor` | `RadzenCheckBox` + `RadzenTextBox` BonusEmail + validadores condicionales. | 4 | ?? REQUERIDO | Sin este formulario, PROMOS no tiene interfaz para marcar distribuidores ni configurar su email de bonificación. Prerequisito para que el sistema arranque con datos reales. |
 | TAREA-006 | Gestión visual de distribuidores | ??? Campos distribuidor en `AddCustomer.razor` | Idéntico a TAREA-005 aplicado en el formulario de creación. | 3 | ?? SUGERIDO | Los distribuidores existentes se gestionan desde `EditCustomer` (TAREA-005). Un distribuidor nuevo puede crearse sin el flag y luego editarse. Reduce urgencia aunque es conveniente tenerlo desde el inicio. |
+| | | | **Subtotal 2.1.1** | **21** | | |
+
+---
+
+### 2.1.2 – Reportes con filtro de Cliente
+
+| # | Funcionalidad | Tarea | Descripción | Horas | Prioridad | Sustentación |
+|---|--------------|-------|-------------|-------|-----------|--------------|
 | TAREA-007 | Filtro distribuidores en reportes | ??? Filtro en `CustomerOrderReportFilter` | Checkbox + limpiar selección + reload dropdown. | 3 | ?? DESEABLE | El reporte de órdenes no es parte del flujo de bonificación. El filtro facilita encontrar distribuidores en el dropdown pero no es necesario para calcular bonos. Puede agregarse en sprint 2. |
 | TAREA-008 | Filtro distribuidores en reportes | ??? Filtro en `CustomerSalesReportFilter` | Mismo patrón TAREA-007. | 2 | ?? DESEABLE | Igual a TAREA-007. Reporte de ventas no es parte del flujo de bonificación. Conveniencia visual diferible. |
 | TAREA-009 | Filtro distribuidores en reportes | ??? Filtro en `CustomerReservationReportFilter` | Mismo patrón TAREA-007. | 2 | ?? DESEABLE | Igual a TAREA-007 y TAREA-008. Diferible sin impacto en el MVP. |
 | TAREA-010 | Filtro distribuidores en reportes | ??? Filtro en 4 reportes adicionales | `BackOrder`, `CustomerOrderActivity`, `AutomaticAssignment`, `PendingAutomaticCustomerOrder`. | 6 | ?? DESEABLE | 4 reportes operativos que no forman parte del flujo de bonificación. Mayor cantidad de trabajo para el menor impacto en el objetivo principal. Candidato prioritario a diferir. |
-| | | | **Subtotal 2.1.1** | **34** | | |
+| | | | **Subtotal 2.1.2** | **13** | | |
 
 ---
 
@@ -76,6 +84,8 @@
 | TAREA-017 | Pantalla gestión de períodos | ??? Dialog `AddBonificationPeriod.razor` | Campos + dropdown Tipo + autocompletado duración + validaciones. | 6 | ?? REQUERIDO | Sin el formulario de creación, PROMOS no puede crear ningún período desde la UI. |
 | TAREA-018 | Pantalla gestión de períodos | ??? Dialog `EditBonificationPeriod.razor` | Igual a TAREA-017 + bloqueo condicional de `DurationDays`. | 5 | ?? SUGERIDO | Los períodos creados correctamente desde el inicio no necesitarán edición frecuente. Puede diferirse si los datos iniciales se cargan directamente en BD. Sin embargo es necesario para operación normal a largo plazo. |
 | TAREA-019 | Ciclo de vida automático de instancias | ?? Servicio ciclo de vida + `BonificationPeriodRolloverJob` | `IBonificationPeriodInstanceLifecycleService` + job nocturno 23:59. | 15 | ?? REQUERIDO | Sin el job nocturno, las instancias de período no se crean ni se cierran automáticamente. El sistema dejaría de funcionar al vencer el primer período. Es la pieza central de la automatización. |
+| TAREA-020 | Cancelada por definición | | | | | |
+| TAREA-021 | Cancelada por definición | | | | | |
 | | | | **Subtotal 2.1.3** | **63** | | |
 
 ---
@@ -167,7 +177,7 @@
 | TAREA-062 | Backend NC externas | ?? Modelo + repo + servicio `ExternalCreditNote` | POCO, AutoMapper, `IExternalCreditNoteRepository` (con `GetApprovedTotalAsync`), `IExternalCreditNoteService` (con `ApproveAsync`, `RejectAsync`, `BulkAddAsync`). **Validación cruzada de `CreditNoteNumber` contra ambas tablas**. | 7 | ?? REQUERIDO | `GetApprovedTotalAsync` es consumido por el indicador de cuadre. Sin este servicio las NC externas no pueden registrarse ni aprobarse. |
 | TAREA-063 | Pantalla principal conciliación | ??? Página `CreditNoteReconciliation.razor` con `RadzenTabs` | Dos pestañas: NC del Sistema y NC Externas. Filtros por instancia/distribuidor/estado. Indicador de cuadre con Valor Sistema + Diferencia Conciliada + NC Externas Aprobadas = Valor Final. | 12 | ?? REQUERIDO | Pantalla operativa central del módulo. Sin ella PROMOS no tiene interfaz para gestionar el cierre contable del período. |
 | TAREA-064 | Dialogs conciliación manual | ??? 4 dialogs: `ConciliateCreditNote`, `RejectReconciliation`, `AddExternalCreditNote`, `ApproveRejectExternalCreditNote` | `ConciliateCreditNote` incluye preview diferencia en tiempo real, alerta si `\|dif\|>5%`, **y nota informativa guiando al usuario a Rechazar si NC no existe en TOTVS**. `ApproveRejectExternalCreditNote` reutilizable con parámetro `IsApproving`. | 9 | ?? REQUERIDO | Sin estos dialogs la operación manual NC a NC no es posible desde la UI. **La nota informativa previene errores del Escenario 4**. +1h por mensaje guía. |
-| TAREA-065 | Servicio importación NC sistema | ?? `ICreditNoteReconciliationImportService` — generación de plantilla pre-poblada + parseo reimportación | `GenerateReconciliationFileAsync`: Excel con NC PENDIENTES, columnas bloqueadas, **columna Acción (CONCILIAR/RECHAZAR) + Motivo Rechazo**. `ParseFileAsync`: retorna filas con acción completada (conciliar o rechazar). **Estructura extendida con 3 columnas adicionales vs diseño original**. | 10 | ?? SUGERIDO | La conciliación manual (TAREA-064) cubre el MVP. **La masiva con rechazo (corrección aplicada) cierra el Escenario 8 completamente, pero es diferible**. +2h por columnas adicionales y lógica de validación. |
+| TAREA-065 | Servicio importación NC sistema | ?? `ICreditNoteReconciliationImportService` — generación de plantilla pre-poblada + parseo reimportación | `GenerateReconciliationFileAsync`: Excel con NC PENDIENTES, columnas bloqueadas, **columna Acción (CONCILIAR/RECHAZAR) + Motivo Rechazo**. `ParseFileAsync`: retorna filas con acción completada (conciliar o rechazar). **Estructura extendida con 3 columnas adicionales vs diseño original**. | 10 | ?? SUGERIDO | La conciliación manual (TAREA-064) cubre el MVP. La masiva con rechazo (corrección aplicada) cierra el Escenario 8 completamente, pero es diferible. +2h por columnas adicionales y lógica de validación. |
 | TAREA-066 | Servicio importación NC externas | ?? `IExternalCreditNoteImportService` — plantilla en blanco + parseo | Plantilla de 4 columnas + hojas Instrucciones/Ejemplo. Parseo valida estructura y tipos. | 5 | ?? SUGERIDO | Depende de TAREA-062. Si no se incluye la carga masiva de NC externas este servicio no es necesario para el MVP. |
 | TAREA-067 | Página conciliación masiva NC sistema | ??? Página `BulkCreditNoteReconciliation.razor` | Flujo 3 pasos: generar archivo pre-poblado ? reimportar ? **vista previa con 4 tablas (A Conciliar / A Rechazar / Ignoradas / Errores)** + confirmación. **Llama `BulkProcessAsync` en lugar de `BulkConciliateAsync`**. | 10 | ?? SUGERIDO | Depende de TAREA-065. **Con las correcciones, cubre el Escenario 8 completo (rechazo masivo)**. Diferible sin impacto en MVP. +2h por tablas adicionales. |
 | TAREA-068 | Página carga masiva NC externas | ??? Página `BulkExternalCreditNotes.razor` | Flujo 3 pasos: descargar plantilla en blanco ? cargar y procesar ? vista previa + confirmación. | 6 | ?? SUGERIDO | Depende de TAREA-066. Mismo argumento que TAREA-067: diferible sin impacto en el MVP. |
@@ -182,14 +192,39 @@
 |---|--------------|-------|-------------|-------|-----------|--------------|
 | TAREA-070 | Estructura de datos | ??? Crear tablas `PromotionalPriceLists` + `PromotionalPriceListItems` | 2 tablas. `PromotionalPriceLists`: encabezado con fecha, estado (ACTIVE/HISTORICAL), fuente (AUTOMATIC/MANUAL). `PromotionalPriceListItems`: 13 columnas del Excel (Referencia, Nombre, Características, DescPrecio1-5, Precio1-5). Índices por fecha+estado y código de artículo. | 3 | ?? REQUERIDO | Sin estas tablas no existe soporte para almacenar precios del día. El cálculo de Bono por Facturación queda bloqueado. |
 | TAREA-071 | Estructura de datos | ?? Entidades EF + Configurations + Models + Mappings | 2 entidades + 2 configuraciones + 2 modelos POCO. Mapeo completo de las 13 columnas. Registrar en DbContext. | 5 | ?? REQUERIDO | Sin entidades EF no se puede operar las tablas. Bloquea repositorios y servicios. |
-| TAREA-072 | Backend base | ?? `IPromotionalPriceListRepository` + `IPromotionalPriceListService` | Repositorio con `GetActiveForDateAsync`, `GetMostRecentActiveAsync`, `LoadDayListAsync` (archiva anterior + activa nueva), `GetItemPriceAsync` (retorna primer precio > 0). Servicio con validaciones: mínimo 1 ítem, reemplazo total. | 7 | ?? REQUERIDO | `LoadDayListAsync` es consumido por el worker automático y la carga manual. `GetItemPriceAsync` es consumido por el motor de cálculo de bonificación. |
+| TAREA-072 | Backend base | ?? `IPromotionalPriceListRepository` + `IPromotionalPriceListService` | Repositorio con `GetActiveForDateAsync`, `GetMostRecentActiveAsync`, `LoadDayListAsync` (archiva anterior + **REEMPLAZA** del mismo día), `GetItemPriceAsync`. Servicio con validaciones. **+2h por lógica de REEMPLAZO (DELETE en lugar de historizar), testing de escenarios intra-día, y Application Logs para mitigación de auditoría**. | 9 | ?? REQUERIDO | `LoadDayListAsync` es consumido por el worker automático y la carga manual. `GetItemPriceAsync` es consumido por el motor de cálculo de bonificación. **Decisión arquitectural: foto única por día (no versiones intra-día)**. |
 | TAREA-073 | Descarga automática | ?? `IPriceListFetchService` — descarga HTTP + parseo Excel | Descarga desde URL configurable (`https://www.catalogospromocionales.com/distribuidores/referenciasexcel`). **Doble estrategia**: descarga directa (sin auth) y descarga autenticada (login previo con user/pass). Parseo con ClosedXML de 13 columnas. | 8 | ?? REQUERIDO | Sin este servicio el worker automático no puede descargar la lista del día. **La doble estrategia previene bloqueos futuros si el proveedor cambia política de acceso**. +2h por complejidad de autenticación. |
 | TAREA-074 | Descarga automática | ?? `PriceListFetchWorker` — job programado (BackgroundService) | Worker con NCrontab (hora configurable, default 6 AM). Descarga ? parseo ? `LoadDayListAsync` ? notificación email (éxito/fallo). Usa `ResilientExecutor` para reintentos. Configuración en `appsettings.json` (URL, UseAuthentication, Username, Password, CronExpression, NotificationRecipients). Registrar HttpClient + Worker en DI. | 6 | ?? REQUERIDO | Sin el worker automático, PROMOS debe cargar manualmente la lista todos los días a las 6 AM. La notificación email es crítica para detectar fallos inmediatamente. |
 | TAREA-075 | Contingencia manual | ?? `IPromotionalPriceListImportService` — parseo archivo manual | Parsea archivo Excel subido manualmente. Reutiliza lógica de parseo de TAREA-073 (extracción a clase `PriceListParser`). | 3 | ?? REQUERIDO | Sin este servicio no hay contingencia manual ante fallo del worker o ajustes dentro del día. |
 | TAREA-076 | Contingencia manual | ??? Página `PromotionalPriceLists.razor` + carga manual | Indicador de estado (lista activa hoy / usando lista del día X / sin lista). Grilla de historial con row expand (ítems). Sección de contingencia: `RadzenUpload` + campo Notas obligatorio + preview + confirmación ("Reemplazará lista activa"). Link "Cargar manual" desde alertas. | 12 | ?? REQUERIDO | Sin interfaz de contingencia, ante fallo del worker el sistema queda sin lista de precios y el cálculo no puede ejecutarse. |
 | TAREA-077 | Alertas administrativas | ??? Notificación en Dashboard si no hay lista activa | Verifica en `OnInitializedAsync` del Dashboard si `GetActiveForTodayAsync() == null`. Si no hay, muestra `RadzenAlert` persistente con link a `/bonification/price-lists`. Solo visible para roles de administración/bonificación. | 2 | ?? REQUERIDO | Sin esta alerta, el administrador solo descubre la falta de lista cuando el cálculo falla. Prevención proactiva crítica. |
 | TAREA-078 | Navegación | ??? Agregar "Lista de Precios" al menú Configuración en `MainLayout.razor` | Subítem dentro del grupo "Configuración para Bonificaciones" del menú "Bonificaciones". | 1 | ?? REQUERIDO | Sin el ítem de menú la pantalla no es accesible desde la navegación principal. |
-| | | | **Subtotal 2.2.4** | **46** | | **Módulo completo REQUERIDO — sin lista de precios no hay cálculo de Bono por Facturación** |
+| | | | **Subtotal 2.2.4** | **49** | | **Módulo completo REQUERIDO — sin lista de precios no hay cálculo de Bono por Facturación. +3h vs estimación original por lógica de REEMPLAZO (TAREA-072 +2h redondeadas a 9h totales)** |
+
+---
+
+### 2.2.5 – Gestión de Exclusiones (Pedido Especial)
+
+| # | Funcionalidad | Tarea | Descripción | Horas | Prioridad | Sustentación |
+|---|--------------|-------|-------------|-------|-----------|--------------|
+| TAREA-079 | Exclusión a nivel de datos | ??? Agregar `IsSpecialOrder` en `CUSTOMER_ORDERS` | Script de migración con default `0` y backfill para históricos. | 2 | ?? REQUERIDO | Sin esta columna no existe forma técnica de marcar pedidos especiales y excluirlos del Bono por Pedido. |
+| TAREA-080 | Auditoría específica del flag | ??? Estructura de log explícito para cambios de flag | Tabla de trazabilidad con valor anterior/nuevo, dirección del cambio, usuario y causa. | 3 | ?? REQUERIDO | La auditoría estándar no cubre explícitamente el sentido del cambio; esta evidencia es obligatoria para control interno. |
+| TAREA-081 | Exclusión en consultas y reportes | ??? Ajuste de SPs y consultas impactadas | Actualizar datasets de `Customer Orders`, `Customer Orders Activities` y `Customer Sales` con bandera y exclusión dinámica en cálculo. | 5 | ?? REQUERIDO | Si no se actualizan consultas, el flag no tiene efecto real en el cálculo ni visibilidad operacional. |
+| TAREA-082 | Dominio de pedidos | ?? Agregar `IsSpecialOrder` en entidades y modelos | Propagar campo en `CustomerOrder` (DataAccess/Application) y modelos de salida asociados. | 2 | ?? REQUERIDO | Sin propagación de modelo, el backend no puede leer ni persistir correctamente la bandera. |
+| TAREA-083 | Mapeo transversal | ?? Actualizar configuraciones EF y AutoMapper | Ajustar mapeo de columna y perfil de transformación entre capas. | 2 | ?? REQUERIDO | Garantiza consistencia entre BD, entidades y servicios; evita omisiones silenciosas del nuevo campo. |
+| TAREA-084 | Operación especializada | ?? Método dedicado `UpdateSpecialOrderFlagAsync` | Crear operación específica para cambiar solo el flag con captura de causa. | 5 | ?? REQUERIDO | Soporta el nuevo perfil funcional que solo puede modificar esta bandera y nada más del pedido. |
+| TAREA-085 | Reglas de elegibilidad | ?? Validaciones de negocio del flag | Solo distribuidores (`IsDistributor=true`), bloqueo por período cerrado y mensajes funcionales controlados. | 4 | ?? REQUERIDO | Evita inconsistencias funcionales y protege reglas acordadas del proceso de bonificación. |
+| TAREA-086 | Seguridad en update general | ?? Blindaje de `UpdateAsync` de pedido | Impedir que el flujo tradicional modifique `IsSpecialOrder` cuando no corresponde. | 3 | ?? REQUERIDO | Separa claramente responsabilidades entre perfil actual de modificación y nuevo perfil especializado. |
+| TAREA-087 | Motor de cálculo | ?? Exclusión efectiva en Bono por Pedido | Ajustar consultas de consolidación para excluir pedidos con `IsSpecialOrder=true`. | 4 | ?? REQUERIDO | Es el objetivo funcional central de la historia; sin esto el flag sería decorativo. |
+| TAREA-088 | Roles y autorización | ?? Nuevo permiso `Administración de Pedidos Especiales` | Alta de rol/permiso, asignación y políticas en backend/frontend. | 3 | ?? REQUERIDO | Sin control de permisos no se cumple la segregación de funciones definida por análisis. |
+| TAREA-089 | UI operativa de pedido | ??? Visualización controlada de `Pedido Especial` | Mostrar campo en edición de pedido con habilitación condicional por rol y estado del período. | 5 | ?? REQUERIDO | La operación diaria requiere una interfaz directa para administrar la exclusión en pedidos existentes. |
+| TAREA-090 | Flujo exclusivo de cambio | ??? Dialog/acción dedicada para el flag | Confirmación explícita de impacto + selección de causa para cambio del flag. | 4 | ?? REQUERIDO | Reduce riesgo operativo y estandariza el cambio sobre una acción auditable y controlada. |
+| TAREA-091 | Reporte operacional | ??? Ajuste `Customer Orders` | Columna/filtro de `Pedido Especial` y propagación en exportables. | 4 | ?? SUGERIDO | Mejora visibilidad y control operativo, pero no bloquea la exclusión del cálculo en sí misma. |
+| TAREA-092 | Reporte de actividades | ??? Ajuste `Customer Orders Activities` | Incluir indicador/filtro de `Pedido Especial` en consulta y exportación. | 4 | ?? SUGERIDO | Aporta trazabilidad analítica; puede diferirse sin bloquear la lógica principal de exclusión. |
+| TAREA-093 | Reporte comercial | ??? Ajuste `Customer Sales` | Incluir indicador/filtro de `Pedido Especial` en grilla y export. | 4 | ?? SUGERIDO | Incrementa capacidad de análisis del negocio; no impide operación mínima del módulo. |
+| TAREA-094 | Auditoría integral | ?? Integrar auditoría estándar + log específico | Conectar modificación de pedido con log adicional obligatorio del flag. | 4 | ?? REQUERIDO | Garantiza cumplimiento de requerimiento de auditoría dual (estándar + explícita). |
+| TAREA-095 | Validación técnica | ?? Plan de pruebas de regresión del módulo | Cobertura unitaria/integración/UI para rol, regla de distribuidor, período cerrado y exclusión en cálculo. | 5 | ?? SUGERIDO | Aumenta confiabilidad de salida y reduce retrabajo post-release; puede ejecutarse en cierre de sprint. |
+| | | | **Subtotal 2.2.5** | **63** | | **Nuevo módulo de control transversal sobre pedidos; +63h al total del proyecto.** |
 
 ---
 
@@ -197,16 +232,18 @@
 
 | Módulo | Tareas | Horas | % del Total |
 |--------|--------|-------|-------------|
-| 2.1.1 – Clientes Distribuidores | 10 | 34 | 8.2% |
-| 2.1.3 – Períodos de Bonificación | 9 | 63 | 15.3% |
-| 2.1.4 – Tipos de Bono | 6 | 32 | 7.7% |
-| 2.1.5 – Vigencias de Bonificación | 9 | 57 | 13.8% |
-| 2.1.6 – Vigencias de Descuentos | 9 | 41 | 9.9% |
-| 2.2.1 – OC Especiales (Manual) | 9 | 35 | 8.5% |
-| 2.2.2 – OC Especiales (Masivo) | 4 | 27 | 6.5% |
-| 2.2.3 – Conciliación de NC | 11 | 78 | 18.9% |
-| 2.2.4 – Lista de Precios Promocional | 9 | 46 | 11.1% |
-| **TOTAL** | **76** | **413** | **100%** |
+| 2.1.1 – Clientes Distribuidores | 6 | 21 | 4.4% |
+| 2.1.2 – Reportes con filtro de Cliente | 4 | 13 | 2.7% |
+| 2.1.3 – Períodos de Bonificación | 9 | 63 | 13.2% |
+| 2.1.4 – Tipos de Bono | 6 | 32 | 6.7% |
+| 2.1.5 – Vigencias de Bonificación | 9 | 57 | 11.9% |
+| 2.1.6 – Vigencias de Descuentos | 9 | 41 | 8.6% |
+| 2.2.1 – OC Especiales (Manual) | 9 | 35 | 7.3% |
+| 2.2.2 – OC Especiales (Masivo) | 4 | 27 | 5.6% |
+| 2.2.3 – Conciliación de NC | 11 | 78 | 16.3% |
+| 2.2.4 – Lista de Precios Promocional | 9 | 49 | 10.2% |
+| 2.2.5 – Gestión de Exclusiones (Pedido Especial) | 17 | 63 | 13.2% |
+| **TOTAL** | **93** | **479** | **100%** |
 
 ---
 
@@ -234,28 +271,40 @@
 | TAREA-066 | Servicio importación NC externas | ?? SUGERIDO | 5 | Depende de TAREA-062. Diferible junto con TAREA-068. |
 | TAREA-067 | Página conciliación masiva NC sistema | ?? SUGERIDO | 10 | Depende de TAREA-065. Diferible. **+2h por tablas de resultado adicionales (A Conciliar/A Rechazar/Ignoradas/Errores)**. |
 | TAREA-068 | Página carga masiva NC externas | ?? SUGERIDO | 6 | Depende de TAREA-066. Diferible. |
-| **TOTAL DIFERIBLE** | | | **97** | **+4h vs estimación original por correcciones** |
+| TAREA-091 | Ajuste reporte `Customer Orders` | ?? SUGERIDO | 4 | La lógica de exclusión se mantiene operativa sin esta visualización de reporte en una primera salida. |
+| TAREA-092 | Ajuste reporte `Customer Orders Activities` | ?? SUGERIDO | 4 | Misma justificación que TAREA-091; aporta visibilidad operativa no crítica para el MVP. |
+| TAREA-093 | Ajuste reporte `Customer Sales` | ?? SUGERIDO | 4 | Misma justificación que TAREA-091; analítica diferible. |
+| TAREA-095 | Plan de pruebas extendido del módulo 2.2.5 | ?? SUGERIDO | 5 | Recomendado para endurecer salida, pero puede ejecutarse al cierre de estabilización. |
+| **TOTAL DIFERIBLE** | | | **114** | **Incluye +17h del módulo 2.2.5 (reportería y pruebas extendidas).** |
 
 ### Escenarios de contratación
 
 | Escenario | Descripción | Horas | Días hábiles |
 |-----------|-------------|-------|--------------|
-| **MVP Mínimo** | Solo tareas REQUERIDAS | 320 | ~40.0 |
-| **MVP Recomendado** | REQUERIDAS + Sugeridas sin masivos (OC + NC) + sin Deseables | 347 | ~43.4 |
-| **Alcance Completo** | Todas las tareas (76) | 413 | ~51.6 |
+| **MVP Mínimo** | Solo tareas REQUERIDAS | 369 | ~46.1 |
+| **MVP Recomendado** | REQUERIDAS + Sugeridas sin masivos (OC + NC) + sin Deseables | 413 | ~51.6 |
+| **Alcance Completo** | Todas las tareas (93) | 479 | ~59.9 |
 
-> **Recomendación**: El **MVP Mínimo (320 h)** cubre el ciclo completo de bonificación operativo:
-> configuración, cálculo, gestión de OC especiales (manual), conciliación de NC (manual), y descarga automática de lista de precios.
-> Los caminos masivos (OC + NC, 50 h en total) se recomiendan como **Fase 2** una vez el sistema
-> esté en producción y se valide el volumen real de registros por período.
+> **Recomendación**: El **MVP Mínimo (369 h)** cubre el ciclo completo de bonificación operativo,
+> incluida la exclusión por `Pedido Especial` con control de rol y auditoría reforzada.
+> Los caminos masivos (OC + NC, 50 h en total) y la reportería extendida de exclusiones
+> se recomiendan como **Fase 2** una vez estabilizado el flujo principal.
 >
-> **Nota sobre correcciones aplicadas**: Se agregaron +7 h en tareas REQUERIDAS (TAREA-061: +2h, TAREA-064: +1h)
+> **Nota sobre correcciones aplicadas (v2.0)**: Se agregaron +7 h en tareas REQUERIDAS (TAREA-061: +2h, TAREA-064: +1h)
 > y +4 h en tareas SUGERIDAS (TAREA-065: +2h, TAREA-067: +2h) para cubrir los Escenarios 4 y 8 de conciliación
 > (NC sin TOTVS en camino manual y masivo).
 >
-> **Agregado Lista de Precios Promocional**: +46 h en 9 tareas REQUERIDAS (TAREA-070 a 078). Sin este módulo no es posible
+> **Agregado Lista de Precios Promocional (v2.0)**: +46 h en 9 tareas REQUERIDAS (TAREA-070 a 078). Sin este módulo no es posible
 > calcular el Bono por Facturación. Incluye descarga automática con 2 estrategias (directa y autenticada), contingencia manual,
 > y notificación de fallo.
+>
+> **Ajuste lógica de REEMPLAZO (v2.1)**: +3 h en módulo 2.2.4 (TAREA-072 de 7h a 9h). Decisión arquitectural: lista de precios del mismo día
+> se REEMPLAZA (no historiza versión anterior). Incluye testing adicional de escenarios intra-día, Application Logs para mitigación
+> de auditoría, y documentación de decisión.
+>
+> **Agregado Gestión de Exclusiones – Pedido Especial (v2.2)**: +63 h en 17 tareas (TAREA-079 a TAREA-095),
+> con foco en exclusión de Bono por Pedido, control de permisos dedicado, auditoría dual y cobertura operativa en frontend/reportes.
+> Total proyecto actualizado: **479 h**.
 
 ---
 
@@ -263,13 +312,13 @@
 
 | Prioridad | Tareas | Horas | % del Total |
 |-----------|--------|-------|-------------|
-| ?? REQUERIDO | 52 | 320 | 77.5% |
-| ?? SUGERIDO | 20 | 80 | 19.4% |
-| ?? DESEABLE | 4 | 13 | 3.1% |
-| **TOTAL** | **76** | **413** | **100%** |
+| ?? REQUERIDO | 65 | 369 | 77.0% |
+| ?? SUGERIDO | 24 | 97 | 20.3% |
+| ?? DESEABLE | 4 | 13 | 2.7% |
+| **TOTAL** | **93** | **479** | **100%** |
 
-> **Reducción máxima posible** (eliminando Sugeridos + Deseables): **?93 h** ? MVP en **320 h (~40.0 días hábiles)**  
-> **Reducción moderada** (eliminando solo masivos y Deseables): **?66 h** ? MVP+ en **347 h (~43.4 días hábiles)**
+> **Reducción máxima posible** (eliminando Sugeridos + Deseables): **?110 h** ? MVP en **369 h (~46.1 días hábiles)**  
+> **Reducción moderada** (eliminando solo masivos y Deseables): **?66 h** ? MVP+ en **413 h (~51.6 días hábiles)**
 
 ---
 
@@ -277,10 +326,10 @@
 
 | Tipo | Horas | % |
 |------|-------|---|
-| ??? Base de Datos (scripts SQL) | 23 | 5.6% |
-| ?? Backend (entidades, repos, servicios, jobs, import) | 225 | 54.5% |
-| ??? Frontend Blazor (páginas, dialogs, filtros) | 165 | 40.0% |
-| **Total** | **413** | **100%** |
+| ??? Base de Datos (scripts SQL) | 33 | 6.9% |
+| ?? Backend (entidades, repos, servicios, jobs, import) | 259 | 54.1% |
+| ??? Frontend Blazor (páginas, dialogs, filtros) | 187 | 39.0% |
+| **Total** | **479** | **100%** |
 
 ---
 
@@ -288,7 +337,7 @@
 
 | Tipo | Horas | % |
 |------|-------|---|
-| ??? Base de Datos (scripts SQL) | 20 | 5.4% |
-| ?? Backend (entidades, repos, servicios, jobs, import) | 176 | 48.0% |
-| ??? Frontend Blazor (páginas, dialogs, filtros) | 171 | 46.6% |
-| **Total** | **367** | **100%** |
+| ??? Base de Datos (scripts SQL) | 33 | 6.9% |
+| ?? Backend (entidades, repos, servicios, jobs, import) | 259 | 54.1% |
+| ??? Frontend Blazor (páginas, dialogs, filtros) | 187 | 39.0% |
+| **Total** | **479** | **100%** |

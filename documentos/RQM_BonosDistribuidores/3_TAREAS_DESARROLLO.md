@@ -157,7 +157,7 @@ Idénticos a TAREA-005 pero aplicados en `AddCustomer.razor` y `AddCustomer.razor
 
 ---
 
-### 2.1.1 – Reportes con filtro de Cliente
+### 2.1.2 – Reportes con filtro de Cliente
 
 > Los siguientes 3 reportes tienen un `RadzenDropDownDataGrid` de Cliente que actualmente carga **todos** los clientes.  
 > Se debe agregar un toggle/checkbox **"Solo Distribuidores"** que, cuando está activo, filtra el dropdown para mostrar únicamente clientes con `IsDistributor = true`.
@@ -775,6 +775,24 @@ public async Task ActivateAsync(int vigencyId, CancellationToken ct)
 services.AddTransient<IBonificationPeriodInstanceLifecycleService, BonificationPeriodInstanceLifecycleService>();
 services.AddHostedService<BonificationPeriodRolloverJob>();
 ```
+
+---
+
+#### ~~TAREA-020~~ **[CANCELADA POR ANÁLISIS]**
+
+~~**Gestión de sesiones de bonificación**~~
+
+> **Estado:** Cancelada en análisis de requisitos.  
+> **Motivo de cancelación:** Funcionalidad diferida a Fase 2. Se reemplaza por validación simple en TAREA-003 (restricción de desmarcar `IsDistributor` si hay bonificaciones pendientes). Análisis definió que la gestión granular de sesiones no es crítica para MVP.
+
+---
+
+#### ~~TAREA-021~~ **[CANCELADA POR ANÁLISIS]**
+
+~~**Auditoría detallada de ciclo de vida de instancias**~~
+
+> **Estado:** Cancelada en análisis de requisitos.  
+> **Motivo de cancelación:** Se usa Application Insights + Entity Framework change tracking en lugar de tabla específica. Análisis definió que el logging detallado mediante una tabla introduce complejidad innecesaria en BD.
 
 ---
 
@@ -3037,3 +3055,270 @@ if (activeToday == null && Security.IsInRole("Administrador", "Modificación de b
 > ? **Con TAREA-070 a TAREA-078 queda cubierto el módulo de Lista de Precios Promocional,**  
 > incluyendo descarga automática diaria, contingencia manual, y notificaciones de alerta.  
 > Este es el **último insumo requerido** para el cálculo de bonificación por facturación.
+---
+
+### 2.2.5 Gestión de Exclusiones – Pedido Especial
+
+> Permite marcar pedidos con bandera `IsSpecialOrder` para excluirlos del Bono por Pedido, aplicable solo a distribuidores, con control por roles, auditoría reforzada e impacto dinámico en reportes y consultas.
+
+---
+
+## 1. Base de Datos
+
+#### TAREA-079 ? ???
+**Agregar columna `IsSpecialOrder` en `CUSTOMER_ORDERS`**
+
+**Contexto del código:**  
+La entidad de pedido no expone actualmente una marca explícita para exclusión funcional del cálculo de bono.
+
+**Cambios:**
+- Agregar `IS_SPECIAL_ORDER BIT NOT NULL DEFAULT 0` en `CUSTOMER_ORDERS`.
+- Garantizar valor por defecto para históricos (`0`).
+
+**Archivo a crear/modificar:**
+- `scripts/` ? nuevo script de migración (ej: `AddIsSpecialOrderToCustomerOrders.sql`)
+
+---
+
+#### TAREA-080 ? ???
+**Crear estructura de auditoría explícita para cambios de `IsSpecialOrder`**
+
+**Contexto del código:**  
+Existe auditoría estándar de modificación, pero se requiere log adicional explícito del flag y su dirección de cambio.
+
+**Cambios:**
+- Crear tabla dedicada de trazabilidad (ej: `CustomerOrderSpecialOrderFlagLogs`) con: Pedido, usuario, fecha, causa, valor anterior, valor nuevo, dirección (`false->true` / `true->false`).
+- Índices por `CustomerOrderId` y fecha para consulta operativa/auditoría.
+
+**Archivo a crear/modificar:**
+- `scripts/` ? nuevo script (ej: `CreateCustomerOrderSpecialOrderFlagLogs.sql`)
+
+---
+
+#### TAREA-081 ? ???
+**Actualizar SP/consultas de cálculo y reportes para exclusión dinámica**
+
+**Contexto del código:**  
+Los reportes y cálculos consumen SPs y consultas SQL que hoy no consideran `IsSpecialOrder`.
+
+**Cambios:**
+- Ajustar SPs de: `Customer Orders`, `Customer Orders Activities`, `Customer Sales`.
+- Incluir bandera en dataset de salida y filtro opcional.
+- Excluir de cálculos de Bono por Pedido cuando `IS_SPECIAL_ORDER = 1`.
+
+**Archivo a crear/modificar:**
+- `scripts/Full Database Creation Script.sql` y scripts de SPs asociados
+
+---
+
+## 2. Entidades / Modelo de dominio
+
+#### TAREA-082 ? ??
+**Agregar propiedad `IsSpecialOrder` en entidades y modelos de pedido**
+
+**Contexto del código:**  
+`CustomerOrder` en DataAccess y Application Services no incluye el nuevo campo.
+
+**Cambios:**
+- Agregar `IsSpecialOrder` en:
+  - `Aldebaran.DataAccess\Entities\CustomerOrder.cs`
+  - `Aldebaran.Application.Services.Models\CustomerOrder.cs`
+- Propagar en DTO/ViewModel de reportes impactados.
+
+---
+
+#### TAREA-083 ? ??
+**Actualizar mapeos EF/AutoMapper para `IsSpecialOrder`**
+
+**Cambios:**
+- Configuración EF de columna (`IS_SPECIAL_ORDER`).
+- AutoMapper profiles para incluir la propiedad en ida/vuelta.
+
+**Archivo a crear/modificar:**
+- `Aldebaran.DataAccess\Configuration\CustomerOrderConfiguration.cs` (o similar)
+- `Aldebaran.Application.Services\Mappings\ApplicationServicesProfile.cs`
+
+---
+
+## 3. Backend (repositorios / servicios / reglas de negocio)
+
+#### TAREA-084 ? ??
+**Implementar operación dedicada para modificar solo `IsSpecialOrder`**
+
+**Contexto del código:**  
+Se requiere perfil nuevo que solo modifique esta bandera.
+
+**Cambios:**
+- Crear método específico en repositorio/servicio (ej: `UpdateSpecialOrderFlagAsync`).
+- Registrar causa obligatoria de modificación (auditoría estándar).
+- Persistir log adicional explícito (TAREA-080).
+
+**Archivo a crear/modificar:**
+- `ICustomerOrderRepository` / `CustomerOrderRepository`
+- `ICustomerOrderService` / `CustomerOrderService`
+
+---
+
+#### TAREA-085 ? ??
+**Aplicar reglas de negocio de exclusión y validación de elegibilidad**
+
+**Reglas a implementar:**
+- Solo permite marcar `IsSpecialOrder = true` si el cliente del pedido tiene `IsDistributor = true`.
+- Bloquear cambio de bandera cuando el pedido pertenece a período cerrado.
+- Si cliente no distribuidor: impedir activar bandera y devolver error funcional claro.
+- Mantener la exclusión del bono únicamente para Bono por Pedido.
+
+**Archivo a crear/modificar:**
+- Servicio de pedidos + componente de validaciones de negocio
+
+---
+
+#### TAREA-086 ? ??
+**Blindar actualización general de pedidos para impedir cambio del flag por perfil no autorizado**
+
+**Cambios:**
+- En `UpdateAsync` general: bloquear/ignorar cambios de `IsSpecialOrder`.
+- Forzar que el cambio de flag pase únicamente por el nuevo flujo especializado.
+
+**Archivo a crear/modificar:**
+- `CustomerOrderService`
+- `CustomerOrderRepository`
+
+---
+
+#### TAREA-087 ? ??
+**Actualizar consultas de cálculo de Bono por Pedido para exclusión efectiva**
+
+**Cambios:**
+- Ajustar repositorios/servicios que consolidan pedidos para bono: excluir `IsSpecialOrder = true`.
+- Verificar impacto en recalculo dinámico sin reprocesos manuales.
+
+**Archivo a crear/modificar:**
+- Repositorios y servicios de cálculo/consulta del bono por pedido
+
+---
+
+## 4. Seguridad y permisos
+
+#### TAREA-088 ? ???
+**Crear permiso `Administración de Pedidos Especiales` y política de acceso**
+
+**Cambios:**
+- Alta del nuevo rol/permiso.
+- Asignación en gestión de roles/usuarios.
+- Aplicar a endpoint/página de cambio del flag.
+- Confirmar que `Modificación de pedidos` **no** habilita cambio del flag.
+
+**Archivo a crear/modificar:**
+- Scripts de roles (`scripts/...`)
+- Puntos de autorización en frontend/backend
+
+---
+
+## 5. Frontend Blazor
+
+#### TAREA-089 ? ???
+**Agregar visualización y edición controlada de “Pedido Especial” en pantalla de pedido**
+
+**Cambios:**
+- Mostrar campo funcional “Pedido Especial”.
+- Habilitar edición solo con rol `Administración de Pedidos Especiales`.
+- Mostrar mensaje de bloqueo cuando el período esté cerrado.
+- Mantener UX consistente con validaciones del backend.
+
+**Archivo a crear/modificar:**
+- `Pages\CustomerOrderPages\EditCustomerOrder.razor`
+- `Pages\CustomerOrderPages\EditCustomerOrder.razor.cs`
+
+---
+
+#### TAREA-090 ? ???
+**Implementar flujo de modificación exclusiva del flag (perfil restringido)**
+
+**Cambios:**
+- Crear interacción dedicada (botón/diálogo) para cambio de `IsSpecialOrder`.
+- Solicitar causa obligatoria y confirmar impacto (“excluye Bono por Pedido”).
+- Consumir método especializado del servicio (TAREA-084).
+
+**Archivo a crear/modificar:**
+- Componente de diálogo/página de cambio de flag
+- Integración en pantalla de pedido
+
+---
+
+## 6. Reportes afectados (ReportPages)
+
+#### TAREA-091 ? ???
+**Actualizar reporte `Customer Orders`**
+
+**Cambios:**
+- Incluir columna/indicador `Pedido Especial`.
+- Agregar filtro: Todos / Solo Especiales / Solo No Especiales.
+- Propagar en exportación.
+
+**Archivo a crear/modificar:**
+- `ReportPages\Customer Orders\...` (filtro, viewmodel, page, export)
+
+---
+
+#### TAREA-092 ? ???
+**Actualizar reporte `Customer Orders Activities`**
+
+**Cambios:**
+- Incluir indicador `Pedido Especial`.
+- Filtro equivalente y propagación a consulta.
+- Exportación consistente.
+
+**Archivo a crear/modificar:**
+- `ReportPages\Customer Order Activities\...`
+
+---
+
+#### TAREA-093 ? ???
+**Actualizar reporte `Customer Sales`**
+
+**Cambios:**
+- Incluir indicador `Pedido Especial`.
+- Filtro equivalente y propagación a consulta.
+- Exportación consistente.
+
+**Archivo a crear/modificar:**
+- `ReportPages\Customer Sales\...`
+
+---
+
+## 7. Auditoría y trazabilidad
+
+#### TAREA-094 ? ??
+**Integrar auditoría estándar + log adicional obligatorio del flag**
+
+**Cambios:**
+- Mantener auditoría estándar de modificación con selección de causa.
+- Persistir log adicional explícito con: cambio de valor, sentido del cambio, usuario y timestamp.
+- Exponer consulta de auditoría para soporte y control.
+
+**Archivo a crear/modificar:**
+- Repositorio/servicio de pedido
+- Vista o consulta de logs (si aplica)
+
+---
+
+## 8. Pruebas, validación y despliegue
+
+#### TAREA-095 ? ??
+**Plan de pruebas técnicas y regresión integral**
+
+**Cobertura mínima:**
+- Unitarias: reglas de distribuidor, bloqueo por período cerrado, autorización por rol, exclusión en cálculo.
+- Integración: persistencia del flag, SP/reportes con filtro, auditoría doble (estándar + explícita).
+- UI/E2E: perfil nuevo solo modifica flag, perfil de modificación actual no puede cambiarlo.
+- Regresión: procesos de pedido existentes sin alteración funcional.
+
+**Archivo a crear/modificar:**
+- Proyecto(s) de pruebas y plan de validación funcional/técnica
+
+---
+
+### Nota técnica (recomendación no crítica)
+**Concurrencia de actualización de flag**: evaluar control optimista (`timestamp/rowversion`) como mejora recomendada para evitar sobrescrituras en escenarios de alta simultaneidad. No bloquea el MVP.
+
