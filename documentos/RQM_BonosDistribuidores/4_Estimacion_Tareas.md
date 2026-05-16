@@ -2,7 +2,7 @@
 
 **Identificador**: RQM_BonosDistribuidores_052026  
 **Fecha**: Mayo 2026  
-**Versión**: 2.2  
+**Versión**: 2.3  
 **Perfil asumido**: Desarrollador humano Senior .NET / Blazor con conocimiento del codebase Aldebaran  
 
 ---
@@ -33,13 +33,13 @@
 
 | Prioridad | Tareas | Horas | % del Total |
 |-----------|--------|-------|-------------|
-| ?? REQUERIDO | 65 | 369 | 77.0% |
-| ?? SUGERIDO | 24 | 97 | 20.3% |
-| ?? DESEABLE | 4 | 13 | 2.7% |
-| **TOTAL** | **93** | **479** | **100%** |
+| ?? REQUERIDO | 76 | 400 | 76.3% |
+| ?? SUGERIDO | 28 | 111 | 21.2% |
+| ?? DESEABLE | 4 | 13 | 2.5% |
+| **TOTAL** | **108** | **524** | **100%** |
 
-> **Reducción máxima posible** (eliminando Sugeridos + Deseables): **?110 h** ? MVP en **369 h (~46.1 días hábiles)**  
-> **Reducción moderada** (eliminando solo masivos y Deseables): **?71 h** ? MVP+ en **408 h (~51.0 días hábiles)**
+> **Reducción máxima posible** (eliminando Sugeridos + Deseables): **?124 h** ? MVP en **400 h (~50.0 días hábiles)**  
+> **Reducción moderada** (eliminando solo masivos y Deseables): **?71 h** ? MVP+ en **453 h (~56.6 días hábiles)**
 
 ---
 
@@ -228,22 +228,46 @@
 
 ---
 
+### 2.2.6 – Integración TOTUS: Extracción de Facturación por SP
+
+| # | Funcionalidad | Tarea | Descripción | Horas | Prioridad | Sustentación |
+|---|--------------|-------|-------------|-------|-----------|--------------|
+| TAREA-096 | Contrato técnico de integración | ?? Definir contrato formal del SP | Parametría de entrada/salida, tipos, nullabilidad, semántica y convención de errores. | 2 | ?? REQUERIDO | Sin contrato técnico no hay forma de implementar integración estable ni validar con la fábrica externa. |
+| TAREA-097 | Configuración de conectividad | ?? Configurar conexión segura a TOTUS por ambiente | `appsettings`, secretos, timeout y parámetros base de resiliencia. | 2 | ?? REQUERIDO | Sin conectividad robusta por ambiente no existe invocación operativa al SP en el ciclo real. |
+| TAREA-098 | Modelado de datos | ?? Modelos request/response de facturación TOTUS | Modelos tipados para documento, fechas, filtros opcionales y respuesta consolidada. | 2 | ?? REQUERIDO | Evita acoplamiento implícito y errores de mapeo en la integración. |
+| TAREA-099 | Acceso a datos | ?? Adaptador DataAccess de invocación al SP | Ejecución parametrizada, mapeo robusto de nulos y conversión de tipos numéricos. | 3 | ?? REQUERIDO | Núcleo técnico de consumo del SP; bloquea el servicio de negocio. |
+| TAREA-100 | Lógica de aplicación | ?? Servicio de negocio de facturación TOTUS | Validaciones de entrada y normalización de salida para motor de bonificación. | 3 | ?? REQUERIDO | Permite encapsular reglas y desacoplar la consulta externa del cálculo de bono. |
+| TAREA-101 | Resiliencia operativa | ?? Implementar fallback y reintentos controlados | Reintentos configurables y uso de último valor conocido ante fallo de TOTUS. | 4 | ?? REQUERIDO | Sin resiliencia, una caída de TOTUS rompe consulta de bonificación al distribuidor. |
+| TAREA-102 | Trazabilidad | ?? Auditoría técnica de consultas TOTUS | Log de parámetros, duración, resultado (`OK/FALLBACK/ERROR`) y correlación. | 3 | ?? REQUERIDO | Necesario para diagnóstico, soporte y control operacional en incidencias. |
+| TAREA-103 | Operación | ?? Alertamiento administrativo de degradación TOTUS | Alertas por fallback, errores consecutivos y latencia anómala. | 2 | ?? REQUERIDO | Asegura detección temprana de incidentes y respuesta de soporte. |
+| TAREA-104 | UX en degradación | ?? Banner de facturación desactualizada en CU7 | Mensaje visible con timestamp cuando se use fallback. | 2 | ?? REQUERIDO | Transparencia al distribuidor cuando no hay dato en tiempo real. |
+| TAREA-105 | Integración funcional | ?? Integrar TOTUS al cálculo dinámico de bonificación | Consumo efectivo del servicio en CU7 sin cache de resultados. | 4 | ?? REQUERIDO | Cumple la promesa de cálculo en línea con información actualizada de facturación. |
+| TAREA-106 | Calidad técnica | ??? Pruebas unitarias de integración lógica TOTUS | Validaciones, mapeo de datos, nullables y rutas de error. | 4 | ?? SUGERIDO | Reduce retrabajo y regresiones; recomendable para estabilizar salida. |
+| TAREA-107 | Validación externa | ?? Pruebas de integración con entorno TOTUS de pruebas | Invocación real del SP, casos de éxito y errores controlados. | 4 | ?? REQUERIDO | Sin validación real no hay garantía de compatibilidad con el SP entregado por fábrica externa. |
+| TAREA-108 | Performance | ??? Pruebas de rendimiento E2E de consulta TOTUS | Verificar SLA objetivo y comportamiento con concurrencia. | 4 | ?? SUGERIDO | Recomendable para robustez operativa; puede hacerse en fase de endurecimiento. |
+| TAREA-109 | Operación y soporte | ??? Documentar runbook de incidentes TOTUS | Diagnóstico, contingencia y escalamiento hacia fábrica externa. | 3 | ?? SUGERIDO | Mejora tiempo de respuesta ante incidentes sin bloquear MVP funcional. |
+| TAREA-110 | Gobierno de integración | ??? Cierre de criterios de aceptación con PROMOS y fábrica externa | Validar contrato final, SLA y manejo de errores antes de producción. | 3 | ?? SUGERIDO | Ordena salida a producción y reduce riesgo contractual/técnico. |
+| | | | **Subtotal 2.2.6** | **45** | | **Módulo de integración crítica para Bonificación por Facturación; +45h al total del proyecto.** |
+
+---
+
 ## Resumen Final por Módulo
 
 | Módulo | Tareas | Horas | % del Total |
 |--------|--------|-------|-------------|
-| 2.1.1 – Clientes Distribuidores | 6 | 21 | 4.4% |
-| 2.1.2 – Reportes con filtro de Cliente | 4 | 13 | 2.7% |
-| 2.1.3 – Períodos de Bonificación | 9 | 63 | 13.2% |
-| 2.1.4 – Tipos de Bono | 6 | 32 | 6.7% |
-| 2.1.5 – Vigencias de Bonificación | 9 | 57 | 11.9% |
-| 2.1.6 – Vigencias de Descuentos | 9 | 41 | 8.6% |
-| 2.2.1 – OC Especiales (Manual) | 9 | 35 | 7.3% |
-| 2.2.2 – OC Especiales (Masivo) | 4 | 27 | 5.6% |
-| 2.2.3 – Conciliación de NC | 11 | 78 | 16.3% |
-| 2.2.4 – Lista de Precios Promocional | 9 | 49 | 10.2% |
-| 2.2.5 – Gestión de Exclusiones (Pedido Especial) | 17 | 63 | 13.2% |
-| **TOTAL** | **93** | **479** | **100%** |
+| 2.1.1 – Clientes Distribuidores | 6 | 21 | 4.0% |
+| 2.1.2 – Reportes con filtro de Cliente | 4 | 13 | 2.5% |
+| 2.1.3 – Períodos de Bonificación | 9 | 63 | 12.0% |
+| 2.1.4 – Tipos de Bono | 6 | 32 | 6.1% |
+| 2.1.5 – Vigencias de Bonificación | 9 | 57 | 10.9% |
+| 2.1.6 – Vigencias de Descuentos | 9 | 41 | 7.8% |
+| 2.2.1 – OC Especiales (Manual) | 9 | 35 | 6.7% |
+| 2.2.2 – OC Especiales (Masivo) | 4 | 27 | 5.2% |
+| 2.2.3 – Conciliación de NC | 11 | 78 | 14.9% |
+| 2.2.4 – Lista de Precios Promocional | 9 | 49 | 9.4% |
+| 2.2.5 – Gestión de Exclusiones (Pedido Especial) | 17 | 63 | 12.0% |
+| 2.2.6 – Integración TOTUS por SP | 15 | 45 | 8.6% |
+| **TOTAL** | **108** | **524** | **100%** |
 
 ---
 
@@ -275,19 +299,23 @@
 | TAREA-092 | Ajuste reporte `Customer Orders Activities` | ?? SUGERIDO | 4 | Misma justificación que TAREA-091; aporta visibilidad operativa no crítica para el MVP. |
 | TAREA-093 | Ajuste reporte `Customer Sales` | ?? SUGERIDO | 4 | Misma justificación que TAREA-091; analítica diferible. |
 | TAREA-095 | Plan de pruebas extendido del módulo 2.2.5 | ?? SUGERIDO | 5 | Recomendado para endurecer salida, pero puede ejecutarse al cierre de estabilización. |
-| **TOTAL DIFERIBLE** | | | **114** | **Incluye +17h del módulo 2.2.5 (reportería y pruebas extendidas).** |
+| TAREA-106 | Pruebas unitarias integración TOTUS | ?? SUGERIDO | 4 | Mejora calidad y estabilidad técnica; no bloquea salida inicial funcional. |
+| TAREA-108 | Pruebas de rendimiento TOTUS | ?? SUGERIDO | 4 | Endurece capacidad operativa; puede ejecutarse en estabilización. |
+| TAREA-109 | Runbook operativo TOTUS | ?? SUGERIDO | 3 | Recomendado para soporte, pero diferible sin bloquear MVP. |
+| TAREA-110 | Criterios de aceptación formal TOTUS | ?? SUGERIDO | 3 | Aporta gobernanza de integración; puede cerrarse al final del ciclo. |
+| **TOTAL DIFERIBLE** | | | **124** | **Incluye +10h del módulo 2.2.6 (calidad/performance/operación).** |
 
 ### Escenarios de contratación
 
 | Escenario | Descripción | Horas | Días hábiles |
 |-----------|-------------|-------|--------------|
-| **MVP Mínimo** | Solo tareas REQUERIDAS | 369 | ~46.1 |
-| **MVP Recomendado** | REQUERIDAS + Sugeridas sin masivos (OC + NC) + sin Deseables | 408 | ~51.0 |
-| **Alcance Completo** | Todas las tareas (93) | 479 | ~59.9 |
+| **MVP Mínimo** | Solo tareas REQUERIDAS | 400 | ~50.0 |
+| **MVP Recomendado** | REQUERIDAS + Sugeridas sin masivos (OC + NC) + sin Deseables | 453 | ~56.6 |
+| **Alcance Completo** | Todas las tareas (108) | 524 | ~65.5 |
 
-> **Recomendación**: El **MVP Mínimo (369 h)** cubre el ciclo completo de bonificación operativo,
-> incluida la exclusión por `Pedido Especial` con control de rol y auditoría reforzada.
-> Los caminos masivos (OC + NC, 58 h en total) y la reportería extendida de exclusiones
+> **Recomendación**: El **MVP Mínimo (400 h)** cubre el ciclo completo de bonificación operativo,
+> incluida la exclusión por `Pedido Especial` y la integración base de facturación con TOTUS por SP.
+> Los caminos masivos (OC + NC, 58 h en total) y el endurecimiento de calidad/performance de TOTUS
 > se recomiendan como **Fase 2** una vez estabilizado el flujo principal.
 >
 > **Nota sobre correcciones aplicadas (v2.0)**: Se agregaron +7 h en tareas REQUERIDAS (TAREA-061: +2h, TAREA-064: +1h)
@@ -304,7 +332,10 @@
 >
 > **Agregado Gestión de Exclusiones – Pedido Especial (v2.2)**: +63 h en 17 tareas (TAREA-079 a TAREA-095),
 > con foco en exclusión de Bono por Pedido, control de permisos dedicado, auditoría dual y cobertura operativa en frontend/reportes.
-> Total proyecto actualizado: **479 h**.
+>
+> **Agregado Integración TOTUS por SP (v2.3)**: +45 h en 15 tareas (TAREA-096 a TAREA-110),
+> orientadas a contrato técnico, invocación robusta, fallback operativo, trazabilidad y validación de SLA.
+> Total proyecto actualizado: **524 h**.
 
 ---
 
@@ -312,13 +343,13 @@
 
 | Prioridad | Tareas | Horas | % del Total |
 |-----------|--------|-------|-------------|
-| ?? REQUERIDO | 65 | 369 | 77.0% |
-| ?? SUGERIDO | 24 | 97 | 20.3% |
-| ?? DESEABLE | 4 | 13 | 2.7% |
-| **TOTAL** | **93** | **479** | **100%** |
+| ?? REQUERIDO | 76 | 400 | 76.3% |
+| ?? SUGERIDO | 28 | 111 | 21.2% |
+| ?? DESEABLE | 4 | 13 | 2.5% |
+| **TOTAL** | **108** | **524** | **100%** |
 
-> **Reducción máxima posible** (eliminando Sugeridos + Deseables): **?110 h** ? MVP en **369 h (~46.1 días hábiles)**  
-> **Reducción moderada** (eliminando solo masivos y Deseables): **?71 h** ? MVP+ en **408 h (~51.0 días hábiles)**
+> **Reducción máxima posible** (eliminando Sugeridos + Deseables): **?124 h** ? MVP en **400 h (~50.0 días hábiles)**  
+> **Reducción moderada** (eliminando solo masivos y Deseables): **?71 h** ? MVP+ en **453 h (~56.6 días hábiles)**
 
 ---
 
@@ -326,10 +357,10 @@
 
 | Tipo | Horas | % |
 |------|-------|---|
-| ??? Base de Datos (scripts SQL) | 33 | 6.9% |
-| ?? Backend (entidades, repos, servicios, jobs, import) | 259 | 54.1% |
-| ??? Frontend Blazor (páginas, dialogs, filtros) | 187 | 39.0% |
-| **Total** | **479** | **100%** |
+| ??? Base de Datos (scripts SQL) | 33 | 6.3% |
+| ?? Backend (entidades, repos, servicios, jobs, import) | 302 | 57.6% |
+| ??? Frontend Blazor (páginas, dialogs, filtros) | 189 | 36.1% |
+| **Total** | **524** | **100%** |
 
 ---
 
@@ -337,7 +368,7 @@
 
 | Tipo | Horas | % |
 |------|-------|---|
-| ??? Base de Datos (scripts SQL) | 33 | 6.9% |
-| ?? Backend (entidades, repos, servicios, jobs, import) | 259 | 54.1% |
-| ??? Frontend Blazor (páginas, dialogs, filtros) | 187 | 39.0% |
-| **Total** | **479** | **100%** |
+| ??? Base de Datos (scripts SQL) | 33 | 6.3% |
+| ?? Backend (entidades, repos, servicios, jobs, import) | 302 | 57.6% |
+| ??? Frontend Blazor (páginas, dialogs, filtros) | 189 | 36.1% |
+| **Total** | **524** | **100%** |

@@ -3322,3 +3322,318 @@ Se requiere perfil nuevo que solo modifique esta bandera.
 ### Nota técnica (recomendación no crítica)
 **Concurrencia de actualización de flag**: evaluar control optimista (`timestamp/rowversion`) como mejora recomendada para evitar sobrescrituras en escenarios de alta simultaneidad. No bloquea el MVP.
 
+---
+
+### 2.2.6 Integración TOTUS – Extracción de Facturación por SP
+
+> Permite invocar el SP provisto por fábrica externa sobre BD TOTUS local para obtener la facturación consolidada del distribuidor, con resiliencia operativa y trazabilidad.
+
+---
+
+## 1. Infraestructura y configuración
+
+#### TAREA-096 ? ??
+**Definir contrato técnico formal del SP `sp_ObtenerFacturacionDistribuidor`**
+
+**Contexto del código:**  
+Se requiere documentar y validar la interfaz exacta del SP que proporcionará fábrica externa.
+
+**Cambios:**
+- Documentar parámetros de entrada (tipo, formato, obligatoriedad, rangos válidos).
+- Documentar respuesta esperada (`ValorTotalFacturadoSinImpuestos`, `TotalNotasCredito`, `TotalFletes`, `TotalDescuentos`, `FechaConsulta`, etc.).
+- Definir catálogo de errores técnicos y semántica de retorno (códigos de error específicos, mensajes).
+- Establecer SLA de respuesta esperado (<500ms).
+- Validar con fábrica externa antes de implementación.
+
+**Archivo a crear/modificar:**
+- `docs/` ? nuevo documento (ej: `TOTUS_SP_Contract.md`)
+
+---
+
+#### TAREA-097 ? ??
+**Configurar conexión segura a BD TOTUS por ambiente**
+
+**Contexto del código:**  
+La invocación al SP requiere parámetros de conexión específicos por ambiente (Dev/QA/Prod).
+
+**Cambios:**
+- Incorporar `appsettings.Development.json`, `appsettings.Staging.json`, `appsettings.Production.json` con:
+  - `TotusConnectionString` (credenciales en secretos, no en config)
+  - `TotusCommandTimeout` (default: 30 seg, máximo 120 seg)
+  - `TotusRetryCount` (default: 3)
+  - `TotusRetryDelayMs` (default: 1000)
+  - `TotusUseFallback` (true/false por ambiente)
+- Registrar secretos en Azure Key Vault / gestión de secretos local
+- Asegurar manejo sin hardcode mediante `IConfiguration` + `IOptions<TotusOptions>`
+
+---
+
+#### TAREA-098 ? ??
+**Crear modelos request/response para consulta de facturación TOTUS**
+
+**Contexto del código:**  
+La comunicación con el SP requiere modelos tipados para evitar errores de mapeo.
+
+**Cambios:**
+- Crear `TotusInvoicingRequest` con propiedades: `DocumentNumber`, `DocumentType`, `StartDate`, `EndDate`, `IncludeDetailedItems`
+- Crear `TotusInvoicingResponse` con propiedades: `TotalInvoicedWithoutTax`, `TotalCreditNotes`, `TotalFreight`, `TotalDiscounts`, `QueryDate`, `InvoiceCount`, `Currency`, `Details`, `Status`, `ErrorMessage`
+- Tipado y nullabilidad alineados al contrato del SP (TAREA-096)
+
+**Archivos a crear:**
+- `Aldebaran.Application.Services\Models\TotusInvoicingRequest.cs`
+- `Aldebaran.Application.Services\Models\TotusInvoicingResponse.cs`
+- `Aldebaran.Application.Services\Models\TotusInvoiceDetail.cs` (opcional, si hay detalle)
+
+---
+
+## 2. Capa de acceso a datos
+
+#### TAREA-099 ? ??
+**Implementar adaptador DataAccess para invocar el SP de TOTUS**
+
+**Contexto del código:**  
+Se requiere un repositorio/adaptador específico para la integración con TOTUS.
+
+**Cambios:**
+- Crear `ITotusInvoicingRepository` con método `GetInvoicingAsync(TotusInvoicingRequest, CancellationToken)`
+- Crear `TotusInvoicingRepository` con invocación parametrizada del SP
+- Mapeo robusto de nulos: `DBNull.Value` ? valores por defecto o null
+- Conversión segura de tipos numéricos
+
+**Archivos a crear:**
+- `Aldebaran.DataAccess.Infraestructure\Repository\ITotusInvoicingRepository.cs`
+- `Aldebaran.DataAccess.Infraestructure\Repository\TotusInvoicingRepository.cs`
+
+---
+
+## 3. Capa de lógica de negocio
+
+#### TAREA-100 ? ??
+**Implementar servicio de negocio de facturación TOTUS**
+
+**Contexto del código:**  
+Se requiere una capa de servicio que encapsule la lógica de validación y normalización.
+
+**Cambios:**
+- Crear `ITotusInvoicingService` con métodos: `GetDistributorInvoicingAsync`, `GetLastKnownGoodResponseAsync`
+- Crear `TotusInvoicingService` con validación de entradas y normalización de salida
+- Manejo de excepciones específicas y trazabilidad de cada invocación
+
+**Archivos a crear:**
+- `Aldebaran.Application.Services\Services\ITotusInvoicingService.cs`
+- `Aldebaran.Application.Services\Services\TotusInvoicingService.cs`
+
+---
+
+## 4. Resiliencia operativa
+
+#### TAREA-101 ? ??
+**Implementar fallback y reintentos controlados en consulta TOTUS**
+
+**Contexto del código:**  
+Una caída de TOTUS no debe romper la consulta de bonificación. Se requiere mecanismo de fallback.
+
+**Cambios:**
+- Agregar lógica de reintentos en `TotusInvoicingService` (configurable: default 3 reintentos)
+- Cachear último valor conocido válido para fallback
+- Retornar respuesta degradada si todos los reintentos fallan
+- Configuración de retry delay y command timeout en `appsettings.json`
+
+**Archivos a crear/modificar:**
+- `Aldebaran.Application.Services\Services\TotusInvoicingService.cs` (modificar)
+- `appsettings.*.json` (crear configuración)
+
+---
+
+## 5. Trazabilidad y auditoría
+
+#### TAREA-102 ? ??
+**Implementar auditoría técnica de invocaciones al SP**
+
+**Contexto del código:**  
+Se requiere registro de cada invocación para diagnóstico operativo.
+
+**Cambios:**
+- Crear tabla `TotusInvoicingAudit` con campos: `DocumentNumber`, `QueryDate`, `RequestParams`, `ResponseStatus`, `ResponseTotal`, `DurationMs`, `ErrorMessage`, `CorrelationId`
+- Agregar índices por fecha y documento
+- Logging de cada invocación en `TotusInvoicingService`
+
+**Archivos a crear:**
+- `scripts/CreateTotusInvoicingAuditTable.sql`
+- `Aldebaran.DataAccess\Entities\TotusInvoicingAudit.cs`
+- `ITotusInvoicingAuditRepository.cs` + implementación
+
+---
+
+## 6. Alertamiento operativo
+
+#### TAREA-103 ? ??
+**Implementar alertamiento administrativo por degradación TOTUS**
+
+**Contexto del código:**  
+Se requiere notificación proactiva cuando el sistema cambia a modo fallback.
+
+**Cambios:**
+- Crear servicio `ITotusHealthService` para monitoreo de salud de conexión a TOTUS
+- Lógica de alertas por: primer fallback del día (email), fallos consecutivos (Slack), latencia fuera de SLA (email)
+- Registrar umbrales en `appsettings.json`
+
+**Archivos a crear:**
+- `Aldebaran.Application.Services\Services\ITotusHealthService.cs`
+- `Aldebaran.Application.Services\Services\TotusHealthService.cs`
+
+---
+
+## 7. Experiencia de usuario
+
+#### TAREA-104 ? ??
+**Mostrar banner de facturación desactualizada en CU7**
+
+**Contexto del código:**  
+Cuando el distribuidor consulta su bonificación y la facturación viene de fallback, debe saberlo.
+
+**Cambios:**
+- En componente de consulta del distribuidor mostrar `RadzenAlert` cuando `Status == "FALLBACK"`
+- Banner debe incluir última fecha de consulta exitosa
+- Incluir en respuesta del servicio: `LastSuccessfulQueryDate`, `IsUsingFallback`
+
+**Archivos a modificar:**
+- `Pages\BonificationPages\DistributorBonificationView.razor` (CU7)
+
+---
+
+## 8. Integración con cálculo de bonificación
+
+#### TAREA-105 ? ??
+**Integrar consulta TOTUS al cálculo dinámico de bonificación (CU7)**
+
+**Contexto del código:**  
+El motor de cálculo de bonificación (especialmente Bono por Facturación) debe consumir la facturación de TOTUS.
+
+**Cambios:**
+- Consumir `TotusInvoicingService.GetDistributorInvoicingAsync` en `BonificationCalculationService`
+- Política sin cache: cada consulta obtiene datos actuales de TOTUS
+- Usar facturación real o fallback según disponibilidad
+
+**Archivos a modificar:**
+- `BonificationCalculationService.cs`
+
+---
+
+## 9. Pruebas técnicas
+
+#### TAREA-106 ? ???
+**Crear pruebas unitarias de integración lógica TOTUS**
+
+**Cobertura mínima:**
+- Validaciones de entrada: documento vacío, formato inválido, tipos de datos
+- Mapeo de salida: nullables, conversiones de tipo, valores por defecto
+- Flujo de error: excepciones SQL, timeout, respuesta degradada
+- Fallback: último valor conocido disponible vs no disponible
+- Auditoría: registro correcto de parámetros y resultado
+
+**Archivos a crear:**
+- `Aldebaran.Tests\Services\TotusInvoicingServiceTests.cs`
+
+---
+
+#### TAREA-107 ? ??
+**Crear pruebas de integración contra entorno TOTUS de pruebas**
+
+**Contexto del código:**  
+Se requiere validación real con el SP antes de producción.
+
+**Cambios:**
+- Conectar a BD TOTUS de pruebas (QA)
+- Test de invocación real con distribuidor válido/inválido
+- Validación de timeout y mapeo de nullables
+
+**Archivos a crear:**
+- `Aldebaran.Tests.Integration\TotusInvoicingIntegrationTests.cs`
+
+---
+
+#### TAREA-108 ? ???
+**Ejecutar pruebas de rendimiento E2E de consulta TOTUS**
+
+**Contexto del código:**  
+Se debe validar que el SLA de <500ms se cumple bajo carga normal.
+
+**Cambios:**
+- Test de carga con 10 consultas concurrentes
+- Validación de latencia P95, P99
+- Registro de métricas de rendimiento
+
+**Archivos a crear:**
+- `Aldebaran.Tests.Performance\TotusInvoicingPerformanceTests.cs`
+
+---
+
+## 10. Operación y soporte
+
+#### TAREA-109 ? ???
+**Documentar runbook operativo de incidentes TOTUS**
+
+**Contexto del código:**  
+Se requiere guía rápida para diagnóstico y escalamiento.
+
+**Cambios:**
+- Crear documento `TOTUS_Incident_Runbook.md` con: síntomas, diagnóstico rápido, recuperación, escalamiento
+- Checklist de verificación pre-producción
+
+**Archivos a crear:**
+- `docs/TOTUS_Incident_Runbook.md`
+
+---
+
+#### TAREA-110 ? ???
+**Formalizar criterios de aceptación con PROMOS y fábrica externa**
+
+**Contexto del código:**  
+Antes de Go Live, validar con ambas partes que el contrato está cumplido.
+
+**Cambios:**
+- Crear documento `TOTUS_Integration_Acceptance_Criteria.md` con criterios de aceptación
+- Obtener sign-off de PROMOS, fábrica externa y DBA TOTUS
+
+**Archivos a crear:**
+- `docs/TOTUS_Integration_Acceptance_Criteria.md`
+
+---
+
+### Resumen de archivos — Integración TOTUS por SP
+
+| Archivo | Tarea | Tipo |
+|---------|-------|------|
+| `docs/TOTUS_SP_Contract.md` | 096 | Nuevo |
+| `appsettings.*.json` | 097, 101, 103 | Modificar |
+| `Models\TotusInvoicingRequest.cs` | 098 | Nuevo |
+| `Models\TotusInvoicingResponse.cs` | 098 | Nuevo |
+| `Models\TotusInvoiceDetail.cs` | 098 | Nuevo |
+| `ITotusInvoicingRepository.cs` | 099 | Nuevo |
+| `TotusInvoicingRepository.cs` | 099 | Nuevo |
+| `ITotusInvoicingService.cs` | 100 | Nuevo |
+| `TotusInvoicingService.cs` | 100, 101, 102 | Nuevo |
+| `TotusOptions.cs` | 101 | Nuevo |
+| `scripts/CreateTotusInvoicingAuditTable.sql` | 102 | Nuevo |
+| `Entities\TotusInvoicingAudit.cs` | 102 | Nuevo |
+| `ITotusInvoicingAuditRepository.cs` | 102 | Nuevo |
+| `TotusInvoicingAuditRepository.cs` | 102 | Nuevo |
+| `ITotusHealthService.cs` | 103 | Nuevo |
+| `TotusHealthService.cs` | 103 | Nuevo |
+| `Pages\BonificationPages\DistributorBonificationView.razor` | 104 | Modificar |
+| `BonificationCalculationService.cs` | 105 | Modificar |
+| `TotusInvoicingServiceTests.cs` | 106 | Nuevo |
+| `TotusInvoicingIntegrationTests.cs` | 107 | Nuevo |
+| `TotusInvoicingPerformanceTests.cs` | 108 | Nuevo |
+| `docs/TOTUS_Incident_Runbook.md` | 109 | Nuevo |
+| `docs/TOTUS_Integration_Acceptance_Criteria.md` | 110 | Nuevo |
+| `ArchitectureBuilderExtensions.cs` | 099, 100, 102, 103 | Modificar |
+
+---
+
+> ? **Con TAREA-096 a TAREA-110 queda cubierto el módulo de Integración TOTUS por SP,**  
+> permitiendo consulta robusta de facturación en tiempo real con resiliencia operativa, fallback,  
+> auditoría técnica, alertamiento proactivo y validación de SLA. Este es el **insumo crítico final**  
+> para el cálculo de Bono por Facturación con datos actualizados del ERP externo.
+
