@@ -1,19 +1,19 @@
-# 3. TAREAS DE DESAROLLO - Sistema de BonificaciÛn de Distribuidores
+Ôªø# 3. TAREAS DE DESAROLLO - Sistema de Bonificaci√≥n de Distribuidores
 
 **Identificador**: RQM_BonosDistribuidores_052026  
 **Rama**: RQM_BonosDistribuidores_052026  
 **Fecha**: Mayo 2026  
-**VersiÛn**: 1.0
+**Versi√≥n**: 1.0
 
 ---
 
 ## Convenciones
 
-| SÌmbolo | Capa |
+| S√≠mbolo | Capa |
 |---------|------|
 | ??? | Base de Datos |
-| ?? | Backend ñ DataAccess / Services |
-| ??? | Frontend ñ Blazor (Aldebaran.Web) |
+| ?? | Backend ‚Äì DataAccess / Services |
+| ??? | Frontend ‚Äì Blazor (Aldebaran.Web) |
 
 | Estado | Significado |
 |--------|-------------|
@@ -23,39 +23,39 @@
 
 ---
 
-## 2.1 MÛdulo de AdministraciÛn
+## 2.1 M√≥dulo de Administraci√≥n
 
 ---
 
-### 2.1.1 ConfiguraciÛn de Clientes Distribuidores
+### 2.1.1 Configuraci√≥n de Clientes Distribuidores
 
-> Ref. propuesta funcional: secciÛn 2.1.1 (HTML v1.0) / secciÛn 2.2.0.1 + 2.2.0.2 (MD v1.4)  
-> Permite marcar quÈ Clientes son tipo **DISTRIBUIDOR** y configurarles un **Email de BonificaciÛn** independiente del email general.
+> Ref. propuesta funcional: secci√≥n 2.1.1 (HTML v1.0) / secci√≥n 2.2.0.1 + 2.2.0.2 (MD v1.4)  
+> Permite marcar qu√© Clientes son tipo **DISTRIBUIDOR** y configurarles un **Email de Bonificaci√≥n** independiente del email general.
 
 ---
 
 #### TAREA-001 ? ???
 **Agregar columnas `IsDistributor` y `BonusEmail` a la tabla `Customers`**
 
-**Contexto del cÛdigo:**  
-La tabla `Customers` actualmente no tiene ning˙n indicador de tipo distribuidor ni campo de email de bonificaciÛn.
+**Contexto del c√≥digo:**  
+La tabla `Customers` actualmente no tiene ning√∫n indicador de tipo distribuidor ni campo de email de bonificaci√≥n.
 
 **Cambios:**
 - Agregar columna `IsDistributor BIT NOT NULL DEFAULT 0`
 - Agregar columna `BonusEmail NVARCHAR(254) NULL`
-- Script de migraciÛn: registros existentes quedan con `IsDistributor = 0` y `BonusEmail = NULL`
+- Script de migraci√≥n: registros existentes quedan con `IsDistributor = 0` y `BonusEmail = NULL`
 
 **Archivo a crear/modificar:**
-- `scripts/` ? nuevo script de migraciÛn (ej: `AddDistributorFieldsToCustomers.sql`)
+- `scripts/` ? nuevo script de migraci√≥n (ej: `AddDistributorFieldsToCustomers.sql`)
 
 ---
 
 #### TAREA-002 ? ??
 **Agregar propiedades `IsDistributor` y `BonusEmail` a las entidades y modelos**
 
-**Contexto del cÛdigo:**
+**Contexto del c√≥digo:**
 - `Aldebaran.DataAccess\Entities\Customer.cs` ? tiene: `CustomerId`, `IdentityNumber`, `CustomerName`, `Email`, `CellPhone`, etc. Falta `IsDistributor` y `BonusEmail`
-- `Aldebaran.Application.Services\Models\Customer.cs` ? misma situaciÛn
+- `Aldebaran.Application.Services\Models\Customer.cs` ? misma situaci√≥n
 
 **Cambios:**
 - `Aldebaran.DataAccess\Entities\Customer.cs` ? agregar:
@@ -70,29 +70,29 @@ La tabla `Customers` actualmente no tiene ning˙n indicador de tipo distribuidor 
 ---
 
 #### TAREA-003 ? ??
-**Agregar validaciÛn de negocio en `CustomerService`: reglas para `IsDistributor` y `BonusEmail`**
+**Agregar validaci√≥n de negocio en `CustomerService`: reglas para `IsDistributor` y `BonusEmail`**
 
-**Contexto del cÛdigo:**  
+**Contexto del c√≥digo:**  
 `EditCustomer.razor.cs` llama `CustomerService.UpdateAsync(CUSTOMER_ID, Customer)` directamente. Las reglas de negocio deben vivir en el servicio.
 
 **Reglas a implementar:**
-- Si `IsDistributor = true` ? `BonusEmail` es **obligatorio** y debe tener formato de email v·lido
+- Si `IsDistributor = true` ? `BonusEmail` es **obligatorio** y debe tener formato de email v√°lido
 - Si `IsDistributor = false` ? `BonusEmail` puede ser null
-- `BonusEmail` m·ximo 254 caracteres (RFC 5321)
-- Un cliente no puede tener dos clasificaciones simult·neas (ya est· implÌcito con bool, pero validar consistencia)
-- ?? RestricciÛn futura: no se puede desmarcar `IsDistributor` si tiene sesiones activas de bonificaciÛn (implementar cuando exista tabla de sesiones - **TAREA dependiente de mÛdulo OTP**)
+- `BonusEmail` m√°ximo 254 caracteres (RFC 5321)
+- Un cliente no puede tener dos clasificaciones simult√°neas (ya est√° impl√≠cito con bool, pero validar consistencia)
+- ?? Restricci√≥n futura: no se puede desmarcar `IsDistributor` si tiene sesiones activas de bonificaci√≥n (implementar cuando exista tabla de sesiones - **TAREA dependiente de m√≥dulo OTP**)
 
 ---
 
 #### TAREA-004 ? ???
 **Agregar columna "Es Distribuidor" en el listado `Customers.razor`**
 
-**Contexto del cÛdigo:**  
-`Customers.razor` tiene una `RadzenDataGrid` con columnas: Nombre, Tipo doc, N˙mero doc, TelÈfono, Celular, Correo, DirecciÛn, UbicaciÛn. No tiene columna de distribuidor.
+**Contexto del c√≥digo:**  
+`Customers.razor` tiene una `RadzenDataGrid` con columnas: Nombre, Tipo doc, N√∫mero doc, Tel√©fono, Celular, Correo, Direcci√≥n, Ubicaci√≥n. No tiene columna de distribuidor.
 
 **Cambios:**
-- Agregar columna `Es Distribuidor` en la grilla con un Ìcono o badge visual (ej: `RadzenIcon` check/cross o `RadzenBadge`)
-- Agregar opciÛn de filtro por distribuidor (checkbox o dropdown: Todos / Solo Distribuidores / Solo No Distribuidores) encima de la grilla
+- Agregar columna `Es Distribuidor` en la grilla con un √≠cono o badge visual (ej: `RadzenIcon` check/cross o `RadzenBadge`)
+- Agregar opci√≥n de filtro por distribuidor (checkbox o dropdown: Todos / Solo Distribuidores / Solo No Distribuidores) encima de la grilla
 - Actualizar `GetCustomersAsync` en `Customers.razor.cs` para pasar el filtro al servicio
 
 ---
@@ -100,31 +100,31 @@ La tabla `Customers` actualmente no tiene ning˙n indicador de tipo distribuidor 
 #### TAREA-005 ? ???
 **Agregar campos de distribuidor en el formulario `EditCustomer.razor`**
 
-**Contexto del cÛdigo:**  
-`EditCustomer.razor` tiene los campos: Tipo doc, N˙mero doc, Nombre, LocalizaciÛn, DirecciÛn, Celular, TelÈfono, TelÈfono opcional, Fax, Correo electrÛnico (chips multi-email). No tiene campos de distribuidor.
+**Contexto del c√≥digo:**  
+`EditCustomer.razor` tiene los campos: Tipo doc, N√∫mero doc, Nombre, Localizaci√≥n, Direcci√≥n, Celular, Tel√©fono, Tel√©fono opcional, Fax, Correo electr√≥nico (chips multi-email). No tiene campos de distribuidor.
 
 **Cambios en `EditCustomer.razor`:**
 - Agregar `RadzenCheckBox` para `IsDistributor` con label "Es Distribuidor"
-- Agregar `RadzenTextBox` para `BonusEmail` con label "Email de BonificaciÛn"
-  - Visible **siempre** (no solo cuando IsDistributor = true), para facilitar configuraciÛn previa
-  - ValidaciÛn requerida: solo obligatorio si `IsDistributor = true`
-  - ValidaciÛn de formato email (regex)
-  - IndicaciÛn visual que es independiente del correo electrÛnico general
+- Agregar `RadzenTextBox` para `BonusEmail` con label "Email de Bonificaci√≥n"
+  - Visible **siempre** (no solo cuando IsDistributor = true), para facilitar configuraci√≥n previa
+  - Validaci√≥n requerida: solo obligatorio si `IsDistributor = true`
+  - Validaci√≥n de formato email (regex)
+  - Indicaci√≥n visual que es independiente del correo electr√≥nico general
 - `RadzenRequiredValidator` condicional para `BonusEmail` cuando `IsDistributor = true`
 
 **Cambios en `EditCustomer.razor.cs`:**
-- Los campos se mapean autom·ticamente al `Customer` existente, no requiere lÛgica adicional en el componente (la validaciÛn vive en TAREA-003)
+- Los campos se mapean autom√°ticamente al `Customer` existente, no requiere l√≥gica adicional en el componente (la validaci√≥n vive en TAREA-003)
 
 ---
 
 #### TAREA-006 ? ???
 **Agregar campos de distribuidor en el formulario `AddCustomer.razor`**
 
-**Contexto del cÛdigo:**  
-`AddCustomer.razor` es el formulario de creaciÛn, estructura idÈntica a `EditCustomer.razor`. Mismos campos, misma situaciÛn.
+**Contexto del c√≥digo:**  
+`AddCustomer.razor` es el formulario de creaci√≥n, estructura id√©ntica a `EditCustomer.razor`. Mismos campos, misma situaci√≥n.
 
 **Cambios:**  
-IdÈnticos a TAREA-005 pero aplicados en `AddCustomer.razor` y `AddCustomer.razor.cs`.
+Id√©nticos a TAREA-005 pero aplicados en `AddCustomer.razor` y `AddCustomer.razor.cs`.
 
 **Nota:** Al crear un cliente nuevo con `IsDistributor = true`, el `BonusEmail` es obligatorio desde el inicio.
 
@@ -157,18 +157,18 @@ IdÈnticos a TAREA-005 pero aplicados en `AddCustomer.razor` y `AddCustomer.razor
 
 ---
 
-### 2.1.2 ñ Reportes con filtro de Cliente
+### 2.1.2 ‚Äì Reportes con filtro de Cliente
 
 > Los siguientes 3 reportes tienen un `RadzenDropDownDataGrid` de Cliente que actualmente carga **todos** los clientes.  
-> Se debe agregar un toggle/checkbox **"Solo Distribuidores"** que, cuando est· activo, filtra el dropdown para mostrar ˙nicamente clientes con `IsDistributor = true`.
+> Se debe agregar un toggle/checkbox **"Solo Distribuidores"** que, cuando est√° activo, filtra el dropdown para mostrar √∫nicamente clientes con `IsDistributor = true`.
 
 ---
 
 #### TAREA-007 ? ???
-**Agregar filtro "Solo Distribuidores" en `CustomerOrderReportFilter` (Reporte de ”rdenes)**
+**Agregar filtro "Solo Distribuidores" en `CustomerOrderReportFilter` (Reporte de √ìrdenes)**
 
-**Contexto del cÛdigo:**  
-`CustomerOrderReportFilter.razor` tiene un `RadzenDropDownDataGrid` de Cliente con `LoadData=@LoadData`. El `CustomerOrderFilter.cs` tiene `int? CustomerId`. El mÈtodo `LoadData` en el `.cs` llama a `CustomerService.GetAsync(...)` sin filtro de distribuidor.
+**Contexto del c√≥digo:**  
+`CustomerOrderReportFilter.razor` tiene un `RadzenDropDownDataGrid` de Cliente con `LoadData=@LoadData`. El `CustomerOrderFilter.cs` tiene `int? CustomerId`. El m√©todo `LoadData` en el `.cs` llama a `CustomerService.GetAsync(...)` sin filtro de distribuidor.
 
 **Cambios en `CustomerOrderFilter.cs`:**
 - Agregar propiedad `bool OnlyDistributors { get; set; } = false`
@@ -179,18 +179,18 @@ IdÈnticos a TAREA-005 pero aplicados en `AddCustomer.razor` y `AddCustomer.razor
 - Al cambiar el checkbox ? limpiar `Filter.CustomerId` y recargar el dropdown
 
 **Cambios en `CustomerOrderReportFilter.razor.cs`:**
-- En el mÈtodo `LoadData`: si `Filter.OnlyDistributors == true` ? llamar `CustomerService.GetAsync(..., onlyDistributors: true)` (requiere TAREA-002 completada)
+- En el m√©todo `LoadData`: si `Filter.OnlyDistributors == true` ? llamar `CustomerService.GetAsync(..., onlyDistributors: true)` (requiere TAREA-002 completada)
 
 ---
 
 #### TAREA-008 ? ???
 **Agregar filtro "Solo Distribuidores" en `CustomerSalesReportFilter` (Reporte de Ventas)**
 
-**Contexto del cÛdigo:**  
-`CustomerSalesReportFilter.razor` tiene exactamente el mismo patrÛn que `CustomerOrderReportFilter.razor`: `RadzenDropDownDataGrid` de Cliente con `LoadData=@LoadData`. Misma estructura.
+**Contexto del c√≥digo:**  
+`CustomerSalesReportFilter.razor` tiene exactamente el mismo patr√≥n que `CustomerOrderReportFilter.razor`: `RadzenDropDownDataGrid` de Cliente con `LoadData=@LoadData`. Misma estructura.
 
 **Cambios:**  
-IdÈnticos a TAREA-007 pero aplicados en:
+Id√©nticos a TAREA-007 pero aplicados en:
 - `CustomerSalesReportFilter.razor`
 - `CustomerSalesReportFilter.razor.cs`
 - `ViewModel\CustomerSalesFilter.cs` ? agregar `bool OnlyDistributors`
@@ -200,28 +200,28 @@ IdÈnticos a TAREA-007 pero aplicados en:
 #### TAREA-009 ? ???
 **Agregar filtro "Solo Distribuidores" en `CustomerReservationReportFilter` (Reporte de Reservas)**
 
-**Contexto del cÛdigo:**  
-`CustomerReservationReportFilter.razor` tiene el mismo patrÛn. Filtra por Cliente con `RadzenDropDownDataGrid` y `LoadData`.
+**Contexto del c√≥digo:**  
+`CustomerReservationReportFilter.razor` tiene el mismo patr√≥n. Filtra por Cliente con `RadzenDropDownDataGrid` y `LoadData`.
 
 **Cambios:**  
-IdÈnticos a TAREA-007 pero aplicados en:
+Id√©nticos a TAREA-007 pero aplicados en:
 - `CustomerReservationReportFilter.razor`
 - `CustomerReservationReportFilter.razor.cs`
 - `ViewModel\CustomerReservationFilter.cs` ? agregar `bool OnlyDistributors`
 
 ---
 
-#### Dependencia com˙n de TAREA-007, 008 y 009
+#### Dependencia com√∫n de TAREA-007, 008 y 009
 
-Las tres tareas requieren que `CustomerService.GetAsync` acepte un par·metro opcional `bool onlyDistributors` para filtrar en BD. Esto se implementa como parte de **TAREA-002/003**.
+Las tres tareas requieren que `CustomerService.GetAsync` acepte un par√°metro opcional `bool onlyDistributors` para filtrar en BD. Esto se implementa como parte de **TAREA-002/003**.
 
 ---
 
 #### TAREA-010 ? ???
 **Agregar filtro "Solo Distribuidores" en los 4 reportes adicionales con dropdown de Cliente**
 
-**Contexto del cÛdigo:**  
-Los siguientes 4 filtros de reporte tienen tambiÈn un `RadzenDropDownDataGrid` de Cliente con el mismo patrÛn que TAREA-007/008/009, pero a˙n no fueron cubiertos:
+**Contexto del c√≥digo:**  
+Los siguientes 4 filtros de reporte tienen tambi√©n un `RadzenDropDownDataGrid` de Cliente con el mismo patr√≥n que TAREA-007/008/009, pero a√∫n no fueron cubiertos:
 
 | Filtro | Ruta |
 |--------|------|
@@ -233,33 +233,33 @@ Los siguientes 4 filtros de reporte tienen tambiÈn un `RadzenDropDownDataGrid` d
 **Cambios en cada uno:**
 - Agregar `bool OnlyDistributors` en el ViewModel/Filter correspondiente
 - Agregar `RadzenCheckBox` "Solo Distribuidores" antes del dropdown de Cliente en el `.razor`
-- En el `.razor.cs`, pasar `onlyDistributors` a `CustomerService.GetAsync` cuando el checkbox est· activo
+- En el `.razor.cs`, pasar `onlyDistributors` a `CustomerService.GetAsync` cuando el checkbox est√° activo
 
 ---
 
 > ? **Con TAREA-001 a TAREA-010 quedan cubiertas todas las modificaciones necesarias relacionadas con Clientes Distribuidores.**  
-> Los listados transaccionales (`CustomerOrders.razor`, `CustomerReservations.razor`, `CustomerOrderInProcesses.razor`) **no requieren cambios** para esta funcionalidad: el filtro por distribuidor es responsabilidad de los reportes y de la pantalla de Clientes, no de las pantallas operativas de Ûrdenes.
+> Los listados transaccionales (`CustomerOrders.razor`, `CustomerReservations.razor`, `CustomerOrderInProcesses.razor`) **no requieren cambios** para esta funcionalidad: el filtro por distribuidor es responsabilidad de los reportes y de la pantalla de Clientes, no de las pantallas operativas de √≥rdenes.
 
 ---
 
-### 2.1.3 GestiÛn de PerÌodos de BonificaciÛn
+### 2.1.3 Gesti√≥n de Per√≠odos de Bonificaci√≥n
 
-> Ref. propuesta funcional: secciÛn 2.1.3 (HTML v1.0) / secciÛn 2.2.1.1 (MD v1.4)  
-> Funcionalidad completamente nueva. No existe ning˙n artefacto previo en el sistema.  
-> Permite definir plantillas de periodicidad (templates) y generar Instancias de PerÌodo Activas con fechas especÌficas.
+> Ref. propuesta funcional: secci√≥n 2.1.3 (HTML v1.0) / secci√≥n 2.2.1.1 (MD v1.4)  
+> Funcionalidad completamente nueva. No existe ning√∫n artefacto previo en el sistema.  
+> Permite definir plantillas de periodicidad (templates) y generar Instancias de Per√≠odo Activas con fechas espec√≠ficas.
 
 ---
 
 #### TAREA-011 ? ???
 **Crear tablas `BonificationPeriods`, `BonificationTypes` y `BonificationPeriodInstances`**
 
-**DescripciÛn:**  
+**Descripci√≥n:**  
 Tres tablas nuevas:
-- `BonificationPeriods`: Template reutilizable de periodicidad (ej: "Quincena 15 dÌas")
-- `BonificationTypes`: Tipo de bono que **asocia** un PerÌodo a una base de c·lculo (ej: "Bono FacturaciÛn Quincenal")
-- `BonificationPeriodInstances`: EjecuciÛn concreta con fechas **ligada a un TipoBono** (no solo al perÌodo)
+- `BonificationPeriods`: Template reutilizable de periodicidad (ej: "Quincena 15 d√≠as")
+- `BonificationTypes`: Tipo de bono que **asocia** un Per√≠odo a una base de c√°lculo (ej: "Bono Facturaci√≥n Quincenal")
+- `BonificationPeriodInstances`: Ejecuci√≥n concreta con fechas **ligada a un TipoBono** (no solo al per√≠odo)
 
-> ?? **DECISI”N ARQUITECTURAL**: La instancia se crea **por TipoBono**, no por PerÌodo template. Un mismo perÌodo (ej: "Quincena 15 dÌas") puede tener m˙ltiples instancias activas si se usa en distintos tipos de bono.
+> ?? **DECISI√ìN ARQUITECTURAL**: La instancia se crea **por TipoBono**, no por Per√≠odo template. Un mismo per√≠odo (ej: "Quincena 15 d√≠as") puede tener m√∫ltiples instancias activas si se usa en distintos tipos de bono.
 
 **Script SQL a crear:** `scripts/CreateBonificationPeriodsTables.sql`
 
@@ -278,11 +278,11 @@ CREATE TABLE dbo.BonificationPeriods (
     CONSTRAINT CK_BONIFICATION_PERIOD_TYPE CHECK (PERIOD_TYPE IN ('MONTHLY','BIWEEKLY','WEEKLY','DAILY','CUSTOM'))
 );
 
--- Tipo de Bono (asocia PerÌodo + Base de c·lculo)
+-- Tipo de Bono (asocia Per√≠odo + Base de c√°lculo)
 CREATE TABLE dbo.BonificationTypes (
     BONIFICATION_TYPE_ID     INT           NOT NULL IDENTITY(1,1),
-    TYPE_NAME                VARCHAR(100)  NOT NULL,  -- ej: "Bono FacturaciÛn Quincenal"
-    BONIFICATION_PERIOD_ID   INT           NOT NULL,  -- FK a PerÌodo template
+    TYPE_NAME                VARCHAR(100)  NOT NULL,  -- ej: "Bono Facturaci√≥n Quincenal"
+    BONIFICATION_PERIOD_ID   INT           NOT NULL,  -- FK a Per√≠odo template
     CALCULATION_BASE         VARCHAR(20)   NOT NULL,  -- BILLING | ORDER | DELIVERY
     DESCRIPTION              VARCHAR(250)  NULL,
     IS_ACTIVE                BIT           NOT NULL DEFAULT 1,
@@ -296,7 +296,7 @@ CREATE TABLE dbo.BonificationTypes (
 -- Instancia concreta de un TipoBono con fechas
 CREATE TABLE dbo.BonificationPeriodInstances (
     BONIFICATION_PERIOD_INSTANCE_ID  INT          NOT NULL IDENTITY(1,1),
-    BONIFICATION_TYPE_ID             INT          NOT NULL,  -- ?? Ahora se asocia a TipoBono, no solo a PerÌodo
+    BONIFICATION_TYPE_ID             INT          NOT NULL,  -- ?? Ahora se asocia a TipoBono, no solo a Per√≠odo
     INSTANCE_CODE                    VARCHAR(20)  NOT NULL,  -- ej: FAC-QUI-2026-03
     START_DATE                       DATE         NOT NULL,
     END_DATE                         DATE         NOT NULL,  -- calculado: START_DATE + DURATION_DAYS - 1
@@ -309,7 +309,7 @@ CREATE TABLE dbo.BonificationPeriodInstances (
     CONSTRAINT CK_BONIFICATION_PERIOD_INSTANCE_DATES CHECK (END_DATE >= START_DATE)
 );
 
--- Õndice para b˙squedas frecuentes
+-- √çndice para b√∫squedas frecuentes
 CREATE NONCLUSTERED INDEX IX_BONIFICATION_PERIOD_INSTANCES_TYPE_STATUS 
     ON dbo.BonificationPeriodInstances (BONIFICATION_TYPE_ID, STATUS);
 ```
@@ -319,10 +319,10 @@ CREATE NONCLUSTERED INDEX IX_BONIFICATION_PERIOD_INSTANCES_TYPE_STATUS
 **Ejemplo de uso:**
 
 ```
-PerÌodo: "Quincena 15 dÌas" (Template reutilizable)
+Per√≠odo: "Quincena 15 d√≠as" (Template reutilizable)
     ?
-Tipo Bono 1: "Bono FacturaciÛn Quincenal" ? usa "Quincena 15 dÌas" + Base BILLING
-Tipo Bono 2: "Bono Pedido Quincenal"      ? usa "Quincena 15 dÌas" + Base ORDER
+Tipo Bono 1: "Bono Facturaci√≥n Quincenal" ? usa "Quincena 15 d√≠as" + Base BILLING
+Tipo Bono 2: "Bono Pedido Quincenal"      ? usa "Quincena 15 d√≠as" + Base ORDER
     ?
 Instancias creadas al activar Vigencias:
     ?? FAC-QUI-2026-03 (TipoBono=1, 01/03?15/03, IN_PROGRESS)
@@ -347,7 +347,7 @@ Instancias creadas al activar Vigencias:
       public string Description { get; set; }
       public bool IsActive { get; set; }
 
-      // NavegaciÛn a tipos de bono que usan este perÌodo
+      // Navegaci√≥n a tipos de bono que usan este per√≠odo
       public ICollection<BonificationType> BonificationTypes { get; set; } = new List<BonificationType>();
   }
   ```
@@ -363,7 +363,7 @@ Instancias creadas al activar Vigencias:
       public string Description { get; set; }
       public bool IsActive { get; set; }
 
-      // NavegaciÛn
+      // Navegaci√≥n
       public BonificationPeriod BonificationPeriod { get; set; }
       public ICollection<BonificationPeriodInstance> Instances { get; set; } = new List<BonificationPeriodInstance>();
   }
@@ -374,20 +374,20 @@ Instancias creadas al activar Vigencias:
   public class BonificationPeriodInstance
   {
       public int BonificationPeriodInstanceId { get; set; }
-      public int BonificationTypeId { get; set; } // ?? Cambio: ahora apunta a TipoBono, no a PerÌodo
+      public int BonificationTypeId { get; set; } // ?? Cambio: ahora apunta a TipoBono, no a Per√≠odo
       public string InstanceCode { get; set; }
       public DateTime StartDate { get; set; }
       public DateTime EndDate { get; set; }
       public string Status { get; set; }
 
-      // NavegaciÛn
+      // Navegaci√≥n
       public BonificationType BonificationType { get; set; }
   }
   ```
 
-- `Aldebaran.DataAccess\Configuration\BonificationPeriodConfiguration.cs` ó mapeo EF completo
-- `Aldebaran.DataAccess\Configuration\BonificationTypeConfiguration.cs` ó mapeo EF completo (nuevo)
-- `Aldebaran.DataAccess\Configuration\BonificationPeriodInstanceConfiguration.cs` ó mapeo EF completo
+- `Aldebaran.DataAccess\Configuration\BonificationPeriodConfiguration.cs` ‚Äî mapeo EF completo
+- `Aldebaran.DataAccess\Configuration\BonificationTypeConfiguration.cs` ‚Äî mapeo EF completo (nuevo)
+- `Aldebaran.DataAccess\Configuration\BonificationPeriodInstanceConfiguration.cs` ‚Äî mapeo EF completo
 
 **Modificar:**
 - `Aldebaran.DataAccess\AldebaranDbContext.cs` ? agregar:
@@ -407,7 +407,7 @@ Instancias creadas al activar Vigencias:
 - `Aldebaran.Application.Services\Models\BonificationType.cs` (nuevo)
 - `Aldebaran.Application.Services\Models\BonificationPeriodInstance.cs`
 
-Estructura idÈntica a las entidades pero sin dependencias de EF (POCO puros).
+Estructura id√©ntica a las entidades pero sin dependencias de EF (POCO puros).
 
 **Agregar mappings en:**
 - `Aldebaran.Application.Services\Mappings\ApplicationServicesProfile.cs` ? agregar:
@@ -439,7 +439,7 @@ Estructura idÈntica a las entidades pero sin dependencias de EF (POCO puros).
   }
   ```
 
-- `Aldebaran.DataAccess.Infraestructure\Repository\BonificationPeriodRepository.cs` ó implementaciÛn usando `RepositoryBase<AldebaranDbContext>` (mismo patrÛn que `AreaRepository`)
+- `Aldebaran.DataAccess.Infraestructure\Repository\BonificationPeriodRepository.cs` ‚Äî implementaci√≥n usando `RepositoryBase<AldebaranDbContext>` (mismo patr√≥n que `AreaRepository`)
 
 ---
 
@@ -461,15 +461,15 @@ Estructura idÈntica a las entidades pero sin dependencias de EF (POCO puros).
   }
   ```
 
-- `Aldebaran.Application.Services\Services\BonificationPeriodService.cs` ó implementaciÛn usando `IBonificationPeriodRepository` + `IMapper` (mismo patrÛn que `AreaService`)
+- `Aldebaran.Application.Services\Services\BonificationPeriodService.cs` ‚Äî implementaci√≥n usando `IBonificationPeriodRepository` + `IMapper` (mismo patr√≥n que `AreaService`)
 
 **Validaciones de negocio en el servicio:**
 - `PeriodName` no puede duplicarse (`ExistsByNameAsync`)
 - `DurationDays` debe ser > 0
-- No se puede modificar `DurationDays` si el perÌodo tiene instancias cerradas (`HasInstancesAsync`)
-- No se puede desactivar un perÌodo que tiene instancias activas (`STATUS = 'OPEN'` o `'IN_PROGRESS'`)
-- `EndDate` de la instancia se calcula autom·ticamente: `StartDate + DurationDays - 1`
-- `InstanceCode` se genera autom·ticamente (ej: prefijo 3 letras del tipo + aÒo + secuencia)
+- No se puede modificar `DurationDays` si el per√≠odo tiene instancias cerradas (`HasInstancesAsync`)
+- No se puede desactivar un per√≠odo que tiene instancias activas (`STATUS = 'OPEN'` o `'IN_PROGRESS'`)
+- `EndDate` de la instancia se calcula autom√°ticamente: `StartDate + DurationDays - 1`
+- `InstanceCode` se genera autom√°ticamente (ej: prefijo 3 letras del tipo + a√±o + secuencia)
 
 **Modificar:**
 - `Aldebaran.Web\Extensions\ArchitectureBuilderExtensions.cs` ? registrar:
@@ -481,38 +481,38 @@ Estructura idÈntica a las entidades pero sin dependencias de EF (POCO puros).
 ---
 
 #### TAREA-016 ? ???
-**Crear p·gina de listado `BonificationPeriods.razor` + `BonificationPeriods.razor.cs`**
+**Crear p√°gina de listado `BonificationPeriods.razor` + `BonificationPeriods.razor.cs`**
 
 **Ruta:** `Pages\BonificationPages\BonificationPeriods.razor`  
 **URL:** `/bonification/periods`  
-**Rol requerido:** `Administrador`, `Consulta de bonificaciones`, `ModificaciÛn de bonificaciones`
+**Rol requerido:** `Administrador`, `Consulta de bonificaciones`, `Modificaci√≥n de bonificaciones`
 
-**Estructura (patrÛn `Customers.razor`):**
-- TÌtulo: "PerÌodos de BonificaciÛn"
+**Estructura (patr√≥n `Customers.razor`):**
+- T√≠tulo: "Per√≠odos de Bonificaci√≥n"
 - Buscador por nombre
 - `RadzenDataGrid` paginada con columnas:
   - Nombre
-  - Tipo (MONTHLY/BIWEEKLY/etc. ? mostrar en espaÒol)
-  - DuraciÛn (dÌas)
-  - DescripciÛn
+  - Tipo (MONTHLY/BIWEEKLY/etc. ? mostrar en espa√±ol)
+  - Duraci√≥n (d√≠as)
+  - Descripci√≥n
   - Estado (badge: Activo/Inactivo)
-  - N∫ Instancias generadas
+  - N¬∫ Instancias generadas
   - Acciones: Editar | Ver Instancias
-- BotÛn "Nuevo" (solo si tiene rol de modificaciÛn)
-- Row expand: muestra `RadzenDataGrid` de Instancias del perÌodo (CÛdigo, Fecha inicio, Fecha fin, Estado)
-  - BotÛn "Generar Instancia" en la secciÛn expandida (abre dialog `AddBonificationPeriodInstance`)
+- Bot√≥n "Nuevo" (solo si tiene rol de modificaci√≥n)
+- Row expand: muestra `RadzenDataGrid` de Instancias del per√≠odo (C√≥digo, Fecha inicio, Fecha fin, Estado)
+  - Bot√≥n "Generar Instancia" en la secci√≥n expandida (abre dialog `AddBonificationPeriodInstance`)
 
 ---
 
 #### TAREA-017 ? ???
 **Crear dialog `AddBonificationPeriod.razor` + `AddBonificationPeriod.razor.cs`**
 
-**Estructura (patrÛn `AddCustomer.razor`):**
+**Estructura (patr√≥n `AddCustomer.razor`):**
 - Campos:
-  - Nombre (texto, obligatorio, ˙nico)
-  - Tipo de perÌodo (`RadzenDropDown`: Mensual / Quincenal / Semanal / Diario / Personalizado)
-  - DuraciÛn en dÌas (`RadzenNumeric`, obligatorio, > 0) ó pre-rellena autom·tico seg˙n Tipo seleccionado; editable solo si Tipo = Personalizado
-  - DescripciÛn (texto, opcional)
+  - Nombre (texto, obligatorio, √∫nico)
+  - Tipo de per√≠odo (`RadzenDropDown`: Mensual / Quincenal / Semanal / Diario / Personalizado)
+  - Duraci√≥n en d√≠as (`RadzenNumeric`, obligatorio, > 0) ‚Äî pre-rellena autom√°tico seg√∫n Tipo seleccionado; editable solo si Tipo = Personalizado
+  - Descripci√≥n (texto, opcional)
   - Estado (`RadzenCheckBox` Activo, default: marcado)
 - Validaciones client-side con `RadzenRequiredValidator`
 - Botones: Guardar / Cancelar
@@ -522,25 +522,25 @@ Estructura idÈntica a las entidades pero sin dependencias de EF (POCO puros).
 #### TAREA-018 ? ???
 **Crear dialog `EditBonificationPeriod.razor` + `EditBonificationPeriod.razor.cs`**
 
-**Estructura (patrÛn `EditCustomer.razor`):**
+**Estructura (patr√≥n `EditCustomer.razor`):**
 - Mismos campos que TAREA-017
-- Campo `DurationDays` ? bloqueado (`Disabled`) si el perÌodo tiene instancias cerradas (validaciÛn desde servicio, reflejada en UI con mensaje explicativo)
+- Campo `DurationDays` ? bloqueado (`Disabled`) si el per√≠odo tiene instancias cerradas (validaci√≥n desde servicio, reflejada en UI con mensaje explicativo)
 - Al guardar ? llama `BonificationPeriodService.UpdateAsync`
 
 ---
 
 #### TAREA-019 ? ??
-**Crear servicio de ciclo de vida autom·tico de instancias**
+**Crear servicio de ciclo de vida autom√°tico de instancias**
 
-> ?? **ARQUITECTURA AUTOM¡TICA**: Las instancias **NO son creadas manualmente**. Se generan autom·ticamente cuando se activa una Vigencia (la Vigencia pertenece a un TipoBono, y el TipoBono se parametrizÛ con un PerÌodo que define la duraciÛn). El job nocturno las rota seg˙n esa periodicidad.
+> ?? **ARQUITECTURA AUTOM√ÅTICA**: Las instancias **NO son creadas manualmente**. Se generan autom√°ticamente cuando se activa una Vigencia (la Vigencia pertenece a un TipoBono, y el TipoBono se parametriz√≥ con un Per√≠odo que define la duraci√≥n). El job nocturno las rota seg√∫n esa periodicidad.
 
 ---
 
-**RelaciÛn de responsabilidades (quiÈn configura a quiÈn):**
+**Relaci√≥n de responsabilidades (qui√©n configura a qui√©n):**
 
 ```
 BonificationType ???? se parametriza con ???? BonificationPeriod
-   (TipoBono)                                     (PerÌodo: duraciÛn, tipo)
+   (TipoBono)                                     (Per√≠odo: duraci√≥n, tipo)
         ?
         ? tiene Vigencias
         ?
@@ -551,43 +551,43 @@ BonificationType ???? se parametriza con ???? BonificationPeriod
         ?
   BonificationPeriodInstance
    (instancia concreta con fechas)
-   StartDate = fecha activaciÛn de la Vigencia
-   EndDate   = StartDate + TipoBono.PerÌodo.DurationDays - 1
+   StartDate = fecha activaci√≥n de la Vigencia
+   EndDate   = StartDate + TipoBono.Per√≠odo.DurationDays - 1
 ```
 
 ---
 
-**Ciclo de vida autom·tico:**
+**Ciclo de vida autom√°tico:**
 
 ```
 [Usuario parametriza TipoBono]
-  TipoBono "Bono FacturaciÛn Quincenal"
-  ?? se parametriza con PerÌodo "Quincena 15 dÌas" (DurationDays=15)
+  TipoBono "Bono Facturaci√≥n Quincenal"
+  ?? se parametriza con Per√≠odo "Quincena 15 d√≠as" (DurationDays=15)
                     ?
 [Usuario activa Vigencia del TipoBono]
-  Vigencia "V1-FacturaciÛn-Marzo" (ActivationDate=01/03/2026)
-  ?? pertenece a TipoBono "Bono FacturaciÛn Quincenal"
+  Vigencia "V1-Facturaci√≥n-Marzo" (ActivationDate=01/03/2026)
+  ?? pertenece a TipoBono "Bono Facturaci√≥n Quincenal"
                     ?
 Sistema crea PRIMERA instancia para ese TipoBono:
   InstanceCode: FAC-QUI-2026-03
   BonificationTypeId: 1     ? TipoBono que tiene la vigencia activada
-  StartDate:    01/03/2026  ? fecha de activaciÛn de la Vigencia
-  EndDate:      15/03/2026  ? StartDate + TipoBono.PerÌodo.DurationDays(15) - 1
+  StartDate:    01/03/2026  ? fecha de activaci√≥n de la Vigencia
+  EndDate:      15/03/2026  ? StartDate + TipoBono.Per√≠odo.DurationDays(15) - 1
   Status:       IN_PROGRESS
                     ?
 Job nocturno (23:59 diario) verifica instancias IN_PROGRESS
                     ?
 Cuando hoy == EndDate:
-  1. Ejecuta cierre del perÌodo (CU10 - FOTO congelada)
+  1. Ejecuta cierre del per√≠odo (CU10 - FOTO congelada)
   2. Marca Status = CLOSED
   3. Verifica si el TipoBono tiene Vigencia activa
-  4. Si sÌ ? crea SIGUIENTE instancia:
+  4. Si s√≠ ? crea SIGUIENTE instancia:
        StartDate = instancia_cerrada.EndDate + 1
-       EndDate   = nuevo StartDate + TipoBono.PerÌodo.DurationDays - 1
+       EndDate   = nuevo StartDate + TipoBono.Per√≠odo.DurationDays - 1
        Status    = IN_PROGRESS
                     ?
-Ciclo autom·tico cada 15 dÌas
-DetenciÛn: cuando el TipoBono queda sin Vigencia activa
+Ciclo autom√°tico cada 15 d√≠as
+Detenci√≥n: cuando el TipoBono queda sin Vigencia activa
 ```
 
 ---
@@ -602,7 +602,7 @@ DetenciÛn: cuando el TipoBono queda sin Vigencia activa
       /// <summary>
       /// Crea la primera instancia cuando se activa una Vigencia.
       /// Llamado desde: VigenciaService.ActivateAsync()
-      /// El TipoBono ya contiene el PerÌodo con la duraciÛn necesaria.
+      /// El TipoBono ya contiene el Per√≠odo con la duraci√≥n necesaria.
       /// </summary>
       Task CreateFirstInstanceAsync(
           int bonificationTypeId,
@@ -628,7 +628,7 @@ DetenciÛn: cuando el TipoBono queda sin Vigencia activa
   ```csharp
   public class BonificationPeriodInstanceLifecycleService : IBonificationPeriodInstanceLifecycleService
   {
-      private readonly IBonificationTypeRepository _typeRepo;    // TipoBono ? PerÌodo ? DurationDays
+      private readonly IBonificationTypeRepository _typeRepo;    // TipoBono ? Per√≠odo ? DurationDays
       private readonly IBonificationPeriodRepository _instanceRepo;
       private readonly IBonificationClosureService _closureService; // CU10 (TAREA futura)
       private readonly ILogger<BonificationPeriodInstanceLifecycleService> _logger;
@@ -638,7 +638,7 @@ DetenciÛn: cuando el TipoBono queda sin Vigencia activa
           DateTime vigencyActivationDate,
           CancellationToken ct)
       {
-          // TipoBono ya tiene el PerÌodo asociado con DurationDays
+          // TipoBono ya tiene el Per√≠odo asociado con DurationDays
           var bonType = await _typeRepo.FindWithPeriodAsync(bonificationTypeId, ct);
           var duration = bonType.BonificationPeriod.DurationDays;
           var code = GenerateInstanceCode(
@@ -668,7 +668,7 @@ DetenciÛn: cuando el TipoBono queda sin Vigencia activa
               await _closureService.ClosePeriodAsync(instance.BonificationPeriodInstanceId, ct);
               await _instanceRepo.UpdateInstanceStatusAsync(instance.BonificationPeriodInstanceId, "CLOSED", ct);
 
-              // Contin˙a solo si el TipoBono tiene Vigencia activa
+              // Contin√∫a solo si el TipoBono tiene Vigencia activa
               var hasActiveVigency = await _typeRepo.HasActiveVigencyAsync(instance.BonificationTypeId, ct);
               if (hasActiveVigency)
               {
@@ -756,17 +756,17 @@ Task<bool> HasActiveVigencyAsync(int bonificationTypeId, CancellationToken ct = 
 public async Task ActivateAsync(int vigencyId, CancellationToken ct)
 {
     var vigency = await _vigencyRepo.FindAsync(vigencyId, ct);
-    // ... lÛgica de activaciÛn y desactivaciÛn de vigencia anterior ...
+    // ... l√≥gica de activaci√≥n y desactivaci√≥n de vigencia anterior ...
 
     await _lifecycleService.CreateFirstInstanceAsync(
         vigency.BonificationTypeId,   // TipoBono de la vigencia
-        vigency.ActivationDate,       // Fecha de activaciÛn
+        vigency.ActivationDate,       // Fecha de activaci√≥n
         ct);
 }
 ```
 
 **Modificar `BonificationPeriods.razor` (TAREA-016):**
-- Sin botÛn "Generar Instancia" (las instancias son autom·ticas)
+- Sin bot√≥n "Generar Instancia" (las instancias son autom√°ticas)
 - Row expand muestra instancias por TipoBono en **solo lectura**
 - Columna Estado: ?? IN_PROGRESS | ? CLOSED
 
@@ -778,28 +778,28 @@ services.AddHostedService<BonificationPeriodRolloverJob>();
 
 ---
 
-#### ~~TAREA-020~~ **[CANCELADA POR AN¡LISIS]**
+#### ~~TAREA-020~~ **[CANCELADA POR AN√ÅLISIS]**
 
-~~**GestiÛn de sesiones de bonificaciÛn**~~
+~~**Gesti√≥n de sesiones de bonificaci√≥n**~~
 
-> **Estado:** Cancelada en an·lisis de requisitos.  
-> **Motivo de cancelaciÛn:** Funcionalidad diferida a Fase 2. Se reemplaza por validaciÛn simple en TAREA-003 (restricciÛn de desmarcar `IsDistributor` si hay bonificaciones pendientes). An·lisis definiÛ que la gestiÛn granular de sesiones no es crÌtica para MVP.
+> **Estado:** Cancelada en an√°lisis de requisitos.  
+> **Motivo de cancelaci√≥n:** Funcionalidad diferida a Fase 2. Se reemplaza por validaci√≥n simple en TAREA-003 (restricci√≥n de desmarcar `IsDistributor` si hay bonificaciones pendientes). An√°lisis defini√≥ que la gesti√≥n granular de sesiones no es cr√≠tica para MVP.
 
 ---
 
-#### ~~TAREA-021~~ **[CANCELADA POR AN¡LISIS]**
+#### ~~TAREA-021~~ **[CANCELADA POR AN√ÅLISIS]**
 
-~~**AuditorÌa detallada de ciclo de vida de instancias**~~
+~~**Auditor√≠a detallada de ciclo de vida de instancias**~~
 
-> **Estado:** Cancelada en an·lisis de requisitos.  
-> **Motivo de cancelaciÛn:** Se usa Application Insights + Entity Framework change tracking en lugar de tabla especÌfica. An·lisis definiÛ que el logging detallado mediante una tabla introduce complejidad innecesaria en BD.
+> **Estado:** Cancelada en an√°lisis de requisitos.  
+> **Motivo de cancelaci√≥n:** Se usa Application Insights + Entity Framework change tracking en lugar de tabla espec√≠fica. An√°lisis defini√≥ que el logging detallado mediante una tabla introduce complejidad innecesaria en BD.
 
 ---
 
 #### TAREA-022 ? ??
 **Crear `IBonificationTypeRepository` y `BonificationTypeRepository`**
 
-> La entidad `BonificationType` ya fue creada en TAREA-012. Esta tarea implementa su repositorio completo incluyendo los mÈtodos requeridos por el ciclo de vida (TAREA-019).
+> La entidad `BonificationType` ya fue creada en TAREA-012. Esta tarea implementa su repositorio completo incluyendo los m√©todos requeridos por el ciclo de vida (TAREA-019).
 
 **Archivos a crear:**
 - `Aldebaran.DataAccess.Infraestructure\Repository\IBonificationTypeRepository.cs`
@@ -819,8 +819,8 @@ services.AddHostedService<BonificationPeriodRolloverJob>();
   }
   ```
 
-- `Aldebaran.DataAccess.Infraestructure\Repository\BonificationTypeRepository.cs` ó implementaciÛn usando `RepositoryBase<AldebaranDbContext>`
-  - `FindWithPeriodAsync`: hace `Include(t => t.BonificationPeriod)` para cargar la duraciÛn
+- `Aldebaran.DataAccess.Infraestructure\Repository\BonificationTypeRepository.cs` ‚Äî implementaci√≥n usando `RepositoryBase<AldebaranDbContext>`
+  - `FindWithPeriodAsync`: hace `Include(t => t.BonificationPeriod)` para cargar la duraci√≥n
   - `HasActiveInstanceAsync`: verifica si existe alguna `BonificationPeriodInstance` con `STATUS IN ('OPEN','IN_PROGRESS')` para este TipoBono
   - `HasActiveVigencyAsync`: verifica si existe alguna `BonificationVigency` activa para este TipoBono (usado por el job de rollover)
 
@@ -842,11 +842,11 @@ services.AddHostedService<BonificationPeriodRolloverJob>();
   }
   ```
 
-- `Aldebaran.Application.Services\Services\BonificationTypeService.cs` ó implementaciÛn usando `IBonificationTypeRepository` + `IMapper` (mismo patrÛn que `AreaService`)
+- `Aldebaran.Application.Services\Services\BonificationTypeService.cs` ‚Äî implementaci√≥n usando `IBonificationTypeRepository` + `IMapper` (mismo patr√≥n que `AreaService`)
 
 **Validaciones de negocio en el servicio:**
 - `TypeName` no puede duplicarse (`ExistsByNameAsync`)
-- `BonificationPeriodId` debe ser v·lido
+- `BonificationPeriodId` debe ser v√°lido
 - `CalculationBase` debe ser uno de los valores permitidos
 - No se puede modificar un TipoBono si tiene instancias activas (`HasActiveInstanceAsync`)
 
@@ -860,33 +860,33 @@ services.AddHostedService<BonificationPeriodRolloverJob>();
 ---
 
 #### TAREA-024 ? ???
-**Crear p·gina de listado `BonificationTypes.razor` + `BonificationTypes.razor.cs`**
+**Crear p√°gina de listado `BonificationTypes.razor` + `BonificationTypes.razor.cs`**
 
 **Ruta:** `Pages\BonificationPages\BonificationTypes.razor`  
 **URL:** `/bonification/types`  
-**Rol requerido:** `Administrador`, `Consulta de bonificaciones`, `ModificaciÛn de bonificaciones`
+**Rol requerido:** `Administrador`, `Consulta de bonificaciones`, `Modificaci√≥n de bonificaciones`
 
-**Estructura (patrÛn `Customers.razor`):**
-- TÌtulo: "Tipos de Bono"
+**Estructura (patr√≥n `Customers.razor`):**
+- T√≠tulo: "Tipos de Bono"
 - Buscador por nombre
 - `RadzenDataGrid` paginada con columnas:
   - Nombre
-  - Tipo (BILLING/ORDER/DELIVERY ? mostrar en espaÒol)
+  - Tipo (BILLING/ORDER/DELIVERY ? mostrar en espa√±ol)
   - Estado (badge: Activo/Inactivo)
   - Acciones: Editar
-- BotÛn "Nuevo" (solo si tiene rol de modificaciÛn)
+- Bot√≥n "Nuevo" (solo si tiene rol de modificaci√≥n)
 
 ---
 
 #### TAREA-025 ? ???
 **Crear dialog `AddBonificationType.razor` + `AddBonificationType.razor.cs`**
 
-**Estructura (patrÛn `AddCustomer.razor`):**
+**Estructura (patr√≥n `AddCustomer.razor`):**
 - Campos:
-  - Nombre (texto, obligatorio, ˙nico)
-  - PerÌodo (`RadzenDropDown`: lista de perÌodos activos)
-  - Base de c·lculo (`RadzenDropDown`: FacturaciÛn / Pedido / Entrega)
-  - DescripciÛn (texto, opcional)
+  - Nombre (texto, obligatorio, √∫nico)
+  - Per√≠odo (`RadzenDropDown`: lista de per√≠odos activos)
+  - Base de c√°lculo (`RadzenDropDown`: Facturaci√≥n / Pedido / Entrega)
+  - Descripci√≥n (texto, opcional)
   - Estado (`RadzenCheckBox` Activo, default: marcado)
 - Validaciones client-side con `RadzenRequiredValidator`
 - Botones: Guardar / Cancelar
@@ -896,7 +896,7 @@ services.AddHostedService<BonificationPeriodRolloverJob>();
 #### TAREA-026 ? ???
 **Crear dialog `EditBonificationType.razor` + `EditBonificationType.razor.cs`**
 
-**Estructura (patrÛn `EditCustomer.razor`):**
+**Estructura (patr√≥n `EditCustomer.razor`):**
 - Mismos campos que TAREA-025
 - Al guardar ? llama `BonificationTypeService.UpdateAsync`
 
@@ -906,17 +906,17 @@ services.AddHostedService<BonificationPeriodRolloverJob>();
 **Actualizar `BonificationPeriods.razor.cs` y `BonificationTypes.razor.cs` para incluir columnas de Acciones en el DataGrid**
 
 **Cambios:**
-- Ambas p·ginas tendr·n una columna "Acciones" con un botÛn de ediciÛn (Ìcono l·piz) que abre el respectivo di·logo de ediciÛn.
-- Se elimina el botÛn "Generar Instancia" en `BonificationPeriods`. Las instancias son autom·ticas y no deben ser manipuladas desde aquÌ.
+- Ambas p√°ginas tendr√°n una columna "Acciones" con un bot√≥n de edici√≥n (√≠cono l√°piz) que abre el respectivo di√°logo de edici√≥n.
+- Se elimina el bot√≥n "Generar Instancia" en `BonificationPeriods`. Las instancias son autom√°ticas y no deben ser manipuladas desde aqu√≠.
 
-> ?? **Nota de navegaciÛn:** Estas p·ginas se acceden desde el men˙ **"Bonificaciones"** como Ìtem de nivel raÌz (ver TAREA-045), **no** desde el men˙ "AdministraciÛn".
+> ?? **Nota de navegaci√≥n:** Estas p√°ginas se acceden desde el men√∫ **"Bonificaciones"** como √≠tem de nivel ra√≠z (ver TAREA-045), **no** desde el men√∫ "Administraci√≥n".
 
 ---
 
 #### TAREA-028 ? ??
-**Crear vista de cierre de perÌodo (CU10)**
+**Crear vista de cierre de per√≠odo (CU10)**
 
-> Permite cerrar manualmente un perÌodo y generar la prÛxima instancia si el tipo de bono lo tiene.
+> Permite cerrar manualmente un per√≠odo y generar la pr√≥xima instancia si el tipo de bono lo tiene.
 
 **Archivos a crear:**
 - `Application.Services\UseCases\CloseBonificationPeriodCommand.cs`
@@ -929,7 +929,7 @@ services.AddHostedService<BonificationPeriodRolloverJob>();
 
       public async Task<CloseBonificationPeriodResponse> Handle(CloseBonificationPeriodRequest request, CancellationToken cancellationToken)
       {
-          // 1. Cerrar perÌodo actual
+          // 1. Cerrar per√≠odo actual
           await _periodRepo.UpdateAsync(request.PeriodId, request.NewEndDate, cancellationToken);
 
           // 2. Si el TipoBono tiene vigencia activa, crear la siguiente instancia
@@ -960,7 +960,7 @@ services.AddHostedService<BonificationPeriodRolloverJob>();
 
   import "google/protobuf/timestamp.proto";
 
-  // Mensajes para el cierre de un perÌodo de bonificaciÛn
+  // Mensajes para el cierre de un per√≠odo de bonificaci√≥n
   message CloseBonificationPeriodRequest {
     int32 period_id = 1;
     int32 type_id = 2;
@@ -974,23 +974,23 @@ services.AddHostedService<BonificationPeriodRolloverJob>();
 
 ---
 
-> ? **Con TAREA-011 a TAREA-027 quedan cubiertas todas las modificaciones necesarias relacionadas con PerÌodos y Tipos de Bono.**  
-> La gestiÛn de sesiones de bono queda registrada como una nueva historia de usuario independiente (requiere definiciÛn y diseÒo especÌficos).
+> ? **Con TAREA-011 a TAREA-027 quedan cubiertas todas las modificaciones necesarias relacionadas con Per√≠odos y Tipos de Bono.**  
+> La gesti√≥n de sesiones de bono queda registrada como una nueva historia de usuario independiente (requiere definici√≥n y dise√±o espec√≠ficos).
 
 ---
 
-### 2.1.5 GestiÛn de Rangos y Porcentajes de BonificaciÛn
+### 2.1.5 Gesti√≥n de Rangos y Porcentajes de Bonificaci√≥n
 
 > Funcionalidad completamente nueva.  
-> Permite crear y gestionar rangos de bonificaciÛn con porcentajes asociados a un tipo de bono y perÌodo especÌficos.
+> Permite crear y gestionar rangos de bonificaci√≥n con porcentajes asociados a un tipo de bono y per√≠odo espec√≠ficos.
 
 ---
 
 #### TAREA-029 ? ???
 **Crear tabla `BonificationRanges`**
 
-**DescripciÛn:**  
-- `BonificationRanges`: Define rangos mÌnimos y m·ximos con un porcentaje de bonificaciÛn asociado.
+**Descripci√≥n:**  
+- `BonificationRanges`: Define rangos m√≠nimos y m√°ximos con un porcentaje de bonificaci√≥n asociado.
 
 **Script SQL a crear:** `scripts/CreateBonificationRangesTable.sql`
 
@@ -998,9 +998,9 @@ services.AddHostedService<BonificationPeriodRolloverJob>();
 CREATE TABLE dbo.BonificationRanges (
     BONIFICATION_RANGE_ID    INT             NOT NULL IDENTITY(1,1),
     BONIFICATION_TYPE_ID     INT             NOT NULL,    -- FK a Tipo de Bono
-    RANGE_MINIMUM            DECIMAL(18,4)   NOT NULL,    -- MÌnimo del rango (incluido)
-    RANGE_MAXIMUM            DECIMAL(18,4)   NOT NULL,    -- M·ximo del rango (incluido)
-    BONUS_PERCENTAGE         DECIMAL(5,2)    NOT NULL,    -- Porcentaje de bonificaciÛn
+    RANGE_MINIMUM            DECIMAL(18,4)   NOT NULL,    -- M√≠nimo del rango (incluido)
+    RANGE_MAXIMUM            DECIMAL(18,4)   NOT NULL,    -- M√°ximo del rango (incluido)
+    BONUS_PERCENTAGE         DECIMAL(5,2)    NOT NULL,    -- Porcentaje de bonificaci√≥n
     IS_ACTIVE                BIT             NOT NULL DEFAULT 1,
     CONSTRAINT PK_BONIFICATION_RANGE PRIMARY KEY CLUSTERED (BONIFICATION_RANGE_ID),
     CONSTRAINT UQ_BONIFICATION_RANGE_UNIQUE UNIQUE (BONIFICATION_TYPE_ID, RANGE_MINIMUM, RANGE_MAXIMUM),
@@ -1027,12 +1027,12 @@ CREATE TABLE dbo.BonificationRanges (
       public decimal BonusPercentage { get; set; }
       public bool IsActive { get; set; }
 
-      // NavegaciÛn
+      // Navegaci√≥n
       public BonificationType BonificationType { get; set; }
   }
   ```
 
-- `Aldebaran.DataAccess\Configuration\BonificationRangeConfiguration.cs` ó mapeo EF completo
+- `Aldebaran.DataAccess\Configuration\BonificationRangeConfiguration.cs` ‚Äî mapeo EF completo
 
 **Modificar:**
 - `Aldebaran.DataAccess\AldebaranDbContext.cs` ? agregar:
@@ -1048,7 +1048,7 @@ CREATE TABLE dbo.BonificationRanges (
 **Archivos a crear:**
 - `Aldebaran.Application.Services\Models\BonificationRange.cs`
 
-Estructura idÈntica a la entidad pero sin dependencias de EF (POCO puros).
+Estructura id√©ntica a la entidad pero sin dependencias de EF (POCO puros).
 
 **Agregar mappings en:**
 - `Aldebaran.Application.Services\Mappings\ApplicationServicesProfile.cs` ? agregar:
@@ -1074,7 +1074,7 @@ Estructura idÈntica a la entidad pero sin dependencias de EF (POCO puros).
   }
   ```
 
-- `Aldebaran.DataAccess.Infraestructure\Repository\BonificationRangeRepository.cs` ó implementaciÛn usando `RepositoryBase<AldebaranDbContext>` (mismo patrÛn que `AreaRepository`)
+- `Aldebaran.DataAccess.Infraestructure\Repository\BonificationRangeRepository.cs` ‚Äî implementaci√≥n usando `RepositoryBase<AldebaranDbContext>` (mismo patr√≥n que `AreaRepository`)
 
 ---
 
@@ -1094,12 +1094,12 @@ Estructura idÈntica a la entidad pero sin dependencias de EF (POCO puros).
   }
   ```
 
-- `Aldebaran.Application.Services\Services\BonificationRangeService.cs` ó implementaciÛn usando `IBonificationRangeRepository` + `IMapper` (mismo patrÛn que `AreaService`)
+- `Aldebaran.Application.Services\Services\BonificationRangeService.cs` ‚Äî implementaci√≥n usando `IBonificationRangeRepository` + `IMapper` (mismo patr√≥n que `AreaService`)
 
 **Validaciones de negocio en el servicio:**
 - `RANGE_MINIMUM` debe ser menor que `RANGE_MAXIMUM`
 - `BonusPercentage` debe estar entre 0 y 100
-- No se puede modificar un rango si est· cerrado (`IsActive = 0`)
+- No se puede modificar un rango si est√° cerrado (`IsActive = 0`)
 
 **Modificar:**
 - `Aldebaran.Web\Extensions\ArchitectureBuilderExtensions.cs` ? registrar:
@@ -1111,23 +1111,23 @@ Estructura idÈntica a la entidad pero sin dependencias de EF (POCO puros).
 ---
 
 #### TAREA-034 ? ???
-**Crear p·gina de listado `BonificationRanges.razor` + `BonificationRanges.razor.cs`**
+**Crear p√°gina de listado `BonificationRanges.razor` + `BonificationRanges.razor.cs`**
 
 **Ruta:** `Pages\BonificationPages\BonificationRanges.razor`  
 **URL:** `/bonification/ranges`  
-**Rol requerido:** `Administrador`, `Consulta de bonificaciones`, `ModificaciÛn de bonificaciones`
+**Rol requerido:** `Administrador`, `Consulta de bonificaciones`, `Modificaci√≥n de bonificaciones`
 
-**Estructura (patrÛn `Customers.razor`):**
-- TÌtulo: "Rangos de BonificaciÛn"
+**Estructura (patr√≥n `Customers.razor`):**
+- T√≠tulo: "Rangos de Bonificaci√≥n"
 - Buscador por nombre
 - `RadzenDataGrid` paginada con columnas:
   - Tipo de Bono (nombre)
-  - MÌnimo
-  - M·ximo
+  - M√≠nimo
+  - M√°ximo
   - Porcentaje
   - Estado (badge: Activo/Inactivo)
   - Acciones: Editar
-- BotÛn "Nuevo" (solo si tiene rol de modificaciÛn)
+- Bot√≥n "Nuevo" (solo si tiene rol de modificaci√≥n)
 
 ---
 
@@ -1136,38 +1136,38 @@ Estructura idÈntica a la entidad pero sin dependencias de EF (POCO puros).
 
 **Estructura:**
 - Mismos campos que TAREA-034
-- **Si estado = `PENDING`** ? cabecera y rangos son editables (la fecha de activaciÛn a˙n no llegÛ)
-- **Si estado = `ACTIVE` o `INACTIVE`** ? todo en modo solo lectura con mensaje explicativo: "Esta vigencia est· en curso o fue reemplazada. No se pueden modificar sus rangos."
+- **Si estado = `PENDING`** ? cabecera y rangos son editables (la fecha de activaci√≥n a√∫n no lleg√≥)
+- **Si estado = `ACTIVE` o `INACTIVE`** ? todo en modo solo lectura con mensaje explicativo: "Esta vigencia est√° en curso o fue reemplazada. No se pueden modificar sus rangos."
 - Botones: Guardar (solo visible si PENDING) / Cerrar
 
 ---
 
-> ? **Con TAREA-029 a TAREA-035 quedan cubiertas todas las modificaciones necesarias relacionadas con Rangos de BonificaciÛn.**
+> ? **Con TAREA-029 a TAREA-035 quedan cubiertas todas las modificaciones necesarias relacionadas con Rangos de Bonificaci√≥n.**
 
 #### TAREA-036 
-**Agregar botÛn "Ver Vigencias" en `BonificationTypes.razor`**
+**Agregar bot√≥n "Ver Vigencias" en `BonificationTypes.razor`**
 
-**Contexto del cÛdigo:**  
-`BonificationTypes.razor` (TAREA-024) tiene una columna "Acciones" con botÛn Editar. Sin un vÌnculo explÌcito al listado de Vigencias, el usuario debe escribir la URL directamente para acceder a `/bonification/types/{id}/vigencies`.
+**Contexto del c√≥digo:**  
+`BonificationTypes.razor` (TAREA-024) tiene una columna "Acciones" con bot√≥n Editar. Sin un v√≠nculo expl√≠cito al listado de Vigencias, el usuario debe escribir la URL directamente para acceder a `/bonification/types/{id}/vigencies`.
 
 **Cambios en `BonificationTypes.razor`:**
-- Agregar botÛn "Ver Vigencias" en la columna Acciones del `RadzenDataGrid`
-  - Õcono: `schedule` o `event_note`
+- Agregar bot√≥n "Ver Vigencias" en la columna Acciones del `RadzenDataGrid`
+  - √çcono: `schedule` o `event_note`
   - Tooltip: "Ver Vigencias de este Tipo de Bono"
   - Navega a `/bonification/types/{BonificationTypeId}/vigencies`
-  - Visible para todos los roles con acceso a la pantalla (`Administrador`, `Consulta de bonificaciones`, `ModificaciÛn de bonificaciones`)
+  - Visible para todos los roles con acceso a la pantalla (`Administrador`, `Consulta de bonificaciones`, `Modificaci√≥n de bonificaciones`)
 
 **Cambios en `BonificationTypes.razor.cs`:**
-- No requiere lÛgica adicional: la navegaciÛn es directa con `NavigationManager.NavigateTo`.
+- No requiere l√≥gica adicional: la navegaci√≥n es directa con `NavigationManager.NavigateTo`.
 
 ---
 
 ### 2.1.6 Vigencias de Descuentos por Total de Pedido
 
 > Ref. propuesta funcional: seccion 2.2.0.3 (MD v1.4)  
-> Funcionalidad completamente nueva. **Independiente de las Vigencias de BonificaciÛn.**  
+> Funcionalidad completamente nueva. **Independiente de las Vigencias de Bonificaci√≥n.**  
 >  
-> Permite configurar vigencias de descuento que se aplican de forma **uniforme a todos los distribuidores** en el c·lculo del **Bono por Pedido**.  
+> Permite configurar vigencias de descuento que se aplican de forma **uniforme a todos los distribuidores** en el c√°lculo del **Bono por Pedido**.  
 > Solo puede existir **UNA vigencia ACTIVE** en el sistema en un momento dado (no es por TipoBono, es global).  
 >  
 > Cada vigencia tiene rangos de totales de pedido. Cuando el acumulado del distribuidor cae en un rango, se aplica el descuento correspondiente (porcentual o fijo) **antes** de calcular el bono.
@@ -1190,9 +1190,9 @@ Vigencia Descuento "V3 - Desc. Pedido Agosto 2026"  (PENDING)
 ??? Estado: PENDING
 ```
 
-> **Diferencia clave con Vigencias de BonificaciÛn:**  
+> **Diferencia clave con Vigencias de Bonificaci√≥n:**  
 > Las Vigencias de Bono son **por TipoBono** (una activa por cada tipo).  
-> Las Vigencias de Descuento son **globales** ó solo existe una activa en todo el sistema.  
+> Las Vigencias de Descuento son **globales** ‚Äî solo existe una activa en todo el sistema.  
 > Los rangos tampoco necesitan iniciar en $0. Si el total del pedido es inferior al primer rango, el descuento es $0.
 
 ---
@@ -1219,7 +1219,7 @@ CREATE TABLE dbo.DiscountVigencies (
     )
 );
 
--- Õndice para obtener la vigencia activa r·pidamente
+-- √çndice para obtener la vigencia activa r√°pidamente
 CREATE NONCLUSTERED INDEX IX_DISCOUNT_VIGENCY_STATUS
     ON dbo.DiscountVigencies (STATUS);
 
@@ -1228,8 +1228,8 @@ CREATE TABLE dbo.DiscountVigencyRanges (
     DISCOUNT_VIGENCY_RANGE_ID  INT             NOT NULL IDENTITY(1,1),
     DISCOUNT_VIGENCY_ID        INT             NOT NULL,
     RANGE_ORDER                INT             NOT NULL,
-    FROM_AMOUNT                DECIMAL(18,2)   NOT NULL,   -- total mÌnimo del tramo (inclusive)
-    TO_AMOUNT                  DECIMAL(18,2)   NULL,       -- total m·ximo del tramo (NULL = sin techo)
+    FROM_AMOUNT                DECIMAL(18,2)   NOT NULL,   -- total m√≠nimo del tramo (inclusive)
+    TO_AMOUNT                  DECIMAL(18,2)   NULL,       -- total m√°ximo del tramo (NULL = sin techo)
     VALUE_TYPE                 VARCHAR(10)     NOT NULL,   -- PERCENTAGE | FIXED
     DISCOUNT_VALUE             DECIMAL(18,2)   NOT NULL,   -- si PERCENTAGE: 0-100 / si FIXED: monto exacto
     CONSTRAINT PK_DISCOUNT_VIGENCY_RANGE PRIMARY KEY CLUSTERED (DISCOUNT_VIGENCY_RANGE_ID),
@@ -1281,8 +1281,8 @@ CREATE TABLE dbo.DiscountVigencyRanges (
   }
   ```
 
-- `Aldebaran.DataAccess\Configuration\DiscountVigencyConfiguration.cs` ó mapeo EF completo
-- `Aldebaran.DataAccess\Configuration\DiscountVigencyRangeConfiguration.cs` ó mapeo EF completo
+- `Aldebaran.DataAccess\Configuration\DiscountVigencyConfiguration.cs` ‚Äî mapeo EF completo
+- `Aldebaran.DataAccess\Configuration\DiscountVigencyRangeConfiguration.cs` ‚Äî mapeo EF completo
 
 **Modificar:**
 - `Aldebaran.DataAccess\AldebaranDbContext.cs` ? agregar:
@@ -1300,7 +1300,7 @@ CREATE TABLE dbo.DiscountVigencyRanges (
 - `Aldebaran.Application.Services\Models\DiscountVigency.cs`
 - `Aldebaran.Application.Services\Models\DiscountVigencyRange.cs`
 
-Estructura idÈntica a las entidades (POCO puros).
+Estructura id√©ntica a las entidades (POCO puros).
 
 **Agregar mappings en `ApplicationServicesProfile.cs`:**
 ```csharp
@@ -1330,7 +1330,7 @@ CreateMap<DiscountVigencyRange, Entities.DiscountVigencyRange>().ReverseMap();
   }
   ```
 
-- `Aldebaran.DataAccess.Infraestructure\Repository\DiscountVigencyRepository.cs` ó implementaciÛn usando `RepositoryBase<AldebaranDbContext>`
+- `Aldebaran.DataAccess.Infraestructure\Repository\DiscountVigencyRepository.cs` ‚Äî implementaci√≥n usando `RepositoryBase<AldebaranDbContext>`
 
 ---
 
@@ -1358,7 +1358,7 @@ CreateMap<DiscountVigencyRange, Entities.DiscountVigencyRange>().ReverseMap();
 - `ActivationDate` no puede ser anterior a la fecha actual
 - **Estado `PENDING`**: `ActivationDate` ? hoy ? rangos **editables**
 - **Estado `ACTIVE` / `INACTIVE`**: rangos **solo lectura**
-- Los rangos son entidad independiente (`DiscountVigencyRange`) ó no arreglo embebido
+- Los rangos son entidad independiente (`DiscountVigencyRange`) ‚Äî no arreglo embebido
 - Los rangos **no necesitan iniciar en $0**: si el total del pedido es inferior al primer `FromAmount`, descuento = $0
 - Los rangos dentro de la misma vigencia **no pueden solaparse**: `FromAmount` de cada rango > `ToAmount` del anterior
 - El rango superior debe tener `ToAmount = null` (sin techo)
@@ -1368,7 +1368,7 @@ CreateMap<DiscountVigencyRange, Entities.DiscountVigencyRange>().ReverseMap();
 - **Solo puede existir UNA vigencia `ACTIVE` en todo el sistema** (al activar una nueva ? la anterior pasa a `INACTIVE`)
 - No se puede eliminar una vigencia `ACTIVE`
 
-**LÛgica de `ActivateAsync`:**
+**L√≥gica de `ActivateAsync`:**
 ```csharp
 public async Task ActivateAsync(int vigencyId, CancellationToken ct)
 {
@@ -1387,7 +1387,7 @@ public async Task ActivateAsync(int vigencyId, CancellationToken ct)
 }
 ```
 
-> **Nota:** `ActivateAsync` de descuentos **NO dispara creaciÛn de instancias de perÌodo** ó eso es exclusivo de las vigencias de bonificaciÛn.
+> **Nota:** `ActivateAsync` de descuentos **NO dispara creaci√≥n de instancias de per√≠odo** ‚Äî eso es exclusivo de las vigencias de bonificaci√≥n.
 
 **Modificar:**
 - `Aldebaran.Web\Extensions\ArchitectureBuilderExtensions.cs` ? agregar:
@@ -1399,47 +1399,47 @@ public async Task ActivateAsync(int vigencyId, CancellationToken ct)
 ---
 
 #### TAREA-042 ? ???
-**Crear p·gina de listado `DiscountVigencies.razor` + `.razor.cs`**
+**Crear p√°gina de listado `DiscountVigencies.razor` + `.razor.cs`**
 
 **Ruta:** `Pages\BonificationPages\DiscountVigencies.razor`  
 **URL:** `/bonification/discount-vigencies`  
-**Rol requerido:** `Administrador`, `Consulta de bonificaciones`, `ModificaciÛn de bonificaciones`
+**Rol requerido:** `Administrador`, `Consulta de bonificaciones`, `Modificaci√≥n de bonificaciones`
 
 **Estructura:**
-- TÌtulo: "Vigencias de Descuento por Pedido"
+- T√≠tulo: "Vigencias de Descuento por Pedido"
 - Indicador visual destacado: **"Vigencia Activa: {VigencyName}"** (o "Sin vigencia activa" si no hay ninguna)
 - `RadzenDataGrid` con columnas:
 
 | Columna | Detalle |
 |---------|---------|
 | Nombre | `VigencyName` |
-| Fecha ActivaciÛn | `ActivationDate` |
-| Fecha DesactivaciÛn | `DeactivationDate` (o "Vigente" si null) |
+| Fecha Activaci√≥n | `ActivationDate` |
+| Fecha Desactivaci√≥n | `DeactivationDate` (o "Vigente" si null) |
 | Estado | Badge: ?? PENDING / ?? ACTIVE / ? INACTIVE |
-| N∫ Rangos | Count de rangos configurados |
+| N¬∫ Rangos | Count de rangos configurados |
 | Acciones | Editar |
 
-- BotÛn "Nueva Vigencia" (solo rol modificaciÛn)
-- BotÛn "Activar" ? visible solo si estado = `PENDING` y tiene rangos
-- Row expand: tabla de rangos (Orden, Desde, Hasta, Tipo, Valor) ó solo lectura si estado ? `PENDING`
+- Bot√≥n "Nueva Vigencia" (solo rol modificaci√≥n)
+- Bot√≥n "Activar" ? visible solo si estado = `PENDING` y tiene rangos
+- Row expand: tabla de rangos (Orden, Desde, Hasta, Tipo, Valor) ‚Äî solo lectura si estado ? `PENDING`
 
 ---
 
 #### TAREA-043 ? ???
 **Crear dialog `AddDiscountVigency.razor` + `AddDiscountVigency.razor.cs`**
 
-**Estructura (idÈntica a `AddBonificationVigency` ó TAREA-034, sin campo TipoBono):**
+**Estructura (id√©ntica a `AddBonificationVigency` ‚Äî TAREA-034, sin campo TipoBono):**
 - Campos de cabecera:
-  - Nombre de Vigencia (texto, obligatorio, ˙nico)
-  - Fecha de ActivaciÛn (`RadzenDatePicker`, obligatorio, no puede ser anterior a hoy)
+  - Nombre de Vigencia (texto, obligatorio, √∫nico)
+  - Fecha de Activaci√≥n (`RadzenDatePicker`, obligatorio, no puede ser anterior a hoy)
   - Notas (texto, opcional)
-- SecciÛn "Rangos de Descuento" ó grilla editable inline:
+- Secci√≥n "Rangos de Descuento" ‚Äî grilla editable inline:
   - Columnas: Orden | Desde ($) | Hasta ($) | Tipo | Valor | Acciones (eliminar fila)
     - **Tipo**: `RadzenDropDown` ? Porcentaje (%) / Valor Fijo ($)
-    - **Valor**: `RadzenNumeric` ó si Porcentaje: m·ximo 100 / si Fijo: ? 0
-  - BotÛn "+ Agregar rango"
-  - El ˙ltimo rango muestra "Sin lÌmite" en Hasta
-  - ValidaciÛn en tiempo real: sin solapamiento dentro de la misma vigencia
+    - **Valor**: `RadzenNumeric` ‚Äî si Porcentaje: m√°ximo 100 / si Fijo: ? 0
+  - Bot√≥n "+ Agregar rango"
+  - El √∫ltimo rango muestra "Sin l√≠mite" en Hasta
+  - Validaci√≥n en tiempo real: sin solapamiento dentro de la misma vigencia
 - Botones: Guardar como PENDING / Cancelar
 
 ---
@@ -1450,33 +1450,33 @@ public async Task ActivateAsync(int vigencyId, CancellationToken ct)
 **Estructura:**
 - Mismos campos que TAREA-043
 - **Si estado = `PENDING`** ? cabecera y rangos editables
-- **Si estado = `ACTIVE` o `INACTIVE`** ? todo en modo solo lectura con mensaje: "Esta vigencia est· en curso o fue reemplazada. No se pueden modificar sus rangos."
+- **Si estado = `ACTIVE` o `INACTIVE`** ? todo en modo solo lectura con mensaje: "Esta vigencia est√° en curso o fue reemplazada. No se pueden modificar sus rangos."
 - Botones: Guardar (solo visible si `PENDING`) / Cerrar
 
 ---
 
 #### TAREA-045 ? ???
-**Crear men˙ "Bonificaciones" como Ìtem raÌz independiente en `MainLayout.razor`**
+**Crear men√∫ "Bonificaciones" como √≠tem ra√≠z independiente en `MainLayout.razor`**
 
-> ?? **DECISI”N ARQUITECTURAL DE NAVEGACI”N** (documentada ó no implementada hasta aprobaciÛn del proyecto)
+> ?? **DECISI√ìN ARQUITECTURAL DE NAVEGACI√ìN** (documentada ‚Äî no implementada hasta aprobaci√≥n del proyecto)
 
-**DecisiÛn:** El mÛdulo de Bonificaciones se ubica como **Ìtem de nivel raÌz** en el men˙ lateral, al mismo nivel que "AdministraciÛn", "Movimientos de Inventario" y "Reportes". **No va dentro de AdministraciÛn.**
+**Decisi√≥n:** El m√≥dulo de Bonificaciones se ubica como **√≠tem de nivel ra√≠z** en el men√∫ lateral, al mismo nivel que "Administraci√≥n", "Movimientos de Inventario" y "Reportes". **No va dentro de Administraci√≥n.**
 
-**JustificaciÛn:**
-- BonificaciÛn es un **dominio de negocio independiente**, no configuraciÛn del sistema
-- El mÛdulo tiene 6+ subitems y seguir· creciendo (OC Especiales, Reportes de BonificaciÛn, etc.)
-- Audiencia diferente: el personal de bonificaciÛn no necesariamente tiene rol de AdministraciÛn
-- PatrÛn consistente con los otros mÛdulos de primer nivel del sistema
+**Justificaci√≥n:**
+- Bonificaci√≥n es un **dominio de negocio independiente**, no configuraci√≥n del sistema
+- El m√≥dulo tiene 6+ subitems y seguir√° creciendo (OC Especiales, Reportes de Bonificaci√≥n, etc.)
+- Audiencia diferente: el personal de bonificaci√≥n no necesariamente tiene rol de Administraci√≥n
+- Patr√≥n consistente con los otros m√≥dulos de primer nivel del sistema
 
-**Estructura del men˙ propuesta:**
+**Estructura del men√∫ propuesta:**
 
 ```
 ??? Tablero de notificaciones
-??? AdministraciÛn                    ? sin cambios
+??? Administraci√≥n                    ? sin cambios
 ??? Movimientos de Inventario         ? sin cambios
-??? Bonificaciones                    ? NUEVO Ìtem de nivel raÌz
-?   ??? ConfiguraciÛn para Bonificaciones
-?   ?   ??? PerÌodos                  ? bonification/periods      (TAREA-016)
+??? Bonificaciones                    ? NUEVO √≠tem de nivel ra√≠z
+?   ??? Configuraci√≥n para Bonificaciones
+?   ?   ??? Per√≠odos                  ? bonification/periods      (TAREA-016)
 ?   ?   ??? Tipos de Bono             ? bonification/types        (TAREA-024)
 ?   ?   ??? Vigencias                 ? bonification/vigencies    (TAREA-033)
 ?   ?   ??? Descuentos por Pedido     ? bonification/discount-vigencies (TAREA-042)
@@ -1485,9 +1485,9 @@ public async Task ActivateAsync(int vigencyId, CancellationToken ct)
 ??? Reportes                          ? sin cambios
 ```
 
-**Roles por subÌtem:**
-- `ConfiguraciÛn.*` ? `Administrador`, `Consulta de bonificaciones`, `ModificaciÛn de bonificaciones`
-- `Operaciones > OC Especiales` ? `Administrador`, `Ingreso de OC especiales de bonificaciÛn`
+**Roles por sub√≠tem:**
+- `Configuraci√≥n.*` ? `Administrador`, `Consulta de bonificaciones`, `Modificaci√≥n de bonificaciones`
+- `Operaciones > OC Especiales` ? `Administrador`, `Ingreso de OC especiales de bonificaci√≥n`
 - Padre `Bonificaciones` ? visible si tiene **cualquiera** de los roles anteriores
 
 **Archivo a modificar (cuando se apruebe el desarrollo):**
@@ -1497,25 +1497,25 @@ public async Task ActivateAsync(int vigencyId, CancellationToken ct)
 
 ```razor
 <RadzenPanelMenuItem Text="Bonificaciones" Icon="percent"
-    Visible="@Security.IsInRole("Administrador","Consulta de bonificaciones","ModificaciÛn de bonificaciones","Ingreso de OC especiales de bonificaciÛn")">
-    <RadzenPanelMenuItem Text="ConfiguraciÛn para Bonificaciones" Icon="settings">
-        <RadzenPanelMenuItem Text="PerÌodos"
+    Visible="@Security.IsInRole("Administrador","Consulta de bonificaciones","Modificaci√≥n de bonificaciones","Ingreso de OC especiales de bonificaci√≥n")">
+    <RadzenPanelMenuItem Text="Configuraci√≥n para Bonificaciones" Icon="settings">
+        <RadzenPanelMenuItem Text="Per√≠odos"
             Path="bonification/periods"
-            Visible="@Security.IsInRole("Administrador","Consulta de bonificaciones","ModificaciÛn de bonificaciones")" />
+            Visible="@Security.IsInRole("Administrador","Consulta de bonificaciones","Modificaci√≥n de bonificaciones")" />
         <RadzenPanelMenuItem Text="Tipos de Bono"
             Path="bonification/types"
-            Visible="@Security.IsInRole("Administrador","Consulta de bonificaciones","ModificaciÛn de bonificaciones")" />
+            Visible="@Security.IsInRole("Administrador","Consulta de bonificaciones","Modificaci√≥n de bonificaciones")" />
         <RadzenPanelMenuItem Text="Vigencias"
             Path="bonification/vigencies"
-            Visible="@Security.IsInRole("Administrador","Consulta de bonificaciones","ModificaciÛn de bonificaciones")" />
+            Visible="@Security.IsInRole("Administrador","Consulta de bonificaciones","Modificaci√≥n de bonificaciones")" />
         <RadzenPanelMenuItem Text="Descuentos por Pedido"
             Path="bonification/discount-vigencies"
-            Visible="@Security.IsInRole("Administrador","Consulta de bonificaciones","ModificaciÛn de bonificaciones")" />
+            Visible="@Security.IsInRole("Administrador","Consulta de bonificaciones","Modificaci√≥n de bonificaciones")" />
     </RadzenPanelMenuItem>
     <RadzenPanelMenuItem Text="Operaciones" Icon="edit_note">
         <RadzenPanelMenuItem Text="OC Especiales"
             Path="bonification/special-orders"
-            Visible="@Security.IsInRole("Administrador","Ingreso de OC especiales de bonificaciÛn")" />
+            Visible="@Security.IsInRole("Administrador","Ingreso de OC especiales de bonificaci√≥n")" />
     </RadzenPanelMenuItem>
 </RadzenPanelMenuItem>
 
@@ -1530,22 +1530,22 @@ public async Task ActivateAsync(int vigencyId, CancellationToken ct)
 
 ---
 
-### 2.2.1 GestiÛn de Ordenes de Compra Especiales (OC Especiales)
+### 2.2.1 Gesti√≥n de Ordenes de Compra Especiales (OC Especiales)
 
-> Ref. propuesta funcional: secciÛn 2.1.3 (modalidad BonificaciÛn por FacturaciÛn).  
-> Permite registrar montos de facturaciÛn especiales para un distribuidor en un periodo activo,  
-> que deben sumarse a la base de c·lculo del **Bono por FacturaciÛn** (fuente TOTUS).  
+> Ref. propuesta funcional: secci√≥n 2.1.3 (modalidad Bonificaci√≥n por Facturaci√≥n).  
+> Permite registrar montos de facturaci√≥n especiales para un distribuidor en un periodo activo,  
+> que deben sumarse a la base de c√°lculo del **Bono por Facturaci√≥n** (fuente TOTUS).  
 >  
-> Casos de uso tÌpicos: descuentos retroactivos, ajustes de NC, operaciones fuera de TOTUS que PROMOS  
-> decide reconocer como base de bonificaciÛn.  
+> Casos de uso t√≠picos: descuentos retroactivos, ajustes de NC, operaciones fuera de TOTUS que PROMOS  
+> decide reconocer como base de bonificaci√≥n.  
 >  
 > **Dos caminos de ingreso:**
-> 1. **Manual** ó Ingreso OC por OC desde la interfaz (TAREA-051 a TAREA-054)
-> 2. **Masivo** ó Carga de archivo Excel/CSV con m˙ltiples OC en un solo paso (TAREA-055 a TAREA-058)
+> 1. **Manual** ‚Äî Ingreso OC por OC desde la interfaz (TAREA-051 a TAREA-054)
+> 2. **Masivo** ‚Äî Carga de archivo Excel/CSV con m√∫ltiples OC en un solo paso (TAREA-055 a TAREA-058)
 >
-> En ambos casos las OC nacen en estado `PENDIENTE` y requieren aprobaciÛn explÌcita antes de impactar el c·lculo.  
+> En ambos casos las OC nacen en estado `PENDIENTE` y requieren aprobaci√≥n expl√≠cita antes de impactar el c√°lculo.  
 >  
-> **Solo un usuario con rol `Ingreso de OC especiales de bonificaciÛn`** puede registrar y gestionar estas OC.
+> **Solo un usuario con rol `Ingreso de OC especiales de bonificaci√≥n`** puede registrar y gestionar estas OC.
 
 ---
 
@@ -1612,7 +1612,7 @@ CREATE NONCLUSTERED INDEX IX_SPECIAL_ORDER_STATUS
   }
   ```
 
-- `Aldebaran.DataAccess\Configuration\BonificationSpecialOrderConfiguration.cs` ó mapeo EF completo
+- `Aldebaran.DataAccess\Configuration\BonificationSpecialOrderConfiguration.cs` ‚Äî mapeo EF completo
 
 **Modificar:**
 - `Aldebaran.DataAccess\AldebaranDbContext.cs` ? agregar:
@@ -1626,7 +1626,7 @@ CREATE NONCLUSTERED INDEX IX_SPECIAL_ORDER_STATUS
 **Crear modelo de servicio: `BonificationSpecialOrder`**
 
 **Archivos a crear:**
-- `Aldebaran.Application.Services\Models\BonificationSpecialOrder.cs` ó POCO puro
+- `Aldebaran.Application.Services\Models\BonificationSpecialOrder.cs` ‚Äî POCO puro
 
 **Agregar mappings en `ApplicationServicesProfile.cs`:**
 ```csharp
@@ -1662,7 +1662,7 @@ CreateMap<BonificationSpecialOrder, Entities.BonificationSpecialOrder>().Reverse
   }
   ```
 
-- `Aldebaran.DataAccess.Infraestructure\Repository\BonificationSpecialOrderRepository.cs` ó implementacion usando `RepositoryBase<AldebaranDbContext>`
+- `Aldebaran.DataAccess.Infraestructure\Repository\BonificationSpecialOrderRepository.cs` ‚Äî implementacion usando `RepositoryBase<AldebaranDbContext>`
   - `GetApprovedTotalAsync`: `SUM(AMOUNT) WHERE STATUS = 'APROBADA' AND CUSTOMER_ID = x AND PERIOD_INSTANCE_ID = y`
 
 ---
@@ -1696,7 +1696,7 @@ CreateMap<BonificationSpecialOrder, Entities.BonificationSpecialOrder>().Reverse
 - `Description` obligatoria (minimo 10 caracteres)
 - Una OC solo puede aprobarse o rechazarse si esta en estado `PENDIENTE`
 - `RejectionReason` es obligatoria si el estado cambia a `RECHAZADA` (minimo 10 caracteres)
-- Solo el rol `Ingreso de OC especiales de bonificaciÛn` puede crear OC (validacion de rol en el controlador / pagina)
+- Solo el rol `Ingreso de OC especiales de bonificaci√≥n` puede crear OC (validacion de rol en el controlador / pagina)
 - No se puede modificar una OC en estado `APROBADA` o `RECHAZADA`
 
 **Modificar:**
@@ -1713,12 +1713,12 @@ CreateMap<BonificationSpecialOrder, Entities.BonificationSpecialOrder>().Reverse
 
 **Ruta:** `Pages\BonificationPages\BonificationSpecialOrders.razor`  
 **URL:** `/bonification/special-orders`  
-**Rol requerido:** `Administrador`, `Ingreso de OC especiales de bonificaciÛn`
+**Rol requerido:** `Administrador`, `Ingreso de OC especiales de bonificaci√≥n`
 
 **Estructura:**
 - Titulo: "OC Especiales de Bonificacion"
 - Filtros superiores:
-  - Dropdown **Distribuidor** (`RadzenDropDownDataGrid` ó solo clientes con `IsDistributor = true`)
+  - Dropdown **Distribuidor** (`RadzenDropDownDataGrid` ‚Äî solo clientes con `IsDistributor = true`)
   - Dropdown **Estado** (Todos / Pendiente / Aprobada / Rechazada)
   - Boton "Buscar"
 - `RadzenDataGrid` con columnas:
@@ -1735,7 +1735,7 @@ CreateMap<BonificationSpecialOrder, Entities.BonificationSpecialOrder>().Reverse
 | Revisada por | nombre del usuario + fecha (vacio si PENDIENTE) |
 | Acciones | Ver detalle / Aprobar / Rechazar |
 
-- Boton "Nueva OC Especial" (solo rol `Ingreso de OC especiales de bonificaciÛn`)
+- Boton "Nueva OC Especial" (solo rol `Ingreso de OC especiales de bonificaci√≥n`)
 - Botones **Aprobar** y **Rechazar** visibles solo si estado = `PENDIENTE`
 - Row expand: muestra `RejectionReason` si estado = `RECHAZADA`
 
@@ -1746,8 +1746,8 @@ CreateMap<BonificationSpecialOrder, Entities.BonificationSpecialOrder>().Reverse
 
 **Estructura:**
 - Campos:
-  - **Distribuidor** (`RadzenDropDownDataGrid` ó solo `IsDistributor = true`, con buscador)
-  - **Periodo Activo** (`RadzenDropDown` ó carga instancias `IN_PROGRESS` con `CalculationBase = BILLING` del distribuidor seleccionado; se recarga al cambiar distribuidor)
+  - **Distribuidor** (`RadzenDropDownDataGrid` ‚Äî solo `IsDistributor = true`, con buscador)
+  - **Periodo Activo** (`RadzenDropDown` ‚Äî carga instancias `IN_PROGRESS` con `CalculationBase = BILLING` del distribuidor seleccionado; se recarga al cambiar distribuidor)
   - **Monto** (`RadzenNumeric`, obligatorio, `>= 0`, formato moneda)
   - **Descripcion / Motivo** (`RadzenTextArea`, obligatorio, minimo 10 caracteres, maximo 500)
 - Validaciones client-side con `RadzenRequiredValidator`
@@ -1761,7 +1761,7 @@ CreateMap<BonificationSpecialOrder, Entities.BonificationSpecialOrder>().Reverse
 
 **Estructura (modal de confirmacion simple):**
 - Muestra resumen de la OC:
-  - Distribuidor, Periodo, Monto, DescripciÛn
+  - Distribuidor, Periodo, Monto, Descripci√≥n
 - Mensaje: "Al aprobar esta OC, el monto **$[Amount]** sera incluido en la base de calculo del Bono por Facturacion del distribuidor para el periodo **[InstanceCode]**."
 - Botones: Aprobar / Cancelar
 - Al confirmar ? llama `BonificationSpecialOrderService.ApproveAsync`
@@ -1782,13 +1782,13 @@ CreateMap<BonificationSpecialOrder, Entities.BonificationSpecialOrder>().Reverse
 
 ### 2.2.2 Carga Masiva de OC Especiales
 
-> Complemento del camino manual (secciÛn 2.2.1).  
-> Permite a PROMOS cargar un archivo **Excel/CSV** con m˙ltiples OC Especiales en un solo paso,  
-> en lugar de ingresarlas una a una. ⁄til al inicio de un perÌodo o en ajustes masivos de NC.  
+> Complemento del camino manual (secci√≥n 2.2.1).  
+> Permite a PROMOS cargar un archivo **Excel/CSV** con m√∫ltiples OC Especiales en un solo paso,  
+> en lugar de ingresarlas una a una. √ötil al inicio de un per√≠odo o en ajustes masivos de NC.  
 >  
 > El archivo es procesado fila a fila; cada fila genera una `BonificationSpecialOrder` en estado `PENDIENTE`.  
-> Las OC generadas son idÈnticas en estructura a las ingresadas manualmente y pasan por el mismo  
-> flujo de aprobaciÛn/rechazo (TAREA-053/054).
+> Las OC generadas son id√©nticas en estructura a las ingresadas manualmente y pasan por el mismo  
+> flujo de aprobaci√≥n/rechazo (TAREA-053/054).
 
 ---
 
@@ -1797,7 +1797,7 @@ CreateMap<BonificationSpecialOrder, Entities.BonificationSpecialOrder>().Reverse
 ```
 [Usuario] Descarga plantilla Excel
        ?
-[Usuario] Completa el archivo con las OC (Distribuidor, PerÌodo, Monto, DescripciÛn)
+[Usuario] Completa el archivo con las OC (Distribuidor, Per√≠odo, Monto, Descripci√≥n)
        ?
 [Usuario] Sube el archivo en la pantalla de Carga Masiva
        ?
@@ -1805,50 +1805,50 @@ CreateMap<BonificationSpecialOrder, Entities.BonificationSpecialOrder>().Reverse
        ?
 [Sistema] Valida fila a fila:
   - Distribuidor existe y es DISTRIBUIDOR
-  - PerÌodo est· IN_PROGRESS y es BILLING
+  - Per√≠odo est√° IN_PROGRESS y es BILLING
   - Monto >= 0
-  - DescripciÛn >= 10 caracteres
+  - Descripci√≥n >= 10 caracteres
        ?
-[Sistema] Muestra resumen previo a confirmaciÛn:
-  - N filas v·lidas ? se crear·n como PENDIENTE
-  - M filas con errores ? se listan con mensaje especÌfico por fila
+[Sistema] Muestra resumen previo a confirmaci√≥n:
+  - N filas v√°lidas ? se crear√°n como PENDIENTE
+  - M filas con errores ? se listan con mensaje espec√≠fico por fila
        ?
-[Usuario] Confirma la carga (solo las filas v·lidas)
+[Usuario] Confirma la carga (solo las filas v√°lidas)
        ?
-[Sistema] Inserta las OC v·lidas como PENDIENTE
-[Sistema] Descarga reporte de resultado (v·lidas + errores)
+[Sistema] Inserta las OC v√°lidas como PENDIENTE
+[Sistema] Descarga reporte de resultado (v√°lidas + errores)
 ```
 
 **Reglas de procesamiento:**
-- Una fila con error **no cancela** el resto del lote ó se procesan las v·lidas y se reportan los errores
+- Una fila con error **no cancela** el resto del lote ‚Äî se procesan las v√°lidas y se reportan los errores
 - El usuario puede corregir el archivo y volver a subir solo las filas fallidas
-- M·ximo **500 filas** por archivo (configurable)
+- M√°ximo **500 filas** por archivo (configurable)
 - Formatos soportados: `.xlsx` y `.csv` (separado por coma o punto y coma)
 
 ---
 
 **Estructura de la plantilla Excel/CSV:**
 
-| Columna | Campo | Obligatorio | ValidaciÛn |
+| Columna | Campo | Obligatorio | Validaci√≥n |
 |---------|-------|-------------|------------|
-| A | N˙mero Documento Distribuidor | SÌ | Debe existir en Customers con IsDistributor = true |
-| B | CÛdigo PerÌodo | SÌ | InstanceCode de BonificationPeriodInstance IN_PROGRESS + BILLING |
-| C | Monto | SÌ | Decimal >= 0 |
-| D | DescripciÛn / Motivo | SÌ | 10 a 500 caracteres |
+| A | N√∫mero Documento Distribuidor | S√≠ | Debe existir en Customers con IsDistributor = true |
+| B | C√≥digo Per√≠odo | S√≠ | InstanceCode de BonificationPeriodInstance IN_PROGRESS + BILLING |
+| C | Monto | S√≠ | Decimal >= 0 |
+| D | Descripci√≥n / Motivo | S√≠ | 10 a 500 caracteres |
 
 > **Nota:** La plantilla se descarga directamente desde la pantalla de carga masiva e incluye una hoja de instrucciones y una hoja de ejemplo.
 
 ---
 
 #### TAREA-055 ? ??
-**Agregar mÈtodo `BulkAddAsync` en `IBonificationSpecialOrderRepository` y `BonificationSpecialOrderService`**
+**Agregar m√©todo `BulkAddAsync` en `IBonificationSpecialOrderRepository` y `BonificationSpecialOrderService`**
 
 **Cambios en `IBonificationSpecialOrderRepository` (TAREA-049):**
 ```csharp
 Task<int> BulkAddAsync(IEnumerable<BonificationSpecialOrder> orders, CancellationToken ct = default);
 ```
-- Inserta m˙ltiples registros en una sola transacciÛn
-- Retorna el n˙mero de registros insertados
+- Inserta m√∫ltiples registros en una sola transacci√≥n
+- Retorna el n√∫mero de registros insertados
 
 **Cambios en `IBonificationSpecialOrderService` (TAREA-050):**
 ```csharp
@@ -1872,13 +1872,13 @@ Task<BulkSpecialOrderResult> BulkAddAsync(
   public class BulkSpecialOrderRowError
   {
       public int RowNumber { get; set; }
-      public string IdentityNumber { get; set; }   // N˙mero doc del distribuidor en el archivo
-      public string PeriodCode { get; set; }        // CÛdigo perÌodo en el archivo
-      public string ErrorMessage { get; set; }      // DescripciÛn del error
+      public string IdentityNumber { get; set; }   // N√∫mero doc del distribuidor en el archivo
+      public string PeriodCode { get; set; }        // C√≥digo per√≠odo en el archivo
+      public string ErrorMessage { get; set; }      // Descripci√≥n del error
   }
   ```
 
-**Modelo de fila de importaciÛn:**
+**Modelo de fila de importaci√≥n:**
 - `Aldebaran.Application.Services\Models\BonificationSpecialOrderImportRow.cs`
   ```csharp
   public class BonificationSpecialOrderImportRow
@@ -1891,7 +1891,7 @@ Task<BulkSpecialOrderResult> BulkAddAsync(
   }
   ```
 
-**LÛgica en `BonificationSpecialOrderService.BulkAddAsync`:**
+**L√≥gica en `BonificationSpecialOrderService.BulkAddAsync`:**
 ```csharp
 public async Task<BulkSpecialOrderResult> BulkAddAsync(
     IEnumerable<BonificationSpecialOrderImportRow> rows,
@@ -1912,12 +1912,12 @@ public async Task<BulkSpecialOrderResult> BulkAddAsync(
             continue;
         }
 
-        // Validar instancia de perÌodo
+        // Validar instancia de per√≠odo
         var instance = await _instanceRepo.FindByCodeAsync(row.PeriodInstanceCode, ct);
         if (instance == null || instance.Status != "IN_PROGRESS" || instance.BonificationType.CalculationBase != "BILLING")
         {
             errors.Add(new() { RowNumber = row.RowNumber, IdentityNumber = row.DistributorIdentityNumber,
-                PeriodCode = row.PeriodInstanceCode, ErrorMessage = "PerÌodo no encontrado, no est· activo o no es de tipo FacturaciÛn" });
+                PeriodCode = row.PeriodInstanceCode, ErrorMessage = "Per√≠odo no encontrado, no est√° activo o no es de tipo Facturaci√≥n" });
             continue;
         }
 
@@ -1928,10 +1928,10 @@ public async Task<BulkSpecialOrderResult> BulkAddAsync(
             continue;
         }
 
-        // Validar descripciÛn
+        // Validar descripci√≥n
         if (string.IsNullOrWhiteSpace(row.Description) || row.Description.Length < 10)
         {
-            errors.Add(new() { RowNumber = row.RowNumber, ErrorMessage = "La descripciÛn debe tener al menos 10 caracteres" });
+            errors.Add(new() { RowNumber = row.RowNumber, ErrorMessage = "La descripci√≥n debe tener al menos 10 caracteres" });
             continue;
         }
 
@@ -1963,7 +1963,7 @@ public async Task<BulkSpecialOrderResult> BulkAddAsync(
 ---
 
 #### TAREA-056 ? ??
-**Crear `IBonificationSpecialOrderImportService` para parseo y validaciÛn del archivo**
+**Crear `IBonificationSpecialOrderImportService` para parseo y validaci√≥n del archivo**
 
 **Archivo a crear:**
 - `Aldebaran.Application.Services\Services\IBonificationSpecialOrderImportService.cs`
@@ -1971,8 +1971,8 @@ public async Task<BulkSpecialOrderResult> BulkAddAsync(
   public interface IBonificationSpecialOrderImportService
   {
       /// <summary>
-      /// Parsea el archivo Excel/CSV y retorna las filas como modelos de importaciÛn.
-      /// NO valida contra BD ó solo estructura y tipos de datos.
+      /// Parsea el archivo Excel/CSV y retorna las filas como modelos de importaci√≥n.
+      /// NO valida contra BD ‚Äî solo estructura y tipos de datos.
       /// </summary>
       Task<IEnumerable<BonificationSpecialOrderImportRow>> ParseFileAsync(
           Stream fileStream,
@@ -1987,11 +1987,11 @@ public async Task<BulkSpecialOrderResult> BulkAddAsync(
   ```
 
 - `Aldebaran.Application.Services\Services\BonificationSpecialOrderImportService.cs`
-  - Usa **ClosedXML** para leer `.xlsx` y **CsvHelper** para `.csv` (ambas librerÌas ya disponibles en el proyecto si se usan en reportes; si no, agregar NuGet)
+  - Usa **ClosedXML** para leer `.xlsx` y **CsvHelper** para `.csv` (ambas librer√≠as ya disponibles en el proyecto si se usan en reportes; si no, agregar NuGet)
   - `ParseFileAsync`: lee encabezados, valida que existan las 4 columnas requeridas, parsea cada fila a `BonificationSpecialOrderImportRow`, asigna `RowNumber`
   - `GenerateTemplateAsync`: genera un `.xlsx` con:
     - Hoja 1 "Plantilla": encabezados con formato y columnas bloqueadas
-    - Hoja 2 "Instrucciones": descripciÛn de cada campo y ejemplos
+    - Hoja 2 "Instrucciones": descripci√≥n de cada campo y ejemplos
     - Hoja 3 "Ejemplo": 3 filas de ejemplo con datos ficticios
 
 **Modificar `ArchitectureBuilderExtensions.cs`:**
@@ -2002,35 +2002,35 @@ services.AddTransient<IBonificationSpecialOrderImportService, BonificationSpecia
 ---
 
 #### TAREA-057 ? ???
-**Crear p·gina `BulkBonificationSpecialOrders.razor` + `.razor.cs`**
+**Crear p√°gina `BulkBonificationSpecialOrders.razor` + `.razor.cs`**
 
 **Ruta:** `Pages\BonificationPages\BulkBonificationSpecialOrders.razor`  
 **URL:** `/bonification/special-orders/bulk`  
-**Rol requerido:** `Administrador`, `Ingreso de OC especiales de bonificaciÛn`
+**Rol requerido:** `Administrador`, `Ingreso de OC especiales de bonificaci√≥n`
 
 **Estructura:**
-- TÌtulo: "Carga Masiva de OC Especiales"
+- T√≠tulo: "Carga Masiva de OC Especiales"
 - Link "? Volver al listado de OC" (navega a `/bonification/special-orders`)
 
-**Paso 1 ó Descarga de plantilla:**
-- BotÛn "Descargar Plantilla Excel"
+**Paso 1 ‚Äî Descarga de plantilla:**
+- Bot√≥n "Descargar Plantilla Excel"
   - Llama `BonificationSpecialOrderImportService.GenerateTemplateAsync()`
   - Descarga archivo `Plantilla_OC_Especiales.xlsx`
 
-**Paso 2 ó Carga del archivo:**
-- `RadzenUpload` (acepta `.xlsx` y `.csv`, m·ximo 5 MB)
-- Al seleccionar archivo ? muestra nombre y tamaÒo
-- BotÛn "Procesar Archivo"
+**Paso 2 ‚Äî Carga del archivo:**
+- `RadzenUpload` (acepta `.xlsx` y `.csv`, m√°ximo 5 MB)
+- Al seleccionar archivo ? muestra nombre y tama√±o
+- Bot√≥n "Procesar Archivo"
   - Llama `BonificationSpecialOrderImportService.ParseFileAsync()`
   - Si hay errores de estructura ? muestra mensaje de error y detiene el proceso
 
-**Paso 3 ó Vista previa y confirmaciÛn:**
+**Paso 3 ‚Äî Vista previa y confirmaci√≥n:**
 - Muestra resumen antes de confirmar:
-  - `RadzenAlert` con: "Se encontraron **N filas v·lidas** y **M filas con errores**."
-- Tabla de filas v·lidas (solo lectura): Distribuidor, PerÌodo, Monto, DescripciÛn
-- Tabla de filas con errores: Fila #, Distribuidor, PerÌodo, Mensaje de Error
-  - BotÛn "Descargar reporte de errores" (Excel con las filas fallidas)
-- BotÛn "Confirmar Carga" ? solo si hay al menos 1 fila v·lida
+  - `RadzenAlert` con: "Se encontraron **N filas v√°lidas** y **M filas con errores**."
+- Tabla de filas v√°lidas (solo lectura): Distribuidor, Per√≠odo, Monto, Descripci√≥n
+- Tabla de filas con errores: Fila #, Distribuidor, Per√≠odo, Mensaje de Error
+  - Bot√≥n "Descargar reporte de errores" (Excel con las filas fallidas)
+- Bot√≥n "Confirmar Carga" ? solo si hay al menos 1 fila v√°lida
   - Llama `BonificationSpecialOrderService.BulkAddAsync()`
   - Muestra resultado final: "Se crearon N OC Especiales en estado PENDIENTE."
   - Link "Ver OC creadas" ? navega a `/bonification/special-orders?filter=PENDIENTE`
@@ -2041,13 +2041,13 @@ services.AddTransient<IBonificationSpecialOrderImportService, BonificationSpecia
 **Agregar acceso a Carga Masiva desde `BonificationSpecialOrders.razor`**
 
 **Cambios en `BonificationSpecialOrders.razor` (TAREA-051):**
-- Agregar botÛn "Carga Masiva" junto al botÛn "Nueva OC Especial"
-  - Solo visible para rol `Ingreso de OC especiales de bonificaciÛn`
+- Agregar bot√≥n "Carga Masiva" junto al bot√≥n "Nueva OC Especial"
+  - Solo visible para rol `Ingreso de OC especiales de bonificaci√≥n`
   - Navega a `/bonification/special-orders/bulk`
 
 ---
 
-#### Resumen de archivos adicionales ó Carga Masiva
+#### Resumen de archivos adicionales ‚Äî Carga Masiva
 
 | Archivo | Tarea | Tipo |
 |---------|-------|------|
@@ -2063,34 +2063,34 @@ services.AddTransient<IBonificationSpecialOrderImportService, BonificationSpecia
 
 ---
 
-> ? **Con TAREA-046 a TAREA-058 queda cubierto el mÛdulo completo de GestiÛn de OC Especiales,**
+> ? **Con TAREA-046 a TAREA-058 queda cubierto el m√≥dulo completo de Gesti√≥n de OC Especiales,**
 > con soporte para ingreso **manual** (una a una) y **masivo** (archivo Excel/CSV).
-> Todas las OC pasan por el mismo flujo de aprobaciÛn/rechazo y se integran al c·lculo del
-> Bono por FacturaciÛn mediante `GetApprovedTotalAsync`.
+> Todas las OC pasan por el mismo flujo de aprobaci√≥n/rechazo y se integran al c√°lculo del
+> Bono por Facturaci√≥n mediante `GetApprovedTotalAsync`.
 
 ---
 
-### 2.2.3 ConciliaciÛn de Notas CrÈdito (perÌodo cerrado)
+### 2.2.3 Conciliaci√≥n de Notas Cr√©dito (per√≠odo cerrado)
 
-> Ref. propuesta funcional: mÛdulo de Operaciones ó ConciliaciÛn post-cierre.
+> Ref. propuesta funcional: m√≥dulo de Operaciones ‚Äî Conciliaci√≥n post-cierre.
 >
 > Una vez que un `BonificationPeriodInstance` pasa a estado `CLOSED`, el sistema genera una **foto congelada**
-> del Bono calculado. Sin embargo, PROMOS debe conciliar esos valores contra la informaciÛn real
+> del Bono calculado. Sin embargo, PROMOS debe conciliar esos valores contra la informaci√≥n real
 > de **TOTVS** (el ERP), ya que pueden existir:
 >
-> - **NC conciliadas**: NC que el sistema ya conoce (generadas en el proceso de c·lculo)
+> - **NC conciliadas**: NC que el sistema ya conoce (generadas en el proceso de c√°lculo)
 >   y a las que solo se ajusta el valor real confirmado en TOTVS.
 > - **NC externas**: NC bonificadas **fuera del sistema** (acuerdos directos, ajustes manuales
 >   en TOTVS) que deben registrarse para que el cuadre quede completo.
 >
-> **Tres caminos de operaciÛn:**
-> 1. **ConciliaciÛn Manual** ó Registro y ajuste NC a NC desde la interfaz (TAREA-063 a TAREA-064)
-> 2. **ConciliaciÛn Masiva** ó Exportar plantilla pre-poblada con las NC del sistema ? usuario
+> **Tres caminos de operaci√≥n:**
+> 1. **Conciliaci√≥n Manual** ‚Äî Registro y ajuste NC a NC desde la interfaz (TAREA-063 a TAREA-064)
+> 2. **Conciliaci√≥n Masiva** ‚Äî Exportar plantilla pre-poblada con las NC del sistema ? usuario
 >    completa valores reales en TOTVS ? reimporta el archivo ajustado (TAREA-065 a TAREA-067)
-> 3. **NC Externas** ó Registro de NC bonificadas fuera del sistema, con su propio flujo de
->    aprobaciÛn, manual y masivo (TAREA-062 a TAREA-064 + TAREA-066 + TAREA-068)
+> 3. **NC Externas** ‚Äî Registro de NC bonificadas fuera del sistema, con su propio flujo de
+>    aprobaci√≥n, manual y masivo (TAREA-062 a TAREA-064 + TAREA-066 + TAREA-068)
 >
-> **El perÌodo debe estar en estado `CLOSED`** para que cualquier conciliaciÛn sea posible.
+> **El per√≠odo debe estar en estado `CLOSED`** para que cualquier conciliaci√≥n sea posible.
 
 ---
 
@@ -2113,10 +2113,10 @@ BonificationPeriodInstance (CLOSED)
 
 | Aspecto | NC Conciliada | NC Externa |
 |---------|--------------|------------|
-| Origen | Proceso de c·lculo del sistema | Acuerdo fuera del sistema |
-| AcciÛn | Ajustar valor Sistema ? valor real TOTVS | Registrar desde cero |
+| Origen | Proceso de c√°lculo del sistema | Acuerdo fuera del sistema |
+| Acci√≥n | Ajustar valor Sistema ? valor real TOTVS | Registrar desde cero |
 | Impacto en cuadre | Diferencia (Sistema ? TOTVS) | Valor completo |
-| Requiere aprobaciÛn | SÌ (si ajuste > umbral configurable) | Siempre |
+| Requiere aprobaci√≥n | S√≠ (si ajuste > umbral configurable) | Siempre |
 
 ---
 
@@ -2134,7 +2134,7 @@ CREATE TABLE dbo.CreditNoteReconciliations (
     CREDIT_NOTE_NUMBER               VARCHAR(50)     NOT NULL,
     SYSTEM_AMOUNT                    DECIMAL(18,2)   NOT NULL,
     TOTVS_AMOUNT                     DECIMAL(18,2)   NULL,
-    -- ?? CORRECCI”N: NULL significa "no conciliada a˙n", 0 significa "diferencia real de cero"
+    -- ?? CORRECCI√ìN: NULL significa "no conciliada a√∫n", 0 significa "diferencia real de cero"
     DIFFERENCE                       AS (
         CASE WHEN TOTVS_AMOUNT IS NOT NULL 
              THEN TOTVS_AMOUNT - SYSTEM_AMOUNT 
@@ -2204,7 +2204,7 @@ CREATE NONCLUSTERED INDEX IX_EXTERNAL_CN_INSTANCE_STATUS
       public string CreditNoteNumber { get; set; }
       public decimal SystemAmount { get; set; }
       public decimal? TotvsAmount { get; set; }
-      public decimal? Difference { get; set; }   // columna calculada ó solo lectura
+      public decimal? Difference { get; set; }   // columna calculada ‚Äî solo lectura
       public string Status { get; set; }          // PENDIENTE | CONCILIADA | RECHAZADA
       public string Notes { get; set; }
       public int CreatedBy { get; set; }
@@ -2241,7 +2241,7 @@ CREATE NONCLUSTERED INDEX IX_EXTERNAL_CN_INSTANCE_STATUS
   ```
 
 - `Aldebaran.DataAccess\Configuration\CreditNoteReconciliationConfiguration.cs`
-  - ?? **CORRECCI”N**: `Difference` ? `HasComputedColumnSql("CASE WHEN TOTVS_AMOUNT IS NOT NULL THEN TOTVS_AMOUNT - SYSTEM_AMOUNT ELSE NULL END", stored: true)`
+  - ?? **CORRECCI√ìN**: `Difference` ? `HasComputedColumnSql("CASE WHEN TOTVS_AMOUNT IS NOT NULL THEN TOTVS_AMOUNT - SYSTEM_AMOUNT ELSE NULL END", stored: true)`
 - `Aldebaran.DataAccess\Configuration\ExternalCreditNoteConfiguration.cs`
 
 **Modificar `AldebaranDbContext.cs`:**
@@ -2256,7 +2256,7 @@ public DbSet<ExternalCreditNote> ExternalCreditNotes { get; set; }
 **Crear modelos, repositorio y servicio para `CreditNoteReconciliation`**
 
 **Archivos a crear:**
-- `Models\CreditNoteReconciliation.cs` ó POCO puro + mapping AutoMapper
+- `Models\CreditNoteReconciliation.cs` ‚Äî POCO puro + mapping AutoMapper
 - `ICreditNoteReconciliationRepository.cs`
   ```csharp
   public interface ICreditNoteReconciliationRepository
@@ -2267,8 +2267,8 @@ public DbSet<ExternalCreditNote> ExternalCreditNotes { get; set; }
       Task<(IEnumerable<CreditNoteReconciliation>, int)> GetByInstanceAsync(
           int periodInstanceId, string? status, int? skip, int? top, CancellationToken ct = default);
       /// <summary>
-      /// ?? CORRECCI”N: Solo suma NC CONCILIADAS (excluye PENDIENTE y RECHAZADA).
-      /// ImplementaciÛn: SUM(TOTVS_AMOUNT - SYSTEM_AMOUNT) WHERE STATUS = 'CONCILIADA'
+      /// ?? CORRECCI√ìN: Solo suma NC CONCILIADAS (excluye PENDIENTE y RECHAZADA).
+      /// Implementaci√≥n: SUM(TOTVS_AMOUNT - SYSTEM_AMOUNT) WHERE STATUS = 'CONCILIADA'
       /// </summary>
       Task<decimal> GetConciliatedDifferenceAsync(int periodInstanceId, CancellationToken ct = default);
       Task UpdateStatusAsync(int id, string newStatus, int reviewedBy, DateTime reviewedAt,
@@ -2288,7 +2288,7 @@ public DbSet<ExternalCreditNote> ExternalCreditNotes { get; set; }
           int periodInstanceId, string? status, int? skip, int? top, CancellationToken ct = default);
       Task<decimal> GetConciliatedDifferenceAsync(int periodInstanceId, CancellationToken ct = default);
       /// <summary>
-      /// ?? CORRECCI”N: Procesa conciliaciones Y rechazos en una sola transacciÛn (reemplaza BulkConciliateAsync).
+      /// ?? CORRECCI√ìN: Procesa conciliaciones Y rechazos en una sola transacci√≥n (reemplaza BulkConciliateAsync).
       /// </summary>
       Task<BulkReconciliationResult> BulkProcessAsync(
           IEnumerable<ReconciliationImportRow> rows, int reviewedBy, CancellationToken ct = default);
@@ -2296,11 +2296,11 @@ public DbSet<ExternalCreditNote> ExternalCreditNotes { get; set; }
   ```
 
 **Validaciones de negocio:**
-- Solo se puede operar si la instancia est· `CLOSED`
-- Solo se puede conciliar/rechazar si la NC est· `PENDIENTE`
+- Solo se puede operar si la instancia est√° `CLOSED`
+- Solo se puede conciliar/rechazar si la NC est√° `PENDIENTE`
 - `TotvsAmount >= 0` (se permite `0` para NC reconocidas en TOTVS con valor cero)
-- **?? DECISI”N DE NEGOCIO**: Si la NC **no existe en TOTVS** ? usar **Rechazar**, no conciliar con `TotvsAmount = 0`. El dialog `ConciliateCreditNote` debe incluir nota informativa: _"Si la NC no existe en TOTVS, use Rechazar en lugar de ingresar valor cero."_
-- `RejectionReason` obligatoria al rechazar (mÌn. 10 chars)
+- **?? DECISI√ìN DE NEGOCIO**: Si la NC **no existe en TOTVS** ? usar **Rechazar**, no conciliar con `TotvsAmount = 0`. El dialog `ConciliateCreditNote` debe incluir nota informativa: _"Si la NC no existe en TOTVS, use Rechazar en lugar de ingresar valor cero."_
+- `RejectionReason` obligatoria al rechazar (m√≠n. 10 chars)
 - No se puede modificar una NC en estado `CONCILIADA` o `RECHAZADA`
 
 ---
@@ -2309,7 +2309,7 @@ public DbSet<ExternalCreditNote> ExternalCreditNotes { get; set; }
 **Crear modelos, repositorio y servicio para `ExternalCreditNote`**
 
 **Archivos a crear:**
-- `Models\ExternalCreditNote.cs` ó POCO puro + mapping AutoMapper
+- `Models\ExternalCreditNote.cs` ‚Äî POCO puro + mapping AutoMapper
 - `IExternalCreditNoteRepository.cs`
   ```csharp
   public interface IExternalCreditNoteRepository
@@ -2341,9 +2341,9 @@ public DbSet<ExternalCreditNote> ExternalCreditNotes { get; set; }
   ```
 
 **Validaciones de negocio:**
-- Solo se puede agregar si la instancia est· `CLOSED`
-- `CreditNoteNumber` ˙nico dentro del perÌodo (valida contra ambas tablas)
-- `Amount >= 0`, `Description` mÌn. 10 chars
+- Solo se puede agregar si la instancia est√° `CLOSED`
+- `CreditNoteNumber` √∫nico dentro del per√≠odo (valida contra ambas tablas)
+- `Amount >= 0`, `Description` m√≠n. 10 chars
 - Nacen en estado `PENDIENTE`
 
 **Modificar `ArchitectureBuilderExtensions.cs`:**
@@ -2357,23 +2357,23 @@ services.AddTransient<IExternalCreditNoteService, ExternalCreditNoteService>();
 ---
 
 #### TAREA-063 ? ???
-**Crear p·gina principal `CreditNoteReconciliation.razor` + `.razor.cs`**
+**Crear p√°gina principal `CreditNoteReconciliation.razor` + `.razor.cs`**
 
 **Ruta:** `Pages\BonificationPages\CreditNoteReconciliation.razor`
 **URL:** `/bonification/reconciliation`
-**Rol requerido:** `Administrador`, `Ingreso de OC especiales de bonificaciÛn`
+**Rol requerido:** `Administrador`, `Ingreso de OC especiales de bonificaci√≥n`
 
 **Estructura:**
-- TÌtulo: "ConciliaciÛn de Notas CrÈdito"
-- Filtros: **Instancia de PerÌodo** (solo `CLOSED`) | **Distribuidor** | **Estado** | BotÛn "Buscar"
+- T√≠tulo: "Conciliaci√≥n de Notas Cr√©dito"
+- Filtros: **Instancia de Per√≠odo** (solo `CLOSED`) | **Distribuidor** | **Estado** | Bot√≥n "Buscar"
 
-**Dos pestaÒas (`RadzenTabs`):**
+**Dos pesta√±as (`RadzenTabs`):**
 
-**PestaÒa 1 ó "NC del Sistema":**
+**Pesta√±a 1 ‚Äî "NC del Sistema":**
 
 | Columna | Detalle |
 |---------|---------|
-| N˙mero NC | `CreditNoteNumber` |
+| N√∫mero NC | `CreditNoteNumber` |
 | Distribuidor | `Customer.CustomerName` |
 | Valor Sistema | `SystemAmount` |
 | Valor TOTVS | `TotvsAmount` o "Pendiente" |
@@ -2381,16 +2381,16 @@ services.AddTransient<IExternalCreditNoteService, ExternalCreditNoteService>();
 | Estado | ?? PENDIENTE / ?? CONCILIADA / ?? RECHAZADA |
 | Acciones | Conciliar / Rechazar (solo PENDIENTE) |
 
-- BotÛn: "ConciliaciÛn Masiva" ? navega a `/bonification/reconciliation/bulk`
+- Bot√≥n: "Conciliaci√≥n Masiva" ? navega a `/bonification/reconciliation/bulk`
 
-**PestaÒa 2 ó "NC Externas":**
+**Pesta√±a 2 ‚Äî "NC Externas":**
 
 | Columna | Detalle |
 |---------|---------|
-| N˙mero NC | `CreditNoteNumber` |
+| N√∫mero NC | `CreditNoteNumber` |
 | Distribuidor | `Customer.CustomerName` |
 | Valor | `Amount` |
-| DescripciÛn | truncada 60 chars + tooltip |
+| Descripci√≥n | truncada 60 chars + tooltip |
 | Estado | ?? PENDIENTE / ?? APROBADA / ?? RECHAZADA |
 | Acciones | Aprobar / Rechazar (solo PENDIENTE) |
 
@@ -2399,7 +2399,7 @@ services.AddTransient<IExternalCreditNoteService, ExternalCreditNoteService>();
 **Indicador de cuadre** (se actualiza al seleccionar instancia):
 ```
 Valor Sistema Total:    $X,XXX,XXX
-Diferencia Conciliada:  $±X,XXX
+Diferencia Conciliada:  $¬±X,XXX
 NC Externas Aprobadas:  $X,XXX
 ??????????????????????????????????
 Valor Cuadre Final:     $X,XXX,XXX
@@ -2408,35 +2408,35 @@ Valor Cuadre Final:     $X,XXX,XXX
 ---
 
 #### TAREA-064 ? ???
-**Crear 4 dialogs de conciliaciÛn manual**
+**Crear 4 dialogs de conciliaci√≥n manual**
 
-**1. `ConciliateCreditNote.razor` + `.razor.cs`** ó Conciliar NC del sistema
-- Muestra: N˙mero NC, Distribuidor, Valor Sistema
+**1. `ConciliateCreditNote.razor` + `.razor.cs`** ‚Äî Conciliar NC del sistema
+- Muestra: N√∫mero NC, Distribuidor, Valor Sistema
 - Campo editable: **Valor TOTVS** (`RadzenNumeric`, obligatorio, `>= 0`)
 - Campo opcional: **Notas**
 - Preview en tiempo real: `Diferencia = TotvsAmount ? SystemAmount`
 - Alerta naranja si `|Diferencia| > 5%` del valor sistema
-- **?? NOTA INFORMATIVA**: _"Si esta NC **no existe en TOTVS**, use el botÛn **Rechazar** en lugar de ingresar valor cero. Valor cero solo debe usarse cuando TOTVS reconoce la NC con monto $0."_
+- **?? NOTA INFORMATIVA**: _"Si esta NC **no existe en TOTVS**, use el bot√≥n **Rechazar** en lugar de ingresar valor cero. Valor cero solo debe usarse cuando TOTVS reconoce la NC con monto $0."_
 - Al confirmar ? `CreditNoteReconciliationService.ConciliateAsync`
 
-**2. `RejectReconciliation.razor` + `.razor.cs`** ó Rechazar NC del sistema
-- Motivo obligatorio (`RadzenTextArea`, mÌn. 10 chars, m·x. 500)
+**2. `RejectReconciliation.razor` + `.razor.cs`** ‚Äî Rechazar NC del sistema
+- Motivo obligatorio (`RadzenTextArea`, m√≠n. 10 chars, m√°x. 500)
 - Al confirmar ? `CreditNoteReconciliationService.RejectAsync`
 
-**3. `AddExternalCreditNote.razor` + `.razor.cs`** ó Nueva NC externa
-- Distribuidor + N˙mero NC + Valor + DescripciÛn/JustificaciÛn obligatoria
-- Nota: "Quedar· en estado PENDIENTE hasta aprobaciÛn."
+**3. `AddExternalCreditNote.razor` + `.razor.cs`** ‚Äî Nueva NC externa
+- Distribuidor + N√∫mero NC + Valor + Descripci√≥n/Justificaci√≥n obligatoria
+- Nota: "Quedar√° en estado PENDIENTE hasta aprobaci√≥n."
 - Al guardar ? `ExternalCreditNoteService.AddAsync`
 
-**4. `ApproveRejectExternalCreditNote.razor` + `.razor.cs`** ó Aprobar o rechazar NC externa
-- Modo Aprobar: resumen + confirmaciÛn
+**4. `ApproveRejectExternalCreditNote.razor` + `.razor.cs`** ‚Äî Aprobar o rechazar NC externa
+- Modo Aprobar: resumen + confirmaci√≥n
 - Modo Rechazar: resumen + motivo obligatorio
-- Par·metro `bool IsApproving` para reutilizar el componente
+- Par√°metro `bool IsApproving` para reutilizar el componente
 
 ---
 
 #### TAREA-065 ? ??
-**Crear `ICreditNoteReconciliationImportService` ó plantilla pre-poblada + reimportaciÛn**
+**Crear `ICreditNoteReconciliationImportService` ‚Äî plantilla pre-poblada + reimportaci√≥n**
 
 > **Flujo diferenciador vs carga masiva de OC:**
 > El archivo que se exporta **ya viene con los datos del sistema** (NC, distribuidor, valor sistema).
@@ -2449,15 +2449,15 @@ Valor Cuadre Final:     $X,XXX,XXX
   {
       /// <summary>
       /// Genera Excel pre-poblado con las NC PENDIENTES de la instancia.
-      /// ?? CORRECCI”N: Incluye columnas de AcciÛn (CONCILIAR/RECHAZAR) y Motivo Rechazo.
-      /// Columnas bloqueadas: ReconciliationId (oculta), N˙mero NC, Distribuidor, Valor Sistema.
-      /// Columnas editables: Valor TOTVS, AcciÛn (dropdown), Motivo Rechazo, Notas.
+      /// ?? CORRECCI√ìN: Incluye columnas de Acci√≥n (CONCILIAR/RECHAZAR) y Motivo Rechazo.
+      /// Columnas bloqueadas: ReconciliationId (oculta), N√∫mero NC, Distribuidor, Valor Sistema.
+      /// Columnas editables: Valor TOTVS, Acci√≥n (dropdown), Motivo Rechazo, Notas.
       /// </summary>
       Task<byte[]> GenerateReconciliationFileAsync(int periodInstanceId, CancellationToken ct = default);
 
       /// <summary>
-      /// Parsea el archivo reimportado. Retorna filas con AcciÛn = CONCILIAR o RECHAZAR.
-      /// Filas sin acciÛn son ignoradas.
+      /// Parsea el archivo reimportado. Retorna filas con Acci√≥n = CONCILIAR o RECHAZAR.
+      /// Filas sin acci√≥n son ignoradas.
       /// </summary>
       Task<IEnumerable<ReconciliationImportRow>> ParseFileAsync(
           Stream fileStream, string fileName, CancellationToken ct = default);
@@ -2470,8 +2470,8 @@ Valor Cuadre Final:     $X,XXX,XXX
   {
       public int ReconciliationId { get; set; }
       public string CreditNoteNumber { get; set; }
-      public string Action { get; set; }           // ?? NUEVO: CONCILIAR | RECHAZAR | (vacÌo = ignorar)
-      public decimal? TotvsAmount { get; set; }    // ?? CORRECCI”N: null si Action = RECHAZAR
+      public string Action { get; set; }           // ?? NUEVO: CONCILIAR | RECHAZAR | (vac√≠o = ignorar)
+      public decimal? TotvsAmount { get; set; }    // ?? CORRECCI√ìN: null si Action = RECHAZAR
       public string Notes { get; set; }
       public string RejectionReason { get; set; }  // ?? NUEVO: requerido si Action = RECHAZAR
   }
@@ -2494,29 +2494,29 @@ Valor Cuadre Final:     $X,XXX,XXX
   }
   ```
 
-**?? ESTRUCTURA DE LA PLANTILLA EXCEL (CORRECCI”N):**
+**?? ESTRUCTURA DE LA PLANTILLA EXCEL (CORRECCI√ìN):**
 
 | Columna | Estado | Valor por defecto |
 |---------|--------|-------------------|
 | ReconciliationId | Oculta | Pre-poblada por el sistema |
-| N˙mero NC | Bloqueada | Pre-poblada por el sistema |
+| N√∫mero NC | Bloqueada | Pre-poblada por el sistema |
 | Distribuidor | Bloqueada | Pre-poblada por el sistema |
 | Valor Sistema | Bloqueada | Pre-poblada por el sistema |
-| **Valor TOTVS** | Editable (amarillo) | VacÌo |
-| **AcciÛn** | Editable (dropdown) | VacÌo ó opciones: `CONCILIAR` / `RECHAZAR` |
-| **Motivo Rechazo** | Editable | VacÌo ó obligatorio si AcciÛn = RECHAZAR |
-| Notas | Editable | VacÌo |
+| **Valor TOTVS** | Editable (amarillo) | Vac√≠o |
+| **Acci√≥n** | Editable (dropdown) | Vac√≠o ‚Äî opciones: `CONCILIAR` / `RECHAZAR` |
+| **Motivo Rechazo** | Editable | Vac√≠o ‚Äî obligatorio si Acci√≥n = RECHAZAR |
+| Notas | Editable | Vac√≠o |
 
-**Reglas de validaciÛn en `ParseFileAsync`:**
-- Fila sin `AcciÛn` ? ignorada (no es error)
-- `AcciÛn = CONCILIAR` + `Valor TOTVS` vacÌo ? error: "Valor TOTVS requerido para conciliar"
-- `AcciÛn = RECHAZAR` + `Motivo Rechazo` vacÌo ? error: "Motivo obligatorio para rechazar"
-- `AcciÛn = RECHAZAR` + `Valor TOTVS` completado ? se ignora el valor TOTVS (solo se procesa el rechazo)
+**Reglas de validaci√≥n en `ParseFileAsync`:**
+- Fila sin `Acci√≥n` ? ignorada (no es error)
+- `Acci√≥n = CONCILIAR` + `Valor TOTVS` vac√≠o ? error: "Valor TOTVS requerido para conciliar"
+- `Acci√≥n = RECHAZAR` + `Motivo Rechazo` vac√≠o ? error: "Motivo obligatorio para rechazar"
+- `Acci√≥n = RECHAZAR` + `Valor TOTVS` completado ? se ignora el valor TOTVS (solo se procesa el rechazo)
 
 ---
 
 #### TAREA-066 ? ??
-**Crear `IExternalCreditNoteImportService` ó plantilla en blanco + carga masiva NC externas**
+**Crear `IExternalCreditNoteImportService` ‚Äî plantilla en blanco + carga masiva NC externas**
 
 **Archivos a crear:**
 - `IExternalCreditNoteImportService.cs`
@@ -2541,9 +2541,9 @@ Valor Cuadre Final:     $X,XXX,XXX
   }
   ```
 
-- `Models\BulkExternalCNResult.cs` (mismo patrÛn que `BulkReconciliationResult`)
+- `Models\BulkExternalCNResult.cs` (mismo patr√≥n que `BulkReconciliationResult`)
 
-**Plantilla (4 columnas):** N˙mero Doc Distribuidor | N˙mero NC | Valor | DescripciÛn/JustificaciÛn
+**Plantilla (4 columnas):** N√∫mero Doc Distribuidor | N√∫mero NC | Valor | Descripci√≥n/Justificaci√≥n
 
 **Modificar `ArchitectureBuilderExtensions.cs`:**
 ```csharp
@@ -2554,98 +2554,98 @@ services.AddTransient<IExternalCreditNoteImportService, ExternalCreditNoteImport
 ---
 
 #### TAREA-067 ? ???
-**Crear p·gina `BulkCreditNoteReconciliation.razor` + `.razor.cs` ó conciliaciÛn masiva NC sistema**
+**Crear p√°gina `BulkCreditNoteReconciliation.razor` + `.razor.cs` ‚Äî conciliaci√≥n masiva NC sistema**
 
 **Ruta:** `Pages\BonificationPages\BulkCreditNoteReconciliation.razor`
 **URL:** `/bonification/reconciliation/bulk`
-**Rol requerido:** `Administrador`, `Ingreso de OC especiales de bonificaciÛn`
+**Rol requerido:** `Administrador`, `Ingreso de OC especiales de bonificaci√≥n`
 
 **Flujo en 3 pasos:**
 
-**Paso 1 ó Generar archivo:**
-- Dropdown **Instancia de PerÌodo** (solo `CLOSED` con NC pendientes)
-- BotÛn "Generar Archivo de ConciliaciÛn"
+**Paso 1 ‚Äî Generar archivo:**
+- Dropdown **Instancia de Per√≠odo** (solo `CLOSED` con NC pendientes)
+- Bot√≥n "Generar Archivo de Conciliaci√≥n"
   - Llama `CreditNoteReconciliationImportService.GenerateReconciliationFileAsync(instanceId)`
   - Descarga `Conciliacion_{InstanceCode}_{Fecha}.xlsx`
-- **?? NOTA INFORMATIVA**: "El archivo contiene las NC pendientes. Complete las columnas **Valor TOTVS** (para conciliar) o **AcciÛn = RECHAZAR + Motivo** (para rechazar). Las filas sin acciÛn ser·n ignoradas."
+- **?? NOTA INFORMATIVA**: "El archivo contiene las NC pendientes. Complete las columnas **Valor TOTVS** (para conciliar) o **Acci√≥n = RECHAZAR + Motivo** (para rechazar). Las filas sin acci√≥n ser√°n ignoradas."
 
-**Paso 2 ó Reimportar:**
-- `RadzenUpload` (`.xlsx`, m·x. 5 MB) + BotÛn "Procesar Archivo"
+**Paso 2 ‚Äî Reimportar:**
+- `RadzenUpload` (`.xlsx`, m√°x. 5 MB) + Bot√≥n "Procesar Archivo"
   - Llama `ParseFileAsync()` ? muestra filas procesadas
 
-**Paso 3 ó Vista previa y confirmaciÛn (?? 3 SECCIONES):**
-- **`RadzenAlert`**: "Se procesar·n **N conciliaciones**, **M rechazos** y **K filas ignoradas** (sin acciÛn)."
+**Paso 3 ‚Äî Vista previa y confirmaci√≥n (?? 3 SECCIONES):**
+- **`RadzenAlert`**: "Se procesar√°n **N conciliaciones**, **M rechazos** y **K filas ignoradas** (sin acci√≥n)."
 
-**Tabla 1 ó "NC a Conciliar" (verde claro):**
-- Columnas: N˙mero NC | Distribuidor | Valor Sistema | Valor TOTVS | Diferencia
+**Tabla 1 ‚Äî "NC a Conciliar" (verde claro):**
+- Columnas: N√∫mero NC | Distribuidor | Valor Sistema | Valor TOTVS | Diferencia
   - Diferencia coloreada: verde si = 0 / rojo si ? 0 / naranja si `|Diferencia| > 5%`
 
-**Tabla 2 ó "NC a Rechazar" (rojo claro):**
-- Columnas: N˙mero NC | Distribuidor | Valor Sistema | Motivo Rechazo
+**Tabla 2 ‚Äî "NC a Rechazar" (rojo claro):**
+- Columnas: N√∫mero NC | Distribuidor | Valor Sistema | Motivo Rechazo
 
-**Tabla 3 ó "Filas Ignoradas" (gris):**
-- Columnas: Fila # | N˙mero NC | Motivo
-  - Muestra filas sin acciÛn (no es error, es informaciÛn)
+**Tabla 3 ‚Äî "Filas Ignoradas" (gris):**
+- Columnas: Fila # | N√∫mero NC | Motivo
+  - Muestra filas sin acci√≥n (no es error, es informaci√≥n)
 
-**Tabla 4 ó "Errores de ValidaciÛn" (solo si existen):**
-- Columnas: Fila # | N˙mero NC | Mensaje Error
-- BotÛn "Descargar reporte de errores" (Excel con filas fallidas)
+**Tabla 4 ‚Äî "Errores de Validaci√≥n" (solo si existen):**
+- Columnas: Fila # | N√∫mero NC | Mensaje Error
+- Bot√≥n "Descargar reporte de errores" (Excel con filas fallidas)
 
-**BotÛn "Confirmar Procesamiento"** (solo si hay al menos 1 fila v·lida):
+**Bot√≥n "Confirmar Procesamiento"** (solo si hay al menos 1 fila v√°lida):
 - Llama `CreditNoteReconciliationService.BulkProcessAsync()`
 - Resultado: "Se conciliaron **N NC** y rechazaron **M NC** exitosamente."
-- Link "Ver conciliaciÛn" ? navega a `/bonification/reconciliation?instance={id}`
+- Link "Ver conciliaci√≥n" ? navega a `/bonification/reconciliation?instance={id}`
 
 ---
 
 #### TAREA-068 ? ???
-**Crear p·gina `BulkExternalCreditNotes.razor` + `.razor.cs` ó carga masiva NC externas**
+**Crear p√°gina `BulkExternalCreditNotes.razor` + `.razor.cs` ‚Äî carga masiva NC externas**
 
 **Ruta:** `Pages\BonificationPages\BulkExternalCreditNotes.razor`
 **URL:** `/bonification/reconciliation/external/bulk`
-**Rol requerido:** `Administrador`, `Ingreso de OC especiales de bonificaciÛn`
+**Rol requerido:** `Administrador`, `Ingreso de OC especiales de bonificaci√≥n`
 
-**Estructura (flujo en 3 pasos ó idÈntico al patrÛn TAREA-067 pero para NC externas):**
+**Estructura (flujo en 3 pasos ‚Äî id√©ntico al patr√≥n TAREA-067 pero para NC externas):**
 
-**Paso 1 ó Plantilla y selecciÛn de instancia:**
-- Dropdown **Instancia de PerÌodo** (solo `CLOSED`) ó obligatorio antes de continuar
-- BotÛn "Descargar Plantilla"
+**Paso 1 ‚Äî Plantilla y selecci√≥n de instancia:**
+- Dropdown **Instancia de Per√≠odo** (solo `CLOSED`) ‚Äî obligatorio antes de continuar
+- Bot√≥n "Descargar Plantilla"
   - Llama `ExternalCreditNoteImportService.GenerateTemplateAsync()`
   - Descarga `Plantilla_NC_Externas.xlsx` con instrucciones incluidas
 
-**Paso 2 ó Carga y procesamiento:**
-- `RadzenUpload` + BotÛn "Procesar Archivo"
-  - Llama `ParseFileAsync()` ó valida estructura y tipos, no valida contra BD
+**Paso 2 ‚Äî Carga y procesamiento:**
+- `RadzenUpload` + Bot√≥n "Procesar Archivo"
+  - Llama `ParseFileAsync()` ‚Äî valida estructura y tipos, no valida contra BD
 
-**Paso 3 ó Vista previa y confirmaciÛn:**
-- `RadzenAlert`: "N filas v·lidas y M filas con errores."
-- Tabla v·lidas: Distribuidor, N˙mero NC, Valor, DescripciÛn
-- Tabla errores: Fila #, Distribuidor, N˙mero NC, Mensaje
-  - BotÛn "Descargar reporte de errores"
-- BotÛn "Confirmar Carga" ? `ExternalCreditNoteService.BulkAddAsync()`
+**Paso 3 ‚Äî Vista previa y confirmaci√≥n:**
+- `RadzenAlert`: "N filas v√°lidas y M filas con errores."
+- Tabla v√°lidas: Distribuidor, N√∫mero NC, Valor, Descripci√≥n
+- Tabla errores: Fila #, Distribuidor, N√∫mero NC, Mensaje
+  - Bot√≥n "Descargar reporte de errores"
+- Bot√≥n "Confirmar Carga" ? `ExternalCreditNoteService.BulkAddAsync()`
 - Resultado: "Se registraron N NC Externas en estado PENDIENTE."
 - Link "Ver NC Externas" ? navega a `/bonification/reconciliation?instance={id}&tab=external`
 
 ---
 
 #### TAREA-069 ? ???
-**Agregar "ConciliaciÛn de NC" al men˙ Operaciones en `MainLayout.razor`**
+**Agregar "Conciliaci√≥n de NC" al men√∫ Operaciones en `MainLayout.razor`**
 
 **Cambio en el bloque de TAREA-045:**
 ```razor
 <RadzenPanelMenuItem Text="Operaciones" Icon="edit_note">
     <RadzenPanelMenuItem Text="OC Especiales"
         Path="bonification/special-orders"
-        Visible="@Security.IsInRole("Administrador","Ingreso de OC especiales de bonificaciÛn")" />
-    <RadzenPanelMenuItem Text="ConciliaciÛn de NC"
+        Visible="@Security.IsInRole("Administrador","Ingreso de OC especiales de bonificaci√≥n")" />
+    <RadzenPanelMenuItem Text="Conciliaci√≥n de NC"
         Path="bonification/reconciliation"
-        Visible="@Security.IsInRole("Administrador","Ingreso de OC especiales de bonificaciÛn")" />
+        Visible="@Security.IsInRole("Administrador","Ingreso de OC especiales de bonificaci√≥n")" />
 </RadzenPanelMenuItem>
 ```
 
 ---
 
-#### Resumen de archivos ó ConciliaciÛn de NC
+#### Resumen de archivos ‚Äî Conciliaci√≥n de NC
 
 | Archivo | Tarea | Tipo |
 |---------|-------|------|
@@ -2693,17 +2693,17 @@ services.AddTransient<IExternalCreditNoteImportService, ExternalCreditNoteImport
 
 ---
 
-> ? **Con TAREA-059 a TAREA-069 queda cubierto el mÛdulo de ConciliaciÛn de Notas CrÈdito.**
-> El mÛdulo soporta los tres caminos: conciliaciÛn manual NC a NC, conciliaciÛn masiva con plantilla
+> ? **Con TAREA-059 a TAREA-069 queda cubierto el m√≥dulo de Conciliaci√≥n de Notas Cr√©dito.**
+> El m√≥dulo soporta los tres caminos: conciliaci√≥n manual NC a NC, conciliaci√≥n masiva con plantilla
 > pre-poblada por el sistema (incluyendo rechazo masivo), y registro de NC externas (manual y masivo).
 >
 > El **indicador de cuadre** en la pantalla principal consolida:
 > `Valor Cuadre Final = Valor Sistema + Diferencia Conciliada + NC Externas Aprobadas`
-> y es el insumo para el cierre contable del perÌodo por parte de PROMOS.
+> y es el insumo para el cierre contable del per√≠odo por parte de PROMOS.
 
 ---
 
-## ValidaciÛn de Cobertura de Escenarios de ConciliaciÛn
+## Validaci√≥n de Cobertura de Escenarios de Conciliaci√≥n
 
 ### Matriz de Cobertura
 
@@ -2711,71 +2711,71 @@ services.AddTransient<IExternalCreditNoteImportService, ExternalCreditNoteImport
 |---|-----------|--------|---------------------|--------|
 | 1 | **Manual**: NC con valores iguales Sistema = TOTVS | Manual | TAREA-064 (`ConciliateCreditNote` ? Diferencia = 0 ? verde) | ? Cubierto |
 | 2 | **Manual**: NC con valores diferentes Sistema ? TOTVS | Manual | TAREA-064 (`ConciliateCreditNote` ? Diferencia ? 0 ? rojo/naranja) | ? Cubierto |
-| 3 | **Manual**: NC existe en TOTVS pero NO en BonificaciÛn | Manual | TAREA-064 (`AddExternalCreditNote` ? NC Externa PENDIENTE ? Aprobar) | ? Cubierto |
-| 4 | **Manual**: NC existe en BonificaciÛn pero NO en TOTVS | Manual | TAREA-064 (`RejectReconciliation` con motivo "NC no existe en TOTVS") | ? Cubierto (con correcciones aplicadas) |
+| 3 | **Manual**: NC existe en TOTVS pero NO en Bonificaci√≥n | Manual | TAREA-064 (`AddExternalCreditNote` ? NC Externa PENDIENTE ? Aprobar) | ? Cubierto |
+| 4 | **Manual**: NC existe en Bonificaci√≥n pero NO en TOTVS | Manual | TAREA-064 (`RejectReconciliation` con motivo "NC no existe en TOTVS") | ? Cubierto (con correcciones aplicadas) |
 | 5 | **Masiva**: NC con valores iguales Sistema = TOTVS | Masiva | TAREA-067 (Paso 3 ? Tabla "A Conciliar" ? Diferencia = 0 verde) | ? Cubierto |
 | 6 | **Masiva**: NC con valores diferentes Sistema ? TOTVS | Masiva | TAREA-067 (Paso 3 ? Tabla "A Conciliar" ? Diferencia ? 0 rojo/naranja) | ? Cubierto |
-| 7 | **Masiva**: NC existe en TOTVS pero NO en BonificaciÛn | Masiva | TAREA-068 (plantilla en blanco ? carga NC externas) | ? Cubierto |
-| 8 | **Masiva**: NC existe en BonificaciÛn pero NO en TOTVS | Masiva | TAREA-067 (AcciÛn = RECHAZAR + Motivo ? Tabla "A Rechazar") | ? Cubierto (con correcciones aplicadas) |
+| 7 | **Masiva**: NC existe en TOTVS pero NO en Bonificaci√≥n | Masiva | TAREA-068 (plantilla en blanco ? carga NC externas) | ? Cubierto |
+| 8 | **Masiva**: NC existe en Bonificaci√≥n pero NO en TOTVS | Masiva | TAREA-067 (Acci√≥n = RECHAZAR + Motivo ? Tabla "A Rechazar") | ? Cubierto (con correcciones aplicadas) |
 
 ### Correcciones Aplicadas para Cerrar Brechas
 
-**Brecha 4 (Escenario 4 ó Manual: NC en BonificaciÛn sin TOTVS):**
-- ? **CorrecciÛn 1 (TAREA-059)**: Columna `DIFFERENCE` usa `CASE WHEN TOTVS_AMOUNT IS NOT NULL` ó `NULL` diferencia de `0`
-- ? **CorrecciÛn 2 (TAREA-060)**: EF Configuration actualizada con el CASE
-- ? **CorrecciÛn 3 (TAREA-061)**: `GetConciliatedDifferenceAsync` **solo suma STATUS = 'CONCILIADA'**, excluye PENDIENTE y RECHAZADA
-- ? **CorrecciÛn 4 (TAREA-061 + 064)**: Regla de negocio documentada: _"Si NC no existe en TOTVS ? Rechazar, no conciliar con 0"_
-- ? **CorrecciÛn 5 (TAREA-064)**: Dialog `ConciliateCreditNote` incluye nota informativa guiando al usuario
+**Brecha 4 (Escenario 4 ‚Äî Manual: NC en Bonificaci√≥n sin TOTVS):**
+- ? **Correcci√≥n 1 (TAREA-059)**: Columna `DIFFERENCE` usa `CASE WHEN TOTVS_AMOUNT IS NOT NULL` ‚Äî `NULL` diferencia de `0`
+- ? **Correcci√≥n 2 (TAREA-060)**: EF Configuration actualizada con el CASE
+- ? **Correcci√≥n 3 (TAREA-061)**: `GetConciliatedDifferenceAsync` **solo suma STATUS = 'CONCILIADA'**, excluye PENDIENTE y RECHAZADA
+- ? **Correcci√≥n 4 (TAREA-061 + 064)**: Regla de negocio documentada: _"Si NC no existe en TOTVS ? Rechazar, no conciliar con 0"_
+- ? **Correcci√≥n 5 (TAREA-064)**: Dialog `ConciliateCreditNote` incluye nota informativa guiando al usuario
 
-**Brecha 8 (Escenario 8 ó Masiva: NC en BonificaciÛn sin TOTVS):**
-- ? **CorrecciÛn 6 (TAREA-065)**: Plantilla Excel incluye columna **AcciÛn** (CONCILIAR / RECHAZAR)
-- ? **CorrecciÛn 7 (TAREA-065)**: Plantilla Excel incluye columna **Motivo Rechazo** (obligatoria si AcciÛn = RECHAZAR)
-- ? **CorrecciÛn 8 (TAREA-065)**: Modelo `ReconciliationImportRow` incluye campos `Action` y `RejectionReason`
-- ? **CorrecciÛn 9 (TAREA-061)**: Servicio tiene mÈtodo `BulkProcessAsync` que procesa conciliaciones **y rechazos** en una transacciÛn
-- ? **CorrecciÛn 10 (TAREA-067)**: Pantalla muestra 3 tablas de resultado: NC a Conciliar / NC a Rechazar / Ignoradas
+**Brecha 8 (Escenario 8 ‚Äî Masiva: NC en Bonificaci√≥n sin TOTVS):**
+- ? **Correcci√≥n 6 (TAREA-065)**: Plantilla Excel incluye columna **Acci√≥n** (CONCILIAR / RECHAZAR)
+- ? **Correcci√≥n 7 (TAREA-065)**: Plantilla Excel incluye columna **Motivo Rechazo** (obligatoria si Acci√≥n = RECHAZAR)
+- ? **Correcci√≥n 8 (TAREA-065)**: Modelo `ReconciliationImportRow` incluye campos `Action` y `RejectionReason`
+- ? **Correcci√≥n 9 (TAREA-061)**: Servicio tiene m√©todo `BulkProcessAsync` que procesa conciliaciones **y rechazos** en una transacci√≥n
+- ? **Correcci√≥n 10 (TAREA-067)**: Pantalla muestra 3 tablas de resultado: NC a Conciliar / NC a Rechazar / Ignoradas
 
 ### Resultado Final
 
-**Todos los 8 escenarios est·n completamente cubiertos** con las correcciones aplicadas:
-- Escenarios 1-7: ya estaban cubiertos en el diseÒo original
+**Todos los 8 escenarios est√°n completamente cubiertos** con las correcciones aplicadas:
+- Escenarios 1-7: ya estaban cubiertos en el dise√±o original
 - Escenario 4 (Manual NC sin TOTVS): cerrado con correcciones 1-5
 - Escenario 8 (Masiva NC sin TOTVS): cerrado con correcciones 6-10
 
-**No quedan brechas pendientes.** El mÛdulo de ConciliaciÛn de NC est· completo y operativo.
+**No quedan brechas pendientes.** El m√≥dulo de Conciliaci√≥n de NC est√° completo y operativo.
 
 ---
 
 ### 2.2.4 Lista de Precios Promocional
 
-> Ref. contexto funcional: La p·gina promocional (https://www.catalogospromocionales.com) publica diariamente un archivo Excel con los precios del dÌa de todos los artÌculos. Este archivo es el **insumo crÌtico** para el c·lculo del Bono por FacturaciÛn, ya que los precios varÌan dÌa a dÌa.
+> Ref. contexto funcional: La p√°gina promocional (https://www.catalogospromocionales.com) publica diariamente un archivo Excel con los precios del d√≠a de todos los art√≠culos. Este archivo es el **insumo cr√≠tico** para el c√°lculo del Bono por Facturaci√≥n, ya que los precios var√≠an d√≠a a d√≠a.
 >
-> **Proceso autom·tico:** Un job nocturno descarga el archivo a las 6 AM (hora configurable) y lo carga en el sistema, archivando la lista del dÌa anterior.
+> **Proceso autom√°tico:** Un job nocturno descarga el archivo a las 6 AM (hora configurable) y lo carga en el sistema, archivando la lista del d√≠a anterior.
 >
-> **Contingencia manual:** Si el proceso autom·tico falla o si se publican ajustes dentro del dÌa, un usuario con rol de administraciÛn/bonificaciÛn puede recargar la lista manualmente.
+> **Contingencia manual:** Si el proceso autom√°tico falla o si se publican ajustes dentro del d√≠a, un usuario con rol de administraci√≥n/bonificaci√≥n puede recargar la lista manualmente.
 >
 > **Escenarios de descarga soportados:**
-> 1. **Descarga directa** ó Sin autenticaciÛn (actual polÌtica del proveedor)
-> 2. **Descarga con autenticaciÛn** ó Usuario/contraseÒa de distribuidor configurados (previsiÛn futura)
+> 1. **Descarga directa** ‚Äî Sin autenticaci√≥n (actual pol√≠tica del proveedor)
+> 2. **Descarga con autenticaci√≥n** ‚Äî Usuario/contrase√±a de distribuidor configurados (previsi√≥n futura)
 
 ---
 
 #### Estructura de datos y servicios base
 
-#### TAREA-070 ??? ó Crear tablas `PromotionalPriceLists` y `PromotionalPriceListItems`
+#### TAREA-070 ??? ‚Äî Crear tablas `PromotionalPriceLists` y `PromotionalPriceListItems`
 
 **Script SQL a crear:** `scripts/CreatePromotionalPriceListTables.sql`
 
 ```sql
--- Encabezado de la lista (una por dÌa)
+-- Encabezado de la lista (una por d√≠a)
 CREATE TABLE dbo.PromotionalPriceLists (
     PRICE_LIST_ID     INT           NOT NULL IDENTITY(1,1),
     LIST_DATE         DATE          NOT NULL,           -- fecha de vigencia
     STATUS            VARCHAR(20)   NOT NULL DEFAULT 'ACTIVE', -- ACTIVE | HISTORICAL
     SOURCE            VARCHAR(20)   NOT NULL DEFAULT 'AUTOMATIC', -- AUTOMATIC | MANUAL
-    LOADED_BY         INT           NULL,               -- NULL si autom·tico, FK ApplicationUser si manual
+    LOADED_BY         INT           NULL,               -- NULL si autom√°tico, FK ApplicationUser si manual
     LOADED_AT         DATETIME      NOT NULL DEFAULT GETUTCDATE(),
     FILE_NAME         VARCHAR(255)  NULL,               -- nombre del archivo fuente
-    NOTES             VARCHAR(500)  NULL,               -- motivo si carga manual o recarga del dÌa
+    NOTES             VARCHAR(500)  NULL,               -- motivo si carga manual o recarga del d√≠a
     CONSTRAINT PK_PROMOTIONAL_PRICE_LIST PRIMARY KEY CLUSTERED (PRICE_LIST_ID),
     CONSTRAINT UQ_PRICE_LIST_DATE_ACTIVE UNIQUE (LIST_DATE, STATUS), -- solo 1 ACTIVE por fecha
     CONSTRAINT CK_PRICE_LIST_STATUS CHECK (STATUS IN ('ACTIVE','HISTORICAL')),
@@ -2784,7 +2784,7 @@ CREATE TABLE dbo.PromotionalPriceLists (
 CREATE NONCLUSTERED INDEX IX_PRICE_LIST_DATE_STATUS
     ON dbo.PromotionalPriceLists (LIST_DATE, STATUS);
 
--- LÌneas de la lista (columnas A-M del Excel)
+-- L√≠neas de la lista (columnas A-M del Excel)
 CREATE TABLE dbo.PromotionalPriceListItems (
     PRICE_LIST_ITEM_ID  INT             NOT NULL IDENTITY(1,1),
     PRICE_LIST_ID       INT             NOT NULL,
@@ -2812,11 +2812,11 @@ CREATE NONCLUSTERED INDEX IX_PRICE_LIST_ITEM_CODE
     ON dbo.PromotionalPriceListItems (ITEM_CODE);
 ```
 
-**EstimaciÛn:** 3 horas | Prioridad: ?? REQUERIDO
+**Estimaci√≥n:** 3 horas | Prioridad: ?? REQUERIDO
 
 ---
 
-#### TAREA-071 ?? ó Entidades EF + Configurations + Models + Mappings
+#### TAREA-071 ?? ‚Äî Entidades EF + Configurations + Models + Mappings
 
 **Archivos a crear:**
 
@@ -2828,28 +2828,28 @@ CREATE NONCLUSTERED INDEX IX_PRICE_LIST_ITEM_CODE
 - `AldebaranDbContext.cs` ? agregar `DbSet<PromotionalPriceList>` + `DbSet<PromotionalPriceListItem>`
 - `ApplicationServicesProfile.cs` ? mappings AutoMapper
 
-**EstimaciÛn:** 5 horas | Prioridad: ?? REQUERIDO
+**Estimaci√≥n:** 5 horas | Prioridad: ?? REQUERIDO
 
 ---
 
-#### TAREA-072 ?? ó Repositorio y servicio `IPromotionalPriceListRepository` / `IPromotionalPriceListService`
+#### TAREA-072 ?? ‚Äî Repositorio y servicio `IPromotionalPriceListRepository` / `IPromotionalPriceListService`
 
 **Archivos a crear:**
 - `IPromotionalPriceListRepository.cs` + `PromotionalPriceListRepository.cs`
-  - `GetActiveForDateAsync(DateTime date)` ? lista activa de una fecha especÌfica
-  - `GetMostRecentActiveAsync()` ? lista activa m·s reciente (fallback si no hay del dÌa)
+  - `GetActiveForDateAsync(DateTime date)` ? lista activa de una fecha espec√≠fica
+  - `GetMostRecentActiveAsync()` ? lista activa m√°s reciente (fallback si no hay del d√≠a)
   - `LoadDayListAsync(...)` ? archiva anterior y activa nueva
-  - `GetItemPriceAsync(string itemCode, DateTime date)` ? retorna primer precio > 0 de un artÌculo
+  - `GetItemPriceAsync(string itemCode, DateTime date)` ? retorna primer precio > 0 de un art√≠culo
 - `IPromotionalPriceListService.cs` + `PromotionalPriceListService.cs`
 
-**LÛgica de `LoadDayListAsync`:**
-1. Archivar lista `ACTIVE` del dÌa (si existe) ? `STATUS = HISTORICAL`
+**L√≥gica de `LoadDayListAsync`:**
+1. Archivar lista `ACTIVE` del d√≠a (si existe) ? `STATUS = HISTORICAL`
 2. Insertar nueva lista con `STATUS = ACTIVE`
-3. ValidaciÛn: mÌnimo 1 Ìtem
+3. Validaci√≥n: m√≠nimo 1 √≠tem
 
-**LÛgica de `GetItemPriceAsync`:**
+**L√≥gica de `GetItemPriceAsync`:**
 - Retorna el primer precio > 0 en orden: `Price1`, `Price2`, `Price3`, `Price4`, `Price5`
-- Si no hay lista activa del dÌa ? busca la m·s reciente
+- Si no hay lista activa del d√≠a ? busca la m√°s reciente
 
 **Modificar `ArchitectureBuilderExtensions.cs`:**
 ```csharp
@@ -2857,23 +2857,23 @@ services.AddTransient<IPromotionalPriceListRepository, PromotionalPriceListRepos
 services.AddTransient<IPromotionalPriceListService, PromotionalPriceListService>();
 ```
 
-**EstimaciÛn:** 7 horas | Prioridad: ?? REQUERIDO
+**Estimaci√≥n:** 7 horas | Prioridad: ?? REQUERIDO
 
 ---
 
-#### Proceso autom·tico de descarga
+#### Proceso autom√°tico de descarga
 
-#### TAREA-073 ?? ó Servicio de descarga HTTP + parseo `IPriceListFetchService`
+#### TAREA-073 ?? ‚Äî Servicio de descarga HTTP + parseo `IPriceListFetchService`
 
-**Archivo a crear:** `Aldebaran.Application.FileWritingService\Services\IPriceListFetchService.cs` + implementaciÛn
+**Archivo a crear:** `Aldebaran.Application.FileWritingService\Services\IPriceListFetchService.cs` + implementaci√≥n
 
 **Responsabilidad:** Descarga el archivo desde `https://www.catalogospromocionales.com/distribuidores/referenciasexcel` y parsea las 13 columnas (A-M).
 
 **Escenarios soportados:**
-1. **Descarga directa** (sin autenticaciÛn) ó `UseAuthentication = false` en config
-2. **Descarga autenticada** ó Login previo con usuario/contraseÒa de distribuidor
+1. **Descarga directa** (sin autenticaci√≥n) ‚Äî `UseAuthentication = false` en config
+2. **Descarga autenticada** ‚Äî Login previo con usuario/contrase√±a de distribuidor
 
-**ConfiguraciÛn en `appsettings.json` del `FileWritingService`:**
+**Configuraci√≥n en `appsettings.json` del `FileWritingService`:**
 ```json
 {
   "PriceListFetchOptions": {
@@ -2890,25 +2890,25 @@ services.AddTransient<IPromotionalPriceListService, PromotionalPriceListService>
 
 **Parseo con ClosedXML:**
 - Lee columnas A-M (13 columnas)
-- Valida encabezados mÌnimos
+- Valida encabezados m√≠nimos
 - Convierte cada fila a `PromotionalPriceListItem`
 
-**EstimaciÛn:** 8 horas | Prioridad: ?? REQUERIDO
+**Estimaci√≥n:** 8 horas | Prioridad: ?? REQUERIDO
 
 ---
 
-#### TAREA-074 ?? ó Worker autom·tico `PriceListFetchWorker`
+#### TAREA-074 ?? ‚Äî Worker autom√°tico `PriceListFetchWorker`
 
 **Archivo a crear:** `Aldebaran.Application.FileWritingService\Workers\PriceListFetchWorker.cs`
 
-**PatrÛn idÈntico a `InventoryFtpPdfWorker`:**
-- ProgramaciÛn con NCrontab (configurable, default: 6 AM)
-- Descarga ? parseo ? carga en BD ? notificaciÛn email
+**Patr√≥n id√©ntico a `InventoryFtpPdfWorker`:**
+- Programaci√≥n con NCrontab (configurable, default: 6 AM)
+- Descarga ? parseo ? carga en BD ? notificaci√≥n email
 
 **Flujo:**
 1. `IPriceListFetchService.FetchTodayListAsync()` ? descarga y parsea
 2. `IPromotionalPriceListService.LoadDayListAsync(items, today, "AUTOMATIC", null, fileName, null)`
-3. NotificaciÛn de Èxito o fallo vÌa email
+3. Notificaci√≥n de √©xito o fallo v√≠a email
 4. Si falla: `ResilientExecutor` reintenta N veces
 
 **Registrar en `Program.cs` del `FileWritingService`:**
@@ -2922,29 +2922,29 @@ services.AddTransient<IPriceListFetchService, PriceListFetchService>();
 services.AddTransient<IPromotionalPriceListService, PromotionalPriceListService>();
 ```
 
-**EstimaciÛn:** 6 horas | Prioridad: ?? REQUERIDO
+**Estimaci√≥n:** 6 horas | Prioridad: ?? REQUERIDO
 
 ---
 
 #### Contingencia manual
 
-#### TAREA-075 ?? ó Servicio de parseo manual `IPromotionalPriceListImportService`
+#### TAREA-075 ?? ‚Äî Servicio de parseo manual `IPromotionalPriceListImportService`
 
 **Archivo a crear:** `Aldebaran.Application.Services\Services\IPromotionalPriceListImportService.cs`
 
-**Responsabilidad:** Parsea un archivo Excel subido manualmente (reutiliza lÛgica de `IPriceListFetchService`).
+**Responsabilidad:** Parsea un archivo Excel subido manualmente (reutiliza l√≥gica de `IPriceListFetchService`).
 
-**ExtracciÛn a clase compartida:** `PriceListParser.ParseExcelAsync(Stream)` ó usado por ambos servicios.
+**Extracci√≥n a clase compartida:** `PriceListParser.ParseExcelAsync(Stream)` ‚Äî usado por ambos servicios.
 
-**EstimaciÛn:** 3 horas | Prioridad: ?? REQUERIDO
+**Estimaci√≥n:** 3 horas | Prioridad: ?? REQUERIDO
 
 ---
 
-#### TAREA-076 ??? ó P·gina `PromotionalPriceLists.razor` + carga manual
+#### TAREA-076 ??? ‚Äî P√°gina `PromotionalPriceLists.razor` + carga manual
 
 **Ruta:** `Pages\BonificationPages\PromotionalPriceLists.razor`
 **URL:** `/bonification/price-lists`
-**Rol:** `Administrador`, `ModificaciÛn de bonificaciones`
+**Rol:** `Administrador`, `Modificaci√≥n de bonificaciones`
 
 **Estructura:**
 
@@ -2953,49 +2953,49 @@ services.AddTransient<IPromotionalPriceListService, PromotionalPriceListService>
 @if (ActiveToday != null)
 {
     <RadzenAlert AlertStyle="AlertStyle.Success">
-        Lista activa hoy: @ActiveToday.ListDate ó @ActiveToday.Items.Count artÌculos ó 
-        cargada @ActiveToday.LoadedAt vÌa @(ActiveToday.Source == "AUTOMATIC" ? "autom·tico" : "manual")
+        Lista activa hoy: @ActiveToday.ListDate ‚Äî @ActiveToday.Items.Count art√≠culos ‚Äî 
+        cargada @ActiveToday.LoadedAt v√≠a @(ActiveToday.Source == "AUTOMATIC" ? "autom√°tico" : "manual")
     </RadzenAlert>
 }
 else if (MostRecentActive != null)
 {
     <RadzenAlert AlertStyle="AlertStyle.Warning">
-        ?? No hay lista activa para hoy. Se est· usando la del @MostRecentActive.ListDate 
-        (@MostRecentActive.Items.Count artÌculos). Cargue la lista del dÌa manualmente.
+        ?? No hay lista activa para hoy. Se est√° usando la del @MostRecentActive.ListDate 
+        (@MostRecentActive.Items.Count art√≠culos). Cargue la lista del d√≠a manualmente.
     </RadzenAlert>
 }
 else
 {
     <RadzenAlert AlertStyle="AlertStyle.Danger">
-        ? No hay ninguna lista de precios. El c·lculo de bonificaciÛn no puede realizarse.
+        ? No hay ninguna lista de precios. El c√°lculo de bonificaci√≥n no puede realizarse.
     </RadzenAlert>
 }
 ```
 
 **Grilla historial:**
-- Columnas: Fecha | Estado | Fuente | Cargada | ArtÌculos | Notas | Acciones (Ver Ìtems)
-- Row expand: tabla de Ìtems (CÛdigo, Nombre, Precio1-5)
+- Columnas: Fecha | Estado | Fuente | Cargada | Art√≠culos | Notas | Acciones (Ver √≠tems)
+- Row expand: tabla de √≠tems (C√≥digo, Nombre, Precio1-5)
 
-**SecciÛn de contingencia manual:**
-- `RadzenUpload` (`.xlsx`/`.xls`, m·x. 10 MB)
-- `RadzenTextArea` para notas (obligatorio, mÌn. 10 chars)
-- BotÛn "Cargar Lista del DÌa"
-  - Preview de N Ìtems parseados
-  - ConfirmaciÛn: "Reemplazar· la lista activa de hoy. La anterior pasar· a HIST”RICO."
+**Secci√≥n de contingencia manual:**
+- `RadzenUpload` (`.xlsx`/`.xls`, m√°x. 10 MB)
+- `RadzenTextArea` para notas (obligatorio, m√≠n. 10 chars)
+- Bot√≥n "Cargar Lista del D√≠a"
+  - Preview de N √≠tems parseados
+  - Confirmaci√≥n: "Reemplazar√° la lista activa de hoy. La anterior pasar√° a HIST√ìRICO."
   - Llama `IPromotionalPriceListService.LoadDayListAsync(..., "MANUAL", currentUserId, fileName, notes)`
 
-**EstimaciÛn:** 12 horas | Prioridad: ?? REQUERIDO
+**Estimaci√≥n:** 12 horas | Prioridad: ?? REQUERIDO
 
 ---
 
-#### TAREA-077 ??? ó NotificaciÛn en Dashboard cuando no hay lista activa
+#### TAREA-077 ??? ‚Äî Notificaci√≥n en Dashboard cuando no hay lista activa
 
 **Archivo a modificar:** Dashboard o `MainLayout.razor` (componente de alertas administrativas)
 
-**LÛgica:**
+**L√≥gica:**
 ```csharp
 var activeToday = await priceListService.GetActiveForTodayAsync();
-if (activeToday == null && Security.IsInRole("Administrador", "ModificaciÛn de bonificaciones"))
+if (activeToday == null && Security.IsInRole("Administrador", "Modificaci√≥n de bonificaciones"))
 {
     var mostRecent = await priceListService.GetMostRecentActiveAsync();
     var message = mostRecent != null
@@ -3005,30 +3005,30 @@ if (activeToday == null && Security.IsInRole("Administrador", "ModificaciÛn de b
 }
 ```
 
-**EstimaciÛn:** 2 horas | Prioridad: ?? REQUERIDO
+**Estimaci√≥n:** 2 horas | Prioridad: ?? REQUERIDO
 
 ---
 
-#### TAREA-078 ??? ó Agregar "Lista de Precios" al men˙ ConfiguraciÛn en `MainLayout.razor`
+#### TAREA-078 ??? ‚Äî Agregar "Lista de Precios" al men√∫ Configuraci√≥n en `MainLayout.razor`
 
 **Modificar el bloque de TAREA-045:**
 ```razor
-<RadzenPanelMenuItem Text="ConfiguraciÛn para Bonificaciones" Icon="settings">
-    <RadzenPanelMenuItem Text="PerÌodos" Path="bonification/periods" ... />
+<RadzenPanelMenuItem Text="Configuraci√≥n para Bonificaciones" Icon="settings">
+    <RadzenPanelMenuItem Text="Per√≠odos" Path="bonification/periods" ... />
     <RadzenPanelMenuItem Text="Tipos de Bono" Path="bonification/types" ... />
     <RadzenPanelMenuItem Text="Vigencias" Path="bonification/vigencies" ... />
     <RadzenPanelMenuItem Text="Descuentos por Pedido" Path="bonification/discount-vigencies" ... />
     <RadzenPanelMenuItem Text="Lista de Precios"
         Path="bonification/price-lists"
-        Visible="@Security.IsInRole("Administrador","ModificaciÛn de bonificaciones")" />
+        Visible="@Security.IsInRole("Administrador","Modificaci√≥n de bonificaciones")" />
 </RadzenPanelMenuItem>
 ```
 
-**EstimaciÛn:** 1 hora | Prioridad: ?? REQUERIDO
+**Estimaci√≥n:** 1 hora | Prioridad: ?? REQUERIDO
 
 ---
 
-### Resumen de archivos ó Lista de Precios Promocional
+### Resumen de archivos ‚Äî Lista de Precios Promocional
 
 | Archivo | Tarea | Tipo |
 |---------|-------|------|
@@ -3038,28 +3038,28 @@ if (activeToday == null && Security.IsInRole("Administrador", "ModificaciÛn de b
 | `Models\PromotionalPriceList.cs` + `PromotionalPriceListItem.cs` | 071 | Nuevo |
 | `AldebaranDbContext.cs` | 071 | Modificar |
 | `ApplicationServicesProfile.cs` | 071 | Modificar |
-| `IPromotionalPriceListRepository.cs` + implementaciÛn | 072 | Nuevo |
-| `IPromotionalPriceListService.cs` + implementaciÛn | 072 | Nuevo |
+| `IPromotionalPriceListRepository.cs` + implementaci√≥n | 072 | Nuevo |
+| `IPromotionalPriceListService.cs` + implementaci√≥n | 072 | Nuevo |
 | `ArchitectureBuilderExtensions.cs` (Web) | 072 | Modificar |
-| `IPriceListFetchService.cs` + implementaciÛn (FileWritingService) | 073 | Nuevo |
+| `IPriceListFetchService.cs` + implementaci√≥n (FileWritingService) | 073 | Nuevo |
 | `PriceListFetchWorker.cs` (FileWritingService) | 074 | Nuevo |
 | `Program.cs` (FileWritingService) | 074 | Modificar |
 | `appsettings.json` (FileWritingService) | 074 | Modificar |
-| `IPromotionalPriceListImportService.cs` + implementaciÛn | 075 | Nuevo |
+| `IPromotionalPriceListImportService.cs` + implementaci√≥n | 075 | Nuevo |
 | `Pages\BonificationPages\PromotionalPriceLists.razor` + `.cs` | 076 | Nuevo |
-| Dashboard / `MainLayout.razor` (notificaciÛn) | 077 | Modificar |
-| `Shared\MainLayout.razor` (men˙) | 078 | Modificar |
+| Dashboard / `MainLayout.razor` (notificaci√≥n) | 077 | Modificar |
+| `Shared\MainLayout.razor` (men√∫) | 078 | Modificar |
 
 ---
 
-> ? **Con TAREA-070 a TAREA-078 queda cubierto el mÛdulo de Lista de Precios Promocional,**  
-> incluyendo descarga autom·tica diaria, contingencia manual, y notificaciones de alerta.  
-> Este es el **˙ltimo insumo requerido** para el c·lculo de bonificaciÛn por facturaciÛn.
+> ? **Con TAREA-070 a TAREA-078 queda cubierto el m√≥dulo de Lista de Precios Promocional,**  
+> incluyendo descarga autom√°tica diaria, contingencia manual, y notificaciones de alerta.  
+> Este es el **√∫ltimo insumo requerido** para el c√°lculo de bonificaci√≥n por facturaci√≥n.
 ---
 
-### 2.2.5 GestiÛn de Exclusiones ñ Pedido Especial
+### 2.2.5 Gesti√≥n de Exclusiones ‚Äì Pedido Especial
 
-> Permite marcar pedidos con bandera `IsSpecialOrder` para excluirlos del Bono por Pedido, aplicable solo a distribuidores, con control por roles, auditorÌa reforzada e impacto din·mico en reportes y consultas.
+> Permite marcar pedidos con bandera `IsSpecialOrder` para excluirlos del Bono por Pedido, aplicable solo a distribuidores, con control por roles, auditor√≠a reforzada e impacto din√°mico en reportes y consultas.
 
 ---
 
@@ -3068,27 +3068,27 @@ if (activeToday == null && Security.IsInRole("Administrador", "ModificaciÛn de b
 #### TAREA-079 ? ???
 **Agregar columna `IsSpecialOrder` en `CUSTOMER_ORDERS`**
 
-**Contexto del cÛdigo:**  
-La entidad de pedido no expone actualmente una marca explÌcita para exclusiÛn funcional del c·lculo de bono.
+**Contexto del c√≥digo:**  
+La entidad de pedido no expone actualmente una marca expl√≠cita para exclusi√≥n funcional del c√°lculo de bono.
 
 **Cambios:**
 - Agregar `IS_SPECIAL_ORDER BIT NOT NULL DEFAULT 0` en `CUSTOMER_ORDERS`.
-- Garantizar valor por defecto para histÛricos (`0`).
+- Garantizar valor por defecto para hist√≥ricos (`0`).
 
 **Archivo a crear/modificar:**
-- `scripts/` ? nuevo script de migraciÛn (ej: `AddIsSpecialOrderToCustomerOrders.sql`)
+- `scripts/` ? nuevo script de migraci√≥n (ej: `AddIsSpecialOrderToCustomerOrders.sql`)
 
 ---
 
 #### TAREA-080 ? ???
-**Crear estructura de auditorÌa explÌcita para cambios de `IsSpecialOrder`**
+**Crear estructura de auditor√≠a expl√≠cita para cambios de `IsSpecialOrder`**
 
-**Contexto del cÛdigo:**  
-Existe auditorÌa est·ndar de modificaciÛn, pero se requiere log adicional explÌcito del flag y su direcciÛn de cambio.
+**Contexto del c√≥digo:**  
+Existe auditor√≠a est√°ndar de modificaci√≥n, pero se requiere log adicional expl√≠cito del flag y su direcci√≥n de cambio.
 
 **Cambios:**
-- Crear tabla dedicada de trazabilidad (ej: `CustomerOrderSpecialOrderFlagLogs`) con: Pedido, usuario, fecha, causa, valor anterior, valor nuevo, direcciÛn (`false->true` / `true->false`).
-- Õndices por `CustomerOrderId` y fecha para consulta operativa/auditorÌa.
+- Crear tabla dedicada de trazabilidad (ej: `CustomerOrderSpecialOrderFlagLogs`) con: Pedido, usuario, fecha, causa, valor anterior, valor nuevo, direcci√≥n (`false->true` / `true->false`).
+- √çndices por `CustomerOrderId` y fecha para consulta operativa/auditor√≠a.
 
 **Archivo a crear/modificar:**
 - `scripts/` ? nuevo script (ej: `CreateCustomerOrderSpecialOrderFlagLogs.sql`)
@@ -3096,15 +3096,15 @@ Existe auditorÌa est·ndar de modificaciÛn, pero se requiere log adicional explÌc
 ---
 
 #### TAREA-081 ? ???
-**Actualizar SP/consultas de c·lculo y reportes para exclusiÛn din·mica**
+**Actualizar SP/consultas de c√°lculo y reportes para exclusi√≥n din√°mica**
 
-**Contexto del cÛdigo:**  
-Los reportes y c·lculos consumen SPs y consultas SQL que hoy no consideran `IsSpecialOrder`.
+**Contexto del c√≥digo:**  
+Los reportes y c√°lculos consumen SPs y consultas SQL que hoy no consideran `IsSpecialOrder`.
 
 **Cambios:**
 - Ajustar SPs de: `Customer Orders`, `Customer Orders Activities`, `Customer Sales`.
 - Incluir bandera en dataset de salida y filtro opcional.
-- Excluir de c·lculos de Bono por Pedido cuando `IS_SPECIAL_ORDER = 1`.
+- Excluir de c√°lculos de Bono por Pedido cuando `IS_SPECIAL_ORDER = 1`.
 
 **Archivo a crear/modificar:**
 - `scripts/Full Database Creation Script.sql` y scripts de SPs asociados
@@ -3116,7 +3116,7 @@ Los reportes y c·lculos consumen SPs y consultas SQL que hoy no consideran `IsSp
 #### TAREA-082 ? ??
 **Agregar propiedad `IsSpecialOrder` en entidades y modelos de pedido**
 
-**Contexto del cÛdigo:**  
+**Contexto del c√≥digo:**  
 `CustomerOrder` en DataAccess y Application Services no incluye el nuevo campo.
 
 **Cambios:**
@@ -3131,7 +3131,7 @@ Los reportes y c·lculos consumen SPs y consultas SQL que hoy no consideran `IsSp
 **Actualizar mapeos EF/AutoMapper para `IsSpecialOrder`**
 
 **Cambios:**
-- ConfiguraciÛn EF de columna (`IS_SPECIAL_ORDER`).
+- Configuraci√≥n EF de columna (`IS_SPECIAL_ORDER`).
 - AutoMapper profiles para incluir la propiedad en ida/vuelta.
 
 **Archivo a crear/modificar:**
@@ -3143,15 +3143,15 @@ Los reportes y c·lculos consumen SPs y consultas SQL que hoy no consideran `IsSp
 ## 3. Backend (repositorios / servicios / reglas de negocio)
 
 #### TAREA-084 ? ??
-**Implementar operaciÛn dedicada para modificar solo `IsSpecialOrder`**
+**Implementar operaci√≥n dedicada para modificar solo `IsSpecialOrder`**
 
-**Contexto del cÛdigo:**  
+**Contexto del c√≥digo:**  
 Se requiere perfil nuevo que solo modifique esta bandera.
 
 **Cambios:**
-- Crear mÈtodo especÌfico en repositorio/servicio (ej: `UpdateSpecialOrderFlagAsync`).
-- Registrar causa obligatoria de modificaciÛn (auditorÌa est·ndar).
-- Persistir log adicional explÌcito (TAREA-080).
+- Crear m√©todo espec√≠fico en repositorio/servicio (ej: `UpdateSpecialOrderFlagAsync`).
+- Registrar causa obligatoria de modificaci√≥n (auditor√≠a est√°ndar).
+- Persistir log adicional expl√≠cito (TAREA-080).
 
 **Archivo a crear/modificar:**
 - `ICustomerOrderRepository` / `CustomerOrderRepository`
@@ -3160,13 +3160,13 @@ Se requiere perfil nuevo que solo modifique esta bandera.
 ---
 
 #### TAREA-085 ? ??
-**Aplicar reglas de negocio de exclusiÛn y validaciÛn de elegibilidad**
+**Aplicar reglas de negocio de exclusi√≥n y validaci√≥n de elegibilidad**
 
 **Reglas a implementar:**
 - Solo permite marcar `IsSpecialOrder = true` si el cliente del pedido tiene `IsDistributor = true`.
-- Bloquear cambio de bandera cuando el pedido pertenece a perÌodo cerrado.
+- Bloquear cambio de bandera cuando el pedido pertenece a per√≠odo cerrado.
 - Si cliente no distribuidor: impedir activar bandera y devolver error funcional claro.
-- Mantener la exclusiÛn del bono ˙nicamente para Bono por Pedido.
+- Mantener la exclusi√≥n del bono √∫nicamente para Bono por Pedido.
 
 **Archivo a crear/modificar:**
 - Servicio de pedidos + componente de validaciones de negocio
@@ -3174,11 +3174,11 @@ Se requiere perfil nuevo que solo modifique esta bandera.
 ---
 
 #### TAREA-086 ? ??
-**Blindar actualizaciÛn general de pedidos para impedir cambio del flag por perfil no autorizado**
+**Blindar actualizaci√≥n general de pedidos para impedir cambio del flag por perfil no autorizado**
 
 **Cambios:**
 - En `UpdateAsync` general: bloquear/ignorar cambios de `IsSpecialOrder`.
-- Forzar que el cambio de flag pase ˙nicamente por el nuevo flujo especializado.
+- Forzar que el cambio de flag pase √∫nicamente por el nuevo flujo especializado.
 
 **Archivo a crear/modificar:**
 - `CustomerOrderService`
@@ -3187,43 +3187,43 @@ Se requiere perfil nuevo que solo modifique esta bandera.
 ---
 
 #### TAREA-087 ? ??
-**Actualizar consultas de c·lculo de Bono por Pedido para exclusiÛn efectiva**
+**Actualizar consultas de c√°lculo de Bono por Pedido para exclusi√≥n efectiva**
 
 **Cambios:**
 - Ajustar repositorios/servicios que consolidan pedidos para bono: excluir `IsSpecialOrder = true`.
-- Verificar impacto en recalculo din·mico sin reprocesos manuales.
+- Verificar impacto en recalculo din√°mico sin reprocesos manuales.
 
 **Archivo a crear/modificar:**
-- Repositorios y servicios de c·lculo/consulta del bono por pedido
+- Repositorios y servicios de c√°lculo/consulta del bono por pedido
 
 ---
 
 ## 4. Seguridad y permisos
 
 #### TAREA-088 ? ???
-**Crear permiso `AdministraciÛn de Pedidos Especiales` y polÌtica de acceso**
+**Crear permiso `Administraci√≥n de Pedidos Especiales` y pol√≠tica de acceso**
 
 **Cambios:**
 - Alta del nuevo rol/permiso.
-- AsignaciÛn en gestiÛn de roles/usuarios.
-- Aplicar a endpoint/p·gina de cambio del flag.
-- Confirmar que `ModificaciÛn de pedidos` **no** habilita cambio del flag.
+- Asignaci√≥n en gesti√≥n de roles/usuarios.
+- Aplicar a endpoint/p√°gina de cambio del flag.
+- Confirmar que `Modificaci√≥n de pedidos` **no** habilita cambio del flag.
 
 **Archivo a crear/modificar:**
 - Scripts de roles (`scripts/...`)
-- Puntos de autorizaciÛn en frontend/backend
+- Puntos de autorizaci√≥n en frontend/backend
 
 ---
 
 ## 5. Frontend Blazor
 
 #### TAREA-089 ? ???
-**Agregar visualizaciÛn y ediciÛn controlada de ìPedido Especialî en pantalla de pedido**
+**Agregar visualizaci√≥n y edici√≥n controlada de ‚ÄúPedido Especial‚Äù en pantalla de pedido**
 
 **Cambios:**
-- Mostrar campo funcional ìPedido Especialî.
-- Habilitar ediciÛn solo con rol `AdministraciÛn de Pedidos Especiales`.
-- Mostrar mensaje de bloqueo cuando el perÌodo estÈ cerrado.
+- Mostrar campo funcional ‚ÄúPedido Especial‚Äù.
+- Habilitar edici√≥n solo con rol `Administraci√≥n de Pedidos Especiales`.
+- Mostrar mensaje de bloqueo cuando el per√≠odo est√© cerrado.
 - Mantener UX consistente con validaciones del backend.
 
 **Archivo a crear/modificar:**
@@ -3233,16 +3233,16 @@ Se requiere perfil nuevo que solo modifique esta bandera.
 ---
 
 #### TAREA-090 ? ???
-**Implementar flujo de modificaciÛn exclusiva del flag (perfil restringido)**
+**Implementar flujo de modificaci√≥n exclusiva del flag (perfil restringido)**
 
 **Cambios:**
-- Crear interacciÛn dedicada (botÛn/di·logo) para cambio de `IsSpecialOrder`.
-- Solicitar causa obligatoria y confirmar impacto (ìexcluye Bono por Pedidoî).
-- Consumir mÈtodo especializado del servicio (TAREA-084).
+- Crear interacci√≥n dedicada (bot√≥n/di√°logo) para cambio de `IsSpecialOrder`.
+- Solicitar causa obligatoria y confirmar impacto (‚Äúexcluye Bono por Pedido‚Äù).
+- Consumir m√©todo especializado del servicio (TAREA-084).
 
 **Archivo a crear/modificar:**
-- Componente de di·logo/p·gina de cambio de flag
-- IntegraciÛn en pantalla de pedido
+- Componente de di√°logo/p√°gina de cambio de flag
+- Integraci√≥n en pantalla de pedido
 
 ---
 
@@ -3254,7 +3254,7 @@ Se requiere perfil nuevo que solo modifique esta bandera.
 **Cambios:**
 - Incluir columna/indicador `Pedido Especial`.
 - Agregar filtro: Todos / Solo Especiales / Solo No Especiales.
-- Propagar en exportaciÛn.
+- Propagar en exportaci√≥n.
 
 **Archivo a crear/modificar:**
 - `ReportPages\Customer Orders\...` (filtro, viewmodel, page, export)
@@ -3266,8 +3266,8 @@ Se requiere perfil nuevo que solo modifique esta bandera.
 
 **Cambios:**
 - Incluir indicador `Pedido Especial`.
-- Filtro equivalente y propagaciÛn a consulta.
-- ExportaciÛn consistente.
+- Filtro equivalente y propagaci√≥n a consulta.
+- Exportaci√≥n consistente.
 
 **Archivo a crear/modificar:**
 - `ReportPages\Customer Order Activities\...`
@@ -3279,23 +3279,23 @@ Se requiere perfil nuevo que solo modifique esta bandera.
 
 **Cambios:**
 - Incluir indicador `Pedido Especial`.
-- Filtro equivalente y propagaciÛn a consulta.
-- ExportaciÛn consistente.
+- Filtro equivalente y propagaci√≥n a consulta.
+- Exportaci√≥n consistente.
 
 **Archivo a crear/modificar:**
 - `ReportPages\Customer Sales\...`
 
 ---
 
-## 7. AuditorÌa y trazabilidad
+## 7. Auditor√≠a y trazabilidad
 
 #### TAREA-094 ? ??
-**Integrar auditorÌa est·ndar + log adicional obligatorio del flag**
+**Integrar auditor√≠a est√°ndar + log adicional obligatorio del flag**
 
 **Cambios:**
-- Mantener auditorÌa est·ndar de modificaciÛn con selecciÛn de causa.
-- Persistir log adicional explÌcito con: cambio de valor, sentido del cambio, usuario y timestamp.
-- Exponer consulta de auditorÌa para soporte y control.
+- Mantener auditor√≠a est√°ndar de modificaci√≥n con selecci√≥n de causa.
+- Persistir log adicional expl√≠cito con: cambio de valor, sentido del cambio, usuario y timestamp.
+- Exponer consulta de auditor√≠a para soporte y control.
 
 **Archivo a crear/modificar:**
 - Repositorio/servicio de pedido
@@ -3303,47 +3303,47 @@ Se requiere perfil nuevo que solo modifique esta bandera.
 
 ---
 
-## 8. Pruebas, validaciÛn y despliegue
+## 8. Pruebas, validaci√≥n y despliegue
 
 #### TAREA-095 ? ??
-**Plan de pruebas tÈcnicas y regresiÛn integral**
+**Plan de pruebas t√©cnicas y regresi√≥n integral**
 
-**Cobertura mÌnima:**
-- Unitarias: reglas de distribuidor, bloqueo por perÌodo cerrado, autorizaciÛn por rol, exclusiÛn en c·lculo.
-- IntegraciÛn: persistencia del flag, SP/reportes con filtro, auditorÌa doble (est·ndar + explÌcita).
-- UI/E2E: perfil nuevo solo modifica flag, perfil de modificaciÛn actual no puede cambiarlo.
-- RegresiÛn: procesos de pedido existentes sin alteraciÛn funcional.
+**Cobertura m√≠nima:**
+- Unitarias: reglas de distribuidor, bloqueo por per√≠odo cerrado, autorizaci√≥n por rol, exclusi√≥n en c√°lculo.
+- Integraci√≥n: persistencia del flag, SP/reportes con filtro, auditor√≠a doble (est√°ndar + expl√≠cita).
+- UI/E2E: perfil nuevo solo modifica flag, perfil de modificaci√≥n actual no puede cambiarlo.
+- Regresi√≥n: procesos de pedido existentes sin alteraci√≥n funcional.
 
 **Archivo a crear/modificar:**
-- Proyecto(s) de pruebas y plan de validaciÛn funcional/tÈcnica
+- Proyecto(s) de pruebas y plan de validaci√≥n funcional/t√©cnica
 
 ---
 
-### Nota tÈcnica (recomendaciÛn no crÌtica)
-**Concurrencia de actualizaciÛn de flag**: evaluar control optimista (`timestamp/rowversion`) como mejora recomendada para evitar sobrescrituras en escenarios de alta simultaneidad. No bloquea el MVP.
+### Nota t√©cnica (recomendaci√≥n no cr√≠tica)
+**Concurrencia de actualizaci√≥n de flag**: evaluar control optimista (`timestamp/rowversion`) como mejora recomendada para evitar sobrescrituras en escenarios de alta simultaneidad. No bloquea el MVP.
 
 ---
 
-### 2.2.6 IntegraciÛn TOTUS ñ ExtracciÛn de FacturaciÛn por SP
+### 2.2.6 Integraci√≥n TOTUS ‚Äì Extracci√≥n de Facturaci√≥n por SP
 
-> Permite invocar el SP provisto por f·brica externa sobre BD TOTUS local para obtener la facturaciÛn consolidada del distribuidor, con resiliencia operativa y trazabilidad.
+> Permite invocar el SP provisto por f√°brica externa sobre BD TOTUS local para obtener la facturaci√≥n consolidada del distribuidor, con resiliencia operativa y trazabilidad.
 
 ---
 
-## 1. Infraestructura y configuraciÛn
+## 1. Infraestructura y configuraci√≥n
 
 #### TAREA-096 ? ??
-**Definir contrato tÈcnico formal del SP `sp_ObtenerFacturacionDistribuidor`**
+**Definir contrato t√©cnico formal del SP `sp_ObtenerFacturacionDistribuidor`**
 
-**Contexto del cÛdigo:**  
-Se requiere documentar y validar la interfaz exacta del SP que proporcionar· f·brica externa.
+**Contexto del c√≥digo:**  
+Se requiere documentar y validar la interfaz exacta del SP que proporcionar√° f√°brica externa.
 
 **Cambios:**
-- Documentar par·metros de entrada (tipo, formato, obligatoriedad, rangos v·lidos).
+- Documentar par√°metros de entrada (tipo, formato, obligatoriedad, rangos v√°lidos).
 - Documentar respuesta esperada (`ValorTotalFacturadoSinImpuestos`, `TotalNotasCredito`, `TotalFletes`, `TotalDescuentos`, `FechaConsulta`, etc.).
-- Definir cat·logo de errores tÈcnicos y sem·ntica de retorno (cÛdigos de error especÌficos, mensajes).
+- Definir cat√°logo de errores t√©cnicos y sem√°ntica de retorno (c√≥digos de error espec√≠ficos, mensajes).
 - Establecer SLA de respuesta esperado (<500ms).
-- Validar con f·brica externa antes de implementaciÛn.
+- Validar con f√°brica externa antes de implementaci√≥n.
 
 **Archivo a crear/modificar:**
 - `docs/` ? nuevo documento (ej: `TOTUS_SP_Contract.md`)
@@ -3351,28 +3351,28 @@ Se requiere documentar y validar la interfaz exacta del SP que proporcionar· f·b
 ---
 
 #### TAREA-097 ? ??
-**Configurar conexiÛn segura a BD TOTUS por ambiente**
+**Configurar conexi√≥n segura a BD TOTUS por ambiente**
 
-**Contexto del cÛdigo:**  
-La invocaciÛn al SP requiere par·metros de conexiÛn especÌficos por ambiente (Dev/QA/Prod).
+**Contexto del c√≥digo:**  
+La invocaci√≥n al SP requiere par√°metros de conexi√≥n espec√≠ficos por ambiente (Dev/QA/Prod).
 
 **Cambios:**
 - Incorporar `appsettings.Development.json`, `appsettings.Staging.json`, `appsettings.Production.json` con:
   - `TotusConnectionString` (credenciales en secretos, no en config)
-  - `TotusCommandTimeout` (default: 30 seg, m·ximo 120 seg)
+  - `TotusCommandTimeout` (default: 30 seg, m√°ximo 120 seg)
   - `TotusRetryCount` (default: 3)
   - `TotusRetryDelayMs` (default: 1000)
   - `TotusUseFallback` (true/false por ambiente)
-- Registrar secretos en Azure Key Vault / gestiÛn de secretos local
+- Registrar secretos en Azure Key Vault / gesti√≥n de secretos local
 - Asegurar manejo sin hardcode mediante `IConfiguration` + `IOptions<TotusOptions>`
 
 ---
 
 #### TAREA-098 ? ??
-**Crear modelos request/response para consulta de facturaciÛn TOTUS**
+**Crear modelos request/response para consulta de facturaci√≥n TOTUS**
 
-**Contexto del cÛdigo:**  
-La comunicaciÛn con el SP requiere modelos tipados para evitar errores de mapeo.
+**Contexto del c√≥digo:**  
+La comunicaci√≥n con el SP requiere modelos tipados para evitar errores de mapeo.
 
 **Cambios:**
 - Crear `TotusInvoicingRequest` con propiedades: `DocumentNumber`, `DocumentType`, `StartDate`, `EndDate`, `IncludeDetailedItems`
@@ -3391,14 +3391,14 @@ La comunicaciÛn con el SP requiere modelos tipados para evitar errores de mapeo.
 #### TAREA-099 ? ??
 **Implementar adaptador DataAccess para invocar el SP de TOTUS**
 
-**Contexto del cÛdigo:**  
-Se requiere un repositorio/adaptador especÌfico para la integraciÛn con TOTUS.
+**Contexto del c√≥digo:**  
+Se requiere un repositorio/adaptador espec√≠fico para la integraci√≥n con TOTUS.
 
 **Cambios:**
-- Crear `ITotusInvoicingRepository` con mÈtodo `GetInvoicingAsync(TotusInvoicingRequest, CancellationToken)`
-- Crear `TotusInvoicingRepository` con invocaciÛn parametrizada del SP
-- Mapeo robusto de nulos: `DBNull.Value` ? valores por defecto o null
-- ConversiÛn segura de tipos numÈricos
+- Crear `ITotusInvoicingRepository` con m√©todo `GetInvoicingAsync(TotusInvoicingRequest, CancellationToken)`
+- Crear `TotusInvoicingRepository` con invocaci√≥n parametrizada del SP
+- Mapeo robusto de nulos: `DBNull.Value` ‚Üí valores por defecto o null
+- Conversi√≥n segura de tipos num√©ricos
 
 **Archivos a crear:**
 - `Aldebaran.DataAccess.Infraestructure\Repository\ITotusInvoicingRepository.cs`
@@ -3406,18 +3406,18 @@ Se requiere un repositorio/adaptador especÌfico para la integraciÛn con TOTUS.
 
 ---
 
-## 3. Capa de lÛgica de negocio
+## 3. Capa de l√≥gica de negocio
 
 #### TAREA-100 ? ??
-**Implementar servicio de negocio de facturaciÛn TOTUS**
+**Implementar servicio de negocio de facturaci√≥n TOTUS**
 
-**Contexto del cÛdigo:**  
-Se requiere una capa de servicio que encapsule la lÛgica de validaciÛn y normalizaciÛn.
+**Contexto del c√≥digo:**  
+Se requiere una capa de servicio que encapsule la l√≥gica de validaci√≥n y normalizaci√≥n.
 
 **Cambios:**
-- Crear `ITotusInvoicingService` con mÈtodos: `GetDistributorInvoicingAsync`, `GetLastKnownGoodResponseAsync`
-- Crear `TotusInvoicingService` con validaciÛn de entradas y normalizaciÛn de salida
-- Manejo de excepciones especÌficas y trazabilidad de cada invocaciÛn
+- Crear `ITotusInvoicingService` con m√©todos: `GetDistributorInvoicingAsync`, `GetLastKnownGoodResponseAsync`
+- Crear `TotusInvoicingService` con validaci√≥n de entradas y normalizaci√≥n de salida
+- Manejo de excepciones espec√≠ficas y trazabilidad de cada invocaci√≥n
 
 **Archivos a crear:**
 - `Aldebaran.Application.Services\Services\ITotusInvoicingService.cs`
@@ -3430,52 +3430,52 @@ Se requiere una capa de servicio que encapsule la lÛgica de validaciÛn y normali
 #### TAREA-101 ? ??
 **Implementar fallback y reintentos controlados en consulta TOTUS**
 
-**Contexto del cÛdigo:**  
-Una caÌda de TOTUS no debe romper la consulta de bonificaciÛn. Se requiere mecanismo de fallback.
+**Contexto del c√≥digo:**  
+Una ca√≠da de TOTUS no debe romper la consulta de bonificaci√≥n. Se requiere mecanismo de fallback.
 
 **Cambios:**
-- Agregar lÛgica de reintentos en `TotusInvoicingService` (configurable: default 3 reintentos)
-- Cachear ˙ltimo valor conocido v·lido para fallback
+- Agregar l√≥gica de reintentos en `TotusInvoicingService` (configurable: default 3 reintentos)
+- Cachear √∫ltimo valor conocido v√°lido para fallback
 - Retornar respuesta degradada si todos los reintentos fallan
-- ConfiguraciÛn de retry delay y command timeout en `appsettings.json`
+- Configuraci√≥n de retry delay y command timeout en `appsettings.json`
 
 **Archivos a crear/modificar:**
 - `Aldebaran.Application.Services\Services\TotusInvoicingService.cs` (modificar)
-- `appsettings.*.json` (crear configuraciÛn)
+- `appsettings.*.json` (crear configuraci√≥n)
 
 ---
 
-## 5. Trazabilidad y auditorÌa
+## 5. Trazabilidad y auditor√≠a
 
 #### TAREA-102 ? ??
-**Implementar auditorÌa tÈcnica de invocaciones al SP**
+**Implementar auditor√≠a t√©cnica de invocaciones al SP**
 
-**Contexto del cÛdigo:**  
-Se requiere registro de cada invocaciÛn para diagnÛstico operativo.
+**Contexto del c√≥digo:**  
+Se requiere registro de cada invocaci√≥n para diagn√≥stico operativo.
 
 **Cambios:**
 - Crear tabla `TotusInvoicingAudit` con campos: `DocumentNumber`, `QueryDate`, `RequestParams`, `ResponseStatus`, `ResponseTotal`, `DurationMs`, `ErrorMessage`, `CorrelationId`
-- Agregar Ìndices por fecha y documento
-- Logging de cada invocaciÛn en `TotusInvoicingService`
+- Agregar √≠ndices por fecha y documento
+- Logging de cada invocaci√≥n en `TotusInvoicingService`
 
 **Archivos a crear:**
 - `scripts/CreateTotusInvoicingAuditTable.sql`
 - `Aldebaran.DataAccess\Entities\TotusInvoicingAudit.cs`
-- `ITotusInvoicingAuditRepository.cs` + implementaciÛn
+- `ITotusInvoicingAuditRepository.cs` + implementaci√≥n
 
 ---
 
 ## 6. Alertamiento operativo
 
 #### TAREA-103 ? ??
-**Implementar alertamiento administrativo por degradaciÛn TOTUS**
+**Implementar alertamiento administrativo por degradaci√≥n TOTUS**
 
-**Contexto del cÛdigo:**  
-Se requiere notificaciÛn proactiva cuando el sistema cambia a modo fallback.
+**Contexto del c√≥digo:**  
+Se requiere notificaci√≥n proactiva cuando el sistema cambia a modo fallback.
 
 **Cambios:**
-- Crear servicio `ITotusHealthService` para monitoreo de salud de conexiÛn a TOTUS
-- LÛgica de alertas por: primer fallback del dÌa (email), fallos consecutivos (Slack), latencia fuera de SLA (email)
+- Crear servicio `ITotusHealthService` para monitoreo de salud de conexi√≥n a TOTUS
+- L√≥gica de alertas por: primer fallback del d√≠a (email), fallos consecutivos (Slack), latencia fuera de SLA (email)
 - Registrar umbrales en `appsettings.json`
 
 **Archivos a crear:**
@@ -3487,14 +3487,14 @@ Se requiere notificaciÛn proactiva cuando el sistema cambia a modo fallback.
 ## 7. Experiencia de usuario
 
 #### TAREA-104 ? ??
-**Mostrar banner de facturaciÛn desactualizada en CU7**
+**Mostrar banner de facturaci√≥n desactualizada en CU7**
 
-**Contexto del cÛdigo:**  
-Cuando el distribuidor consulta su bonificaciÛn y la facturaciÛn viene de fallback, debe saberlo.
+**Contexto del c√≥digo:**  
+Cuando el distribuidor consulta su bonificaci√≥n y la facturaci√≥n viene de fallback, debe saberlo.
 
 **Cambios:**
 - En componente de consulta del distribuidor mostrar `RadzenAlert` cuando `Status == "FALLBACK"`
-- Banner debe incluir ˙ltima fecha de consulta exitosa
+- Banner debe incluir √∫ltima fecha de consulta exitosa
 - Incluir en respuesta del servicio: `LastSuccessfulQueryDate`, `IsUsingFallback`
 
 **Archivos a modificar:**
@@ -3502,35 +3502,35 @@ Cuando el distribuidor consulta su bonificaciÛn y la facturaciÛn viene de fallba
 
 ---
 
-## 8. IntegraciÛn con c·lculo de bonificaciÛn
+## 8. Integraci√≥n con c√°lculo de bonificaci√≥n
 
 #### TAREA-105 ? ??
-**Integrar consulta TOTUS al c·lculo din·mico de bonificaciÛn (CU7)**
+**Integrar consulta TOTUS al c√°lculo din√°mico de bonificaci√≥n (CU7)**
 
-**Contexto del cÛdigo:**  
-El motor de c·lculo de bonificaciÛn (especialmente Bono por FacturaciÛn) debe consumir la facturaciÛn de TOTUS.
+**Contexto del c√≥digo:**  
+El motor de c√°lculo de bonificaci√≥n (especialmente Bono por Facturaci√≥n) debe consumir la facturaci√≥n de TOTUS.
 
 **Cambios:**
 - Consumir `TotusInvoicingService.GetDistributorInvoicingAsync` en `BonificationCalculationService`
-- PolÌtica sin cache: cada consulta obtiene datos actuales de TOTUS
-- Usar facturaciÛn real o fallback seg˙n disponibilidad
+- Pol√≠tica sin cache: cada consulta obtiene datos actuales de TOTUS
+- Usar facturaci√≥n real o fallback seg√∫n disponibilidad
 
 **Archivos a modificar:**
 - `BonificationCalculationService.cs`
 
 ---
 
-## 9. Pruebas tÈcnicas
+## 9. Pruebas t√©cnicas
 
 #### TAREA-106 ? ???
-**Crear pruebas unitarias de integraciÛn lÛgica TOTUS**
+**Crear pruebas unitarias de integraci√≥n l√≥gica TOTUS**
 
-**Cobertura mÌnima:**
-- Validaciones de entrada: documento vacÌo, formato inv·lido, tipos de datos
+**Cobertura m√≠nima:**
+- Validaciones de entrada: documento vac√≠o, formato inv√°lido, tipos de datos
 - Mapeo de salida: nullables, conversiones de tipo, valores por defecto
 - Flujo de error: excepciones SQL, timeout, respuesta degradada
-- Fallback: ˙ltimo valor conocido disponible vs no disponible
-- AuditorÌa: registro correcto de par·metros y resultado
+- Fallback: √∫ltimo valor conocido disponible vs no disponible
+- Auditor√≠a: registro correcto de par√°metros y resultado
 
 **Archivos a crear:**
 - `Aldebaran.Tests\Services\TotusInvoicingServiceTests.cs`
@@ -3538,15 +3538,15 @@ El motor de c·lculo de bonificaciÛn (especialmente Bono por FacturaciÛn) debe co
 ---
 
 #### TAREA-107 ? ??
-**Crear pruebas de integraciÛn contra entorno TOTUS de pruebas**
+**Crear pruebas de integraci√≥n contra entorno TOTUS de pruebas**
 
-**Contexto del cÛdigo:**  
-Se requiere validaciÛn real con el SP antes de producciÛn.
+**Contexto del c√≥digo:**  
+Se requiere validaci√≥n real con el SP antes de producci√≥n.
 
 **Cambios:**
 - Conectar a BD TOTUS de pruebas (QA)
-- Test de invocaciÛn real con distribuidor v·lido/inv·lido
-- ValidaciÛn de timeout y mapeo de nullables
+- Test de invocaci√≥n real con distribuidor v√°lido/inv√°lido
+- Validaci√≥n de timeout y mapeo de nullables
 
 **Archivos a crear:**
 - `Aldebaran.Tests.Integration\TotusInvoicingIntegrationTests.cs`
@@ -3556,30 +3556,30 @@ Se requiere validaciÛn real con el SP antes de producciÛn.
 #### TAREA-108 ? ???
 **Ejecutar pruebas de rendimiento E2E de consulta TOTUS**
 
-**Contexto del cÛdigo:**  
+**Contexto del c√≥digo:**  
 Se debe validar que el SLA de <500ms se cumple bajo carga normal.
 
 **Cambios:**
 - Test de carga con 10 consultas concurrentes
-- ValidaciÛn de latencia P95, P99
-- Registro de mÈtricas de rendimiento
+- Validaci√≥n de latencia P95, P99
+- Registro de m√©tricas de rendimiento
 
 **Archivos a crear:**
 - `Aldebaran.Tests.Performance\TotusInvoicingPerformanceTests.cs`
 
 ---
 
-## 10. OperaciÛn y soporte
+## 10. Operaci√≥n y soporte
 
 #### TAREA-109 ? ???
 **Documentar runbook operativo de incidentes TOTUS**
 
-**Contexto del cÛdigo:**  
-Se requiere guÌa r·pida para diagnÛstico y escalamiento.
+**Contexto del c√≥digo:**  
+Se requiere gu√≠a r√°pida para diagn√≥stico y escalamiento.
 
 **Cambios:**
-- Crear documento `TOTUS_Incident_Runbook.md` con: sÌntomas, diagnÛstico r·pido, recuperaciÛn, escalamiento
-- Checklist de verificaciÛn pre-producciÛn
+- Crear documento `TOTUS_Incident_Runbook.md` con: s√≠ntomas, diagn√≥stico r√°pido, recuperaci√≥n, escalamiento
+- Checklist de verificaci√≥n pre-producci√≥n
 
 **Archivos a crear:**
 - `docs/TOTUS_Incident_Runbook.md`
@@ -3587,21 +3587,21 @@ Se requiere guÌa r·pida para diagnÛstico y escalamiento.
 ---
 
 #### TAREA-110 ? ???
-**Formalizar criterios de aceptaciÛn con PROMOS y f·brica externa**
+**Formalizar criterios de aceptaci√≥n con PROMOS y f√°brica externa**
 
-**Contexto del cÛdigo:**  
-Antes de Go Live, validar con ambas partes que el contrato est· cumplido.
+**Contexto del c√≥digo:**  
+Antes de Go Live, validar con ambas partes que el contrato est√° cumplido.
 
 **Cambios:**
-- Crear documento `TOTUS_Integration_Acceptance_Criteria.md` con criterios de aceptaciÛn
-- Obtener sign-off de PROMOS, f·brica externa y DBA TOTUS
+- Crear documento `TOTUS_Integration_Acceptance_Criteria.md` con criterios de aceptaci√≥n
+- Obtener sign-off de PROMOS, f√°brica externa y DBA TOTUS
 
 **Archivos a crear:**
 - `docs/TOTUS_Integration_Acceptance_Criteria.md`
 
 ---
 
-### Resumen de archivos ó IntegraciÛn TOTUS por SP
+### Resumen de archivos ‚Äî Integraci√≥n TOTUS por SP
 
 | Archivo | Tarea | Tipo |
 |---------|-------|------|
@@ -3632,18 +3632,18 @@ Antes de Go Live, validar con ambas partes que el contrato est· cumplido.
 
 ---
 
-> ? **Con TAREA-096 a TAREA-110 queda cubierto el mÛdulo de IntegraciÛn TOTUS por SP,**  
-> permitiendo consulta robusta de facturaciÛn en tiempo real con resiliencia operativa, fallback,  
-> auditorÌa tÈcnica, alertamiento proactivo y validaciÛn de SLA. Este es el **insumo crÌtico final**  
-> para el c·lculo de Bono por FacturaciÛn con datos actualizados del ERP externo.
+> ? **Con TAREA-096 a TAREA-110 queda cubierto el m√≥dulo de Integraci√≥n TOTUS por SP,**  
+> permitiendo consulta robusta de facturaci√≥n en tiempo real con resiliencia operativa, fallback,  
+> auditor√≠a t√©cnica, alertamiento proactivo y validaci√≥n de SLA. Este es el **insumo cr√≠tico final**  
+> para el c√°lculo de Bono por Facturaci√≥n con datos actualizados del ERP externo.
 
 
 ---
 
-### 2.2.7 AutenticaciÛn OTP (MVP Email)
+### 2.2.7 Autenticaci√≥n OTP (MVP Email)
 
-> Ref. propuesta funcional: secciÛn 2.2.2.1 (CU6) + ajustes MVP de seguridad OTP.  
-> Alcance MVP: **solo OTP por Email de BonificaciÛn** (SMS diferido a fase posterior).
+> Ref. propuesta funcional: secci√≥n 2.2.2.1 (CU6) + ajustes MVP de seguridad OTP.  
+> Alcance MVP: **solo OTP por Email de Bonificaci√≥n** (SMS diferido a fase posterior).
 
 ---
 
@@ -3655,11 +3655,11 @@ Antes de Go Live, validar con ambas partes que el contrato est· cumplido.
   - Documento
   - OTP hash
   - Salt
-  - ExpiraciÛn (TTL 10 min)
+  - Expiraci√≥n (TTL 10 min)
   - Intentos fallidos
-  - Fecha/hora de uso (invalidaciÛn por uso)
+  - Fecha/hora de uso (invalidaci√≥n por uso)
   - Estado (Activo/Usado/Expirado/Bloqueado)
-- Õndices por documento + estado + expiraciÛn
+- √çndices por documento + estado + expiraci√≥n
 
 **Archivo a crear/modificar:**
 - `scripts/CreateOtpAuthenticationTables.sql`
@@ -3672,11 +3672,11 @@ Antes de Go Live, validar con ambas partes que el contrato est· cumplido.
 **Cambios:**
 - Crear entidad EF para OTP
 - Crear modelo de servicio OTP (POCO)
-- Crear `IOtpAuthenticationRepository` + implementaciÛn con operaciones:
+- Crear `IOtpAuthenticationRepository` + implementaci√≥n con operaciones:
   - Crear OTP
   - Obtener OTP activo por documento
   - Incrementar intentos
-  - Invalidar OTP de forma atÛmica
+  - Invalidar OTP de forma at√≥mica
   - Verificar bloqueo temporal
 
 **Archivos a crear/modificar:**
@@ -3692,12 +3692,12 @@ Antes de Go Live, validar con ambas partes que el contrato est· cumplido.
 **Crear servicio de negocio OTP (canal Email MVP)**
 
 **Reglas a implementar:**
-- Canal inicial ˙nico: Email de BonificaciÛn
-- OTP de 6 dÌgitos
+- Canal inicial √∫nico: Email de Bonificaci√≥n
+- OTP de 6 d√≠gitos
 - TTL 10 minutos
-- ReenvÌo con cooldown 60 segundos
-- InvalidaciÛn atÛmica al validar correctamente
-- No reutilizaciÛn de OTP
+- Reenv√≠o con cooldown 60 segundos
+- Invalidaci√≥n at√≥mica al validar correctamente
+- No reutilizaci√≥n de OTP
 - Mensajes de error neutros
 
 **Archivos a crear/modificar:**
@@ -3710,30 +3710,30 @@ Antes de Go Live, validar con ambas partes que el contrato est· cumplido.
 **Implementar throttling y bloqueo temporal OTP**
 
 **Reglas a implementar:**
-- Throttling por documento/IP: m·ximo 5 solicitudes / 15 minutos
-- Bloqueo temporal: 15 minutos tras 3 fallos de validaciÛn
-- Cooldown de reenvÌo: 60 segundos
-- Mensajes neutros para evitar enumeraciÛn de usuarios
+- Throttling por documento/IP: m√°ximo 5 solicitudes / 15 minutos
+- Bloqueo temporal: 15 minutos tras 3 fallos de validaci√≥n
+- Cooldown de reenv√≠o: 60 segundos
+- Mensajes neutros para evitar enumeraci√≥n de usuarios
 
 **Archivos a crear/modificar:**
 - `OtpAuthenticationService.cs`
-- `appsettings.*.json` (par·metros configurables de lÌmites)
+- `appsettings.*.json` (par√°metros configurables de l√≠mites)
 
 ---
 
 #### TAREA-115 ? ??
-**Integrar envÌo OTP por Email de BonificaciÛn**
+**Integrar env√≠o OTP por Email de Bonificaci√≥n**
 
 **Cambios:**
-- Enviar OTP ˙nicamente a `BonusEmail`
+- Enviar OTP √∫nicamente a `BonusEmail`
 - Validar prerrequisitos RF32/RF33:
   - Cliente tipo distribuidor
-  - Email de BonificaciÛn configurado
-- Manejo de errores SMTP sin revelar detalle tÈcnico al usuario final
+  - Email de Bonificaci√≥n configurado
+- Manejo de errores SMTP sin revelar detalle t√©cnico al usuario final
 
 **Archivos a crear/modificar:**
 - `Aldebaran.Application.Services\Services\OtpAuthenticationService.cs`
-- Servicios de notificaciÛn email existentes
+- Servicios de notificaci√≥n email existentes
 - `appsettings.*.json` (plantilla/asunto/remitente)
 
 ---
@@ -3748,61 +3748,61 @@ Antes de Go Live, validar con ambas partes que el contrato est· cumplido.
 - Respuestas estandarizadas con mensajes neutros
 
 **Archivos a crear/modificar:**
-- Controlador/endpoint de autenticaciÛn p˙blica OTP
+- Controlador/endpoint de autenticaci√≥n p√∫blica OTP
 - DTOs Request/Response de OTP
-- ConfiguraciÛn JWT (si aplica ajuste)
+- Configuraci√≥n JWT (si aplica ajuste)
 
 ---
 
 #### TAREA-117 ? ???
-**Crear interfaz Blazor de autenticaciÛn OTP**
+**Crear interfaz Blazor de autenticaci√≥n OTP**
 
 **Cambios:**
 - Pantalla 1: ingreso de documento y solicitud OTP
-- Pantalla 2: ingreso de OTP, contador TTL y opciÛn de reenvÌo (cooldown 60s)
+- Pantalla 2: ingreso de OTP, contador TTL y opci√≥n de reenv√≠o (cooldown 60s)
 - Mensajes neutros y manejo visual de bloqueo temporal
 
 **Archivos a crear/modificar:**
-- P·gina p˙blica de login OTP (Blazor)
+- P√°gina p√∫blica de login OTP (Blazor)
 - Componentes de formulario OTP
 
 ---
 
 #### TAREA-118 ? ??
-**Implementar auditorÌa mÌnima obligatoria OTP**
+**Implementar auditor√≠a m√≠nima obligatoria OTP**
 
 **Eventos auditables:**
-- Solicitud OTP (Èxito/fallo)
-- ReenvÌo OTP (Èxito/fallo)
-- ValidaciÛn OTP (Èxito/fallo)
+- Solicitud OTP (√©xito/fallo)
+- Reenv√≠o OTP (√©xito/fallo)
+- Validaci√≥n OTP (√©xito/fallo)
 - Motivo de fallo
 - IP
 - Timestamp
 
 **Archivos a crear/modificar:**
-- Tabla/estructura de auditorÌa OTP (si separada) o repositorio de auditorÌa existente
+- Tabla/estructura de auditor√≠a OTP (si separada) o repositorio de auditor√≠a existente
 - `OtpAuthenticationService.cs`
 
 ---
 
 #### TAREA-119 ? ??
-**Pruebas tÈcnicas OTP (unitarias + integraciÛn b·sica)**
+**Pruebas t√©cnicas OTP (unitarias + integraci√≥n b√°sica)**
 
-**Cobertura mÌnima:**
+**Cobertura m√≠nima:**
 - TTL 10 min
 - Hash + salt
-- InvalidaciÛn atÛmica
-- LÌmite 5/15 min por documento/IP
+- Invalidaci√≥n at√≥mica
+- L√≠mite 5/15 min por documento/IP
 - Bloqueo tras 3 fallos
-- Cooldown 60s de reenvÌo
-- EmisiÛn JWT tras validaciÛn correcta
+- Cooldown 60s de reenv√≠o
+- Emisi√≥n JWT tras validaci√≥n correcta
 
 **Archivos a crear/modificar:**
 - Proyecto de pruebas (`Aldebaran.Tests\...`)
 
 ---
 
-#### Resumen de archivos ó OTP MVP Email
+#### Resumen de archivos ‚Äî OTP MVP Email
 
 | Archivo | Tarea | Tipo |
 |---------|-------|------|
@@ -3814,14 +3814,645 @@ Antes de Go Live, validar con ambas partes que el contrato est· cumplido.
 | `IOtpAuthenticationService.cs` | 113 | Nuevo |
 | `OtpAuthenticationService.cs` | 113,114,115,118 | Nuevo |
 | `ApplicationServicesProfile.cs` | 112 | Modificar |
-| Endpoint/Controller OTP p˙blico | 116 | Nuevo |
+| Endpoint/Controller OTP p√∫blico | 116 | Nuevo |
 | DTOs OTP request/response | 116 | Nuevo |
-| P·gina/componentes Blazor OTP | 117 | Nuevo |
+| P√°gina/componentes Blazor OTP | 117 | Nuevo |
 | `appsettings.*.json` | 114,115,116 | Modificar |
 | Pruebas OTP | 119 | Nuevo |
 
 ---
 
-> ? **Con TAREA-111 a TAREA-119 queda cubierto el MVP de autenticaciÛn OTP por Email**,  
-> incluyendo seguridad mÌnima obligatoria: throttling, bloqueo temporal, cooldown de reenvÌo,  
-> almacenamiento hash+salt, invalidaciÛn atÛmica y auditorÌa por intento.
+> ? **Con TAREA-111 a TAREA-119 queda cubierto el MVP de autenticaci√≥n OTP por Email**,  
+> incluyendo seguridad m√≠nima obligatoria: throttling, bloqueo temporal, cooldown de reenv√≠o,  
+> almacenamiento hash+salt, invalidaci√≥n at√≥mica y auditor√≠a por intento.
+
+---
+
+## 2.3 M√≥dulo de Consulta - CU7: Consulta de Bonificaci√≥n (Per√≠odo Actual)
+
+> **Ref. propuesta funcional:** Casos de Uso CU7 + especificaciones de integraci√≥n.  
+> **Alcance:** Consulta REST sin cache + P√°gina interna Blazor + Descarga PDF.  
+> **Autenticaci√≥n:** JWT Bearer + OTP (Email).  
+> **Consumo:** API REST (desde sitio externo) + P√°gina interna Aldebaran.  
+> **Sin cache:** Datos actualizados en tiempo real desde TOTUS y BD.
+
+---
+
+### 2.3.1 Modelos & Respuesta de C√°lculo
+
+#### **TAREA-120 ‚è≥ CREAR: Modelo de respuesta de c√°lculo de bonificaci√≥n**
+
+**Prop√≥sito:** Estructura √∫nica que encapsula TODA la informaci√≥n de bonificaci√≥n para un distribuidor en un per√≠odo.
+
+**Ubicaci√≥n:** `Aldebaran.Application.Services\Models\BonificationCalculationResult.cs`
+
+**Responsabilidades:**
+- Contiene resultados de los 3 bonos (Facturaci√≥n, Pedido, Gamificaci√≥n)
+- Nivel de detalle: solo totales (no l√≠neas individuales)
+- Timestamps de c√°lculo y validez
+- Indicadores de estado (errores parciales, fallback TOTUS, etc.)
+
+**Archivos a crear:**
+- `Aldebaran.Application.Services\Models\BonificationCalculationResult.cs`
+- `Aldebaran.Application.Services\Models\PeriodDateRange.cs`
+- `Aldebaran.Application.Services\Models\BonificationCalculationDetail.cs`
+- `Aldebaran.Application.Services\Models\BonusRangeApplied.cs`
+- `Aldebaran.Application.Services\Models\GamificationLevel.cs`
+
+**Modificar:**
+- `Aldebaran.Application.Services\Mappings\ApplicationServicesProfile.cs` ‚Üí Agregar mappings AutoMapper
+
+**Estimaci√≥n:** 4 horas | **Prioridad:** üî¥ CR√çTICA
+
+---
+
+#### **TAREA-121 ‚è≥ CREAR: Modelo DTO para REST API (Request/Response)**
+
+**Prop√≥sito:** DTOs p√∫blicos que la API REST expone (sin dependencias internas).
+
+**Ubicaci√≥n:**
+- `Aldebaran.Application.Services\DTOs\BonificationConsultationResponse.cs`
+
+**BonificationConsultationResponse:**
+```csharp
+public class BonificationConsultationResponse
+{
+    public bool Success { get; set; }
+    public string Message { get; set; }
+    public BonificationCalculationResult Data { get; set; }
+    public DateTime ResponseTimestamp { get; set; }
+    public string TraceId { get; set; }
+}
+```
+
+**Archivos a crear:**
+- `Aldebaran.Application.Services\DTOs\BonificationConsultationRequest.cs`
+- `Aldebaran.Application.Services\DTOs\BonificationConsultationResponse.cs`
+
+**Estimaci√≥n:** 1.5 horas | **Prioridad:** üî¥ CR√çTICA
+
+---
+
+#### **TAREA-122 ‚è≥ CREAR: Enumeraciones y constantes de gamificaci√≥n**
+
+**Prop√≥sito:** Definir niveles, nombres, rangos de gamificaci√≥n (valores de negocio).
+
+**Ubicaci√≥n:** `Aldebaran.Domain\Constants\GamificationConstants.cs`
+
+**Archivos a crear:**
+- `Aldebaran.Domain\Constants\GamificationConstants.cs`
+- `Aldebaran.Domain\Enums\GamificationLevelEnum.cs`
+
+**Contenido:**
+- Diccionarios de umbrales por nivel (Bronce $0, Plata $1M, Oro $5M, Platino $10M, Diamante $25M)
+- Nombres y colores hexadecimales por nivel
+
+**Estimaci√≥n:** 1 hora | **Prioridad:** üü° MEDIA
+
+---
+
+#### **TAREA-123 ‚è≥ CREAR: Modelo de solicitud de descarga PDF**
+
+**Ubicaci√≥n:** `Aldebaran.Application.Services\DTOs\BonificationPdfDownloadRequest.cs`
+
+**Archivos a crear:**
+- `Aldebaran.Application.Services\DTOs\BonificationPdfDownloadRequest.cs`
+- `Aldebaran.Application.Services\DTOs\BonificationPdfDownloadResponse.cs`
+
+**Estimaci√≥n:** 1 hora | **Prioridad:** üü° MEDIA
+
+---
+
+#### **TAREA-124 ‚è≥ CREAR: Mappings AutoMapper para modelos**
+
+**Modificar:**
+- `Aldebaran.Application.Services\Mappings\ApplicationServicesProfile.cs`
+
+**Mappings necesarios:**
+- `BonificationCalculationResult` ‚Üí `BonificationConsultationResponse`
+- Modelos de gamificaci√≥n y detalles de bonos
+
+**Estimaci√≥n:** 1.5 horas | **Prioridad:** üü° MEDIA
+
+---
+
+### 2.3.2 L√≥gica de C√°lculo (8 tareas)
+
+#### **TAREA-125 ‚è≥ CREAR: Interfaz de servicio de c√°lculo de bonificaci√≥n**
+
+**Ubicaci√≥n:** `Aldebaran.Application.Services\Services\IBonificationCalculationService.cs`
+
+**M√©todos principales:**
+- `CalculateCurrentPeriodAsync(int customerId, string distributorIdentityNumber, CancellationToken ct)`
+- `CalculateGamificationAsync(decimal totalAccumulatedAmount, CancellationToken ct)`
+- `GetActivePeriodAsync(CancellationToken ct)`
+
+**Responsabilidad:** Contrato que orquesta los 3 servicios de c√°lculo
+
+**Estimaci√≥n:** 1 hora | **Prioridad:** üî¥ CR√çTICA
+
+---
+
+#### **TAREA-126 ‚è≥ CREAR: Servicio de c√°lculo de Bono por Facturaci√≥n**
+
+**Ubicaci√≥n:** `Aldebaran.Application.Services\Services\BillingBonusCalculationService.cs`
+
+**Responsabilidad:**
+1. Obtiene facturaci√≥n de TOTUS (sin cache, datos en tiempo real)
+2. Suma OC Especiales APROBADAS en el per√≠odo
+3. Aplica vigencia activa (rangos % seg√∫n tramo)
+4. Retorna: base total √ó % aplicable
+
+**Inyecciones:**
+- `ITotusInvoicingService`
+- `IBonificationSpecialOrderRepository`
+- `IBonificationTypeRepository`
+- `ILogger<BillingBonusCalculationService>`
+
+**Estimaci√≥n:** 6 horas | **Prioridad:** üî¥ CR√çTICA
+
+---
+
+#### **TAREA-127 ‚è≥ CREAR: Servicio de c√°lculo de Bono por Pedido**
+
+**Ubicaci√≥n:** `Aldebaran.Application.Services\Services\OrderBonusCalculationService.cs`
+
+**Responsabilidad:**
+1. Suma todas las √≥rdenes del distribuidor (excluyendo `IsSpecialOrder=true`)
+2. Aplica descuento global por volumen (DiscountVigency si existe)
+3. Suma OC Especiales APROBADAS
+4. Aplica vigencia de tipo ORDER
+5. Retorna: (base total - descuentos) √ó % aplicable
+
+**Estimaci√≥n:** 6 horas | **Prioridad:** üî¥ CR√çTICA
+
+---
+
+#### **TAREA-128 ‚è≥ CREAR: Servicio de c√°lculo de Gamificaci√≥n**
+
+**Ubicaci√≥n:** `Aldebaran.Application.Services\Services\GamificationCalculationService.cs`
+
+**Responsabilidad:** Calcula el nivel actual y pr√≥ximo basado en total acumulado
+
+**L√≥gica:**
+- Determinar nivel actual seg√∫n umbral
+- Calcular pr√≥ximo nivel
+- Calcular progreso en porcentaje
+- Monto faltante para siguiente nivel
+
+**Estimaci√≥n:** 3 horas | **Prioridad:** üü° MEDIA
+
+---
+
+#### **TAREA-129 ‚è≥ CREAR: Implementaci√≥n del servicio de c√°lculo principal**
+
+**Ubicaci√≥n:** `Aldebaran.Application.Services\Services\BonificationCalculationService.cs`
+
+**Responsabilidad:** Orquesta los 3 servicios de c√°lculo y consolida resultado
+
+**Flujo:**
+1. Validar distribuidor
+2. Obtener per√≠odo actual
+3. Calcular bonos (Facturaci√≥n + Pedido)
+4. Calcular gamificaci√≥n
+5. Construir resultado consolidado
+6. Manejo de excepciones con mensajes neutros
+
+**Estimaci√≥n:** 4 horas | **Prioridad:** üî¥ CR√çTICA
+
+---
+
+#### **TAREA-130 ‚è≥ CREAR: Extensiones a repositorios existentes**
+
+**Modificar:**
+- `ICustomerOrderRepository` ‚Üí Agregar `GetSumByCustomerInPeriodAsync`
+- `IBonificationPeriodRepository` ‚Üí Agregar `GetActiveInstanceAsync`
+- `IDiscountVigencyRepository` ‚Üí Validar `GetActiveAsync`
+
+**M√©todos a agregar:**
+- `GetSumByCustomerInPeriodAsync(customerId, startDate, endDate, excludeSpecialOrders, ct)`
+- `GetActiveInstanceAsync(ct)`
+- `GetActiveAsync(ct)`
+
+**Estimaci√≥n:** 3 horas | **Prioridad:** üü° MEDIA
+
+---
+
+#### **TAREA-131 ‚è≥ CREAR: Servicio de validaci√≥n de acceso**
+
+**Ubicaci√≥n:** `Aldebaran.Application.Services\Services\BonificationAccessValidationService.cs`
+
+**Responsabilidad:** Valida que un distribuidor puede consultar su bonificaci√≥n
+
+**Reglas:**
+- Existe en BD
+- Es tipo DISTRIBUIDOR
+- Est√° activo
+- Tiene email de bonificaci√≥n configurado
+
+**Estimaci√≥n:** 2 horas | **Prioridad:** üü° MEDIA
+
+---
+
+### 2.3.3 REST API (5 tareas)
+
+#### **TAREA-132 ‚è≥ CREAR: Controlador REST de consulta de bonificaci√≥n**
+
+**Ubicaci√≥n:** `Aldebaran.Web\Controllers\Api\BonificationConsultationController.cs`
+
+**Endpoints:**
+- `GET /api/bonification/consult` ‚Üí Endpoint principal sin par√°metros en body
+
+**Autenticaci√≥n:**
+- JWT Bearer (8 horas) + OTP validado
+
+**Respuesta:**
+- Siempre 200 OK con formato `BonificationConsultationResponse`
+- Mensajes neutros ante errores
+- `TraceId` para auditor√≠a
+
+**Estimaci√≥n:** 3 horas | **Prioridad:** üî¥ CR√çTICA
+
+---
+
+#### **TAREA-133 ‚è≥ CREAR: Middleware de autenticaci√≥n JWT+OTP**
+
+**Ubicaci√≥n:** `Aldebaran.Web\Middleware\BonificationAuthenticationMiddleware.cs`
+
+**Responsabilidad:**
+- Validar JWT Bearer
+- Verificar OTP v√°lido en sesi√≥n
+- Inyectar contexto de distribuidor
+- Rechazar con 401 si no v√°lido
+
+**Estimaci√≥n:** 4 horas | **Prioridad:** üî¥ CR√çTICA
+
+---
+
+#### **TAREA-134 ‚è≥ CREAR: Endpoint de verificaci√≥n de salud API**
+
+**Ubicaci√≥n:** `Aldebaran.Web\Controllers\Api\HealthController.cs`
+
+**Endpoints:**
+- `GET /api/health/ready` ‚Üí Liveness probe
+- `GET /api/health/live` ‚Üí Readiness probe
+
+**Checks:**
+- Conexi√≥n BD Aldebaran
+- Conexi√≥n TOTUS (fallback OK)
+- Cache Redis (si aplica)
+
+**Estimaci√≥n:** 2 horas | **Prioridad:** üü° MEDIA
+
+---
+
+#### **TAREA-135 ‚è≥ CREAR: Configuraci√≥n CORS para sitio externo**
+
+**Modificar:**
+- `Aldebaran.Web\Program.cs` o `Startup.cs`
+
+**Configuraci√≥n:**
+- Origen permitido: `https://www.catalogospromocionales.com` (configurable por ambiente)
+- M√©todos: GET
+- Headers: `Authorization`, `Content-Type`
+- Credentials: false (sitio externo)
+
+**Estimaci√≥n:** 1 hora | **Prioridad:** üü° MEDIA
+
+---
+
+#### **TAREA-136 ‚è≥ CREAR: Documentaci√≥n OpenAPI/Swagger**
+
+**Ubicaci√≥n:** `Aldebaran.Web\SwaggerDocs\BonificationApi.cs`
+
+**Documentaci√≥n:**
+- Descripci√≥n de endpoints
+- Modelos de request/response
+- C√≥digos de respuesta (200, 401, 500)
+- Autenticaci√≥n JWT+OTP
+- Rate limiting (si aplica)
+
+**Estimaci√≥n:** 2 horas | **Prioridad:** üü° MEDIA
+
+---
+
+### 2.3.4 Descarga PDF (3 tareas)
+
+#### **TAREA-137 ‚è≥ CREAR: Servicio de generaci√≥n PDF de bonificaci√≥n**
+
+**Ubicaci√≥n:** `Aldebaran.Application.Services\Services\IBonificationPdfGenerationService.cs`
+
+**Responsabilidad:**
+- Recalcula bonificaci√≥n (sin cache, datos puntuales)
+- Genera documento PDF con:
+  - Encabezado: distribuidor, per√≠odo, fecha emisi√≥n
+  - Desglose de bonos
+  - Gamificaci√≥n actual
+  - Descargo: "Consulta puntual sin garant√≠a de vigencia"
+  - Timestamp y firma (opcional para MVP)
+
+**Estimaci√≥n:** 5 horas | **Prioridad:** üü° MEDIA
+
+---
+
+#### **TAREA-138 ‚è≥ CREAR: Endpoint de descarga PDF**
+
+**Ubicaci√≥n:** `Aldebaran.Web\Controllers\Api\BonificationPdfController.cs`
+
+**Endpoint:**
+- `POST /api/bonification/pdf/download` ‚Üí Body: `BonificationPdfDownloadRequest`
+
+**Flujo:**
+1. Autenticaci√≥n JWT+OTP
+2. Recalcular bonificaci√≥n
+3. Generar PDF
+4. Retornar archivo o URL temporal
+
+**Respuesta:**
+- Cabecera `Content-Disposition: attachment`
+- MIME type: `application/pdf`
+- Nombre: `Bonificacion_{Distribuidor}_{Fecha}.pdf`
+
+**Estimaci√≥n:** 2 horas | **Prioridad:** üü° MEDIA
+
+---
+
+#### **TAREA-139 ‚è≥ CREAR: Auditor√≠a de descargas PDF**
+
+**Ubicaci√≥n:** Tabla de auditor√≠a `BonificationPdfDownloads`
+
+**Campos:**
+- Distribuidor
+- Fecha descarga
+- IP
+- User-Agent
+- √âxito/Fallo
+- Timestamp
+
+**L√≥gica:**
+- Registrar cada descarga exitosa
+- Registrar intentos fallidos
+- √çndices por distribuidor + fecha
+
+**Estimaci√≥n:** 1 hora | **Prioridad:** üü° MEDIA
+
+---
+
+### 2.3.5 Frontend Blazor (5 tareas)
+
+#### **TAREA-140 ‚è≥ CREAR: P√°gina de consulta interna `BonificationConsultation.razor`**
+
+**Ruta:** `Pages\BonificationPages\BonificationConsultation.razor`  
+**URL:** `/bonification/consult` (solo acceso interno autenticado)  
+**Rol:** `Consulta de bonificaciones`
+
+**Estructura:**
+- Selector de distribuidor (dropdown o b√∫squeda)
+- Bot√≥n "Consultar"
+- Indicador de carga
+- Desglose visual:
+  - Total del bono (grande y destacado)
+  - Tarjetas por tipo: Facturaci√≥n, Pedido, Gamificaci√≥n
+  - Tabla de detalles de c√°lculo
+- Bot√≥n "Descargar PDF"
+
+**Estimaci√≥n:** 6 horas | **Prioridad:** üü° MEDIA
+
+---
+
+#### **TAREA-141 ‚è≥ CREAR: Componente de desglose de bonificaci√≥n**
+
+**Ubicaci√≥n:** `Pages\BonificationPages\Components\BonificationDetailComponent.razor`
+
+**Responsabilidad:**
+- Mostrar bono por facturaci√≥n (base, %, monto)
+- Mostrar bono por pedido (base, descuentos, %, monto)
+- Mostrar total consolidado
+
+**Props:**
+- `BonificationCalculationDetail` para cada tipo
+
+**Estimaci√≥n:** 3 horas | **Prioridad:** üü° MEDIA
+
+---
+
+#### **TAREA-142 ‚è≥ CREAR: Componente de gamificaci√≥n visual**
+
+**Ubicaci√≥n:** `Pages\BonificationPages\Components\GamificationCardComponent.razor`
+
+**Responsabilidad:**
+- Mostrar nivel actual (nombre + color + √≠cono)
+- Barra de progreso hacia siguiente nivel
+- Texto: "Falta $X para Nivel Y"
+- Informaci√≥n de umbrales
+
+**Props:**
+- `GamificationLevel`
+
+**Estimaci√≥n:** 4 horas | **Prioridad:** üü° MEDIA
+
+---
+
+#### **TAREA-143 ‚è≥ CREAR: Servicio cliente REST**
+
+**Ubicaci√≥n:** `Aldebaran.Web\Services\BonificationConsultationService.cs`
+
+**Responsabilidad:**
+- Consumir `/api/bonification/consult`
+- Manejar JWT + OTP desde sesi√≥n
+- Manejo de errores con try/catch
+- Retry l√≥gico
+
+**M√©todos:**
+- `GetBonificationAsync(customerId, ct)`
+- `DownloadPdfAsync(customerId, ct)`
+
+**Estimaci√≥n:** 3 horas | **Prioridad:** üü° MEDIA
+
+---
+
+#### **TAREA-144 ‚è≥ CREAR: Manejo de errores UI y fallback visual**
+
+**Ubicaci√≥n:** `Pages\BonificationPages\BonificationConsultation.razor.cs`
+
+**Responsabilidad:**
+- Mostrar `RadzenAlert` rojo si error
+- Mensajes neutros al usuario
+- Sugerir contactar a soporte
+- Logging de error (incluye TraceId)
+
+**Estados:**
+- Cargando
+- Error con fallback (usando √∫ltimo valor conocido si aplica)
+- Sin datos
+- Datos actuales
+
+**Estimaci√≥n:** 2 horas | **Prioridad:** üü° MEDIA
+
+---
+
+### 2.3.6 Integraci√≥n y Testing (4 tareas)
+
+#### **TAREA-145 ‚è≥ CREAR: Pruebas unitarias de c√°lculo**
+
+**Ubicaci√≥n:** `Aldebaran.Tests\Services\BonificationCalculationServiceTests.cs`
+
+**Cobertura:**
+- C√°lculo bono facturaci√≥n (con/sin OC especiales)
+- C√°lculo bono pedido (con/sin descuentos)
+- Gamificaci√≥n (progreso entre niveles)
+- Manejo de errores TOTUS (fallback)
+
+**Estimaci√≥n:** 5 horas | **Prioridad:** üü° MEDIA
+
+---
+
+#### **TAREA-146 ‚è≥ CREAR: Pruebas de integraci√≥n API REST**
+
+**Ubicaci√≥n:** `Aldebaran.Tests.Integration\BonificationApiTests.cs`
+
+**Cobertura:**
+- GET `/api/bonification/consult` con JWT+OTP v√°lido
+- Rechazo sin JWT
+- Rechazo con OTP inv√°lido
+- Respuesta con estructura esperada
+- C√≥digos HTTP correctos
+
+**Estimaci√≥n:** 4 horas | **Prioridad:** üü° MEDIA
+
+---
+
+#### **TAREA-147 ‚è≥ CREAR: Pruebas E2E Blazor**
+
+**Ubicaci√≥n:** `Aldebaran.Tests.E2E\BonificationConsultationTests.cs`
+
+**Cobertura:**
+- Cargar p√°gina de consulta
+- Seleccionar distribuidor
+- Consultar bonificaci√≥n
+- Verificar desglose visible
+- Descargar PDF
+
+**Herramienta:** Selenium / Playwright / Cypress
+
+**Estimaci√≥n:** 6 horas | **Prioridad:** üü° MEDIA
+
+---
+
+#### **TAREA-148 ‚è≥ CREAR: Plan de seguridad y compliance**
+
+**Ubicaci√≥n:** `docs/CU7_Security_Compliance_Plan.md`
+
+**Cobertura:**
+- Validaciones de entrada (inyecci√≥n SQL, XSS)
+- Autorizaci√≥n por rol
+- Encriptaci√≥n de datos en tr√°nsito (HTTPS)
+- Auditor√≠a de accesos
+- RGPD: logs con PII limitado (documento solo √∫ltimos 4 d√≠gitos)
+- Rate limiting
+
+**Estimaci√≥n:** 3 horas | **Prioridad:** üü° MEDIA
+
+---
+
+### 2.3.7 Deployment y Monitoreo (3 tareas)
+
+#### **TAREA-149 ‚è≥ CREAR: Configuraci√≥n de variables de ambiente**
+
+**Ubicaci√≥n:** `appsettings.*.json` y `.env` template
+
+**Variables:**
+- `BonificationApiBaseUrl`
+- `JwtTokenExpiry` (8 horas)
+- `OtpExpiry` (10 min)
+- `TotusConnectionString`
+- `CorsOrigin` (sitio externo)
+- `PdfGenerationTimeout`
+
+**Estimaci√≥n:** 1 hora | **Prioridad:** üü° MEDIA
+
+---
+
+#### **TAREA-150 ‚è≥ CREAR: Configuraci√≥n de logging y observabilidad**
+
+**Ubicaci√≥n:** `Program.cs` / `Startup.cs`
+
+**Implementaci√≥n:**
+- Logging de cada consulta (documento + timestamp)
+- Application Insights para monitoreo
+- Alertas por latencia > 1s
+- Alertas por error rate > 5%
+
+**Estimaci√≥n:** 2 horas | **Prioridad:** üü° MEDIA
+
+---
+
+#### **TAREA-151 ‚è≥ CREAR: Gu√≠a de deployment y rollback**
+
+**Ubicaci√≥n:** `docs/CU7_Deployment_Guide.md`
+
+**Contenido:**
+- Prerequisitos (TOTUS accesible, BD actualizada)
+- Pasos de deployment (scripts DB, configuraci√≥n)
+- Verificaciones post-deploy (health checks)
+- Plan de rollback
+- SLA esperado (< 500ms latencia, 99.5% disponibilidad)
+
+**Estimaci√≥n:** 2 horas | **Prioridad:** üü° MEDIA
+
+---
+
+### Resumen de archivos ‚Äî CU7: Consulta de Bonificaci√≥n
+
+**Total de TAREAS:** 151 - 119 = **32 TAREAS NUEVAS (TAREA-120 a TAREA-151)**
+
+**Estimaci√≥n total:** ~120 horas de desarrollo
+
+| √Årea | Tareas | Estimaci√≥n |
+|------|--------|-----------|
+| Modelos & DTOs | 120-124 | 9 h |
+| L√≥gica C√°lculo | 125-131 | 24 h |
+| REST API | 132-136 | 12 h |
+| PDF | 137-139 | 8 h |
+| Frontend Blazor | 140-144 | 18 h |
+| Testing | 145-148 | 18 h |
+| Deploy | 149-151 | 5 h |
+
+---
+
+> ‚úÖ **Con TAREA-120 a TAREA-151 queda completamente cubierto CU7: Consulta de Bonificaci√≥n (Per√≠odo Actual)**, incluyendo:
+> - C√°lculo din√°mico sin cache
+> - API REST p√∫blica + autenticaci√≥n OTP
+> - P√°gina interna Blazor
+> - Descarga PDF con rec√°lculo
+> - Auditor√≠a y observabilidad
+> - Seguridad y compliance
+> - Testing completo
+> - Deployment y monitoreo
+
+---
+
+## üìä RESUMEN GLOBAL DE TAREAS
+
+**Estructura completa del Sistema de Bonificaci√≥n de Distribuidores:**
+
+| M√≥dulo | Secci√≥n | Tareas | Estado |
+|--------|---------|--------|--------|
+| **Administraci√≥n** | 2.1.1 Clientes | 001-010 | üî¥ Pendiente |
+| | 2.1.2 Reportes | (incluidas en 001-010) | üî¥ Pendiente |
+| | 2.1.3 Per√≠odos | 011-028 | üî¥ Pendiente |
+| | 2.1.4 Rangos | 029-036 | üî¥ Pendiente |
+| | 2.1.5 Descuentos | 037-045 | üî¥ Pendiente |
+| **Operaciones** | 2.2.1 OC Especiales | 046-058 | üî¥ Pendiente |
+| | 2.2.2 Carga Masiva OC | (incluidas en 046-058) | üî¥ Pendiente |
+| | 2.2.3 Conciliaci√≥n NC | 059-069 | üî¥ Pendiente |
+| | 2.2.4 Lista Precios | 070-078 | üî¥ Pendiente |
+| | 2.2.5 Exclusiones | 079-095 | üî¥ Pendiente |
+| | 2.2.6 TOTUS SP | 096-110 | üî¥ Pendiente |
+| | 2.2.7 OTP | 111-119 | üî¥ Pendiente |
+| **Consulta** | 2.3.1-2.3.7 CU7 | 120-151 | üî¥ Pendiente |
+| | | | |
+| **TOTAL** | | **151 TAREAS** | üî¥ Pendiente |
+
+---
+

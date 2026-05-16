@@ -586,8 +586,6 @@ Configurar vigencias (rangos de valores de compra con bonificaciones asociadas) 
 
 ---
 
----
-
 ### 2.2.2 Módulo de Consulta de Bonificación (Distribuidor - Sitio Público)
 
 Este módulo permite a los distribuidores acceder de forma segura a su información de bonificación sin necesidad de contactar a PROMOS.

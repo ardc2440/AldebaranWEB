@@ -252,42 +252,143 @@
 
 ---
 
+### 4.3.4 – Generación y Consulta de Bonificación Actual (CU7)
+
+#### 4.3.4.1 – Modelos & Respuesta de Cálculo
+
+| # | Tarea | Descripción | Horas | Prioridad |
+|---|-------|-------------|-------|-----------|
+| TAREA-120 | Crear modelo de respuesta de cálculo de bonificación | Estructura única `BonificationCalculationResult` + `PeriodDateRange` + `BonificationCalculationDetail` + `BonusRangeApplied` + `GamificationLevel` | 4 | ?? REQUERIDO |
+| TAREA-121 | Crear modelo DTO para REST API (Request/Response) | `BonificationConsultationRequest` + `BonificationConsultationResponse` | 1.5 | ?? REQUERIDO |
+| TAREA-122 | Crear enumeraciones y constantes de gamificación | Umbrales por nivel (Bronce $0, Plata $1M, Oro $5M, Platino $10M, Diamante $25M) + nombres + colores | 1 | ?? REQUERIDO |
+| TAREA-123 | Crear modelo de solicitud de descarga PDF | `BonificationPdfDownloadRequest` + `BonificationPdfDownloadResponse` | 1 | ?? REQUERIDO |
+| TAREA-124 | Crear mappings AutoMapper para modelos | Mappings bidireccionales en `ApplicationServicesProfile.cs` | 1.5 | ?? REQUERIDO |
+| | | **Subtotal 4.3.4.1** | **9** | |
+
+---
+
+#### 4.3.4.2 – Lógica de Cálculo
+
+| # | Tarea | Descripción | Horas | Prioridad |
+|---|-------|-------------|-------|-----------|
+| TAREA-125 | Crear interfaz de servicio de cálculo de bonificación | `IBonificationCalculationService` con métodos principales | 1 | ?? REQUERIDO |
+| TAREA-126 | Crear servicio de cálculo de Bono por Facturación | `BillingBonusCalculationService` (TOTUS + OC especiales + vigencia) | 6 | ?? REQUERIDO |
+| TAREA-127 | Crear servicio de cálculo de Bono por Pedido | `OrderBonusCalculationService` (pedidos + descuentos + OC especiales + vigencia) | 6 | ?? REQUERIDO |
+| TAREA-128 | Crear servicio de cálculo de Gamificación | `GamificationCalculationService` (determinación de nivel + progreso) | 3 | ?? REQUERIDO |
+| TAREA-129 | Crear implementación del servicio de cálculo principal | `BonificationCalculationService` (orquestación + consolidación) | 4 | ?? REQUERIDO |
+| TAREA-130 | Crear extensiones a repositorios existentes | Métodos faltantes: `GetSumByCustomerInPeriodAsync`, `GetActiveInstanceAsync`, `GetActiveAsync` | 3 | ?? REQUERIDO |
+| TAREA-131 | Crear servicio de validación de acceso | `BonificationAccessValidationService` (validaciones de distribuidor) | 2 | ?? REQUERIDO |
+| | | **Subtotal 4.3.4.2** | **25** | |
+
+---
+
+#### 4.3.4.3 – REST API
+
+| # | Tarea | Descripción | Horas | Prioridad |
+|---|-------|-------------|-------|-----------|
+| TAREA-132 | Crear controlador REST de consulta de bonificación | `BonificationConsultationController` con endpoint `GET /api/bonification/consult` | 3 | ?? REQUERIDO |
+| TAREA-133 | Crear middleware de autenticación JWT+OTP | `BonificationAuthenticationMiddleware` (validación JWT + OTP) | 4 | ?? REQUERIDO |
+| TAREA-134 | Crear endpoint de verificación de salud API | Health checks (BD Aldebaran, TOTUS, Redis) | 2 | ?? REQUERIDO |
+| TAREA-135 | Crear configuración CORS para sitio externo | CORS para `https://www.catalogospromocionales.com` | 1 | ?? REQUERIDO |
+| TAREA-136 | Crear documentación OpenAPI/Swagger | Documentación completa de endpoints | 2 | ?? SUGERIDO |
+| | | **Subtotal 4.3.4.3** | **12** | |
+
+---
+
+#### 4.3.4.4 – Descarga PDF
+
+| # | Tarea | Descripción | Horas | Prioridad |
+|---|-------|-------------|-------|-----------|
+| TAREA-137 | Crear servicio de generación PDF de bonificación | `IBonificationPdfGenerationService` (recalcula + genera documento + timestamp) | 5 | ?? REQUERIDO |
+| TAREA-138 | Crear endpoint de descarga PDF | `BonificationPdfController` con endpoint `POST /api/bonification/pdf/download` | 2 | ?? REQUERIDO |
+| TAREA-139 | Crear auditoría de descargas PDF | Tabla + logging de descargas y intentos | 1 | ?? REQUERIDO |
+| | | **Subtotal 4.3.4.4** | **8** | |
+
+---
+
+#### 4.3.4.5 – Frontend Blazor
+
+| # | Tarea | Descripción | Horas | Prioridad |
+|---|-------|-------------|-------|-----------|
+| TAREA-140 | Crear página de consulta interna `BonificationConsultation.razor` | Página con selector, desglose visual + botón descarga | 6 | ?? REQUERIDO |
+| TAREA-141 | Crear componente de desglose de bonificación | `BonificationDetailComponent.razor` (facturación, pedido, totales) | 3 | ?? REQUERIDO |
+| TAREA-142 | Crear componente de gamificación visual | `GamificationCardComponent.razor` (nivel + progreso + barra) | 4 | ?? REQUERIDO |
+| TAREA-143 | Crear servicio cliente REST | `BonificationConsultationService.cs` (consumo API + retry lógico) | 3 | ?? REQUERIDO |
+| TAREA-144 | Crear manejo de errores UI y fallback visual | Estados (cargando, error, sin datos, actuales) + mensajes neutros | 2 | ?? REQUERIDO |
+| | | **Subtotal 4.3.4.5** | **18** | |
+
+---
+
+#### 4.3.4.6 – Integración y Testing
+
+| # | Tarea | Descripción | Horas | Prioridad |
+|---|-------|-------------|-------|-----------|
+| TAREA-145 | Crear pruebas unitarias de cálculo | `BonificationCalculationServiceTests.cs` (cobertura facturas, pedidos, gamificación) | 5 | ?? SUGERIDO |
+| TAREA-146 | Crear pruebas de integración API REST | `BonificationApiTests.cs` (JWT+OTP, códigos HTTP, estructura) | 4 | ?? SUGERIDO |
+| TAREA-147 | Crear pruebas E2E Blazor | `BonificationConsultationTests.cs` (Selenium/Playwright) | 6 | ?? SUGERIDO |
+| TAREA-148 | Crear plan de seguridad y compliance | Documento de validaciones, autorización, encriptación, auditoría, RGPD | 3 | ?? SUGERIDO |
+| | | **Subtotal 4.3.4.6** | **18** | |
+
+---
+
+#### 4.3.4.7 – Deployment y Monitoreo
+
+| # | Tarea | Descripción | Horas | Prioridad |
+|---|-------|-------------|-------|-----------|
+| TAREA-149 | Crear configuración de variables de ambiente | `appsettings.*.json` y `.env` template (API URL, JWT, OTP, TOTUS, CORS) | 1 | ?? REQUERIDO |
+| TAREA-150 | Crear configuración de logging y observabilidad | Application Insights + alertas latencia > 1s, error rate > 5% | 2 | ?? REQUERIDO |
+| TAREA-151 | Crear guía de deployment y rollback | Documento con pasos, verificaciones, rollback plan, SLA esperado | 2 | ?? REQUERIDO |
+| | | **Subtotal 4.3.4.7** | **5** | |
+
+---
+
+| | | **TOTAL 4.3.4** | **95** | |
+
+---
+
 ## Resumen Ejecutivo
 
 ### Por Módulo
 
 | Módulo | Tareas | Horas | % del Total |
 |--------|--------|-------|-------------|
-| 4.3.1.1 – Configuración de Clientes Distribuidores | 10 | 21 | 3.7% |
-| 4.3.1.2 – Configuración de Períodos de Bonificación | 18 | 102 | 17.7% |
-| 4.3.1.3 – Configuración de Vigencias para Tipos de Bonificación | 8 | 36 | 6.3% |
-| 4.3.1.4 – Configuración de Vigencias para Descuentos por Total de Pedido | 9 | 41 | 7.1% |
-| 4.3.2.1 – Gestión Manual de Ordenes de Compra Especiales | 9 | 35 | 6.1% |
-| 4.3.2.2 – Gestión Masiva de Ordenes de Compra Especiales | 4 | 27 | 4.7% |
-| 4.3.2.3 – Gestión Manual de Conciliación de Notas Crédito | 6 | 46 | 8.0% |
-| 4.3.2.4 – Gestión Masiva de Conciliación de Notas Crédito | 5 | 32 | 5.6% |
-| 4.3.2.5 – Actualización Diaria de Lista de Precios Promocional | 9 | 49 | 8.5% |
-| 4.3.2.6 – Gestión de Pedidos Especiales | 17 | 63 | 11.0% |
-| 4.3.2.7 – Solicitud de Información de Facturación a TOTUS | 15 | 45 | 7.8% |
-| 4.3.3.1 – Autenticación OTP (MVP Email) | 9 | 51 | 8.9% |
-| **TOTAL** | **119** | **575** | **100%** |
+| 4.3.1.1 – Configuración de Clientes Distribuidores | 10 | 21 | 2.9% |
+| 4.3.1.2 – Configuración de Períodos de Bonificación | 18 | 102 | 14.1% |
+| 4.3.1.3 – Configuración de Vigencias para Tipos de Bonificación | 8 | 36 | 5.0% |
+| 4.3.1.4 – Configuración de Vigencias para Descuentos por Total de Pedido | 9 | 41 | 5.7% |
+| 4.3.2.1 – Gestión Manual de Ordenes de Compra Especiales | 9 | 35 | 4.8% |
+| 4.3.2.2 – Gestión Masiva de Ordenes de Compra Especiales | 4 | 27 | 3.7% |
+| 4.3.2.3 – Gestión Manual de Conciliación de Notas Crédito | 6 | 46 | 6.4% |
+| 4.3.2.4 – Gestión Masiva de Conciliación de Notas Crédito | 5 | 32 | 4.4% |
+| 4.3.2.5 – Actualización Diaria de Lista de Precios Promocional | 9 | 49 | 6.8% |
+| 4.3.2.6 – Gestión de Pedidos Especiales | 17 | 63 | 8.7% |
+| 4.3.2.7 – Solicitud de Información de Facturación a TOTUS | 15 | 45 | 6.2% |
+| 4.3.3.1 – Autenticación OTP (MVP Email) | 9 | 51 | 7.0% |
+| 4.3.4.1 – Modelos & Respuesta de Cálculo | 5 | 9 | 1.2% |
+| 4.3.4.2 – Lógica de Cálculo | 7 | 25 | 3.5% |
+| 4.3.4.3 – REST API | 5 | 12 | 1.7% |
+| 4.3.4.4 – Descarga PDF | 3 | 8 | 1.1% |
+| 4.3.4.5 – Frontend Blazor | 5 | 18 | 2.5% |
+| 4.3.4.6 – Integración y Testing | 4 | 18 | 2.5% |
+| 4.3.4.7 – Deployment y Monitoreo | 3 | 5 | 0.7% |
+| **TOTAL** | **151** | **724** | **100%** |
 
 ### Por Prioridad
 
 | Prioridad | Tareas | Horas | % del Total |
 |-----------|--------|-------|-------------|
-| 🔴 REQUERIDO | 87 | 470 | 81.7% |
-| 🟡 SUGERIDO | 28 | 105 | 18.3% |
-| 🟢 DESEABLE | 4 | 13 | 2.3% |
-| **TOTAL** | **119** | **575** | **100%** |
+| 🔴 REQUERIDO | 118 | 603 | 83.3% |
+| 🟡 SUGERIDO | 32 | 116 | 16.0% |
+| 🟢 DESEABLE | 4 | 5 | 0.7% |
+| **TOTAL** | **154** | **724** | **100%** |
 
 ### Escenarios de Contratación
 
 | Escenario | Descripción | Horas | Días hábiles (8h) |
 |-----------|-------------|-------|-------------------|
-| **MVP Mínimo** | Solo tareas REQUERIDAS (87 tareas) | 470 | ~59 |
-| **MVP Recomendado** | REQUERIDAS + SUGERIDAS sin masivos | 525 | ~66 |
-| **Alcance Completo** | Todas las tareas (119) | 575 | ~72 |
+| **MVP Mínimo** | Solo tareas REQUERIDAS (118 tareas) | 603 | ~75 |
+| **MVP Recomendado** | REQUERIDAS + SUGERIDAS sin masivos (145 tareas) | 719 | ~90 |
+| **Alcance Completo** | Todas las tareas (151) | 724 | ~91 |
 
 ---
 
@@ -306,7 +407,13 @@
 - **4.3.2.6**: 12 tareas | 54h
 - **4.3.2.7**: 10 tareas | 32h
 - **4.3.3.1**: 8 tareas | 45h
-- **Total REQUERIDAS**: 87 tareas | 470h
+- **4.3.4.1**: 5 tareas | 9h (todas REQUERIDAS)
+- **4.3.4.2**: 7 tareas | 25h (todas REQUERIDAS)
+- **4.3.4.3**: 4 tareas | 10h (4.3.4.3 sin TAREA-136)
+- **4.3.4.4**: 3 tareas | 8h (todas REQUERIDAS)
+- **4.3.4.5**: 5 tareas | 18h (todas REQUERIDAS)
+- **4.3.4.7**: 3 tareas | 5h (todas REQUERIDAS)
+- **Total REQUERIDAS**: 118 tareas | 603h
 
 ### Tareas SUGERIDAS por Módulo
 - **4.3.1.1**: 4 tareas | 6h
@@ -317,11 +424,13 @@
 - **4.3.2.6**: 5 tareas | 17h
 - **4.3.2.7**: 5 tareas | 13h
 - **4.3.3.1**: 1 tarea | 6h
-- **Total SUGERIDAS**: 28 tareas | 105h
+- **4.3.4.3**: 1 tarea | 2h (TAREA-136)
+- **4.3.4.6**: 4 tareas | 18h (TAREA-145, TAREA-146, TAREA-147, TAREA-148)
+- **Total SUGERIDAS**: 32 tareas | 116h
 
 ### Tareas DESEABLE por Módulo
-- **4.3.1.1**: 4 tareas | 13h (TAREA-007, TAREA-008, TAREA-009, TAREA-010)
-- **Total DESEABLE**: 4 tareas | 13h
+- **4.3.1.1**: 4 tareas | 5h (TAREA-007, TAREA-008, TAREA-009, TAREA-010)
+- **Total DESEABLE**: 4 tareas | 5h
 
 ---
 
@@ -329,10 +438,10 @@
 
 | Categoría | Tareas | Horas | % |
 |-----------|--------|-------|---|
-| 🔴 REQUERIDO | 87 | 470 | 81.7% |
-| 🟡 SUGERIDO | 28 | 105 | 18.3% |
-| 🟢 DESEABLE | 4 | 13 | 2.3% |
-| **TOTAL** | **119** | **588** | **100%** |
+| 🔴 REQUERIDO | 118 | 603 | 83.3% |
+| 🟡 SUGERIDO | 32 | 116 | 16.0% |
+| 🟢 DESEABLE | 4 | 5 | 0.7% |
+| **TOTAL** | **154** | **724** | **100%** |
 
-> **Nota**: El total verificado es **588h** = 470 + 105 + 13. Este es el verdadero total del proyecto incluyendo todas las categorías de prioridad.
+> **Nota**: El total verificado es **724h** = 603 + 116 + 5. Este es el verdadero total del proyecto incluyendo todas las categorías de prioridad y las 151 tareas principales (sin contar las 3 tareas canceladas de TAREA-020 y TAREA-021).
 
