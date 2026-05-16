@@ -3637,3 +3637,191 @@ Antes de Go Live, validar con ambas partes que el contrato está cumplido.
 > auditoría técnica, alertamiento proactivo y validación de SLA. Este es el **insumo crítico final**  
 > para el cálculo de Bono por Facturación con datos actualizados del ERP externo.
 
+
+---
+
+### 2.2.7 Autenticación OTP (MVP Email)
+
+> Ref. propuesta funcional: sección 2.2.2.1 (CU6) + ajustes MVP de seguridad OTP.  
+> Alcance MVP: **solo OTP por Email de Bonificación** (SMS diferido a fase posterior).
+
+---
+
+#### TAREA-111 ? ??
+**Crear infraestructura de persistencia OTP segura**
+ 
+**Cambios:**
+- Crear tabla para OTP con:
+  - Documento
+  - OTP hash
+  - Salt
+  - Expiración (TTL 10 min)
+  - Intentos fallidos
+  - Fecha/hora de uso (invalidación por uso)
+  - Estado (Activo/Usado/Expirado/Bloqueado)
+- Índices por documento + estado + expiración
+
+**Archivo a crear/modificar:**
+- `scripts/CreateOtpAuthenticationTables.sql`
+
+---
+
+#### TAREA-112 ? ??
+**Crear modelos/entidades y repositorio OTP**
+
+**Cambios:**
+- Crear entidad EF para OTP
+- Crear modelo de servicio OTP (POCO)
+- Crear `IOtpAuthenticationRepository` + implementación con operaciones:
+  - Crear OTP
+  - Obtener OTP activo por documento
+  - Incrementar intentos
+  - Invalidar OTP de forma atómica
+  - Verificar bloqueo temporal
+
+**Archivos a crear/modificar:**
+- `Aldebaran.DataAccess\Entities\OtpAuthentication.cs`
+- `Aldebaran.Application.Services\Models\OtpAuthentication.cs`
+- `Aldebaran.DataAccess.Infraestructure\Repository\IOtpAuthenticationRepository.cs`
+- `Aldebaran.DataAccess.Infraestructure\Repository\OtpAuthenticationRepository.cs`
+- `Aldebaran.Application.Services\Mappings\ApplicationServicesProfile.cs`
+
+---
+
+#### TAREA-113 ? ??
+**Crear servicio de negocio OTP (canal Email MVP)**
+
+**Reglas a implementar:**
+- Canal inicial único: Email de Bonificación
+- OTP de 6 dígitos
+- TTL 10 minutos
+- Reenvío con cooldown 60 segundos
+- Invalidación atómica al validar correctamente
+- No reutilización de OTP
+- Mensajes de error neutros
+
+**Archivos a crear/modificar:**
+- `Aldebaran.Application.Services\Services\IOtpAuthenticationService.cs`
+- `Aldebaran.Application.Services\Services\OtpAuthenticationService.cs`
+
+---
+
+#### TAREA-114 ? ??
+**Implementar throttling y bloqueo temporal OTP**
+
+**Reglas a implementar:**
+- Throttling por documento/IP: máximo 5 solicitudes / 15 minutos
+- Bloqueo temporal: 15 minutos tras 3 fallos de validación
+- Cooldown de reenvío: 60 segundos
+- Mensajes neutros para evitar enumeración de usuarios
+
+**Archivos a crear/modificar:**
+- `OtpAuthenticationService.cs`
+- `appsettings.*.json` (parámetros configurables de límites)
+
+---
+
+#### TAREA-115 ? ??
+**Integrar envío OTP por Email de Bonificación**
+
+**Cambios:**
+- Enviar OTP únicamente a `BonusEmail`
+- Validar prerrequisitos RF32/RF33:
+  - Cliente tipo distribuidor
+  - Email de Bonificación configurado
+- Manejo de errores SMTP sin revelar detalle técnico al usuario final
+
+**Archivos a crear/modificar:**
+- `Aldebaran.Application.Services\Services\OtpAuthenticationService.cs`
+- Servicios de notificación email existentes
+- `appsettings.*.json` (plantilla/asunto/remitente)
+
+---
+
+#### TAREA-116 ? ??
+**Crear endpoints/API para flujo OTP**
+
+**Cambios:**
+- Endpoint solicitar OTP
+- Endpoint reenviar OTP
+- Endpoint validar OTP y emitir JWT (8 horas)
+- Respuestas estandarizadas con mensajes neutros
+
+**Archivos a crear/modificar:**
+- Controlador/endpoint de autenticación pública OTP
+- DTOs Request/Response de OTP
+- Configuración JWT (si aplica ajuste)
+
+---
+
+#### TAREA-117 ? ???
+**Crear interfaz Blazor de autenticación OTP**
+
+**Cambios:**
+- Pantalla 1: ingreso de documento y solicitud OTP
+- Pantalla 2: ingreso de OTP, contador TTL y opción de reenvío (cooldown 60s)
+- Mensajes neutros y manejo visual de bloqueo temporal
+
+**Archivos a crear/modificar:**
+- Página pública de login OTP (Blazor)
+- Componentes de formulario OTP
+
+---
+
+#### TAREA-118 ? ??
+**Implementar auditoría mínima obligatoria OTP**
+
+**Eventos auditables:**
+- Solicitud OTP (éxito/fallo)
+- Reenvío OTP (éxito/fallo)
+- Validación OTP (éxito/fallo)
+- Motivo de fallo
+- IP
+- Timestamp
+
+**Archivos a crear/modificar:**
+- Tabla/estructura de auditoría OTP (si separada) o repositorio de auditoría existente
+- `OtpAuthenticationService.cs`
+
+---
+
+#### TAREA-119 ? ??
+**Pruebas técnicas OTP (unitarias + integración básica)**
+
+**Cobertura mínima:**
+- TTL 10 min
+- Hash + salt
+- Invalidación atómica
+- Límite 5/15 min por documento/IP
+- Bloqueo tras 3 fallos
+- Cooldown 60s de reenvío
+- Emisión JWT tras validación correcta
+
+**Archivos a crear/modificar:**
+- Proyecto de pruebas (`Aldebaran.Tests\...`)
+
+---
+
+#### Resumen de archivos — OTP MVP Email
+
+| Archivo | Tarea | Tipo |
+|---------|-------|------|
+| `scripts/CreateOtpAuthenticationTables.sql` | 111 | Nuevo |
+| `Entities\OtpAuthentication.cs` | 112 | Nuevo |
+| `Models\OtpAuthentication.cs` | 112 | Nuevo |
+| `IOtpAuthenticationRepository.cs` | 112 | Nuevo |
+| `OtpAuthenticationRepository.cs` | 112 | Nuevo |
+| `IOtpAuthenticationService.cs` | 113 | Nuevo |
+| `OtpAuthenticationService.cs` | 113,114,115,118 | Nuevo |
+| `ApplicationServicesProfile.cs` | 112 | Modificar |
+| Endpoint/Controller OTP público | 116 | Nuevo |
+| DTOs OTP request/response | 116 | Nuevo |
+| Página/componentes Blazor OTP | 117 | Nuevo |
+| `appsettings.*.json` | 114,115,116 | Modificar |
+| Pruebas OTP | 119 | Nuevo |
+
+---
+
+> ? **Con TAREA-111 a TAREA-119 queda cubierto el MVP de autenticación OTP por Email**,  
+> incluyendo seguridad mínima obligatoria: throttling, bloqueo temporal, cooldown de reenvío,  
+> almacenamiento hash+salt, invalidación atómica y auditoría por intento.

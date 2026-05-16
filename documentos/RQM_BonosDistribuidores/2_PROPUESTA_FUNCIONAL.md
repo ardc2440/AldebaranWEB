@@ -612,18 +612,29 @@ Proceso de autenticación seguro para que distribuidores accedan al sitio públi
 9. Si es válido, sistema crea sesión JWT válida por 8 horas
 10. Distribuidor accede a su información de bonificación
 
-**Reglas de Negocio:**
-- OTP válido por 10 minutos (configurable)
-- Máximo 3 intentos fallidos (después requiere solicitar nuevo OTP)
-- No se puede reutilizar un OTP ya usado
-- Token JWT expira después de 8 horas (configurable)
-- Sistema registra todos los intentos de autenticación (exitosos/fallidos)
-- **OTP se envía SIEMPRE al Email de Bonificación** (no al email general del Customer)
+**Reglas de Negocio (Ajuste MVP):**
+- **Canal inicial único:** OTP por Email de Bonificación (sin SMS en MVP).
+- OTP válido por 10 minutos (TTL 10 min).
+- OTP de 6 dígitos, de un solo uso e invalidación atómica al validarse correctamente.
+- OTP almacenado con **hash + salt** (no reversible, no texto plano).
+- Máximo 3 intentos fallidos por OTP; al exceder, bloqueo temporal de 15 minutos.
+- **Throttling** por documento/IP: máximo 5 solicitudes OTP cada 15 minutos.
+- Reenvío de OTP con **cooldown** mínimo de 60 segundos.
+- Mensajes de error neutros (sin revelar si el documento existe, si es distribuidor o si tiene Email de Bonificación).
+- Token JWT expira después de 8 horas (configurable).
+- Auditoría mínima obligatoria por intento: éxito/fallo, motivo, IP y timestamp.
 
 **Restricciones:**
-- No se puede autenticar si el distribuidor no tiene Email de Bonificación configurado - **RF33**
-- No se puede autenticar si el distribuidor no es tipo DISTRIBUIDOR - **RF32**
-- OTP no se guarda en texto plano (encriptado)
+- No se puede autenticar si el distribuidor no tiene Email de Bonificación configurado - **RF33**.
+- No se puede autenticar si el distribuidor no es tipo DISTRIBUIDOR - **RF32**.
+- No se permite envío OTP por SMS en el MVP (queda para fase posterior).
+- OTP no se guarda en texto plano.
+
+**NOTA IMPORTANTE - Alcance MVP OTP:**
+
+- Se implementa **solo OTP por Email** como canal inicial.
+- SMS queda explícitamente diferido a fase posterior y sujeto a análisis de costos/proveedor.
+- Los controles de seguridad mínimos del MVP son obligatorios: throttling, bloqueo temporal, cooldown de reenvío, hash+salt, invalidación atómica y mensajes neutros.
 
 **NOTA IMPORTANTE - Consideraciones de Costo y Proveedores:**
 
