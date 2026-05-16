@@ -39,7 +39,7 @@
 | **TOTAL** | **93** | **479** | **100%** |
 
 > **Reducción máxima posible** (eliminando Sugeridos + Deseables): **?110 h** ? MVP en **369 h (~46.1 días hábiles)**  
-> **Reducción moderada** (eliminando solo masivos y Deseables): **?66 h** ? MVP+ en **413 h (~51.6 días hábiles)**
+> **Reducción moderada** (eliminando solo masivos y Deseables): **?71 h** ? MVP+ en **408 h (~51.0 días hábiles)**
 
 ---
 
@@ -282,12 +282,12 @@
 | Escenario | Descripción | Horas | Días hábiles |
 |-----------|-------------|-------|--------------|
 | **MVP Mínimo** | Solo tareas REQUERIDAS | 369 | ~46.1 |
-| **MVP Recomendado** | REQUERIDAS + Sugeridas sin masivos (OC + NC) + sin Deseables | 413 | ~51.6 |
+| **MVP Recomendado** | REQUERIDAS + Sugeridas sin masivos (OC + NC) + sin Deseables | 408 | ~51.0 |
 | **Alcance Completo** | Todas las tareas (93) | 479 | ~59.9 |
 
 > **Recomendación**: El **MVP Mínimo (369 h)** cubre el ciclo completo de bonificación operativo,
 > incluida la exclusión por `Pedido Especial` con control de rol y auditoría reforzada.
-> Los caminos masivos (OC + NC, 50 h en total) y la reportería extendida de exclusiones
+> Los caminos masivos (OC + NC, 58 h en total) y la reportería extendida de exclusiones
 > se recomiendan como **Fase 2** una vez estabilizado el flujo principal.
 >
 > **Nota sobre correcciones aplicadas (v2.0)**: Se agregaron +7 h en tareas REQUERIDAS (TAREA-061: +2h, TAREA-064: +1h)
@@ -318,7 +318,7 @@
 | **TOTAL** | **93** | **479** | **100%** |
 
 > **Reducción máxima posible** (eliminando Sugeridos + Deseables): **?110 h** ? MVP en **369 h (~46.1 días hábiles)**  
-> **Reducción moderada** (eliminando solo masivos y Deseables): **?66 h** ? MVP+ en **413 h (~51.6 días hábiles)**
+> **Reducción moderada** (eliminando solo masivos y Deseables): **?71 h** ? MVP+ en **408 h (~51.0 días hábiles)**
 
 ---
 
