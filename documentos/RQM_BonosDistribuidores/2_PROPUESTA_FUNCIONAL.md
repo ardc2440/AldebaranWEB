@@ -795,46 +795,113 @@ Consulta en tiempo real (menos de 500ms) del bono acumulado durante el período 
 #### 2.2.2.3 Consulta de Histórico de Bonos - Períodos Anteriores
 
 **Descripción:**  
-Consulta de bonos finales congelados (inmutables) de períodos cerrados anteriores, con estado de aplicación de NC.
+Consulta de bonos finales congelados (inmutables) de períodos cerrados anteriores, 
+agrupados por mes y año calendario. Permite al distribuidor visualizar todos los 
+bonos acumulados en un mes específico, con desglose detallado por tipo de bono 
+y estado de aplicación de NC.
 
 **Flujo de Usuario:**
 1. Distribuidor (autenticado) selecciona "Ver histórico"
-2. Sistema muestra dropdown con últimos N períodos cerrados (default: 12)
-3. Distribuidor selecciona período anterior
+2. Sistema muestra selectores:
+   - Mes: [Dropdown - Enero a Diciembre] (default: mes anterior al actual)
+   - Año: [Dropdown - últimos 24 meses] (default: año actual)
+3. Distribuidor selecciona mes y año
 4. Sistema retorna (sin cálculos - datos congelados):
-   - Bono final asignado (inmutable)
-   - Desglose por tipo de bono
-   - Estado de aplicación de NC: Aplicada / Pendiente / Rechazada
-   - Fecha en que se aplicó la NC (si aplica)
-   - Referencia/ID de la NC
-   - OC Especiales incluidas en ese período (si aplica)
-5. Distribuidor puede:
-   - Navegar entre períodos anteriores
-   - Descargar comprobante/resumen (PDF)
-   - Ver estado de cada bono
 
-**Información Mostrada:**
-- **Período**: Nombre, Fecha inicio/fin, Estado: Cerrado
-- **Bono Total**: Valor congelado (no recalcula)
-- **Desglose**: Por Facturación, Pedido
-- **Aplicación NC**:
-  - Estado: Aplicada (?) / Pendiente (?) / Rechazada (?)
-  - Fecha de aplicación
-  - Número de referencia de NC en TOTUS
+   **RESUMEN CONSOLIDADO DEL MES:**
+   - Bono total acumulado en ese mes (suma de TODAS las instancias cerradas)
+   - Total NC aplicadas en el mes
+   - Total NC pendientes en el mes
+   - Total NC rechazadas en el mes
+
+   **DESGLOSE AGRUPADO POR TIPO DE BONO:**
+   Para cada tipo de bono con instancias cerradas en el mes:
+   - Subtotal del tipo de bono
+   - Cantidad de instancias cerradas
+   - Periodicidad del tipo (Mensual/Quincenal/Semanal)
+   
+   **DETALLE DE CADA INSTANCIA CERRADA:**
+   - Código de instancia (ej: FAC-MES-2026-01)
+   - Período: Fecha inicio → Fecha fin
+   - Bono final asignado (inmutable)
+   - Timestamp exacto de cierre
+   - Estado de aplicación de NC (Aplicada/Pendiente/Rechazada)
+   - Referencia/ID de la NC
+   - Fecha de aplicación (si aplica)
+   - OC Especiales incluidas (si aplica)
+
+5. Distribuidor puede:
+   - Navegar a otros meses/años
+   - [Expandir/Contraer] detalles de cada tipo de bono
+   - Descargar comprobante/resumen consolidado del mes (PDF)
+   - [Ver desglose detallado] de cada instancia por orden/referencia
+
+**Información Mostrada - Estructura Jerárquica:**
+
+MES + AÑO SELECCIONADO (ej: ENERO 2026) 
+├─ RESUMEN TOTAL DEL MES │  
+├─ Total Bonificación: $X,XXX,XXX │  
+├─ NC Aplicadas: $X,XXX,XXX │  
+├─ NC Pendientes: $X,XXX,XXX │  
+└─ NC Rechazadas: $X,XXX,XXX 
+├─ DESGLOSE POR TIPO DE BONO │  
+├─ [≡] Bono por Facturación (Mensual) │  
+│   └─ Subtotal: $1,500,000 │  
+│      ├─ FAC-MES-2026-01 (01/01-31/01) │  
+│      │  ├─ Bono: $1,500,000 │  │
+│  ├─ Cierre: 31/01/2026 23:59:59 │  
+│      │  ├─ NC: Aplicada (NC-2026-00145, 02/02/2026) │  
+│      │  └─ [Ver detalles] │  
+│      └─ [Descargar comprobante] │  
+│ 
+│  ├─ [≡] Bono por Facturación (Quincenal) │  
+│   └─ Subtotal: $1,500,000 (2 instancias) │  
+│      ├─ FAC-QUI-2026-01 (01/01-15/01) │  
+│      │  ├─ Bono: $800,000 │  
+│      │  ├─ Cierre: 15/01/2026 23:59:59 │  
+│      │  ├─ NC: Pendiente (NC-2026-00146) │  
+│      │  └─ [Ver detalles] │  
+│      ├─ FAC-QUI-2026-02 (16/01-31/01) │  
+│      │  ├─ Bono: $700,000 │  
+│      │  ├─ Cierre: 31/01/2026 23:59:59 │ 
+│      │  ├─ NC: Pendiente (NC-2026-00147) │  
+│      │  └─ [Ver detalles] │  
+│      └─ [Descargar comprobante] │  
+│ 
+│  ├─ [≡] Bono por Pedido (Semanal) │  
+│   └─ Subtotal: $910,000 (4 instancias) │  
+│      ├─ PED-SEM-2026-01 (01/01-07/01) │  
+│      │  ├─ Bono: $200,000 │  
+│      │  ├─ Cierre: 07/01/2026 23:59:59 │  
+│      │  ├─ NC: Aplicada (NC-2026-00140, 08/01/2026) │  
+│      │  └─ [Ver detalles] │  
+│      ├─ PED-SEM-2026-02 (08/01-14/01) │  
+│      │  └─ [...similar...] │  
+│      ├─ PED-SEM-2026-03 (15/01-21/01) │  
+│      │  └─ [...similar...] │  
+│      ├─ PED-SEM-2026-04 (22/01-31/01) │  
+│      │  └─ [...similar...] │  
+│      └─ [Descargar comprobante] 
+└─ ACCIONES GLOBALES 
+├─ [Descargar PDF - Resumen Mensual] 
+└─ [Exportar Excel - Todos los detalles]
+
 
 **Reglas de Negocio:**
 - Bonos mostrados son INMUTABLES (congelados al cierre del período)
-- Solo puede ver últimos N períodos cerrados (N configurable por Admin)
-- No puede ver períodos activos (en curso) - solo cerrados
+- Solo puede ver últimos N meses cerrados (N configurable por Admin, default: 24 meses)
+- No puede ver meses "futuros" sin datos (dropdown solo muestra meses con al menos un cierre)
+- Agrupación automática por Tipo de Bono + Periodicidad
+- Ordenamiento: Por Tipo de Bono → Por Fecha de Cierre DESC
 
 **Restricciones:**
 - Página de solo lectura (sin ingreso de datos)
 - No puede ver información de otros distribuidores
 - No puede acceder a datos administrativos (Aldebaran.Web)
 
-**[PLACEHOLDER: Mockup de pantalla "Histórico de Bonos - Listado de Períodos"]**
+**[PLACEHOLDER: Mockup de pantalla "Histórico de Bonos - Selector Mes/Año"]**
 
-**[PLACEHOLDER: Mockup de pantalla "Histórico de Bonos - Detalle de Período Cerrado"]**
+**[PLACEHOLDER: Mockup de pantalla "Histórico de Bonos - Resumen Mensual Agrupado"]**
 
 ---
 

@@ -4853,36 +4853,534 @@ Integrar Application SEQ (Free) + logging para seguimiento de todas las notifica
 
 ---
 
+## 2.5 Módulo de Consulta - CU8: Consulta de Histórico de Bonos (Períodos Anteriores)
+
+> **Ref. propuesta funcional:** Casos de Uso CU8 + especificaciones de integración con MES + AÑO.  
+> **Alcance:** Consulta REST de histórico + Página Blazor interna + Exportación PDF/Excel.  
+> **Autenticación:** JWT Bearer + OTP (Email).  
+> **Datos:** Bonos cerrados e inmutables, agrupados por MES/AÑO del calendario.  
+> **Filtrado:** Por Tipo de Bono (selector) para claridad en múltiples periodicidades.
+
+---
+
+### 2.5.1 Modelos & Estructuras de Datos (6 tareas)
+
+#### **TAREA-168 ⏳ CREAR: Modelos de respuesta para histórico mes/año**
+
+**Propósito:** Estructura jerárquica que encapsula el histórico consolidado por mes/año + desglose por tipo de bono.
+
+**Ubicación:** `Aldebaran.Application.Services\Models\`
+
+**Archivos a crear:**
+- `BonificationHistoryMonthResponse.cs` — Respuesta consolidada del mes
+- `BonificationTypeGroupDetail.cs` — Desglose por tipo de bono
+- `ClosedInstanceDetail.cs` — Detalle de cada instancia cerrada
+- `BonificationMonthAvailableDto.cs` — Dropdown de meses disponibles
+
+**Estimación:** 3 horas | **Prioridad:** 🔴 CRÍTICA
+
+---
+
+#### **TAREA-169 ⏳ CREAR: Especificación en repositorio para histórico**
+
+**Propósito:** Agregar métodos al repositorio para consultar bonos cerrados por mes/año.
+
+**Archivos a modificar:**
+- `IBonificationClosedPeriodRepository.cs` — Agregar:
+  ```csharp
+  Task<List<BonificationClosedPeriod>> GetClosedByMonthAndYearAsync(
+      int customerId, int year, int month, CancellationToken ct);
+  Task<List<(int Year, int Month)>> GetAvailableHistoryMonthsAsync(
+      int customerId, CancellationToken ct);
+  ```
+- `BonificationClosedPeriodRepository.cs` — Implementar con:
+  - Query por `DATEPART(YEAR, ClosedAt)` y `DATEPART(MONTH, ClosedAt)`
+  - JOIN a `BonificationType` + `BonificationPeriod`
+  - Ordenamiento DESC por fecha
+
+**Estimación:** 4 horas | **Prioridad:** 🔴 CRÍTICA
+
+---
+
+#### **TAREA-170 ⏳ CREAR: Servicio de consulta del histórico**
+
+**Propósito:** Lógica de negocio que obtiene histórico, agrupa por tipo y calcula subtotales.
+
+**Ubicación:** `Aldebaran.Application.Services\Services\`
+
+**Archivos a crear/modificar:**
+- `IBonificationHistoryService.cs` — Interfaz con:
+  ```csharp
+  Task<BonificationHistoryMonthResponse> GetHistoryByMonthAsync(
+      int customerId, int year, int month, CancellationToken ct);
+  Task<List<BonificationMonthAvailableDto>> GetAvailableHistoryMonthsAsync(
+      int customerId, CancellationToken ct);
+  ```
+- `BonificationHistoryService.cs` — Implementar:
+  - Validar CustomerId es distribuidor
+  - Consultar bonos cerrados
+  - Agrupar por `BonificationType`
+  - Calcular subtotales + totales
+  - Mapear a DTOs
+
+**Estimación:** 5 horas | **Prioridad:** 🔴 CRÍTICA
+
+---
+
+#### **TAREA-171 ⏳ CREAR: DTOs para REST API (histórico)**
+
+**Propósito:** DTOs públicos expuestos por la API REST.
+
+**Ubicación:** `Aldebaran.Application.Services\DTOs\`
+
+**Archivos a crear:**
+- `BonificationHistoryRequest.cs` — Request con `year` y `month`
+- `BonificationHistoryResponse.cs` — Wrapper de respuesta
+
+**Estimación:** 1.5 horas | **Prioridad:** 🔴 CRÍTICA
+
+---
+
+#### **TAREA-172 ⏳ CREAR: Modelos para exportación (PDF/Excel)**
+
+**Propósito:** Estructuras para preparar datos de exportación.
+
+**Archivos a crear:**
+- `BonificationHistoryExportModel.cs` — Para PDF
+- `BonificationHistoryExcelModel.cs` — Para Excel
+
+**Estimación:** 2 horas | **Prioridad:** 🟡 MEDIA
+
+---
+
+#### **TAREA-173 ⏳ CREAR: Mappings AutoMapper para histórico**
+
+**Modificar:**
+- `Aldebaran.Application.Services\Mappings\ApplicationServicesProfile.cs`
+
+**Mappings:**
+- `BonificationClosedPeriod` → `ClosedInstanceDetail`
+- Consolidación en `BonificationTypeGroupDetail`
+- Agregación final en `BonificationHistoryMonthResponse`
+
+**Estimación:** 2 horas | **Prioridad:** 🟡 MEDIA
+
+---
+
+#### **TAREA-174 ⏳ CREAR: Controlador REST de histórico**
+
+**Ubicación:** `Aldebaran.Web\Controllers\Api\BonificationHistoryController.cs`
+
+**Endpoints:**
+- `GET /api/bonification/history/{year}/{month}` — Consultar histórico mes específico
+- `GET /api/bonification/history/available-months` — Obtener dropdown de meses
+
+**Autenticación:**
+- JWT Bearer (8 horas) + OTP validado
+
+**Validaciones:**
+- Año entre (actual - 24) y actual
+- Mes entre 1 y 12
+- CustomerId válido
+
+**Respuestas HTTP:**
+- 200 OK: Histórico encontrado (puede estar vacío)
+- 400 Bad Request: Parámetros inválidos
+- 401 Unauthorized: No autenticado
+- 500 Internal Server Error
+
+**Estimación:** 4 horas | **Prioridad:** 🔴 CRÍTICA
+
+---
+
+#### **TAREA-175 ⏳ CREAR: Endpoint de descarga PDF histórico**
+
+**Ubicación:** Agregar a `BonificationHistoryController.cs`
+
+**Endpoint:**
+- `POST /api/bonification/history/pdf/download` — Body: `BonificationHistoryPdfRequest`
+
+**Flujo:**
+1. Validar autenticación
+2. Consultar histórico
+3. Generar PDF con consolidado + desglose
+4. Retornar archivo
+
+**Respuesta:**
+- Content-Disposition: attachment
+- Nombre: `Historico_Bonificacion_{Distribuidor}_{Mes}_{Año}.pdf`
+
+**Estimación:** 3 horas | **Prioridad:** 🟡 MEDIA
+
+---
+
+#### **TAREA-176 ⏳ CREAR: Endpoint de descarga Excel histórico**
+
+**Ubicación:** Agregar a `BonificationHistoryController.cs`
+
+**Endpoint:**
+- `POST /api/bonification/history/excel/download` — Body: `BonificationHistoryExcelRequest`
+
+**Contenido:**
+- Hoja 1: Resumen del mes (totales consolidados)
+- Hoja 2: Desglose por tipo de bono
+- Hoja 3: Detalle por instancia
+
+**Estimación:** 3 horas | **Prioridad:** 🟡 MEDIA
+
+---
+
+#### **TAREA-177 ⏳ CREAR: Auditoría de consultas históricas**
+
+**Propósito:** Registrar cada consulta de histórico realizada.
+
+**Tabla:** `BonificationHistoryAuditLog`
+- Campos: Distribuidor, Mes/Año consultado, Fecha/hora, IP, Éxito/Fallo
+
+**Ubicación:**
+- `Aldebaran.Application.Services\Services\BonificationHistoryService.cs` — Agregar logging
+
+**Estimación:** 2 horas | **Prioridad:** 🟡 MEDIA
+
+---
+
+#### **TAREA-178 ⏳ CREAR: Rate limiting para histórico**
+
+**Propósito:** Controlar uso abusivo de consultas.
+
+**Configuración:**
+- Máximo 10 consultas/minuto por distribuidor
+- Máximo 5 descargas/hora por distribuidor
+
+**Ubicación:**
+- `Aldebaran.Web\Middleware\RateLimitingMiddleware.cs` (si no existe, crear)
+- Registrar en `Program.cs`
+
+**Estimación:** 2 horas | **Prioridad:** 🟡 MEDIA
+
+---
+
+#### **TAREA-179 ⏳ CREAR: Página principal `BonificationHistory.razor`**
+
+**Ruta:** `Pages\BonificationPages\BonificationHistory.razor`  
+**URL:** `/bonification/history` (acceso interno)  
+**Rol:** `Consulta de bonificaciones`
+
+**Estructura:**
+- Selectores: Mes (dropdown) | Año (dropdown) | Botón "Consultar"
+- Indicador de carga
+- Resumen consolidado del mes (4 tarjetas: Total, NC Aplicadas, Pendientes, Rechazadas)
+- Sección expandible por tipo de bono:
+  - Subtotal por tipo
+  - Tabla de instancias (Código, Fechas, Bono, Estado NC)
+- Botones: Descargar PDF | Exportar Excel
+
+**Estimación:** 8 horas | **Prioridad:** 🔴 CRÍTICA
+
+---
+
+#### **TAREA-180 ⏳ CREAR: Code-behind `BonificationHistory.razor.cs`**
+
+**Responsabilidad:**
+- Propiedades: `selectedMonth`, `selectedYear`, `availableMonths`, `historyData`, `isLoading`
+- Métodos: `OnInitializedAsync()`, `OnConsult()`, `GetBonusTypeSummary()`
+- Métodos: `OnDownloadPdf()`, `OnExportExcel()`
+
+**Lógica:**
+- Cargar meses disponibles en init
+- Validar año/mes antes de consultar
+- Manejar errores con mensajes amigables
+- Aplicar defaults (mes anterior, año actual)
+
+**Estimación:** 5 horas | **Prioridad:** 🔴 CRÍTICA
+
+---
+
+#### **TAREA-181 ⏳ CREAR: Componente de resumen mensual**
+
+**Ubicación:** `Pages\BonificationPages\Components\BonificationHistoryMonthlySummaryComponent.razor`
+
+**Responsabilidad:**
+- Mostrar 4 tarjetas de totales
+- Colores visuales: Verde (Aplicadas), Naranja (Pendientes), Rojo (Rechazadas), Azul (Total)
+
+**Props:**
+- `BonificationHistoryMonthResponse`
+
+**Estimación:** 4 horas | **Prioridad:** 🟡 MEDIA
+
+---
+
+#### **TAREA-182 ⏳ CREAR: Componente de desglose por tipo**
+
+**Ubicación:** `Pages\BonificationPages\Components\BonificationHistoryTypeBreakdownComponent.razor`
+
+**Responsabilidad:**
+- Mostrar `RadzenExpander` por cada tipo de bono
+- Tabla de instancias dentro del expander
+- Indicadores visuales de estado NC
+
+**Props:**
+- `BonificationTypeGroupDetail`
+
+**Estimación:** 5 horas | **Prioridad:** 🟡 MEDIA
+
+---
+
+#### **TAREA-183 ⏳ CREAR: Servicio cliente para histórico**
+
+**Ubicación:** `Aldebaran.Web\Services\BonificationHistoryService.cs`
+
+**Métodos:**
+- `GetHistoryByMonthAsync(year, month, ct)`
+- `GetAvailableMonthsAsync(ct)`
+- `DownloadPdfAsync(year, month, ct)`
+- `DownloadExcelAsync(year, month, ct)`
+
+**Características:**
+- Consumir API REST
+- Manejar JWT + OTP
+- Retry lógico
+- Error handling
+
+**Estimación:** 3 horas | **Prioridad:** 🟡 MEDIA
+
+---
+
+#### **TAREA-184 ⏳ CREAR: Manejo de errores UI en histórico**
+
+**Ubicación:** `Pages\BonificationPages\BonificationHistory.razor.cs`
+
+**Estados:**
+- Cargando (spinner)
+- Error de consulta (alert rojo)
+- Sin datos (info)
+- Datos exitosos
+
+**Mensajes:**
+- "No hay datos para ese mes"
+- "Error al consultar. Intente nuevamente"
+- "La descarga tardará unos segundos..."
+
+**Estimación:** 2 horas | **Prioridad:** 🟡 MEDIA
+
+---
+
+#### **TAREA-185 ⏳ CREAR: Servicio de generación PDF histórico**
+
+**Ubicación:** `Aldebaran.Application.Services\Services\BonificationHistoryPdfService.cs`
+
+**Responsabilidad:**
+- Recibe `BonificationHistoryMonthResponse`
+- Genera documento PDF con:
+  - Encabezado: Logo, Distribuidor, Mes/Año
+  - Resumen consolidado (4 totales)
+  - Desglose por tipo (tabla expandida)
+  - Detalle por instancia
+  - Footer con timestamp
+
+**Estimación:** 6 horas | **Prioridad:** 🟡 MEDIA
+
+---
+
+#### **TAREA-186 ⏳ CREAR: Servicio de exportación Excel histórico**
+
+**Ubicación:** `Aldebaran.Application.Services\Services\BonificationHistoryExcelService.cs`
+
+**Hojas:**
+1. "Resumen" — Totales consolidados
+2. "Por Tipo" — Desglose por tipo de bono
+3. "Detalle Completo" — Todas las instancias
+
+**Estimación:** 5 horas | **Prioridad:** 🟡 MEDIA
+
+---
+
+#### **TAREA-187 ⏳ CREAR: Auditoría de exportaciones**
+
+**Tabla:** `BonificationHistoryExportLog`
+- Campos: Distribuidor, Mes/Año, Formato (PDF/Excel), Fecha/hora, IP
+
+**Ubicación:**
+- Agregar logging en servicios de PDF/Excel
+
+**Estimación:** 2 horas | **Prioridad:** 🟡 MEDIA
+
+---
+
+
+
+### Resumen de archivos — CU8: Histórico de Bonos
+
+| Archivo | Tarea | Tipo |
+|---------|-------|------|
+| `Models\BonificationHistoryMonthResponse.cs` | 168 | Nuevo |
+| `Models\BonificationTypeGroupDetail.cs` | 168 | Nuevo |
+| `Models\ClosedInstanceDetail.cs` | 168 | Nuevo |
+| `Models\BonificationMonthAvailableDto.cs` | 168 | Nuevo |
+| `IBonificationClosedPeriodRepository.cs` | 169 | Modificar |
+| `BonificationClosedPeriodRepository.cs` | 169 | Modificar |
+| `IBonificationHistoryService.cs` | 170 | Nuevo |
+| `BonificationHistoryService.cs` | 170 | Nuevo |
+| `DTOs\BonificationHistoryRequest.cs` | 171 | Nuevo |
+| `DTOs\BonificationHistoryResponse.cs` | 171 | Nuevo |
+| `Models\BonificationHistoryExportModel.cs` | 172 | Nuevo |
+| `Models\BonificationHistoryExcelModel.cs` | 172 | Nuevo |
+| `ApplicationServicesProfile.cs` | 173 | Modificar |
+| `Controllers\Api\BonificationHistoryController.cs` | 174, 175, 176 | Nuevo |
+| `Services\BonificationHistoryAuditLog.sql` | 177 | Nuevo script |
+| `Middleware\RateLimitingMiddleware.cs` | 178 | Nuevo |
+| `Pages\BonificationPages\BonificationHistory.razor` | 179 | Nuevo |
+| `Pages\BonificationPages\BonificationHistory.razor.cs` | 180 | Nuevo |
+| `Components\BonificationHistoryMonthlySummaryComponent.razor` | 181 | Nuevo |
+| `Components\BonificationHistoryTypeBreakdownComponent.razor` | 182 | Nuevo |
+| `Services\BonificationHistoryService.cs` (cliente) | 183 | Nuevo |
+| `BonificationHistoryPdfService.cs` | 185 | Nuevo |
+| `BonificationHistoryExcelService.cs` | 186 | Nuevo |
+| `BonificationHistoryExportLog.sql` | 187 | Nuevo script |
+| `ArchitectureBuilderExtensions.cs` | 170, 183 | Modificar |
+
+---
+
+> ✅ **Con TAREA-168 a TAREA-187 queda completamente cubierto CU8: Consulta de Histórico de Bonos**,  
+> incluyendo:
+> - Modelos jerárquicos MES + AÑO
+> - Agrupación automática por Tipo de Bono
+> - API REST sin cache
+> - Página Blazor interna
+> - Exportación PDF/Excel
+> - Auditoría y rate limiting
+
+---
+
+
+
+---
+
 ## 📊 RESUMEN GLOBAL DE TAREAS
 
 **Estructura completa del Sistema de Bonificación de Distribuidores:**
 
-| Módulo | Sección | Tareas | Estado |
-|--------|---------|--------|--------|
-| **Administración** | 2.1.1 Clientes | 001-010 | 🔴 Pendiente |
-| | 2.1.2 Reportes | (incluidas en 001-010) | 🔴 Pendiente |
-| | 2.1.3 Períodos | 011-028 | 🔴 Pendiente |
-| | 2.1.4 Rangos | 029-036 | 🔴 Pendiente |
-| | 2.1.5 Descuentos | 037-045 | 🔴 Pendiente |
-| **Operaciones** | 2.2.1 OC Especiales | 046-058 | 🔴 Pendiente |
-| | 2.2.2 Carga Masiva OC | (incluidas en 046-058) | 🔴 Pendiente |
-| | 2.2.3 Conciliación NC | 059-069 | 🔴 Pendiente |
-| | 2.2.4 Lista Precios | 070-078 | 🔴 Pendiente |
-| | 2.2.5 Exclusiones | 079-095 | 🔴 Pendiente |
-| | 2.2.6 TOTUS SP | 096-110 | 🔴 Pendiente |
-| | 2.2.7 OTP | 111-119 | 🔴 Pendiente |
-| **Consulta** | 2.3.1-2.3.7 CU7 | 120-151 | 🔴 Pendiente |
-| **Notificaciones** | 2.4.1-2.4.10 Notificaciones | 152-167 | 🔴 Pendiente |
-| | | | |
-| **TOTAL** | | **170 TAREAS** | 🔴 Pendiente |
+| Módulo | Sección | Tareas | Estimación | Estado |
+|--------|---------|--------|-----------|--------|
+| **Administración** | 2.1.1 Clientes Distribuidores | 001-010 | 25 h | 🔴 Pendiente |
+| | 2.1.2 Reportes con Filtro | (incluidas 001-010) | — | 🔴 Pendiente |
+| | 2.1.3 Gestión de Períodos | 011-028 | 40 h | 🔴 Pendiente |
+| | 2.1.4 Rangos de Bonificación | 029-036 | 18 h | 🔴 Pendiente |
+| | 2.1.5 Vigencias de Descuentos | 037-045 | 22 h | 🔴 Pendiente |
+| **Operaciones** | 2.2.1 OC Especiales (Manual) | 046-050 | 20 h | 🔴 Pendiente |
+| | 2.2.2 OC Especiales (Carga Masiva) | 051-058 | 18 h | 🔴 Pendiente |
+| | 2.2.3 Conciliación de NC | 059-069 | 40 h | 🔴 Pendiente |
+| | 2.2.4 Lista de Precios Promocional | 070-078 | 32 h | 🔴 Pendiente |
+| | 2.2.5 Gestión de Exclusiones | 079-095 | 45 h | 🔴 Pendiente |
+| | 2.2.6 Integración TOTUS por SP | 096-110 | 50 h | 🔴 Pendiente |
+| | 2.2.7 Autenticación OTP (MVP Email) | 111-119 | 20 h | 🔴 Pendiente |
+| **Consulta CU7** | Consulta Período Actual | 120-151 | 120 h | 🔴 Pendiente |
+| **Notificaciones** | Notificaciones Automáticas | 152-167 | 75 h | 🔴 Pendiente |
+| **Consulta CU8** | Consulta Histórico (Períodos Cerrados) | 168-187 | 50 h | 🔴 Pendiente |
+| | | | | |
+| **TOTAL** | | **187 TAREAS** | **~577 h** | 🔴 Pendiente |
 
 ---
 
-**Estimación Total de Esfuerzo (Actualizado):**
-- Tareas 001-151: ~200 horas
-- Tareas 152-170: ~75 horas (19 nuevas tareas)
-- **TOTAL: ~275 horas de desarrollo**
-- **Duración estimada (equipo de 2 desarrolladores):** 16-20 semanas
+**Desglose por Área de Trabajo:**
+
+| Área | Tareas | Estimación | % del Proyecto |
+|------|--------|-----------|-----------------|
+| Backend (DB + Services) | 001-110, 120-125, 129, 152-161, 168-177 | ~310 h | 54% |
+| Frontend (Blazor Pages + Components) | 004-009, 089-090, 117, 140-144, 179-184 | ~120 h | 21% |
+| API REST + Integraciones | 116, 132-136, 174-176 | ~65 h | 11% |
+| Configuración + DevOps | 097, 149-150 | ~15 h | 3% |
+| Testing (Unit + Integration + E2E) *Fase General* | — | ~67 h | 11% |
+| **SUBTOTAL** | | **~577 h** | **100%** |
+
+---
+
+**Duración Estimada por Equipo:**
+
+| Equipo | Duración | Fases |
+|--------|----------|-------|
+| **1 Desarrollador** | 29-36 semanas | 7-9 meses |
+| **2 Desarrolladores** | 14-18 semanas | 3.5-4.5 meses |
+| **3 Desarrolladores** | 10-14 semanas | 2.5-3.5 meses |
+| **4 Desarrolladores** | 7-10 semanas | 1.5-2.5 meses |
+
+---
+
+**Dependencias Críticas (Orden de Ejecución Recomendado):**
+
+```
+Fase 1 (Semana 1-2): Prerequisitos
+├─ TAREA-001 a TAREA-010 (Configuración de Clientes)
+├─ TAREA-111 a TAREA-119 (Autenticación OTP)
+└─ TAREA-070 a TAREA-078 (Lista de Precios)
+
+Fase 2 (Semana 3-5): Configuración de Bonificación
+├─ TAREA-011 a TAREA-028 (Períodos)
+├─ TAREA-029 a TAREA-036 (Rangos)
+├─ TAREA-037 a TAREA-045 (Descuentos)
+└─ TAREA-079 a TAREA-095 (Exclusiones)
+
+Fase 3 (Semana 6-8): Integraciones Críticas
+├─ TAREA-096 a TAREA-110 (TOTUS SP)
+└─ TAREA-046 a TAREA-058 (OC Especiales)
+
+Fase 4 (Semana 9-11): Funcionalidad Principal
+├─ TAREA-059 a TAREA-069 (Conciliación NC)
+├─ TAREA-120 a TAREA-151 (CU7 Consulta Actual)
+└─ TAREA-168 a TAREA-187 (CU8 Histórico)
+
+Fase 5 (Semana 12-14): Notificaciones + Testing/Docs Integral
+├─ TAREA-152 a TAREA-167 (Notificaciones)
+└─ Testing integral + Documentación final
+```
+
+---
+
+**Criterios de Aceptación Global:**
+
+✅ **Funcionalidad Completa:**
+- Todos los CU implementados y operativos
+- APIs REST documentadas y probadas
+- UI Blazor responsiva y accesible
+
+✅ **Calidad:**
+- Cobertura de testing ≥ 80% (unit + integration + E2E)
+- Cero defectos críticos
+- SLA cumplido: < 500ms para CU7, < 200ms para CU8
+
+✅ **Seguridad:**
+- Autenticación OTP + JWT implementada
+- Validaciones de entrada en todos los endpoints
+- HTTPS obligatorio en producción
+- RGPD compliance (PII limitado en logs)
+
+✅ **Operabilidad:**
+- Health checks funcionales
+- Observabilidad con Application Insights
+- Runbooks de incident disponibles
+- Plan de rollback documentado
+
+✅ **Documentación:**
+- Propuesta funcional final actualizada
+- OpenAPI/Swagger completo
+- Guías de deployment
+- README de configuración
+
+---
+
+**Riesgos Identificados y Mitigaciones:**
+
+| Riesgo | Probabilidad | Impacto | Mitigación |
+|--------|-------------|--------|-----------|
+| Retraso en SP TOTUS (fábrica externa) | ALTA | CRÍTICO | Coordinación temprana, mock de fallback |
+| Performance TOTUS (> 500ms) | MEDIA | CRÍTICO | Índices optimizados, connection pooling |
+| Cambios scope a mitad del proyecto | MEDIA | ALTO | Change control, validación semanal |
+| Falta de claridad en requisitos | MEDIA | ALTO | Weekly sync con PROMOS, doc actualizado |
+| Integración Rabbit Message Queue | BAJA | ALTO | Testing temprano, fallback local |
+| Performance bajo carga (100+ usuarios) | BAJA | MEDIO | Load testing en fase de testing |
+
+---
 
 ---
 

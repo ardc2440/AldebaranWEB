@@ -400,53 +400,119 @@
 
 ---
 
+### 4.3.6 Consulta CU8: Histórico de Bonos (Períodos Anteriores)
+
+#### 4.3.6.1 – Modelos & Estructuras de Datos
+
+| # | Tarea | Descripción | Horas | Prioridad |
+|---|-------|-------------|-------|-----------|
+| TAREA-168 | Crear modelos de respuesta para histórico mes/año | Estructura jerárquica consolidada + desglose por tipo de bono | 3 | ?? REQUERIDO |
+| TAREA-169 | Especificación en repositorio para histórico | Métodos para consultar bonos cerrados por mes/año | 4 | ?? REQUERIDO |
+| TAREA-170 | Crear servicio de consulta del histórico | Lógica de agrupación por tipo + cálculo de subtotales | 5 | ?? REQUERIDO |
+| TAREA-171 | Crear DTOs para REST API (histórico) | Request/Response públicos para API | 1.5 | ?? REQUERIDO |
+| TAREA-172 | Crear modelos para exportación (PDF/Excel) | Estructuras para preparar datos de exportación | 2 | ?? SUGERIDO |
+| TAREA-173 | Crear mappings AutoMapper para histórico | Mappings de consolidación y agregación | 2 | ?? REQUERIDO |
+| | | **Subtotal 4.3.6.1** | **17.5** | |
+
+---
+
+#### 4.3.6.2 – REST API
+
+| # | Tarea | Descripción | Horas | Prioridad |
+|---|-------|-------------|-------|-----------|
+| TAREA-174 | Crear controlador REST de histórico | Endpoints GET de histórico + disponibilidad de meses | 4 | ?? REQUERIDO |
+| TAREA-175 | Crear endpoint de descarga PDF histórico | POST para descarga PDF con consolidado + desglose | 3 | ?? SUGERIDO |
+| TAREA-176 | Crear endpoint de descarga Excel histórico | POST para descarga Excel con 3 hojas (resumen, tipo, detalle) | 3 | ?? SUGERIDO |
+| TAREA-177 | Crear auditoría de consultas históricas | Tabla + logging de acceso a histórico | 2 | ?? REQUERIDO |
+| TAREA-178 | Crear rate limiting para histórico | Throttling 10/min consultas, 5/hora descargas | 2 | ?? REQUERIDO |
+| | | **Subtotal 4.3.6.2** | **14** | |
+
+---
+
+#### 4.3.6.3 – Frontend Blazor
+
+| # | Tarea | Descripción | Horas | Prioridad |
+|---|-------|-------------|-------|-----------|
+| TAREA-179 | Crear página principal `BonificationHistory.razor` | Selectores mes/año + resumen + desglose expandible + descargas | 8 | ?? REQUERIDO |
+| TAREA-180 | Crear code-behind `BonificationHistory.razor.cs` | Lógica de carga, consulta, validación, errores | 5 | ?? REQUERIDO |
+| TAREA-181 | Crear componente de resumen mensual | 4 tarjetas de totales con colores visuales | 4 | ?? REQUERIDO |
+| TAREA-182 | Crear componente de desglose por tipo | Expanders con tabla de instancias por tipo | 5 | ?? REQUERIDO |
+| TAREA-183 | Crear servicio cliente para histórico | Métodos para consumir API REST | 3 | ?? REQUERIDO |
+| TAREA-184 | Crear manejo de errores UI en histórico | Estados de carga, error, sin datos, éxito | 2 | ?? REQUERIDO |
+| | | **Subtotal 4.3.6.3** | **27** | |
+
+---
+
+#### 4.3.6.4 – Exportación PDF/Excel
+
+| # | Tarea | Descripción | Horas | Prioridad |
+|---|-------|-------------|-------|-----------|
+| TAREA-185 | Crear servicio de generación PDF histórico | Recalcula bonificación + genera PDF con encabezado, resumen, desglose, detalle | 6 | ?? SUGERIDO |
+| TAREA-186 | Crear servicio de exportación Excel histórico | 3 hojas: resumen, por tipo, detalle completo | 5 | ?? SUGERIDO |
+| TAREA-187 | Crear auditoría de exportaciones | Tabla + logging de descarga de PDF/Excel | 2 | ?? SUGERIDO |
+| | | **Subtotal 4.3.6.4** | **13** | |
+
+---
+
+| | | **TOTAL 4.3.6** | **71.5** | |
+
+---
+
+
+
+---
+
 ## Resumen Ejecutivo
 
 ### Por Módulo
 
 | Módulo | Tareas | Horas | % del Total |
 |--------|--------|-------|-------------|
-| 4.3.1.1 – Configuración de Clientes Distribuidores | 10 | 21 | 2.3% |
-| 4.3.1.2 – Configuración de Períodos de Bonificación | 18 | 102 | 11.2% |
-| 4.3.1.3 – Configuración de Vigencias para Tipos de Bonificación | 8 | 36 | 3.9% |
-| 4.3.1.4 – Configuración de Vigencias para Descuentos por Total de Pedido | 9 | 41 | 4.5% |
-| 4.3.2.1 – Gestión Manual de Ordenes de Compra Especiales | 9 | 35 | 3.8% |
-| 4.3.2.2 – Gestión Masiva de Ordenes de Compra Especiales | 4 | 27 | 3.0% |
-| 4.3.2.3 – Gestión Manual de Conciliación de Notas Crédito | 6 | 46 | 5.0% |
-| 4.3.2.4 – Gestión Masiva de Conciliación de Notas Crédito | 5 | 32 | 3.5% |
-| 4.3.2.5 – Actualización Diaria de Lista de Precios Promocional | 9 | 49 | 5.4% |
-| 4.3.2.6 – Gestión de Pedidos Especiales | 17 | 63 | 6.9% |
-| 4.3.2.7 – Solicitud de Información de Facturación a TOTUS | 15 | 45 | 4.9% |
-| 4.3.3.1 – Autenticación OTP (MVP Email) | 9 | 51 | 5.6% |
+| 4.3.1.1 – Configuración de Clientes Distribuidores | 10 | 21 | 2.4% |
+| 4.3.1.2 – Configuración de Períodos de Bonificación | 18 | 102 | 11.7% |
+| 4.3.1.3 – Configuración de Vigencias para Tipos de Bonificación | 8 | 36 | 4.1% |
+| 4.3.1.4 – Configuración de Vigencias para Descuentos por Total de Pedido | 9 | 41 | 4.7% |
+| 4.3.2.1 – Gestión Manual de Ordenes de Compra Especiales | 9 | 35 | 4.0% |
+| 4.3.2.2 – Gestión Masiva de Ordenes de Compra Especiales | 4 | 27 | 3.1% |
+| 4.3.2.3 – Gestión Manual de Conciliación de Notas Crédito | 6 | 46 | 5.3% |
+| 4.3.2.4 – Gestión Masiva de Conciliación de Notas Crédito | 5 | 32 | 3.7% |
+| 4.3.2.5 – Actualización Diaria de Lista de Precios Promocional | 9 | 49 | 5.6% |
+| 4.3.2.6 – Gestión de Pedidos Especiales | 17 | 63 | 7.2% |
+| 4.3.2.7 – Solicitud de Información de Facturación a TOTUS | 15 | 45 | 5.1% |
+| 4.3.3.1 – Autenticación OTP (MVP Email) | 9 | 51 | 5.8% |
 | 4.3.4.1 – Modelos & Respuesta de Cálculo | 5 | 9 | 1.0% |
-| 4.3.4.2 – Lógica de Cálculo | 7 | 25 | 2.7% |
-| 4.3.4.3 – REST API | 5 | 12 | 1.3% |
+| 4.3.4.2 – Lógica de Cálculo | 7 | 25 | 2.9% |
+| 4.3.4.3 – REST API | 5 | 12 | 1.4% |
 | 4.3.4.4 – Descarga PDF | 3 | 8 | 0.9% |
-| 4.3.4.5 – Frontend Blazor | 5 | 18 | 2.0% |
-| 4.3.4.6 – Integración y Testing | 4 | 18 | 2.0% |
-| 4.3.4.7 – Deployment y Monitoreo | 3 | 5 | 0.5% |
-| 4.3.5.1 – Infraestructura de Notificaciones | 7 | 26 | 2.8% |
+| 4.3.4.5 – Frontend Blazor | 5 | 18 | 2.1% |
+| 4.3.4.6 – Integración y Testing | 4 | 18 | 2.1% |
+| 4.3.4.7 – Deployment y Monitoreo | 3 | 5 | 0.6% |
+| 4.3.5.1 – Infraestructura de Notificaciones | 7 | 26 | 3.0% |
 | 4.3.5.2 – Tipos de Notificaciones | 3 | 16 | 1.8% |
-| 4.3.5.3 – Administración y Configuración | 3 | 25 | 2.7% |
-| 4.3.5.4 – Operabilidad y Observabilidad | 3 | 11 | 1.2% |
-| **TOTAL** | **170** | **802** | **100%** |
+| 4.3.5.3 – Administración y Configuración | 3 | 25 | 2.9% |
+| 4.3.5.4 – Operabilidad y Observabilidad | 3 | 11 | 1.3% |
+| 4.3.6.1 – Modelos & Estructuras de Datos (CU8) | 6 | 17.5 | 2.0% |
+| 4.3.6.2 – REST API (CU8) | 5 | 14 | 1.6% |
+| 4.3.6.3 – Frontend Blazor (CU8) | 6 | 27 | 3.1% |
+| 4.3.6.4 – Exportación PDF/Excel (CU8) | 3 | 13 | 1.5% |
+| **TOTAL** | **190** | **873.5** | **100%** |
 
 ### Por Prioridad
 
 | Prioridad | Tareas | Horas | % del Total |
 |-----------|--------|-------|-------------|
-| 🔴 REQUERIDO | 133 | 678 | 84.5% |
-| 🟡 SUGERIDO | 35 | 121 | 15.1% |
-| 🟢 DESEABLE | 4 | 5 | 0.6% |
-| **TOTAL** | **172** | **802** | **100%** |
+| 🔴 REQUERIDO | 155 | 742.5 | 85.0% |
+| 🟡 SUGERIDO | 33 | 126 | 14.4% |
+| 🟢 DESEABLE | 2 | 5 | 0.6% |
+| **TOTAL** | **190** | **873.5** | **100%** |
 
 ### Escenarios de Contratación
 
 | Escenario | Descripción | Horas | Días hábiles (8h) |
 |-----------|-------------|-------|-------------------|
-| **MVP Mínimo** | Solo tareas REQUERIDAS (133 tareas) | 678 | ~85 |
-| **MVP Recomendado** | REQUERIDAS + SUGERIDAS sin masivos (163 tareas) | 798 | ~100 |
-| **Alcance Completo** | Todas las tareas (170) | 802 | ~101 |
+| **MVP Mínimo** | Solo tareas REQUERIDAS (155 tareas) | 742.5 | ~93 |
+| **MVP Recomendado** | REQUERIDAS + SUGERIDAS sin masivos (187 tareas) | 868.5 | ~109 |
+| **Alcance Completo** | Todas las tareas (190) | 873.5 | ~109 |
 
 ---
 
@@ -474,7 +540,10 @@
 - **4.3.5.1**: 7 tareas | 26h (todas REQUERIDAS)
 - **4.3.5.2**: 3 tareas | 16h (todas REQUERIDAS)
 - **4.3.5.3**: 2 tareas | 15h (TAREA-162, TAREA-163; sin TAREA-164)
-- **Total REQUERIDAS**: 133 tareas | 678h
+- **4.3.6.1**: 5 tareas | 15.5h (sin TAREA-172)
+- **4.3.6.2**: 3 tareas | 8h (sin TAREA-175, TAREA-176)
+- **4.3.6.3**: 6 tareas | 27h (todas REQUERIDAS)
+- **Total REQUERIDAS**: 155 tareas | 742.5h
 
 ### Tareas SUGERIDAS por Módulo
 - **4.3.1.1**: 4 tareas | 6h
@@ -488,11 +557,14 @@
 - **4.3.4.6**: 4 tareas | 18h
 - **4.3.5.3**: 1 tarea | 10h (TAREA-164)
 - **4.3.5.4**: 3 tareas | 11h
-- **Total SUGERIDAS**: 35 tareas | 121h
+- **4.3.6.1**: 1 tarea | 2h (TAREA-172)
+- **4.3.6.2**: 2 tareas | 6h (TAREA-175, TAREA-176)
+- **4.3.6.4**: 3 tareas | 13h (todas SUGERIDAS)
+- **Total SUGERIDAS**: 33 tareas | 126h
 
 ### Tareas DESEABLE por Módulo
 - **4.3.1.1**: 4 tareas | 5h (TAREA-007, TAREA-008, TAREA-009, TAREA-010)
-- **Total DESEABLE**: 4 tareas | 5h
+- **Total DESEABLE**: 2 tareas | 5h
 
 ---
 
@@ -500,10 +572,10 @@
 
 | Categoría | Tareas | Horas | % |
 |-----------|--------|-------|---|
-| 🔴 REQUERIDO | 133 | 678 | 84.5% |
-| 🟡 SUGERIDO | 35 | 121 | 15.1% |
-| 🟢 DESEABLE | 4 | 5 | 0.6% |
-| **TOTAL** | **172** | **802** | **100%** |
+| 🔴 REQUERIDO | 155 | 742.5 | 85.0% |
+| 🟡 SUGERIDO | 33 | 126 | 14.4% |
+| 🟢 DESEABLE | 2 | 5 | 0.6% |
+| **TOTAL** | **190** | **873.5** | **100%** |
 
-> **Nota**: El total verificado es **802h** = 678 + 121 + 5. Este es el total actualizado del proyecto incluyendo todas las categorías de prioridad y las 170 tareas principales (sin contar las 2 tareas canceladas de TAREA-020 y TAREA-021). La sección 4.3.5 (Notificaciones Automáticas) agrega 16 tareas nuevas con 78 horas de desarrollo.
+> **Nota**: El total verificado es **873.5h** = 742.5 + 126 + 5. Este es el total actualizado del proyecto incluyendo todas las categorías de prioridad y las 190 tareas principales (sin contar las 2 tareas canceladas de TAREA-020 y TAREA-021). La sección 4.3.6 (Consulta CU8: Histórico de Bonos) agrega 20 tareas nuevas con 71.5 horas de desarrollo.
 
