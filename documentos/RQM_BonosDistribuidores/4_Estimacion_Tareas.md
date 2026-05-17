@@ -346,49 +346,107 @@
 
 ---
 
+### 4.3.5 – Notificaciones Automáticas de Bonificación
+
+#### 4.3.5.1 – Infraestructura de Notificaciones
+
+| # | Tarea | Descripción | Horas | Prioridad |
+|---|-------|-------------|-------|-----------|
+| TAREA-152 | Crear tabla `BonificationNotificationConfiguration` | Tabla global (una sola fila) con parámetros de configuración | 3 | ?? REQUERIDO |
+| TAREA-153 | Crear tabla `BonificationNotificationLog` | Tabla de auditoría con estado de envío (ENQUEUED/SENT/FAILED) | 3 | ?? REQUERIDO |
+| TAREA-154 | Crear entidades EF + Configurations + Models + Mappings | 2 entidades + 2 configuraciones + 2 modelos + mappings AutoMapper | 4 | ?? REQUERIDO |
+| TAREA-155 | Crear repositorio `IBonificationNotificationRepository` | Interfaz + implementación con operaciones CRUD | 3 | ?? REQUERIDO |
+| TAREA-156 | Crear servicio `IBonificationNotificationService` (orquestador principal) | Orquestación de 3 tipos + configuración global + encolamiento | 4 | ?? REQUERIDO |
+| TAREA-157 | Crear servicio de encolamiento en Rabbit `IBonificationMessageQueueService` | Adaptador Rabbit MQ para notificaciones | 5 | ?? REQUERIDO |
+| TAREA-158 | Crear componente de composición de email `IBonificationEmailComposer` | Generador de contenido HTML/texto por tipo | 4 | ?? REQUERIDO |
+| | | **Subtotal 4.3.5.1** | **26** | |
+
+---
+
+#### 4.3.5.2 – Tipos de Notificaciones
+
+| # | Tarea | Descripción | Horas | Prioridad |
+|---|-------|-------------|-------|-----------|
+| TAREA-159 | Notificación 1: "Alcanzó Nuevo Nivel" | Detector automático post-cálculo + composición + encolamiento | 5 | ?? REQUERIDO |
+| TAREA-160 | Notificación 2: Job diario "Está Cerca del Siguiente Nivel" | Job diario (configurable, default 6 AM) con umbral % | 6 | ?? REQUERIDO |
+| TAREA-161 | Notificación 3: Job periódico "Recordatorio de Progreso" | Job periódico (configurable, default Lunes 8 AM) | 5 | ?? REQUERIDO |
+| | | **Subtotal 4.3.5.2** | **16** | |
+
+---
+
+#### 4.3.5.3 – Administración y Configuración
+
+| # | Tarea | Descripción | Horas | Prioridad |
+|---|-------|-------------|-------|-----------|
+| TAREA-162 | Crear página Admin: Configuración de Notificaciones | Secciones de habilitación, umbrales, horarios, frecuencias | 7 | ?? REQUERIDO |
+| TAREA-163 | Crear página Admin: Historial de Notificaciones Enviadas | Grid paginada con filtros (distribuidor, tipo, estado, fecha) | 8 | ?? REQUERIDO |
+| TAREA-164 | Crear página Admin: Dashboard de Notificaciones | KPIs + gráficos + resumen por tipo + alertas | 10 | ?? SUGERIDO |
+| | | **Subtotal 4.3.5.3** | **25** | |
+
+---
+
+#### 4.3.5.4 – Operabilidad y Observabilidad
+
+| # | Tarea | Descripción | Horas | Prioridad |
+|---|-------|-------------|-------|-----------|
+| TAREA-165 | Crear health check para notificaciones | Endpoint con verificación Rabbit + configuración + estado | 2 | ?? SUGERIDO |
+| TAREA-166 | Crear logging y observabilidad para notificaciones | Application Insights + eventos + alertas | 3 | ?? SUGERIDO |
+| TAREA-167 | Crear pruebas unitarias de notificaciones | Cobertura de detección, throttling, encolamiento, composición | 6 | ?? SUGERIDO |
+| | | **Subtotal 4.3.5.4** | **11** | |
+
+---
+
+| | | **TOTAL 4.3.5** | **78** | |
+
+---
+
 ## Resumen Ejecutivo
 
 ### Por Módulo
 
 | Módulo | Tareas | Horas | % del Total |
 |--------|--------|-------|-------------|
-| 4.3.1.1 – Configuración de Clientes Distribuidores | 10 | 21 | 2.9% |
-| 4.3.1.2 – Configuración de Períodos de Bonificación | 18 | 102 | 14.1% |
-| 4.3.1.3 – Configuración de Vigencias para Tipos de Bonificación | 8 | 36 | 5.0% |
-| 4.3.1.4 – Configuración de Vigencias para Descuentos por Total de Pedido | 9 | 41 | 5.7% |
-| 4.3.2.1 – Gestión Manual de Ordenes de Compra Especiales | 9 | 35 | 4.8% |
-| 4.3.2.2 – Gestión Masiva de Ordenes de Compra Especiales | 4 | 27 | 3.7% |
-| 4.3.2.3 – Gestión Manual de Conciliación de Notas Crédito | 6 | 46 | 6.4% |
-| 4.3.2.4 – Gestión Masiva de Conciliación de Notas Crédito | 5 | 32 | 4.4% |
-| 4.3.2.5 – Actualización Diaria de Lista de Precios Promocional | 9 | 49 | 6.8% |
-| 4.3.2.6 – Gestión de Pedidos Especiales | 17 | 63 | 8.7% |
-| 4.3.2.7 – Solicitud de Información de Facturación a TOTUS | 15 | 45 | 6.2% |
-| 4.3.3.1 – Autenticación OTP (MVP Email) | 9 | 51 | 7.0% |
-| 4.3.4.1 – Modelos & Respuesta de Cálculo | 5 | 9 | 1.2% |
-| 4.3.4.2 – Lógica de Cálculo | 7 | 25 | 3.5% |
-| 4.3.4.3 – REST API | 5 | 12 | 1.7% |
-| 4.3.4.4 – Descarga PDF | 3 | 8 | 1.1% |
-| 4.3.4.5 – Frontend Blazor | 5 | 18 | 2.5% |
-| 4.3.4.6 – Integración y Testing | 4 | 18 | 2.5% |
-| 4.3.4.7 – Deployment y Monitoreo | 3 | 5 | 0.7% |
-| **TOTAL** | **151** | **724** | **100%** |
+| 4.3.1.1 – Configuración de Clientes Distribuidores | 10 | 21 | 2.3% |
+| 4.3.1.2 – Configuración de Períodos de Bonificación | 18 | 102 | 11.2% |
+| 4.3.1.3 – Configuración de Vigencias para Tipos de Bonificación | 8 | 36 | 3.9% |
+| 4.3.1.4 – Configuración de Vigencias para Descuentos por Total de Pedido | 9 | 41 | 4.5% |
+| 4.3.2.1 – Gestión Manual de Ordenes de Compra Especiales | 9 | 35 | 3.8% |
+| 4.3.2.2 – Gestión Masiva de Ordenes de Compra Especiales | 4 | 27 | 3.0% |
+| 4.3.2.3 – Gestión Manual de Conciliación de Notas Crédito | 6 | 46 | 5.0% |
+| 4.3.2.4 – Gestión Masiva de Conciliación de Notas Crédito | 5 | 32 | 3.5% |
+| 4.3.2.5 – Actualización Diaria de Lista de Precios Promocional | 9 | 49 | 5.4% |
+| 4.3.2.6 – Gestión de Pedidos Especiales | 17 | 63 | 6.9% |
+| 4.3.2.7 – Solicitud de Información de Facturación a TOTUS | 15 | 45 | 4.9% |
+| 4.3.3.1 – Autenticación OTP (MVP Email) | 9 | 51 | 5.6% |
+| 4.3.4.1 – Modelos & Respuesta de Cálculo | 5 | 9 | 1.0% |
+| 4.3.4.2 – Lógica de Cálculo | 7 | 25 | 2.7% |
+| 4.3.4.3 – REST API | 5 | 12 | 1.3% |
+| 4.3.4.4 – Descarga PDF | 3 | 8 | 0.9% |
+| 4.3.4.5 – Frontend Blazor | 5 | 18 | 2.0% |
+| 4.3.4.6 – Integración y Testing | 4 | 18 | 2.0% |
+| 4.3.4.7 – Deployment y Monitoreo | 3 | 5 | 0.5% |
+| 4.3.5.1 – Infraestructura de Notificaciones | 7 | 26 | 2.8% |
+| 4.3.5.2 – Tipos de Notificaciones | 3 | 16 | 1.8% |
+| 4.3.5.3 – Administración y Configuración | 3 | 25 | 2.7% |
+| 4.3.5.4 – Operabilidad y Observabilidad | 3 | 11 | 1.2% |
+| **TOTAL** | **170** | **802** | **100%** |
 
 ### Por Prioridad
 
 | Prioridad | Tareas | Horas | % del Total |
 |-----------|--------|-------|-------------|
-| 🔴 REQUERIDO | 118 | 603 | 83.3% |
-| 🟡 SUGERIDO | 32 | 116 | 16.0% |
-| 🟢 DESEABLE | 4 | 5 | 0.7% |
-| **TOTAL** | **154** | **724** | **100%** |
+| 🔴 REQUERIDO | 133 | 678 | 84.5% |
+| 🟡 SUGERIDO | 35 | 121 | 15.1% |
+| 🟢 DESEABLE | 4 | 5 | 0.6% |
+| **TOTAL** | **172** | **802** | **100%** |
 
 ### Escenarios de Contratación
 
 | Escenario | Descripción | Horas | Días hábiles (8h) |
 |-----------|-------------|-------|-------------------|
-| **MVP Mínimo** | Solo tareas REQUERIDAS (118 tareas) | 603 | ~75 |
-| **MVP Recomendado** | REQUERIDAS + SUGERIDAS sin masivos (145 tareas) | 719 | ~90 |
-| **Alcance Completo** | Todas las tareas (151) | 724 | ~91 |
+| **MVP Mínimo** | Solo tareas REQUERIDAS (133 tareas) | 678 | ~85 |
+| **MVP Recomendado** | REQUERIDAS + SUGERIDAS sin masivos (163 tareas) | 798 | ~100 |
+| **Alcance Completo** | Todas las tareas (170) | 802 | ~101 |
 
 ---
 
@@ -409,24 +467,28 @@
 - **4.3.3.1**: 8 tareas | 45h
 - **4.3.4.1**: 5 tareas | 9h (todas REQUERIDAS)
 - **4.3.4.2**: 7 tareas | 25h (todas REQUERIDAS)
-- **4.3.4.3**: 4 tareas | 10h (4.3.4.3 sin TAREA-136)
+- **4.3.4.3**: 4 tareas | 10h (sin TAREA-136)
 - **4.3.4.4**: 3 tareas | 8h (todas REQUERIDAS)
 - **4.3.4.5**: 5 tareas | 18h (todas REQUERIDAS)
 - **4.3.4.7**: 3 tareas | 5h (todas REQUERIDAS)
-- **Total REQUERIDAS**: 118 tareas | 603h
+- **4.3.5.1**: 7 tareas | 26h (todas REQUERIDAS)
+- **4.3.5.2**: 3 tareas | 16h (todas REQUERIDAS)
+- **4.3.5.3**: 2 tareas | 15h (TAREA-162, TAREA-163; sin TAREA-164)
+- **Total REQUERIDAS**: 133 tareas | 678h
 
 ### Tareas SUGERIDAS por Módulo
 - **4.3.1.1**: 4 tareas | 6h
 - **4.3.1.2**: 2 tareas | 9h
 - **4.3.2.2**: 4 tareas | 27h
 - **4.3.2.4**: 4 tareas | 31h
-- **4.3.2.5**: 0 tareas | 0h
 - **4.3.2.6**: 5 tareas | 17h
 - **4.3.2.7**: 5 tareas | 13h
 - **4.3.3.1**: 1 tarea | 6h
 - **4.3.4.3**: 1 tarea | 2h (TAREA-136)
-- **4.3.4.6**: 4 tareas | 18h (TAREA-145, TAREA-146, TAREA-147, TAREA-148)
-- **Total SUGERIDAS**: 32 tareas | 116h
+- **4.3.4.6**: 4 tareas | 18h
+- **4.3.5.3**: 1 tarea | 10h (TAREA-164)
+- **4.3.5.4**: 3 tareas | 11h
+- **Total SUGERIDAS**: 35 tareas | 121h
 
 ### Tareas DESEABLE por Módulo
 - **4.3.1.1**: 4 tareas | 5h (TAREA-007, TAREA-008, TAREA-009, TAREA-010)
@@ -438,10 +500,10 @@
 
 | Categoría | Tareas | Horas | % |
 |-----------|--------|-------|---|
-| 🔴 REQUERIDO | 118 | 603 | 83.3% |
-| 🟡 SUGERIDO | 32 | 116 | 16.0% |
-| 🟢 DESEABLE | 4 | 5 | 0.7% |
-| **TOTAL** | **154** | **724** | **100%** |
+| 🔴 REQUERIDO | 133 | 678 | 84.5% |
+| 🟡 SUGERIDO | 35 | 121 | 15.1% |
+| 🟢 DESEABLE | 4 | 5 | 0.6% |
+| **TOTAL** | **172** | **802** | **100%** |
 
-> **Nota**: El total verificado es **724h** = 603 + 116 + 5. Este es el verdadero total del proyecto incluyendo todas las categorías de prioridad y las 151 tareas principales (sin contar las 3 tareas canceladas de TAREA-020 y TAREA-021).
+> **Nota**: El total verificado es **802h** = 678 + 121 + 5. Este es el total actualizado del proyecto incluyendo todas las categorías de prioridad y las 170 tareas principales (sin contar las 2 tareas canceladas de TAREA-020 y TAREA-021). La sección 4.3.5 (Notificaciones Automáticas) agrega 16 tareas nuevas con 78 horas de desarrollo.
 

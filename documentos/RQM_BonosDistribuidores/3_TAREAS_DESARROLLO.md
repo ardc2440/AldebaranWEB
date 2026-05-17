@@ -4432,6 +4432,427 @@ public class BonificationConsultationResponse
 
 ---
 
+## 2.4 Módulo de Notificaciones Automáticas de Bonificación
+
+> Ref. propuesta funcional: sección 2.2.2.2 (CU7 - Notificaciones Automáticas Integradas)  
+> Alcance: Notificaciones por Email de Bonificación mediante Rabbit + Notificator Service existente.  
+> Aplicación automática de 3 tipos de notificaciones con configuración global y sin preferencias de distribuidor.
+
+---
+
+#### TAREA-152 ? ???
+**Crear tabla `BonificationNotificationConfiguration`**
+
+**Descripción:**
+Tabla única para almacenar la configuración GLOBAL de notificaciones (no por distribuidor).
+Parámetros configurables: umbrales de gamificación, frecuencias de jobs, horarios, activación/desactivación.
+
+**Script SQL a crear:** `scripts/CreateBonificationNotificationConfigurationTable.sql`
+
+```sql
+CREATE TABLE dbo.BonificationNotificationConfiguration (
+    CONFIG_ID                    INT           NOT NULL PRIMARY KEY DEFAULT 1,  -- una sola fila
+    NEAR_LEVEL_THRESHOLD_PERCENT DECIMAL(5,2)  NOT NULL DEFAULT 80,            -- % para alertar cercanía nivel
+    NEAR_LEVEL_CHECK_HOUR        INT           NOT NULL DEFAULT 6,             -- hora del día (0-23) para job diario
+    NEAR_LEVEL_ENABLED           BIT           NOT NULL DEFAULT 1,
+    REMINDER_FREQUENCY           VARCHAR(20)   NOT NULL DEFAULT 'WEEKLY',     -- DAILY | WEEKLY | BIWEEKLY | MONTHLY
+    REMINDER_DAY                 VARCHAR(20)   NOT NULL DEFAULT 'MONDAY',     -- día de la semana
+    REMINDER_HOUR                INT           NOT NULL DEFAULT 8,             -- hora (0-23)
+    REMINDER_ENABLED             BIT           NOT NULL DEFAULT 1,
+    NEW_LEVEL_ENABLED            BIT           NOT NULL DEFAULT 1,
+    UPDATED_AT                   DATETIME      NOT NULL DEFAULT GETUTCDATE(),
+    UPDATED_BY                   INT           NULL,
+    CONSTRAINT CK_CONFIG_ID CHECK (CONFIG_ID = 1),
+    CONSTRAINT CK_NEAR_LEVEL_THRESHOLD CHECK (NEAR_LEVEL_THRESHOLD_PERCENT BETWEEN 0 AND 100),
+    CONSTRAINT CK_NEAR_LEVEL_HOUR CHECK (NEAR_LEVEL_CHECK_HOUR BETWEEN 0 AND 23),
+    CONSTRAINT CK_REMINDER_HOUR CHECK (REMINDER_HOUR BETWEEN 0 AND 23),
+    CONSTRAINT CK_REMINDER_FREQUENCY CHECK (REMINDER_FREQUENCY IN ('DAILY','WEEKLY','BIWEEKLY','MONTHLY')),
+    CONSTRAINT CK_REMINDER_DAY CHECK (REMINDER_DAY IN ('MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY','SUNDAY'))
+);
+```
+
+---
+
+#### TAREA-153 ? ???
+**Crear tabla `BonificationNotificationLog`**
+
+**Descripción:**
+Tabla de auditoría para registrar TODAS las notificaciones procesadas.
+Campos: distribuidor, tipo de notificación, fecha/hora, estado (encolada/enviada/fallida), motivo de fallo.
+
+**Script SQL a crear:** `scripts/CreateBonificationNotificationLogTable.sql`
+
+```sql
+CREATE TABLE dbo.BonificationNotificationLog (
+    NOTIFICATION_LOG_ID          INT             NOT NULL IDENTITY(1,1),
+    CUSTOMER_ID                  INT             NOT NULL,
+    NOTIFICATION_TYPE            VARCHAR(30)     NOT NULL,  -- NEW_LEVEL | NEAR_LEVEL | REMINDER
+    PERIOD_INSTANCE_ID           INT             NULL,      -- opcional, depende del tipo
+    EMAIL_ADDRESS                VARCHAR(254)    NOT NULL,
+    STATUS                       VARCHAR(20)     NOT NULL,  -- ENQUEUED | SENT | FAILED
+    QUEUE_TIMESTAMP              DATETIME        NOT NULL DEFAULT GETUTCDATE(),
+    SEND_ATTEMPT_TIMESTAMP       DATETIME        NULL,
+    ERROR_MESSAGE                VARCHAR(500)    NULL,
+    RETRY_COUNT                  INT             NOT NULL DEFAULT 0,
+    CORRELATION_ID               VARCHAR(50)     NULL,      -- para tracking en Rabbit
+    CONSTRAINT PK_NOTIFICATION_LOG PRIMARY KEY CLUSTERED (NOTIFICATION_LOG_ID),
+    CONSTRAINT FK_NOTIFICATION_LOG_CUSTOMER FOREIGN KEY (CUSTOMER_ID)
+        REFERENCES dbo.Customers (CUSTOMER_ID),
+    CONSTRAINT CK_NOTIFICATION_TYPE CHECK (NOTIFICATION_TYPE IN ('NEW_LEVEL','NEAR_LEVEL','REMINDER')),
+    CONSTRAINT CK_NOTIFICATION_STATUS CHECK (STATUS IN ('ENQUEUED','SENT','FAILED'))
+);
+CREATE NONCLUSTERED INDEX IX_NOTIFICATION_LOG_CUSTOMER_TYPE
+    ON dbo.BonificationNotificationLog (CUSTOMER_ID, NOTIFICATION_TYPE, QUEUE_TIMESTAMP);
+CREATE NONCLUSTERED INDEX IX_NOTIFICATION_LOG_STATUS
+    ON dbo.BonificationNotificationLog (STATUS, QUEUE_TIMESTAMP);
+```
+
+---
+
+#### TAREA-154 ? ??
+**Crear entidades EF + Configurations + Models + Mappings**
+
+**Archivos a crear:**
+
+- `Aldebaran.DataAccess\Entities\BonificationNotificationConfiguration.cs`
+- `Aldebaran.DataAccess\Entities\BonificationNotificationLog.cs`
+- `Aldebaran.DataAccess\Configuration\BonificationNotificationConfigurationConfiguration.cs`
+- `Aldebaran.DataAccess\Configuration\BonificationNotificationLogConfiguration.cs`
+- `Aldebaran.Application.Services\Models\BonificationNotificationConfiguration.cs`
+- `Aldebaran.Application.Services\Models\BonificationNotificationLog.cs`
+
+**Modificar:**
+- `Aldebaran.DataAccess\AldebaranDbContext.cs` → agregar DbSets
+- `Aldebaran.Application.Services\Mappings\ApplicationServicesProfile.cs` → agregar mappings
+
+**Estimación:** 4 horas | **Prioridad:** 🔴 REQUERIDO
+
+---
+
+#### TAREA-155 ? ??
+**Crear repositorio `IBonificationNotificationRepository`**
+
+**Archivos a crear:**
+- `Aldebaran.DataAccess.Infraestructure\Repository\IBonificationNotificationRepository.cs`
+- `Aldebaran.DataAccess.Infraestructure\Repository\BonificationNotificationRepository.cs`
+
+**Métodos:**
+- `GetConfigurationAsync(CancellationToken ct)`
+- `UpdateConfigurationAsync(config, CancellationToken ct)`
+- `AddLogAsync(log, CancellationToken ct)`
+- `UpdateLogStatusAsync(logId, status, errorMessage, CancellationToken ct)`
+- `GetLogsAsync(skip, top, customerId, status, CancellationToken ct)`
+
+**Estimación:** 3 horas | **Prioridad:** 🔴 REQUERIDO
+
+---
+
+#### TAREA-156 ? ??
+**Crear servicio `IBonificationNotificationService` (orquestador principal)**
+
+**Archivos a crear:**
+- `Aldebaran.Application.Services\Services\IBonificationNotificationService.cs`
+- `Aldebaran.Application.Services\Services\BonificationNotificationService.cs`
+
+**Responsabilidades:**
+- Coordina los 3 tipos de notificaciones
+- Lee configuración global
+- Encola mensajes en Rabbit
+- Registra auditoría en log
+
+**Métodos:**
+- `CheckAndSendNewLevelNotificationAsync(customerId, bonificationTypeId, CancellationToken ct)`
+- `CheckAndSendNearLevelNotificationAsync(customerId, bonificationTypeId, CancellationToken ct)`
+- `SendReminderNotificationsAsync(CancellationToken ct)`
+- `GetConfigurationAsync(CancellationToken ct)`
+- `UpdateConfigurationAsync(config, CancellationToken ct)`
+- `GetLogsAsync(skip, top, customerId, status, CancellationToken ct)`
+
+**Estimación:** 4 horas | **Prioridad:** 🔴 REQUERIDO
+
+---
+
+#### TAREA-157 ? ??
+**Crear servicio de encolamiento en Rabbit `IBonificationMessageQueueService`**
+
+**Descripción:**
+Adaptador que toma un modelo de notificación y lo encola en Rabbit para que lo procese Notificator Service.
+
+**Archivos a crear:**
+- `Aldebaran.Application.Services\Services\IBonificationMessageQueueService.cs`
+- `Aldebaran.Application.Services\Services\BonificationMessageQueueService.cs`
+- `Aldebaran.Application.Services\Models\BonificationNotificationMessage.cs`
+
+**Responsabilidad:**
+- Conecta con Rabbit MQ
+- Encola mensaje en exchange de notificaciones
+- Manejo de errores de conexión
+
+**Estimación:** 5 horas | **Prioridad:** 🔴 REQUERIDO
+
+---
+
+#### TAREA-158 ? ??
+**Crear componente de composición de email `IBonificationEmailComposer`**
+
+**Descripción:**
+Servicio que arma el contenido HTML/texto de cada notificación según su tipo.
+
+**Archivos a crear:**
+- `Aldebaran.Application.Services\Services\IBonificationEmailComposer.cs`
+- `Aldebaran.Application.Services\Services\BonificationEmailComposer.cs`
+
+**Métodos:**
+- `ComposeNewLevelNotificationAsync(customer, bonType, newBonus, CancellationToken ct)`
+- `ComposeNearLevelNotificationAsync(customer, bonType, moneyNeeded, progressPercent, CancellationToken ct)`
+- `ComposeReminderNotificationAsync(customer, bonusInfo, CancellationToken ct)`
+
+**Estimación:** 4 horas | **Prioridad:** 🔴 REQUERIDO
+
+---
+
+#### TAREA-159 ? ??
+**Notificación 1: Detectar y enviar "Alcanzó Nuevo Nivel"**
+
+**Descripción:**
+Post-cálculo en CU7: si el distribuidor sube de tramo, enviar notificación.
+
+**Ubicación:** `BonificationNotificationService.cs`
+
+**Lógica:**
+1. Obtener rango anterior y actual del distribuidor
+2. Verificar si cambió de tramo
+3. Aplicar throttling (máx 1 notificación/tipo/distribuidor/24h)
+4. Componer email con `IBonificationEmailComposer`
+5. Encolar en Rabbit con `IBonificationMessageQueueService`
+6. Registrar en log
+
+**Integración:**
+- Hook en `BonificationCalculationService` post-cálculo
+
+**Estimación:** 5 horas | **Prioridad:** 🔴 REQUERIDO
+
+---
+
+#### TAREA-160 ? ??
+**Notificación 2: Job diario "Está Cerca del Siguiente Nivel"**
+
+**Descripción:**
+Job diario (configurable, default 6 AM) que verifica distribuidores cercanos a siguiente tramo.
+
+**Archivo a crear:**
+- `Aldebaran.Application.Services\Jobs\BonificationNearLevelCheckJob.cs`
+
+**Lógica:**
+1. Lee configuración global (umbral %, hora)
+2. Para cada distribuidor con período activo:
+   - Calcula progreso a siguiente nivel
+   - Si ≥ umbral (default 80%) ? evalúa envío
+   - Aplica throttling (máx 1 notificación/distribuidor/24h)
+   - Encola notificación
+3. Registra ejecución en log
+
+**Estimación:** 6 horas | **Prioridad:** 🔴 REQUERIDO
+
+---
+
+#### TAREA-161 ? ??
+**Notificación 3: Job periódico "Recordatorio de Progreso"**
+
+**Descripción:**
+Job periódico (configurable, default Lunes 8 AM) que envía resumen completo de bonificación.
+
+**Archivo a crear:**
+- `Aldebaran.Application.Services\Jobs\BonificationReminderJob.cs`
+
+**Lógica:**
+1. Lee configuración global (frecuencia, día, hora)
+2. Para cada distribuidor activo:
+   - Construye resumen de 3 bonos
+   - Encola notificación tipo REMINDER
+3. Registra ejecución
+
+**Estimación:** 5 horas | **Prioridad:** 🔴 REQUERIDO
+
+---
+
+#### TAREA-162 ? ???
+**Crear página Admin: Configuración de Notificaciones**
+
+**Ruta:** `Pages\BonificationPages\BonificationNotificationSettings.razor`  
+**URL:** `/bonification/notification-settings`  
+**Rol:** `Administrador`
+
+**Estructura:**
+- Sección "Notificación: Nuevo Nivel"
+  - Checkbox: Habilitada/Deshabilitada
+- Sección "Notificación: Cerca del Siguiente Nivel"
+  - Checkbox: Habilitada/Deshabilitada
+  - Slider/Numeric: Umbral % (0-100, default 80)
+  - TimePicker: Hora de ejecución del job (default 06:00)
+- Sección "Recordatorio Periódico"
+  - Checkbox: Habilitada/Deshabilitada
+  - Dropdown: Frecuencia (Diaria, Semanal, Bisemanal, Mensual)
+  - Dropdown: Día (Lunes, Martes, etc.) — visible si Semanal+
+  - TimePicker: Hora de ejecución (default 08:00)
+- Botón "Guardar Configuración"
+  - Llama `BonificationNotificationService.UpdateConfigurationAsync`
+
+**Estimación:** 7 horas | **Prioridad:** 🔴 REQUERIDO
+
+---
+
+#### TAREA-163 ? ???
+**Crear página Admin: Historial de Notificaciones Enviadas**
+
+**Ruta:** `Pages\BonificationPages\BonificationNotificationHistory.razor`  
+**URL:** `/bonification/notification-history`  
+**Rol:** `Administrador`
+
+**Estructura:**
+- Filtros superiores:
+  - Dropdown Distribuidor
+  - Dropdown Tipo (NEW_LEVEL | NEAR_LEVEL | REMINDER | Todos)
+  - Dropdown Estado (ENQUEUED | SENT | FAILED | Todos)
+  - Date Range
+  - Botón "Filtrar"
+- `RadzenDataGrid` paginada:
+  - Columnas: ID | Distribuidor | Tipo | Email | Estado | Encolada | Enviada | Error | Acciones
+  - Row expand: detalles completos + mensajes de error
+
+**Estimación:** 8 horas | **Prioridad:** 🔴 REQUERIDO
+
+---
+
+#### TAREA-164 ? ???
+**Crear página Admin: Dashboard de Notificaciones**
+
+**Ruta:** `Pages\BonificationPages\BonificationNotificationDashboard.razor`  
+**URL:** `/bonification/notification-dashboard`  
+**Rol:** `Administrador`
+
+**Estructura:**
+- KPIs destacados (últimas 24h):
+  - Total encoladas | Total enviadas | Total fallidas | Tasa de éxito %
+- Gráfico de líneas: Notificaciones por hora
+- Tabla resumen por tipo (últimas 24h):
+  - NEW_LEVEL: X encoladas, Y enviadas, Z fallidas
+  - NEAR_LEVEL: X encoladas, Y enviadas, Z fallidas
+  - REMINDER: X encoladas, Y enviadas, Z fallidas
+- Alertas:
+  - Si tasa de fallo > 5%? mostrar alerta roja
+  - Si ningún distribuidor recibió recordatorio en últimos 7 días ? alerta amarilla
+
+**Estimación:** 10 horas | **Prioridad:** 🟡 SUGERIDO
+
+---
+
+#### TAREA-165 ? ??
+**Crear health check para notificaciones**
+
+**Descripción:**
+Endpoint que verifica si el servicio de notificaciones está operativo.
+
+**Archivo a crear/modificar:**
+- `Aldebaran.Web\Controllers\Api\HealthController.cs` → agregar check
+
+**Verificaciones:**
+- Conexión a Rabbit
+- Configuración cargada
+- Retorna estado healthy/degraded
+
+**Estimación:** 2 horas | **Prioridad:** 🟡 SUGERIDO
+
+---
+
+#### TAREA-166 ? ??
+**Crear logging y observabilidad para notificaciones**
+
+**Descripción:**
+Integrar Application SEQ (Free) + logging para seguimiento de todas las notificaciones.
+
+**Cambios:**
+- Agregar logging en `BonificationNotificationService`
+- Configurar Application SEQ en `Program.cs`
+- Configurar niveles de log en `appsettings.json`
+
+**Métricas:**
+- Eventos: NotificationEnqueued, NotificationSent, NotificationFailed
+- Propiedades: CustomerId, NotificationType, Email, ErrorMessage, RetryCount
+
+**Estimación:** 3 horas | **Prioridad:** 🟡 SUGERIDO
+
+---
+
+#### TAREA-167 ? ??
+**Crear pruebas unitarias de notificaciones**
+
+**Ubicación:** `Aldebaran.Tests\Services\BonificationNotificationServiceTests.cs`
+
+**Cobertura:**
+- Detección de nuevo nivel
+- Cálculo de cercanía a nivel
+- Throttling: máx 1/24h
+- Encolamiento en Rabbit
+- Composición de emails
+- Logging correcto
+
+**Estimación:** 6 horas | **Prioridad:** 🟡 SUGERIDO
+
+---
+
+### Resumen de archivos — Notificaciones Automáticas
+
+| Archivo | Tarea | Tipo |
+|---------|-------|------|
+| `scripts/CreateBonificationNotificationConfigurationTable.sql` | 152 | Nuevo |
+| `scripts/CreateBonificationNotificationLogTable.sql` | 153 | Nuevo |
+| `Entities\BonificationNotificationConfiguration.cs` | 154 | Nuevo |
+| `Entities\BonificationNotificationLog.cs` | 154 | Nuevo |
+| `Configuration\BonificationNotificationConfigurationConfiguration.cs` | 154 | Nuevo |
+| `Configuration\BonificationNotificationLogConfiguration.cs` | 154 | Nuevo |
+| `Models\BonificationNotificationConfiguration.cs` | 154 | Nuevo |
+| `Models\BonificationNotificationLog.cs` | 154 | Nuevo |
+| `Models\BonificationNotificationMessage.cs` | 157 | Nuevo |
+| `IBonificationNotificationRepository.cs` | 155 | Nuevo |
+| `BonificationNotificationRepository.cs` | 155 | Nuevo |
+| `IBonificationNotificationService.cs` | 156 | Nuevo |
+| `BonificationNotificationService.cs` | 156 | Nuevo |
+| `IBonificationMessageQueueService.cs` | 157 | Nuevo |
+| `BonificationMessageQueueService.cs` | 157 | Nuevo |
+| `IBonificationEmailComposer.cs` | 158 | Nuevo |
+| `BonificationEmailComposer.cs` | 158 | Nuevo |
+| `BonificationNearLevelCheckJob.cs` | 160 | Nuevo |
+| `BonificationReminderJob.cs` | 161 | Nuevo |
+| `Pages\BonificationPages\BonificationNotificationSettings.razor` | 162 | Nuevo |
+| `Pages\BonificationPages\BonificationNotificationSettings.razor.cs` | 162 | Nuevo |
+| `Pages\BonificationPages\BonificationNotificationHistory.razor` | 163 | Nuevo |
+| `Pages\BonificationPages\BonificationNotificationHistory.razor.cs` | 163 | Nuevo |
+| `Pages\BonificationPages\BonificationNotificationDashboard.razor` | 164 | Nuevo |
+| `Pages\BonificationPages\BonificationNotificationDashboard.razor.cs` | 164 | Nuevo |
+| `Controllers\Api\HealthController.cs` | 165 | Modificar |
+| `Program.cs` | 166 | Modificar |
+| `appsettings.json` | 166 | Modificar |
+| `BonificationNotificationServiceTests.cs` | 167 | Nuevo |
+| `AldebaranDbContext.cs` | 154 | Modificar |
+| `ApplicationServicesProfile.cs` | 154 | Modificar |
+| `ArchitectureBuilderExtensions.cs` | 156, 157, 158, 160, 161 | Modificar |
+
+---
+
+> ✅ **Con TAREA-152 a TAREA-167 queda completamente cubierto el módulo de Notificaciones Automáticas**,  
+> incluyendo:
+> - 3 tipos de notificaciones (Nuevo Nivel, Cerca del Nivel, Recordatorio)
+> - Configuración global por Admin (umbrales, horarios, frecuencias)
+> - Encolamiento en Rabbit + Notificator Service existente
+> - Auditoría completa de envíos
+> - Dashboard y reportería
+> - Seguridad y compliance
+> - Health checks y observabilidad
+> - Testing 
+
+---
+
 ## 📊 RESUMEN GLOBAL DE TAREAS
 
 **Estructura completa del Sistema de Bonificación de Distribuidores:**
@@ -4451,8 +4872,17 @@ public class BonificationConsultationResponse
 | | 2.2.6 TOTUS SP | 096-110 | 🔴 Pendiente |
 | | 2.2.7 OTP | 111-119 | 🔴 Pendiente |
 | **Consulta** | 2.3.1-2.3.7 CU7 | 120-151 | 🔴 Pendiente |
+| **Notificaciones** | 2.4.1-2.4.10 Notificaciones | 152-167 | 🔴 Pendiente |
 | | | | |
-| **TOTAL** | | **151 TAREAS** | 🔴 Pendiente |
+| **TOTAL** | | **170 TAREAS** | 🔴 Pendiente |
+
+---
+
+**Estimación Total de Esfuerzo (Actualizado):**
+- Tareas 001-151: ~200 horas
+- Tareas 152-170: ~75 horas (19 nuevas tareas)
+- **TOTAL: ~275 horas de desarrollo**
+- **Duración estimada (equipo de 2 desarrolladores):** 16-20 semanas
 
 ---
 
