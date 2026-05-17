@@ -5208,8 +5208,6 @@ Integrar Application SEQ (Free) + logging para seguimiento de todas las notifica
 
 ---
 
-
-
 ### Resumen de archivos — CU8: Histórico de Bonos
 
 | Archivo | Tarea | Tipo |
@@ -5253,6 +5251,444 @@ Integrar Application SEQ (Free) + logging para seguimiento de todas las notifica
 
 ---
 
+## 2.6 Módulo de Cierre Automático de Períodos (CU10)
+
+> Ref. propuesta funcional: Cierre Automático de Instancia de Período  
+> Alcance: Job nocturno + cálculo final + congelación + recomendación NC  
+> Responsable: Sistema (automático) + Admin PROMOS (notificación)
+
+---
+
+### 2.6.1 Persistencia de Bonos Cerrados (FOTO Congelada)
+
+#### TAREA-188 ? ???
+**Crear tabla `BonificationClosedPeriods`**
+
+**Descripción:**
+Tabla que almacena la FOTO congelada de bonos finales cuando se cierra un período.
+Es el registro inmutable de cada cierre de instancia de período.
+
+**Script SQL a crear:** `scripts/CreateBonificationClosedPeriodsTable.sql`
+
+```sql
+CREATE TABLE dbo.BonificationClosedPeriods (
+    BONIFICATION_CLOSED_PERIOD_ID    INT             NOT NULL IDENTITY(1,1),
+    BONIFICATION_PERIOD_INSTANCE_ID  INT             NOT NULL,  -- FK a instancia que se cierra
+    CUSTOMER_ID                      INT             NOT NULL,  -- distribuidor del bono
+    TOTAL_BILLING_BONUS              DECIMAL(18,2)   NOT NULL,  -- bono facturación calculado
+    TOTAL_ORDER_BONUS                DECIMAL(18,2)   NOT NULL,  -- bono pedido calculado
+    TOTAL_BONUS                      DECIMAL(18,2)   NOT NULL,  -- suma de ambos
+    CLOSED_AT                        DATETIME        NOT NULL DEFAULT GETUTCDATE(),
+    CLOSED_BY                        INT             NULL,      -- usuario si cierre manual
+    NOTES                            VARCHAR(500)    NULL,
+    CONSTRAINT PK_BONIFICATION_CLOSED_PERIOD PRIMARY KEY CLUSTERED (BONIFICATION_CLOSED_PERIOD_ID),
+    CONSTRAINT UQ_BONIFICATION_CLOSED_PERIOD UNIQUE (BONIFICATION_PERIOD_INSTANCE_ID, CUSTOMER_ID),
+    CONSTRAINT FK_CLOSED_PERIOD_INSTANCE FOREIGN KEY (BONIFICATION_PERIOD_INSTANCE_ID)
+        REFERENCES dbo.BonificationPeriodInstances (BONIFICATION_PERIOD_INSTANCE_ID),
+    CONSTRAINT FK_CLOSED_PERIOD_CUSTOMER FOREIGN KEY (CUSTOMER_ID)
+        REFERENCES dbo.Customers (CUSTOMER_ID),
+    CONSTRAINT CK_CLOSED_PERIOD_BONUS CHECK (TOTAL_BONUS = TOTAL_BILLING_BONUS + TOTAL_ORDER_BONUS)
+);
+CREATE NONCLUSTERED INDEX IX_CLOSED_PERIOD_INSTANCE
+    ON dbo.BonificationClosedPeriods (BONIFICATION_PERIOD_INSTANCE_ID);
+CREATE NONCLUSTERED INDEX IX_CLOSED_PERIOD_CUSTOMER
+    ON dbo.BonificationClosedPeriods (CUSTOMER_ID, CLOSED_AT);
+```
+
+---
+
+#### TAREA-189 ? ??
+**Crear entidad EF: `BonificationClosedPeriod`**
+
+**Archivo a crear:**
+- `Aldebaran.DataAccess\Entities\BonificationClosedPeriod.cs`
+```csharp
+public class BonificationClosedPeriod
+{
+    public int BonificationClosedPeriodId { get; set; }
+    public int BonificationPeriodInstanceId { get; set; }
+    public int CustomerId { get; set; }
+    public decimal TotalBillingBonus { get; set; }
+    public decimal TotalOrderBonus { get; set; }
+    public decimal TotalBonus { get; set; }
+    public DateTime ClosedAt { get; set; }
+    public int? ClosedBy { get; set; }
+    public string Notes { get; set; }
+
+    // Navegación
+    public BonificationPeriodInstance PeriodInstance { get; set; }
+    public Customer Customer { get; set; }
+}
+```
+
+- `Aldebaran.DataAccess\Configuration\BonificationClosedPeriodConfiguration.cs` — mapeo EF completo
+
+**Modificar:**
+- `Aldebaran.DataAccess\AldebaranDbContext.cs` ? agregar:
+```csharp
+public DbSet<BonificationClosedPeriod> BonificationClosedPeriods { get; set; }
+```
+
+---
+
+#### TAREA-190 ? ??
+**Crear modelo de servicio: `BonificationClosedPeriod`**
+
+**Archivos a crear:**
+- `Aldebaran.Application.Services\Models\BonificationClosedPeriod.cs` — POCO puro
+
+**Agregar mappings en `ApplicationServicesProfile.cs`:**
+```csharp
+CreateMap<BonificationClosedPeriod, Entities.BonificationClosedPeriod>().ReverseMap();
+```
+
+---
+
+#### TAREA-191 ? ??
+**Crear `IBonificationClosedPeriodRepository` y `BonificationClosedPeriodRepository`**
+
+**Archivos a crear:**
+- `Aldebaran.DataAccess.Infraestructure\Repository\IBonificationClosedPeriodRepository.cs`
+```csharp
+public interface IBonificationClosedPeriodRepository
+{
+    Task AddAsync(BonificationClosedPeriod closedPeriod, CancellationToken ct = default);
+    Task<BonificationClosedPeriod?> FindAsync(int id, CancellationToken ct = default);
+    Task<(IEnumerable<BonificationClosedPeriod>, int)> GetByInstanceAsync(
+        int periodInstanceId, int? skip, int? top, CancellationToken ct = default);
+    Task<(IEnumerable<BonificationClosedPeriod>, int)> GetByCustomerAsync(
+        int customerId, int? skip, int? top, CancellationToken ct = default);
+    Task<decimal> GetTotalBonusByCustomerAndPeriodAsync(
+        int customerId, int periodInstanceId, CancellationToken ct = default);
+}
+```
+
+- `Aldebaran.DataAccess.Infraestructure\Repository\BonificationClosedPeriodRepository.cs` — implementación
+
+---
+
+#### TAREA-192 ? ??
+**Crear `IBonificationClosureService` y `BonificationClosureService`**
+
+**Archivos a crear:**
+- `Aldebaran.Application.Services\Services\IBonificationClosureService.cs`
+```csharp
+public interface IBonificationClosureService
+{
+    Task ClosePeriodAsync(int periodInstanceId, CancellationToken ct = default);
+    Task<BonificationClosedPeriod?> GetClosureAsync(int closureId, CancellationToken ct = default);
+    Task<List<BonificationClosedPeriod>> GetPeriodClosuresAsync(
+        int periodInstanceId, CancellationToken ct = default);
+}
+```
+
+- `Aldebaran.Application.Services\Services\BonificationClosureService.cs` — implementación
+  - Calcula bonos finales para todos los distribuidores del período
+  - Registra FOTO congelada en `BonificationClosedPeriods`
+  - Manejo de excepciones sin interrumpir el cierre
+
+---
+
+#### TAREA-193 ? ??
+**Crear `IBonificationRecommendationService` para NC recomendadas**
+
+**Archivos a crear:**
+- `Aldebaran.Application.Services\Services\IBonificationRecommendationService.cs`
+```csharp
+public interface IBonificationRecommendationService
+{
+    Task<List<CreditNoteRecommendation>> GenerateRecommendationsAsync(
+        int periodInstanceId, CancellationToken ct = default);
+}
+```
+
+- `Aldebaran.Application.Services\Models\CreditNoteRecommendation.cs`
+- `Aldebaran.Application.Services\Services\BonificationRecommendationService.cs` — implementación
+  - Detecta NC faltantes basándose en patrón histórico
+  - Genera lista de recomendaciones para revisión manual por PROMOS
+
+---
+
+#### TAREA-194 ? ???
+**Crear job nocturno `BonificationPeriodClosureJob`**
+
+**Archivo a crear:**
+- `Aldebaran.Application.Services\Jobs\BonificationPeriodClosureJob.cs`
+
+**Responsabilidad:**
+- Ejecuta diariamente a las 23:59
+- Busca instancias `IN_PROGRESS` con `EndDate = TODAY`
+- Para cada instancia:
+  1. Calcula bonos finales para todos los distribuidores
+  2. Registra FOTO congelada en `BonificationClosedPeriods`
+  3. Marca instancia como `CLOSED`
+  4. Genera recomendaciones de NC
+  5. Crea siguiente instancia si el TipoBono tiene vigencia activa
+  6. Envía notificación a PROMOS con resumen del cierre
+
+---
+
+#### TAREA-195 ? ???
+**Crear tabla de auditoría `BonificationClosureLogs`**
+
+**Script SQL a crear:** `scripts/CreateBonificationClosureLogsTable.sql`
+
+```sql
+CREATE TABLE dbo.BonificationClosureLogs (
+    CLOSURE_LOG_ID                   INT             NOT NULL IDENTITY(1,1),
+    BONIFICATION_PERIOD_INSTANCE_ID  INT             NOT NULL,
+    CLOSURE_START_TIME               DATETIME        NOT NULL,
+    CLOSURE_END_TIME                 DATETIME        NOT NULL,
+    TOTAL_DISTRIBUTORS_PROCESSED     INT             NOT NULL,
+    TOTAL_BONUSES_CALCULATED         DECIMAL(18,2)   NOT NULL,
+    TOTAL_NC_RECOMMENDED             INT             NOT NULL,
+    STATUS                           VARCHAR(20)     NOT NULL,  -- SUCCESS | PARTIAL | FAILED
+    ERROR_MESSAGE                    VARCHAR(500)    NULL,
+    NEXT_INSTANCE_CREATED            BIT             NOT NULL,
+    CONSTRAINT PK_CLOSURE_LOG PRIMARY KEY CLUSTERED (CLOSURE_LOG_ID),
+    CONSTRAINT FK_CLOSURE_LOG_INSTANCE FOREIGN KEY (BONIFICATION_PERIOD_INSTANCE_ID)
+        REFERENCES dbo.BonificationPeriodInstances (BONIFICATION_PERIOD_INSTANCE_ID)
+);
+```
+
+---
+
+#### TAREA-196 ? ??
+**Crear página Admin: Vista de Cierre de Períodos**
+
+**Ruta:** `Pages\BonificationPages\BonificationClosures.razor`  
+**URL:** `/bonification/closures`  
+**Rol requerido:** `Administrador`
+
+**Estructura:**
+- Título: "Cierre de Períodos de Bonificación"
+- Filtros: Instancia | Estado | Date Range | Botón "Filtrar"
+- `RadzenDataGrid` con:
+  - Columnas: Instancia | Período | Fecha Cierre | Distribuidores | Bono Total | Estado | Acciones
+- Botón "Ver Detalle" → abre panel lateral con:
+  - Resumen del cierre
+  - Lista de distribuidores procesados
+  - Recomendaciones NC generadas
+  - Log de ejecución
+
+---
+
+#### TAREA-197 ? ??
+**Crear página Admin: Dashboard de Cierre**
+
+**Ruta:** `Pages\BonificationPages\BonificationClosureDashboard.razor`  
+**URL:** `/bonification/closure-dashboard`  
+**Rol requerido:** `Administrador`
+
+**Estructura:**
+- KPIs (últimos 7 días):
+  - Períodos cerrados | Distribuidores procesados | Bono total | Tasa éxito
+- Gráfico de líneas: Bonos por día
+- Tabla resumen: Últimos 10 cierres
+- Alertas: si hay cierres fallidos
+
+---
+
+#### TAREA-198 ? ???
+**Crear endpoint REST para consultar cierres**
+
+**Ubicación:** `Aldebaran.Web\Controllers\Api\BonificationClosureController.cs`
+
+**Endpoints:**
+- `GET /api/bonification/closures/{instanceId}` — Detalle de cierre
+- `GET /api/bonification/closures/{customerId}/history` — Histórico de cierres del distribuidor
+
+---
+
+#### TAREA-199 ? ??
+**Crear modelo `BonificationClosureResult` para respuesta de cierre**
+
+**Archivos a crear:**
+- `Aldebaran.Application.Services\DTOs\BonificationClosureResult.cs`
+- `Aldebaran.Application.Services\Models\CreditNoteRecommendation.cs`
+- `Aldebaran.Application.Services\Models\ClosureNotificationData.cs`
+
+---
+
+#### TAREA-200 ? ??
+**Crear servicio de notificación de cierre `IBonificationClosureNotificationService`**
+
+**Archivos a crear:**
+- `Aldebaran.Application.Services\Services\IBonificationClosureNotificationService.cs`
+- `Aldebaran.Application.Services\Services\BonificationClosureNotificationService.cs`
+
+**Responsabilidad:**
+- Envía email a PROMOS cuando se completa un cierre
+- Incluye resumen de bonos calculados
+- Incluye recomendaciones NC
+- Incluye link a panel de revisión
+
+---
+
+#### TAREA-201 ? ??
+**Integrar job de cierre con ciclo de vida de instancias**
+
+**Modificar:**
+- `BonificationPeriodInstanceLifecycleService.cs` → Registrar cierre al marcar instancia como CLOSED
+- `Program.cs` → Registrar `BonificationPeriodClosureJob` como hosted service
+
+---
+
+#### TAREA-202 ? ???
+**Crear tabla de recomendaciones `BonificationNCRecommendations`**
+
+**Script SQL a crear:** `scripts/CreateBonificationNCRecommendationsTable.sql`
+
+```sql
+CREATE TABLE dbo.BonificationNCRecommendations (
+    RECOMMENDATION_ID                INT             NOT NULL IDENTITY(1,1),
+    BONIFICATION_CLOSED_PERIOD_ID    INT             NOT NULL,
+    CUSTOMER_ID                      INT             NOT NULL,
+    RECOMMENDED_NC_NUMBER            VARCHAR(50)     NOT NULL,
+    RECOMMENDED_AMOUNT               DECIMAL(18,2)   NOT NULL,
+    REASON                           VARCHAR(500)    NOT NULL,
+    STATUS                           VARCHAR(20)     NOT NULL DEFAULT 'PENDING',  -- PENDING | APPROVED | REJECTED
+    CREATED_AT                       DATETIME        NOT NULL DEFAULT GETUTCDATE(),
+    REVIEWED_BY                      INT             NULL,
+    REVIEWED_AT                      DATETIME        NULL,
+    CONSTRAINT PK_NC_RECOMMENDATION PRIMARY KEY CLUSTERED (RECOMMENDATION_ID),
+    CONSTRAINT FK_RECOMMENDATION_CLOSED_PERIOD FOREIGN KEY (BONIFICATION_CLOSED_PERIOD_ID)
+        REFERENCES dbo.BonificationClosedPeriods (BONIFICATION_CLOSED_PERIOD_ID),
+    CONSTRAINT FK_RECOMMENDATION_CUSTOMER FOREIGN KEY (CUSTOMER_ID)
+        REFERENCES dbo.Customers (CUSTOMER_ID),
+    CONSTRAINT CK_RECOMMENDATION_STATUS CHECK (STATUS IN ('PENDING','APPROVED','REJECTED'))
+);
+```
+
+---
+
+#### TAREA-203 ? ??
+**Crear `IBonificationNCRecommendationRepository` y servicio**
+
+**Archivos a crear:**
+- `IBonificationNCRecommendationRepository.cs` y implementación
+- `IBonificationNCRecommendationService.cs` y implementación
+
+---
+
+#### TAREA-204 ? ??
+**Crear página Admin: Gestión de Recomendaciones NC**
+
+**Ruta:** `Pages\BonificationPages\BonificationNCRecommendations.razor`  
+**URL:** `/bonification/nc-recommendations`  
+**Rol requerido:** `Administrador`
+
+**Estructura:**
+- Filtros: Período | Estado | Distribuidor
+- `RadzenDataGrid` con:
+  - Columnas: Distribuidor | NC Recomendada | Monto | Razón | Estado | Acciones
+- Botones: Aprobar | Rechazar (solo si PENDING)
+- Al aprobar: se puede crear automáticamente la NC externa
+
+---
+
+#### TAREA-205 ? ???
+**Crear pruebas unitarias de cierre**
+
+**Ubicación:** `Aldebaran.Tests\Services\BonificationClosureServiceTests.cs`
+
+**Cobertura:**
+- Cálculo correcto de bonos finales
+- Registro inmutable en BD
+- Creación de siguiente instancia
+- Generación de recomendaciones
+- Manejo de errores parciales
+
+---
+
+#### TAREA-206 ? ???
+**Crear pruebas de integración del job de cierre**
+
+**Ubicación:** `Aldebaran.Tests.Integration\BonificationPeriodClosureJobTests.cs`
+
+**Cobertura:**
+- Ejecución del job a la hora correcta
+- Procesamiento de múltiples instancias
+- Notificación a PROMOS
+- Log de auditoría
+
+---
+
+#### TAREA-207 ? ??
+**Crear health check para job de cierre**
+
+**Modificar:**
+- `Aldebaran.Web\Controllers\Api\HealthController.cs` → Agregar check de última ejecución del job
+
+---
+
+#### TAREA-208 ? ??
+**Implementar rollback manual de cierre (solo Admin)**
+
+**Archivos a crear:**
+- `Aldebaran.Application.Services\Services\IBonificationClosureRollbackService.cs`
+
+**Responsabilidad:**
+- Permite deshacer un cierre que fue erróneo
+- Requiere roles de admin elevado
+- Registra auditoría completa del rollback
+
+---
+
+#### TAREA-209 ? ??
+**Crear configuración de cronograma de cierre**
+
+**Modificar:**
+- `appsettings.json` → Agregar:
+```json
+"BonificationClosureOptions": {
+  "CronExpression": "0 59 23 * * *",
+  "TimeoutSeconds": 3600,
+  "NotificationRecipients": ["bonificacion@promos.com"],
+  "SendDetailedReport": true,
+  "ArchiveClosureFiles": true
+}
+```
+
+---
+
+#### TAREA-210 ? ??
+**Agregar logging y observabilidad al cierre**
+
+**Modificar:**
+- Servicios de cierre para registrar métricas en Application Insights
+- Dashboard de cierre para mostrar métricas en tiempo real
+
+---
+
+#### TAREA-211 ? ???
+**Crear documentación de procedimiento de cierre**
+
+**Archivos a crear:**
+- `docs/BonificationClosure_Procedure.md` — Guía operativa para PROMOS
+
+---
+
+#### TAREA-212 ? ???
+**Crear plan de validación y UAT del cierre automático**
+
+**Archivos a crear:**
+- `docs/BonificationClosure_UAT_Plan.md` — Casos de prueba y criterios de aceptación
+
+---
+
+> ✅ **Con TAREA-188 a TAREA-212 queda completamente cubierto CU10: Cierre Automático de Períodos**,  
+> incluyendo:
+> - FOTO congelada inmutable de bonos
+> - Job nocturno automático
+> - Recomendaciones de NC para revisión
+> - Auditoría completa de cierre
+> - Dashboard y reportería
+> - Rollback manual si es necesario
+> - Health checks y monitoreo
+
+---
+
 
 
 ---
@@ -5278,8 +5714,9 @@ Integrar Application SEQ (Free) + logging para seguimiento de todas las notifica
 | **Consulta CU7** | Consulta Período Actual | 120-151 | 120 h | 🔴 Pendiente |
 | **Notificaciones** | Notificaciones Automáticas | 152-167 | 75 h | 🔴 Pendiente |
 | **Consulta CU8** | Consulta Histórico (Períodos Cerrados) | 168-187 | 50 h | 🔴 Pendiente |
+| **Cierre CU10** | Cierre Automático de Períodos | 188-212 | 65 h | 🔴 Pendiente |
 | | | | | |
-| **TOTAL** | | **187 TAREAS** | **~577 h** | 🔴 Pendiente |
+| **TOTAL** | | **212 TAREAS** | **~642 h** | 🔴 Pendiente |
 
 ---
 
@@ -5287,12 +5724,12 @@ Integrar Application SEQ (Free) + logging para seguimiento de todas las notifica
 
 | Área | Tareas | Estimación | % del Proyecto |
 |------|--------|-----------|-----------------|
-| Backend (DB + Services) | 001-110, 120-125, 129, 152-161, 168-177 | ~310 h | 54% |
-| Frontend (Blazor Pages + Components) | 004-009, 089-090, 117, 140-144, 179-184 | ~120 h | 21% |
-| API REST + Integraciones | 116, 132-136, 174-176 | ~65 h | 11% |
-| Configuración + DevOps | 097, 149-150 | ~15 h | 3% |
-| Testing (Unit + Integration + E2E) *Fase General* | — | ~67 h | 11% |
-| **SUBTOTAL** | | **~577 h** | **100%** |
+| Backend (DB + Services) | 001-110, 120-125, 129, 152-161, 168-177, 188-212 | ~375 h | 58% |
+| Frontend (Blazor Pages + Components) | 004-009, 089-090, 117, 140-144, 179-184, 196-197, 204 | ~145 h | 23% |
+| API REST + Integraciones | 116, 132-136, 174-176, 198 | ~70 h | 11% |
+| Configuración + DevOps | 097, 149-150, 209 | ~18 h | 3% |
+| Testing (Unit + Integration + E2E) *Fase General* | — | ~34 h | 5% |
+| **SUBTOTAL** | | **~642 h** | **100%** |
 
 ---
 
@@ -5300,10 +5737,10 @@ Integrar Application SEQ (Free) + logging para seguimiento de todas las notifica
 
 | Equipo | Duración | Fases |
 |--------|----------|-------|
-| **1 Desarrollador** | 29-36 semanas | 7-9 meses |
-| **2 Desarrolladores** | 14-18 semanas | 3.5-4.5 meses |
-| **3 Desarrolladores** | 10-14 semanas | 2.5-3.5 meses |
-| **4 Desarrolladores** | 7-10 semanas | 1.5-2.5 meses |
+| **1 Desarrollador** | 32-40 semanas | 8-10 meses |
+| **2 Desarrolladores** | 16-20 semanas | 4-5 meses |
+| **3 Desarrolladores** | 11-15 semanas | 2.5-3.5 meses |
+| **4 Desarrolladores** | 8-12 semanas | 2-3 meses |
 
 ---
 
@@ -5325,12 +5762,13 @@ Fase 3 (Semana 6-8): Integraciones Críticas
 ├─ TAREA-096 a TAREA-110 (TOTUS SP)
 └─ TAREA-046 a TAREA-058 (OC Especiales)
 
-Fase 4 (Semana 9-11): Funcionalidad Principal
+Fase 4 (Semana 9-12): Funcionalidad Principal
 ├─ TAREA-059 a TAREA-069 (Conciliación NC)
 ├─ TAREA-120 a TAREA-151 (CU7 Consulta Actual)
-└─ TAREA-168 a TAREA-187 (CU8 Histórico)
+├─ TAREA-168 a TAREA-187 (CU8 Histórico)
+└─ TAREA-188 a TAREA-212 (CU10 Cierre Automático)
 
-Fase 5 (Semana 12-14): Notificaciones + Testing/Docs Integral
+Fase 5 (Semana 13-15): Notificaciones + Testing/Docs Integral
 ├─ TAREA-152 a TAREA-167 (Notificaciones)
 └─ Testing integral + Documentación final
 ```

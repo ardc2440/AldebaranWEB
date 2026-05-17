@@ -458,6 +458,69 @@
 
 ---
 
+### 4.3.7 – Cierre Automático de Períodos (CU10)
+
+#### 4.3.7.1 – Persistencia de Bonos Cerrados (FOTO Congelada)
+
+| # | Tarea | Descripción | Horas | Prioridad |
+|---|-------|-------------|-------|-----------|
+| TAREA-188 | Crear tabla `BonificationClosedPeriods` | Tabla FOTO congelada con PK, FK, constraints, índices | 3 | ?? REQUERIDO |
+| TAREA-189 | Crear entidad EF: `BonificationClosedPeriod` | Entidad + Configuration | 3 | ?? REQUERIDO |
+| TAREA-190 | Crear modelo de servicio: `BonificationClosedPeriod` | POCO + mapping AutoMapper | 1 | ?? REQUERIDO |
+| TAREA-191 | Crear `IBonificationClosedPeriodRepository` y `BonificationClosedPeriodRepository` | Repositorio completo con consultas por instancia y cliente | 6 | ?? REQUERIDO |
+| TAREA-192 | Crear `IBonificationClosureService` y `BonificationClosureService` | Servicio de cálculo final y congelación de bonos | 8 | ?? REQUERIDO |
+| TAREA-193 | Crear `IBonificationRecommendationService` | Servicio de detección y generación de NC recomendadas | 5 | ?? REQUERIDO |
+| | | **Subtotal 4.3.7.1** | **26** | |
+
+---
+
+#### 4.3.7.2 – Job Nocturno de Cierre
+
+| # | Tarea | Descripción | Horas | Prioridad |
+|---|-------|-------------|-------|-----------|
+| TAREA-194 | Crear job nocturno `BonificationPeriodClosureJob` | Job 23:59 con orquestación completa de cierre y rollover | 8 | ?? REQUERIDO |
+| TAREA-195 | Crear tabla de auditoría `BonificationClosureLogs` | Tabla con registro de cada ejecución del job | 2 | ?? REQUERIDO |
+| TAREA-200 | Crear servicio de notificación de cierre `IBonificationClosureNotificationService` | Envío de email a PROMOS con resumen y recomendaciones | 4 | ?? REQUERIDO |
+| TAREA-201 | Integrar job de cierre con ciclo de vida de instancias | Registro y coordinación con `BonificationPeriodInstanceLifecycleService` | 3 | ?? REQUERIDO |
+| | | **Subtotal 4.3.7.2** | **17** | |
+
+---
+
+#### 4.3.7.3 – Gestión de Recomendaciones de NC
+
+| # | Tarea | Descripción | Horas | Prioridad |
+|---|-------|-------------|-------|-----------|
+| TAREA-202 | Crear tabla de recomendaciones `BonificationNCRecommendations` | Tabla con NC recomendadas, monto y razón | 2 | ?? REQUERIDO |
+| TAREA-203 | Crear `IBonificationNCRecommendationRepository` y servicio | Repositorio + servicio de gestión de recomendaciones | 5 | ?? REQUERIDO |
+| TAREA-204 | Crear página Admin: Gestión de Recomendaciones NC | Grid de recomendaciones con acciones Aprobar/Rechazar | 6 | ?? REQUERIDO |
+| | | **Subtotal 4.3.7.3** | **13** | |
+
+---
+
+#### 4.3.7.4 – Operabilidad y Monitoreo
+
+| # | Tarea | Descripción | Horas | Prioridad |
+|---|-------|-------------|-------|-----------|
+| TAREA-196 | Crear página Admin: Vista de Cierre de Períodos | Grid de cierres con filtros y panel lateral de detalles | 6 | ?? REQUERIDO |
+| TAREA-197 | Crear página Admin: Dashboard de Cierre | KPIs + gráficos + alertas de cierres fallidos | 6 | ?? SUGERIDO |
+| TAREA-198 | Crear endpoint REST para consultar cierres | GET `/api/bonification/closures/{instanceId}` y `/history` | 3 | ?? REQUERIDO |
+| TAREA-199 | Crear modelo `BonificationClosureResult` para respuesta | DTOs y modelos para API REST + notificaciones | 2 | ?? REQUERIDO |
+| TAREA-205 | Crear pruebas unitarias de cierre | Cobertura de cálculo, persistencia, creación de siguiente instancia | 6 | ?? SUGERIDO |
+| TAREA-206 | Crear pruebas de integración del job de cierre | Cobertura de ejecución, notificación, auditoría | 5 | ?? SUGERIDO |
+| TAREA-207 | Crear health check para job de cierre | Endpoint con verificación de última ejecución | 2 | ?? SUGERIDO |
+| TAREA-208 | Implementar rollback manual de cierre (solo Admin) | Servicio de deshacer cierre erróneo | 4 | ?? SUGERIDO |
+| TAREA-209 | Crear configuración de cronograma de cierre | `appsettings.json` con expresión cron y parámetros | 1 | ?? REQUERIDO |
+| TAREA-210 | Agregar logging y observabilidad al cierre | Application Insights + métricas + alertas | 2 | ?? SUGERIDO |
+| TAREA-211 | Crear documentación de procedimiento de cierre | Guía operativa para PROMOS | 2 | ?? SUGERIDO |
+| TAREA-212 | Crear plan de validación y UAT del cierre automático | Casos de prueba + criterios de aceptación | 3 | ?? SUGERIDO |
+| | | **Subtotal 4.3.7.4** | **42** | |
+
+---
+
+| | | **TOTAL 4.3.7** | **98** | |
+
+---
+
 
 
 ---
@@ -495,24 +558,28 @@
 | 4.3.6.2 – REST API (CU8) | 5 | 14 | 1.6% |
 | 4.3.6.3 – Frontend Blazor (CU8) | 6 | 27 | 3.1% |
 | 4.3.6.4 – Exportación PDF/Excel (CU8) | 3 | 13 | 1.5% |
-| **TOTAL** | **190** | **873.5** | **100%** |
+| 4.3.7.1 – Persistencia de Bonos Cerrados (CU10) | 6 | 26 | 3.0% |
+| 4.3.7.2 – Job Nocturno de Cierre (CU10) | 4 | 17 | 2.0% |
+| 4.3.7.3 – Gestión de Recomendaciones de NC (CU10) | 3 | 13 | 1.5% |
+| 4.3.7.4 – Operabilidad y Monitoreo (CU10) | 12 | 42 | 4.8% |
+| **TOTAL** | **210** | **971.5** | **100%** |
 
 ### Por Prioridad
 
 | Prioridad | Tareas | Horas | % del Total |
 |-----------|--------|-------|-------------|
-| 🔴 REQUERIDO | 155 | 742.5 | 85.0% |
-| 🟡 SUGERIDO | 33 | 126 | 14.4% |
-| 🟢 DESEABLE | 2 | 5 | 0.6% |
-| **TOTAL** | **190** | **873.5** | **100%** |
+| 🔴 REQUERIDO | 171 | 840.5 | 86.5% |
+| 🟡 SUGERIDO | 37 | 128 | 13.2% |
+| 🟢 DESEABLE | 2 | 5 | 0.5% |
+| **TOTAL** | **210** | **971.5** | **100%** |
 
 ### Escenarios de Contratación
 
 | Escenario | Descripción | Horas | Días hábiles (8h) |
 |-----------|-------------|-------|-------------------|
-| **MVP Mínimo** | Solo tareas REQUERIDAS (155 tareas) | 742.5 | ~93 |
-| **MVP Recomendado** | REQUERIDAS + SUGERIDAS sin masivos (187 tareas) | 868.5 | ~109 |
-| **Alcance Completo** | Todas las tareas (190) | 873.5 | ~109 |
+| **MVP Mínimo** | Solo tareas REQUERIDAS (171 tareas) | 840.5 | ~105 |
+| **MVP Recomendado** | REQUERIDAS + SUGERIDAS sin masivos (203 tareas) | 965.5 | ~121 |
+| **Alcance Completo** | Todas las tareas (210) | 971.5 | ~121 |
 
 ---
 
@@ -543,7 +610,11 @@
 - **4.3.6.1**: 5 tareas | 15.5h (sin TAREA-172)
 - **4.3.6.2**: 3 tareas | 8h (sin TAREA-175, TAREA-176)
 - **4.3.6.3**: 6 tareas | 27h (todas REQUERIDAS)
-- **Total REQUERIDAS**: 155 tareas | 742.5h
+- **4.3.7.1**: 6 tareas | 26h (todas REQUERIDAS)
+- **4.3.7.2**: 4 tareas | 17h (todas REQUERIDAS)
+- **4.3.7.3**: 3 tareas | 13h (todas REQUERIDAS)
+- **4.3.7.4**: 4 tareas | 18h (sin TAREA-197, TAREA-205, TAREA-206, TAREA-207, TAREA-208, TAREA-210, TAREA-211, TAREA-212)
+- **Total REQUERIDAS**: 171 tareas | 840.5h
 
 ### Tareas SUGERIDAS por Módulo
 - **4.3.1.1**: 4 tareas | 6h
@@ -560,7 +631,8 @@
 - **4.3.6.1**: 1 tarea | 2h (TAREA-172)
 - **4.3.6.2**: 2 tareas | 6h (TAREA-175, TAREA-176)
 - **4.3.6.4**: 3 tareas | 13h (todas SUGERIDAS)
-- **Total SUGERIDAS**: 33 tareas | 126h
+- **4.3.7.4**: 8 tareas | 24h (TAREA-197, TAREA-205, TAREA-206, TAREA-207, TAREA-208, TAREA-210, TAREA-211, TAREA-212)
+- **Total SUGERIDAS**: 37 tareas | 128h
 
 ### Tareas DESEABLE por Módulo
 - **4.3.1.1**: 4 tareas | 5h (TAREA-007, TAREA-008, TAREA-009, TAREA-010)
@@ -572,10 +644,10 @@
 
 | Categoría | Tareas | Horas | % |
 |-----------|--------|-------|---|
-| 🔴 REQUERIDO | 155 | 742.5 | 85.0% |
-| 🟡 SUGERIDO | 33 | 126 | 14.4% |
-| 🟢 DESEABLE | 2 | 5 | 0.6% |
-| **TOTAL** | **190** | **873.5** | **100%** |
+| 🔴 REQUERIDO | 171 | 840.5 | 86.5% |
+| 🟡 SUGERIDO | 37 | 128 | 13.2% |
+| 🟢 DESEABLE | 2 | 5 | 0.5% |
+| **TOTAL** | **210** | **971.5** | **100%** |
 
-> **Nota**: El total verificado es **873.5h** = 742.5 + 126 + 5. Este es el total actualizado del proyecto incluyendo todas las categorías de prioridad y las 190 tareas principales (sin contar las 2 tareas canceladas de TAREA-020 y TAREA-021). La sección 4.3.6 (Consulta CU8: Histórico de Bonos) agrega 20 tareas nuevas con 71.5 horas de desarrollo.
+> **Nota**: El total verificado es **971.5h** = 840.5 + 128 + 5. Este es el total actualizado del proyecto incluyendo todas las categorías de prioridad y las 210 tareas principales (sin contar las 2 tareas canceladas de TAREA-020 y TAREA-021). La sección 4.3.7 (Cierre Automático de Períodos - CU10) agrega 25 tareas nuevas con 98 horas de desarrollo.
 
