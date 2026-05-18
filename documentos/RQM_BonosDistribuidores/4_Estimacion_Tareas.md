@@ -652,56 +652,50 @@
 
 ---
 
-## Resumen Final Actualizado
+### 4.3.11 – Módulo de Reportería Analítica
 
-| Categoría | Tareas | Horas | % |
-|-----------|--------|-------|---|
-| 🔴 REQUERIDO | 200 | 1,008.5 | 86.9% |
-| 🟡 SUGERIDO | 45 | 149 | 12.8% |
-| 🟢 DESEABLE | 2 | 3 | 0.3% |
-| **TOTAL PROYECTO** | **247** | **1,160.5** | **100%** |
-
-> **Nota final**: El documento completo incluye **247 TAREAS** de desarrollo estimadas en **1,160.5 horas**, cobriendo el Sistema Completo de Bonificación de Distribuidores con todas sus funcionalidades desde la administración hasta la consulta por parte de distribuidores y PROMOS, incluyendo cierre automático de períodos y notificaciones automáticas.
+#### 4.3.11.1 – Reportes Críticos de Negocio
 
 | # | Tarea | Descripción | Horas | Prioridad |
 |---|-------|-------------|-------|-----------|
-| TAREA-226 | Crear tabla de auditoría para consultas PROMOS | `BonificationHistoryPromoAuditTable.sql` (quién consultó a quién, cuándo, IP) | 1 | ?? REQUERIDO |
-| TAREA-228 | Crear servicio de auditoría | `IBonificationHistoryAuditService` (registro + consulta de logs) | 3 | ?? REQUERIDO |
-| TAREA-232 | Crear validación de permisos | Guards Blazor (solo Admin / Consulta de bonificaciones) | 2 | ?? REQUERIDO |
-| TAREA-234 | Crear rate limiting para consultas PROMOS | Throttling 50 consultas/minuto por usuario PROMOS | 2 | ?? REQUERIDO |
-| | | **Subtotal 4.3.10.2** | **8** | |
+| TAREA-238 | Crear reporte "Bonos Calculados vs Bonos Aplicados" | Comparativa de bonos teóricos vs reales, consolidación y gráficos (barras + líneas) | 12 | ?? REQUERIDO |
+| TAREA-239 | Crear reporte "Distribuidores que Consultaron Bonos" | Auditoría de acceso (CU7/CU8), tabla de consultas, gráficos (líneas + heatmap + pastel), alertas de abuso | 10 | ?? REQUERIDO |
+| TAREA-240 | Crear reporte "Discrepancias de NC (Calculada vs Real)" | Diferencias NC Sistema vs TOTVS, consolidación, gráficos (dispersión + barras + Sankey) | 14 | ?? REQUERIDO |
+| TAREA-241 | Crear reporte "Auditoría de Acciones del Usuario PROMOS" | Rastro completo de acciones de PROMOS, consolidación por usuario/tipo/hora, gráficos (barras + timeline + heatmap) | 12 | ?? REQUERIDO |
+| TAREA-242 | Crear reporte "Precios y Vigencias Usados en Período" | Documentación de parámetros activos, trazabilidad de cambios, gráficos (timeline + barras + líneas) | 10 | ?? SUGERIDO |
+| TAREA-243 | Crear reporte "Ingresos Manuales Aplicados" | Detalle OC Especiales y NC Externas, consolidación por estado, gráficos (barras + pastel + líneas) | 11 | ?? REQUERIDO |
+| | | **Subtotal 4.3.11.1** | **69** | |
 
 ---
 
-#### 4.3.10.3 – Componentes y Servicios
+#### 4.3.11.2 – Reportes Adicionales (Recomendados)
 
 | # | Tarea | Descripción | Horas | Prioridad |
 |---|-------|-------------|-------|-----------|
-| TAREA-227 | Crear panel lateral de detalle | Componente `BonificationHistoryPromosSidePanel.razor` (slide-in con desglose completo) | 10 | ?? SUGERIDO |
-| TAREA-229 | Crear dashboard de auditoría | Página `BonificationHistoryPromoAuditDashboard.razor` (opcional, consultas/usuario, alertas de abuso) | 6 | ?? SUGERIDO |
-| TAREA-233 | Crear componente de búsqueda de distribuidor | Componente `DistributorSelectorComponent.razor` (searchable, caché 5 min) | 3 | ?? SUGERIDO |
-| | | **Subtotal 4.3.10.3** | **19** | |
+| TAREA-244 | Crear reporte "Resumen Mensual de Bonificación" | Consolidado ejecutivo mensual, KPIs + desglose por tipo de bono + top 10 distribuidores + análisis de problemas + comparativa histórica | 15 | ?? SUGERIDO |
+| TAREA-245 | Crear reporte "Análisis de Vigencias y Rangos Activos" | Verificación de configuraciones, validaciones de rangos solapados/huérfanos, análisis de sensibilidad, gráficos (barras + líneas + histograma) | 12 | ?? SUGERIDO |
+| TAREA-246 | Crear reporte "Dashboard de Salud del Sistema" | Monitoreo de disponibilidad, latencia, tasa de error, estado de jobs automáticos, gráficos (gauge + sparklines + timeline) + alertas | 10 | ?? SUGERIDO |
+| TAREA-247 | Crear reporte "Análisis de Cambios de Precio" | Impacto de cambios en lista de precios, detección de manipulaciones sospechosas, gráficos (dispersión + barras + líneas) | 11 | ?? SUGERIDO |
+| | | **Subtotal 4.3.11.2** | **48** | |
 
 ---
 
-#### 4.3.10.4 – Exportación y Documentación
+#### 4.3.11.3 – Infraestructura y Componentes Reutilizables
 
 | # | Tarea | Descripción | Horas | Prioridad |
 |---|-------|-------------|-------|-----------|
-| TAREA-230 | Crear servicio de PDF para PROMOS | Generador de PDF histórico con encabezado "Consulta generada por PROMOS" | 4 | ?? SUGERIDO |
-| TAREA-231 | Crear servicio de Excel para PROMOS | Exportador Excel con 3 hojas (Resumen, Por Tipo, Detalle Completo) | 4 | ?? SUGERIDO |
-| TAREA-235 | Crear testing de acceso PROMOS | Pruebas de autorización, auditoría, rate limiting | 4 | ?? SUGERIDO |
-| TAREA-236 | Crear documentación de uso para PROMOS | `docs/CU8_PROMOS_HistoryConsultation_Guide.md` | 2 | ?? SUGERIDO |
-| TAREA-237 | Crear link en menú principal | Agregar subítem en "Bonificaciones > Operaciones" | 1 | ?? REQUERIDO |
-| | | **Subtotal 4.3.10.4** | **15** | |
+| TAREA-248 | Crear infraestructura base para reportería | Clase base `BonificationReportBase.cs` + interfaz `IBonificationReportService` + servicio de exportación `IBonificationReportExportService` + controlador centralizado + página base Blazor reutilizable | 8 | ?? REQUERIDO |
+| TAREA-249 | Crear servicios de datos para cada reporte | 10 servicios específicos (uno por tipo de reporte), consultas desde repositorios, agrupación/consolidación, cálculo de estadísticas, alertas | 12 | ?? REQUERIDO |
+| TAREA-250 | Crear componentes de gráficos reutilizables | 7 componentes Blazor: barras, líneas, pastel, dispersión, mapa de calor, tabla con paginación, KPI cards | 10 | ?? REQUERIDO |
+| TAREA-251 | Crear jobs para generación de reportes automáticos | Job diario (reportes críticos) + Job semanal (reportes operacionales), almacenamiento de archivos, envío por email, registro en auditoría | 6 | ?? SUGERIDO |
+| TAREA-252 | Crear página de "Descarga de Reportes" predefinidos | Tabla de reportes generados automáticamente, filtros (tipo/período/formato), descarga directa, opción de regenerar | 4 | ?? SUGERIDO |
+| TAREA-253 | Crear auditoría y permisos para reportería | Rol `Consulta de reportes de bonificación`, tabla `BonificationReportAccessLog`, validación de permisos en endpoints, registro de auditoría | 3 | ?? REQUERIDO |
+| TAREA-254 | Crear documentación de reportería | Guía de cada reporte + Arquitectura interna + Ejemplos de uso | 3 | ?? SUGERIDO |
+| | | **Subtotal 4.3.11.3** | **46** | |
 
 ---
 
-| | | **TOTAL 4.3.10** | **57** | |
-
----
-
-
+| | | **TOTAL 4.3.11** | **163** | |
 
 ---
 
@@ -744,7 +738,10 @@
 | 4.3.7.4 – Operabilidad y Monitoreo (CU10) | 12 | 42 | 3.6% |
 | 4.3.8 – Consulta CU6: Bonificación Actual (PROMOS) | 10 | 33 | 2.8% |
 | 4.3.9 – Consulta CU8: Histórico de Bonos (PROMOS) | 15 | 57 | 4.9% |
-| **TOTAL** | **247** | **1,160.5** | **100%** |
+| 4.3.10 – Consulta CU8: Histórico de Bonos (PROMOS - Panel Administrativo Interno) | 15 | 57 | 12.5% |
+| 4.3.11 – Módulo de Reportería Analítica | 17 | 163 | 12.5% |
+| **TOTAL** | **254** | **1,304.5** | **100%** |
+
 
 ### Por Prioridad
 

@@ -6348,6 +6348,628 @@ public interface IBonificationHistoryAuditService
 
 ---
 
+## 2.9 Módulo de Reportería Analítica
+
+> **Ref. propuesta funcional:** Reportes administrativos para monitoreo, análisis y auditoría del sistema de bonificación.  
+> **Alcance:** 6 reportes principales + reportes adicionales según necesidad operativa.  
+> **Autenticación:** JWT interno (solo PROMOS/Admin autenticados).  
+> **Exportación:** PDF, Excel, CSV.  
+> **Frecuencia:** Bajo demanda + jobs automáticos para reportes críticos.
+
+---
+
+### TAREA-238 ? ???
+**Crear reporte "Bonos Calculados vs Bonos Aplicados"**
+
+**Propósito:**  
+Comparativa entre bonos teóricos calculados (según vigencia) vs bonos realmente pagados/aplicados a distribuidores.
+
+**Ubicación:** `Pages\BonificationPages\Reports\BonusCalculatedVsAppliedReport.razor`
+
+**Estructura:**
+- Filtros: Período | Tipo Bono | Distribuidor (opcional) | Estado de Cierre
+- Tabla comparativa:
+  | Distribuidor | Base Teórica | % Vigencia | Bono Calculado | Bono Aplicado | Diferencia | % Variación |
+- Estadísticas consolidadas:
+  - Total bonos calculados
+  - Total bonos aplicados
+  - Diferencia total
+  - % de coincidencia
+
+**Gráficos:**
+- Gráfico de barras: Calculated vs Applied por distribuidor (top 10)
+- Gráfico de líneas: Tendencia de diferencias por mes
+
+**Exportación:** PDF | Excel | CSV
+
+**Estimación:** 12 horas | **Prioridad:** 🔴 CRÍTICA
+
+---
+
+### TAREA-239 ? ???
+**Crear reporte "Distribuidores que Consultaron Bonos"**
+
+**Propósito:**  
+Auditoría de acceso a consultas de bonificación (CU7 + CU8).
+Quién consultó, cuándo, cuántas veces, desde dónde, qué información accedió.
+
+**Ubicación:** `Pages\BonificationPages\Reports\DistributorConsultationAuditReport.razor`
+
+**Estructura:**
+- Filtros: Período | Tipo Consulta (CU7 Actual / CU8 Histórico) | Distribuidor | Date Range
+- Tabla:
+  | Distribuidor | Email Bonus | Fecha Consulta | Hora | Tipo Consulta | IP Address | Navegador | Resultado |
+  | Período Consultado | Intentos | Descargas PDF | Descargas Excel | Duración (ms) | Estado |
+- Consolidación:
+  - Consultas por distribuidor (top 20)
+  - Consultas por hora del día
+  - Tasa de éxito/fallo por distribuidor
+  - IPs sospechosas (si hay patrón de abuso)
+
+**Gráficos:**
+- Gráfico de líneas: Consultas por día
+- Mapa de calor: Consultas por hora
+- Gráfico de pastel: Distribución CU7 vs CU8
+
+**Alertas:**
+- Más de 50 consultas en 1 hora (posible scraping)
+- Más de 100 descargas en 1 día (posible abuso)
+
+**Exportación:** PDF | Excel | CSV
+
+**Estimación:** 10 horas | **Prioridad:** 🔴 CRÍTICA
+
+---
+
+### TAREA-240 ? ???
+**Crear reporte "Discrepancias de NC (Calculada vs Real)"**
+
+**Propósito:**  
+Identificar diferencias entre NC que el sistema calculó vs las que realmente existen en TOTVS/ERP.
+Herramienta de cuadre y reconciliación.
+
+**Ubicación:** `Pages\BonificationPages\Reports\CreditNoteDiscrepanciesReport.razor`
+
+**Estructura:**
+- Filtros: Período | Distribuidor | Tipo Discrepancia | Rango Monto Diferencia
+- Tabla:
+  | Distribuidor | NC Número | Valor Sistema | Valor TOTVS | Diferencia | % Variación | Estado Reconciliación |
+  | Razón Discrepancia | Fecha Identificación | Acciones Tomadas | Usuario Responsable |
+- Consolidación:
+  - Total NC por estado (Reconciliada / Pendiente / Rechazada)
+  - Monto total diferencia
+  - NC con mayor variación
+  - Promedio % de discrepancia
+
+**Gráficos:**
+- Gráfico de dispersión: NC vs Diferencia de Monto
+- Gráfico de barras: Distribuidores con mayor discrepancia
+- Gráfico Sankey: Flujo de NC por estado
+
+**Filtros Avanzados:**
+- Mostrar solo discrepancias > $X
+- Mostrar solo NC aún pendientes de reconciliar
+- Mostrar tendencia de discrepancias en últimos 6 meses
+
+**Exportación:** PDF | Excel | CSV
+
+**Estimación:** 14 horas | **Prioridad:** 🔴 CRÍTICA
+
+---
+
+### TAREA-241 ? ???
+**Crear reporte "Auditoría de Acciones del Usuario PROMOS"**
+
+**Propósito:**  
+Rastro completo de todas las acciones realizadas por usuarios PROMOS en el sistema.
+Incluye: consultas, aprobaciones/rechazos, cargas masivas, cambios de configuración, etc.
+
+**Ubicación:** `Pages\BonificationPages\Reports\PromosActionsAuditReport.razor`
+
+**Estructura:**
+- Filtros: Usuario PROMOS | Acción | Período | Date Range
+- Tabla:
+  | Usuario | Email | Acción | Módulo | Distribuidor Afectado | Fecha/Hora | Resultado |
+  | Detalles | IP Address | Duración | Cambios Realizados | Notas |
+- Acciones auditables:
+  - Consulta de histórico (a qué distribuidor)
+  - Aprobación/Rechazo de OC Especiales
+  - Aprobación/Rechazo de NC
+  - Carga masiva (cuántos registros)
+  - Cambio de configuración
+  - Cierre manual de período
+
+**Consolidación:**
+- Acciones por usuario (top 10)
+- Acciones por tipo
+- Actividad por hora del día
+- Cambios de configuración realizados
+
+**Gráficos:**
+- Gráfico de barras: Acciones por usuario
+- Timeline: Línea de tiempo de acciones
+- Heatmap: Actividad por hora
+
+**Alertas:**
+- Más de 10 aprobaciones masivas en 1 hora (posible abuso)
+- Cambios de configuración sensible
+- Acceso desde IP nueva
+
+**Exportación:** PDF | Excel | CSV
+
+**Estimación:** 12 horas | **Prioridad:** 🔴 CRÍTICA
+
+---
+
+### TAREA-242 ? ???
+**Crear reporte "Precios y Vigencias Usados en Período"**
+
+**Propósito:**  
+Documentación de qué precios (lista de precios promocional) y qué vigencias de bonificación estaban activas en cada período.
+Trazabilidad de parámetros usados en cálculos.
+
+**Ubicación:** `Pages\BonificationPages\Reports\PricesAndVigenciesUsedReport.razor`
+
+**Estructura:**
+- Filtros: Período | Tipo Bono | Distribuidor (opcional)
+- Sección 1 - Precios Usados:
+  - Fecha de lista de precios vigente
+  - Fuente (Automática / Manual)
+  - Cargada por (si manual)
+  - N° artículos cargados
+  - Rangos de precios (mín, máx, promedio)
+- Sección 2 - Vigencias Usadas:
+  - Por cada tipo de bono:
+    | Tipo Bono | Rango Aplicado | % Porcentaje | Vigencia Inicio | Vigencia Fin | Estado |
+  - Descuentos globales (si aplican)
+- Sección 3 - Cambios Realizados:
+  - Si hubo recarga de precios durante el período
+  - Si hubo cambio de vigencia durante el período
+
+**Tabla de Trazabilidad:**
+- Cada cambio registrado: qué, cuándo, quién, desde dónde
+
+**Gráficos:**
+- Línea de tiempo: Cambios de precios y vigencias
+- Gráfico de barras: Distribución de precios por rango
+- Gráfico de líneas: Evolución de % vigencia en últimos 12 meses
+
+**Exportación:** PDF | Excel | CSV
+
+**Estimación:** 10 horas | **Prioridad:** 🟡 MEDIA
+
+---
+
+### TAREA-243 ? ???
+**Crear reporte "Ingresos Manuales Aplicados"**
+
+**Propósito:**  
+Detalle de todos los ingresos manuales (OC Especiales + NC Externas) que se aplicaron para cálculo de bonificación.
+Justificación y auditoría de excepciones.
+
+**Ubicación:** `Pages\BonificationPages\Reports\ManualInputsAppliedReport.razor`
+
+**Estructura:**
+- Filtros: Período | Tipo Ingreso (OC Especiales / NC Externas) | Distribuidor | Estado
+- Tabla - OC Especiales:
+  | Distribuidor | Número OC | Monto | Descripción/Motivo | Estado (Aprobada/Rechazada) |
+  | Cargada por | Fecha Carga | Revisada por | Fecha Revisión | Impacto en Bono |
+- Tabla - NC Externas:
+  | Distribuidor | Número NC | Monto | Descripción | Estado | Cargada por | Fecha | Revisada por |
+- Consolidación:
+  - Total OC Especiales aprobadas
+  - Total NC Externas aprobadas
+  - Impacto total en bonificación
+  - Tasa de rechazo (por qué se rechazaron)
+  - Usuarios más frecuentes en carga
+
+**Gráficos:**
+- Gráfico de barras: Montos aprobados vs rechazados
+- Gráfico de pastel: OC Especiales vs NC Externas
+- Gráfico de líneas: Tendencia de ingresos manuales por mes
+
+**Análisis:**
+- Distribuidores con mayor cantidad de ingresos manuales
+- Motivos más frecuentes de ingreso manual
+- Varianza: ¿cuánto impactó el ingreso manual en el bono final?
+
+**Exportación:** PDF | Excel | CSV
+
+**Estimación:** 11 horas | **Prioridad:** 🔴 CRÍTICA
+
+---
+
+### TAREA-244 ? ???
+**Crear reporte "Resumen Mensual de Bonificación" (ADICIONAL - Recomendado)**
+
+**Propósito:**  
+Consolidado ejecutivo mensual para PROMOS: resumen de toda la actividad de bonificación.
+Ideal para revisión gerencial y toma de decisiones.
+
+**Ubicación:** `Pages\BonificationPages\Reports\MonthlySummaryReport.razor`
+
+**Estructura:**
+- Período: Mes/Año seleccionado
+- KPIs principales (tarjetas destacadas):
+  - Total distribuidores procesados
+  - Total bonos pagados
+  - Promedio bono por distribuidor
+  - % distribuidores que consultaron bonos
+  - NC reconciliadas vs pendientes
+  - Ingresos manuales aplicados
+  - Tasa de éxito de cierre
+
+- Sección 1 - Desempeño por Tipo de Bono:
+  - Facturación: Monto base, % vigencia, total bonos
+  - Pedidos: Monto base, descuentos, % vigencia, total bonos
+  - Gamificación: Distribuidores por nivel
+
+- Sección 2 - Top 10 Distribuidores:
+  - Por bono total
+  - Por consultas realizadas
+  - Por nc discrepancias
+
+- Sección 3 - Análisis de Problemas:
+  - NC pendientes de reconciliar
+  - OC especiales rechazadas (motivos)
+  - Errores en cierre
+  - Alertas activas
+
+- Sección 4 - Comparativa Histórica:
+  - vs Mes anterior
+  - vs Mismo mes hace 1 año
+  - Tendencia últimos 6 meses
+
+**Gráficos:**
+- Dashboard con múltiples visualizaciones
+- KPI cards con indicadores de variación (↑/↓)
+- Gráficos de comparativa
+
+**Exportación:** PDF | Excel | PowerPoint (en futuras fases)
+
+**Estimación:** 15 horas | **Prioridad:** 🟡 MEDIA
+
+---
+
+### TAREA-245 ? ???
+**Crear reporte "Análisis de Vigencias y Rangos Activos" (ADICIONAL - Recomendado)**
+
+**Propósito:**  
+Verificación de que las vigencias y rangos configurados están correctamente activos y siendo aplicados.
+Detección de configuraciones erróneas o huérfanas.
+
+**Ubicación:** `Pages\BonificationPages\Reports\VigenciesAndRangesAnalysisReport.razor`
+
+**Estructura:**
+- Filtros: Período | Tipo Bono | Estado (Activo/Inactivo)
+- Tabla - Vigencias:
+  | Tipo Bono | Periodo | Rango Min-Max | % Aplicable | Estado | Activación | Distribuidores Afectados |
+  | Instancias Generadas | Bonos Calculados |
+- Tabla - Rangos:
+  | Tipo Bono | Rango Mín | Rango Máx | % | Activo | Distribuidores en Rango | Bono Promedio |
+- Validaciones:
+  - ¿Hay rangos solapados? (error)
+  - ¿Hay rangos huérfanos? (sin distribuidores)
+  - ¿Hay vigencias sin instancias?
+  - ¿Los % son progresivos? (advertencia si no)
+
+**Análisis:**
+- Distribución de distribuidores por rango
+- Impacto $ de cada rango
+- Sensibilidad: si sube 1% vigencia, cuánto impactaría bonificación
+
+**Gráficos:**
+- Gráfico de barras: Distribuidores por rango
+- Gráfico de líneas: Evolución de % vigencia en tiempo
+- Histograma: Distribución de bonos
+
+**Alertas:**
+- Vigencia con tasa de aplicación < 20% (posible configuración errónea)
+- Rangos vacíos
+
+**Exportación:** PDF | Excel | CSV
+
+**Estimación:** 12 horas | **Prioridad:** 🟡 MEDIA
+
+---
+
+### TAREA-246 ? ???
+**Crear reporte "Dashboard de Salud del Sistema" (ADICIONAL - Recomendado)**
+
+**Propósito:**  
+Monitoreo de la salud general del sistema: disponibilidad, errores, performance.
+Ideal para operaciones y soporte.
+
+**Ubicación:** `Pages\BonificationPages\Reports\SystemHealthDashboard.razor`
+
+**Estructura:**
+- Status general:
+  - Disponibilidad API (% uptime últimas 24h, 7d, 30d)
+  - Latencia promedio (ms)
+  - Tasa de error (%)
+  - Conexión TOTUS (up/down)
+  - Conexión Rabbit MQ (up/down)
+  - BD sincronizada (yes/no)
+
+- Últimos 10 días:
+  - Línea de tiempo de incidentes
+  - Errores críticos
+  - Avisos
+
+- Performance:
+  - Request más lento (TOP 5)
+  - Consultas BD más lentas
+  - Timeout events
+
+- Trabajos Automáticos:
+  - Job de cierre: última ejecución, duración, resultado
+  - Job de notificaciones: última ejecución, enviadas/fallidas
+  - Job de descarga de precios: última ejecución, status
+
+**Gráficos:**
+- Uptime gauge (semáforo)
+- Latencia sparkline
+- Error rate sparkline
+- Timeline de eventos
+
+**Alertas:**
+- Si disponibilidad < 95%
+- Si latencia promedio > 500ms
+- Si error rate > 5%
+- Si job falló
+
+**Exportación:** PDF | Excel | (no CSV, es dashboard)
+
+**Estimación:** 10 horas | **Prioridad:** 🟡 MEDIA
+
+---
+
+### TAREA-247 ? ???
+**Crear reporte "Análisis de Cambios de Precio" (ADICIONAL - Recomendado)**
+
+**Propósito:**  
+Análisis del impacto de cambios en lista de precios en bonificación.
+Identifica cómo cambios de precio afectan bonos.
+
+**Ubicación:** `Pages\BonificationPages\Reports\PriceChangesImpactReport.razor`
+
+**Estructura:**
+- Filtros: Período | Producto/Artículo | Rango de Variación de Precio
+- Tabla - Cambios Detectados:
+  | Artículo | Precio Anterior | Precio Nuevo | Variación | % Variación | Fecha Cambio | Impacto Bonificación |
+- Consolidación:
+  - N° artículos con cambio de precio
+  - Artículos con mayor variación
+  - Variación promedio
+  - Impacto total estimado en bonificación
+
+**Impacto Calculado:**
+- Para cada cambio de precio: estimar cuántos distribuidores se vieron afectados
+- Cálculo: variación en bonificación si los precios hubieran estado diferentes
+
+**Gráficos:**
+- Gráfico de dispersión: Precio anterior vs Nuevo
+- Gráfico de barras: Artículos con mayor variación
+- Gráfico de líneas: Tendencia de precios en últimos 6 meses
+
+**Análisis:**
+- ¿Hay manipulaciones de precio sospechosas? (cambios muy frecuentes)
+- Correlación: cambios de precio vs cambios en bonificación
+
+**Exportación:** PDF | Excel | CSV
+
+**Estimación:** 11 horas | **Prioridad:** 🟡 MEDIA
+
+---
+
+### Resumen de Reportería (TAREA-238 a TAREA-247)
+
+| # | Reporte | Estimación | Prioridad | Tipo |
+|---|---------|-----------|-----------|------|
+| 238 | Bonos Calculados vs Aplicados | 12 h | 🔴 CRÍTICA | Operativo |
+| 239 | Distribuidores que Consultaron | 10 h | 🔴 CRÍTICA | Auditoría |
+| 240 | Discrepancias de NC | 14 h | 🔴 CRÍTICA | Reconciliación |
+| 241 | Auditoría de Acciones PROMOS | 12 h | 🔴 CRÍTICA | Auditoría |
+| 242 | Precios y Vigencias Usados | 10 h | 🟡 MEDIA | Trazabilidad |
+| 243 | Ingresos Manuales Aplicados | 11 h | 🔴 CRÍTICA | Operativo |
+| 244 | Resumen Mensual (ADICIONAL) | 15 h | 🟡 MEDIA | Ejecutivo |
+| 245 | Vigencias y Rangos (ADICIONAL) | 12 h | 🟡 MEDIA | Configuración |
+| 246 | Salud del Sistema (ADICIONAL) | 10 h | 🟡 MEDIA | Operaciones |
+| 247 | Impacto de Cambios de Precio (ADICIONAL) | 11 h | 🟡 MEDIA | Análisis |
+| | **TOTAL** | **~117 h** | — | — |
+
+---
+
+### Arquitectura Común para Todos los Reportes
+
+#### **TAREA-248 ? ??**
+**Crear infraestructura base para reportería**
+
+**Archivos a crear:**
+- `Aldebaran.Application.Services\Models\Reports\BonificationReportBase.cs` — clase base con:
+  - Propiedades comunes: Period, GeneratedDate, GeneratedBy, FiltersCriteria
+  - Métodos virtuales: Validate(), Export()
+
+- `Aldebaran.Application.Services\Services\IBonificationReportService.cs` — interfaz que agrupa servicios
+  ```csharp
+  public interface IBonificationReportService
+  {
+      // Acceso individual a cada reporte
+      Task<BonificationCalculatedVsAppliedReport> GetCalculatedVsAppliedAsync(...);
+      Task<DistributorConsultationAuditReport> GetConsultationAuditAsync(...);
+      Task<CreditNoteDiscrepanciesReport> GetDiscrepanciesAsync(...);
+      // ... etc para todos
+  }
+  ```
+
+- `Aldebaran.Application.Services\Services\BonificationReportExportService.cs` — servicio de exportación:
+  ```csharp
+  public interface IBonificationReportExportService
+  {
+      Task<byte[]> ExportToPdfAsync<T>(T report, CancellationToken ct);
+      Task<byte[]> ExportToExcelAsync<T>(T report, CancellationToken ct);
+      Task<byte[]> ExportToCsvAsync<T>(T report, CancellationToken ct);
+  }
+  ```
+
+- Controlador centralizado:
+  `Aldebaran.Web\Controllers\InternalApi\BonificationReportsController.cs`
+  - Todos los endpoints de reportes (uno por tipo)
+  - Manejo de autorización + auditoría de acceso
+
+- Página base:
+  `Pages\BonificationPages\Reports\BonificationReportBase.razor` — componente reutilizable con:
+  - Controles comunes (filtros, botones de exportación)
+  - Loading indicator
+  - Error handling
+  - Tabla generadora
+
+**Estimación:** 8 horas | **Prioridad:** 🔴 CRÍTICA
+
+---
+
+#### **TAREA-249 ? ??**
+**Crear servicios de datos para cada reporte**
+
+**Archivos a crear:**
+- `Aldebaran.Application.Services\Services\BonificationCalculatedVsAppliedReportService.cs`
+- `Aldebaran.Application.Services\Services\DistributorConsultationAuditReportService.cs`
+- `Aldebaran.Application.Services\Services\CreditNoteDiscrepanciesReportService.cs`
+- `Aldebaran.Application.Services\Services\PromosActionsAuditReportService.cs`
+- `Aldebaran.Application.Services\Services\PricesAndVigenciesReportService.cs`
+- `Aldebaran.Application.Services\Services\ManualInputsAppliedReportService.cs`
+- `Aldebaran.Application.Services\Services\MonthlySummaryReportService.cs`
+- `Aldebaran.Application.Services\Services\VigenciesAndRangesAnalysisReportService.cs`
+- `Aldebaran.Application.Services\Services\SystemHealthReportService.cs`
+- `Aldebaran.Application.Services\Services\PriceChangesImpactReportService.cs`
+
+**Cada servicio:**
+- Consulta datos desde repositorios
+- Agrupa/consolida según lógica de reporte
+- Calcula estadísticas
+- Genera alertas si aplica
+
+**Estimación:** 12 horas | **Prioridad:** 🔴 CRÍTICA
+
+---
+
+#### **TAREA-250 ? ??**
+**Crear componentes de gráficos reutilizables**
+
+**Archivos a crear:**
+- `Pages\BonificationPages\Components\Reports\ChartBarsComponent.razor` — gráfico de barras genérico
+- `Pages\BonificationPages\Components\Reports\ChartLinesComponent.razor` — líneas
+- `Pages\BonificationPages\Components\Reports\ChartPieComponent.razor` — pastel
+- `Pages\BonificationPages\Components\Reports\ChartScatterComponent.razor` — dispersión
+- `Pages\BonificationPages\Components\Reports\ChartHeatmapComponent.razor` — mapa de calor
+- `Pages\BonificationPages\Components\Reports\TableWithPaginationComponent.razor` — tabla genérica
+- `Pages\BonificationPages\Components\Reports\KpiCardComponent.razor` — tarjeta KPI
+
+**Cada componente:**
+- Props: datos, configuración de serie/eje
+- Método: Update() para refrescar
+- Exportación: PNG/SVG
+
+**Estimación:** 10 horas | **Prioridad:** 🟡 MEDIA
+
+---
+
+#### **TAREA-251 ? ??**
+**Crear jobs para generación de reportes automáticos**
+
+**Archivos a crear:**
+- `Aldebaran.Application.Services\Jobs\BonificationDailyReportsJob.cs` — genera reportes diarios:
+  - Resumen Mensual (si es fin de mes)
+  - Salud del Sistema
+  - Cambios de Precio del día
+
+- `Aldebaran.Application.Services\Jobs\BonificationWeeklyReportsJob.cs` — genera reportes semanales:
+  - Auditoría de acciones PROMOS
+  - Discrepancias de NC
+  - Análisis de vigencias
+
+**Responsabilidades:**
+- Ejecutar automáticamente
+- Guardar archivos (PDF + Excel)
+- Enviar por email a stakeholders
+- Registrar ejecución en auditoría
+
+**Estimación:** 6 horas | **Prioridad:** 🟡 MEDIA
+
+---
+
+#### **TAREA-252 ? ??**
+**Crear página de "Descarga de Reportes" predefinidos**
+
+**Ubicación:** `Pages\BonificationPages\Reports\PreGeneratedReportsDownload.razor`
+
+**Estructura:**
+- Tabla de reportes generados automáticamente
+- Filtros: Tipo Reporte | Período | Formato
+- Descarga directa: PDF | Excel
+- Regenerar reporte (a demanda)
+
+**Estimación:** 4 horas | **Prioridad:** 🟡 MEDIA
+
+---
+
+#### **TAREA-253 ? ??**
+**Crear auditoría y permisos para reportería**
+
+**Cambios:**
+- Crear rol `Consulta de reportes de bonificación`
+- Crear tabla `BonificationReportAccessLog`:
+  - Quién descargó qué reporte, cuándo, desde dónde
+- Validar permisos en cada endpoint de reporte
+- Registrar acceso en auditoría
+
+**Estimación:** 3 horas | **Prioridad:** 🟡 MEDIA
+
+---
+
+#### **TAREA-254 ? ??**
+**Crear documentación de reportería**
+
+**Archivos a crear:**
+- `docs/Bonification_Reports_Guide.md` — Guía de cada reporte
+- `docs/Bonification_Reports_Architecture.md` — Arquitectura interna
+- Ejemplos de uso en cada página de reporte
+
+**Estimación:** 3 horas | **Prioridad:** 🟡 MEDIA
+
+---
+
+### Resumen de Infraestructura y Soporte (TAREA-248 a TAREA-254)
+
+| # | Tarea | Estimación | Prioridad |
+|---|-------|-----------|-----------|
+| 248 | Infraestructura Base | 8 h | 🔴 CRÍTICA |
+| 249 | Servicios de Datos | 12 h | 🔴 CRÍTICA |
+| 250 | Componentes de Gráficos | 10 h | 🟡 MEDIA |
+| 251 | Jobs Automáticos | 6 h | 🟡 MEDIA |
+| 252 | Página de Descargas | 4 h | 🟡 MEDIA |
+| 253 | Auditoría y Permisos | 3 h | 🟡 MEDIA |
+| 254 | Documentación | 3 h | 🟡 MEDIA |
+| | **TOTAL SOPORTE** | **~46 h** | — |
+
+---
+
+### **TOTAL MÓDULO DE REPORTERÍA (TAREA-238 a TAREA-254): ~163 horas**
+
+---
+
+> ✅ **Con TAREA-238 a TAREA-254 queda completamente cubierto el módulo de Reportería Analítica**, incluyendo:
+> - 6 reportes críticos de negocio
+> - 4 reportes adicionales recomendados
+> - Infraestructura centralizada reutilizable
+> - Gráficos interactivos
+> - Generación automática de reportes
+> - Auditoría y permisos
+> - Exportación multi-formato (PDF, Excel, CSV)
+> - Documentación completa
+
+---
+
 
 
 ---
@@ -6370,14 +6992,15 @@ public interface IBonificationHistoryAuditService
 | | 2.2.5 Gestión de Exclusiones | 079-095 | 45 h | 🔴 Pendiente |
 | | 2.2.6 Integración TOTUS por SP | 096-110 | 50 h | 🔴 Pendiente |
 | | 2.2.7 Autenticación OTP (MVP Email) | 111-119 | 20 h | 🔴 Pendiente |
-| **Notificaciones** | 2.3 Notificaciones Automáticas de Bonificación | 120-134 | 50 h | 🔴 Pendiente |
-| **Consulta CU7** | 2.4 Consulta de Bonificación (Período Actual) | 135-166 | 120 h | 🔴 Pendiente |
-| **Consulta CU8** | 2.5 Consulta de Histórico (Períodos Cerrados) - Distribuidores | 167-186 | 50 h | 🔴 Pendiente |
-| **Cierre CU10** | 2.6 Cierre Automático de Períodos | 187-212 | 65 h | 🔴 Pendiente |
+| **Notificaciones** | 2.3 Notificaciones Automáticas de Bonificación | 152-167 | 50 h | 🔴 Pendiente |
+| **Consulta CU7** | 2.4 Consulta de Bonificación (Período Actual) | 120-151 | 120 h | 🔴 Pendiente |
+| **Consulta CU8** | 2.5 Consulta de Histórico (Períodos Cerrados) - Distribuidores | 168-187 | 50 h | 🔴 Pendiente |
+| **Cierre CU10** | 2.6 Cierre Automático de Períodos | 188-212 | 65 h | 🔴 Pendiente |
 | **Consulta CU6** | 2.7 Consulta de Bonificación Actual (PROMOS) | 213-222 | 33 h | 🔴 Pendiente |
 | **Histórico PROMOS** | 2.8 Consulta de Histórico (PROMOS - Panel Administrativo) | 223-237 | 92 h | 🔴 Pendiente |
+| **Reportería** | 2.9 Módulo de Reportería Analítica | TAREA-238 a TAREA-254 | 163 h | 🔴 Pendiente |
 | | | | | |
-| **TOTAL** | | **237 TAREAS** | **~875 h** | 🔴 Pendiente |
+| **TOTAL** | | **254 TAREAS (TAREA-001 a TAREA-254)** | **~1,038 h** | 🔴 Pendiente |
 
 ---
 
@@ -6385,12 +7008,13 @@ public interface IBonificationHistoryAuditService
 
 | Área | Tareas | Estimación | % del Proyecto |
 |------|--------|-----------|-----------------|
-| Backend (DB + Services) | 001-110, 120-134, 135-150, 167-177, 187-212, 223-237 | ~500 h | 57% |
-| Frontend (Blazor Pages + Components) | 004-009, 089-090, 135-144, 151-166, 223-237 | ~235 h | 27% |
-| API REST + Integraciones | 116, 132-136, 151-166, 223-237 | ~100 h | 11% |
-| Configuración + DevOps | 097, 149-150, 205 | ~20 h | 2% |
-| Testing (Unit + Integration + E2E) *Fase General* | Tests en cada módulo | ~40 h | 3% |
-| **SUBTOTAL** | | **~875 h** | **100%** |
+| Backend (DB + Services) | 001-110, 120-134, 168-177, 188-212, TAREA-248/249 | ~530 h | 51% |
+| Frontend (Blazor Pages + Components) | 004-009, 089-090, 135-144, 151-166, 223-237, TAREA-238 a TAREA-247 | ~310 h | 30% |
+| API REST + Integraciones | 116, 132-136, 151-166, 223-237 | ~100 h | 10% |
+| Reportería (Gráficos + Exportación) | TAREA-238 a TAREA-254 | ~90 h | 9% |
+| Configuración + DevOps | 097, 149-150, 205 | ~20 h | — |
+| Testing (Unit + Integration + E2E) *Fase General* | Tests en cada módulo | ~40 h | — |
+| **SUBTOTAL** | | **~1,038 h** | **100%** |
 
 ---
 
@@ -6398,10 +7022,11 @@ public interface IBonificationHistoryAuditService
 
 | Equipo | Duración | Fases |
 |--------|----------|-------|
-| **1 Desarrollador** | 43-54 semanas | 10-13 meses |
-| **2 Desarrolladores** | 22-27 semanas | 5-6 meses |
-| **3 Desarrolladores** | 15-18 semanas | 3.5-4.5 meses |
-| **4 Desarrolladores** | 11-14 semanas | 2.5-3.5 meses |
+| **1 Desarrollador** | 52-65 semanas | 12-15 meses |
+| **2 Desarrolladores** | 26-32 semanas | 6-8 meses |
+| **3 Desarrolladores** | 17-22 semanas | 4-5 meses |
+| **4 Desarrolladores** | 13-16 semanas | 3-4 meses |
+| **5 Desarrolladores** | 10-13 semanas | 2.5-3 meses |
 
 ---
 
