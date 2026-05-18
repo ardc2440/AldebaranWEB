@@ -5208,7 +5208,7 @@ Integrar Application SEQ (Free) + logging para seguimiento de todas las notifica
 
 ---
 
-### Resumen de archivos — CU8: Histórico de Bonos
+### Resumen de archivos — CU8: Histórico de Bonos (COMPLETO: Distribuidores + PROMOS)
 
 | Archivo | Tarea | Tipo |
 |---------|-------|------|
@@ -5240,14 +5240,14 @@ Integrar Application SEQ (Free) + logging para seguimiento de todas las notifica
 
 ---
 
-> ✅ **Con TAREA-168 a TAREA-187 queda completamente cubierto CU8: Consulta de Histórico de Bonos**,  
+> ✅ **Con TAREA-168 a TAREA-187 queda completamente cubierto CU8: Consulta de Histórico de Bonos (Distribuidores)**,  
 > incluyendo:
-> - Modelos jerárquicos MES + AÑO
-> - Agrupación automática por Tipo de Bono
-> - API REST sin cache
-> - Página Blazor interna
-> - Exportación PDF/Excel
+> - Agrupación por mes/año con desglose por tipo de bono
+> - API REST sin cache con datos puntuales
+> - Página Blazor interna para visualización
+> - Exportación PDF/Excel con análisis
 > - Auditoría y rate limiting
+> - Dashboard de KPIs
 
 ---
 
@@ -5689,6 +5689,665 @@ CREATE TABLE dbo.BonificationNCRecommendations (
 
 ---
 
+## 2.7 Módulo de Consulta - CU6: Consulta de Bono Actual (PROMOS)
+
+> **Ref. propuesta funcional:** Casos de Uso CU6 + especificaciones funcionales.  
+> **Alcance:** Consulta interna sin persistencia + Página Blazor interna + Descarga PDF puntual.  
+> **Autenticación:** JWT interno (solo PROMOS autenticados).  
+> **Datos:** Bonificación calculada en tiempo real, SIN auditoría de acceso.  
+> **Uso:** Consulta operativa interna para revisión de bonificación actual durante el período.
+
+---
+
+### 2.7.1 Modelos & Respuesta de Cálculo Consolidado
+
+#### **TAREA-213 ⏳ CREAR: Modelo consolidado de consulta sin persistencia**
+
+**Propósito:** Estructura que consolida TODO para PROMOS sin auditoría, SIN persistencia de consulta.
+
+**Ubicación:** `Aldebaran.Application.Services\Models\`
+
+**Archivos a crear:**
+- `BonificationCurrentPeriodDetail.cs` — Consolidado completo:
+  - Facturación actual (TOTUS)
+  - OC Especiales (desglose: aprobadas, pendientes, rechazadas)
+  - Vigencia aplicada (tramo, % aplicable)
+  - Bonificación parcial calculada
+  - NC reconciliadas (estados actuales)
+  - Descuentos globales aplicados
+  - Timestamps de cálculo (solo internos, no persistidos)
+
+**Características:**
+- Solo datos en memoria, descartados al terminar request
+- Consolidación en tiempo real, sin cache
+- Indicadores de estado (errores parciales, fallback TOTUS, etc.)
+
+**Estimación:** 2 horas | **Prioridad:** 🔴 CRÍTICA
+
+---
+
+#### **TAREA-214 ⏳ CREAR: Servicio de cálculo sin persistencia**
+
+**Ubicación:** `Aldebaran.Application.Services\Services\`
+
+**Archivos a crear:**
+- `IBonificationCurrentPeriodService.cs`
+  ```csharp
+  public interface IBonificationCurrentPeriodService
+  {
+      /// Obtiene el cálculo ACTUAL del distribuidor (sin caché, sin persistencia)
+      Task<BonificationCurrentPeriodDetail> GetDetailedCalculationAsync(
+          int customerId, 
+          int periodInstanceId, 
+          CancellationToken ct);
+  }
+  ```
+
+- `BonificationCurrentPeriodService.cs`
+  - Orquesta servicios de cálculo (Facturación, Pedido)
+  - Consolida estados actuales de BD
+  - **NO persiste nada** — todo en memoria
+
+**Estimación:** 4 horas | **Prioridad:** 🔴 CRÍTICA
+
+---
+
+#### **TAREA-215 ⏳ CREAR: Endpoint interno sin persistencia**
+
+**Ubicación:** `Aldebaran.Web\Controllers\InternalApi\`
+
+**Archivo a crear:**
+- `BonificationCurrentPeriodController.cs`
+
+**Endpoint:**
+```
+GET /api/internal/bonification/current-period/{customerId}/{periodInstanceId}
+```
+
+**Características:**
+- Endpoint **INTERNO** (NO REST pública)
+- Autenticación: JWT interno (sin OTP, solo internos)
+- Respuesta: `BonificationCurrentPeriodDetail`
+- **SIN auditoría de acceso** — se calcula y se descarta
+- Cada request es independiente, sin persistencia
+
+**Estimación:** 2 horas | **Prioridad:** 🔴 CRÍTICA
+
+---
+
+#### **TAREA-216 ⏳ CREAR: Página Blazor `BonificationCurrentPeriodDetail.razor`**
+
+**Ruta:** `Pages\BonificationPages\BonificationCurrentPeriodDetail.razor`  
+**URL:** `/bonification/current-period/{customerId}/{periodInstanceId}`  
+**Rol:** `Administrador`, `Ingreso de OC especiales de bonificación` (PROMOS)
+
+**Estructura (acceso interno PROMOS):**
+
+1. **Encabezado:**
+   - Distribuidor (nombre + doc)
+   - Período (código + fechas)
+   - Fecha de consulta (ahora)
+
+2. **Sección 1 - Facturación:**
+   - Total facturación TOTUS (actual)
+   - Menos: NC anteriores descontadas
+   - Más: OC Especiales aprobadas
+   - **= Base de cálculo**
+
+3. **Sección 2 - Pedidos:**
+   - Total pedidos (excluyendo especiales)
+   - Menos: Descuento por volumen (si aplica)
+   - Más: OC Especiales aprobadas
+   - **= Base de cálculo**
+
+4. **Sección 3 - Vigencias Aplicadas:**
+   - Vigencia facturación (rango, %)
+   - Vigencia pedido (rango, %)
+   - Descuento global (si aplica)
+
+5. **Sección 4 - Bonificación Parcial:**
+   - Bono Facturación = Base × %
+   - Bono Pedido = Base × %
+   - **Total = Suma de bonos**
+
+6. **Botones:**
+   - Actualizar (recalcula en tiempo real)
+   - Descargar PDF (snapshot puntual)
+
+**Estimación:** 10 horas | **Prioridad:** 🔴 CRÍTICA
+
+---
+
+#### **TAREA-217 ⏳ CREAR: Componente desglose de cálculo**
+
+**Ubicación:** `Pages\BonificationPages\Components\BonificationCalculationBreakdownComponent.razor`
+
+**Responsabilidad:**
+- Mostrar desglose paso a paso de facturación → bono
+- Con colores: inputs (verde), cálculos intermedios (azul), resultado (rojo)
+- Totalmente dinámico, sin persistencia
+
+**Props:** `BonificationCurrentPeriodDetail`
+
+**Estimación:** 4 horas | **Prioridad:** 🟡 MEDIA
+
+---
+
+#### **TAREA-218 ⏳ CREAR: Servicio cliente Blazor**
+
+**Ubicación:** `Aldebaran.Web\Services\BonificationCurrentPeriodService.cs`
+
+**Métodos:**
+- `GetDetailAsync(customerId, periodInstanceId, ct)`
+
+**Características:**
+- Consumir endpoint interno `/api/internal/bonification/current-period`
+- Manejo de errores
+- No cachea nada (cada llamada es nueva)
+
+**Estimación:** 2 horas | **Prioridad:** 🟡 MEDIA
+
+---
+
+#### **TAREA-219 ⏳ CREAR: Endpoint PDF (snapshot puntual)**
+
+**Ubicación:** `Aldebaran.Web\Controllers\InternalApi\`
+
+**Endpoint:**
+```
+POST /api/internal/bonification/current-period/pdf
+Body: { customerId, periodInstanceId }
+```
+
+**Características:**
+- Genera PDF con datos **actuales** (sin persistencia)
+- Incluye timestamp de generación
+- Se descarga inmediatamente, no se guarda en BD
+- Cada descarga es un nuevo cálculo
+
+**Estimación:** 3 horas | **Prioridad:** 🟡 MEDIA
+
+---
+
+#### **TAREA-220 ⏳ CREAR: Acceso desde menú**
+
+**Ubicación:** `Pages\BonificationPages\BonificationSpecialOrders.razor` (desde aquí accede PROMOS)
+
+**Cambios:**
+- Botón "Ver Detalle Bonificación" en listado de OC Especiales
+- Navega a `/bonification/current-period/{customerId}/{periodInstanceId}`
+
+**Estimación:** 1 hora | **Prioridad:** 🟡 MEDIA
+
+---
+
+#### **TAREA-221 ⏳ CREAR: Pruebas unitarias**
+
+**Ubicación:** `Aldebaran.Tests\Services\BonificationCurrentPeriodServiceTests.cs`
+
+**Cobertura:**
+- Consolidación de datos sin persistencia
+- Cálculo correcto en tiempo real
+- Manejo de errores parciales (TOTUS fallido, etc.)
+
+**Estimación:** 3 horas | **Prioridad:** 🟡 MEDIA
+
+---
+
+#### **TAREA-222 ⏳ CREAR: Documentación de consulta**
+
+**Ubicación:** `docs/CU6_CurrentPeriodConsultation_Guide.md`
+
+**Contenido:**
+- Cómo acceder a la consulta
+- Interpretación de desglose
+- Casos de uso típicos
+- Limitaciones (sin persistencia = datos puntuales)
+
+**Estimación:** 2 horas | **Prioridad:** 🟡 MEDIA
+
+---
+
+### Resumen de archivos — CU6: Consulta Bonificación Actual (PROMOS)
+
+| Archivo | Tarea | Tipo |
+|---------|-------|------|
+| `Models\BonificationCurrentPeriodDetail.cs` | 213 | Nuevo |
+| `IBonificationCurrentPeriodService.cs` | 214 | Nuevo |
+| `BonificationCurrentPeriodService.cs` | 214 | Nuevo |
+| `Controllers\InternalApi\BonificationCurrentPeriodController.cs` | 215 | Nuevo |
+| `Pages\BonificationPages\BonificationCurrentPeriodDetail.razor` | 216 | Nuevo |
+| `Pages\BonificationPages\BonificationCurrentPeriodDetail.razor.cs` | 216 | Nuevo |
+| `Components\BonificationCalculationBreakdownComponent.razor` | 217 | Nuevo |
+| `Services\BonificationCurrentPeriodService.cs` (cliente) | 218 | Nuevo |
+| `Controllers\InternalApi\BonificationCurrentPeriodPdfController.cs` | 219 | Nuevo |
+| `Pages\BonificationPages\BonificationSpecialOrders.razor` | 220 | Modificar |
+| `BonificationCurrentPeriodServiceTests.cs` | 221 | Nuevo |
+| `docs/CU6_CurrentPeriodConsultation_Guide.md` | 222 | Nuevo |
+| `ArchitectureBuilderExtensions.cs` | 214, 218 | Modificar |
+
+---
+
+> ✅ **Con TAREA-213 a TAREA-222 queda completamente cubierto CU6: Consulta de Bonificación Actual (PROMOS)**,  
+> incluyendo:
+> - Cálculo en tiempo real sin persistencia
+> - Endpoint interno sin auditoría de acceso
+> - Página Blazor interna para PROMOS
+> - Descarga PDF con snapshot puntual
+> - Componentes de desglose visual
+> - Testing unitario
+> - Documentación operativa
+
+---
+
+## 2.8 Módulo de Consulta - CU8: Histórico de Bonos (PROMOS - Panel Administrativo Interno)
+
+> **Ref. propuesta funcional:** Mismo CU8 que distribuidores, pero acceso interno para PROMOS.  
+> **Alcance:** Página Blazor interna + Selectores de Distribuidor/Mes/Año + Exportación PDF/Excel.  
+> **Autenticación:** JWT interno (solo PROMOS autenticados).  
+> **Datos:** Bonos cerrados (FOTO congelada), inmutables, consolidados por mes/año.  
+> **Diferencia con CU8 Distribuidor:** Acceso a TODO distribuidor, no solo el propio.
+
+---
+
+### TAREA-223 ⏳ CREAR: Página `BonificationHistoryPromos.razor`
+
+**Ruta:** `Pages\BonificationPages\BonificationHistoryPromos.razor`  
+**URL:** `/bonification/history/promos`  
+**Rol:** `Administrador`, `Consulta de bonificaciones`
+
+**Estructura:**
+
+1. **Encabezado y Filtros:**
+   - Dropdown **Distribuidor** (búsqueda por nombre/documento) — obligatorio
+   - Dropdown **Mes** (1-12)
+   - Dropdown **Año** (últimos 2 años)
+   - Botón "Consultar"
+
+2. **Resumen Consolidado (si hay datos):**
+   - 4 tarjetas: Total Bono | Facturación | Pedidos | Gamificación
+
+3. **Desglose por Tipo de Bono:**
+   - Expandibles (`RadzenExpander`) para cada tipo:
+     - Bono Facturación
+     - Bono Pedido
+   - Dentro: tabla de instancias cerradas del período (Código, Fechas, Bono, NC Aplicadas)
+
+4. **Botones:**
+   - Descargar PDF (reporte completo del mes del distribuidor)
+   - Exportar Excel (con hojas: Resumen | Desglose | Detalle)
+
+5. **Estados:**
+   - Cargando (spinner)
+   - Sin datos (mensaje "No hay datos para este distribuidor en este período")
+   - Error (alerta roja con opción de reintentar)
+
+**Estimación:** 8 horas | **Prioridad:** 🔴 CRÍTICA
+
+---
+
+### TAREA-224 ⏳ CREAR: Code-behind `BonificationHistoryPromos.razor.cs`
+
+**Responsabilidad:**
+
+```csharp
+public partial class BonificationHistoryPromos
+{
+    private List<Customer> availableDistributors;
+    private int? selectedCustomerId;
+    private int selectedMonth = DateTime.Now.Month;
+    private int selectedYear = DateTime.Now.Year;
+    private BonificationHistoryMonthResponse historyData;
+    private bool isLoading = false;
+    private string errorMessage = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAvailableDistributorsAsync();
+    }
+
+    private async Task LoadAvailableDistributorsAsync()
+    {
+        // Carga lista de distribuidores activos (IsDistributor = true)
+        availableDistributors = await customerService.GetDistributorsAsync();
+    }
+
+    private async Task OnConsultAsync()
+    {
+        if (!selectedCustomerId.HasValue)
+        {
+            errorMessage = "Selecciona un distribuidor";
+            return;
+        }
+
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            historyData = await bonificationHistoryService.GetHistoryByMonthAsync(
+                selectedCustomerId.Value, 
+                selectedYear, 
+                selectedMonth);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al consultar histórico: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task OnDownloadPdfAsync()
+    {
+        // Llama al servicio de PDF
+        await bonificationHistoryService.DownloadPdfAsync(
+            selectedCustomerId.Value, 
+            selectedYear, 
+            selectedMonth);
+    }
+
+    private async Task OnExportExcelAsync()
+    {
+        // Llama al servicio de Excel
+        await bonificationHistoryService.DownloadExcelAsync(
+            selectedCustomerId.Value, 
+            selectedYear, 
+            selectedMonth);
+    }
+}
+```
+
+**Estimación:** 4 horas | **Prioridad:** 🔴 CRÍTICA
+
+---
+
+### TAREA-225 ⏳ MODIFICAR: Extender `BonificationHistoryService` para PROMOS
+
+**Ubicación:** `Aldebaran.Application.Services\Services\BonificationHistoryService.cs`
+
+**Cambios:**
+- Agregar overload de `GetHistoryByMonthAsync` que **NO** valide que CustomerId sea el del usuario actual
+- Agregar método `GetDistributorsAsync()` → retorna todos los distribuidores activos (para dropdown)
+- Agregar auditoría de acceso (quién consulta a quién)
+
+```csharp
+public interface IBonificationHistoryService
+{
+    // Existente (distribuidor consultando su propio histórico)
+    Task<BonificationHistoryMonthResponse> GetHistoryByMonthAsync(
+        int customerId, int year, int month, CancellationToken ct);
+
+    // NUEVO: PROMOS consultando histórico de otro distribuidor
+    Task<BonificationHistoryMonthResponse> GetHistoryByMonthAsAdminAsync(
+        int customerId, int year, int month, int adminUserId, CancellationToken ct);
+
+    // NUEVO: Dropdown de distribuidores
+    Task<List<Customer>> GetDistributorsAsync(CancellationToken ct);
+}
+```
+
+**Estimación:** 3 horas | **Prioridad:** 🔴 CRÍTICA
+
+---
+
+### TAREA-226 ⏳ CREAR: Tabla de auditoría para consultas PROMOS
+
+**Script SQL a crear:** `scripts/CreateBonificationHistoryPromoAuditTable.sql`
+
+```sql
+CREATE TABLE dbo.BonificationHistoryPromoAudit (
+    AUDIT_ID                    INT             NOT NULL IDENTITY(1,1),
+    ADMIN_USER_ID               INT             NOT NULL,       -- quién consultó
+    CUSTOMER_ID                 INT             NOT NULL,       -- del distribuidor consultado
+    YEAR                        INT             NOT NULL,
+    MONTH                       INT             NOT NULL,
+    QUERY_TIMESTAMP             DATETIME        NOT NULL DEFAULT GETUTCDATE(),
+    IP_ADDRESS                  VARCHAR(50)     NULL,
+    CONSTRAINT PK_HISTORY_PROMO_AUDIT PRIMARY KEY CLUSTERED (AUDIT_ID),
+    CONSTRAINT FK_AUDIT_ADMIN FOREIGN KEY (ADMIN_USER_ID)
+        REFERENCES dbo.AspNetUsers (Id),
+    CONSTRAINT FK_AUDIT_CUSTOMER FOREIGN KEY (CUSTOMER_ID)
+        REFERENCES dbo.Customers (CUSTOMER_ID)
+);
+CREATE NONCLUSTERED INDEX IX_AUDIT_ADMIN_DATE
+    ON dbo.BonificationHistoryPromoAudit (ADMIN_USER_ID, QUERY_TIMESTAMP);
+CREATE NONCLUSTERED INDEX IX_AUDIT_CUSTOMER_DATE
+    ON dbo.BonificationHistoryPromoAudit (CUSTOMER_ID, QUERY_TIMESTAMP);
+```
+
+**Estimación:** 1 hora | **Prioridad:** 🔴 CRÍTICA
+
+---
+
+### TAREA-227 ⏳ CREAR: Panel lateral de detalle (TAREA-227 del documento original)
+
+**Ubicación:** `Pages\BonificationPages\Components\BonificationHistoryPromosSidePanel.razor`
+
+**Responsabilidad:**
+- Cuando PROMOS hace clic en "Ver detalle" de una instancia cerrada, se abre un panel lateral (slide-in desde la derecha)
+- Muestra desglose completo:
+  - Base de facturación (TOTUS)
+  - NC conciliadas
+  - OC especiales aprobadas
+  - Vigencia aplicada (%)
+  - Bono calculado
+  - Desglose adicional si hay cambios manuales
+
+**Props:**
+- `BonificationClosedPeriod closedPeriod`
+- `EventCallback<bool> OnClose`
+
+**Estimación:** 10 horas | **Prioridad:** 🟡 MEDIA
+
+---
+
+### TAREA-228 ⏳ CREAR: Servicio de auditoría para consultas PROMOS
+
+**Ubicación:** `Aldebaran.Application.Services\Services\IBonificationHistoryAuditService.cs`
+
+**Responsabilidad:**
+- Registra cada consulta de PROMOS a histórico de distribuidor
+- Captura: quién, cuándo, a quién, desde dónde
+
+```csharp
+public interface IBonificationHistoryAuditService
+{
+    Task LogHistoryConsultationAsync(
+        int adminUserId, 
+        int customerId, 
+        int year, 
+        int month, 
+        string ipAddress,
+        CancellationToken ct);
+
+    Task<List<BonificationHistoryAuditLog>> GetAuditLogsAsync(
+        int? adminUserId, 
+        int? customerId, 
+        int? skip, 
+        int? top, 
+        CancellationToken ct);
+}
+```
+
+**Estimación:** 3 horas | **Prioridad:** 🔴 CRÍTICA
+
+---
+
+### TAREA-229 ⏳ CREAR: Dashboard de Auditoría (opcional pero recomendado)
+
+**Ubicación:** `Pages\BonificationPages\BonificationHistoryPromoAuditDashboard.razor`  
+**URL:** `/bonification/history/promos/audit`  
+**Rol:** `Administrador`
+
+**Estructura:**
+- Filtros: Mes | Año | Usuario PROMOS
+- Tabla de consultas realizadas: Quién | A quién | Cuándo | IP
+- Gráfico: Consultas por usuario en los últimos 30 días
+- Alertas: Si un usuario consultó a más de 100 distribuidores en un día (posible abuso)
+
+**Estimación:** 6 horas | **Prioridad:** 🟡 MEDIA
+
+---
+
+### TAREA-230 ⏳ CREAR: Servicio de PDF para PROMOS
+
+**Ubicación:** `Aldebaran.Application.Services\Services\BonificationHistoryPromosReportService.cs`
+
+**Responsabilidad:**
+- Genera PDF del histórico (igual que para distribuidor, pero con encabezado indicando que fue consultado por PROMOS)
+- Incluye:
+  - Nombre distribuidor
+  - Mes/Año consultado
+  - Resumen consolidado
+  - Desglose por tipo de bono
+  - Footer: "Consulta generada por PROMOS"
+
+**Estimación:** 4 horas | **Prioridad:** 🟡 MEDIA
+
+---
+
+### TAREA-231 ⏳ CREAR: Servicio de Excel para PROMOS
+
+**Ubicación:** `Aldebaran.Application.Services\Services\BonificationHistoryPromosExcelService.cs`
+
+**Estructura (3 hojas):**
+1. **"Resumen"** — Totales consolidados del mes
+2. **"Por Tipo"** — Desglose por Facturación/Pedido
+3. **"Detalle Completo"** — Cada instancia cerrada con sus líneas
+
+**Estimación:** 4 horas | **Prioridad:** 🟡 MEDIA
+
+---
+
+### TAREA-232 ⏳ CREAR: Validación de permisos
+
+**Ubicación:** Middleware o Guard Blazor
+
+**Responsabilidad:**
+- Validar que el usuario que accede a `/bonification/history/promos` tiene rol `Administrador` o `Consulta de bonificaciones`
+- Si intenta acceder sin permiso → redirecciona a acceso denegado
+- Log de intentos fallidos
+
+**Estimación:** 2 horas | **Prioridad:** 🔴 CRÍTICA
+
+---
+
+### TAREA-233 ⏳ CREAR: Componente de búsqueda de distribuidor
+
+**Ubicación:** `Pages\BonificationPages\Components\DistributorSelectorComponent.razor`
+
+**Responsabilidad:**
+- Dropdown searchable con:
+  - Búsqueda por nombre
+  - Búsqueda por documento
+  - Mostrar solo distribuidores activos
+  - Caché de 5 minutos
+
+**Props:**
+- `List<Customer> Distributors`
+- `EventCallback<int> OnSelected`
+
+**Estimación:** 3 horas | **Prioridad:** 🟡 MEDIA
+
+---
+
+### TAREA-234 ⏳ CREAR: Rate limiting para consultas PROMOS
+
+**Ubicación:** Middleware de rate limiting
+
+**Regla:**
+- Máximo 50 consultas/minuto por usuario PROMOS
+- Si excede → error 429 (Too Many Requests)
+
+**Estimación:** 2 horas | **Prioridad:** 🟡 MEDIA
+
+---
+
+### TAREA-235 ⏳ CREAR: Testing de acceso PROMOS
+
+**Ubicación:** `Aldebaran.Tests\Pages\BonificationHistoryPromosTests.cs`
+
+**Cobertura:**
+- Acceso autorizado: PROMOS ve página
+- Acceso denegado: No-PROMOS es redirigido
+- Consulta exitosa: Datos se cargan correctamente
+- Auditoría se registra
+- Rate limiting funciona
+
+**Estimación:** 4 horas | **Prioridad:** 🟡 MEDIA
+
+---
+
+### TAREA-236 ⏳ CREAR: Documentación de uso para PROMOS
+
+**Ubicación:** `docs/CU8_PROMOS_HistoryConsultation_Guide.md`
+
+**Contenido:**
+- Cómo acceder a `/bonification/history/promos`
+- Filtros disponibles
+- Cómo descargar PDF/Excel
+- Qué información se guarda en auditoría
+- Troubleshooting común
+
+**Estimación:** 2 horas | **Prioridad:** 🟡 MEDIA
+
+---
+
+### TAREA-237 ⏳ CREAR: Link en menú principal
+
+**Modificar:** `Shared\MainLayout.razor`
+
+**Cambios:**
+- Agregar ítem en menú "Bonificaciones > Operaciones":
+```
+<RadzenPanelMenuItem Text="Consultar Histórico de Distribuidor"
+      Path="bonification/history/promos"
+      Icon="history"
+      Visible="@Security.IsInRole("Administrador","Consulta de bonificaciones")" />
+```
+
+**Estimación:** 1 hora | **Prioridad:** 🔴 CRÍTICA
+
+---
+
+## Resumen Final — CU8 para PROMOS (TAREA-223 a TAREA-237)
+
+| Tarea | Descripción | Estimación | Prioridad |
+|-------|-------------|-----------|-----------|
+| 223 | Página `BonificationHistoryPromos.razor` con filtros | 8 h | 🔴 |
+| 224 | Code-behind con lógica de consulta | 4 h | 🔴 |
+| 225 | Extender `BonificationHistoryService` | 3 h | 🔴 |
+| 226 | Tabla de auditoría | 1 h | 🔴 |
+| 227 | Panel lateral de detalle | 10 h | 🟡 |
+| 228 | Servicio de auditoría | 3 h | 🔴 |
+| 229 | Dashboard de auditoría | 6 h | 🟡 |
+| 230 | Servicio de PDF | 4 h | 🟡 |
+| 231 | Servicio de Excel | 4 h | 🟡 |
+| 232 | Validación de permisos | 2 h | 🔴 |
+| 233 | Componente de búsqueda | 3 h | 🟡 |
+| 234 | Rate limiting | 2 h | 🟡 |
+| 235 | Testing | 4 h | 🟡 |
+| 236 | Documentación | 2 h | 🟡 |
+| 237 | Link en menú | 1 h | 🔴 |
+| **TOTAL** | **CU8 PROMOS** | **~58 h** | — |
+
+---
+
+> ✅ **Con TAREA-223 a TAREA-237 queda completamente cubierto CU8 para PROMOS: Consulta de Histórico de Bonos desde Panel Administrativo Interno**, incluyendo:
+> - Acceso a histórico de **cualquier distribuidor**
+> - Agrupación por mes/año con desglose por tipo de bono
+> - Exportación PDF/Excel con análisis
+> - Auditoría completa de consultas (quién consultó a quién, cuándo)
+> - Dashboard de auditoría para supervisar accesos
+> - Rate limiting para prevenir abuso
+> - Componentes reutilizables
+> - Testing integral
+
+---
+
 
 
 ---
@@ -5711,12 +6370,14 @@ CREATE TABLE dbo.BonificationNCRecommendations (
 | | 2.2.5 Gestión de Exclusiones | 079-095 | 45 h | 🔴 Pendiente |
 | | 2.2.6 Integración TOTUS por SP | 096-110 | 50 h | 🔴 Pendiente |
 | | 2.2.7 Autenticación OTP (MVP Email) | 111-119 | 20 h | 🔴 Pendiente |
-| **Consulta CU7** | Consulta Período Actual | 120-151 | 120 h | 🔴 Pendiente |
-| **Notificaciones** | Notificaciones Automáticas | 152-167 | 75 h | 🔴 Pendiente |
-| **Consulta CU8** | Consulta Histórico (Períodos Cerrados) | 168-187 | 50 h | 🔴 Pendiente |
-| **Cierre CU10** | Cierre Automático de Períodos | 188-212 | 65 h | 🔴 Pendiente |
+| **Notificaciones** | 2.3 Notificaciones Automáticas de Bonificación | 120-134 | 50 h | 🔴 Pendiente |
+| **Consulta CU7** | 2.4 Consulta de Bonificación (Período Actual) | 135-166 | 120 h | 🔴 Pendiente |
+| **Consulta CU8** | 2.5 Consulta de Histórico (Períodos Cerrados) - Distribuidores | 167-186 | 50 h | 🔴 Pendiente |
+| **Cierre CU10** | 2.6 Cierre Automático de Períodos | 187-212 | 65 h | 🔴 Pendiente |
+| **Consulta CU6** | 2.7 Consulta de Bonificación Actual (PROMOS) | 213-222 | 33 h | 🔴 Pendiente |
+| **Histórico PROMOS** | 2.8 Consulta de Histórico (PROMOS - Panel Administrativo) | 223-237 | 92 h | 🔴 Pendiente |
 | | | | | |
-| **TOTAL** | | **212 TAREAS** | **~642 h** | 🔴 Pendiente |
+| **TOTAL** | | **237 TAREAS** | **~875 h** | 🔴 Pendiente |
 
 ---
 
@@ -5724,12 +6385,12 @@ CREATE TABLE dbo.BonificationNCRecommendations (
 
 | Área | Tareas | Estimación | % del Proyecto |
 |------|--------|-----------|-----------------|
-| Backend (DB + Services) | 001-110, 120-125, 129, 152-161, 168-177, 188-212 | ~375 h | 58% |
-| Frontend (Blazor Pages + Components) | 004-009, 089-090, 117, 140-144, 179-184, 196-197, 204 | ~145 h | 23% |
-| API REST + Integraciones | 116, 132-136, 174-176, 198 | ~70 h | 11% |
-| Configuración + DevOps | 097, 149-150, 209 | ~18 h | 3% |
-| Testing (Unit + Integration + E2E) *Fase General* | — | ~34 h | 5% |
-| **SUBTOTAL** | | **~642 h** | **100%** |
+| Backend (DB + Services) | 001-110, 120-134, 135-150, 167-177, 187-212, 223-237 | ~500 h | 57% |
+| Frontend (Blazor Pages + Components) | 004-009, 089-090, 135-144, 151-166, 223-237 | ~235 h | 27% |
+| API REST + Integraciones | 116, 132-136, 151-166, 223-237 | ~100 h | 11% |
+| Configuración + DevOps | 097, 149-150, 205 | ~20 h | 2% |
+| Testing (Unit + Integration + E2E) *Fase General* | Tests en cada módulo | ~40 h | 3% |
+| **SUBTOTAL** | | **~875 h** | **100%** |
 
 ---
 
@@ -5737,10 +6398,10 @@ CREATE TABLE dbo.BonificationNCRecommendations (
 
 | Equipo | Duración | Fases |
 |--------|----------|-------|
-| **1 Desarrollador** | 32-40 semanas | 8-10 meses |
-| **2 Desarrolladores** | 16-20 semanas | 4-5 meses |
-| **3 Desarrolladores** | 11-15 semanas | 2.5-3.5 meses |
-| **4 Desarrolladores** | 8-12 semanas | 2-3 meses |
+| **1 Desarrollador** | 43-54 semanas | 10-13 meses |
+| **2 Desarrolladores** | 22-27 semanas | 5-6 meses |
+| **3 Desarrolladores** | 15-18 semanas | 3.5-4.5 meses |
+| **4 Desarrolladores** | 11-14 semanas | 2.5-3.5 meses |
 
 ---
 
@@ -5766,7 +6427,8 @@ Fase 4 (Semana 9-12): Funcionalidad Principal
 ├─ TAREA-059 a TAREA-069 (Conciliación NC)
 ├─ TAREA-120 a TAREA-151 (CU7 Consulta Actual)
 ├─ TAREA-168 a TAREA-187 (CU8 Histórico)
-└─ TAREA-188 a TAREA-212 (CU10 Cierre Automático)
+├─ TAREA-188 a TAREA-212 (CU10 Cierre Automático)
+└─ TAREA-213 a TAREA-222 (CU6 Consulta Actual PROMOS)
 
 Fase 5 (Semana 13-15): Notificaciones + Testing/Docs Integral
 ├─ TAREA-152 a TAREA-167 (Notificaciones)

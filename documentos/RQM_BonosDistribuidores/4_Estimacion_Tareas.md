@@ -521,6 +521,186 @@
 
 ---
 
+### 4.3.8 – Consulta CU8: Histórico de Bonos (Distribuidores - Períodos Anteriores)
+
+#### 4.3.8.1 – Modelos & Estructuras de Datos
+
+| # | Tarea | Descripción | Horas | Prioridad |
+|---|-------|-------------|-------|-----------|
+| TAREA-168 | Crear modelos de respuesta para histórico mes/año | Estructura jerárquica consolidada + desglose por tipo de bono | 3 | ?? REQUERIDO |
+| TAREA-169 | Especificación en repositorio para histórico | Métodos para consultar bonos cerrados por mes/año | 4 | ?? REQUERIDO |
+| TAREA-170 | Crear servicio de consulta del histórico | Lógica de agrupación por tipo + cálculo de subtotales | 5 | ?? REQUERIDO |
+| TAREA-171 | Crear DTOs para REST API (histórico) | Request/Response públicos para API | 1.5 | ?? REQUERIDO |
+| TAREA-172 | Crear modelos para exportación (PDF/Excel) | Estructuras para preparar datos de exportación | 2 | ?? SUGERIDO |
+| TAREA-173 | Crear mappings AutoMapper para histórico | Mappings de consolidación y agregación | 2 | ?? REQUERIDO |
+| | | **Subtotal 4.3.8.1** | **17.5** | |
+
+---
+
+#### 4.3.8.2 – REST API
+
+| # | Tarea | Descripción | Horas | Prioridad |
+|---|-------|-------------|-------|-----------|
+| TAREA-174 | Crear controlador REST de histórico | Endpoints GET de histórico + disponibilidad de meses | 4 | ?? REQUERIDO |
+| TAREA-175 | Crear endpoint de descarga PDF histórico | POST para descarga PDF con consolidado + desglose | 3 | ?? SUGERIDO |
+| TAREA-176 | Crear endpoint de descarga Excel histórico | POST para descarga Excel con 3 hojas (resumen, tipo, detalle) | 3 | ?? SUGERIDO |
+| TAREA-177 | Crear auditoría de consultas históricas | Tabla + logging de acceso a histórico | 2 | ?? REQUERIDO |
+| TAREA-178 | Crear rate limiting para histórico | Throttling 10/min consultas, 5/hora descargas | 2 | ?? REQUERIDO |
+| | | **Subtotal 4.3.8.2** | **14** | |
+
+---
+
+#### 4.3.8.3 – Frontend Blazor
+
+| # | Tarea | Descripción | Horas | Prioridad |
+|---|-------|-------------|-------|-----------|
+| TAREA-179 | Crear página principal `BonificationHistory.razor` | Selectores mes/año + resumen + desglose expandible + descargas | 8 | ?? REQUERIDO |
+| TAREA-180 | Crear code-behind `BonificationHistory.razor.cs` | Lógica de carga, consulta, validación, errores | 5 | ?? REQUERIDO |
+| TAREA-181 | Crear componente de resumen mensual | 4 tarjetas de totales con colores visuales | 4 | ?? REQUERIDO |
+| TAREA-182 | Crear componente de desglose por tipo | Expanders con tabla de instancias por tipo | 5 | ?? REQUERIDO |
+| TAREA-183 | Crear servicio cliente para histórico | Métodos para consumir API REST | 3 | ?? REQUERIDO |
+| TAREA-184 | Crear manejo de errores UI en histórico | Estados de carga, error, sin datos, éxito | 2 | ?? REQUERIDO |
+| | | **Subtotal 4.3.8.3** | **27** | |
+
+---
+
+#### 4.3.8.4 – Exportación PDF/Excel
+
+| # | Tarea | Descripción | Horas | Prioridad |
+|---|-------|-------------|-------|-----------|
+| TAREA-185 | Crear servicio de generación PDF histórico | Recalcula bonificación + genera PDF con encabezado, resumen, desglose, detalle | 6 | ?? SUGERIDO |
+| TAREA-186 | Crear servicio de exportación Excel histórico | 3 hojas: resumen, por tipo, detalle completo | 5 | ?? SUGERIDO |
+| TAREA-187 | Crear auditoría de exportaciones | Tabla + logging de descarga de PDF/Excel | 2 | ?? SUGERIDO |
+| | | **Subtotal 4.3.8.4** | **13** | |
+
+---
+
+| | | **TOTAL 4.3.8** | **71.5** | |
+
+---
+
+### 4.3.9 – Consulta CU6: Bonificación Actual (PROMOS - Panel Administrativo Interno)
+
+#### 4.3.9.1 – Modelos & Respuesta de Cálculo
+
+| # | Tarea | Descripción | Horas | Prioridad |
+|---|-------|-------------|-------|-----------|
+| TAREA-213 | Crear modelo consolidado de consulta sin persistencia | Estructura `BonificationCurrentPeriodDetail` con facturación, OC, vigencias, NC, descuentos (solo datos en memoria) | 2 | ?? REQUERIDO |
+| TAREA-214 | Crear servicio de cálculo sin persistencia | `IBonificationCurrentPeriodService` que consolida en tiempo real sin caché | 4 | ?? REQUERIDO |
+| TAREA-215 | Crear endpoint interno sin persistencia | Endpoint GET `/api/internal/bonification/current-period/{customerId}/{periodInstanceId}` (SIN auditoría) | 2 | ?? REQUERIDO |
+| TAREA-216 | Crear página Blazor `BonificationCurrentPeriodDetail.razor` | Página interna PROMOS con desglose completo (6 secciones: Facturación, Pedidos, Vigencias, Bono, Botones) | 10 | ?? REQUERIDO |
+| TAREA-217 | Crear componente desglose de cálculo | Componente `BonificationCalculationBreakdownComponent.razor` (paso a paso con colores) | 4 | ?? REQUERIDO |
+| TAREA-218 | Crear servicio cliente Blazor | Servicio que consume `/api/internal/bonification/current-period` | 2 | ?? REQUERIDO |
+| TAREA-219 | Crear endpoint PDF (snapshot puntual) | POST `/api/internal/bonification/current-period/pdf` (genera PDF con datos actuales, sin persistencia) | 3 | ?? REQUERIDO |
+| TAREA-220 | Crear acceso desde menú | Botón "Ver Detalle Bonificación" en listado de OC Especiales | 1 | ?? REQUERIDO |
+| TAREA-221 | Crear pruebas unitarias | `BonificationCurrentPeriodServiceTests.cs` (consolidación, tiempo real, errores parciales) | 3 | ?? SUGERIDO |
+| TAREA-222 | Crear documentación de consulta | `docs/CU6_CurrentPeriodConsultation_Guide.md` (acceso, desglose, casos de uso, limitaciones) | 2 | ?? SUGERIDO |
+| | | **TOTAL 4.3.9** | **33** | |
+
+---
+
+### 4.3.10 – Consulta CU8: Histórico de Bonos (PROMOS - Panel Administrativo Interno)
+
+#### 4.3.10.1 – Página Principal y Filtros
+
+| # | Tarea | Descripción | Horas | Prioridad |
+|---|-------|-------------|-------|-----------|
+| TAREA-223 | Crear página `BonificationHistoryPromos.razor` | Página Blazor interna PROMOS con filtros (Distribuidor/Mes/Año) + resumen + desglose | 8 | ?? REQUERIDO |
+| TAREA-224 | Crear code-behind `BonificationHistoryPromos.razor.cs` | Lógica de carga de distribuidores y consulta de histórico | 4 | ?? REQUERIDO |
+| TAREA-225 | Modificar `BonificationHistoryService` para PROMOS | Overload sin validación de CustomerId + método `GetDistributorsAsync()` + auditoría | 3 | ?? REQUERIDO |
+| | | **Subtotal 4.3.10.1** | **15** | |
+
+---
+
+#### 4.3.10.2 – Auditoría y Seguridad
+
+| # | Tarea | Descripción | Horas | Prioridad |
+|---|-------|-------------|-------|-----------|
+| TAREA-226 | Crear tabla de auditoría para consultas PROMOS | `BonificationHistoryPromoAuditTable.sql` (quién consultó a quién, cuándo, IP) | 1 | ?? REQUERIDO |
+| TAREA-228 | Crear servicio de auditoría | `IBonificationHistoryAuditService` (registro + consulta de logs) | 3 | ?? REQUERIDO |
+| TAREA-232 | Crear validación de permisos | Guards Blazor (solo Admin / Consulta de bonificaciones) | 2 | ?? REQUERIDO |
+| TAREA-234 | Crear rate limiting para consultas PROMOS | Throttling 50 consultas/minuto por usuario PROMOS | 2 | ?? REQUERIDO |
+| | | **Subtotal 4.3.10.2** | **8** | |
+
+---
+
+#### 4.3.10.3 – Componentes y Servicios
+
+| # | Tarea | Descripción | Horas | Prioridad |
+|---|-------|-------------|-------|-----------|
+| TAREA-227 | Crear panel lateral de detalle | Componente `BonificationHistoryPromosSidePanel.razor` (slide-in con desglose completo) | 10 | ?? SUGERIDO |
+| TAREA-229 | Crear dashboard de auditoría | Página `BonificationHistoryPromoAuditDashboard.razor` (opcional, consultas/usuario, alertas de abuso) | 6 | ?? SUGERIDO |
+| TAREA-233 | Crear componente de búsqueda de distribuidor | Componente `DistributorSelectorComponent.razor` (searchable, caché 5 min) | 3 | ?? SUGERIDO |
+| | | **Subtotal 4.3.10.3** | **19** | |
+
+---
+
+#### 4.3.10.4 – Exportación y Documentación
+
+| # | Tarea | Descripción | Horas | Prioridad |
+|---|-------|-------------|-------|-----------|
+| TAREA-230 | Crear servicio de PDF para PROMOS | Generador de PDF histórico con encabezado "Consulta generada por PROMOS" | 4 | ?? SUGERIDO |
+| TAREA-231 | Crear servicio de Excel para PROMOS | Exportador Excel con 3 hojas (Resumen, Por Tipo, Detalle Completo) | 4 | ?? SUGERIDO |
+| TAREA-235 | Crear testing de acceso PROMOS | Pruebas de autorización, auditoría, rate limiting | 4 | ?? SUGERIDO |
+| TAREA-236 | Crear documentación de uso para PROMOS | `docs/CU8_PROMOS_HistoryConsultation_Guide.md` | 2 | ?? SUGERIDO |
+| TAREA-237 | Crear link en menú principal | Agregar subítem en "Bonificaciones > Operaciones" | 1 | ?? REQUERIDO |
+| | | **Subtotal 4.3.10.4** | **15** | |
+
+---
+
+| | | **TOTAL 4.3.10** | **57** | |
+
+---
+
+## Resumen Final Actualizado
+
+| Categoría | Tareas | Horas | % |
+|-----------|--------|-------|---|
+| 🔴 REQUERIDO | 200 | 1,008.5 | 86.9% |
+| 🟡 SUGERIDO | 45 | 149 | 12.8% |
+| 🟢 DESEABLE | 2 | 3 | 0.3% |
+| **TOTAL PROYECTO** | **247** | **1,160.5** | **100%** |
+
+> **Nota final**: El documento completo incluye **247 TAREAS** de desarrollo estimadas en **1,160.5 horas**, cobriendo el Sistema Completo de Bonificación de Distribuidores con todas sus funcionalidades desde la administración hasta la consulta por parte de distribuidores y PROMOS, incluyendo cierre automático de períodos y notificaciones automáticas.
+
+| # | Tarea | Descripción | Horas | Prioridad |
+|---|-------|-------------|-------|-----------|
+| TAREA-226 | Crear tabla de auditoría para consultas PROMOS | `BonificationHistoryPromoAuditTable.sql` (quién consultó a quién, cuándo, IP) | 1 | ?? REQUERIDO |
+| TAREA-228 | Crear servicio de auditoría | `IBonificationHistoryAuditService` (registro + consulta de logs) | 3 | ?? REQUERIDO |
+| TAREA-232 | Crear validación de permisos | Guards Blazor (solo Admin / Consulta de bonificaciones) | 2 | ?? REQUERIDO |
+| TAREA-234 | Crear rate limiting para consultas PROMOS | Throttling 50 consultas/minuto por usuario PROMOS | 2 | ?? REQUERIDO |
+| | | **Subtotal 4.3.10.2** | **8** | |
+
+---
+
+#### 4.3.10.3 – Componentes y Servicios
+
+| # | Tarea | Descripción | Horas | Prioridad |
+|---|-------|-------------|-------|-----------|
+| TAREA-227 | Crear panel lateral de detalle | Componente `BonificationHistoryPromosSidePanel.razor` (slide-in con desglose completo) | 10 | ?? SUGERIDO |
+| TAREA-229 | Crear dashboard de auditoría | Página `BonificationHistoryPromoAuditDashboard.razor` (opcional, consultas/usuario, alertas de abuso) | 6 | ?? SUGERIDO |
+| TAREA-233 | Crear componente de búsqueda de distribuidor | Componente `DistributorSelectorComponent.razor` (searchable, caché 5 min) | 3 | ?? SUGERIDO |
+| | | **Subtotal 4.3.10.3** | **19** | |
+
+---
+
+#### 4.3.10.4 – Exportación y Documentación
+
+| # | Tarea | Descripción | Horas | Prioridad |
+|---|-------|-------------|-------|-----------|
+| TAREA-230 | Crear servicio de PDF para PROMOS | Generador de PDF histórico con encabezado "Consulta generada por PROMOS" | 4 | ?? SUGERIDO |
+| TAREA-231 | Crear servicio de Excel para PROMOS | Exportador Excel con 3 hojas (Resumen, Por Tipo, Detalle Completo) | 4 | ?? SUGERIDO |
+| TAREA-235 | Crear testing de acceso PROMOS | Pruebas de autorización, auditoría, rate limiting | 4 | ?? SUGERIDO |
+| TAREA-236 | Crear documentación de uso para PROMOS | `docs/CU8_PROMOS_HistoryConsultation_Guide.md` | 2 | ?? SUGERIDO |
+| TAREA-237 | Crear link en menú principal | Agregar subítem en "Bonificaciones > Operaciones" | 1 | ?? REQUERIDO |
+| | | **Subtotal 4.3.10.4** | **15** | |
+
+---
+
+| | | **TOTAL 4.3.10** | **57** | |
+
+---
+
 
 
 ---
@@ -531,55 +711,57 @@
 
 | Módulo | Tareas | Horas | % del Total |
 |--------|--------|-------|-------------|
-| 4.3.1.1 – Configuración de Clientes Distribuidores | 10 | 21 | 2.4% |
-| 4.3.1.2 – Configuración de Períodos de Bonificación | 18 | 102 | 11.7% |
-| 4.3.1.3 – Configuración de Vigencias para Tipos de Bonificación | 8 | 36 | 4.1% |
-| 4.3.1.4 – Configuración de Vigencias para Descuentos por Total de Pedido | 9 | 41 | 4.7% |
-| 4.3.2.1 – Gestión Manual de Ordenes de Compra Especiales | 9 | 35 | 4.0% |
-| 4.3.2.2 – Gestión Masiva de Ordenes de Compra Especiales | 4 | 27 | 3.1% |
-| 4.3.2.3 – Gestión Manual de Conciliación de Notas Crédito | 6 | 46 | 5.3% |
-| 4.3.2.4 – Gestión Masiva de Conciliación de Notas Crédito | 5 | 32 | 3.7% |
-| 4.3.2.5 – Actualización Diaria de Lista de Precios Promocional | 9 | 49 | 5.6% |
-| 4.3.2.6 – Gestión de Pedidos Especiales | 17 | 63 | 7.2% |
-| 4.3.2.7 – Solicitud de Información de Facturación a TOTUS | 15 | 45 | 5.1% |
-| 4.3.3.1 – Autenticación OTP (MVP Email) | 9 | 51 | 5.8% |
-| 4.3.4.1 – Modelos & Respuesta de Cálculo | 5 | 9 | 1.0% |
-| 4.3.4.2 – Lógica de Cálculo | 7 | 25 | 2.9% |
-| 4.3.4.3 – REST API | 5 | 12 | 1.4% |
-| 4.3.4.4 – Descarga PDF | 3 | 8 | 0.9% |
-| 4.3.4.5 – Frontend Blazor | 5 | 18 | 2.1% |
-| 4.3.4.6 – Integración y Testing | 4 | 18 | 2.1% |
-| 4.3.4.7 – Deployment y Monitoreo | 3 | 5 | 0.6% |
-| 4.3.5.1 – Infraestructura de Notificaciones | 7 | 26 | 3.0% |
-| 4.3.5.2 – Tipos de Notificaciones | 3 | 16 | 1.8% |
-| 4.3.5.3 – Administración y Configuración | 3 | 25 | 2.9% |
-| 4.3.5.4 – Operabilidad y Observabilidad | 3 | 11 | 1.3% |
-| 4.3.6.1 – Modelos & Estructuras de Datos (CU8) | 6 | 17.5 | 2.0% |
-| 4.3.6.2 – REST API (CU8) | 5 | 14 | 1.6% |
-| 4.3.6.3 – Frontend Blazor (CU8) | 6 | 27 | 3.1% |
-| 4.3.6.4 – Exportación PDF/Excel (CU8) | 3 | 13 | 1.5% |
-| 4.3.7.1 – Persistencia de Bonos Cerrados (CU10) | 6 | 26 | 3.0% |
-| 4.3.7.2 – Job Nocturno de Cierre (CU10) | 4 | 17 | 2.0% |
-| 4.3.7.3 – Gestión de Recomendaciones de NC (CU10) | 3 | 13 | 1.5% |
-| 4.3.7.4 – Operabilidad y Monitoreo (CU10) | 12 | 42 | 4.8% |
-| **TOTAL** | **210** | **971.5** | **100%** |
+| 4.3.1.1 – Configuración de Clientes Distribuidores | 10 | 21 | 1.8% |
+| 4.3.1.2 – Configuración de Períodos de Bonificación | 18 | 102 | 8.8% |
+| 4.3.1.3 – Configuración de Vigencias para Tipos de Bonificación | 8 | 36 | 3.1% |
+| 4.3.1.4 – Configuración de Vigencias para Descuentos por Total de Pedido | 9 | 41 | 3.5% |
+| 4.3.2.1 – Gestión Manual de Ordenes de Compra Especiales | 9 | 35 | 3.0% |
+| 4.3.2.2 – Gestión Masiva de Ordenes de Compra Especiales | 4 | 27 | 2.3% |
+| 4.3.2.3 – Gestión Manual de Conciliación de Notas Crédito | 6 | 46 | 4.0% |
+| 4.3.2.4 – Gestión Masiva de Conciliación de Notas Crédito | 5 | 32 | 2.8% |
+| 4.3.2.5 – Actualización Diaria de Lista de Precios Promocional | 9 | 49 | 4.2% |
+| 4.3.2.6 – Gestión de Pedidos Especiales | 17 | 63 | 5.4% |
+| 4.3.2.7 – Solicitud de Información de Facturación a TOTUS | 15 | 45 | 3.9% |
+| 4.3.3.1 – Autenticación OTP (MVP Email) | 9 | 51 | 4.4% |
+| 4.3.4.1 – Modelos & Respuesta de Cálculo | 5 | 9 | 0.8% |
+| 4.3.4.2 – Lógica de Cálculo | 7 | 25 | 2.2% |
+| 4.3.4.3 – REST API | 5 | 12 | 1.0% |
+| 4.3.4.4 – Descarga PDF | 3 | 8 | 0.7% |
+| 4.3.4.5 – Frontend Blazor | 5 | 18 | 1.5% |
+| 4.3.4.6 – Integración y Testing | 4 | 18 | 1.5% |
+| 4.3.4.7 – Deployment y Monitoreo | 3 | 5 | 0.4% |
+| 4.3.5.1 – Infraestructura de Notificaciones | 7 | 26 | 2.2% |
+| 4.3.5.2 – Tipos de Notificaciones | 3 | 16 | 1.4% |
+| 4.3.5.3 – Administración y Configuración | 3 | 25 | 2.2% |
+| 4.3.5.4 – Operabilidad y Observabilidad | 3 | 11 | 0.9% |
+| 4.3.6.1 – Modelos & Estructuras de Datos (CU8 Distribuidores) | 6 | 17.5 | 1.5% |
+| 4.3.6.2 – REST API (CU8 Distribuidores) | 5 | 14 | 1.2% |
+| 4.3.6.3 – Frontend Blazor (CU8 Distribuidores) | 6 | 27 | 2.3% |
+| 4.3.6.4 – Exportación PDF/Excel (CU8 Distribuidores) | 3 | 13 | 1.1% |
+| 4.3.7.1 – Persistencia de Bonos Cerrados (CU10) | 6 | 26 | 2.2% |
+| 4.3.7.2 – Job Nocturno de Cierre (CU10) | 4 | 17 | 1.5% |
+| 4.3.7.3 – Gestión de Recomendaciones de NC (CU10) | 3 | 13 | 1.1% |
+| 4.3.7.4 – Operabilidad y Monitoreo (CU10) | 12 | 42 | 3.6% |
+| 4.3.8 – Consulta CU6: Bonificación Actual (PROMOS) | 10 | 33 | 2.8% |
+| 4.3.9 – Consulta CU8: Histórico de Bonos (PROMOS) | 15 | 57 | 4.9% |
+| **TOTAL** | **247** | **1,160.5** | **100%** |
 
 ### Por Prioridad
 
 | Prioridad | Tareas | Horas | % del Total |
 |-----------|--------|-------|-------------|
-| 🔴 REQUERIDO | 171 | 840.5 | 86.5% |
-| 🟡 SUGERIDO | 37 | 128 | 13.2% |
-| 🟢 DESEABLE | 2 | 5 | 0.5% |
-| **TOTAL** | **210** | **971.5** | **100%** |
+| 🔴 REQUERIDO | 200 | 1,008.5 | 86.9% |
+| 🟡 SUGERIDO | 45 | 149 | 12.8% |
+| 🟢 DESEABLE | 2 | 3 | 0.3% |
+| **TOTAL** | **247** | **1,160.5** | **100%** |
 
 ### Escenarios de Contratación
 
-| Escenario | Descripción | Horas | Días hábiles (8h) |
-|-----------|-------------|-------|-------------------|
-| **MVP Mínimo** | Solo tareas REQUERIDAS (171 tareas) | 840.5 | ~105 |
-| **MVP Recomendado** | REQUERIDAS + SUGERIDAS sin masivos (203 tareas) | 965.5 | ~121 |
-| **Alcance Completo** | Todas las tareas (210) | 971.5 | ~121 |
+| Escenario | Descripción | Horas | Días hábiles (8h) | Semanas (5 días) |
+|-----------|-------------|-------|-------------------|------------------|
+| **MVP Mínimo** | Solo tareas REQUERIDAS (200 tareas) | 1,008.5 | ~126 | ~25 |
+| **MVP Recomendado** | REQUERIDAS + SUGERIDAS sin masivos | 1,100 | ~138 | ~27 |
+| **Alcance Completo** | Todas las tareas (247) | 1,160.5 | ~145 | ~29 |
 
 ---
 
