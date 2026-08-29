@@ -1,6 +1,7 @@
 ﻿using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Shared;
+using CsvHelper.Configuration;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
@@ -75,7 +76,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Purchase_Orders.Components
         protected bool FirstRender = true;
 
         protected int count = 0;
-
+        protected short confirmedStatusId;
+     
         #endregion
 
         #region Override
@@ -89,7 +91,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Purchase_Orders.Components
             Warehouses = (await WarehouseService.GetAsync()).ToList();
             var documentType = await DocumentTypeService.FindByCodeAsync("O");
             StatusDocumentTypes = (await StatusDocumentTypeService.GetByDocumentTypeIdAsync(documentType.DocumentTypeId)).ToList();
-
+            confirmedStatusId = StatusDocumentTypes.FirstOrDefault(x => x.StatusOrder == 2).StatusDocumentTypeId;
             var (providers, _count) = await ProviderService.GetAsync(0, 5);
             Providers = providers.ToList();
             count = _count;
@@ -237,6 +239,18 @@ namespace Aldebaran.Web.Pages.ReportPages.Purchase_Orders.Components
             }
             var shipmentForwarderAgentMethods = await ShipmentForwarderAgentMethodService.GetByForwarderAgentIdAsync(forwarderAgentId.Value);
             ShipmentMethods = shipmentForwarderAgentMethods?.Select(s => s.ShipmentMethod).ToList() ?? new();
+        }
+
+        private async Task OnRequestedQuantityDifferenceChanged(bool value)
+        {
+            Filter.RequestedQuantityDifference = value;
+
+            if (value)
+                Filter.StatusDocumentId = confirmedStatusId;
+            else
+                Filter.StatusDocumentId = null;
+            
+            StateHasChanged();
         }
 
         #endregion

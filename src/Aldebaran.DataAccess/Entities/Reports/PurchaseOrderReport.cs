@@ -40,5 +40,7 @@
         public int Amount { get; set; }
         public double Volume { get; set; }
         public double Weight { get; set; }
+
+        public int RequestedAmount { get; set; }
     }
 }

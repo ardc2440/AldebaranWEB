@@ -1,0 +1,1139 @@
+﻿# 2. PROPUESTA FUNCIONAL - Sistema de Bonificación de Distribuidores
+
+**Identificador**: RQM_BonosDistribuidores_052026  
+**Cliente**: PROMOS  
+**Estado**: PROPUESTA FUNCIONAL  
+**Fecha**: Mayo 2026  
+**Versión**: 1.5
+
+---
+
+## 2.1 ALCANCE DE LA SOLUCIÓN
+
+### 2.1.1 Problemática Actual
+
+Actualmente, PROMOS enfrenta las siguientes dificultades en el proceso de bonificación de distribuidores:
+
+- **Proceso Manual y Lento**: Los distribuidores deben calcular manualmente sus bonificaciones y validar el cálculo con personal de PROMOS, lo cual consume tiempo valioso de ambas partes.
+
+- **Falta de Transparencia**: Los distribuidores no tienen visibilidad en tiempo real sobre cómo se calculan sus bonos ni cuánto les falta para alcanzar el siguiente nivel de bonificación.
+
+- **Riesgo Competitivo**: Los distribuidores prefieren comprar con la competencia que ya tiene procesos automatizados y transparentes de bonificación.
+
+- **Tiempo Administrativo No Productivo**: PROMOS invierte tiempo validando cálculos manuales que no agregan valor estratégico al negocio.
+
+- **Dificultad para Resolver Reclamaciones**: Sin auditoría automática, resolver reclamaciones de distribuidores sobre bonos calculados incorrectamente es complejo y consume recursos.
+
+### 2.1.2 Solución Propuesta
+
+Se propone desarrollar un **Sistema Automatizado de Bonificación de Distribuidores** que permita:
+
+**Para Distribuidores:**
+- Acceder desde la **Página Promocional** mediante un botón "Ver mi bonificación"
+- Autenticarse de forma segura mediante **código OTP** enviado por SMS o Email
+- Consultar en **tiempo real** (menos de 500ms) el bono acumulado del período actual
+- Ver **gamificación**: cuánto falta para alcanzar el siguiente nivel de bonificación
+- Acceder al **histórico** de bonos de períodos anteriores
+- Descargar **comprobantes** de bonificación en formato PDF
+- Recibir **notificaciones automáticas** (SMS/Email) cuando:
+  - Alcanza un nuevo nivel de bonificación
+  - Está cerca de alcanzar el siguiente nivel
+  - Recordatorios periódicos con su progreso
+
+**Para PROMOS:**
+- **Gestionar configuraciones** de períodos, tipos de bonos y vigencias desde Aldebaran.Web
+- **Consultar bonos calculados** de cualquier distribuidor en cualquier período
+- **Generar recomendaciones** de Nota de Crédito (NC) para aplicar en TOTUS
+- **Reconciliar NC**: comparar lo calculado vs lo realmente aplicado en TOTUS
+- **Resolver reclamaciones** con acceso completo al historial de cálculos
+- **Generar reportes** de auditoría, discrepancias, consultas de distribuidores
+- **Exportar datos** en Excel/PDF para análisis adicionales
+
+### 2.1.3 Modalidades de Bonificación
+
+El sistema calculará **dos tipos de bonos independientes** para cada distribuidor:
+
+1. **Bonificación por Facturación** (Fuente: TOTUS)
+   - Base: Valor total facturado sin impuestos en el período
+   - Ajustes: Descuenta NC del período anterior, fletes, descuentos
+   - Suma: Órdenes de Compra Especiales aprobadas manualmente por PROMOS
+   - Ejemplo: Si facturó $100M ? Bono = $100M × 6% = $6M
+
+2. **Bonificación por Pedido** (Fuente: Aldebaran - Órdenes)
+   - Base: Valor total de órdenes pedidas en el período
+   - Cálculo: Cantidad pedida × Precio del día del pedido
+   - Incentivo: Motiva a distribuidores a pedir más volumen
+   - Ejemplo: Si pidió por $50M ? Bono = $50M × 5% = $2.5M
+
+**Bono Total** = Bonificación por Facturación + Bonificación por Pedido
+
+Este bono total se aplicará como **Nota de Crédito (NC)** en el siguiente período en TOTUS.
+
+### 2.1.4 Beneficios Esperados
+
+**Para Distribuidores:**
+- ? **Transparencia total**: Ven exactamente cómo se calcula su bono
+- ? **Acceso 24/7**: Consultan su bonificación en cualquier momento sin contactar a PROMOS
+- ? **Gamificación**: Saben cuánto les falta para el siguiente nivel
+- ? **Notificaciones proactivas**: Reciben alertas cuando alcanzan hitos importantes
+- ? **Historial completo**: Acceden a bonos de períodos anteriores
+
+**Para PROMOS:**
+- ? **Reducción 70% de tiempo administrativo**: Elimina cálulos y validaciones manuales
+- ? **Precisión 100%**: Elimina errores humanos en cálculos
+- ? **Auditoría completa**: Historial inmutable de cada cálculo para resolver reclamaciones
+- ? **Control total**: Aprobaciones configurables para ingresos manuales
+- ? **Reportería instantánea**: Exporta datos en Excel/PDF
+- ? **Competitividad**: Ofrece experiencia automatizada similar a competencia
+
+---
+
+## 2.2 FUNCIONALIDADES DE ALTO NIVEL
+
+A continuación se presentan las funcionalidades agrupadas por módulo y actor del sistema:
+
+### 2.2.0 Módulo de Configuración de Clientes (Prerequisito - Usuario PROMOS - Aldebaran.Web)
+
+**IMPORTANTE:** Este módulo es un **PREREQUISITO transversal** que debe implementarse primero. Sin esta funcionalidad, los distribuidores no pueden ser identificados en el sistema y por lo tanto no podrán acceder al Sistema de Bonificación.
+
+#### 2.2.0.1 Gestión de Tipo de Cliente - Distribuidor
+
+**Descripción:**  
+Marcar o identificar qué Customers en Aldebaran son de tipo "DISTRIBUIDOR" para que puedan acceder al Sistema de Bonificación. Esta es una propiedad de cada Cliente (Customer) que diferencia entre:
+- **DISTRIBUIDOR**: Cliente que vende/resuelve (beneficiario de bonificaciones)
+- **OTRO TIPO**: Cliente no distribuidor (ej: mayorista, revendedor diferenciado, etc.)
+
+**Funcionalidades:**
+- Visualizar listado de clientes (Customers) en Aldebaran.Web
+- Marcar/Identificar un Customer como tipo **DISTRIBUIDOR**:
+  - Campo checkbox o selector: "Es Distribuidor" (Sí/No)
+  - O campo de tipo: "Clasificación Cliente" con opciones (Distribuidor, No Distribuidor, Otro)
+- Modificar clasificación de un Customer (cambiar de DISTRIBUIDOR a NO DISTRIBUIDOR o viceversa)
+  - ⚠️ Restricción: No puede cambiar clasificación si tiene períodos activos con bonificaciones calculadas
+- Ver cuántos clientes están marcados como DISTRIBUIDOR
+- Ver cuántos DISTRIBUIDORES tienen sesiones activas / han consultado bonos
+- Ver cuántos DISTRIBUIDORES tienen períodos cerrados (histórico)
+
+**Validaciones:**
+- Un Customer NO puede ser marcado como DISTRIBUIDOR si:
+  - No tiene Email ni Celular configurados (necesarios para OTP)
+  - Ya está clasificado de otra forma y tiene datos asociados que lo contradicen
+- Un Customer SI puede ser marcado como DISTRIBUIDOR si:
+  - Ya tiene datos en Aldebaran (órdenes, entregas)
+  - Tiene Email y/o Celular configurados (para OTP)
+
+**Impacto Transversal:**
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ RF32: Marcar/Identificar Customers como Distribuidores         │
+│ (CU0 - Prerequisito)                                            │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+        ┌─────────────────────┼─────────────────────┐
+        ↓                     ↓                     ↓
+   CU6 (Autenticación)   CU7 (Consulta)        CU9 (Admin)
+   Valida que el        Filtra solo            Solo ve
+   documento sea        distribuidores         clientes
+   tipo DISTRIBUIDOR                           tipo DISTRIBUIDOR
+```
+
+**Flujo de Usuario (Admin PROMOS):**
+1. Usuario PROMOS ingresa a Aldebaran.Web
+2. Accede a "Gestión de Clientes" → "Clasificación"
+3. Ve listado de Customers con campo "Es Distribuidor"
+4. Marca aquellos que deben tener acceso al Sistema de Bonificación
+5. Sistema registra el cambio (auditoría: quién, cuándo, antes/después)
+6. Si el Customer es marcado como DISTRIBUIDOR:
+   - Pasa a estar disponible para acceso OTP en Sitio Público
+   - Puede consultar sus bonos si está autenticado
+   - Aparece en filtros de Admin para bonificación
+
+**Reglas de Negocio:**
+- Un Customer puede estar marcado o no marcado como DISTRIBUIDOR
+- Un Customer NO puede tener dos clasificaciones simultáneas
+- Solo DISTRIBUIDORES pueden autenticarse vía OTP (CU6)
+- Solo DISTRIBUIDORES pueden consultar bonos (CU7/CU8)
+- Admin solo ve DISTRIBUIDORES en reportes de bonificación (CU9)
+- Cambio de clasificación es reversible (se puede desmarcar)
+
+**Restricciones:**
+- No puede desmarcar un Customer como DISTRIBUIDOR si tiene períodos activos
+- No puede desmarcar si tiene sesiones activas de consulta de bonos
+- Cambio debe registrarse en auditoría
+
+**Auditoría:**
+- Quién marcó/desmarcó: Usuario PROMOS
+- Cuándo: Timestamp del cambio
+- Antes/Después: Estado anterior vs nuevo
+
+---
+
+#### 2.2.0.2 Gestión de Email de Bonificación para Distribuidores
+
+**Descripción:**  
+Configurar un Email especializado para Bonificación (distinto del Email general del Customer) para que reciba exclusivamente:
+- Códigos OTP para autenticación en el Sistema de Bonificación (CU6)
+- Notificaciones de gamificación (alcanzó nivel, está cerca del siguiente, recordatorios) (CU7)
+
+Este campo **Email de Bonificación** es independiente del Email general del Customer, permitiendo que los distribuidores:
+- Usen un email corporativo general para asuntos comerciales
+- Usen un email específico (ej: bonificacion@empresa.com) para recibir notificaciones de bonificación
+
+**Funcionalidades:**
+- Visualizar Email de Bonificación de cada Cliente DISTRIBUIDOR
+- Ingresar/Configurar Email de Bonificación:
+  - Campo: Email para Bonificación (distinto del Email general)
+  - Validación: Formato de email válido
+  - Validación: Email no debe estar vacío si el Cliente es DISTRIBUIDOR
+  - Validación: Puede ser igual o diferente al Email general
+- Modificar Email de Bonificación:
+  - Permitir cambiar en cualquier momento (no vinculado a períodos)
+  - Registrar cambio en auditoría (quién, cuándo, antes/después)
+- Validar que Email de Bonificación sea accesible:
+  - Realizar prueba de envío de OTP para validar email (opcional pero recomendado)
+  - Registrar si email es válido/inválido
+  - Alertar si no se puede enviar a Email de Bonificación configurado
+
+**Validaciones:**
+- Un Customer DISTRIBUIDOR DEBE tener Email de Bonificación configurado
+- Email debe ser formato válido (xxx@yyy.zzz)
+- Email NO puede estar vacío para DISTRIBUIDORES
+- Email puede ser igual al Email general o diferente
+- No se puede marcar como DISTRIBUIDOR sin Email de Bonificación configurado
+- No se puede dejar sin Email de Bonificación si ya es DISTRIBUIDOR
+
+**Impacto Transversal:**
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ RF33: Gestionar Email de Bonificación para Distribuidores       │
+│ (CU0 - Parte de Prerequisito)                                   │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+        ┌─────────────────────┼─────────────────────┐
+        ↓                     ↓                     ↓
+   CU6 (Autenticación)   CU7 (Consulta)      CU29-31 (Notificaciones)
+   Envía OTP al Email   Valida Email         Envía notificaciones
+   de Bonificación      de Bonificación      al Email de Bonificación
+```
+
+**Flujo de Usuario (Admin PROMOS):**
+1. Usuario PROMOS ingresa a Aldebaran.Web
+2. Accede a "Gestión de Clientes" → "Clasificación"
+3. Busca un Cliente que es DISTRIBUIDOR
+4. Ve campo "Email de Bonificación"
+5. Ingresa o modifica Email de Bonificación (distinto del Email general)
+6. Sistema valida formato de email
+7. (Opcional) Sistema envía OTP de prueba para confirmar entregabilidad
+8. Sistema registra cambio en auditoría
+9. Sistema permite guardar solo si Email es válido
+
+**Reglas de Negocio:**
+- Email de Bonificación es OBLIGATORIO para DISTRIBUIDORES
+- Email de Bonificación es INDEPENDIENTE del Email general del Customer
+- Un distribuidor puede tener múltiples emails, pero **solo UNO** de Bonificación
+- Cambio de Email de Bonificación es reversible
+- Cambios son auditados completamente
+- Validación es inmediata (no se permite guardar sin Email válido)
+- Si hay error al enviar OTP, el sistema alerta pero permite guardar (email puede estar en correo no deseado)
+
+**Restricciones:**
+- No puede dejar Email de Bonificación vacío para DISTRIBUIDORES
+- No puede marcar como DISTRIBUIDOR sin configurar Email de Bonificación
+- Email debe ser formato válido (validación regex)
+- No se permite caracteres especiales inválidos
+- Máxima longitud: 254 caracteres (estándar RFC 5321)
+
+**Auditoría:**
+- Quién cambió Email: Usuario PROMOS
+- Cuándo: Timestamp del cambio
+- Antes/Después: Email anterior vs nuevo Email de Bonificación
+- Motivo (opcional): Por qué se cambió
+- Resultado: Si se logró enviar OTP de prueba o no
+
+**Relación con CU6 (Autenticación OTP):**
+```
+CU6: Autenticación por OTP
+↓
+Sistema valida que distribuidor tenga Email de Bonificación
+↓
+Sistema envía OTP AL EMAIL DE BONIFICACIÓN (no al email general)
+↓
+Distribuidor recibe OTP en su email especializado
+↓
+Distribuidor ingresa OTP y accede al sistema
+```
+
+**Relación con CU7 (Notificaciones de Gamificación):**
+```
+CU7: Consulta de Bonificación + Gamificación
+↓
+Se alcanza nuevo nivel de bono
+↓
+Sistema dispara notificación
+↓
+Sistema envía EMAIL AL EMAIL DE BONIFICACIÓN (no al email general)
+↓
+Distribuidor recibe notificación en su email especializado
+```
+
+---
+
+#### 2.2.0.3 Gestión de Vigencia de Descuento por Total de Pedido
+
+**Descripción:**  
+Configurar vigencias de descuento (rangos de totales de pedido con descuentos asociados) que se aplican a TODOS los distribuidores de forma uniforme. Este descuento es **independiente de cualquier descuento que pudiera existir en Página Promocional** y se utiliza exclusivamente en el cálculo del **Bono por Pedido**. 
+
+**Cada rango puede definir descuento como PORCENTAJE (%)** o como **VALOR FIJO ($)**, permitiendo flexibilidad en estrategias comerciales. Por ejemplo: descuentos porcentuales para volúmenes bajos/medios y descuentos fijos para volúmenes altos.
+
+**Contexto:**
+- La Vigencia de Descuento por Total de Pedido es un parámetro de negocio configurado en **Aldebaran.Web** (NO en Página Promocional)
+- Se aplica de forma uniforme a todos los distribuidores
+- Afecta el cálculo del Bono por Pedido en la fórmula: `Cantidad × Precio × (1 - Descuento aplicable)`
+- Es diferente del Email de Bonificación (RF33) y de la clasificación como DISTRIBUIDOR (RF32)
+- **SOLO UNA vigencia de Descuento puede estar ACTIVA** en un momento dado
+
+**Estructura Idéntica a Vigencias de Bono (RF3):**
+
+```
+┌────────────────────────────────────────────────────┐
+│ Vigencia de Descuento (Template)                   │
+│ Nombre: "V2 - Desc. Pedido Marzo 2026"             │
+│ Fecha Activación: 01/03/2026                       │
+│ Estado: ACTIVO                                     │
+├────────────────────────────────────────────────────┤
+│ Rangos de Total de Pedido (1:N)                    │
+│                                                    │
+│ Rango 1:                                           │
+│  Total Mín: $1M    Total Máx: $5M                 │
+│  Tipo: Porcentaje  Valor: 2%                      │
+│                                                    │
+│ Rango 2:                                           │
+│  Total Mín: $5M    Total Máx: $10M                │
+│  Tipo: Valor Fijo  Valor: 250.000                 │
+│                                                    │
+│ Rango 3:                                           │
+│  Total Mín: $10M   Total Máx: ∞                   │
+│  Tipo: Porcentaje  Valor: 5%                      │
+└────────────────────────────────────────────────────┘
+```
+
+**Funcionalidades:**
+- Crear nueva vigencia de descuento:
+  - Nombre único (ej: "V2 - Descuento Pedido Marzo 2026")
+  - **Fecha de Activación** (desde cuándo aplica)
+    - Al activarse, desactiva automáticamente la vigencia anterior
+  - **Rangos de Total de Pedido** (Relación 1:N - Entidad hija):
+    - **UNA vigencia tiene MÚLTIPLES rangos**
+    - Cada rango es un registro independiente con:
+      - **Total Mínimo** (numérico - límite inferior del rango)
+      - **Total Máximo** (numérico - límite superior del rango, o vacío para "en adelante")
+      - **Tipo de Descuento**: Porcentaje (%) OR Valor Fijo ($)
+      - **Valor de Descuento**: Número (interpretado según Tipo de Descuento)
+    - Ejemplo 1 (Mixto - % y Fijo):
+      - Rango 1: Total $1M-$5M, Tipo=%, Descuento=2%
+      - Rango 2: Total $5M-$10M, Tipo=Fijo, Descuento=250.000
+      - Rango 3: Total $10M+, Tipo=%, Descuento=5%
+    - Ejemplo 2 (Solo Porcentajes):
+      - Rango 1: Total $1M-$5M, Tipo=%, Descuento=1%
+      - Rango 2: Total $5M-$10M, Tipo=%, Descuento=3%
+      - Rango 3: Total $10M+, Tipo=%, Descuento=5%
+    - Ejemplo 3 (Solo Valores Fijos):
+      - Rango 1: Total $1M-$5M, Tipo=Fijo, Descuento=100.000
+      - Rango 2: Total $5M-$10M, Tipo=Fijo, Descuento=300.000
+      - Rango 3: Total $10M+, Tipo=Fijo, Descuento=500.000
+- Modificar vigencia (solo antes de que comience a usarse)
+- Ver listado de vigencias (activas e históricas)
+- Copiar vigencia anterior como plantilla
+- Ver cuál es la vigencia ACTIVA actualmente
+
+**Conceptos Clave:**
+- **Vigencia ACTIVA**: La más reciente en estado ACTIVO para Descuento por Total de Pedido
+- **Rangos de Total de Pedido (1:N)**: Cada vigencia tiene múltiples rangos (entidad hija). Cada rango define: Total Mínimo, Total Máximo, Tipo de Descuento (% o Fijo), Valor de Descuento
+- **Tipo de Descuento**: 
+  - **Porcentaje (%)**: Descuento = Total Pedido × Porcentaje / 100
+  - **Valor Fijo ($)**: Descuento = Valor Fijo (mismo monto independiente del total del pedido)
+- **Activación Automática**: Al activar una nueva vigencia, la anterior pasa a INACTIVA automáticamente
+- **SOLO UNA vigencia ACTIVA**: Solo existe una vigencia activa en el sistema en un momento dado
+
+**Validaciones:**
+- Descuento debe ser numérico (0-100% para porcentajes, 0-∞ para valores fijos)
+- No puede haber descuento negativo
+- No puede haber porcentaje > 100%
+- **Los rangos NO pueden traslaparse**: Límites discretos sin sobreposición (igual que Vigencias de Bono)
+- SOLO una vigencia de descuento activa en el sistema
+- Cambios afectan a nuevos cálculos desde ese momento
+- Tipo de Valor debe ser coherente: Cada rango define si es % o Fijo (no se mezclan en el mismo rango, pero sí entre rangos)
+
+**Impacto Transversal:**
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ RF34: Gestionar Vigencia de Descuento por Total de Pedido       │
+│ (CU0 - Parte de Configuración)                                  │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+        ┌─────────────────────┼─────────────────────┐
+        ↓                     ↓                     ↓
+   CU7 (Consulta)       CU10 (Cierre)        CU9 (Admin)
+   Usa en Bono         Usa en cálculo       Ve vigencia
+   por Pedido          FOTO congelada       ACTIVA
+```
+
+**Flujo de Usuario (Admin PROMOS):**
+1. Usuario PROMOS ingresa a Aldebaran.Web
+2. Accede a "Configuración" → "Vigencia de Descuento por Pedido"
+3. Ve vigencia ACTIVA actual (ej: "V1 - Desc. Pedido Feb 2026")
+4. Puede:
+   - Ver rangos de la vigencia activa
+   - Crear nueva vigencia para próximo período
+   - Activar vigencia futura (desactiva la anterior automáticamente)
+   - Copiar vigencia anterior como plantilla
+   - Ver historial de vigencias anteriores
+5. Sistema registra cambios en auditoría
+
+**Reglas de Negocio:**
+- Vigencia de Descuento es ÚNICA y GLOBAL para todos los distribuidores
+- Descuento se aplica en el cálculo del Bono por Pedido (se resta del valor total antes de aplicar porcentaje de bono)
+- Cambio de vigencia NO recalcula períodos ya cerrados (FOTO inmutable)
+- Cambio de vigencia SI afecta a cálculos dinámicos de período activo (CU7)
+- Cambio de vigencia SI afecta a nuevos cierres de período (CU10)
+- Auditoría completa de cambios: Quién activó, cuándo, vigencia anterior vs nueva
+
+**Restricciones:**
+- Descuento porcentaje debe estar entre 0% y 100%
+- Descuento fijo debe ser >= 0
+- SOLO una vigencia activa en el sistema
+- Cambios son reversibles (desactivar y reactivar vigencia anterior si es necesario)
+- No puede cambiar tipo de vigencia (siempre es descuento por total de pedido)
+
+**Auditoría:**
+- Quién activó vigencia: Usuario PROMOS
+- Cuándo: Timestamp del cambio
+- Vigencia anterior: Cuál era la activa antes
+- Vigencia nueva: Cuál es la nueva activa
+- Efecto: Cálculos futuros usan nuevo descuento
+- Motivo (opcional): Por qué se cambió
+
+**Relación con RF10 (Cargar Precios):**
+```
+RF10: Cargar Lista de Precios desde Página Promocional
+↓
+Obtiene SOLO: Referencia, Precio Unitario
+Obtiene NO: Descuento Distribuidor (no está en Página Promocional)
+↓
+RF34: Vigencia de Descuento por Total de Pedido (configurado en Aldebaran.Web)
+↓
+Cálculo Bono por Pedido = Cantidad × Precio × (1 - Descuento Aplicable RF34)
+```
+
+**Relación con CU7 (Cálculo Dinámico de Bono por Pedido):**
+```
+CU7: Consulta Bonificación - Período Actual
+↓
+Total Pedidos = ∑(Cantidad pedida × Precio del día)
+↓
+Descuento Aplicable = Buscar en Vigencia ACTIVA RF34 según Total Pedidos
+                    = Si Total $5M: buscar rango que contiene $5M
+                    = Usar Tipo y Valor del rango encontrado
+↓
+Base para Bono = Total Pedidos - Descuento Aplicable
+                (O: Total Pedidos × (1 - Descuento) si es %)
+↓
+Bono por Pedido = Aplica vigencia de bono según Base
+↓
+Utiliza Vigencia de Descuento configurada en RF34
+```
+
+---
+
+### 2.2.1 Módulo de Administración (Usuario PROMOS - Aldebaran.Web)
+
+Este módulo permite al personal de PROMOS configurar los elementos clave del sistema de bonificación.
+
+#### 2.2.1.1 Gestión de Períodos (Definición de Periodicidad)
+
+**Descripción:**  
+Crear y administrar las definiciones de periodicidad (templates) que establecen la configuración base temporal para calcular bonificaciones. Cada período es una plantilla reutilizable que define la duración en días.
+
+**Funcionalidades:**
+- Crear nueva definición de período especificando:
+  - **Nombre único** (ej: "Quincena PROMOS", "Mes PROMOS")
+  - **Tipo**: Mensual / Quincenal / Semanal / Diario / Custom
+  - **Duración en días** (unidad de medida base):
+    - Mensual: 30 días
+    - Quincenal: 15 días
+    - Semanal: 7 días
+    - Diario: 1 día
+    - Custom: N días (configurable)
+  - **Descripción** (opcional)
+  - **Estado**: Activo / Inactivo
+- Modificar período (solo si no tiene instancias activas/cerradas)
+- Ver listado de períodos configurados
+- Ver cuántas **Instancias de Período Activas** se han generado
+- **Generar Instancia de Período Activa** manualmente (especificando fecha inicio)
+- Ver estado de instancias: Abierto / En Curso / Cerrado
+
+**Conceptos Clave:**
+- **Período (Template)**: Definición de periodicidad reutilizable (ej: "Quincena PROMOS" = 15 días)
+- **Instancia de Período**: Período activo con fechas específicas (ej: "QUI-2026-01" del 01/01/2026 al 15/01/2026)
+- La **Fecha Fin** de una instancia se calcula automáticamente: `Fecha Inicio + Duración`
+
+**Restricciones:**
+- No puede editar duración de un período que ya tiene instancias cerradas
+- No puede crear dos períodos con el mismo nombre
+- No puede eliminar período que tiene instancias generadas
+- No puede ingresar duración en días ? 0
+
+**[PLACEHOLDER: Mockup de pantalla "Gestión de Períodos - Listado de Templates"]**
+
+**[PLACEHOLDER: Mockup de pantalla "Gestión de Períodos - Crear/Editar Template"]**
+
+**[PLACEHOLDER: Mockup de pantalla "Gestión de Períodos - Generar Instancia Activa"]**
+
+---
+
+#### 2.2.1.2 Gestión de Tipos de Bono
+
+**Descripción:**  
+Definir los tipos de bonificación disponibles especificando en qué insumo se basa cada uno (Facturación o Pedido) y asociarlos a un Período (template de periodicidad).
+
+**Funcionalidades:**
+- Crear nuevo tipo de bono:
+  - Nombre único (ej: "Bono por Facturación")
+  - Descripción (opcional)
+  - **Base del Bono** (fuente de datos que genera el bono):
+    - Facturación: Usa datos de TOTUS (valor facturado sin impuestos)
+    - Pedido: Usa órdenes de Aldebaran (cantidad pedida × precio)
+  - **Período al cual aplica** (referencia a template de periodicidad de CU1)
+    - Ejemplo: B1 "Bono por Facturación" ? asociado a P1 "Quincena PROMOS"
+  - Estado: Activo / Inactivo
+- Modificar tipo de bono (solo antes de tener vigencias activas)
+- Ver listado de tipos disponibles
+- Consultar cuántas vigencias usan cada tipo
+- Ver vigencia actualmente ACTIVA para este tipo
+
+**Restricciones:**
+- No se puede eliminar un tipo si ya tiene bonos calculados
+- No se puede cambiar "Base del Bono" de un tipo que tiene vigencias activas
+- No se pueden tener dos tipos con mismo nombre asociados al mismo período
+
+**[PLACEHOLDER: Mockup de pantalla "Gestión de Tipos de Bono"]**
+
+---
+
+#### 2.2.1.3 Gestión de Vigencias
+
+**Descripción:**  
+Configurar vigencias (rangos de valores de compra con bonificaciones asociadas) para cada Tipo de Bonificación, con opción de parametrización por artículos/referencias específicos. **Solo UNA vigencia puede estar ACTIVA por Tipo de Bono** en un momento dado. Cada rango puede definir bonificación como **PORCENTAJE (%)** o como **VALOR FIJO ($)**.
+
+**Funcionalidades:**
+- Crear nueva vigencia:
+  - Nombre único (ej: "V3 - Bono Facturación Marzo 2026")
+  - **Tipo de Bono asociado** (referencia a CU2)
+    - Ejemplo: Vigencia B1V3 ? asociada a Tipo B1 "Bono por Facturación"
+  - **Fecha de Activación** (desde cuándo aplica)
+    - Al activarse, desactiva automáticamente la vigencia anterior del mismo Tipo de Bono
+  - **Rangos de Valores** (Relación 1:N - Entidad hija de Vigencia):
+    - **UNA vigencia tiene MÚLTIPLES rangos de valores**
+    - Cada rango es un registro independiente con:
+      - **Valor Mínimo** (numérico)
+      - **Valor Máximo** (numérico)
+      - **Tipo de Bono**: Porcentaje (%) OR Valor Fijo ($)
+      - **Valor de Bono**: Número (interpretado según Tipo de Bono)
+    - Ejemplo 1 (Mixto - % y Fijo):
+      - Rango 1: Mín=$1M, Máx=$5M, Tipo=%, Bono=5%
+      - Rango 2: Mín=$5M, Máx=$10M, Tipo=Fijo, Bono=500.000
+      - Rango 3: Mín=$10M, Máx=?, Tipo=%, Bono=7%
+    - Ejemplo 2 (Solo Porcentajes):
+      - Rango 1: Mín=$1M, Máx=$5M, Tipo=%, Bono=5%
+      - Rango 2: Mín=$5M, Máx=$10M, Tipo=%, Bono=6%
+      - Rango 3: Mín=$10M, Máx=?, Tipo=%, Bono=7%
+  - **OPCIONAL**: Restricción por artículos/referencias:
+    - Sin restricción (DEFAULT - aplica a TODOS los artículos)
+    - Artículos específicos (TODAS sus referencias)
+    - Artículos + Referencias específicas (combinación personalizada)
+  - Moneda del bono (COP, USD, etc.)
+  - Monto máximo de bono (tope configurable)
+- Modificar vigencia (solo antes de que comience a usarse)
+- Ver listado de vigencias (activas e históricas)
+- Copiar vigencia anterior como plantilla
+
+**Conceptos Clave:**
+- **Vigencia ACTIVA**: La más reciente en estado ACTIVO para un Tipo de Bono
+- **Rangos de Valores (1:N)**: Cada vigencia tiene múltiples rangos (entidad hija). Cada rango define: Valor Mínimo, Valor Máximo, Tipo de Valor (% o Fijo), Valor de Bono
+- **Tipo de Valor**: 
+  - **Porcentaje (%)**: Bono = Valor Total × Porcentaje / 100
+  - **Valor Fijo ($)**: Bono = Valor Fijo (mismo monto independiente del valor total)
+- **Activación Automática**: Al activar una nueva vigencia, la anterior del mismo Tipo de Bono pasa a INACTIVA automáticamente
+
+**Validaciones:**
+- **SOLO UNA vigencia ACTIVA por Tipo de Bono** en un momento dado
+- **Los rangos de una vigencia NO pueden traslaparse (sobreposición)**: Cada rango debe tener límites discretos sin sobreposición. Ejemplo correcto:
+  - Rango 1: $1M a $5M
+  - Rango 2: $5M a $10M (comienza donde termina el anterior)
+  - Rango 3: $10M en adelante
+  - ❌ INCORRECTO: Rango 1: $1M-$5M, Rango 2: $4M-$10M (tralapan en $4M-$5M)
+- No se puede editar una vigencia que ya está en uso
+- No se puede crear vigencia con fecha de activación en el pasado
+- Si se parametriza por artículos, debe validarse que existan en el sistema
+- **Tipo de Valor debe ser coherente**: Cada rango define si es % o Fijo (no se mezclan en el mismo rango, pero sí entre rangos)
+
+**[PLACEHOLDER: Mockup de pantalla "Gestión de Vigencias - Crear/Editar"]**
+
+**[PLACEHOLDER: Mockup de pantalla "Gestión de Vigencias - Tramos de Valor"]**
+
+---
+
+### 2.2.2 Módulo de Consulta de Bonificación (Distribuidor - Sitio Público)
+
+Este módulo permite a los distribuidores acceder de forma segura a su información de bonificación sin necesidad de contactar a PROMOS.
+
+#### 2.2.2.1 Autenticación por OTP (One Time Password)
+
+**Descripción:**  
+Proceso de autenticación seguro para que distribuidores accedan al sitio público desde la Página Promocional.
+
+**Flujo de Usuario:**
+1. Distribuidor hace clic en botón "Ver mi bonificación" en Página Promocional
+2. Sistema redirecciona a Sitio Público Aldebaran
+3. Distribuidor ingresa su número de documento (cédula)
+4. Sistema valida que:
+   - El documento existe en Aldebaran
+   - Es tipo "DISTRIBUIDOR" (no otro tipo de cliente) - **RF32**
+   - **Tiene Email de Bonificación configurado** - **RF33**
+5. Sistema genera código OTP de 6 dígitos
+6. **Sistema envía OTP AL EMAIL DE BONIFICACIÓN (no al email general)** - **RF33**
+7. Distribuidor ingresa código OTP recibido
+8. Sistema valida OTP (máximo 3 intentos)
+9. Si es válido, sistema crea sesión JWT válida por 8 horas
+10. Distribuidor accede a su información de bonificación
+
+**Reglas de Negocio (Ajuste MVP):**
+- **Canal inicial único:** OTP por Email de Bonificación (sin SMS en MVP).
+- OTP válido por 10 minutos (TTL 10 min).
+- OTP de 6 dígitos, de un solo uso e invalidación atómica al validarse correctamente.
+- OTP almacenado con **hash + salt** (no reversible, no texto plano).
+- Máximo 3 intentos fallidos por OTP; al exceder, bloqueo temporal de 15 minutos.
+- **Throttling** por documento/IP: máximo 5 solicitudes OTP cada 15 minutos.
+- Reenvío de OTP con **cooldown** mínimo de 60 segundos.
+- Mensajes de error neutros (sin revelar si el documento existe, si es distribuidor o si tiene Email de Bonificación).
+- Token JWT expira después de 8 horas (configurable).
+- Auditoría mínima obligatoria por intento: éxito/fallo, motivo, IP y timestamp.
+
+**Restricciones:**
+- No se puede autenticar si el distribuidor no tiene Email de Bonificación configurado - **RF33**.
+- No se puede autenticar si el distribuidor no es tipo DISTRIBUIDOR - **RF32**.
+- No se permite envío OTP por SMS en el MVP (queda para fase posterior).
+- OTP no se guarda en texto plano.
+
+**NOTA IMPORTANTE - Alcance MVP OTP:**
+
+- Se implementa **solo OTP por Email** como canal inicial.
+- SMS queda explícitamente diferido a fase posterior y sujeto a análisis de costos/proveedor.
+- Los controles de seguridad mínimos del MVP son obligatorios: throttling, bloqueo temporal, cooldown de reenvío, hash+salt, invalidación atómica y mensajes neutros.
+
+**NOTA IMPORTANTE - Consideraciones de Costo y Proveedores:**
+
+```
+???????????????????????????????????????????????????????????????????
+? OTP POR EMAIL (Recomendado - Sin Costos Adicionales):          ?
+???????????????????????????????????????????????????????????????????
+? ? Proceso 100% local de PROMOS                                 ?
+? ? NO requiere suscripción mensual                              ?
+? ? NO requiere integración con terceros                         ?
+? ? Sin cargos por envío                                         ?
+? ? Usa infraestructura de email existente de PROMOS             ?
+?                                                                 ?
+? Configuración:                                                  ?
+? ?? SMTP de PROMOS (ya existente)                                ?
+?                                                                 ?
+???????????????????????????????????????????????????????????????????
+
+???????????????????????????????????????????????????????????????????
+? OTP POR SMS (Opcional - Costos Adicionales):                    ?
+???????????????????????????????????????????????????????????????????
+? ??  REQUIERE suscripción mensual con proveedor externo          ?
+? ??  Cargos por cada SMS enviado                                 ?
+? ??  Integración con API de tercero (ej: Masivian)               ?
+?                                                                 ?
+? Opciones de Proveedor:                                          ?
+? ?? Usar proveedor SMS existente de PROMOS (si ya existe)        ?
+? ?? Contratar nuevo proveedor (ej: Masivian, Twilio, etc.)       ?
+?                                                                 ?
+? Costos Estimados (referencia):                                  ?
+? ?? Suscripción mensual: Variable según proveedor                ?
+? ?? Costo por SMS: Variable (ej: $50-$150 COP/SMS)               ?
+? ?? Volumen estimado: Depende de cantidad de distribuidores      ?
+?                                                                 ?
+???????????????????????????????????????????????????????????????????
+
+???????????????????????????????????????????????????????????????????
+? RECOMENDACIÓN PARA PROMOS:                                      ?
+???????????????????????????????????????????????????????????????????
+?                                                                 ?
+? 1. FASE INICIAL (MVP):                                          ?
+?    ?? Implementar SOLO OTP por Email                            ?
+?    ?? Sin costos adicionales                                    ?
+?    ?? Validar adopción de distribuidores                        ?
+?                                                                 ?
+? 2. FASE POSTERIOR (Opcional):                                   ?
+?    ?? Si distribuidores requieren SMS                           ?
+?    ?? Evaluar proveedor existente de PROMOS                     ?
+?    ?? Calcular ROI vs beneficio                                 ?
+?                                                                 ?
+? 3. CONFIGURACIÓN FLEXIBLE:                                      ?
+?    ?? Sistema debe soportar ambas opciones                      ?
+?    ?? Activación de SMS bajo demanda                            ?
+?    ?? Prioridad: Email (default), SMS (opcional)                ?
+?                                                                 ?
+???????????????????????????????????????????????????????????????????
+```
+
+**[PLACEHOLDER: Mockup de pantalla "Login - Ingreso de Documento"]**
+
+**[PLACEHOLDER: Mockup de pantalla "Login - Ingreso de OTP"]**
+
+---
+
+#### 2.2.2.2 Consulta de Bonificación - Período Actual
+
+**Descripción:**  
+Consulta en tiempo real (menos de 500ms) del bono acumulado durante el período activo, con gamificación y notificaciones automáticas.
+
+**Flujo de Usuario:**
+1. Distribuidor (autenticado) accede al dashboard de bonificación
+2. Sistema calcula dinámicamente:
+   - Bono por Facturación (consulta TOTUS en tiempo real)
+   - Bono por Pedido (suma órdenes del período)
+   - Gamificación: Cuánto falta para siguiente nivel
+3. Sistema muestra:
+   - Bono total acumulado
+   - Desglose por tipo de bono
+   - Período actual y días transcurridos
+   - Gamificación visual (barra de progreso, porcentaje completado)
+   - Monto faltante para alcanzar próximo nivel
+4. Distribuidor puede:
+   - Consultar múltiples veces (cada consulta recalcula en tiempo real)
+   - **Ver detalles de cada tipo de bono**:
+     - **Facturación**: Solo totales consolidados (limitación de TOTUS)
+     - **Pedido**: Desglose completo por orden y artículo
+   - Configurar preferencias de notificación
+   - Descargar comprobante/resumen (PDF)
+
+**Información Mostrada:**
+- **Bono por Facturación** (Solo totales consolidados):
+  - Base: Valor total facturado sin impuestos
+  - Ajustes: NC anterior, Fletes, Descuentos (totalizados)
+  - OC Especiales: Monto aprobado (si aplica)
+  - Porcentaje aplicado (según vigencia)
+  - Valor calculado del bono
+  - ?? **NOTA**: TOTUS solo retorna totales agregados, NO desglose detallado
+- **Bono por Pedido** (Con desglose detallado):
+  - Base: Valor total de órdenes pedidas
+  - **Desglose disponible**:
+    - Por cada orden: Número, Fecha, Artículos, Cantidades, Precios
+    - Por artículo/referencia: Cantidad pedida × Precio
+  - **Descuento aplicable** (según Vigencia RF34 - % o Fijo):
+    - Si Total Pedido cae en rango con Tipo=%, Descuento = Total × %
+    - Si Total Pedido cae en rango con Tipo=Fijo, Descuento = Valor Fijo
+  - **Base para Bono**: Total Pedidos - Descuento Aplicable (o restado como porcentaje)
+  - **Porcentaje de Bono** (según vigencia RF3): Se aplica a Base después de descuento
+  - Valor calculado del bono
+  - ?? **NOTA**: Descuento puede ser % o Fijo según vigencia activa
+- **Gamificación**:
+  - Nivel actual (tramo de bonificación)
+  - Próximo nivel (tramo siguiente)
+  - Porcentaje completado hacia próximo nivel
+  - Monto faltante para alcanzar próximo nivel
+
+**Notificaciones Automáticas Integradas:**
+
+**1. Notificación: Alcanzó Nuevo Nivel**
+- **Cuándo:** Se dispara automáticamente cuando distribuidor sube de tramo en cualquier tipo de bono
+- **Canales:** Email al Email de Bonificación (RF33) + SMS según preferencias del distribuidor
+- **Contenido:** "¡Felicidades! Alcanzaste un nuevo nivel de bonificación. Tu bono por [Tipo] es ahora [%]% sobre [base]. ¡Sigue adelante!"
+- **Frecuencia:** Máximo 1 notificación por distribuidor por tipo de bono en 24 horas
+
+**2. Notificación: Está Cerca del Siguiente Nivel**
+- **Cuándo:** Job diario (default: 6 AM) verifica si acumulado ≥ X% del siguiente tramo
+- **Canales:** Email al Email de Bonificación (RF33) + SMS según preferencias del distribuidor
+- **Contenido:** "¡Casi lo logras! Estás a poco de alcanzar el siguiente nivel de bonificación en [Tipo de Bono]. Necesitas $[Monto Faltante] más. ¡Adelante!"
+- **Configuración Admin:** Umbral % (50-95%, default 80%), Frecuencia, Horario, Activo/Inactivo
+- **Frecuencia:** Máximo 1 notificación en 24 horas (anti-spam)
+
+**3. Recordatorio Periódico: Progreso de Bonificación**
+- **Cuándo:** Job semanal (default: Lunes 8 AM) o configurada por Admin
+- **Canales:** Email al Email de Bonificación (RF33) - Resumen detallado + SMS breve según preferencias
+- **Contenido Email:** Resumen completo de 3 bonos con acumulado, tramo, % completado, falta para siguiente
+- **Configuración Admin:** Frecuencia (Diaria/Semanal/Bisemanal/Mensual), Día/Hora, Activo/Inactivo
+- **Preferencias Distribuidor:** Puede desuscribirse, elegir canal preferido, establecer horario
+
+**Reglas de Negocio:**
+- Cálculo es dinámico (se ejecuta cada consulta, NO precalculado)
+- SLA: 500ms máximo (incluida consulta a TOTUS)
+- **Cambios en CUALQUIER fuente se reflejan en próxima consulta**:
+  - Nueva factura en TOTUS ? Actualiza bono por Facturación
+  - Nueva orden en Aldebaran ? Actualiza bono por Pedido
+  - Nueva OC Especial aprobada ? Actualiza bono por Facturación
+- Distribuidor SOLO ve su información (aislamiento total)
+- No hay cache de resultados de bonos (siempre recalcula)
+
+**Restricciones:**
+- Página de solo lectura (sin ingreso de datos)
+- No puede ver información de otros distribuidores
+- Token debe estar válido (no expirado)
+- Notificaciones respetan siempre preferencias del distribuidor
+
+**[PLACEHOLDER: Mockup de pantalla "Dashboard Bonificación - Período Actual"]**
+
+**[PLACEHOLDER: Mockup de pantalla "Gamificación - Progreso hacia Siguiente Nivel"]**
+
+---
+
+#### 2.2.2.3 Consulta de Histórico de Bonos - Períodos Anteriores
+
+**Descripción:**  
+Consulta de bonos finales congelados (inmutables) de períodos cerrados anteriores, 
+agrupados por mes y año calendario. Permite al distribuidor visualizar todos los 
+bonos acumulados en un mes específico, con desglose detallado por tipo de bono 
+y estado de aplicación de NC.
+
+**Flujo de Usuario:**
+1. Distribuidor (autenticado) selecciona "Ver histórico"
+2. Sistema muestra selectores:
+   - Mes: [Dropdown - Enero a Diciembre] (default: mes anterior al actual)
+   - Año: [Dropdown - últimos 24 meses] (default: año actual)
+3. Distribuidor selecciona mes y año
+4. Sistema retorna (sin cálculos - datos congelados):
+
+   **RESUMEN CONSOLIDADO DEL MES:**
+   - Bono total acumulado en ese mes (suma de TODAS las instancias cerradas)
+   - Total NC aplicadas en el mes
+   - Total NC pendientes en el mes
+   - Total NC rechazadas en el mes
+
+   **DESGLOSE AGRUPADO POR TIPO DE BONO:**
+   Para cada tipo de bono con instancias cerradas en el mes:
+   - Subtotal del tipo de bono
+   - Cantidad de instancias cerradas
+   - Periodicidad del tipo (Mensual/Quincenal/Semanal)
+   
+   **DETALLE DE CADA INSTANCIA CERRADA:**
+   - Código de instancia (ej: FAC-MES-2026-01)
+   - Período: Fecha inicio → Fecha fin
+   - Bono final asignado (inmutable)
+   - Timestamp exacto de cierre
+   - Estado de aplicación de NC (Aplicada/Pendiente/Rechazada)
+   - Referencia/ID de la NC
+   - Fecha de aplicación (si aplica)
+   - OC Especiales incluidas (si aplica)
+
+5. Distribuidor puede:
+   - Navegar a otros meses/años
+   - [Expandir/Contraer] detalles de cada tipo de bono
+   - Descargar comprobante/resumen consolidado del mes (PDF)
+   - [Ver desglose detallado] de cada instancia por orden/referencia
+
+**Información Mostrada - Estructura Jerárquica:**
+
+MES + AÑO SELECCIONADO (ej: ENERO 2026) 
+├─ RESUMEN TOTAL DEL MES │  
+├─ Total Bonificación: $X,XXX,XXX │  
+├─ NC Aplicadas: $X,XXX,XXX │  
+├─ NC Pendientes: $X,XXX,XXX │  
+└─ NC Rechazadas: $X,XXX,XXX 
+├─ DESGLOSE POR TIPO DE BONO │  
+├─ [≡] Bono por Facturación (Mensual) │  
+│   └─ Subtotal: $1,500,000 │  
+│      ├─ FAC-MES-2026-01 (01/01-31/01) │  
+│      │  ├─ Bono: $1,500,000 │  │
+│  ├─ Cierre: 31/01/2026 23:59:59 │  
+│      │  ├─ NC: Aplicada (NC-2026-00145, 02/02/2026) │  
+│      │  └─ [Ver detalles] │  
+│      └─ [Descargar comprobante] │  
+│ 
+│  ├─ [≡] Bono por Facturación (Quincenal) │  
+│   └─ Subtotal: $1,500,000 (2 instancias) │  
+│      ├─ FAC-QUI-2026-01 (01/01-15/01) │  
+│      │  ├─ Bono: $800,000 │  
+│      │  ├─ Cierre: 15/01/2026 23:59:59 │  
+│      │  ├─ NC: Pendiente (NC-2026-00146) │  
+│      │  └─ [Ver detalles] │  
+│      ├─ FAC-QUI-2026-02 (16/01-31/01) │  
+│      │  ├─ Bono: $700,000 │  
+│      │  ├─ Cierre: 31/01/2026 23:59:59 │ 
+│      │  ├─ NC: Pendiente (NC-2026-00147) │  
+│      │  └─ [Ver detalles] │  
+│      └─ [Descargar comprobante] │  
+│ 
+│  ├─ [≡] Bono por Pedido (Semanal) │  
+│   └─ Subtotal: $910,000 (4 instancias) │  
+│      ├─ PED-SEM-2026-01 (01/01-07/01) │  
+│      │  ├─ Bono: $200,000 │  
+│      │  ├─ Cierre: 07/01/2026 23:59:59 │  
+│      │  ├─ NC: Aplicada (NC-2026-00140, 08/01/2026) │  
+│      │  └─ [Ver detalles] │  
+│      ├─ PED-SEM-2026-02 (08/01-14/01) │  
+│      │  └─ [...similar...] │  
+│      ├─ PED-SEM-2026-03 (15/01-21/01) │  
+│      │  └─ [...similar...] │  
+│      ├─ PED-SEM-2026-04 (22/01-31/01) │  
+│      │  └─ [...similar...] │  
+│      └─ [Descargar comprobante] 
+└─ ACCIONES GLOBALES 
+├─ [Descargar PDF - Resumen Mensual] 
+└─ [Exportar Excel - Todos los detalles]
+
+
+**Reglas de Negocio:**
+- Bonos mostrados son INMUTABLES (congelados al cierre del período)
+- Solo puede ver últimos N meses cerrados (N configurable por Admin, default: 24 meses)
+- No puede ver meses "futuros" sin datos (dropdown solo muestra meses con al menos un cierre)
+- Agrupación automática por Tipo de Bono + Periodicidad
+- Ordenamiento: Por Tipo de Bono → Por Fecha de Cierre DESC
+
+**Restricciones:**
+- Página de solo lectura (sin ingreso de datos)
+- No puede ver información de otros distribuidores
+- No puede acceder a datos administrativos (Aldebaran.Web)
+
+**[PLACEHOLDER: Mockup de pantalla "Histórico de Bonos - Selector Mes/Año"]**
+
+**[PLACEHOLDER: Mockup de pantalla "Histórico de Bonos - Resumen Mensual Agrupado"]**
+
+---
+
+### 2.2.3 Módulo de Integraciones (Automático - Backend)
+
+Este módulo gestiona las integraciones con sistemas externos y procesos automáticos sin intervención humana.
+
+#### 2.2.3.1 Obtener Facturación de TOTUS
+
+**Descripción:**  
+Consulta directa a la base de datos TOTUS (local en PROMOS) mediante procedimiento almacenado para obtener valor facturado real de cada distribuidor.
+
+**NOTA TÉCNICA:** La consulta NO es a un sistema externo via API, sino a la **base de datos TOTUS local** mediante **Stored Procedure**. Esto garantiza latencia mínima (< 50ms típicamente).
+
+**?? NOTA CRÍTICA - DEPENDENCIA EXTERNA:**
+
+```
+???????????????????????????????????????????????????????????????????
+? EL SP DE TOTUS ES DESARROLLADO POR OTRA FÁBRICA DE SOFTWARE    ?
+???????????????????????????????????????????????????????????????????
+?                                                                 ?
+? ? ALDEBARAN (Este proyecto) NO desarrolla el SP:               ?
+?    ?? Solo CONSUME el SP ya existente                          ?
+?    ?? NO puede modificar la lógica del SP                      ?
+?    ?? NO puede optimizar el SP                                 ?
+?    ?? Depende 100% de la otra fábrica                          ?
+?                                                                 ?
+? ? OTRA FÁBRICA (Externa) es responsable de:                    ?
+?    ?? Desarrollo del SP                                        ?
+?    ?? Optimización y performance                               ?
+?    ?? Garantizar SLA < 50ms                                    ?
+?    ?? Mantenimiento y soporte                                  ?
+?                                                                 ?
+? ?? COORDINACIÓN REQUERIDA:                                      ?
+?    ?? Especificar contrato del SP (parámetros/retorno)        ?
+?    ?? Acordar SLA de respuesta                                 ?
+?    ?? Definir manejo de errores                                ?
+?    ?? Establecer canal de soporte                              ?
+?                                                                 ?
+???????????????????????????????????????????????????????????????????
+```
+
+**Flujo Técnico:**
+1. Sistema ejecuta SP desarrollado por OTRA FÁBRICA en BD TOTUS (local)
+2. Parámetros enviados:
+   - Tipo documento: "FAC" (Factura)
+   - Número documento: Cédula del distribuidor
+   - Fecha inicio: Primer día del período
+   - Fecha fin: Último día del período o hoy
+   - Lista de artículos (OPCIONAL - si vigencia está parametrizada)
+   - Mapa de referencias por artículo (OPCIONAL)
+3. TOTUS retorna:
+   - ValorTotalFacturadoSinImpuestos (obligatorio)
+   - TotalNotasCredito (obligatorio)
+   - TotalFletes (opcional)
+   - TotalDescuentos (opcional)
+4. ?? **IMPORTANTE - SIN CACHE**: Sistema **NO cachea** el resultado para garantizar información 100% actualizada en tiempo real
+5. Sistema registra auditoría de cada consulta
+
+**Reglas de Negocio:**
+- SLA: 500ms máximo (consulta a BD TOTUS típicamente < 50ms)
+- **Sin cache**: Cada consulta ejecuta SP directamente en BD TOTUS local
+- Si BD TOTUS no responde ? Fallback a último valor conocido + Alerta a Admin + Banner de advertencia al distribuidor
+- Si vigencia está parametrizada por artículos ? Filtra facturación solo de esos artículos
+- Valores negativos no se permiten (validación)
+
+**Manejo de Errores:**
+- Si BD TOTUS no disponible: Usa último valor conocido (fallback) + Alerta inmediata a Admin + Banner de advertencia al distribuidor
+- Si timeout de SP: Reintentos configurables (default: 3 intentos, 500ms espera entre intentos)
+- Si error de SQL: Registra excepción completa + Alerta a Admin
+- Registra todos los fallos en log de auditoría
+- Muestra al distribuidor: "?? Información de facturación desactualizada. Última actualización: [fecha/hora]"
+
+**Restricciones:**
+- Solo lectura (no modifica valores en TOTUS)
+- **Sin cache de resultados** (siempre consulta en tiempo real)
+- Fallback solo en caso de error de TOTUS (con advertencia visible al distribuidor)
+
+**JUSTIFICACIÓN TÉCNICA - Sin Cache:**
+
+```
+DECISIÓN: NO usar cache de consultas TOTUS
+
+RAZONES:
+1. Consultas de distribuidores NO son constantes (patrón esporádico)
+   ?? No todos consultan a la misma hora
+   ?? No todos consultan todos los días
+   ?? Patrón de uso es impredecible
+
+2. Promesa de información en tiempo real es CRÍTICA
+   ?? Cache rompe la promesa de "información actualizada"
+   ?? Distribuidores confían en los datos mostrados
+   ?? Nueva factura debe reflejarse inmediatamente
+
+3. BD TOTUS (local) debe manejar su carga operativa normal
+   ?? Consultas de bonificación son parte de operación estándar
+   ?? SP debe estar optimizado con índices apropiados
+   ?? Connection pooling de ADO.NET maneja concurrencia eficientemente
+
+4. Connection pooling y optimizaciones de BD son suficientes
+   ?? Reutilización eficiente de conexiones a BD TOTUS (ADO.NET pool)
+   ?? Timeouts configurables (3 reintentos, 500ms c/u)
+   ?? SLA de 500ms es FÁCILMENTE alcanzable (consulta BD < 50ms típicamente)
+```
+
+**VALIDACIÓN REQUERIDA CON PROMOS Y OTRA FÁBRICA:**
+
+**Con OTRA FÁBRICA (Responsable del SP):**
+- ✅ Especificar contrato del SP:
+  - Nombre del SP: `dbo.sp_ObtenerFacturacionDistribuidor`
+  - Parámetros de entrada: Documento, TipoDoc, FechaInicio, FechaFin, ListaArticulos (opcional)
+  - Retorno: ValorFacturado, NC, Fletes, Descuentos
+- ✅ Acordar SLA: < 50ms (típico consulta BD local)
+- ✅ Definir manejo de errores: Timeout, excepción SQL, BD no disponible
+- ✅ Establecer canal de soporte: Para incidentes relacionados con el SP
+
+**Con PROMOS:**
+- ✅ Validar que BD TOTUS pueda manejar consultas concurrentes
+- ✅ Confirmar que connection pooling está habilitado
+- ✅ Verificar que SP está optimizado con índices apropiados
+
+---
+
+### 2.2.4 Módulo de Gestión de Exclusiones (Usuario PROMOS - Aldebaran.Web)
+
+Este módulo permite al personal de PROMOS marcar un pedido como **Pedido Especial** (excluido del cálculo de bonificación) y gestionar la contingencia de modificación de esa marca mediante un perfil dedicado.
+
+#### 2.2.4.1 Gestión de Exclusión de Pedidos de Bonificación
+
+**Descripción:**  
+Agregar al pedido una marca booleana **"Pedido Especial"** que, cuando está activa, excluye ese pedido del cálculo del Bono por Pedido. Esta marca solo aplica a pedidos de clientes distribuidores y, una vez grabado el pedido, queda bloqueada para el flujo normal de modificación.
+
+**Contexto de Negocio:**  
+Existen situaciones excepcionales en las que PROMOS necesita crear pedidos que **no deben generar bonificación** para el distribuidor: pedidos internos, pruebas, devoluciones, promociones especiales que ya tienen otro beneficio, o correcciones administrativas. Sin esta funcionalidad, todos los pedidos de distribuidores suman automáticamente en la base de cálculo del bono.
+
+---
+
+**Parte 1 — Marca durante la creación del pedido**
+
+- El campo **"Pedido Especial"** (checkbox) aparece en el formulario de creación de pedido (`AddCustomerOrder`) **únicamente cuando el cliente seleccionado es un DISTRIBUIDOR** (`IsDistributor = true`). Para clientes que no son distribuidores, el campo no se muestra.
+- **Valor por defecto:** No marcado (el pedido es normal y genera bonificación).
+- Al grabar el pedido, la marca queda **congelada**: no puede modificarse desde las opciones normales de edición del pedido (`EditCustomerOrder`). El campo se muestra en solo lectura para todos los usuarios que no tengan el perfil de contingencia.
+
+---
+
+**Parte 2 — Contingencia: modificación de la marca (Perfil dedicado)**
+
+- Existe un **perfil específico** denominado `Modificación de Pedido Especial` (o equivalente definido en la configuración de roles de Aldebaran) cuyo único propósito es habilitar la modificación del campo "Pedido Especial" en pedidos ya grabados.
+- Mientras el usuario **no tenga este perfil**, el campo permanece deshabilitado en cualquier pantalla donde se muestre.
+- Cuando el usuario **sí tiene el perfil**, el checkbox se habilita en la pantalla de edición del pedido. No se requiere modal de confirmación ni recálculo automático desde la UI: el cambio se graba directamente y el impacto en el bono se refleja en la próxima consulta del distribuidor (el cálculo es dinámico).
+- No se define un flujo de auditoría especial para esta modificación más allá del registro estándar de cambios del pedido (quién grabó, cuándo).
+
+---
+
+**Visibilidad del campo**
+
+El campo "Pedido Especial" debe ser visible en:
+
+| Pantalla / Reporte | Tipo | Observación |
+|---|---|---|
+| `AddCustomerOrder` | Creación | Solo visible si cliente es distribuidor |
+| `EditCustomerOrder` | Edición | Siempre visible en modo solo lectura; editable solo con perfil `Modificación de Pedido Especial` |
+| `CustomerOrders.razor` (listado) | Consulta | Columna indicadora (badge / ícono) en la grilla |
+| Reportes de Customer Orders | Reportes | Los reportes asociados a órdenes de cliente deben incluir el indicador |
+
+Los demás listados y reportes de procesos que referencian pedidos (reservas, entregas, facturación, etc.) **no requieren mostrar este campo**.
+
+---
+
+**Impacto en el cálculo del Bono por Pedido**
+
+```
+Bono por Pedido = Σ (Cantidad pedida × Precio del día)
+                  Para pedidos del período WHERE PedidoEspecial = false
+```
+
+Los pedidos marcados como Especiales **no se suman** en la base de cálculo. El cálculo es dinámico: la próxima consulta del distribuidor ya refleja el estado actualizado del campo.
+
+---
+
+**Reglas de Negocio**
+
+- El campo solo existe para pedidos de distribuidores (`IsDistributor = true`). Para otros clientes no aplica.
+- Valor por defecto al crear: `false` (pedido normal, genera bonificación).
+- Una vez grabado el pedido, el campo queda bloqueado para modificación en el flujo normal.
+- Solo el perfil `Modificación de Pedido Especial` puede cambiar el valor en pedidos existentes.
+- No se requiere motivo obligatorio ni confirmación modal para el cambio (simplicidad operativa).
+- El cambio no recalcula bonos de forma inmediata desde el backend; el cálculo dinámico de CU7 lo incorpora en la próxima consulta.
+- Cambios no afectan períodos cerrados (FOTO inmutable del cierre).
+
+---
+
+**Restricciones**
+
+- Campo no visible para clientes que no son distribuidores.
+- Campo no editable sin el perfil `Modificación de Pedido Especial`.
+- No se pueden alterar pedidos de períodos ya cerrados.
+
+---
+
+**Casos de Uso Prácticos**
+
+**Caso 1: Pedido interno de PROMOS**
+```
+Creación: El usuario selecciona un distribuidor y marca "Pedido Especial"
+Resultado: Pedido NO suma en bonificación desde el momento de creación
+```
+
+**Caso 2: Corrección posterior (perfil habilitado)**
+```
+Situación: Pedido creado normal, pero correspondía a una devolución
+Acción: Usuario con perfil "Modificación de Pedido Especial" activa el flag
+Resultado: En la próxima consulta del distribuidor, ese pedido ya no suma en el bono
+```
+
+**Caso 3: Revertir marca incorrecta (perfil habilitado)**
+```
+Situación: Pedido marcado como Especial por error
+Acción: Usuario con perfil "Modificación de Pedido Especial" desactiva el flag
+Resultado: En la próxima consulta del distribuidor, ese pedido vuelve a sumar en el bono
+```
+
+---
+
+**Impacto Transversal**
+
+```
+RF35: Pedido Especial (Exclusión de Bonificación)
+                   ↓
+   ┌───────────────┼───────────────┐
+   ↓               ↓               ↓
+AddCustomerOrder  CU7 (Consulta)  CustomerOrders
+Marca al crear    Filtra          Listado +
+(solo distrib.)   PedidoEspecial  Reportes
+                  = false

@@ -26,6 +26,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Purchase_Orders.ViewModel
         public List<ItemReference> ItemReferences { get; set; } = new List<ItemReference>();
         public short? StatusDocumentId { get; set; }
         public StatusDocumentType StatusDocumentType { get; set; }
+        public bool RequestedQuantityDifference { get; set; } = false;
 
         public object Clone()
         {

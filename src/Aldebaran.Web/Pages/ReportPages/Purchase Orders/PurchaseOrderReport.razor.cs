@@ -35,6 +35,9 @@ namespace Aldebaran.Web.Pages.ReportPages.Purchase_Orders
         protected PurchaseOrderViewModel ViewModel;
         private bool IsBusy = false;
         private bool IsLoadingData = false;
+        private bool ShowRequestedAmount = false;
+        private int ColSpan = 5;
+
         private IEnumerable<Application.Services.Models.Reports.PurchaseOrderReport> DataReport { get; set; }
         #endregion
 
@@ -123,6 +126,12 @@ namespace Aldebaran.Web.Pages.ReportPages.Purchase_Orders
 
             if (filter.StatusDocumentId.HasValue)
                 filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@StatusDocumentTypeId = {filter.StatusDocumentId}";
+
+            if (filter.RequestedQuantityDifference)
+                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@RequestedQuantityDifference = 1";
+
+            ShowRequestedAmount = filter.RequestedQuantityDifference;
+            ColSpan = filter.RequestedQuantityDifference ? 6 : 5;
 
             return filterResult;
         }
@@ -283,7 +292,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Purchase_Orders
         {
             var references = new List<PurchaseOrderViewModel.Reference>();
 
-            foreach (var reference in DataReport.Where(w => w.OrderId == orderId && w.WarehouseId == warehouseId && w.ItemId == itemId).Select(s => new { s.ReferenceCode, s.ReferenceName, s.Amount, s.Volume, s.Weight })
+            foreach (var reference in DataReport.Where(w => w.OrderId == orderId && w.WarehouseId == warehouseId && w.ItemId == itemId).Select(s => new { s.ReferenceCode, s.ReferenceName, s.Amount, s.Volume, s.Weight, s.RequestedAmount })
                                             .OrderBy(o => o.ReferenceName))
             {
                 references.Add(new PurchaseOrderViewModel.Reference
@@ -292,7 +301,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Purchase_Orders
                     ReferenceName = reference.ReferenceName,
                     Amount = reference.Amount,
                     Weight = reference.Weight,
-                    Volume = reference.Volume
+                    Volume = reference.Volume,
+                    RequestedAmount = reference.RequestedAmount
                 });
             }
 
