@@ -120,7 +120,7 @@
                     <RadzenFormField Text="Estado de la orden" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
                             <RadzenDropDown Data="@StatusDocumentTypes" TextProperty="StatusDocumentTypeName" ValueProperty="StatusDocumentTypeId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                            style="display: block; width: 100%" @bind-Value="@Filter.StatusDocumentId" Name="StatusDocumentId">
+                                            style="display: block; width: 100%" @bind-Value="@Filter.StatusDocumentId" Name="StatusDocumentId" Disabled="@(Filter?.RequestedQuantityDifference == true)">
                             </RadzenDropDown>
                         </ChildContent>
                     </RadzenFormField>
@@ -198,9 +198,20 @@
                 </RadzenStack>
             </RadzenColumn>
         </RadzenRow>
-
         <RadzenRow style="margin-bottom: 1rem">
             <MultiReferencePicker @ref="referencePicker" OnChange="ItemReferenceHandler"></MultiReferencePicker>
+        </RadzenRow>
+        <RadzenRow class="mb-3">
+            <RadzenColumn Size="12">
+                <RadzenStack Orientation="Orientation.Horizontal"
+                             AlignItems="AlignItems.Center"
+                             Gap="0.5rem">
+
+                    <RadzenSwitch @bind-Value="Filter.RequestedQuantityDifference" Change="@OnRequestedQuantityDifferenceChanged" />
+
+                    <RadzenText Text="Solo mostrar diferencias entre cantidad solicitada y recibida" />
+                </RadzenStack>
+            </RadzenColumn>
         </RadzenRow>
         @if (ValidationError)
         {

@@ -162,13 +162,19 @@
                             <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.StatusDocumentType.StatusDocumentTypeName</span>
                         </div>
                     }
+                    @if (ShowRequestedAmount)
+                    {
+                        <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
+                            <p class="component-label m-0 fw-bold">Solo mostrar diferencias entre cantidad solicitada y recibida</p>                            
+                        </div>
+                    }
                     <div class="component-section d-flex flex-column justify-content-start pt-2">
                         @if (Filter.ItemReferences.Any())
                         {
                             <p class="component-label m-0 fw-bold">Referencias: </p>
                             @for (int i = 0; i < Filter.ItemReferences.Count(); i++)
                             {
-                                <span class="@(i>=2 ? "read-more" : "")" style="@(i>=2 ? "display: none" : "")">(@Filter.ItemReferences[i].Item.Line.LineName) @Filter.ItemReferences[i].Item.ItemName - @Filter.ItemReferences[i].ReferenceName</span>
+                                <span class="@(i >= 2 ? "read-more" : "")" style="@(i >= 2 ? "display: none" : "")">(@Filter.ItemReferences[i].Item.Line.LineName) @Filter.ItemReferences[i].Item.ItemName - @Filter.ItemReferences[i].ReferenceName</span>
                             }
                             @if (Filter.ItemReferences.Count() > 2)
                             {
@@ -183,7 +189,7 @@
         </RadzenColumn>
         <RadzenColumn SizeXL="2" SizeLG="2" SizeMD="12" SizeSM="12" SizeXS="12" SizeXX="12" class="align-self-end">
             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.End" JustifyContent="JustifyContent.End" Gap="0.5rem">
-                <RadzenSplitButton Icon="build" Text="Acciones" Click="@Save" Variant="Variant.Flat" Shade="Shade.Lighter" IsBusy="@IsBusy" Disabled="ViewModel==null">
+                <RadzenSplitButton Icon="build" Text="Acciones" Click="@Save" Variant="Variant.Flat" Shade="Shade.Lighter" IsBusy="@IsBusy" Disabled="ViewModel == null">
                     <RadzenSplitButtonItem Text="Imprimir" Icon="print" Value="print" Style="cursor:pointer" />
                     <RadzenSplitButtonItem Text="Guardar PDF" Icon="picture_as_pdf" Value="save" Style="cursor:pointer" />
                 </RadzenSplitButton>
@@ -349,13 +355,19 @@
                                                         <span>@Filter.ShipmentMethod.ShipmentMethodName</span>
                                                     </div>
                                                 }
+                                                @if (ShowRequestedAmount)
+                                                {
+                                                    <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
+                                                        <div class="type">Solo mostrar diferencias entre cantidad solicitada y recibida</div>                                                        
+                                                    </div>
+                                                }                                                
                                                 @if (Filter.ItemReferences.Any())
                                                 {
                                                     <div style="display:flex; flex-direction:column; justify-content:end">
                                                         <div class="type">Referencias: </div>
                                                         @for (int i = 0; i < Filter.ItemReferences.Count(); i++)
                                                         {
-                                                            <p class="@(i>=2 ? "read-more-page" : "")" style="@(i>=2 ? "display: none" : "")"> [@Filter.ItemReferences[i].Item.InternalReference] (@Filter.ItemReferences[i].Item.Line.LineName) @Filter.ItemReferences[i].Item.ItemName - @Filter.ItemReferences[i].ReferenceName</p>
+                                                            <p class="@(i >= 2 ? "read-more-page" : "")" style="@(i >= 2 ? "display: none" : "")"> [@Filter.ItemReferences[i].Item.InternalReference] (@Filter.ItemReferences[i].Item.Line.LineName) @Filter.ItemReferences[i].Item.ItemName - @Filter.ItemReferences[i].ReferenceName</p>
                                                         }
                                                         @if (Filter.ItemReferences.Count() > 2)
                                                         {
@@ -459,14 +471,14 @@
                                                 @foreach (var warehouse in order.Warehouses)
                                                 {
                                                     <tr>
-                                                        <td colspan="5" width="100%" style="padding:0 !important">
+                                                        <td colspan=@ColSpan width="100%" style="padding:0 !important">
                                                             <p class="title">Bodega de llegada: @warehouse.WarehouseName</p>
                                                         </td>
                                                     </tr>
                                                     @foreach (var line in warehouse.Lines)
                                                     {
                                                         <tr>
-                                                            <td colspan="5" width="100%" style="padding:0 !important">
+                                                            <td colspan=@ColSpan width="100%" style="padding:0 !important">
                                                                 <p class="title" style="padding-left: 1em;">Línea: @line.LineCode  - @line.LineName</p>
                                                             </td>
                                                         </tr>
@@ -474,7 +486,7 @@
                                                         {
                                                             var item = line.Items[i];
                                                             <tr>
-                                                                <td colspan="5" width="100%" style="padding:0 !important">
+                                                                <td colspan=@ColSpan width="100%" style="padding:0 !important">
                                                                     <div style="padding: 1em 1em 0 1em !important;">
                                                                         @if (i > 0)
                                                                         {
@@ -493,9 +505,17 @@
                                                                         <table class="striped edged">
                                                                             <thead>
                                                                                 <tr>
-                                                                                    <th width="30%">Código</th>
+                                                                                    <th width="@(ShowRequestedAmount ? "20%" : "30%")">Código</th>
                                                                                     <th width="40%">Referencia</th>
-                                                                                    <th width="10%">Cantidad</th>
+                                                                                    @if (ShowRequestedAmount)
+                                                                                    {
+                                                                                        <th width="10%">Cantidad solicitada</th>
+                                                                                        <th width="10%">Cantidad recibida</th>
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <th width="10%">Cantidad</th>
+                                                                                    }
                                                                                     <th width="10%">Peso</th>
                                                                                     <th width="10%">Volumen</th>
                                                                                 </tr>
@@ -504,8 +524,14 @@
                                                                                 @foreach (var reference in item.References)
                                                                                 {
                                                                                     <tr>
-                                                                                        <td width="30%">@reference.ReferenceCode</td>
+                                                                                        <td width="@(ShowRequestedAmount ? "20%" : "30%")">
+                                                                                            @reference.ReferenceCode
+                                                                                        </td>
                                                                                         <td width="40%">@reference.ReferenceName</td>
+                                                                                        @if (ShowRequestedAmount)
+                                                                                        {
+                                                                                            <td width="10%">@reference.RequestedAmount.ToString("N0")</td>
+                                                                                        }
                                                                                         <td width="10%">@reference.Amount.ToString("N0")</td>
                                                                                         <td width="10%">@(reference.Weight == 0 ? "" : reference.Weight.ToString("N0"))</td>
                                                                                         <td width="10%">@(reference.Volume == 0 ? "" : reference.Volume.ToString("N0"))</td>
