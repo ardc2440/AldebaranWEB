@@ -58,7 +58,11 @@
                 <RadzenPanelMenuItem Text="Alarmas por funcionario" Path="employee-alarms" Visible="@Security.IsInRole("Administrador","Consulta de alarmas por usuario","Asignación de alarmas por usuario")" />
                 <RadzenPanelMenuItem Text="Clientes" Path="customers" Visible="@Security.IsInRole("Administrador","Modificación de clientes","Consulta de clientes")" />
                 <RadzenPanelMenuItem Text="Proveedores" Path="providers" Visible="@Security.IsInRole("Administrador","Modificación de proveedores","Consulta de proveedores")" />
-                
+                @if (Security.IsInRole("Administrador", "Administración de tolerancias de ajustes en órdenes de compra"))
+                {
+                    <hr class="divider">
+                    <RadzenPanelMenuItem Text="Tolerancias en ajustes en O.C." Path="providers" Visible="@Security.IsInRole("Administrador", "Administración de tolerancias de ajustes en órdenes de compra")" />
+                }
                 @if (Security.IsInRole("Administrador"))
                 {
                     <hr class="divider">

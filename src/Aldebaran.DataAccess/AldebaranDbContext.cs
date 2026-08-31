@@ -114,7 +114,9 @@ namespace Aldebaran.DataAccess
         public DbSet<FtpWritingConnection> FtpWritingConnections { get; set; }
         public DbSet<AutomataNotificationRecipient> AutomataNotificationRecipients { get; set; }
         public DbSet<AutomataConnectivityErrorPattern> AutomataConnectivityErrorPatterns { get; set; }
-        
+        public DbSet<PurchaseOrderApprovalRange> PurchaseOrderApprovalRanges { get; set; }
+
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
         }
