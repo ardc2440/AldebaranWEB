@@ -1,38 +1,50 @@
 ﻿using Aldebaran.Application.Services.Models;
 using Aldebaran.Application.Services.Services;
-using Aldebaran.DataAccess.Entities;
 using Aldebaran.DataAccess.Infraestructure.Repository.Aldebaran.DataAccess.Infraestructure.Repository;
+using AutoMapper;
+using Entities = Aldebaran.DataAccess.Entities;
 
 namespace Aldebaran.Application.Services
 {
     public class PurchaseOrderApprovalRangeService : IPurchaseOrderApprovalRangeService
     {
         private readonly IPurchaseOrderApprovalRangeRepository _purchaseOrderApprovalRangeRepository;
+        private readonly IMapper _mapper;
 
-        public PurchaseOrderApprovalRangeService(IPurchaseOrderApprovalRangeRepository purchaseOrderApprovalRangeRepository)
+        public PurchaseOrderApprovalRangeService(IPurchaseOrderApprovalRangeRepository purchaseOrderApprovalRangeRepository, IMapper mapper)
         {
-            _purchaseOrderApprovalRangeRepository = purchaseOrderApprovalRangeRepository;
+            _purchaseOrderApprovalRangeRepository = purchaseOrderApprovalRangeRepository ?? throw new ArgumentNullException(nameof(purchaseOrderApprovalRangeRepository));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         public async Task<IEnumerable<PurchaseOrderApprovalRange>> GetAsync(CancellationToken ct = default)
         {
-            return await _purchaseOrderApprovalRangeRepository.GetAsync(ct);
+            var data = await _purchaseOrderApprovalRangeRepository.GetAsync(ct);
+
+            return _mapper.Map<IEnumerable<PurchaseOrderApprovalRange>>(data);
         }
 
         public async Task<PurchaseOrderApprovalRange?> FindAsync(int purchaseOrderApprovalRangeId, CancellationToken ct = default)
         {
-            return await _purchaseOrderApprovalRangeRepository.FindAsync(purchaseOrderApprovalRangeId, ct);
+            var data = await _purchaseOrderApprovalRangeRepository.FindAsync(purchaseOrderApprovalRangeId, ct) ;
+
+            return _mapper.Map<PurchaseOrderApprovalRange>(data);
         }
 
-        public async Task AddAsync(PurchaseOrderApprovalRange entity, CancellationToken ct = default)
+        public async Task AddAsync(PurchaseOrderApprovalRange purchaseOrderApprovalRange, CancellationToken ct = default)
         {
+            var entity = _mapper.Map<Entities.PurchaseOrderApprovalRange>(purchaseOrderApprovalRange) ?? throw new ArgumentNullException("Rango de validación no puede ser nulo.");
+
             await ValidateAsync(entity, ct: ct);
 
             await _purchaseOrderApprovalRangeRepository.AddAsync(entity, ct);
         }
 
-        public async Task UpdateAsync(int purchaseOrderApprovalRangeId, PurchaseOrderApprovalRange entity, CancellationToken ct = default)
+        public async Task UpdateAsync(int purchaseOrderApprovalRangeId, PurchaseOrderApprovalRange purchaseOrderApprovalRange, CancellationToken ct = default)
         {
+
+            var entity = _mapper.Map<Entities.PurchaseOrderApprovalRange>(purchaseOrderApprovalRange) ?? throw new ArgumentNullException("Rango de validación no puede ser nulo.");
+
             await ValidateAsync(entity, purchaseOrderApprovalRangeId, ct);
 
             await _purchaseOrderApprovalRangeRepository.UpdateAsync(purchaseOrderApprovalRangeId, entity, ct);
@@ -58,7 +70,7 @@ namespace Aldebaran.Application.Services
             };
         }
 
-        private async Task ValidateAsync(PurchaseOrderApprovalRange entity, int? purchaseOrderApprovalRangeId = -1, CancellationToken ct = default)
+        private async Task ValidateAsync(Entities.PurchaseOrderApprovalRange entity, int? purchaseOrderApprovalRangeId = null, CancellationToken ct = default)
         {
             if (entity.RequestedQuantityFrom <= 0)
                 throw new InvalidOperationException("La cantidad desde debe ser mayor a cero.");

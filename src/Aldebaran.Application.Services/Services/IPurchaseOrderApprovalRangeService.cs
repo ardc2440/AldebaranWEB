@@ -1,5 +1,4 @@
 ﻿using Aldebaran.Application.Services.Models;
-using Aldebaran.DataAccess.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
