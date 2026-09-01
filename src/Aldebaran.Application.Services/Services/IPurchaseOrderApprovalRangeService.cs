@@ -15,7 +15,7 @@ namespace Aldebaran.Application.Services.Services
 
         Task AddAsync(PurchaseOrderApprovalRange entity, CancellationToken ct = default);
 
-        Task UpdateAsync(int purchaseOrderApprovalRangeId, PurchaseOrderApprovalRange entity, CancellationToken ct = default);
+        Task UpdateAsync(int purchaseOrderApprovalRangeId, PurchaseOrderApprovalRange entity, string changeReason, int employeeId, CancellationToken ct = default);
 
         Task<PurchaseOrderApprovalResult> EvaluateAdjustmentAsync(int requestedQuantity, int receivedQuantity, CancellationToken ct = default);
     }

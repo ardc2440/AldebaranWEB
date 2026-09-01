@@ -10,7 +10,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
 
         Task AddAsync(PurchaseOrderApprovalRange purchaseOrderApprovalRange, CancellationToken ct = default);
 
-        Task UpdateAsync(int purchaseOrderApprovalRangeId, PurchaseOrderApprovalRange purchaseOrderApprovalRange, CancellationToken ct = default);
+        Task UpdateAsync(int purchaseOrderApprovalRangeId, PurchaseOrderApprovalRange purchaseOrderApprovalRange, string changeReason, int employeeId, CancellationToken ct = default);
 
         Task<bool> ExistsOverlapAsync(int requestedQuantityFrom, int requestedQuantityTo, int? purchaseOrderApprovalRangeId = null, CancellationToken ct = default);
 

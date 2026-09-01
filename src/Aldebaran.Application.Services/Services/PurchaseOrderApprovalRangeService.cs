@@ -40,14 +40,14 @@ namespace Aldebaran.Application.Services
             await _purchaseOrderApprovalRangeRepository.AddAsync(entity, ct);
         }
 
-        public async Task UpdateAsync(int purchaseOrderApprovalRangeId, PurchaseOrderApprovalRange purchaseOrderApprovalRange, CancellationToken ct = default)
+        public async Task UpdateAsync(int purchaseOrderApprovalRangeId, PurchaseOrderApprovalRange purchaseOrderApprovalRange, string changeReason, int employeeId,  CancellationToken ct = default)
         {
 
             var entity = _mapper.Map<Entities.PurchaseOrderApprovalRange>(purchaseOrderApprovalRange) ?? throw new ArgumentNullException("Rango de validación no puede ser nulo.");
 
             await ValidateAsync(entity, purchaseOrderApprovalRangeId, ct);
 
-            await _purchaseOrderApprovalRangeRepository.UpdateAsync(purchaseOrderApprovalRangeId, entity, ct);
+            await _purchaseOrderApprovalRangeRepository.UpdateAsync(purchaseOrderApprovalRangeId, entity, changeReason, employeeId, ct);
         }
 
         public async Task<PurchaseOrderApprovalResult> EvaluateAdjustmentAsync(int requestedQuantity, int receivedQuantity, CancellationToken ct = default)

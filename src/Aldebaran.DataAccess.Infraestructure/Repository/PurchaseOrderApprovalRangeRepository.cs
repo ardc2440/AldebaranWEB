@@ -83,12 +83,14 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 }, ct);
         }
 
-        public async Task UpdateAsync(int purchaseOrderApprovalRangeId, PurchaseOrderApprovalRange purchaseOrderApprovalRange, CancellationToken ct = default)
+        public async Task UpdateAsync(int purchaseOrderApprovalRangeId, PurchaseOrderApprovalRange purchaseOrderApprovalRange, string changeReason, int employeeId, CancellationToken ct = default)
         {
             await ExecuteCommandAsync(async dbContext =>
                 {
                     var entity = await dbContext.PurchaseOrderApprovalRanges
                                     .FirstOrDefaultAsync(x => x.PurchaseOrderApprovalRangeId == purchaseOrderApprovalRangeId, ct) ?? throw new KeyNotFoundException($"Rango de aprobación con id {purchaseOrderApprovalRangeId} no existe.");
+
+                    await AddLogAsync(dbContext, entity, changeReason, employeeId, ct);
 
                     entity.RequestedQuantityFrom = purchaseOrderApprovalRange.RequestedQuantityFrom;
                     entity.RequestedQuantityTo = purchaseOrderApprovalRange.RequestedQuantityTo;
@@ -107,6 +109,22 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                         throw;
                     }
                 }, ct);
+        }
+
+        private static async Task AddLogAsync(AldebaranDbContext dbContext, PurchaseOrderApprovalRange entity, string changeReason, int employeeId, CancellationToken ct)
+        {
+            var log = new PurchaseOrderApprovalRangeLog
+            {
+                PurchaseOrderApprovalRangeId = entity.PurchaseOrderApprovalRangeId,
+                PreviousRequestedQuantityFrom = entity.RequestedQuantityFrom,
+                PreviousRequestedQuantityTo = entity.RequestedQuantityTo,
+                PreviousAllowedDifferencePercent = entity.AllowedDifferencePercent,
+                PreviousIsActive = entity.IsActive,
+                ChangeReason = changeReason,
+                ChangedByEmployeeId = employeeId
+            };
+
+            await dbContext.PurchaseOrderApprovalRangeLogs.AddAsync(log, ct);
         }
     }
 }
