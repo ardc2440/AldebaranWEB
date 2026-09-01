@@ -1,6 +1,6 @@
 ﻿using Aldebaran.Application.Services.Models;
 using Aldebaran.Application.Services.Services;
-using Aldebaran.DataAccess.Infraestructure.Repository.Aldebaran.DataAccess.Infraestructure.Repository;
+using Aldebaran.DataAccess.Infraestructure.Repository;
 using AutoMapper;
 using Entities = Aldebaran.DataAccess.Entities;
 

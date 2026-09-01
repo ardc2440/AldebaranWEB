@@ -1,7 +1,7 @@
-using Aldebaran.DataAccess.Configuration;
+using Aldebaran.DataAccess.Entities;
 using Aldebaran.DataAccess.Core;
 using Aldebaran.DataAccess.Core.Atributes;
-using Aldebaran.DataAccess.Entities;
+using Aldebaran.DataAccess.Configuration;
 using Aldebaran.DataAccess.Entities.Reports;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -116,6 +116,7 @@ namespace Aldebaran.DataAccess
         public DbSet<AutomataConnectivityErrorPattern> AutomataConnectivityErrorPatterns { get; set; }
         public DbSet<PurchaseOrderApprovalRange> PurchaseOrderApprovalRanges { get; set; }
 
+        public DbSet<PurchaseOrderApprovalRangeLog> PurchaseOrderApprovalRangeLogs { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -218,7 +219,9 @@ namespace Aldebaran.DataAccess
             modelBuilder.ApplyConfiguration(new AutomaticCustomerOrderDetailConfiguration());
             modelBuilder.ApplyConfiguration(new VisualizedAutomaticCustomerOrderInProcessModificationConfiguration());
             modelBuilder.ApplyConfiguration(new AutomaticCustomerOrderInProcessModificationConfiguration());
-            
+            modelBuilder.ApplyConfiguration(new PurchaseOrderApprovalRangeConfiguration());
+            modelBuilder.ApplyConfiguration(new PurchaseOrderApprovalRangeLogConfiguration());
+
             modelBuilder.Entity<InventoryAdjustmentReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<InProcessInventoryReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<InventoryReport>(iar => { iar.HasNoKey(); });

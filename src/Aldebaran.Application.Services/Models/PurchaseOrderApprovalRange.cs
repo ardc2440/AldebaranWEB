@@ -17,5 +17,9 @@ namespace Aldebaran.Application.Services.Models
         public decimal AllowedDifferencePercent { get; set; }
 
         public bool IsActive { get; set; }
+
+        public DateTime CreatedDate { get; set; }
+
+        public int? CreatedByUserId { get; set; }
     }
 }

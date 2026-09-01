@@ -1,5 +1,5 @@
 ﻿using Aldebaran.DataAccess.Entities;
-using Aldebaran.DataAccess.Infraestructure.Repository.Aldebaran.DataAccess.Infraestructure.Repository;
+using Aldebaran.DataAccess.Infraestructure.Repository;
 using DocumentFormat.OpenXml.InkML;
 using Microsoft.EntityFrameworkCore;
 using System;
