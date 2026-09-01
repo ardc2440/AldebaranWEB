@@ -1,0 +1,124 @@
+﻿@page "/purchase-order-approval-ranges"
+@attribute [Authorize(Roles = "Administrador,Administración de tolerancias de ajustes en órdenes de compra")]
+
+@using Aldebaran.Web.Resources.LocalizedControls;
+@using Aldebaran.Application.Services.Models;
+
+<PageTitle>Tolerancias de ajustes en O.C.</PageTitle>
+
+<LoadingData IsLoadingData="@isLoadingInProgress" />
+
+@if (!isLoadingInProgress)
+{
+    <RadzenStack>
+
+        <RadzenRow AlignItems="AlignItems.Center">
+
+            <RadzenColumn Size="12">
+                <RadzenText Text="Tolerancias de ajustes en O.C."
+                            TextStyle="TextStyle.H4"
+                            TagName="TagName.H1"
+                            style="margin: 0" />
+            </RadzenColumn>
+
+            <RadzenColumn Size="12"
+                          Visible="@Security.IsInRole("Administrador","Administración de tolerancias de ajustes en órdenes de compra")">
+
+                <RadzenStack Orientation="Orientation.Horizontal"
+                             AlignItems="AlignItems.Center"
+                             JustifyContent="JustifyContent.Start"
+                             Gap="0.5rem">
+
+                    <RadzenButton Icon="add_circle_outline"
+                                  Text="Nuevo"
+                                  Click="@AddPurchaseOrderApprovalRange"
+                                  Variant="Variant.Flat" />
+
+                </RadzenStack>
+
+            </RadzenColumn>
+
+        </RadzenRow>
+
+        <RadzenRow>
+
+            <RadzenColumn SizeMD="12">
+
+                <LocalizedDataGrid @ref="PurchaseOrderApprovalRangesGrid"
+                                   ColumnWidth="200px"
+                                   AllowFiltering="true"
+                                   FilterMode="FilterMode.Advanced"
+                                   AllowPaging="true"
+                                   AllowSorting="true"
+                                   ShowPagingSummary="true"
+                                   PageSizeOptions="@(new int[]{5,10,20,30})"
+                                   Data="@PurchaseOrderApprovalRangesList"
+                                   TItem="PurchaseOrderApprovalRange"
+                                   AllowColumnPicking="true"
+                                   AllowColumnResize="true"
+                                   AllowMultiColumnSorting="true"
+                                   EditMode="Radzen.DataGridEditMode.Single"
+                                   ExpandMode="Radzen.DataGridExpandMode.Single"
+                                   AllowGrouping="true"
+                                   AllowColumnReorder="true"
+                                   IsLoading="@isLoadingInProgress">
+
+                    <Columns>
+
+                        <RadzenDataGridColumn TItem="PurchaseOrderApprovalRange"
+                                              Property="RequestedQuantityFrom"
+                                              Title="Desde" />
+
+                        <RadzenDataGridColumn TItem="PurchaseOrderApprovalRange"
+                                              Property="RequestedQuantityTo"
+                                              Title="Hasta" />
+
+                        <RadzenDataGridColumn TItem="PurchaseOrderApprovalRange"
+                                              Property="AllowedDifferencePercent"
+                                              Title="% Permitido" />
+
+                        <RadzenDataGridColumn TItem="PurchaseOrderApprovalRange"
+                                              Property="IsActive"
+                                              Title="Activo">
+
+                            <Template Context="data">
+                                <RadzenCheckBox TValue="bool"
+                                                Value="@data.IsActive"
+                                                Disabled="true" />
+                            </Template>
+
+                        </RadzenDataGridColumn>
+
+                        <RadzenDataGridColumn TItem="PurchaseOrderApprovalRange"
+                                              Property="CreatedDate"
+                                              Title="Fecha Creación" />
+
+                        <RadzenDataGridColumn TItem="PurchaseOrderApprovalRange"
+                                              Filterable="false"
+                                              Sortable="false"
+                                              Width="90px"
+                                              TextAlign="TextAlign.Center"
+                                              Pickable="false"
+                                              Reorderable="false"
+                                              Groupable="false"
+                                              Frozen="true"
+                                              FrozenPosition="FrozenColumnPosition.Right">
+
+                            <Template Context="range">
+
+                                <RadzenButton Icon="edit"
+                                              ButtonStyle="ButtonStyle.Light"
+                                              Variant="Variant.Flat"
+                                              MouseEnter="@(args => ShowTooltip(args, "Editar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
+                                              Size="ButtonSize.Medium"
+                                              Click="@(args => EditPurchaseOrderApprovalRange(range))"
+                                              @onclick:stopPropagation="true" />
+
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </Columns>
+                </LocalizedDataGrid>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenStack>
+}

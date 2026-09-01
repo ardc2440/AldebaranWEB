@@ -270,6 +270,7 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IFtpWritingConnectionRepository, FtpWritingConnectionRepository>();
             services.AddTransient<IAutomataNotificationRecipientRepository, AutomataNotificationRecipientRepository>();
             services.AddTransient<IAutomataConnectivityErrorPatternRepository, AutomataConnectivityErrorPatternRepository>();
+            services.AddTransient<IPurchaseOrderApprovalRangeRepository, PurchaseOrderApprovalRangeRepository>();
 
             #endregion
             // Services
@@ -365,6 +366,7 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IFtpWritingConnectionService, FtpWritingConnectionService>();           
             services.AddTransient<IAutomataNotificationRecipientService, AutomataNotificationRecipientService>();
             services.AddTransient<IAutomataConnectivityErrorPatternService, AutomataConnectivityErrorPatternService>();
+            services.AddTransient<IPurchaseOrderApprovalRangeService, PurchaseOrderApprovalRangeService>();
 
             #endregion
 

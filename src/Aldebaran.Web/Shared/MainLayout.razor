@@ -61,7 +61,7 @@
                 @if (Security.IsInRole("Administrador", "Administración de tolerancias de ajustes en órdenes de compra"))
                 {
                     <hr class="divider">
-                    <RadzenPanelMenuItem Text="Tolerancias en ajustes en O.C." Path="providers" Visible="@Security.IsInRole("Administrador", "Administración de tolerancias de ajustes en órdenes de compra")" />
+                    <RadzenPanelMenuItem Text="Tolerancias en ajustes en O.C." Path="purchase-order-approval-ranges" Visible="@Security.IsInRole("Administrador", "Administración de tolerancias de ajustes en órdenes de compra")" />
                 }
                 @if (Security.IsInRole("Administrador"))
                 {
