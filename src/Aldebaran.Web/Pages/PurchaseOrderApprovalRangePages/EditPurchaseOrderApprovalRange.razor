@@ -1,0 +1,127 @@
+﻿@attribute [Authorize(Roles = "Administrador,Administración de tolerancias de ajustes en órdenes de compra")]
+
+@using ServiceModel = Aldebaran.Application.Services.Models
+
+<LoadingData IsLoadingData="@isLoadingInProgress" />
+@if (!isLoadingInProgress)
+{
+    <RadzenColumn SizeMD="12">
+        <RadzenAlert Shade="Shade.Lighter"
+                     Variant="Variant.Flat"
+                     Size="AlertSize.Small"
+                     AlertStyle="AlertStyle.Danger"
+                     @bind-Visible="@IsErrorVisible">
+            @ErrorMessage
+        </RadzenAlert>
+        <RadzenTemplateForm TItem="ServiceModel.PurchaseOrderApprovalRange"
+                            Data="@PurchaseOrderApprovalRange"
+                            Visible="@(PurchaseOrderApprovalRange != null)"
+                            Submit="@FormSubmit">
+            <RadzenStack>
+                <RadzenRow AlignItems="Radzen.AlignItems.Start">
+                    <RadzenColumn Size="12" SizeMD="6">
+                        <RadzenFormField Text="Cantidad desde"
+                                         Variant="Variant.Text"
+                                         Style="width:100%;">
+                            <ChildContent>
+                                <RadzenNumeric Name="RequestedQuantityFrom"
+                                               style="display:block;width:100%"
+                                               @bind-Value="@PurchaseOrderApprovalRange.RequestedQuantityFrom"
+                                               Min="1" />
+                            </ChildContent>
+                            <Helper>
+                                <RadzenNumericRangeValidator Component="RequestedQuantityFrom"
+                                                             Min="1"
+                                                             Text="La cantidad desde debe ser mayor a cero" />
+                            </Helper>
+                        </RadzenFormField>
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="6">
+                        <RadzenFormField Text="Cantidad hasta"
+                                         Variant="Variant.Text"
+                                         Style="width:100%;">
+                            <ChildContent>
+                                <RadzenNumeric Name="RequestedQuantityTo"
+                                               style="display:block;width:100%"
+                                               @bind-Value="@PurchaseOrderApprovalRange.RequestedQuantityTo"
+                                               Min="1" />
+                            </ChildContent>
+                            <Helper>
+                                <RadzenNumericRangeValidator Component="RequestedQuantityTo"
+                                                             Min="1"
+                                                             Text="La cantidad hasta debe ser mayor a cero" />
+                            </Helper>
+                        </RadzenFormField>
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenRow AlignItems="Radzen.AlignItems.Start">
+                    <RadzenColumn Size="12" SizeMD="6">
+                        <RadzenFormField Text="% Diferencia Permitida"
+                                         Variant="Variant.Text"
+                                         Style="width:100%;">
+                            <ChildContent>
+                                <RadzenNumeric Name="AllowedDifferencePercent"
+                                               style="display:block;width:100%"
+                                               @bind-Value="@PurchaseOrderApprovalRange.AllowedDifferencePercent"
+                                               Min="0"
+                                               Max="100"
+                                               Step="0.01m"
+                                               Format="0.00" />
+                            </ChildContent>
+                            <Helper>
+                                <RadzenNumericRangeValidator Component="AllowedDifferencePercent"
+                                                             Min="0"
+                                                             Max="100"
+                                                             Text="El porcentaje debe estar entre 0 y 100" />
+                            </Helper>
+                        </RadzenFormField>
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="6">
+                        <RadzenStack Orientation="Orientation.Horizontal"
+                                     AlignItems="AlignItems.Center"
+                                     Gap="0.5rem">
+                            <RadzenSwitch @bind-Value="@PurchaseOrderApprovalRange.IsActive" />
+                            <RadzenLabel Text="Activo" />
+                        </RadzenStack>
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenRow>
+                    <RadzenColumn Size="12">
+                        <RadzenFormField Text="Motivo de modificación"
+                                         Variant="Variant.Text"
+                                         Style="width:100%;">
+                            <ChildContent>
+                                <RadzenTextArea Name="ChangeReason"
+                                                @bind-Value="@ChangeReason"
+                                                Rows="4"
+                                                MaxLength="1000"
+                                                Style="display:block;width:100%" />
+                            </ChildContent>
+                            <Helper>
+                                <RadzenRequiredValidator Component="ChangeReason"
+                                                         Text="El motivo de modificación es obligatorio" />
+                            </Helper>
+                        </RadzenFormField>
+                    </RadzenColumn>
+                </RadzenRow>
+            </RadzenStack>
+            <RadzenStack Style="margin-top:1rem;"
+                         Orientation="Orientation.Horizontal"
+                         AlignItems="AlignItems.Center"
+                         JustifyContent="JustifyContent.End"
+                         Gap="0.5rem">
+                <RadzenButton ButtonStyle="ButtonStyle.Primary"
+                              ButtonType="ButtonType.Submit"
+                              Icon="save"
+                              Text="Guardar"
+                              Variant="Variant.Flat"
+                              BusyText="Procesando..."
+                              IsBusy="@IsSubmitInProgress" />
+                <RadzenButton ButtonStyle="ButtonStyle.Light"
+                              Text="Cancelar"
+                              Variant="Variant.Flat"
+                              Click="@CancelButtonClick" />
+            </RadzenStack>
+        </RadzenTemplateForm>
+    </RadzenColumn>
+}

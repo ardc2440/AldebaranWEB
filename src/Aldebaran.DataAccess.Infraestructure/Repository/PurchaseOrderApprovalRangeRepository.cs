@@ -25,7 +25,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
 
                         await dbContext.SaveChangesAsync(ct);
                     }
-                    catch
+                    catch (Exception ex)
                     {
                         dbContext.Entry(purchaseOrderApprovalRange)
                             .State = EntityState.Unchanged;
@@ -121,7 +121,8 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 PreviousAllowedDifferencePercent = entity.AllowedDifferencePercent,
                 PreviousIsActive = entity.IsActive,
                 ChangeReason = changeReason,
-                ChangedByEmployeeId = employeeId
+                ChangedByEmployeeId = employeeId,
+                ChangedDate = DateTime.Now
             };
 
             await dbContext.PurchaseOrderApprovalRangeLogs.AddAsync(log, ct);

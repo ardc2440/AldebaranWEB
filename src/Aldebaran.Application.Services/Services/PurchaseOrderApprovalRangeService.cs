@@ -78,8 +78,8 @@ namespace Aldebaran.Application.Services
             if (entity.RequestedQuantityTo < entity.RequestedQuantityFrom)
                 throw new InvalidOperationException("La cantidad hasta debe ser mayor o igual a la cantidad desde.");
 
-            if (entity.AllowedDifferencePercent < 0)
-                throw new InvalidOperationException("El porcentaje permitido no puede ser negativo.");
+            if (entity.AllowedDifferencePercent <= 0)
+                throw new InvalidOperationException("El porcentaje debe ser mayor a 0.");
 
             if (entity.AllowedDifferencePercent > 100)
                 throw new InvalidOperationException("El porcentaje permitido no puede ser mayor a 100.");

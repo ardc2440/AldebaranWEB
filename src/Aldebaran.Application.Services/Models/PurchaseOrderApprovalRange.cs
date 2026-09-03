@@ -20,6 +20,6 @@ namespace Aldebaran.Application.Services.Models
 
         public DateTime CreatedDate { get; set; }
 
-        public int? CreatedByUserId { get; set; }
+        public int? EmployeeId { get; set; }
     }
 }

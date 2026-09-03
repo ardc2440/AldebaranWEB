@@ -11,12 +11,14 @@ namespace Aldebaran.DataAccess.Configuration
     {
         public void Configure(EntityTypeBuilder<PurchaseOrderApprovalRange> builder)
         {
-            builder.ToTable("PURCHASE_ORDER_APPROVAL_RANGES");
+            builder.ToTable("PURCHASE_ORDER_APPROVAL_RANGES",
+                t => {t.HasTrigger("TR_PURCHASE_ORDER_APPROVAL_RANGES_VALIDATE");});
 
             builder.HasKey(x => x.PurchaseOrderApprovalRangeId);
 
             builder.Property(x => x.PurchaseOrderApprovalRangeId)
-                   .HasColumnName("PURCHASE_ORDER_APPROVAL_RANGE_ID");
+                   .HasColumnName("PURCHASE_ORDER_APPROVAL_RANGE_ID")
+                   .ValueGeneratedOnAdd(); 
 
             builder.Property(x => x.RequestedQuantityFrom)
                    .HasColumnName("REQUESTED_QUANTITY_FROM")

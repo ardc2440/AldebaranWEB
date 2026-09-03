@@ -130,6 +130,7 @@ namespace Aldebaran.Application.Services.Mappings
             CreateMap<FtpWritingConnection, Entities.FtpWritingConnection>().ReverseMap();
             CreateMap<AutomataNotificationRecipient, Entities.AutomataNotificationRecipient>().ReverseMap();
             CreateMap<AutomataConnectivityErrorPattern, Entities.AutomataConnectivityErrorPattern>().ReverseMap();
+            CreateMap<PurchaseOrderApprovalRange, Entities.PurchaseOrderApprovalRange>().ReverseMap();
         }
     }
 }
