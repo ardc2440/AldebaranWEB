@@ -30,6 +30,7 @@
                                                Min="1" />
                             </ChildContent>
                             <Helper>
+                                <RadzenRequiredValidator Component="RequestedQuantityTo" Text="La cantidad desde es requerida" />
                                 <RadzenNumericRangeValidator Component="RequestedQuantityFrom"
                                                              Min="1"
                                                              Text="La cantidad desde debe ser mayor a cero" />
@@ -47,6 +48,7 @@
                                                Min="1" />
                             </ChildContent>
                             <Helper>
+                                <RadzenRequiredValidator Component="RequestedQuantityTo" Text="La cantidad hasta es requerida" />
                                 <RadzenNumericRangeValidator Component="RequestedQuantityTo"
                                                              Min="1"
                                                              Text="La cantidad hasta debe ser mayor a cero" />
@@ -65,14 +67,14 @@
                                                @bind-Value="@PurchaseOrderApprovalRange.AllowedDifferencePercent"
                                                Min="0"
                                                Max="100"
-                                               Step="0.01m"
+                                               Step="@(StepValue.ToString())"
                                                Format="0.00" />
                             </ChildContent>
                             <Helper>
+                                <RadzenRequiredValidator Component="AllowedDifferencePercent" Text="La diferencia permitida es requerida" />
                                 <RadzenNumericRangeValidator Component="AllowedDifferencePercent"
-                                                             Min="0"
                                                              Max="100"
-                                                             Text="El porcentaje debe estar entre 0 y 100" />
+                                                             Text="El porcentaje debe ser mayor a 0 y menor o igual a 100" />
                             </Helper>
                         </RadzenFormField>
                     </RadzenColumn>

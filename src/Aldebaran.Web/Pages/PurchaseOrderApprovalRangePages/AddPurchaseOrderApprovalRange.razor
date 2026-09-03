@@ -31,7 +31,7 @@
                                                Name="RequestedQuantityFrom" />
                             </ChildContent>
                             <Helper>
-                                <RadzenRequiredValidator Component="RequestedQuantityFrom" Text="La cantidad es requerida" />
+                                <RadzenRequiredValidator Component="RequestedQuantityFrom" Text="La cantidad desde es requerida" />
                                 <RadzenNumericRangeValidator Component="RequestedQuantityFrom" Min="1" Text="La cantidad debe ser mayor a 0" />
                             </Helper>
                         </RadzenFormField>
@@ -46,7 +46,7 @@
                                                Name="RequestedQuantityTo" />
                             </ChildContent>
                             <Helper>
-                                <RadzenRequiredValidator Component="RequestedQuantityTo" Text="La cantidad es requerida" />
+                                <RadzenRequiredValidator Component="RequestedQuantityTo" Text="La cantidad hasta es requerida" />
                                 <RadzenNumericRangeValidator Component="RequestedQuantityTo" Min="1" Text="La cantidad hasta debe ser mayor a cero" />
                             </Helper>
                         </RadzenFormField>
@@ -61,16 +61,14 @@
                                 <RadzenNumeric TValue="decimal"
                                                @bind-Value="@PurchaseOrderApprovalRange.AllowedDifferencePercent"
                                                Name="AllowedDifferencePercent"
-                                               Min="0"
                                                Max="100"
                                                Step="@(StepValue.ToString())"
                                                Format="N2"
                                                style="display:block;width:100%" />
                             </ChildContent>
                             <Helper>
-                                <RadzenRequiredValidator Component="AllowedDifferencePercent" Text="La cantidad es requerida" />
-
-                                <RadzenNumericRangeValidator Component="AllowedDifferencePercent" Min="0" Max="100" Text="El porcentaje debe estar entre 0 y 100" />
+                                <RadzenRequiredValidator Component="AllowedDifferencePercent" Text="La diferencia permitida es requerida" />
+                                <RadzenNumericRangeValidator Component="AllowedDifferencePercent" Min="0" Max="100" Text="El porcentaje debe ser mayor a 0 y menor o igual a 100" />
                             </Helper>
                         </RadzenFormField>
                     </RadzenColumn>

@@ -38,6 +38,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderApprovalRangePages
         protected bool isLoadingInProgress;
         protected string ErrorMessage;
         protected string ChangeReason;
+        protected decimal StepValue = 0.01m;
         protected ServiceModel.PurchaseOrderApprovalRange PurchaseOrderApprovalRange;
 
         #endregion
