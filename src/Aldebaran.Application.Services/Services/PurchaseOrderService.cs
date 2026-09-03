@@ -8,11 +8,25 @@ namespace Aldebaran.Application.Services
     public class PurchaseOrderService : IPurchaseOrderService
     {
         private readonly IPurchaseOrderRepository _repository;
+        private readonly IPurchaseOrderApprovalRangeService _purchaseOrderApprovalRangeService;
+        private readonly IStatusDocumentTypeService _statusDocumentTypeService;
+        private readonly IModificationReasonService _modificationReasonService;
+        private readonly IDocumentTypeService _documentTypeService;
         private readonly IMapper _mapper;
 
-        public PurchaseOrderService(IPurchaseOrderRepository repository, IMapper mapper)
+        public PurchaseOrderService(
+            IPurchaseOrderRepository repository,
+            IPurchaseOrderApprovalRangeService purchaseOrderApprovalRangeService,
+            IStatusDocumentTypeService statusDocumentTypeService,
+            IModificationReasonService modificationReasonService,
+            IDocumentTypeService documentTypeService,
+            IMapper mapper)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(IPurchaseOrderRepository));
+            _purchaseOrderApprovalRangeService = purchaseOrderApprovalRangeService ?? throw new ArgumentNullException(nameof(IPurchaseOrderApprovalRangeService));
+            _statusDocumentTypeService = statusDocumentTypeService ?? throw new ArgumentNullException(nameof(IStatusDocumentTypeService));
+            _modificationReasonService = modificationReasonService ?? throw new ArgumentNullException(nameof(IModificationReasonService));
+            _documentTypeService = documentTypeService ?? throw new ArgumentNullException(nameof(IDocumentTypeService));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(IMapper));
         }
 
@@ -80,6 +94,7 @@ namespace Aldebaran.Application.Services
             var data = await _repository.GetAffectedCustomerOrders(purchaseOrderId, ct);
             return _mapper.Map<List<CustomerOrderAffectedByPurchaseOrderUpdate>>(data.OrderBy(o => o.OrderNumber));
         }
+
         public async Task<(IEnumerable<PurchaseOrder> purchaseOrders, int count)> GetAsync(int skip, int take, string filter, string orderBy, CancellationToken ct = default)
         {
             var (d, r) = await _repository.GetAsync(skip, take, filter, orderBy, ct);
@@ -87,16 +102,46 @@ namespace Aldebaran.Application.Services
             return (data, r);
         }
 
-        /* Logs */
         public async Task<(IEnumerable<ModifiedPurchaseOrder>, int count)> GetPurchaseOrderModificationsLogAsync(int skip, int top, string searchKey, CancellationToken ct = default)
         {
             var (data, c) = await _repository.GetPurchaseOrderModificationsLogAsync(skip, top, searchKey, ct);
             return (_mapper.Map<IEnumerable<ModifiedPurchaseOrder>>(data), c);
         }
+
         public async Task<(IEnumerable<CanceledPurchaseOrder>, int count)> GetPurchaseOrderCancellationsLogAsync(int skip, int top, string searchKey, CancellationToken ct = default)
         {
             var (data, c) = await _repository.GetPurchaseOrderCancellationsLogAsync(skip, top, searchKey, ct);
             return (_mapper.Map<IEnumerable<CanceledPurchaseOrder>>(data), c);
+        }
+
+        public async Task<PurchaseOrderConfirmationValidationResult> ValidateConfirmationAsync(PurchaseOrder purchaseOrder, CancellationToken ct = default)
+        {
+            foreach (var detail in purchaseOrder.PurchaseOrderDetails)
+            {
+                if (detail.RequestedQuantity != detail.ReceivedQuantity)
+                {
+                    var evaluation = await _purchaseOrderApprovalRangeService.EvaluateAdjustmentAsync(detail.RequestedQuantity, detail.ReceivedQuantity ?? 0, ct);
+
+                    if (evaluation.RequiresApproval)
+                        return new PurchaseOrderConfirmationValidationResult() { RequiresApproval = true };
+                }
+            }
+
+            return new PurchaseOrderConfirmationValidationResult() { RequiresApproval = false };
+        }
+
+        public async Task<bool> RequestApprovalAsync(int purchaseOrderId, PurchaseOrder purchaseOrder, int employeeId, CancellationToken ct = default)
+        {
+            var documentType = await _documentTypeService.FindByCodeAsync("O", ct) ?? throw new Exception("Tipo de documento no encontrado");
+            var statusDocumentTypeId = await _statusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 4, ct) ?? throw new Exception("Estado de documento no encontrado");
+            var adjustmentReason = await _modificationReasonService.GetByDocumentAndNameAsync("O", "Solicitud aprobación ajustes", ct) ?? throw new Exception("Motivo de modificación no encontrado");
+
+            var reason = new Reason { ReasonId = adjustmentReason.ModificationReasonId, EmployeeId = employeeId };
+            purchaseOrder.StatusDocumentTypeId = statusDocumentTypeId.StatusDocumentTypeId;
+
+            var result = await UpdateAsync(purchaseOrderId, purchaseOrder, reason, new List<CustomerOrderAffectedByPurchaseOrderUpdate>(), ct);
+
+            return result > 0;
         }
     }
 }

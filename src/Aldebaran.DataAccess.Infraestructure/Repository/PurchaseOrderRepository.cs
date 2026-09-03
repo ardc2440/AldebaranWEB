@@ -231,6 +231,9 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 entity.ShipmentForwarderAgentMethodId = purchaseOrder.ShipmentForwarderAgentMethodId;
                 entity.ProformaNumber = purchaseOrder.ProformaNumber;
 
+                if (entity.StatusDocumentTypeId != purchaseOrder.StatusDocumentTypeId)
+                    entity.StatusDocumentTypeId = purchaseOrder.StatusDocumentTypeId;
+
                 // Details
                 var details = await dbContext.PurchaseOrderDetails.Where(x => x.PurchaseOrderId == purchaseOrderId).ToListAsync(ct);
                 dbContext.PurchaseOrderDetails.RemoveRange(details);

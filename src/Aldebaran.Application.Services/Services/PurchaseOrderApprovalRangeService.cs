@@ -26,7 +26,7 @@ namespace Aldebaran.Application.Services
 
         public async Task<PurchaseOrderApprovalRange?> FindAsync(int purchaseOrderApprovalRangeId, CancellationToken ct = default)
         {
-            var data = await _purchaseOrderApprovalRangeRepository.FindAsync(purchaseOrderApprovalRangeId, ct) ;
+            var data = await _purchaseOrderApprovalRangeRepository.FindAsync(purchaseOrderApprovalRangeId, ct);
 
             return _mapper.Map<PurchaseOrderApprovalRange>(data);
         }
@@ -40,7 +40,7 @@ namespace Aldebaran.Application.Services
             await _purchaseOrderApprovalRangeRepository.AddAsync(entity, ct);
         }
 
-        public async Task UpdateAsync(int purchaseOrderApprovalRangeId, PurchaseOrderApprovalRange purchaseOrderApprovalRange, string changeReason, int employeeId,  CancellationToken ct = default)
+        public async Task UpdateAsync(int purchaseOrderApprovalRangeId, PurchaseOrderApprovalRange purchaseOrderApprovalRange, string changeReason, int employeeId, CancellationToken ct = default)
         {
 
             var entity = _mapper.Map<Entities.PurchaseOrderApprovalRange>(purchaseOrderApprovalRange) ?? throw new ArgumentNullException("Rango de validación no puede ser nulo.");
@@ -52,7 +52,16 @@ namespace Aldebaran.Application.Services
 
         public async Task<PurchaseOrderApprovalResult> EvaluateAdjustmentAsync(int requestedQuantity, int receivedQuantity, CancellationToken ct = default)
         {
-            var range = await _purchaseOrderApprovalRangeRepository.GetByRequestedQuantityAsync(requestedQuantity, ct) ?? throw new InvalidOperationException($"No existe una tolerancia configurada para la cantidad solicitada {requestedQuantity}.");
+            var range = await _purchaseOrderApprovalRangeRepository.GetByRequestedQuantityAsync(requestedQuantity, ct);
+
+            if (range is null)
+                return new PurchaseOrderApprovalResult
+                {
+                    RequestedQuantity = requestedQuantity,
+                    ReceivedQuantity = receivedQuantity,
+                    Difference = Math.Abs(receivedQuantity - requestedQuantity),
+                    RequiresApproval = true
+                };
 
             var maximumAllowedDifference = (int)Math.Ceiling(requestedQuantity * range.AllowedDifferencePercent / 100M);
 
@@ -83,7 +92,7 @@ namespace Aldebaran.Application.Services
 
             if (entity.AllowedDifferencePercent > 100)
                 throw new InvalidOperationException("El porcentaje permitido no puede ser mayor a 100.");
-            
+
             var overlap = await _purchaseOrderApprovalRangeRepository.ExistsOverlapAsync(entity.RequestedQuantityFrom, entity.RequestedQuantityTo, purchaseOrderApprovalRangeId, ct);
 
             if (overlap)

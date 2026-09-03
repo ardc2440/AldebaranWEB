@@ -19,6 +19,13 @@ namespace Aldebaran.Application.Services
             var data = await _repository.GetAsync(documentTypeCode, ct);
             return _mapper.Map<List<ModificationReason>>(data);
         }
+
+        public async Task<ModificationReason?> GetByDocumentAndNameAsync(string documentTypeCode, string name, CancellationToken ct = default)
+        {
+            var data = await _repository.GetAsync(documentTypeCode, ct);
+                        
+            return _mapper.Map<ModificationReason>(data.FirstOrDefault(d => d.ModificationReasonName == name));
+        }
     }
 
 }

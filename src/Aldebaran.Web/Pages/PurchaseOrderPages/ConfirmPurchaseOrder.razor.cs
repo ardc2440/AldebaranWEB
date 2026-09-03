@@ -39,6 +39,12 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         [Inject]
         protected IWarehouseService WarehouseService { get; set; }
 
+        [Inject]
+        protected IEmployeeService EmployeeService { get; set; }
+
+        [Inject]
+        protected SecurityService Security { get; set; }
+
         #endregion
 
         #region Parameters
@@ -102,9 +108,9 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         protected async Task GetDataAsync(int purchaseOrderId, CancellationToken ct = default)
         {
             await Task.Yield();
-            var orderDetails = await PurchaseOrderDetailService.GetByPurchaseOrderIdAsync(purchaseOrderId);
+            var orderDetails = await PurchaseOrderDetailService.GetByPurchaseOrderIdAsync(purchaseOrderId, ct);
             PurchaseOrderDetails = orderDetails.ToList();
-            PurchaseOrderDetails.ForEach(f => f.ReceivedQuantity = f.ReceivedQuantity == 0 ? null : f.ReceivedQuantity);            
+            PurchaseOrderDetails.ForEach(f => f.ReceivedQuantity = f.ReceivedQuantity == 0 ? null : f.ReceivedQuantity);
         }
         #region PurchaseOrder
         private int PROVIDER_ID { get; set; }
@@ -117,18 +123,27 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
 
                 IsSubmitInProgress = true;
                 Submitted = true;
+
                 if (PurchaseOrderDetails.Any(a => a.ReceivedQuantity == null) || detailToUpdate != null)
                     return;
+
                 if (await DialogService.Confirm("Desea confirmar la orden de compra?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar orden de compra") == true)
                 {
                     var now = DateTime.Now;
+
                     // Complementar la orden compra
                     PurchaseOrder.PurchaseOrderDetails = PurchaseOrderDetails.Select(s => new ServiceModel.PurchaseOrderDetail
                     {
                         PurchaseOrderDetailId = s.PurchaseOrderDetailId,
+                        RequestedQuantity = s.RequestedQuantity,
                         ReceivedQuantity = s.ReceivedQuantity,
                         WarehouseId = s.WarehouseId
                     }).ToList();
+
+                    var continueConfirmation = await CanContinueConfirmation();
+
+                    if (!continueConfirmation)
+                        return;
 
                     await PurchaseOrderService.ConfirmAsync(PurchaseOrder.PurchaseOrderId, PurchaseOrder);
                     NavigationManager.NavigateTo($"purchase-orders/confirm/{PurchaseOrder.PurchaseOrderId}");
@@ -145,6 +160,35 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 IsSubmitInProgress = false;
             }
         }
+
+        internal async Task<bool> CanContinueConfirmation()
+        {
+            var validation = await PurchaseOrderService.ValidateConfirmationAsync(PurchaseOrder);
+
+            if (validation.RequiresApproval)
+            {
+                if (await DialogService.Confirm("Los ajustes realizados requieren aprobación para la confirmación de la orden de compra. Desea continuar?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Aprobacion de ajustes") == false)
+                    return false;
+
+                var employee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id);
+
+                var approvalRequested = await PurchaseOrderService.RequestApprovalAsync(PurchaseOrder.PurchaseOrderId, PurchaseOrder, employee.EmployeeId);
+
+                if (!approvalRequested)
+                {
+                    await DialogService.Alert("La solicitud de aprobación no pudo ser enviada", options: new AlertOptions { OkButtonText = "Cerrar" }, title: "Aprobación de ajustes");
+                    return false;
+                }
+
+                await DialogService.Alert("La solicitud de aprobación ha sido generada", options: new AlertOptions { OkButtonText = "Continuar" }, title: "Aprobación de ajustes");
+                NavigationManager.NavigateTo($"purchase-orders/confirm/{PurchaseOrder.PurchaseOrderId}");
+
+                return false;
+            }
+
+            return true;
+        }
+
         protected async Task AgentForwarderHandler(ServiceModel.ForwarderAgent agent)
         {
             PurchaseOrder.ForwarderAgentId = agent?.ForwarderAgentId ?? 0;
@@ -215,7 +259,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
 
             await PurchaseOrderDetailGrid.UpdateRow(item);
             Reset();
-            return;            
+            return;
         }
 
         protected async Task CancelEditReceivedQuantity(ServiceModel.PurchaseOrderDetail item)
