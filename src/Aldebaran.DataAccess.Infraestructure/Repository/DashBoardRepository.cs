@@ -361,5 +361,33 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                         processOrder_Id).ToListAsync(ct);
             }, ct);
         }
+
+        public async Task<IEnumerable<PurchaseOrder>> GetPendingApprovalPurchaseOrdersAsync(string? searchKey = null, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await (string.IsNullOrEmpty(searchKey) ?
+                                dbContext.PurchaseOrders.AsNoTracking()
+                                    .Include(i => i.Provider)
+                                    .Include(i => i.StatusDocumentType)
+                                    .Include(i => i.ShipmentForwarderAgentMethod.ForwarderAgent.Forwarder)
+                                    .Include(i => i.ShipmentForwarderAgentMethod.ShipmentMethod)
+                                    .Where(w => w.StatusDocumentType.StatusOrder == 4)
+                                    .ToListAsync(ct) :
+                                dbContext.PurchaseOrders.AsNoTracking()
+                                    .Include(i => i.Provider)
+                                    .Include(i => i.StatusDocumentType)
+                                    .Include(i => i.ShipmentForwarderAgentMethod.ForwarderAgent.Forwarder)
+                                    .Include(i => i.ShipmentForwarderAgentMethod.ShipmentMethod)
+                                    .Where(w => w.StatusDocumentType.StatusOrder == 4 &&
+                                        (w.OrderNumber.Contains(searchKey) ||
+                                            dbContext.Format(w.ExpectedReceiptDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
+                                            w.Provider.ProviderName.Contains(searchKey) ||
+                                            w.ShipmentForwarderAgentMethod.ForwarderAgent.Forwarder.ForwarderName.Contains(searchKey) ||
+                                            w.ShipmentForwarderAgentMethod.ForwarderAgent.ForwarderAgentName.Contains(searchKey) ||
+                                            w.ShipmentForwarderAgentMethod.ShipmentMethod.ShipmentMethodName.Contains(searchKey)))
+                                    .ToListAsync(ct));
+            }, ct);
+        }
     }
 }

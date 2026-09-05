@@ -50,6 +50,9 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         #region Parameters
         [Parameter]
         public string PURCHASE_ORDER_ID { get; set; } = null;
+
+        [Parameter]
+        public bool ApprovalMode { get; set; } = false;
         #endregion
 
         #region Variables

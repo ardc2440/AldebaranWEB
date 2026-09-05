@@ -62,7 +62,8 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     foreach (var alarm in alarms)
                     {
                         dbContext.Entry(alarm).State = EntityState.Unchanged;
-                    };
+                    }
+                    ;
                     dbContext.Entry(reasonEntity).State = EntityState.Unchanged;
                     dbContext.Entry(entity).State = EntityState.Unchanged;
                     throw;
@@ -149,13 +150,13 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                       .Include(i => i.Provider.IdentityType)
                       .Include(i => i.ShipmentForwarderAgentMethod.ShipmentMethod)
                       .Include(i => i.ShipmentForwarderAgentMethod.ForwarderAgent)
-                      .Include(i => i.StatusDocumentType.DocumentType)                      
+                      .Include(i => i.StatusDocumentType.DocumentType)
                       .Where(w => w.PurchaseOrderId == purchaseOrderId)
                       .FirstOrDefaultAsync(ct);
             }, ct);
         }
 
-        public async Task<(IEnumerable<PurchaseOrder>,int)> GetAsync(int skip, int top, CancellationToken ct = default)
+        public async Task<(IEnumerable<PurchaseOrder>, int)> GetAsync(int skip, int top, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
             {
@@ -173,7 +174,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             }, ct);
         }
 
-        public async Task<(IEnumerable<PurchaseOrder>,int)> GetAsync(int skip, int top, string searchKey, CancellationToken ct = default)
+        public async Task<(IEnumerable<PurchaseOrder>, int)> GetAsync(int skip, int top, string searchKey, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
             {
@@ -215,77 +216,205 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             }, ct);
         }
 
+        //public async Task<int> UpdateAsync(int purchaseOrderId, PurchaseOrder purchaseOrder, Reason reason, IEnumerable<CustomerOrderAffectedByPurchaseOrderUpdate> ordersAffected, CancellationToken ct = default)
+        //{
+        //    return await ExecuteCommandAsync(async dbContext =>
+        //    {
+        //        var entity = await dbContext.PurchaseOrders
+        //                    .FirstOrDefaultAsync(x => x.PurchaseOrderId == purchaseOrderId, ct) ?? throw new KeyNotFoundException($"Orden con id {purchaseOrderId} no existe.");
+
+        //        var oldExpectedReceiptDate = entity.ExpectedReceiptDate;
+
+        //        entity.RequestDate = purchaseOrder.RequestDate;
+        //        entity.ExpectedReceiptDate = purchaseOrder.ExpectedReceiptDate;
+        //        entity.ProviderId = purchaseOrder.ProviderId;
+        //        entity.ForwarderAgentId = purchaseOrder.ForwarderAgentId;
+        //        entity.ShipmentForwarderAgentMethodId = purchaseOrder.ShipmentForwarderAgentMethodId;
+        //        entity.ProformaNumber = purchaseOrder.ProformaNumber;
+
+        //        if (entity.StatusDocumentTypeId != purchaseOrder.StatusDocumentTypeId)
+        //            entity.StatusDocumentTypeId = purchaseOrder.StatusDocumentTypeId;
+
+        //        // Details
+        //        var details = await dbContext.PurchaseOrderDetails.Where(x => x.PurchaseOrderId == purchaseOrderId).ToListAsync(ct);
+        //        dbContext.PurchaseOrderDetails.RemoveRange(details);
+        //        entity.PurchaseOrderDetails = purchaseOrder.PurchaseOrderDetails;
+        //        IEnumerable<PurchaseOrderNotification> purchaseOrderNotifications = new List<PurchaseOrderNotification>();
+
+        //        List<PurchaseOrderTransitAlarm> purchaseOrderTransitAlarm = new List<PurchaseOrderTransitAlarm>();
+
+        //        if (ordersAffected.Any())
+        //        {
+        //            purchaseOrderNotifications = ordersAffected.Select(s => new PurchaseOrderNotification
+        //            {
+        //                CustomerOrderId = s.CustomerOrderId,
+        //                NotificationId = string.Empty,
+        //                NotificationState = NotificationStatus.Pending,
+        //                NotifiedMailList = (dbContext.CustomerOrders.AsNoTracking()
+        //                            .Include(i => i.Customer)
+        //                            .FirstOrDefault(f => f.CustomerOrderId == s.CustomerOrderId)).Customer.Email
+        //            });
+
+        //            purchaseOrderTransitAlarm.Add(new PurchaseOrderTransitAlarm { OldExpectedReceiptDate = oldExpectedReceiptDate });
+        //        }
+
+        //        var reasonEntity = new ModifiedPurchaseOrder
+        //        {
+        //            PurchaseOrderId = purchaseOrderId,
+        //            ModificationReasonId = reason.ReasonId,
+        //            EmployeeId = reason.EmployeeId,
+        //            ModificationDate = reason.Date
+        //        };
+
+        //        if (purchaseOrderNotifications.Any())
+        //        {
+        //            reasonEntity.PurchaseOrderNotifications = purchaseOrderNotifications.ToList();
+        //            reasonEntity.PurchaseOrderTransitAlarms = purchaseOrderTransitAlarm;
+        //        }
+
+        //        try
+        //        {
+        //            dbContext.ModifiedPurchaseOrders.Add(reasonEntity);
+        //            await dbContext.SaveChangesAsync(ct);
+        //            return reasonEntity.ModifiedPurchaseOrderId;
+        //        }
+        //        catch
+        //        {
+        //            dbContext.Entry(entity).State = EntityState.Unchanged;
+        //            dbContext.Entry(reasonEntity).State = EntityState.Detached;
+        //            throw;
+        //        }
+        //    }, ct);
+        //}
+        /*------------------------------------------------*/
+
         public async Task<int> UpdateAsync(int purchaseOrderId, PurchaseOrder purchaseOrder, Reason reason, IEnumerable<CustomerOrderAffectedByPurchaseOrderUpdate> ordersAffected, CancellationToken ct = default)
         {
             return await ExecuteCommandAsync(async dbContext =>
             {
                 var entity = await dbContext.PurchaseOrders
-                            .FirstOrDefaultAsync(x => x.PurchaseOrderId == purchaseOrderId, ct) ?? throw new KeyNotFoundException($"Orden con id {purchaseOrderId} no existe.");
+                    .Include(x => x.PurchaseOrderDetails)
+                    .FirstOrDefaultAsync(x => x.PurchaseOrderId == purchaseOrderId, ct) ?? throw new KeyNotFoundException($"Orden con id {purchaseOrderId} no existe.");
 
                 var oldExpectedReceiptDate = entity.ExpectedReceiptDate;
 
-                entity.RequestDate = purchaseOrder.RequestDate;
-                entity.ExpectedReceiptDate = purchaseOrder.ExpectedReceiptDate;
-                entity.ProviderId = purchaseOrder.ProviderId;
-                entity.ForwarderAgentId = purchaseOrder.ForwarderAgentId;
-                entity.ShipmentForwarderAgentMethodId = purchaseOrder.ShipmentForwarderAgentMethodId;
-                entity.ProformaNumber = purchaseOrder.ProformaNumber;
+                UpdateHeader(entity, purchaseOrder);
 
-                if (entity.StatusDocumentTypeId != purchaseOrder.StatusDocumentTypeId)
-                    entity.StatusDocumentTypeId = purchaseOrder.StatusDocumentTypeId;
+                SynchronizeDetails(dbContext, entity, purchaseOrder, purchaseOrderId);
 
-                // Details
-                var details = await dbContext.PurchaseOrderDetails.Where(x => x.PurchaseOrderId == purchaseOrderId).ToListAsync(ct);
-                dbContext.PurchaseOrderDetails.RemoveRange(details);
-                entity.PurchaseOrderDetails = purchaseOrder.PurchaseOrderDetails;
-                IEnumerable<PurchaseOrderNotification> purchaseOrderNotifications = new List<PurchaseOrderNotification>();
-
-                List<PurchaseOrderTransitAlarm> purchaseOrderTransitAlarm = new List<PurchaseOrderTransitAlarm>();
-
-                if (ordersAffected.Any())
-                {
-                    purchaseOrderNotifications = ordersAffected.Select(s => new PurchaseOrderNotification
-                    {
-                        CustomerOrderId = s.CustomerOrderId,
-                        NotificationId = string.Empty,
-                        NotificationState = NotificationStatus.Pending,
-                        NotifiedMailList = (dbContext.CustomerOrders.AsNoTracking()
-                                    .Include(i => i.Customer)
-                                    .FirstOrDefault(f => f.CustomerOrderId == s.CustomerOrderId)).Customer.Email
-                    });
-
-                    purchaseOrderTransitAlarm.Add(new PurchaseOrderTransitAlarm { OldExpectedReceiptDate = oldExpectedReceiptDate });
-                }
-
-                var reasonEntity = new ModifiedPurchaseOrder
-                {
-                    PurchaseOrderId = purchaseOrderId,
-                    ModificationReasonId = reason.ReasonId,
-                    EmployeeId = reason.EmployeeId,
-                    ModificationDate = reason.Date
-                };
-
-                if (purchaseOrderNotifications.Any())
-                {
-                    reasonEntity.PurchaseOrderNotifications = purchaseOrderNotifications.ToList();
-                    reasonEntity.PurchaseOrderTransitAlarms = purchaseOrderTransitAlarm;
-                }
+                var reasonEntity = CreateModificationReason(dbContext, purchaseOrderId, reason, ordersAffected, oldExpectedReceiptDate);
 
                 try
                 {
                     dbContext.ModifiedPurchaseOrders.Add(reasonEntity);
+
                     await dbContext.SaveChangesAsync(ct);
+
                     return reasonEntity.ModifiedPurchaseOrderId;
                 }
                 catch
                 {
-                    dbContext.Entry(entity).State = EntityState.Unchanged;
-                    dbContext.Entry(reasonEntity).State = EntityState.Unchanged;
+                    dbContext.Entry(reasonEntity).State =
+                        EntityState.Detached;
+
                     throw;
                 }
             }, ct);
         }
 
+        private static void UpdateHeader(PurchaseOrder entity, PurchaseOrder purchaseOrder)
+        {
+            entity.RequestDate = purchaseOrder.RequestDate;
+            entity.ExpectedReceiptDate = purchaseOrder.ExpectedReceiptDate;
+            entity.ProviderId = purchaseOrder.ProviderId;
+            entity.ForwarderAgentId = purchaseOrder.ForwarderAgentId;
+            entity.ShipmentForwarderAgentMethodId = purchaseOrder.ShipmentForwarderAgentMethodId;
+            entity.ProformaNumber = purchaseOrder.ProformaNumber;
+
+            if (entity.StatusDocumentTypeId != purchaseOrder.StatusDocumentTypeId)
+            {
+                entity.StatusDocumentTypeId = purchaseOrder.StatusDocumentTypeId;
+            }
+        }
+
+        private static void SynchronizeDetails(DbContext dbContext, PurchaseOrder entity, PurchaseOrder purchaseOrder, int purchaseOrderId)
+        {
+            var currentDetails = entity.PurchaseOrderDetails.ToList();
+
+            var detailsToDelete = currentDetails
+                                    .Where(current => !purchaseOrder.PurchaseOrderDetails.Any(incoming => incoming.PurchaseOrderDetailId == current.PurchaseOrderDetailId))
+                                    .ToList();
+
+            dbContext.Set<PurchaseOrderDetail>().RemoveRange(detailsToDelete);
+
+            foreach (var currentDetail in currentDetails)
+            {
+                var incomingDetail = purchaseOrder.PurchaseOrderDetails
+                                        .FirstOrDefault(x => x.PurchaseOrderDetailId == currentDetail.PurchaseOrderDetailId);
+
+                if (incomingDetail is null)
+                    continue;
+
+                currentDetail.RequestedQuantity = incomingDetail.RequestedQuantity;
+                currentDetail.ReceivedQuantity = incomingDetail.ReceivedQuantity;
+                currentDetail.WarehouseId = incomingDetail.WarehouseId;
+            }
+
+            var detailsToInsert = purchaseOrder.PurchaseOrderDetails
+                                    .Where(incoming => incoming.PurchaseOrderDetailId <= 0 || !currentDetails.Any(current => current.PurchaseOrderDetailId == incoming.PurchaseOrderDetailId))
+                                    .ToList();
+
+            foreach (var detail in detailsToInsert)
+            {
+                detail.PurchaseOrderId = purchaseOrderId;
+                entity.PurchaseOrderDetails.Add(detail);
+            }
+        }
+
+        private static ModifiedPurchaseOrder CreateModificationReason(AldebaranDbContext dbContext, int purchaseOrderId, Reason reason, IEnumerable<CustomerOrderAffectedByPurchaseOrderUpdate> ordersAffected, DateTime oldExpectedReceiptDate)
+        {
+            var result = new ModifiedPurchaseOrder
+            {
+                PurchaseOrderId = purchaseOrderId,
+                ModificationReasonId = reason.ReasonId,
+                EmployeeId = reason.EmployeeId,
+                ModificationDate = reason.Date
+            };
+
+            AttachNotifications(dbContext, result, ordersAffected, oldExpectedReceiptDate);
+
+            return result;
+        }
+
+        private static void AttachNotifications(AldebaranDbContext dbContext, ModifiedPurchaseOrder reasonEntity, IEnumerable<CustomerOrderAffectedByPurchaseOrderUpdate> ordersAffected, DateTime oldExpectedReceiptDate)
+        {
+            if (!ordersAffected.Any())
+                return;
+
+            var notifications = ordersAffected.Select(s =>
+                    new PurchaseOrderNotification
+                    {
+                        CustomerOrderId = s.CustomerOrderId,
+                        NotificationId = string.Empty,
+                        NotificationState = NotificationStatus.Pending,
+                        NotifiedMailList = dbContext.CustomerOrders
+                                            .AsNoTracking()
+                                            .Include(i => i.Customer)
+                                            .First(f => f.CustomerOrderId == s.CustomerOrderId)
+                                            .Customer.Email
+                    }).ToList();
+
+            reasonEntity.PurchaseOrderNotifications = notifications;
+
+            reasonEntity.PurchaseOrderTransitAlarms = new List<PurchaseOrderTransitAlarm>
+                                                        {
+                                                            new PurchaseOrderTransitAlarm
+                                                                {
+                                                                    OldExpectedReceiptDate = oldExpectedReceiptDate
+                                                                }
+                                                        };
+        }
+        /*------------------------------------------------*/
         public async Task<IEnumerable<CustomerOrderAffectedByPurchaseOrderUpdate>> GetAffectedCustomerOrders(int purchaseOrderId, DateTime newExpectedReceiptDate, IEnumerable<PurchaseOrderDetail> purchaseOrderDetails, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
