@@ -117,6 +117,9 @@ namespace Aldebaran.DataAccess
         public DbSet<PurchaseOrderApprovalRange> PurchaseOrderApprovalRanges { get; set; }
         public DbSet<PurchaseOrderApprovalRangeLog> PurchaseOrderApprovalRangeLogs { get; set; }
         public DbSet <PurchaseOrderAdjustmentLog> PurchaseOrderAdjustmentLogs { get; set; }
+        public DbSet<EmployeePreference> EmployeePreferences { get; set; }
+        public DbSet<NotificationDefinition> NotificationDefinitions { get; set; }
+        public DbSet<NotificationDefinitionRole> NotificationDefinitionRoles { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -222,6 +225,9 @@ namespace Aldebaran.DataAccess
             modelBuilder.ApplyConfiguration(new PurchaseOrderApprovalRangeConfiguration());
             modelBuilder.ApplyConfiguration(new PurchaseOrderApprovalRangeLogConfiguration());
             modelBuilder.ApplyConfiguration(new PurchaseOrderAdjustmentLogConfiguration());
+            modelBuilder.ApplyConfiguration(new NotificationDefinitionConfiguration());
+            modelBuilder.ApplyConfiguration(new NotificationDefinitionRoleConfiguration());
+            modelBuilder.ApplyConfiguration(new EmployeePreferenceConfiguration());
 
             modelBuilder.Entity<InventoryAdjustmentReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<InProcessInventoryReport>(iar => { iar.HasNoKey(); });

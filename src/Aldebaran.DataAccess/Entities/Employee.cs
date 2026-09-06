@@ -51,7 +51,7 @@ namespace Aldebaran.DataAccess.Entities
         public ICollection<VisualizedLocalWarehouseAlarm> VisualizedLocalWarehouseAlarms { get; set; }
         public ICollection<VisualizedAutomaticInProcess> VisualizedAutomaticInProcesses { get; set; }
         public ICollection<PurchaseOrderApprovalRange> PurchaseOrderApprovalRanges { get; set; }
-
+        public ICollection<EmployeePreference> EmployeePreferences { get; set; }
 
         public Employee()
         {

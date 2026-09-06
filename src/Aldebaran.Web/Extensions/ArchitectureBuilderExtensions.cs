@@ -18,6 +18,7 @@ using Aldebaran.Infraestructure.Core.Queue;
 using Aldebaran.Infraestructure.Core.Ssh;
 using Aldebaran.Web.Data;
 using Aldebaran.Web.Models;
+using Aldebaran.Web.Services.Notifications;
 using Aldebaran.Web.Settings;
 using Aldebaran.Web.Utils;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -375,6 +376,8 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<Notificator.INotificationService, Notificator.NotificationService>();
             services.AddTransient<IFtpClient, FtpClient>();
             services.AddSingleton<IBrowserProvider, BrowserProvider>();
+
+            services.AddHostedService<NotificationWorker>();
 
             return services;
         }
