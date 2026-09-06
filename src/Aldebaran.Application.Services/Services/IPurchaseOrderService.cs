@@ -8,7 +8,7 @@ namespace Aldebaran.Application.Services
         Task<(IEnumerable<PurchaseOrder>, int)> GetAsync(int skip, int top, string searchKey, CancellationToken ct = default);
         Task CancelAsync(int purchaseOrderId, Reason reason, CancellationToken ct = default);
         Task<PurchaseOrder> AddAsync(PurchaseOrder purchaseOrder, CancellationToken ct = default);
-        Task ConfirmAsync(int purchaseOrderId, PurchaseOrder purchaseOrder, CancellationToken ct = default);
+        Task ConfirmAsync(int purchaseOrderId, PurchaseOrder purchaseOrder, int? approvalEmployeeId = null, string? approvalReason = null, CancellationToken ct = default);
         Task<int> UpdateAsync(int purchaseOrderId, PurchaseOrder purchaseOrder, Reason reason, IEnumerable<CustomerOrderAffectedByPurchaseOrderUpdate> ordersAffected, CancellationToken ct = default);
         Task<IEnumerable<PurchaseOrder>> GetTransitByReferenceIdAsync(int referenceId, CancellationToken ct = default);
         Task<IEnumerable<CustomerOrderAffectedByPurchaseOrderUpdate>> GetAffectedCustomerOrders(int purchaseOrderId, DateTime newExpectedReceiptDate, IEnumerable<PurchaseOrderDetail> purchaseOrderDetails, CancellationToken ct = default);
@@ -18,5 +18,6 @@ namespace Aldebaran.Application.Services
         Task<(IEnumerable<CanceledPurchaseOrder>, int count)> GetPurchaseOrderCancellationsLogAsync(int skip, int top, string searchKey, CancellationToken ct = default);
         Task<PurchaseOrderConfirmationValidationResult> ValidateConfirmationAsync(PurchaseOrder purchaseOrder, CancellationToken ct = default);
         Task<bool> RequestApprovalAsync(int purchaseOrderId, PurchaseOrder purchaseOrder, int employeeId, CancellationToken ct = default);
+        Task<bool> DenyApprovalAsync(int purchaseOrderId, int employeeId, string reason, CancellationToken ct = default);
     }
 }

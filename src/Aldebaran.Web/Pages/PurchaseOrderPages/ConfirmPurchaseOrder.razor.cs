@@ -23,6 +23,8 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         [Inject]
         protected TooltipService TooltipService { get; set; }
 
+        [Inject]
+        protected NotificationService NotificationService { get; set; }
 
         [Inject]
         protected IPurchaseOrderService PurchaseOrderService { get; set; }
@@ -68,6 +70,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         protected bool IsSubmitInProgress;
         protected bool isLoadingInProgress;
         protected string Error;
+        protected string reason;
         #endregion
 
         #region Overrides
@@ -107,6 +110,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         #endregion
 
         #region Events
+
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
         protected async Task GetDataAsync(int purchaseOrderId, CancellationToken ct = default)
         {
@@ -115,6 +119,19 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
             PurchaseOrderDetails = orderDetails.ToList();
             PurchaseOrderDetails.ForEach(f => f.ReceivedQuantity = f.ReceivedQuantity == 0 ? null : f.ReceivedQuantity);
         }
+
+        protected async void CellRender(DataGridCellRenderEventArgs<ServiceModel.PurchaseOrderDetail> args)
+        {
+            if (!ApprovalMode)
+                return;
+
+            var difference = args.Data.RequestedQuantity != args.Data.ReceivedQuantity;
+            if (difference)
+            {
+                args.Attributes.Add("style", $"background-color:#ffa7a7");
+            }
+        }
+
         #region PurchaseOrder
         private int PROVIDER_ID { get; set; }
         protected async Task FormSubmit()
@@ -148,8 +165,20 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                     if (!continueConfirmation)
                         return;
 
-                    await PurchaseOrderService.ConfirmAsync(PurchaseOrder.PurchaseOrderId, PurchaseOrder);
-                    NavigationManager.NavigateTo($"purchase-orders/confirm/{PurchaseOrder.PurchaseOrderId}");
+                    if (ApprovalMode)
+                    {
+                        var employee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id);
+
+                        await PurchaseOrderService.ConfirmAsync(PurchaseOrder.PurchaseOrderId, PurchaseOrder, employee.EmployeeId, reason);
+
+                        DialogService.Close(true);
+                    }
+                    else
+                    {
+                        await PurchaseOrderService.ConfirmAsync(PurchaseOrder.PurchaseOrderId, PurchaseOrder);
+
+                        NavigationManager.NavigateTo($"purchase-orders/confirm/{PurchaseOrder.PurchaseOrderId}");
+                    }
                 }
             }
             catch (Exception ex)
@@ -166,6 +195,9 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
 
         internal async Task<bool> CanContinueConfirmation()
         {
+            if (ApprovalMode)
+                return true;
+
             var validation = await PurchaseOrderService.ValidateConfirmationAsync(PurchaseOrder);
 
             if (validation.RequiresApproval)
@@ -191,7 +223,6 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
 
             return true;
         }
-
         protected async Task AgentForwarderHandler(ServiceModel.ForwarderAgent agent)
         {
             PurchaseOrder.ForwarderAgentId = agent?.ForwarderAgentId ?? 0;
@@ -204,13 +235,30 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         }
         protected async Task CancelPurchaseOrder(MouseEventArgs args)
         {
-            NavigationManager.NavigateTo("purchase-orders");
+            if (ApprovalMode)
+                DialogService.Close(false);
+            else
+                NavigationManager.NavigateTo("purchase-orders");
+        }
+        private async Task ShowImageDialog(string articleName)
+        {
+            await DialogService.OpenAsync<ImageDialog>("", new Dictionary<string, object> { { "ArticleName", articleName } });
+        }
+        private async Task ReturnPurchaseOrder()
+        {
+            if (string.IsNullOrWhiteSpace(reason))
+            {
+                NotificationService.Notify(NotificationSeverity.Warning, "Validación", "Debe ingresar un motivo para devolver la orden");
+                return;
+            }
+
+            var employee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id);
+
+            await PurchaseOrderService.DenyApprovalAsync(PurchaseOrder.PurchaseOrderId, employee.EmployeeId, reason);
+
+            DialogService.Close(true);
         }
 
-        private async Task ShowImageDialog(string articleName) => DialogService.Open<ImageDialog>("", new Dictionary<string, object>
-            {
-                { "ArticleName", articleName }
-            });
         #endregion
 
         #region PurchaseOrderDetail
@@ -271,12 +319,14 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
             await GetDataAsync(item.PurchaseOrderId);
             PurchaseOrderDetailGrid.CancelEditRow(item);
         }
+
         void Reset()
         {
             detailToUpdate = null;
         }
 
         #endregion
+
         #endregion
     }
 }

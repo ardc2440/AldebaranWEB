@@ -11,7 +11,7 @@
 {
     <RadzenCard>
         <RadzenStack>
-            <RadzenTemplateForm TItem="ServiceModel.PurchaseOrder" Data="@PurchaseOrder" Visible="@(PurchaseOrder != null)" Submit="@FormSubmit" InvalidSubmit="()=>Submitted=true">
+            <RadzenTemplateForm TItem="ServiceModel.PurchaseOrder" Data="@PurchaseOrder" Visible="@(PurchaseOrder != null)" Submit="@FormSubmit" InvalidSubmit="() => Submitted = true">
                 <RadzenRow AlignItems="AlignItems.Center">
                     <RadzenColumn Size="12">
                         <RadzenText Text="Confirmar orden de compra" TextStyle="TextStyle.H4" TagName="TagName.H1" />
@@ -73,7 +73,7 @@
                                 <Helper>
                                     <RadzenRequiredValidator Component="EmbarkationPort" Text="Puerto de embarcación es requerido" />
                                 </Helper>
-                            </RadzenFormField>                            
+                            </RadzenFormField>
                             <RadzenFormField Text="Número de importación" Variant="Variant.Text" Style="width: 100%;">
                                 <ChildContent>
                                     <RadzenTextBox style="display: block; width: 100%" @bind-Value="@PurchaseOrder.ImportNumber" Name="ImportNumber" MaxLength="20" />
@@ -87,39 +87,42 @@
                     <RadzenColumn Size="7">
                         <RadzenText Text="Referencias" TextStyle="TextStyle.H5" TagName="TagName.H1"   />
                         <RadzenStack>
-                            <LocalizedDataGrid @ref="PurchaseOrderDetailGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+                            <LocalizedDataGrid CellRender="@CellRender" @ref="PurchaseOrderDetailGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[] { 5, 10, 20, 30 })
                                                Data="@PurchaseOrderDetails" TItem="ServiceModel.PurchaseOrderDetail" AllowColumnResize="true" AllowMultiColumnSorting="true" AllowColumnReorder="true">
                                 <Columns>
                                     <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
                                         <Template Context="detail">
                                             <RadzenButton Icon="image" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
                                                           Click="@(args => ShowImageDialog($"[{@detail.ItemReference.Item.InternalReference}] {@detail.ItemReference.Item.ItemName}"))"
-                                                          @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Ver imagen del producto", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                                                          @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args, "Ver imagen del producto", new TooltipOptions() { Position = TooltipPosition.Left }))" />
                                         </Template>
                                     </RadzenDataGridColumn>
                                     <RadzenDataGridColumn Width="100%" TItem="ServiceModel.PurchaseOrderDetail" Title="Referencia">
                                         <Template Context="detail">
-                                            <RadzenLabel MouseEnter="@(args => ShowTooltip(args,GetReferenceHint(@detail.ItemReference).Result, new TooltipOptions(){ Position = TooltipPosition.Left }))">
+                                            <RadzenLabel MouseEnter="@(args => ShowTooltip(args, GetReferenceHint(@detail.ItemReference).Result, new TooltipOptions() { Position = TooltipPosition.Left }))">
                                                 [@detail.ItemReference.Item.InternalReference] @detail.ItemReference.Item.ItemName - @detail.ItemReference.ReferenceName
                                             </RadzenLabel>
                                         </Template>
-                                    </RadzenDataGridColumn>                                    
-                                    <RadzenDataGridColumn Width="160px" TItem="ServiceModel.PurchaseOrderDetail" Property="Warehouse.WarehouseName" Title="Bodega">
-                                        <Template Context="detail">
-                                            <span>@detail.Warehouse.WarehouseName</span>
-                                        </Template>
-                                        <EditTemplate Context="detail">
-                                            <RadzenFormField Text="Bodega" Variant="Variant.Text" Style="width: 100%;">
-                                                <ChildContent>
-                                                    <RadzenDropDown Data="@Warehouses" TextProperty="WarehouseName" ValueProperty="WarehouseId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                                                    style="display: block; width: 100%" @bind-Value="@detail.WarehouseId" Name="WarehouseId" />                                                    
-                                                </ChildContent>
-                                                <Helper>
-                                                    <RadzenNumericRangeValidator Component="WarehouseId" Min="1" Text="Bodega es requerida" />
-                                                </Helper>
-                                            </RadzenFormField>
-                                        </EditTemplate>
                                     </RadzenDataGridColumn>
+                                    @if (!ApprovalMode)
+                                    {
+                                        <RadzenDataGridColumn Width="160px" TItem="ServiceModel.PurchaseOrderDetail" Property="Warehouse.WarehouseName" Title="Bodega">
+                                            <Template Context="detail">
+                                                <span>@detail.Warehouse.WarehouseName</span>
+                                            </Template>
+                                            <EditTemplate Context="detail">
+                                                <RadzenFormField Text="Bodega" Variant="Variant.Text" Style="width: 100%;">
+                                                    <ChildContent>
+                                                        <RadzenDropDown Data="@Warehouses" TextProperty="WarehouseName" ValueProperty="WarehouseId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                        style="display: block; width: 100%" @bind-Value="@detail.WarehouseId" Name="WarehouseId" />
+                                                    </ChildContent>
+                                                    <Helper>
+                                                        <RadzenNumericRangeValidator Component="WarehouseId" Min="1" Text="Bodega es requerida" />
+                                                    </Helper>
+                                                </RadzenFormField>
+                                            </EditTemplate>
+                                        </RadzenDataGridColumn>
+                                    }
                                     <RadzenDataGridColumn Width="130px" TItem="ServiceModel.PurchaseOrderDetail" Property="ReceivedQuantity" Title="Cantidad recibida">
                                         <HeaderTemplate>
                                             Cantidad<br>Recibida
@@ -149,15 +152,15 @@
                                     </RadzenDataGridColumn>
                                     <RadzenDataGridColumn TItem="ServiceModel.PurchaseOrderDetail" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                                         <Template Context="detail">
-                                            <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="edit" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Editar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
+                                            <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="edit" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args, "Editar", new TooltipOptions() { Position = TooltipPosition.Left }))"
                                                           Shade="Shade.Lighter" Variant="Variant.Flat"
                                                           Click=@(args => EditReceivedQuantity(detail)) @onclick:stopPropagation="true" />
                                         </Template>
                                         <EditTemplate Context="detail">
-                                            <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Guardar", new TooltipOptions(){ Position = TooltipPosition.Left }))"
+                                            <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args, "Guardar", new TooltipOptions() { Position = TooltipPosition.Left }))"
                                                           Click="@((args) => SaveReceivedQuantity(detail))">
                                             </RadzenButton>
-                                            <RadzenButton Icon="refresh" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args,"Reestablecer", new TooltipOptions(){ Position = TooltipPosition.Left }))"
+                                            <RadzenButton Icon="refresh" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" MouseEnter="@(args => ShowTooltip(args, "Reestablecer", new TooltipOptions() { Position = TooltipPosition.Left }))"
                                                           Click="@((args) => CancelEditReceivedQuantity(detail))">
                                             </RadzenButton>
                                         </EditTemplate>
@@ -171,10 +174,31 @@
                         }
                     </RadzenColumn>
                 </RadzenRow>
+                @if (ApprovalMode)
+                {
+                    <RadzenRow>
+                        <RadzenColumn Size="12">
+                            <RadzenFormField Text="Motivo" Style="width:100%">
+                                <ChildContent>
+                                    <RadzenTextArea Name="Reason"
+                                                    @bind-Value="reason"
+                                                    Rows="4"
+                                                    Style="width:100%"
+                                                    Placeholder="Ingrese el motivo de la confirmación o devolución" />
+                                </ChildContent>
+                                <Helper>
+                                    <RadzenRequiredValidator Component="Reason" Text="El motivo es requerido" />
+                                </Helper>
+                            </RadzenFormField>
+                        </RadzenColumn>
+                    </RadzenRow>
+                }
                 <RadzenRow AlignItems="Radzen.AlignItems.Center">
                     <RadzenColumn Size="12">
                         <RadzenStack class="m-2" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
-                            <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />
+                            <RadzenButton Visible="@ApprovalMode" ButtonStyle="ButtonStyle.Warning" Icon="undo" Text="Devolver" Variant="Variant.Flat" Click="@ReturnPurchaseOrder" BusyText="Procesando..."
+                                          IsBusy="@IsSubmitInProgress" />
+                            <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Confirmar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />
                             <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelPurchaseOrder" />
                         </RadzenStack>
                     </RadzenColumn>

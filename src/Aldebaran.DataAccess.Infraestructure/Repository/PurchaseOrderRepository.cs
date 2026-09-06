@@ -71,7 +71,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             }, ct);
         }
 
-        public async Task ConfirmAsync(int purchaseOrderId, PurchaseOrder purchaseOrder, CancellationToken ct = default)
+        public async Task ConfirmAsync(int purchaseOrderId, PurchaseOrder purchaseOrder, int? approvalEmployeeId, string? approvalReason, CancellationToken ct = default)
         {
             await ExecuteCommandAsync(async dbContext =>
             {
@@ -121,6 +121,13 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
 
                 try
                 {
+                    if (!string.IsNullOrEmpty(approvalReason))
+                    {
+                        var adjustmentLog = CreateAdjustmentLog(purchaseOrderId, purchaseOrder.StatusDocumentTypeId, approvalEmployeeId ?? 0, approvalReason);
+
+                        dbContext.PurchaseOrderAdjustmentLogs.Add(adjustmentLog);
+                    }
+
                     await dbContext.SaveChangesAsync(ct);
 
                     if (referencesWithZeroOrLessStock.Any())
@@ -216,78 +223,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             }, ct);
         }
 
-        //public async Task<int> UpdateAsync(int purchaseOrderId, PurchaseOrder purchaseOrder, Reason reason, IEnumerable<CustomerOrderAffectedByPurchaseOrderUpdate> ordersAffected, CancellationToken ct = default)
-        //{
-        //    return await ExecuteCommandAsync(async dbContext =>
-        //    {
-        //        var entity = await dbContext.PurchaseOrders
-        //                    .FirstOrDefaultAsync(x => x.PurchaseOrderId == purchaseOrderId, ct) ?? throw new KeyNotFoundException($"Orden con id {purchaseOrderId} no existe.");
-
-        //        var oldExpectedReceiptDate = entity.ExpectedReceiptDate;
-
-        //        entity.RequestDate = purchaseOrder.RequestDate;
-        //        entity.ExpectedReceiptDate = purchaseOrder.ExpectedReceiptDate;
-        //        entity.ProviderId = purchaseOrder.ProviderId;
-        //        entity.ForwarderAgentId = purchaseOrder.ForwarderAgentId;
-        //        entity.ShipmentForwarderAgentMethodId = purchaseOrder.ShipmentForwarderAgentMethodId;
-        //        entity.ProformaNumber = purchaseOrder.ProformaNumber;
-
-        //        if (entity.StatusDocumentTypeId != purchaseOrder.StatusDocumentTypeId)
-        //            entity.StatusDocumentTypeId = purchaseOrder.StatusDocumentTypeId;
-
-        //        // Details
-        //        var details = await dbContext.PurchaseOrderDetails.Where(x => x.PurchaseOrderId == purchaseOrderId).ToListAsync(ct);
-        //        dbContext.PurchaseOrderDetails.RemoveRange(details);
-        //        entity.PurchaseOrderDetails = purchaseOrder.PurchaseOrderDetails;
-        //        IEnumerable<PurchaseOrderNotification> purchaseOrderNotifications = new List<PurchaseOrderNotification>();
-
-        //        List<PurchaseOrderTransitAlarm> purchaseOrderTransitAlarm = new List<PurchaseOrderTransitAlarm>();
-
-        //        if (ordersAffected.Any())
-        //        {
-        //            purchaseOrderNotifications = ordersAffected.Select(s => new PurchaseOrderNotification
-        //            {
-        //                CustomerOrderId = s.CustomerOrderId,
-        //                NotificationId = string.Empty,
-        //                NotificationState = NotificationStatus.Pending,
-        //                NotifiedMailList = (dbContext.CustomerOrders.AsNoTracking()
-        //                            .Include(i => i.Customer)
-        //                            .FirstOrDefault(f => f.CustomerOrderId == s.CustomerOrderId)).Customer.Email
-        //            });
-
-        //            purchaseOrderTransitAlarm.Add(new PurchaseOrderTransitAlarm { OldExpectedReceiptDate = oldExpectedReceiptDate });
-        //        }
-
-        //        var reasonEntity = new ModifiedPurchaseOrder
-        //        {
-        //            PurchaseOrderId = purchaseOrderId,
-        //            ModificationReasonId = reason.ReasonId,
-        //            EmployeeId = reason.EmployeeId,
-        //            ModificationDate = reason.Date
-        //        };
-
-        //        if (purchaseOrderNotifications.Any())
-        //        {
-        //            reasonEntity.PurchaseOrderNotifications = purchaseOrderNotifications.ToList();
-        //            reasonEntity.PurchaseOrderTransitAlarms = purchaseOrderTransitAlarm;
-        //        }
-
-        //        try
-        //        {
-        //            dbContext.ModifiedPurchaseOrders.Add(reasonEntity);
-        //            await dbContext.SaveChangesAsync(ct);
-        //            return reasonEntity.ModifiedPurchaseOrderId;
-        //        }
-        //        catch
-        //        {
-        //            dbContext.Entry(entity).State = EntityState.Unchanged;
-        //            dbContext.Entry(reasonEntity).State = EntityState.Detached;
-        //            throw;
-        //        }
-        //    }, ct);
-        //}
-        /*------------------------------------------------*/
-
         public async Task<int> UpdateAsync(int purchaseOrderId, PurchaseOrder purchaseOrder, Reason reason, IEnumerable<CustomerOrderAffectedByPurchaseOrderUpdate> ordersAffected, CancellationToken ct = default)
         {
             return await ExecuteCommandAsync(async dbContext =>
@@ -306,16 +241,16 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
 
                 try
                 {
-                    dbContext.ModifiedPurchaseOrders.Add(reasonEntity);
+                    if (reasonEntity is not null)
+                        dbContext.ModifiedPurchaseOrders.Add(reasonEntity);
 
                     await dbContext.SaveChangesAsync(ct);
 
-                    return reasonEntity.ModifiedPurchaseOrderId;
+                    return reasonEntity?.ModifiedPurchaseOrderId ?? 0;
                 }
                 catch
                 {
-                    dbContext.Entry(reasonEntity).State =
-                        EntityState.Detached;
+                    dbContext.Entry(reasonEntity).State = EntityState.Detached;
 
                     throw;
                 }
@@ -333,7 +268,11 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
 
             if (entity.StatusDocumentTypeId != purchaseOrder.StatusDocumentTypeId)
             {
-                entity.StatusDocumentTypeId = purchaseOrder.StatusDocumentTypeId;
+                entity.StatusDocumentTypeId = purchaseOrder.StatusDocumentTypeId;                
+                entity.RealReceiptDate = purchaseOrder.RealReceiptDate;
+                entity.ImportNumber = purchaseOrder.ImportNumber;
+                entity.EmbarkationPort = purchaseOrder.EmbarkationPort;
+                entity.ProformaNumber = purchaseOrder.ProformaNumber;
             }
         }
 
@@ -369,6 +308,24 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 detail.PurchaseOrderId = purchaseOrderId;
                 entity.PurchaseOrderDetails.Add(detail);
             }
+        }
+
+        public async Task<int> DenyAdjustmentApproval(PurchaseOrderAdjustmentLog denyAdjustmentApproval, CancellationToken ct = default)
+        {
+            return await ExecuteCommandAsync(async dbContext =>
+            {
+                var entity = await dbContext.PurchaseOrders.FirstOrDefaultAsync(x => x.PurchaseOrderId == denyAdjustmentApproval.PurchaseOrderId, ct) ?? throw new KeyNotFoundException($"Orden con id {denyAdjustmentApproval.PurchaseOrderId} no existe.");
+                
+                entity.StatusDocumentTypeId = denyAdjustmentApproval.NewStatusDocumentTypeId;
+
+                var adjustmentLog = CreateAdjustmentLog(denyAdjustmentApproval.PurchaseOrderId, denyAdjustmentApproval.NewStatusDocumentTypeId, denyAdjustmentApproval.EmployeeId, denyAdjustmentApproval.Reason);
+                
+                dbContext.PurchaseOrderAdjustmentLogs.Add(adjustmentLog);
+
+                await dbContext.SaveChangesAsync(ct);
+                
+                return adjustmentLog.PurchaseOrderAdjustmentLogId;
+            }, ct);
         }
 
         private static ModifiedPurchaseOrder CreateModificationReason(AldebaranDbContext dbContext, int purchaseOrderId, Reason reason, IEnumerable<CustomerOrderAffectedByPurchaseOrderUpdate> ordersAffected, DateTime oldExpectedReceiptDate)
@@ -414,7 +371,21 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                                                                 }
                                                         };
         }
-        /*------------------------------------------------*/
+
+        private static PurchaseOrderAdjustmentLog CreateAdjustmentLog(int purchaseOrderId, short statusId, int employeeId, string reason)
+        {
+            var result = new PurchaseOrderAdjustmentLog
+            {
+                PurchaseOrderId = purchaseOrderId,
+                NewStatusDocumentTypeId = statusId,
+                EmployeeId = employeeId,
+                Reason = reason,
+                CreatedDate = DateTime.Now
+            };
+
+            return result;
+        }
+
         public async Task<IEnumerable<CustomerOrderAffectedByPurchaseOrderUpdate>> GetAffectedCustomerOrders(int purchaseOrderId, DateTime newExpectedReceiptDate, IEnumerable<PurchaseOrderDetail> purchaseOrderDetails, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>

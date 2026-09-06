@@ -43,10 +43,10 @@ namespace Aldebaran.Application.Services
             await _repository.CancelAsync(purchaseOrderId, mapReason, ct);
         }
 
-        public async Task ConfirmAsync(int purchaseOrderId, PurchaseOrder purchaseOrder, CancellationToken ct = default)
+        public async Task ConfirmAsync(int purchaseOrderId, PurchaseOrder purchaseOrder, int? approvalEmployeeId = null, string? approvalReason = null, CancellationToken ct = default)
         {
             var entity = _mapper.Map<Entities.PurchaseOrder>(purchaseOrder) ?? throw new ArgumentNullException("Orden no puede ser nula.");
-            await _repository.ConfirmAsync(purchaseOrderId, entity, ct);
+            await _repository.ConfirmAsync(purchaseOrderId, entity, approvalEmployeeId, approvalReason, ct);
         }
 
         public async Task<PurchaseOrder?> FindAsync(int purchaseOrderId, CancellationToken ct = default)
@@ -139,7 +139,26 @@ namespace Aldebaran.Application.Services
             var reason = new Reason { ReasonId = adjustmentReason.ModificationReasonId, EmployeeId = employeeId };
             purchaseOrder.StatusDocumentTypeId = statusDocumentTypeId.StatusDocumentTypeId;
 
-            var result = await UpdateAsync(purchaseOrderId, purchaseOrder, reason, new List<CustomerOrderAffectedByPurchaseOrderUpdate>(), ct);
+            var result = await UpdateAsync(purchaseOrderId, purchaseOrder, reason, new List<CustomerOrderAffectedByPurchaseOrderUpdate>(), ct: ct);
+
+            return result > 0;
+        }
+
+        public async Task<bool> DenyApprovalAsync(int purchaseOrderId, int employeeId, string denyReason, CancellationToken ct = default)
+        {
+            var documentType = await _documentTypeService.FindByCodeAsync("O", ct) ?? throw new Exception("Tipo de documento no encontrado");
+            var statusDocumentTypeId = await _statusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 1, ct) ?? throw new Exception("Estado de documento no encontrado");
+
+            var denyApproval = new Entities.PurchaseOrderAdjustmentLog
+            {
+                PurchaseOrderId = purchaseOrderId,
+                EmployeeId = employeeId,
+                NewStatusDocumentTypeId = statusDocumentTypeId.StatusDocumentTypeId,
+                Reason = denyReason,
+                CreatedDate = DateTime.UtcNow
+            };
+
+            var result = await _repository.DenyAdjustmentApproval(denyApproval, ct);
 
             return result > 0;
         }

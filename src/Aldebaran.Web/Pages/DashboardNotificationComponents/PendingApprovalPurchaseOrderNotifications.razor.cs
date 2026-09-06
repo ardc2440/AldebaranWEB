@@ -216,9 +216,9 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
 
         protected async Task OpenPurchaseOrderApproval(PurchaseOrder purchaseOrder)
         {
-            await DialogService.OpenAsync<PurchaseOrderPages.ConfirmPurchaseOrder>("Aprobar solicitud de ajuste", new Dictionary<string, object> { { "PURCHASE_ORDER_ID", purchaseOrder.PurchaseOrderId.ToString() }, { "ApprovalMode", true } }, options: new DialogOptions { CloseDialogOnOverlayClick = false, Width = "1100px" });
-            
-            await GridData_Update();
+            var result = await DialogService.OpenAsync<PurchaseOrderPages.ConfirmPurchaseOrder>("Aprobar solicitud de ajuste", new Dictionary<string, object> { { "PURCHASE_ORDER_ID", purchaseOrder.PurchaseOrderId.ToString() }, { "ApprovalMode", true } }, options: new DialogOptions { CloseDialogOnOverlayClick = false, Width = "1100px" });
+
+            if (result is bool refresh && refresh) await GridData_Update();
         }
 
         #endregion

@@ -115,8 +115,8 @@ namespace Aldebaran.DataAccess
         public DbSet<AutomataNotificationRecipient> AutomataNotificationRecipients { get; set; }
         public DbSet<AutomataConnectivityErrorPattern> AutomataConnectivityErrorPatterns { get; set; }
         public DbSet<PurchaseOrderApprovalRange> PurchaseOrderApprovalRanges { get; set; }
-
         public DbSet<PurchaseOrderApprovalRangeLog> PurchaseOrderApprovalRangeLogs { get; set; }
+        public DbSet <PurchaseOrderAdjustmentLog> PurchaseOrderAdjustmentLogs { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -221,6 +221,7 @@ namespace Aldebaran.DataAccess
             modelBuilder.ApplyConfiguration(new AutomaticCustomerOrderInProcessModificationConfiguration());
             modelBuilder.ApplyConfiguration(new PurchaseOrderApprovalRangeConfiguration());
             modelBuilder.ApplyConfiguration(new PurchaseOrderApprovalRangeLogConfiguration());
+            modelBuilder.ApplyConfiguration(new PurchaseOrderAdjustmentLogConfiguration());
 
             modelBuilder.Entity<InventoryAdjustmentReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<InProcessInventoryReport>(iar => { iar.HasNoKey(); });
