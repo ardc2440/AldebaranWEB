@@ -1,4 +1,5 @@
 ﻿using Aldebaran.Application.Services;
+using Aldebaran.Application.Services.Notifications;
 using Aldebaran.Application.Services.Reports;
 using Aldebaran.Application.Services.Services;
 using Aldebaran.DataAccess;
@@ -272,7 +273,9 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IAutomataNotificationRecipientRepository, AutomataNotificationRecipientRepository>();
             services.AddTransient<IAutomataConnectivityErrorPatternRepository, AutomataConnectivityErrorPatternRepository>();
             services.AddTransient<IPurchaseOrderApprovalRangeRepository, PurchaseOrderApprovalRangeRepository>();
-
+            services.AddTransient<INotificationDefinitionRepository, NotificationDefinitionRepository>();
+            services.AddTransient<IEmployeePreferenceRepository, EmployeePreferenceRepository>();
+            
             #endregion
             // Services
             #region Services
@@ -368,6 +371,7 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IAutomataNotificationRecipientService, AutomataNotificationRecipientService>();
             services.AddTransient<IAutomataConnectivityErrorPatternService, AutomataConnectivityErrorPatternService>();
             services.AddTransient<IPurchaseOrderApprovalRangeService, PurchaseOrderApprovalRangeService>();
+            services.AddTransient<INotificationProcessingService, NotificationProcessingService>();
 
             #endregion
 
@@ -376,7 +380,8 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<Notificator.INotificationService, Notificator.NotificationService>();
             services.AddTransient<IFtpClient, FtpClient>();
             services.AddSingleton<IBrowserProvider, BrowserProvider>();
-
+            services.AddTransient<INotificationDispatcher, NotificationDispatcher>();
+            services.AddSingleton<INotificationStore, NotificationStore>();
             services.AddHostedService<NotificationWorker>();
 
             return services;

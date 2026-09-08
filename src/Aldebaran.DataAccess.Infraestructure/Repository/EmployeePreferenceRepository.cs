@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
-    internal class EmployeePreferenceRepository : RepositoryBase<AldebaranDbContext>, IEmployeePreferenceRepository
+    public class EmployeePreferenceRepository : RepositoryBase<AldebaranDbContext>, IEmployeePreferenceRepository
     {
         public EmployeePreferenceRepository(IServiceProvider serviceProvider) : base(serviceProvider) { }
 

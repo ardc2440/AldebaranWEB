@@ -1,16 +1,17 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using Aldebaran.Application.Services.Notifications;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Aldebaran.Web.Services.Notifications
 {
     public class NotificationWorker : BackgroundService
     {
-        private readonly IServiceProvider _serviceProvider;
+        private readonly INotificationProcessingService _notificationProcessingService;
         private readonly ILogger<NotificationWorker> _logger;
 
-        public NotificationWorker(IServiceProvider serviceProvider, ILogger<NotificationWorker> logger)
+        public NotificationWorker(INotificationProcessingService notificationProcessingService, ILogger<NotificationWorker> logger)
         {
-            _serviceProvider = serviceProvider;
+            _notificationProcessingService = notificationProcessingService;
             _logger = logger;
         }
 
@@ -20,20 +21,22 @@ namespace Aldebaran.Web.Services.Notifications
             {
                 try
                 {
-                    await ProcessNotificationsAsync(stoppingToken);
+                    var results = await _notificationProcessingService.ProcessNotificationsAsync(stoppingToken);
+
+                    foreach (var result in results)
+                        if (!result.Success)
+                            _logger.LogError("Error procesando NotificationDefinitionId {NotificationDefinitionId}. Error: {ErrorMessage}",
+                                result.NotificationDefinitionId,
+                                result.ErrorMessage);
+                        
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error procesando notificaciones.");
+                    _logger.LogError(ex, "Error general ejecutando NotificationWorker.");
                 }
 
-                await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+                await Task.Delay(TimeSpan.FromMinutes(2), stoppingToken);
             }
-        }
-
-        private Task ProcessNotificationsAsync(CancellationToken stoppingToken)
-        {
-            return Task.CompletedTask;
         }
     }
 }

@@ -54,6 +54,9 @@
 	  <Compile Update="Services\IVisualizedMinimumLocalWarehouseQuantityAlarmService.cs">
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>
+	  <Compile Update="Services\NotificationService.cs">
+	    <DependentUpon>INotificationProcessingService.cs</DependentUpon>
+	  </Compile>
 	  <Compile Update="Services\Reports\IInProcessInventoryReportService.cs">
 	    <DependentUpon>$([System.String]::Copy(I%(Filename).cs))</DependentUpon>
 	  </Compile>

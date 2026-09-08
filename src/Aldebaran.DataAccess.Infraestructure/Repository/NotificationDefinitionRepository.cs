@@ -5,7 +5,7 @@ using System.Data;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
-    internal class NotificationDefinitionRepository : RepositoryBase<AldebaranDbContext>, INotificationDefinitionRepository
+    public class NotificationDefinitionRepository : RepositoryBase<AldebaranDbContext>, INotificationDefinitionRepository
     {
         public NotificationDefinitionRepository(IServiceProvider serviceProvider) : base(serviceProvider) { }
 
