@@ -10,11 +10,15 @@ namespace Aldebaran.Web.Services.Notifications
 
         private List<NotificationEvent> _notifications = new();
 
+        public long Version { get; private set; }
+
         public void Replace(IReadOnlyCollection<NotificationEvent> notifications)
         {
             lock (_sync)
             {
                 _notifications = notifications.ToList();
+
+                Version++;
             }
         }
 
