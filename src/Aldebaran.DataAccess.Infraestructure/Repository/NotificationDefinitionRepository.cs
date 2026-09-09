@@ -20,13 +20,13 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             }, ct);
         }
 
-        public async Task<IEnumerable<string>> GetRolesAsync(int notificationDefinitionId, CancellationToken ct = default)
+        public async Task<IEnumerable<string>> GetRolesAsync(int notificationDefinitionId,CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
             {
-                return await dbContext.NotificationDefinitionRoles
+                return await dbContext.NotificationDefinitionRoleViews
                     .Where(x => x.NotificationDefinitionId == notificationDefinitionId)
-                    .Select(x => x.RoleId)
+                    .Select(x => x.RoleName)
                     .ToListAsync(ct);
             }, ct);
         }

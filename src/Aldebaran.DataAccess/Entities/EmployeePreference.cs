@@ -13,6 +13,6 @@ namespace Aldebaran.DataAccess.Entities
         public bool EnableNotifications { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
-        public Employee Employee { get; set; } = new Employee();
+        public Employee Employee { get; set; } 
     }
 }

@@ -8,10 +8,12 @@ namespace Aldebaran.Application.Services
     public class EmployeeService : IEmployeeService
     {
         private readonly IEmployeeRepository _repository;
+        private readonly IEmployeePreferenceRepository _preferenceRepository;
         private readonly IMapper _mapper;
-        public EmployeeService(IEmployeeRepository repository, IMapper mapper)
+        public EmployeeService(IEmployeeRepository repository, IEmployeePreferenceRepository preferenceRepository, IMapper mapper)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(IEmployeeRepository));
+            _preferenceRepository = preferenceRepository ?? throw new ArgumentNullException(nameof(IEmployeePreferenceRepository));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(IMapper));
         }
 
@@ -66,6 +68,40 @@ namespace Aldebaran.Application.Services
         {
             var data = await _repository.GetByAlarmTypeAsync(alarmTypeId, ct);
             return _mapper.Map<List<Employee>>(data);
+        }
+
+        public async Task<EmployeePreference?> FindPreferenceAsync(int employeeId, CancellationToken ct = default)
+        {
+            var data = await _preferenceRepository.FindAsync(employeeId, ct);
+
+            return data == null ? null :
+                new EmployeePreference
+                {
+                    EmployeeId = data.EmployeeId,
+                    EnableNotifications = data.EnableNotifications
+                };
+        }
+
+        public async Task CreatePreferenceAsync(int employeeId, bool enableNotifications, CancellationToken ct = default)
+        {
+            await _preferenceRepository
+                .AddAsync(new Entities.EmployeePreference
+                {
+                    EmployeeId = employeeId,
+                    EnableNotifications = enableNotifications,
+                    CreatedDate = DateTime.UtcNow,
+                    UpdatedDate = DateTime.UtcNow
+                }, ct);
+        }
+
+        public async Task UpdatePreferenceAsync(int employeeId, bool enableNotifications, CancellationToken ct = default)
+        {
+            var existingPreference = await _preferenceRepository.FindAsync(employeeId, ct)?? throw new ArgumentNullException("Preferencia no puede ser nula.");
+
+            existingPreference.EnableNotifications = enableNotifications;
+            existingPreference.UpdatedDate = DateTime.UtcNow;
+
+            await _preferenceRepository.UpdateAsync(existingPreference, ct);
         }
     }
 }

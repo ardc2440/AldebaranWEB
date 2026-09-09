@@ -29,7 +29,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 }
                 catch (Exception ex)
                 {
-                    dbContext.Entry(employeePreference).State = EntityState.Unchanged;
+                    dbContext.Entry(employeePreference).State = EntityState.Detached;
                     throw;
                 }
             }, ct);
@@ -51,8 +51,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 }
                 catch
                 {
-                    dbContext.Entry(entity)
-                        .State = EntityState.Unchanged;
+                    dbContext.Entry(entity).State = EntityState.Unchanged;
 
                     throw;
                 }

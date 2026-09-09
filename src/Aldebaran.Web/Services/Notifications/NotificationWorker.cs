@@ -35,7 +35,7 @@ namespace Aldebaran.Web.Services.Notifications
                     _logger.LogError(ex, "Error general ejecutando NotificationWorker.");
                 }
 
-                await Task.Delay(TimeSpan.FromMinutes(2), stoppingToken);
+                await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
             }
         }
     }

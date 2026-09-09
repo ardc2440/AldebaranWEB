@@ -149,7 +149,7 @@ CREATE TABLE notification_definition_roles
 GO
 
 INSERT INTO NOTIFICATION_DEFINITIONS(NAME, DESCRIPTION, VALIDATION_INTERVAL_MINUTES, VALIDATION_QUERY, QUERY_PARAMETERS, NOTIFICATION_MESSAGE, IS_ACTIVE, CREATED_DATE, UPDATED_DATE)
-VALUES('Aprobaciones pendientes de O.C.', 'Órdenes de compra pendientes de aprobación', 5, '<VALIDATION_QUERY>', NULL, 'Existen órdenes de compra pendientes de aprobación.', 1, GETDATE(), GETDATE())
+VALUES('Aprobaciones pendientes de O.C.', 'Órdenes de compra pendientes de aprobación', 5, 'SELECT COUNT(1) FROM Purchase_orders a JOIN status_document_types b on b.STATUS_DOCUMENT_TYPE_ID = a.STATUS_DOCUMENT_TYPE_ID WHERE b.STATUS_ORDER = 4', NULL, 'Existen órdenes de compra pendientes de aprobación.', 1, GETDATE(), GETDATE())
 GO
 
 DECLARE @NOTIFICATION_DEFINITION_ID INT
@@ -160,4 +160,14 @@ SELECT @NOTIFICATION_DEFINITION_ID = NOTIFICATION_DEFINITION_ID FROM notificatio
 
 INSERT INTO notification_definition_roles (NOTIFICATION_DEFINITION_ID, ROLE_ID)
 VALUES (@NOTIFICATION_DEFINITION_ID, @APPROVE_ROLE_ID)
+GO
+
+CREATE VIEW vw_notification_definition_roles
+AS
+SELECT ndr.NOTIFICATION_DEFINITION_ROLE_ID,
+	   ndr.NOTIFICATION_DEFINITION_ID,
+       ndr.ROLE_ID,
+       r.Name AS ROLE_NAME
+  FROM notification_definition_roles ndr
+ INNER JOIN AspNetRoles r ON r.Id = ndr.ROLE_ID;
 GO
