@@ -147,18 +147,10 @@ public abstract class RepositoryBase<TContext> where TContext : DbContext
     /// <summary>
     /// Ejecuta una operación de lectura escalar dentro de un ámbito de transacción suprimida.
     /// </summary>
-    /// <typeparam name="TResult">
-    /// Tipo del resultado esperado.
-    /// </typeparam>
-    /// <param name="operation">
-    /// Operación a ejecutar.
-    /// </param>
-    /// <param name="ct">
-    /// Token de cancelación.
-    /// </param>
-    /// <returns>
-    /// Resultado escalar.
-    /// </returns>
+    /// <typeparam name="TResult"> Tipo del resultado esperado. </typeparam>
+    /// <param name="operation"> Operación a ejecutar. </param>
+    /// <param name="ct"> Token de cancelación. </param>
+    /// <returns> Resultado escalar. </returns>
     protected async Task<TResult> ExecuteScalarAsync<TResult>(Func<TContext, Task<TResult>> operation, CancellationToken ct = default)
     {
         ct.ThrowIfCancellationRequested();

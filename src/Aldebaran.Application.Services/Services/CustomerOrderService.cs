@@ -17,7 +17,7 @@ namespace Aldebaran.Application.Services
 
         public async Task<CustomerOrder?> AddAsync(CustomerOrder customerOrder, CancellationToken ct = default)
         {
-            var entity = _mapper.Map<Entities.CustomerOrder>(customerOrder) ?? throw new ArgumentNullException("Reserva no puede ser nula.");
+            var entity = _mapper.Map<Entities.CustomerOrder>(customerOrder) ?? throw new ArgumentNullException("Pedido no puede ser nulo.");
             return _mapper.Map<CustomerOrder>(await _repository.AddAsync(entity, ct));
         }
                 

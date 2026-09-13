@@ -16,5 +16,6 @@ namespace Aldebaran.Application.Services
         Task<EmployeePreference?> FindPreferenceAsync(int employeeId, CancellationToken ct = default);
         Task CreatePreferenceAsync(int employeeId, bool enableNotifications, CancellationToken ct = default);
         Task UpdatePreferenceAsync(int employeeId, bool enableNotifications, CancellationToken ct = default);
+        Task<ICollection<EmployeeMail>> GetEmployeeMailsByRoleNameAsync(string roleName, CancellationToken ct = default);
     }
 }

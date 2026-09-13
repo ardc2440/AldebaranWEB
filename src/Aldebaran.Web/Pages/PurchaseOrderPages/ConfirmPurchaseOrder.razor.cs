@@ -1,7 +1,9 @@
 using Aldebaran.Application.Services;
+using Aldebaran.Web.Models;
 using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.Extensions.Options;
 using Radzen;
 using Radzen.Blazor;
 using ServiceModel = Aldebaran.Application.Services.Models;
@@ -46,6 +48,9 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
 
         [Inject]
         protected SecurityService Security { get; set; }
+
+        [Inject]
+        public IOptions<AppSettings> Settings { get; set; }
 
         #endregion
 
@@ -195,7 +200,10 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
 
         internal async Task<bool> CanContinueConfirmation()
         {
-            if (ApprovalMode)
+            if (ApprovalMode )
+                return true;
+
+            if (!Settings.Value.RequirePurchaseOrderAdjustmentApproval)
                 return true;
 
             var validation = await PurchaseOrderService.ValidateConfirmationAsync(PurchaseOrder);

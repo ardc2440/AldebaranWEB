@@ -171,3 +171,34 @@ SELECT ndr.NOTIFICATION_DEFINITION_ROLE_ID,
   FROM notification_definition_roles ndr
  INNER JOIN AspNetRoles r ON r.Id = ndr.ROLE_ID;
 GO
+
+/* nuevo rol para la configuracion de los usuarios que recibirán el correo de cantidades minimas */
+INSERT INTO [dbo].[AspNetRoles] (Id, ConcurrencyStamp, Name, NormalizedName)
+     VALUES (NEWID(), NEWID(), 'Notificación de cantidades mínimas de inventario','NOTIFICACIÓN DE CANTIDADES MÍNIMAS DE INVENTARIO')
+GO
+
+/*     OJO NO OLVIDAR ACTUALIZAR EL APPSETTINGS CON 
+
+ "AppSettings": {
+	"ApplicationUrl": "http://192.168.10.2/"
+}
+
+y 
+
+ "InventoryMinimumStockReport": {
+   "Enabled": true,
+   "RoleName": "Notificación de cantidades mínimas de inventario",
+   "NotificationSettings": "Sales",
+   "DaysOfWeek": [
+     "Monday",
+     "Wednesday",
+     "Friday"
+   ],
+   "ExecutionHours": [
+     "08:00",
+     "13:00",
+     "17:00"
+   ]
+ }
+
+*/

@@ -103,5 +103,12 @@ namespace Aldebaran.Application.Services
 
             await _preferenceRepository.UpdateAsync(existingPreference, ct);
         }
+
+        public async Task<ICollection<EmployeeMail>> GetEmployeeMailsByRoleNameAsync(string roleName, CancellationToken ct = default)
+        {
+            var data = await _repository.GetEmployeeMailsByRoleNameAsync(roleName, ct);
+
+            return _mapper.Map<ICollection<EmployeeMail>>(data);
+        }       
     }
 }

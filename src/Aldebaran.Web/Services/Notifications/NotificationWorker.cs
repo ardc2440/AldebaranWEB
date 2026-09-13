@@ -1,6 +1,4 @@
 ﻿using Aldebaran.Application.Services.Notifications;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace Aldebaran.Web.Services.Notifications
 {

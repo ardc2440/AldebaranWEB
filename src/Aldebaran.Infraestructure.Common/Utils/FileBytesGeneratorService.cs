@@ -1,13 +1,16 @@
 ﻿using Aldebaran.Infraestructure.Common.Browser;
+using Aldebaran.Infrastructure.Common.Attributes;
 using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Spreadsheet;
 using PuppeteerSharp;
 using PuppeteerSharp.Media;
 using System.ComponentModel;
 using System.Globalization;
 using System.Reflection;
 using System.Text;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Spreadsheet;
+using A = DocumentFormat.OpenXml.Drawing;
+using Xdr = DocumentFormat.OpenXml.Drawing.Spreadsheet;
 
 namespace Aldebaran.Infraestructure.Common.Utils
 {
@@ -40,7 +43,6 @@ namespace Aldebaran.Infraestructure.Common.Utils
             var flatData = $"{string.Join(",", columns.Select(c => c.DisplayName ?? c.Name))}{Environment.NewLine}{sb}";
             return Task.FromResult(UTF8Encoding.Default.GetBytes(flatData));
         }
-
         public Task<byte[]> GetExcelBytes<T>(List<T> data)
         {
             var columns = GetProperties(typeof(T));
@@ -58,7 +60,13 @@ namespace Aldebaran.Infraestructure.Common.Utils
                 GenerateWorkbookStylesPartContent(workbookStylesPart);
 
                 var sheets = workbookPart.Workbook.AppendChild(new Sheets());
-                var sheet = new Sheet() { Id = workbookPart.GetIdOfPart(worksheetPart), SheetId = 1, Name = "Sheet1" };
+                var sheet = new Sheet()
+                {
+                    Id = workbookPart.GetIdOfPart(worksheetPart),
+                    SheetId = 1,
+                    Name = "Sheet1"
+                };
+
                 sheets.Append(sheet);
 
                 workbookPart.Workbook.Save();
@@ -78,21 +86,44 @@ namespace Aldebaran.Infraestructure.Common.Utils
 
                 sheetData.AppendChild(headerRow);
 
+                int rowIndex = 2;
+
                 foreach (var item in data)
                 {
                     if (item == null) continue;
+
                     var row = new Row();
+
+                    bool containsImage = false;
+
+                    int columnIndex = 1;
 
                     foreach (var column in columns)
                     {
                         var value = GetValue(item, column.Name);
+
+                        // NUEVO: columna marcada como imagen
+                        if (column.IsImage)
+                        {
+                            row.Append(new Cell());
+
+                            if (value is string imagePath && !string.IsNullOrWhiteSpace(imagePath) && File.Exists(imagePath))
+                            {
+                                containsImage = true;
+
+                                // Se implementará luego
+                                InsertImage(worksheetPart, imagePath, rowIndex, columnIndex);
+                            }
+
+                            columnIndex++;
+                            continue;
+                        }
+
                         var stringValue = $"{value}".Trim();
 
                         var cell = new Cell();
 
-                        var underlyingType = column.Type.IsGenericType &&
-                            column.Type.GetGenericTypeDefinition() == typeof(Nullable<>) ?
-                            Nullable.GetUnderlyingType(column.Type) : column.Type;
+                        var underlyingType = column.Type.IsGenericType && column.Type.GetGenericTypeDefinition() == typeof(Nullable<>) ? Nullable.GetUnderlyingType(column.Type) : column.Type;
 
                         var typeCode = Type.GetTypeCode(underlyingType);
 
@@ -100,14 +131,20 @@ namespace Aldebaran.Infraestructure.Common.Utils
                         {
                             if (!string.IsNullOrWhiteSpace(stringValue))
                             {
-                                cell.CellValue = new CellValue() { Text = ((DateTime)value).ToOADate().ToString(System.Globalization.CultureInfo.InvariantCulture) };
+                                cell.CellValue = new CellValue()
+                                {
+                                    Text = ((DateTime)value).ToOADate().ToString(CultureInfo.InvariantCulture)
+                                };
+
                                 cell.DataType = new EnumValue<CellValues>(CellValues.Number);
-                                cell.StyleIndex = (UInt32Value)1U;
+
+                                cell.StyleIndex = 1U;
                             }
                         }
                         else if (typeCode == TypeCode.Boolean)
                         {
                             cell.CellValue = new CellValue(stringValue.ToLowerInvariant());
+
                             cell.DataType = new EnumValue<CellValues>(CellValues.Boolean);
                         }
                         else if (IsNumeric(typeCode))
@@ -116,27 +153,42 @@ namespace Aldebaran.Infraestructure.Common.Utils
                             {
                                 stringValue = Convert.ToString(value, CultureInfo.InvariantCulture);
                             }
+
                             cell.CellValue = new CellValue(stringValue);
+
                             cell.DataType = new EnumValue<CellValues>(CellValues.Number);
                         }
                         else
                         {
                             cell.CellValue = new CellValue(stringValue);
+
                             cell.DataType = new EnumValue<CellValues>(CellValues.String);
                         }
 
                         row.Append(cell);
+
+                        columnIndex++;
+                    }
+
+                    if (containsImage)
+                    {
+                        row.Height = 80;
+                        row.CustomHeight = true;
                     }
 
                     sheetData.AppendChild(row);
+
+                    rowIndex++;
                 }
 
                 workbookPart.Workbook.Save();
             }
+
             if (stream.Length > 0)
             {
                 stream.Seek(0, SeekOrigin.Begin);
             }
+
             return Task.FromResult(stream.ToArray());
         }
 
@@ -230,43 +282,6 @@ namespace Aldebaran.Infraestructure.Common.Utils
 
             return Task.FromResult(tempFile);
         }
-
-        /*public async Task<byte[]> GetPdfBytes(string content, bool landscape = false)
-        {
-            // Iniciar una instancia de Chromium a través de PuppeteerSharp
-            await new BrowserFetcher().DownloadAsync();
-            var browser = await Puppeteer.LaunchAsync(new LaunchOptions
-            {
-                Headless = true
-            });
-            var page = await browser.NewPageAsync();
-            await page.SetContentAsync(content);
-
-            var pdfBytes = await page.PdfDataAsync(new PdfOptions
-            {
-                Format = PaperFormat.A4,
-                Landscape = landscape,
-                PrintBackground = true,
-                MarginOptions = new MarginOptions
-                {
-                    Top = "2cm",
-                    Bottom = "2cm",
-                    Left = "2cm",
-                    Right = "2cm"
-                },
-                DisplayHeaderFooter = true,
-                FooterTemplate = @"
-                <div style='font-size: 10px; color: #888; text-align: center; display:block; width:100%;'>
-                    <span class='pageNumber'></span> de <span class='totalPages'></span>
-                </div>",
-            });
-
-            // Cerrar el navegador Chromium
-            await browser.CloseAsync();
-
-            return pdfBytes;
-        }*/
-
         public async Task<byte[]> GetPdfBytes(string content, bool landscape = false)
         {
             var browser = await _browserProvider.GetBrowserAsync();
@@ -302,47 +317,6 @@ namespace Aldebaran.Infraestructure.Common.Utils
                 await page.CloseAsync(); // 🔴 obligatorio
             }
         }
-
-        /*public async Task<string> GetPdfTempFile(string content, bool landscape = false)
-        {
-            var tempDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? ".", "temp");
-            Directory.CreateDirectory(tempDir);
-            var tempFile = Path.Combine(tempDir, $"inventory_{Guid.NewGuid()}.pdf");
-            await new BrowserFetcher().DownloadAsync();
-            var browser = await Puppeteer.LaunchAsync(new LaunchOptions
-            {
-                Headless = true
-            });
-            var page = await browser.NewPageAsync();
-            await page.SetContentAsync(content);
-
-            using (var pdfStream = await page.PdfStreamAsync(new PdfOptions
-            {
-                Format = PaperFormat.A4,
-                Landscape = landscape,
-                PrintBackground = true,
-                MarginOptions = new MarginOptions
-                {
-                    Top = "2cm",
-                    Bottom = "2cm",
-                    Left = "2cm",
-                    Right = "2cm"
-                },
-                DisplayHeaderFooter = true,
-                FooterTemplate = @"
-                <div style='font-size: 10px; color: #888; text-align: center; display:block; width:100%;'>
-                    <span class='pageNumber'></span> de <span class='totalPages'></span>
-                </div>",
-            }))
-            {
-                using var fs = new FileStream(tempFile, FileMode.Create, FileAccess.Write, FileShare.None);
-                await pdfStream.CopyToAsync(fs);
-            }
-
-            await browser.CloseAsync();
-            return tempFile;
-        }*/
-
         public async Task<string> GetPdfTempFile(string content, bool landscape = false)
         {
             var tempDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? ".", "temp");
@@ -387,7 +361,6 @@ namespace Aldebaran.Infraestructure.Common.Utils
 
             return tempFile;
         }
-
         #region Utils
         static string GetDisplayNameOrDefault(PropertyInfo property)
         {
@@ -400,8 +373,16 @@ namespace Aldebaran.Infraestructure.Common.Utils
         }
         static IEnumerable<PropertyDetail> GetProperties(Type type)
         {
-            return type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                    .Where(p => p.CanRead && IsSimpleType(p.PropertyType)).Select(p => new PropertyDetail { Name = p.Name, DisplayName = GetDisplayNameOrDefault(p), Type = p.PropertyType });
+            return type
+                .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(p => p.CanRead && IsSimpleType(p.PropertyType))
+                .Select(p => new PropertyDetail
+                {
+                    Name = p.Name,
+                    DisplayName = GetDisplayNameOrDefault(p),
+                    Type = p.PropertyType,
+                    IsImage = p.GetCustomAttribute<ExcelImageAttribute>() != null
+                });
         }
         static bool IsSimpleType(Type type)
         {
@@ -556,6 +537,86 @@ namespace Aldebaran.Infraestructure.Common.Utils
 
             workbookStylesPart1.Stylesheet = stylesheet1;
         }
+        private static void InsertImage(WorksheetPart worksheetPart, string imagePath, int rowIndex, int columnIndex)
+        {
+            var drawingsPart = worksheetPart.DrawingsPart;
+
+            if (drawingsPart == null)
+            {
+                drawingsPart = worksheetPart.AddNewPart<DrawingsPart>();
+
+                worksheetPart.Worksheet.Append(new Drawing { Id = worksheetPart.GetIdOfPart(drawingsPart) });
+
+                drawingsPart.WorksheetDrawing = new Xdr.WorksheetDrawing();
+            }
+
+            ImagePart imagePart = drawingsPart.AddImagePart(ImagePartType.Jpeg);
+
+            using (var stream = File.OpenRead(imagePath))
+            {
+                imagePart.FeedData(stream);
+            }
+
+            var worksheetDrawing = drawingsPart.WorksheetDrawing;
+
+            var imagePartId = drawingsPart.GetIdOfPart(imagePart);
+
+            var nvps = worksheetDrawing.Descendants<Xdr.NonVisualDrawingProperties>();
+
+            uint pictureId = (uint)(nvps.Count() + 1);
+
+            var picture =
+                new Xdr.Picture(
+                    new Xdr.NonVisualPictureProperties(
+                        new Xdr.NonVisualDrawingProperties
+                        {
+                            Id = pictureId,
+                            Name = Path.GetFileName(imagePath)
+                        },
+                        new Xdr.NonVisualPictureDrawingProperties()
+                    ),
+                    new Xdr.BlipFill(
+                        new A.Blip
+                        {
+                            Embed = imagePartId
+                        },
+                        new A.Stretch(new A.FillRectangle())
+                    ),
+                    new Xdr.ShapeProperties(
+                        new A.Transform2D(
+                            new A.Offset { X = 0, Y = 0 },
+                            new A.Extents
+                            {
+                                Cx = 952500, // ancho
+                                Cy = 952500  // alto
+                            }),
+                        new A.PresetGeometry(
+                            new A.AdjustValueList())
+                        {
+                            Preset = A.ShapeTypeValues.Rectangle
+                        })
+                );
+
+            var anchor =
+                new Xdr.OneCellAnchor(
+                    new Xdr.FromMarker(
+                        new Xdr.ColumnId((columnIndex - 1).ToString()),
+                        new Xdr.ColumnOffset("0"),
+                        new Xdr.RowId((rowIndex - 1).ToString()),
+                        new Xdr.RowOffset("0")
+                    ),
+                    new Xdr.Extent
+                    {
+                        Cx = 952500,
+                        Cy = 952500
+                    },
+                    picture,
+                    new Xdr.ClientData()
+                );
+
+            worksheetDrawing.Append(anchor);
+            worksheetDrawing.Save();
+        }
         #endregion
 
         class PropertyDetail
@@ -563,6 +624,8 @@ namespace Aldebaran.Infraestructure.Common.Utils
             public string DisplayName { get; set; }
             public string Name { get; set; }
             public Type Type { get; set; }
+
+            public bool IsImage { get; set; }
         }
     }
 }
