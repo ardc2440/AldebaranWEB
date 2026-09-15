@@ -1,14 +1,14 @@
 ﻿using Aldebaran.Infraestructure.Common.Browser;
 using Aldebaran.Infrastructure.Common.Attributes;
 using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Spreadsheet;
 using PuppeteerSharp;
 using PuppeteerSharp.Media;
 using System.ComponentModel;
 using System.Globalization;
 using System.Reflection;
 using System.Text;
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Spreadsheet;
 using A = DocumentFormat.OpenXml.Drawing;
 using Xdr = DocumentFormat.OpenXml.Drawing.Spreadsheet;
 
@@ -73,15 +73,46 @@ namespace Aldebaran.Infraestructure.Common.Utils
 
                 var sheetData = worksheetPart.Worksheet.AppendChild(new SheetData());
 
+                // Protección de hoja
+                worksheetPart.Worksheet.Append(
+                    new SheetProtection
+                    {
+                        Sheet = true,
+                        FormatRows = false,
+                        FormatColumns = false
+                    });
+
+
                 var headerRow = new Row();
+                var worksheetColumns = new DocumentFormat.OpenXml.Spreadsheet.Columns();
+                uint columnIndex = 1;
 
                 foreach (var column in columns)
                 {
+                    if (column.IsImage)
+                    {
+                        worksheetColumns.Append(
+                        new DocumentFormat.OpenXml.Spreadsheet.Column
+                        {
+                            Min = columnIndex,
+                            Max = columnIndex,
+                            Width = 20,
+                            CustomWidth = true
+                        });
+                    }
+
                     headerRow.Append(new Cell()
                     {
                         CellValue = new CellValue(column.DisplayName ?? column.Name),
                         DataType = new EnumValue<CellValues>(CellValues.String)
                     });
+
+                    columnIndex++;
+                }
+
+                if (worksheetColumns.HasChildren)
+                {
+                    worksheetPart.Worksheet.InsertAt(worksheetColumns, 0);
                 }
 
                 sheetData.AppendChild(headerRow);
@@ -96,7 +127,7 @@ namespace Aldebaran.Infraestructure.Common.Utils
 
                     bool containsImage = false;
 
-                    int columnIndex = 1;
+                    columnIndex = 1;
 
                     foreach (var column in columns)
                     {
@@ -172,7 +203,7 @@ namespace Aldebaran.Infraestructure.Common.Utils
 
                     if (containsImage)
                     {
-                        row.Height = 80;
+                        row.Height = 100;
                         row.CustomHeight = true;
                     }
 
@@ -180,6 +211,8 @@ namespace Aldebaran.Infraestructure.Common.Utils
 
                     rowIndex++;
                 }
+
+
 
                 workbookPart.Workbook.Save();
             }
@@ -537,7 +570,7 @@ namespace Aldebaran.Infraestructure.Common.Utils
 
             workbookStylesPart1.Stylesheet = stylesheet1;
         }
-        private static void InsertImage(WorksheetPart worksheetPart, string imagePath, int rowIndex, int columnIndex)
+        private static void InsertImage(WorksheetPart worksheetPart, string imagePath, int rowIndex, uint columnIndex)
         {
             var drawingsPart = worksheetPart.DrawingsPart;
 
@@ -587,8 +620,8 @@ namespace Aldebaran.Infraestructure.Common.Utils
                             new A.Offset { X = 0, Y = 0 },
                             new A.Extents
                             {
-                                Cx = 952500, // ancho
-                                Cy = 952500  // alto
+                                Cx = 500000, // ancho
+                                Cy = 500000  // alto
                             }),
                         new A.PresetGeometry(
                             new A.AdjustValueList())
@@ -596,20 +629,20 @@ namespace Aldebaran.Infraestructure.Common.Utils
                             Preset = A.ShapeTypeValues.Rectangle
                         })
                 );
-
             var anchor =
-                new Xdr.OneCellAnchor(
+                new Xdr.TwoCellAnchor(
                     new Xdr.FromMarker(
                         new Xdr.ColumnId((columnIndex - 1).ToString()),
-                        new Xdr.ColumnOffset("0"),
+                        new Xdr.ColumnOffset("150000"),
                         new Xdr.RowId((rowIndex - 1).ToString()),
-                        new Xdr.RowOffset("0")
+                        new Xdr.RowOffset("150000")
                     ),
-                    new Xdr.Extent
-                    {
-                        Cx = 952500,
-                        Cy = 952500
-                    },
+                    new Xdr.ToMarker(
+                        new Xdr.ColumnId(columnIndex.ToString()),
+                        new Xdr.ColumnOffset("-150000"),
+                        new Xdr.RowId(rowIndex.ToString()),
+                        new Xdr.RowOffset("-150000")
+                    ),
                     picture,
                     new Xdr.ClientData()
                 );

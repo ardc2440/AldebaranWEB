@@ -75,7 +75,7 @@ namespace Aldebaran.Web.Extensions
             // Configuration
             services.Configure<FtpSettings>(configuration.GetSection("FtpSettings"));
             services.Configure<AppSettings>(configuration.GetSection("AppSettings"));
-            services.Configure<InventoryMinimumAlertSettings>(configuration.GetSection("InventoryMinimumAlert"));
+            services.Configure<InventoryMinimumAlertSettings>(configuration.GetSection("InventoryMinimumAlertSettings"));
 
             builder.Services.AddControllers().AddOData(o =>
             {
@@ -282,6 +282,7 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IPurchaseOrderApprovalRangeRepository, PurchaseOrderApprovalRangeRepository>();
             services.AddTransient<INotificationDefinitionRepository, NotificationDefinitionRepository>();
             services.AddTransient<IEmployeePreferenceRepository, EmployeePreferenceRepository>();
+            services.AddTransient<INotificationAccessTokenRepository, NotificationAccessTokenRepository>();
 
             #endregion
             // Services
@@ -380,10 +381,8 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IPurchaseOrderApprovalRangeService, PurchaseOrderApprovalRangeService>();
             services.AddTransient<INotificationProcessingService, NotificationProcessingService>();
             services.AddTransient<IInventoryMinimumAlertService, InventoryMinimumAlertService>();
+            services.AddTransient<INotificationAccessTokenService, NotificationAccessTokenService>();
 
-           
-
-            
             #endregion
 
             services.AddTransient<IQueue, RabbitQueue>();

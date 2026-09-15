@@ -1,10 +1,13 @@
 ﻿using Aldebaran.Application.Services.Models;
 using Aldebaran.Application.Services.Notificator;
 using Aldebaran.Application.Services.Notificator.Model;
+using Aldebaran.Application.Services.Services;
 using Aldebaran.Infraestructure.Common.Security;
 using Aldebaran.Infraestructure.Common.Utils;
+using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using System.Linq.Dynamic.Core.Tokenizer;
 using System.Text.RegularExpressions;
 
 namespace Aldebaran.Application.Services.InventoryMinimumAlerts
@@ -17,26 +20,44 @@ namespace Aldebaran.Application.Services.InventoryMinimumAlerts
         private readonly IDashBoardService _dashboardService;
         private readonly IFileBytesGeneratorService _fileBytesGeneratorService;
         private readonly IEncryptionService _encryptionService;
-        private string _imageRepositoryPath;
-        private string _applicationUrl;
+        private readonly INotificationAccessTokenService _notificationAccessTokenService;
+        private readonly INotificationTemplateService _notificationTemplateService;
+
         private static readonly Regex _articleCodeRegex = new(@"\[(.*?)\]", RegexOptions.Compiled);
 
-        public InventoryMinimumAlertService(IEncryptionService encryptionService, IFileBytesGeneratorService fileBytesGeneratorService, IOptions<InventoryMinimumAlertSettings> settings, INotificationService notificationService, IEmployeeService employeeService, IDashBoardService dashboardService)
+        private string _imageRepositoryPath = "";
+        private string _applicationUrl = "";
+        
+        public InventoryMinimumAlertService(
+            INotificationAccessTokenService notificationAccessTokenService, 
+            IEncryptionService encryptionService, 
+            IFileBytesGeneratorService fileBytesGeneratorService, 
+            IOptions<InventoryMinimumAlertSettings> settings, 
+            INotificationService notificationService, 
+            IEmployeeService employeeService, 
+            IDashBoardService dashboardService,
+            INotificationTemplateService notificationTemplateService)
         {
             _encryptionService = encryptionService;
             _notificationService = notificationService;
             _employeeService = employeeService;
             _settings = settings;
+            _notificationTemplateService = notificationTemplateService;
             _dashboardService = dashboardService;
             _fileBytesGeneratorService = fileBytesGeneratorService;
+            _notificationAccessTokenService = notificationAccessTokenService;
         }
 
         public async Task ExecuteAsync(string imagePath, string applicationUrl, CancellationToken ct = default)
         {
             var employees = await GetRecipientsAsync(ct);
 
+            if (!employees.Any()) return;
+
             _imageRepositoryPath = imagePath;
             _applicationUrl = applicationUrl;
+
+            var notificationTemplate = await _notificationTemplateService.FindAsync(_settings.Value.NotificationSubject, ct) ?? throw new InvalidOperationException("Notification template not found");
 
             foreach (var employee in employees)
             {
@@ -45,11 +66,15 @@ namespace Aldebaran.Application.Services.InventoryMinimumAlerts
                 if (!alarms.Any()) continue;
 
                 var excel = await GenerateExcelAsync(alarms, ct);
-                var markAsReadLink = GenerateMarkAsReadLinkAsync(employee, alarms, ct);
+                var (markAsReadLink, tokenId) = GenerateMarkAsReadLinkAsync();
+                var message = BuildMessage(employee, excel);
+                var aditionalBodyMessage = BuildAdditionalBodyMessage(markAsReadLink);
+                
+                /* Despues de pasar todos los metodos se persiste el token el EmployeeId y la Lista de Alarmas 
+                   Es preferible un token perdido y no un link huerfano */
 
-                var message = BuildMessage(employee, excel, markAsReadLink, ct);
-
-                await _notificationService.Send(message, ct);
+                if (await SaveNotificationToken(employee.EmployeeId, notificationTemplate.NotificationTemplateId, alarms, tokenId, ct))
+                    await _notificationService.Send(message, aditionalBodyMessage, ct);
             }
         }
 
@@ -84,43 +109,57 @@ namespace Aldebaran.Application.Services.InventoryMinimumAlerts
             return _fileBytesGeneratorService.GetExcelBytes(data);
         }
 
-        private string GenerateMarkAsReadLinkAsync(EmployeeMail employee, List<InventoryMinimumDto> alarms, CancellationToken ct = default)
+        private (string url,Guid tokenId) GenerateMarkAsReadLinkAsync()
         {
-            if (!alarms.Any()) return string.Empty;
+            var _tokenId = Guid.NewGuid();
+            
+            var encryptedToken = _encryptionService.Encrypt(_tokenId.ToString());
 
-            var payload = new MarkAlarmsAsReadPayload
-            {
-                EmployeeId = employee.EmployeeId,
-                AlarmIds = alarms
-                    .Select(s => s.AlarmId)
-                    .Distinct()
-                    .ToList(),
-                ExpirationDate = DateTime.UtcNow.AddDays(30)
-            };
-
-            var json = JsonConvert.SerializeObject(payload);
-
-            var encryptedToken = _encryptionService.Encrypt(json);
-
-            return $"{_applicationUrl}/Notification/MarkMinimumQuantityAlarmsAsRead?token={Uri.EscapeDataString(encryptedToken)}";
+            return ($"{_applicationUrl}/Notification/MarkMinimumQuantityAlarmsAsRead?token={Uri.EscapeDataString(encryptedToken)}", _tokenId);
         }
 
-        private static MessageModel BuildMessage(EmployeeMail employeeData, byte[] excelData, string markAsReadLink, CancellationToken ct = default)
+        private MessageModel BuildMessage(EmployeeMail employeeData, byte[] excelData)
         {
+            var excelBase64 = Convert.ToBase64String(excelData);
+
             return new MessageModel
             {
-                Body = new MessageModel.EnvelopeBody
-                {
-                    Subject = "Inventory Minimum Alert",
-                    Template = "InventoryMinimumAlertTemplate"
-                },
                 Header = new MessageModel.EnvelopeHeader
                 {
-                    Subject = "Inventory Minimum Alert",
-                    MessageUid = "",
-                    ReceiverUrn = "".Split(',')
+                    MessageUid = Guid.NewGuid().ToString(),
+                    ReceiverUrn = new[] { employeeData.Email },
+                    // Debe coincidir con NotificationSettings
+                    Subject = _settings.Value.NotificationSettings
+                },
+
+                Body = new MessageModel.EnvelopeBody
+                {
+                    Template = _settings.Value.NotificationSubject,
+                    Medias = new List<MessageModel.EnvelopeBody.MediaContent>{
+                        new MessageModel.EnvelopeBody.MediaContent{
+                            ContentType ="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            FileName = $"InventarioMinimo_{DateTime.Now:yyyyMMdd HHmm}.xlsx",
+                            Hash =excelBase64
+                        }
+                    }
                 }
             };
+        }
+
+        private static string BuildAdditionalBodyMessage(string markAsReadLink)
+        {
+            return $@"  <br/>
+                        <br/>
+                        <p>
+                            Puede marcar todas las alarmas incluidas
+                            en esta notificación como leídas
+                            haciendo clic en el siguiente enlace:
+                        </p>
+                        <p>
+                            <a href=""{markAsReadLink}""> 
+                                Marcar alarmas como leídas
+                            </a>
+                        </p>";
         }
 
         private string? GetImagePath(string articleName)
@@ -139,13 +178,12 @@ namespace Aldebaran.Application.Services.InventoryMinimumAlerts
             return File.Exists(imagePath) ? imagePath : null;
         }
 
-        internal sealed class MarkAlarmsAsReadPayload
-        {
-            public int EmployeeId { get; set; }
-
-            public List<int> AlarmIds { get; set; } = new List<int>();
-
-            public DateTime ExpirationDate { get; set; }
+        private async Task<bool> SaveNotificationToken(int employeeId, short templateId, List<InventoryMinimumDto> alarms, Guid tokenId, CancellationToken ct)
+        { 
+            var safedToken = await _notificationAccessTokenService.AddAsync(employeeId, templateId, alarms.Select(a => a.AlarmId).ToList(), tokenId, ct);
+            return safedToken;
         }
+
+        internal sealed class MarkAlarmsAsReadPayload { public Guid NotificationAccessTokenId { get; set; } }
     }
 }

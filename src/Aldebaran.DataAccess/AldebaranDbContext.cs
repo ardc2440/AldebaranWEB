@@ -121,6 +121,7 @@ namespace Aldebaran.DataAccess
         public DbSet<NotificationDefinition> NotificationDefinitions { get; set; }
         public DbSet<NotificationDefinitionRole> NotificationDefinitionRoles { get; set; }
         public DbSet<NotificationDefinitionRoleView> NotificationDefinitionRoleViews { get; set; }
+        public DbSet<NotificationAccessToken> NotificationAccessTokens { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -230,7 +231,7 @@ namespace Aldebaran.DataAccess
             modelBuilder.ApplyConfiguration(new NotificationDefinitionRoleConfiguration());
             modelBuilder.ApplyConfiguration(new EmployeePreferenceConfiguration());
             modelBuilder.ApplyConfiguration(new NotificationDefinitionRoleViewConfiguration());
-
+            modelBuilder.ApplyConfiguration(new NotificationAccessTokenConfiguration());
 
             modelBuilder.Entity<InventoryAdjustmentReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<InProcessInventoryReport>(iar => { iar.HasNoKey(); });

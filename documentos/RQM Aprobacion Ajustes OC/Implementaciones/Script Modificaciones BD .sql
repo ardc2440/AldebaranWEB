@@ -159,7 +159,7 @@ SELECT @APPROVE_ROLE_ID = ID FROM AspNetRoles WHERE  Name = 'Aprobación de ajus
 SELECT @NOTIFICATION_DEFINITION_ID = NOTIFICATION_DEFINITION_ID FROM notification_definitions WHERE  NAME = 'Aprobaciones pendientes de O.C.'
 
 INSERT INTO notification_definition_roles (NOTIFICATION_DEFINITION_ID, ROLE_ID)
-VALUES (@NOTIFICATION_DEFINITION_ID, @APPROVE_ROLE_ID)
+     VALUES (@NOTIFICATION_DEFINITION_ID, @APPROVE_ROLE_ID)
 GO
 
 CREATE VIEW vw_notification_definition_roles
@@ -177,6 +177,22 @@ INSERT INTO [dbo].[AspNetRoles] (Id, ConcurrencyStamp, Name, NormalizedName)
      VALUES (NEWID(), NEWID(), 'Notificación de cantidades mínimas de inventario','NOTIFICACIÓN DE CANTIDADES MÍNIMAS DE INVENTARIO')
 GO
 
+/* nueva configuracion para el template de correo de cantidades minimas */
+INSERT INTO notification_templates(NAME, SUBJECT, MESSAGE)
+	 VALUES ('InventoryMinimumAlertTemplate', 'Notificación de Cantidades Mínimas de Inventario', '<p>Hola, </p><p>En el presente correo, encontrará adjunto el listado de referencias que tienen activa la alarma por sobrepaso de cantidades mínimas, y aún no ha visualizado.</p><p>Por favor revise el archivo adjunto para identificar las referencias que requieren gestión de abastecimiento.</p>');
+
+/* Control y almacenamiento de tokens de seguridad generados para el acceso desde el link del HOOK de los correos */
+CREATE TABLE notification_access_tokens
+(
+	NOTIFICATION_ACCESS_TOKEN_ID UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_NOTIFICATION_ACCESS_TOKEN PRIMARY KEY (NOTIFICATION_ACCESS_TOKEN_ID),
+    NOTIFICATION_TEMPLATE_ID SMALLINT NOT NULL CONSTRAINT FK_NOTIFICATION_ACCESS_TOKEN_TEMPLATE FOREIGN KEY (NOTIFICATION_TEMPLATE_ID) REFERENCES notification_templates(NOTIFICATION_TEMPLATE_ID),
+    EXTRA_DATA NVARCHAR(MAX) NULL,
+	GENERATED_DATE DATETIME NOT NULL,
+    EXPIRATION_DATE DATETIME NOT NULL,
+    IS_CONSUMED BIT NOT NULL CONSTRAINT DF_NOTIFICATION_ACCESS_TOKENIS_CONSUMED DEFAULT 0,
+    CONSUMED_DATE DATETIME NULL      
+);
+
 /*     OJO NO OLVIDAR ACTUALIZAR EL APPSETTINGS CON 
 
  "AppSettings": {
@@ -185,10 +201,11 @@ GO
 
 y 
 
- "InventoryMinimumStockReport": {
+ "InventoryMinimumAlertSettings": {
    "Enabled": true,
    "RoleName": "Notificación de cantidades mínimas de inventario",
    "NotificationSettings": "Sales",
+   "NotificationSubject": "InventoryMinimumAlertTemplate",
    "DaysOfWeek": [
      "Monday",
      "Wednesday",

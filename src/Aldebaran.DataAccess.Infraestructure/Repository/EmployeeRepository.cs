@@ -126,7 +126,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
 
         public async Task<ICollection<EmployeeMail>> GetEmployeeMailsByRoleNameAsync(string roleName, CancellationToken ct = default)
         {
-            const string query = @"SELECT d.EmployeeId AS EmployeeId, c.Email AS Email
+            const string query = @"SELECT d.Employee_Id AS EmployeeId, c.Email AS Email
                                      FROM AspNetRoles a
                                      JOIN AspNetUserRoles b ON b.RoleId = a.Id
                                      JOIN AspNetUsers c ON c.Id = b.UserId
