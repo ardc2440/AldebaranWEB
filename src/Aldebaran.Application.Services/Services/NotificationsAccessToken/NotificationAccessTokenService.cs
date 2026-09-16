@@ -23,8 +23,8 @@ namespace Aldebaran.Application.Services.NotificationsAccessToken
                 NotificationAccessTokenId = tokenId,
                 NotificationTemplateId = templateId,
                 ExtraData = JsonConvert.SerializeObject(new { EmployeeId = employeeId, AlarmIds = alarmIds }),
-                GeneratedDate = DateTime.UtcNow,
-                ExpirationDate = DateTime.UtcNow.AddHours(12),
+                GeneratedDate = DateTime.Now,
+                ExpirationDate = DateTime.Now.AddHours(12),
                 IsConsumed = false
             };
             return await _repository.AddAsync(entity, ct);

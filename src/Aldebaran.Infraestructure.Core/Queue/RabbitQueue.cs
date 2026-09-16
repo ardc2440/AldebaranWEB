@@ -43,25 +43,58 @@ namespace Aldebaran.Infraestructure.Core.Queue
         /// <inheritdoc/>
         public void Enqueue<TModel>(TModel request, IDictionary<string, object>? metadata = null)
         {
-            using var channel = Connection.CreateModel();
-            channel.QueueDeclare(queue: DefaultQueue,
-                                 durable: true,
-                                 exclusive: false,
-                                 autoDelete: false,
-                                 arguments: null);
+            try
+            {
+                Logger.LogInformation("RabbitQueue.Enqueue START. IsOpen:{IsOpen} Type:{Type}", Connection.IsOpen, typeof(TModel).FullName);
 
-            var bproperties = channel.CreateBasicProperties();
-            bproperties.Headers = metadata ?? new Dictionary<string, object>();
-            var json = JsonConvert.SerializeObject(request, Formatting.Indented,
-                            new JsonSerializerSettings
-                            {
-                                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-                            });
+                using var channel = Connection.CreateModel();
 
-            channel.BasicPublish(exchange: string.Empty,
-                                 routingKey: DefaultQueue,
-                                 basicProperties: bproperties,
-                                 body: Encoding.UTF8.GetBytes(json));
+                Logger.LogInformation("RabbitQueue.CreateModel OK. Channel:{Channel}", channel.ChannelNumber);
+
+                channel.QueueDeclare(
+                    queue: DefaultQueue,
+                    durable: true,
+                    exclusive: false,
+                    autoDelete: false,
+                    arguments: null);
+
+                Logger.LogInformation("RabbitQueue.QueueDeclare OK. Queue:{Queue}", DefaultQueue);
+
+                var bproperties = channel.CreateBasicProperties();
+
+                Logger.LogInformation("RabbitQueue.BasicProperties OK");
+
+                bproperties.Headers = metadata ?? new Dictionary<string, object>();
+
+                var json = JsonConvert.SerializeObject(request, Formatting.Indented,
+                    new JsonSerializerSettings
+                    {
+                        ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                    });
+
+                Logger.LogInformation("RabbitQueue.Serialize OK. JsonLength:{Length} Headers:{Headers}", json.Length, bproperties.Headers?.Count ?? 0);
+
+                Logger.LogInformation("Rabbit Headers: {Headers}", JsonConvert.SerializeObject(metadata ?? new Dictionary<string, object>()));
+
+                foreach (var kv in metadata ?? new Dictionary<string, object>())
+                    Logger.LogInformation("Rabbit Header => Key:{Key} Type:{Type} Value:{Value}", kv.Key, kv.Value?.GetType().FullName ?? "NULL", kv.Value?.ToString() ?? "NULL");
+
+                channel.BasicPublish(
+                    exchange: string.Empty,
+                    routingKey: DefaultQueue,
+                    basicProperties: bproperties,
+                    body: Encoding.UTF8.GetBytes(json));
+
+                Logger.LogInformation("RabbitQueue.BasicPublish OK");
+
+                Task.Delay(TimeSpan.FromSeconds(2)).Wait();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Rabbit Enqueue Failure. IsOpen:{Open} CloseReason:{Reason}", Connection.IsOpen, Connection.CloseReason?.ToString());
+
+                throw;
+            }
         }
 
         /// <inheritdoc/>

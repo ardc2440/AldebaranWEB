@@ -68,12 +68,12 @@ namespace Aldebaran.Application.Services.InventoryMinimumAlerts
                 var (markAsReadLink, tokenId) = GenerateMarkAsReadLinkAsync();
                 var message = BuildMessage(employee, excel);
                 var aditionalBodyMessage = BuildAdditionalBodyMessage(markAsReadLink);
-                
+
                 /* Despues de pasar todos los metodos se persiste el token el EmployeeId y la Lista de Alarmas 
                    Es preferible un token perdido y no un link huerfano */
 
                 if (await SaveNotificationToken(employee.EmployeeId, notificationTemplate.NotificationTemplateId, alarms, tokenId, ct))
-                    await _notificationService.Send(message, aditionalBodyMessage, ct);
+                    await _notificationService.Send(message, aditionalBodyMessage, ct);                
             }
         }
 
