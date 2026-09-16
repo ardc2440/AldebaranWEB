@@ -196,7 +196,8 @@ CREATE TABLE notification_access_tokens
 /*     OJO NO OLVIDAR ACTUALIZAR EL APPSETTINGS CON 
 
  "AppSettings": {
-	"ApplicationUrl": "http://192.168.10.2"
+    "RequirePurchaseOrderAdjustmentApproval": true,
+	"ApplicationUrl": "http://192.168.10.2",
 }
 
 y 
