@@ -1,6 +1,7 @@
+using Aldebaran.DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-namespace Aldebaran.DataAccess.Entities
+namespace Aldebaran.DataAccess.Configuration
 {
     // ****************************************************************************************************
     // This is not a commercial licence, therefore only a few tables/views/stored procedures are generated.

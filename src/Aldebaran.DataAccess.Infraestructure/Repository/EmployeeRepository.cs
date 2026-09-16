@@ -1,4 +1,7 @@
 ﻿using Aldebaran.DataAccess.Entities;
+using Aldebaran.DataAccess.Entities.Reports;
+using Aldebaran.DataAccess.Infraestructure.Models;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
@@ -118,6 +121,23 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                             .Where(w => w.AlarmTypeId == alarmTypeId)
                             .Select(s => s.Employee)
                             .ToListAsync(ct);
+            }, ct);
+        }
+
+        public async Task<ICollection<EmployeeMail>> GetEmployeeMailsByRoleNameAsync(string roleName, CancellationToken ct = default)
+        {
+            const string query = @"SELECT d.Employee_Id AS EmployeeId, c.Email AS Email
+                                     FROM AspNetRoles a
+                                     JOIN AspNetUserRoles b ON b.RoleId = a.Id
+                                     JOIN AspNetUsers c ON c.Id = b.UserId
+                                     JOIN employees d ON d.LOGIN_USER_ID = c.Id
+                                    WHERE c.NormalizedEmail IS NOT NULL
+                                      AND c.NormalizedEmail <> '' 
+                                      AND a.Name = @RoleName";
+
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                return await dbContext.Set<EmployeeMail>().FromSqlRaw($"{query}", new SqlParameter("@RoleName", roleName)).ToListAsync(ct);
             }, ct);
         }
     }

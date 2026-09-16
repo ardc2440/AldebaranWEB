@@ -161,6 +161,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                     ReferenceId = s.ReferenceId,
                     WarehouseId = s.WarehouseId,
                     RequestedQuantity = s.RequestedQuantity,
+                    PurchaseOrderDetailId = s.PurchaseOrderDetailId
                 }).ToList();
                 var ordersAffected = await PurchaseOrderService.GetAffectedCustomerOrders(PurchaseOrder.PurchaseOrderId, PurchaseOrder.ExpectedReceiptDate, purchaseOrderDetails);
                 var reasonResult = await DialogService.OpenAsync<PurchaseOrderModificationReasonDialog>("Confirmar modificación", new Dictionary<string, object> { { "DOCUMENT_TYPE_CODE", "O" }, { "TITLE", "Está seguro que desea actualizar esta orden de compra?" }, { "CUSTOMER_ORDERS", ordersAffected } }, options: new DialogOptions { CloseDialogOnOverlayClick = false, Width = "800px" });

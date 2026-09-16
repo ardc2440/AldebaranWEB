@@ -1,7 +1,7 @@
-using Aldebaran.DataAccess.Configuration;
+using Aldebaran.DataAccess.Entities;
 using Aldebaran.DataAccess.Core;
 using Aldebaran.DataAccess.Core.Atributes;
-using Aldebaran.DataAccess.Entities;
+using Aldebaran.DataAccess.Configuration;
 using Aldebaran.DataAccess.Entities.Reports;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -114,7 +114,15 @@ namespace Aldebaran.DataAccess
         public DbSet<FtpWritingConnection> FtpWritingConnections { get; set; }
         public DbSet<AutomataNotificationRecipient> AutomataNotificationRecipients { get; set; }
         public DbSet<AutomataConnectivityErrorPattern> AutomataConnectivityErrorPatterns { get; set; }
-        
+        public DbSet<PurchaseOrderApprovalRange> PurchaseOrderApprovalRanges { get; set; }
+        public DbSet<PurchaseOrderApprovalRangeLog> PurchaseOrderApprovalRangeLogs { get; set; }
+        public DbSet <PurchaseOrderAdjustmentLog> PurchaseOrderAdjustmentLogs { get; set; }
+        public DbSet<EmployeePreference> EmployeePreferences { get; set; }
+        public DbSet<NotificationDefinition> NotificationDefinitions { get; set; }
+        public DbSet<NotificationDefinitionRole> NotificationDefinitionRoles { get; set; }
+        public DbSet<NotificationDefinitionRoleView> NotificationDefinitionRoleViews { get; set; }
+        public DbSet<NotificationAccessToken> NotificationAccessTokens { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
         }
@@ -216,7 +224,15 @@ namespace Aldebaran.DataAccess
             modelBuilder.ApplyConfiguration(new AutomaticCustomerOrderDetailConfiguration());
             modelBuilder.ApplyConfiguration(new VisualizedAutomaticCustomerOrderInProcessModificationConfiguration());
             modelBuilder.ApplyConfiguration(new AutomaticCustomerOrderInProcessModificationConfiguration());
-            
+            modelBuilder.ApplyConfiguration(new PurchaseOrderApprovalRangeConfiguration());
+            modelBuilder.ApplyConfiguration(new PurchaseOrderApprovalRangeLogConfiguration());
+            modelBuilder.ApplyConfiguration(new PurchaseOrderAdjustmentLogConfiguration());
+            modelBuilder.ApplyConfiguration(new NotificationDefinitionConfiguration());
+            modelBuilder.ApplyConfiguration(new NotificationDefinitionRoleConfiguration());
+            modelBuilder.ApplyConfiguration(new EmployeePreferenceConfiguration());
+            modelBuilder.ApplyConfiguration(new NotificationDefinitionRoleViewConfiguration());
+            modelBuilder.ApplyConfiguration(new NotificationAccessTokenConfiguration());
+
             modelBuilder.Entity<InventoryAdjustmentReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<InProcessInventoryReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<InventoryReport>(iar => { iar.HasNoKey(); });
@@ -236,6 +252,7 @@ namespace Aldebaran.DataAccess
             modelBuilder.Entity<AutomaticCustomerOrderAssigmentReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<AutomaticPendingCustomerOrderInProcessReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<MinimumWarehouseStockReport>(iar => { iar.HasNoKey(); });
+            modelBuilder.Entity<EmployeeMail>().HasNoKey();
 
             modelBuilder.Entity<CustomerOrderAffectedByPurchaseOrderUpdate>(iar =>
             {

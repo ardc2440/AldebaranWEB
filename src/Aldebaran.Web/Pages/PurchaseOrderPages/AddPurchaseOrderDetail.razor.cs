@@ -1,6 +1,5 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
-using Aldebaran.DataAccess.Entities;
 using Aldebaran.Web.Models;
 using Aldebaran.Web.Pages.ItemPages;
 using Microsoft.AspNetCore.Components;

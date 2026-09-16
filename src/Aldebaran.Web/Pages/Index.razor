@@ -32,6 +32,20 @@
     <RadzenColumn>
         <RadzenTabs TabPosition="TabPosition.Left" RenderMode="TabRenderMode.Client">
             <Tabs>
+
+                <RadzenTabsItem Visible="@(pendingApprovalPurchaseOrderNotificationVisible)">
+                    <Template>
+                        <div style="display: flex; align-items: center; margin-bottom: 5px; height: 40px; width: 200px; font-size: 14px; padding: 0 8px;">
+                            <RadzenImage Click="@(() => AlertClick(12))" Visible="@pendingApprovalPurchaseOrderAlertVisible" Path="images/alert.gif" Style="width: 25px; height: 20px; vertical-align: middle; margin-right: 8px;" />Aprobación de ajustes<br>en órdenes<br>de compra
+                        </div>
+                    </Template>
+                    <ChildContent>
+                        <RadzenRow class="mb-2">
+                            <PendingApprovalPurchaseOrderNotifications @ref="pendingApprovalPurchaseOrderNotifications" OnAlertVisibleChanged="@UpdateAlert" />
+                        </RadzenRow>
+                    </ChildContent>
+                </RadzenTabsItem>
+
                 <RadzenTabsItem Visible="@(minimumQuantityNotificatioVisible)">
                     <Template>
                         <div style="display: flex; align-items: center; margin-bottom: 5px; height: 40px; width: 200px; font-size: 14px; padding: 0 8px;">

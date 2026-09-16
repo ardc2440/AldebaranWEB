@@ -1,4 +1,5 @@
 ﻿using Aldebaran.DataAccess.Entities;
+using Aldebaran.DataAccess.Infraestructure.Models;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
@@ -13,5 +14,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         Task DeleteAsync(int employeeId, CancellationToken ct = default);
         Task<IEnumerable<Employee>> GetByAreaAsync(short areaId, CancellationToken ct = default);
         Task<IEnumerable<Employee>> GetByAlarmTypeAsync(short alarmTypeId, CancellationToken ct = default);
+        Task<ICollection<EmployeeMail>> GetEmployeeMailsByRoleNameAsync(string roleName, CancellationToken ct = default);
     }
 }

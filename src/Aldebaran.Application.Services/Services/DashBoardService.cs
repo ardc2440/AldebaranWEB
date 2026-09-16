@@ -79,7 +79,6 @@ namespace Aldebaran.Application.Services
             var data = await _repository.GetMinimumLocalWarehouseQuantityAlarmsAsync(employeeId, searchKey, ct);
             return _mapper.Map<IEnumerable<MinimumLocalWarehouseQuantityArticle>>(data);
         }
-
         public async Task<IEnumerable<LocalWarehouseAlarm>> GetLocalWarehouseAlarm(int employeeId, string? searchKey = null, CancellationToken ct = default)
         {
             var data = await _repository.GetLocalWarehouseAlarmAsync(employeeId, searchKey, ct);
@@ -104,6 +103,11 @@ namespace Aldebaran.Application.Services
         {
             var data = await _repository.GetModificatedAutomaticCustomerInProcessAlarmsAsync(employeeId, searchKey, ct);
             return _mapper.Map<IEnumerable<AutomaticCustomerOrderInProcessModification>>(data);
+        }
+        public async Task<IEnumerable<PurchaseOrder>> GetPendingApprovalPurchaseOrdersAsync(string? searchKey = null, CancellationToken ct = default)
+        {
+            var data = await _repository.GetPendingApprovalPurchaseOrdersAsync(searchKey, ct);
+            return _mapper.Map<IEnumerable<PurchaseOrder>>(data);
         }
     }
 }

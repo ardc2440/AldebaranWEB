@@ -1,6 +1,6 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
-using Aldebaran.Web.Pages.DashboardNotificationComponents;
+using Aldebaran.Web.Pages.DashboardNotificationComponents;  
 using Aldebaran.Web.Utils;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Caching.Memory;
@@ -42,6 +42,7 @@ namespace Aldebaran.Web.Pages
         protected bool expiredReservationNotificationVisible;
         protected bool customerOrderExpirationNotificationVisible;
         protected bool purchaseOrderExpirationNotificationVisible;
+        protected bool pendingApprovalPurchaseOrderNotificationVisible;
         protected bool purchaseOrderTransitAlarmNotificationsVisible;
         protected bool emailErrorNotificationsVisible;
         protected bool confirmedPurchaseOrderNotificationsVisible;
@@ -55,6 +56,7 @@ namespace Aldebaran.Web.Pages
         protected bool expiredReservationAlertVisible;
         protected bool customerOrderExpirationAlertVisible;
         protected bool purchaseOrderExpirationAlertVisible;
+        protected bool pendingApprovalPurchaseOrderAlertVisible;
         protected bool purchaseOrderTransitAlertVisible;
         protected bool emailErrorAlertVisible;
         protected bool confirmedPurchaseOrderAlertVisible;
@@ -68,6 +70,7 @@ namespace Aldebaran.Web.Pages
         protected ExpiredReservationNotifications expiredReservationNotifications;
         protected CustomerOrderExpirationNotifications customerOrderExpirationNotifications;
         protected PurchaseOrderExpirationNotifications purchaseOrderExpirationNotifications;
+        protected PendingApprovalPurchaseOrderNotifications pendingApprovalPurchaseOrderNotifications;
         protected PurchaseOrderTransitAlarmNotifications purchaseOrderTransitAlarmNotifications;
         protected EmailWithErrorNotifications emailWithErrorNotifications;
         protected ConfirmedPurchaseOrderNotifications confirmedPurchaseOrderNotifications;
@@ -105,6 +108,7 @@ namespace Aldebaran.Web.Pages
             expiredReservationNotificationVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por reservas vencidas");
             customerOrderExpirationNotificationVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por pedidos vencidos");
             purchaseOrderExpirationNotificationVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por órdenes próximas a su vencimiento");
+            pendingApprovalPurchaseOrderNotificationVisible = Security.IsInRole("Administrador", "Aprobación de ajustes en órdenes de compra");
             purchaseOrderTransitAlarmNotificationsVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por alarmas de órdenes modificadas con afectación en pedido");
             emailErrorNotificationsVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por envio de correo con error");
             confirmedPurchaseOrderNotificationsVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por creación automática de traslados a proceso");
@@ -154,6 +158,7 @@ namespace Aldebaran.Web.Pages
             if (expiredReservationNotificationVisible) await expiredReservationNotifications.Update();
             if (customerOrderExpirationNotificationVisible) await customerOrderExpirationNotifications.Update();
             if (purchaseOrderExpirationNotificationVisible) await purchaseOrderExpirationNotifications.Update();
+            if (pendingApprovalPurchaseOrderNotificationVisible) await pendingApprovalPurchaseOrderNotifications.Update();
             if (purchaseOrderTransitAlarmNotificationsVisible) await purchaseOrderTransitAlarmNotifications.Update();
             if (emailErrorNotificationsVisible) await emailWithErrorNotifications.Update();
             if (confirmedPurchaseOrderNotificationsVisible) await confirmedPurchaseOrderNotifications.Update();
@@ -219,6 +224,9 @@ namespace Aldebaran.Web.Pages
                     break;
                 case 12:
                     automaticInProcessModificationAlertVisible = value;
+                    break;
+                case 13:
+                    pendingApprovalPurchaseOrderAlertVisible = value;
                     break;
                 default:
                     break;

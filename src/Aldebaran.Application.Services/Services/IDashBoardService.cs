@@ -22,5 +22,6 @@ namespace Aldebaran.Application.Services
         Task<IEnumerable<AutomaticCustomerOrder>> GetAutomaticCustomerOrdersAssigment(int processId, CancellationToken ct = default);
         Task<IEnumerable<AutomaticCustomerOrderDetail>> GetAutomaticCustomerOrderDetailsAssigment(int processOrderId, CancellationToken ct = default);
         Task<IEnumerable<AutomaticCustomerOrderInProcessModification>> GetModificatedAutomaticCustomerInProcessAlarmsAsync(int employeeId, string? searchKey = null, CancellationToken ct = default);
+        Task<IEnumerable<PurchaseOrder>> GetPendingApprovalPurchaseOrdersAsync(string? searchKey = null, CancellationToken ct = default);
     }
 }

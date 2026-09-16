@@ -11,5 +11,6 @@ namespace Aldebaran.DataAccess.Entities
 
         public ICollection<CustomerOrderNotification> CustomerOrderNotifications { get; set; } = null!;
         public ICollection<CustomerReservationNotification> CustomerReservationNotifications { get; set; } = null!;
+        public ICollection<NotificationAccessToken> NotificationAccessTokens { get; set; } = null!;
     }
 }

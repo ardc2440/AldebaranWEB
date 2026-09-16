@@ -1,7 +1,9 @@
 using Aldebaran.Application.Services;
+using Aldebaran.Web.Models;
 using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.Extensions.Options;
 using Radzen;
 using Radzen.Blazor;
 using ServiceModel = Aldebaran.Application.Services.Models;
@@ -23,6 +25,8 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         [Inject]
         protected TooltipService TooltipService { get; set; }
 
+        [Inject]
+        protected NotificationService NotificationService { get; set; }
 
         [Inject]
         protected IPurchaseOrderService PurchaseOrderService { get; set; }
@@ -39,11 +43,23 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         [Inject]
         protected IWarehouseService WarehouseService { get; set; }
 
+        [Inject]
+        protected IEmployeeService EmployeeService { get; set; }
+
+        [Inject]
+        protected SecurityService Security { get; set; }
+
+        [Inject]
+        public IOptions<AppSettings> Settings { get; set; }
+
         #endregion
 
         #region Parameters
         [Parameter]
         public string PURCHASE_ORDER_ID { get; set; } = null;
+
+        [Parameter]
+        public bool ApprovalMode { get; set; } = false;
         #endregion
 
         #region Variables
@@ -59,6 +75,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         protected bool IsSubmitInProgress;
         protected bool isLoadingInProgress;
         protected string Error;
+        protected string reason;
         #endregion
 
         #region Overrides
@@ -98,14 +115,28 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         #endregion
 
         #region Events
+
         void ShowTooltip(ElementReference elementReference, string content, TooltipOptions options = null) => TooltipService.Open(elementReference, content, options);
         protected async Task GetDataAsync(int purchaseOrderId, CancellationToken ct = default)
         {
             await Task.Yield();
-            var orderDetails = await PurchaseOrderDetailService.GetByPurchaseOrderIdAsync(purchaseOrderId);
+            var orderDetails = await PurchaseOrderDetailService.GetByPurchaseOrderIdAsync(purchaseOrderId, ct);
             PurchaseOrderDetails = orderDetails.ToList();
-            PurchaseOrderDetails.ForEach(f => f.ReceivedQuantity = f.ReceivedQuantity == 0 ? null : f.ReceivedQuantity);            
+            PurchaseOrderDetails.ForEach(f => f.ReceivedQuantity = f.ReceivedQuantity == 0 ? null : f.ReceivedQuantity);
         }
+
+        protected async void CellRender(DataGridCellRenderEventArgs<ServiceModel.PurchaseOrderDetail> args)
+        {
+            if (!ApprovalMode)
+                return;
+
+            var difference = args.Data.RequestedQuantity != args.Data.ReceivedQuantity;
+            if (difference)
+            {
+                args.Attributes.Add("style", $"background-color:#ffa7a7");
+            }
+        }
+
         #region PurchaseOrder
         private int PROVIDER_ID { get; set; }
         protected async Task FormSubmit()
@@ -117,21 +148,42 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
 
                 IsSubmitInProgress = true;
                 Submitted = true;
+
                 if (PurchaseOrderDetails.Any(a => a.ReceivedQuantity == null) || detailToUpdate != null)
                     return;
+
                 if (await DialogService.Confirm("Desea confirmar la orden de compra?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar orden de compra") == true)
                 {
                     var now = DateTime.Now;
+
                     // Complementar la orden compra
                     PurchaseOrder.PurchaseOrderDetails = PurchaseOrderDetails.Select(s => new ServiceModel.PurchaseOrderDetail
                     {
                         PurchaseOrderDetailId = s.PurchaseOrderDetailId,
+                        RequestedQuantity = s.RequestedQuantity,
                         ReceivedQuantity = s.ReceivedQuantity,
                         WarehouseId = s.WarehouseId
                     }).ToList();
 
-                    await PurchaseOrderService.ConfirmAsync(PurchaseOrder.PurchaseOrderId, PurchaseOrder);
-                    NavigationManager.NavigateTo($"purchase-orders/confirm/{PurchaseOrder.PurchaseOrderId}");
+                    var continueConfirmation = await CanContinueConfirmation();
+
+                    if (!continueConfirmation)
+                        return;
+
+                    if (ApprovalMode)
+                    {
+                        var employee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id);
+
+                        await PurchaseOrderService.ConfirmAsync(PurchaseOrder.PurchaseOrderId, PurchaseOrder, employee.EmployeeId, reason);
+
+                        DialogService.Close(true);
+                    }
+                    else
+                    {
+                        await PurchaseOrderService.ConfirmAsync(PurchaseOrder.PurchaseOrderId, PurchaseOrder);
+
+                        NavigationManager.NavigateTo($"purchase-orders/confirm/{PurchaseOrder.PurchaseOrderId}");
+                    }
                 }
             }
             catch (Exception ex)
@@ -145,6 +197,40 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
                 IsSubmitInProgress = false;
             }
         }
+
+        internal async Task<bool> CanContinueConfirmation()
+        {
+            if (ApprovalMode )
+                return true;
+
+            if (!Settings.Value.RequirePurchaseOrderAdjustmentApproval)
+                return true;
+
+            var validation = await PurchaseOrderService.ValidateConfirmationAsync(PurchaseOrder);
+
+            if (validation.RequiresApproval)
+            {
+                if (await DialogService.Confirm("Los ajustes realizados requieren aprobación para la confirmación de la orden de compra. Desea continuar?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Aprobacion de ajustes") == false)
+                    return false;
+
+                var employee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id);
+
+                var approvalRequested = await PurchaseOrderService.RequestApprovalAsync(PurchaseOrder.PurchaseOrderId, PurchaseOrder, employee.EmployeeId);
+
+                if (!approvalRequested)
+                {
+                    await DialogService.Alert("La solicitud de aprobación no pudo ser enviada", options: new AlertOptions { OkButtonText = "Cerrar" }, title: "Aprobación de ajustes");
+                    return false;
+                }
+
+                await DialogService.Alert("La solicitud de aprobación ha sido generada", options: new AlertOptions { OkButtonText = "Continuar" }, title: "Aprobación de ajustes");
+                NavigationManager.NavigateTo($"purchase-orders/confirm/{PurchaseOrder.PurchaseOrderId}");
+
+                return false;
+            }
+
+            return true;
+        }
         protected async Task AgentForwarderHandler(ServiceModel.ForwarderAgent agent)
         {
             PurchaseOrder.ForwarderAgentId = agent?.ForwarderAgentId ?? 0;
@@ -157,13 +243,30 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
         }
         protected async Task CancelPurchaseOrder(MouseEventArgs args)
         {
-            NavigationManager.NavigateTo("purchase-orders");
+            if (ApprovalMode)
+                DialogService.Close(false);
+            else
+                NavigationManager.NavigateTo("purchase-orders");
+        }
+        private async Task ShowImageDialog(string articleName)
+        {
+            await DialogService.OpenAsync<ImageDialog>("", new Dictionary<string, object> { { "ArticleName", articleName } });
+        }
+        private async Task ReturnPurchaseOrder()
+        {
+            if (string.IsNullOrWhiteSpace(reason))
+            {
+                NotificationService.Notify(NotificationSeverity.Warning, "Validación", "Debe ingresar un motivo para devolver la orden");
+                return;
+            }
+
+            var employee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id);
+
+            await PurchaseOrderService.DenyApprovalAsync(PurchaseOrder.PurchaseOrderId, employee.EmployeeId, reason);
+
+            DialogService.Close(true);
         }
 
-        private async Task ShowImageDialog(string articleName) => DialogService.Open<ImageDialog>("", new Dictionary<string, object>
-            {
-                { "ArticleName", articleName }
-            });
         #endregion
 
         #region PurchaseOrderDetail
@@ -215,7 +318,7 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
 
             await PurchaseOrderDetailGrid.UpdateRow(item);
             Reset();
-            return;            
+            return;
         }
 
         protected async Task CancelEditReceivedQuantity(ServiceModel.PurchaseOrderDetail item)
@@ -224,12 +327,14 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages
             await GetDataAsync(item.PurchaseOrderId);
             PurchaseOrderDetailGrid.CancelEditRow(item);
         }
+
         void Reset()
         {
             detailToUpdate = null;
         }
 
         #endregion
+
         #endregion
     }
 }

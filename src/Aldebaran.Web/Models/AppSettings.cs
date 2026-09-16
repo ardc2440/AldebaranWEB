@@ -12,5 +12,7 @@
         public int VariationMonthNumber { get; set; }
         public string ImageRepositoryPath { get; set; }
         public int ProcessSatelliteId { get; set; }
+        public bool RequirePurchaseOrderAdjustmentApproval { get; set; }
+        public string ApplicationUrl { get; set; } = string.Empty;
     }
 }

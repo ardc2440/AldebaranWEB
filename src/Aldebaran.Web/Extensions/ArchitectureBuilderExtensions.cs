@@ -1,6 +1,10 @@
 ﻿using Aldebaran.Application.Services;
+using Aldebaran.Application.Services.InventoryMinimumAlerts;
+using Aldebaran.Application.Services.Notifications;
+using Aldebaran.Application.Services.NotificationsAccessToken;
 using Aldebaran.Application.Services.Reports;
 using Aldebaran.Application.Services.Services;
+using Aldebaran.Application.Services.InventoryMinimumAlerts.Models;
 using Aldebaran.DataAccess;
 using Aldebaran.DataAccess.Core.Triggers.Adjustments;
 using Aldebaran.DataAccess.Core.Triggers.OrderInProcesses;
@@ -12,10 +16,12 @@ using Aldebaran.DataAccess.Core.Triggers.Transfers;
 using Aldebaran.DataAccess.Infraestructure.Repository;
 using Aldebaran.DataAccess.Infraestructure.Repository.Reports;
 using Aldebaran.Infraestructure.Common.Browser;
+using Aldebaran.Infraestructure.Common.Security;
 using Aldebaran.Infraestructure.Common.Utils;
 using Aldebaran.Infraestructure.Core.Model;
 using Aldebaran.Infraestructure.Core.Queue;
 using Aldebaran.Infraestructure.Core.Ssh;
+using Aldebaran.Infrastructure.Common.Security;
 using Aldebaran.Web.Data;
 using Aldebaran.Web.Models;
 using Aldebaran.Web.Settings;
@@ -27,6 +33,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OData.ModelBuilder;
 using Polly;
 using Radzen;
+using InventoryMinimumAlertWebService = Aldebaran.Web.Services.InventoryMinimumAlert;
+using NotificationWebService = Aldebaran.Web.Services.Notifications;
 using Notificator = Aldebaran.Application.Services.Notificator;
 
 namespace Aldebaran.Web.Extensions
@@ -56,6 +64,7 @@ namespace Aldebaran.Web.Extensions
                 options.Password.RequireUppercase = true;
                 options.Password.RequireLowercase = true;
             });
+
             // Data context
             services.AddDbContext<DataAccess.AldebaranDbContext>(options => { options.UseSqlServer(dbConnection).AddTriggers(); }, ServiceLifetime.Scoped, ServiceLifetime.Scoped);
             //
@@ -67,6 +76,7 @@ namespace Aldebaran.Web.Extensions
             // Configuration
             services.Configure<FtpSettings>(configuration.GetSection("FtpSettings"));
             services.Configure<AppSettings>(configuration.GetSection("AppSettings"));
+            services.Configure<InventoryMinimumAlertSettings>(configuration.GetSection("InventoryMinimumAlertSettings"));
 
             builder.Services.AddControllers().AddOData(o =>
             {
@@ -109,7 +119,7 @@ namespace Aldebaran.Web.Extensions
             builder.Services.AddTransient<ICacheHelper, CacheHelper>();
             builder.Services.AddSingleton(AutoMapperConfiguration.Configure());
             builder.Services.AddTransient<IFileBytesGeneratorService, FileBytesGeneratorService>();
-            builder.Services.AddTransient<ITimerPreferenceService, TimerPreferenceService>();            
+            builder.Services.AddTransient<ITimerPreferenceService, TimerPreferenceService>();
             services.AddScoped<IContextConfiguration, ContextConfiguration>();
             // Logging
             builder.Logging.ClearProviders();
@@ -265,11 +275,15 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IVisualizedAutomaticInProcessAlarmRepository, VisualizedAutomaticInProcessAlarmRepository>();
             services.AddTransient<IAutomaticPurchaseOrderAssigmentReportRepository, AutomaticPurchaseOrderAssigmentReportRepository>();
             services.AddTransient<IVisualizedAutomaticCustomerInProcessModificationRepository, VisualizedAutomaticCustomerInProcessModificationRepository>();
-            services.AddTransient<IMinimumWarehouseStockReportRepository, MinimumWarehouseStockReportRepository>(); 
+            services.AddTransient<IMinimumWarehouseStockReportRepository, MinimumWarehouseStockReportRepository>();
             services.AddTransient<IInventoryAutomationConnectionRepository, InventoryAutomationConnectionRepository>();
             services.AddTransient<IFtpWritingConnectionRepository, FtpWritingConnectionRepository>();
             services.AddTransient<IAutomataNotificationRecipientRepository, AutomataNotificationRecipientRepository>();
             services.AddTransient<IAutomataConnectivityErrorPatternRepository, AutomataConnectivityErrorPatternRepository>();
+            services.AddTransient<IPurchaseOrderApprovalRangeRepository, PurchaseOrderApprovalRangeRepository>();
+            services.AddTransient<INotificationDefinitionRepository, NotificationDefinitionRepository>();
+            services.AddTransient<IEmployeePreferenceRepository, EmployeePreferenceRepository>();
+            services.AddTransient<INotificationAccessTokenRepository, NotificationAccessTokenRepository>();
 
             #endregion
             // Services
@@ -350,7 +364,7 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IPurchaseOrderTransitAlarmService, PurchaseOrderTransitAlarmService>();
             services.AddTransient<ICustomerOrderNotificationService, CustomerOrderNotificationService>();
             services.AddTransient<ICustomerReservationNotificationService, CustomerReservationNotificationService>();
-            services.AddTransient<IPackagingService,PackagingService>();
+            services.AddTransient<IPackagingService, PackagingService>();
             services.AddTransient<IVisualizedMinimumQuantityAlarmService, VisualizedMinimumQuantityAlarmService>();
             services.AddTransient<IVisualizedOutOfStockInventoryAlarmService, VisualizedOutOfStockInventoryAlarmService>();
             services.AddTransient<IVisualizedMinimumLocalWarehouseQuantityAlarmService, VisualizedMinimumLocalWarehouseQuantityAlarmService>();
@@ -362,9 +376,15 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IMinimumWarehouseStockReportService, MinimumWarehouseStockReportService>();
             services.AddTransient<IWarehouseStockValidationService, WarehouseStockValidationService>();
             services.AddTransient<IInventoryAutomationConnectionService, InventoryAutomationConnectionService>();
-            services.AddTransient<IFtpWritingConnectionService, FtpWritingConnectionService>();           
+            services.AddTransient<IFtpWritingConnectionService, FtpWritingConnectionService>();
             services.AddTransient<IAutomataNotificationRecipientService, AutomataNotificationRecipientService>();
             services.AddTransient<IAutomataConnectivityErrorPatternService, AutomataConnectivityErrorPatternService>();
+            services.AddTransient<IPurchaseOrderApprovalRangeService, PurchaseOrderApprovalRangeService>();
+            services.AddTransient<INotificationProcessingService, NotificationProcessingService>();
+            services.AddTransient<IInventoryMinimumAlertService, InventoryMinimumAlertService>();
+            services.AddTransient<INotificationAccessTokenService, NotificationAccessTokenService>();
+            services.AddTransient<INotificationAccessTokenHandler, InventoryMinimumAlertTokenHandler>();
+            services.AddTransient<INotificationAccessTokenHandlerFactory, NotificationAccessTokenHandlerFactory>();
 
             #endregion
 
@@ -373,6 +393,12 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<Notificator.INotificationService, Notificator.NotificationService>();
             services.AddTransient<IFtpClient, FtpClient>();
             services.AddSingleton<IBrowserProvider, BrowserProvider>();
+            services.AddTransient<INotificationDispatcher, NotificationWebService.NotificationDispatcher>();
+            services.AddSingleton<NotificationWebService.INotificationStore, NotificationWebService.NotificationStore>();
+            services.AddSingleton<IEncryptionService, EncryptionService>();
+            services.AddHostedService<NotificationWebService.NotificationWorker>();
+            services.AddHostedService<InventoryMinimumAlertWebService.NotificationWorker>();
+            services.AddDataProtection();
 
             return services;
         }

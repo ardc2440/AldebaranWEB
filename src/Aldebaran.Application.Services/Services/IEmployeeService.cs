@@ -13,5 +13,9 @@ namespace Aldebaran.Application.Services
         Task DeleteAsync(int employeeId, CancellationToken ct = default);
         Task<IEnumerable<Employee>> GetByAreaAsync(short areaId, CancellationToken ct = default);
         Task<IEnumerable<Employee>> GetByAlarmTypeAsync(short alarmTypeId, CancellationToken ct = default);
+        Task<EmployeePreference?> FindPreferenceAsync(int employeeId, CancellationToken ct = default);
+        Task CreatePreferenceAsync(int employeeId, bool enableNotifications, CancellationToken ct = default);
+        Task UpdatePreferenceAsync(int employeeId, bool enableNotifications, CancellationToken ct = default);
+        Task<ICollection<EmployeeMail>> GetEmployeeMailsByRoleNameAsync(string roleName, CancellationToken ct = default);
     }
 }

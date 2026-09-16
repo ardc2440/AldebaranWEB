@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-namespace Aldebaran.DataAccess.Entities
+using Aldebaran.DataAccess.Entities;
+
+namespace Aldebaran.DataAccess.Configuration
 {
     public class PurchaseOrderActivityConfiguration : IEntityTypeConfiguration<PurchaseOrderActivity>
     {

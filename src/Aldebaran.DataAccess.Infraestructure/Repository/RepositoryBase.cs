@@ -143,4 +143,38 @@ public abstract class RepositoryBase<TContext> where TContext : DbContext
             }
         }
     }
+
+    /// <summary>
+    /// Ejecuta una operación de lectura escalar dentro de un ámbito de transacción suprimida.
+    /// </summary>
+    /// <typeparam name="TResult"> Tipo del resultado esperado. </typeparam>
+    /// <param name="operation"> Operación a ejecutar. </param>
+    /// <param name="ct"> Token de cancelación. </param>
+    /// <returns> Resultado escalar. </returns>
+    protected async Task<TResult> ExecuteScalarAsync<TResult>(Func<TContext, Task<TResult>> operation, CancellationToken ct = default)
+    {
+        ct.ThrowIfCancellationRequested();
+
+        using (var tx = new TransactionScope(TransactionScopeOption.Suppress,
+            new TransactionOptions
+            {
+                Timeout = TimeSpan.FromMinutes(5),
+                IsolationLevel = IsolationLevel.ReadCommitted
+            },
+            TransactionScopeAsyncFlowOption.Enabled))
+
+        using (var scope = _scopeFactory.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<TContext>();
+            var currentTransaction = Transaction.Current;
+
+            if (currentTransaction != null)
+                using (ct.Register(currentTransaction.Rollback))
+                {
+                    return await operation(dbContext);
+                }
+
+            return await operation(dbContext);
+        }
+    }
 }
