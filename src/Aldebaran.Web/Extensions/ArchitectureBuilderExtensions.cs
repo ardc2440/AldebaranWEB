@@ -1,9 +1,10 @@
 ﻿using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.InventoryMinimumAlerts;
-using Aldebaran.Application.Services.Models;
 using Aldebaran.Application.Services.Notifications;
+using Aldebaran.Application.Services.NotificationsAccessToken;
 using Aldebaran.Application.Services.Reports;
 using Aldebaran.Application.Services.Services;
+using Aldebaran.Application.Services.InventoryMinimumAlerts.Models;
 using Aldebaran.DataAccess;
 using Aldebaran.DataAccess.Core.Triggers.Adjustments;
 using Aldebaran.DataAccess.Core.Triggers.OrderInProcesses;
@@ -382,6 +383,8 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<INotificationProcessingService, NotificationProcessingService>();
             services.AddTransient<IInventoryMinimumAlertService, InventoryMinimumAlertService>();
             services.AddTransient<INotificationAccessTokenService, NotificationAccessTokenService>();
+            services.AddTransient<INotificationAccessTokenHandler, InventoryMinimumAlertTokenHandler>();
+            services.AddTransient<INotificationAccessTokenHandlerFactory, NotificationAccessTokenHandlerFactory>();
 
             #endregion
 

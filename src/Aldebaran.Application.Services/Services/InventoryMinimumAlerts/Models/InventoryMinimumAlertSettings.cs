@@ -1,4 +1,4 @@
-﻿namespace Aldebaran.Application.Services.Models
+﻿namespace Aldebaran.Application.Services.InventoryMinimumAlerts.Models
 {
     public class InventoryMinimumAlertSettings
     {

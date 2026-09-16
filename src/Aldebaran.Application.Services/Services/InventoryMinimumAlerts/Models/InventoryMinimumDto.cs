@@ -1,6 +1,6 @@
 ﻿using Aldebaran.Infrastructure.Common.Attributes;
 
-namespace Aldebaran.Application.Services.InventoryMinimumAlerts
+namespace Aldebaran.Application.Services.InventoryMinimumAlerts.Models
 {
     public class InventoryMinimumDto
     {

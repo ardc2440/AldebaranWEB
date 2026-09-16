@@ -1,5 +1,5 @@
 ﻿using Aldebaran.Application.Services.InventoryMinimumAlerts;
-using Aldebaran.Application.Services.Models;
+using Aldebaran.Application.Services.InventoryMinimumAlerts.Models;
 using Aldebaran.Web.Models;
 using Microsoft.Extensions.Options;
 

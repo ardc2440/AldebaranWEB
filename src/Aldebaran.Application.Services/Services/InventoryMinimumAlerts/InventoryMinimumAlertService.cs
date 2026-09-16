@@ -1,14 +1,13 @@
 ﻿using Aldebaran.Application.Services.Models;
 using Aldebaran.Application.Services.Notificator;
 using Aldebaran.Application.Services.Notificator.Model;
-using Aldebaran.Application.Services.Services;
+using Aldebaran.Application.Services.NotificationsAccessToken;
 using Aldebaran.Infraestructure.Common.Security;
 using Aldebaran.Infraestructure.Common.Utils;
-using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using System.Linq.Dynamic.Core.Tokenizer;
 using System.Text.RegularExpressions;
+using Aldebaran.Application.Services.InventoryMinimumAlerts.Models;
+using Aldebaran.Application.Services.InventoryMinimumAlerts.Models;
 
 namespace Aldebaran.Application.Services.InventoryMinimumAlerts
 {
