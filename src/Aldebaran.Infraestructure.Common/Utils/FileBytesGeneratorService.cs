@@ -82,24 +82,33 @@ namespace Aldebaran.Infraestructure.Common.Utils
                         FormatColumns = false
                     });
 
-
                 var headerRow = new Row();
-                var worksheetColumns = new DocumentFormat.OpenXml.Spreadsheet.Columns();
+                var worksheetColumns = new Columns();
                 uint columnIndex = 1;
 
                 foreach (var column in columns)
                 {
-                    if (column.IsImage)
-                    {
-                        worksheetColumns.Append(
-                        new DocumentFormat.OpenXml.Spreadsheet.Column
+                    var propertyInfo = typeof(T).GetProperty(column.Name);
+
+                    var maxLength = data
+                        .Select(x =>
+                            propertyInfo?
+                                .GetValue(x)?
+                                .ToString()?
+                                .Length ?? 0)
+                        .Append((column.DisplayName ?? column.Name).Length)
+                        .Max();
+
+                    var width = column.IsImage ? 20 : Math.Min(Math.Max(maxLength + 4, 10), 60);
+
+                    worksheetColumns.Append(
+                        new Column
                         {
                             Min = columnIndex,
                             Max = columnIndex,
-                            Width = 20,
+                            Width = width,
                             CustomWidth = true
                         });
-                    }
 
                     headerRow.Append(new Cell()
                     {
@@ -212,8 +221,6 @@ namespace Aldebaran.Infraestructure.Common.Utils
                     rowIndex++;
                 }
 
-
-
                 workbookPart.Workbook.Save();
             }
 
@@ -224,7 +231,6 @@ namespace Aldebaran.Infraestructure.Common.Utils
 
             return Task.FromResult(stream.ToArray());
         }
-
         public Task<string> GetExcelTempFile<T>(List<T> data)
         {
             var tempDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? ".", "temp");
@@ -530,12 +536,12 @@ namespace Aldebaran.Infraestructure.Common.Utils
             cellStyleFormats1.Append(cellFormat1);
 
             CellFormats cellFormats1 = new CellFormats() { Count = (UInt32Value)2U };
-            CellFormat cellFormat2 = new CellFormat() { NumberFormatId = (UInt32Value)0U, FontId = (UInt32Value)0U, FillId = (UInt32Value)0U, BorderId = (UInt32Value)0U, FormatId = (UInt32Value)0U };
-            CellFormat cellFormat3 = new CellFormat() { NumberFormatId = (UInt32Value)14U, FontId = (UInt32Value)0U, FillId = (UInt32Value)0U, BorderId = (UInt32Value)0U, FormatId = (UInt32Value)0U, ApplyNumberFormat = true };
-
+            CellFormat cellFormat2 = new CellFormat() { NumberFormatId = (UInt32Value)0U, FontId = (UInt32Value)0U, FillId = (UInt32Value)0U, BorderId = (UInt32Value)0U, FormatId = (UInt32Value)0U, ApplyAlignment = true, Alignment = new Alignment() { Vertical = VerticalAlignmentValues.Center } };
+            CellFormat cellFormat3 = new CellFormat() { NumberFormatId = (UInt32Value)14U, FontId = (UInt32Value)0U, FillId = (UInt32Value)0U, BorderId = (UInt32Value)0U, FormatId = (UInt32Value)0U, ApplyNumberFormat = true, ApplyAlignment = true, Alignment = new Alignment() { Vertical = VerticalAlignmentValues.Center } };
+            
             cellFormats1.Append(cellFormat2);
             cellFormats1.Append(cellFormat3);
-
+            
             CellStyles cellStyles1 = new CellStyles() { Count = (UInt32Value)1U };
             CellStyle cellStyle1 = new CellStyle() { Name = "Normal", FormatId = (UInt32Value)0U, BuiltinId = (UInt32Value)0U };
 

@@ -47,7 +47,7 @@ namespace Aldebaran.Web.Services.InventoryMinimumAlert
                     var service = scope.ServiceProvider.GetRequiredService<IInventoryMinimumAlertService>();
 
                     _logger.LogInformation("Ejecutando InventoryMinimumAlertService");
-                    await service.ExecuteAsync(_appSettings.Value.ImageRepositoryPath, _appSettings.Value.ApplicationUrl, stoppingToken);
+                    await service.ExecuteAsync(_appSettings.Value.ImageRepositoryPath, stoppingToken);
                     _logger.LogInformation("InventoryMinimumAlertService finalizado");
                 }
                 catch (OperationCanceledException)

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Aldebaran.DataAccess.Entities
 {
-    public class NotificationDefinition : ITrackeable
+    public class NotificationDefinition 
     {
         public int NotificationDefinitionId { get; set; }
         public required string Name { get; set; }

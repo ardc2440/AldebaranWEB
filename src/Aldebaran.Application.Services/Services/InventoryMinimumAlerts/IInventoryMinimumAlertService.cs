@@ -8,6 +8,6 @@ namespace Aldebaran.Application.Services.InventoryMinimumAlerts
 {
     public interface IInventoryMinimumAlertService
     {
-        Task ExecuteAsync(string imagePath, string applicationUrl, CancellationToken cancellationToken = default);
+        Task ExecuteAsync(string imagePath, CancellationToken cancellationToken = default);
     }
 }

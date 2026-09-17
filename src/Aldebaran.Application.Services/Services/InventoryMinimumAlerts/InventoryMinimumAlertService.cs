@@ -25,7 +25,7 @@ namespace Aldebaran.Application.Services.InventoryMinimumAlerts
         private static readonly Regex _articleCodeRegex = new(@"\[(.*?)\]", RegexOptions.Compiled);
 
         private string _imageRepositoryPath = "";
-        private string _applicationUrl = "";
+        private string _markAsReadUrl = "";
         
         public InventoryMinimumAlertService(
             INotificationAccessTokenService notificationAccessTokenService, 
@@ -45,16 +45,16 @@ namespace Aldebaran.Application.Services.InventoryMinimumAlerts
             _dashboardService = dashboardService;
             _fileBytesGeneratorService = fileBytesGeneratorService;
             _notificationAccessTokenService = notificationAccessTokenService;
+            _markAsReadUrl = _settings.Value.MarkAsReadUrl;
         }
 
-        public async Task ExecuteAsync(string imagePath, string applicationUrl, CancellationToken ct = default)
+        public async Task ExecuteAsync(string imagePath, CancellationToken ct = default)
         {
             var employees = await GetRecipientsAsync(ct);
 
             if (!employees.Any()) return;
 
             _imageRepositoryPath = imagePath;
-            _applicationUrl = applicationUrl;
 
             var notificationTemplate = await _notificationTemplateService.FindAsync(_settings.Value.NotificationSubject, ct) ?? throw new InvalidOperationException("Notification template not found");
 
@@ -105,7 +105,18 @@ namespace Aldebaran.Application.Services.InventoryMinimumAlerts
 
         private Task<byte[]> GenerateExcelAsync(List<InventoryMinimumDto> data, CancellationToken ct = default)
         {
-            return _fileBytesGeneratorService.GetExcelBytes(data);
+            var exportData = data.Select(x => new InventoryMinimumExportDto
+            {
+                ArticleName = x.ArticleName,
+                ImagePath = x.ImagePath,
+                AvailableQuantity = x.AvailableQuantity,
+                MinimumQuantity = x.MinimumQuantity,
+                InTransitQuantity = x.InTransitQuantity,
+                OrderedQuantity = x.OrderedQuantity,
+                ReservedQuantity = x.ReservedQuantity
+            }).OrderBy(x => x.ArticleName).ToList();
+
+            return _fileBytesGeneratorService.GetExcelBytes(exportData);
         }
 
         private (string url,Guid tokenId) GenerateMarkAsReadLinkAsync()
@@ -114,7 +125,7 @@ namespace Aldebaran.Application.Services.InventoryMinimumAlerts
             
             var encryptedToken = _encryptionService.Encrypt(_tokenId.ToString());
 
-            return ($"{_applicationUrl}/Notification/MarkMinimumQuantityAlarmsAsRead?token={Uri.EscapeDataString(encryptedToken)}", _tokenId);
+            return ($"{_markAsReadUrl}?token={Uri.EscapeDataString(encryptedToken)}", _tokenId);
         }
 
         private MessageModel BuildMessage(EmployeeMail employeeData, byte[] excelData)

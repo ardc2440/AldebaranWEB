@@ -71,14 +71,7 @@ namespace Aldebaran.Infraestructure.Core.Queue
                     {
                         ReferenceLoopHandling = ReferenceLoopHandling.Ignore
                     });
-
-                Logger.LogInformation("RabbitQueue.Serialize OK. JsonLength:{Length} Headers:{Headers}", json.Length, bproperties.Headers?.Count ?? 0);
-
-                Logger.LogInformation("Rabbit Headers: {Headers}", JsonConvert.SerializeObject(metadata ?? new Dictionary<string, object>()));
-
-                foreach (var kv in metadata ?? new Dictionary<string, object>())
-                    Logger.LogInformation("Rabbit Header => Key:{Key} Type:{Type} Value:{Value}", kv.Key, kv.Value?.GetType().FullName ?? "NULL", kv.Value?.ToString() ?? "NULL");
-
+                                
                 channel.BasicPublish(
                     exchange: string.Empty,
                     routingKey: DefaultQueue,
