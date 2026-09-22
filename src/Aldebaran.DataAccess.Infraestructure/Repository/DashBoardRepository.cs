@@ -88,7 +88,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                                     .Include(i => i.ModifiedPurchaseOrder.PurchaseOrder.StatusDocumentType)
                                     .Include(i => i.ModifiedPurchaseOrder.PurchaseOrder.Provider)
                                     .Include(i => i.ModifiedPurchaseOrder.ModificationReason)
-                                    .Where(w => w.ModifiedPurchaseOrder.PurchaseOrder.StatusDocumentType.StatusOrder == 1 &&
+                                    .Where(w => (w.ModifiedPurchaseOrder.PurchaseOrder.StatusDocumentType.StatusOrder == 1 || w.ModifiedPurchaseOrder.PurchaseOrder.StatusDocumentType.StatusOrder == 4) &&
                                                 !dbContext.VisualizedPurchaseOrderTransitAlarms.AsNoTracking().Any(j => j.PurchaseOrderTransitAlarmId == w.PurchaseOrderTransitAlarmId &&
                                                                                                                        j.EmployeeId == employeeId))
                                     .ToListAsync(ct) :
@@ -96,7 +96,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                                     .Include(i => i.ModifiedPurchaseOrder.PurchaseOrder.StatusDocumentType)
                                     .Include(i => i.ModifiedPurchaseOrder.PurchaseOrder.Provider)
                                     .Include(i => i.ModifiedPurchaseOrder.ModificationReason)
-                                    .Where(w => w.ModifiedPurchaseOrder.PurchaseOrder.StatusDocumentType.StatusOrder == 1 &&
+                                    .Where(w => (w.ModifiedPurchaseOrder.PurchaseOrder.StatusDocumentType.StatusOrder == 1 || w.ModifiedPurchaseOrder.PurchaseOrder.StatusDocumentType.StatusOrder == 4) &&
                                                 !dbContext.VisualizedPurchaseOrderTransitAlarms.AsNoTracking().Any(j => j.PurchaseOrderTransitAlarmId == w.PurchaseOrderTransitAlarmId &&
                                                                                                                        j.EmployeeId == employeeId) &&
                                                 (w.ModifiedPurchaseOrder.PurchaseOrder.OrderNumber.Contains(searchKey) ||
@@ -118,7 +118,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                                     .Include(i => i.StatusDocumentType)
                                     .Include(i => i.ShipmentForwarderAgentMethod.ForwarderAgent.Forwarder)
                                     .Include(i => i.ShipmentForwarderAgentMethod.ShipmentMethod)
-                                    .Where(w => w.StatusDocumentType.StatusOrder == 1 &&
+                                    .Where(w => (w.StatusDocumentType.StatusOrder == 1 || w.StatusDocumentType.StatusOrder == 4) &&
                                                 EF.Functions.DateDiffDay(DateTime.Today, w.ExpectedReceiptDate) <= purchaseOrderWitheFlag)
                                     .ToListAsync(ct) :
                                 dbContext.PurchaseOrders.AsNoTracking()
@@ -126,7 +126,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                                     .Include(i => i.StatusDocumentType)
                                     .Include(i => i.ShipmentForwarderAgentMethod.ForwarderAgent.Forwarder)
                                     .Include(i => i.ShipmentForwarderAgentMethod.ShipmentMethod)
-                                    .Where(w => w.StatusDocumentType.StatusOrder == 1 &&
+                                    .Where(w => (w.StatusDocumentType.StatusOrder == 1 || w.StatusDocumentType.StatusOrder == 4) &&
                                                 EF.Functions.DateDiffDay(DateTime.Today, w.ExpectedReceiptDate) <= purchaseOrderWitheFlag &&
                                                 (w.OrderNumber.Contains(searchKey) ||
                                                  dbContext.Format(w.ExpectedReceiptDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
