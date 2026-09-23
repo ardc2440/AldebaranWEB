@@ -410,8 +410,33 @@ i.rz-button-icon-left.rzi + span.rz-button-text {
     padding: .25rem .375rem;
 }
 
-
-    /* Cambiar el color del enlace dentro de la fila seleccionada */
+/* Cambiar el color del enlace dentro de la fila seleccionada */
 .rz-data-row.rz-state-highlight a {
     color: blue !important; /* Ajustar el color del enlace */
+}
+
+.notification-tab {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;    
+    width: 200px;
+    font-size: 14px;
+    padding: 0 8px;
+    border-bottom: 1px solid #dcdcdc;
+}
+
+.notification-tabs {
+    height: calc(100vh - 220px);    
+}
+
+.notification-tabs-container {
+    max-height: 600px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.notification-tabs .rz-tabview-nav {
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+    overflow-x: hidden;
 }
