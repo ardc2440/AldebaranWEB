@@ -37,8 +37,8 @@ namespace Aldebaran.Application.Services.InventoryMinimumAlerts.Models
         [DisplayName("Cantidad mínima")]
         public int MinimumQuantity { get; set; }
 
-        [DisplayName("Disponible")]
-        public int AvailableQuantity { get; set; }
+        [DisplayName("B. Local + Zona Franca")]
+        public int TotalStock { get; set; }
 
         [DisplayName("En tránsito")]
         public int InTransitQuantity { get; set; }
@@ -48,5 +48,8 @@ namespace Aldebaran.Application.Services.InventoryMinimumAlerts.Models
 
         [DisplayName("Pedido")]
         public int OrderedQuantity { get; set; }
+
+        [DisplayName("Disponible")]
+        public int AvailableQuantity { get; set; }
     }
 }

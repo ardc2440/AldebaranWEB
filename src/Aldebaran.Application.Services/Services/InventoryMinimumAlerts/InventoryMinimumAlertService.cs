@@ -109,11 +109,12 @@ namespace Aldebaran.Application.Services.InventoryMinimumAlerts
             {
                 ArticleName = x.ArticleName,
                 ImagePath = x.ImagePath,
-                AvailableQuantity = x.AvailableQuantity,
+                TotalStock = x.AvailableQuantity,
                 MinimumQuantity = x.MinimumQuantity,
                 InTransitQuantity = x.InTransitQuantity,
                 OrderedQuantity = x.OrderedQuantity,
-                ReservedQuantity = x.ReservedQuantity
+                ReservedQuantity = x.ReservedQuantity,
+                AvailableQuantity = (x.AvailableQuantity + x.InTransitQuantity) - x.OrderedQuantity
             }).OrderBy(x => x.ArticleName).ToList();
 
             return _fileBytesGeneratorService.GetExcelBytes(exportData);
