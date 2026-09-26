@@ -1,4 +1,4 @@
-﻿using Aldebaran.Application.Services;
+using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.InventoryMinimumAlerts;
 using Aldebaran.Application.Services.Notifications;
 using Aldebaran.Application.Services.NotificationsAccessToken;
@@ -249,6 +249,7 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IInventoryAdjustmentReportRepository, InventoryAdjustmentReportRepository>();
             services.AddTransient<IInProcessInventoryReportRepository, InProcessInventoryReportRepository>();
             services.AddTransient<IInventoryReportRepository, InventoryReportRepository>();
+            services.AddTransient<IItemReferencesReportRepository, ItemReferencesReportRepository>();
             services.AddTransient<IProviderReferenceReportRepository, ProviderReferenceReportRepository>();
             services.AddTransient<IReferenceMovementReportRepository, ReferenceMovementReportRepository>();
             services.AddTransient<IWarehouseStockReportRepository, WarehouseStockReportRepository>();
@@ -346,6 +347,7 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IInventoryAdjustmentReportService, InventoryAdjustmentReportService>();
             services.AddTransient<IInProcessInventoryReportService, InProcessInventoryReportService>();
             services.AddTransient<IInventoryReportService, InventoryReportService>();
+            services.AddTransient<IItemReferencesReportService, ItemReferencesReportService>();
             services.AddTransient<IProviderReferenceReportService, ProviderReferenceReportService>();
             services.AddTransient<IReferenceMovementReportService, ReferenceMovementReportService>();
             services.AddTransient<IWarehouseStockReportService, WarehouseStockReportService>();

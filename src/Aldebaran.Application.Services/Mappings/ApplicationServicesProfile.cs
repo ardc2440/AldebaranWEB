@@ -83,6 +83,7 @@ namespace Aldebaran.Application.Services.Mappings
             CreateMap<InventoryAdjustmentReport, Entities.Reports.InventoryAdjustmentReport>().ReverseMap();
             CreateMap<InProcessInventoryReport, Entities.Reports.InProcessInventoryReport>().ReverseMap();
             CreateMap<InventoryReport, Entities.Reports.InventoryReport>().ReverseMap();
+            CreateMap<ItemReferencesReportFilter, Entities.Reports.ItemReferencesReportFilter>().ReverseMap();
             CreateMap<ProviderReferenceReport, Entities.Reports.ProviderReferenceReport>().ReverseMap();
             CreateMap<ReferenceMovementReport, Entities.Reports.ReferenceMovementReport>().ReverseMap();
             CreateMap<WarehouseStockReport, Entities.Reports.WarehouseStockReport>().ReverseMap();
