@@ -9,6 +9,35 @@
             <RadzenText Text="Reporte de artículos y referencias" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
         </RadzenColumn>
     </RadzenRow>
+    <RadzenRow AlignItems="AlignItems.Start" class="mb-2">
+        <RadzenColumn Size="6">
+            <div class="rz-text-align-left d-flex gap-3">
+                <RadzenButton Variant="Variant.Text" Icon="filter_alt" Click="@OpenFiltersAsync" Text="Filtros" ButtonStyle="ButtonStyle.Secondary" class="text-primary-color p-0 pb-1" />
+                @if (Filter != null)
+                {
+                    <RadzenButton Variant="Variant.Text" Click="@RemoveFiltersAsync" Text="Limpiar filtros" ButtonStyle="ButtonStyle.Secondary" class="text-decoration-underline p-0 pb-1" />
+                }
+            </div>
+            <ItemReferencesReportFilterSummaryView Summary="@FilterSummary" CssClass="text-secondary-color pt-2" />
+        </RadzenColumn>
+        <RadzenColumn Size="6" class="align-self-end">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.End" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                <RadzenSplitButton Icon="get_app" Text="Exportar" Click="@ExportAsync" Variant="Variant.Flat" Shade="Shade.Lighter" IsBusy="@IsExporting" Disabled="@(Report?.HasData != true)">
+                    <RadzenSplitButtonItem Text="Excel" Value="@ExcelAction" Style="cursor:pointer" />
+                </RadzenSplitButton>
+                <RadzenSplitButton Icon="build" Text="Acciones" Click="@ExecuteActionAsync" Variant="Variant.Flat" Shade="Shade.Lighter" IsBusy="@IsBusy" Disabled="@(Report?.HasData != true)">
+                    <RadzenSplitButtonItem Text="Imprimir" Icon="print" Value="@PrintAction" Style="cursor:pointer" />
+                    <RadzenSplitButtonItem Text="Guardar PDF" Icon="picture_as_pdf" Value="@PdfAction" Style="cursor:pointer" />
+                </RadzenSplitButton>
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+    @if (!string.IsNullOrEmpty(ProcessingMessage))
+    {
+        <RadzenAlert AlertStyle="AlertStyle.Info" Variant="Variant.Flat" Shade="Shade.Lighter" AllowClose="false" Icon="hourglass_top">
+            @ProcessingMessage
+        </RadzenAlert>
+    }
     <RadzenRow AlignItems="AlignItems.Start">
         <RadzenColumn Size="12">
             <RadzenCard style="min-height:600px; overflow-y:auto; position:relative">
@@ -16,9 +45,14 @@
                     <div class="report">
                         <table class="mt-1">
                             <tr>
-                                <td width="100%">
+                                <td width="50%">
                                     <h2 class="text-left mb-0">Artículos y referencias</h2>
                                     <span class="mb-1">@DateTime.Now.ToString(SharedLocalizer["datetime:format"])</span>
+                                </td>
+                                <td width="50%">
+                                    <div class="filters">
+                                        <ItemReferencesReportFilterSummaryView Summary="@FilterSummary" Title="Filtros:" />
+                                    </div>
                                 </td>
                             </tr>
                         </table>
@@ -31,9 +65,12 @@
                         }
                         else if (Report?.HasData == true)
                         {
+                            <RadzenPager @key="LoadVersion" Count="@TotalItems" PageSize="@PageSize" PageChanged="@OnPageChanged"
+                                         ShowPagingSummary="true" PagingSummaryFormat="@PagingSummaryFormat"
+                                         HorizontalAlign="HorizontalAlign.Right" class="mt-2" />
                             <table class="edged mt-1">
                                 <tbody>
-                                    @foreach (var line in Report.Lines)
+                                    @foreach (var line in CurrentPageLines)
                                     {
                                         <tr>
                                             <td width="100%" style="padding:0 !important">
@@ -42,7 +79,7 @@
                                         </tr>
                                         @foreach (var item in line.Items)
                                         {
-                                            <tr>
+                                            <tr @key="item.ItemId">
                                                 <td width="100%" class="m-0 p-0">
                                                     <ItemReferencesReportItemTable Item="@item" />
                                                 </td>
@@ -56,6 +93,12 @@
                         {
                             <div class="no-data-container">
                                 <h4>@SharedLocalizer["report:no-data"]</h4>
+                            </div>
+                        }
+                        else if (!IsLoadingData)
+                        {
+                            <div class="no-data-container">
+                                <h4>@SharedLocalizer["report:unfiltered"]</h4>
                             </div>
                         }
                     </div>

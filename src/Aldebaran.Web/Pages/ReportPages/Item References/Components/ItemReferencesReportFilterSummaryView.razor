@@ -1,0 +1,29 @@
+@if (Summary?.HasAny == true)
+{
+    <div class="component-section d-flex flex-column justify-content-start @CssClass">
+        @if (!string.IsNullOrEmpty(Title))
+        {
+            <div class="title">@Title</div>
+        }
+        @foreach (var group in Groups)
+        {
+            <div class="mt-1">
+                <span class="component-label fw-bold">@group.Caption: </span>
+                @foreach (var value in Visible(group.Values))
+                {
+                    <div>@value</div>
+                }
+                @if (HiddenCount(group.Values) > 0)
+                {
+                    <div><small>... y @HiddenCount(group.Values) más</small></div>
+                }
+            </div>
+        }
+        @if (IsTruncated)
+        {
+            <div>
+                <a href="javascript:;" @onclick="ToggleShowAll">@(ShowAll ? "Ver menos" : "Ver más")</a>
+            </div>
+        }
+    </div>
+}

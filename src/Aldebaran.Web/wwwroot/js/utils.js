@@ -61,3 +61,12 @@ async function getContent(id) {
     });
     return html;
 }
+/* Imprime un documento HTML completo ya armado (con estilos). No depende del DOM de la página.
+   Usado por reportes que generan su HTML en el servidor (ej. Artículos y referencias). */
+async function printHtml(html) {
+    var win = window.open('', '', 'height=600,width=800');
+    win.document.write(html);
+    win.document.close();
+    win.focus();
+    win.print();
+}

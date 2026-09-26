@@ -18,9 +18,9 @@ namespace Aldebaran.Web.Pages.ReportPages.Item_References.Components
         [Parameter, EditorRequired]
         public ItemReferencesReportItem Item { get; set; }
 
-        protected static string ToYesNo(bool value) => value ? "Sí" : "No";
+        protected static string ToYesNo(bool value) => ItemReferencesReportFormat.ToYesNo(value);
 
-        protected static string ToStatus(bool isActive) => isActive ? "Activo" : "Inactivo";
+        protected static string ToStatus(bool isActive) => ItemReferencesReportFormat.ToStatus(isActive);
 
         protected static string RowStyle(int index) => index % 2 == 0 ? OddRowStyle : string.Empty;
 
