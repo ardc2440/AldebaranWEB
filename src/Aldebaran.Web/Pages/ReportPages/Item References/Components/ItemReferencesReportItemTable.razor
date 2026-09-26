@@ -1,0 +1,53 @@
+<div class="p-2">
+    <table class="edged m-0">
+        <thead>
+            <tr>
+                <td colspan="9" width="100%">
+                    <div style="padding-bottom:0.5rem !important">
+                        <h3 title="Click para ver imagen" @onclick="ShowImageDialogAsync" style="cursor: pointer;" class="text-left m-0">@Item.ItemName</h3>
+                        <p class="m-0">
+                            Referencia interna: <b>@Item.InternalReference</b>
+                            &nbsp;|&nbsp; Nombre para el proveedor: <b>@Item.ProviderItemName</b>
+                            &nbsp;|&nbsp; Referencia Artículo para proveedor: <b>@Item.ProviderReference</b>
+                        </p>
+                        <p class="m-0">
+                            Estado: <b>@ToStatus(Item.IsActive)</b>
+                            &nbsp;|&nbsp; Visible en página: <b>@ToYesNo(Item.IsCatalogVisible)</b>
+                            &nbsp;|&nbsp; Producto nacional: <b>@ToYesNo(Item.IsDomesticProduct)</b>
+                            &nbsp;|&nbsp; Importación especial: <b>@ToYesNo(Item.IsSpecialImport)</b>
+                            &nbsp;|&nbsp; Promoción: <b>@ToYesNo(Item.IsSaleOff)</b>
+                        </p>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <th width="16%"><b>Nombre referencia</b></th>
+                <th width="12%"><b>Código interno</b></th>
+                <th width="16%"><b>Nombre Referencia para proveedor</b></th>
+                <th width="12%"><b>Código Referencia para proveedor</b></th>
+                <th width="8%"><b>Estado</b></th>
+                <th width="8%"><b>Agotada</b></th>
+                <th width="9%"><b>Cantidad mínima general</b></th>
+                <th width="10%"><b>Cantidad mínima en Bodega local</b></th>
+                <th width="9%"><b>Variación en orden de compra</b></th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int r = 0; r < Item.References.Count; r++)
+            {
+                var reference = Item.References[r];
+                <tr style="@RowStyle(r)">
+                    <td>@reference.ReferenceName</td>
+                    <td>@reference.ReferenceCode</td>
+                    <td>@reference.ProviderReferenceName</td>
+                    <td>@reference.ProviderReferenceCode</td>
+                    <td>@ToStatus(reference.IsActive)</td>
+                    <td>@ToYesNo(reference.IsSoldOut)</td>
+                    <td>@reference.AlarmMinimumQuantity.ToString("N0")</td>
+                    <td>@reference.MinimumLocalWarehouseQuantity.ToString("N0")</td>
+                    <td>@reference.PurchaseOrderVariation.ToString("N0")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

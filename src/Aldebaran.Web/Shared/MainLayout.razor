@@ -124,6 +124,9 @@
                     <RadzenPanelMenuItem Text="Traslados entre bodegas" Path="report/warehouse-transfers" Visible=@Security.IsInRole("Administrador", "Consulta de reportes") />
                     <RadzenPanelMenuItem Text="Zona franca vs. Disponible" Path="/report/freezone-vs-available" Visible=@Security.IsInRole("Administrador", "Consulta de reportes") />
                 </RadzenPanelMenuItem>
+                <RadzenPanelMenuItem Text="Catálogos" Icon="summarize">
+                    <RadzenPanelMenuItem Text="Artículos y referencias" Path="report/item-references" Visible=@Security.IsInRole("Administrador", "Consulta de reportes") />
+                </RadzenPanelMenuItem>
                 <RadzenPanelMenuItem Text="Clientes" Icon="summarize">
                     <RadzenPanelMenuItem Text="Reservas por cliente" Path="report/customer-reservation" Visible=@Security.IsInRole("Administrador", "Consulta de reportes") />
                     <RadzenPanelMenuItem Text="Pedidos por cliente" Path="report/customer-order" Visible=@Security.IsInRole("Administrador", "Consulta de reportes") />

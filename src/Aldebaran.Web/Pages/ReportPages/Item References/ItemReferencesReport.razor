@@ -1,0 +1,66 @@
+@page "/report/item-references"
+@using Aldebaran.Web.Pages.ReportPages.Item_References.Components
+@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
+
+<PageTitle>Reporte de artículos y referencias</PageTitle>
+<RadzenStack Style="gap:0.3em">
+    <RadzenRow AlignItems="AlignItems.Start">
+        <RadzenColumn Size="12">
+            <RadzenText Text="Reporte de artículos y referencias" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenRow AlignItems="AlignItems.Start">
+        <RadzenColumn Size="12">
+            <RadzenCard style="min-height:600px; overflow-y:auto; position:relative">
+                <div id="item-references-report-container">
+                    <div class="report">
+                        <table class="mt-1">
+                            <tr>
+                                <td width="100%">
+                                    <h2 class="text-left mb-0">Artículos y referencias</h2>
+                                    <span class="mb-1">@DateTime.Now.ToString(SharedLocalizer["datetime:format"])</span>
+                                </td>
+                            </tr>
+                        </table>
+                        <LoadingData IsLoadingData="@IsLoadingData" />
+                        @if (HasError)
+                        {
+                            <RadzenAlert AlertStyle="AlertStyle.Danger" Variant="Variant.Flat" Shade="Shade.Lighter" AllowClose="false">
+                                No fue posible generar el reporte. Intente nuevamente o comuníquese con el administrador.
+                            </RadzenAlert>
+                        }
+                        else if (Report?.HasData == true)
+                        {
+                            <table class="edged mt-1">
+                                <tbody>
+                                    @foreach (var line in Report.Lines)
+                                    {
+                                        <tr>
+                                            <td width="100%" style="padding:0 !important">
+                                                <p class="title">@line.LineName</p>
+                                            </td>
+                                        </tr>
+                                        @foreach (var item in line.Items)
+                                        {
+                                            <tr>
+                                                <td width="100%" class="m-0 p-0">
+                                                    <ItemReferencesReportItemTable Item="@item" />
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                        else if (Report != null)
+                        {
+                            <div class="no-data-container">
+                                <h4>@SharedLocalizer["report:no-data"]</h4>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </RadzenCard>
+        </RadzenColumn>
+    </RadzenRow>
+</RadzenStack>
