@@ -1,4 +1,6 @@
-﻿using Aldebaran.Application.FileWritingService.Settings;
+﻿using Aldebaran.Application.FileWritingService.Services.Browser;
+using Aldebaran.Application.FileWritingService.Services.Pdf;
+using Aldebaran.Application.FileWritingService.Settings;
 using Aldebaran.Application.FileWritingService.Workers;
 using Aldebaran.DataAccess;
 using Aldebaran.DataAccess.Infraestructure.Repository;
@@ -96,7 +98,14 @@ try
     services.AddTransient<IFileBytesGeneratorService, FileBytesGeneratorService>();
     services.AddTransient<IFtpClient, FtpClient>();
     services.AddSingleton<Aldebaran.Application.FileWritingService.Services.IEmailSender, Aldebaran.Application.FileWritingService.Services.EmailSender>();
-    services.AddSingleton<IBrowserProvider, BrowserProvider>();
+    // Chromium propio del servicio (se relanza si muere). No se usa el BrowserProvider compartido con Aldebaran.Web.
+    services.AddSingleton<SelfHealingBrowserProvider>();
+    services.AddSingleton<IResettableBrowserProvider>(sp => sp.GetRequiredService<SelfHealingBrowserProvider>());
+    services.AddSingleton<IBrowserProvider>(sp => sp.GetRequiredService<SelfHealingBrowserProvider>());
+    services.AddTransient<IInventoryPdfFileGenerator, InventoryPdfFileGenerator>();
+    services.Configure<PdfGenerationOptions>(configuration.GetSection(PdfGenerationOptions.SectionName));
+    services.Configure<FtpResilienceOptions>(configuration.GetSection(FtpResilienceOptions.SectionName));
+    services.Configure<FailureGuardOptions>(configuration.GetSection(FailureGuardOptions.SectionName));
     var host = builder.Build();
     await host.RunAsync();
 }

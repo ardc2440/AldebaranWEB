@@ -1,4 +1,6 @@
-﻿using Aldebaran.Application.FileWritingService.Workers.Inventory.Models;
+﻿using Aldebaran.Application.FileWritingService.Services.Pdf;
+using Aldebaran.Application.FileWritingService.Workers.Inventory;
+using Aldebaran.Application.FileWritingService.Workers.Inventory.Models;
 using Aldebaran.DataAccess.Infraestructure.Repository;
 using Aldebaran.DataAccess.Infraestructure.Repository.Reports;
 using Aldebaran.Infraestructure.Common.Utils;
@@ -6,6 +8,9 @@ using Aldebaran.Infraestructure.Core.Ssh;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Aldebaran.Application.FileWritingService.Settings;
+using Aldebaran.Application.FileWritingService.Services.Health;
 using NCrontab;
 using Scriban;
 using System.Diagnostics;
@@ -20,7 +25,7 @@ namespace Aldebaran.Application.FileWritingService.Workers
     {
         private readonly ILogger<InventoryFtpPdfWorker> _logger;
         private readonly IInventoryReportRepository inventoryReportRepository;
-        private readonly IFileBytesGeneratorService fileBytesGeneratorService;
+        private readonly IInventoryPdfFileGenerator _pdfFileGenerator;
         private readonly IFtpClient ftpClient;
         private readonly IFtpWritingConnectionRepository ftpWritingConnectionRepository;
         private readonly string TemplatePath;
@@ -32,16 +37,20 @@ namespace Aldebaran.Application.FileWritingService.Workers
         private readonly IAutomataNotificationRecipientRepository _recipientRepository;
         private readonly Aldebaran.Application.FileWritingService.Services.IEmailSender _emailSender;
         private readonly IConfiguration _configuration;
+        private readonly FtpResilienceOptions _ftpResilienceOptions;
+        private readonly ConsecutiveFailureGuard _failureGuard;
 
-        public InventoryFtpPdfWorker(IConfiguration Configuration, ILogger<InventoryFtpPdfWorker> Logger, IInventoryReportRepository InventoryReportRepository, IFileBytesGeneratorService FileBytesGeneratorService, IFtpClient FtpClient, IFtpWritingConnectionRepository ftpWritingConnectionRepository, ResilientExecutor executor, IAutomataNotificationRecipientRepository recipientRepository, Aldebaran.Application.FileWritingService.Services.IEmailSender emailSender)
+        public InventoryFtpPdfWorker(IConfiguration Configuration, ILogger<InventoryFtpPdfWorker> Logger, IInventoryReportRepository InventoryReportRepository, IInventoryPdfFileGenerator PdfFileGenerator, IFtpClient FtpClient, IFtpWritingConnectionRepository ftpWritingConnectionRepository, ResilientExecutor executor, IAutomataNotificationRecipientRepository recipientRepository, Aldebaran.Application.FileWritingService.Services.IEmailSender emailSender, IOptions<FtpResilienceOptions> FtpResilienceOptions, IOptions<FailureGuardOptions> FailureGuardOptions)
         {
             _configuration = Configuration ?? throw new ArgumentNullException(nameof(Configuration));
             inventoryReportRepository = InventoryReportRepository ?? throw new ArgumentNullException(nameof(IInventoryReportRepository));
-            fileBytesGeneratorService = FileBytesGeneratorService ?? throw new ArgumentNullException(nameof(IFileBytesGeneratorService));
+            _pdfFileGenerator = PdfFileGenerator ?? throw new ArgumentNullException(nameof(IInventoryPdfFileGenerator));
             ftpClient = FtpClient ?? throw new ArgumentNullException(nameof(IFtpClient));
             _logger = Logger ?? throw new ArgumentNullException(nameof(ILogger));
             this.ftpWritingConnectionRepository = ftpWritingConnectionRepository ?? throw new ArgumentNullException(nameof(IFtpWritingConnectionRepository));
             _executor = executor ?? throw new ArgumentNullException(nameof(executor));
+            _ftpResilienceOptions = FtpResilienceOptions?.Value ?? throw new ArgumentNullException(nameof(FtpResilienceOptions));
+            _failureGuard = new ConsecutiveFailureGuard(nameof(InventoryFtpPdfWorker), FailureGuardOptions?.Value?.MaxConsecutiveGenerationFailures ?? 3, Logger);
             _recipientRepository = recipientRepository ?? throw new ArgumentNullException(nameof(IAutomataNotificationRecipientRepository));
             _emailSender = emailSender ?? throw new ArgumentNullException(nameof(Aldebaran.Application.FileWritingService.Services.IEmailSender));
             TemplatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates", "InventoryTemplate.html");
@@ -78,8 +87,9 @@ namespace Aldebaran.Application.FileWritingService.Workers
                         try
                         {
                             var htmlTemplate = await GetTemplateHtmlAsync(ct);
-                            var html = $"<html><head><style>{css}</style></head><body>{htmlTemplate}</body></html>";
-                            pdfPath = await fileBytesGeneratorService.GetPdfTempFile(html, true);
+                            var html = $"<html><head><meta charset=\"utf-8\"><style>{css}</style></head><body>{htmlTemplate}</body></html>";
+                            pdfPath = await _pdfFileGenerator.GenerateAsync(html, true, ct);
+                            _failureGuard.RegisterSuccess();
                         }
                         catch (Exception ex)
                         {
@@ -88,6 +98,8 @@ namespace Aldebaran.Application.FileWritingService.Workers
 
                             _nextRun = _schedule.GetNextOccurrence(DateTime.Now);
                             stopwatch.Stop();
+                            ProcessMemoryLogger.Log(_logger, nameof(InventoryFtpPdfWorker));
+                            _failureGuard.RegisterFailure(); // nunca detiene el servicio
                             continue;
                         }
 
@@ -102,6 +114,9 @@ namespace Aldebaran.Application.FileWritingService.Workers
                             _logger.LogError(ex, "InventoryFtpPdfWorker failed reading destinations (DB). CorrelationId:{CorrelationId}", correlationId);
                             try { await SendConnectivityNotification(correlationId, "DB_SOURCE", null, 0, FileName, ex.Message, now); } catch (Exception notifyEx) { _logger.LogError(notifyEx, "Error sending DB connectivity notification. CorrelationId:{CorrelationId}", correlationId); }
 
+                            // Cleanup temp file también cuando falla la lectura de destinos
+                            try { if (!string.IsNullOrEmpty(pdfPath) && File.Exists(pdfPath)) File.Delete(pdfPath); } catch { }
+
                             _nextRun = _schedule.GetNextOccurrence(DateTime.Now);
                             stopwatch.Stop();
                             continue;
@@ -109,13 +124,8 @@ namespace Aldebaran.Application.FileWritingService.Workers
 
                         var activeConnections = connections.Where(c => c.Active).ToList();
 
-                        // Read MaxParallelUploads only from appsettings.json (ignore environment variables)
-                        var jsonConfig = new Microsoft.Extensions.Configuration.ConfigurationBuilder()
-                            .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-                            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                            .Build();
-                        var maxParallel = jsonConfig.GetValue<int>("FtpResilience:MaxParallelUploads", 4);
-                        maxParallel = Math.Max(1, maxParallel);
+                        // MaxParallelUploads se lee una sola vez (IOptions) en lugar de crear un ConfigurationBuilder por ejecución
+                        var maxParallel = Math.Max(1, _ftpResilienceOptions.MaxParallelUploads);
 
                         using (var semaphore = new SemaphoreSlim(maxParallel))
                         {
@@ -137,7 +147,8 @@ namespace Aldebaran.Application.FileWritingService.Workers
                                     string uploadError = null;
                                     try
                                     {
-                                        uploaded = await _executor.ExecuteAsync(async (token) => await ftpClient.UploadFileFromPathAsync(pdfPath, targetFileName, conn.HostName, port, conn.UserName, conn.Password, overwrite, token), ct);
+                                        // FtpClient reporta los fallos devolviendo false: también se reintenta en ese caso
+                                        uploaded = await _executor.ExecuteAsync(async (token) => await ftpClient.UploadFileFromPathAsync(pdfPath, targetFileName, conn.HostName, port, conn.UserName, conn.Password, overwrite, token), retryWhen: result => !result, ct);
                                     }
                                     catch (Exception ex)
                                     {
@@ -168,6 +179,7 @@ namespace Aldebaran.Application.FileWritingService.Workers
                         _nextRun = _schedule.GetNextOccurrence(DateTime.Now);
                         stopwatch.Stop();
                         _logger.LogInformation($"InventoryFtpPdfWorker has been executed in: {stopwatch.ElapsedMilliseconds} milliseconds | Next Run: {_nextRun} CorrelationId:{correlationId}");
+                        ProcessMemoryLogger.Log(_logger, nameof(InventoryFtpPdfWorker));
                     }
                 }
                 catch (Exception ex)
@@ -211,54 +223,8 @@ namespace Aldebaran.Application.FileWritingService.Workers
         }
         async Task<string> GetTemplateHtmlAsync(CancellationToken ct)
         {
-            var data = await inventoryReportRepository.GetInventoryReportDataAsync("", ct);
-            var dLines = data.Select(s => new { s.LineId, s.LineName }).DistinctBy(d => d.LineId).OrderBy(o => o.LineName);
-            var model = new InventoryPdfViewModel
-            {
-                Lines = dLines.Select(line =>
-                {
-                    var itemsByLine = data.Where(w => w.LineId == line.LineId).Select(s => new { s.ItemId, s.ItemName, s.InternalReference }).DistinctBy(d => d.ItemId).OrderBy(o => o.ItemName);
-                    return new InventoryPdfViewModel.Line
-                    {
-                        LineName = line.LineName,
-                        Items = itemsByLine.Select(item =>
-                        {
-                            var referencesByItem = data.Where(w => w.ItemId == item.ItemId).Select(s => new { s.ReferenceId, s.ReferenceName, s.AvailableAmount, s.FreeZone, s.LocalWarehouse }).DistinctBy(d => d.ReferenceId).OrderBy(o => o.ReferenceName);
-                            return new InventoryPdfViewModel.Item
-                            {
-                                InternalReference = item.InternalReference,
-                                ItemName = item.ItemName,
-                                References = referencesByItem.Select(reference =>
-                                {
-                                    var purchaseOrdersByReference = data.Where(w => w.ReferenceId == reference.ReferenceId && w.PurchaseOrderId > 0).Select(s => new { s.PurchaseOrderId, s.OrderDate, s.Warehouse, s.Total }).DistinctBy(d => d.PurchaseOrderId).OrderBy(o => o.OrderDate);
-                                    return new InventoryPdfViewModel.Reference
-                                    {
-                                        ReferenceName = reference.ReferenceName,
-                                        AvailableAmount = reference.AvailableAmount,
-                                        LocalWarehouse = reference.LocalWarehouse,
-                                        FreeZone = reference.FreeZone,
-                                        PurchaseOrders = purchaseOrdersByReference.Select(purchaseOrder =>
-                                        {
-                                            var activitiesByPurchaseOrder = data.Where(w => w.ReferenceId == reference.ReferenceId && w.PurchaseOrderId == purchaseOrder.PurchaseOrderId && w.Description != null && w.Description.Trim().Length > 0);
-                                            return new InventoryPdfViewModel.PurchaseOrder
-                                            {
-                                                Date = purchaseOrder.OrderDate,
-                                                Total = purchaseOrder.Total ?? 0,
-                                                Warehouse = purchaseOrder.Warehouse,
-                                                Activities = activitiesByPurchaseOrder.Select(activity => new InventoryPdfViewModel.Activity
-                                                {
-                                                    Date = activity.ActivityDate,
-                                                    Description = activity.Description
-                                                }).ToList()
-                                            };
-                                        }).ToList()
-                                    };
-                                }).ToList()
-                            };
-                        }).ToList()
-                    };
-                }).ToList()
-            };
+            var data = (await inventoryReportRepository.GetInventoryReportDataAsync("", ct)).ToList();
+            var model = InventoryPdfModelBuilder.Build(data);
             string htmlTemplate = await File.ReadAllTextAsync(TemplatePath, ct);
             var template = Template.Parse(htmlTemplate);
             var result = template.Render(model);
