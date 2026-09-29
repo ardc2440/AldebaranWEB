@@ -3,6 +3,14 @@ using Microsoft.Extensions.Logging;
 
 namespace Aldebaran.Application.FileWritingService.Resilience
 {
+    /// <summary>
+    /// Ejecuta una operación con reintentos (backoff exponencial + jitter) y un tiempo máximo por intento.
+    /// - El timeout se aplica cancelando el token del intento: no quedan operaciones huérfanas corriendo
+    ///   en paralelo con el siguiente intento.
+    /// - Si el servicio se está deteniendo (token del llamador cancelado) no se reintenta.
+    /// - Opcionalmente reintenta cuando la operación termina sin excepción pero con un resultado no válido
+    ///   (por ejemplo, una subida FTP que devuelve false).
+    /// </summary>
     internal class ResilientExecutor
     {
         private readonly ILogger<ResilientExecutor> _logger;
@@ -10,81 +18,101 @@ namespace Aldebaran.Application.FileWritingService.Resilience
         private readonly int _baseDelayMs;
         private readonly int _jitterMs;
         private readonly int _timeoutPerAttemptSec;
-        private readonly Random _jitterer = new();
 
         public ResilientExecutor(ILogger<ResilientExecutor> logger, IConfiguration configuration)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             var section = configuration.GetSection("FtpResilience");
-            _maxRetries = section.GetValue<int>("UploadRetryCount", 3);
-            _baseDelayMs = section.GetValue<int>("UploadBaseDelayMs", 500);
-            _jitterMs = section.GetValue<int>("JitterMs", 200);
-            _timeoutPerAttemptSec = section.GetValue<int>("TimeoutPerAttemptSec", 30);
+            _maxRetries = Math.Max(0, section.GetValue<int>("UploadRetryCount", 3));
+            _baseDelayMs = Math.Max(0, section.GetValue<int>("UploadBaseDelayMs", 500));
+            _jitterMs = Math.Max(0, section.GetValue<int>("JitterMs", 200));
+            _timeoutPerAttemptSec = Math.Max(1, section.GetValue<int>("TimeoutPerAttemptSec", 30));
         }
 
-        public async Task<T> ExecuteAsync<T>(Func<CancellationToken, Task<T>> operation, CancellationToken ct = default)
+        public Task<T> ExecuteAsync<T>(Func<CancellationToken, Task<T>> operation, CancellationToken ct = default)
+            => ExecuteAsync(operation, retryWhen: null, ct);
+
+        /// <param name="retryWhen">
+        /// Condición sobre el resultado que indica que el intento falló aunque no lanzó excepción.
+        /// Si después del último intento se sigue cumpliendo, se devuelve ese último resultado.
+        /// </param>
+        public async Task<T> ExecuteAsync<T>(Func<CancellationToken, Task<T>> operation, Func<T, bool>? retryWhen, CancellationToken ct = default)
         {
             if (operation == null) throw new ArgumentNullException(nameof(operation));
 
-            int attempt = 0;
-            Exception? lastEx = null;
-            while (attempt <= _maxRetries)
+            var totalAttempts = _maxRetries + 1;
+            Exception? lastException = null;
+
+            for (var attempt = 1; attempt <= totalAttempts; attempt++)
             {
-                CancellationTokenSource? cts = null;
-                try
+                ct.ThrowIfCancellationRequested();
+
+                var outcome = await RunAttemptAsync(operation, attempt, ct);
+                if (outcome.Exception == null)
                 {
-                    attempt++;
-                    cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-                    cts.CancelAfter(TimeSpan.FromSeconds(_timeoutPerAttemptSec));
+                    if (retryWhen == null || !retryWhen(outcome.Result!))
+                        return outcome.Result!;
 
-                    var operationTask = operation(cts.Token);
-                    var delayTask = Task.Delay(TimeSpan.FromSeconds(_timeoutPerAttemptSec), ct);
-
-                    var completed = await Task.WhenAny(operationTask, delayTask);
-                    if (completed != operationTask)
+                    _logger.LogWarning("ResilientExecutor: attempt {Attempt} of {TotalAttempts} returned an unsuccessful result", attempt, totalAttempts);
+                    if (attempt == totalAttempts)
                     {
-                        // timed out
-                        lastEx = new OperationCanceledException("ResilientExecutor: operation timed out");
-                        _logger.LogWarning(lastEx, "ResilientExecutor: attempt {Attempt} timed out", attempt);
-                        try { cts.Cancel(); } catch { }
-                    }
-                    else
-                    {
-                        // operation completed (may fault)
-                        return await operationTask;
+                        _logger.LogError("ResilientExecutor: operation unsuccessful after {Attempts} attempts", totalAttempts);
+                        return outcome.Result!;
                     }
                 }
-                catch (OperationCanceledException oce)
+                else
                 {
-                    lastEx = oce;
-                    _logger.LogWarning(oce, "ResilientExecutor: attempt {Attempt} cancelled/timeout", attempt);
-                }
-                catch (Exception ex)
-                {
-                    lastEx = ex;
-                    _logger.LogWarning(ex, "ResilientExecutor: attempt {Attempt} failed", attempt);
-                }
-                finally
-                {
-                    if (cts != null)
-                        cts.Dispose();
+                    lastException = outcome.Exception;
                 }
 
-                if (attempt > _maxRetries)
-                    break;
-
-                var delay = TimeSpan.FromMilliseconds(Math.Pow(2, attempt) * _baseDelayMs + _jitterer.Next(0, _jitterMs));
-                _logger.LogInformation("ResilientExecutor: delaying {Delay} before next attempt", delay);
-                try { await Task.Delay(delay, ct); } catch { break; }
+                if (attempt < totalAttempts)
+                    await DelayBeforeNextAttemptAsync(attempt, ct);
             }
 
-            _logger.LogError(lastEx, "ResilientExecutor: operation failed after {Attempts} attempts", _maxRetries);
-            throw lastEx ?? new InvalidOperationException("ResilientExecutor: unknown error");
+            _logger.LogError(lastException, "ResilientExecutor: operation failed after {Attempts} attempts", totalAttempts);
+            throw lastException ?? new InvalidOperationException("ResilientExecutor: unknown error");
         }
 
         public async Task ExecuteAsync(Func<CancellationToken, Task> operation, CancellationToken ct = default)
         {
             await ExecuteAsync<object?>(async token => { await operation(token); return null; }, ct);
+        }
+
+        /// <summary>
+        /// Ejecuta un intento con su propio timeout. Devuelve el resultado o la excepción del intento;
+        /// solo relanza cuando la cancelación viene del llamador (el servicio se está deteniendo).
+        /// </summary>
+        private async Task<(T? Result, Exception? Exception)> RunAttemptAsync<T>(Func<CancellationToken, Task<T>> operation, int attempt, CancellationToken ct)
+        {
+            using var attemptCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            attemptCts.CancelAfter(TimeSpan.FromSeconds(_timeoutPerAttemptSec));
+
+            try
+            {
+                var result = await operation(attemptCts.Token);
+                return (result, null);
+            }
+            catch (OperationCanceledException) when (ct.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (OperationCanceledException oce)
+            {
+                _logger.LogWarning(oce, "ResilientExecutor: attempt {Attempt} timed out after {TimeoutSec}s", attempt, _timeoutPerAttemptSec);
+                return (default, oce);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "ResilientExecutor: attempt {Attempt} failed", attempt);
+                return (default, ex);
+            }
+        }
+
+        private async Task DelayBeforeNextAttemptAsync(int attempt, CancellationToken ct)
+        {
+            var delay = TimeSpan.FromMilliseconds(Math.Pow(2, attempt) * _baseDelayMs + Random.Shared.Next(0, _jitterMs + 1));
+            _logger.LogInformation("ResilientExecutor: delaying {Delay} before next attempt", delay);
+            await Task.Delay(delay, ct);
         }
     }
 }
