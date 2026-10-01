@@ -262,6 +262,7 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<ICustomerSaleReportRepository, CustomerSaleReportRepository>();
             services.AddTransient<IEmailNotificationProviderSettingsRepository, EmailNotificationProviderSettingsRepository>();
             services.AddTransient<IDashBoardRepository, DashBoardRepository>();
+            services.AddTransient<IArticleInventoryRepository, ArticleInventoryRepository>();
             services.AddTransient<IPurchaseOrderNotificationRepository, PurchaseOrderNotificationRepository>();
             services.AddTransient<IVisualizedPurchaseOrderTransitAlarmRepository, VisualizedPurchaseOrderTransitAlarmRepository>();
             services.AddTransient<IPurchaseOrderTransitAlarmRepository, PurchaseOrderTransitAlarmRepository>();

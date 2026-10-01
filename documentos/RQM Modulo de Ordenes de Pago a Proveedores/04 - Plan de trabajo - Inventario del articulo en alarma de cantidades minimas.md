@@ -21,7 +21,9 @@
 - **D1.** Solo la bandeja **"Sobrepaso de cantidades mínimas"** (`MinimumQuantityNotifications`). La de bodega local no se toca.
 - **D2.** **Disponible = (Bodega Local + Zona Franca) + Tránsito − Comprometido**, con Comprometido = Reservas + Pedidos.
 - **D3.** Se agrega la columna **Comprometido** (informativa).
-- Columnas finales: Referencia · Bodega Local · Zona Franca · Tránsito · Comprometido · Disponible. Solo referencias activas. La referencia de la alarma se resalta.
+- **D4.** (2026-09-30, en T1) Se agrega la columna **Stock Físico** = Bodega Local + Zona Franca, para diferenciarlo del Disponible.
+- **D5.** (2026-09-30, en T1) Se corrige `SP_GET_MINIMUM_QUANTITY_ALARMS`: el tránsito de la bandeja solo sumaba OC Pendientes; ahora suma Pendientes + En aprobación (tipo 'O'), igual que el diálogo y el CSV de Fase 1. La alarma no cambia de firma ni de columnas.
+- Columnas finales: Referencia · Bodega Local · Zona Franca · Stock Físico · Tránsito · Comprometido · Disponible. Solo referencias activas (la alarma tampoco se genera para referencias inactivas). La referencia de la alarma se resalta.
 
 ## 3. Diseño
 
@@ -42,7 +44,7 @@ SQL: SP_GET_ITEM_REFERENCES_INVENTORY @ReferenceId  (nuevo, solo lectura)
 ```
 
 - Clean Architecture: la UI solo conoce `Application.Services`.
-- El modelo es del caso de uso (no copia de entidades): `ReferenceId, ReferenceCode, ReferenceName, LocalWarehouse, FreeZone, InTransit, Committed, Available, IsAlarmReference`.
+- El modelo es del caso de uso (no copia de entidades): `ReferenceId, ReferenceCode, ReferenceName, LocalWarehouse, FreeZone, PhysicalStock, InTransit, Committed, Available, IsAlarmReference`.
 - `ImageDialog` y demás componentes compartidos **no se modifican**.
 - Archivos nuevos en UTF-8 sin BOM.
 
@@ -50,13 +52,20 @@ SQL: SP_GET_ITEM_REFERENCES_INVENTORY @ReferenceId  (nuevo, solo lectura)
 
 | # | Tarea | Entregable | Prueba (+ regresión acumulada) | Horas |
 |---|---|---|---|---|
-| **T1** | SP `SP_GET_ITEM_REFERENCES_INVENTORY @ReferenceId`: ubica el artículo de la referencia, devuelve sus **referencias activas** con Local, Zona Franca, Comprometida, Tránsito y Disponible (fórmula D2) y marca la referencia de la alarma | `scripts/RQM Inventario Articulo Alarma Minimos/01 - SP_GET_ITEM_REFERENCES_INVENTORY.sql` + `02 - Pruebas.sql` | Ejecutar para 3 artículos (uno con varias referencias, uno con referencias inactivas, uno con tránsito) y comparar contra la fuente de D2 | 2 |
+| **T1** | SP `SP_GET_ITEM_REFERENCES_INVENTORY @ReferenceId`: ubica el artículo de la referencia, devuelve sus **referencias activas** con Local, Zona Franca, Comprometida, Tránsito y Disponible (fórmula D2) y marca la referencia de la alarma | `scripts/RQM Inventario Articulo Alarma Minimos/01 - SP_GET_ITEM_REFERENCES_INVENTORY.sql` + `02 - Pruebas SP_GET_ITEM_REFERENCES_INVENTORY.sql` + `03 - Correccion SP_GET_MINIMUM_QUANTITY_ALARMS (transito).sql` (D5) | Ejecutar para 3 artículos (uno con varias referencias, uno con referencias inactivas, uno con tránsito) y comparar contra la fuente de D2 | 2 |
 | **T2** | Capa de datos: entidad keyless + configuración + `IArticleInventoryRepository` / `ArticleInventoryRepository` con `SqlParameter` + registro DI | Código DataAccess | Compila; consulta desde el repositorio devuelve lo mismo que T1 · Regresión: T1 | 1 |
 | **T3** | Caso de uso: `ArticleReferenceInventory` (Model), `IArticleInventoryService` / `ArticleInventoryService`, mapping y registro DI | Código Application.Services | Resultado del servicio = T1 para los 3 artículos · Regresión: T1–T2 | 1 |
 | **T4** | Componente `ArticleInventoryDialog`: `ImageDialog` embebido + grilla (orden por referencia, fila de la alarma resaltada, números con formato N0, mensaje si no hay datos) | `Shared/ArticleInventoryDialog.razor(.cs)` | Abrir el diálogo con los 3 casos; imagen existente e inexistente · Regresión: T1–T3 | 2 |
 | **T5** | Conectar en la(s) bandeja(s) de D1: solo cambia `ShowImageDialogAsync` → `ArticleInventoryDialog` (con `ReferenceId`) y el tamaño del diálogo | Cambio solo en `MinimumQuantityNotifications` | Desde el Tablero: clic en imagen muestra imagen + referencias; enlace del nombre sigue abriendo el reporte de movimientos; ocultar alarmas sigue funcionando · Regresión: T1–T4 | 1 |
 | **T6** | Regresión final y cierre | Checklist | `ImageDialog` en otras bandejas (Agotados, OC confirmadas, Bodega local) y en Órdenes de Compra sigue igual; rendimiento del diálogo; notas para manual funcional | 1 |
 | | | | **Total** | **8 h** |
+
+## 4.1 Avance
+
+| # | Estado | Evidencia |
+|---|---|---|
+| T1 | ✅ Cerrada (2026-09-30) | Script `02`: 25/25 OK (A1 21 refs, A2 con 10 inactivas, A3 con tránsito 8.000; C01–C04). Estructura sin columnas anulables. I02 = 0 (Local + ZF = INVENTORY_QUANTITY: cifras consistentes con el CSV de Fase 1). Índice por REFERENCE_ID ya existía (`IND_PURCHASE_ORDER_DETAIL_REFERENCE_ID`). A1 en 0 ms de CPU. Bandeja con D5: carga, búsqueda y ocultar alarmas OK; hoy no hay alarmas con OC en aprobación. Push hecho por Andrés. |
+| T2 | ✅ Cerrada (2026-09-30) — compila, app y Tablero OK, regresión T1 25/25 (ver bitácora `05`) | Entidad `ItemReferenceInventory` (keyless), `HasNoKey` en `AldebaranDbContext`, `IArticleInventoryRepository` / `ArticleInventoryRepository` (`SqlParameter`), registro DI. |
 
 ## 5. Fuera de alcance
 - Excel de la notificación periódica de cantidades mínimas por correo (se evaluará aparte).
