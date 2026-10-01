@@ -1,7 +1,7 @@
 # Bitácora de pruebas – Inventario del artículo en la alarma de cantidades mínimas
 
 **Rama:** `RQM-InventarioCompletoEnAlarmaDeCantidadMinima` · **Ambiente:** base de datos de PRUEBAS · **Plan:** `04 - Plan de trabajo - Inventario del articulo en alarma de cantidades minimas.md`
-**Método:** cada tarea se prueba y repite la regresión de todas las anteriores. Evidencias en `Evidencias Inventario Alarma\` con nombre `Tn-xx-descripcion.png`.
+**Método:** cada tarea se prueba y repite la regresión de todas las anteriores. La regresión de T1 (script `02`) solo se repite si cambia la lógica de un SP o campos de tablas. Evidencias en `Evidencias Inventario Alarma\` con nombre `Tn-xx-descripcion.png`.
 
 ---
 
@@ -44,7 +44,7 @@ Ejecutado por Claude (control del PC: Visual Studio, aplicación y SSMS).
 
 ---
 
-## T3 – Caso de uso (Application.Services) 🔄
+## T3 – Caso de uso (Application.Services) ✅ (2026-09-30)
 
 | Caso | Validación | Esperado | Obtenido | Resultado | Evidencia |
 |---|---|---|---|---|---|
@@ -52,4 +52,24 @@ Ejecutado por Claude (control del PC: Visual Studio, aplicación y SSMS).
 | T3-02 | Arrancar la aplicación (F5, Development) | Inicia sin excepción: `ValidateOnBuild` resuelve `IArticleInventoryService` → `IArticleInventoryRepository` | App arranca; login y Tablero OK | OK | |
 | T3-03 | Tablero y bandejas | Cargan igual que antes | Cantidades mínimas 417 (mismas cifras que T2), bodega local 687, y demás bandejas con datos (333, 36, 143, 2.139, 1.316, 191, 26) | OK | |
 | T3-04 | Servicio = T1 para A1, A2, A3 (incl. referencia ≤ 0 → vacío sin ir a BD) | Mismas filas y cifras que la grilla del script `02` | Se verifica en T4 (primer consumidor del servicio) | Diferido | |
-| R-T1 | Regresión T1: script `02` | TODAS LAS PRUEBAS OK | | | |
+| R-T1 | Regresión T1: script `02` | No aplica | Sin cambios en SP ni tablas desde la última corrida (T2, 25/25) | N/A | |
+
+---
+
+## T4 + T5 – Diálogo `ArticleInventoryDialog` y conexión en la bandeja ✅ (2026-09-30)
+
+Se prueban juntas (decisión de Andrés): el diálogo solo se abre desde la bandeja. Incluye la corrección de codificación de `Shared/ImageDialog.razor` (ISO-8859 → UTF-8, solicitada por Andrés).
+
+| Caso | Validación | Esperado | Obtenido | Resultado | Evidencia |
+|---|---|---|---|---|---|
+| T45-01 | Compilar la solución | Sin errores ni advertencias nuevas | Compilación correcta (Andrés) | OK | |
+| T45-02 | Clic en imagen de una alarma con imagen y varias referencias | Diálogo: nombre, imagen, grilla con todas las referencias activas, fila de la alarma resaltada, N0, Disponible rojo/verde, nota de fórmulas | ATTILA (179): imagen, 1 referencia, nota OK. MU-372 Transparente: 7 referencias, fila de la alarma en negrita. Ajuste visual aplicado: encabezado "Comprometido" cortado → diálogo 1000 px; resaltado no visible → estilo por celda (#fff3cd). Revalidado tras compilar: encabezados completos y fila de la alarma resaltada (negrita + fondo amarillo) | OK | |
+| T45-03 | Alarma sin imagen | Mensaje "La imagen para este artículo no está disponible." con tildes correctas; grilla igual | MU-372: mensaje con tildes correctas, grilla de 7 referencias | OK | |
+| T45-04 | Cifras del diálogo = SP (T3-04 diferido) | Cada columna igual a `EXEC SP_GET_ITEM_REFERENCES_INVENTORY` de esa referencia | MU-372 (ref. 6152): las 7 referencias, todas las columnas y la marca de alarma iguales al SP. Cierra también T3-04 | OK | |
+| T45-05 | Cifras de la fila de la alarma = bandeja | Stock Físico = Inventario, Tránsito, Comprometido = Reservado + Pedido, Disponible iguales | MU-372 Transparente: diálogo 0 · 0 · 0 · 3.000 · 2.500 · 500 = bandeja (Inventario 0, Tránsito 3.000, Reservado 0 + Pedido 2.500, Disponible 500). ATTILA: todo 0 = bandeja | OK | |
+| T45-06 | Enlace del nombre en la bandeja | Sigue abriendo el Reporte de movimientos | MU-372 abre el Reporte de movimientos con la referencia filtrada | OK | |
+| T45-07 | Búsqueda y paginación de la bandeja | Igual que antes | Búsqueda (ATTILA, MU-372, HO-13) y paginación OK | OK | |
+| T45-08 | Ocultar alarma (selección + botón) | Igual que antes | ATTILA (179): confirmación "Ocultar alarmas" → Sí → ya no aparece para `admin` (dato de prueba en `visualized_minimum_quantity_alarms`) | OK | |
+| T45-09 | `ImageDialog` en otras bandejas (Inventario sin stock, Bodega local) | Abre igual, ahora con tildes correctas | Inventario sin stock (MU-155): abre igual, mensaje con tildes correctas | OK | |
+
+**Set usado:** ARIA (144/146) y HO-13 (932) ya estaban ocultas para `admin`; se probó con ATTILA (con imagen, 1 referencia) y MU-372 (sin imagen, 7 referencias, con tránsito).

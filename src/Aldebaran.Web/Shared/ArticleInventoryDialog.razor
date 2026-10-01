@@ -1,0 +1,59 @@
+@using Aldebaran.Application.Services.Models
+@using Aldebaran.Web.Resources.LocalizedControls
+
+@* Diálogo de la alarma de cantidades mínimas: imagen del artículo (ImageDialog reutilizado sin cambios)
+   + inventario de las referencias activas del artículo, con la referencia de la alarma resaltada. *@
+
+<RadzenStack Gap="1rem">
+    <div style="max-width: 420px; width: 100%; margin: 0 auto; text-align: center;">
+        <ImageDialog ArticleName="@ArticleName" />
+    </div>
+
+    <RadzenText TextStyle="TextStyle.Subtitle1" class="text-primary-color rz-mb-0">Inventario del artículo (referencias activas)</RadzenText>
+
+    @if (loadError)
+    {
+        <RadzenAlert AlertStyle="AlertStyle.Danger" Variant="Variant.Flat" Shade="Shade.Lighter" AllowClose="false">
+            No se pudo consultar el inventario del artículo. Cierre la ventana e intente nuevamente.
+        </RadzenAlert>
+    }
+    else if (!isLoading && references.Count == 0)
+    {
+        <RadzenAlert AlertStyle="AlertStyle.Info" Variant="Variant.Flat" Shade="Shade.Lighter" AllowClose="false">
+            El artículo no tiene referencias activas para mostrar.
+        </RadzenAlert>
+    }
+    else
+    {
+        <LocalizedDataGrid TItem="ArticleReferenceInventory" Data="@references" IsLoading="@isLoading"
+                           AllowFiltering="false" AllowPaging="false" AllowSorting="false" ShowPagingSummary="false"
+                           CellRender="@OnCellRender" Density="Density.Compact">
+            <Columns>
+                <RadzenDataGridColumn TItem="ArticleReferenceInventory" Title="Referencia" Width="24%">
+                    <Template Context="row">@row.ReferenceCode - @row.ReferenceName</Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="ArticleReferenceInventory" Title="Bodega Local" TextAlign="TextAlign.Right">
+                    <Template Context="row">@FormatQuantity(row.LocalWarehouse)</Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="ArticleReferenceInventory" Title="Zona Franca" TextAlign="TextAlign.Right">
+                    <Template Context="row">@FormatQuantity(row.FreeZone)</Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="ArticleReferenceInventory" Title="Stock Físico" TextAlign="TextAlign.Right">
+                    <Template Context="row">@FormatQuantity(row.PhysicalStock)</Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="ArticleReferenceInventory" Title="Tránsito" TextAlign="TextAlign.Right">
+                    <Template Context="row">@FormatQuantity(row.InTransit)</Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="ArticleReferenceInventory" Title="Comprometido" TextAlign="TextAlign.Right">
+                    <Template Context="row">@FormatQuantity(row.Committed)</Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="ArticleReferenceInventory" Title="Disponible" TextAlign="TextAlign.Right">
+                    <Template Context="row"><span style="@AvailableStyle(row.Available)">@FormatQuantity(row.Available)</span></Template>
+                </RadzenDataGridColumn>
+            </Columns>
+        </LocalizedDataGrid>
+        <RadzenText TextStyle="TextStyle.Caption" class="rz-mb-0">
+            Stock Físico = Bodega Local + Zona Franca · Comprometido = Reservas + Pedidos · Disponible = Stock Físico + Tránsito − Comprometido. La fila resaltada es la referencia de la alarma.
+        </RadzenText>
+    }
+</RadzenStack>

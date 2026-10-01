@@ -66,7 +66,8 @@ SQL: SP_GET_ITEM_REFERENCES_INVENTORY @ReferenceId  (nuevo, solo lectura)
 |---|---|---|
 | T1 | ✅ Cerrada (2026-09-30) | Script `02`: 25/25 OK (A1 21 refs, A2 con 10 inactivas, A3 con tránsito 8.000; C01–C04). Estructura sin columnas anulables. I02 = 0 (Local + ZF = INVENTORY_QUANTITY: cifras consistentes con el CSV de Fase 1). Índice por REFERENCE_ID ya existía (`IND_PURCHASE_ORDER_DETAIL_REFERENCE_ID`). A1 en 0 ms de CPU. Bandeja con D5: carga, búsqueda y ocultar alarmas OK; hoy no hay alarmas con OC en aprobación. Push hecho por Andrés. |
 | T2 | ✅ Cerrada (2026-09-30) — compila, app y Tablero OK, regresión T1 25/25 (ver bitácora `05`) |
-| T3 | 🔄 En curso | `ArticleReferenceInventory` (record del caso de uso), `IArticleInventoryService` / `ArticleInventoryService` (orquestador + mapeo explícito, sin AutoMapper para no tocar el Profile compartido), registro DI. | Entidad `ItemReferenceInventory` (keyless), `HasNoKey` en `AldebaranDbContext`, `IArticleInventoryRepository` / `ArticleInventoryRepository` (`SqlParameter`), registro DI. |
+| T3 | ✅ Cerrada (2026-09-30) — compila, app arranca (DI validado), Tablero OK; servicio vs T1 se verifica en T4 |
+| T4 + T5 | ✅ Cerradas (2026-09-30) — probadas juntas: diálogo (imagen + grilla, fila de la alarma resaltada, N0), cifras = SP y = bandeja, enlace al reporte, búsqueda, ocultar alarmas; `ImageDialog.razor` convertido a UTF-8 (tildes) | `ArticleReferenceInventory` (record del caso de uso), `IArticleInventoryService` / `ArticleInventoryService` (orquestador + mapeo explícito, sin AutoMapper para no tocar el Profile compartido), registro DI. | Entidad `ItemReferenceInventory` (keyless), `HasNoKey` en `AldebaranDbContext`, `IArticleInventoryRepository` / `ArticleInventoryRepository` (`SqlParameter`), registro DI. |
 
 ## 5. Fuera de alcance
 - Excel de la notificación periódica de cantidades mínimas por correo (se evaluará aparte).

@@ -241,10 +241,12 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
             }            
         }
 
-        private async Task ShowImageDialogAsync(string articleName) => await DialogService.OpenAsync<ImageDialog>("", new Dictionary<string, object>
+        private async Task ShowArticleInventoryDialogAsync(int referenceId, string articleName) => await DialogService.OpenAsync<ArticleInventoryDialog>("", new Dictionary<string, object>
             {
+                { "ReferenceId", referenceId },
                 { "ArticleName", articleName }
-            });
+            },
+            new DialogOptions { Width = "1000px", Resizable = true });
                 
         private async Task OnPageChanged(object args)
         {
