@@ -1,6 +1,6 @@
 # Plan de trabajo – Inventario del artículo en la alarma de cantidades mínimas
 
-**Estado:** Aprobado por el cliente (2026-09-28). Pendiente: aprobación del plan por Andrés y creación de la rama.
+**Estado:** Aprobado por el cliente (2026-09-28). Plan aprobado por Andrés. Rama: `RQM-InventarioCompletoEnAlarmaDeCantidadMinima`.
 **Esfuerzo estimado:** 8 h (1 día de esfuerzo · 2 días calendario a 4 h/día).
 **Método:** tareas mínimas comprobables → implementar → probar (con regresión acumulada) → corregir → OK de Andrés → siguiente.
 
@@ -16,15 +16,12 @@
 | Modelo de la alarma | `Application.Services/Models/MinimumQuantityArticle` | Trae `ReferenceId` (suficiente para ubicar el artículo y sus referencias). |
 | Cálculo de inventario de referencia | Fase 1: `SP_CSV_EXPORT_INVENTORY` | Stock Físico = Local + Zona Franca · Comprometida = Pedidos + Reservas · Tránsito = OC Pendientes + En aprobación · **Disponible = Físico + Tránsito − Comprometida**. |
 
-## 2. Decisiones previas (resolver antes de T1)
+## 2. Decisiones (cerradas por Andrés, 2026-09-28)
 
-- **D1. ¿Qué bandeja(s)?** Solo "Sobrepaso de cantidades mínimas", o también "Cantidades mínimas en bodega local". Propuesta: ambas, con el mismo componente (≈+0.5 h por la segunda, solo el cambio de llamada).
-- **D2. Fórmula de "Disponible".** Hay tres criterios distintos en el sistema:
-  - Bandeja actual: `Inventario + Tránsito − Pedido`.
-  - `SP_GET_INVENTORY_REPORT`: `Inventario − Reservado − Pedido` (sin tránsito; además filtra solo artículos `IS_EXTERNAL_INVENTORY = 1`).
-  - Interfaz CSV Fase 1 (definición validada con el cliente): `Físico + Tránsito − (Pedidos + Reservas)`.
-  **Propuesta:** usar la definición de la Fase 1 (es la acordada funcionalmente y trae Local / Zona Franca / Tránsito por separado). La propuesta dice "mismos criterios del reporte de inventario": confirmar con Andrés cuál se considera "el reporte" para el cliente.
-- **D3. Columnas.** Referencia · Disponible · Bodega Local · Zona Franca · Tránsito (según lo solicitado). ¿Se agrega Comprometida para que el Disponible sea explicable? Propuesta: sí, como columna informativa (sin costo relevante).
+- **D1.** Solo la bandeja **"Sobrepaso de cantidades mínimas"** (`MinimumQuantityNotifications`). La de bodega local no se toca.
+- **D2.** **Disponible = (Bodega Local + Zona Franca) + Tránsito − Comprometido**, con Comprometido = Reservas + Pedidos.
+- **D3.** Se agrega la columna **Comprometido** (informativa).
+- Columnas finales: Referencia · Bodega Local · Zona Franca · Tránsito · Comprometido · Disponible. Solo referencias activas. La referencia de la alarma se resalta.
 
 ## 3. Diseño
 
@@ -57,7 +54,7 @@ SQL: SP_GET_ITEM_REFERENCES_INVENTORY @ReferenceId  (nuevo, solo lectura)
 | **T2** | Capa de datos: entidad keyless + configuración + `IArticleInventoryRepository` / `ArticleInventoryRepository` con `SqlParameter` + registro DI | Código DataAccess | Compila; consulta desde el repositorio devuelve lo mismo que T1 · Regresión: T1 | 1 |
 | **T3** | Caso de uso: `ArticleReferenceInventory` (Model), `IArticleInventoryService` / `ArticleInventoryService`, mapping y registro DI | Código Application.Services | Resultado del servicio = T1 para los 3 artículos · Regresión: T1–T2 | 1 |
 | **T4** | Componente `ArticleInventoryDialog`: `ImageDialog` embebido + grilla (orden por referencia, fila de la alarma resaltada, números con formato N0, mensaje si no hay datos) | `Shared/ArticleInventoryDialog.razor(.cs)` | Abrir el diálogo con los 3 casos; imagen existente e inexistente · Regresión: T1–T3 | 2 |
-| **T5** | Conectar en la(s) bandeja(s) de D1: solo cambia `ShowImageDialogAsync` → `ArticleInventoryDialog` (con `ReferenceId`) y el tamaño del diálogo | Cambio en `MinimumQuantityNotifications` (y `MinimumLocalWarehouseQuantityNotifications` si D1) | Desde el Tablero: clic en imagen muestra imagen + referencias; enlace del nombre sigue abriendo el reporte de movimientos; ocultar alarmas sigue funcionando · Regresión: T1–T4 | 1 |
+| **T5** | Conectar en la(s) bandeja(s) de D1: solo cambia `ShowImageDialogAsync` → `ArticleInventoryDialog` (con `ReferenceId`) y el tamaño del diálogo | Cambio solo en `MinimumQuantityNotifications` | Desde el Tablero: clic en imagen muestra imagen + referencias; enlace del nombre sigue abriendo el reporte de movimientos; ocultar alarmas sigue funcionando · Regresión: T1–T4 | 1 |
 | **T6** | Regresión final y cierre | Checklist | `ImageDialog` en otras bandejas (Agotados, OC confirmadas, Bodega local) y en Órdenes de Compra sigue igual; rendimiento del diálogo; notas para manual funcional | 1 |
 | | | | **Total** | **8 h** |
 
