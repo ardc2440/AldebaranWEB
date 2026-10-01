@@ -30,7 +30,7 @@
     </RadzenRow>
 
     <RadzenColumn>
-        <RadzenTabs class="notification-tabs"  TabPosition="TabPosition.Left" RenderMode="TabRenderMode.Client">
+        <RadzenTabs class="notification-tabs"  TabPosition="TabPosition.Left" RenderMode="TabRenderMode.Client" @bind-SelectedIndex="selectedTabIndex">
             <Tabs>
 
                 <RadzenTabsItem Visible="@(pendingApprovalPurchaseOrderNotificationVisible)">

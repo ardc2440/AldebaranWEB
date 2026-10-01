@@ -89,3 +89,43 @@ Se prueban juntas (decisión de Andrés): el diálogo solo se abre desde la band
 Los usos restantes de `ImageDialog` (OC confirmadas, Confirmar OC, Reporte de Artículos y Referencias, `MultiReferencePicker`) comparten el mismo componente, cuyo único cambio fue la codificación del archivo (contenido idéntico); no requieren prueba individual.
 
 **Resultado del requerimiento:** T1–T6 cerradas. 
+
+---
+
+## T7 + T8 + T9 – Excel agrupado del correo periódico de cantidades mínimas ✅ (2026-10-01)
+
+Se prueban juntas: el método nuevo del generador solo lo invoca el servicio del correo (`NotificationWorker` → `InventoryMinimumAlertService`), que se ejecuta por horario y envía mediante el Notificator. Destinatarios del rol en pruebas: empleados 22 (adiaz) y 27 (gramirez), ambos a ardc2440@gmail.com.
+
+**Procedimiento:** compilar → ajustar `ExecutionHours` a una hora cercana → F5 → esperar la ejecución del worker (log "InventoryMinimumAlertService finalizado") → ejecutar el Notificator → abrir el adjunto del correo.
+
+| Caso | Validación | Esperado | Obtenido | Resultado |
+|---|---|---|---|---|
+| T7-01 | Compilar la solución | Sin errores ni advertencias nuevas | Compilación correcta (Andrés) | OK |
+| T7-02 | Adjunto abre en Excel sin reparaciones | Abre sin mensaje "contenido ilegible" | Confirmado por Andrés | OK |
+| T7-03 | Agrupamiento | Grupos contraídos; "+" en la fila de la alarma expande/contrae el detalle | Confirmado por Andrés | OK |
+| T7-04 | Imagen | Solo en la fila padre (si el artículo tiene imagen); detalle sin imagen y con alto normal | 4 imágenes, todas ancladas en filas padre (alto 100); 1.050 filas de detalle sin imagen | OK |
+| T7-05 | Hoja sin protección | Se puede expandir/contraer y seleccionar | Sin `sheetProtection`; `outlinePr summaryBelow=0`, `outlineLevelRow=1`; 1.050 hijos nivel 1 ocultos, padres `collapsed` | OK (estructura) |
+| T8-01 | Detalle = diálogo | MU-372: 7 referencias con las mismas cifras del diálogo (Local, ZF, Físico, Tránsito, Comprometido, Disponible) | Idénticas al diálogo y al SP (ref. 6152); fórmulas correctas en las 1.353 filas | OK |
+| T8-02 | Marcas de alarma | En el detalle, las referencias en alarma tienen "En alarma: Sí" y su Cantidad mínima | Cada padre tiene su referencia marcada en el detalle con las mismas cifras (303/303) | OK |
+| T8-03 | Un grupo por artículo | Un artículo con dos alarmas aparece una sola vez, con ambas marcadas en el detalle | 71 grupos con más de una alarma; ej. ARIA: Amarillo (4.500) y Naranja (2.000) marcadas | OK |
+| T9-01 | Correo | Llega con el adjunto `InventarioMinimo_yyyyMMdd HHmm.xlsx` | Recibido `InventarioMinimo_20261001_0823.xlsx`: 303 grupos, 1.353 filas | OK |
+| T9-02 | "Marcar alarmas como leídas" | Desmarca **todas** las alarmas del lote (incluidas las que van en el detalle) | Confirmado por Andrés | OK |
+| T9-03 | Regresión | Tablero, diálogo (T4–T5) y Excel del Reporte de Artículos y Referencias (`GetExcelBytes`) igual | Tablero y bandejas OK (T11); `GetExcelBytes` sin cambios de código | OK |
+
+---
+
+## T11 – Corrección: pestaña inicial del Tablero ✅ (2026-10-01)
+
+Hallazgo de Andrés (2026-10-01): con un usuario sin el rol "Aprobación de ajustes en órdenes de compra" (gramirez) el botón de esa pestaña no se muestra (correcto), pero su contenido sí aparece al entrar. Causa: `RadzenTabs` sin `SelectedIndex` → Radzen selecciona la pestaña 0 aunque esté oculta. Corrección: `@bind-SelectedIndex` con la primera pestaña visible según permisos; sin permisos, ninguna (-1). `Index.razor(.cs)` conservan su codificación ISO-8859 (roles con tildes intactos).
+
+| Caso | Validación | Esperado | Obtenido | Resultado |
+|---|---|---|---|---|
+| T11-01 | Compilar | Sin errores | Compilación correcta (Andrés) | OK |
+| T11-02 | gustavor (sin el rol de aprobación) | Entra a su primera pestaña visible ("Sobrepaso de cantidades mínimas por referencia") con su contenido; no aparece la grilla de aprobación | Abre en Sobrepaso de cantidades mínimas (grilla de esa bandeja, vacía porque sus alarmas se marcaron como leídas en T9-02); sin grilla de aprobación | OK |
+| T11-03 | admin (Administrador) | Entra a "Aprobación de ajustes en órdenes de compra"; todas las pestañas | Abre en Aprobación con su contenido (OC 0000000730); todas las pestañas visibles | OK |
+| T11-05 | adiaz (solo el rol de aprobación) | Solo la pestaña "Aprobación de ajustes en órdenes de compra", seleccionada al entrar | Única pestaña visible, seleccionada, con su contenido (OC 0000000730) | OK |
+| T11-04 | Cambio de pestaña y alertas | Navegar entre pestañas y clic en alerta funcionan igual | Aprobación → Inventario sin stock → Cantidades mínimas → Aprobación OK; clic en alerta de Inventario sin stock la apaga y abre la pestaña | OK |
+
+---
+
+**Resultado final del requerimiento (2026-10-01):** T1–T11 cerradas.

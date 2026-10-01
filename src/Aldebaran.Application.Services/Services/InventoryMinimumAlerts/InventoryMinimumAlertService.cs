@@ -21,6 +21,7 @@ namespace Aldebaran.Application.Services.InventoryMinimumAlerts
         private readonly IEncryptionService _encryptionService;
         private readonly INotificationAccessTokenService _notificationAccessTokenService;
         private readonly INotificationTemplateService _notificationTemplateService;
+        private readonly IArticleInventoryService _articleInventoryService;
 
         private static readonly Regex _articleCodeRegex = new(@"\[(.*?)\]", RegexOptions.Compiled);
 
@@ -35,8 +36,10 @@ namespace Aldebaran.Application.Services.InventoryMinimumAlerts
             INotificationService notificationService, 
             IEmployeeService employeeService, 
             IDashBoardService dashboardService,
-            INotificationTemplateService notificationTemplateService)
+            INotificationTemplateService notificationTemplateService,
+            IArticleInventoryService articleInventoryService)
         {
+            _articleInventoryService = articleInventoryService ?? throw new ArgumentNullException(nameof(articleInventoryService));
             _encryptionService = encryptionService;
             _notificationService = notificationService;
             _employeeService = employeeService;
@@ -103,21 +106,37 @@ namespace Aldebaran.Application.Services.InventoryMinimumAlerts
                 .ToList();
         }
 
-        private Task<byte[]> GenerateExcelAsync(List<InventoryMinimumDto> data, CancellationToken ct = default)
+        /// <summary>Excel agrupado por artículo con "+" (D6–D10): alarma con imagen + inventario de las referencias del artículo.</summary>
+        private async Task<byte[]> GenerateExcelAsync(List<InventoryMinimumDto> data, CancellationToken ct = default)
         {
-            var exportData = data.Select(x => new InventoryMinimumExportDto
-            {
-                ArticleName = x.ArticleName,
-                ImagePath = x.ImagePath,
-                TotalStock = x.AvailableQuantity,
-                MinimumQuantity = x.MinimumQuantity,
-                InTransitQuantity = x.InTransitQuantity,
-                OrderedQuantity = x.OrderedQuantity,
-                ReservedQuantity = x.ReservedQuantity,
-                AvailableQuantity = (x.AvailableQuantity + x.InTransitQuantity) - x.OrderedQuantity
-            }).OrderBy(x => x.ArticleName).ToList();
+            var groups = await GetArticleAlarmGroupsAsync(data, ct);
+            var exportData = InventoryMinimumGroupedExportBuilder.Build(data, groups);
 
-            return _fileBytesGeneratorService.GetExcelBytes(exportData);
+            return await _fileBytesGeneratorService.GetExcelBytesWithChildRows(exportData, row => row.Children);
+        }
+
+        /// <summary>
+        /// Un grupo por artículo: la primera alarma (por nombre) consulta el inventario del artículo;
+        /// las demás alarmas del mismo artículo ya quedan cubiertas en ese detalle (D9).
+        /// </summary>
+        private async Task<List<ArticleAlarmGroup>> GetArticleAlarmGroupsAsync(List<InventoryMinimumDto> alarms, CancellationToken ct)
+        {
+            var groups = new List<ArticleAlarmGroup>();
+            var coveredReferences = new HashSet<int>();
+
+            foreach (var alarm in alarms.OrderBy(alarm => alarm.ArticleName))
+            {
+                if (coveredReferences.Contains(alarm.ReferenceId))
+                    continue;
+
+                var inventory = await _articleInventoryService.GetByReferenceAsync(alarm.ReferenceId, ct);
+
+                coveredReferences.Add(alarm.ReferenceId);
+                coveredReferences.UnionWith(inventory.Select(row => row.ReferenceId));
+                groups.Add(new ArticleAlarmGroup(alarm, inventory));
+            }
+
+            return groups;
         }
 
         private (string url,Guid tokenId) GenerateMarkAsReadLinkAsync()

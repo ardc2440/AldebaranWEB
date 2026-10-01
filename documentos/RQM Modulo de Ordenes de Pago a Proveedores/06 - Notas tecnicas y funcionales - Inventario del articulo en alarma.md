@@ -50,4 +50,31 @@ MinimumQuantityNotifications (UI) ── DialogService.OpenAsync<ArticleInventor
 
 **Decisiones:** D1 solo bandeja de mínimos generales · D2 fórmula de Disponible · D3 columna Comprometido · D4 columna Stock Físico · D5 corrección del tránsito de la alarma. Componentes compartidos sin cambios funcionales. Archivos nuevos en UTF-8 sin BOM.
 
-**Despliegue a producción:** ejecutar `01` y `03` en la BD; publicar la aplicación. `02` es solo para pruebas.
+## Ampliación (T7–T9): Excel del correo periódico de cantidades mínimas
+
+**Funcional:** el adjunto `InventarioMinimo_yyyyMMdd HHmm.xlsx` ahora muestra **un grupo por artículo**:
+- Fila de la alarma (visible): imagen del artículo, "En alarma: Sí", Cantidad mínima y las cifras de esa referencia.
+- Con el **"+"** de la izquierda se despliega el inventario de **todas las referencias activas del artículo** (sin imagen), con las mismas columnas y fórmulas del diálogo del Tablero. Las referencias que también están en alarma aparecen marcadas ("Sí" y su Cantidad mínima).
+- Si un artículo tiene varias alarmas, aparece una sola vez con todas marcadas en el detalle. "Marcar alarmas como leídas" sigue desmarcando **todas** las alarmas incluidas en el correo.
+- Columnas: Artículo / Referencia · Imagen · En alarma · Cantidad mínima · Bodega Local · Zona Franca · Stock Físico · En tránsito · Comprometido · Disponible. El Disponible ahora también resta las Reservas (igual que el Tablero).
+
+**Técnico:**
+
+| Capa | Archivo | Tipo |
+|---|---|---|
+| Common | `Utils/IFileBytesGeneratorService.cs` | Adición de `GetExcelBytesWithChildRows<T>(parents, childrenSelector)` |
+| Common | `Utils/FileBytesGeneratorService.cs` | Solo `partial` (el método `GetExcelBytes` no cambia) |
+| Common | `Utils/FileBytesGeneratorService.ChildRows.cs` | Nuevo: outline de Excel (hijos nivel 1 ocultos, resumen arriba, hoja sin protección, imagen solo en el padre) |
+| Application | `InventoryMinimumAlerts/Models/InventoryMinimumGroupedExportDto.cs` | Nuevo (columnas + `Children`) |
+| Application | `InventoryMinimumAlerts/InventoryMinimumGroupedExportBuilder.cs` | Nuevo (armado puro de grupos) |
+| Application | `InventoryMinimumAlerts/InventoryMinimumAlertService.cs` | Inyecta `IArticleInventoryService`; agrupa por artículo; usa `GetExcelBytesWithChildRows` |
+
+Decisiones D6–D10 (ver plan `04`).
+
+## Corrección (T11): pestaña inicial del Tablero
+
+**Funcional:** al entrar al Tablero se selecciona la **primera pestaña que el usuario tiene permiso de ver**. Antes, un usuario sin el rol "Aprobación de ajustes en órdenes de compra" veía el contenido de esa pestaña aunque no tuviera el botón. Sin ninguna pestaña permitida, no se muestra contenido.
+
+**Técnico:** `Pages/Index.razor` (`@bind-SelectedIndex`) y `Pages/Index.razor.cs` (`selectedTabIndex`, `GetFirstVisibleTabIndex()` en el mismo orden de declaración de las pestañas). Archivos conservan codificación ISO-8859.
+
+**Despliegue a producción:** ejecutar `01` y `03` en la BD; publicar la aplicación (incluye el servicio del correo, que corre dentro de Aldebaran.Web). `02` es solo para pruebas.

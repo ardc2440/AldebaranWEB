@@ -14,7 +14,7 @@ using Xdr = DocumentFormat.OpenXml.Drawing.Spreadsheet;
 
 namespace Aldebaran.Infraestructure.Common.Utils
 {
-    public class FileBytesGeneratorService : IFileBytesGeneratorService
+    public partial class FileBytesGeneratorService : IFileBytesGeneratorService
     {
         private readonly IBrowserProvider _browserProvider;
 

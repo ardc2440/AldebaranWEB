@@ -48,6 +48,9 @@ namespace Aldebaran.Web.Pages
         protected bool confirmedPurchaseOrderNotificationsVisible;
         protected bool automaticInProcessModificationNotificationsVisible;
 
+        /// <summary>Pestaña seleccionada al entrar: la primera que el usuario puede ver (-1 = ninguna).</summary>
+        protected int selectedTabIndex = -1;
+
         protected bool minimumQuantityAlertVisible;
         protected bool minimumLocalWarehouseQuantityAlertVisible;
         protected bool LocalWarehouseAlertVisible;
@@ -113,6 +116,34 @@ namespace Aldebaran.Web.Pages
             emailErrorNotificationsVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por envio de correo con error");
             confirmedPurchaseOrderNotificationsVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por creación automática de traslados a proceso");
             automaticInProcessModificationNotificationsVisible = Security.IsInRole("Administrador", "Consulta de notificaciones por modificaciones automáticas de traslados a proceso");
+
+            selectedTabIndex = GetFirstVisibleTabIndex();
+        }
+
+        /// <summary>
+        /// Índice de la primera pestaña visible para el usuario, en el mismo orden en que se declaran en Index.razor.
+        /// Sin pestañas visibles devuelve -1 (no se muestra ningún tablero).
+        /// </summary>
+        private int GetFirstVisibleTabIndex()
+        {
+            var tabsVisibility = new[]
+            {
+                pendingApprovalPurchaseOrderNotificationVisible,
+                minimumQuantityNotificatioVisible,
+                outOfStockNotificatioVisible,
+                LocalWarehouseNotificatioVisible,
+                userAlarmNotificationVisible,
+                minimumLocalWarehouseQuantityNotificatioVisible,
+                expiredReservationNotificationVisible,
+                confirmedPurchaseOrderNotificationsVisible,
+                customerOrderExpirationNotificationVisible,
+                automaticInProcessModificationNotificationsVisible,
+                purchaseOrderExpirationNotificationVisible,
+                purchaseOrderTransitAlarmNotificationsVisible,
+                emailErrorNotificationsVisible
+            };
+
+            return Array.IndexOf(tabsVisibility, true);
         }
 
         async Task InitializeGridTimers()

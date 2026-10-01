@@ -1,6 +1,6 @@
 # Plan de trabajo – Inventario del artículo en la alarma de cantidades mínimas
 
-**Estado:** ✅ Desarrollo terminado (2026-09-30). Aprobado por el cliente (2026-09-28). Plan aprobado por Andrés. Rama: `RQM-InventarioCompletoEnAlarmaDeCantidadMinima`.
+**Estado:** ✅ Terminado (2026-10-01): T1–T6 (diálogo), T7–T10 (Excel del correo), T11 (corrección pestaña inicial del Tablero). Aprobado por el cliente (2026-09-28). Plan aprobado por Andrés. Rama: `RQM-InventarioCompletoEnAlarmaDeCantidadMinima`.
 **Esfuerzo estimado:** 8 h (1 día de esfuerzo · 2 días calendario a 4 h/día).
 **Método:** tareas mínimas comprobables → implementar → probar (con regresión acumulada) → corregir → OK de Andrés → siguiente.
 
@@ -69,9 +69,30 @@ SQL: SP_GET_ITEM_REFERENCES_INVENTORY @ReferenceId  (nuevo, solo lectura)
 | T3 | ✅ Cerrada (2026-09-30) — compila, app arranca (DI validado), Tablero OK; servicio vs T1 se verifica en T4 |
 | T4 + T5 | ✅ Cerradas (2026-09-30) — probadas juntas: diálogo (imagen + grilla, fila de la alarma resaltada, N0), cifras = SP y = bandeja, enlace al reporte, búsqueda, ocultar alarmas; `ImageDialog.razor` convertido a UTF-8 (tildes) |
 | T6 | ✅ Cerrada (2026-09-30) — regresión de `ImageDialog` en otras bandejas, rendimiento < 1 s; notas para manuales en `06 - Notas tecnicas y funcionales...md` | `ArticleReferenceInventory` (record del caso de uso), `IArticleInventoryService` / `ArticleInventoryService` (orquestador + mapeo explícito, sin AutoMapper para no tocar el Profile compartido), registro DI. | Entidad `ItemReferenceInventory` (keyless), `HasNoKey` en `AldebaranDbContext`, `IArticleInventoryRepository` / `ArticleInventoryRepository` (`SqlParameter`), registro DI. |
+| T7–T9 | ✅ Cerradas (2026-10-01) — Excel agrupado del correo: 303 grupos / 1.353 filas, "+" funcional, imagen solo en padre, cifras = diálogo, "Marcar como leídas" desmarca el lote |
+| T11 | ✅ Cerrada (2026-10-01) — pestaña inicial del Tablero = primera visible según permisos (admin, gustavor, adiaz) |
+| T10 | ✅ Cerrada (2026-10-01) — bitácora, plan y notas para manuales |
+
+## 4.2 Ampliación: inventario del artículo en el Excel del correo periódico (T7–T10)
+
+Coherencia con el RQM "Envío periódico por correo de Cantidades Mínimas" (en producción): el Excel del correo debe permitir ver el inventario del artículo a partir de la alarma, como el Tablero. Incluido en este plan por decisión de Andrés (2026-10-01).
+
+**Decisiones (Andrés, 2026-10-01)**
+- **D6.** Filas agrupadas con "+" (outline de Excel) en una sola hoja. Nuevo método **aditivo** `GetExcelBytesWithChildRows` en `FileBytesGeneratorService`; `GetExcelBytes` y sus usos no se modifican; solo el orquestador del correo cambia la invocación.
+- **D7.** La hoja del Excel agrupado **no se protege** (Excel no permite expandir/contraer grupos en hojas protegidas).
+- **D8.** Imagen solo en la fila padre (la alarma); las filas del detalle van sin imagen y con alto normal.
+- **D9.** Un grupo por artículo: padre = primera alarma del artículo (cifras de esa referencia); detalle = todas las referencias activas del artículo (como el diálogo), con las referencias en alarma marcadas (Cantidad mínima + "En alarma: Sí"). El lote del token "Marcar como leídas" conserva **todos** los `AlarmId`.
+- **D10.** Cifras con `IArticleInventoryService` (mismo SP y fórmulas del diálogo): Disponible = Stock Físico + Tránsito − Reservas − Pedidos (corrige el Disponible actual del correo, que no restaba Reservas).
+
+| # | Tarea | Entregable | Prueba (+ regresión) |
+|---|---|---|---|
+| **T7** | `GetExcelBytesWithChildRows<T>(parents, childrenSelector)` | `IFileBytesGeneratorService` / `FileBytesGeneratorService` (solo adiciones) | Excel de prueba: "+" expande/contrae, imagen solo en padre · Regresión: Excel del Reporte de Artículos y Referencias (`GetExcelBytes`) |
+| **T8** | DTO agrupado + armado de grupos por artículo en el servicio del correo | `InventoryMinimumGroupedExportDto`, builder de grupos | Excel generado en pruebas sin enviar: MU-372 (7 referencias) = diálogo · Regresión: T7 |
+| **T9** | Cambio de invocación en el orquestador + envío real en pruebas | `InventoryMinimumAlertService` | Correo de prueba con adjunto; "Marcar como leídas" desmarca todo el lote · Regresión: T7–T8, Tablero |
+| **T11** | Corrección pestaña inicial del Tablero (hallazgo en pruebas): primera pestaña visible según permisos | `Index.razor(.cs)` | gramirez entra a su primera pestaña; admin igual que antes |
+| **T10** | Cierre | Bitácora, notas para manuales, plan | — |
 
 ## 5. Fuera de alcance
-- Excel de la notificación periódica de cantidades mínimas por correo (se evaluará aparte).
 - Cualquier cambio a `ImageDialog` o al resto de usos del popup de imagen.
 
 ## 6. Riesgos
