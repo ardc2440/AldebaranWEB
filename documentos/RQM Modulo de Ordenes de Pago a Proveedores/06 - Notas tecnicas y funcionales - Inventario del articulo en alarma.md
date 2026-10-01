@@ -1,0 +1,53 @@
+# Notas técnicas y funcionales – Inventario del artículo en la alarma de cantidades mínimas
+
+Insumo para los manuales técnico y funcional (Word, línea visual de la Fase 1). Rama `RQM-InventarioCompletoEnAlarmaDeCantidadMinima`.
+
+## Funcional
+
+**Dónde:** Tablero de notificaciones → bandeja **"Sobrepaso de cantidades mínimas por referencia"** → botón de imagen de una alarma (tooltip "Ver imagen e inventario del artículo").
+
+**Qué muestra:**
+1. Nombre del artículo y referencia de la alarma, e imagen del artículo (o el mensaje "La imagen para este artículo no está disponible.").
+2. **Inventario del artículo**: todas las referencias **activas** del artículo, ordenadas por nombre, con:
+
+| Columna | Significado |
+|---|---|
+| Bodega Local | Existencia en la bodega local |
+| Zona Franca | Existencia en zona franca |
+| Stock Físico | Bodega Local + Zona Franca |
+| Tránsito | Órdenes de compra Pendientes + En aprobación |
+| Comprometido | Reservas + Pedidos |
+| Disponible | Stock Físico + Tránsito − Comprometido (verde si es positivo, rojo si es 0 o negativo) |
+
+3. La referencia de la alarma aparece **resaltada** (negrita, fondo amarillo).
+
+**Sin cambios:** el clic en el nombre sigue abriendo el Reporte de movimientos; búsqueda, paginación y ocultar alarmas funcionan igual. Las demás bandejas siguen mostrando solo la imagen.
+
+**Coherencia de cifras:** el Disponible y el Tránsito de la fila resaltada coinciden con las columnas de la bandeja; el Stock Físico coincide con su columna "Inventario".
+
+## Técnico
+
+```
+MinimumQuantityNotifications (UI) ── DialogService.OpenAsync<ArticleInventoryDialog>(ReferenceId, ArticleName)
+  └─ ArticleInventoryDialog (Shared) ── ImageDialog (reutilizado) + LocalizedDataGrid
+       └─ IArticleInventoryService / ArticleInventoryService (Application.Services; Model ArticleReferenceInventory)
+            └─ IArticleInventoryRepository / ArticleInventoryRepository (DataAccess.Infraestructure; entidad keyless ItemReferenceInventory)
+                 └─ dbo.SP_GET_ITEM_REFERENCES_INVENTORY @ReferenceId
+```
+
+| Capa | Archivo | Tipo |
+|---|---|---|
+| BD | `scripts/RQM Inventario Articulo Alarma Minimos/01 - SP_GET_ITEM_REFERENCES_INVENTORY.sql` | Nuevo (SP + índice condicional; el índice ya existía en BD) |
+| BD | `.../02 - Pruebas SP_GET_ITEM_REFERENCES_INVENTORY.sql` | Nuevo (pruebas automáticas, solo lectura) |
+| BD | `.../03 - Correccion SP_GET_MINIMUM_QUANTITY_ALARMS (transito).sql` | Corrección (D5): tránsito = Pendientes + En aprobación, tipo 'O' |
+| DataAccess | `Entities/ItemReferenceInventory.cs` + `HasNoKey` en `AldebaranDbContext` | Nuevo |
+| Infraestructura | `Repository/IArticleInventoryRepository.cs`, `ArticleInventoryRepository.cs` | Nuevo (`SqlParameter` tipado) |
+| Application | `Models/ArticleReferenceInventory.cs`, `Services/IArticleInventoryService.cs`, `ArticleInventoryService.cs` | Nuevo (record del caso de uso, mapeo explícito) |
+| Web | `Shared/ArticleInventoryDialog.razor(.cs)` | Nuevo |
+| Web | `Pages/DashboardNotificationComponents/MinimumQuantityNotifications.razor(.cs)` | Modificado (abre el nuevo diálogo) |
+| Web | `Shared/ImageDialog.razor` | Codificación ISO-8859 → UTF-8 (contenido igual) |
+| Web | `Extensions/ArchitectureBuilderExtensions.cs` | Registro DI (repositorio y servicio) |
+
+**Decisiones:** D1 solo bandeja de mínimos generales · D2 fórmula de Disponible · D3 columna Comprometido · D4 columna Stock Físico · D5 corrección del tránsito de la alarma. Componentes compartidos sin cambios funcionales. Archivos nuevos en UTF-8 sin BOM.
+
+**Despliegue a producción:** ejecutar `01` y `03` en la BD; publicar la aplicación. `02` es solo para pruebas.

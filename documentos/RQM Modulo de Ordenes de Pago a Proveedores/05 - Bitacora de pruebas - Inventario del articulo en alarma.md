@@ -73,3 +73,19 @@ Se prueban juntas (decisión de Andrés): el diálogo solo se abre desde la band
 | T45-09 | `ImageDialog` en otras bandejas (Inventario sin stock, Bodega local) | Abre igual, ahora con tildes correctas | Inventario sin stock (MU-155): abre igual, mensaje con tildes correctas | OK | |
 
 **Set usado:** ARIA (144/146) y HO-13 (932) ya estaban ocultas para `admin`; se probó con ATTILA (con imagen, 1 referencia) y MU-372 (sin imagen, 7 referencias, con tránsito).
+
+---
+
+## T6 – Regresión final y cierre ✅ (2026-09-30)
+
+| Caso | Validación | Esperado | Obtenido | Resultado |
+|---|---|---|---|---|
+| T6-01 | Usos de `ImageDialog` | Inventario: 7 usos (6 sin cambios + bandeja de mínimos que ahora abre `ArticleInventoryDialog`) | ConfirmedPurchaseOrderNotifications, LocalWarehouseNotifications, MinimumLocalWarehouseQuantityNotifications, OutOfStockNotifications, ConfirmPurchaseOrder, ItemReferencesReportItemTable, MultiReferencePicker | OK |
+| T6-02 | `ImageDialog` con imagen (Bodega local, ADVA 2-1) | Abre igual: título + imagen | Igual | OK |
+| T6-03 | `ImageDialog` sin imagen (Inventario sin stock, MU-155) | Mensaje con tildes correctas | Correcto | OK |
+| T6-04 | Rendimiento del diálogo | Apertura inmediata | MU-372 (7 referencias): diálogo completo en < 1 s. SP con 21 referencias (MU-35): 0 ms de CPU (T1) | OK |
+| T6-05 | Regresión T1 | No aplica | Sin cambios en SP ni tablas desde T2 | N/A |
+
+Los usos restantes de `ImageDialog` (OC confirmadas, Confirmar OC, Reporte de Artículos y Referencias, `MultiReferencePicker`) comparten el mismo componente, cuyo único cambio fue la codificación del archivo (contenido idéntico); no requieren prueba individual.
+
+**Resultado del requerimiento:** T1–T6 cerradas. 
