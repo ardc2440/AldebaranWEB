@@ -362,6 +362,7 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IEmailNotificationProviderSettingsService, EmailNotificationProviderSettingsService>();
             services.AddTransient<INotificationTemplateService, NotificationTemplateService>();
             services.AddTransient<IDashBoardService, DashBoardService>();
+            services.AddTransient<IArticleInventoryService, ArticleInventoryService>();
             services.AddTransient<IPurchaseOrderNotificationService, PurchaseOrderNotificationService>();
             services.AddTransient<IVisualizedPurchaseOrderTransitAlarmService, VisualizedPurchaseOrderTransitAlarmService>();
             services.AddTransient<IPurchaseOrderTransitAlarmService, PurchaseOrderTransitAlarmService>();

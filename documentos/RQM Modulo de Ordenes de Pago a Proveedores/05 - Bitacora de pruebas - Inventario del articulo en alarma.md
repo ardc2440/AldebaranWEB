@@ -41,3 +41,15 @@ Ejecutado por Claude (control del PC: Visual Studio, aplicación y SSMS).
 
 **Nota:** "Ocultar alarma" no se ejecutó en T2 (modifica datos y T2 no toca esa funcionalidad); se valida en T5.
 **Hallazgo:** la columna "Disponible" de la bandeja = Inventario + Tránsito − Reservado − Pedido (fila MU-372: 0 + 3.000 − 0 − 2.500 = 500). Es la misma fórmula D2 del diálogo.
+
+---
+
+## T3 – Caso de uso (Application.Services) 🔄
+
+| Caso | Validación | Esperado | Obtenido | Resultado | Evidencia |
+|---|---|---|---|---|---|
+| T3-01 | Compilar la solución | Sin errores ni advertencias nuevas | Compilación correcta (Andrés) | OK | |
+| T3-02 | Arrancar la aplicación (F5, Development) | Inicia sin excepción: `ValidateOnBuild` resuelve `IArticleInventoryService` → `IArticleInventoryRepository` | App arranca; login y Tablero OK | OK | |
+| T3-03 | Tablero y bandejas | Cargan igual que antes | Cantidades mínimas 417 (mismas cifras que T2), bodega local 687, y demás bandejas con datos (333, 36, 143, 2.139, 1.316, 191, 26) | OK | |
+| T3-04 | Servicio = T1 para A1, A2, A3 (incl. referencia ≤ 0 → vacío sin ir a BD) | Mismas filas y cifras que la grilla del script `02` | Se verifica en T4 (primer consumidor del servicio) | Diferido | |
+| R-T1 | Regresión T1: script `02` | TODAS LAS PRUEBAS OK | | | |
