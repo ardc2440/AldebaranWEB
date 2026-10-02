@@ -129,3 +129,9 @@ Hallazgo de Andrés (2026-10-01): con un usuario sin el rol "Aprobación de ajus
 ---
 
 **Resultado final del requerimiento (2026-10-01):** T1–T11 cerradas.
+
+---
+
+## Producción – Script 02 (2026-10-01 19:13) ✅
+
+Ejecutado por Andrés tras desplegar `01` y `03`: **TODAS LAS PRUEBAS OK** (25/25). A1 MU-35 (21 refs), A2 HO-13 (5 activas, 14 inactivas excluidas), A3 MU-303-1. (tránsito 10.000). Estructura sin anulables. I02 = 0. Índice `IND_PURCHASE_ORDER_DETAIL_REFERENCE_ID` ya existía (no se creó). A1 en 0 ms de CPU / 1 ms.
