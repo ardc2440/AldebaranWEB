@@ -16,19 +16,22 @@ namespace Aldebaran.Web.Controllers
         private readonly ICustomerReservationNotificationService CustomerReservationNotificationService;
         private readonly IEncryptionService EncryptionService;
         private readonly INotificationAccessTokenService _notificationAccessTokenService;
+        private readonly ILogger<NotificationController> _logger;
 
         public NotificationController(
             IEncryptionService encryptionService,
             IPurchaseOrderNotificationService purchaseOrderNotificationService,
             ICustomerOrderNotificationService customerOrderNotificationService,
             ICustomerReservationNotificationService customerReservationNotificationService,
-            INotificationAccessTokenService notificationAccessTokenService)
+            INotificationAccessTokenService notificationAccessTokenService,
+            ILogger<NotificationController> logger)
         {
             PurchaseOrderNotificationService = purchaseOrderNotificationService;
             CustomerOrderNotificationService = customerOrderNotificationService;
             CustomerReservationNotificationService = customerReservationNotificationService;
             EncryptionService = encryptionService;
             _notificationAccessTokenService = notificationAccessTokenService;
+            _logger = logger;
         }
         [HttpPost]
         public async Task<IActionResult> PurchaseOrderUpdate([FromBody] Application.Services.Notificator.Model.MessageModel message, CancellationToken ct = default)
@@ -69,8 +72,9 @@ namespace Aldebaran.Web.Controllers
                 var decryptedToken = EncryptionService.Decrypt(token);
                 tokenId = Guid.Parse(decryptedToken);
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogWarning(ex, "MarkMinimumQuantityAlarmsAsRead: no fue posible descifrar el token del enlace. Causa probable: clave de Data Protection no disponible (reinicio del pool) o token alterado.");
                 return RedirectToAction(nameof(NotificationResult), new { result = "invalid" });
             }
 

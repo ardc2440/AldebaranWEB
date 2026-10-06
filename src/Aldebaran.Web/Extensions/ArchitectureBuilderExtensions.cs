@@ -27,6 +27,7 @@ using Aldebaran.Web.Models;
 using Aldebaran.Web.Settings;
 using Aldebaran.Web.Utils;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.OData;
 using Microsoft.EntityFrameworkCore;
@@ -402,7 +403,18 @@ namespace Aldebaran.Web.Extensions
             services.AddSingleton<IEncryptionService, EncryptionService>();
             services.AddHostedService<NotificationWebService.NotificationWorker>();
             services.AddHostedService<InventoryMinimumAlertWebService.NotificationWorker>();
-            services.AddDataProtection();
+            // Data Protection: las claves se persisten en disco para que los enlaces cifrados
+            // (p. ej. "Marcar alarmas como leídas") y las cookies sobrevivan a reinicios del pool.
+            // Si la llave no está configurada se conserva el comportamiento anterior (claves efímeras).
+            var dataProtection = services.AddDataProtection().SetApplicationName("Aldebaran.Web");
+            var dataProtectionKeysPath = builder.Configuration["DataProtectionSettings:KeysPath"];
+            if (!string.IsNullOrWhiteSpace(dataProtectionKeysPath))
+            {
+                var keysDirectory = Directory.CreateDirectory(dataProtectionKeysPath);
+                dataProtection.PersistKeysToFileSystem(keysDirectory);
+                if (OperatingSystem.IsWindows())
+                    dataProtection.ProtectKeysWithDpapi(protectToLocalMachine: true);
+            }
 
             return services;
         }
