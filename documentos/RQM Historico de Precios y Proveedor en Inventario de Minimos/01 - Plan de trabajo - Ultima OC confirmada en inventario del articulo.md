@@ -1,7 +1,7 @@
 # Plan de trabajo – Última OC confirmada en el inventario del artículo
 
-**Estado:** 📝 Pendiente de aprobación (2026-10-10). Ajuste al RQM "Inventario del artículo en la alarma de cantidades mínimas" (plan `04`, en producción desde 2026-10-01).
-**Rama:** por confirmar (Andrés).
+**Estado:** ✅ Terminado (2026-10-10): T12–T16. Opción 2 de la propuesta `PROPUESTA - Historico de Precios y Proveedor en Inventario de Minimos` (2026-10-10), sobre el RQM "Inventario del artículo en la alarma de cantidades mínimas" (en producción desde 2026-10-01; plan en `RQM Modulo de Ordenes de Pago a Proveedores/04`).
+**Rama:** `RQM_ProveedorEnInventarioCantidadMinima`.
 **Esfuerzo estimado:** 5 h.
 **Método:** tareas mínimas comprobables → implementar → probar (con regresión acumulada) → corregir → OK de Andrés → siguiente.
 
@@ -30,6 +30,7 @@ Aplica a los dos frentes:
 - **D13.** Referencia sin OC confirmada → las cinco columnas vacías.
 - **D14.** No se muestra el número de la OC.
 - **D15.** Excel: columnas solo en filas hijas; en la fila padre quedan vacías.
+- **D16.** Se implementan **5 columnas**: las 3 de la Opción 2 de la propuesta (Proveedor, Fecha OC, Cantidad solicitada) + Fecha real de recibo y Cantidad recibida, sin costo adicional (salen de la misma consulta).
 
 Datos verificados (BD de pruebas, 2026-10-10): 460 OC confirmadas, todas con `REAL_RECEIPT_DATE`.
 
@@ -58,8 +59,18 @@ SP_GET_ITEM_REFERENCES_INVENTORY  (+5 columnas, OUTER APPLY TOP 1 por referencia
 | **T13** | Datos + caso de uso: entidad, record y mapeo explícito | `ItemReferenceInventory`, `ArticleReferenceInventory`, `ArticleInventoryService` | Compila; servicio = SP · Regresión: T12 | 0,5 |
 | **T14** | Diálogo del Tablero: 5 columnas en la grilla, ancho del diálogo ajustado | `ArticleInventoryDialog.razor` (y tamaño en `MinimumQuantityNotifications` si se requiere) | Datos = SP; referencia sin OC con celdas vacías; fila de alarma sigue resaltada; imagen OK · Regresión: T12–T13, bandeja (búsqueda, ocultar, enlace a movimientos) | 1 |
 | **T15** | Excel del correo: DTO +5, `BuildChild` las llena, padre vacío | `InventoryMinimumGroupedExportDto`, `InventoryMinimumGroupedExportBuilder` | Correo de prueba: hijas con datos = diálogo, padre vacío, "+" expande, imagen solo en padre, "Marcar como leídas" OK · Regresión: T12–T14 | 1 |
-| **T16** | Cierre | Bitácora `05`, notas `06`, actualización de manuales técnico y funcional | — | 1 |
+| **T16** | Cierre | Bitácora `02`, notas `03` (en esta carpeta), actualización de manuales técnico y funcional | — | 1 |
 | | | | **Total** | **5 h** |
+
+## 4.1 Avance
+
+| # | Estado | Evidencia |
+|---|---|---|
+| T12 | ✅ Cerrada (2026-10-10) | Script `04` aplicado en BD de pruebas. Script `02`: **30/30 OK** (regresión A1–A3, C01–C04 + U01–U04). U01 ref 4821 (8 OC confirmadas) toma la de recibo 2025-07-18; U02 ref 124 sin OC → 5 NULL; U03 ref 120 ignora OC no confirmada posterior. C04: columnas nuevas anulables (`ProviderName varchar(50)`, fechas `date`, cantidades `int`). Rendimiento: 300 llamadas en 2,6 s (≈9 ms/llamada). |
+| T13 | ✅ Cerrada (2026-10-10) | Compila; diálogo de HO-13 (18 referencias) carga igual que antes con las columnas nuevas del SP mapeadas (EF sin error, sin `errors_` del día). Fechas como `DateTime?` (EF Core 7). |
+| T14 | ✅ Cerrada (2026-10-10) | **D17:** solo columna "Proveedor última compra"; los datos de la OC se muestran en tooltip al pasar el cursor (Andrés). Diálogo 1000→1150 px. VA-434 (9 refs): 6 con proveedor, 3 vacías (Amarillo/alarma, Morado, Rojo) = SP; tooltip Blanco 06/06/2024 · 04/10/2024 · 3.000/3.000 y Negro 08/10/2024 · 14/02/2025 · 5.000/5.000 = SP. Tooltip visible sobre el diálogo; fila de alarma resaltada. |
+| T15 | ✅ Cerrada (2026-10-10) | Correo real a gramirez (27) tras limpiar sus alarmas leídas en BD de pruebas (adiaz intacto). Excel: 5 columnas K–O, vacías en filas padre; ASHBY hijas Azul/Blanco/Negro = NINGBO CONCCORD · 22/01/2025 · 20/06/2025 · 5000/5000, Gris Oscuro (alarma) vacía = SP. "+" e imagen solo en padre OK. Generación 30,6 s (ambiente local). Evidencia: `Evidencias/T15 - Excel correo filas hijas con ultima OC.png`. Pendiente menor: ancho de la columna Proveedor. |
+| T16 | ✅ Cerrada (2026-10-10) | Bitácora `02`, notas `03`, manuales técnico y funcional versión 1.1 en esta carpeta (copias de los entregados, con el ajuste; la 1.0 queda en la carpeta del RQM original). Evidencias T14 y T15. Ancho de la columna Proveedor del Excel aceptado sin cambios. |
 
 ## 5. Riesgos
 - **Ancho del diálogo:** pasa de 7 a 12 columnas → revisar legibilidad (posible ancho mayor o texto de proveedor con elipsis + tooltip).

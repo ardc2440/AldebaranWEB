@@ -41,6 +41,22 @@ namespace Aldebaran.Application.Services.InventoryMinimumAlerts.Models
         [DisplayName("Disponible")]
         public int? Available { get; set; }
 
+        // Última OC Confirmada de la referencia: solo en filas hijas (la fila padre repite la referencia de la alarma).
+        [DisplayName("Proveedor última compra")]
+        public string? LastPurchaseProvider { get; set; }
+
+        [DisplayName("Fecha OC")]
+        public DateTime? LastPurchaseOrderDate { get; set; }
+
+        [DisplayName("Fecha real de recibo")]
+        public DateTime? LastPurchaseReceiptDate { get; set; }
+
+        [DisplayName("Cantidad solicitada")]
+        public int? LastPurchaseRequestedQuantity { get; set; }
+
+        [DisplayName("Cantidad recibida")]
+        public int? LastPurchaseReceivedQuantity { get; set; }
+
         /// <summary>Referencias del artículo (no es columna: el generador solo exporta tipos simples).</summary>
         public IReadOnlyList<InventoryMinimumGroupedExportDto> Children { get; set; } = Array.Empty<InventoryMinimumGroupedExportDto>();
     }

@@ -20,6 +20,11 @@
    ejecución cronometrada de A1 (tiempos en Mensajes).
 
    Regresión: este script se vuelve a ejecutar en la prueba de cada tarea siguiente (T2..T6).
+
+   2026-10-10 (T12 - Proveedor en Inventario de Mínimos): el SP devuelve además la última OC
+   Confirmada de cada referencia (ProviderName, PurchaseOrderDate, RealReceiptDate,
+   RequestedQuantity, ReceivedQuantity). El control las calcula con ROW_NUMBER (método distinto
+   al OUTER APPLY TOP 1 del SP) y se agregan los casos U01-U04.
    ===================================================================================== */
 USE Aldebaran
 GO
@@ -31,11 +36,14 @@ IF OBJECT_ID('tempdb..#Casos')  IS NOT NULL DROP TABLE #Casos;
 IF OBJECT_ID('tempdb..#R')      IS NOT NULL DROP TABLE #R;
 IF OBJECT_ID('tempdb..#C')      IS NOT NULL DROP TABLE #C;
 IF OBJECT_ID('tempdb..#Visual') IS NOT NULL DROP TABLE #Visual;
+IF OBJECT_ID('tempdb..#U')      IS NOT NULL DROP TABLE #U;
 
 CREATE TABLE #R (
     ReferenceId INT, ReferenceCode VARCHAR(30), ReferenceName VARCHAR(30),
     LocalWarehouse INT, FreeZone INT, PhysicalStock INT, InTransit INT, [Committed] INT, Available INT,
-    IsAlarmReference BIT);
+    IsAlarmReference BIT,
+    ProviderName VARCHAR(100), PurchaseOrderDate DATE, RealReceiptDate DATE,
+    RequestedQuantity INT, ReceivedQuantity INT);
 SELECT TOP 0 * INTO #C FROM #R;                                  -- control: misma estructura que el SP
 SELECT TOP 0 CAST('' AS VARCHAR(3)) AS Caso, CAST(N'' AS NVARCHAR(200)) AS Articulo, * INTO #Visual FROM #R;
 
@@ -53,6 +61,23 @@ SELECT pod.REFERENCE_ID, SUM(pod.REQUESTED_QUANTITY) AS Transit
   JOIN dbo.document_types dt         ON dt.DOCUMENT_TYPE_ID = sdt.DOCUMENT_TYPE_ID AND dt.DOCUMENT_TYPE_CODE = 'O'
  WHERE sdt.STATUS_ORDER IN (1, 4)
  GROUP BY pod.REFERENCE_ID;
+
+-- Última OC Confirmada por referencia (control D11 con ROW_NUMBER, calculado una sola vez)
+SELECT x.REFERENCE_ID, x.PROVIDER_NAME, x.REQUEST_DATE, x.REAL_RECEIPT_DATE,
+       x.REQUESTED_QUANTITY, x.RECEIVED_QUANTITY, x.Confirmadas
+  INTO #U
+  FROM (SELECT pod.REFERENCE_ID, p.PROVIDER_NAME, po.REQUEST_DATE, po.REAL_RECEIPT_DATE,
+               pod.REQUESTED_QUANTITY, pod.RECEIVED_QUANTITY,
+               ROW_NUMBER() OVER (PARTITION BY pod.REFERENCE_ID
+                                  ORDER BY po.REAL_RECEIPT_DATE DESC, po.PURCHASE_ORDER_ID DESC) AS Rn,
+               COUNT(*) OVER (PARTITION BY pod.REFERENCE_ID) AS Confirmadas
+          FROM dbo.purchase_order_details pod
+          JOIN dbo.purchase_orders po        ON po.PURCHASE_ORDER_ID = pod.PURCHASE_ORDER_ID
+          JOIN dbo.status_document_types sdt ON sdt.STATUS_DOCUMENT_TYPE_ID = po.STATUS_DOCUMENT_TYPE_ID
+          JOIN dbo.document_types dt         ON dt.DOCUMENT_TYPE_ID = sdt.DOCUMENT_TYPE_ID AND dt.DOCUMENT_TYPE_CODE = 'O'
+          JOIN dbo.providers p               ON p.PROVIDER_ID = po.PROVIDER_ID
+         WHERE sdt.STATUS_ORDER = 2) x
+ WHERE x.Rn = 1;
 
 -- Perfil de cada artículo
 SELECT r.ITEM_ID,
@@ -140,13 +165,16 @@ BEGIN
 
     -- Control independiente: subconsultas por referencia
     TRUNCATE TABLE #C;
-    INSERT INTO #C (ReferenceId, ReferenceCode, ReferenceName, LocalWarehouse, FreeZone, PhysicalStock, InTransit, [Committed], Available, IsAlarmReference)
+    INSERT INTO #C (ReferenceId, ReferenceCode, ReferenceName, LocalWarehouse, FreeZone, PhysicalStock, InTransit, [Committed], Available, IsAlarmReference,
+                    ProviderName, PurchaseOrderDate, RealReceiptDate, RequestedQuantity, ReceivedQuantity)
     SELECT r.REFERENCE_ID, r.REFERENCE_CODE, r.REFERENCE_NAME,
            x.Loc, x.Fz, x.Loc + x.Fz, x.Tr,
            r.RESERVED_QUANTITY + r.ORDERED_QUANTITY,
            x.Loc + x.Fz + x.Tr - (r.RESERVED_QUANTITY + r.ORDERED_QUANTITY),
-           IIF(r.REFERENCE_ID = @Ref, 1, 0)
+           IIF(r.REFERENCE_ID = @Ref, 1, 0),
+           u.PROVIDER_NAME, u.REQUEST_DATE, u.REAL_RECEIPT_DATE, u.REQUESTED_QUANTITY, u.RECEIVED_QUANTITY
       FROM dbo.item_references r
+      LEFT JOIN #U u ON u.REFERENCE_ID = r.REFERENCE_ID
      CROSS APPLY (SELECT
             Loc = (SELECT ISNULL(SUM(rw.QUANTITY), 0)
                      FROM dbo.references_warehouse rw
@@ -178,7 +206,7 @@ BEGIN
     SELECT @Sp = (SELECT COUNT(*) FROM (SELECT * FROM #R EXCEPT SELECT * FROM #C) d)
                + (SELECT COUNT(*) FROM (SELECT * FROM #C EXCEPT SELECT * FROM #R) d);
     SET @Ok = IIF(@Sp = 0, 1, 0); SET @Fallas += 1 - @Ok;
-    PRINT CONCAT(IIF(@Ok = 1, 'OK    ', 'FALLA '), @Caso, '.2 Cifras = control (Local, ZF, Físico, Tráns., Comp., Disp.) Dif.=', @Sp);
+    PRINT CONCAT(IIF(@Ok = 1, 'OK    ', 'FALLA '), @Caso, '.2 Cifras = control (inventario + última OC)   Dif.=', @Sp);
 
     -- .3 Sin referencias inactivas ni de otro artículo (en A2 además deben existir inactivas en BD)
     SELECT @Sp = COUNT(*) FROM #R x JOIN dbo.item_references r ON r.REFERENCE_ID = x.ReferenceId
@@ -247,13 +275,98 @@ END
 
 -- C04 Estructura del resultado (nombres y orden de columnas que mapeará la entidad de T2)
 DECLARE @Cols NVARCHAR(4000), @Tipos NVARCHAR(4000),
-        @ColsEsperadas NVARCHAR(4000) = N'ReferenceId,ReferenceCode,ReferenceName,LocalWarehouse,FreeZone,PhysicalStock,InTransit,Committed,Available,IsAlarmReference';
+        @ColsEsperadas NVARCHAR(4000) = N'ReferenceId,ReferenceCode,ReferenceName,LocalWarehouse,FreeZone,PhysicalStock,InTransit,Committed,Available,IsAlarmReference,ProviderName,PurchaseOrderDate,RealReceiptDate,RequestedQuantity,ReceivedQuantity';
 SELECT @Cols  = STRING_AGG(CAST(name AS NVARCHAR(4000)), N',') WITHIN GROUP (ORDER BY column_ordinal),
        @Tipos = STRING_AGG(CAST(CONCAT(name, N' ', system_type_name, IIF(is_nullable = 1, N' null', N'')) AS NVARCHAR(4000)), N', ') WITHIN GROUP (ORDER BY column_ordinal)
   FROM sys.dm_exec_describe_first_result_set(N'EXEC dbo.SP_GET_ITEM_REFERENCES_INVENTORY @ReferenceId = 0', NULL, 0);
 SET @Ok = IIF(@Cols = @ColsEsperadas, 1, 0); SET @Fallas += 1 - @Ok;
 PRINT CONCAT(IIF(@Ok = 1, 'OK    ', 'FALLA '), 'C04 Estructura: ', @Cols);
 PRINT CONCAT('INFO  C04 Tipos: ', @Tipos);
+
+
+/* =====================================================================================
+   2b. ÚLTIMA OC CONFIRMADA (T12). Referencias buscadas automáticamente.
+   ===================================================================================== */
+PRINT '';
+PRINT 'Última OC confirmada (T12)';
+
+DECLARE @RU INT, @Prov VARCHAR(100), @FOc DATE, @FRec DATE, @Sol INT, @Rec INT;
+
+-- U01 Referencia activa con varias OC confirmadas: toma la de mayor fecha real de recibo
+SELECT TOP 1 @RU = u.REFERENCE_ID
+  FROM #U u JOIN dbo.item_references r ON r.REFERENCE_ID = u.REFERENCE_ID AND r.IS_ACTIVE = 1
+ WHERE u.Confirmadas >= 2
+ ORDER BY u.Confirmadas DESC, u.REFERENCE_ID;
+IF @RU IS NULL
+    PRINT 'SIN DATOS U01 Referencia con varias OC confirmadas'
+ELSE
+BEGIN
+    TRUNCATE TABLE #R; INSERT INTO #R EXEC dbo.SP_GET_ITEM_REFERENCES_INVENTORY @ReferenceId = @RU;
+    SELECT @Prov = ProviderName, @FOc = PurchaseOrderDate, @FRec = RealReceiptDate, @Sol = RequestedQuantity, @Rec = ReceivedQuantity
+      FROM #R WHERE ReferenceId = @RU;
+    SET @Ok = IIF(EXISTS (SELECT 1 FROM #U u WHERE u.REFERENCE_ID = @RU AND u.PROVIDER_NAME = @Prov AND u.REQUEST_DATE = @FOc
+                            AND u.REAL_RECEIPT_DATE = @FRec AND u.REQUESTED_QUANTITY = @Sol AND u.RECEIVED_QUANTITY = @Rec)
+                  AND @FRec = (SELECT MAX(po.REAL_RECEIPT_DATE)
+                                 FROM dbo.purchase_order_details pod
+                                 JOIN dbo.purchase_orders po        ON po.PURCHASE_ORDER_ID = pod.PURCHASE_ORDER_ID
+                                 JOIN dbo.status_document_types sdt ON sdt.STATUS_DOCUMENT_TYPE_ID = po.STATUS_DOCUMENT_TYPE_ID
+                                 JOIN dbo.document_types dt         ON dt.DOCUMENT_TYPE_ID = sdt.DOCUMENT_TYPE_ID AND dt.DOCUMENT_TYPE_CODE = 'O'
+                                WHERE pod.REFERENCE_ID = @RU AND sdt.STATUS_ORDER = 2), 1, 0);
+    SET @Fallas += 1 - @Ok;
+    PRINT CONCAT(IIF(@Ok = 1, 'OK    ', 'FALLA '), 'U01 Varias OC confirmadas -> la más reciente     Ref=', @RU,
+                 ' Confirmadas=', (SELECT Confirmadas FROM #U WHERE REFERENCE_ID = @RU), ' Prov=', @Prov, ' Recibo=', @FRec, ' Sol=', @Sol, ' Rec=', @Rec);
+END
+
+-- U02 Referencia activa sin OC confirmada: las cinco columnas en NULL (D13)
+SET @RU = NULL;
+SELECT TOP 1 @RU = r.REFERENCE_ID FROM dbo.item_references r
+ WHERE r.IS_ACTIVE = 1 AND NOT EXISTS (SELECT 1 FROM #U u WHERE u.REFERENCE_ID = r.REFERENCE_ID)
+ ORDER BY IIF(EXISTS (SELECT 1 FROM #T t WHERE t.REFERENCE_ID = r.REFERENCE_ID), 0, 1), r.REFERENCE_ID;
+IF @RU IS NULL
+    PRINT 'SIN DATOS U02 Referencia sin OC confirmada'
+ELSE
+BEGIN
+    TRUNCATE TABLE #R; INSERT INTO #R EXEC dbo.SP_GET_ITEM_REFERENCES_INVENTORY @ReferenceId = @RU;
+    SET @Ok = IIF(EXISTS (SELECT 1 FROM #R WHERE ReferenceId = @RU AND ProviderName IS NULL AND PurchaseOrderDate IS NULL
+                            AND RealReceiptDate IS NULL AND RequestedQuantity IS NULL AND ReceivedQuantity IS NULL), 1, 0);
+    SET @Fallas += 1 - @Ok;
+    PRINT CONCAT(IIF(@Ok = 1, 'OK    ', 'FALLA '), 'U02 Sin OC confirmada -> 5 columnas NULL        Ref=', @RU);
+END
+
+-- U03 Referencia con OC confirmada y además OC no confirmada (pendiente / cancelada / en aprobación)
+--     más reciente por fecha de OC: el SP debe ignorar la no confirmada
+SET @RU = NULL;
+SELECT TOP 1 @RU = u.REFERENCE_ID
+  FROM #U u
+  JOIN dbo.item_references r ON r.REFERENCE_ID = u.REFERENCE_ID AND r.IS_ACTIVE = 1
+ WHERE EXISTS (SELECT 1
+                 FROM dbo.purchase_order_details pod
+                 JOIN dbo.purchase_orders po        ON po.PURCHASE_ORDER_ID = pod.PURCHASE_ORDER_ID
+                 JOIN dbo.status_document_types sdt ON sdt.STATUS_DOCUMENT_TYPE_ID = po.STATUS_DOCUMENT_TYPE_ID
+                WHERE pod.REFERENCE_ID = u.REFERENCE_ID AND sdt.STATUS_ORDER <> 2
+                  AND po.REQUEST_DATE >= u.REQUEST_DATE)
+ ORDER BY u.REFERENCE_ID;
+IF @RU IS NULL
+    PRINT 'SIN DATOS U03 Referencia con OC no confirmada más reciente que la confirmada'
+ELSE
+BEGIN
+    TRUNCATE TABLE #R; INSERT INTO #R EXEC dbo.SP_GET_ITEM_REFERENCES_INVENTORY @ReferenceId = @RU;
+    SET @Ok = IIF(EXISTS (SELECT 1 FROM #R x JOIN #U u ON u.REFERENCE_ID = x.ReferenceId
+                           WHERE x.ReferenceId = @RU AND x.ProviderName = u.PROVIDER_NAME
+                             AND x.PurchaseOrderDate = u.REQUEST_DATE AND x.RealReceiptDate = u.REAL_RECEIPT_DATE
+                             AND x.RequestedQuantity = u.REQUESTED_QUANTITY AND x.ReceivedQuantity = u.RECEIVED_QUANTITY), 1, 0);
+    SET @Fallas += 1 - @Ok;
+    PRINT CONCAT(IIF(@Ok = 1, 'OK    ', 'FALLA '), 'U03 Ignora OC no confirmada más reciente        Ref=', @RU);
+END
+
+-- U04 Consistencia en las tres pruebas de artículo: con OC -> proveedor, fechas y solicitada informados
+SET @Sp = (SELECT COUNT(*) FROM #Visual
+            WHERE ProviderName IS NOT NULL
+              AND (PurchaseOrderDate IS NULL OR RealReceiptDate IS NULL OR RequestedQuantity IS NULL));
+SET @Ok = IIF(@Sp = 0, 1, 0); SET @Fallas += 1 - @Ok;
+PRINT CONCAT(IIF(@Ok = 1, 'OK    ', 'FALLA '), 'U04 Filas con proveedor y datos incompletos     Filas=', @Sp,
+             ' (A1-A3: con OC=', (SELECT COUNT(*) FROM #Visual WHERE ProviderName IS NOT NULL),
+             ' sin OC=', (SELECT COUNT(*) FROM #Visual WHERE ProviderName IS NULL), ')');
 
 /* =====================================================================================
    3. INFORMATIVOS (no suman fallas; sirven para validar D2 con el cliente)
@@ -292,7 +405,8 @@ PRINT '=========================================================================
 
 -- Grilla para comparar en la aplicación (Tablero / Reporte de referencias)
 SELECT Caso, Articulo, ReferenceId, ReferenceCode, ReferenceName,
-       LocalWarehouse, FreeZone, PhysicalStock, InTransit, [Committed], Available, IsAlarmReference
+       LocalWarehouse, FreeZone, PhysicalStock, InTransit, [Committed], Available, IsAlarmReference,
+       ProviderName, PurchaseOrderDate, RealReceiptDate, RequestedQuantity, ReceivedQuantity
   FROM #Visual
  ORDER BY Caso, ReferenceName;
 
@@ -306,4 +420,4 @@ BEGIN
     SET STATISTICS IO OFF;
 END
 
-DROP TABLE #T, #Art, #Casos, #R, #C, #Visual;
+DROP TABLE #T, #U, #Art, #Casos, #R, #C, #Visual;

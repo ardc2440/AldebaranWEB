@@ -36,6 +36,11 @@ namespace Aldebaran.Application.Services
                 row.InTransit,
                 row.Committed,
                 row.Available,
-                row.IsAlarmReference);
+                row.IsAlarmReference,
+                row.ProviderName,
+                row.PurchaseOrderDate,
+                row.RealReceiptDate,
+                row.RequestedQuantity,
+                row.ReceivedQuantity);
     }
 }

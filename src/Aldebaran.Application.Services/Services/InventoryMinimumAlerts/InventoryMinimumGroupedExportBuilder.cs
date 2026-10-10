@@ -9,7 +9,7 @@ namespace Aldebaran.Application.Services.InventoryMinimumAlerts
     /// <summary>
     /// Arma las filas agrupadas del Excel del correo (funciones puras, sin acceso a datos).
     /// Padre = alarma (imagen y cifras de su referencia); hijos = referencias del artículo,
-    /// marcando las que están en alarma (D9).
+    /// marcando las que están en alarma (D9) y con los datos de su última OC Confirmada (D15).
     /// </summary>
     internal static class InventoryMinimumGroupedExportBuilder
     {
@@ -41,6 +41,11 @@ namespace Aldebaran.Application.Services.InventoryMinimumAlerts
         private static InventoryMinimumGroupedExportDto BuildChild(ArticleReferenceInventory row, IReadOnlyDictionary<int, int> minimumByReference)
         {
             var child = FromInventory(row, $"{row.ReferenceCode} - {row.ReferenceName}");
+            child.LastPurchaseProvider = row.ProviderName;
+            child.LastPurchaseOrderDate = row.PurchaseOrderDate;
+            child.LastPurchaseReceiptDate = row.RealReceiptDate;
+            child.LastPurchaseRequestedQuantity = row.RequestedQuantity;
+            child.LastPurchaseReceivedQuantity = row.ReceivedQuantity;
 
             if (minimumByReference.TryGetValue(row.ReferenceId, out var minimumQuantity))
             {

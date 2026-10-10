@@ -29,7 +29,7 @@
                            AllowFiltering="false" AllowPaging="false" AllowSorting="false" ShowPagingSummary="false"
                            CellRender="@OnCellRender" Density="Density.Compact">
             <Columns>
-                <RadzenDataGridColumn TItem="ArticleReferenceInventory" Title="Referencia" Width="24%">
+                <RadzenDataGridColumn TItem="ArticleReferenceInventory" Title="Referencia" Width="22%">
                     <Template Context="row">@row.ReferenceCode - @row.ReferenceName</Template>
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="ArticleReferenceInventory" Title="Bodega Local" TextAlign="TextAlign.Right">
@@ -50,10 +50,31 @@
                 <RadzenDataGridColumn TItem="ArticleReferenceInventory" Title="Disponible" TextAlign="TextAlign.Right">
                     <Template Context="row"><span style="@AvailableStyle(row.Available)">@FormatQuantity(row.Available)</span></Template>
                 </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="ArticleReferenceInventory" Title="Proveedor última compra" Width="18%">
+                    <Template Context="row">
+                        @if (row.ProviderName is not null)
+                        {
+                            <RadzenLabel Text="@row.ProviderName" Style="cursor: help; text-decoration: underline dotted; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;"
+                                         MouseEnter="@(element => ShowLastPurchaseTooltip(element, row))" />
+                        }
+                    </Template>
+                </RadzenDataGridColumn>
             </Columns>
         </LocalizedDataGrid>
         <RadzenText TextStyle="TextStyle.Caption" class="rz-mb-0">
-            Stock Físico = Bodega Local + Zona Franca · Comprometido = Reservas + Pedidos · Disponible = Stock Físico + Tránsito − Comprometido. La fila resaltada es la referencia de la alarma.
+            Stock Físico = Bodega Local + Zona Franca · Comprometido = Reservas + Pedidos · Disponible = Stock Físico + Tránsito − Comprometido. La fila resaltada es la referencia de la alarma. Pase el cursor sobre el proveedor para ver los datos de la última compra confirmada.
         </RadzenText>
     }
 </RadzenStack>
+
+@code {
+    /// <summary>Contenido del tooltip con los datos de la última OC Confirmada de la referencia.</summary>
+    private static RenderFragment LastPurchaseTooltip(ArticleReferenceInventory row) => @<div style="font-size: 0.8rem; line-height: 1.5;">
+        <div style="font-weight: bold; margin-bottom: 0.25rem;">Última compra confirmada</div>
+        <div>Proveedor: @row.ProviderName</div>
+        <div>Fecha OC: @FormatDate(row.PurchaseOrderDate)</div>
+        <div>Fecha real de recibo: @FormatDate(row.RealReceiptDate)</div>
+        <div>Cantidad solicitada: @FormatQuantity(row.RequestedQuantity)</div>
+        <div>Cantidad recibida: @FormatQuantity(row.ReceivedQuantity)</div>
+    </div>;
+}

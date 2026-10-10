@@ -16,5 +16,12 @@ namespace Aldebaran.DataAccess.Entities
         public int Committed { get; set; }
         public int Available { get; set; }
         public bool IsAlarmReference { get; set; }
+
+        // Última OC Confirmada de la referencia (NULL si no tiene).
+        public string? ProviderName { get; set; }
+        public DateTime? PurchaseOrderDate { get; set; }
+        public DateTime? RealReceiptDate { get; set; }
+        public int? RequestedQuantity { get; set; }
+        public int? ReceivedQuantity { get; set; }
     }
 }

@@ -246,7 +246,7 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
                 { "ReferenceId", referenceId },
                 { "ArticleName", articleName }
             },
-            new DialogOptions { Width = "1000px", Resizable = true });
+            new DialogOptions { Width = "1150px", Resizable = true });
                 
         private async Task OnPageChanged(object args)
         {
