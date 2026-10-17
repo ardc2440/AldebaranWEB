@@ -115,7 +115,7 @@ BEGIN
             JOIN dbo.document_types dt          ON dt.DOCUMENT_TYPE_ID = sdt.DOCUMENT_TYPE_ID AND dt.DOCUMENT_TYPE_CODE = 'O'
             JOIN dbo.providers p                ON p.PROVIDER_ID = po.PROVIDER_ID
            WHERE pod.REFERENCE_ID = i.REFERENCE_ID
-             AND sdt.STATUS_ORDER = 2
+             AND sdt.STATUS_ORDER IN (1,2,4)
            ORDER BY po.REAL_RECEIPT_DATE DESC, po.PURCHASE_ORDER_ID DESC
       ) lp
      ORDER BY i.REFERENCE_NAME;
