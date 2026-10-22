@@ -1,6 +1,7 @@
+using Aldebaran.DataAccess.Core;
 namespace Aldebaran.DataAccess.Entities
 {
-    public class AutomataConnectivityErrorPattern
+    public class AutomataConnectivityErrorPattern : ITrackeable
     {
         public int Id { get; set; }
         public string Pattern { get; set; } = null!;

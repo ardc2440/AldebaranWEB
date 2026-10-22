@@ -5,6 +5,7 @@ using Aldebaran.DataAccess.Configuration;
 using Aldebaran.DataAccess.Entities.Reports;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Newtonsoft.Json.Linq;
 using System.Reflection;
 
@@ -422,6 +423,9 @@ namespace Aldebaran.DataAccess
                 .Where(e => e.Entity is ITrackeable && (e.State == EntityState.Added || e.State == EntityState.Deleted || e.State == EntityState.Modified))
                 .Select(e => new ChangeTrackerEntity { Entry = e, State = e.State }).ToList();
 
+            foreach (var item in trackeableEntities)
+                item.MaskedOriginalValues = await TrackValueMasker.CaptureOriginalValuesAsync(item.Entry, ct);
+
             var result = await base.SaveChangesAsync(ct);
 
             var afterSaveTrackeableEntities = ChangeTracker.Entries()
@@ -456,12 +460,7 @@ namespace Aldebaran.DataAccess
 
                     var logValues = new Dictionary<string, string?>();
                     foreach (var prop in entityProperties)
-                    {
-                        var value = item.State == EntityState.Deleted || item.State == EntityState.Added
-                            ? entry.Property(prop.Name).OriginalValue?.ToString()
-                            : entry.Property(prop.Name).CurrentValue?.ToString();
-                        logValues[prop.Name] = value;
-                    }
+                        logValues[prop.Name] = GetTrackValue(item, prop);
                     var logJson = System.Text.Json.JsonSerializer.Serialize(logValues);
                     Track track = new()
                     {
@@ -479,6 +478,24 @@ namespace Aldebaran.DataAccess
             }
             return result;
         }
+
+        /// <summary>
+        /// Valor de una propiedad para el Track; si la propiedad es [TrackMasked] se ofusca.
+        /// </summary>
+        private static string? GetTrackValue(ChangeTrackerEntity item, IProperty prop)
+        {
+            var propertyEntry = item.Entry.Property(prop.Name);
+            var value = item.State == EntityState.Deleted || item.State == EntityState.Added
+                ? propertyEntry.OriginalValue?.ToString()
+                : propertyEntry.CurrentValue?.ToString();
+
+            var mask = TrackValueMasker.GetMask(prop);
+            if (mask == null)
+                return value;
+
+            var wasModified = item.MaskedOriginalValues.TryGetValue(prop.Name, out var originalValue);
+            return TrackValueMasker.Mask(mask, value, originalValue, wasModified);
+        }
     }
 }
 
@@ -486,4 +503,6 @@ public class ChangeTrackerEntity
 {
     public EntityEntry Entry { get; set; }
     public EntityState State { get; set; }
+    /// <summary>Valores originales (solo en memoria) de propiedades [TrackMasked] modificadas.</summary>
+    public IReadOnlyDictionary<string, string?> MaskedOriginalValues { get; set; } = new Dictionary<string, string?>();
 }

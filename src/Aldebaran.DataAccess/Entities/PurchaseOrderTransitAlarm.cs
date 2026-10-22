@@ -1,6 +1,7 @@
-﻿namespace Aldebaran.DataAccess.Entities
+﻿using Aldebaran.DataAccess.Core;
+namespace Aldebaran.DataAccess.Entities
 {
-    public class PurchaseOrderTransitAlarm
+    public class PurchaseOrderTransitAlarm : ITrackeable
     {
         public int PurchaseOrderTransitAlarmId { get; set; }
 	    public int ModifiedPurchaseOrderId {  get; set; }

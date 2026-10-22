@@ -1,6 +1,7 @@
+using Aldebaran.DataAccess.Core;
 namespace Aldebaran.DataAccess.Entities
 {
-    public class UsersAlarmType
+    public class UsersAlarmType : ITrackeable
     {
         public short AlarmTypeId { get; set; }
         public int EmployeeId { get; set; }

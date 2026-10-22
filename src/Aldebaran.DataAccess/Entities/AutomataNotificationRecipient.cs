@@ -1,6 +1,7 @@
+using Aldebaran.DataAccess.Core;
 namespace Aldebaran.DataAccess.Entities
 {
-    public class AutomataNotificationRecipient
+    public class AutomataNotificationRecipient : ITrackeable
     {
         public int Id { get; set; }
         public string Email { get; set; } = null!;

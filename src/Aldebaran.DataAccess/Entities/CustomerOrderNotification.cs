@@ -1,6 +1,7 @@
-﻿namespace Aldebaran.DataAccess.Entities
+﻿using Aldebaran.DataAccess.Core;
+namespace Aldebaran.DataAccess.Entities
 {
-    public class CustomerOrderNotification : NotificationBase
+    public class CustomerOrderNotification : NotificationBase, ITrackeable
     {
         public int CustomerOrderNotificationId { get; set; }
 	    public short NotificationTemplateId { get; set; }
