@@ -93,7 +93,7 @@
                         <RadzenPanelMenuItem Text="Solicitudes operativas pendientes" Path="pending-operative-request" Visible=@Security.IsInRole("Administrador", "Aprobación de solicitudes de cancelación de ordenes de compra", "Aprobación de solicitudes de cancelación de pedidos", "Aprobación de solicitudes de cierre de pedidos") />
                     </RadzenPanelMenuItem>
                 }
-                @if (Security.IsInRole("Administrador", "Log de ordenes de compra", "Log de pedidos", "Log de reservas", "Log de inventarios"))
+                @if (Security.IsInRole("Administrador", "Log de ordenes de compra", "Log de pedidos", "Log de reservas", "Log de inventarios", "Log del sistema"))
                 {
                     <hr class="divider">
                     <RadzenPanelMenuItem Text="Consulta de Log" Icon="history">
@@ -116,6 +116,9 @@
                         <RadzenPanelMenuItem Text="Log de inventarios" Icon="inventory_2" Visible=@Security.IsInRole("Administrador", "Log de inventarios")>
                             <RadzenPanelMenuItem Text="Visualización de alarmas" Path="alarm_visualization_log/inventory" />
                             <RadzenPanelMenuItem Text="Inactivaciones y refrescos de alarmas" Path="inventory_alarm_events_log" />
+                        </RadzenPanelMenuItem>
+                        <RadzenPanelMenuItem Text="Log del sistema" Icon="manage_history" Visible=@Security.IsInRole("Administrador", "Log del sistema")>
+                            <RadzenPanelMenuItem Text="Track" Path="track_log" />
                         </RadzenPanelMenuItem>
                     </RadzenPanelMenuItem>
                 }

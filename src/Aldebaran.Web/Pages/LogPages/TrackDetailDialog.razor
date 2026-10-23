@@ -1,0 +1,30 @@
+@using Aldebaran.Web.Resources.LocalizedControls;
+@using Aldebaran.Application.Services.Models.TrackLogs;
+@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer;
+
+<RadzenStack>
+    <RadzenText TextStyle="TextStyle.Body2">
+        <b>Registro:</b> @Entry?.EntityKey · <b>Usuario:</b> @Entry?.ModifierName · <b>Fecha:</b> @Entry?.ModifiedDate.ToString(SharedLocalizer["datetime:format"])
+    </RadzenText>
+    @if (detail != null && detail.Action == TrackAction.Modified && !detail.HasPrevious)
+    {
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Warning" AllowClose="false">
+            No hay un movimiento anterior registrado para este registro: se muestran los valores nuevos.
+        </RadzenAlert>
+    }
+    @if (detail != null && detail.Action == TrackAction.Modified && detail.HasPrevious)
+    {
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+            <RadzenSwitch @bind-Value="@onlyChanges" />
+            <RadzenLabel Text="Solo campos que cambiaron" />
+        </RadzenStack>
+    }
+    <LocalizedDataGrid Data="@VisibleChanges" TItem="TrackChange" IsLoading="@isLoading" AllowPaging="true" PageSize="15" AllowColumnResize="true"
+                       RowRender="@RowRender">
+        <Columns>
+            <RadzenDataGridColumn TItem="TrackChange" Property="Field" Title="Campo" Width="30%" />
+            <RadzenDataGridColumn TItem="TrackChange" Property="PreviousValue" Title="Anterior" Width="35%" />
+            <RadzenDataGridColumn TItem="TrackChange" Property="NewValue" Title="Nuevo" Width="35%" />
+        </Columns>
+    </LocalizedDataGrid>
+</RadzenStack>

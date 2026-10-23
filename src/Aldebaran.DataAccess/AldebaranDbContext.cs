@@ -263,6 +263,53 @@ namespace Aldebaran.DataAccess
                 e.Property(x => x.AreaName).HasColumnName("AREA_NAME");
                 e.Property(x => x.VisualizedDate).HasColumnName("VISUALIZED_DATE");
             });
+            modelBuilder.Entity<TrackEntityName>(e =>
+            {
+                e.HasNoKey();
+                e.Property(x => x.EntityName).HasColumnName("ENTITY_NAME");
+                e.Property(x => x.DisplayName).HasColumnName("DISPLAY_NAME");
+            });
+            modelBuilder.Entity<TrackLogEntry>(e =>
+            {
+                e.HasNoKey();
+                e.Property(x => x.Id).HasColumnName("ID");
+                e.Property(x => x.EntityName).HasColumnName("ENTITY_NAME");
+                e.Property(x => x.EntityDisplayName).HasColumnName("ENTITY_DISPLAY_NAME");
+                e.Property(x => x.EntityKey).HasColumnName("ENTITY_KEY");
+                e.Property(x => x.Action).HasColumnName("ACTION");
+                e.Property(x => x.ModifiedDate).HasColumnName("MODIFIED_DATE");
+                e.Property(x => x.ModifierName).HasColumnName("MODIFIER_NAME");
+                e.Property(x => x.TotalRows).HasColumnName("TOTAL_ROWS");
+            });
+            modelBuilder.Entity<TrackObjectType>(e =>
+            {
+                e.HasNoKey();
+                e.Property(x => x.ObjectType).HasColumnName("OBJECT_TYPE");
+                e.Property(x => x.Name).HasColumnName("NAME");
+                e.Property(x => x.Hint).HasColumnName("HINT");
+            });
+            modelBuilder.Entity<TrackObjectMatch>(e =>
+            {
+                e.HasNoKey();
+                e.Property(x => x.ObjectId).HasColumnName("OBJECT_ID");
+                e.Property(x => x.Description).HasColumnName("DESCRIPTION");
+            });
+            modelBuilder.Entity<TrackObjectDescription>(e =>
+            {
+                e.HasNoKey();
+                e.Property(x => x.FieldName).HasColumnName("FIELD_NAME");
+                e.Property(x => x.ObjectId).HasColumnName("OBJECT_ID");
+                e.Property(x => x.Description).HasColumnName("DESCRIPTION");
+            });
+            modelBuilder.Entity<TrackLogDetail>(e =>
+            {
+                e.HasNoKey();
+                e.Property(x => x.Id).HasColumnName("ID");
+                e.Property(x => x.Action).HasColumnName("ACTION");
+                e.Property(x => x.DataLog).HasColumnName("DATA_LOG");
+                e.Property(x => x.PreviousId).HasColumnName("PREVIOUS_ID");
+                e.Property(x => x.PreviousDataLog).HasColumnName("PREVIOUS_DATA_LOG");
+            });
             modelBuilder.Entity<InventoryAlarmLogEntry>(e =>
             {
                 e.HasNoKey();
