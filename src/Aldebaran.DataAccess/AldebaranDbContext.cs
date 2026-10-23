@@ -282,6 +282,47 @@ namespace Aldebaran.DataAccess
                 e.Property(x => x.ModifierName).HasColumnName("MODIFIER_NAME");
                 e.Property(x => x.TotalRows).HasColumnName("TOTAL_ROWS");
             });
+            modelBuilder.Entity<GeneralLogGroupEntry>(e =>
+            {
+                e.HasNoKey();
+                e.Property(x => x.GroupKey).HasColumnName("GROUP_KEY");
+                e.Property(x => x.LogLevel).HasColumnName("LOG_LEVEL");
+                e.Property(x => x.Source).HasColumnName("SOURCE");
+                e.Property(x => x.MessageTemplate).HasColumnName("MESSAGE_TEMPLATE");
+                e.Property(x => x.Occurrences).HasColumnName("OCCURRENCES");
+                e.Property(x => x.FirstDate).HasColumnName("FIRST_DATE");
+                e.Property(x => x.LastDate).HasColumnName("LAST_DATE");
+                e.Property(x => x.LastId).HasColumnName("LAST_ID");
+                e.Property(x => x.TotalRows).HasColumnName("TOTAL_ROWS");
+            });
+            modelBuilder.Entity<GeneralLogOccurrenceEntry>(e =>
+            {
+                e.HasNoKey();
+                e.Property(x => x.LogId).HasColumnName("LOG_ID");
+                e.Property(x => x.EventDate).HasColumnName("EVENT_DATE");
+                e.Property(x => x.LogLevel).HasColumnName("LOG_LEVEL");
+                e.Property(x => x.Source).HasColumnName("SOURCE");
+                e.Property(x => x.Message).HasColumnName("MESSAGE");
+                e.Property(x => x.HasException).HasColumnName("HAS_EXCEPTION");
+                e.Property(x => x.TotalRows).HasColumnName("TOTAL_ROWS");
+            });
+            modelBuilder.Entity<GeneralLogDetailEntry>(e =>
+            {
+                e.HasNoKey();
+                e.Property(x => x.LogId).HasColumnName("LOG_ID");
+                e.Property(x => x.EventDate).HasColumnName("EVENT_DATE");
+                e.Property(x => x.LogLevel).HasColumnName("LOG_LEVEL");
+                e.Property(x => x.Source).HasColumnName("SOURCE");
+                e.Property(x => x.Message).HasColumnName("MESSAGE");
+                e.Property(x => x.MessageTemplate).HasColumnName("MESSAGE_TEMPLATE");
+                e.Property(x => x.Exception).HasColumnName("EXCEPTION");
+                e.Property(x => x.Properties).HasColumnName("PROPERTIES");
+            });
+            modelBuilder.Entity<GeneralLogSourceEntry>(e =>
+            {
+                e.HasNoKey();
+                e.Property(x => x.Source).HasColumnName("SOURCE");
+            });
             modelBuilder.Entity<PurchaseOrderAdjustmentRequestEntry>(e =>
             {
                 e.HasNoKey();

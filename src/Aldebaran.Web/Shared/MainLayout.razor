@@ -124,6 +124,7 @@
                             <RadzenPanelMenuItem Text="Inactivaciones y refrescos de alarmas" Path="inventory_alarm_events_log" />
                         </RadzenPanelMenuItem>
                         <RadzenPanelMenuItem Text="Log del sistema" Icon="manage_history" Visible=@Security.IsInRole("Administrador", "Log del sistema")>
+                            <RadzenPanelMenuItem Text="Log general" Path="general_log" />
                             <RadzenPanelMenuItem Text="Track" Path="track_log" />
                         </RadzenPanelMenuItem>
                     </RadzenPanelMenuItem>

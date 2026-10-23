@@ -1,0 +1,22 @@
+@using Aldebaran.Application.Services.Models.GeneralLogs;
+@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer;
+
+@if (detail == null)
+{
+    <RadzenText>@(loading ? "Cargando ..." : "No se encontró el registro.")</RadzenText>
+}
+else
+{
+    <RadzenStack Gap="0.75rem">
+        <RadzenText TextStyle="TextStyle.Caption">Registro @detail.LogId · @detail.EventDate.ToString(SharedLocalizer["datetime:format"]) · @detail.Level · @detail.Source</RadzenText>
+        <RadzenText TextStyle="TextStyle.Subtitle2">Mensaje</RadzenText>
+        <pre style="white-space: pre-wrap; margin: 0">@detail.Message</pre>
+        @if (!string.IsNullOrEmpty(detail.Exception))
+        {
+            <RadzenText TextStyle="TextStyle.Subtitle2">Excepción</RadzenText>
+            <pre style="white-space: pre-wrap; max-height: 300px; overflow: auto; margin: 0">@detail.Exception</pre>
+        }
+        <RadzenText TextStyle="TextStyle.Subtitle2">Propiedades</RadzenText>
+        <pre style="white-space: pre-wrap; max-height: 200px; overflow: auto; margin: 0">@detail.Properties</pre>
+    </RadzenStack>
+}

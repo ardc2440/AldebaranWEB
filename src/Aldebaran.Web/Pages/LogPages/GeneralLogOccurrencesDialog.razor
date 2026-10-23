@@ -1,0 +1,26 @@
+@using Aldebaran.Web.Resources.LocalizedControls;
+@using Aldebaran.Application.Services.Models.GeneralLogs;
+@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer;
+
+<RadzenStack>
+    <RadzenText TextStyle="TextStyle.Body1"><b>@Group.Message</b></RadzenText>
+    <RadzenText TextStyle="TextStyle.Caption">@Group.Level · @Group.Source · @Filter.DateFrom.ToString(SharedLocalizer["date:format"]) - @Filter.DateTo.ToString(SharedLocalizer["date:format"])</RadzenText>
+    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@(!string.IsNullOrEmpty(errorMessage))" AllowClose="false">
+        @errorMessage
+    </RadzenAlert>
+    <LocalizedDataGrid @ref="grid" Count="@count" LoadData="@LoadData" Data="@items" TItem="GeneralLogOccurrence" IsLoading="@isLoading"
+                       AllowPaging="true" ShowPagingSummary="true" PageSize="10" AllowColumnResize="true">
+        <Columns>
+            <RadzenDataGridColumn TItem="GeneralLogOccurrence" Property="EventDate" Title="Fecha" Width="18%">
+                <Template Context="row"><span>@row.EventDate.ToString(SharedLocalizer["datetime:format"])</span></Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="GeneralLogOccurrence" Property="Message" Title="Mensaje" Width="70%" />
+            <RadzenDataGridColumn TItem="GeneralLogOccurrence" Title="Detalle" Width="12%" Sortable="false" TextAlign="TextAlign.Center">
+                <Template Context="row">
+                    <RadzenButton Icon="@(row.HasException ? "bug_report" : "info")" ButtonStyle="@(row.HasException ? ButtonStyle.Danger : ButtonStyle.Info)" Size="ButtonSize.Small"
+                                  title="Ver detalle técnico" Click="@(async () => await ShowDetailAsync(row.LogId))" />
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </LocalizedDataGrid>
+</RadzenStack>

@@ -1,0 +1,63 @@
+@page "/general_log"
+@attribute [Authorize(Roles = "Administrador,Log del sistema")]
+@using Aldebaran.Web.Resources.LocalizedControls;
+@using Aldebaran.Application.Services.Models.GeneralLogs;
+@inherits DateRangeLogPage<GeneralLogGroup>
+@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer;
+
+<PageTitle>Log general</PageTitle>
+
+<RadzenStack>
+    <RadzenText Text="Log general" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
+    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@(!string.IsNullOrEmpty(errorMessage))" AllowClose="false">
+        @errorMessage
+    </RadzenAlert>
+    <RadzenRow AlignItems="AlignItems.End" Gap="1rem">
+        <RadzenColumn SizeMD="2">
+            <RadzenFormField Text="Desde" Variant="Variant.Text" Style="width: 100%;">
+                <RadzenDatePicker TValue="DateTime?" DateFormat="@SharedLocalizer["date:format"]" @bind-Value="@dateFrom" Change="@(async _ => await ApplyFiltersAsync())" style="display: block; width: 100%" />
+            </RadzenFormField>
+        </RadzenColumn>
+        <RadzenColumn SizeMD="2">
+            <RadzenFormField Text="Hasta" Variant="Variant.Text" Style="width: 100%;">
+                <RadzenDatePicker TValue="DateTime?" DateFormat="@SharedLocalizer["date:format"]" @bind-Value="@dateTo" Change="@(async _ => await ApplyFiltersAsync())" style="display: block; width: 100%" />
+            </RadzenFormField>
+        </RadzenColumn>
+        <RadzenColumn SizeMD="2">
+            <RadzenFormField Text="Nivel" Variant="Variant.Text" Style="width: 100%;">
+                <RadzenDropDown TValue="string" Data="@levels" TextProperty="Value" ValueProperty="Key" AllowClear="true"
+                                @bind-Value="@level" Change="@(async _ => await ApplyFiltersAsync())" style="display: block; width: 100%" />
+            </RadzenFormField>
+        </RadzenColumn>
+        <RadzenColumn SizeMD="2">
+            <RadzenFormField Text="Origen" Variant="Variant.Text" Style="width: 100%;">
+                <RadzenDropDown TValue="string" Data="@sources" AllowClear="true"
+                                @bind-Value="@source" Change="@(async _ => await ApplyFiltersAsync())" style="display: block; width: 100%" />
+            </RadzenFormField>
+        </RadzenColumn>
+        <RadzenColumn SizeMD="4">
+            <RadzenTextBox Placeholder="Buscar en el mensaje (Enter) ..." style="display: block; width: 100%" Change="@SearchTextAsync" />
+        </RadzenColumn>
+    </RadzenRow>
+    <LocalizedDataGrid @ref="logGrid" Count="@count" LoadData="@LoadData" Data="@items" TItem="GeneralLogGroup" IsLoading="@isLoading"
+                       AllowPaging="true" ShowPagingSummary="true" PageSize="20" PageSizeOptions=@(new int[]{10, 20, 30, 50}) AllowColumnResize="true">
+        <Columns>
+            <RadzenDataGridColumn TItem="GeneralLogGroup" Property="Level" Title="Nivel" Width="9%">
+                <Template Context="row"><RadzenBadge BadgeStyle="@(row.Level == "Error" || row.Level == "Fatal" ? BadgeStyle.Danger : row.Level == "Advertencia" ? BadgeStyle.Warning : BadgeStyle.Info)" Text="@row.Level" /></Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="GeneralLogGroup" Property="Source" Title="Origen" Width="11%" />
+            <RadzenDataGridColumn TItem="GeneralLogGroup" Property="Message" Title="Mensaje" Width="44%">
+                <Template Context="row">
+                    <RadzenLink href="javascript:void(0);" title="Ver ocurrencias" @onclick="@(async () => await ShowOccurrencesAsync(row))">@row.Message</RadzenLink>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="GeneralLogGroup" Property="Occurrences" Title="Ocurrencias" Width="9%" TextAlign="TextAlign.Right" />
+            <RadzenDataGridColumn TItem="GeneralLogGroup" Property="FirstDate" Title="Primera vez" Width="13%">
+                <Template Context="row"><span>@row.FirstDate.ToString(SharedLocalizer["datetime:format"])</span></Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="GeneralLogGroup" Property="LastDate" Title="Última vez" Width="13%">
+                <Template Context="row"><span>@row.LastDate.ToString(SharedLocalizer["datetime:format"])</span></Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </LocalizedDataGrid>
+</RadzenStack>
