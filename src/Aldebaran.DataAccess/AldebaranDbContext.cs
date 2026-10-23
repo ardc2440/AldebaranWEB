@@ -239,6 +239,53 @@ namespace Aldebaran.DataAccess
             modelBuilder.Entity<InventoryReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<ItemReferencesReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<ItemReferenceInventory>(iar => { iar.HasNoKey(); });
+            /* RQM Complemento Consulta de Logs: resultados de los SP de log de alarmas (solo lectura) */
+            modelBuilder.Entity<AlarmLogType>(e =>
+            {
+                e.HasNoKey();
+                e.Property(x => x.Code).HasColumnName("CODE");
+                e.Property(x => x.Name).HasColumnName("NAME");
+            });
+            modelBuilder.Entity<AlarmLogEntry>(e =>
+            {
+                e.HasNoKey();
+                e.Property(x => x.AlarmKey).HasColumnName("ALARM_KEY");
+                e.Property(x => x.AlarmDate).HasColumnName("ALARM_DATE");
+                e.Property(x => x.Document).HasColumnName("DOCUMENT");
+                e.Property(x => x.Description).HasColumnName("DESCRIPTION");
+                e.Property(x => x.VisualizationCount).HasColumnName("VISUALIZATION_COUNT");
+                e.Property(x => x.TotalRows).HasColumnName("TOTAL_ROWS");
+            });
+            modelBuilder.Entity<AlarmLogVisualization>(e =>
+            {
+                e.HasNoKey();
+                e.Property(x => x.EmployeeName).HasColumnName("EMPLOYEE_NAME");
+                e.Property(x => x.AreaName).HasColumnName("AREA_NAME");
+                e.Property(x => x.VisualizedDate).HasColumnName("VISUALIZED_DATE");
+            });
+            modelBuilder.Entity<InventoryAlarmLogEntry>(e =>
+            {
+                e.HasNoKey();
+                e.Property(x => x.InventoryAlarmLogId).HasColumnName("INVENTORY_ALARM_LOG_ID");
+                e.Property(x => x.EventDate).HasColumnName("EVENT_DATE");
+                e.Property(x => x.AlarmTypeCode).HasColumnName("ALARM_TYPE_CODE");
+                e.Property(x => x.AlarmTypeName).HasColumnName("ALARM_TYPE_NAME");
+                e.Property(x => x.AlarmId).HasColumnName("ALARM_ID");
+                e.Property(x => x.ReferenceId).HasColumnName("REFERENCE_ID");
+                e.Property(x => x.ReferenceDescription).HasColumnName("REFERENCE_DESCRIPTION");
+                e.Property(x => x.EventType).HasColumnName("EVENT_TYPE");
+                e.Property(x => x.PreviousQuantity).HasColumnName("PREVIOUS_QUANTITY");
+                e.Property(x => x.NewQuantity).HasColumnName("NEW_QUANTITY");
+                e.Property(x => x.PreviousMinimumQuantity).HasColumnName("PREVIOUS_MINIMUM_QUANTITY");
+                e.Property(x => x.NewMinimumQuantity).HasColumnName("NEW_MINIMUM_QUANTITY");
+                e.Property(x => x.PreviousCreationDate).HasColumnName("PREVIOUS_CREATION_DATE");
+                e.Property(x => x.NewCreationDate).HasColumnName("NEW_CREATION_DATE");
+                e.Property(x => x.InactivationDate).HasColumnName("INACTIVATION_DATE");
+                e.Property(x => x.VisualizationCount).HasColumnName("VISUALIZATION_COUNT");
+                e.Property(x => x.VisualizationsRemoved).HasColumnName("VISUALIZATIONS_REMOVED");
+                e.Property(x => x.Source).HasColumnName("SOURCE");
+                e.Property(x => x.TotalRows).HasColumnName("TOTAL_ROWS");
+            });
             modelBuilder.Entity<CustomerOrderReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<BackOrderReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<CustomerReservationReport>(iar => { iar.HasNoKey(); });

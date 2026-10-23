@@ -93,22 +93,29 @@
                         <RadzenPanelMenuItem Text="Solicitudes operativas pendientes" Path="pending-operative-request" Visible=@Security.IsInRole("Administrador", "Aprobación de solicitudes de cancelación de ordenes de compra", "Aprobación de solicitudes de cancelación de pedidos", "Aprobación de solicitudes de cierre de pedidos") />
                     </RadzenPanelMenuItem>
                 }
-                @if (Security.IsInRole("Administrador", "Log de ordenes de compra", "Log de pedidos", "Log de reservas"))
+                @if (Security.IsInRole("Administrador", "Log de ordenes de compra", "Log de pedidos", "Log de reservas", "Log de inventarios"))
                 {
                     <hr class="divider">
                     <RadzenPanelMenuItem Text="Consulta de Log" Icon="history">
                         <RadzenPanelMenuItem Text="Log de ordenes" Icon="shopping_bag" Visible=@Security.IsInRole("Administrador", "Log de ordenes de compra")>
                             <RadzenPanelMenuItem Text="Modificación" Path="purchase_order_modify_log" />
                             <RadzenPanelMenuItem Text="Cancelación" Path="purchase_order_cancel_log" />
+                            <RadzenPanelMenuItem Text="Visualización de alarmas" Path="alarm_visualization_log/purchase-orders" />
                         </RadzenPanelMenuItem>
                         <RadzenPanelMenuItem Text="Log de pedidos" Icon="shopping_cart" Visible=@Security.IsInRole("Administrador", "Log de pedidos")>
                             <RadzenPanelMenuItem Text="Modificación" Path="customer_order_modify_log" />
                             <RadzenPanelMenuItem Text="Cancelación" Path="customer_order_cancel_log" />
                             <RadzenPanelMenuItem Text="Cierre" Path="customer_order_close_log" />
+                            <RadzenPanelMenuItem Text="Visualización de alarmas" Path="alarm_visualization_log/customer-orders" />
                         </RadzenPanelMenuItem>
                         <RadzenPanelMenuItem Text="Log de reservas" Icon="shopping_basket" Visible=@Security.IsInRole("Administrador", "Log de reservas")>
                             <RadzenPanelMenuItem Text="Modificación" Path="customer_reservation_modify_log" />
                             <RadzenPanelMenuItem Text="Cancelación" Path="customer_reservation_cancel_log" />
+                            <RadzenPanelMenuItem Text="Visualización de alarmas" Path="alarm_visualization_log/customer-reservations" />
+                        </RadzenPanelMenuItem>
+                        <RadzenPanelMenuItem Text="Log de inventarios" Icon="inventory_2" Visible=@Security.IsInRole("Administrador", "Log de inventarios")>
+                            <RadzenPanelMenuItem Text="Visualización de alarmas" Path="alarm_visualization_log/inventory" />
+                            <RadzenPanelMenuItem Text="Inactivaciones y refrescos de alarmas" Path="inventory_alarm_events_log" />
                         </RadzenPanelMenuItem>
                     </RadzenPanelMenuItem>
                 }

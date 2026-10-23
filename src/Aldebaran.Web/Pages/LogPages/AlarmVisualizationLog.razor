@@ -1,0 +1,69 @@
+@page "/alarm_visualization_log/{ContextRoute}"
+@attribute [Authorize(Roles = "Administrador,Log de ordenes de compra,Log de pedidos,Log de reservas,Log de inventarios")]
+@using Aldebaran.Web.Resources.LocalizedControls;
+@using Aldebaran.Application.Services.Models.AlarmLogs;
+@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer;
+
+<PageTitle>@contextInfo?.Title</PageTitle>
+
+@if (contextInfo != null)
+{
+    <RadzenStack>
+        <RadzenRow AlignItems="AlignItems.Center">
+            <RadzenColumn Size="12">
+                <RadzenText Text="@contextInfo.Title" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@(!string.IsNullOrEmpty(errorMessage))" AllowClose="false">
+            @errorMessage
+        </RadzenAlert>
+        <RadzenRow AlignItems="AlignItems.End" Gap="1rem">
+            <RadzenColumn SizeMD="4">
+                <RadzenFormField Text="Tipo de alarma" Variant="Variant.Text" Style="width: 100%;">
+                    <RadzenDropDown Data="@alarmTypes" TextProperty="Name" ValueProperty="Code" TValue="string" @bind-Value="@selectedTypeCode" Change="@(async _ => await ApplyFiltersAsync())" style="width: 100%" />
+                </RadzenFormField>
+            </RadzenColumn>
+            <RadzenColumn SizeMD="2">
+                <RadzenFormField Text="Desde" Variant="Variant.Text" Style="width: 100%;">
+                    <RadzenDatePicker TValue="DateTime?" DateFormat="@SharedLocalizer["date:format"]" @bind-Value="@dateFrom" Change="@(async _ => await ApplyFiltersAsync())" style="width: 100%" />
+                </RadzenFormField>
+            </RadzenColumn>
+            <RadzenColumn SizeMD="2">
+                <RadzenFormField Text="Hasta" Variant="Variant.Text" Style="width: 100%;">
+                    <RadzenDatePicker TValue="DateTime?" DateFormat="@SharedLocalizer["date:format"]" @bind-Value="@dateTo" Change="@(async _ => await ApplyFiltersAsync())" style="width: 100%" />
+                </RadzenFormField>
+            </RadzenColumn>
+            <RadzenColumn SizeMD="4">
+                <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow>
+            <RadzenColumn SizeMD="12">
+                <LocalizedDataGrid @ref="alarmsGrid" Count="@count" LoadData="@LoadData" Data="@alarms" TItem="AlarmLogItem" IsLoading="@isLoading"
+                                   AllowPaging="true" ShowPagingSummary="true" PageSize="20" PageSizeOptions=@(new int[]{10, 20, 30, 50}) AllowColumnResize="true">
+                    <Columns>
+                        <RadzenDataGridColumn TItem="AlarmLogItem" Property="AlarmDate" Title="Fecha de la alarma" Width="20%">
+                            <Template Context="alarm">
+                                <span>@alarm.AlarmDate.ToString(SharedLocalizer["datetime:format"])</span>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="AlarmLogItem" Property="Document" Title="Documento / Referencia" Width="30%" />
+                        <RadzenDataGridColumn TItem="AlarmLogItem" Property="Description" Title="Descripción" Width="40%" />
+                        <RadzenDataGridColumn TItem="AlarmLogItem" Property="VisualizationCount" Title="Visualizaciones" Width="10%" TextAlign="TextAlign.Center">
+                            <Template Context="alarm">
+                                @if (alarm.VisualizationCount > 0)
+                                {
+                                    <RadzenLink href="javascript:void(0);" @onclick="@(async () => await ShowVisualizationsAsync(alarm))">@alarm.VisualizationCount</RadzenLink>
+                                }
+                                else
+                                {
+                                    <span>0</span>
+                                }
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </Columns>
+                </LocalizedDataGrid>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenStack>
+}

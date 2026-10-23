@@ -1,4 +1,5 @@
 using Aldebaran.Application.Services;
+using Aldebaran.Application.Services.AlarmLogs;
 using Aldebaran.Application.Services.InventoryMinimumAlerts;
 using Aldebaran.Application.Services.Notifications;
 using Aldebaran.Application.Services.NotificationsAccessToken;
@@ -264,6 +265,7 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IEmailNotificationProviderSettingsRepository, EmailNotificationProviderSettingsRepository>();
             services.AddTransient<IDashBoardRepository, DashBoardRepository>();
             services.AddTransient<IArticleInventoryRepository, ArticleInventoryRepository>();
+            services.AddTransient<IAlarmLogRepository, AlarmLogRepository>();
             services.AddTransient<IPurchaseOrderNotificationRepository, PurchaseOrderNotificationRepository>();
             services.AddTransient<IVisualizedPurchaseOrderTransitAlarmRepository, VisualizedPurchaseOrderTransitAlarmRepository>();
             services.AddTransient<IPurchaseOrderTransitAlarmRepository, PurchaseOrderTransitAlarmRepository>();
@@ -364,6 +366,7 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<INotificationTemplateService, NotificationTemplateService>();
             services.AddTransient<IDashBoardService, DashBoardService>();
             services.AddTransient<IArticleInventoryService, ArticleInventoryService>();
+            services.AddTransient<IAlarmLogService, AlarmLogService>();
             services.AddTransient<IPurchaseOrderNotificationService, PurchaseOrderNotificationService>();
             services.AddTransient<IVisualizedPurchaseOrderTransitAlarmService, VisualizedPurchaseOrderTransitAlarmService>();
             services.AddTransient<IPurchaseOrderTransitAlarmService, PurchaseOrderTransitAlarmService>();

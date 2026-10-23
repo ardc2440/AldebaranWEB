@@ -1,0 +1,6 @@
+Usuario de prueba (solo ambiente de pruebas) - T5
+Usuario: prueba.loginv
+Contrasena: PruebaT5.Inv26
+Rol: Log de inventarios
+Empleado: PRUEBA LOG INVENTARIOS T5 (identificacion 900000005)
+Nota: los usuarios nuevos quedan bloqueados (LockoutEnabled) hasta que el administrador los habilite; se desbloqueo para la prueba.

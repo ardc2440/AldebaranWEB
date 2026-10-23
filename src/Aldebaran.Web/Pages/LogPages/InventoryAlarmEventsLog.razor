@@ -1,0 +1,74 @@
+@page "/inventory_alarm_events_log"
+@attribute [Authorize(Roles = "Administrador,Log de inventarios")]
+@using Aldebaran.Web.Resources.LocalizedControls;
+@using Aldebaran.Application.Services.Models.AlarmLogs;
+@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer;
+
+<PageTitle>Inactivaciones y refrescos de alarmas de inventario</PageTitle>
+
+<RadzenStack>
+    <RadzenRow AlignItems="AlignItems.Center">
+        <RadzenColumn Size="12">
+            <RadzenText Text="Inactivaciones y refrescos de alarmas de inventario" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@(!string.IsNullOrEmpty(errorMessage))" AllowClose="false">
+        @errorMessage
+    </RadzenAlert>
+    <RadzenRow AlignItems="AlignItems.End" Gap="1rem">
+        <RadzenColumn SizeMD="3">
+            <RadzenFormField Text="Tipo de alarma" Variant="Variant.Text" Style="width: 100%;">
+                <RadzenDropDown Data="@alarmTypes" TextProperty="Name" ValueProperty="Code" TValue="string" AllowClear="true" Placeholder="Todas" @bind-Value="@selectedTypeCode" Change="@(async _ => await ApplyFiltersAsync())" style="width: 100%" />
+            </RadzenFormField>
+        </RadzenColumn>
+        <RadzenColumn SizeMD="2">
+            <RadzenFormField Text="Evento" Variant="Variant.Text" Style="width: 100%;">
+                <RadzenDropDown Data="@eventTypes" TextProperty="Text" ValueProperty="Value" TValue="InventoryAlarmEventType?" AllowClear="true" Placeholder="Todos" @bind-Value="@selectedEventType" Change="@(async _ => await ApplyFiltersAsync())" style="width: 100%" />
+            </RadzenFormField>
+        </RadzenColumn>
+        <RadzenColumn SizeMD="2">
+            <RadzenFormField Text="Desde" Variant="Variant.Text" Style="width: 100%;">
+                <RadzenDatePicker TValue="DateTime?" DateFormat="@SharedLocalizer["date:format"]" @bind-Value="@dateFrom" Change="@(async _ => await ApplyFiltersAsync())" style="width: 100%" />
+            </RadzenFormField>
+        </RadzenColumn>
+        <RadzenColumn SizeMD="2">
+            <RadzenFormField Text="Hasta" Variant="Variant.Text" Style="width: 100%;">
+                <RadzenDatePicker TValue="DateTime?" DateFormat="@SharedLocalizer["date:format"]" @bind-Value="@dateTo" Change="@(async _ => await ApplyFiltersAsync())" style="width: 100%" />
+            </RadzenFormField>
+        </RadzenColumn>
+        <RadzenColumn SizeMD="3">
+            <RadzenTextBox Placeholder="Buscar referencia u origen ..." style="display: block; width: 100%" @oninput="@Search" />
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenRow>
+        <RadzenColumn SizeMD="12">
+            <LocalizedDataGrid @ref="eventsGrid" Count="@count" LoadData="@LoadData" Data="@events" TItem="InventoryAlarmEvent" IsLoading="@isLoading"
+                               AllowPaging="true" ShowPagingSummary="true" PageSize="20" PageSizeOptions=@(new int[]{10, 20, 30, 50}) AllowColumnResize="true" ColumnWidth="130px">
+                <Columns>
+                    <RadzenDataGridColumn TItem="InventoryAlarmEvent" Property="EventDate" Title="Fecha del evento" Width="150px">
+                        <Template Context="e"><span>@e.EventDate.ToString(SharedLocalizer["datetime:format"])</span></Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="InventoryAlarmEvent" Property="AlarmTypeName" Title="Tipo de alarma" Width="200px" />
+                    <RadzenDataGridColumn TItem="InventoryAlarmEvent" Property="ReferenceDescription" Title="Referencia" Width="280px" />
+                    <RadzenDataGridColumn TItem="InventoryAlarmEvent" Property="EventType" Title="Evento" Width="110px">
+                        <Template Context="e"><span>@EventTypeText(e.EventType)</span></Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="InventoryAlarmEvent" Property="NewQuantity" Title="Cantidad (anterior → nueva)" Width="150px">
+                        <Template Context="e"><span>@ShowChange(e.PreviousQuantity, e.NewQuantity)</span></Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="InventoryAlarmEvent" Property="NewMinimumQuantity" Title="Mínimo (anterior → nuevo)" Width="150px">
+                        <Template Context="e"><span>@ShowChange(e.PreviousMinimumQuantity, e.NewMinimumQuantity)</span></Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="InventoryAlarmEvent" Property="NewCreationDate" Title="Fecha de la alarma (anterior → nueva)" Width="230px">
+                        <Template Context="e"><span>@ShowChange(FormatDate(e.PreviousCreationDate), FormatDate(e.NewCreationDate))</span></Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="InventoryAlarmEvent" Property="VisualizationCount" Title="Visualizaciones" Width="110px" TextAlign="TextAlign.Center" />
+                    <RadzenDataGridColumn TItem="InventoryAlarmEvent" Property="VisualizationsRemoved" Title="Vuelve a mostrarse" Width="120px" TextAlign="TextAlign.Center">
+                        <Template Context="e"><span>@(e.VisualizationsRemoved ? "Sí" : "No")</span></Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="InventoryAlarmEvent" Property="Source" Title="Origen" Width="220px" />
+                </Columns>
+            </LocalizedDataGrid>
+        </RadzenColumn>
+    </RadzenRow>
+</RadzenStack>

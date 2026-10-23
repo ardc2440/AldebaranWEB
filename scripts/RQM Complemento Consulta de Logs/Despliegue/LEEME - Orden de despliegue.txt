@@ -9,6 +9,7 @@ Ejecutar en este orden, sobre la BD Aldebaran (todos son re-ejecutables):
                                                    (respalda definiciones originales en RQM_LOGS_OBJECT_BACKUP)
 05 - Job verificacion alarmas log.sql        (T3c) El job 'Verificacion Alarmas' registra sus inactivaciones en el log
                                                    (requiere permisos en msdb; misma logica del job)
+06 - Consulta log alarmas inventario.sql     (T4)  SP_GET_INVENTORY_ALARM_LOG: consulta de refrescos e inactivaciones
 
 Reversa\04 - Reversa alarmas inventario.sql   Restaura SPs/triggers originales desde el respaldo (conserva el log)
 Reversa\05 - Reversa job verificacion alarmas.sql  Restaura los pasos originales del job
