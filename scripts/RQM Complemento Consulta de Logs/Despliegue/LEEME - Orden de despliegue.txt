@@ -16,10 +16,15 @@ Ejecutar en este orden, sobre la BD Aldebaran (todos son re-ejecutables):
 10 - Logs despachos y traslados a proceso.sql (T10-T13) SP de log de modificacion/cancelacion de despachos y traslados a proceso
 11 - Logs ordenes de compra.sql              (T14a-b) SP de log de solicitudes de ajustes de OC y de tolerancias de ajuste
 12 - Log general.sql                         (T15)    SP del log general (grupos, ocurrencias, detalle, origenes)
+13 - Log automata existencias.sql            (T15b)   SP para que el Automata de Existencias escriba en el log general (+ NLog.config del automata)
 
 Reversa\04 - Reversa alarmas inventario.sql   Restaura SPs/triggers originales desde el respaldo (conserva el log)
 Reversa\05 - Reversa job verificacion alarmas.sql  Restaura los pasos originales del job
 
 Notas:
 - Despues del despliegue de BD se publica la version de la aplicacion correspondiente.
+- AUTOMATA DE EXISTENCIAS: despues del script 13, desplegar el NLog.config actualizado del automata
+  (AutomataExistencias.Console\NLog.config, target "asyncDatabase") en la carpeta del servicio y reiniciarlo.
+  Verificar que su usuario de BD tenga EXECUTE sobre log.SP_INSERT_AUTOMATA_EXISTENCIAS_LOG
+  y que aparezca el origen AutomataExistencias en Consulta de Log > Log del sistema > Log general.
 - Los scripts de la carpeta ..\Pruebas son solo para validacion en el ambiente de pruebas; NO se ejecutan en produccion.
