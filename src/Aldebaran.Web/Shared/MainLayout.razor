@@ -106,6 +106,10 @@
                             <RadzenPanelMenuItem Text="Modificación" Path="customer_order_modify_log" />
                             <RadzenPanelMenuItem Text="Cancelación" Path="customer_order_cancel_log" />
                             <RadzenPanelMenuItem Text="Cierre" Path="customer_order_close_log" />
+                            <RadzenPanelMenuItem Text="Modificación de despachos" Path="order_document_log/shipment-modification" />
+                            <RadzenPanelMenuItem Text="Cancelación de despachos" Path="order_document_log/shipment-cancellation" />
+                            <RadzenPanelMenuItem Text="Modificación de traslados a proceso" Path="order_document_log/in-process-modification" />
+                            <RadzenPanelMenuItem Text="Cancelación de traslados a proceso" Path="order_document_log/in-process-cancellation" />
                             <RadzenPanelMenuItem Text="Visualización de alarmas" Path="alarm_visualization_log/customer-orders" />
                         </RadzenPanelMenuItem>
                         <RadzenPanelMenuItem Text="Log de reservas" Icon="shopping_basket" Visible=@Security.IsInRole("Administrador", "Log de reservas")>

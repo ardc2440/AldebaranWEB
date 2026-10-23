@@ -282,6 +282,20 @@ namespace Aldebaran.DataAccess
                 e.Property(x => x.ModifierName).HasColumnName("MODIFIER_NAME");
                 e.Property(x => x.TotalRows).HasColumnName("TOTAL_ROWS");
             });
+            modelBuilder.Entity<OrderDocumentLogEntry>(e =>
+            {
+                e.HasNoKey();
+                e.Property(x => x.LogKey).HasColumnName("LOG_KEY");
+                e.Property(x => x.EventDate).HasColumnName("EVENT_DATE");
+                e.Property(x => x.DocumentId).HasColumnName("DOCUMENT_ID");
+                e.Property(x => x.DocumentDate).HasColumnName("DOCUMENT_DATE");
+                e.Property(x => x.CustomerOrderId).HasColumnName("CUSTOMER_ORDER_ID");
+                e.Property(x => x.OrderNumber).HasColumnName("ORDER_NUMBER");
+                e.Property(x => x.CustomerName).HasColumnName("CUSTOMER_NAME");
+                e.Property(x => x.Reason).HasColumnName("REASON");
+                e.Property(x => x.EmployeeName).HasColumnName("EMPLOYEE_NAME");
+                e.Property(x => x.TotalRows).HasColumnName("TOTAL_ROWS");
+            });
             modelBuilder.Entity<TrackFieldName>(e =>
             {
                 e.HasNoKey();

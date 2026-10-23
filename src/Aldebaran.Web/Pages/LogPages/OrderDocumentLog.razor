@@ -1,0 +1,60 @@
+@page "/order_document_log/{LogRoute}"
+@attribute [Authorize(Roles = "Administrador,Log de pedidos")]
+@using Aldebaran.Web.Resources.LocalizedControls;
+@using Aldebaran.Application.Services.Models.OrderDocumentLogs;
+@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer;
+
+<PageTitle>@info?.Title</PageTitle>
+
+@if (info != null)
+{
+    <RadzenStack>
+        <RadzenRow AlignItems="AlignItems.Center">
+            <RadzenColumn Size="12">
+                <RadzenText Text="@info.Title" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@(!string.IsNullOrEmpty(errorMessage))" AllowClose="false">
+            @errorMessage
+        </RadzenAlert>
+        <RadzenRow AlignItems="AlignItems.End" Gap="1rem">
+            <RadzenColumn SizeMD="2">
+                <RadzenFormField Text="Desde" Variant="Variant.Text" Style="width: 100%;">
+                    <RadzenDatePicker TValue="DateTime?" DateFormat="@SharedLocalizer["date:format"]" @bind-Value="@dateFrom" Change="@(async _ => await ApplyFiltersAsync())" style="display: block; width: 100%" />
+                </RadzenFormField>
+            </RadzenColumn>
+            <RadzenColumn SizeMD="2">
+                <RadzenFormField Text="Hasta" Variant="Variant.Text" Style="width: 100%;">
+                    <RadzenDatePicker TValue="DateTime?" DateFormat="@SharedLocalizer["date:format"]" @bind-Value="@dateTo" Change="@(async _ => await ApplyFiltersAsync())" style="display: block; width: 100%" />
+                </RadzenFormField>
+            </RadzenColumn>
+            <RadzenColumn SizeMD="8">
+                <RadzenTextBox Placeholder="Buscar pedido, cliente, motivo, empleado o número ..." style="display: block; width: 100%" @oninput="@Search" />
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow>
+            <RadzenColumn SizeMD="12">
+                <LocalizedDataGrid @ref="logGrid" Count="@count" LoadData="@LoadData" Data="@items" TItem="OrderDocumentLogItem" IsLoading="@isLoading"
+                                   AllowPaging="true" ShowPagingSummary="true" PageSize="20" PageSizeOptions=@(new int[]{10, 20, 30, 50}) AllowColumnResize="true">
+                    <Columns>
+                        <RadzenDataGridColumn TItem="OrderDocumentLogItem" Property="CustomerName" Title="Cliente" Width="22%" />
+                        <RadzenDataGridColumn TItem="OrderDocumentLogItem" Property="OrderNumber" Title="Número de pedido" Width="12%">
+                            <Template Context="row">
+                                <RadzenLink href="javascript:void(0);" @onclick="@(async () => await ShowCustomerOrderAsync(row.CustomerOrderId))">@row.OrderNumber</RadzenLink>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="OrderDocumentLogItem" Property="DocumentId" Title="@info.DocumentTitle" Width="9%" />
+                        <RadzenDataGridColumn TItem="OrderDocumentLogItem" Property="DocumentDate" Title="@info.DocumentDateTitle" Width="12%">
+                            <Template Context="row"><span>@row.DocumentDate?.ToString(SharedLocalizer["date:format"])</span></Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="OrderDocumentLogItem" Property="EventDate" Title="@info.EventDateTitle" Width="14%">
+                            <Template Context="row"><span>@row.EventDate.ToString(SharedLocalizer["datetime:format"])</span></Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="OrderDocumentLogItem" Property="Reason" Title="Motivo" Width="16%" />
+                        <RadzenDataGridColumn TItem="OrderDocumentLogItem" Property="EmployeeName" Title="Realizado por" Width="15%" />
+                    </Columns>
+                </LocalizedDataGrid>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenStack>
+}

@@ -13,6 +13,7 @@ Ejecutar en este orden, sobre la BD Aldebaran (todos son re-ejecutables):
 07 - Consulta Track.sql                      (T6)  Catalogo de entidades en espanol + SP de consulta y detalle de log.track
 08 - Busqueda Track por objetos.sql          (T6b) Indice de objetos de negocio del Track (trigger + carga masiva del historico, ~5 min por 1,2 M de movimientos)
 09 - Nombres de campo Track.sql              (T6c) Nombres en espanol de los campos del Track (general + por entidad, campos tecnicos)
+10 - Logs despachos y traslados a proceso.sql (T10-T13) SP de log de modificacion/cancelacion de despachos y traslados a proceso
 
 Reversa\04 - Reversa alarmas inventario.sql   Restaura SPs/triggers originales desde el respaldo (conserva el log)
 Reversa\05 - Reversa job verificacion alarmas.sql  Restaura los pasos originales del job
