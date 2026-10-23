@@ -24,6 +24,7 @@ namespace Aldebaran.DataAccess.Entities
         public bool IsCatalogVisible { get; set; }
         public bool IsSpecialImport { get; set; }
         public bool IsSaleOff { get; set; }
+        public bool IsBombPrice { get; set; }
         public bool ApplyPreorder {  get; set; }
         public bool DisableAlarms { get; set; }
 
@@ -43,6 +44,7 @@ namespace Aldebaran.DataAccess.Entities
             IsCatalogVisible = false;
             IsSpecialImport = false;
             IsSaleOff = false;
+            IsBombPrice = false;
             ApplyPreorder = false;
             DisableAlarms = false;
             ItemReferences = new List<ItemReference>();

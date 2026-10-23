@@ -1,4 +1,4 @@
-﻿using Aldebaran.DataAccess.Core;
+using Aldebaran.DataAccess.Core;
 namespace Aldebaran.DataAccess.Entities
 {
     public class CustomerOrderNotification : NotificationBase, ITrackeable

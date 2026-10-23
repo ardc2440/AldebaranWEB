@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace Aldebaran.Application.Services.InventoryMinimumAlerts.Models
 {
@@ -11,6 +11,9 @@ namespace Aldebaran.Application.Services.InventoryMinimumAlerts.Models
         public required string ArticleName { get; set; }
 
         public string? ImagePath { get; set; }
+
+        /// <summary>Artículo con precio bomba (marca sobre la imagen en el Excel).</summary>
+        public bool IsBombPrice { get; set; }
 
         public int MinimumQuantity { get; set; }
 

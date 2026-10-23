@@ -123,7 +123,8 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 {
                     if (!string.IsNullOrEmpty(approvalReason))
                     {
-                        var adjustmentLog = CreateAdjustmentLog(purchaseOrderId, purchaseOrder.StatusDocumentTypeId, approvalEmployeeId ?? 0, approvalReason);
+                        // Estado nuevo de la OC (Confirmada), no el que traía la pantalla (Ajuste en aprobación).
+                        var adjustmentLog = CreateAdjustmentLog(purchaseOrderId, entity.StatusDocumentTypeId, approvalEmployeeId ?? 0, approvalReason);
 
                         dbContext.PurchaseOrderAdjustmentLogs.Add(adjustmentLog);
                     }

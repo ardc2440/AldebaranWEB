@@ -471,6 +471,7 @@ namespace Aldebaran.DataAccess
             modelBuilder.Entity<MinimumQuantityArticle>(iar =>
             {
                 iar.HasNoKey();
+                iar.Property(x => x.IsBombPrice).HasColumnName(@"IsBombPrice").HasColumnType("BIT").IsRequired();
                 iar.Property(x => x.AlarmId).HasColumnName(@"AlarmId").HasColumnType("INT").IsRequired();
                 iar.Property(x => x.ReferenceId).HasColumnName(@"ReferenceId").HasColumnType("INT").IsRequired();
                 iar.Property(x => x.ArticleName).HasColumnName(@"ArticleName").HasColumnType("VARCHAR(150)").IsUnicode(false).HasMaxLength(150).IsRequired();

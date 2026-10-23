@@ -1,4 +1,4 @@
-﻿@using Aldebaran.Web.Resources.LocalizedControls
+@using Aldebaran.Web.Resources.LocalizedControls
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
 @inject Radzen.DialogService dialogService
 
@@ -31,7 +31,7 @@
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.MinimumQuantityArticle" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
                         <Template Context="detail">
                             <RadzenButton Icon="image" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
-                                          Click="@(args => ShowArticleInventoryDialogAsync(detail.ReferenceId, detail.ArticleName))"
+                                          Click="@(args => ShowArticleInventoryDialogAsync(detail.ReferenceId, detail.ArticleName, detail.IsBombPrice))"
                                           @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args,"Ver imagen e inventario del artículo", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
                         </Template>
                     </RadzenDataGridColumn>

@@ -1,4 +1,4 @@
-﻿namespace Aldebaran.Application.Services.Models
+namespace Aldebaran.Application.Services.Models
 {
     public class MinimumQuantityArticle
     {
@@ -10,5 +10,6 @@
         public int InTransitQuantity { get; set; }
         public int ReservedQuantity { get; set; }
         public int OrderedQuantity { get; set; }               
+        public bool IsBombPrice { get; set; }
     }
 }

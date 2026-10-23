@@ -134,6 +134,12 @@ namespace Aldebaran.Infraestructure.Common.Utils
                         InsertImage(worksheetPart, imagePath, (int)rowIndex, columnIndex);
                         containsImage = true;
                     }
+
+                    if (column.BadgeProperty != null && GetValue(item, column.BadgeProperty) is string badge && !string.IsNullOrWhiteSpace(badge))
+                    {
+                        InsertBadge(worksheetPart, badge, rowIndex, columnIndex);
+                        containsImage = true;
+                    }
                 }
                 else
                 {

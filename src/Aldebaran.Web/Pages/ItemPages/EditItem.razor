@@ -240,6 +240,12 @@
                                     <RadzenLabel Text="Artículo en oferta" Component="IsSaleOff" />
                                 </div>
                             </div>
+                            <div class="d-flex gap-4 flex-row mt-2">
+                                <div>
+                                    <RadzenCheckBox TValue="bool" @bind-Value="@Item.IsBombPrice" Name="IsBombPrice" Change="@OnBombPriceChanged" />
+                                    <RadzenLabel Text="Precio bomba" Component="IsBombPrice" />
+                                </div>
+                            </div>
                         </div>
                     </RadzenColumn>
                 </RadzenRow>

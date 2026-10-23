@@ -29,6 +29,7 @@ namespace Aldebaran.DataAccess.Configuration
             builder.Property(x => x.IsCatalogVisible).HasColumnName(@"IS_CATALOG_VISIBLE").HasColumnType("bit").IsRequired();
             builder.Property(x => x.IsSpecialImport).HasColumnName(@"IS_SPECIAL_IMPORT").HasColumnType("bit").IsRequired();
             builder.Property(x => x.IsSaleOff).HasColumnName(@"IS_SALE_OFF").HasColumnType("bit").IsRequired();
+            builder.Property(x => x.IsBombPrice).HasColumnName(@"IS_BOMB_PRICE").HasColumnType("bit").IsRequired();
             builder.Property(x => x.ApplyPreorder).HasColumnName(@"APPLY_PREORDER").HasColumnType("bit").IsRequired();
             builder.Property(x => x.DisableAlarms).HasColumnName(@"DISABLE_ALARMS").HasColumnType("bit").IsRequired();
             

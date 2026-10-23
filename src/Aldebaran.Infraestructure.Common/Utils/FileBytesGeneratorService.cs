@@ -1,4 +1,4 @@
-﻿using Aldebaran.Infraestructure.Common.Browser;
+using Aldebaran.Infraestructure.Common.Browser;
 using Aldebaran.Infrastructure.Common.Attributes;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
@@ -414,13 +414,14 @@ namespace Aldebaran.Infraestructure.Common.Utils
         {
             return type
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(p => p.CanRead && IsSimpleType(p.PropertyType))
+                .Where(p => p.CanRead && IsSimpleType(p.PropertyType) && p.GetCustomAttribute<ExcelIgnoreAttribute>() == null)
                 .Select(p => new PropertyDetail
                 {
                     Name = p.Name,
                     DisplayName = GetDisplayNameOrDefault(p),
                     Type = p.PropertyType,
-                    IsImage = p.GetCustomAttribute<ExcelImageAttribute>() != null
+                    IsImage = p.GetCustomAttribute<ExcelImageAttribute>() != null,
+                    BadgeProperty = p.GetCustomAttribute<ExcelImageAttribute>()?.BadgeProperty
                 });
         }
         static bool IsSimpleType(Type type)
@@ -665,6 +666,9 @@ namespace Aldebaran.Infraestructure.Common.Utils
             public Type Type { get; set; }
 
             public bool IsImage { get; set; }
+
+            /// <summary>Propiedad con el texto de la marca sobre la imagen (ExcelImageAttribute.BadgeProperty).</summary>
+            public string? BadgeProperty { get; set; }
         }
     }
 }

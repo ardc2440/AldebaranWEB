@@ -5,8 +5,23 @@
    + inventario de las referencias activas del artículo, con la referencia de la alarma resaltada. *@
 
 <RadzenStack Gap="1rem">
-    <div style="max-width: 420px; width: 100%; margin: 0 auto; text-align: center;">
+    <div style="max-width: 420px; width: 100%; margin: 0 auto; text-align: center; position: relative;">
         <ImageDialog ArticleName="@ArticleName" />
+        @if (IsBombPrice)
+        {
+            @* Marca Precio Bomba (RQM Complemento Logs T9a): sobre la imagen o, sin imagen, sola en el espacio vacío *@
+            @if (hasImage)
+            {
+                <RadzenBadge BadgeStyle="BadgeStyle.Danger" Text="$ BOMBA" title="Artículo con precio bomba"
+                             Style="@($"position: absolute; top: 2.5rem; left: 0.5rem; {BombBadgeStyle}")" />
+            }
+            else
+            {
+                <div style="height: 140px; display: flex; align-items: center; justify-content: center;">
+                    <RadzenBadge BadgeStyle="BadgeStyle.Danger" Text="$ BOMBA" title="Artículo con precio bomba" Style="@BombBadgeStyle" />
+                </div>
+            }
+        }
     </div>
 
     <RadzenText TextStyle="TextStyle.Subtitle1" class="text-primary-color rz-mb-0">Inventario del artículo (referencias activas)</RadzenText>

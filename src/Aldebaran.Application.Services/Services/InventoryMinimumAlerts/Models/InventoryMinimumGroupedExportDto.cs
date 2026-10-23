@@ -14,8 +14,12 @@ namespace Aldebaran.Application.Services.InventoryMinimumAlerts.Models
         public required string Description { get; set; }
 
         [DisplayName("Imagen")]
-        [ExcelImage]
+        [ExcelImage(BadgeProperty = nameof(ImageBadge))]
         public string? ImagePath { get; set; }
+
+        /// <summary>Marca sobre la imagen (Precio Bomba); no es columna.</summary>
+        [ExcelIgnore]
+        public string? ImageBadge { get; set; }
 
         [DisplayName("En alarma")]
         public string? InAlarm { get; set; }

@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Aldebaran.DataAccess.Core
@@ -8,6 +8,8 @@ namespace Aldebaran.DataAccess.Core
         public void Configure(EntityTypeBuilder<Track> builder)
         {
             builder.ToTable("track", "log");
+            // Índice de objetos del Track (RQM Complemento Logs, script 08): EF no puede usar OUTPUT en tablas con trigger.
+            builder.ToTable(tb => tb.HasTrigger("TRG_LOG_TRACK_INDEX_OBJECTS"));
             builder.HasKey(x => x.Id).IsClustered();
             builder.Property(x => x.Id).HasColumnType("bigint").IsRequired().ValueGeneratedOnAdd().UseIdentityColumn();
             builder.Property(e => e.EntityName).HasColumnName("ENTITY_NAME").HasColumnType("nvarchar(100)").IsRequired().IsUnicode(true).HasMaxLength(100);

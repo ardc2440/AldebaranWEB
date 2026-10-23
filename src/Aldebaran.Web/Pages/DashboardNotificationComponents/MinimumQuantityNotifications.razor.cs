@@ -1,4 +1,4 @@
-﻿using Aldebaran.Application.Services;
+using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Application.Services.Services;
 using Aldebaran.Infraestructure.Common.Extensions;
@@ -241,10 +241,11 @@ namespace Aldebaran.Web.Pages.DashboardNotificationComponents
             }            
         }
 
-        private async Task ShowArticleInventoryDialogAsync(int referenceId, string articleName) => await DialogService.OpenAsync<ArticleInventoryDialog>("", new Dictionary<string, object>
+        private async Task ShowArticleInventoryDialogAsync(int referenceId, string articleName, bool isBombPrice) => await DialogService.OpenAsync<ArticleInventoryDialog>("", new Dictionary<string, object>
             {
                 { "ReferenceId", referenceId },
-                { "ArticleName", articleName }
+                { "ArticleName", articleName },
+                { "IsBombPrice", isBombPrice }
             },
             new DialogOptions { Width = "1150px", Resizable = true });
                 

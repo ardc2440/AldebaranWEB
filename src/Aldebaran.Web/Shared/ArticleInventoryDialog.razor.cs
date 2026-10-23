@@ -1,6 +1,8 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
+using Aldebaran.Web.Models;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Options;
 using Radzen;
 
 namespace Aldebaran.Web.Shared
@@ -12,6 +14,7 @@ namespace Aldebaran.Web.Shared
     public partial class ArticleInventoryDialog
     {
         private const string AlarmRowStyle = "font-weight: bold; background-color: #fff3cd;";
+        protected const string BombBadgeStyle = "font-size: 1rem; padding: 0.35rem 0.75rem; transform: rotate(-12deg); box-shadow: 0 2px 6px rgba(0,0,0,.35);";
 
         #region Injections
         [Inject]
@@ -22,6 +25,9 @@ namespace Aldebaran.Web.Shared
 
         [Inject]
         protected TooltipService TooltipService { get; set; }
+
+        [Inject]
+        protected IOptions<AppSettings> Settings { get; set; }
         #endregion
 
         #region Parameters
@@ -32,16 +38,22 @@ namespace Aldebaran.Web.Shared
         /// <summary>Nombre de la alarma con formato "[referencia interna] artículo - referencia" (lo usa ImageDialog).</summary>
         [Parameter]
         public string ArticleName { get; set; } = string.Empty;
+
+        /// <summary>Artículo con precio bomba: muestra la marca sobre la imagen.</summary>
+        [Parameter]
+        public bool IsBombPrice { get; set; }
         #endregion
 
         #region Variables
         protected IReadOnlyList<ArticleReferenceInventory> references = Array.Empty<ArticleReferenceInventory>();
         protected bool isLoading;
         protected bool loadError;
+        protected bool hasImage;
         #endregion
 
         protected override async Task OnInitializedAsync()
         {
+            hasImage = ArticleImageLocator.Exists(ArticleName, Settings.Value.ImageRepositoryPath);
             await LoadInventoryAsync();
         }
 

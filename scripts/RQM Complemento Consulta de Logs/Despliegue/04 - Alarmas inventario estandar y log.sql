@@ -113,7 +113,7 @@ BEGIN
 		  JOIN purchase_orders b WITH (NOLOCK) ON b.PURCHASE_ORDER_ID = a.PURCHASE_ORDER_ID
 		  JOIN status_document_types c WITH (NOLOCK) ON c.STATUS_DOCUMENT_TYPE_ID = b.STATUS_DOCUMENT_TYPE_ID
 		 WHERE a.REFERENCE_ID = @REFERENCE_ID
-		   AND c.STATUS_ORDER = 1
+		   AND c.STATUS_ORDER IN (1, 4)	/* Pendientes + Ajuste en aprobación (igual que producción, RQM Aprobación Ajustes OC) */
 	END
 
 	/* La referencia es de cantidad mínima: una alarma de "sin stock" activa queda sin quién la evalúe -> se inactiva */
@@ -146,12 +146,18 @@ BEGIN
 
 	IF @DisableAlarms = 0 AND (@AvailableQuantity < @MinimumQuantity OR (@ActiveAlarmId IS NOT NULL AND @RealAvailableQuantity < @MinimumQuantity))
 	BEGIN
+		/* T18-1 (R5): evaluación de la aplicación sin cambio de cantidad ni de mínimo -> la alarma no se toca
+		   (no se refresca, no se borran visualizaciones, no se registra en el log). */
+		IF @JOB = 0 AND EXISTS (SELECT 1 FROM minimum_quantity_alarms WITH (NOLOCK) WHERE ACTIVE = 1 AND REFERENCE_ID = @REFERENCE_ID
+		                          AND QUANTITY = @AvailableQuantity AND MINIMUM_QUANTITY = @MinimumQuantity)
+			RETURN
+
 		DECLARE @Rows INT
 		/* Proceso programado (@JOB = 1) sin cambio de cantidad: mismo refresco, sin fila en el log */
 		IF @JOB = 1 AND EXISTS (SELECT 1 FROM minimum_quantity_alarms WITH (NOLOCK) WHERE ACTIVE = 1 AND REFERENCE_ID = @REFERENCE_ID AND QUANTITY = @AvailableQuantity)
 		BEGIN
 			UPDATE a
-			   SET QUANTITY = @AvailableQuantity, CREATION_DATE = GETDATE()
+			   SET QUANTITY = @AvailableQuantity, MINIMUM_QUANTITY = @MinimumQuantity, CREATION_DATE = GETDATE()
 			  FROM minimum_quantity_alarms a WITH (NOLOCK)
 			 WHERE a.ACTIVE = 1
 			   AND a.REFERENCE_ID = @REFERENCE_ID
@@ -160,7 +166,7 @@ BEGIN
 		ELSE
 		BEGIN
 			UPDATE a
-				   SET QUANTITY = @AvailableQuantity, CREATION_DATE = GETDATE()
+				   SET QUANTITY = @AvailableQuantity, MINIMUM_QUANTITY = @MinimumQuantity, CREATION_DATE = GETDATE()
 			OUTPUT 'MINIMUM_QUANTITY', inserted.MINIMUM_QUANTITY_ALARM_ID, inserted.REFERENCE_ID, 'R',
 				   deleted.QUANTITY, inserted.QUANTITY, deleted.MINIMUM_QUANTITY, inserted.MINIMUM_QUANTITY,
 				   deleted.CREATION_DATE, inserted.CREATION_DATE, deleted.ACTIVE, inserted.ACTIVE, inserted.INACTIVATION_DATE,
@@ -237,7 +243,7 @@ BEGIN
 		  JOIN purchase_orders b WITH (NOLOCK) ON b.PURCHASE_ORDER_ID = a.PURCHASE_ORDER_ID
 		  JOIN status_document_types c WITH (NOLOCK) ON c.STATUS_DOCUMENT_TYPE_ID = b.STATUS_DOCUMENT_TYPE_ID
 		 WHERE a.REFERENCE_ID = @REFERENCE_ID
-		   AND c.STATUS_ORDER = 1
+		   AND c.STATUS_ORDER IN (1, 4)	/* Pendientes + Ajuste en aprobación (igual que producción, RQM Aprobación Ajustes OC) */
 	END
 
 	/* La referencia es de sin stock (mínimo <= 0): una alarma de cantidad mínima activa queda sin quién la evalúe -> se inactiva */
@@ -270,6 +276,11 @@ BEGIN
 
 	IF @DisableAlarms = 0 AND (@AvailableQuantity <= 0 OR (@ActiveAlarmId IS NOT NULL AND @RealAvailableQuantity <= 0))
 	BEGIN
+		/* T18-1 (R5): evaluación de la aplicación sin cambio de cantidad -> la alarma no se toca. */
+		IF @Job = 0 AND EXISTS (SELECT 1 FROM out_of_stock_inventory_alarms WITH (NOLOCK) WHERE ACTIVE = 1 AND REFERENCE_ID = @REFERENCE_ID
+		                          AND QUANTITY = @AvailableQuantity)
+			RETURN
+
 		DECLARE @Rows INT
 		/* Proceso programado (@JOB = 1) sin cambio de cantidad: mismo refresco, sin fila en el log */
 		IF @Job = 1 AND EXISTS (SELECT 1 FROM out_of_stock_inventory_alarms WITH (NOLOCK) WHERE ACTIVE = 1 AND REFERENCE_ID = @REFERENCE_ID AND QUANTITY = @AvailableQuantity)

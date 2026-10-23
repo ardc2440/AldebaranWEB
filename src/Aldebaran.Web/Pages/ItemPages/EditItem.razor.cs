@@ -75,7 +75,7 @@ namespace Aldebaran.Web.Pages.ItemPages
             try
             {
                 IsSubmitInProgress = true;
-                Item.Packagings.Add(packaging);
+                Item.Packagings = new List<Packaging> { packaging };
                 await ItemService.UpdateAsync(ITEM_ID, Item);
                 DialogService.Close(true);
             }
@@ -97,35 +97,44 @@ namespace Aldebaran.Web.Pages.ItemPages
 
         protected async Task OnIfSaleOffChanged()
         {
+            if (Item.IsSaleOff)
+                Item.IsBombPrice = false;
+
+            Item.IsSaleOff = ApplyNameMark(Item.IsSaleOff, ItemNameMarks.SaleOffSuffix, "Oferta");
+            StateHasChanged();
+        }
+
+        protected async Task OnBombPriceChanged()
+        {
+            if (Item.IsBombPrice)
+                Item.IsSaleOff = false;
+
+            Item.IsBombPrice = ApplyNameMark(Item.IsBombPrice, ItemNameMarks.BombPriceSuffix, "Precio Bomba");
+            StateHasChanged();
+        }
+
+        /// <summary>Agrega o retira el sufijo de la marca en el nombre; devuelve el estado final de la marca.</summary>
+        private bool ApplyNameMark(bool marked, string suffix, string markName)
+        {
             errorMessage = "";
             IsErrorVisible = false;
-                        
-            // Verifica si el checkbox está marcado
-            if (Item.IsSaleOff)
+
+            if (!marked)
             {
-                var itemName = Item.ItemName;
-                if (itemName.ToUpper().Contains("OFERTA"))
-                    itemName = Regex.Replace(itemName, "Oferta", "", RegexOptions.IgnoreCase).Trim();
-                
-                // Si no sobrepasa los 50 caracteres, agrega " - Oferta".
-                if (itemName.Trim().Length + " - Oferta".Length <= 50)
-                    Item.ItemName = itemName.Trim() + " - Oferta";
-                else
-                {
-                    // Si sobrepasa los 50 caracteres, muestra un error y cancela el cambio.
-                    errorMessage = "El nombre del producto no puede exceder los 50 caracteres al agregar ' - Oferta'. \n\nModifique el nombre para que tenga maimo 40 caracteres";
-                    Item.IsSaleOff = false; // Revierte el cambio del checkbox.
-                    IsErrorVisible = true;
-                }
-            }
-            else
-            {
-                // Si no está marcado, elimina " - Oferta" si está presente.
-                Item.ItemName = Item.ItemName.Replace(" - Oferta", "");
+                Item.ItemName = ItemNameMarks.Remove(Item.ItemName, suffix);
+                return false;
             }
 
-            StateHasChanged();
+            if (ItemNameMarks.TryApply(Item.ItemName, suffix, out var itemName))
+            {
+                Item.ItemName = itemName;
+                return true;
+            }
 
+            // Si sobrepasa los 50 caracteres, muestra un error y cancela el cambio.
+            errorMessage = $"El nombre del producto no puede exceder los {ItemNameMarks.MaxNameLength} caracteres al agregar '{suffix.Trim()}' ({markName}). \n\nModifique el nombre para que tenga mÃ¡ximo {ItemNameMarks.MaxBaseLength(suffix)} caracteres";
+            IsErrorVisible = true;
+            return false;
         }
         #endregion
     }

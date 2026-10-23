@@ -1,4 +1,4 @@
-﻿using Aldebaran.DataAccess.Entities;
+using Aldebaran.DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Dynamic.Core;
 
@@ -79,7 +79,8 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                             .Include(i => i.CifMeasureUnit)
                             .Include(i => i.FobMeasureUnit);
 
-                return (await a.Skip(skip).Take(top).ToListAsync(ct), await a.CountAsync(ct));
+                // Orden estable para paginar (EF advierte Skip/Take sin OrderBy: resultados impredecibles).
+                return (await a.OrderBy(i => i.ItemId).Skip(skip).Take(top).ToListAsync(ct), await a.CountAsync(ct));
             }, ct);
         }
 
@@ -100,7 +101,8 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                                        w.Line.LineName.Equals(searchKey) ||
                                        w.Line.LineCode.Equals(searchKey) ||
                                        w.Currency.CurrencyName.Equals(searchKey));
-                return (await a.Skip(skip).Take(top).ToListAsync(ct), await a.CountAsync(ct));
+                // Orden estable para paginar (EF advierte Skip/Take sin OrderBy: resultados impredecibles).
+                return (await a.OrderBy(i => i.ItemId).Skip(skip).Take(top).ToListAsync(ct), await a.CountAsync(ct));
             }, ct);
         }
 
@@ -159,14 +161,46 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 entity.IsDomesticProduct = item.IsDomesticProduct;
                 entity.IsActive = item.IsActive;
                 entity.IsCatalogVisible = item.IsCatalogVisible;
-                entity.Packagings = item.Packagings;
                 entity.IsSpecialImport = item.IsSpecialImport;
                 entity.IsSaleOff = item.IsSaleOff;
+                entity.IsBombPrice = item.IsBombPrice;
                 entity.ApplyPreorder = item.ApplyPreorder;
                 entity.DisableAlarms = item.DisableAlarms;
+                await UpsertPackagingAsync(dbContext, itemId, item.Packagings?.LastOrDefault(), ct);
 
                 await dbContext.SaveChangesAsync(ct);
             }, ct);
+        }
+
+        /// <summary>
+        /// Actualiza el embalaje del artículo sobre la instancia ya rastreada (o lo agrega si no existe).
+        /// Reasignar la colección provocaba "another instance with the same key value for PackagingId is already being tracked".
+        /// </summary>
+        private static async Task UpsertPackagingAsync(AldebaranDbContext dbContext, int itemId, Packaging? packaging, CancellationToken ct)
+        {
+            if (packaging == null)
+                return;
+
+            var current = await dbContext.Packagings.FirstOrDefaultAsync(x => x.ItemId == itemId, ct);
+            if (current == null)
+            {
+                dbContext.Packagings.Add(new Packaging
+                {
+                    ItemId = itemId,
+                    Weight = packaging.Weight,
+                    Height = packaging.Height,
+                    Width = packaging.Width,
+                    Length = packaging.Length,
+                    Quantity = packaging.Quantity
+                });
+                return;
+            }
+
+            current.Weight = packaging.Weight;
+            current.Height = packaging.Height;
+            current.Width = packaging.Width;
+            current.Length = packaging.Length;
+            current.Quantity = packaging.Quantity;
         }
 
         public async Task<(IEnumerable<Item> Items, int count)> GetAsync(int skip, int take, string filter, string orderBy, CancellationToken ct = default)
@@ -183,10 +217,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 {
                     query = query.Where(filter);
                 }
-                if (!string.IsNullOrEmpty(orderBy))
-                {
-                    query = query.OrderBy(orderBy);
-                }
+                query = string.IsNullOrEmpty(orderBy) ? query.OrderBy(i => i.ItemId) : query.OrderBy(orderBy);
                 var count = query.Count();
                 var data = await query.Skip(skip).Take(take).ToListAsync(ct);
                 return (data, count);

@@ -1,4 +1,4 @@
-﻿using Aldebaran.DataAccess.Core;
+using Aldebaran.DataAccess.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;

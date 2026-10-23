@@ -1,4 +1,4 @@
-﻿using Aldebaran.Application.Services.Models;
+using Aldebaran.Application.Services.Models;
 using Aldebaran.Application.Services.Notificator;
 using Aldebaran.Application.Services.Notificator.Model;
 using Aldebaran.Application.Services.NotificationsAccessToken;
@@ -96,6 +96,7 @@ namespace Aldebaran.Application.Services.InventoryMinimumAlerts
                     AlarmId = x.AlarmId,
                     ArticleName = x.ArticleName,
                     ImagePath = GetImagePath(x.ArticleName),
+                    IsBombPrice = x.IsBombPrice,
                     ReferenceId = x.ReferenceId,
                     AvailableQuantity = x.AvailableQuantity,
                     MinimumQuantity = x.MinimumQuantity,

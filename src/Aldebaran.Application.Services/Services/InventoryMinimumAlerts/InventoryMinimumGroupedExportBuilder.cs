@@ -14,6 +14,7 @@ namespace Aldebaran.Application.Services.InventoryMinimumAlerts
     internal static class InventoryMinimumGroupedExportBuilder
     {
         private const string InAlarmText = "Sí";
+        private const string BombPriceBadgeText = "$ BOMBA";
 
         public static List<InventoryMinimumGroupedExportDto> Build(IReadOnlyCollection<InventoryMinimumDto> alarms, IReadOnlyList<ArticleAlarmGroup> groups)
         {
@@ -31,6 +32,7 @@ namespace Aldebaran.Application.Services.InventoryMinimumAlerts
 
             var parent = alarmReference is null ? FromAlarmOnly(alarm) : FromInventory(alarmReference, alarm.ArticleName);
             parent.ImagePath = alarm.ImagePath;
+            parent.ImageBadge = alarm.IsBombPrice ? BombPriceBadgeText : null;
             parent.InAlarm = InAlarmText;
             parent.MinimumQuantity = alarm.MinimumQuantity;
             parent.Children = group.Inventory.Select(row => BuildChild(row, minimumByReference)).ToList();
