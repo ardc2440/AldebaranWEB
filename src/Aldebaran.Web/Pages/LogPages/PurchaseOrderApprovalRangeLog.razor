@@ -1,0 +1,49 @@
+@page "/purchase_order_approval_range_log"
+@attribute [Authorize(Roles = "Administrador,Log de ordenes de compra")]
+@using Aldebaran.Web.Resources.LocalizedControls;
+@using Aldebaran.Application.Services.Models.PurchaseOrderLogs;
+@inherits DateRangeLogPage<ApprovalRangeLogItem>
+@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer;
+
+<PageTitle>Log de tolerancias de ajustes de órdenes de compra</PageTitle>
+
+<RadzenStack>
+        <RadzenText Text="Log de tolerancias de ajustes de órdenes de compra" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@(!string.IsNullOrEmpty(errorMessage))" AllowClose="false">
+            @errorMessage
+        </RadzenAlert>
+        <RadzenRow AlignItems="AlignItems.End" Gap="1rem">
+            <RadzenColumn SizeMD="2">
+                <RadzenFormField Text="Desde" Variant="Variant.Text" Style="width: 100%;">
+                    <RadzenDatePicker TValue="DateTime?" DateFormat="@SharedLocalizer["date:format"]" @bind-Value="@dateFrom" Change="@(async _ => await ApplyFiltersAsync())" style="display: block; width: 100%" />
+                </RadzenFormField>
+            </RadzenColumn>
+            <RadzenColumn SizeMD="2">
+                <RadzenFormField Text="Hasta" Variant="Variant.Text" Style="width: 100%;">
+                    <RadzenDatePicker TValue="DateTime?" DateFormat="@SharedLocalizer["date:format"]" @bind-Value="@dateTo" Change="@(async _ => await ApplyFiltersAsync())" style="display: block; width: 100%" />
+                </RadzenFormField>
+            </RadzenColumn>
+            <RadzenColumn SizeMD="8">
+                <RadzenTextBox Placeholder="Buscar motivo o empleado ..." style="display: block; width: 100%" @oninput="@Search" />
+            </RadzenColumn>
+        </RadzenRow>
+        <LocalizedDataGrid @ref="logGrid" Count="@count" LoadData="@LoadData" Data="@items" TItem="ApprovalRangeLogItem" IsLoading="@isLoading"
+                           AllowPaging="true" ShowPagingSummary="true" PageSize="20" PageSizeOptions=@(new int[]{10, 20, 30, 50}) AllowColumnResize="true">
+            <Columns>
+                <RadzenDataGridColumn TItem="ApprovalRangeLogItem" Property="EventDate" Title="Fecha del cambio" Width="13%">
+                    <Template Context="row"><span>@row.EventDate.ToString(SharedLocalizer["datetime:format"])</span></Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="ApprovalRangeLogItem" Title="Rango de cantidades" Width="17%" Sortable="false">
+                    <Template Context="row"><span>@row.Previous.Range</span> <RadzenIcon Icon="arrow_forward" Style="font-size: 0.9rem; vertical-align: middle" /> <span style="@(row.Previous.Range == row.Current.Range ? "" : "font-weight: bold")">@row.Current.Range</span></Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="ApprovalRangeLogItem" Title="% permitido" Width="13%" Sortable="false">
+                    <Template Context="row"><span>@row.Previous.Percent.ToString("0.##")</span> <RadzenIcon Icon="arrow_forward" Style="font-size: 0.9rem; vertical-align: middle" /> <span style="@(row.Previous.Percent.ToString("0.##") == row.Current.Percent.ToString("0.##") ? "" : "font-weight: bold")">@row.Current.Percent.ToString("0.##")</span></Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="ApprovalRangeLogItem" Title="Activo" Width="10%" Sortable="false">
+                    <Template Context="row"><span>@(row.Previous.IsActive ? "Sí" : "No")</span> <RadzenIcon Icon="arrow_forward" Style="font-size: 0.9rem; vertical-align: middle" /> <span style="@((row.Previous.IsActive ? "Sí" : "No") == (row.Current.IsActive ? "Sí" : "No") ? "" : "font-weight: bold")">@(row.Current.IsActive ? "Sí" : "No")</span></Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="ApprovalRangeLogItem" Property="ChangeReason" Title="Motivo" Width="30%" />
+                <RadzenDataGridColumn TItem="ApprovalRangeLogItem" Property="EmployeeName" Title="Realizado por" Width="17%" />
+            </Columns>
+        </LocalizedDataGrid>
+</RadzenStack>

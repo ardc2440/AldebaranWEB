@@ -282,6 +282,38 @@ namespace Aldebaran.DataAccess
                 e.Property(x => x.ModifierName).HasColumnName("MODIFIER_NAME");
                 e.Property(x => x.TotalRows).HasColumnName("TOTAL_ROWS");
             });
+            modelBuilder.Entity<PurchaseOrderAdjustmentRequestEntry>(e =>
+            {
+                e.HasNoKey();
+                e.Property(x => x.RequestId).HasColumnName("REQUEST_ID");
+                e.Property(x => x.RequestDate).HasColumnName("REQUEST_DATE");
+                e.Property(x => x.PurchaseOrderId).HasColumnName("PURCHASE_ORDER_ID");
+                e.Property(x => x.OrderNumber).HasColumnName("ORDER_NUMBER");
+                e.Property(x => x.ProviderName).HasColumnName("PROVIDER_NAME");
+                e.Property(x => x.RequestedBy).HasColumnName("REQUESTED_BY");
+                e.Property(x => x.Result).HasColumnName("RESULT");
+                e.Property(x => x.ResolutionDate).HasColumnName("RESOLUTION_DATE");
+                e.Property(x => x.ResolvedBy).HasColumnName("RESOLVED_BY");
+                e.Property(x => x.Reason).HasColumnName("REASON");
+                e.Property(x => x.TotalRows).HasColumnName("TOTAL_ROWS");
+            });
+            modelBuilder.Entity<ApprovalRangeLogEntry>(e =>
+            {
+                e.HasNoKey();
+                e.Property(x => x.LogId).HasColumnName("LOG_ID");
+                e.Property(x => x.EventDate).HasColumnName("EVENT_DATE");
+                e.Property(x => x.PreviousQuantityFrom).HasColumnName("PREVIOUS_REQUESTED_QUANTITY_FROM");
+                e.Property(x => x.PreviousQuantityTo).HasColumnName("PREVIOUS_REQUESTED_QUANTITY_TO");
+                e.Property(x => x.PreviousPercent).HasColumnName("PREVIOUS_ALLOWED_DIFFERENCE_PERCENT").HasPrecision(18, 2);
+                e.Property(x => x.PreviousIsActive).HasColumnName("PREVIOUS_IS_ACTIVE");
+                e.Property(x => x.QuantityFrom).HasColumnName("REQUESTED_QUANTITY_FROM");
+                e.Property(x => x.QuantityTo).HasColumnName("REQUESTED_QUANTITY_TO");
+                e.Property(x => x.Percent).HasColumnName("ALLOWED_DIFFERENCE_PERCENT").HasPrecision(18, 2);
+                e.Property(x => x.IsActive).HasColumnName("IS_ACTIVE");
+                e.Property(x => x.ChangeReason).HasColumnName("CHANGE_REASON");
+                e.Property(x => x.EmployeeName).HasColumnName("EMPLOYEE_NAME");
+                e.Property(x => x.TotalRows).HasColumnName("TOTAL_ROWS");
+            });
             modelBuilder.Entity<OrderDocumentLogEntry>(e =>
             {
                 e.HasNoKey();

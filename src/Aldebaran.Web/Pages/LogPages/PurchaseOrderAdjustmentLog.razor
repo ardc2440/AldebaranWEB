@@ -1,0 +1,55 @@
+@page "/purchase_order_adjustment_log"
+@attribute [Authorize(Roles = "Administrador,Log de ordenes de compra")]
+@using Aldebaran.Web.Resources.LocalizedControls;
+@using Aldebaran.Application.Services.Models.PurchaseOrderLogs;
+@inherits DateRangeLogPage<PurchaseOrderAdjustmentRequestItem>
+@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer;
+
+<PageTitle>Log de solicitudes de ajustes de órdenes de compra</PageTitle>
+
+<RadzenStack>
+        <RadzenText Text="Log de solicitudes de ajustes de órdenes de compra" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@(!string.IsNullOrEmpty(errorMessage))" AllowClose="false">
+            @errorMessage
+        </RadzenAlert>
+        <RadzenRow AlignItems="AlignItems.End" Gap="1rem">
+            <RadzenColumn SizeMD="2">
+                <RadzenFormField Text="Desde" Variant="Variant.Text" Style="width: 100%;">
+                    <RadzenDatePicker TValue="DateTime?" DateFormat="@SharedLocalizer["date:format"]" @bind-Value="@dateFrom" Change="@(async _ => await ApplyFiltersAsync())" style="display: block; width: 100%" />
+                </RadzenFormField>
+            </RadzenColumn>
+            <RadzenColumn SizeMD="2">
+                <RadzenFormField Text="Hasta" Variant="Variant.Text" Style="width: 100%;">
+                    <RadzenDatePicker TValue="DateTime?" DateFormat="@SharedLocalizer["date:format"]" @bind-Value="@dateTo" Change="@(async _ => await ApplyFiltersAsync())" style="display: block; width: 100%" />
+                </RadzenFormField>
+            </RadzenColumn>
+            <RadzenColumn SizeMD="8">
+                <RadzenTextBox Placeholder="Buscar orden, proveedor, empleado, resultado o motivo ..." style="display: block; width: 100%" @oninput="@Search" />
+            </RadzenColumn>
+        </RadzenRow>
+        <LocalizedDataGrid @ref="logGrid" Count="@count" LoadData="@LoadData" Data="@items" TItem="PurchaseOrderAdjustmentRequestItem" IsLoading="@isLoading"
+                           AllowPaging="true" ShowPagingSummary="true" PageSize="20" PageSizeOptions=@(new int[]{10, 20, 30, 50}) AllowColumnResize="true">
+            <Columns>
+                <RadzenDataGridColumn TItem="PurchaseOrderAdjustmentRequestItem" Property="OrderNumber" Title="Orden de compra" Width="10%">
+                    <Template Context="row">
+                        <RadzenLink href="javascript:void(0);" @onclick="@(async () => await ShowPurchaseOrderAsync(row.PurchaseOrderId))">@row.OrderNumber</RadzenLink>
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="PurchaseOrderAdjustmentRequestItem" Property="ProviderName" Title="Proveedor" Width="18%" />
+                <RadzenDataGridColumn TItem="PurchaseOrderAdjustmentRequestItem" Property="RequestDate" Title="Fecha de solicitud" Width="12%">
+                    <Template Context="row"><span>@row.RequestDate.ToString(SharedLocalizer["datetime:format"])</span></Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="PurchaseOrderAdjustmentRequestItem" Property="RequestedBy" Title="Solicitada por" Width="13%" />
+                <RadzenDataGridColumn TItem="PurchaseOrderAdjustmentRequestItem" Property="Result" Title="Resultado" Width="9%">
+                    <Template Context="row">
+                        <RadzenBadge BadgeStyle="@(row.Result == "Aprobada" ? BadgeStyle.Success : row.Result == "Devuelta" ? BadgeStyle.Warning : BadgeStyle.Info)" Text="@row.Result" />
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="PurchaseOrderAdjustmentRequestItem" Property="ResolutionDate" Title="Fecha de resolución" Width="12%">
+                    <Template Context="row"><span>@row.ResolutionDate?.ToString(SharedLocalizer["datetime:format"])</span></Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="PurchaseOrderAdjustmentRequestItem" Property="ResolvedBy" Title="Resuelta por" Width="13%" />
+                <RadzenDataGridColumn TItem="PurchaseOrderAdjustmentRequestItem" Property="Reason" Title="Motivo de la resolución" Width="13%" />
+            </Columns>
+        </LocalizedDataGrid>
+</RadzenStack>
