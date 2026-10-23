@@ -276,10 +276,18 @@ namespace Aldebaran.DataAccess
                 e.Property(x => x.EntityName).HasColumnName("ENTITY_NAME");
                 e.Property(x => x.EntityDisplayName).HasColumnName("ENTITY_DISPLAY_NAME");
                 e.Property(x => x.EntityKey).HasColumnName("ENTITY_KEY");
+                e.Property(x => x.RecordDescription).HasColumnName("RECORD_DESCRIPTION");
                 e.Property(x => x.Action).HasColumnName("ACTION");
                 e.Property(x => x.ModifiedDate).HasColumnName("MODIFIED_DATE");
                 e.Property(x => x.ModifierName).HasColumnName("MODIFIER_NAME");
                 e.Property(x => x.TotalRows).HasColumnName("TOTAL_ROWS");
+            });
+            modelBuilder.Entity<TrackFieldName>(e =>
+            {
+                e.HasNoKey();
+                e.Property(x => x.FieldName).HasColumnName("FIELD_NAME");
+                e.Property(x => x.DisplayName).HasColumnName("DISPLAY_NAME");
+                e.Property(x => x.IsTechnical).HasColumnName("IS_TECHNICAL");
             });
             modelBuilder.Entity<TrackObjectType>(e =>
             {

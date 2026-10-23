@@ -12,17 +12,25 @@
             No hay un movimiento anterior registrado para este registro: se muestran los valores nuevos.
         </RadzenAlert>
     }
-    @if (detail != null && detail.Action == TrackAction.Modified && detail.HasPrevious)
-    {
+    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="1.5rem">
+        @if (detail != null && detail.Action == TrackAction.Modified && detail.HasPrevious)
+        {
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                <RadzenSwitch @bind-Value="@onlyChanges" />
+                <RadzenLabel Text="Solo campos que cambiaron" />
+            </RadzenStack>
+        }
         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
-            <RadzenSwitch @bind-Value="@onlyChanges" />
-            <RadzenLabel Text="Solo campos que cambiaron" />
+            <RadzenSwitch @bind-Value="@showTechnical" />
+            <RadzenLabel Text="Ver campos técnicos" />
         </RadzenStack>
-    }
+    </RadzenStack>
     <LocalizedDataGrid Data="@VisibleChanges" TItem="TrackChange" IsLoading="@isLoading" AllowPaging="true" PageSize="15" AllowColumnResize="true"
                        RowRender="@RowRender">
         <Columns>
-            <RadzenDataGridColumn TItem="TrackChange" Property="Field" Title="Campo" Width="30%" />
+            <RadzenDataGridColumn TItem="TrackChange" Property="Name" Title="Campo" Width="30%">
+                <Template Context="change"><span title="@change.Field">@change.Name</span></Template>
+            </RadzenDataGridColumn>
             <RadzenDataGridColumn TItem="TrackChange" Property="PreviousValue" Title="Anterior" Width="35%" />
             <RadzenDataGridColumn TItem="TrackChange" Property="NewValue" Title="Nuevo" Width="35%" />
         </Columns>

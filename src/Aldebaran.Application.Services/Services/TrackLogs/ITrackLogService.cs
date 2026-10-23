@@ -19,6 +19,6 @@ namespace Aldebaran.Application.Services.TrackLogs
         Task<PagedResult<TrackEntry>> GetEntriesAsync(TrackLogFilter filter, int skip, int take, CancellationToken ct = default);
 
         /// <summary>Detalle campo / anterior / nuevo de un movimiento, con la descripción de los Id conocidos (null si no existe).</summary>
-        Task<TrackDetail?> GetDetailAsync(long id, CancellationToken ct = default);
+        Task<TrackDetail?> GetDetailAsync(long id, string entityName, CancellationToken ct = default);
     }
 }

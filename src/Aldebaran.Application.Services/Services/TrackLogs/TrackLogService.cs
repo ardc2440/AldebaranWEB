@@ -56,7 +56,7 @@ namespace Aldebaran.Application.Services.TrackLogs
                 : new PagedResult<TrackEntry>(rows.Select(ToModel).ToList(), rows[0].TotalRows);
         }
 
-        public async Task<TrackDetail?> GetDetailAsync(long id, CancellationToken ct = default)
+        public async Task<TrackDetail?> GetDetailAsync(long id, string entityName, CancellationToken ct = default)
         {
             if (id <= 0)
                 return null;
@@ -66,7 +66,8 @@ namespace Aldebaran.Application.Services.TrackLogs
                 return null;
 
             var descriptions = await _repository.GetObjectDescriptionsAsync(id, ct);
-            return ToDetail(row, TrackObjectLabels.From(descriptions));
+            var fieldNames = string.IsNullOrWhiteSpace(entityName) ? Enumerable.Empty<Entities.TrackFieldName>() : await _repository.GetFieldNamesAsync(entityName, ct);
+            return ToDetail(row, TrackObjectLabels.From(descriptions), TrackFieldLabels.From(fieldNames));
         }
 
         /* ---------- Reglas del caso de uso ---------- */
@@ -87,16 +88,17 @@ namespace Aldebaran.Application.Services.TrackLogs
         /* ---------- Mapeos ---------- */
 
         private static TrackEntry ToModel(Entities.TrackLogEntry row) =>
-            new(row.Id, row.EntityName, row.EntityDisplayName, TrackDataParser.FormatKey(row.EntityKey),
+            new(row.Id, row.EntityName, row.EntityDisplayName,
+                string.IsNullOrWhiteSpace(row.RecordDescription) ? TrackDataParser.FormatKey(row.EntityKey) : row.RecordDescription,
                 TrackActionCodes.FromCode(row.Action), row.ModifiedDate, row.ModifierName);
 
-        private static TrackDetail ToDetail(Entities.TrackLogDetail row, TrackObjectLabels labels)
+        private static TrackDetail ToDetail(Entities.TrackLogDetail row, TrackObjectLabels labels, TrackFieldLabels fieldLabels)
         {
             var action = TrackActionCodes.FromCode(row.Action);
             var current = TrackDataParser.Parse(row.DataLog);
             var previous = row.PreviousDataLog == null ? null : TrackDataParser.Parse(row.PreviousDataLog);
 
-            var changes = TrackDiff.Build(action, current, previous).Select(labels.Apply).ToList();
+            var changes = TrackDiff.Build(action, current, previous).Select(labels.Apply).Select(fieldLabels.Apply).ToList();
             return new TrackDetail(row.Id, action, previous != null, changes);
         }
     }

@@ -20,6 +20,9 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         /// <summary>Datos del movimiento y del anterior de la misma entidad y llave (null si no existe).</summary>
         Task<TrackLogDetail?> GetDetailAsync(long id, CancellationToken ct = default);
 
+        /// <summary>Nombres para el usuario de los campos de una entidad (los no registrados no vienen).</summary>
+        Task<IEnumerable<TrackFieldName>> GetFieldNamesAsync(string entityName, CancellationToken ct = default);
+
         /// <summary>Descripción de los Id de objetos que aparecen en el movimiento y en el anterior.</summary>
         Task<IEnumerable<TrackObjectDescription>> GetObjectDescriptionsAsync(long id, CancellationToken ct = default);
     }

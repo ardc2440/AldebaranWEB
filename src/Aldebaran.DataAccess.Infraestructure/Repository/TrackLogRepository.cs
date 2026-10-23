@@ -44,6 +44,9 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             return rows.FirstOrDefault();
         }
 
+        public async Task<IEnumerable<TrackFieldName>> GetFieldNamesAsync(string entityName, CancellationToken ct = default) =>
+            await QueryAsync<TrackFieldName>("EXEC dbo.SP_GET_TRACK_FIELD_NAMES @EntityName", new[] { new SqlParameter("@EntityName", SqlDbType.NVarChar, 200) { Value = entityName } }, ct);
+
         public async Task<IEnumerable<TrackObjectDescription>> GetObjectDescriptionsAsync(long id, CancellationToken ct = default) =>
             await QueryAsync<TrackObjectDescription>("EXEC dbo.SP_GET_TRACK_OBJECT_DESCRIPTIONS @Id", new[] { new SqlParameter("@Id", SqlDbType.BigInt) { Value = id } }, ct);
 

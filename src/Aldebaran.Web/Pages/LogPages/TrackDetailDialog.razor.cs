@@ -15,19 +15,21 @@ namespace Aldebaran.Web.Pages.LogPages
 
         protected TrackDetail detail;
         protected bool onlyChanges = true;
+        protected bool showTechnical;
         protected bool isLoading;
 
         protected IEnumerable<TrackChange> VisibleChanges =>
             detail == null ? Array.Empty<TrackChange>()
-            : onlyChanges && detail.Action == TrackAction.Modified && detail.HasPrevious ? detail.Changes.Where(c => c.Changed)
-            : detail.Changes;
+            : detail.Changes
+                .Where(c => showTechnical || !c.IsTechnical)
+                .Where(c => !(onlyChanges && detail.Action == TrackAction.Modified && detail.HasPrevious) || c.Changed);
 
         protected override async Task OnInitializedAsync()
         {
             try
             {
                 isLoading = true;
-                detail = await TrackLogService.GetDetailAsync(Entry.Id);
+                detail = await TrackLogService.GetDetailAsync(Entry.Id, Entry.EntityName);
             }
             catch (Exception ex)
             {

@@ -7,6 +7,7 @@ namespace Aldebaran.DataAccess.Entities
         public string EntityName { get; set; } = string.Empty;
         public string EntityDisplayName { get; set; } = string.Empty;
         public string? EntityKey { get; set; }
+        public string? RecordDescription { get; set; }
         public string Action { get; set; } = string.Empty;
         public DateTime ModifiedDate { get; set; }
         public string ModifierName { get; set; } = string.Empty;
