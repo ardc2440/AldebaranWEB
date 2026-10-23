@@ -1,0 +1,18 @@
+RQM Complemento Consulta de Logs - Scripts de despliegue a produccion
+=====================================================================
+Ejecutar en este orden, sobre la BD Aldebaran (todos son re-ejecutables):
+
+01 - Indices Log y Track.sql                 (T1)  Indices en log.Logs y log.track
+02 - Ofuscar historico Track.sql             (T2)  Correccion masiva: enmascara credenciales en el historico de log.track
+03 - Consulta visualizacion de alarmas.sql   (T3)  Tabla de tipos, vistas, SPs de consulta y roles nuevos
+04 - Alarmas inventario estandar y log.sql   (T3b) Ciclo de vida estandar de alarmas de inventario + INVENTORY_ALARM_LOG
+                                                   (respalda definiciones originales en RQM_LOGS_OBJECT_BACKUP)
+05 - Job verificacion alarmas log.sql        (T3c) El job 'Verificacion Alarmas' registra sus inactivaciones en el log
+                                                   (requiere permisos en msdb; misma logica del job)
+
+Reversa\04 - Reversa alarmas inventario.sql   Restaura SPs/triggers originales desde el respaldo (conserva el log)
+Reversa\05 - Reversa job verificacion alarmas.sql  Restaura los pasos originales del job
+
+Notas:
+- Despues del despliegue de BD se publica la version de la aplicacion correspondiente.
+- Los scripts de la carpeta ..\Pruebas son solo para validacion en el ambiente de pruebas; NO se ejecutan en produccion.
