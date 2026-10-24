@@ -17,7 +17,7 @@
     <RadzenRow AlignItems="AlignItems.End" Gap="1rem">
         <RadzenColumn SizeMD="3">
             <RadzenFormField Text="Código" Variant="Variant.Text" Style="width: 100%;">
-                <RadzenTextBox @bind-Value="@code" MaxLength="@InternalReferenceCodeRules.MaxCodeLength" Name="Code" style="display: block; width: 100%; text-transform: uppercase;" />
+                <RadzenTextBox @bind-Value="@referenceCode" MaxLength="@InternalReferenceCodeRules.MaxCodeLength" Name="Code" style="display: block; width: 100%; text-transform: uppercase;" />
             </RadzenFormField>
         </RadzenColumn>
         <RadzenColumn SizeMD="2">

@@ -25,7 +25,7 @@ namespace Aldebaran.Web.Pages.ItemPages
 
         #region Variables
 
-        protected string code;
+        protected string referenceCode;
         protected int quantity = 1;
         protected IReadOnlyList<InternalReferenceConsecutive> consecutives;
         protected IReadOnlyList<InternalReferenceNonconforming> nonconforming;
@@ -40,7 +40,7 @@ namespace Aldebaran.Web.Pages.ItemPages
         /// <summary>Consecutivos generados para el código que aún no usa ningún artículo.</summary>
         protected async Task ConsultAsync()
         {
-            var normalized = InternalReferenceCodeRules.Normalize(code);
+            var normalized = InternalReferenceCodeRules.Normalize(referenceCode);
             await RunAsync(async () =>
             {
                 consecutives = await InternalReferenceConsecutiveService.GetAvailableAsync(normalized);
@@ -54,7 +54,7 @@ namespace Aldebaran.Web.Pages.ItemPages
         /// <summary>Completa hasta la cantidad requerida de disponibles (crea solo los que faltan), previa confirmación.</summary>
         protected async Task GenerateAsync()
         {
-            var normalized = InternalReferenceCodeRules.Normalize(code);
+            var normalized = InternalReferenceCodeRules.Normalize(referenceCode);
             var error = InternalReferenceCodeRules.ValidateCode(normalized) ?? InternalReferenceCodeRules.ValidateQuantity(quantity);
             if (error != null)
             {
@@ -91,7 +91,7 @@ namespace Aldebaran.Web.Pages.ItemPages
             {
                 isBusy = true;
                 errorMessage = null;
-                code = InternalReferenceCodeRules.Normalize(code);
+                referenceCode = InternalReferenceCodeRules.Normalize(referenceCode);
                 await action();
             }
             catch (ArgumentException ex)
