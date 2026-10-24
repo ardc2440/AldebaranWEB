@@ -8,10 +8,10 @@
      referencia interna de un artículo se eliminan (SP_PURGE_USED_...) al Consultar y al Generar.
    - SP_GET_AVAILABLE_INTERNAL_REFERENCE_CONSECUTIVES: depura y devuelve los disponibles.
    - SP_GENERATE_INTERNAL_REFERENCE_CONSECUTIVES: completa hasta @Quantity disponibles; los nuevos siguen al
-     mayor entre los disponibles y los usados en items (formato exacto CÓDIGO-NNN) + 1. Transaccional y con
+     mayor entre los disponibles y los usados en items + 1. Transaccional y con
      bloqueo por código (dos usuarios nunca reciben el mismo número).
-   El código se compara por posición (no con LIKE) para que caracteres como '_', '%' o '[' no actúen
-   como comodines. No modifica la creación de artículos.
+   Uso en artículos: LIKE 'CÓDIGO-%' + bloque de 2 o 3 dígitos (ver FN_INTERNAL_REFERENCE_USED_CONSECUTIVES).
+   No modifica la creación de artículos.
    Script re-ejecutable. Reversa: Reversa\20 - Reversa consecutivos de referencia interna.sql
    ===================================================================================== */
 SET NOCOUNT ON;
@@ -35,17 +35,22 @@ IF OBJECT_ID('dbo.INTERNAL_REFERENCE_CONSECUTIVES') IS NULL
     );
 GO
 
-/* Referencias internas de artículos con formato exacto CÓDIGO-NNN para un código */
+/* Consecutivos usados en items para un código.
+   Se buscan las referencias con LIKE 'CÓDIGO-%' (el código se escapa para que '%', '_' y '[' no sean comodines;
+   el guion evita mezclar MU con MUX). Después del guion va un bloque de 2 o 3 dígitos que puede terminar ahí o
+   seguir con '-' y un complemento: MU-001, MU-001-1, MU-001-02, MU-001-X => 1. Las referencias actuales de
+   2 dígitos (MU-25, MU-25-1) equivalen a 025. Se devuelve el valor numérico. */
 CREATE OR ALTER FUNCTION dbo.FN_INTERNAL_REFERENCE_USED_CONSECUTIVES (@Code VARCHAR(6))
 RETURNS TABLE
 AS
 RETURN
-    SELECT TRY_CAST(SUBSTRING(i.INTERNAL_REFERENCE, LEN(@Code) + 2, 10) AS INT) AS CONSECUTIVE
+    SELECT TRY_CAST(d.DIGITS AS INT) AS CONSECUTIVE
       FROM dbo.items i
-     WHERE LEFT(i.INTERNAL_REFERENCE, LEN(@Code) + 1) = @Code + '-'
-       AND LEN(i.INTERNAL_REFERENCE) >= LEN(@Code) + 4
-       AND SUBSTRING(i.INTERNAL_REFERENCE, LEN(@Code) + 2, 10) NOT LIKE '%[^0-9]%'
-       AND LEN(SUBSTRING(i.INTERNAL_REFERENCE, LEN(@Code) + 2, 10)) BETWEEN 3 AND 9;
+     CROSS APPLY (SELECT SUBSTRING(i.INTERNAL_REFERENCE, LEN(@Code) + 2, 10) AS REST) r
+     CROSS APPLY (SELECT LEFT(r.REST, PATINDEX('%[^0-9]%', r.REST + 'x') - 1) AS DIGITS) d
+     WHERE i.INTERNAL_REFERENCE LIKE REPLACE(REPLACE(REPLACE(REPLACE(@Code, '\', '\\'), '%', '\%'), '_', '\_'), '[', '\[') + '-%' ESCAPE '\'
+       AND LEN(d.DIGITS) BETWEEN 2 AND 3
+       AND (LEN(r.REST) = LEN(d.DIGITS) OR SUBSTRING(r.REST, LEN(d.DIGITS) + 1, 1) = '-');
 GO
 
 /* Elimina los consecutivos que ya se usaron como referencia interna de un artículo: la tabla solo conserva disponibles */
