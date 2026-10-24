@@ -1,10 +1,10 @@
 @page "/add-customer-order-from-reservation/{CustomerReservationId}"
 
-@attribute [Authorize(Roles = "Administrador,Modificación de reservas")]
+@attribute [Authorize(Roles = "Administrador,ModificaciÃ³n de reservas")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
 
-<PageTitle>Pedido de artículos</PageTitle>
+<PageTitle>Pedido de artÃ­culos</PageTitle>
 <LoadingData IsLoadingData="@isLoadingInProgress" />
 
 @if (!isLoadingInProgress)
@@ -33,7 +33,7 @@
                                                 <RadzenLabel Text="@customerOrder.Customer.CustomerName" />
                                             </div>
                                             <div class="text-secondary-color">
-                                                <RadzenLabel Text="Teléfono: " />
+                                                <RadzenLabel Text="TelÃ©fono: " />
                                                 <span>@customerOrder.Customer.Phone1</span>
                                             </div>
                                             <div class="text-secondary-color">
@@ -46,7 +46,7 @@
                                                 </ul>
                                             </div>
                                             <div class="text-secondary-color">
-                                                <RadzenLabel Text="Dirección: " />
+                                                <RadzenLabel Text="DirecciÃ³n: " />
                                                 <span>@customerOrder.Customer.CustomerAddress</span>
                                             </div>
                                             <div class="text-secondary-color">
@@ -77,7 +77,16 @@
                                                               Change="()=> customerOrder.EstimatedDeliveryDate = customerOrder.EstimatedDeliveryDate < customerOrder.OrderDate ? customerOrder.OrderDate : customerOrder.EstimatedDeliveryDate" />
                                         </ChildContent>
                                         <Helper>
-                                            <RadzenRequiredValidator Component="ESTIMATED_DELIVERY_DATE" Text="La eecha pactada de entrega es requerida" />
+                                            <RadzenRequiredValidator Component="ESTIMATED_DELIVERY_DATE" Text="La fecha pactada de entrega es requerida" />
+                                        </Helper>
+                                    </RadzenFormField>
+                                    <RadzenFormField Text="Pedido especial" Variant="Variant.Text" Style="width: 100%;">
+                                        <ChildContent>
+                                            <RadzenDropDown TValue="bool?" @bind-Value="@isSpecialOrder" Data="@SpecialOrderOptions.Items" TextProperty="Text" ValueProperty="Value"
+                                                            Name="IS_SPECIAL_ORDER" Placeholder="Seleccione si es un pedido especial" style="display: block; width: 100%" />
+                                        </ChildContent>
+                                        <Helper>
+                                            <RadzenRequiredValidator Component="IS_SPECIAL_ORDER" Text="Debe indicar si es un pedido especial" />
                                         </Helper>
                                     </RadzenFormField>
                                     <RadzenFormField Text="Notas del cliente" Variant="Variant.Text" Style="width: 100%;">

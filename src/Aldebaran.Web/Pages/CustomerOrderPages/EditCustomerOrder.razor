@@ -60,14 +60,20 @@
                                     <RadzenRequiredValidator Component="ESTIMATED_DELIVERY_DATE" Text="La fecha pactada de entrega es requerida" />
                                 </Helper>
                             </RadzenFormField>
+                            <RadzenFormField Text="Pedido especial" Variant="Variant.Text" Style="width: 100%;">
+                                <ChildContent>
+                                    <RadzenDropDown TValue="bool" @bind-Value="@customerOrder.IsSpecialOrder" Data="@SpecialOrderOptions.Items" TextProperty="Text" ValueProperty="Value"
+                                                    Name="IS_SPECIAL_ORDER" Placeholder="Seleccione si es un pedido especial" TabIndex="3" style="display: block; width: 100%" />
+                                </ChildContent>
+                            </RadzenFormField>
                             <RadzenFormField Text="Notas del cliente" Variant="Variant.Text" Style="width: 100%;">
                                 <ChildContent>
-                                    <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerOrder.CustomerNotes" Name="CUSTOMER_NOTES" TabIndex="3" Rows="3" MaxLength="250" />
+                                    <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerOrder.CustomerNotes" Name="CUSTOMER_NOTES" TabIndex="4" Rows="3" MaxLength="250" />
                                 </ChildContent>
                             </RadzenFormField>
                             <RadzenFormField Text="Notas internas" Variant="Variant.Text" Style="width: 100%;">
                                 <ChildContent>
-                                    <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerOrder.InternalNotes" Name="INTERNAL_NOTES" TabIndex="4" Rows="3" MaxLength="250" />
+                                    <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerOrder.InternalNotes" Name="INTERNAL_NOTES" TabIndex="5" Rows="3" MaxLength="250" />
                                 </ChildContent>
                             </RadzenFormField>
                         </RadzenStack>

@@ -1,4 +1,4 @@
-﻿using Aldebaran.DataAccess.Entities;
+using Aldebaran.DataAccess.Entities;
 using Aldebaran.DataAccess.Infraestructure.Models;
 using Aldebaran.Infraestructure.Common.Utils;
 using Microsoft.EntityFrameworkCore;
@@ -29,6 +29,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     StatusDocumentTypeId = customerOrder.StatusDocumentTypeId,
                     InternalNotes = customerOrder.InternalNotes,
                     OrderNumber = customerOrder.OrderNumber,
+                    IsSpecialOrder = customerOrder.IsSpecialOrder,
                     CustomerOrderDetails = new List<CustomerOrderDetail>()
                 };
 
@@ -182,6 +183,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 entity.CustomerId = customerOrder.CustomerId;
                 entity.InternalNotes = customerOrder.InternalNotes;
                 entity.CustomerNotes = customerOrder.CustomerNotes;
+                entity.IsSpecialOrder = customerOrder.IsSpecialOrder;
 
                 foreach (var item in entity.CustomerOrderDetails)
                     if (!customerOrder.CustomerOrderDetails.Any(i => i.CustomerOrderDetailId == item.CustomerOrderDetailId))

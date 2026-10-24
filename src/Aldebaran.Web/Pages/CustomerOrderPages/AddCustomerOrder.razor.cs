@@ -1,4 +1,4 @@
-﻿using Aldebaran.Application.Services;
+using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Aldebaran.Web.Shared;
@@ -47,6 +47,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         #region Global Variables
 
         protected CustomerOrder customerOrder;
+        protected bool? isSpecialOrder;
         protected DocumentType documentType;
         protected ICollection<CustomerOrderDetail> customerOrderDetails;
         protected LocalizedDataGrid<CustomerOrderDetail> customerOrderDetailGrid;
@@ -135,6 +136,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 if (await DialogService.Confirm("Está seguro que desea crear este pedido de artículos?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar creación") == true)
                 {
                     customerOrder.CustomerOrderDetails = customerOrderDetails;
+                    customerOrder.IsSpecialOrder = isSpecialOrder.Value;
                     customerOrder = await CustomerOrderService.AddAsync(customerOrder);
 
                     var result = await DialogService.OpenAsync<CustomerOrderSummary>(null, new Dictionary<string, object> { { "Id", customerOrder.CustomerOrderId }, { "NotificationTemplateName", "Customer:Order:New" } }, options: new DialogOptions { ShowTitle = false, ShowClose = false, CloseDialogOnEsc = false, CloseDialogOnOverlayClick = false, Width = "800px" });

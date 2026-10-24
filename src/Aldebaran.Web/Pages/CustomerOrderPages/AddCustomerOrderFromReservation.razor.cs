@@ -66,6 +66,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected string Error;
         protected CustomerReservation customerReservation;
         protected CustomerOrder customerOrder;
+        protected bool? isSpecialOrder;
         protected DocumentType documentType;
         protected ICollection<CustomerOrderDetail> customerOrderDetails;
         protected LocalizedDataGrid<CustomerOrderDetail> customerOrderDetailGrid;
@@ -96,7 +97,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 customerReservation = await CustomerReservationService.FindAsync(customerReservationId) ?? throw new Exception("No ha seleccionado una Reservacion Valida");
 
                 if (!customerReservation.CustomerReservationDetails.Any(cd => cd.SendToCustomerOrder))
-                    throw new Exception("La reserva seleccionada no posee artÌculos para incluir en el pedido");
+                    throw new Exception("La reserva seleccionada no posee art√≠culos para incluir en el pedido");
 
                 await ChargeCustomerOrderModel();
             }
@@ -170,6 +171,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                     throw new Exception("No ha ingresado ninguna referencia");
 
                 customerOrder.CustomerOrderDetails = customerOrderDetails;
+                customerOrder.IsSpecialOrder = isSpecialOrder.Value;
 
                 customerOrder = await CustomerOrderService.AddAsync(customerOrder);
 
@@ -197,7 +199,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         {
             try
             {
-                if (await DialogService.Confirm("Est· seguro que desea cancelar la creaciÛn del Pedido?", "Confirmar") == true)
+                if (await DialogService.Confirm("Est√° seguro que desea cancelar la creaci√≥n del Pedido?", "Confirmar") == true)
                 {
                     if (!int.TryParse(CustomerReservationId, out var customerReservationId))
                         throw new Exception("El Id de referencia recibido no es valido");
