@@ -215,19 +215,19 @@
         }
         @if (ValidationConfirmedDate)
         {
-            <div class="rz-message rz-messages-error">Debe seleccionar fecha de creación inicial y fecha de creación final</div>
+            <div class="rz-message rz-messages-error">Debe seleccionar fecha de confirmación inicial y fecha de confirmación final</div>
         }
         @if (ValidationReceiptDate)
         {
-            <div class="rz-message rz-messages-error">Debe seleccionar fecha de solicitud inicial y fecha de solicitud final</div>
+            <div class="rz-message rz-messages-error">Debe seleccionar fecha de recibo inicial y fecha de recibo final</div>
         }
         @if (ValidationEstimatedDeliveryDate)
         {
-            <div class="rz-message rz-messages-error">Debe seleccionar fecha esperada de recepción inicial y fecha esperada de recepción final</div>
+            <div class="rz-message rz-messages-error">Debe seleccionar fecha estimada de entrega inicial y fecha estimada de entrega final</div>
         }
         @if (ValidationOrderDate)
         {
-            <div class="rz-message rz-messages-error">Debe seleccionar fecha esperada de recepción inicial y fecha esperada de recepción final</div>
+            <div class="rz-message rz-messages-error">Debe seleccionar fecha de pedido inicial y fecha de pedido final</div>
         }        
         <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
             <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="filter_alt" Text="Filtrar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />

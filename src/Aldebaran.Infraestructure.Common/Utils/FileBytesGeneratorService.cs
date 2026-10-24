@@ -35,14 +35,18 @@ namespace Aldebaran.Infraestructure.Common.Utils
                 foreach (var column in columns)
                 {
                     var valueX = GetValue(item, column.Name);
-                    row.Add($"{Convert.ToString(valueX, CultureInfo.InvariantCulture)}".Trim());
+                    row.Add(CsvField($"{Convert.ToString(valueX, CultureInfo.InvariantCulture)}".Trim()));
                 }
                 sb.AppendLine(string.Join(",", row.ToArray()));
             }
 
-            var flatData = $"{string.Join(",", columns.Select(c => c.DisplayName ?? c.Name))}{Environment.NewLine}{sb}";
+            var flatData = $"{string.Join(",", columns.Select(c => CsvField(c.DisplayName ?? c.Name)))}{Environment.NewLine}{sb}";
             return Task.FromResult(UTF8Encoding.Default.GetBytes(flatData));
         }
+        /// <summary>Campo CSV (RFC 4180): entre comillas si trae coma, comillas o salto de línea; las comillas internas se duplican.</summary>
+        private static string CsvField(string value) =>
+            value.IndexOfAny(new[] { ',', '"', '\r', '\n' }) < 0 ? value : $"\"{value.Replace("\"", "\"\"")}\"";
+
         public Task<byte[]> GetExcelBytes<T>(List<T> data)
         {
             var columns = GetProperties(typeof(T));

@@ -46,7 +46,7 @@
             </RadzenColumn>
             <RadzenColumn Size="6">
                 <RadzenStack>
-                    <RadzenFormField Text="Fecha de pedido final " Variant="Variant.Text" Style="width: 100%;">
+                    <RadzenFormField Text="Fecha de pedido final" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
                             <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.OrderDate.EndDate" Name="OrderEndDate" AllowClear=true Min="@Filter.OrderDate.StartDate" />
                         </ChildContent>
@@ -123,7 +123,7 @@
         }
         @if (ValidationCreationDate)
         {
-            <div class="rz-message rz-messages-error">Debe seleccionar fecha de creacion inicial y fecha de creación final</div>
+            <div class="rz-message rz-messages-error">Debe seleccionar fecha de creación inicial y fecha de creación final</div>
         }
         @if (ValidationOrderDate)
         {

@@ -37,7 +37,7 @@
         <RadzenRow style="margin-bottom: 1rem">
             <RadzenColumn Size="6">
                 <RadzenStack>
-                    <RadzenFormField Text="Fecha de pedido inicio" Variant="Variant.Text" Style="width: 100%;">
+                    <RadzenFormField Text="Fecha de pedido inicial" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
                             <RadzenDatePicker DateFormat="@SharedLocalizer["date:format"]" style="display: block; width: 100%" @bind-Value="@Filter.OrderDate.StartDate" Name="OrderStartDate" AllowClear=true Change="()=> Filter.OrderDate.EndDate = Filter.OrderDate.EndDate < Filter.OrderDate.StartDate ? Filter.OrderDate.StartDate : Filter.OrderDate.EndDate" />
                         </ChildContent>
