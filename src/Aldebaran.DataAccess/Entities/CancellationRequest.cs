@@ -1,4 +1,4 @@
-﻿using Aldebaran.DataAccess.Core;
+using Aldebaran.DataAccess.Core;
 
 namespace Aldebaran.DataAccess.Entities
 {
@@ -13,10 +13,10 @@ namespace Aldebaran.DataAccess.Entities
         public DateTime RequestDate { get; set; }
         public DateTime? ResponseDate { get; set; }
         public string? ResponseReason { get; set; }
-        public Employee RequestEmployee { get; set; }
+        public Employee RequestEmployee { get; set; } = null!;
         public Employee? ResponseEmployee { get; set; }
-        public DocumentType DocumentType { get; set; }
-        public StatusDocumentType StatusDocumentType { get; set; }
+        public DocumentType DocumentType { get; set; } = null!;
+        public StatusDocumentType StatusDocumentType { get; set; } = null!;
 
 
         public CancellationRequest() 

@@ -223,7 +223,7 @@ namespace Aldebaran.Application.Services.Services
 
                 return Math.Max(0, otherOrdersCommittedQuantity);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // En caso de error, ser conservador y no excluir nada
                 var itemRef = await _itemReferenceService.FindAsync(referenceId, cancellationToken);

@@ -1,4 +1,4 @@
-﻿using Aldebaran.Application.Services;
+using Aldebaran.Application.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
@@ -30,7 +30,6 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         #endregion
 
         #region Variables
-        private bool Submitted = false;
         protected bool IsSubmitInProgress;
         protected bool isLoadingInProgress;
         private bool IsErrorVisible;
@@ -63,7 +62,6 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             try
             {
                 IsSubmitInProgress = true;
-                Submitted = true;
                 if (CloseCustomerOrderReason.CloseCustomerOrderReasonId == 0)
                     return;
                 var employee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id);

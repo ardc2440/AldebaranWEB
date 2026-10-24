@@ -1,4 +1,4 @@
-﻿using Aldebaran.DataAccess.Entities;
+using Aldebaran.DataAccess.Entities;
 using Aldebaran.DataAccess.Infraestructure.Repository;
 using DocumentFormat.OpenXml.InkML;
 using Microsoft.EntityFrameworkCore;
@@ -25,7 +25,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
 
                         await dbContext.SaveChangesAsync(ct);
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         dbContext.Entry(purchaseOrderApprovalRange)
                             .State = EntityState.Unchanged;

@@ -4,21 +4,21 @@ namespace Aldebaran.Application.Services.Models
     {
         public int CustomerId { get; set; }
         public int IdentityTypeId { get; set; }
-        public string IdentityNumber { get; set; }
-        public string CustomerName { get; set; }
-        public string Phone1 { get; set; }
-        public string Phone2 { get; set; }
-        public string Fax { get; set; }
-        public string CustomerAddress { get; set; }
-        public string CellPhone { get; set; }
-        public string Email { get; set; }
+        public string IdentityNumber { get; set; } = null!;
+        public string CustomerName { get; set; } = null!;
+        public string Phone1 { get; set; } = null!;
+        public string Phone2 { get; set; } = null!;
+        public string Fax { get; set; } = null!;
+        public string CustomerAddress { get; set; } = null!;
+        public string CellPhone { get; set; } = null!;
+        public string Email { get; set; } = null!;
         public int CityId { get; set; }
         // Reverse navigation
         public ICollection<CustomerContact> CustomerContacts { get; set; }
         public ICollection<CustomerOrder> CustomerOrders { get; set; }
         public ICollection<CustomerReservation> CustomerReservations { get; set; }
-        public City City { get; set; }
-        public IdentityType IdentityType { get; set; }
+        public City City { get; set; } = null!;
+        public IdentityType IdentityType { get; set; } = null!;
         public Customer()
         {
             CustomerContacts = new List<CustomerContact>();

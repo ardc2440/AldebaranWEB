@@ -44,7 +44,6 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         protected LocalizedDataGrid<CustomerReservationDetail> customerReservationDetailGrid;
         protected string title;
         protected bool IsErrorVisible;
-        private bool Submitted = false;
         protected bool IsSubmitInProgress;
         protected bool isLoadingInProgress;
         protected string Error;
@@ -107,7 +106,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                 IsSubmitInProgress = true;
 
                 if (!customerReservationDetails.Any(d => d.SendToCustomerOrder))
-                    throw new Exception("No ha seleccionado ning˙na referencia para el pedido");
+                    throw new Exception("No ha seleccionado ning√∫na referencia para el pedido");
 
                 foreach (var item in customerReservationDetails.Where(d => d.SendToCustomerOrder).ToList())
                     await CustomerReservationDetailService.UpdateAsync(item.CustomerReservationDetailId, item);
@@ -124,7 +123,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
-            if (await DialogService.Confirm("Est· seguro que desea cancelar el envÌo a pedido de la reserva??", "Confirmar") == true)
+            if (await DialogService.Confirm("Est√° seguro que desea cancelar el env√≠o a pedido de la reserva??", "Confirmar") == true)
                 NavigationManager.NavigateTo("customer-reservations");
         }
 

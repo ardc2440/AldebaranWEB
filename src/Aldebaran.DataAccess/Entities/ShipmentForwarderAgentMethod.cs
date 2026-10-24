@@ -9,8 +9,8 @@ namespace Aldebaran.DataAccess.Entities
         public int ForwarderAgentId { get; set; }
         // Reverse navigation
         public ICollection<PurchaseOrder> PurchaseOrders { get; set; }
-        public ForwarderAgent ForwarderAgent { get; set; }
-        public ShipmentMethod ShipmentMethod { get; set; }
+        public ForwarderAgent ForwarderAgent { get; set; } = null!;
+        public ShipmentMethod ShipmentMethod { get; set; } = null!;
         public ShipmentForwarderAgentMethod()
         {
             PurchaseOrders = new List<PurchaseOrder>();

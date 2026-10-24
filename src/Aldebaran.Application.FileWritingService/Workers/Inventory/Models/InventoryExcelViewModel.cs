@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 
 namespace Aldebaran.Application.FileWritingService.Workers.Inventory.Models
 {
@@ -8,19 +8,19 @@ namespace Aldebaran.Application.FileWritingService.Workers.Inventory.Models
         [DisplayName("Código de la línea")]
         public short LineId { get; set; }
         [DisplayName("Línea")]
-        public string LineName { get; set; }
+        public string LineName { get; set; } = null!;
 
         // Articulo
         [DisplayName("Código del artículo")]
         public int ItemId { get; set; }
         [DisplayName("Artículo")]
-        public string ItemName { get; set; }
+        public string ItemName { get; set; } = null!;
         [DisplayName("Referencia interna")]
-        public string InternalReference { get; set; }
+        public string InternalReference { get; set; } = null!;
 
         // Referencia
         [DisplayName("Nombre de la referencia")]
-        public string ReferenceName { get; set; }
+        public string ReferenceName { get; set; } = null!;
         [DisplayName("Disponible")]
         public int AvailableAmount { get; set; }
         [DisplayName("Zona franca")]

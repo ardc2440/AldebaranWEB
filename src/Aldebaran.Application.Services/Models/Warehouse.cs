@@ -3,7 +3,7 @@ namespace Aldebaran.Application.Services.Models
     public class Warehouse
     {
         public short WarehouseId { get; set; }
-        public string WarehouseName { get; set; } = null;
+        public string WarehouseName { get; set; } = null!;
         public short WarehouseCode { get; set; }
         // Reverse navigation
         public ICollection<AdjustmentDetail> AdjustmentDetails { get; set; }

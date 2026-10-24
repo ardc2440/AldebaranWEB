@@ -3,8 +3,8 @@ namespace Aldebaran.DataAccess.Entities
     public class IdentityType
     {
         public int IdentityTypeId { get; set; }
-        public string IdentityTypeCode { get; set; }
-        public string IdentityTypeName { get; set; }
+        public string IdentityTypeCode { get; set; } = null!;
+        public string IdentityTypeName { get; set; } = null!;
         // Reverse navigation
         public ICollection<Customer> Customers { get; set; }
         public ICollection<Employee> Employees { get; set; }

@@ -64,10 +64,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         protected bool isLoadingInProgress;
         protected string title;
         protected bool IsErrorVisible;
-        private bool Submitted = false;
         protected bool IsSubmitInProgress;
         protected string Error;
-        internal const string quantitiesError = "Esta referencia, ya posee artÌculos despachados al cliente. \n\r" +
+        internal const string quantitiesError = "Esta referencia, ya posee art√≠culos despachados al cliente. \n\r" +
                                                 "Para poder cancelar su cantidad, debe cancelar todos los despachos realizados para el pedido.";
 
         #endregion
@@ -95,7 +94,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                 processSatellitesFORPROCESSSATELLITEID = await ProcessSatelliteService.GetAsync();
                 employeesFOREMPLOYEEID = await EmployeeService.GetAsync();
 
-                title = $"ModificaciÛn del traslado a proceso para el pedido No. {customerOrder.OrderNumber}";
+                title = $"Modificaci√≥n del traslado a proceso para el pedido No. {customerOrder.OrderNumber}";
             }
             catch (Exception ex)
             {
@@ -155,18 +154,18 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                 return;
             }
 
-            if (await DialogService.Confirm("Est· seguro que desea eliminar esta referencia?", "Confirmar") != true) return;
+            if (await DialogService.Confirm("Est√° seguro que desea eliminar esta referencia?", "Confirmar") != true) return;
 
             args.PENDING_QUANTITY += args.THIS_QUANTITY;
             args.PROCESSED_QUANTITY -= args.THIS_QUANTITY;
             args.WAREHOUSE_ID = 0;
             args.THIS_QUANTITY = 0;
-            args.ORIGINAL_THIS_QUANTITY = 0; // Resetear tambiÈn la cantidad original
+            args.ORIGINAL_THIS_QUANTITY = 0; // Resetear tambi√©n la cantidad original
 
             await customerOrderDetailGrid.Reload();
         }
 
-        protected bool CanCancel(DetailInProcess detailInProcess) => detailInProcess.THIS_QUANTITY > 0 && Security.IsInRole("Administrador", "ModificaciÛn de pedidos en proceso");
+        protected bool CanCancel(DetailInProcess detailInProcess) => detailInProcess.THIS_QUANTITY > 0 && Security.IsInRole("Administrador", "Modificaci√≥n de pedidos en proceso");
 
         protected async Task FormSubmit()
         {
@@ -175,7 +174,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                 IsSubmitInProgress = true;
                 if (!detailsInProcess.Any(x => x.THIS_QUANTITY > 0)) throw new Exception("No ha ingresado ninguna cantidad a trasladar");
 
-                var reasonResult = await DialogService.OpenAsync<ModificationReasonDialog>("Confirmar modificaciÛn", new Dictionary<string, object> { { "DOCUMENT_TYPE_CODE", "T" }, { "TITLE", "Est· seguro que desea actualizar este traslado?" } });
+                var reasonResult = await DialogService.OpenAsync<ModificationReasonDialog>("Confirmar modificaci√≥n", new Dictionary<string, object> { { "DOCUMENT_TYPE_CODE", "T" }, { "TITLE", "Est√° seguro que desea actualizar este traslado?" } });
                 if (reasonResult == null)
                     return;
 
@@ -211,7 +210,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
-            if (await DialogService.Confirm("Est· seguro que desea cancelar la modificaciÛn del traslado??", "Confirmar") == true)
+            if (await DialogService.Confirm("Est√° seguro que desea cancelar la modificaci√≥n del traslado??", "Confirmar") == true)
                 NavigationManager.NavigateTo("process-customer-orders");
         }
 

@@ -1,4 +1,4 @@
-﻿using Aldebaran.Application.FileWritingService.Resilience;
+using Aldebaran.Application.FileWritingService.Resilience;
 using Aldebaran.Application.FileWritingService.Workers.Inventory.Models;
 using Aldebaran.DataAccess.Entities;
 using Aldebaran.DataAccess.Infraestructure.Repository;
@@ -74,7 +74,7 @@ namespace Aldebaran.Application.FileWritingService.Workers
                         FileName = FileNameTemplate;
 
                         // Generate snapshot (report) to temp file - handle failures
-                        string excelPath = null;
+                        string? excelPath = null;
                         try
                         {
                             var data = await GetDataAsync(ct);
@@ -148,7 +148,7 @@ namespace Aldebaran.Application.FileWritingService.Workers
                                     var targetFileName = BuildTargetFileName(FileNameTemplate, now, overwrite);
 
                                     var uploaded = false;
-                                    string uploadError = null;
+                                    string? uploadError = null;
                                     try
                                     {
                                         // FtpClient reporta los fallos devolviendo false: también se reintenta en ese caso

@@ -1,4 +1,4 @@
-﻿@using ServiceModel = Aldebaran.Application.Services.Models;
+@using ServiceModel = Aldebaran.Application.Services.Models;
 
 <RadzenStack>
     @if (!CancellationReasons.Any())
@@ -7,7 +7,7 @@
             Motivos de cancelación no encontrados!!!
         </RadzenAlert>
     }
-    <RadzenTemplateForm TItem="ServiceModel.CancellationReason" Data="@CancellationReason" Visible="@CancellationReasons.Any()" Submit="@FormSubmit" InvalidSubmit="()=>Submitted=true">
+    <RadzenTemplateForm TItem="ServiceModel.CancellationReason" Data="@CancellationReason" Visible="@CancellationReasons.Any()" Submit="@FormSubmit">
         <div class="component-section d-flex flex-column justify-content-start">
             <span>@TITLE</span>
         </div>

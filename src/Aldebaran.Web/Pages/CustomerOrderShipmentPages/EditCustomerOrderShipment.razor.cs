@@ -70,7 +70,6 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
         protected bool isLoadingInProgress;
         protected string title;
         protected bool IsErrorVisible;
-        private bool Submitted = false;
         protected bool IsSubmitInProgress;
         protected string Error;
 
@@ -100,7 +99,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
                 shippingMethodsFORSHIPPINGMETHODID = await ShippingMethodService.GetAsync();
                 employeesFOREMPLOYEEID = await EmployeeService.GetAsync();
 
-                title = $"ModificaciÛn del despacho para el Pedido No. {customerOrder.OrderNumber}";
+                title = $"Modificaci√≥n del despacho para el Pedido No. {customerOrder.OrderNumber}";
             }
             catch (Exception ex)
             {
@@ -143,7 +142,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
 
         protected async Task CancelToShipment(DetailInProcess args)
         {
-            if (await DialogService.Confirm("Est· seguro que desea eliminar esta referencia?", "Confirmar") != true)
+            if (await DialogService.Confirm("Est√° seguro que desea eliminar esta referencia?", "Confirmar") != true)
             {
                 return;
             }
@@ -156,7 +155,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
             await customerOrderDetailGrid.Reload();
         }
 
-        protected bool CanCancel(DetailInProcess detailInProcess) => detailInProcess.THIS_QUANTITY > 0 && Security.IsInRole("Administrador", "ModificaciÛn de despachos");
+        protected bool CanCancel(DetailInProcess detailInProcess) => detailInProcess.THIS_QUANTITY > 0 && Security.IsInRole("Administrador", "Modificaci√≥n de despachos");
 
         protected async Task FormSubmit()
         {
@@ -167,7 +166,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
                 if (!detailsInProcess.Any(x => x.THIS_QUANTITY > 0))
                     throw new Exception("No ha ingresado ninguna cantidad a despachar");
 
-                var reasonResult = await DialogService.OpenAsync<ModificationReasonDialog>("Confirmar modificaciÛn", new Dictionary<string, object> { { "DOCUMENT_TYPE_CODE", "D" }, { "TITLE", "Est· seguro que desea actualizar este despacho?" } });
+                var reasonResult = await DialogService.OpenAsync<ModificationReasonDialog>("Confirmar modificaci√≥n", new Dictionary<string, object> { { "DOCUMENT_TYPE_CODE", "D" }, { "TITLE", "Est√° seguro que desea actualizar este despacho?" } });
                 if (reasonResult == null)
                     return;
                 var reason = (Reason)reasonResult;
@@ -220,7 +219,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
 
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
-            if (await DialogService.Confirm("Est· seguro que desea cancelar la modificaciÛn del despacho??", "Confirmar") == true)
+            if (await DialogService.Confirm("Est√° seguro que desea cancelar la modificaci√≥n del despacho??", "Confirmar") == true)
                 NavigationManager.NavigateTo("shipment-customer-orders");
         }
 

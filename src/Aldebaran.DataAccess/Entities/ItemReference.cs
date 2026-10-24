@@ -6,11 +6,11 @@ namespace Aldebaran.DataAccess.Entities
     {
         public int ReferenceId { get; set; }
         public int ItemId { get; set; }
-        public string ReferenceCode { get; set; }
-        public string ProviderReferenceCode { get; set; }
-        public string ReferenceName { get; set; }
-        public string ProviderReferenceName { get; set; }
-        public string Notes { get; set; }
+        public string ReferenceCode { get; set; } = null!;
+        public string ProviderReferenceCode { get; set; } = null!;
+        public string ReferenceName { get; set; } = null!;
+        public string ProviderReferenceName { get; set; } = null!;
+        public string Notes { get; set; } = null!;
         public int InventoryQuantity { get; set; }
         public int OrderedQuantity { get; set; }
         public int ReservedQuantity { get; set; }
@@ -29,8 +29,8 @@ namespace Aldebaran.DataAccess.Entities
         public ICollection<ProviderReference> ProviderReferences { get; set; }
         public ICollection<PurchaseOrderDetail> PurchaseOrderDetails { get; set; }
         public ICollection<ReferencesWarehouse> ReferencesWarehouses { get; set; }
-        public ICollection<WarehouseTransferDetail> WarehouseTransferDetails { get; set; }
-        public Item Item { get; set; }
+        public ICollection<WarehouseTransferDetail> WarehouseTransferDetails { get; set; } = null!;
+        public Item Item { get; set; } = null!;
         public ItemReference()
         {
             InventoryQuantity = 0;

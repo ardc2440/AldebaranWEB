@@ -9,6 +9,6 @@ namespace Aldebaran.Application.Services.Models
         public double? Width { get; set; } = 0;
         public double? Length { get; set; } = 0;
         public int? Quantity { get; set; } = 0;
-        public Item Item { get; set; } 
+        public Item Item { get; set; } = null!; 
     }
 }

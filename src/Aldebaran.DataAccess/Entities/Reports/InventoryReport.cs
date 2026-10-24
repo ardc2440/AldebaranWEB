@@ -1,15 +1,15 @@
-﻿namespace Aldebaran.DataAccess.Entities.Reports
+namespace Aldebaran.DataAccess.Entities.Reports
 {
     public class InventoryReport
     {
-        public string LineName { get; set; }
+        public string LineName { get; set; } = null!;
         public short LineId { get; set; }
 
-        public string InternalReference { get; set; }
-        public string ItemName { get; set; }
+        public string InternalReference { get; set; } = null!;
+        public string ItemName { get; set; } = null!;
         public int ItemId { get; set; }
 
-        public string ReferenceName { get; set; }
+        public string ReferenceName { get; set; } = null!;
         public int AvailableAmount { get; set; }
         public int LocalWarehouse { get; set; }
         public int FreeZone { get; set; }

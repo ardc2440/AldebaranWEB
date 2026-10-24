@@ -51,7 +51,6 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
         protected LocalizedDataGrid<WarehouseTransferDetail> warehouseTransferDetailGrid;
         protected DocumentType documentType;
         protected bool IsErrorVisible;
-        private bool Submitted;
         protected bool IsSubmitInProgress;
         protected bool isLoadingInProgress;
         protected string Error;
@@ -94,7 +93,6 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
             try
             {
                 Title = "";
-                Submitted = true;
                 IsSubmitInProgress = true;
                 if (!WarehouseTransferDetails.Any())
                     throw new Exception("No ha ingresado ninguna referencia");
@@ -116,7 +114,7 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
 
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
-            if (await DialogService.Confirm("Est· seguro que desea cancelar la creaciÛn del traslado?", "Confirmar") == true)
+            if (await DialogService.Confirm("Est√° seguro que desea cancelar la creaci√≥n del traslado?", "Confirmar") == true)
                 NavigationManager.NavigateTo("warehouse-transfers");
         }
 
@@ -150,7 +148,7 @@ namespace Aldebaran.Web.Pages.WarehouseTransferPages
 
         protected async Task DeleteWarehouseTransferDetail(WarehouseTransferDetail item)
         {
-            if (await DialogService.Confirm("Est· seguro que desea eliminar esta referencia?", "Confirmar") == true)
+            if (await DialogService.Confirm("Est√° seguro que desea eliminar esta referencia?", "Confirmar") == true)
             {
                 WarehouseTransferDetails.Remove(item);
                 await warehouseTransferDetailGrid.Reload();

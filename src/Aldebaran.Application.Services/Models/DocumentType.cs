@@ -3,14 +3,14 @@ namespace Aldebaran.Application.Services.Models
     public class DocumentType
     {
         public short DocumentTypeId { get; set; }
-        public string DocumentTypeName { get; set; }
-        public string DocumentTypeCode { get; set; }
+        public string DocumentTypeName { get; set; } = null!;
+        public string DocumentTypeCode { get; set; } = null!;
         // Reverse navigation
         public ICollection<AlarmType> AlarmTypes { get; set; }
         public ICollection<CancellationReason> CancellationReasons { get; set; }
         public ICollection<ModificationReason> ModificationReasons { get; set; }
         public ICollection<StatusDocumentType> StatusDocumentTypes { get; set; }
-        public ICollection<CancellationRequest> CancellationRequests { get; set; }
+        public ICollection<CancellationRequest> CancellationRequests { get; set; } = null!;
 
         public DocumentType()
         {

@@ -1,4 +1,4 @@
-﻿using Aldebaran.Web.Services.Notifications;
+using Aldebaran.Web.Services.Notifications;
 using Aldebaran.Application.Services.Notifications.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
@@ -16,8 +16,8 @@ namespace Aldebaran.Web.Shared
         [Inject]
         protected IJSRuntime JS { get; set; } = null!;
 
-        private PeriodicTimer? _timer;
-        private CancellationTokenSource? _cts;
+        private PeriodicTimer _timer;
+        private CancellationTokenSource _cts;
         private long _lastVersionRead;
 
         protected override Task OnInitializedAsync()

@@ -1,4 +1,4 @@
-﻿using Aldebaran.DataAccess.Core;
+using Aldebaran.DataAccess.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +13,6 @@ namespace Aldebaran.DataAccess.Entities
         public bool EnableNotifications { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
-        public Employee Employee { get; set; } 
+        public Employee Employee { get; set; } = null!; 
     }
 }

@@ -45,7 +45,6 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         protected LocalizedDataGrid<CustomerReservationDetail> customerReservationDetailGrid;
         protected string title;
         protected bool IsErrorVisible;
-        private bool Submitted = false;
         protected bool IsSubmitInProgress;
         protected bool isLoadingInProgress;
         protected string Error;
@@ -105,7 +104,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                 if (!customerReservationDetails.Any())
                     throw new Exception("No ha ingresado ninguna referencia");
 
-                var reasonResult = await DialogService.OpenAsync<ModificationReasonDialog>("Confirmar modificaciÛn", new Dictionary<string, object> { { "DOCUMENT_TYPE_CODE", "R" }, { "TITLE", "Est· seguro que desea actualizar esta reserva?" } });
+                var reasonResult = await DialogService.OpenAsync<ModificationReasonDialog>("Confirmar modificaci√≥n", new Dictionary<string, object> { { "DOCUMENT_TYPE_CODE", "R" }, { "TITLE", "Est√° seguro que desea actualizar esta reserva?" } });
                 if (reasonResult == null)
                     return;
                 var reason = (Reason)reasonResult;
@@ -124,7 +123,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
-            if (await DialogService.Confirm("Est· seguro que desea cancelar la modificaciÛn de la Reserva?", "Confirmar") == true)
+            if (await DialogService.Confirm("Est√° seguro que desea cancelar la modificaci√≥n de la Reserva?", "Confirmar") == true)
                 NavigationManager.NavigateTo("customer-reservations");
         }
 

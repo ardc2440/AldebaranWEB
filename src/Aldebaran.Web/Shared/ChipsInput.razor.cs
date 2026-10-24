@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 
 namespace Aldebaran.Web.Shared
@@ -27,7 +27,7 @@ namespace Aldebaran.Web.Shared
         /// A list of allowed chip/tag values
         /// </summary>
         [Parameter]
-        public List<string>? AllowedValues { get; set; } = null;
+        public List<string> AllowedValues { get; set; } = null;
 
         /// <summary>
         /// The validation message to use when the chip/tag value is not present in the AllowedValues list
@@ -93,13 +93,13 @@ namespace Aldebaran.Web.Shared
         /// Custom template for prepending an icon to the chip
         /// </summary>
         [Parameter]
-        public RenderFragment? PrependIconTemplate { get; set; }
+        public RenderFragment PrependIconTemplate { get; set; }
 
         /// <summary>
         /// Custom template for showing validation errors, make sure to set 'ShowValidationErrors' to true in order for validation errors to render
         /// </summary>
         [Parameter]
-        public RenderFragment<string>? ValidationErrorTemplate { get; set; }
+        public RenderFragment<string> ValidationErrorTemplate { get; set; }
 
         [Parameter]
         public string AddChipKeyCode { get; set; } = "Enter";

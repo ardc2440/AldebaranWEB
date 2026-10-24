@@ -5,27 +5,27 @@ namespace Aldebaran.Application.Services.Models.Reports
     public class CustomerOrderExport
     {
         [DisplayName("Pedido")]
-        public string OrderNumber { get; set; }
+        public string OrderNumber { get; set; } = null!;
         [DisplayName("Pedido especial")]
-        public string SpecialOrder { get; set; }
+        public string SpecialOrder { get; set; } = null!;
         [DisplayName("Cliente")]
-        public string CustomerName { get; set; }
+        public string CustomerName { get; set; } = null!;
         [DisplayName("Nit")]
-        public string IdentityNumber { get; set; }
+        public string IdentityNumber { get; set; } = null!;
         [DisplayName("Telefono")]
-        public string Phone { get; set; }
+        public string Phone { get; set; } = null!;
         [DisplayName("Ciudad")]
-        public string CityName { get; set; }
+        public string CityName { get; set; } = null!;
         [DisplayName("Fecha Pedido")]
         public DateTime OrderDate { get; set; }
         [DisplayName("Nombre Item")]
-        public string ItemName { get; set; }
+        public string ItemName { get; set; } = null!;
         [DisplayName("Código Item")]
-        public string ItemCode { get; set; }
+        public string ItemCode { get; set; } = null!;
         [DisplayName("Nombre Referencia")]
-        public string ReferenceName { get; set; }
+        public string ReferenceName { get; set; } = null!;
         [DisplayName("Código Referencia")]
-        public string ReferenceCode { get; set; }
+        public string ReferenceCode { get; set; } = null!;
         [DisplayName("Cant Pedido")]
         public int Amount { get; set; }
         [DisplayName("Cant. Enviada")]
@@ -47,6 +47,6 @@ namespace Aldebaran.Application.Services.Models.Reports
         [DisplayName("Observaciones Envio")]
         public string? ShippingNotes { get; set; }
         [DisplayName("Estado")]
-        public string Status { get; set; }
+        public string Status { get; set; } = null!;
     }
 }

@@ -6,13 +6,13 @@ namespace Aldebaran.DataAccess.Entities
     {
         public int ItemId { get; set; }
         public short LineId { get; set; }
-        public string InternalReference { get; set; }
-        public string ItemName { get; set; }
-        public string ProviderReference { get; set; }
-        public string ProviderItemName { get; set; }
+        public string InternalReference { get; set; } = null!;
+        public string ItemName { get; set; } = null!;
+        public string ProviderReference { get; set; } = null!;
+        public string ProviderItemName { get; set; } = null!;
         public double FobCost { get; set; }
         public short CurrencyId { get; set; }
-        public string Notes { get; set; }
+        public string Notes { get; set; } = null!;
         public bool IsExternalInventory { get; set; }
         public double CifCost { get; set; }
         public double Volume { get; set; }
@@ -32,10 +32,10 @@ namespace Aldebaran.DataAccess.Entities
         public ICollection<ItemReference> ItemReferences { get; set; }
         public ICollection<ItemsArea> ItemsAreas { get; set; }
         public ICollection<Packaging> Packagings { get; set; }
-        public Currency Currency { get; set; }
-        public Line Line { get; set; }
-        public MeasureUnit CifMeasureUnit { get; set; }
-        public MeasureUnit FobMeasureUnit { get; set; }
+        public Currency Currency { get; set; } = null!;
+        public Line Line { get; set; } = null!;
+        public MeasureUnit CifMeasureUnit { get; set; } = null!;
+        public MeasureUnit FobMeasureUnit { get; set; } = null!;
         public Item()
         {
             IsExternalInventory = false;

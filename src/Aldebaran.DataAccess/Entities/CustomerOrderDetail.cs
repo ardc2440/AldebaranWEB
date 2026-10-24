@@ -10,12 +10,12 @@ namespace Aldebaran.DataAccess.Entities
         public int RequestedQuantity { get; set; }
         public int ProcessedQuantity { get; set; }
         public int DeliveredQuantity { get; set; }
-        public string Brand { get; set; }
+        public string Brand { get; set; } = null!;
         // Reverse navigation
         public ICollection<CustomerOrderInProcessDetail> CustomerOrderInProcessDetails { get; set; }
         public ICollection<CustomerOrderShipmentDetail> CustomerOrderShipmentDetails { get; set; }
-        public CustomerOrder CustomerOrder { get; set; }
-        public ItemReference ItemReference { get; set; }
+        public CustomerOrder CustomerOrder { get; set; } = null!;
+        public ItemReference ItemReference { get; set; } = null!;
         public CustomerOrderDetail()
         {
             ProcessedQuantity = 0;

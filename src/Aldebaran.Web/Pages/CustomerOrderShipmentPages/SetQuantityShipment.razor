@@ -1,4 +1,4 @@
-@attribute [Authorize(Roles = "Administrador,Modificación de pedidos")]
+@attribute [Authorize(Roles = "Administrador,ModificaciÃ³n de pedidos")]
 @using Microsoft.Extensions.Options
 @using Aldebaran.Web.Models
 @inject IOptions<AppSettings> settings;
@@ -12,12 +12,12 @@
         <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">
             @Error
         </RadzenAlert>
-        <RadzenTemplateForm TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Data="@detailInProcess" Visible="@(detailInProcess != null)" Submit="@FormSubmit" InvalidSubmit="()=>Submitted=true">
+        <RadzenTemplateForm TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess" Data="@detailInProcess" Visible="@(detailInProcess != null)" Submit="@FormSubmit">
             <RadzenStack style="margin-bottom: 1rem">
                 <RadzenPanel AllowCollapse="true" class="rz-my-00 rz-mx-auto" Style="width: 100%;">
                     <HeaderTemplate>
                         <RadzenText TextStyle="TextStyle.Body2" class="rz-display-flex rz-align-items-center rz-m-0">
-                            <RadzenIcon Icon="image" class="rz-me-1" /><b>Imagen del artículo</b>
+                            <RadzenIcon Icon="image" class="rz-me-1" /><b>Imagen del artÃ­culo</b>
                         </RadzenText>
                     </HeaderTemplate>
                     <ChildContent>
@@ -55,7 +55,7 @@
                         <span>@detailInProcess.REFERENCE_DESCRIPTION</span>
                     </RadzenColumn>
                     <RadzenColumn SizeMD="3">
-                        <RadzenLabel Text="Marcación especial" class="fw-bold" style="width: 100%" />
+                        <RadzenLabel Text="MarcaciÃ³n especial" class="fw-bold" style="width: 100%" />
                     </RadzenColumn>
                     <RadzenColumn SizeMD="9">
                         <span>@detailInProcess.BRAND</span>

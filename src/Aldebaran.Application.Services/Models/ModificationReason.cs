@@ -3,16 +3,16 @@ namespace Aldebaran.Application.Services.Models
     public class ModificationReason
     {
         public short ModificationReasonId { get; set; }
-        public string ModificationReasonName { get; set; }
+        public string ModificationReasonName { get; set; } = null!;
         public short DocumentTypeId { get; set; }
-        public string Notes { get; set; }
+        public string Notes { get; set; } = null!;
         // Reverse navigation
         public ICollection<ModifiedCustomerOrder> ModifiedCustomerOrders { get; set; }
         public ICollection<ModifiedCustomerReservation> ModifiedCustomerReservations { get; set; }
         public ICollection<ModifiedOrderShipment> ModifiedOrderShipments { get; set; }
         public ICollection<ModifiedOrdersInProcess> ModifiedOrdersInProcesses { get; set; }
         public ICollection<ModifiedPurchaseOrder> ModifiedPurchaseOrders { get; set; }
-        public DocumentType DocumentType { get; set; }
+        public DocumentType DocumentType { get; set; } = null!;
         public ModificationReason()
         {
             ModifiedCustomerOrders = new List<ModifiedCustomerOrder>();

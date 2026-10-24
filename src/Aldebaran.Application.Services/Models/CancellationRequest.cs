@@ -1,4 +1,4 @@
-﻿namespace Aldebaran.Application.Services.Models
+namespace Aldebaran.Application.Services.Models
 {
     public class CancellationRequest
     {
@@ -11,9 +11,9 @@
         public DateTime RequestDate { get; set; }
         public DateTime? ResponseDate { get; set; }
         public string? ResponseReason { get; set; }
-        public Employee RequestEmployee { get; set; }
+        public Employee RequestEmployee { get; set; } = null!;
         public Employee? ResponseEmployee { get; set; }
-        public DocumentType DocumentType { get; set; }
-        public StatusDocumentType StatusDocumentType { get; set; }
+        public DocumentType DocumentType { get; set; } = null!;
+        public StatusDocumentType StatusDocumentType { get; set; } = null!;
     }
 }

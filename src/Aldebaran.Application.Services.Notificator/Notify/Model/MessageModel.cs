@@ -1,8 +1,8 @@
-﻿namespace Aldebaran.Application.Services.Notificator.Model
+namespace Aldebaran.Application.Services.Notificator.Model
 {
     public class MessageModel
     {
-        public Uri HookUrl { get; set; }
+        public Uri HookUrl { get; set; } = null!;
         /// <summary>
         /// Cabecera de la notificacion
         /// </summary>
@@ -105,7 +105,7 @@
             }
         }
 
-        public DeliveryStatus MessageDeliveryStatus { get; set; }
+        public DeliveryStatus MessageDeliveryStatus { get; set; } = null!;
         public class DeliveryStatus
         {
             /// <summary>
@@ -120,7 +120,7 @@
             /// Mensaje del estado del envio de la notificacion
             /// Ej: Servidor de correo no disponible
             /// </summary>
-            public string Message { get; set; }
+            public string Message { get; set; } = null!;
             /// <summary>
             /// Fecha de envio de la notificacion
             /// Ej: 2012-04-21T18:25:43.511Z

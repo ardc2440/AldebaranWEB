@@ -56,7 +56,6 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages.CustomerOrderActivityPages
         protected RadzenDropDownDataGrid<short> areasGrid;
         protected short AreaId { get; set; }
         protected bool IsErrorVisible;
-        private bool Submitted;
         protected bool IsSubmitInProgress;
         protected bool isLoadingInProgress;
         protected string Error;
@@ -110,7 +109,6 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages.CustomerOrderActivityPages
         {
             try
             {
-                Submitted = true;
                 IsSubmitInProgress = true;
 
                 customerOrderActivity.CustomerOrderActivityDetails = customerOrderActivityDetails;
@@ -129,7 +127,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages.CustomerOrderActivityPages
 
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
-            if (await DialogService.Confirm("Est· seguro que desea cancelar la creaciÛn de la actividad?", "Confirmar") == true)
+            if (await DialogService.Confirm("Est√° seguro que desea cancelar la creaci√≥n de la actividad?", "Confirmar") == true)
                 NavigationManager.NavigateTo("customer-orders");
         }
 
@@ -138,7 +136,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages.CustomerOrderActivityPages
             try
             {
                 if (customerOrderActivity.AreaId == 0)
-                    throw new Exception("No ha seleccionado el ·rea para la actividad");
+                    throw new Exception("No ha seleccionado el √°rea para la actividad");
 
                 var result = await DialogService.OpenAsync<AddCustomerOrderActivityDetail>("Agregar detalle", new Dictionary<string, object> { { "CustomerOrderActivityDetails", customerOrderActivityDetails }, { "CustomerOrderActivityAreaId", customerOrderActivity.AreaId } });
 
@@ -160,7 +158,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages.CustomerOrderActivityPages
 
         protected async Task DeleteCustomerOrderActivityDetail(CustomerOrderActivityDetail item)
         {
-            if (await DialogService.Confirm("Est· seguro que desea eliminar este detalle?", "Confirmar") == true)
+            if (await DialogService.Confirm("Est√° seguro que desea eliminar este detalle?", "Confirmar") == true)
             {
                 customerOrderActivityDetails.Remove(item);
 
@@ -192,7 +190,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages.CustomerOrderActivityPages
                     return;
                 }
 
-                if (await DialogService.Confirm("Est· seguro que desea cambiar el ·rea?. Se borrar· los detalles asociados a esta actividad.") == true)
+                if (await DialogService.Confirm("Est√° seguro que desea cambiar el √°rea?. Se borrar√° los detalles asociados a esta actividad.") == true)
                 {
                     employeesForEMPLOYEEID = new List<Employee>();
 

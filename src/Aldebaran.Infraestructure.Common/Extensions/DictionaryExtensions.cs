@@ -1,4 +1,4 @@
-﻿namespace Aldebaran.Infraestructure.Common.Extensions
+namespace Aldebaran.Infraestructure.Common.Extensions
 {
     /// <summary>
     /// Metodos de extension para strings
@@ -6,7 +6,7 @@
     /// </summary>
     public static class DictionaryExtensions
     {
-        public static void AddOrUpdate<T, K>(this Dictionary<T, K> dict, T key, K value)
+        public static void AddOrUpdate<T, K>(this Dictionary<T, K> dict, T key, K value) where T : notnull
         {
             dict ??= new Dictionary<T, K>();
             if (dict.ContainsKey(key))
@@ -19,7 +19,7 @@
             }
         }
 
-        public static bool? Get<T>(this Dictionary<T, bool> dict, T key, bool value)
+        public static bool? Get<T>(this Dictionary<T, bool> dict, T key, bool value) where T : notnull
         {
             if (dict == null)
                 return false;

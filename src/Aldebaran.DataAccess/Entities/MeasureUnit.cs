@@ -3,7 +3,7 @@ namespace Aldebaran.DataAccess.Entities
     public class MeasureUnit
     {
         public short MeasureUnitId { get; set; }
-        public string MeasureUnitName { get; set; }
+        public string MeasureUnitName { get; set; } = null!;
         // Reverse navigation
         public ICollection<Item> Items_CifMeasureUnitId { get; set; }
         public ICollection<Item> Items_FobMeasureUnitId { get; set; }

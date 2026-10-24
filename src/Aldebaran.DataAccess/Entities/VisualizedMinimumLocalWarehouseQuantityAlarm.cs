@@ -1,4 +1,4 @@
-﻿using Aldebaran.DataAccess.Core;
+using Aldebaran.DataAccess.Core;
 
 namespace Aldebaran.DataAccess.Entities
 {
@@ -8,7 +8,7 @@ namespace Aldebaran.DataAccess.Entities
         public int EmployeeId { get; set; }
         public DateTime VisualizedDate { get; set; }
 
-        public Employee Employee { get; set; }
+        public Employee Employee { get; set; } = null!;
 
         public VisualizedMinimumLocalWarehouseQuantityAlarm()
         {

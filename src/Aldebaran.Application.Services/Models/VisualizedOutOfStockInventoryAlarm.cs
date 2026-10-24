@@ -1,4 +1,4 @@
-﻿namespace Aldebaran.Application.Services.Models
+namespace Aldebaran.Application.Services.Models
 {
     public class VisualizedOutOfStockInventoryAlarm
     {
@@ -6,7 +6,7 @@
         public int EmployeeId { get; set; }
         public DateTime VisualizedDate { get; set; }
 
-        public Employee Employee { get; set; }
+        public Employee Employee { get; set; } = null!;
 
         public VisualizedOutOfStockInventoryAlarm()
         {

@@ -9,16 +9,16 @@ namespace Aldebaran.DataAccess.Entities
         public short AdjustmentReasonId { get; set; }
         public short AdjustmentTypeId { get; set; }
         public int EmployeeId { get; set; }
-        public string Notes { get; set; }
+        public string Notes { get; set; } = null!;
         public DateTime CreationDate { get; set; }
         public short StatusDocumentTypeId { get; set; }
 
         // Reverse navigation
         public ICollection<AdjustmentDetail> AdjustmentDetails { get; set; }
-        public AdjustmentReason AdjustmentReason { get; set; }
-        public AdjustmentType AdjustmentType { get; set; }
-        public Employee Employee { get; set; }
-        public StatusDocumentType StatusDocumentType { get; set; }
+        public AdjustmentReason AdjustmentReason { get; set; } = null!;
+        public AdjustmentType AdjustmentType { get; set; } = null!;
+        public Employee Employee { get; set; } = null!;
+        public StatusDocumentType StatusDocumentType { get; set; } = null!;
 
         public Adjustment()
         {

@@ -1,4 +1,4 @@
-﻿using Aldebaran.Application.Services.Notificator.Model;
+using Aldebaran.Application.Services.Notificator.Model;
 using Aldebaran.DataAccess.Infraestructure.Repository;
 using Aldebaran.Infraestructure.Core.Queue;
 using Microsoft.Extensions.Logging;
@@ -42,7 +42,7 @@ namespace Aldebaran.Application.Services.Notificator
             message.Body.Subject = template.Subject;
             message.Body.Message = template.Message;
 
-            var providerParameters = JsonConvert.DeserializeObject<Dictionary<string, string>>(settings.Settings);
+            var providerParameters = JsonConvert.DeserializeObject<Dictionary<string, string>>(settings.Settings) ?? new Dictionary<string, string>();
             MetaData = new Dictionary<string, object>();
             foreach (var kv in providerParameters)
                 MetaData[kv.Key] = kv.Value;
@@ -61,7 +61,7 @@ namespace Aldebaran.Application.Services.Notificator
             message.Body.Subject = template.Subject;
             message.Body.Message = template.Message + additionalBodyMessage;
 
-            var providerParameters = JsonConvert.DeserializeObject<Dictionary<string, string>>(settings.Settings);
+            var providerParameters = JsonConvert.DeserializeObject<Dictionary<string, string>>(settings.Settings) ?? new Dictionary<string, string>();
             MetaData = new Dictionary<string, object>();
             foreach (var kv in providerParameters)
                 MetaData[kv.Key] = kv.Value;

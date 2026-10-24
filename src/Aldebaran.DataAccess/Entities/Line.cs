@@ -3,8 +3,8 @@ namespace Aldebaran.DataAccess.Entities
     public class Line
     {
         public short LineId { get; set; }
-        public string LineCode { get; set; }
-        public string LineName { get; set; }
+        public string LineCode { get; set; } = null!;
+        public string LineName { get; set; } = null!;
         public bool IsDemon { get; set; }
         public bool IsActive { get; set; }
         // Reverse navigation

@@ -173,7 +173,7 @@ namespace Aldebaran.Infraestructure.Common.Utils
                             {
                                 cell.CellValue = new CellValue()
                                 {
-                                    Text = ((DateTime)value).ToOADate().ToString(CultureInfo.InvariantCulture)
+                                    Text = ((DateTime)value!).ToOADate().ToString(CultureInfo.InvariantCulture)
                                 };
 
                                 cell.DataType = new EnumValue<CellValues>(CellValues.Number);
@@ -191,7 +191,7 @@ namespace Aldebaran.Infraestructure.Common.Utils
                         {
                             if (value != null)
                             {
-                                stringValue = Convert.ToString(value, CultureInfo.InvariantCulture);
+                                stringValue = Convert.ToString(value, CultureInfo.InvariantCulture) ?? string.Empty;
                             }
 
                             cell.CellValue = new CellValue(stringValue);
@@ -286,7 +286,7 @@ namespace Aldebaran.Infraestructure.Common.Utils
                         {
                             if (!string.IsNullOrWhiteSpace(stringValue))
                             {
-                                cell.CellValue = new CellValue() { Text = ((DateTime)value).ToOADate().ToString(System.Globalization.CultureInfo.InvariantCulture) };
+                                cell.CellValue = new CellValue() { Text = ((DateTime)value!).ToOADate().ToString(System.Globalization.CultureInfo.InvariantCulture) };
                                 cell.DataType = new EnumValue<CellValues>(CellValues.Number);
                                 cell.StyleIndex = (UInt32Value)1U;
                             }
@@ -300,7 +300,7 @@ namespace Aldebaran.Infraestructure.Common.Utils
                         {
                             if (value != null)
                             {
-                                stringValue = Convert.ToString(value, CultureInfo.InvariantCulture);
+                                stringValue = Convert.ToString(value, CultureInfo.InvariantCulture) ?? string.Empty;
                             }
                             cell.CellValue = new CellValue(stringValue);
                             cell.DataType = new EnumValue<CellValues>(CellValues.Number);
@@ -401,14 +401,14 @@ namespace Aldebaran.Infraestructure.Common.Utils
             return tempFile;
         }
         #region Utils
-        static string GetDisplayNameOrDefault(PropertyInfo property)
+        static string? GetDisplayNameOrDefault(PropertyInfo property)
         {
             var attr = property.GetCustomAttribute<DisplayNameAttribute>();
             return attr?.DisplayName;
         }
-        static object GetValue(object target, string name)
+        static object? GetValue(object? target, string name)
         {
-            return target.GetType().GetProperty(name).GetValue(target);
+            return target?.GetType().GetProperty(name)!.GetValue(target);
         }
         static IEnumerable<PropertyDetail> GetProperties(Type type)
         {
@@ -661,9 +661,9 @@ namespace Aldebaran.Infraestructure.Common.Utils
 
         class PropertyDetail
         {
-            public string DisplayName { get; set; }
-            public string Name { get; set; }
-            public Type Type { get; set; }
+            public string? DisplayName { get; set; }
+            public string Name { get; set; } = null!;
+            public Type Type { get; set; } = null!;
 
             public bool IsImage { get; set; }
 

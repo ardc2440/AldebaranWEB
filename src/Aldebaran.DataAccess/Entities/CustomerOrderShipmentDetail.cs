@@ -8,7 +8,7 @@ namespace Aldebaran.DataAccess.Entities
         public int CustomerOrderShipmentId { get; set; }
         public int CustomerOrderDetailId { get; set; }
         public int DeliveredQuantity { get; set; }
-        public CustomerOrderDetail CustomerOrderDetail { get; set; }
-        public CustomerOrderShipment CustomerOrderShipment { get; set; }
+        public CustomerOrderDetail CustomerOrderDetail { get; set; } = null!;
+        public CustomerOrderShipment CustomerOrderShipment { get; set; } = null!;
     }
 }

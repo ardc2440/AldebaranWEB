@@ -1,4 +1,4 @@
-﻿using Aldebaran.Application.Services.Reports;
+using Aldebaran.Application.Services.Reports;
 using Aldebaran.Infraestructure.Common.Utils;
 using Aldebaran.Web.Pages.ReportPages.Inventory.Components;
 using Aldebaran.Web.Pages.ReportPages.Inventory.ViewModel;
@@ -36,7 +36,6 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory
         protected InventoryViewModel ViewModel;
         private bool IsBusy = false;
         private bool IsLoadingData = false;
-        private ElementReference h3ElementRef;
 
         private IEnumerable<Application.Services.Models.Reports.InventoryReport> DataReport { get; set; }
         #endregion

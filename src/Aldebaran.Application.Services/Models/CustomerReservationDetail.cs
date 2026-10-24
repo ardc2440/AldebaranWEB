@@ -6,10 +6,10 @@ namespace Aldebaran.Application.Services.Models
         public int CustomerReservationId { get; set; }
         public int ReferenceId { get; set; }
         public int ReservedQuantity { get; set; }
-        public string Brand { get; set; }
+        public string Brand { get; set; } = null!;
         public bool SendToCustomerOrder { get; set; }
-        public CustomerReservation CustomerReservation { get; set; }
-        public ItemReference ItemReference { get; set; }
+        public CustomerReservation CustomerReservation { get; set; } = null!;
+        public ItemReference ItemReference { get; set; } = null!;
         public CustomerReservationDetail()
         {
             SendToCustomerOrder = false;

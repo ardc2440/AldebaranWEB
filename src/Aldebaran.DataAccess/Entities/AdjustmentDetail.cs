@@ -9,8 +9,8 @@ namespace Aldebaran.DataAccess.Entities
         public int ReferenceId { get; set; }
         public short WarehouseId { get; set; }
         public int Quantity { get; set; }
-        public Adjustment Adjustment { get; set; }
-        public ItemReference ItemReference { get; set; }
-        public Warehouse Warehouse { get; set; }
+        public Adjustment Adjustment { get; set; } = null!;
+        public ItemReference ItemReference { get; set; } = null!;
+        public Warehouse Warehouse { get; set; } = null!;
     }
 }

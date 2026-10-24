@@ -1,6 +1,6 @@
 @page "/add-customer-order-activity/{CustomerOrderId}"
 
-@attribute [Authorize(Roles = "Administrador,Modificaci髇 de pedidos,Creaci髇 de pedidos")]
+@attribute [Authorize(Roles = "Administrador,Modificaci贸n de pedidos,Creaci贸n de pedidos")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
 
@@ -10,7 +10,7 @@
     @if (!isLoadingInProgress)
 {
     <RadzenCard>
-        <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerOrderActivity" Data="@customerOrderActivity" Visible="@(customerOrderActivity != null)" Submit="@FormSubmit" InvalidSubmit="()=>Submitted=true">
+        <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerOrderActivity" Data="@customerOrderActivity" Visible="@(customerOrderActivity != null)" Submit="@FormSubmit">
             <RadzenStack>
                 <RadzenRow AlignItems="AlignItems.Center">
                     <RadzenColumn Size="12">
@@ -24,19 +24,19 @@
                 <RadzenRow AlignItems="AlignItems.Start" Gap="2rem">
                     <RadzenColumn SizeMD="6">
                         <RadzenStack>
-                            <RadzenFormField Text="羠ea" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
+                            <RadzenFormField Text="脕rea" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                                 <ChildContent>
                                     <RadzenDropDownDataGrid @ref="areasGrid" Data="@areasForAREAID" TextProperty="AreaName" ValueProperty="AreaId" AllowClear=false Change="@OnAreaChange"
                                                             style="display: block; width: 100%" @bind-Value="@customerOrderActivity.AreaId" Name="AREA_ID" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive"
-                                                            AllowFilteringByAllStringColumns="true" Placeholder="Seleccione un 醨ea" TabIndex="0">
+                                                            AllowFilteringByAllStringColumns="true" Placeholder="Seleccione un 谩rea" TabIndex="0">
                                         <Columns>
-                                            <RadzenDropDownDataGridColumn Property="AreaCode" Title="C骴igo" />
+                                            <RadzenDropDownDataGridColumn Property="AreaCode" Title="C贸digo" />
                                             <RadzenDropDownDataGridColumn Property="AreaName" Title="Nombre" />
                                         </Columns>
                                     </RadzenDropDownDataGrid>
                                 </ChildContent>
                                 <Helper>
-                                    <RadzenRequiredValidator Component="AREA_ID" DefaultValue="0" Text="El 醨ea es requerida"></RadzenRequiredValidator>
+                                    <RadzenRequiredValidator Component="AREA_ID" DefaultValue="0" Text="El 谩rea es requerida"></RadzenRequiredValidator>
                                 </Helper>
                             </RadzenFormField>
                             <RadzenFormField Text="Empleado" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
@@ -45,8 +45,8 @@
                                                             style="display: block; width: 100%" @bind-Value="@customerOrderActivity.EmployeeId" Name="EMPLOYEE_ID" TabIndex="1"
                                                             FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true" Placeholder="Seleccione un empleado">
                                         <Columns>
-                                            <RadzenDropDownDataGridColumn Property="EMPLOYEE.IdentityType.IdentityTypeName" Title="Tipo de identificaci髇" />
-                                            <RadzenDropDownDataGridColumn Property="IdentityNumber" Title="N鷐ero de identificaci髇" />
+                                            <RadzenDropDownDataGridColumn Property="EMPLOYEE.IdentityType.IdentityTypeName" Title="Tipo de identificaci贸n" />
+                                            <RadzenDropDownDataGridColumn Property="IdentityNumber" Title="N煤mero de identificaci贸n" />
                                             <RadzenDropDownDataGridColumn Property="FullName" Title="Nombre completo" />
                                         </Columns>
                                     </RadzenDropDownDataGrid>

@@ -1,4 +1,4 @@
-@attribute [Authorize(Roles = "Administrador,Modificación de ajustes de inventario")]
+@attribute [Authorize(Roles = "Administrador,ModificaciÃ³n de ajustes de inventario")]
 @using Microsoft.Extensions.Options
 @using Aldebaran.Web.Models
 @inject IOptions<AppSettings> settings;
@@ -12,12 +12,12 @@
         <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">
             @Error
         </RadzenAlert>
-        <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Data="@CustomerReservationDetailData" Visible="@(CustomerReservationDetail != null)" Submit="@FormSubmit" InvalidSubmit="()=>Submitted=true">
+        <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail" Data="@CustomerReservationDetailData" Visible="@(CustomerReservationDetail != null)" Submit="@FormSubmit">
             <RadzenStack style="margin-bottom: 1rem">
                 <RadzenPanel AllowCollapse="true" class="rz-my-00 rz-mx-auto" Style="width: 100%;">
                     <HeaderTemplate>
                         <RadzenText TextStyle="TextStyle.Body2" class="rz-display-flex rz-align-items-center rz-m-0">
-                            <RadzenIcon Icon="image" class="rz-me-1" /><b>Imagen del artículo</b>
+                            <RadzenIcon Icon="image" class="rz-me-1" /><b>Imagen del artÃ­culo</b>
                         </RadzenText>
                     </HeaderTemplate>
                     <ChildContent>
@@ -64,9 +64,9 @@
                         <RadzenNumericRangeValidator Component="RESERVED_QUANTITY" Min="1" Text="La cantidad debe ser mayor a 0" />
                     </Helper>
                 </RadzenFormField>
-                <RadzenFormField Text="Marcación" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
+                <RadzenFormField Text="MarcaciÃ³n" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                     <ChildContent>
-                        <RadzenTextBox style="display: block; width: 100%" @bind-Value="@CustomerReservationDetailData.Brand" Name="BRAND" Placeholder="Ingrese la marcación del producto" TabIndex="2" MaxLength="250" />
+                        <RadzenTextBox style="display: block; width: 100%" @bind-Value="@CustomerReservationDetailData.Brand" Name="BRAND" Placeholder="Ingrese la marcaciÃ³n del producto" TabIndex="2" MaxLength="250" />
                     </ChildContent>
                 </RadzenFormField>
             </RadzenStack>

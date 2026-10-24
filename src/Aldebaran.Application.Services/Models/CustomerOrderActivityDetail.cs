@@ -7,9 +7,9 @@ namespace Aldebaran.Application.Services.Models
         public short ActivityTypeId { get; set; }
         public int EmployeeId { get; set; }
         public int ActivityEmployeeId { get; set; }
-        public ActivityType ActivityType { get; set; }
-        public CustomerOrderActivity CustomerOrderActivity { get; set; }
-        public Employee ActivityEmployee { get; set; }
-        public Employee Employee_EmployeeId { get; set; }
+        public ActivityType ActivityType { get; set; } = null!;
+        public CustomerOrderActivity CustomerOrderActivity { get; set; } = null!;
+        public Employee ActivityEmployee { get; set; } = null!;
+        public Employee Employee_EmployeeId { get; set; } = null!;
     }
 }

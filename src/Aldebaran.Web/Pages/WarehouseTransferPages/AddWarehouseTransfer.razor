@@ -1,6 +1,6 @@
 @page "/add-warehouse-transfer"
 
-@attribute [Authorize(Roles = "Administrador,Modificación de traslados entre bodegas")]
+@attribute [Authorize(Roles = "Administrador,ModificaciÃ³n de traslados entre bodegas")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
 
@@ -11,7 +11,7 @@
 {
     <RadzenCard>
         <RadzenStack>
-            <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.WarehouseTransfer" Data="@warehouseTransfer" Visible="@(warehouseTransfer != null)" Submit="@FormSubmit" InvalidSubmit="()=>Submitted=true">
+            <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.WarehouseTransfer" Data="@warehouseTransfer" Visible="@(warehouseTransfer != null)" Submit="@FormSubmit">
                 <RadzenRow AlignItems="AlignItems.Center">
                     <RadzenColumn Size="12">
                         <RadzenText Text="Crear traslado entre bodegas" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
@@ -54,12 +54,12 @@
                                     <RadzenNumericRangeValidator Component="DestinationWarehouse" Min="1" Text="La bodega destino es requerida"></RadzenNumericRangeValidator>                                    
                                 </Helper>
                             </RadzenFormField>
-                            <RadzenFormField Text="Nacionalización" Variant="Variant.Text" Style="width: 100%;">
+                            <RadzenFormField Text="NacionalizaciÃ³n" Variant="Variant.Text" Style="width: 100%;">
                                 <ChildContent>
                                     <RadzenTextBox style="display: block; width: 100%" @bind-Value="@warehouseTransfer.Nationalization" Name="Nationalization" MaxLength="30" />
                                 </ChildContent>
                                 <Helper>
-                                    <RadzenRequiredValidator Component="Nationalization" Text="Nacionalización es requerida" />
+                                    <RadzenRequiredValidator Component="Nationalization" Text="NacionalizaciÃ³n es requerida" />
                                 </Helper>
                             </RadzenFormField>
                             <RadzenFormField Text="Notas" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">

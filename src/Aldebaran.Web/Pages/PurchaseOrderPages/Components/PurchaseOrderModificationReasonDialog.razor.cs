@@ -1,4 +1,4 @@
-﻿using Aldebaran.Application.Services;
+using Aldebaran.Application.Services;
 using Aldebaran.Web.Resources.LocalizedControls;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -36,7 +36,6 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages.Components
         #endregion
 
         #region Variables
-        private bool Submitted = false;
         protected bool IsSubmitInProgress;
         private bool IsErrorVisible;
         protected ServiceModel.ModificationReason ModificationReason { get; set; }
@@ -60,7 +59,6 @@ namespace Aldebaran.Web.Pages.PurchaseOrderPages.Components
             try
             {
                 IsSubmitInProgress = true;
-                Submitted = true;
                 if (ModificationReason.ModificationReasonId == 0)
                     return;
                 var employee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id);

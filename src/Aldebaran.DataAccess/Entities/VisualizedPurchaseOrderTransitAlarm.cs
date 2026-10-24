@@ -1,4 +1,4 @@
-﻿using Aldebaran.DataAccess.Core;
+using Aldebaran.DataAccess.Core;
 
 namespace Aldebaran.DataAccess.Entities
 {
@@ -10,8 +10,8 @@ namespace Aldebaran.DataAccess.Entities
 
         /*reverse navigation*/
 
-        public PurchaseOrderTransitAlarm PurchaseOrderTransitAlarm {  get; set; }
-        public Employee Employee { get; set; }
+        public PurchaseOrderTransitAlarm PurchaseOrderTransitAlarm {  get; set; } = null!;
+        public Employee Employee { get; set; } = null!;
 
         public VisualizedPurchaseOrderTransitAlarm() 
         { 

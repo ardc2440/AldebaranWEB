@@ -10,7 +10,7 @@ namespace Aldebaran.DataAccess.Entities
         public DateTime ExecutionDate { get; set; }
         public int DocumentId { get; set; }
         public bool IsActive { get; set; }
-        public AlarmMessage AlarmMessage { get; set; }
+        public AlarmMessage AlarmMessage { get; set; } = null!;
 
         // Reverse navigation
         public ICollection<VisualizedAlarm> VisualizedAlarms { get; set; }

@@ -3,9 +3,9 @@ namespace Aldebaran.Application.Services.Models
     public class Area
     {
         public short AreaId { get; set; }
-        public string AreaCode { get; set; }
-        public string AreaName { get; set; }
-        public string Description { get; set; }
+        public string AreaCode { get; set; } = null!;
+        public string AreaName { get; set; } = null!;
+        public string Description { get; set; } = null!;
         // Reverse navigation
         public ICollection<ActivityTypesArea> ActivityTypesAreas { get; set; }
         public ICollection<CustomerOrderActivity> CustomerOrderActivities { get; set; }

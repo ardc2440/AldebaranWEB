@@ -8,7 +8,7 @@ namespace Aldebaran.DataAccess.Entities
         public DateTime OldExpectedReceiptDate {  get; set; }
         
         /*reverse navigation*/
-        public ModifiedPurchaseOrder ModifiedPurchaseOrder { get; set; }
+        public ModifiedPurchaseOrder ModifiedPurchaseOrder { get; set; } = null!;
         public ICollection<VisualizedPurchaseOrderTransitAlarm> VisualizedAlarms { get; set; }
 
         public PurchaseOrderTransitAlarm()

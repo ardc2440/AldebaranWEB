@@ -32,7 +32,6 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         #region Global Variables
 
         protected bool IsErrorVisible;
-        private bool Submitted = false;
         protected bool IsSubmitInProgress;
         protected bool isLoadingInProgress;                       
         protected string Error;
@@ -79,7 +78,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
             await base.SetParametersAsync(parameters);
 
-            // Actualizar la cantidad original cada vez que se pasan nuevos par醡etros
+            // Actualizar la cantidad original cada vez que se pasan nuevos par谩metros
             if (CustomerReservationDetail?.CustomerReservationDetailId > 0)
             {
                 await LoadOriginalReservedQuantity();
@@ -101,7 +100,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             }
             catch
             {
-                // En caso de error, usar el valor del par醡etro como fallback
+                // En caso de error, usar el valor del par谩metro como fallback
                 originalReservedQuantity = CustomerReservationDetail.ReservedQuantity;
             }
         }
@@ -116,7 +115,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                 IsErrorVisible = false;
                 IsSubmitInProgress = true;
 
-                // Validaci髇 informativa de stock - no bloquea el proceso
+                // Validaci贸n informativa de stock - no bloquea el proceso
                 await ValidateWarehouseStock();
 
                 DialogService.Close(CustomerReservationDetailData);
@@ -144,7 +143,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                 try
                 {
                     // Para reservas, siempre validar la cantidad total cuando el stock puede ser insuficiente
-                    // incluso si es una reducci髇, porque el stock puede estar negativo
+                    // incluso si es una reducci贸n, porque el stock puede estar negativo
                     
                     var validationResult = await WarehouseStockValidationService.ValidateLocalWarehouseStockAsync(
                         CustomerReservationDetailData.ReferenceId, 
@@ -162,15 +161,15 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                         var tempReservationId = CustomerReservationDetailData.CustomerReservationId;
                         var tempSendToCustomerOrder = CustomerReservationDetailData.SendToCustomerOrder;
                         
-                        // Validaci髇 informativa con estilo de warning - mostrar mensaje pero NO bloquear el proceso
+                        // Validaci贸n informativa con estilo de warning - mostrar mensaje pero NO bloquear el proceso
                         await DialogService.Alert($"{validationResult.ErrorMessage}\n\nPuede continuar con el proceso normalmente.",
                             options: new AlertOptions() 
                             { 
                                 OkButtonText = "Entendido"
                             }, 
-                            title: "DVERTENCIA!");
+                            title: "隆ADVERTENCIA!");
 
-                        // Restaurar todas las propiedades despu閟 del alert
+                        // Restaurar todas las propiedades despu茅s del alert
                         CustomerReservationDetailData.ReferenceId = tempReferenceId;
                         CustomerReservationDetailData.ReservedQuantity = tempReservedQuantity;
                         CustomerReservationDetailData.Brand = tempBrand;
@@ -187,7 +186,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                 }
                 catch (Exception ex)
                 {
-                    // En caso de error en la validaci髇, no bloquear el proceso
+                    // En caso de error en la validaci贸n, no bloquear el proceso
                 }
             }
         }

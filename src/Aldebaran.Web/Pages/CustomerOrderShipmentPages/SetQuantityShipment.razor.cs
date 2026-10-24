@@ -31,7 +31,6 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
         protected DetailInProcess detailInProcess;
         protected ItemReference ItemReference { get; set; }
         protected bool IsErrorVisible;
-        private bool Submitted = false;
         protected bool IsSubmitInProgress;
         protected bool isLoadingInProgress;
         protected string Error;
@@ -82,9 +81,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
                 IsSubmitInProgress = true;
 
                 if ((detailInProcess.PROCESSED_QUANTITY + DetailInProcess.THIS_QUANTITY) < detailInProcess.THIS_QUANTITY)
-                    throw new Exception("La cantidad de este despacho debe ser menor o igual a la cantidad en proceso del artículo");
+                    throw new Exception("La cantidad de este despacho debe ser menor o igual a la cantidad en proceso del artÃ­culo");
 
-                if (await DialogService.Confirm("Está seguro que desea despachar esta referencia?", "Confirmar") == true)
+                if (await DialogService.Confirm("EstÃ¡ seguro que desea despachar esta referencia?", "Confirmar") == true)
                 {
                     DetailInProcess.PROCESSED_QUANTITY = (detailInProcess.PROCESSED_QUANTITY + DetailInProcess.THIS_QUANTITY) - detailInProcess.THIS_QUANTITY;
                     DetailInProcess.DELIVERED_QUANTITY = (detailInProcess.DELIVERED_QUANTITY - DetailInProcess.THIS_QUANTITY) + detailInProcess.THIS_QUANTITY;

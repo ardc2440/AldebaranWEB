@@ -38,7 +38,6 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
         protected CustomerReservationDetail customerReservationDetail;
         protected InventoryQuantities QuantitiesPanel;
         protected bool IsErrorVisible;
-        private bool Submitted;
         protected bool IsSubmitInProgress;
         protected bool isLoadingInProgress;
         protected string Error;
@@ -82,7 +81,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                 if (CustomerReservationDetails.Any(ad => ad.ReferenceId == customerReservationDetail.ReferenceId))
                     throw new Exception("La referencia seleccionada ya existe dentro de esta reserva.");
 
-                // Validación informativa de stock - no bloquea el proceso
+                // ValidaciÃ³n informativa de stock - no bloquea el proceso
                 await ValidateWarehouseStock();
 
                 DialogService.Close(customerReservationDetail);
@@ -129,15 +128,15 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                         var tempBrand = customerReservationDetail.Brand;
                         var tempItemReference = customerReservationDetail.ItemReference;
                         
-                        // Validación informativa con estilo de warning - mostrar mensaje pero NO bloquear el proceso
+                        // ValidaciÃ³n informativa con estilo de warning - mostrar mensaje pero NO bloquear el proceso
                         await DialogService.Alert($"{validationResult.ErrorMessage}\n\nPuede continuar con el proceso normalmente.",
                             options: new AlertOptions() 
                             { 
                                 OkButtonText = "Entendido"
                             }, 
-                            title: "¡ADVERTENCIA!");
+                            title: "Â¡ADVERTENCIA!");
 
-                        // Restaurar las referencias después del alert
+                        // Restaurar las referencias despuÃ©s del alert
                         customerReservationDetail.ReferenceId = tempReferenceId;
                         customerReservationDetail.ReservedQuantity = tempReservedQuantity;
                         customerReservationDetail.Brand = tempBrand;
@@ -148,7 +147,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                             customerReservationDetail.ItemReference = tempItemReference;
                         }
                         
-                        // Si aún es null, buscarlo de nuevo
+                        // Si aÃºn es null, buscarlo de nuevo
                         if (customerReservationDetail.ItemReference == null && tempReferenceId > 0)
                         {
                             customerReservationDetail.ItemReference = ItemReferencesForREFERENCEID.FirstOrDefault(s => s.ReferenceId == tempReferenceId);
@@ -157,7 +156,7 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
                 }
                 catch (Exception ex)
                 {
-                    // En caso de error en la validación, no bloquear el proceso
+                    // En caso de error en la validaciÃ³n, no bloquear el proceso
                 }
             }
         }

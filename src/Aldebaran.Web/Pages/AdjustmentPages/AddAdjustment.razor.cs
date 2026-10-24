@@ -54,7 +54,6 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         protected LocalizedDataGrid<AdjustmentDetail> adjustmentDetailGrid;
         protected DocumentType documentType;
         protected bool IsErrorVisible;
-        private bool Submitted;
         protected bool IsSubmitInProgress;
         protected bool isLoadingInProgress;
         protected string Error;
@@ -97,7 +96,6 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
         {
             try
             {
-                Submitted = true;
                 IsSubmitInProgress = true;
                 if (!AdjustmentDetails.Any())
                     throw new Exception("No ha ingresado ninguna referencia");
@@ -118,7 +116,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
-            if (await DialogService.Confirm("Est· seguro que desea cancelar la creaciÛn del ajuste?", "Confirmar") == true)
+            if (await DialogService.Confirm("Est√° seguro que desea cancelar la creaci√≥n del ajuste?", "Confirmar") == true)
                 NavigationManager.NavigateTo("adjustments");
         }
 
@@ -141,7 +139,7 @@ namespace Aldebaran.Web.Pages.AdjustmentPages
 
         protected async Task DeleteAdjustmentDetailButtonClick(MouseEventArgs args, AdjustmentDetail item)
         {
-            if (await DialogService.Confirm("Est· seguro que desea eliminar esta referencia?", "Confirmar") == true)
+            if (await DialogService.Confirm("Est√° seguro que desea eliminar esta referencia?", "Confirmar") == true)
             {
                 AdjustmentDetails.Remove(item);
                 await adjustmentDetailGrid.Reload();

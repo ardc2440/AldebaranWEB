@@ -1,6 +1,6 @@
 @page "/add-adjustment"
 
-@attribute [Authorize(Roles = "Administrador,Modificación de ajustes de inventario")]
+@attribute [Authorize(Roles = "Administrador,ModificaciÃ³n de ajustes de inventario")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
 
@@ -10,7 +10,7 @@
 {
     <RadzenCard>
         <RadzenStack>
-            <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.Adjustment" Data="@adjustment" Visible="@(adjustment != null)" Submit="@FormSubmit" InvalidSubmit="()=>Submitted=true">
+            <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.Adjustment" Data="@adjustment" Visible="@(adjustment != null)" Submit="@FormSubmit">
                 <RadzenRow AlignItems="AlignItems.Center">
                     <RadzenColumn Size="12">
                         <RadzenText Text="Crear ajuste de inventario" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />

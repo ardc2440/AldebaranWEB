@@ -1,4 +1,4 @@
-﻿using Aldebaran.Application.Services;
+using Aldebaran.Application.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
@@ -32,7 +32,6 @@ namespace Aldebaran.Web.Shared
         #endregion
 
         #region Variables
-        private bool Submitted = false;
         protected bool IsSubmitInProgress;
         private bool IsErrorVisible;
         protected ServiceModel.ModificationReason ModificationReason { get; set; }
@@ -55,7 +54,6 @@ namespace Aldebaran.Web.Shared
             try
             {
                 IsSubmitInProgress = true;
-                Submitted = true;
                 if (ModificationReason.ModificationReasonId == 0)
                     return;
                 var employee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id);

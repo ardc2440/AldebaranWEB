@@ -3,7 +3,7 @@ namespace Aldebaran.DataAccess.Entities
     public class City
     {
         public int CityId { get; set; }
-        public string CityName { get; set; }
+        public string CityName { get; set; } = null!;
         public int DepartmentId { get; set; }
         // Reverse navigation
         public ICollection<Customer> Customers { get; set; }
@@ -11,7 +11,7 @@ namespace Aldebaran.DataAccess.Entities
         public ICollection<ForwarderAgent> ForwarderAgents { get; set; }
         public ICollection<ProcessSatellite> ProcessSatellites { get; set; }
         public ICollection<Provider> Providers { get; set; }
-        public Department Department { get; set; }
+        public Department Department { get; set; } = null!;
         public City()
         {
             Customers = new List<Customer>();

@@ -6,7 +6,7 @@ namespace Aldebaran.DataAccess.Entities
     {
         public int ReferenceId { get; set; }
         public int ProviderId { get; set; }
-        public ItemReference ItemReference { get; set; }
-        public Provider Provider { get; set; }
+        public ItemReference ItemReference { get; set; } = null!;
+        public Provider Provider { get; set; } = null!;
     }
 }

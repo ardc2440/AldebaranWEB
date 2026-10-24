@@ -7,7 +7,6 @@ using Aldebaran.Infraestructure.Common.Utils;
 using Microsoft.Extensions.Options;
 using System.Text.RegularExpressions;
 using Aldebaran.Application.Services.InventoryMinimumAlerts.Models;
-using Aldebaran.Application.Services.InventoryMinimumAlerts.Models;
 
 namespace Aldebaran.Application.Services.InventoryMinimumAlerts
 {

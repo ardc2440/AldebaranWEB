@@ -4,11 +4,11 @@ namespace Aldebaran.Application.Services.Models
     {
         public int ReferenceId { get; set; }
         public int ItemId { get; set; }
-        public string ReferenceCode { get; set; }
-        public string ProviderReferenceCode { get; set; }
-        public string ReferenceName { get; set; }
-        public string ProviderReferenceName { get; set; }
-        public string Notes { get; set; }
+        public string ReferenceCode { get; set; } = null!;
+        public string ProviderReferenceCode { get; set; } = null!;
+        public string ReferenceName { get; set; } = null!;
+        public string ProviderReferenceName { get; set; } = null!;
+        public string Notes { get; set; } = null!;
         public int InventoryQuantity { get; set; }
         public int OrderedQuantity { get; set; }
         public int ReservedQuantity { get; set; }
@@ -28,8 +28,8 @@ namespace Aldebaran.Application.Services.Models
         public ICollection<ProviderReference> ProviderReferences { get; set; }
         public ICollection<PurchaseOrderDetail> PurchaseOrderDetails { get; set; }
         public ICollection<ReferencesWarehouse> ReferencesWarehouses { get; set; }
-        public ICollection<WarehouseTransferDetail> WarehouseTransferDetails { get; set; }
-        public Item Item { get; set; }
+        public ICollection<WarehouseTransferDetail> WarehouseTransferDetails { get; set; } = null!;
+        public Item Item { get; set; } = null!;
 
         /// <summary>
         /// Propiedad de solo negocio. No mapear con la base de datos ni usar en AutoMapper.
@@ -51,8 +51,8 @@ namespace Aldebaran.Application.Services.Models
         }
 
         /// <summary>
-        /// Sincroniza la propiedad de negocio AlarmMinimumQuantityActive según el valor de AlarmMinimumQuantity.
-        /// Llamar después de mapear o deserializar desde la base de datos.
+        /// Sincroniza la propiedad de negocio AlarmMinimumQuantityActive segÃºn el valor de AlarmMinimumQuantity.
+        /// Llamar despuÃ©s de mapear o deserializar desde la base de datos.
         /// </summary>
         public void SyncAlarmMinimumQuantityActive()
         {
@@ -77,7 +77,7 @@ namespace Aldebaran.Application.Services.Models
             ProviderReferences = new List<ProviderReference>();
             PurchaseOrderDetails = new List<PurchaseOrderDetail>();
             ReferencesWarehouses = new List<ReferencesWarehouse>();
-            // Inicializa la propiedad de negocio según el valor de AlarmMinimumQuantity
+            // Inicializa la propiedad de negocio segÃºn el valor de AlarmMinimumQuantity
             _alarmMinimumQuantityActive = AlarmMinimumQuantity > 0;
         }
     }

@@ -8,9 +8,9 @@ namespace Aldebaran.DataAccess.Entities
         public short CloseCustomerOrderReasonId { get; set; }
         public int EmployeeId { get; set; }
         public DateTime CloseDate { get; set; }
-        public CloseCustomerOrderReason CloseCustomerOrderReason { get; set; }
-        public CustomerOrder CustomerOrder { get; set; }
-        public Employee Employee { get; set; }
+        public CloseCustomerOrderReason CloseCustomerOrderReason { get; set; } = null!;
+        public CustomerOrder CustomerOrder { get; set; } = null!;
+        public Employee Employee { get; set; } = null!;
         public ClosedCustomerOrder()
         {
             CloseDate = DateTime.Now;

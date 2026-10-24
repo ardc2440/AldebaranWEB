@@ -1,7 +1,7 @@
 @page "/send-to-customer-order/{CustomerReservationId}"
 @page "/send-to-customer-order/{Action}/{CustomerReservationId}"
 
-@attribute [Authorize(Roles = "Administrador,Modificación de reservas")]
+@attribute [Authorize(Roles = "Administrador,ModificaciÃ³n de reservas")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
 
@@ -12,7 +12,7 @@
 {
     <RadzenCard>
         <RadzenStack>
-            <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerReservation" Data="@customerReservation" Visible="@(customerReservation != null)" Submit="@FormSubmit" InvalidSubmit="()=>Submitted=true">
+            <RadzenTemplateForm TItem="Aldebaran.Application.Services.Models.CustomerReservation" Data="@customerReservation" Visible="@(customerReservation != null)" Submit="@FormSubmit">
                 <RadzenRow AlignItems="AlignItems.Center">
                     <RadzenColumn Size="12">
                         <RadzenText Text="@title" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
@@ -34,7 +34,7 @@
                                                 <RadzenLabel Text="@customerReservation.Customer.CustomerName" />
                                             </div>
                                             <div class="text-secondary-color">
-                                                <RadzenLabel Text="Teléfono: " />
+                                                <RadzenLabel Text="TelÃ©fono: " />
                                                 <span>@customerReservation.Customer.Phone1</span>
                                             </div>
                                             <div class="text-secondary-color">
@@ -47,7 +47,7 @@
                                                 </ul>                                               
                                             </div>
                                             <div class="text-secondary-color">
-                                                <RadzenLabel Text="Dirección: " />
+                                                <RadzenLabel Text="DirecciÃ³n: " />
                                                 <span>@customerReservation.Customer.CustomerAddress</span>
                                             </div>
                                             <div class="text-secondary-color">
@@ -65,7 +65,7 @@
                                             <span>@customerReservation.ReservationDate.ToString(@SharedLocalizer["date:format"]) </span>
                                         </div>
                                         <div class="text-primary-color" style="font-size: 16px">
-                                            <RadzenLabel Text="Fecha de expiración:" />
+                                            <RadzenLabel Text="Fecha de expiraciÃ³n:" />
                                         </div>
                                         <div class="text-secondary-color">
                                             <span>@customerReservation.ExpirationDate.ToString(@SharedLocalizer["date:format"])</span>
@@ -83,7 +83,7 @@
                         </RadzenStack>
                     </RadzenColumn>
                     <RadzenColumn Size="6">
-                        <RadzenText Text="Referencias" TextStyle="TextStyle.H5" TagName="TagName.H1"   />
+                        <RadzenText Text="Referencias" TextStyle="TextStyle.H5" TagName="TagName.H1" Â  />
                         <RadzenStack>
                             <LocalizedDataGrid @ref="customerReservationDetailGrid" ColumnWidth="200px" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                                Data="@customerReservationDetails" TItem="Aldebaran.Application.Services.Models.CustomerReservationDetail">

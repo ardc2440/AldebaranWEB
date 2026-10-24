@@ -1,4 +1,4 @@
-﻿@using ServiceModel = Aldebaran.Application.Services.Models;
+@using ServiceModel = Aldebaran.Application.Services.Models;
 
 <RadzenStack>
     @if (!ModificationReasons.Any())
@@ -7,7 +7,7 @@
             Motivos de modificación no encontrados!!!
         </RadzenAlert>
     }
-    <RadzenTemplateForm TItem="ServiceModel.ModificationReason" Data="@ModificationReason" Visible="@ModificationReasons.Any()" Submit="@FormSubmit" InvalidSubmit="()=>Submitted=true">
+    <RadzenTemplateForm TItem="ServiceModel.ModificationReason" Data="@ModificationReason" Visible="@ModificationReasons.Any()" Submit="@FormSubmit">
         <div class="component-section d-flex flex-column justify-content-start">
             <span>@TITLE</span>
         </div>

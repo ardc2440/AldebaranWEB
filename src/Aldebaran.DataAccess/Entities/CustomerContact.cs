@@ -6,10 +6,10 @@ namespace Aldebaran.DataAccess.Entities
     {
         public int CustomerContactId { get; set; }
         public int CustomerId { get; set; }
-        public string CustomerContactName { get; set; }
-        public string Title { get; set; }
-        public string Phone { get; set; }
-        public string Email { get; set; }
-        public Customer Customer { get; set; }
+        public string CustomerContactName { get; set; } = null!;
+        public string Title { get; set; } = null!;
+        public string Phone { get; set; } = null!;
+        public string Email { get; set; } = null!;
+        public Customer Customer { get; set; } = null!;
     }
 }

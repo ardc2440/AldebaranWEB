@@ -46,7 +46,6 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         protected DetailInProcess detailInProcess;
         protected ItemReference ItemReference { get; set; }
         protected bool IsErrorVisible;
-        private bool Submitted = false;
         protected bool IsSubmitInProgress;
         protected bool isLoadingInProgress;
         protected string Error;
@@ -114,7 +113,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
             await base.SetParametersAsync(parameters);
             
-            // Actualizar la cantidad original cada vez que se pasan nuevos parámetros
+            // Actualizar la cantidad original cada vez que se pasan nuevos parÃ¡metros
             if (DetailInProcess != null)
             {
                 await LoadOriginalProcessedQuantity();
@@ -125,7 +124,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         #region Private Methods
         
         /// <summary>
-        /// Obtiene la cantidad procesada original real desde la base de datos del CustomerOrderInProcessDetail específico
+        /// Obtiene la cantidad procesada original real desde la base de datos del CustomerOrderInProcessDetail especÃ­fico
         /// </summary>
         private async Task LoadOriginalProcessedQuantity()
         {
@@ -156,12 +155,12 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                 IsSubmitInProgress = true;
 
                 if ((detailInProcess.PENDING_QUANTITY + DetailInProcess.THIS_QUANTITY) < detailInProcess.THIS_QUANTITY)
-                    throw new Exception("La cantidad de este traslado debe ser menor o igual a la cantidad pendiente del artículo");
+                    throw new Exception("La cantidad de este traslado debe ser menor o igual a la cantidad pendiente del artÃ­culo");
 
-                // Validación informativa de stock solo para bodega local
+                // ValidaciÃ³n informativa de stock solo para bodega local
                 await ValidateWarehouseStockInformative();
 
-                if (await DialogService.Confirm("Está seguro que desea enviar a proceso esta referencia?", "Confirmar") == true)
+                if (await DialogService.Confirm("EstÃ¡ seguro que desea enviar a proceso esta referencia?", "Confirmar") == true)
                 {
                     DetailInProcess.WAREHOUSE_ID = detailInProcess.WAREHOUSE_ID;
                     DetailInProcess.PENDING_QUANTITY = (detailInProcess.PENDING_QUANTITY + DetailInProcess.THIS_QUANTITY) - detailInProcess.THIS_QUANTITY;
@@ -183,7 +182,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
         }
 
         /// <summary>
-        /// Validación informativa de stock - no bloquea el proceso
+        /// ValidaciÃ³n informativa de stock - no bloquea el proceso
         /// </summary>
         protected async Task ValidateWarehouseStockInformative()
         {
@@ -195,7 +194,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
                 
                 if (quantityToValidate > 0)
                 {
-                    // Usar el método específico para traslados a proceso que excluye
+                    // Usar el mÃ©todo especÃ­fico para traslados a proceso que excluye
                     // las cantidades comprometidas del CustomerOrderDetail actual
                     var validationResult = await WarehouseStockValidationService.ValidateLocalWarehouseStockForProcessTransferAsync(
                         detailInProcess.REFERENCE_ID, 
@@ -205,13 +204,13 @@ namespace Aldebaran.Web.Pages.CustomerOrderInProcessPages
 
                     if (!validationResult.IsValid)
                     {
-                        // Validación informativa con estilo de warning - mostrar mensaje pero NO bloquear el proceso
+                        // ValidaciÃ³n informativa con estilo de warning - mostrar mensaje pero NO bloquear el proceso
                         await DialogService.Alert($"{validationResult.ErrorMessage}\n\nPuede continuar con el proceso normalmente.",
                             options: new AlertOptions() 
                             { 
                                 OkButtonText = "Entendido"
                             }, 
-                            title: "¡ADVERTENCIA!");
+                            title: "Â¡ADVERTENCIA!");
                     }
                 }
             }

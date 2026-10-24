@@ -1,4 +1,4 @@
-﻿using Aldebaran.DataAccess.Entities;
+using Aldebaran.DataAccess.Entities;
 using Aldebaran.DataAccess.Enums;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,7 +31,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     await dbContext.CustomerReservationNotifications.AddAsync(customerReservationNotification, ct);
                     await dbContext.SaveChangesAsync(ct);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     dbContext.Entry(customerReservationNotification).State = EntityState.Unchanged;
                     throw;

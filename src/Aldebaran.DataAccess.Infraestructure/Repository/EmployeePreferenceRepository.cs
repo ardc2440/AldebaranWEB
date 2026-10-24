@@ -1,4 +1,4 @@
-﻿using Aldebaran.DataAccess.Entities;
+using Aldebaran.DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
@@ -27,7 +27,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
 
                     await dbContext.SaveChangesAsync(ct);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     dbContext.Entry(employeePreference).State = EntityState.Detached;
                     throw;

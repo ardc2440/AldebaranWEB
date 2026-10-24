@@ -68,7 +68,6 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
         protected IEnumerable<Employee> employeesFOREMPLOYEEID;
         protected IEnumerable<ShippingMethod> shippingMethodsFORSHIPPINGMETHODID;
         protected bool IsErrorVisible;
-        private bool Submitted;
         protected bool IsSubmitInProgress;
         protected string Error;
 
@@ -108,7 +107,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
                     StatusDocumentTypeId = customerOrderShipmentStatusDocumentType.StatusDocumentTypeId
                 };
 
-                title = $"Despacho de artÌculos para el pedido No. {customerOrder.OrderNumber}";
+                title = $"Despacho de art√≠culos para el pedido No. {customerOrder.OrderNumber}";
             }
             catch (Exception ex)
             {
@@ -151,7 +150,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
 
         protected async Task CancelToShipment(DetailInProcess args)
         {
-            if (await DialogService.Confirm("Est· seguro que desea eliminar esta referencia?", "Confirmar") != true)
+            if (await DialogService.Confirm("Est√° seguro que desea eliminar esta referencia?", "Confirmar") != true)
             {
                 return;
             }
@@ -164,9 +163,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
             await customerOrderDetailGrid.Reload();
         }
 
-        protected bool CanSend(DetailInProcess detailInProcess) => detailInProcess.PROCESSED_QUANTITY > 0 && Security.IsInRole("Administrador", "ModificaciÛn de despachos");
+        protected bool CanSend(DetailInProcess detailInProcess) => detailInProcess.PROCESSED_QUANTITY > 0 && Security.IsInRole("Administrador", "Modificaci√≥n de despachos");
 
-        protected bool CanCancel(DetailInProcess detailInProcess) => detailInProcess.THIS_QUANTITY > 0 && Security.IsInRole("Administrador", "ModificaciÛn de despachos");
+        protected bool CanCancel(DetailInProcess detailInProcess) => detailInProcess.THIS_QUANTITY > 0 && Security.IsInRole("Administrador", "Modificaci√≥n de despachos");
 
         protected async Task FormSubmit()
         {
@@ -228,7 +227,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
 
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
-            if (await DialogService.Confirm("Est· seguro que cancelar la creaciÛn del despacho??", "Confirmar") == true)
+            if (await DialogService.Confirm("Est√° seguro que cancelar la creaci√≥n del despacho??", "Confirmar") == true)
                 NavigationManager.NavigateTo("shipment-customer-orders");
         }
 

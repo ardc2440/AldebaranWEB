@@ -3,7 +3,7 @@ namespace Aldebaran.DataAccess.Entities
     public class Warehouse
     {
         public short WarehouseId { get; set; }
-        public string WarehouseName { get; set; }
+        public string WarehouseName { get; set; } = null!;
         public short WarehouseCode { get; set; }
 
         // Reverse navigation
@@ -11,8 +11,8 @@ namespace Aldebaran.DataAccess.Entities
         public ICollection<CustomerOrderInProcessDetail> CustomerOrderInProcessDetails { get; set; }
         public ICollection<PurchaseOrderDetail> PurchaseOrderDetails { get; set; }
         public ICollection<ReferencesWarehouse> ReferencesWarehouses { get; set; }
-        public ICollection<WarehouseTransfer> OriginWarehouseTransfers { get; set; }
-        public ICollection<WarehouseTransfer> DestinationWarehouseTransfers { get; set; }
+        public ICollection<WarehouseTransfer> OriginWarehouseTransfers { get; set; } = null!;
+        public ICollection<WarehouseTransfer> DestinationWarehouseTransfers { get; set; } = null!;
 
         public Warehouse()
         {

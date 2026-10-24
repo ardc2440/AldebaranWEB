@@ -1,4 +1,4 @@
-﻿
+
 using Aldebaran.Application.Services.Notificator.Model;
 using Aldebaran.Application.Services.Notificator.Notify;
 using Aldebaran.Infraestructure.Common.Extensions;
@@ -71,7 +71,7 @@ namespace Aldebaran.Application.Services.Notificator.EmailProvider
             var to = message.Header.ReceiverUrn;
             var cc = message.Header.ReceiverUrnCc;            
 
-            var bcc = message.Header.ReceiverUrnBcc == null ? Array.Empty<string>() : message.Header.ReceiverUrnCc; ;
+            var bcc = message.Header.ReceiverUrnBcc ?? Array.Empty<string>();
             
             Array.Resize(ref bcc, bcc.Length + 1); // Aumenta el tamaño del array en 1
             bcc[bcc.Length - 1] = "pedidos@catalogospromocionales.com";

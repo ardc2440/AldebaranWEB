@@ -7,13 +7,13 @@ namespace Aldebaran.DataAccess.Entities
         public int EmployeeId { get; set; }
         public short AreaId { get; set; }
         public int IdentityTypeId { get; set; }
-        public string IdentityNumber { get; set; }
-        public string DisplayName { get; set; }
-        public string FullName { get; set; }
-        public string LoginUserId { get; set; }
-        public string Position { get; set; }
-        public Area Area { get; set; }
-        public IdentityType IdentityType { get; set; }
+        public string IdentityNumber { get; set; } = null!;
+        public string DisplayName { get; set; } = null!;
+        public string FullName { get; set; } = null!;
+        public string LoginUserId { get; set; } = null!;
+        public string Position { get; set; } = null!;
+        public Area Area { get; set; } = null!;
+        public IdentityType IdentityType { get; set; } = null!;
 
         // Reverse navigation
         public ICollection<Adjustment> Adjustments { get; set; }
@@ -42,16 +42,16 @@ namespace Aldebaran.DataAccess.Entities
         public ICollection<UsersAlarmType> UsersAlarmTypes { get; set; }
         public ICollection<VisualizedPurchaseOrderTransitAlarm> VisualizedPurchaseOrderTransitAlarms { get; set; }
         public ICollection<VisualizedAlarm> VisualizedAlarms { get; set; }
-        public ICollection<WarehouseTransfer> WarehouseTransfers { get; set; }
+        public ICollection<WarehouseTransfer> WarehouseTransfers { get; set; } = null!;
         public ICollection<VisualizedMinimumQuantityAlarm> VisualizedMinimumQuantityAlarms { get; set; }
         public ICollection<VisualizedMinimumLocalWarehouseQuantityAlarm> VisualizedMinimumLocalWarehouseQuantityAlarms { get; set; }
         public ICollection<VisualizedOutOfStockInventoryAlarm> VisualizedOutOfStockInventoryAlarms { get; set; }
-        public ICollection<CancellationRequest> CancellationEmployeeRequests { get; set; }
-        public ICollection<CancellationRequest> CancellationEmployeeResponses { get; set; }
+        public ICollection<CancellationRequest> CancellationEmployeeRequests { get; set; } = null!;
+        public ICollection<CancellationRequest> CancellationEmployeeResponses { get; set; } = null!;
         public ICollection<VisualizedLocalWarehouseAlarm> VisualizedLocalWarehouseAlarms { get; set; }
-        public ICollection<VisualizedAutomaticInProcess> VisualizedAutomaticInProcesses { get; set; }
-        public ICollection<PurchaseOrderApprovalRange> PurchaseOrderApprovalRanges { get; set; }
-        public ICollection<EmployeePreference> EmployeePreferences { get; set; }
+        public ICollection<VisualizedAutomaticInProcess> VisualizedAutomaticInProcesses { get; set; } = null!;
+        public ICollection<PurchaseOrderApprovalRange> PurchaseOrderApprovalRanges { get; set; } = null!;
+        public ICollection<EmployeePreference> EmployeePreferences { get; set; } = null!;
 
         public Employee()
         {

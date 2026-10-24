@@ -7,8 +7,8 @@ namespace Aldebaran.DataAccess.Entities
         public int EmployeeId { get; set; }
         public bool Visualize { get; set; }
         public bool Deactivates { get; set; }
-        public AlarmType AlarmType { get; set; }
-        public Employee Employee { get; set; }
+        public AlarmType AlarmType { get; set; } = null!;
+        public Employee Employee { get; set; } = null!;
         public UsersAlarmType()
         {
             Visualize = true;

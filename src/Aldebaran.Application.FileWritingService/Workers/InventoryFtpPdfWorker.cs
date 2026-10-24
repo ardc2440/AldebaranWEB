@@ -1,4 +1,4 @@
-﻿using Aldebaran.Application.FileWritingService.Services.Pdf;
+using Aldebaran.Application.FileWritingService.Services.Pdf;
 using Aldebaran.Application.FileWritingService.Workers.Inventory;
 using Aldebaran.Application.FileWritingService.Workers.Inventory.Models;
 using Aldebaran.DataAccess.Infraestructure.Repository;
@@ -83,7 +83,7 @@ namespace Aldebaran.Application.FileWritingService.Workers
                         var css = GetCss();
 
                         // Generate report to temp file
-                        string pdfPath = null;
+                        string? pdfPath = null;
                         try
                         {
                             var htmlTemplate = await GetTemplateHtmlAsync(ct);
@@ -144,7 +144,7 @@ namespace Aldebaran.Application.FileWritingService.Workers
                                     var targetFileName = BuildTargetFileName(FileNameTemplate, now, overwrite);
 
                                     bool uploaded = false;
-                                    string uploadError = null;
+                                    string? uploadError = null;
                                     try
                                     {
                                         // FtpClient reporta los fallos devolviendo false: también se reintenta en ese caso

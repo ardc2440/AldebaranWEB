@@ -133,7 +133,7 @@ namespace Aldebaran.DataAccess
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.HasDbFunction(typeof(AldebaranDbContext).GetMethod(nameof(Format), new[] { typeof(DateTime), typeof(string) }))
+            modelBuilder.HasDbFunction(typeof(AldebaranDbContext).GetMethod(nameof(Format), new[] { typeof(DateTime), typeof(string) })!)
                 .HasName("DateTimeToStringFormated");
             modelBuilder.ApplyConfiguration(new ActivityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new ActivityTypesAreaConfiguration());
@@ -604,8 +604,8 @@ namespace Aldebaran.DataAccess
         private string GetJsonKeys(EntityEntry entry)
         {
             var entity1 = entry.Entity;
-            var entry1EntityType = Model.FindEntityType(entity1.GetType());
-            var entry1PrimaryKey = entry1EntityType.FindPrimaryKey();
+            var entry1EntityType = Model.FindEntityType(entity1.GetType())!;
+            var entry1PrimaryKey = entry1EntityType.FindPrimaryKey()!;
             var entry1KeyValues = entry1PrimaryKey.Properties.OrderBy(o => o.Name).ToDictionary(p => p.Name, p => entry.Property(p.Name).CurrentValue?.ToString());
             var entry1EntityKeyJson = System.Text.Json.JsonSerializer.Serialize(entry1KeyValues);
             return entry1EntityKeyJson;
@@ -694,7 +694,7 @@ namespace Aldebaran.DataAccess
 
 public class ChangeTrackerEntity
 {
-    public EntityEntry Entry { get; set; }
+    public EntityEntry Entry { get; set; } = null!;
     public EntityState State { get; set; }
     /// <summary>Valores originales (solo en memoria) de propiedades [TrackMasked] modificadas.</summary>
     public IReadOnlyDictionary<string, string?> MaskedOriginalValues { get; set; } = new Dictionary<string, string?>();
