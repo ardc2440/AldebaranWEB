@@ -1,4 +1,4 @@
-﻿using Aldebaran.Application.Services.Models;
+using Aldebaran.Application.Services.Models;
 using Aldebaran.DataAccess.Infraestructure.Repository;
 using AutoMapper;
 using Entities = Aldebaran.DataAccess.Entities;
@@ -33,15 +33,15 @@ namespace Aldebaran.Application.Services
             return (_mapper.Map<IEnumerable<CustomerOrder>>(data), c);
         }
 
-        public async Task<(IEnumerable<CustomerOrder>, int count)> GetAsync(int skip, int top, short editMode = -1, CancellationToken ct = default)
+        public async Task<(IEnumerable<CustomerOrder>, int count)> GetAsync(int skip, int top, short editMode = -1, bool? isSpecialOrder = null, CancellationToken ct = default)
         {
-            var (data, c) = await _repository.GetAsync(skip, top, editMode, ct);
+            var (data, c) = await _repository.GetAsync(skip, top, editMode, isSpecialOrder, ct);
             return (_mapper.Map<IEnumerable<CustomerOrder>>(data), c);
         }
 
-        public async Task<(IEnumerable<CustomerOrder>, int count)> GetAsync(int skip, int top, string searchKey, short editMode = -1, CancellationToken ct = default)
+        public async Task<(IEnumerable<CustomerOrder>, int count)> GetAsync(int skip, int top, string searchKey, short editMode = -1, bool? isSpecialOrder = null, CancellationToken ct = default)
         {
-            var (data, c) = await _repository.GetAsync(skip, top, searchKey, editMode, ct);
+            var (data, c) = await _repository.GetAsync(skip, top, searchKey, editMode, isSpecialOrder, ct);
             return (_mapper.Map<IEnumerable<CustomerOrder>>(data), c);
         }
 

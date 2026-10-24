@@ -1,4 +1,4 @@
-﻿@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
+@inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
 <LoadingData IsLoadingData="@isLoadingInProgress" />
 
 @if (!isLoadingInProgress)
@@ -35,6 +35,9 @@
                                         <tr class="border border-top-0 emphasys">
                                             <td colspan="2">Fecha de pedido: @CustomerOrder.OrderDate.ToString(SharedLocalizer["date:format"])</td>
                                             <td colspan="2">Fecha estimada de entrega: @CustomerOrder.EstimatedDeliveryDate.ToString(SharedLocalizer["date:format"])</td>
+                                        </tr>
+                                        <tr class="@InternalOnlyContent.CssClass">
+                                            <td colspan="4">Pedido especial: @(CustomerOrder.IsSpecialOrder ? "Sí" : "No")</td>
                                         </tr>
                                         <tr>
                                             <td colspan="2">

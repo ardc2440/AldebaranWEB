@@ -1,4 +1,4 @@
-﻿using Aldebaran.Application.Services;
+using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Application.Services.Notificator;
 using Aldebaran.Application.Services.Notificator.Model;
@@ -104,7 +104,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         async Task Notify(MouseEventArgs args)
         {
             IsBusy = true;
-            var html = await JSRuntime.InvokeAsync<string>("getContent", "customer-order-summary");
+            var html = InternalOnlyContent.Remove(await JSRuntime.InvokeAsync<string>("getContent", "customer-order-summary"));
             var pdfBytes = await FileBytesGeneratorService.GetPdfBytes(html);
             string pdfBase64 = Convert.ToBase64String(pdfBytes);
             string[] emails = CustomerOrder.Customer.Email.Split(";");

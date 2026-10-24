@@ -118,7 +118,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             }, ct);
         }
 
-        public async Task<(IEnumerable<CustomerOrder>, int count)> GetAsync(int skip, int top, short editMode, CancellationToken ct = default)
+        public async Task<(IEnumerable<CustomerOrder>, int count)> GetAsync(int skip, int top, short editMode, bool? isSpecialOrder = null, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
             {
@@ -131,13 +131,14 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                             .Where(i => (i.StatusDocumentType.EditMode && editMode == 0) ||
                                         ((new List<int> { 2, 3, 4 }).Contains(i.StatusDocumentType.StatusOrder) && editMode == 1) ||
                                         editMode == -1)
+                            .Where(i => isSpecialOrder == null || i.IsSpecialOrder == isSpecialOrder)
                             .OrderByDescending(o => o.OrderNumber);
 
                 return (await a.Skip(skip).Take(top).ToListAsync(), await a.CountAsync(ct));
             }, ct);
         }
 
-        public async Task<(IEnumerable<CustomerOrder>, int count)> GetAsync(int skip, int top, string searchKey, short editMode, CancellationToken ct = default)
+        public async Task<(IEnumerable<CustomerOrder>, int count)> GetAsync(int skip, int top, string searchKey, short editMode, bool? isSpecialOrder = null, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
             {
@@ -155,6 +156,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                                          dbContext.Format(i.OrderDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
                                          dbContext.Format(i.EstimatedDeliveryDate, _SharedLocalizer["date:format"]).Contains(searchKey) ||
                                          i.StatusDocumentType.StatusDocumentTypeName.Contains(searchKey)))
+                            .Where(i => isSpecialOrder == null || i.IsSpecialOrder == isSpecialOrder)
                             .OrderByDescending(o => o.OrderNumber);
 
                 return (await a.Skip(skip).Take(top).ToListAsync(), await a.CountAsync(ct));

@@ -1,12 +1,12 @@
 @page "/customer-orders"
 @page "/customer-orders/{CUSTOMER_ORDER_ID}"
 @page "/customer-orders/{Action}/{CUSTOMER_ORDER_ID}"
-@attribute [Authorize(Roles = "Administrador,Consulta de pedidos,Modificaci髇 de pedidos,Creaci髇 de pedidos,Cierre de pedidos,Cancelci髇 de pedidos,Descarga de formato de pedidos")]
+@attribute [Authorize(Roles = "Administrador,Consulta de pedidos,Modificaci贸n de pedidos,Creaci贸n de pedidos,Cierre de pedidos,Cancelci贸n de pedidos,Descarga de formato de pedidos")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @using ServiceModel = Aldebaran.Application.Services.Models;
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer ;
 
-<PageTitle>Pedido de art韈ulos</PageTitle>
+<PageTitle>Pedido de art铆culos</PageTitle>
 <LoadingData IsLoadingData="@isLoadingInProgress" />
 
 @if (!isLoadingInProgress)
@@ -14,15 +14,21 @@
     <RadzenStack>
         <RadzenRow AlignItems="AlignItems.Center">
             <RadzenColumn Size="12">
-                <RadzenText Text="Pedido de art韈ulos" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
+                <RadzenText Text="Pedido de art铆culos" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
             </RadzenColumn>
-            <RadzenColumn Size="12" SizeMD="6" Visible="@Security.IsInRole("Administrador","Creaci髇 de pedidos")">
+            <RadzenColumn Size="12" SizeMD="6" Visible="@Security.IsInRole("Administrador","Creaci贸n de pedidos")">
                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0.5rem">
                     <RadzenButton Icon="add_circle_outline" Text="Nuevo" Click="@AddButtonClick" Variant="Variant.Flat" />
                 </RadzenStack>
             </RadzenColumn>
         </RadzenRow>
         <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
+        <RadzenRow class="rz-text-align-start">
+            <RadzenColumn Size="12">
+                <RadzenCheckBox TriState="true" TValue="bool?" Value="@isSpecialOrderFilter" ValueChanged="@((bool? value) => OnSpecialOrderFilterChanged(value))" Name="IsSpecialOrderFilter" />
+                <RadzenLabel Text="Pedido especial" Component="IsSpecialOrderFilter" class="rz-ms-2" />
+            </RadzenColumn>
+        </RadzenRow>
         <RadzenRow>
             <RadzenColumn SizeMD=12>
                 <LocalizedDataGrid Count="@count" LoadData="@LoadData" @ref="CustomerOrdersGrid" ColumnWidth="200px" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
@@ -44,13 +50,18 @@
                         </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="StatusDocumentType.StatusDocumentTypeName" Title="Estado">
                         </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="IsSpecialOrder" Title="Pedido especial" Width="140px">
+                            <Template Context="order">
+                                @(order.IsSpecialOrder ? "S铆" : "No")
+                            </Template>
+                        </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="CustomerNotes" Title="Notas del cliente" Visible="false">
                         </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="InternalNotes" Title="Notas internas" Visible="false">
                         </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Filterable="false" Sortable="false" Width="164px" TextAlign="TextAlign.Center"
                                               Pickable="false" Reorderable="false" Resizable="false" Frozen="true" FrozenPosition="FrozenColumnPosition.Right"
-                                              Visible="@Security.IsInRole("Administrador","Modificaci髇 de pedidos","Cierre de pedidos","Cancelci髇 de pedidos","Descarga de formato de pedidos")">
+                                              Visible="@Security.IsInRole("Administrador","Modificaci贸n de pedidos","Cierre de pedidos","Cancelci贸n de pedidos","Descarga de formato de pedidos")">
                             <Template Context="customerOrder">
                                 <RadzenButton Icon="done_all" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
                                               Click="@(args => CloseCustomerOrder(customerOrder))" @onclick:stopPropagation="true"
@@ -124,14 +135,14 @@
                                                 <LocalizedDataGrid ColumnWidth="200px" Visible="@(customerOrder != null)" @ref=CustomerOrderActivitiesDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                                                    ExpandMode="DataGridExpandMode.Single" Data="@customerOrder?.CustomerOrderActivities" RowExpand=@GetChildActivityData TItem="Aldebaran.Application.Services.Models.CustomerOrderActivity">
                                                     <Columns>
-                                                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderActivity" Property="Area.AreaName" Title="羠ea">
+                                                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderActivity" Property="Area.AreaName" Title="脕rea">
                                                         </RadzenDataGridColumn>
                                                         <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderActivity" Title="Empleado">
                                                             <Template Context="customerOrderActivity">
                                                                 <span>(@customerOrderActivity.Employee.IdentityType.IdentityTypeName @customerOrderActivity.Employee.IdentityNumber - @customerOrderActivity.Employee.FullName</span>
                                                             </Template>
                                                         </RadzenDataGridColumn>
-                                                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderActivity" Property="ActivityDate" Title="Fecha de ejecuci髇">
+                                                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderActivity" Property="ActivityDate" Title="Fecha de ejecuci贸n">
                                                         </RadzenDataGridColumn>
                                                         <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderActivity" Property="Notes" Title="Notas de la actividad">
                                                         </RadzenDataGridColumn>
@@ -181,12 +192,12 @@
                                             <LocalizedDataGrid ColumnWidth="200px" Visible="@(customerOrder != null)" @ref=alarmsGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                                                ExpandMode="DataGridExpandMode.Single" Data="@alarms" TItem="Aldebaran.Application.Services.Models.Alarm">
                                                 <Columns>
-                                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Alarm" Property="CreationDate" Title="Fecha creaci髇" Width="40%">
+                                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Alarm" Property="CreationDate" Title="Fecha creaci贸n" Width="40%">
                                                         <Template Context="alarm">
                                                             <span>@alarm.CreationDate.ToString(SharedLocalizer["date:format"])</span>
                                                         </Template>
                                                     </RadzenDataGridColumn>
-                                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Alarm" Property="ExecutionDate" Title="Fecha activaci髇" Width="40%">
+                                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.Alarm" Property="ExecutionDate" Title="Fecha activaci贸n" Width="40%">
                                                         <Template Context="alarm">
                                                             <span>@alarm.ExecutionDate.ToString(SharedLocalizer["date:format"])</span>
                                                         </Template>
@@ -219,7 +230,7 @@
                                             <LocalizedDataGrid Visible="@(customerOrder != null)" @ref=CustomerOrderNotificationsDataGrid AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
                                                                Data="@customerOrder?.CustomerOrderNotifications" TItem="Aldebaran.Application.Services.Models.CustomerOrderNotification">
                                                 <Columns>
-                                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderNotification" Title="Fecha notificaci髇" Width="70%">
+                                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderNotification" Title="Fecha notificaci贸n" Width="70%">
                                                         <Template Context="notification">
                                                             <span>@notification.NotificationDate.ToString(SharedLocalizer["date:format"])</span>
                                                         </Template>
@@ -243,7 +254,7 @@
                                                             </ul>
                                                         </Template>
                                                     </RadzenDataGridColumn>
-                                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderNotification" Title="Estado notificaci髇" Width="70%">
+                                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderNotification" Title="Estado notificaci贸n" Width="70%">
                                                         <Template Context="notification">
                                                             @switch (notification.NotificationState)
                                                             {
@@ -265,7 +276,7 @@
                                                             }
                                                         </Template>
                                                     </RadzenDataGridColumn>
-                                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderNotification" Property="NotificationSendingErrorMessage" Title="Error notificaci髇" Width="100%"></RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderNotification" Property="NotificationSendingErrorMessage" Title="Error notificaci贸n" Width="100%"></RadzenDataGridColumn>
                                                 </Columns>
                                             </LocalizedDataGrid>
                                         </RadzenStack>
@@ -350,9 +361,9 @@
                                                         <span>@customerOrderShipment.ShippingDate.ToString(SharedLocalizer["date:format"])</span>
                                                     </Template>
                                                 </RadzenDataGridColumn>
-                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipment" Property="TrackingNumber" Title="N鷐ero de rastreo">
+                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipment" Property="TrackingNumber" Title="N煤mero de rastreo">
                                                 </RadzenDataGridColumn>
-                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipment" Property="ShippingMethod.ShippingMethodName" Title="M閠odo de envio">
+                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipment" Property="ShippingMethod.ShippingMethodName" Title="M茅todo de envio">
                                                 </RadzenDataGridColumn>
                                                 <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipment" Property="Employee.FullName" Title="Responsable">
                                                 </RadzenDataGridColumn>

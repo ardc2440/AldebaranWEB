@@ -97,6 +97,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected LocalizedDataGrid<CustomerOrderShipmentDetail> CustomerOrderShipmentDetailDataGrid;
 
         protected string search = "";
+        protected bool? isSpecialOrderFilter;
         protected bool isLoadingInProgress;
 
         protected int skip = 0;
@@ -159,7 +160,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             {
                 NotificationService.Notify(new NotificationMessage
                 {
-                    Summary = "Pedido de artÌculos",
+                    Summary = "Pedido de art√≠culos",
                     Severity = NotificationSeverity.Success,
                     Duration = 6000,
                     Detail = $"El pedido {customerOrder.OrderNumber} ha sido actualizado correctamente."
@@ -171,7 +172,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             {
                 NotificationService.Notify(new NotificationMessage
                 {
-                    Summary = "Pedido de artÌculos",
+                    Summary = "Pedido de art√≠culos",
                     Severity = NotificationSeverity.Success,
                     Duration = 6000,
                     Detail = $"La actividad para el pedido {customerOrder.OrderNumber} ha sido creada correctamente."
@@ -183,7 +184,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             {
                 NotificationService.Notify(new NotificationMessage
                 {
-                    Summary = "Pedido de artÌculos",
+                    Summary = "Pedido de art√≠culos",
                     Severity = NotificationSeverity.Success,
                     Duration = 6000,
                     Detail = $"La actividad para el pedido {customerOrder.OrderNumber} ha sido actualizada correctamente."
@@ -193,7 +194,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
             NotificationService.Notify(new NotificationMessage
             {
-                Summary = "Pedido de artÌculos",
+                Summary = "Pedido de art√≠culos",
                 Severity = NotificationSeverity.Success,
                 Duration = 6000,
                 Detail = $"El pedido ha sido creado correctamente, con el consecutivo {customerOrder.OrderNumber}."
@@ -205,13 +206,22 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         async Task GetCustomerOrdersAsync(string searchKey = null, CancellationToken ct = default)
         {
             await Task.Yield();
-            (customerOrders, count) = string.IsNullOrEmpty(searchKey) ? await CustomerOrderService.GetAsync(skip, top, ct: ct) : await CustomerOrderService.GetAsync(skip, top, searchKey, ct: ct);
+            (customerOrders, count) = string.IsNullOrEmpty(searchKey) ? await CustomerOrderService.GetAsync(skip, top, isSpecialOrder: isSpecialOrderFilter, ct: ct) : await CustomerOrderService.GetAsync(skip, top, searchKey, isSpecialOrder: isSpecialOrderFilter, ct: ct);
         }
 
         protected async Task Search(ChangeEventArgs args)
         {
 
             search = $"{args.Value}";
+
+            await CustomerOrdersGrid.GoToPage(0);
+
+            await GetCustomerOrdersAsync(search);
+        }
+
+        protected async Task OnSpecialOrderFilterChanged(bool? value)
+        {
+            isSpecialOrderFilter = value;
 
             await CustomerOrdersGrid.GoToPage(0);
 
@@ -254,7 +264,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
                 dialogResult = null;
 
-                if (await DialogService.Confirm("Est· seguro que desea eliminar esta actividad?") == true)
+                if (await DialogService.Confirm("Est√° seguro que desea eliminar esta actividad?") == true)
                 {
                     await CustomerOrderActivityService.DeleteAsync(customerOrderActivity.CustomerOrderActivityId);
                     await GetCustomerOrderActivitiesAsync(customerOrder);
@@ -288,7 +298,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                     return;
 
                 dialogResult = null;
-                var reasonResult = await DialogService.OpenAsync<CancellationReasonDialog>("Confirmar cancelaciÛn", new Dictionary<string, object> { { "DOCUMENT_TYPE_CODE", "P" }, { "TITLE", "Est· seguro que desea cancelar este pedido?" } });
+                var reasonResult = await DialogService.OpenAsync<CancellationReasonDialog>("Confirmar cancelaci√≥n", new Dictionary<string, object> { { "DOCUMENT_TYPE_CODE", "P" }, { "TITLE", "Est√° seguro que desea cancelar este pedido?" } });
                 if (reasonResult == null)
                     return;
                 var reason = (Reason)reasonResult;
@@ -303,21 +313,21 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                     StatusDocumentTypeId = (await StatusDocumentTypeService.FindByDocumentAndOrderAsync(cancellationDocumentType.DocumentTypeId, 1)).StatusDocumentTypeId
                 }, reason);
 
-// OJO Esto pasa a hacerlo al momento de aprobarse la solicitud de cancelaciÛn
+// OJO Esto pasa a hacerlo al momento de aprobarse la solicitud de cancelaci√≥n
 
                 //var cancelStatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 6);
                 //await CustomerOrderService.CancelAsync(customerOrder.CustomerOrderId, cancelStatusDocumentType.StatusDocumentTypeId, reason);
 
                 NotificationService.Notify(new NotificationMessage
                 {
-                    Summary = "Pedido de artÌculos",
+                    Summary = "Pedido de art√≠culos",
                     Severity = NotificationSeverity.Success,
                     Duration = 6000,
-                    Detail = $"Solicitud de cancelaciÛn para el pedido No. {customerOrder.OrderNumber} enviada correctamente."
+                    Detail = $"Solicitud de cancelaci√≥n para el pedido No. {customerOrder.OrderNumber} enviada correctamente."
                 });
                 await CustomerOrdersGrid.Reload();
 
-// OJO Esto pasa a hacerlo al momento de aprobarse la solicitud de cancelaciÛn
+// OJO Esto pasa a hacerlo al momento de aprobarse la solicitud de cancelaci√≥n
 
                 //var result = await DialogService.OpenAsync<CustomerOrderSummary>(null, new Dictionary<string, object> { { "Id", customerOrder.CustomerOrderId }, { "NotificationTemplateName", "Customer:Order:Cancellation" } }, options: new DialogOptions { ShowTitle = false, ShowClose = false, CloseDialogOnEsc = false, CloseDialogOnOverlayClick = false, Width = "800px" });
                 //var summaryResult = (bool)result;
@@ -326,7 +336,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 //    NotificationService.Notify(new NotificationMessage
                 //    {
                 //        Severity = NotificationSeverity.Success,
-                //        Summary = $"NotificaciÛn",
+                //        Summary = $"Notificaci√≥n",
                 //        Duration = 6000,
                 //        Detail = $"Se ha enviado un correo al cliente con el detalle del pedido."
                 //    });
@@ -354,7 +364,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 NotificationService.Notify(new NotificationMessage
                 {
                     Severity = NotificationSeverity.Success,
-                    Summary = $"NotificaciÛn",
+                    Summary = $"Notificaci√≥n",
                     Duration = 6000,
                     Detail = $"Se ha enviado un correo al cliente con el detalle del pedido."
                 });
@@ -417,7 +427,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task<bool> CanEdit(CustomerOrder customerOrder)
         {
-            return Security.IsInRole("Administrador", "ModificaciÛn de pedidos") && customerOrder.StatusDocumentType.EditMode;
+            return Security.IsInRole("Administrador", "Modificaci√≥n de pedidos") && customerOrder.StatusDocumentType.EditMode;
         }
 
         protected async Task<bool> CanCloseCustomerOrder(CustomerOrder customerOrder)
@@ -427,7 +437,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task<bool> CanCancel(CustomerOrder customerOrder)
         {
-            return Security.IsInRole("Administrador", "CancelciÛn de pedidos") && (customerOrder.StatusDocumentType.StatusOrder == 1);
+            return Security.IsInRole("Administrador", "Cancelci√≥n de pedidos") && (customerOrder.StatusDocumentType.StatusOrder == 1);
         }
 
         protected async Task CloseCustomerOrder(CustomerOrder args)
@@ -441,7 +451,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                     throw new Exception("Existen cantidades en proceso");
 
                 dialogResult = null;
-                var reasonResult = await DialogService.OpenAsync<CloseCustomerOrderReasonDialog>("Confirmar cierre de pedido", new Dictionary<string, object> { { "TITLE", "Est· seguro que desea cerrar este pedido?" } });
+                var reasonResult = await DialogService.OpenAsync<CloseCustomerOrderReasonDialog>("Confirmar cierre de pedido", new Dictionary<string, object> { { "TITLE", "Est√° seguro que desea cerrar este pedido?" } });
                 if (reasonResult == null)
                     return;
                 var reason = (Reason)reasonResult;
@@ -456,14 +466,14 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                     StatusDocumentTypeId = (await StatusDocumentTypeService.FindByDocumentAndOrderAsync(closeDocumentType.DocumentTypeId, 1)).StatusDocumentTypeId
                 }, reason);
 
-// OJO Esto pasa a hacerlo al momento de aprobarse la solicitud de cancelaciÛn
+// OJO Esto pasa a hacerlo al momento de aprobarse la solicitud de cancelaci√≥n
                 //var closeStatusDocumentType = await StatusDocumentTypeService.FindByDocumentAndOrderAsync(documentType.DocumentTypeId, 5);
                 //await CustomerOrderService.CloseAsync(args.CustomerOrderId, closeStatusDocumentType.StatusDocumentTypeId, reason);
 
                 NotificationService.Notify(new NotificationMessage
                 {
                     Severity = NotificationSeverity.Success,
-                    Summary = $"Pedido de artÌculos",
+                    Summary = $"Pedido de art√≠culos",
                     Duration = 6000,
                     Detail = $"Solicitud de cierre para el pedido No. {args.OrderNumber} enviada correctamente."
                 });
@@ -483,7 +493,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task<bool> CanEditActivities(CustomerOrder customerOrder)
         {
-            return Security.IsInRole("Administrador", "ModificaciÛn de pedidos","CreaciÛn de pedidos") && customerOrder.StatusDocumentType.EditMode;
+            return Security.IsInRole("Administrador", "Modificaci√≥n de pedidos","Creaci√≥n de pedidos") && customerOrder.StatusDocumentType.EditMode;
         }
 
         private async Task ShowImageDialog(string articleName) => DialogService.Open<ImageDialog>("", new Dictionary<string, object>
@@ -539,7 +549,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 return false;
 
             int[] validStatusOrder = { 1, 2, 3 };
-            return Security.IsInRole("Administrador", "CreaciÛn de pedidos", "ModificaciÛn de pedidos") && validStatusOrder.Contains(statusOrder);
+            return Security.IsInRole("Administrador", "Creaci√≥n de pedidos", "Modificaci√≥n de pedidos") && validStatusOrder.Contains(statusOrder);
         }
 
         protected async Task DisableAlarm(Application.Services.Models.Alarm alarm)
@@ -548,7 +558,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             {
                 dialogResult = null;
 
-                if (await DialogService.Confirm("Est· seguro que desea desactivar esta alarma?") == true)
+                if (await DialogService.Confirm("Est√° seguro que desea desactivar esta alarma?") == true)
                 {
                     await AlarmService.DisableAsync(alarm.AlarmId);
 
@@ -593,7 +603,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             try
             {
                 dialogResult = null;
-                var alarmResult = await DialogService.OpenAsync<AlarmDialog>("Crear alarma para pedido", new Dictionary<string, object> { { "Title", "CreaciÛn de alarma" }, { "DocumentTypeId", documentType.DocumentTypeId }, { "DocumentId", customerOrder.CustomerOrderId } });
+                var alarmResult = await DialogService.OpenAsync<AlarmDialog>("Crear alarma para pedido", new Dictionary<string, object> { { "Title", "Creaci√≥n de alarma" }, { "DocumentTypeId", documentType.DocumentTypeId }, { "DocumentId", customerOrder.CustomerOrderId } });
 
                 if (alarmResult == null)
                     return;
@@ -603,7 +613,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 NotificationService.Notify(new NotificationMessage
                 {
                     Severity = NotificationSeverity.Success,
-                    Summary = $"Alarma para pedido de artÌculos",
+                    Summary = $"Alarma para pedido de art√≠culos",
                     Duration = 6000,
                     Detail = $"La alarma para el pedido No. {customerOrder.OrderNumber} ha sido creada correctamente."
                 });
