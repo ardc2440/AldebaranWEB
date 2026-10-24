@@ -48,4 +48,18 @@
             </Columns>
         </LocalizedDataGrid>
     }
+    @if (nonconforming?.Count > 0)
+    {
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Info" AllowClose="false"
+                     Title="Referencias del código que no se toman como consecutivo">
+            Estas referencias empiezan por el código pero no tienen el formato de consecutivo (de 1 a 3 dígitos después del guion, seguidos del final o de otro guion); por eso no cuentan para calcular el siguiente consecutivo.
+        </RadzenAlert>
+        <LocalizedDataGrid Data="@nonconforming" TItem="InternalReferenceNonconforming" AllowPaging="true" ShowPagingSummary="true" PageSize="10" PageSizeOptions=@(new int[]{10, 20, 50})>
+            <Columns>
+                <RadzenDataGridColumn TItem="InternalReferenceNonconforming" Property="InternalReference" Title="Referencia interna" Width="20%" />
+                <RadzenDataGridColumn TItem="InternalReferenceNonconforming" Property="ItemName" Title="Artículo" Width="35%" />
+                <RadzenDataGridColumn TItem="InternalReferenceNonconforming" Property="Reason" Title="Motivo" Width="45%" />
+            </Columns>
+        </LocalizedDataGrid>
+    }
 </RadzenStack>

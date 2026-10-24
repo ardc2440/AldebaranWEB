@@ -19,6 +19,14 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 .VarChar("@Code", code, 6)
                 .Int("@Quantity", quantity), ct);
 
+        /// <summary>Referencias de artículos del código que no se toman como consecutivo, con el motivo.</summary>
+        public async Task<IEnumerable<InternalReferenceNonconformingEntry>> GetNonconformingAsync(string code, CancellationToken ct = default)
+        {
+            var command = new StoredProcedureCommand("dbo.SP_GET_INTERNAL_REFERENCE_NONCONFORMING").VarChar("@Code", code, 6);
+            return await ExecuteQueryAsync(async dbContext =>
+                await dbContext.Set<InternalReferenceNonconformingEntry>().FromSqlRaw(command.Sql, command.Parameters).AsNoTracking().ToListAsync(ct), ct);
+        }
+
         private async Task<IEnumerable<InternalReferenceConsecutiveEntry>> QueryAsync(StoredProcedureCommand command, CancellationToken ct) =>
             await ExecuteQueryAsync(async dbContext =>
                 await dbContext.Set<InternalReferenceConsecutiveEntry>().FromSqlRaw(command.Sql, command.Parameters).AsNoTracking().ToListAsync(ct), ct);

@@ -28,6 +28,7 @@ namespace Aldebaran.Web.Pages.ItemPages
         protected string code;
         protected int quantity = 1;
         protected IReadOnlyList<InternalReferenceConsecutive> consecutives;
+        protected IReadOnlyList<InternalReferenceNonconforming> nonconforming;
         protected string resultTitle;
         protected string errorMessage;
         protected bool isBusy;
@@ -43,6 +44,7 @@ namespace Aldebaran.Web.Pages.ItemPages
             await RunAsync(async () =>
             {
                 consecutives = await InternalReferenceConsecutiveService.GetAvailableAsync(normalized);
+                nonconforming = await InternalReferenceConsecutiveService.GetNonconformingAsync(normalized);
                 resultTitle = consecutives.Count == 0
                     ? $"No hay consecutivos disponibles para el código {normalized}."
                     : $"Consecutivos disponibles para el código {normalized}: {consecutives.Count}";
@@ -67,6 +69,7 @@ namespace Aldebaran.Web.Pages.ItemPages
             await RunAsync(async () =>
             {
                 consecutives = await InternalReferenceConsecutiveService.GenerateAsync(normalized, quantity);
+                nonconforming = await InternalReferenceConsecutiveService.GetNonconformingAsync(normalized);
                 var created = consecutives.Where(c => c.IsNew).ToList();
                 resultTitle = $"Consecutivos disponibles para el código {normalized}: {consecutives.Count} (generados ahora: {created.Count})";
                 NotificationService.Notify(new NotificationMessage

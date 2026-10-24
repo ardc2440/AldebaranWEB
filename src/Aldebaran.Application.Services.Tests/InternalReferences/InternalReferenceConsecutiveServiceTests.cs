@@ -25,6 +25,14 @@ namespace Aldebaran.Application.Services.Tests.InternalReferences
                 Calls++; LastCode = code; LastQuantity = quantity;
                 return Task.FromResult<IEnumerable<InternalReferenceConsecutiveEntry>>(Rows);
             }
+
+            public List<InternalReferenceNonconformingEntry> Nonconforming { get; } = new();
+
+            public Task<IEnumerable<InternalReferenceNonconformingEntry>> GetNonconformingAsync(string code, CancellationToken ct = default)
+            {
+                Calls++; LastCode = code;
+                return Task.FromResult<IEnumerable<InternalReferenceNonconformingEntry>>(Nonconforming);
+            }
         }
 
         private static InternalReferenceConsecutiveEntry Row(string code, int n, bool isNew = false) =>
@@ -73,6 +81,21 @@ namespace Aldebaran.Application.Services.Tests.InternalReferences
 
             await Assert.ThrowsAsync<ArgumentException>(() => service.GenerateAsync(code, quantity));
             Assert.Equal(0, repository.Calls);
+        }
+
+        [Fact]
+        public async Task GetNonconformingAsync_SendsNormalizedCode_AndMapsReason()
+        {
+            var repository = new FakeRepository();
+            repository.Nonconforming.Add(new InternalReferenceNonconformingEntry { InternalReference = "MU-25X", ItemName = "Mug", Reason = "Los dígitos están seguidos de \"X\" en lugar de un guion o del final." });
+            var service = new InternalReferenceConsecutiveService(repository);
+
+            var result = await service.GetNonconformingAsync("mu");
+
+            Assert.Equal("MU", repository.LastCode);
+            Assert.Single(result);
+            Assert.Equal("MU-25X", result[0].InternalReference);
+            Assert.Contains("\"X\"", result[0].Reason);
         }
 
         [Fact]

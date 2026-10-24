@@ -9,5 +9,8 @@ namespace Aldebaran.Application.Services.InternalReferences
 
         /// <summary>Completa hasta <paramref name="quantity"/> disponibles creando solo los que faltan; devuelve todos los disponibles.</summary>
         Task<IReadOnlyList<InternalReferenceConsecutive>> GenerateAsync(string code, int quantity, CancellationToken ct = default);
+
+        /// <summary>Referencias de artículos con el código que no cumplen el formato de consecutivo (explican el siguiente número).</summary>
+        Task<IReadOnlyList<InternalReferenceNonconforming>> GetNonconformingAsync(string code, CancellationToken ct = default);
     }
 }

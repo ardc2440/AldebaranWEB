@@ -27,6 +27,13 @@ namespace Aldebaran.Application.Services.InternalReferences
             return ToModels(await _repository.GenerateAsync(normalized, quantity, ct));
         }
 
+        public async Task<IReadOnlyList<InternalReferenceNonconforming>> GetNonconformingAsync(string code, CancellationToken ct = default)
+        {
+            var normalized = ValidCode(code);
+            var rows = await _repository.GetNonconformingAsync(normalized, ct);
+            return rows.Select(r => new InternalReferenceNonconforming(r.InternalReference, r.ItemName, r.Reason)).ToList();
+        }
+
         private static string ValidCode(string code)
         {
             var normalized = InternalReferenceCodeRules.Normalize(code);

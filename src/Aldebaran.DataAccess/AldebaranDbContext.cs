@@ -356,6 +356,7 @@ namespace Aldebaran.DataAccess
                 e.Property(x => x.TotalRows).HasColumnName("TOTAL_ROWS");
             });
             modelBuilder.Entity<InternalReferenceConsecutiveEntry>(e => { e.HasNoKey(); });
+            modelBuilder.Entity<InternalReferenceNonconformingEntry>(e => { e.HasNoKey(); });
             modelBuilder.Entity<OrderDocumentLogEntry>(e =>
             {
                 e.HasNoKey();
