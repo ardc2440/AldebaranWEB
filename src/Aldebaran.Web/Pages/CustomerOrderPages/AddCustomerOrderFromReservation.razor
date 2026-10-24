@@ -83,7 +83,7 @@
                                     <RadzenFormField Text="Pedido especial" Variant="Variant.Text" Style="width: 100%;">
                                         <ChildContent>
                                             <RadzenDropDown TValue="bool?" @bind-Value="@isSpecialOrder" Data="@SpecialOrderOptions.Items" TextProperty="Text" ValueProperty="Value"
-                                                            Name="IS_SPECIAL_ORDER" Placeholder="Seleccione si es un pedido especial" style="display: block; width: 100%" />
+                                                            Name="IS_SPECIAL_ORDER" TabIndex="2" style="display: block; width: 100%" />
                                         </ChildContent>
                                         <Helper>
                                             <RadzenRequiredValidator Component="IS_SPECIAL_ORDER" Text="Debe indicar si es un pedido especial" />
@@ -91,12 +91,12 @@
                                     </RadzenFormField>
                                     <RadzenFormField Text="Notas del cliente" Variant="Variant.Text" Style="width: 100%;">
                                         <ChildContent>
-                                            <RadzenTextArea Disabled="true" Multilie="true" style="display: block; width: 100%" @bind-Value="@customerOrder.CustomerNotes" Name="CUSTOMER_NOTES" TabIndex="2" ReadOnly="true" Rows="3" MaxLength="250" />
+                                            <RadzenTextArea Disabled="true" Multilie="true" style="display: block; width: 100%" @bind-Value="@customerOrder.CustomerNotes" Name="CUSTOMER_NOTES" TabIndex="3" ReadOnly="true" Rows="3" MaxLength="250" />
                                         </ChildContent>
                                     </RadzenFormField>
                                     <RadzenFormField Text="Notas internas" Variant="Variant.Text" Style="width: 100%;">
                                         <ChildContent>
-                                            <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerOrder.InternalNotes" Name="INTERNAL_NOTES" TabIndex="3" Rows="3" MaxLength="250" />
+                                            <RadzenTextArea Multilie="true" style="display: block; width: 100%" @bind-Value="@customerOrder.InternalNotes" Name="INTERNAL_NOTES" TabIndex="4" Rows="3" MaxLength="250" />
                                         </ChildContent>
                                     </RadzenFormField>
                                 </RadzenRow>

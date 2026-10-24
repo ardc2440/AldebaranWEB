@@ -137,7 +137,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                     return;
                 }
 
-                var reasonResult = await DialogService.OpenAsync<ModificationReasonDialog>("Confirmar modificación", new Dictionary<string, object> { { "DOCUMENT_TYPE_CODE", "P" }, { "TITLE", "Está seguro que desea actualizar este pedido?" } });
+                var reasonResult = await DialogService.OpenAsync<ModificationReasonDialog>("Confirmar modificación", new Dictionary<string, object> { { "DOCUMENT_TYPE_CODE", "P" }, { "TITLE", "¿Está seguro que desea actualizar este pedido?" } });
                 if (reasonResult == null)
                 {
                     Submitted = false; // ? Resetear antes del return

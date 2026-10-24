@@ -63,7 +63,7 @@
                             <RadzenFormField Text="Pedido especial" Variant="Variant.Text" Style="width: 100%;">
                                 <ChildContent>
                                     <RadzenDropDown TValue="bool?" @bind-Value="@isSpecialOrder" Data="@SpecialOrderOptions.Items" TextProperty="Text" ValueProperty="Value"
-                                                    Name="IS_SPECIAL_ORDER" Placeholder="Seleccione si es un pedido especial" TabIndex="3" style="display: block; width: 100%" />
+                                                    Name="IS_SPECIAL_ORDER" TabIndex="3" style="display: block; width: 100%" />
                                 </ChildContent>
                                 <Helper>
                                     <RadzenRequiredValidator Component="IS_SPECIAL_ORDER" Text="Debe indicar si es un pedido especial" />
