@@ -12,6 +12,7 @@ namespace Aldebaran.Application.Services.Models
         public short StatusDocumentTypeId { get; set; }
         public DateTime CreationDate { get; set; }
         public string CustomerNotes { get; set; }
+        public bool IsSpecialOrder { get; set; }
         // Reverse navigation
         public CanceledCustomerOrder CanceledCustomerOrder { get; set; }
         public ICollection<ClosedCustomerOrder> ClosedCustomerOrders { get; set; }

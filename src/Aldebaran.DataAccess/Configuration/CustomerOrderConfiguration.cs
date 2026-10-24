@@ -19,11 +19,12 @@ namespace Aldebaran.DataAccess.Configuration
             builder.Property(x => x.StatusDocumentTypeId).HasColumnName(@"STATUS_DOCUMENT_TYPE_ID").HasColumnType("smallint").IsRequired();
             builder.Property(x => x.CreationDate).HasColumnName(@"CREATION_DATE").HasColumnType("datetime").IsRequired();
             builder.Property(x => x.CustomerNotes).HasColumnName(@"CUSTOMER_NOTES").HasColumnType("varchar(250)").IsRequired(false).IsUnicode(false).HasMaxLength(250);
+            builder.Property(x => x.IsSpecialOrder).HasColumnName(@"IS_SPECIAL_ORDER").HasColumnType("bit").IsRequired();
             // Foreign keys
             builder.HasOne(a => a.Customer).WithMany(b => b.CustomerOrders).HasForeignKey(c => c.CustomerId).OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_CUSTOMER_ORDER_CUSTOMER");
             builder.HasOne(a => a.Employee).WithMany(b => b.CustomerOrders).HasForeignKey(c => c.EmployeeId).OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_CUSTOMER_ORDER_EMPLOYEE");
             builder.HasOne(a => a.StatusDocumentType).WithMany(b => b.CustomerOrders).HasForeignKey(c => c.StatusDocumentTypeId).OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_CUSTOMER_ORDER_STATUS_DOCUMENT_TYPE");
-            builder.HasIndex(x => x.CreationDate).HasDatabaseName("IND_CUSTOMER_ORDER_creación_DATE");
+            builder.HasIndex(x => x.CreationDate).HasDatabaseName("IND_CUSTOMER_ORDER_creaciÃ³n_DATE");
             builder.HasIndex(x => x.CustomerId).HasDatabaseName("IND_CUSTOMER_ORDER_CUSTOMER");
             builder.HasIndex(x => x.StatusDocumentTypeId).HasDatabaseName("IND_CUSTOMER_ORDER_ESTADO");
             builder.HasIndex(x => new { x.OrderDate, x.CustomerId, x.OrderNumber }).HasDatabaseName("IND_CUSTOMER_ORDER_FECHAPEDIDO");
