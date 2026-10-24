@@ -41,6 +41,8 @@ namespace Aldebaran.Web.Pages.ItemPages
         protected async Task ConsultAsync()
         {
             var normalized = InternalReferenceCodeRules.Normalize(referenceCode);
+            if (!IsValid(InternalReferenceCodeRules.ValidateCode(normalized)))
+                return;
             await RunAsync(async () =>
             {
                 consecutives = await InternalReferenceConsecutiveService.GetAvailableAsync(normalized);
@@ -55,12 +57,8 @@ namespace Aldebaran.Web.Pages.ItemPages
         protected async Task GenerateAsync()
         {
             var normalized = InternalReferenceCodeRules.Normalize(referenceCode);
-            var error = InternalReferenceCodeRules.ValidateCode(normalized) ?? InternalReferenceCodeRules.ValidateQuantity(quantity);
-            if (error != null)
-            {
-                errorMessage = error;
+            if (!IsValid(InternalReferenceCodeRules.ValidateCode(normalized) ?? InternalReferenceCodeRules.ValidateQuantity(quantity)))
                 return;
-            }
 
             if (await DialogService.Confirm($"¿Está seguro que desea completar {quantity} consecutivo(s) disponibles para el código {normalized}? Solo se generan los que falten.", "Confirmar generación",
                     new ConfirmOptions { OkButtonText = "Sí, generar", CancelButtonText = "No" }) != true)
@@ -84,6 +82,17 @@ namespace Aldebaran.Web.Pages.ItemPages
             });
         }
 
+        /// <summary>Al corregir el código o la cantidad se retira el mensaje de validación anterior.</summary>
+        protected void ClearError() => errorMessage = null;
+
+        /// <summary>Muestra el mensaje de validación (o lo retira si no hay error) y normaliza el código en pantalla.</summary>
+        private bool IsValid(string error)
+        {
+            referenceCode = InternalReferenceCodeRules.Normalize(referenceCode);
+            errorMessage = error;
+            return error == null;
+        }
+
         /// <summary>Ejecuta la acción mostrando validaciones y errores en la alerta de la página.</summary>
         private async Task RunAsync(Func<Task> action)
         {
@@ -94,8 +103,9 @@ namespace Aldebaran.Web.Pages.ItemPages
                 referenceCode = InternalReferenceCodeRules.Normalize(referenceCode);
                 await action();
             }
-            catch (ArgumentException ex)
+            catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
             {
+                // Reglas del código, la cantidad o el tope 9999 (validadas también en la BD)
                 errorMessage = ex.Message;
             }
             catch (Exception ex)

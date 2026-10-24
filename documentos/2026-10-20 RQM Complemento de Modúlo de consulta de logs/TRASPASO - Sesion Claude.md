@@ -31,16 +31,18 @@ Contexto en esta misma carpeta (léelos primero, en este orden):
   - T28 Tablero y pantallas de despachos/traslados: implementado, **sin probar**. DashBoardRepository ya estaba parametrizado.
 - Datos de prueba marcados con Precio bomba: HO-13 (ITEM_ID 2554, ancho embalaje 29, original 28) y ASTON-STY (2047). Pedido 39471 (cancelado, 1 un. VA-196 Azul) y los pedidos de prueba de T24. Restaurar al cierre. Remitente del correo en pruebas quedó "Catalogos Promocionales T2" (devolver a "Catalogos Promocionales"; la clave la carga Andrés).
 
-- E4 Consecutivos de referencia interna (aprobada 24-oct): C1–C5 implementadas, **sin probar** (script 20, repositorio, servicio, proyecto de pruebas xUnit Aldebaran.Application.Services.Tests, pantalla Administración > Consecutivos de referencia). C6 = prueba funcional en local.
+- E4 Consecutivos de referencia interna: regla revisada el 24-oct con los datos reales (VA llega a 1226; complementos pegados como CP-59T): código máx. 5 (letras, números y un espacio), consecutivo 1–4 dígitos al reconocer, sugerencia de 3 dígitos (4 desde 1000), tope 9999, cantidad 1–1000, cualquier complemento después del número. Los consecutivos son **sugerencias** (sin reserva ni enlace con la creación del artículo; documentado en los manuales). **Probado en la nube** contra la BD de pruebas restaurada: P07 (37 casos) y P08 (14), concurrencia, 20 escenarios de pantalla, dotnet test 44/44.
+- Sesión en la nube: SQL Server 2022 en Docker con la BD de pruebas restaurada (log.Logs recortado a 30 días) y la app corriendo en https://localhost:6001 con usuario propio de pruebas (claude.pruebas). SMTP saliente bloqueado: los correos no se pueden enviar desde la nube.
 - T17 manuales (Word) y T29 Excel de casos de prueba: generados en la carpeta del RQM (incluyen E4); faltan capturas y contraste de E1/E2 con el Proyecto.
 
 ## Pendiente (en orden)
-1. **Prueba conjunta T25–T28** (scripts 18 y 19 en BD de pruebas; guías en la conversación / ChangeSets de cada commit).
+1. **Prueba conjunta T25–T28**: script 18 corregido y ejecutado sobre los SP reales (OK); faltan E3-14 a E3-23 en la aplicación.
 2. **T29** casos de prueba y ejecución completa E1+E2+E3 (incluye Excel del correo de mínimos con marca $ BOMBA, Movimiento de referencia abierto desde alarma, cierre de un pedido en proceso y crear/modificar OC y reserva).
 3. **T17** manuales técnico y de usuario (Word, línea visual de las propuestas).
 4. **T30** paquete de despliegue: scripts 01–20, reversas, LEEME, NLog.config del autómata (+ GRANT), validar script 05 (job) en producción. Scripts 16, 18 y 19 se despliegan junto con la app (cambian parámetros/columnas).
 5. Deudas técnicas para analizar al cierre: 9 reportes más con SQL concatenado (OC, Reservas, Inventario, Traslados, Ajustes, Stock bodega, Proveedor-referencias, Zona franca, Inventario en proceso).
-6. E4 C6: prueba funcional de consecutivos (concurrencia) y dotnet test.
+6. E4: cerrado (ver T29 E4-01 a E4-24).
+7. Retirar del repositorio `scripts/RQM Complemento Consulta de Logs/Pruebas/Usuario de prueba T5.txt` (credenciales en texto plano).
 
 ## Limitación importante para una sesión en la nube
 La BD de pruebas (GML0999\SQLEXPRESS01) y el sitio (https://localhost:6001) están en el computador de Andrés. Una sesión en la nube solo los alcanza si está vinculada a ese computador (app de escritorio). Sin eso puede editar código en la rama pero no probar ni aplicar scripts: en ese caso, implementar, dejar los scripts listos y pedir a Andrés compilar/ejecutar.

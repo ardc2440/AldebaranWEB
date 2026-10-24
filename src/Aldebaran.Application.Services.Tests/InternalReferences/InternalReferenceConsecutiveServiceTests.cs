@@ -71,9 +71,10 @@ namespace Aldebaran.Application.Services.Tests.InternalReferences
 
         [Theory]
         [InlineData("", 1)]
-        [InlineData("M U", 1)]
-        [InlineData("ABCDEFG", 1)]
+        [InlineData("M-U", 1)]
+        [InlineData("ABCDEF", 1)]
         [InlineData("MU", 0)]
+        [InlineData("MU", 1001)]
         public async Task GenerateAsync_InvalidInput_ThrowsAndDoesNotCallRepository(string code, int quantity)
         {
             var repository = new FakeRepository();
@@ -87,14 +88,14 @@ namespace Aldebaran.Application.Services.Tests.InternalReferences
         public async Task GetNonconformingAsync_SendsNormalizedCode_AndMapsReason()
         {
             var repository = new FakeRepository();
-            repository.Nonconforming.Add(new InternalReferenceNonconformingEntry { InternalReference = "MU-25X", ItemName = "Mug", Reason = "Los dígitos están seguidos de \"X\" en lugar de un guion o del final." });
+            repository.Nonconforming.Add(new InternalReferenceNonconformingEntry { InternalReference = "MU-XL", ItemName = "Mug", Reason = "Después del guion no hay un número (sigue \"X\")." });
             var service = new InternalReferenceConsecutiveService(repository);
 
             var result = await service.GetNonconformingAsync("mu");
 
             Assert.Equal("MU", repository.LastCode);
             Assert.Single(result);
-            Assert.Equal("MU-25X", result[0].InternalReference);
+            Assert.Equal("MU-XL", result[0].InternalReference);
             Assert.Contains("\"X\"", result[0].Reason);
         }
 

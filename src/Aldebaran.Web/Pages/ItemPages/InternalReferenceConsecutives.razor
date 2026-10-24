@@ -11,18 +11,20 @@
             <RadzenText Text="Consecutivos de referencia interna" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
         </RadzenColumn>
     </RadzenRow>
-    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@(!string.IsNullOrEmpty(errorMessage))" AllowClose="false">
-        @errorMessage
+    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Info" AllowClose="false" Title="Los consecutivos son sugerencias">
+        Esta opción solo sugiere referencias internas libres (CÓDIGO-001 … CÓDIGO-9999); no reserva números ni se enlaza con la creación del artículo.
+        La referencia válida es la que se guarda al crear el artículo. Si al crearlo se usa una referencia distinta a la sugerida
+        o con otro formato, esa es la que rige y la sugerencia no se tiene en cuenta.
     </RadzenAlert>
     <RadzenRow AlignItems="AlignItems.End" Gap="1rem">
         <RadzenColumn SizeMD="3">
             <RadzenFormField Text="Código" Variant="Variant.Text" Style="width: 100%;">
-                <RadzenTextBox @bind-Value="@referenceCode" MaxLength="@InternalReferenceCodeRules.MaxCodeLength" Name="Code" style="display: block; width: 100%; text-transform: uppercase;" />
+                <RadzenTextBox @bind-Value="@referenceCode" Change="@ClearError" Name="Code" style="display: block; width: 100%; text-transform: uppercase;" />
             </RadzenFormField>
         </RadzenColumn>
         <RadzenColumn SizeMD="2">
             <RadzenFormField Text="Cantidad requerida" Variant="Variant.Text" Style="width: 100%;">
-                <RadzenNumeric TValue="int" @bind-Value="@quantity" Min="1" Name="Quantity" style="display: block; width: 100%" />
+                <RadzenNumeric TValue="int" @bind-Value="@quantity" Change="@ClearError" Name="Quantity" style="display: block; width: 100%" />
             </RadzenFormField>
         </RadzenColumn>
         <RadzenColumn SizeMD="7">
@@ -32,6 +34,9 @@
             </RadzenStack>
         </RadzenColumn>
     </RadzenRow>
+    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@(!string.IsNullOrEmpty(errorMessage))" AllowClose="false">
+        @errorMessage
+    </RadzenAlert>
     @if (consecutives != null)
     {
         <RadzenText Text="@resultTitle" TextStyle="TextStyle.H6" style="margin: 0" />
@@ -52,7 +57,7 @@
     {
         <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Info" AllowClose="false"
                      Title="Referencias del código que no se toman como consecutivo">
-            Estas referencias empiezan por el código pero no tienen el formato de consecutivo (de 1 a 3 dígitos después del guion, seguidos del final o de otro guion); por eso no cuentan para calcular el siguiente consecutivo.
+            Estas referencias empiezan por el código y el guion, pero después no tienen un número de 1 a 4 dígitos; por eso no cuentan para calcular el siguiente consecutivo. Lo que siga al número (VA-1015-1, CP-59T) sí se acepta como complemento.
         </RadzenAlert>
         <LocalizedDataGrid Data="@nonconforming" TItem="InternalReferenceNonconforming" AllowPaging="true" ShowPagingSummary="true" PageSize="10" PageSizeOptions=@(new int[]{10, 20, 50})>
             <Columns>

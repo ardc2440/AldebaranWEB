@@ -23,7 +23,8 @@ Ejecutar en este orden, sobre la BD Aldebaran (todos son re-ejecutables):
 17 - Pedido especial.sql                     (T23)    customer_orders.IS_SPECIAL_ORDER (default 0) + nombre en Track (reversa: Reversa\17)
 18 - Pedido especial en reportes.sql         (T26)    Filtro/columna Pedido especial en los 8 SP de reportes de pedidos (reversa: Reversa\18); se despliega con la app
 19 - Pedido especial en logs de despachos y traslados.sql (T27) Columna Pedido especial en SP_GET_ORDER_DOCUMENT_LOG (reversa: Reversa\19); se despliega con la app
-20 - Consecutivos de referencia interna.sql  (E4 C1) Tablas, funcion y SP de consecutivos CODIGO-NNN (reversa: Reversa\20)
+20 - Consecutivos de referencia interna.sql  (E4 C1) Tablas, funciones y SP de consecutivos sugeridos CODIGO-NNN (codigo max. 5, hasta 9999;
+       sobre la version anterior ajusta CODE a varchar(5)) (reversa: Reversa\20). Pruebas: ..\Pruebas\P07 y P08 (no dejan datos)
 
 Reversa\04 - Reversa alarmas inventario.sql   Restaura SPs/triggers originales desde el respaldo (conserva el log)
 Reversa\05 - Reversa job verificacion alarmas.sql  Restaura los pasos originales del job
