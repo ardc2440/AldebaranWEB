@@ -76,29 +76,29 @@ EXEC #RQM_T26_APPLY 'SP_GET_BACKORDER_REPORT', '@CustomerId IS NULL)', @Filter_a
 EXEC #RQM_T26_APPLY 'SP_GET_BACKORDER_EXPORT', '@CustomerId IS NULL)', @Filter_a, 1, 'a.ORDER_NUMBER OrderNumber,', 'a.ORDER_NUMBER OrderNumber, a.IS_SPECIAL_ORDER IsSpecialOrder,', 1;
 
 /* T26c: Actividades (alias b = customer_orders) */
-EXEC #RQM_T26_APPLY 'SP_GET_CUSTOMER_ORDER_ACTIVITY_REPORT',
-     '@CustomerId IS NULL)', '@CustomerId IS NULL)' + CHAR(13) + CHAR(10) + CHAR(9) + 'AND (b.IS_SPECIAL_ORDER = @IsSpecialOrder OR @IsSpecialOrder IS NULL)', 1,
-     'a.CustomerId,', @Column_a, 1;
+DECLARE @Filter_b NVARCHAR(200) = '@CustomerId IS NULL)' + CHAR(13) + CHAR(10) + CHAR(9) + 'AND (b.IS_SPECIAL_ORDER = @IsSpecialOrder OR @IsSpecialOrder IS NULL)';
+EXEC #RQM_T26_APPLY 'SP_GET_CUSTOMER_ORDER_ACTIVITY_REPORT', '@CustomerId IS NULL)', @Filter_b, 1, 'a.CustomerId,', @Column_a, 1;
 
 /* T26d: Ventas */
 EXEC #RQM_T26_APPLY 'SP_GET_CUSTOMER_SALES_REPORT', '@CustomerId IS NULL)', @Filter_a, 1, 'a.CustomerId,', @Column_a, 1;
 
 /* T26e: Asignación automática (alias e = customer_orders; dos bloques del UNION) */
-EXEC #RQM_T26_APPLY 'SP_AUTOMATIC_CUSTOMER_ORDER_ASSIGMENT_REPORT',
-     '@CustomerId IS NULL)', '@CustomerId IS NULL)' + CHAR(13) + CHAR(10) + CHAR(9) + 'AND (e.IS_SPECIAL_ORDER = @IsSpecialOrder OR @IsSpecialOrder IS NULL)', 2,
+DECLARE @Filter_e NVARCHAR(200) = '@CustomerId IS NULL)' + CHAR(13) + CHAR(10) + CHAR(9) + 'AND (e.IS_SPECIAL_ORDER = @IsSpecialOrder OR @IsSpecialOrder IS NULL)';
+EXEC #RQM_T26_APPLY 'SP_AUTOMATIC_CUSTOMER_ORDER_ASSIGMENT_REPORT', '@CustomerId IS NULL)', @Filter_e, 2,
      'e.ORDER_NUMBER CustomerOrderNumber,', 'e.ORDER_NUMBER CustomerOrderNumber, e.IS_SPECIAL_ORDER IsSpecialOrder,', 2;
 
 /* T26f: Pendientes de traslado automático (b = customer_orders, a = detalle del traslado).
-   Corrección dentro del alcance: se aplican los filtros que el SP recibía y no usaba. */
+   Corrección dentro del alcance: se aplican los filtros que el SP recibía y no usaba.
+   (EXEC no admite expresiones como argumento: los textos se arman antes en variables.) */
+DECLARE @Filter_f NVARCHAR(4000) = 'WHERE (ORDER_NUMBER = @OrderNumber OR @OrderNumber IS NULL)' + CHAR(13) + CHAR(10) + CHAR(9)
+     + 'AND (b.IS_SPECIAL_ORDER = @IsSpecialOrder OR @IsSpecialOrder IS NULL)' + CHAR(13) + CHAR(10) + CHAR(9)
+     + 'AND (@OrderDateFrom IS NULL OR b.ORDER_DATE >= @OrderDateFrom) AND (@OrderDateTo IS NULL OR b.ORDER_DATE <= @OrderDateTo)' + CHAR(13) + CHAR(10) + CHAR(9)
+     + 'AND (@ProcessDateFrom IS NULL OR CAST(a.PROCESS_DATE AS DATE) >= @ProcessDateFrom) AND (@ProcessDateTo IS NULL OR CAST(a.PROCESS_DATE AS DATE) <= @ProcessDateTo)' + CHAR(13) + CHAR(10) + CHAR(9)
+     + 'AND (@EstimatedDeliveryDateFrom IS NULL OR b.ESTIMATED_DELIVERY_DATE >= @EstimatedDeliveryDateFrom) AND (@EstimatedDeliveryDateTo IS NULL OR b.ESTIMATED_DELIVERY_DATE <= @EstimatedDeliveryDateTo)' + CHAR(13) + CHAR(10) + CHAR(9)
+     + 'AND (b.CUSTOMER_ID = @CustomerId OR @CustomerId IS NULL)' + CHAR(13) + CHAR(10) + CHAR(9)
+     + 'AND (b.STATUS_DOCUMENT_TYPE_ID = @StatusDocumentTypeId OR @StatusDocumentTypeId IS NULL)';
 EXEC #RQM_T26_APPLY 'SP_GET_AUTOMATIC_CUSTOMER_ORDER_INPROCESS_PENDING_REPORT',
-     'WHERE ORDER_NUMBER = @OrderNumber OR @OrderNumber IS NULL',
-     'WHERE (ORDER_NUMBER = @OrderNumber OR @OrderNumber IS NULL)' + CHAR(13) + CHAR(10)
-     + CHAR(9) + 'AND (b.IS_SPECIAL_ORDER = @IsSpecialOrder OR @IsSpecialOrder IS NULL)' + CHAR(13) + CHAR(10)
-     + CHAR(9) + 'AND (@OrderDateFrom IS NULL OR b.ORDER_DATE >= @OrderDateFrom) AND (@OrderDateTo IS NULL OR b.ORDER_DATE <= @OrderDateTo)' + CHAR(13) + CHAR(10)
-     + CHAR(9) + 'AND (@ProcessDateFrom IS NULL OR CAST(a.PROCESS_DATE AS DATE) >= @ProcessDateFrom) AND (@ProcessDateTo IS NULL OR CAST(a.PROCESS_DATE AS DATE) <= @ProcessDateTo)' + CHAR(13) + CHAR(10)
-     + CHAR(9) + 'AND (@EstimatedDeliveryDateFrom IS NULL OR b.ESTIMATED_DELIVERY_DATE >= @EstimatedDeliveryDateFrom) AND (@EstimatedDeliveryDateTo IS NULL OR b.ESTIMATED_DELIVERY_DATE <= @EstimatedDeliveryDateTo)' + CHAR(13) + CHAR(10)
-     + CHAR(9) + 'AND (b.CUSTOMER_ID = @CustomerId OR @CustomerId IS NULL)' + CHAR(13) + CHAR(10)
-     + CHAR(9) + 'AND (b.STATUS_DOCUMENT_TYPE_ID = @StatusDocumentTypeId OR @StatusDocumentTypeId IS NULL)', 1,
+     'WHERE ORDER_NUMBER = @OrderNumber OR @OrderNumber IS NULL', @Filter_f, 1,
      'a.CUSTOMER_ORDER_ID CustomerOrderId,', 'a.CUSTOMER_ORDER_ID CustomerOrderId, (SELECT co.IS_SPECIAL_ORDER FROM customer_orders co WHERE co.CUSTOMER_ORDER_ID = a.CUSTOMER_ORDER_ID) IsSpecialOrder,', 1;
 GO
 
