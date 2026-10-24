@@ -1,0 +1,20 @@
+/* Reversa T26: restaura las definiciones originales de los SP de reportes de pedidos desde RQM_LOGS_OBJECT_BACKUP.
+   Antes de ejecutar, publicar la versión de la aplicación sin Pedido especial en reportes. */
+SET NOCOUNT ON;
+GO
+DECLARE @n SYSNAME, @d NVARCHAR(MAX);
+DECLARE c CURSOR LOCAL FOR
+    SELECT OBJECT_NAME, DEFINITION FROM dbo.RQM_LOGS_OBJECT_BACKUP
+     WHERE OBJECT_NAME IN ('SP_GET_CUSTOMER_ORDER_REPORT', 'SP_GET_CUSTOMER_ORDER_EXPORT', 'SP_GET_BACKORDER_REPORT', 'SP_GET_BACKORDER_EXPORT',
+                           'SP_GET_CUSTOMER_ORDER_ACTIVITY_REPORT', 'SP_GET_CUSTOMER_SALES_REPORT',
+                           'SP_AUTOMATIC_CUSTOMER_ORDER_ASSIGMENT_REPORT', 'SP_GET_AUTOMATIC_CUSTOMER_ORDER_INPROCESS_PENDING_REPORT');
+OPEN c; FETCH c INTO @n, @d;
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    SET @d = STUFF(@d, PATINDEX('%CREATE%PROCEDURE%', @d), CHARINDEX('PROCEDURE', @d) - PATINDEX('%CREATE%PROCEDURE%', @d), 'ALTER ');
+    EXEC sys.sp_executesql @d;
+    PRINT @n + ' restaurado';
+    FETCH c INTO @n, @d;
+END
+CLOSE c; DEALLOCATE c;
+GO

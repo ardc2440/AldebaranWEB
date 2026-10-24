@@ -1,4 +1,4 @@
-﻿using Aldebaran.Application.Services;
+using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Pages.ReportPages.Automatic_Customer_Order_In_Process_Creation.ViewModel;
 using Aldebaran.Web.Shared;
@@ -104,7 +104,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Automatic_Customer_Order_In_Process_Cr
                     Filter.CreationDate?.StartDate == null && Filter.CreationDate?.EndDate == null &&
                     Filter.OrderDate?.StartDate == null && Filter.OrderDate?.EndDate == null &&
                     Filter.EstimatedDeliveryDate?.StartDate == null && Filter.EstimatedDeliveryDate?.EndDate == null &&
-                    Filter.StatusDocumentTypeId == null && Filter.CustomerId == null && SelectedReferences.Any() == false)
+                    Filter.StatusDocumentTypeId == null && Filter.CustomerId == null && SelectedReferences.Any() == false && Filter.IsSpecialOrder == null)
                 {
                     ValidationError = true;
                     return;

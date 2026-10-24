@@ -1,4 +1,4 @@
-﻿@using ViewModel = Aldebaran.Web.Pages.ReportPages.Customer_Orders.ViewModel;
+@using ViewModel = Aldebaran.Web.Pages.ReportPages.Customer_Orders.ViewModel;
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
 
 <RadzenColumn SizeMD=12>
@@ -102,6 +102,12 @@
                         </ChildContent>
                     </RadzenFormField>
                 </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow style="margin-bottom: 1rem">
+            <RadzenColumn Size="12">
+                <RadzenCheckBox TriState="true" TValue="bool?" @bind-Value="@Filter.IsSpecialOrder" Name="IsSpecialOrder" />
+                <RadzenLabel Text="Pedido especial" Component="IsSpecialOrder" class="rz-ms-2" />
             </RadzenColumn>
         </RadzenRow>
         <RadzenRow style="margin-bottom: 1rem">

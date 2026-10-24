@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 
 namespace Aldebaran.Application.Services.Models.Reports
 {
@@ -6,6 +6,8 @@ namespace Aldebaran.Application.Services.Models.Reports
     {
         [DisplayName("Pedido")]
         public string OrderNumber { get; set; }
+        [DisplayName("Pedido especial")]
+        public string SpecialOrder { get; set; }
         [DisplayName("Cliente")]
         public string CustomerName { get; set; }
         [DisplayName("Nit")]

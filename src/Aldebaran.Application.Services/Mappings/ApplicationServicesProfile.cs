@@ -87,6 +87,7 @@ namespace Aldebaran.Application.Services.Mappings
             CreateMap<ProviderReferenceReport, Entities.Reports.ProviderReferenceReport>().ReverseMap();
             CreateMap<ReferenceMovementReport, Entities.Reports.ReferenceMovementReport>().ReverseMap();
             CreateMap<ReferenceMovementReportFilter, Entities.Reports.ReferenceMovementReportFilter>();
+            CreateMap<CustomerOrderReportFilter, Entities.Reports.CustomerOrderReportFilter>();
             CreateMap<WarehouseStockReport, Entities.Reports.WarehouseStockReport>().ReverseMap();
             CreateMap<CustomerOrderReport, Entities.Reports.CustomerOrderReport>().ReverseMap();
             CreateMap<CustomerReservationReport, Entities.Reports.CustomerReservationReport>().ReverseMap();
@@ -95,7 +96,8 @@ namespace Aldebaran.Application.Services.Mappings
             CreateMap<WarehouseTransferReport, Entities.Reports.WarehouseTransferReport>().ReverseMap();
             CreateMap<FreezoneVsAvailableReport, Entities.Reports.FreezoneVsAvailableReport>().ReverseMap();
             CreateMap<CustomerSaleReport, Entities.Reports.CustomerSaleReport>().ReverseMap();
-            CreateMap<CustomerOrderExport, Entities.Reports.CustomerOrderExport>().ReverseMap();
+            CreateMap<CustomerOrderExport, Entities.Reports.CustomerOrderExport>().ReverseMap()
+                .ForMember(d => d.SpecialOrder, o => o.MapFrom(s => s.IsSpecialOrder ? "Sí" : "No"));
             CreateMap<AutomaticCustomerOrderAssigmentReport, Entities.Reports.AutomaticCustomerOrderAssigmentReport>().ReverseMap();
             CreateMap<EmailNotificationProvider, DataAccess.Infraestructure.Models.EmailNotificationProvider>().ReverseMap();
             CreateMap<NotificationTemplate, Entities.NotificationTemplate>().ReverseMap();
@@ -123,7 +125,8 @@ namespace Aldebaran.Application.Services.Mappings
             CreateMap<AutomaticCustomerOrder, Entities.AutomaticCustomerOrder>().ReverseMap();
             CreateMap<AutomaticCustomerOrderDetail, Entities.AutomaticCustomerOrderDetail>().ReverseMap();
             CreateMap<BackOrderReport, Entities.Reports.BackOrderReport>().ReverseMap();
-            CreateMap<BackOrderExport, Entities.Reports.BackOrderExport>().ReverseMap();
+            CreateMap<BackOrderExport, Entities.Reports.BackOrderExport>().ReverseMap()
+                .ForMember(d => d.SpecialOrder, o => o.MapFrom(s => s.IsSpecialOrder ? "Sí" : "No"));
             CreateMap<AutomaticPendingCustomerOrderInProcessReport, Entities.Reports.AutomaticPendingCustomerOrderInProcessReport>().ReverseMap();
             CreateMap<VisualizedAutomaticCustomerOrderInProcessModification, Entities.VisualizedAutomaticCustomerOrderInProcessModification>().ReverseMap();
             CreateMap<AutomaticCustomerOrderInProcessModification, Entities.AutomaticCustomerOrderInProcessModification>().ReverseMap();

@@ -1,11 +1,14 @@
 using Aldebaran.Application.Services;
+using Aldebaran.Application.Services.Models.Reports;
 using Aldebaran.Application.Services.Reports;
 using Aldebaran.Web.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel;
 
 namespace Aldebaran.Web.Controllers
 {
+    [Authorize]
     public partial class ExportAldebaranDbController
     {
         private readonly IItemService ItemService;
@@ -35,45 +38,37 @@ namespace Aldebaran.Web.Controllers
         }
 
         [HttpGet("/export/AldebaranDb/customer-order/csv")]
-        [HttpGet("/export/AldebaranDb/customer-order/csv(fileName='{fileName}',filter='{filter}')")]
-        public async Task<FileStreamResult> ExportCustomerOrderToCSV(string fileName = null, string filter = null, CancellationToken ct = default)
+        [HttpGet("/export/AldebaranDb/customer-order/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportCustomerOrderToCSV(string fileName = null, [FromQuery] CustomerOrderReportFilter filter = null, CancellationToken ct = default)
         {
-            filter = filter == "NoFilter" ? "" : filter;
+            var dataReport = await CustomerOrderReportService.GetCustomerOrderExportDataAsync(filter ?? new CustomerOrderReportFilter(), ct);
 
-            var dataReport = await CustomerOrderReportService.GetCustomerOrderExportDataAsync(filter, ct);
-                        
             return ExportHelper.ToCSV(dataReport.ToList(), fileName);
         }
 
         [HttpGet("/export/AldebaranDb/customer-order/excel")]
-        [HttpGet("/export/AldebaranDb/customer-order/excel(fileName='{fileName}',filter='{filter}')")]
-        public async Task<FileStreamResult> ExportCustomerOrderToExcel(string fileName = null, string filter = null, CancellationToken ct = default)
+        [HttpGet("/export/AldebaranDb/customer-order/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportCustomerOrderToExcel(string fileName = null, [FromQuery] CustomerOrderReportFilter filter = null, CancellationToken ct = default)
         {
-            filter = filter == "NoFilter" ? "" : filter;
-            
-            var dataReport = await CustomerOrderReportService.GetCustomerOrderExportDataAsync(filter, ct);
-                       
+            var dataReport = await CustomerOrderReportService.GetCustomerOrderExportDataAsync(filter ?? new CustomerOrderReportFilter(), ct);
+
             return ExportHelper.ToExcel(dataReport.ToList(), fileName);
         }
 
         [HttpGet("/export/AldebaranDb/back-order/csv")]
-        [HttpGet("/export/AldebaranDb/back-order/csv(fileName='{fileName}',filter='{filter}')")]
-        public async Task<FileStreamResult> ExportBackOrderToCSV(string fileName = null, string filter = null, CancellationToken ct = default)
+        [HttpGet("/export/AldebaranDb/back-order/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportBackOrderToCSV(string fileName = null, [FromQuery] CustomerOrderReportFilter filter = null, CancellationToken ct = default)
         {
-            filter = filter == "NoFilter" ? "" : filter;
-
-            var dataReport = await CustomerOrderReportService.GetBackOrderExportDataAsync(filter, ct);
+            var dataReport = await CustomerOrderReportService.GetBackOrderExportDataAsync(filter ?? new CustomerOrderReportFilter(), ct);
 
             return ExportHelper.ToCSV(dataReport.ToList(), fileName);
         }
 
         [HttpGet("/export/AldebaranDb/back-order/excel")]
-        [HttpGet("/export/AldebaranDb/back-order/excel(fileName='{fileName}',filter='{filter}')")]
-        public async Task<FileStreamResult> ExportBackOrderToExcel(string fileName = null, string filter = null, CancellationToken ct = default)
+        [HttpGet("/export/AldebaranDb/back-order/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportBackOrderToExcel(string fileName = null, [FromQuery] CustomerOrderReportFilter filter = null, CancellationToken ct = default)
         {
-            filter = filter == "NoFilter" ? "" : filter;
-
-            var dataReport = await CustomerOrderReportService.GetBackOrderExportDataAsync(filter, ct);
+            var dataReport = await CustomerOrderReportService.GetBackOrderExportDataAsync(filter ?? new CustomerOrderReportFilter(), ct);
 
             return ExportHelper.ToExcel(dataReport.ToList(), fileName);
         }
@@ -82,7 +77,7 @@ namespace Aldebaran.Web.Controllers
         {
             [DisplayName("Nombre del cliente")]
             public string CustomerName { get; set; }
-            [DisplayName("Teléfono")]
+            [DisplayName("TelÃ©fono")]
             public string Phone { get; set; }
             public string Fax { get; set; }
         }

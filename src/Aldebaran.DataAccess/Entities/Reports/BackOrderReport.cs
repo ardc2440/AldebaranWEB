@@ -1,4 +1,4 @@
-﻿namespace Aldebaran.DataAccess.Entities.Reports
+namespace Aldebaran.DataAccess.Entities.Reports
 {
     public class BackOrderReport
     {
@@ -9,6 +9,7 @@
 
         public int OrderId { get; set; }
         public string OrderNumber { get; set; }
+        public bool IsSpecialOrder { get; set; }
         public DateTime OrderCreationDate { get; set; }
         public DateTime OrderDate { get; set; }
         public DateTime EstimatedDeliveryDate { get; set; }

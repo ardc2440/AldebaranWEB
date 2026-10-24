@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 
 namespace Aldebaran.DataAccess.Entities.Reports
 {
@@ -6,6 +6,7 @@ namespace Aldebaran.DataAccess.Entities.Reports
     {
         [DisplayName("Pedido")]
         public string? OrderNumber { get; set; }
+        public bool IsSpecialOrder { get; set; }
         [DisplayName("Cliente")]
         public string? CustomerName { get; set; }
         [DisplayName("Nit")]
@@ -34,7 +35,7 @@ namespace Aldebaran.DataAccess.Entities.Reports
         public int ProcessedAmount { get; set; }
         [DisplayName("Fecha Estimada Entrega")]
         public DateTime EstimatedDeliveryDate { get; set; }
-        [DisplayName("Nombre del cliente")]
+        [DisplayName("Observaciones Internas")]
         public string? InternalNotes { get; set; }
         [DisplayName("Observaciones Cliente")]
         public string? CustomerNotes { get; set; }

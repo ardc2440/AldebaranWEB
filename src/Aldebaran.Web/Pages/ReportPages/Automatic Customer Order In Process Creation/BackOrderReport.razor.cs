@@ -1,10 +1,10 @@
-﻿using Aldebaran.Application.Services.Reports;
+using Aldebaran.Application.Services.Reports;
 using Aldebaran.Infraestructure.Common.Utils;
 using Aldebaran.Web.Pages.ReportPages.Automatic_Customer_Order_In_Process_Creation.Components;
 using Aldebaran.Web.Pages.ReportPages.Automatic_Customer_Order_In_Process_Creation.ViewModel;
 using Aldebaran.Web.Shared;
+using ReportFilter = Aldebaran.Application.Services.Models.Reports.CustomerOrderReportFilter;
 using Microsoft.AspNetCore.Components;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.JSInterop;
 using Radzen;
 using Radzen.Blazor;
@@ -103,7 +103,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Automatic_Customer_Order_In_Process_Cr
         async Task<BackOrderViewModel.Order> GetSingleOrderAsync(int orderId, CancellationToken ct = default)
         {
             var orderData = DataReport.Where(w => w.OrderId == orderId)
-                .Select(s => new { s.OrderId, s.OrderCreationDate, s.OrderDate, s.OrderNumber, s.OrderStatus, s.InternalNotes, s.CustomerNotes, s.EstimatedDeliveryDate })
+                .Select(s => new { s.OrderId, s.OrderCreationDate, s.OrderDate, s.OrderNumber, s.IsSpecialOrder, s.OrderStatus, s.InternalNotes, s.CustomerNotes, s.EstimatedDeliveryDate })
                 .FirstOrDefault();
 
             if (orderData == null)
@@ -114,6 +114,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Automatic_Customer_Order_In_Process_Cr
                 CreationDate = orderData.OrderCreationDate,
                 OrderDate = orderData.OrderDate,
                 OrderNumber = orderData.OrderNumber,
+                IsSpecialOrder = orderData.IsSpecialOrder,
                 Status = orderData.OrderStatus,
                 InternalNotes = orderData.InternalNotes,
                 CustomerNotes = orderData.CustomerNotes,
@@ -181,7 +182,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Automatic_Customer_Order_In_Process_Cr
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
             await OpenFilters();
         }
-        async Task RedrawReportAsync(string filter = "", CancellationToken ct = default)
+        async Task RedrawReportAsync(ReportFilter filter, CancellationToken ct = default)
         {
             try
             {
@@ -201,33 +202,6 @@ namespace Aldebaran.Web.Pages.ReportPages.Automatic_Customer_Order_In_Process_Cr
 
         }
 
-        async Task<string> SetReportFilterAsync(BackOrderFilter filter, CancellationToken ct = default)
-        {
-            var filterResult = string.Empty;
-
-            if (filter.CreationDate.StartDate.HasValue)
-                filterResult += $"@CreationDateFrom = '{(DateTime)filter.CreationDate.StartDate:yyyyMMdd}', @CreationDateTo = '{(DateTime)filter.CreationDate.EndDate:yyyyMMdd}'";
-
-            if (filter.OrderDate.StartDate.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@OrderDateFrom = '{(DateTime)filter.OrderDate.StartDate:yyyyMMdd}', @OrderDateTo = '{(DateTime)filter.OrderDate.EndDate:yyyyMMdd}'";
-
-            if (filter.EstimatedDeliveryDate.StartDate.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@EstimatedDeliveryDateFrom = '{(DateTime)filter.EstimatedDeliveryDate.StartDate:yyyyMMdd}', @EstimatedDeliveryDateTo = '{(DateTime)filter.EstimatedDeliveryDate.EndDate:yyyyMMdd}'";
-
-            if (!filter.OrderNumber.IsNullOrEmpty())
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@OrderNumber = '{filter.OrderNumber}'";
-
-            if (filter.StatusDocumentTypeId.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@StatusDocumentTypeId = {filter.StatusDocumentTypeId}";
-
-            if (filter.ItemReferences.Count > 0)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReferenceIds = '{String.Join(",", Filter.ItemReferences.Select(s => s.ReferenceId))}'";
-
-            if (filter.CustomerId.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@CustomerId = {filter.CustomerId}";
-
-            return filterResult;
-        }
 
         async Task OpenFilters()
         {
@@ -236,7 +210,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Automatic_Customer_Order_In_Process_Cr
                 return;
             Filter = (BackOrderFilter)result;
 
-            await RedrawReportAsync(await SetReportFilterAsync(Filter));
+            await RedrawReportAsync(Filter.ToReportFilter());
 
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
         }
@@ -266,16 +240,16 @@ namespace Aldebaran.Web.Pages.ReportPages.Automatic_Customer_Order_In_Process_Cr
         }
         async Task ExportClick(RadzenSplitButtonItem args)
         {
-            var filter = Filter == null ? "NoFilter" : await SetReportFilterAsync(Filter);
+            var query = Filter == null ? string.Empty : Filter.ToReportFilter().ToQueryString();
 
             if (args?.Value == "csv")
             {
-                NavigationManager.NavigateTo($"export/aldebarandb/back-order/csv(fileName='{UrlEncoder.Default.Encode("Backorder por cliente")}',filter='{UrlEncoder.Default.Encode(filter)}')", true);
+                NavigationManager.NavigateTo($"export/AldebaranDb/back-order/csv(fileName='{UrlEncoder.Default.Encode("Backorder por cliente")}'){query}", true);
             }
 
             if (args == null || args.Value == "xlsx")
             {
-                NavigationManager.NavigateTo($"export/AldebaranDb/back-order/excel(fileName='{UrlEncoder.Default.Encode("Backorder por cliente")}',filter='{UrlEncoder.Default.Encode(filter)}')", true);
+                NavigationManager.NavigateTo($"export/AldebaranDb/back-order/excel(fileName='{UrlEncoder.Default.Encode("Backorder por cliente")}'){query}", true);
             }
         }
         async Task ToggleReadMore()

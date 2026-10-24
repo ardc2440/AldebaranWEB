@@ -1,4 +1,4 @@
-﻿using Aldebaran.DataAccess.Entities.Reports;
+using Aldebaran.DataAccess.Entities.Reports;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository.Reports
@@ -9,36 +9,23 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository.Reports
         {
         }
 
-        public async Task<IEnumerable<CustomerOrderReport>> GetCustomerOrderReportDataAsync(string filter, CancellationToken ct = default)
-        {
-            return await ExecuteQueryAsync(async dbContext =>
-            {
-                return await dbContext.Set<CustomerOrderReport>().FromSqlRaw($"EXEC SP_GET_CUSTOMER_ORDER_REPORT {filter}").ToListAsync(ct);
-            }, ct);
-        }
+        public Task<IEnumerable<CustomerOrderReport>> GetCustomerOrderReportDataAsync(CustomerOrderReportFilter filter, CancellationToken ct = default) =>
+            QueryAsync<CustomerOrderReport>("SP_GET_CUSTOMER_ORDER_REPORT", filter, ct);
 
-        public async Task<IEnumerable<CustomerOrderExport>> GetCustomerOrderExportDataAsync(string filter, CancellationToken ct = default)
-        {
-            return await ExecuteQueryAsync(async dbContext =>
-            {
-                return await dbContext.Set<CustomerOrderExport>().FromSqlRaw($"EXEC SP_GET_CUSTOMER_ORDER_EXPORT {filter}").ToListAsync(ct);
-            }, ct);
-        }
+        public Task<IEnumerable<CustomerOrderExport>> GetCustomerOrderExportDataAsync(CustomerOrderReportFilter filter, CancellationToken ct = default) =>
+            QueryAsync<CustomerOrderExport>("SP_GET_CUSTOMER_ORDER_EXPORT", filter, ct);
 
-        public async Task<IEnumerable<BackOrderReport>> GetBackOrderReportDataAsync(string filter, CancellationToken ct = default)
-        {
-            return await ExecuteQueryAsync(async dbContext =>
-            {
-                return await dbContext.Set<BackOrderReport>().FromSqlRaw($"EXEC SP_GET_BACKORDER_REPORT {filter}").ToListAsync(ct);
-            }, ct);
-        }
+        public Task<IEnumerable<BackOrderReport>> GetBackOrderReportDataAsync(CustomerOrderReportFilter filter, CancellationToken ct = default) =>
+            QueryAsync<BackOrderReport>("SP_GET_BACKORDER_REPORT", filter, ct);
 
-        public async Task<IEnumerable<BackOrderExport>> GetBackOrderExportDataAsync(string filter, CancellationToken ct = default)
+        public Task<IEnumerable<BackOrderExport>> GetBackOrderExportDataAsync(CustomerOrderReportFilter filter, CancellationToken ct = default) =>
+            QueryAsync<BackOrderExport>("SP_GET_BACKORDER_EXPORT", filter, ct);
+
+        private async Task<IEnumerable<T>> QueryAsync<T>(string procedure, CustomerOrderReportFilter filter, CancellationToken ct) where T : class
         {
+            var command = CustomerOrderReportCommand.Build(procedure, filter);
             return await ExecuteQueryAsync(async dbContext =>
-            {
-                return await dbContext.Set<BackOrderExport>().FromSqlRaw($"EXEC SP_GET_BACKORDER_EXPORT {filter}").ToListAsync(ct);
-            }, ct);
+                await dbContext.Set<T>().FromSqlRaw(command.Sql, command.Parameters).ToListAsync(ct), ct);
         }
     }
 }

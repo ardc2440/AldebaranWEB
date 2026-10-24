@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 
 namespace Aldebaran.DataAccess.Entities.Reports
 {
@@ -6,6 +6,7 @@ namespace Aldebaran.DataAccess.Entities.Reports
     {
         [DisplayName("Pedido")]
         public string? OrderNumber { get; set; }
+        public bool IsSpecialOrder { get; set; }
         [DisplayName("Cliente")]
         public string? CustomerName { get; set; }
         [DisplayName("Nit")]

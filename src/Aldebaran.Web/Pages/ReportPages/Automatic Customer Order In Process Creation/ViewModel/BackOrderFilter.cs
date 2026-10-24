@@ -1,4 +1,4 @@
-﻿using Aldebaran.Application.Services.Models;
+using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Shared.ViewModel;
 namespace Aldebaran.Web.Pages.ReportPages.Automatic_Customer_Order_In_Process_Creation.ViewModel
 {
@@ -13,6 +13,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Automatic_Customer_Order_In_Process_Cr
         public int? CustomerId { get; set; }
         public Customer Customer { get; set; }
         public List<ItemReference> ItemReferences { get; set; } = new List<ItemReference>();
+        /// <summary>Pedido especial: true = Sí, false = No, null = Todos.</summary>
+        public bool? IsSpecialOrder { get; set; }
 
         public object Clone()
         {
