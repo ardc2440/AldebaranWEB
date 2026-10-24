@@ -35,6 +35,6 @@ namespace Aldebaran.Application.Services.InternalReferences
         }
 
         private static IReadOnlyList<InternalReferenceConsecutive> ToModels(IEnumerable<DataAccess.Entities.InternalReferenceConsecutiveEntry> rows) =>
-            rows.Select(r => new InternalReferenceConsecutive(r.Code, r.Consecutive, r.InternalReference)).ToList();
+            rows.Select(r => new InternalReferenceConsecutive(r.Code, r.Consecutive, r.InternalReference, r.IsNew)).ToList();
     }
 }

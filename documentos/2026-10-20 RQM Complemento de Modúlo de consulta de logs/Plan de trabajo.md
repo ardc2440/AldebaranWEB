@@ -89,11 +89,11 @@ Conexión autómata `SERVIDOR-PRUEBA-T2` y FTP `ftp.prueba-t2.invalid` (inactiva
 | T30 | Paquete de despliegue final (scripts, reversas, LEEME, NLog autómata + GRANT) y cierre; restaurar datos de prueba | | |
 
 ## ENTREGA 4 – Consecutivos de referencia interna (aprobada por el cliente 24-oct)
-Diseño: tablas INTERNAL_REFERENCE_CODES (código) e INTERNAL_REFERENCE_CONSECUTIVES (código, número; único). Formato CÓDIGO-NNN (3 dígitos, inicia en 001); código en mayúsculas, sin espacios, máx. 6 caracteres (items.INTERNAL_REFERENCE es varchar(10)). Consultar = generados cuya referencia no existe en items. Generar = N seguidos por encima del mayor entre generados y usados en artículos (SP transaccional con bloqueo). Sin usuario/fecha, sin desbloqueo, sin límite 999, sin cambios en Artículos. Acceso: Administración > Consecutivos de referencia (Administrador, Modificación de artículos). Script 20.
+Diseño: tablas INTERNAL_REFERENCE_CODES (código) e INTERNAL_REFERENCE_CONSECUTIVES (código, número; único). Formato CÓDIGO-NNN (3 dígitos, inicia en 001); código en mayúsculas, sin espacios, máx. 6 caracteres (items.INTERNAL_REFERENCE es varchar(10)). La tabla de consecutivos guarda SOLO los disponibles: los que ya existen como referencia de un artículo se eliminan al Consultar y al Generar. Consultar = disponibles. Generar N = completa hasta N disponibles (crea N − disponibles), los nuevos siguen al mayor entre disponibles y usados en artículos + 1 (SP transaccional con bloqueo). Sin usuario/fecha, sin desbloqueo, sin límite 999, sin cambios en Artículos. Acceso: Administración > Consecutivos de referencia (Administrador, Modificación de artículos). Script 20.
 
 | T | Tarea | Prueba de aceptación | Estado |
 |---|---|---|---|
-| C1 | BD: script 20 (tablas, índice, SP de consulta y generación) + reversa | Código nuevo inicia en 001; MU con MU-025 en artículos genera 026 | |
+| C1 | BD: script 20 (tablas, depuración de usados, SP de consulta y generación) + reversa | Código nuevo inicia en 001; MU con MU-025 usado y 026–027 disponibles: pedir 5 crea 028–030 | |
 | C2 | DataAccess: entidades keyless y repositorio (StoredProcedureCommand) | Llamadas parametrizadas | |
 | C3 | Application: servicio y modelos del caso de uso; validaciones | Código obligatorio ≤ 6, cantidad > 0 | |
 | C4 | Proyecto de pruebas unitarias (xUnit) | dotnet test en verde | |

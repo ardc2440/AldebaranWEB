@@ -20,8 +20,8 @@ namespace Aldebaran.Application.Services.Models.InternalReferences
             return null;
         }
 
-        /// <summary>Mensaje de error de la cantidad a generar, o null si es válida.</summary>
+        /// <summary>Mensaje de error de la cantidad de disponibles requerida, o null si es válida.</summary>
         public static string? ValidateQuantity(int quantity) =>
-            quantity < 1 ? "La cantidad a generar debe ser mayor que cero." : null;
+            quantity < 1 ? "La cantidad debe ser mayor que cero." : null;
     }
 }

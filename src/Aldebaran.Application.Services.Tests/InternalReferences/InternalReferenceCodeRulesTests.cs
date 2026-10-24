@@ -43,6 +43,6 @@ namespace Aldebaran.Application.Services.Tests.InternalReferences
         [InlineData(0)]
         [InlineData(-3)]
         public void ValidateQuantity_RejectsZeroOrNegative(int quantity) =>
-            Assert.Equal("La cantidad a generar debe ser mayor que cero.", InternalReferenceCodeRules.ValidateQuantity(quantity));
+            Assert.Equal("La cantidad debe ser mayor que cero.", InternalReferenceCodeRules.ValidateQuantity(quantity));
     }
 }

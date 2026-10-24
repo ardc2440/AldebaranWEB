@@ -49,7 +49,7 @@ namespace Aldebaran.Web.Pages.ItemPages
             });
         }
 
-        /// <summary>Genera la cantidad indicada, previa confirmación, y muestra los generados.</summary>
+        /// <summary>Completa hasta la cantidad requerida de disponibles (crea solo los que faltan), previa confirmación.</summary>
         protected async Task GenerateAsync()
         {
             var normalized = InternalReferenceCodeRules.Normalize(code);
@@ -60,19 +60,22 @@ namespace Aldebaran.Web.Pages.ItemPages
                 return;
             }
 
-            if (await DialogService.Confirm($"¿Está seguro que desea generar {quantity} consecutivo(s) para el código {normalized}?", "Confirmar generación",
+            if (await DialogService.Confirm($"¿Está seguro que desea completar {quantity} consecutivo(s) disponibles para el código {normalized}? Solo se generan los que falten.", "Confirmar generación",
                     new ConfirmOptions { OkButtonText = "Sí, generar", CancelButtonText = "No" }) != true)
                 return;
 
             await RunAsync(async () =>
             {
                 consecutives = await InternalReferenceConsecutiveService.GenerateAsync(normalized, quantity);
-                resultTitle = $"Consecutivos generados para el código {normalized}: {consecutives.Count}";
+                var created = consecutives.Where(c => c.IsNew).ToList();
+                resultTitle = $"Consecutivos disponibles para el código {normalized}: {consecutives.Count} (generados ahora: {created.Count})";
                 NotificationService.Notify(new NotificationMessage
                 {
-                    Severity = NotificationSeverity.Success,
+                    Severity = created.Count > 0 ? NotificationSeverity.Success : NotificationSeverity.Info,
                     Summary = "Consecutivos de referencia interna",
-                    Detail = $"Se generaron {consecutives.Count} consecutivo(s): {consecutives.First().InternalReference} a {consecutives.Last().InternalReference}.",
+                    Detail = created.Count > 0
+                        ? $"Se generaron {created.Count} consecutivo(s): {created.First().InternalReference} a {created.Last().InternalReference}."
+                        : $"Ya existían {consecutives.Count} consecutivo(s) disponibles; no fue necesario generar.",
                     Duration = 6000
                 });
             });

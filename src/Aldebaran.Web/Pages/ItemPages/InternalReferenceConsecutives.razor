@@ -21,7 +21,7 @@
             </RadzenFormField>
         </RadzenColumn>
         <RadzenColumn SizeMD="2">
-            <RadzenFormField Text="Cantidad a generar" Variant="Variant.Text" Style="width: 100%;">
+            <RadzenFormField Text="Cantidad requerida" Variant="Variant.Text" Style="width: 100%;">
                 <RadzenNumeric TValue="int" @bind-Value="@quantity" Min="1" Name="Quantity" style="display: block; width: 100%" />
             </RadzenFormField>
         </RadzenColumn>
@@ -40,6 +40,11 @@
                 <RadzenDataGridColumn TItem="InternalReferenceConsecutive" Property="InternalReference" Title="Referencia interna" />
                 <RadzenDataGridColumn TItem="InternalReferenceConsecutive" Property="Code" Title="Código" />
                 <RadzenDataGridColumn TItem="InternalReferenceConsecutive" Property="Consecutive" Title="Consecutivo" />
+                <RadzenDataGridColumn TItem="InternalReferenceConsecutive" Property="IsNew" Title="Generado ahora">
+                    <Template Context="row">
+                        @(row.IsNew ? "Sí" : "No")
+                    </Template>
+                </RadzenDataGridColumn>
             </Columns>
         </LocalizedDataGrid>
     }

@@ -4,10 +4,10 @@ namespace Aldebaran.Application.Services.InternalReferences
 {
     public interface IInternalReferenceConsecutiveService
     {
-        /// <summary>Consecutivos generados para el código que aún no usa ninguna referencia interna de artículo.</summary>
+        /// <summary>Consecutivos disponibles del código (los usados en artículos se eliminan antes de consultar).</summary>
         Task<IReadOnlyList<InternalReferenceConsecutive>> GetAvailableAsync(string code, CancellationToken ct = default);
 
-        /// <summary>Genera la cantidad indicada de consecutivos seguidos y los devuelve.</summary>
+        /// <summary>Completa hasta <paramref name="quantity"/> disponibles creando solo los que faltan; devuelve todos los disponibles.</summary>
         Task<IReadOnlyList<InternalReferenceConsecutive>> GenerateAsync(string code, int quantity, CancellationToken ct = default);
     }
 }

@@ -27,22 +27,24 @@ namespace Aldebaran.Application.Services.Tests.InternalReferences
             }
         }
 
-        private static InternalReferenceConsecutiveEntry Row(string code, int n) =>
-            new() { Code = code, Consecutive = n, InternalReference = $"{code}-{n:000}" };
+        private static InternalReferenceConsecutiveEntry Row(string code, int n, bool isNew = false) =>
+            new() { Code = code, Consecutive = n, InternalReference = $"{code}-{n:000}", IsNew = isNew };
 
         [Fact]
-        public async Task GenerateAsync_SendsNormalizedCodeAndQuantity_AndMapsResult()
+        public async Task GenerateAsync_SendsNormalizedCodeAndRequiredQuantity_AndMapsAvailableWithNewFlag()
         {
+            // Disponibles 26 y 27; se piden 5 => la BD crea 28, 29 y 30 y devuelve los 5 disponibles.
             var repository = new FakeRepository();
-            repository.Rows.AddRange(new[] { Row("MU", 26), Row("MU", 27) });
+            repository.Rows.AddRange(new[] { Row("MU", 26), Row("MU", 27), Row("MU", 28, true), Row("MU", 29, true), Row("MU", 30, true) });
             var service = new InternalReferenceConsecutiveService(repository);
 
-            var result = await service.GenerateAsync(" mu ", 2);
+            var result = await service.GenerateAsync(" mu ", 5);
 
             Assert.Equal("MU", repository.LastCode);
-            Assert.Equal(2, repository.LastQuantity);
-            Assert.Equal(new[] { "MU-026", "MU-027" }, result.Select(r => r.InternalReference));
-            Assert.Equal(new[] { 26, 27 }, result.Select(r => r.Consecutive));
+            Assert.Equal(5, repository.LastQuantity);
+            Assert.Equal(5, result.Count);
+            Assert.Equal(new[] { "MU-028", "MU-029", "MU-030" }, result.Where(r => r.IsNew).Select(r => r.InternalReference));
+            Assert.Equal(new[] { 26, 27 }, result.Where(r => !r.IsNew).Select(r => r.Consecutive));
         }
 
         [Fact]

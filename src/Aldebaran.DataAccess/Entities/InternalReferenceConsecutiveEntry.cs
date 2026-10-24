@@ -6,5 +6,7 @@ namespace Aldebaran.DataAccess.Entities
         public string Code { get; set; } = string.Empty;
         public int Consecutive { get; set; }
         public string InternalReference { get; set; } = string.Empty;
+        /// <summary>true = creado en esta generación.</summary>
+        public bool IsNew { get; set; }
     }
 }
