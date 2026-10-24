@@ -37,10 +37,15 @@
                 <LocalizedDataGrid @ref="logGrid" Count="@count" LoadData="@LoadData" Data="@items" TItem="OrderDocumentLogItem" IsLoading="@isLoading"
                                    AllowPaging="true" ShowPagingSummary="true" PageSize="20" PageSizeOptions=@(new int[]{10, 20, 30, 50}) AllowColumnResize="true">
                     <Columns>
-                        <RadzenDataGridColumn TItem="OrderDocumentLogItem" Property="CustomerName" Title="Cliente" Width="22%" />
+                        <RadzenDataGridColumn TItem="OrderDocumentLogItem" Property="CustomerName" Title="Cliente" Width="18%" />
                         <RadzenDataGridColumn TItem="OrderDocumentLogItem" Property="OrderNumber" Title="Número de pedido" Width="12%">
                             <Template Context="row">
                                 <RadzenLink href="javascript:void(0);" @onclick="@(async () => await ShowCustomerOrderAsync(row.CustomerOrderId))">@row.OrderNumber</RadzenLink>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="OrderDocumentLogItem" Property="IsSpecialOrder" Title="Pedido especial" Width="8%">
+                            <Template Context="row">
+                                @(row.IsSpecialOrder ? "Sí" : "No")
                             </Template>
                         </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="OrderDocumentLogItem" Property="DocumentId" Title="@info.DocumentTitle" Width="9%" />
@@ -50,7 +55,7 @@
                         <RadzenDataGridColumn TItem="OrderDocumentLogItem" Property="EventDate" Title="@info.EventDateTitle" Width="14%">
                             <Template Context="row"><span>@row.EventDate.ToString(SharedLocalizer["datetime:format"])</span></Template>
                         </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="OrderDocumentLogItem" Property="Reason" Title="Motivo" Width="16%" />
+                        <RadzenDataGridColumn TItem="OrderDocumentLogItem" Property="Reason" Title="Motivo" Width="12%" />
                         <RadzenDataGridColumn TItem="OrderDocumentLogItem" Property="EmployeeName" Title="Realizado por" Width="15%" />
                     </Columns>
                 </LocalizedDataGrid>

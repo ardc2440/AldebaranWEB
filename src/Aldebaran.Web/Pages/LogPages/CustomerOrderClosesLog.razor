@@ -1,4 +1,4 @@
-﻿@page "/customer_order_close_log"
+@page "/customer_order_close_log"
 @attribute [Authorize(Roles = "Administrador,Log de pedidos")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @using ServiceModel = Aldebaran.Application.Services.Models;
@@ -28,6 +28,11 @@
                                 <RadzenLink href="javascript:void(0);" @onclick="@(async (args) => await CustomerOrderDetailInfo(close.CustomerOrder.CustomerOrderId))">
                                     @close.CustomerOrder.OrderNumber
                                 </RadzenLink>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.ClosedCustomerOrder" Property="CustomerOrder.IsSpecialOrder" Title="Pedido especial" Width="30%">
+                            <Template Context="row">
+                                @(row.CustomerOrder.IsSpecialOrder ? "Sí" : "No")
                             </Template>
                         </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="ServiceModel.ClosedCustomerOrder" Property="CustomerOrder.OrderDate" Title="Fecha de pedido" Width="40%">

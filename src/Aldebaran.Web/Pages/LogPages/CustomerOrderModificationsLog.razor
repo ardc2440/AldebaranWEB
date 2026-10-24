@@ -1,4 +1,4 @@
-﻿@page "/customer_order_modify_log"
+@page "/customer_order_modify_log"
 @attribute [Authorize(Roles = "Administrador,Log de pedidos")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @using ServiceModel = Aldebaran.Application.Services.Models;
@@ -30,6 +30,11 @@
                                 </RadzenLink>
                             </Template>
                         </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ServiceModel.ModifiedCustomerOrder" Property="CustomerOrder.IsSpecialOrder" Title="Pedido especial" Width="30%">
+                            <Template Context="row">
+                                @(row.CustomerOrder.IsSpecialOrder ? "Sí" : "No")
+                            </Template>
+                        </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="ServiceModel.ModifiedCustomerOrder" Property="CustomerOrder.OrderDate" Title="Fecha de pedido" Width="40%">
                             <Template Context="modification">
                                 <span>@modification.CustomerOrder.OrderDate.ToString(SharedLocalizer["date:format"])</span>
@@ -46,7 +51,7 @@
                             </Template>
                         </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="ServiceModel.ModifiedCustomerOrder" Property="ModificationReason.ModificationReasonName" Title="Motivo modificación" Width="90%" />
-                        <RadzenDataGridColumn TItem="ServiceModel.ModifiedCustomerOrder" Property="Employee.FullName" Title="Moddificado por" Width="50%" />
+                        <RadzenDataGridColumn TItem="ServiceModel.ModifiedCustomerOrder" Property="Employee.FullName" Title="Modificado por" Width="50%" />
                     </Columns>
                 </LocalizedDataGrid>
             </RadzenColumn>

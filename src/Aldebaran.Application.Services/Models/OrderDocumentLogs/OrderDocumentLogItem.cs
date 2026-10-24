@@ -5,5 +5,5 @@ namespace Aldebaran.Application.Services.Models.OrderDocumentLogs
     /// <param name="DocumentId">Número del despacho o del traslado a proceso.</param>
     /// <param name="DocumentDate">Fecha de despacho o de traslado del documento.</param>
     public sealed record OrderDocumentLogItem(string LogKey, DateTime EventDate, int DocumentId, DateTime? DocumentDate,
-        int CustomerOrderId, string OrderNumber, string CustomerName, string Reason, string EmployeeName);
+        int CustomerOrderId, string OrderNumber, bool IsSpecialOrder, string CustomerName, string Reason, string EmployeeName);
 }

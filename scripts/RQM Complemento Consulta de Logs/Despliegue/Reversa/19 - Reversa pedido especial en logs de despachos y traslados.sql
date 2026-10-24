@@ -1,0 +1,13 @@
+/* Reversa T27: retira IS_SPECIAL_ORDER del resultado de SP_GET_ORDER_DOCUMENT_LOG.
+   Antes de ejecutar, publicar la versión de la aplicación sin Pedido especial en logs. */
+SET NOCOUNT ON;
+GO
+DECLARE @d NVARCHAR(MAX) = OBJECT_DEFINITION(OBJECT_ID('dbo.SP_GET_ORDER_DOCUMENT_LOG'));
+IF @d IS NOT NULL AND CHARINDEX('o.ORDER_NUMBER, o.IS_SPECIAL_ORDER, c.CUSTOMER_NAME,', @d) > 0
+BEGIN
+    SET @d = REPLACE(@d, 'o.ORDER_NUMBER, o.IS_SPECIAL_ORDER, c.CUSTOMER_NAME,', 'o.ORDER_NUMBER, c.CUSTOMER_NAME,');
+    SET @d = STUFF(@d, PATINDEX('%CREATE%PROCEDURE%', @d), CHARINDEX('PROCEDURE', @d) - PATINDEX('%CREATE%PROCEDURE%', @d), 'ALTER ');
+    EXEC sys.sp_executesql @d;
+    PRINT 'SP_GET_ORDER_DOCUMENT_LOG restaurado';
+END
+GO

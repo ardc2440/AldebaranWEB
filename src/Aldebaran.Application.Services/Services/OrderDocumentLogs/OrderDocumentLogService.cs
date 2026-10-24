@@ -43,6 +43,6 @@ namespace Aldebaran.Application.Services.OrderDocumentLogs
 
         private static OrderDocumentLogItem ToModel(Entities.OrderDocumentLogEntry row) =>
             new(row.LogKey, row.EventDate, row.DocumentId, row.DocumentDate, row.CustomerOrderId,
-                row.OrderNumber, row.CustomerName, row.Reason, row.EmployeeName);
+                row.OrderNumber, row.IsSpecialOrder, row.CustomerName, row.Reason, row.EmployeeName);
     }
 }

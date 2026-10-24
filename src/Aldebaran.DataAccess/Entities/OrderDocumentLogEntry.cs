@@ -9,6 +9,7 @@ namespace Aldebaran.DataAccess.Entities
         public DateTime? DocumentDate { get; set; }
         public int CustomerOrderId { get; set; }
         public string OrderNumber { get; set; } = string.Empty;
+        public bool IsSpecialOrder { get; set; }
         public string CustomerName { get; set; } = string.Empty;
         public string Reason { get; set; } = string.Empty;
         public string EmployeeName { get; set; } = string.Empty;
