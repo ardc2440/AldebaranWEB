@@ -1,6 +1,7 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.AlarmLogs;
 using Aldebaran.Application.Services.TrackLogs;
+using Aldebaran.Application.Services.InternalReferences;
 using Aldebaran.Application.Services.OrderDocumentLogs;
 using Aldebaran.Application.Services.PurchaseOrderLogs;
 using Aldebaran.Application.Services.GeneralLogs;
@@ -272,6 +273,7 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IAlarmLogRepository, AlarmLogRepository>();
             services.AddTransient<ITrackLogRepository, TrackLogRepository>();
             services.AddTransient<IOrderDocumentLogRepository, OrderDocumentLogRepository>();
+            services.AddTransient<IInternalReferenceConsecutiveRepository, InternalReferenceConsecutiveRepository>();
             services.AddTransient<IPurchaseOrderLogRepository, PurchaseOrderLogRepository>();
             services.AddTransient<IGeneralLogRepository, GeneralLogRepository>();
             services.AddTransient<IPurchaseOrderNotificationRepository, PurchaseOrderNotificationRepository>();
@@ -377,6 +379,7 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IAlarmLogService, AlarmLogService>();
             services.AddTransient<ITrackLogService, TrackLogService>();
             services.AddTransient<IOrderDocumentLogService, OrderDocumentLogService>();
+            services.AddTransient<IInternalReferenceConsecutiveService, InternalReferenceConsecutiveService>();
             services.AddTransient<IPurchaseOrderLogService, PurchaseOrderLogService>();
             services.AddTransient<IGeneralLogService, GeneralLogService>();
             services.AddTransient<IPurchaseOrderNotificationService, PurchaseOrderNotificationService>();
