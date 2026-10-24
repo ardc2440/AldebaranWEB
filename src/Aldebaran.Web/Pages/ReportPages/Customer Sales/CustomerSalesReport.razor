@@ -1,4 +1,4 @@
-﻿@page "/report/customer-sales"
+@page "/report/customer-sales"
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
 
 <PageTitle>Reporte de ventas por cliente</PageTitle>
@@ -93,6 +93,13 @@
                         <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
                             <p class="component-label m-0 fw-bold">Cliente: </p>
                             <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.Customer.CustomerName</span>
+                        </div>
+                    }
+                    @if (Filter.IsSpecialOrder != null)
+                    {
+                        <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
+                            <p class="component-label m-0 fw-bold">Pedido especial: </p>
+                            <span style="line-height: 1rem;transform: translate(0, -2px);">@(Filter.IsSpecialOrder == true ? "Sí" : "No")</span>
                         </div>
                     }
                     <div class="component-section d-flex flex-column justify-content-start pt-2">
@@ -215,6 +222,13 @@
                                                         <span>@Filter.Customer.CustomerName</span>
                                                     </div>
                                                 }
+                                                @if (Filter.IsSpecialOrder != null)
+                                                {
+                                                    <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
+                                                        <div class="type">Pedido especial: </div>
+                                                        <span>@(Filter.IsSpecialOrder == true ? "Sí" : "No")</span>
+                                                    </div>
+                                                }
                                                 @if (Filter.ItemReferences.Any())
                                                 {
                                                     <div style="display:flex; flex-direction:column; justify-content:end">
@@ -268,6 +282,7 @@
                                                         <td colspan="2" width="20%">
                                                             <span class="bold">Orden: </span><br />
                                                             @order.OrderNumber
+                                                            <br /><span class="bold">Pedido especial: </span>@(order.IsSpecialOrder ? "Sí" : "No")
                                                         </td>
                                                         <td colspan="2" width="20%">
                                                             <span class="bold">Fecha: </span><br />

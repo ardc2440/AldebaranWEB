@@ -1,4 +1,4 @@
-﻿using Aldebaran.Application.Services.Models.Reports;
+using Aldebaran.Application.Services.Models.Reports;
 using Aldebaran.DataAccess.Infraestructure.Repository.Reports;
 using AutoMapper;
 
@@ -16,9 +16,9 @@ namespace Aldebaran.Application.Services.Reports
             _mapper = mapper ?? throw new ArgumentNullException(nameof(IMapper));
         }
 
-        public async Task<IEnumerable<CustomerSaleReport>> GetCustomerSaleReportDataAsync(string filter = "", CancellationToken ct = default)
+        public async Task<IEnumerable<CustomerSaleReport>> GetCustomerSaleReportDataAsync(CustomerOrderReportFilter filter, CancellationToken ct = default)
         {
-            var data = await _repository.GetCustomerSaleReportDataAsync(filter, ct);
+            var data = await _repository.GetCustomerSaleReportDataAsync(_mapper.Map<DataAccess.Entities.Reports.CustomerOrderReportFilter>(filter ?? new CustomerOrderReportFilter()), ct);
             return _mapper.Map<IEnumerable<CustomerSaleReport>>(data);
         }
     }

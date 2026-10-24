@@ -1,10 +1,10 @@
-﻿using Aldebaran.Application.Services.Reports;
+using Aldebaran.Application.Services.Reports;
 using Aldebaran.Infraestructure.Common.Utils;
 using Aldebaran.Web.Pages.ReportPages.Customer_Sales.Components;
 using Aldebaran.Web.Pages.ReportPages.Customer_Sales.ViewModel;
 using Aldebaran.Web.Shared;
+using ReportFilter = Aldebaran.Application.Services.Models.Reports.CustomerOrderReportFilter;
 using Microsoft.AspNetCore.Components;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.JSInterop;
 using Radzen;
 using Radzen.Blazor;
@@ -61,7 +61,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Sales
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
             await OpenFilters();
         }
-        async Task RedrawReport(string filter = "", CancellationToken ct = default)
+        async Task RedrawReport(ReportFilter filter, CancellationToken ct = default)
         {
             try
             {
@@ -90,38 +90,11 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Sales
                 return;
             Filter = (CustomerSalesFilter)result;
 
-            await RedrawReport(await SetReportFilterAsync(Filter));
+            await RedrawReport(Filter.ToReportFilter());
 
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
         }
 
-        async Task<string> SetReportFilterAsync(CustomerSalesFilter filter, CancellationToken ct = default)
-        {
-            var filterResult = string.Empty;
-
-            if (filter.CreationDate.StartDate.HasValue)
-                filterResult += $"@CreationDateFrom = '{(DateTime)filter.CreationDate.StartDate:yyyyMMdd}', @CreationDateTo = '{(DateTime)filter.CreationDate.EndDate:yyyyMMdd}'";
-
-            if (filter.OrderDate.StartDate.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@OrderDateFrom = '{(DateTime)filter.OrderDate.StartDate:yyyyMMdd}', @OrderDateTo = '{(DateTime)filter.OrderDate.EndDate:yyyyMMdd}'";
-
-            if (filter.EstimatedDeliveryDate.StartDate.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@EstimatedDeliveryDateFrom = '{(DateTime)filter.EstimatedDeliveryDate.StartDate:yyyyMMdd}', @EstimatedDeliveryDateTo = '{(DateTime)filter.EstimatedDeliveryDate.EndDate:yyyyMMdd}'";
-
-            if (!filter.OrderNumber.IsNullOrEmpty())
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@OrderNumber = '{filter.OrderNumber}'";
-
-            if (filter.StatusDocumentTypeId.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@StatusDocumentTypeId = {filter.StatusDocumentTypeId}";
-
-            if (filter.ItemReferences.Count > 0)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReferenceIds = '{String.Join(",", Filter.ItemReferences.Select(s => s.ReferenceId))}'";
-
-            if (filter.CustomerId.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@CustomerId = {filter.CustomerId}";
-
-            return filterResult;
-        }
 
         async Task RemoveFilters()
         {
@@ -187,7 +160,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Sales
         {
             var customerOrders = new List<CustomerSalesViewModel.Order>();
 
-            foreach (var order in DataReport.Where(w => w.CustomerId == customerId).Select(s => new { s.CustomerOrderId, s.CreationDate, s.OrderDate, s.OrderNumber, s.Status, s.InternalNotes, s.EstimatedDeliveryDate })
+            foreach (var order in DataReport.Where(w => w.CustomerId == customerId).Select(s => new { s.CustomerOrderId, s.IsSpecialOrder, s.CreationDate, s.OrderDate, s.OrderNumber, s.Status, s.InternalNotes, s.EstimatedDeliveryDate })
                                         .DistinctBy(d => d.CustomerOrderId).OrderBy(o => o.OrderNumber))
             {
                 customerOrders.Add(new CustomerSalesViewModel.Order
@@ -195,6 +168,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Sales
                     CreationDate = order.CreationDate,
                     OrderDate = order.OrderDate,
                     OrderNumber = order.OrderNumber,
+                    IsSpecialOrder = order.IsSpecialOrder,
                     Status = order.Status,
                     InternalNotes = order.InternalNotes,
                     EstimatedDeliveryDate = order.EstimatedDeliveryDate,

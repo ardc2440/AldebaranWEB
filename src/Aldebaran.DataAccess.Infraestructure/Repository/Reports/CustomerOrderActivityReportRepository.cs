@@ -1,4 +1,4 @@
-﻿using Aldebaran.DataAccess.Entities.Reports;
+using Aldebaran.DataAccess.Entities.Reports;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository.Reports
@@ -9,12 +9,11 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository.Reports
         {
         }
 
-        public async Task<IEnumerable<CustomerOrderActivityReport>> GetCustomerOrderActivityReportDataAsync(string filter = "", CancellationToken ct = default)
+        public async Task<IEnumerable<CustomerOrderActivityReport>> GetCustomerOrderActivityReportDataAsync(CustomerOrderReportFilter filter, CancellationToken ct = default)
         {
+            var command = CustomerOrderReportCommand.Build("SP_GET_CUSTOMER_ORDER_ACTIVITY_REPORT", filter);
             return await ExecuteQueryAsync(async dbContext =>
-            {
-                return await dbContext.Set<CustomerOrderActivityReport>().FromSqlRaw($"EXEC SP_GET_CUSTOMER_ORDER_ACTIVITY_REPORT {filter}").ToListAsync(ct);
-            }, ct);
+                await dbContext.Set<CustomerOrderActivityReport>().FromSqlRaw(command.Sql, command.Parameters).ToListAsync(ct), ct);
         }
     }
 }

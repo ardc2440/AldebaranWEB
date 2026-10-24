@@ -18,6 +18,14 @@ namespace Aldebaran.Web.Pages.ReportPages
             Build(filter.OrderNumber, filter.CreationDate, filter.OrderDate, filter.EstimatedDeliveryDate, filter.StatusDocumentTypeId,
                   filter.CustomerId, filter.ItemReferences.Select(s => s.ReferenceId), filter.IsSpecialOrder);
 
+        public static ReportFilter ToReportFilter(this Customer_Order_Activities.ViewModel.CustomerOrderActivityFilter filter) =>
+            Build(filter.OrderNumber, filter.CreationDate, filter.OrderDate, filter.EstimatedDeliveryDate, filter.StatusDocumentTypeId,
+                  filter.CustomerId, filter.ItemReferences.Select(s => s.ReferenceId), filter.IsSpecialOrder);
+
+        public static ReportFilter ToReportFilter(this Customer_Sales.ViewModel.CustomerSalesFilter filter) =>
+            Build(filter.OrderNumber, filter.CreationDate, filter.OrderDate, filter.EstimatedDeliveryDate, filter.StatusDocumentTypeId,
+                  filter.CustomerId, filter.ItemReferences.Select(s => s.ReferenceId), filter.IsSpecialOrder);
+
         /// <summary>Parámetros de consulta para los controladores de exportación (vacío = sin filtros).</summary>
         public static string ToQueryString(this ReportFilter filter)
         {

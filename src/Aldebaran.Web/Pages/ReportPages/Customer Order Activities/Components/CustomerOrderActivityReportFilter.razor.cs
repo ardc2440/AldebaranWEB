@@ -1,4 +1,4 @@
-﻿using Aldebaran.Application.Services;
+using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities.ViewModel;
 using Aldebaran.Web.Shared;
@@ -104,7 +104,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities.Components
                     string.IsNullOrEmpty(Filter.OrderNumber) &&
                     Filter.StatusDocumentTypeId == null &&
                     Filter.CustomerId == null &&
-                    SelectedReferences.Any() == false)
+                    SelectedReferences.Any() == false &&
+                    Filter.IsSpecialOrder == null)
                 {
                     ValidationError = true;
                     return;

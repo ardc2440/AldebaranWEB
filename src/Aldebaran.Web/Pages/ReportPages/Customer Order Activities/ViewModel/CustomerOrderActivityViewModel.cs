@@ -1,4 +1,4 @@
-﻿namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities.ViewModel
+namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities.ViewModel
 {
     public class CustomerOrderActivityViewModel
     {
@@ -13,6 +13,7 @@
         public class Order
         {
             public string OrderNumber { get; set; }
+            public bool IsSpecialOrder { get; set; }
             public DateTime CreationDate { get; set; }
             public DateTime OrderDate { get; set; }
             public DateTime EstimatedDeliveryDate { get; set; }

@@ -1,8 +1,9 @@
-﻿using Aldebaran.Application.Services.Reports;
+using Aldebaran.Application.Services.Reports;
 using Aldebaran.Infraestructure.Common.Utils;
 using Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities.Components;
 using Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities.ViewModel;
 using Aldebaran.Web.Shared;
+using ReportFilter = Aldebaran.Application.Services.Models.Reports.CustomerOrderReportFilter;
 using Microsoft.AspNetCore.Components;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.JSInterop;
@@ -61,7 +62,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
             await OpenFilters();
         }
-        async Task RedrawReportAsync(string filter = "", CancellationToken ct = default)
+        async Task RedrawReportAsync(ReportFilter filter, CancellationToken ct = default)
         {
             try
             {
@@ -81,33 +82,6 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
             }
         }
 
-        async Task<string> SetReportFilterAsync(CustomerOrderActivityFilter filter, CancellationToken ct = default)
-        {
-            var filterResult = string.Empty;
-
-            if (filter.CreationDate.StartDate.HasValue)
-                filterResult += $"@CreationDateFrom = '{(DateTime)filter.CreationDate.StartDate:yyyyMMdd}', @CreationDateTo = '{(DateTime)filter.CreationDate.EndDate:yyyyMMdd}'";
-
-            if (filter.OrderDate.StartDate.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@OrderDateFrom = '{(DateTime)filter.OrderDate.StartDate:yyyyMMdd}', @OrderDateTo = '{(DateTime)filter.OrderDate.EndDate:yyyyMMdd}'";
-
-            if (filter.EstimatedDeliveryDate.StartDate.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@EstimatedDeliveryDateFrom = '{(DateTime)filter.EstimatedDeliveryDate.StartDate:yyyyMMdd}', @EstimatedDeliveryDateTo = '{(DateTime)filter.EstimatedDeliveryDate.EndDate:yyyyMMdd}'";
-
-            if (!filter.OrderNumber.IsNullOrEmpty())
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@OrderNumber = '{filter.OrderNumber}'";
-
-            if (filter.StatusDocumentTypeId.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@StatusDocumentTypeId = {filter.StatusDocumentTypeId}";
-
-            if (filter.ItemReferences.Count > 0)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReferenceIds = '{String.Join(",", Filter.ItemReferences.Select(s => s.ReferenceId))}'";
-
-            if (filter.CustomerId.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@CustomerId = {filter.CustomerId}";
-
-            return filterResult;
-        }
 
         async Task OpenFilters()
         {
@@ -116,7 +90,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
                 return;
             Filter = (CustomerOrderActivityFilter)result;
 
-            await RedrawReportAsync(await SetReportFilterAsync(Filter));
+            await RedrawReportAsync(Filter.ToReportFilter());
 
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
         }
@@ -185,7 +159,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
         {
             var orders = new List<CustomerOrderActivityViewModel.Order>();
 
-            foreach (var order in DataReport.Where(w => w.CustomerId == customerId).Select(s => new { s.OrderId, s.OrderNumber, s.CreationDate, s.OrderDate, s.EstimatedDeliveryDate, s.StatusOrder, s.InternalNotes, s.CustomerNotes })
+            foreach (var order in DataReport.Where(w => w.CustomerId == customerId).Select(s => new { s.OrderId, s.IsSpecialOrder, s.OrderNumber, s.CreationDate, s.OrderDate, s.EstimatedDeliveryDate, s.StatusOrder, s.InternalNotes, s.CustomerNotes })
                                     .DistinctBy(d => d.OrderId)
                                     .OrderBy(o => o.OrderNumber))
 
@@ -195,6 +169,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Order_Activities
                     CreationDate = order.CreationDate,
                     Status = order.StatusOrder,
                     OrderNumber = order.OrderNumber,
+                    IsSpecialOrder = order.IsSpecialOrder,
                     CustomerNotes = order.CustomerNotes,
                     EstimatedDeliveryDate = order.EstimatedDeliveryDate,
                     InternalNotes = order.InternalNotes,
