@@ -19,6 +19,7 @@ Ejecutar en este orden, sobre la BD Aldebaran (todos son re-ejecutables):
 13 - Log automata existencias.sql            (T15b)   SP para que el Automata de Existencias escriba en el log general (+ NLog.config del automata)
 14 - Marca precio bomba.sql                  (T8a)    items.IS_BOMB_PRICE + marca en SP_GET_MINIMUM_QUANTITY_ALARMS (reversa: Reversa\14)
 15 - Estado log ajustes OC.sql               (T18)    Corrige el estado de aprobaciones en PURCHASE_ORDER_ADJUSTMENT_LOG (reversa: Reversa\15)
+16 - Precio bomba en reportes.sql            (T20-22) Filtro/columna Precio bomba en SP de reportes (reversa: Reversa\16)
 
 Reversa\04 - Reversa alarmas inventario.sql   Restaura SPs/triggers originales desde el respaldo (conserva el log)
 Reversa\05 - Reversa job verificacion alarmas.sql  Restaura los pasos originales del job

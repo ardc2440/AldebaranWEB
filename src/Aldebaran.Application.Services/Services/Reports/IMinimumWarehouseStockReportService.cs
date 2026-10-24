@@ -4,6 +4,6 @@ namespace Aldebaran.Application.Services.Reports
 {
     public interface IMinimumWarehouseStockReportService
     {
-        Task<IEnumerable<MinimumWarehouseStockReport>> GetMinimumWarehouseStockReportDataAsync(string filter, CancellationToken ct = default);
+        Task<IEnumerable<MinimumWarehouseStockReport>> GetMinimumWarehouseStockReportDataAsync(MinimumWarehouseStockReportFilter filter, CancellationToken ct = default);
     }
 }

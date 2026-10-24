@@ -9,7 +9,7 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.ViewModel
     {
         public int ItemId { get; set; }
         public string ItemName { get; set; } = string.Empty;
-        public string InternalReference { get; set; } = string.Empty; // Referencia interna del artículo
+        public string InternalReference { get; set; } = string.Empty; // Referencia interna del artÃ­culo
         public string LineName { get; set; } = string.Empty;
         public List<ReferenceWithStock> References { get; set; } = new List<ReferenceWithStock>();
     }
@@ -18,10 +18,10 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.ViewModel
     {
         public int ReferenceId { get; set; }
         public string ReferenceName { get; set; } = string.Empty; // Nombre de la referencia
-        public string ReferenceCode { get; set; } = string.Empty; // Código de la referencia
-        public int TotalPhysicalStock { get; set; } // Existencia física total sumando todas las bodegas
+        public string ReferenceCode { get; set; } = string.Empty; // CÃ³digo de la referencia
+        public int TotalPhysicalStock { get; set; } // Existencia fÃ­sica total sumando todas las bodegas
         public int CommittedQuantity { get; set; } // Cantidad comprometida (pedidos + reservas)
-        public int AvailableQuantity { get; set; } // Cantidad disponible (física - comprometida)
+        public int AvailableQuantity { get; set; } // Cantidad disponible (fÃ­sica - comprometida)
         public List<WarehouseStock> WarehouseStocks { get; set; } = new List<WarehouseStock>();
     }
 
@@ -29,6 +29,6 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.ViewModel
     {
         public short WarehouseId { get; set; } // Cambiado de int a short para coincidir con smallint
         public string WarehouseName { get; set; } = string.Empty;
-        public int PhysicalStock { get; set; } // Existencia física en esta bodega específica
+        public int PhysicalStock { get; set; } // Existencia fÃ­sica en esta bodega especÃ­fica
     }
 }

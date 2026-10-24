@@ -7,28 +7,29 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.ViewModel
         public short? WarehouseId { get; set; }
         public Warehouse Warehouse { get; set; }
         public List<ItemReference> ItemReferences { get; set; } = new List<ItemReference>();
-        public int? UmbralMaximoExistencias { get; set; } // Campo obligatorio - Umbral m·ximo de existencias
+        public int? UmbralMaximoExistencias { get; set; } // Campo obligatorio - Umbral m√°ximo de existencias
         
-        // Filtros con multiselecciÛn usando strings de IDs separados por comas
+        // Filtros con multiselecci√≥n usando strings de IDs separados por comas
         public string ItemIds { get; set; } = string.Empty; // "1,2,3"
         public string ReferenceIds { get; set; } = string.Empty; // "1,2,3"
         
         // Filtros de texto libre para campos descriptivos del proveedor
-        public string ProviderItemName { get; set; } = string.Empty; // ArtÌculo del proveedor
+        public string ProviderItemName { get; set; } = string.Empty; // Art√≠culo del proveedor
         public string ProviderReference { get; set; } = string.Empty; // Referencia interna del proveedor
         public string ProviderReferenceName { get; set; } = string.Empty; // Referencia del proveedor
-        public string ProviderReferenceCode { get; set; } = string.Empty; // CÛdigo de referencia del proveedor
+        public string ProviderReferenceCode { get; set; } = string.Empty; // C√≥digo de referencia del proveedor
         
-        // Filtros de checkbox de 3 estados para ArtÌculos (null = ambos, true = sÌ, false = no)
+        // Filtros de checkbox de 3 estados para Art√≠culos (null = ambos, true = s√≠, false = no)
         public bool? ItemIsActive { get; set; } = null; // Activo
         public bool? ItemIsDomesticProduct { get; set; } = null; // Producto nacional
         public bool? ItemIsSpecialImport { get; set; } = null; // Importado especial
         public bool? ItemIsSaleOff { get; set; } = null; // En oferta
-        public bool? ItemIsCatalogVisible { get; set; } = null; // Visible en cat·logo
+        public bool? ItemIsBombPrice { get; set; } = null; // Precio bomba
+        public bool? ItemIsCatalogVisible { get; set; } = null; // Visible en cat√°logo
         
-        // Filtros de checkbox de 3 estados para Referencias (null = ambos, true = sÌ, false = no)
+        // Filtros de checkbox de 3 estados para Referencias (null = ambos, true = s√≠, false = no)
         public bool? ReferenceIsActive { get; set; } = null; // Activa
-        public bool? ReferenceHasAlarmMinimumQuantity { get; set; } = null; // Alarma de cantidad mÌnima
+        public bool? ReferenceHasAlarmMinimumQuantity { get; set; } = null; // Alarma de cantidad m√≠nima
         public bool? ReferenceIsSoldOut { get; set; } = null; // Agotado
         
         // Listas para mostrar los nombres seleccionados en la UI

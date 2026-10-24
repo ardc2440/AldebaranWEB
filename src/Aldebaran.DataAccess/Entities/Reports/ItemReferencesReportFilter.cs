@@ -10,17 +10,18 @@ namespace Aldebaran.DataAccess.Entities.Reports
         /// <summary>Ids de referencia. Nivel más específico: prevalece sobre artículos y líneas.</summary>
         public IEnumerable<int> ReferenceIds { get; set; } = Enumerable.Empty<int>();
 
-        // Switches de Artículo (true = aplica el filtro, false = trae todo)
-        public bool OnlyActiveItems { get; set; }
-        public bool OnlyCatalogVisible { get; set; }
-        public bool OnlyDomesticProduct { get; set; }
-        public bool OnlySpecialImport { get; set; }
-        public bool OnlySaleOff { get; set; }
+        // Condiciones de Artículo (true = Sí, false = No, null = Todos)
+        public bool? IsItemActive { get; set; }
+        public bool? IsCatalogVisible { get; set; }
+        public bool? IsDomesticProduct { get; set; }
+        public bool? IsSpecialImport { get; set; }
+        public bool? IsSaleOff { get; set; }
+        public bool? BombPrice { get; set; }
 
-        // Switches de Referencia (true = aplica el filtro, false = trae todo)
-        public bool OnlyActiveReferences { get; set; }
-        public bool OnlySoldOut { get; set; }
-        public bool OnlyWithAlarmMinimumQuantity { get; set; }
-        public bool OnlyWithMinimumLocalWarehouseQuantity { get; set; }
+        // Condiciones de Referencia (true = Sí, false = No, null = Todos)
+        public bool? IsReferenceActive { get; set; }
+        public bool? IsSoldOut { get; set; }
+        public bool? HasAlarmMinimumQuantity { get; set; }
+        public bool? HasMinimumLocalWarehouseQuantity { get; set; }
     }
 }

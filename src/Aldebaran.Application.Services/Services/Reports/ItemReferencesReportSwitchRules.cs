@@ -6,7 +6,7 @@ namespace Aldebaran.Application.Services.Reports
     /// <summary>
     /// Reglas de los switches del reporte de Artículos y Referencias aplicadas en memoria
     /// (ej. para acotar el catálogo del selector). Deben coincidir con las de SP_GET_ITEM_REFERENCES_REPORT:
-    /// switch encendido = filtra; apagado = no restringe.
+    /// condición Sí/No filtra; Todos (null) no restringe.
     /// </summary>
     public static class ItemReferencesReportSwitchRules
     {
@@ -19,16 +19,20 @@ namespace Aldebaran.Application.Services.Reports
 
         public static bool MatchesItem(Item item, ItemReferencesReportFilter filter) =>
             item != null
-            && (!filter.OnlyActiveItems || item.IsActive)
-            && (!filter.OnlyCatalogVisible || item.IsCatalogVisible)
-            && (!filter.OnlyDomesticProduct || item.IsDomesticProduct)
-            && (!filter.OnlySpecialImport || item.IsSpecialImport)
-            && (!filter.OnlySaleOff || item.IsSaleOff);
+            && Matches(filter.IsItemActive, item.IsActive)
+            && Matches(filter.IsCatalogVisible, item.IsCatalogVisible)
+            && Matches(filter.IsDomesticProduct, item.IsDomesticProduct)
+            && Matches(filter.IsSpecialImport, item.IsSpecialImport)
+            && Matches(filter.IsSaleOff, item.IsSaleOff)
+            && Matches(filter.BombPrice, item.IsBombPrice);
 
         public static bool MatchesReference(ItemReference reference, ItemReferencesReportFilter filter) =>
-            (!filter.OnlyActiveReferences || reference.IsActive)
-            && (!filter.OnlySoldOut || reference.IsSoldOut)
-            && (!filter.OnlyWithAlarmMinimumQuantity || reference.AlarmMinimumQuantity > 0)
-            && (!filter.OnlyWithMinimumLocalWarehouseQuantity || reference.MinimumLocalWarehouseQuantity > 0);
+            Matches(filter.IsReferenceActive, reference.IsActive)
+            && Matches(filter.IsSoldOut, reference.IsSoldOut)
+            && Matches(filter.HasAlarmMinimumQuantity, reference.AlarmMinimumQuantity > 0)
+            && Matches(filter.HasMinimumLocalWarehouseQuantity, reference.MinimumLocalWarehouseQuantity > 0);
+
+        /// <summary>Condición Sí/No/Todos: null no restringe.</summary>
+        private static bool Matches(bool? condition, bool value) => condition == null || condition.Value == value;
     }
 }

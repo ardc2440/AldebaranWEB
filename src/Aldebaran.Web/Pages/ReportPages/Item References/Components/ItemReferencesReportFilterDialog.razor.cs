@@ -10,8 +10,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Item_References.Components
 {
     /// <summary>
     /// Diálogo de filtros del reporte de Artículos y Referencias.
-    /// Switches de Artículo y Referencia (encendido = filtra, apagado = trae todo) y jerarquía
-    /// Línea -> Artículo -> Referencia sin nivel obligatorio. Los switches también acotan el catálogo
+    /// Condiciones de Artículo y Referencia Sí/No/Todos (casilla de tres estados) y jerarquía
+    /// Línea -> Artículo -> Referencia sin nivel obligatorio. Las condiciones también acotan el catálogo
     /// que ofrece el selector, conservando la selección que siga siendo válida.
     /// Devuelve un ItemReferencesReportFilterResult (filtro + resumen legible) o null si se cancela.
     /// </summary>
@@ -37,8 +37,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Item_References.Components
 
         /// <summary>Copia de trabajo de los switches; el filtro vigente no se altera si se cancela.</summary>
         protected ItemReferencesReportFilter Criteria = new();
-        protected IReadOnlyList<SwitchOption> ItemSwitches = Array.Empty<SwitchOption>();
-        protected IReadOnlyList<SwitchOption> ReferenceSwitches = Array.Empty<SwitchOption>();
+        protected IReadOnlyList<ConditionOption> ItemSwitches = Array.Empty<ConditionOption>();
+        protected IReadOnlyList<ConditionOption> ReferenceSwitches = Array.Empty<ConditionOption>();
 
         private List<ItemReference> _catalog = new();
         #endregion
@@ -59,28 +59,29 @@ namespace Aldebaran.Web.Pages.ReportPages.Item_References.Components
         }
         #endregion
 
-        #region Switches
+        #region Condiciones
         private void BuildSwitchOptions()
         {
-            ItemSwitches = new List<SwitchOption>
+            ItemSwitches = new List<ConditionOption>
             {
-                new("Solo activos", () => Criteria.OnlyActiveItems, v => Criteria.OnlyActiveItems = v),
-                new("Solo visibles en página", () => Criteria.OnlyCatalogVisible, v => Criteria.OnlyCatalogVisible = v),
-                new("Solo producto nacional", () => Criteria.OnlyDomesticProduct, v => Criteria.OnlyDomesticProduct = v),
-                new("Solo importación especial", () => Criteria.OnlySpecialImport, v => Criteria.OnlySpecialImport = v),
-                new("Solo en promoción", () => Criteria.OnlySaleOff, v => Criteria.OnlySaleOff = v)
+                new("Activo", () => Criteria.IsItemActive, v => Criteria.IsItemActive = v),
+                new("Visible en página", () => Criteria.IsCatalogVisible, v => Criteria.IsCatalogVisible = v),
+                new("Producto nacional", () => Criteria.IsDomesticProduct, v => Criteria.IsDomesticProduct = v),
+                new("Importación especial", () => Criteria.IsSpecialImport, v => Criteria.IsSpecialImport = v),
+                new("En promoción", () => Criteria.IsSaleOff, v => Criteria.IsSaleOff = v),
+                new("Precio bomba", () => Criteria.BombPrice, v => Criteria.BombPrice = v)
             };
-            ReferenceSwitches = new List<SwitchOption>
+            ReferenceSwitches = new List<ConditionOption>
             {
-                new("Solo referencias activas", () => Criteria.OnlyActiveReferences, v => Criteria.OnlyActiveReferences = v),
-                new("Solo referencias agotadas", () => Criteria.OnlySoldOut, v => Criteria.OnlySoldOut = v),
-                new("Solo con cantidad mínima general", () => Criteria.OnlyWithAlarmMinimumQuantity, v => Criteria.OnlyWithAlarmMinimumQuantity = v),
-                new("Solo con cantidad mínima en Bodega Local", () => Criteria.OnlyWithMinimumLocalWarehouseQuantity, v => Criteria.OnlyWithMinimumLocalWarehouseQuantity = v)
+                new("Activa", () => Criteria.IsReferenceActive, v => Criteria.IsReferenceActive = v),
+                new("Agotada", () => Criteria.IsSoldOut, v => Criteria.IsSoldOut = v),
+                new("Con cantidad mínima general", () => Criteria.HasAlarmMinimumQuantity, v => Criteria.HasAlarmMinimumQuantity = v),
+                new("Con cantidad mínima en Bodega Local", () => Criteria.HasMinimumLocalWarehouseQuantity, v => Criteria.HasMinimumLocalWarehouseQuantity = v)
             };
         }
 
-        /// <summary>Aplica el switch y acota el catálogo del selector conservando la selección válida.</summary>
-        protected void OnSwitchChanged(SwitchOption option, bool value)
+        /// <summary>Aplica la condición (Sí/No/Todos) y acota el catálogo del selector conservando la selección válida.</summary>
+        protected void OnConditionChanged(ConditionOption option, bool? value)
         {
             option.Set(value);
             ApplyCatalog(referencePicker.GetSelectedLineIds(), referencePicker.GetSelectedItemIds(), referencePicker.GetSelectedReferenceIds());
@@ -88,19 +89,21 @@ namespace Aldebaran.Web.Pages.ReportPages.Item_References.Components
 
         private static ItemReferencesReportFilter CopySwitches(ItemReferencesReportFilter source, ItemReferencesReportFilter target)
         {
-            target.OnlyActiveItems = source.OnlyActiveItems;
-            target.OnlyCatalogVisible = source.OnlyCatalogVisible;
-            target.OnlyDomesticProduct = source.OnlyDomesticProduct;
-            target.OnlySpecialImport = source.OnlySpecialImport;
-            target.OnlySaleOff = source.OnlySaleOff;
-            target.OnlyActiveReferences = source.OnlyActiveReferences;
-            target.OnlySoldOut = source.OnlySoldOut;
-            target.OnlyWithAlarmMinimumQuantity = source.OnlyWithAlarmMinimumQuantity;
-            target.OnlyWithMinimumLocalWarehouseQuantity = source.OnlyWithMinimumLocalWarehouseQuantity;
+            target.IsItemActive = source.IsItemActive;
+            target.IsCatalogVisible = source.IsCatalogVisible;
+            target.IsDomesticProduct = source.IsDomesticProduct;
+            target.IsSpecialImport = source.IsSpecialImport;
+            target.IsSaleOff = source.IsSaleOff;
+            target.BombPrice = source.BombPrice;
+            target.IsReferenceActive = source.IsReferenceActive;
+            target.IsSoldOut = source.IsSoldOut;
+            target.HasAlarmMinimumQuantity = source.HasAlarmMinimumQuantity;
+            target.HasMinimumLocalWarehouseQuantity = source.HasMinimumLocalWarehouseQuantity;
             return target;
         }
 
-        protected sealed record SwitchOption(string Label, Func<bool> Get, Action<bool> Set);
+        /// <summary>Condición de tres estados: null = Todos, true = Sí, false = No.</summary>
+        protected sealed record ConditionOption(string Label, Func<bool?> Get, Action<bool?> Set);
         #endregion
 
         #region Picker
@@ -133,8 +136,12 @@ namespace Aldebaran.Web.Pages.ReportPages.Item_References.Components
         private ItemReferencesReportFilterSummary BuildSummary(ItemReferencesReportFilter filter) =>
             ItemReferencesReportFilterSummaryBuilder.Build(filter, _catalog, ActiveSwitchLabels());
 
+        /// <summary>Condiciones aplicadas (Sí/No) para el resumen; Todos no se muestra.</summary>
         private IEnumerable<string> ActiveSwitchLabels() =>
-            ItemSwitches.Concat(ReferenceSwitches).Where(o => o.Get()).Select(o => o.Label);
+            ItemSwitches.Concat(ReferenceSwitches)
+                        .Where(o => o.Get().HasValue)
+                        .Select(o => $"{o.Label}: {(o.Get()!.Value ? "Sí" : "No")}")
+                        .ToList();
 
         private ItemReferencesReportFilter BuildFilterFromSelection()
         {

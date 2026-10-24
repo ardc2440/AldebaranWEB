@@ -28,6 +28,8 @@ namespace Aldebaran.Application.Services.Models.Reports
         public string IsSpecialImport { get; init; } = string.Empty;
         [DisplayName("Promoción")]
         public string IsSaleOff { get; init; } = string.Empty;
+        [DisplayName("Precio bomba")]
+        public string IsBombPrice { get; init; } = string.Empty;
         [DisplayName("Nombre referencia")]
         public string ReferenceName { get; init; } = string.Empty;
         [DisplayName("Código interno")]

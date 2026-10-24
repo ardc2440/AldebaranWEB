@@ -16,6 +16,7 @@ namespace Aldebaran.DataAccess.Entities.Reports
         public bool IsDomesticProduct { get; set; }
         public bool IsSpecialImport { get; set; }
         public bool IsSaleOff { get; set; }
+        public bool IsBombPrice { get; set; }
 
         public int ReferenceId { get; set; }
         public string ReferenceName { get; set; } = string.Empty;

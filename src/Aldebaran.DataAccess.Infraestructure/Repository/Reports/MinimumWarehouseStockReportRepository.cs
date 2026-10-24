@@ -9,12 +9,33 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository.Reports
         {
         }
 
-        public async Task<IEnumerable<MinimumWarehouseStockReport>> GetMinimumWarehouseStockReportDataAsync(string filter, CancellationToken ct = default)
+        public async Task<IEnumerable<MinimumWarehouseStockReport>> GetMinimumWarehouseStockReportDataAsync(MinimumWarehouseStockReportFilter filter, CancellationToken ct = default)
         {
+            ArgumentNullException.ThrowIfNull(filter);
+            var command = BuildCommand(filter);
             return await ExecuteQueryAsync(async dbContext =>
-            {
-                return await dbContext.Set<MinimumWarehouseStockReport>().FromSqlRaw($"EXEC SP_GET_MINIMUM_WAREHOUSE_STOCK_REPORT {filter}").ToListAsync(ct);
-            }, ct);
+                await dbContext.Set<MinimumWarehouseStockReport>().FromSqlRaw(command.Sql, command.Parameters).ToListAsync(ct), ct);
         }
+
+        /// <summary>Parámetros del SP (nombres originales del SP, incluidos sus errores de escritura).</summary>
+        private static StoredProcedureCommand BuildCommand(MinimumWarehouseStockReportFilter filter) =>
+            new StoredProcedureCommand("SP_GET_MINIMUM_WAREHOUSE_STOCK_REPORT")
+                .Int("@MaximumQuantityTreshold", filter.MaximumQuantityThreshold)
+                .Int("@WharehouseId", filter.WarehouseId > 0 ? filter.WarehouseId : null)
+                .VarChar("@ItemList", filter.ItemIds)
+                .VarChar("@ReferenceList", filter.ReferenceIds)
+                .VarChar("@ProviderArticleName", filter.ProviderItemName, 50)
+                .VarChar("@ProviderInternalReference", filter.ProviderReference, 50)
+                .VarChar("@ProviderReferenceName", filter.ProviderReferenceName, 50)
+                .VarChar("@ProviderReferenceCode", filter.ProviderReferenceCode, 50)
+                .Bit("@ArticleActive", filter.ItemIsActive)
+                .Bit("@DomesticProduct", filter.ItemIsDomesticProduct)
+                .Bit("@SpetialImport", filter.ItemIsSpecialImport)
+                .Bit("@Offert", filter.ItemIsSaleOff)
+                .Bit("@CatalogVisible", filter.ItemIsCatalogVisible)
+                .Bit("@BombPrice", filter.ItemIsBombPrice)
+                .Bit("@ReferenceActive", filter.ReferenceIsActive)
+                .Bit("@MinimumQuantityAlarm", filter.ReferenceHasAlarmMinimumQuantity)
+                .Bit("@OutOfStockBIT", filter.ReferenceIsSoldOut);
     }
 }

@@ -42,7 +42,7 @@ namespace Aldebaran.Application.Services.Reports
 
         private static ItemReferencesReportItem ToItem(Entities.ItemReferencesReport row, IReadOnlyList<ItemReferencesReportReference> references) =>
             new(row.ItemId, row.ItemName, row.InternalReference, row.ProviderItemName, row.ProviderReference,
-                row.IsItemActive, row.IsCatalogVisible, row.IsDomesticProduct, row.IsSpecialImport, row.IsSaleOff,
+                row.IsItemActive, row.IsCatalogVisible, row.IsDomesticProduct, row.IsSpecialImport, row.IsSaleOff, row.IsBombPrice,
                 references);
 
         private static ItemReferencesReportReference ToReference(Entities.ItemReferencesReport row) =>

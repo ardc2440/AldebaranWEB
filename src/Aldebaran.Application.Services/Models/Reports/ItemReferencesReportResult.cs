@@ -26,6 +26,7 @@ namespace Aldebaran.Application.Services.Models.Reports
         bool IsDomesticProduct,
         bool IsSpecialImport,
         bool IsSaleOff,
+        bool IsBombPrice,
         IReadOnlyList<ItemReferencesReportReference> References);
 
     public sealed record ItemReferencesReportReference(

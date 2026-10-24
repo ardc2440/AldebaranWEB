@@ -1,10 +1,10 @@
 using Aldebaran.Application.Services.Reports;
+using ReportFilter = Aldebaran.Application.Services.Models.Reports.MinimumWarehouseStockReportFilter;
 using Aldebaran.Infraestructure.Common.Utils;
 using Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.Components;
 using Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.ViewModel;
 using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.JSInterop;
 using Radzen;
 using Radzen.Blazor;
@@ -58,7 +58,7 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock
             await OpenFilters();
         }
 
-        async Task RedrawReport(string filter = "", CancellationToken ct = default)
+        async Task RedrawReport(ReportFilter filter, CancellationToken ct = default)
         {
             try
             {
@@ -78,7 +78,7 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock
         }
 
         /// <summary>
-        /// Convierte los datos planos del SP en una estructura agrupada por artículo
+        /// Convierte los datos planos del SP en una estructura agrupada por artÃ­culo
         /// </summary>
         private MinimumWarehouseStockViewModel GroupDataByItem(IEnumerable<Application.Services.Models.Reports.MinimumWarehouseStockReport> flatData)
         {
@@ -87,7 +87,7 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock
             if (flatData?.Any() != true)
                 return viewModel;
 
-            // Agrupar por artículo
+            // Agrupar por artÃ­culo
             var itemGroups = flatData.GroupBy(x => new { x.ItemId, x.ItemName, x.InternalReference, x.LineName });
 
             foreach (var itemGroup in itemGroups)
@@ -100,7 +100,7 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock
                     LineName = itemGroup.Key.LineName
                 };
 
-                // Agrupar referencias dentro del artículo
+                // Agrupar referencias dentro del artÃ­culo
                 var referenceGroups = itemGroup.GroupBy(x => new { x.ReferenceId, x.ReferenceName, x.ReferenceCode });
 
                 foreach (var referenceGroup in referenceGroups)
@@ -135,83 +135,43 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock
             return viewModel;
         }
 
-        async Task<string> SetReportFilter(MinimumWarehouseStockFilter filter, CancellationToken ct = default)
+        /// <summary>Convierte el filtro de la pantalla en el filtro del caso de uso (sin armar SQL).</summary>
+        private static ReportFilter ToReportFilter(MinimumWarehouseStockFilter filter) => new()
         {
-            var filterResult = string.Empty;
-
-            // @MaximumQuantityTreshold INT - Campo obligatorio
-            if (filter.UmbralMaximoExistencias.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@MaximumQuantityTreshold = {filter.UmbralMaximoExistencias.Value}";
-
-            // @WharehouseId INT = NULL
-            if (filter.Warehouse != null && filter.Warehouse.WarehouseId > 0)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@WharehouseId = {filter.Warehouse.WarehouseId}";
-
-            // @ItemList VARCHAR(MAX) = NULL
-            if (!string.IsNullOrEmpty(filter.ItemIds))
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ItemList = '{filter.ItemIds}'";
-
-            // @ReferenceList VARCHAR(MAX) = NULL
-            if (!string.IsNullOrEmpty(filter.ReferenceIds))
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReferenceList = '{filter.ReferenceIds}'";
-
-            // Filtros de texto libre para campos descriptivos del proveedor
-            if (!string.IsNullOrEmpty(filter.ProviderItemName))
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ProviderArticleName = '{filter.ProviderItemName}'";
-
-            if (!string.IsNullOrEmpty(filter.ProviderReference))
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ProviderInternalReference = '{filter.ProviderReference}'";
-
-            if (!string.IsNullOrEmpty(filter.ProviderReferenceName))
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ProviderReferenceName = '{filter.ProviderReferenceName}'";
-
-            if (!string.IsNullOrEmpty(filter.ProviderReferenceCode))
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ProviderReferenceCode = '{filter.ProviderReferenceCode}'";
-
-            // Filtros de checkbox de 3 estados para Artículos (solo se envían si no son null)
-            if (filter.ItemIsActive.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ArticleActive = {(filter.ItemIsActive.Value ? 1 : 0)}";
-
-            if (filter.ItemIsDomesticProduct.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@DomesticProduct = {(filter.ItemIsDomesticProduct.Value ? 1 : 0)}";
-
-            if (filter.ItemIsSpecialImport.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@SpetialImport = {(filter.ItemIsSpecialImport.Value ? 1 : 0)}";
-
-            if (filter.ItemIsSaleOff.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@Offert = {(filter.ItemIsSaleOff.Value ? 1 : 0)}";
-
-            if (filter.ItemIsCatalogVisible.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@CatalogVisible = {(filter.ItemIsCatalogVisible.Value ? 1 : 0)}";
-
-            // Filtros de checkbox de 3 estados para Referencias (solo se envían si no son null)
-            if (filter.ReferenceIsActive.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReferenceActive = {(filter.ReferenceIsActive.Value ? 1 : 0)}";
-
-            if (filter.ReferenceHasAlarmMinimumQuantity.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@MinimumQuantityAlarm = {(filter.ReferenceHasAlarmMinimumQuantity.Value ? 1 : 0)}";
-
-            if (filter.ReferenceIsSoldOut.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@OutOfStockBIT = {(filter.ReferenceIsSoldOut.Value ? 1 : 0)}";
-
-            return filterResult;
-        }
+            MaximumQuantityThreshold = filter.UmbralMaximoExistencias ?? 0,
+            WarehouseId = filter.Warehouse?.WarehouseId > 0 ? filter.Warehouse.WarehouseId : null,
+            ItemIds = filter.ItemIds,
+            ReferenceIds = filter.ReferenceIds,
+            ProviderItemName = filter.ProviderItemName,
+            ProviderReference = filter.ProviderReference,
+            ProviderReferenceName = filter.ProviderReferenceName,
+            ProviderReferenceCode = filter.ProviderReferenceCode,
+            ItemIsActive = filter.ItemIsActive,
+            ItemIsDomesticProduct = filter.ItemIsDomesticProduct,
+            ItemIsSpecialImport = filter.ItemIsSpecialImport,
+            ItemIsSaleOff = filter.ItemIsSaleOff,
+            ItemIsCatalogVisible = filter.ItemIsCatalogVisible,
+            ItemIsBombPrice = filter.ItemIsBombPrice,
+            ReferenceIsActive = filter.ReferenceIsActive,
+            ReferenceHasAlarmMinimumQuantity = filter.ReferenceHasAlarmMinimumQuantity,
+            ReferenceIsSoldOut = filter.ReferenceIsSoldOut
+        };
 
         async Task OpenFilters()
         {
-            var result = await DialogService.OpenAsync<MinimumWarehouseStockReportFilter>("Filtrar reporte de existencias mínimas en bodega", parameters: new Dictionary<string, object> { { "Filter", Filter } }, options: new DialogOptions { Width = "800px" });
+            var result = await DialogService.OpenAsync<MinimumWarehouseStockReportFilter>("Filtrar reporte de existencias mÃ­nimas en bodega", parameters: new Dictionary<string, object> { { "Filter", Filter } }, options: new DialogOptions { Width = "800px" });
             if (result == null)
                 return;
             Filter = (MinimumWarehouseStockFilter)result;
 
-            await RedrawReport(await SetReportFilter(Filter));
+            await RedrawReport(ToReportFilter(Filter));
 
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
         }
 
         async Task RemoveFilters()
         {
-            if (await DialogService.Confirm("Está seguro que desea eliminar los filtros establecidos?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminación") == true)
+            if (await DialogService.Confirm("EstÃ¡ seguro que desea eliminar los filtros establecidos?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar eliminaciÃ³n") == true)
             {
                 await Reset();
             }
@@ -226,7 +186,7 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock
             if (args?.Value == "save")
             {
                 var pdfBytes = await FileBytesGeneratorService.GetPdfBytes(html, true);
-                await JSRuntime.InvokeVoidAsync("downloadFile", "Referencias con existencia mínima en bodega.pdf", "application/pdf", Convert.ToBase64String(pdfBytes));
+                await JSRuntime.InvokeVoidAsync("downloadFile", "Referencias con existencia mÃ­nima en bodega.pdf", "application/pdf", Convert.ToBase64String(pdfBytes));
             }
             if (args?.Value == "print")
             {
@@ -253,10 +213,10 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock
 
         #region Fill Data Report
         /// <summary>
-        /// Obtiene las líneas de artículos agrupadas para mostrar en el reporte
+        /// Obtiene las lÃ­neas de artÃ­culos agrupadas para mostrar en el reporte
         /// </summary>
-        /// <param name="ct">Token de cancelación</param>
-        /// <returns>Lista de líneas con sus artículos y referencias</returns>
+        /// <param name="ct">Token de cancelaciÃ³n</param>
+        /// <returns>Lista de lÃ­neas con sus artÃ­culos y referencias</returns>
         protected async Task<List<ItemWithReferences>> GetReportItemsAsync(CancellationToken ct = default)
         {
             var items = new List<ItemWithReferences>();
@@ -264,7 +224,7 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock
             if (DataReport?.Any() != true)
                 return items;
 
-            // Agrupar por artículo
+            // Agrupar por artÃ­culo
             var itemGroups = DataReport.GroupBy(x => new { x.ItemId, x.ItemName, x.InternalReference, x.LineName })
                                      .OrderBy(g => g.Key.LineName)
                                      .ThenBy(g => g.Key.ItemName);
@@ -287,18 +247,18 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock
         }
 
         /// <summary>
-        /// Obtiene las referencias de un artículo específico con su información de stock
+        /// Obtiene las referencias de un artÃ­culo especÃ­fico con su informaciÃ³n de stock
         /// </summary>
-        /// <param name="itemGroup">Grupo de datos del artículo</param>
-        /// <param name="ct">Token de cancelación</param>
-        /// <returns>Lista de referencias con información de stock</returns>
+        /// <param name="itemGroup">Grupo de datos del artÃ­culo</param>
+        /// <param name="ct">Token de cancelaciÃ³n</param>
+        /// <returns>Lista de referencias con informaciÃ³n de stock</returns>
         private async Task<List<ReferenceWithStock>> GetItemReferencesAsync(
             IGrouping<object, Application.Services.Models.Reports.MinimumWarehouseStockReport> itemGroup, 
             CancellationToken ct = default)
         {
             var references = new List<ReferenceWithStock>();
 
-            // Agrupar por referencia dentro del artículo
+            // Agrupar por referencia dentro del artÃ­culo
             var referenceGroups = itemGroup.GroupBy(x => new { x.ReferenceId, x.ReferenceName, x.ReferenceCode })
                                           .OrderBy(g => g.Key.ReferenceName);
 
@@ -325,7 +285,7 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock
         }
 
         /// <summary>
-        /// Obtiene la lista de existencias por bodega para una referencia específica
+        /// Obtiene la lista de existencias por bodega para una referencia especÃ­fica
         /// </summary>
         /// <param name="referenceGroup">Grupo de datos de la referencia</param>
         /// <returns>Lista de existencias por bodega</returns>
@@ -345,9 +305,9 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock
         }
 
         /// <summary>
-        /// Obtiene las bodegas únicas presentes en el reporte
+        /// Obtiene las bodegas Ãºnicas presentes en el reporte
         /// </summary>
-        /// <returns>Lista de bodegas únicas</returns>
+        /// <returns>Lista de bodegas Ãºnicas</returns>
         protected List<WarehouseStock> GetUniqueWarehouses()
         {
             if (ViewModel?.Items?.Any() != true)
@@ -363,9 +323,9 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock
         }
 
         /// <summary>
-        /// Calcula el total de existencias físicas para todas las referencias
+        /// Calcula el total de existencias fÃ­sicas para todas las referencias
         /// </summary>
-        /// <returns>Total de existencias físicas</returns>
+        /// <returns>Total de existencias fÃ­sicas</returns>
         protected int GetTotalPhysicalStock()
         {
             if (ViewModel?.Items?.Any() != true)
@@ -405,18 +365,18 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock
         }
 
         /// <summary>
-        /// Obtiene el número total de artículos en el reporte
+        /// Obtiene el nÃºmero total de artÃ­culos en el reporte
         /// </summary>
-        /// <returns>Número total de artículos</returns>
+        /// <returns>NÃºmero total de artÃ­culos</returns>
         protected int GetTotalItemsCount()
         {
             return ViewModel?.Items?.Count ?? 0;
         }
 
         /// <summary>
-        /// Obtiene el número total de referencias en el reporte
+        /// Obtiene el nÃºmero total de referencias en el reporte
         /// </summary>
-        /// <returns>Número total de referencias</returns>
+        /// <returns>NÃºmero total de referencias</returns>
         protected int GetTotalReferencesCount()
         {
             if (ViewModel?.Items?.Any() != true)
@@ -437,7 +397,7 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock
         #endregion
 
         /// <summary>
-        /// Obtiene el stock de una bodega específica para una referencia
+        /// Obtiene el stock de una bodega especÃ­fica para una referencia
         /// </summary>
         /// <param name="reference">La referencia</param>
         /// <param name="warehouseId">ID de la bodega</param>
@@ -449,9 +409,9 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock
         }
 
         /// <summary>
-        /// Obtiene los artículos agrupados por línea para mostrar en el reporte
+        /// Obtiene los artÃ­culos agrupados por lÃ­nea para mostrar en el reporte
         /// </summary>
-        /// <returns>Los artículos agrupados por línea</returns>
+        /// <returns>Los artÃ­culos agrupados por lÃ­nea</returns>
         protected IEnumerable<IGrouping<string, ItemWithReferences>> GetItemsByLine()
         {
             if (ViewModel?.Items?.Any() != true)

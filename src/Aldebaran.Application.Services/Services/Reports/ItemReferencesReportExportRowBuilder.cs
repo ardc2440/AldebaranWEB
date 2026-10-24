@@ -33,6 +33,7 @@ namespace Aldebaran.Application.Services.Reports
             IsDomesticProduct = ToYesNo(row.IsDomesticProduct),
             IsSpecialImport = ToYesNo(row.IsSpecialImport),
             IsSaleOff = ToYesNo(row.IsSaleOff),
+            IsBombPrice = ToYesNo(row.IsBombPrice),
             ReferenceName = row.ReferenceName,
             ReferenceCode = row.ReferenceCode,
             ProviderReferenceName = row.ProviderReferenceName ?? string.Empty,

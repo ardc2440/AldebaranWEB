@@ -10,7 +10,7 @@
                     @foreach (var option in ItemSwitches)
                     {
                         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem" class="mb-1">
-                            <RadzenSwitch Value="@option.Get()" ValueChanged="@((bool value) => OnSwitchChanged(option, value))" Disabled="@IsLoadingReferences" />
+                            <RadzenCheckBox TriState="true" TValue="bool?" Value="@option.Get()" ValueChanged="@((bool? value) => OnConditionChanged(option, value))" Disabled="@IsLoadingReferences" />
                             <RadzenLabel Text="@option.Label" />
                         </RadzenStack>
                     }
@@ -22,7 +22,7 @@
                     @foreach (var option in ReferenceSwitches)
                     {
                         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem" class="mb-1">
-                            <RadzenSwitch Value="@option.Get()" ValueChanged="@((bool value) => OnSwitchChanged(option, value))" Disabled="@IsLoadingReferences" />
+                            <RadzenCheckBox TriState="true" TValue="bool?" Value="@option.Get()" ValueChanged="@((bool? value) => OnConditionChanged(option, value))" Disabled="@IsLoadingReferences" />
                             <RadzenLabel Text="@option.Label" />
                         </RadzenStack>
                     }

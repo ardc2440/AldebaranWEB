@@ -50,11 +50,13 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.Components
         protected string ProviderReferenceName = string.Empty;
         protected string ProviderReferenceCode = string.Empty;
 
-        // Filtros de checkbox de 3 estados para Artículos
+        // Filtros de checkbox de 3 estados para ArtÃ­culos
         protected bool? ItemIsActive = null;
         protected bool? ItemIsDomesticProduct = null;
         protected bool? ItemIsSpecialImport = null;
         protected bool? ItemIsSaleOff = null;
+        protected bool? ItemIsBombPrice = null;
+
         protected bool? ItemIsCatalogVisible = null;
 
         // Filtros de checkbox de 3 estados para Referencias
@@ -122,11 +124,12 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.Components
                 ProviderReferenceName = Filter.ProviderReferenceName ?? string.Empty;
                 ProviderReferenceCode = Filter.ProviderReferenceCode ?? string.Empty;
                 
-                // Cargar filtros de checkbox de 3 estados para Artículos
+                // Cargar filtros de checkbox de 3 estados para ArtÃ­culos
                 ItemIsActive = Filter.ItemIsActive;
                 ItemIsDomesticProduct = Filter.ItemIsDomesticProduct;
                 ItemIsSpecialImport = Filter.ItemIsSpecialImport;
                 ItemIsSaleOff = Filter.ItemIsSaleOff;
+                ItemIsBombPrice = Filter.ItemIsBombPrice;
                 ItemIsCatalogVisible = Filter.ItemIsCatalogVisible;
                 
                 // Cargar filtros de checkbox de 3 estados para Referencias
@@ -159,7 +162,7 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.Components
             SelectedReferenceIds = new List<int>();
             ShowReferenceValidationMessage = false;
             
-            // Cargar referencias de los artículos seleccionados
+            // Cargar referencias de los artÃ­culos seleccionados
             await LoadAvailableReferences();
             StateHasChanged();
         }
@@ -211,7 +214,7 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.Components
         {
             var items = await ItemService.GetAsync();
             
-            // Cargar todos los artículos activos
+            // Cargar todos los artÃ­culos activos
             AvailableItems = items.Where(i => i.IsActive)
                 .Select(i => new ItemViewModel
                 {
@@ -238,7 +241,7 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.Components
                     .GroupBy(r => new { r.Item.ItemId, r.Item.ItemName, r.Item.InternalReference })
                     .SelectMany(group => new[]
                     {
-                        // Fila de agrupamiento (artículo) - usar ID negativo para diferenciarlo
+                        // Fila de agrupamiento (artÃ­culo) - usar ID negativo para diferenciarlo
                         new GroupedReferenceViewModel
                         {
                             ItemId = group.Key.ItemId,
@@ -248,7 +251,7 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.Components
                             ReferenceId = -group.Key.ItemId // ID negativo para grupos
                         }
                     }.Concat(
-                        // Referencias del artículo
+                        // Referencias del artÃ­culo
                         group.Select(r => new GroupedReferenceViewModel
                         {
                             ItemId = r.Item.ItemId,
@@ -282,7 +285,7 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.Components
             if (!HasItemsSelected())
             {
                 ShowReferenceValidationMessage = true;
-                return "Seleccione primero al menos un artículo";
+                return "Seleccione primero al menos un artÃ­culo";
             }
             
             ShowReferenceValidationMessage = false;
@@ -297,15 +300,15 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.Components
                 ValidationError = false;
                 ValidationErrorMessage = string.Empty;
 
-                // Validación obligatoria: Umbral máximo de existencias
+                // ValidaciÃ³n obligatoria: Umbral mÃ¡ximo de existencias
                 if (!UmbralMaximoExistencias.HasValue)
                 {
                     ValidationError = true;
-                    ValidationErrorMessage = "El umbral máximo de existencias es obligatorio";
+                    ValidationErrorMessage = "El umbral mÃ¡ximo de existencias es obligatorio";
                     return;
                 }
 
-                // Configurar filtro básico
+                // Configurar filtro bÃ¡sico
                 Filter.WarehouseId = WarehouseId;
                 Filter.Warehouse = Filter.WarehouseId != null ? Warehouses.FirstOrDefault(s => s.WarehouseId == Filter.WarehouseId.Value) : null;
                 Filter.UmbralMaximoExistencias = UmbralMaximoExistencias;
@@ -316,11 +319,12 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.Components
                 Filter.ProviderReferenceName = ProviderReferenceName?.Trim() ?? string.Empty;
                 Filter.ProviderReferenceCode = ProviderReferenceCode?.Trim() ?? string.Empty;
                 
-                // Configurar filtros de checkbox de 3 estados para Artículos
+                // Configurar filtros de checkbox de 3 estados para ArtÃ­culos
                 Filter.ItemIsActive = ItemIsActive;
                 Filter.ItemIsDomesticProduct = ItemIsDomesticProduct;
                 Filter.ItemIsSpecialImport = ItemIsSpecialImport;
                 Filter.ItemIsSaleOff = ItemIsSaleOff;
+                Filter.ItemIsBombPrice = ItemIsBombPrice;
                 Filter.ItemIsCatalogVisible = ItemIsCatalogVisible;
                 
                 // Configurar filtros de checkbox de 3 estados para Referencias
@@ -358,7 +362,7 @@ namespace Aldebaran.Web.Pages.ReportPages.MinimumWarehouseStock.Components
             {
                 IsErrorVisible = true;
                 ValidationError = true;
-                ValidationErrorMessage = "Ocurrió un error al procesar el filtro";
+                ValidationErrorMessage = "OcurriÃ³ un error al procesar el filtro";
             }
             finally
             {

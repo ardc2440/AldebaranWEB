@@ -1,11 +1,11 @@
 @page "/report/minimum-warehouse-stock"
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
 
-<PageTitle>Reporte de referencias con existencia mÌnima en bodega</PageTitle>
+<PageTitle>Reporte de referencias con existencia m√≠nima en bodega</PageTitle>
 <RadzenStack Style="gap:0.3em">
     <RadzenRow AlignItems="AlignItems.Start">
         <RadzenColumn Size="12">
-            <RadzenText Text="Reporte de referencias con existencia mÌnima en bodega" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
+            <RadzenText Text="Reporte de referencias con existencia m√≠nima en bodega" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
         </RadzenColumn>
     </RadzenRow>
     <RadzenRow AlignItems="AlignItems.Start" class="mb-2">
@@ -23,7 +23,7 @@
                     @if (Filter.UmbralMaximoExistencias.HasValue)
                     {
                         <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
-                            <p class="component-label m-0 fw-bold">Umbral m·ximo de existencias: </p>
+                            <p class="component-label m-0 fw-bold">Umbral m√°ximo de existencias: </p>
                             <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.UmbralMaximoExistencias.Value.ToString("N0")</span>
                         </div>
                     }
@@ -37,7 +37,7 @@
                     @if (!string.IsNullOrEmpty(Filter.ItemIds) && Filter.SelectedItems?.Any() == true)
                     {
                         <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
-                            <p class="component-label m-0 fw-bold">ArtÌculos: </p>
+                            <p class="component-label m-0 fw-bold">Art√≠culos: </p>
                             <span style="line-height: 1rem;transform: translate(0, -2px);">
                                 @if (Filter.SelectedItems.Count <= 2)
                                 {
@@ -45,7 +45,7 @@
                                 }
                                 else
                                 {
-                                    @($"{Filter.SelectedItems.Count} artÌculos seleccionados")
+                                    @($"{Filter.SelectedItems.Count} art√≠culos seleccionados")
                                 }
                             </span>
                         </div>
@@ -53,7 +53,7 @@
                     @if (!string.IsNullOrWhiteSpace(Filter.ProviderItemName))
                     {
                         <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
-                            <p class="component-label m-0 fw-bold">ArtÌculo del proveedor: </p>
+                            <p class="component-label m-0 fw-bold">Art√≠culo del proveedor: </p>
                             <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.ProviderItemName</span>
                         </div>
                     }
@@ -74,64 +74,72 @@
                     @if (!string.IsNullOrWhiteSpace(Filter.ProviderReferenceCode))
                     {
                         <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
-                            <p class="component-label m-0 fw-bold">CÛdigo de referencia del proveedor: </p>
+                            <p class="component-label m-0 fw-bold">C√≥digo de referencia del proveedor: </p>
                             <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.ProviderReferenceCode</span>
                         </div>
                     }
                     @if (Filter.ItemIsActive.HasValue)
                     {
                         <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
-                            <p class="component-label m-0 fw-bold">ArtÌculos activos: </p>
-                            <span style="line-height: 1rem;transform: translate(0, -2px);">@(Filter.ItemIsActive.Value ? "SÌ" : "No")</span>
+                            <p class="component-label m-0 fw-bold">Art√≠culos activos: </p>
+                            <span style="line-height: 1rem;transform: translate(0, -2px);">@(Filter.ItemIsActive.Value ? "S√≠" : "No")</span>
                         </div>
                     }
                     @if (Filter.ItemIsDomesticProduct.HasValue)
                     {
                         <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
                             <p class="component-label m-0 fw-bold">Producto nacional: </p>
-                            <span style="line-height: 1rem;transform: translate(0, -2px);">@(Filter.ItemIsDomesticProduct.Value ? "SÌ" : "No")</span>
+                            <span style="line-height: 1rem;transform: translate(0, -2px);">@(Filter.ItemIsDomesticProduct.Value ? "S√≠" : "No")</span>
                         </div>
                     }
                     @if (Filter.ItemIsSpecialImport.HasValue)
                     {
                         <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
                             <p class="component-label m-0 fw-bold">Importado especial: </p>
-                            <span style="line-height: 1rem;transform: translate(0, -2px);">@(Filter.ItemIsSpecialImport.Value ? "SÌ" : "No")</span>
+                            <span style="line-height: 1rem;transform: translate(0, -2px);">@(Filter.ItemIsSpecialImport.Value ? "S√≠" : "No")</span>
                         </div>
                     }
                     @if (Filter.ItemIsSaleOff.HasValue)
                     {
                         <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
                             <p class="component-label m-0 fw-bold">En oferta: </p>
-                            <span style="line-height: 1rem;transform: translate(0, -2px);">@(Filter.ItemIsSaleOff.Value ? "SÌ" : "No")</span>
+                            <span style="line-height: 1rem;transform: translate(0, -2px);">@(Filter.ItemIsSaleOff.Value ? "S√≠" : "No")</span>
+                        </div>
+                    }
+
+                    @if (Filter.ItemIsBombPrice.HasValue)
+                    {
+                        <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
+                            <p class="component-label m-0 fw-bold">Precio bomba: </p>
+                            <span style="line-height: 1rem;transform: translate(0, -2px);">@(Filter.ItemIsBombPrice.Value ? "S√≠" : "No")</span>
                         </div>
                     }
                     @if (Filter.ItemIsCatalogVisible.HasValue)
                     {
                         <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
-                            <p class="component-label m-0 fw-bold">Visible en cat·logo: </p>
-                            <span style="line-height: 1rem;transform: translate(0, -2px);">@(Filter.ItemIsCatalogVisible.Value ? "SÌ" : "No")</span>
+                            <p class="component-label m-0 fw-bold">Visible en cat√°logo: </p>
+                            <span style="line-height: 1rem;transform: translate(0, -2px);">@(Filter.ItemIsCatalogVisible.Value ? "S√≠" : "No")</span>
                         </div>
                     }
                     @if (Filter.ReferenceIsActive.HasValue)
                     {
                         <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
                             <p class="component-label m-0 fw-bold">Referencias activas: </p>
-                            <span style="line-height: 1rem;transform: translate(0, -2px);">@(Filter.ReferenceIsActive.Value ? "SÌ" : "No")</span>
+                            <span style="line-height: 1rem;transform: translate(0, -2px);">@(Filter.ReferenceIsActive.Value ? "S√≠" : "No")</span>
                         </div>
                     }
                     @if (Filter.ReferenceHasAlarmMinimumQuantity.HasValue)
                     {
                         <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
-                            <p class="component-label m-0 fw-bold">Con alarma de cantidad mÌnima: </p>
-                            <span style="line-height: 1rem;transform: translate(0, -2px);">@(Filter.ReferenceHasAlarmMinimumQuantity.Value ? "SÌ" : "No")</span>
+                            <p class="component-label m-0 fw-bold">Con alarma de cantidad m√≠nima: </p>
+                            <span style="line-height: 1rem;transform: translate(0, -2px);">@(Filter.ReferenceHasAlarmMinimumQuantity.Value ? "S√≠" : "No")</span>
                         </div>
                     }
                     @if (Filter.ReferenceIsSoldOut.HasValue)
                     {
                         <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
                             <p class="component-label m-0 fw-bold">Agotado: </p>
-                            <span style="line-height: 1rem;transform: translate(0, -2px);">@(Filter.ReferenceIsSoldOut.Value ? "SÌ" : "No")</span>
+                            <span style="line-height: 1rem;transform: translate(0, -2px);">@(Filter.ReferenceIsSoldOut.Value ? "S√≠" : "No")</span>
                         </div>
                     }
                     <div class="component-section d-flex flex-column justify-content-start pt-2">
@@ -145,7 +153,7 @@
                             @if (Filter.ItemReferences.Count() > 2)
                             {
                                 <div>
-                                    <a href="javascript:;" id="toggleLink" @onclick="ToggleReadMore">Ver m·s</a>
+                                    <a href="javascript:;" id="toggleLink" @onclick="ToggleReadMore">Ver m√°s</a>
                                 </div>
                             }
                         }
@@ -170,7 +178,7 @@
                         <table>
                             <tr>
                                 <td width="50%">
-                                    <h2 class="text-left mb-0">Referencias con existencia mÌnima en bodega</h2>
+                                    <h2 class="text-left mb-0">Referencias con existencia m√≠nima en bodega</h2>
                                     <span class="mb-1">@DateTime.Now.ToString(SharedLocalizer["datetime:format"])</span>
                                 </td>
                                 <td width="50%">
@@ -182,7 +190,7 @@
                                                 @if (Filter.UmbralMaximoExistencias.HasValue)
                                                 {
                                                     <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
-                                                        <div class="type">Umbral m·ximo de existencias: </div>
+                                                        <div class="type">Umbral m√°ximo de existencias: </div>
                                                         <span>@Filter.UmbralMaximoExistencias.Value.ToString("N0")</span>
                                                     </div>
                                                 }
@@ -196,7 +204,7 @@
                                                 @if (!string.IsNullOrEmpty(Filter.ItemIds) && Filter.SelectedItems?.Any() == true)
                                                 {
                                                     <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
-                                                        <div class="type">ArtÌculos: </div>
+                                                        <div class="type">Art√≠culos: </div>
                                                         <span>
                                                             @if (Filter.SelectedItems.Count <= 2)
                                                             {
@@ -204,7 +212,7 @@
                                                             }
                                                             else
                                                             {
-                                                                @($"{Filter.SelectedItems.Count} artÌculos")
+                                                                @($"{Filter.SelectedItems.Count} art√≠culos")
                                                             }
                                                         </span>
                                                     </div>
@@ -212,7 +220,7 @@
                                                 @if (!string.IsNullOrWhiteSpace(Filter.ProviderItemName))
                                                 {
                                                     <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
-                                                        <div class="type">ArtÌculo del proveedor: </div>
+                                                        <div class="type">Art√≠culo del proveedor: </div>
                                                         <span>@Filter.ProviderItemName</span>
                                                     </div>
                                                 }
@@ -233,64 +241,72 @@
                                                 @if (!string.IsNullOrWhiteSpace(Filter.ProviderReferenceCode))
                                                 {
                                                     <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
-                                                        <div class="type">CÛdigo de referencia del proveedor: </div>
+                                                        <div class="type">C√≥digo de referencia del proveedor: </div>
                                                         <span>@Filter.ProviderReferenceCode</span>
                                                     </div>
                                                 }
                                                 @if (Filter.ItemIsActive.HasValue)
                                                 {
                                                     <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
-                                                        <div class="type">ArtÌculos activos: </div>
-                                                        <span>@(Filter.ItemIsActive.Value ? "SÌ" : "No")</span>
+                                                        <div class="type">Art√≠culos activos: </div>
+                                                        <span>@(Filter.ItemIsActive.Value ? "S√≠" : "No")</span>
                                                     </div>
                                                 }
                                                 @if (Filter.ItemIsDomesticProduct.HasValue)
                                                 {
                                                     <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
                                                         <div class="type">Producto nacional: </div>
-                                                        <span>@(Filter.ItemIsDomesticProduct.Value ? "SÌ" : "No")</span>
+                                                        <span>@(Filter.ItemIsDomesticProduct.Value ? "S√≠" : "No")</span>
                                                     </div>
                                                 }
                                                 @if (Filter.ItemIsSpecialImport.HasValue)
                                                 {
                                                     <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
                                                         <div class="type">Importado especial: </div>
-                                                        <span>@(Filter.ItemIsSpecialImport.Value ? "SÌ" : "No")</span>
+                                                        <span>@(Filter.ItemIsSpecialImport.Value ? "S√≠" : "No")</span>
                                                     </div>
                                                 }
                                                 @if (Filter.ItemIsSaleOff.HasValue)
                                                 {
                                                     <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
                                                         <div class="type">En oferta: </div>
-                                                        <span>@(Filter.ItemIsSaleOff.Value ? "SÌ" : "No")</span>
+                                                        <span>@(Filter.ItemIsSaleOff.Value ? "S√≠" : "No")</span>
+                                                    </div>
+                                                }
+
+                                                @if (Filter.ItemIsBombPrice.HasValue)
+                                                {
+                                                    <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
+                                                        <div class="type">Precio bomba: </div>
+                                                        <span>@(Filter.ItemIsBombPrice.Value ? "S√≠" : "No")</span>
                                                     </div>
                                                 }
                                                 @if (Filter.ItemIsCatalogVisible.HasValue)
                                                 {
                                                     <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
-                                                        <div class="type">Visible en cat·logo: </div>
-                                                        <span>@(Filter.ItemIsCatalogVisible.Value ? "SÌ" : "No")</span>
+                                                        <div class="type">Visible en cat√°logo: </div>
+                                                        <span>@(Filter.ItemIsCatalogVisible.Value ? "S√≠" : "No")</span>
                                                     </div>
                                                 }
                                                 @if (Filter.ReferenceIsActive.HasValue)
                                                 {
                                                     <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
                                                         <div class="type">Referencias activas: </div>
-                                                        <span>@(Filter.ReferenceIsActive.Value ? "SÌ" : "No")</span>
+                                                        <span>@(Filter.ReferenceIsActive.Value ? "S√≠" : "No")</span>
                                                     </div>
                                                 }
                                                 @if (Filter.ReferenceHasAlarmMinimumQuantity.HasValue)
                                                 {
                                                     <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
-                                                        <div class="type">Con alarma de cantidad mÌnima: </div>
-                                                        <span>@(Filter.ReferenceHasAlarmMinimumQuantity.Value ? "SÌ" : "No")</span>
+                                                        <div class="type">Con alarma de cantidad m√≠nima: </div>
+                                                        <span>@(Filter.ReferenceHasAlarmMinimumQuantity.Value ? "S√≠" : "No")</span>
                                                     </div>
                                                 }
                                                 @if (Filter.ReferenceIsSoldOut.HasValue)
                                                 {
                                                     <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
                                                         <div class="type">Agotado: </div>
-                                                        <span>@(Filter.ReferenceIsSoldOut.Value ? "SÌ" : "No")</span>
+                                                        <span>@(Filter.ReferenceIsSoldOut.Value ? "S√≠" : "No")</span>
                                                     </div>
                                                 }
                                                 @if (Filter.ItemReferences.Any())
@@ -304,7 +320,7 @@
                                                         @if (Filter.ItemReferences.Count() > 2)
                                                         {
                                                             <div>
-                                                                <a href="javascript:;" id="toggleLinkPage" @onclick="ToggleReadMorePage">Ver m·s</a>
+                                                                <a href="javascript:;" id="toggleLinkPage" @onclick="ToggleReadMorePage">Ver m√°s</a>
                                                             </div>
                                                         }
                                                     </div>
@@ -352,8 +368,8 @@
                                                                 <thead>
                                                                     <tr>
                                                                         <th width="25%">Referencia</th>
-                                                                        <th width="15%">CÛdigo</th>
-                                                                        <th width="10%">Total FÌsico</th>
+                                                                        <th width="15%">C√≥digo</th>
+                                                                        <th width="10%">Total F√≠sico</th>
                                                                         <th width="10%">Comprometido</th>
                                                                         <th width="10%">Disponible</th>
                                                                         @foreach (var warehouse in GetUniqueWarehouses())
