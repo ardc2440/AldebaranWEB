@@ -133,7 +133,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                     return;
                 }
                 
-                if (await DialogService.Confirm(SpecialOrderOptions.CreationConfirmMessage(isSpecialOrder.Value), SpecialOrderOptions.CreationConfirmTitle, SpecialOrderOptions.CreationConfirmOptions) == true)
+                if (await DialogService.Confirm(SpecialOrderOptions.CreationConfirmMessage(isSpecialOrder.Value), SpecialOrderOptions.ConfirmTitle, SpecialOrderOptions.CreationConfirmOptions) == true)
                 {
                     customerOrder.CustomerOrderDetails = customerOrderDetails;
                     customerOrder.IsSpecialOrder = isSpecialOrder.Value;

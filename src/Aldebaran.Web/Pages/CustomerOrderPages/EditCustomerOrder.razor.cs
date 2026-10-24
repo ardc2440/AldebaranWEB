@@ -54,6 +54,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
         protected bool IsErrorVisible;
         protected string Error;
         protected CustomerOrder customerOrder;
+        protected bool originalIsSpecialOrder;
         protected DocumentType documentType;
         protected ICollection<CustomerOrderDetail> customerOrderDetails;
         protected LocalizedDataGrid<CustomerOrderDetail> customerOrderDetailGrid;
@@ -82,6 +83,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 documentType = await DocumentTypeService.FindByCodeAsync("P");
 
                 customerOrder = await CustomerOrderService.FindAsync(customerOrderId);
+                originalIsSpecialOrder = customerOrder.IsSpecialOrder;
 
                 await LoadData(new LoadDataArgs { Filter = customerOrder.Customer.CustomerName, Skip = 0, Top = 1 });
 
@@ -114,7 +116,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         protected async Task FormSubmit()
         {
-            // ? ProtecciÛn contra doble submit (sin bloquear validaciÛn inline)
+            // ? Protecci√≥n contra doble submit (sin bloquear validaci√≥n inline)
             if (IsSubmitInProgress) return;
             
             try
@@ -124,12 +126,18 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 
                 if (!customerOrderDetails.Any())
                 {
-                    // ? Mantener Submitted = true para mostrar validaciÛn inline
+                    // ? Mantener Submitted = true para mostrar validaci√≥n inline
                     // ? NO activar IsErrorVisible para evitar RadzenAlert superior
                     return;
                 }
 
-                var reasonResult = await DialogService.OpenAsync<ModificationReasonDialog>("Confirmar modificaciÛn", new Dictionary<string, object> { { "DOCUMENT_TYPE_CODE", "P" }, { "TITLE", "Est· seguro que desea actualizar este pedido?" } });
+                if (!await ConfirmSpecialOrderChangeAsync())
+                {
+                    Submitted = false;
+                    return;
+                }
+
+                var reasonResult = await DialogService.OpenAsync<ModificationReasonDialog>("Confirmar modificaci√≥n", new Dictionary<string, object> { { "DOCUMENT_TYPE_CODE", "P" }, { "TITLE", "Est√° seguro que desea actualizar este pedido?" } });
                 if (reasonResult == null)
                 {
                     Submitted = false; // ? Resetear antes del return
@@ -155,9 +163,17 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             }
         }
 
+        private async Task<bool> ConfirmSpecialOrderChangeAsync()
+        {
+            if (customerOrder.IsSpecialOrder == originalIsSpecialOrder)
+                return true;
+
+            return await DialogService.Confirm(SpecialOrderOptions.ChangeConfirmMessage(originalIsSpecialOrder, customerOrder.IsSpecialOrder), SpecialOrderOptions.ConfirmTitle, SpecialOrderOptions.ChangeConfirmOptions) == true;
+        }
+
         protected async Task CancelButtonClick(MouseEventArgs args)
         {
-            if (await DialogService.Confirm("Est· seguro que desea cancelar la modificaciÛn del pedido?", "Confirmar") == true)
+            if (await DialogService.Confirm("Est√° seguro que desea cancelar la modificaci√≥n del pedido?", "Confirmar") == true)
                 NavigationManager.NavigateTo("customer-orders");
         }
 
