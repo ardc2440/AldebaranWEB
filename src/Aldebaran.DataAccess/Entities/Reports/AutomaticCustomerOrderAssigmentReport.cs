@@ -1,4 +1,4 @@
-﻿namespace Aldebaran.DataAccess.Entities.Reports
+namespace Aldebaran.DataAccess.Entities.Reports
 {
     public class AutomaticCustomerOrderAssigmentReport
     {
@@ -13,6 +13,7 @@
         public DateTime ConfirmationDate { get; set; }
         public int CustomerOrderId { get; set; }
         public string? CustomerOrderNumber { get; set; }
+        public bool IsSpecialOrder { get; set; }
         public string? CustomerIdentity { get; set; }
         public string? CustomerName { get; set; }
         public DateTime OrderDate { get; set; }

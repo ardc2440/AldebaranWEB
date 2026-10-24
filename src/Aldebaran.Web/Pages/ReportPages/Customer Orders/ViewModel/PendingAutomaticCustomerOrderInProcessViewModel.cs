@@ -8,6 +8,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders.ViewModel
         {
             public int CustomerOrderId { get; set; }
             public string OrderNumber { get; set; }
+            public bool IsSpecialOrder { get; set; }
             public DateTime OrderDate { get; set; }
             public DateTime EstimatedDeliveryDate { get; set; }
             public string StatusOrderName { get; set; }

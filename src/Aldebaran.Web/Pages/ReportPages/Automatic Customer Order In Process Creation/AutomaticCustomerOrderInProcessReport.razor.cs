@@ -1,8 +1,8 @@
-﻿using Aldebaran.Application.Services.Reports;
+using Aldebaran.Application.Services.Reports;
 using Aldebaran.Infraestructure.Common.Utils;
 using Aldebaran.Web.Shared;
+using ReportFilter = Aldebaran.Application.Services.Models.Reports.AutomaticAssigmentReportFilter;
 using Microsoft.AspNetCore.Components;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.JSInterop;
 using Radzen.Blazor;
 using Radzen;
@@ -55,7 +55,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Automatic_Customer_Order_In_Process_Cr
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
             await OpenFilters();
         }
-        async Task RedrawReportAsync(string filter = "", CancellationToken ct = default)
+        async Task RedrawReportAsync(ReportFilter filter, CancellationToken ct = default)
         {
 
             try
@@ -75,51 +75,28 @@ namespace Aldebaran.Web.Pages.ReportPages.Automatic_Customer_Order_In_Process_Cr
                 StateHasChanged();
             }
         }
-        async Task<string> SetReportFilterAsync(ViewModel.AutomaticAssigmentFilter filter, CancellationToken ct = default)
+        /// <summary>Convierte el filtro de la pantalla en el filtro del caso de uso (sin armar SQL).</summary>
+        private static ReportFilter ToReportFilter(ViewModel.AutomaticAssigmentFilter filter) => new()
         {
-            var filterResult = string.Empty;
-
-            if (filter.ReceiptDate.StartDate.HasValue)
-                filterResult += $"@ReceiptDateFrom = '{(DateTime)filter.ReceiptDate.StartDate:yyyyMMdd}', @ReceiptDateTo = '{(DateTime)filter.ReceiptDate.EndDate:yyyyMMdd}'";
-
-            if (filter.ConfirmedDate.StartDate.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ConfirmedDateFrom = '{(DateTime)filter.ConfirmedDate.StartDate:yyyyMMdd}', @ConfirmedDateTo = '{(DateTime)filter.ConfirmedDate.EndDate:yyyyMMdd}'";
-
-            if (filter.OrderDate.StartDate.HasValue)
-                filterResult += $"@OrderDateFrom = '{(DateTime)filter.OrderDate.StartDate:yyyyMMdd}', @OrderDateTo = '{(DateTime)filter.OrderDate.EndDate:yyyyMMdd}'";
-
-            if (filter.EstimatedDeliveryDate.StartDate.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@EstimatedDeliveryDateFrom = '{(DateTime)filter.EstimatedDeliveryDate.StartDate:yyyyMMdd}', @EstimatedDeliveryDateFrom = '{(DateTime)filter.EstimatedDeliveryDate.EndDate:yyyyMMdd}'";
-
-            if (!filter.DocumentType.IsNullOrEmpty())
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@DocumentType = '{filter.DocumentType}'";
-
-            if (!filter.DocumentNumber.IsNullOrEmpty())
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@DocumentNumber = '{filter.DocumentNumber}'";
-
-            if (!filter.CustomerOrderNumber.IsNullOrEmpty())
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@CustomerOrderNumber = '{filter.CustomerOrderNumber}'";
-
-            if (!filter.ImportNumber.IsNullOrEmpty())
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ImportNumber = '{filter.ImportNumber}'";
-
-            if (filter.ItemReferences.Count > 0)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReferenceIds = '{String.Join(",", Filter.ItemReferences.Select(s => s.ReferenceId))}'";
-
-            if (!filter.ProformaNumber.IsNullOrEmpty())
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ProformaNumber = '{filter.ProformaNumber}'";
-
-            if (filter.ProviderId.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ProviderId = {filter.ProviderId}";
-
-            if (filter.CustomerId.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@CustomerId = {filter.CustomerId}";
-
-            if (filter.StatusDocumentTypeId.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@StatusDocumentTypeId = {filter.StatusDocumentTypeId}";
-
-            return filterResult;
-        }
+            DocumentType = string.IsNullOrWhiteSpace(filter.DocumentType) ? null : filter.DocumentType,
+            DocumentNumber = string.IsNullOrWhiteSpace(filter.DocumentNumber) ? null : filter.DocumentNumber.Trim(),
+            ProviderId = filter.ProviderId,
+            ProformaNumber = string.IsNullOrWhiteSpace(filter.ProformaNumber) ? null : filter.ProformaNumber.Trim(),
+            ImportNumber = string.IsNullOrWhiteSpace(filter.ImportNumber) ? null : filter.ImportNumber.Trim(),
+            ReceiptDateFrom = filter.ReceiptDate.StartDate,
+            ReceiptDateTo = filter.ReceiptDate.StartDate.HasValue ? filter.ReceiptDate.EndDate : null,
+            ConfirmedDateFrom = filter.ConfirmedDate.StartDate,
+            ConfirmedDateTo = filter.ConfirmedDate.StartDate.HasValue ? filter.ConfirmedDate.EndDate : null,
+            CustomerOrderNumber = string.IsNullOrWhiteSpace(filter.CustomerOrderNumber) ? null : filter.CustomerOrderNumber.Trim(),
+            CustomerId = filter.CustomerId,
+            OrderDateFrom = filter.OrderDate.StartDate,
+            OrderDateTo = filter.OrderDate.StartDate.HasValue ? filter.OrderDate.EndDate : null,
+            EstimatedDeliveryDateFrom = filter.EstimatedDeliveryDate.StartDate,
+            EstimatedDeliveryDateTo = filter.EstimatedDeliveryDate.StartDate.HasValue ? filter.EstimatedDeliveryDate.EndDate : null,
+            StatusDocumentTypeId = filter.StatusDocumentTypeId,
+            ReferenceIds = filter.ItemReferences.Count > 0 ? string.Join(",", filter.ItemReferences.Select(s => s.ReferenceId)) : null,
+            IsSpecialOrder = filter.IsSpecialOrder
+        };
         async Task OpenFilters()
         {
             var result = await DialogService.OpenAsync<Components.AutomaticAssigmentReportFilter>("Filtrar reporte de asignación automática de referencias a pedidos", parameters: new Dictionary<string, object> { { "Filter", (ViewModel.AutomaticAssigmentFilter)Filter?.Clone() } }, options: new DialogOptions { Width = "800px" });
@@ -127,7 +104,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Automatic_Customer_Order_In_Process_Cr
                 return;
             Filter = (ViewModel.AutomaticAssigmentFilter)result;
 
-            await RedrawReportAsync(await SetReportFilterAsync(Filter));
+            await RedrawReportAsync(ToReportFilter(Filter));
 
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
         }
@@ -202,7 +179,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Automatic_Customer_Order_In_Process_Cr
             var customerOrders = new List<ViewModel.AutomaticAssigmentViewModel.CustomerOrder>();
 
             foreach (var customerOrder in DataReport.Where(w => w.DocumentType == documentType && w.DocumentId == documentId)
-                                            .Select(s => new { s.CustomerOrderId, s.CustomerOrderNumber, s.CustomerIdentity, s.CustomerName, s.OrderDate, s.EstimatedDeliveryDate, s.StatusOrderName })
+                                            .Select(s => new { s.CustomerOrderId, s.CustomerOrderNumber, s.IsSpecialOrder, s.CustomerIdentity, s.CustomerName, s.OrderDate, s.EstimatedDeliveryDate, s.StatusOrderName })
                                             .DistinctBy(d => d.CustomerOrderId)
                                             .OrderBy(o => o.CustomerOrderNumber))
             {
@@ -210,6 +187,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Automatic_Customer_Order_In_Process_Cr
                 {
                     CustomerOrderId = customerOrder.CustomerOrderId,
                     CustomerOrderNumber = customerOrder.CustomerOrderNumber,
+                    IsSpecialOrder = customerOrder.IsSpecialOrder,
                     CustomerIdentity = customerOrder.CustomerIdentity,
                     CustomerName = customerOrder.CustomerName,
                     OrderDate = customerOrder.OrderDate,

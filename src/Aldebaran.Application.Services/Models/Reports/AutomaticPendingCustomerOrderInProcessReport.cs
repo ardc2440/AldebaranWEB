@@ -1,9 +1,10 @@
-﻿namespace Aldebaran.Application.Services.Models.Reports
+namespace Aldebaran.Application.Services.Models.Reports
 {
     public class AutomaticPendingCustomerOrderInProcessReport
     {       
         public int CustomerOrderId { get; set; }
         public required string OrderNumber { get; set; }
+        public bool IsSpecialOrder { get; set; }
         public DateTime OrderDate { get; set; }
         public DateTime EstimatedDeliveryDate { get; set; }
         public required string StatusOrderName { get; set; }

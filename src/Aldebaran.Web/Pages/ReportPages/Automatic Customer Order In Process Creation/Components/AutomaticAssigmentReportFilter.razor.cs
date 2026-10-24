@@ -1,4 +1,4 @@
-﻿using Aldebaran.Application.Services;
+using Aldebaran.Application.Services;
 using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components;
@@ -142,7 +142,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Automatic_Customer_Order_In_Process_Cr
                     Filter.ProviderId == null && 
                     Filter.CustomerId == null && 
                     SelectedReferences.Any() == false && 
-                    Filter.StatusDocumentTypeId == null)
+                    Filter.StatusDocumentTypeId == null &&
+                    Filter.IsSpecialOrder == null)
                 {
                     ValidationError = true;
                     return;

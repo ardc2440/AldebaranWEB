@@ -1,9 +1,9 @@
-﻿using Aldebaran.Application.Services.Reports;
+using Aldebaran.Application.Services.Reports;
 using Aldebaran.Infraestructure.Common.Utils;
 using Aldebaran.Web.Pages.ReportPages.Customer_Orders.Components;
 using Aldebaran.Web.Pages.ReportPages.Customer_Orders.ViewModel;
 using Microsoft.AspNetCore.Components;
-using Microsoft.IdentityModel.Tokens;
+using ReportFilter = Aldebaran.Application.Services.Models.Reports.AutomaticPendingCustomerOrderInProcessReportFilter;
 using Microsoft.JSInterop;
 using Radzen;
 
@@ -59,7 +59,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders
             await OpenFilters();
         }
 
-        async Task RedrawReportAsync(string filter = "", CancellationToken ct = default)
+        async Task RedrawReportAsync(ReportFilter filter, CancellationToken ct = default)
         {
             try
             {
@@ -92,7 +92,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders
                 return;
             Filter = (PendingAutomaticCustomerOrderInProcessFilter)result;
 
-            await RedrawReportAsync(await SetReportFilterAsync(Filter));
+            await RedrawReportAsync(ToReportFilter(Filter));
         }
 
         async Task RemoveFilters()
@@ -100,37 +100,19 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders
             await Reset();
         }
 
-        async Task<string> SetReportFilterAsync(PendingAutomaticCustomerOrderInProcessFilter filter, CancellationToken ct = default)
+        /// <summary>Convierte el filtro de la pantalla en el filtro del caso de uso (sin armar SQL).</summary>
+        private static ReportFilter ToReportFilter(PendingAutomaticCustomerOrderInProcessFilter filter) => new()
         {
-            var filterResult = string.Empty;
-
-            if (!string.IsNullOrEmpty(filter.OrderNumber))
-                filterResult += $"@OrderNumber = '{filter.OrderNumber}', ";
-
-            if (filter.OrderDate?.StartDate.HasValue == true)
-                filterResult += $"@OrderDateFrom = '{filter.OrderDate.StartDate:yyyyMMdd}', ";
-
-            if (filter.OrderDate?.EndDate.HasValue == true)
-                filterResult += $"@OrderDateTo = '{filter.OrderDate.EndDate:yyyyMMdd}', ";
-
-            if (filter.ProcessDate?.StartDate.HasValue == true)
-                filterResult += $"@ProcessDateFrom = '{filter.ProcessDate.StartDate:yyyyMMdd}', ";
-
-            if (filter.ProcessDate?.EndDate.HasValue == true)
-                filterResult += $"@ProcessDateTo = '{filter.ProcessDate.EndDate:yyyyMMdd}', ";
-
-            if (filter.CustomerId.HasValue)
-                filterResult += $"@CustomerId = {filter.CustomerId}, ";
-
-            if (filter.StatusDocumentTypeId.HasValue)
-                filterResult += $"@StatusDocumentTypeId = {filter.StatusDocumentTypeId}, ";
-
-            if (filter.ItemReferences.Count > 0)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReferenceIds = '{String.Join(",", Filter.ItemReferences.Select(s => s.ReferenceId))}'";
-
-
-            return filterResult.TrimEnd(',', ' ');
-        }
+            OrderNumber = string.IsNullOrWhiteSpace(filter.OrderNumber) ? null : filter.OrderNumber.Trim(),
+            OrderDateFrom = filter.OrderDate?.StartDate,
+            OrderDateTo = filter.OrderDate?.EndDate,
+            ProcessDateFrom = filter.ProcessDate?.StartDate,
+            ProcessDateTo = filter.ProcessDate?.EndDate,
+            CustomerId = filter.CustomerId,
+            StatusDocumentTypeId = filter.StatusDocumentTypeId,
+            ReferenceIds = filter.ItemReferences.Count > 0 ? string.Join(",", filter.ItemReferences.Select(s => s.ReferenceId)) : null,
+            IsSpecialOrder = filter.IsSpecialOrder
+        };
         #endregion
 
         #region Fill Data Report - Mock Implementation
@@ -138,13 +120,14 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders
         {
 
             var customers = DataReport
-                .Select(s => new { s.CustomerOrderId, s.OrderNumber, s.OrderDate, s.EstimatedDeliveryDate, s.StatusOrderName, s.CustomerName, s.CustomerIdentity, s.CustomerOrderEmployeeName })
+                .Select(s => new { s.CustomerOrderId, s.OrderNumber, s.IsSpecialOrder, s.OrderDate, s.EstimatedDeliveryDate, s.StatusOrderName, s.CustomerName, s.CustomerIdentity, s.CustomerOrderEmployeeName })
                 .DistinctBy(d => d.CustomerOrderId)
                 .OrderBy(o => o.OrderDate)
                 .Select(async customer => new PendingAutomaticCustomerOrderInProcessViewModel.CustomerOrder
                 {
                     CustomerOrderId = customer.CustomerOrderId,
                     OrderNumber = customer.OrderNumber,
+                    IsSpecialOrder = customer.IsSpecialOrder,
                     OrderDate = customer.OrderDate,
                     EstimatedDeliveryDate = customer.EstimatedDeliveryDate,
                     StatusOrderName = customer.StatusOrderName,

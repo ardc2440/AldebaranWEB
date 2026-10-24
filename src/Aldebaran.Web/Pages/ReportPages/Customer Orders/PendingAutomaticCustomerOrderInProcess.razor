@@ -1,4 +1,4 @@
-﻿@page "/report/pending-automatic-customer-order-inprocess"
+@page "/report/pending-automatic-customer-order-inprocess"
 @using Aldebaran.Web.Pages.ReportPages.Customer_Orders.ViewModel
 @using Aldebaran.Web.Shared
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
@@ -70,6 +70,13 @@
                         <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
                             <p class="component-label m-0 fw-bold">Cliente: </p>
                             <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.Customer.CustomerName</span>
+                        </div>
+                    }
+                    @if (Filter.IsSpecialOrder != null)
+                    {
+                        <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
+                            <p class="component-label m-0 fw-bold">Pedido especial: </p>
+                            <span style="line-height: 1rem;transform: translate(0, -2px);">@(Filter.IsSpecialOrder == true ? "Sí" : "No")</span>
                         </div>
                     }
                     @if (Filter.StatusDocumentTypeId != null)
@@ -158,6 +165,13 @@
                                                         <span>@Filter.Customer.CustomerName</span>
                                                     </div>
                                                 }
+                                                @if (Filter.IsSpecialOrder != null)
+                                                {
+                                                    <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
+                                                        <div class="type">Pedido especial: </div>
+                                                        <span>@(Filter.IsSpecialOrder == true ? "Sí" : "No")</span>
+                                                    </div>
+                                                }
                                                 @if (Filter.StatusDocumentTypeId != null)
                                                 {
                                                     <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
@@ -185,6 +199,7 @@
                                                 <tr class="emphasys-2x font-size-2x border-bottom-1">
                                                     <td colspan="4" width="100%">
                                                         <span class="bold">Pedido número: </span>@customerOrder.OrderNumber
+                                                        <span class="bold"> - Pedido especial: </span>@(customerOrder.IsSpecialOrder ? "Sí" : "No")
                                                     </td>
                                                 </tr>
                                                 <tr class="border-bottom-1">

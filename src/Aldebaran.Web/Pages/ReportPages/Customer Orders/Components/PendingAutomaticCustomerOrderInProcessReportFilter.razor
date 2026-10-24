@@ -6,7 +6,7 @@
         <RadzenRow style="margin-bottom: 1rem">
             <RadzenColumn Size="12">
                 <RadzenStack>
-                    <RadzenFormField Text="Número de pedido" Variant="Variant.Text" Style="width: 100%;">
+                    <RadzenFormField Text="NÃºmero de pedido" Variant="Variant.Text" Style="width: 100%;">
                         <ChildContent>
                             <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Filter.OrderNumber" Name="OrderNumber" />
                         </ChildContent>
@@ -75,7 +75,7 @@
                                                     Data=@Customers Count=@count TextProperty="CustomerName" ValueProperty="CustomerId"
                                                     Name="CustomerId" ShowPagingSummary="true" style="display: block; width: 100%">
                                 <Columns>
-                                    <RadzenDropDownDataGridColumn Property="IdentityNumber" Title="Identificación" />
+                                    <RadzenDropDownDataGridColumn Property="IdentityNumber" Title="IdentificaciÃ³n" />
                                     <RadzenDropDownDataGridColumn Property="CustomerName" Title="Nombre" />
                                 </Columns>
                             </RadzenDropDownDataGrid>
@@ -85,6 +85,12 @@
             </RadzenColumn>
         </RadzenRow>
 
+        <RadzenRow style="margin-bottom: 1rem">
+            <RadzenColumn Size="12">
+                <RadzenCheckBox TriState="true" TValue="bool?" @bind-Value="@Filter.IsSpecialOrder" Name="IsSpecialOrder" />
+                <RadzenLabel Text="Pedido especial" Component="IsSpecialOrder" class="rz-ms-2" />
+            </RadzenColumn>
+        </RadzenRow>
         <RadzenRow style="margin-bottom: 1rem">
             <MultiReferencePicker @ref="referencePicker" OnChange="ItemReferenceHandler"></MultiReferencePicker>
         </RadzenRow>

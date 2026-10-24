@@ -1,4 +1,4 @@
-﻿namespace Aldebaran.Application.Services.Models.Reports
+namespace Aldebaran.Application.Services.Models.Reports
 {
     public class AutomaticCustomerOrderAssigmentReport
     {
@@ -14,6 +14,7 @@
 
         public int CustomerOrderId { get; set; }
         public string? CustomerOrderNumber { get; set; }
+        public bool IsSpecialOrder { get; set; }
         public string? CustomerIdentity { get; set; }
         public string? CustomerName { get; set; }
         public DateTime OrderDate { get; set; }

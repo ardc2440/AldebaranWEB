@@ -13,6 +13,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Orders.ViewModel
         public short? StatusDocumentTypeId { get; set; }
         public StatusDocumentType StatusDocumentType { get; set; }
         public List<ItemReference> ItemReferences { get; set; } = new List<ItemReference>();
+        /// <summary>Pedido especial: true = Sí, false = No, null = Todos.</summary>
+        public bool? IsSpecialOrder { get; set; }
 
         public object Clone()
         {
