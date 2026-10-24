@@ -1,4 +1,4 @@
-﻿using Aldebaran.Application.Services;
+using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Web.Pages.ReportPages.Reference_Movement.ViewModel;
 using Aldebaran.Web.Shared;
@@ -49,24 +49,31 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement.Components
         #endregion
 
         #region Events
-        protected async Task OnItemCheckboxClick()
+        /// <summary>Artículo activo (Sí/No/Todos): acota las referencias disponibles y limpia la selección.</summary>
+        protected async Task OnItemActiveChanged(bool? value)
         {
-            Filter.ShowInactiveReferences = false;
-            
+            Filter.IsItemActive = value;
+            await ResetSelectionAsync();
+        }
+
+        /// <summary>Referencia activa (Sí/No/Todos): acota las referencias disponibles y limpia la selección.</summary>
+        protected async Task OnReferenceActiveChanged(bool? value)
+        {
+            Filter.IsReferenceActive = value;
+            await ResetSelectionAsync();
+        }
+
+        private async Task ResetSelectionAsync()
+        {
             Filter?.ItemReferences.Clear();
             await AvailableReferenceFilter();
         }
 
-        protected async Task OnReferenceCheckboxClick()
+        /// <summary>Precio bomba (casilla de tres estados): acota las referencias disponibles y limpia la selección.</summary>
+        protected async Task OnBombPriceChanged(bool? value)
         {
-            if (Filter.ShowInactiveItems)
-            {
-                Filter.ShowInactiveReferences = false;
-                return;
-            }
-
-            Filter?.ItemReferences.Clear();
-            await AvailableReferenceFilter();
+            Filter.BombPrice = value;
+            await ResetSelectionAsync();
         }
 
         protected async Task AvailableReferenceFilter()
@@ -77,14 +84,12 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement.Components
 
             if (Filter?.ItemReferences?.Any() == true && Filter.AllMovementCheckVisible) /* Muestra solo la referencia seleccionada en las alarmas*/
                 references.Add(await ItemReferenceService.FindAsync(Filter.ItemReferences.FirstOrDefault().ReferenceId));
-            else if ((bool)Filter?.ShowInactiveItems) /* Lista solo items inactivos */
-                references = (await ItemReferenceService.GetReportsReferencesAsync(isItemActive: false)).ToList();
-            else if ((bool)Filter?.ShowInactiveReferences) /* lista solo referencias inactivas y los items asociados a esas refrencias*/
-                references = (await ItemReferenceService.GetReportsReferencesAsync(isReferenceActive: false)).ToList();
-            else /* Muestra solo Items y referencias activas */
-                references = (await ItemReferenceService.GetReportsReferencesAsync(isItemActive: true, isReferenceActive: true)).ToList();
+            else /* Referencias según las condiciones Artículo activo / Referencia activa (null = Todos) */
+                references = (await ItemReferenceService.GetReportsReferencesAsync(isReferenceActive: Filter.IsReferenceActive, isItemActive: Filter.IsItemActive)).ToList();
 
-            AvailableItemReferencesForSelection = references;
+            AvailableItemReferencesForSelection = references
+                .Where(r => Filter.BombPrice == null || r.Item?.IsBombPrice == Filter.BombPrice)
+                .ToList();
             referencePicker.SetAvailableItemReferencesForSelection(AvailableItemReferencesForSelection);
 
             StateHasChanged();

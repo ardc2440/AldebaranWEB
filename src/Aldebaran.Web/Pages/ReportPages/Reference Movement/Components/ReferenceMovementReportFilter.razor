@@ -1,4 +1,4 @@
-﻿@using ViewModel = Aldebaran.Web.Pages.ReportPages.Reference_Movement.ViewModel;
+@using ViewModel = Aldebaran.Web.Pages.ReportPages.Reference_Movement.ViewModel;
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer;
 
 <RadzenColumn SizeMD=12>
@@ -8,13 +8,17 @@
             <RadzenLabel Text="Incluir todos los movimientos" Component="ShowAllMovement" class="rz-ms-2" />
         </RadzenRow>
         <RadzenRow class="rz-p-2 rz-text-align-start" Visible="@(!Filter.AllMovementCheckVisible)">
-            <RadzenColumn Size="6">
-                <RadzenCheckBox TValue="bool" @bind-Value="@Filter.ShowInactiveItems" Name="ShowInactiveItems" onclick="@OnItemCheckboxClick" />
-                <RadzenLabel Text="Items Inactivos" Component="ShowInactiveItems" class="rz-ms-2" />                
+            <RadzenColumn Size="4">
+                <RadzenCheckBox TriState="true" TValue="bool?" Value="@Filter.IsItemActive" ValueChanged="@((bool? value) => OnItemActiveChanged(value))" Name="IsItemActive" />
+                <RadzenLabel Text="Artículo activo" Component="IsItemActive" class="rz-ms-2" />
             </RadzenColumn>
-            <RadzenColumn Size="6">
-                <RadzenCheckBox Disabled="Filter.ShowInactiveItems" TValue="bool" @bind-Value="@Filter.ShowInactiveReferences" Name="ShowInactiveReferences" onclick="@OnReferenceCheckboxClick" />
-                <RadzenLabel Text="Referencias Inactivas" Component="ShowInactiveReferences" class="rz-ms-2" />                
+            <RadzenColumn Size="4">
+                <RadzenCheckBox TriState="true" TValue="bool?" Value="@Filter.IsReferenceActive" ValueChanged="@((bool? value) => OnReferenceActiveChanged(value))" Name="IsReferenceActive" />
+                <RadzenLabel Text="Referencia activa" Component="IsReferenceActive" class="rz-ms-2" />
+            </RadzenColumn>
+            <RadzenColumn Size="4">
+                <RadzenCheckBox TriState="true" TValue="bool?" Value="@Filter.BombPrice" ValueChanged="@((bool? value) => OnBombPriceChanged(value))" Name="BombPrice" Disabled="Filter.LockReferenceSelection" />
+                <RadzenLabel Text="Precio bomba" Component="BombPrice" class="rz-ms-2" />
             </RadzenColumn>
         </RadzenRow>
         <RadzenRow style="margin-bottom: 1rem">

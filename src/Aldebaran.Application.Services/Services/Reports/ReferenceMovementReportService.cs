@@ -1,4 +1,4 @@
-﻿using Aldebaran.Application.Services.Models.Reports;
+using Aldebaran.Application.Services.Models.Reports;
 using Aldebaran.DataAccess.Infraestructure.Repository.Reports;
 using AutoMapper;
 
@@ -16,9 +16,10 @@ namespace Aldebaran.Application.Services.Reports
             _mapper = mapper ?? throw new ArgumentNullException(nameof(IMapper));
         }
 
-        public async Task<IEnumerable<ReferenceMovementReport>> GetReferenceMovementReportDataAsync(string filter, CancellationToken ct = default)
+        public async Task<IEnumerable<ReferenceMovementReport>> GetReferenceMovementReportDataAsync(ReferenceMovementReportFilter filter, CancellationToken ct = default)
         {
-            var data = await _repository.GetReferenceMovementReportDataAsync(filter, ct);
+            ArgumentNullException.ThrowIfNull(filter);
+            var data = await _repository.GetReferenceMovementReportDataAsync(_mapper.Map<DataAccess.Entities.Reports.ReferenceMovementReportFilter>(filter), ct);
             return _mapper.Map<IEnumerable<ReferenceMovementReport>>(data);
         }
     }

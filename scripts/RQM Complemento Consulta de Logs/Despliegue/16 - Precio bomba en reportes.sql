@@ -8,6 +8,8 @@
      Se despliega junto con la versión de la aplicación (cambian los nombres de parámetros).
    - T21 SP_GET_MINIMUM_WAREHOUSE_STOCK_REPORT: filtro @BombPrice (se agrega sobre la definición vigente,
      sin reescribir el SP; solo si aún no lo tiene).
+   - T22/T22b SP_GET_REFERENCE_MOVEMENT_REPORT: @BombPrice y condiciones Artículo activo / Referencia activa
+     Sí/No/Todos (reemplazan @InactiveItems/@InactiveReferences); se construye desde la definición original respaldada.
    Script re-ejecutable. Reversa: Reversa\16 - Reversa precio bomba en reportes.sql
    ===================================================================================== */
 SET NOCOUNT ON;
@@ -23,7 +25,7 @@ IF OBJECT_ID('dbo.RQM_LOGS_OBJECT_BACKUP') IS NULL
 INSERT INTO dbo.RQM_LOGS_OBJECT_BACKUP (OBJECT_NAME, OBJECT_TYPE, DEFINITION)
 SELECT o.name, o.type, m.definition
   FROM sys.objects o JOIN sys.sql_modules m ON m.object_id = o.object_id
- WHERE o.name IN ('SP_GET_ITEM_REFERENCES_REPORT', 'SP_GET_MINIMUM_WAREHOUSE_STOCK_REPORT')
+ WHERE o.name IN ('SP_GET_ITEM_REFERENCES_REPORT', 'SP_GET_MINIMUM_WAREHOUSE_STOCK_REPORT', 'SP_GET_REFERENCE_MOVEMENT_REPORT')
    AND NOT EXISTS (SELECT 1 FROM dbo.RQM_LOGS_OBJECT_BACKUP b WHERE b.OBJECT_NAME = o.name);
 GO
 
@@ -135,4 +137,38 @@ BEGIN
     EXEC sys.sp_executesql @d;
     PRINT 'SP_GET_MINIMUM_WAREHOUSE_STOCK_REPORT actualizado';
 END
+GO
+
+/* T22/T22b: SP_GET_REFERENCE_MOVEMENT_REPORT
+   - @InactiveItems/@InactiveReferences (solo inactivos) -> @IsItemActive/@IsReferenceActive Sí/No/Todos (NULL = Todos).
+   - @BombPrice: deja solo referencias de artículos con la marca indicada.
+   Se construye SIEMPRE desde la definición original respaldada (re-ejecutable), validando su estructura. */
+DECLARE @d NVARCHAR(MAX) = (SELECT DEFINITION FROM dbo.RQM_LOGS_OBJECT_BACKUP WHERE OBJECT_NAME = 'SP_GET_REFERENCE_MOVEMENT_REPORT');
+DECLARE @CRLF NCHAR(2) = CHAR(13) + CHAR(10), @T NCHAR(1) = CHAR(9);
+DECLARE @BlockStart INT = CHARINDEX(@T + 'ELSE' + @CRLF + @T + @T + '/* Si se activo el filtro de Items inactivos', @d);
+DECLARE @BlockEnd INT = CHARINDEX('AND a.IS_ACTIVE = 1', @d);
+
+IF @d IS NULL OR CHARINDEX('@InactiveItems BIT = 0, ', @d) = 0 OR CHARINDEX('@InactiveReferences BIT = 0', @d) = 0
+   OR @BlockStart = 0 OR @BlockEnd < @BlockStart OR CHARINDEX('/* Obtener los movimientos', @d) = 0
+    THROW 50021, N'SP_GET_REFERENCE_MOVEMENT_REPORT no tiene la estructura esperada; revisar antes de desplegar.', 1;
+
+SET @d = STUFF(@d, @BlockStart, @BlockEnd + LEN('AND a.IS_ACTIVE = 1') - @BlockStart,
+      @T + 'ELSE' + @CRLF
+    + @T + @T + '/* T22b: referencias según Artículo activo / Referencia activa (NULL = Todos) */' + @CRLF
+    + @T + @T + 'INSERT INTO @FilterReferences' + @CRLF
+    + @T + @T + @T + ' SELECT a.REFERENCE_ID' + @CRLF
+    + @T + @T + @T + '   FROM item_references a' + @CRLF
+    + @T + @T + @T + '   JOIN items b ON b.ITEM_ID = a.ITEM_ID' + @CRLF
+    + @T + @T + @T + '  WHERE (@IsItemActive IS NULL OR b.IS_ACTIVE = @IsItemActive)' + @CRLF
+    + @T + @T + @T + '    AND (@IsReferenceActive IS NULL OR a.IS_ACTIVE = @IsReferenceActive)');
+SET @d = STUFF(@d, CHARINDEX('/* Obtener los movimientos', @d), 0,
+      '/* T22: Precio bomba - solo referencias de artículos con la marca indicada */' + @CRLF + @T
+    + 'IF @BombPrice IS NOT NULL' + @CRLF + @T + @T
+    + 'DELETE fr FROM @FilterReferences fr JOIN item_references r ON r.REFERENCE_ID = fr.ReferenceId JOIN items i ON i.ITEM_ID = r.ITEM_ID WHERE i.IS_BOMB_PRICE <> @BombPrice'
+    + @CRLF + @CRLF + @T);
+SET @d = REPLACE(@d, '@InactiveItems BIT = 0, ', '@IsItemActive BIT = NULL,       -- T22b: Sí (1) / No (0) / Todos (NULL)');
+SET @d = REPLACE(@d, '@InactiveReferences BIT = 0', '@IsReferenceActive BIT = NULL,' + @CRLF + @T + '@BombPrice BIT = NULL           -- T22: Precio bomba Sí (1) / No (0) / Todos (NULL)');
+SET @d = STUFF(@d, PATINDEX('%CREATE%PROCEDURE%', @d), CHARINDEX('PROCEDURE', @d) - PATINDEX('%CREATE%PROCEDURE%', @d), 'ALTER ');
+EXEC sys.sp_executesql @d;
+PRINT 'SP_GET_REFERENCE_MOVEMENT_REPORT actualizado';
 GO

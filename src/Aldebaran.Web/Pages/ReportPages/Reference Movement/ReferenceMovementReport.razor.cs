@@ -1,11 +1,11 @@
-﻿using Aldebaran.Application.Services;
+using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Reports;
+using ReportFilter = Aldebaran.Application.Services.Models.Reports.ReferenceMovementReportFilter;
 using Aldebaran.Infraestructure.Common.Utils;
 using Aldebaran.Web.Pages.ReportPages.Reference_Movement.Components;
 using Aldebaran.Web.Pages.ReportPages.Reference_Movement.ViewModel;
 using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.JSInterop;
 using Radzen;
 using Radzen.Blazor;
@@ -94,7 +94,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
                 Filter = null;
             }
         }
-        async Task RedrawReportAsync(string filter = "", CancellationToken ct = default)
+        async Task RedrawReportAsync(ReportFilter filter, CancellationToken ct = default)
         {
             try
             {
@@ -114,24 +114,16 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
             }
         }
 
-        async Task<string> SetReportFilterAsync(ReferenceMovementFilter filter, CancellationToken ct = default)
+        /// <summary>Convierte el filtro de la pantalla en el filtro del caso de uso (sin armar SQL).</summary>
+        private static ReportFilter ToReportFilter(ReferenceMovementFilter filter) => new()
         {
-            var filterResult = string.Empty;
-
-            if (filter.MovementDate.StartDate.HasValue)
-                filterResult += $"@InitialMovementDate = '{(DateTime)filter.MovementDate.StartDate:yyyyMMdd}', @FinalMovementDate = '{(DateTime)filter.MovementDate.EndDate:yyyyMMdd}'";
-
-            if (filter.ItemReferences.Count > 0)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReferenceIds = '{String.Join(",", Filter.ItemReferences.Select(s => s.ReferenceId))}'";
-
-            if (filter.ShowInactiveItems)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + "@InactiveItems = 1";
-
-            if (filter.ShowInactiveReferences)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + "@InactiveReferences = 1";
-
-            return filterResult;
-        }
+            InitialMovementDate = filter.MovementDate.StartDate,
+            FinalMovementDate = filter.MovementDate.StartDate.HasValue ? filter.MovementDate.EndDate : null,
+            ReferenceIds = filter.ItemReferences.Count > 0 ? string.Join(",", filter.ItemReferences.Select(s => s.ReferenceId)) : null,
+            IsItemActive = filter.IsItemActive,
+            IsReferenceActive = filter.IsReferenceActive,
+            BombPrice = filter.BombPrice
+        };
 
         async Task OpenFilters()
         {
@@ -154,7 +146,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
             }
             Filter = (ReferenceMovementFilter)result;
 
-            await RedrawReportAsync(await SetReportFilterAsync(Filter));
+            await RedrawReportAsync(ToReportFilter(Filter));
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
             StateHasChanged();
         }
