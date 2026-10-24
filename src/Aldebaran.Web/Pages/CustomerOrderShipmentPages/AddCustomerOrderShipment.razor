@@ -1,10 +1,10 @@
 @page "/add-customer-order-shipment/{CustomerOrderId}"
 
-@attribute [Authorize(Roles = "Administrador,Modificación de despachos")]
+@attribute [Authorize(Roles = "Administrador,ModificaciÃ³n de despachos")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
 
-<PageTitle>Pedido de artículos</PageTitle>
+<PageTitle>Pedido de artÃ­culos</PageTitle>
 <LoadingData IsLoadingData="@isLoadingInProgress" />
 
 @if (!isLoadingInProgress)
@@ -32,7 +32,7 @@
                                                 <RadzenLabel Text="@customerOrder.Customer.CustomerName" />
                                             </div>
                                             <div class="text-secondary-color">
-                                                <RadzenLabel Text="Teléfono: " />
+                                                <RadzenLabel Text="TelÃ©fono: " />
                                                 <span>@customerOrder.Customer.Phone1</span>
                                             </div>
                                             <div class="text-secondary-color">
@@ -45,7 +45,7 @@
                                                 </ul>
                                             </div>
                                             <div class="text-secondary-color">
-                                                <RadzenLabel Text="Dirección: " />
+                                                <RadzenLabel Text="DirecciÃ³n: " />
                                                 <span>@customerOrder.Customer.CustomerAddress</span>
                                             </div>
                                             <div class="text-secondary-color">
@@ -68,6 +68,12 @@
                                         <div class="text-secondary-color">
                                             <span>@customerOrder.EstimatedDeliveryDate.ToString(@SharedLocalizer["date:format"])</span>
                                         </div>
+                                        <div class="text-primary-color" style="font-size: 16px">
+                                            <RadzenLabel Text="Pedido especial:" />
+                                        </div>
+                                        <div class="text-secondary-color">
+                                            <span>@(customerOrder.IsSpecialOrder ? "SÃ­" : "No")</span>
+                                        </div>
                                     </div>
                                 </RadzenColumn>
                             </RadzenRow>
@@ -88,7 +94,7 @@
                                 </RadzenRow>
                                 <RadzenRow class="mb-3">
                                     <RadzenColumn SizeMD="6">
-                                        <RadzenFormField Text="Número de guía" Variant="Variant.Text" Style="width: 100%;">
+                                        <RadzenFormField Text="NÃºmero de guÃ­a" Variant="Variant.Text" Style="width: 100%;">
                                             <ChildContent>
                                                 <RadzenTextBox @bind-Value="@customerOrderShipment.TrackingNumber" style="display: block; width: 100%"
                                                                TabIndex="1" MaxLength="15" />
@@ -96,28 +102,28 @@
                                         </RadzenFormField>
                                     </RadzenColumn>
                                     <RadzenColumn SizeMD="6">
-                                        <RadzenFormField Text="Remisión" Variant="Variant.Text" Style="width: 100%;">
+                                        <RadzenFormField Text="RemisiÃ³n" Variant="Variant.Text" Style="width: 100%;">
                                             <ChildContent>
                                                 <RadzenTextBox Name="DELIVERY_NOTE" @bind-Value="@customerOrderShipment.DeliveryNote" style="display: block; width: 100%"
                                                                TabIndex="2" MaxLength="15" />
                                             </ChildContent>
                                             <Helper>
-                                                <RadzenRequiredValidator Component="DELIVERY_NOTE" Text="La remisión es requerida"></RadzenRequiredValidator>
+                                                <RadzenRequiredValidator Component="DELIVERY_NOTE" Text="La remisiÃ³n es requerida"></RadzenRequiredValidator>
                                             </Helper>
                                         </RadzenFormField>
                                     </RadzenColumn>
                                 </RadzenRow>
                                 <RadzenRow class="mb-3">
-                                    <RadzenFormField Text="Método de envío" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
+                                    <RadzenFormField Text="MÃ©todo de envÃ­o" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                                         <ChildContent>
                                             <RadzenDropDown Data="@shippingMethodsFORSHIPPINGMETHODID" TextProperty="ShippingMethodName" ValueProperty="ShippingMethodId" AllowClear=true
                                                             style="display: block; width: 100%" @bind-Value="@customerOrderShipment.ShippingMethodId" Name="SHIPING_METHOD_ID"
                                                             FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true"
-                                                            TabIndex="3" Placeholder="Seleccione el metodo de envío">
+                                                            TabIndex="3" Placeholder="Seleccione el metodo de envÃ­o">
                                             </RadzenDropDown>
                                         </ChildContent>
                                         <Helper>
-                                            <RadzenNumericRangeValidator Component="SHIPING_METHOD_ID" Min="1" Text="El método de envio es requerido"></RadzenNumericRangeValidator>
+                                            <RadzenNumericRangeValidator Component="SHIPING_METHOD_ID" Min="1" Text="El mÃ©todo de envio es requerido"></RadzenNumericRangeValidator>
                                         </Helper>
                                     </RadzenFormField>
                                 </RadzenRow>
@@ -129,8 +135,8 @@
                                                                     FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true"
                                                                     TabIndex="4" Placeholder="Seleccione un empleado">
                                                 <Columns>
-                                                    <RadzenDropDownDataGridColumn Property="EMPLOYEE.IdentityType.IdentityTypeName" Title="Tipo de identificación" />
-                                                    <RadzenDropDownDataGridColumn Property="IdentityNumber" Title="Número de identificación" />
+                                                    <RadzenDropDownDataGridColumn Property="EMPLOYEE.IdentityType.IdentityTypeName" Title="Tipo de identificaciÃ³n" />
+                                                    <RadzenDropDownDataGridColumn Property="IdentityNumber" Title="NÃºmero de identificaciÃ³n" />
                                                     <RadzenDropDownDataGridColumn Property="FullName" Title="Nombre completo" />
                                                 </Columns>
                                             </RadzenDropDownDataGrid>

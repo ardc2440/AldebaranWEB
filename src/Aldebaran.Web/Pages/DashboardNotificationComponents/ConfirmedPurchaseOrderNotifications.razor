@@ -1,4 +1,4 @@
-﻿@using Aldebaran.Web.Resources.LocalizedControls
+@using Aldebaran.Web.Resources.LocalizedControls
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
 @inject Radzen.DialogService dialogService
 
@@ -80,6 +80,11 @@
                                         <RadzenLink href="javascript:void(0);" @onclick="@(async (args) => await DownloadAsync(args, notification.CustomerOrderId))">
                                             @notification.OrderNumber
                                         </RadzenLink>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AutomaticCustomerOrder" Property="IsSpecialOrder" Title="Pedido especial">
+                                    <Template Context="order">
+                                        @(order.IsSpecialOrder ? "Sí" : "No")
                                     </Template>
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.AutomaticCustomerOrder" Property="CustomerName" Title="Cliente"></RadzenDataGridColumn>

@@ -1,10 +1,10 @@
 @page "/edit-customer-order-shipment/{CustomerOrderShipmentId}"
 
-@attribute [Authorize(Roles = "Administrador,Modificaci髇 de despachos")]
+@attribute [Authorize(Roles = "Administrador,Modificaci贸n de despachos")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
 
-<PageTitle>Modificaci髇 del despacho</PageTitle>
+<PageTitle>Modificaci贸n del despacho</PageTitle>
 <LoadingData IsLoadingData="@isLoadingInProgress" />
 
 @if (!isLoadingInProgress)
@@ -67,6 +67,12 @@
                                         <RadzenColumn SizeMD="3">
                                             <span>@(customerOrder.EstimatedDeliveryDate.ToString(@SharedLocalizer["date:format"]))</span>
                                         </RadzenColumn>
+                                        <RadzenColumn SizeMD="3">
+                                            <RadzenLabel Text="Pedido especial" class="text-primary-color" Style="font-size: 16px;" />
+                                        </RadzenColumn>
+                                        <RadzenColumn SizeMD="3">
+                                            <span>@(customerOrder.IsSpecialOrder ? "S铆" : "No")</span>
+                                        </RadzenColumn>
                                     </RadzenStack>
                                 </RadzenColumn>
                             </RadzenRow>
@@ -84,29 +90,29 @@
                                             <RadzenRequiredValidator Text="La fecha de despacho es requerida" Component="ShippingDate" />
                                         </Helper>
                                     </RadzenFormField>
-                                    <RadzenFormField Text="N鷐ero de guia" Variant="Variant.Text" class="fw-bold">
+                                    <RadzenFormField Text="N煤mero de guia" Variant="Variant.Text" class="fw-bold">
                                         <ChildContent>
                                             <RadzenTextBox @bind-Value="@customerOrderShipment.TrackingNumber" TabIndex="1" MaxLength="15" />
                                         </ChildContent>
                                     </RadzenFormField>
-                                    <RadzenFormField Text="Remisi髇" Variant="Variant.Text" class="fw-bold">
+                                    <RadzenFormField Text="Remisi贸n" Variant="Variant.Text" class="fw-bold">
                                         <ChildContent>
                                             <RadzenTextBox Name="DELIVERY_NOTE" @bind-Value="@customerOrderShipment.DeliveryNote" TabIndex="2" MaxLength="15" />
                                         </ChildContent>
                                         <Helper>
-                                            <RadzenRequiredValidator Component="DELIVERY_NOTE" Text="La remisi髇 es requerida"></RadzenRequiredValidator>
+                                            <RadzenRequiredValidator Component="DELIVERY_NOTE" Text="La remisi贸n es requerida"></RadzenRequiredValidator>
                                         </Helper>
                                     </RadzenFormField>
-                                    <RadzenFormField Text="M閠odo de env韔" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
+                                    <RadzenFormField Text="M茅todo de env铆o" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
                                         <ChildContent>
                                             <RadzenDropDown Data="@shippingMethodsFORSHIPPINGMETHODID" TextProperty="ShippingMethodName" ValueProperty="ShippingMethodId" AllowClear=true
                                                             style="display: block; width: 100%" @bind-Value="@customerOrderShipment.ShippingMethodId" Name="SHIPING_METHOD_ID"
                                                             FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true"
-                                                            TabIndex="3" Placeholder="Seleccione el m閠odo de env韔">
+                                                            TabIndex="3" Placeholder="Seleccione el m茅todo de env铆o">
                                             </RadzenDropDown>
                                         </ChildContent>
                                         <Helper>
-                                            <RadzenNumericRangeValidator Component="SHIPING_METHOD_ID" Min="1" Text="El m閠odo de envio es requerido"></RadzenNumericRangeValidator>
+                                            <RadzenNumericRangeValidator Component="SHIPING_METHOD_ID" Min="1" Text="El m茅todo de envio es requerido"></RadzenNumericRangeValidator>
                                         </Helper>
                                     </RadzenFormField>
                                     <RadzenFormField Text="Despachado Por" Gap="2rem" Variant="Variant.Text" Style="width: 100%;">
@@ -117,8 +123,8 @@
                                                                     AllowFilteringByAllStringColumns="true"
                                                                     TabIndex="4" Placeholder="Seleccione un Empleado">
                                                 <Columns>
-                                                    <RadzenDropDownDataGridColumn Property="EMPLOYEE.IdentityType.IdentityTypeName" Title="Tipo de identificaci髇" />
-                                                    <RadzenDropDownDataGridColumn Property="IdentityNumber" Title="N鷐ero de identificaci髇" />
+                                                    <RadzenDropDownDataGridColumn Property="EMPLOYEE.IdentityType.IdentityTypeName" Title="Tipo de identificaci贸n" />
+                                                    <RadzenDropDownDataGridColumn Property="IdentityNumber" Title="N煤mero de identificaci贸n" />
                                                     <RadzenDropDownDataGridColumn Property="FullName" Title="Nombre completo" />
                                                 </Columns>
                                             </RadzenDropDownDataGrid>
@@ -184,7 +190,7 @@
                                         <Template Context="detail">
                                             <RadzenButton Icon="assignment_ind" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
                                                           Click="@(args => SendToShipment(detail))" @onclick:stopPropagation="true"
-                                                          Visible="@Security.IsInRole("Administrador","Modificaci髇 de pedidos en proceso")" MouseEnter="@(args => ShowTooltip(args,"Despachar", new TooltipOptions(){ Position = TooltipPosition.Left }))">
+                                                          Visible="@Security.IsInRole("Administrador","Modificaci贸n de pedidos en proceso")" MouseEnter="@(args => ShowTooltip(args,"Despachar", new TooltipOptions(){ Position = TooltipPosition.Left }))">
                                             </RadzenButton>
                                             <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
                                                           Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@CanCancel(detail)"

@@ -1,6 +1,6 @@
 @page "/add-customer-order-in-process/{CustomerOrderId}"
 
-@attribute [Authorize(Roles = "Administrador,Modificación de pedidos en proceso")]
+@attribute [Authorize(Roles = "Administrador,ModificaciÃ³n de pedidos en proceso")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
 
@@ -34,7 +34,7 @@
                                                 <RadzenLabel Text="@customerOrder.Customer.CustomerName" />
                                             </div>
                                             <div class="text-secondary-color">
-                                                <RadzenLabel Text="Teléfono: " />
+                                                <RadzenLabel Text="TelÃ©fono: " />
                                                 <span>@customerOrder.Customer.Phone1</span>
                                             </div>
                                             <div class="text-secondary-color">
@@ -47,7 +47,7 @@
                                                 </ul>
                                             </div>
                                             <div class="text-secondary-color">
-                                                <RadzenLabel Text="Dirección: " />
+                                                <RadzenLabel Text="DirecciÃ³n: " />
                                                 <span>@customerOrder.Customer.CustomerAddress</span>
                                             </div>
                                             <div class="text-secondary-color">
@@ -69,6 +69,12 @@
                                         </div>
                                         <div class="text-secondary-color">
                                             <span>@customerOrder.EstimatedDeliveryDate.ToString(@SharedLocalizer["date:format"])</span>
+                                        </div>
+                                        <div class="text-primary-color" style="font-size: 16px">
+                                            <RadzenLabel Text="Pedido especial:" />
+                                        </div>
+                                        <div class="text-secondary-color">
+                                            <span>@(customerOrder.IsSpecialOrder ? "SÃ­" : "No")</span>
                                         </div>
                                     </div>
                                 </RadzenColumn>
@@ -109,7 +115,7 @@
                                                         </Template>
                                                     </RadzenDropDownDataGridColumn>
                                                     <RadzenDropDownDataGridColumn Property="ProcessSatelliteName" Title="Nombre" />
-                                                    <RadzenDropDownDataGridColumn Property="City.CityId" Title="Ubicación">
+                                                    <RadzenDropDownDataGridColumn Property="City.CityId" Title="UbicaciÃ³n">
                                                         <Template Context="satellite">
                                                             <span>(@satellite.City.Department.Country.CountryCode) @satellite.City.Department.DepartmentName - @satellite.City.CityName</span>
                                                         </Template>
@@ -149,7 +155,7 @@
                         </RadzenStack>
                     </RadzenColumn>
                     <RadzenColumn Size="6">
-                        <RadzenText Text="Referencias" TextStyle="TextStyle.H5" TagName="TagName.H1"   />
+                        <RadzenText Text="Referencias" TextStyle="TextStyle.H5" TagName="TagName.H1" Â  />
                         <RadzenStack>
                             <LocalizedDataGrid @ref="customerOrderDetailGrid" ColumnWidth="200px" AllowFiltering="false" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true"
                                                PageSizeOptions=@(new int[]{5, 10, 20, 30}) Data="@detailsInProcess" TItem="Aldebaran.Web.Models.ViewModels.DetailInProcess">

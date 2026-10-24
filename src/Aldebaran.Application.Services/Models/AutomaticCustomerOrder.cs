@@ -1,9 +1,10 @@
-﻿namespace Aldebaran.Application.Services.Models
+namespace Aldebaran.Application.Services.Models
 {
     public class AutomaticCustomerOrder
     {
         public int OrderId { get; set; }
         public int CustomerOrderId { get; set; }
+        public bool IsSpecialOrder { get; set; }
         public required string OrderNumber { get; set; }
         public required string IdentityNumber { get; set; }
         public required string CustomerName { get; set; }  

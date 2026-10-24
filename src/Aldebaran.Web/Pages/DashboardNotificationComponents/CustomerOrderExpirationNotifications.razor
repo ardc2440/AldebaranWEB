@@ -1,4 +1,4 @@
-﻿@using Aldebaran.Web.Models.ViewModels;
+@using Aldebaran.Web.Models.ViewModels;
 @using Aldebaran.Web.Resources.LocalizedControls;
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer ;
 
@@ -39,6 +39,11 @@
                         </Template>
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="StatusDocumentType.StatusDocumentTypeName" Title="Estado" Width="80%"></RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="IsSpecialOrder" Title="Pedido especial" Width="50%">
+                        <Template Context="order">
+                            @(order.IsSpecialOrder ? "Sí" : "No")
+                        </Template>
+                    </RadzenDataGridColumn>
                 </Columns>
             </LocalizedDataGrid>
         </RadzenRow>

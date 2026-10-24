@@ -5,7 +5,7 @@
 @inherits Aldebaran.Web.Pages.DashboardNotificationComponents.AutomaticInProcessModificationNotificationsBase
 
 <RadzenCard class="rz-col-12" Style="max-width: 100%">
-    <NotificationTitle DataUpdate="@GridData_Update" GridTimer="@GridTimer" Title="Modificaciones autom醫icas de traslados a proceso" Timers="@Timers" />
+    <NotificationTitle DataUpdate="@GridData_Update" GridTimer="@GridTimer" Title="Modificaciones autom谩ticas de traslados a proceso" Timers="@Timers" />
     <RadzenCard Variant="Radzen.Variant.Text" class="px-0">
         <RadzenRow class="rz-m-1">
             <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
@@ -23,7 +23,7 @@
                             <RadzenCheckBox TabIndex="-1" TriState="false" TValue="bool?" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select all items" }})"
                                             Value="@(IsAllPageSelected().Result ? true : (selectedModifications?.Any() ?? false ? null : false))"       
                                             Change="@(args => SelectAllItems((bool)args))"
-                                            MouseEnter="@(args => ShowTooltip(args,"Marcar toda la p醙ina", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
+                                            MouseEnter="@(args => ShowTooltip(args,"Marcar toda la p谩gina", new TooltipOptions(){ Position = TooltipPosition.Left }))" />
                         </HeaderTemplate>
                         <Template Context="data">
                             <RadzenCheckBox TabIndex="-1" TriState="false" Value="@(selectedModifications != null && selectedModifications.Contains(data))" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select item" }})"
@@ -39,18 +39,23 @@
                             </RadzenLink>
                         </Template>
                     </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="AutomaticCustomerOrderInProcessModification" Property="IsSpecialOrder" Title="Pedido especial" Width="130px">
+                        <Template Context="modification">
+                            @(modification.IsSpecialOrder ? "S铆" : "No")
+                        </Template>
+                    </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="AutomaticCustomerOrderInProcessModification" Property="Customer_Name" Title="Cliente" Width="200px" />
-                    <RadzenDataGridColumn TItem="AutomaticCustomerOrderInProcessModification" Property="ActionType" Title="Tipo de Acci髇" Width="150px"/>                    
-                    <RadzenDataGridColumn TItem="AutomaticCustomerOrderInProcessModification" Property="ActionDate" Title="Fecha de Acci髇" Width="180px">
+                    <RadzenDataGridColumn TItem="AutomaticCustomerOrderInProcessModification" Property="ActionType" Title="Tipo de Acci贸n" Width="150px"/>                    
+                    <RadzenDataGridColumn TItem="AutomaticCustomerOrderInProcessModification" Property="ActionDate" Title="Fecha de Acci贸n" Width="180px">
                         <Template Context="modification">
                             @modification.ActionDate.ToString(SharedLocalizer["datetime:format"])
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="AutomaticCustomerOrderInProcessModification" Property="ActionReason" Title="Raz髇 de la Acci髇" Width="250px" />
+                    <RadzenDataGridColumn TItem="AutomaticCustomerOrderInProcessModification" Property="ActionReason" Title="Raz贸n de la Acci贸n" Width="250px" />
                     <RadzenDataGridColumn TItem="AutomaticCustomerOrderInProcessModification" Property="EmployeeName" Title="Empleado" Width="200px" />
                     <RadzenDataGridColumn TItem="AutomaticCustomerOrderInProcessModification" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center" Pickable="false" Reorderable="false" Resizable="false">
                         <Template Context="modification">
-                            <RadzenButton Icon="assignment_turned_in" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => DisableModifications(modification))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args, "Ocultar modificaci髇", new TooltipOptions() { Position = TooltipPosition.Left }))" />
+                            <RadzenButton Icon="assignment_turned_in" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => DisableModifications(modification))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowTooltip(args, "Ocultar modificaci贸n", new TooltipOptions() { Position = TooltipPosition.Left }))" />
                         </Template>
                     </RadzenDataGridColumn>                    
                 </Columns>

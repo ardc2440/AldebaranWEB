@@ -1,18 +1,18 @@
 @page "/process-customer-orders"
 @page "/process-customer-orders/{CUSTOMER_ORDER_IN_PROCESS_ID}"
 @page "/process-customer-orders/{Action}/{CUSTOMER_ORDER_IN_PROCESS_ID}"
-@attribute [Authorize(Roles = "Administrador,Consulta de pedidos en proceso,Modificación de pedidos en proceso")]
+@attribute [Authorize(Roles = "Administrador,Consulta de pedidos en proceso,ModificaciÃ³n de pedidos en proceso")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer ;
 
-<PageTitle>Traslado de artículos a proceso</PageTitle>
+<PageTitle>Traslado de artÃ­culos a proceso</PageTitle>
 <LoadingData IsLoadingData="@isLoadingInProgress" />
 @if (!isLoadingInProgress)
 {
     <RadzenStack>
         <RadzenRow AlignItems="AlignItems.Center">
             <RadzenColumn Size="12" SizeMD="6">
-                <RadzenText Text="Traslado de artículos a proceso" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
+                <RadzenText Text="Traslado de artÃ­culos a proceso" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
             </RadzenColumn>
             <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" @bind-Visible="@IsErrorVisible">
                 @Error
@@ -40,6 +40,11 @@
                         </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="StatusDocumentType.StatusDocumentTypeName" Title="Estado">
                         </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="IsSpecialOrder" Title="Pedido especial" Width="140px">
+                            <Template Context="order">
+                                @(order.IsSpecialOrder ? "SÃ­" : "No")
+                            </Template>
+                        </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="CustomerNotes" Title="Notas del cliente" Visible="false">
                         </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="InternalNotes" Title="Notas internas" Visible="false">
@@ -51,7 +56,7 @@
                                 }
                                 <RadzenButton Icon="assignment_ind" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
                                               Click="@(args => SendToProcess(customerOrder))" @onclick:stopPropagation="true"
-                                              Visible="@((pendingQuantity>0) && Security.IsInRole("Administrador","Modificación de pedidos en proceso"))" MouseEnter="@(args => ShowTooltip(args,"Enviar a proceso", new TooltipOptions(){ Position = TooltipPosition.Left }))">
+                                              Visible="@((pendingQuantity>0) && Security.IsInRole("Administrador","ModificaciÃ³n de pedidos en proceso"))" MouseEnter="@(args => ShowTooltip(args,"Enviar a proceso", new TooltipOptions(){ Position = TooltipPosition.Left }))">
                                 </RadzenButton>
                             </Template>
                         </RadzenDataGridColumn>

@@ -1,4 +1,4 @@
-﻿using Aldebaran.DataAccess.Entities;
+using Aldebaran.DataAccess.Entities;
 using Aldebaran.Infraestructure.Common.Utils;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -334,6 +334,20 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                         employee_Id, search).ToListAsync(ct);
                 }
             }, ct);
+        }
+
+        /// <summary>De los pedidos indicados, los que están marcados como Pedido especial.</summary>
+        public async Task<IReadOnlyCollection<int>> GetSpecialCustomerOrderIdsAsync(IEnumerable<int> customerOrderIds, CancellationToken ct = default)
+        {
+            var ids = customerOrderIds.Distinct().ToList();
+            if (ids.Count == 0)
+                return Array.Empty<int>();
+
+            return await ExecuteQueryAsync(async dbContext =>
+                await dbContext.CustomerOrders.AsNoTracking()
+                    .Where(w => ids.Contains(w.CustomerOrderId) && w.IsSpecialOrder)
+                    .Select(s => s.CustomerOrderId)
+                    .ToListAsync(ct), ct);
         }
 
         public async Task<IEnumerable<AutomaticCustomerOrder>> GetAutomaticCustomerOrdersAssigment(int processId, CancellationToken ct = default)

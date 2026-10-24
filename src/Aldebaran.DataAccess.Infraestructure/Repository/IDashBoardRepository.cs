@@ -1,4 +1,4 @@
-﻿using Aldebaran.DataAccess.Entities;
+using Aldebaran.DataAccess.Entities;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
 {
@@ -20,6 +20,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         Task<IEnumerable<LocalWarehouseAlarm>> GetLocalWarehouseAlarmAsync(int employeeId, string? searchKey = null, CancellationToken ct = default);
         Task<IEnumerable<ConfirmedPurchaseOrder>> GetConfirmedPurchasesWithAutomaticAssigment(int employeeId, string? searchKey = null, CancellationToken ct = default);
         Task<IEnumerable<AutomaticCustomerOrder>> GetAutomaticCustomerOrdersAssigment(int processId, CancellationToken ct = default);
+        Task<IReadOnlyCollection<int>> GetSpecialCustomerOrderIdsAsync(IEnumerable<int> customerOrderIds, CancellationToken ct = default);
         Task<IEnumerable<AutomaticCustomerOrderDetail>> GetAutomaticCustomerOrderDetailsAssigment(int processOrderId, CancellationToken ct = default);
         Task<IEnumerable<AutomaticCustomerOrderInProcessModification>> GetModificatedAutomaticCustomerInProcessAlarmsAsync(int employeeId, string? searchKey = null, CancellationToken ct = default);
         Task<IEnumerable<PurchaseOrder>> GetPendingApprovalPurchaseOrdersAsync(string? searchKey = null, CancellationToken ct = default);

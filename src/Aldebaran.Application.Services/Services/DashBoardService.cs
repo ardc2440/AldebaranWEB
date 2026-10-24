@@ -1,4 +1,4 @@
-﻿using Aldebaran.Application.Services.Models;
+using Aldebaran.Application.Services.Models;
 using Aldebaran.DataAccess.Infraestructure.Repository;
 using AutoMapper;
 
@@ -91,8 +91,10 @@ namespace Aldebaran.Application.Services
         }        
         public async Task<IEnumerable<AutomaticCustomerOrder>> GetAutomaticCustomerOrdersAssigment(int processId, CancellationToken ct = default)
         {
-            var data = await _repository.GetAutomaticCustomerOrdersAssigment(processId, ct);
-            return _mapper.Map<IEnumerable<AutomaticCustomerOrder>>(data);
+            var orders = _mapper.Map<List<AutomaticCustomerOrder>>(await _repository.GetAutomaticCustomerOrdersAssigment(processId, ct));
+            var special = await _repository.GetSpecialCustomerOrderIdsAsync(orders.Select(s => s.CustomerOrderId), ct);
+            orders.ForEach(o => o.IsSpecialOrder = special.Contains(o.CustomerOrderId));
+            return orders;
         }
         public async Task<IEnumerable<AutomaticCustomerOrderDetail>> GetAutomaticCustomerOrderDetailsAssigment(int processOrderId, CancellationToken ct = default)
         {
@@ -101,8 +103,10 @@ namespace Aldebaran.Application.Services
         }
         public async Task<IEnumerable<AutomaticCustomerOrderInProcessModification>> GetModificatedAutomaticCustomerInProcessAlarmsAsync(int employeeId, string? searchKey = null, CancellationToken ct = default)
         {
-            var data = await _repository.GetModificatedAutomaticCustomerInProcessAlarmsAsync(employeeId, searchKey, ct);
-            return _mapper.Map<IEnumerable<AutomaticCustomerOrderInProcessModification>>(data);
+            var modifications = _mapper.Map<List<AutomaticCustomerOrderInProcessModification>>(await _repository.GetModificatedAutomaticCustomerInProcessAlarmsAsync(employeeId, searchKey, ct));
+            var special = await _repository.GetSpecialCustomerOrderIdsAsync(modifications.Select(s => s.CUSTOMER_ORDER_ID), ct);
+            modifications.ForEach(m => m.IsSpecialOrder = special.Contains(m.CUSTOMER_ORDER_ID));
+            return modifications;
         }
         public async Task<IEnumerable<PurchaseOrder>> GetPendingApprovalPurchaseOrdersAsync(string? searchKey = null, CancellationToken ct = default)
         {

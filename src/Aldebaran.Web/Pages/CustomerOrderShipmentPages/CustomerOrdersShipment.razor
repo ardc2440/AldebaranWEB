@@ -1,11 +1,11 @@
 @page "/shipment-customer-orders"
 @page "/shipment-customer-orders/{CUSTOMER_ORDER_SHIPMENT_ID}"
 @page "/shipment-customer-orders/{Action}/{CUSTOMER_ORDER_SHIPMENT_ID}"
-@attribute [Authorize(Roles = "Administrador,Consulta de despachos,Modificación de despachos")]
+@attribute [Authorize(Roles = "Administrador,Consulta de despachos,ModificaciÃ³n de despachos")]
 @using Aldebaran.Web.Resources.LocalizedControls;
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer ;
 
-<PageTitle>Despacho de artículos procesados</PageTitle>
+<PageTitle>Despacho de artÃ­culos procesados</PageTitle>
 <LoadingData IsLoadingData="@isLoadingInProgress" />
 
 @if (!isLoadingInProgress)
@@ -25,7 +25,7 @@
         }
         <RadzenRow AlignItems="AlignItems.Center">
             <RadzenColumn Size="12" SizeMD="6">
-                <RadzenText Text="Despacho de artículos procesados" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
+                <RadzenText Text="Despacho de artÃ­culos procesados" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
             </RadzenColumn>
         </RadzenRow>
         <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
@@ -49,6 +49,11 @@
                             </Template>
                         </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="StatusDocumentType.StatusDocumentTypeName" Title="Estado">
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="IsSpecialOrder" Title="Pedido especial" Width="140px">
+                            <Template Context="order">
+                                @(order.IsSpecialOrder ? "SÃ­" : "No")
+                            </Template>
                         </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrder" Property="CustomerNotes" Title="Notas del cliente" Visible="false">
                         </RadzenDataGridColumn>
@@ -183,9 +188,9 @@
                                                         <span>@customerOrderShipment.ShippingDate.ToString(SharedLocalizer["date:format"])</span>
                                                     </Template>
                                                 </RadzenDataGridColumn>
-                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipment" Property="TrackingNumber" Title="Número de rastreo">
+                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipment" Property="TrackingNumber" Title="NÃºmero de rastreo">
                                                 </RadzenDataGridColumn>
-                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipment" Property="ShippingMethod.ShippingMethodName" Title="Método de envio">
+                                                <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipment" Property="ShippingMethod.ShippingMethodName" Title="MÃ©todo de envio">
                                                 </RadzenDataGridColumn>
                                                 <RadzenDataGridColumn TItem="Aldebaran.Application.Services.Models.CustomerOrderShipment" Property="Employee.FullName" Title="Responsable">
                                                 </RadzenDataGridColumn>
