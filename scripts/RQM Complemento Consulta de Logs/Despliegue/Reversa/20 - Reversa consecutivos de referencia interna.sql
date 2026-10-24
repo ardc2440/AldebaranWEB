@@ -1,0 +1,10 @@
+/* Reversa E4 C1: elimina los objetos de consecutivos de referencia interna (y los consecutivos generados).
+   Antes de ejecutar, publicar la versión de la aplicación sin la opción Consecutivos de referencia. */
+SET NOCOUNT ON;
+GO
+DROP PROCEDURE IF EXISTS dbo.SP_GENERATE_INTERNAL_REFERENCE_CONSECUTIVES;
+DROP PROCEDURE IF EXISTS dbo.SP_GET_AVAILABLE_INTERNAL_REFERENCE_CONSECUTIVES;
+DROP FUNCTION IF EXISTS dbo.FN_INTERNAL_REFERENCE_USED_CONSECUTIVES;
+DROP TABLE IF EXISTS dbo.INTERNAL_REFERENCE_CONSECUTIVES;
+DROP TABLE IF EXISTS dbo.INTERNAL_REFERENCE_CODES;
+GO

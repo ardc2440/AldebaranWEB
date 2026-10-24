@@ -88,6 +88,18 @@ Conexión autómata `SERVIDOR-PRUEBA-T2` y FTP `ftp.prueba-t2.invalid` (inactiva
 | T29 | Casos de prueba y ejecución completa del RQM (E1+E2+E3) | Todo OK | |
 | T30 | Paquete de despliegue final (scripts, reversas, LEEME, NLog autómata + GRANT) y cierre; restaurar datos de prueba | | |
 
+## ENTREGA 4 – Consecutivos de referencia interna (aprobada por el cliente 24-oct)
+Diseño: tablas INTERNAL_REFERENCE_CODES (código) e INTERNAL_REFERENCE_CONSECUTIVES (código, número; único). Formato CÓDIGO-NNN (3 dígitos, inicia en 001); código en mayúsculas, sin espacios, máx. 6 caracteres (items.INTERNAL_REFERENCE es varchar(10)). Consultar = generados cuya referencia no existe en items. Generar = N seguidos por encima del mayor entre generados y usados en artículos (SP transaccional con bloqueo). Sin usuario/fecha, sin desbloqueo, sin límite 999, sin cambios en Artículos. Acceso: Administración > Consecutivos de referencia (Administrador, Modificación de artículos). Script 20.
+
+| T | Tarea | Prueba de aceptación | Estado |
+|---|---|---|---|
+| C1 | BD: script 20 (tablas, índice, SP de consulta y generación) + reversa | Código nuevo inicia en 001; MU con MU-025 en artículos genera 026 | |
+| C2 | DataAccess: entidades keyless y repositorio (StoredProcedureCommand) | Llamadas parametrizadas | |
+| C3 | Application: servicio y modelos del caso de uso; validaciones | Código obligatorio ≤ 6, cantidad > 0 | |
+| C4 | Proyecto de pruebas unitarias (xUnit) | dotnet test en verde | |
+| C5 | UI: página Código / Cantidad / Consultar / Generar + menú | Consultar y Generar = BD | |
+| C6 | Prueba funcional (concurrencia), regresión de Artículos y sección en manuales | Sin duplicados | |
+
 **Regresión acumulada (siempre):** logs existentes de OC, pedidos y reservas; tablero de notificaciones/alarmas y marcar visualizado; reporte de cantidades mínimas y correo con Excel; crear/modificar/cancelar/confirmar pedido, OC y reserva; pruebas de todas las tareas anteriores.
 
 ## Notas de despliegue
