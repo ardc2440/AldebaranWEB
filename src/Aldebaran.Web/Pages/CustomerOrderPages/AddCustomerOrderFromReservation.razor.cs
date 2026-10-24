@@ -170,6 +170,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                 if (!customerOrderDetails.Any())
                     throw new Exception("No ha ingresado ninguna referencia");
 
+                if (await DialogService.Confirm(SpecialOrderOptions.CreationConfirmMessage(isSpecialOrder.Value), SpecialOrderOptions.CreationConfirmTitle, SpecialOrderOptions.CreationConfirmOptions) != true)
+                    return;
+
                 customerOrder.CustomerOrderDetails = customerOrderDetails;
                 customerOrder.IsSpecialOrder = isSpecialOrder.Value;
 

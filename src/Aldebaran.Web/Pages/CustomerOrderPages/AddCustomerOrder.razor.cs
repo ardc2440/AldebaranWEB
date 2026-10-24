@@ -133,7 +133,7 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
                     return;
                 }
                 
-                if (await DialogService.Confirm("Está seguro que desea crear este pedido de artículos?", options: new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" }, title: "Confirmar creación") == true)
+                if (await DialogService.Confirm(SpecialOrderOptions.CreationConfirmMessage(isSpecialOrder.Value), SpecialOrderOptions.CreationConfirmTitle, SpecialOrderOptions.CreationConfirmOptions) == true)
                 {
                     customerOrder.CustomerOrderDetails = customerOrderDetails;
                     customerOrder.IsSpecialOrder = isSpecialOrder.Value;
