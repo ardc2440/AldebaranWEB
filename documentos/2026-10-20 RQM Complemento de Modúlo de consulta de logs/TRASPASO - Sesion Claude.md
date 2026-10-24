@@ -31,13 +31,16 @@ Contexto en esta misma carpeta (léelos primero, en este orden):
   - T28 Tablero y pantallas de despachos/traslados: implementado, **sin probar**. DashBoardRepository ya estaba parametrizado.
 - Datos de prueba marcados con Precio bomba: HO-13 (ITEM_ID 2554, ancho embalaje 29, original 28) y ASTON-STY (2047). Pedido 39471 (cancelado, 1 un. VA-196 Azul) y los pedidos de prueba de T24. Restaurar al cierre. Remitente del correo en pruebas quedó "Catalogos Promocionales T2" (devolver a "Catalogos Promocionales"; la clave la carga Andrés).
 
+- E4 Consecutivos de referencia interna (aprobada 24-oct): C1–C5 implementadas, **sin probar** (script 20, repositorio, servicio, proyecto de pruebas xUnit Aldebaran.Application.Services.Tests, pantalla Administración > Consecutivos de referencia). C6 = prueba funcional en local.
+- T17 manuales (Word) y T29 Excel de casos de prueba: generados en la carpeta del RQM (incluyen E4); faltan capturas y contraste de E1/E2 con el Proyecto.
+
 ## Pendiente (en orden)
 1. **Prueba conjunta T25–T28** (scripts 18 y 19 en BD de pruebas; guías en la conversación / ChangeSets de cada commit).
 2. **T29** casos de prueba y ejecución completa E1+E2+E3 (incluye Excel del correo de mínimos con marca $ BOMBA, Movimiento de referencia abierto desde alarma, cierre de un pedido en proceso y crear/modificar OC y reserva).
 3. **T17** manuales técnico y de usuario (Word, línea visual de las propuestas).
-4. **T30** paquete de despliegue: scripts 01–19, reversas, LEEME, NLog.config del autómata (+ GRANT), validar script 05 (job) en producción. Scripts 16, 18 y 19 se despliegan junto con la app (cambian parámetros/columnas).
+4. **T30** paquete de despliegue: scripts 01–20, reversas, LEEME, NLog.config del autómata (+ GRANT), validar script 05 (job) en producción. Scripts 16, 18 y 19 se despliegan junto con la app (cambian parámetros/columnas).
 5. Deudas técnicas para analizar al cierre: 9 reportes más con SQL concatenado (OC, Reservas, Inventario, Traslados, Ajustes, Stock bodega, Proveedor-referencias, Zona franca, Inventario en proceso).
-6. RQM siguiente (anotado, sin iniciar): consecutivos de referencia interna por código (CÓDIGO-NNN), página con Código + Cantidad, Consultar (generados no usados) y Generar; estimado 18–24 h.
+6. E4 C6: prueba funcional de consecutivos (concurrencia) y dotnet test.
 
 ## Limitación importante para una sesión en la nube
 La BD de pruebas (GML0999\SQLEXPRESS01) y el sitio (https://localhost:6001) están en el computador de Andrés. Una sesión en la nube solo los alcanza si está vinculada a ese computador (app de escritorio). Sin eso puede editar código en la rama pero no probar ni aplicar scripts: en ese caso, implementar, dejar los scripts listos y pedir a Andrés compilar/ejecutar.
