@@ -38,8 +38,20 @@ namespace Aldebaran.Application.Services.TrackLogs
         private static string? ToText(JsonElement value) => value.ValueKind switch
         {
             JsonValueKind.Null or JsonValueKind.Undefined => null,
-            JsonValueKind.String => value.GetString(),
+            JsonValueKind.True => Yes,
+            JsonValueKind.False => No,
+            JsonValueKind.String => ToBooleanText(value.GetString()),
             _ => value.GetRawText()
+        };
+
+        private const string Yes = "Sí", No = "No";
+
+        /// <summary>El Track guarda los booleanos como "True"/"False" (bool.ToString): se muestran como Sí/No.</summary>
+        private static string? ToBooleanText(string? text) => text switch
+        {
+            "True" => Yes,
+            "False" => No,
+            _ => text
         };
     }
 }

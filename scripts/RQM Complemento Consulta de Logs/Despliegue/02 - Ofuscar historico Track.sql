@@ -80,14 +80,15 @@ PRINT 'Total de actualizaciones: ' + CAST(@Total AS varchar(20));
 /* ---------- 3. Verificación: debe devolver 0 en "SinOfuscar" ---------- */
 SELECT t.ENTITY_NAME,
        COUNT(*) AS Registros,
-       SUM(CASE WHEN
-               (t.ENTITY_NAME = N'NotificationProviderSetting' AND EXISTS (
-                    SELECT 1 FROM OPENJSON(JSON_VALUE(CAST(t.DATA_LOG AS nvarchar(max)), '$.Settings')) j
-                    WHERE (j.[key] LIKE N'%password%' OR j.[key] LIKE N'%pwd%' OR j.[key] LIKE N'%secret%' OR j.[key] LIKE N'%token%')
-                      AND j.[type] = 1 AND j.[value] NOT LIKE N'********%'))
-            OR (t.ENTITY_NAME <> N'NotificationProviderSetting'
-                AND JSON_VALUE(CAST(t.DATA_LOG AS nvarchar(max)), '$.Password') NOT LIKE N'********%')
-           THEN 1 ELSE 0 END) AS SinOfuscar
+       SUM(s.SIN_OFUSCAR) AS SinOfuscar
 FROM log.track t
+OUTER APPLY (SELECT CASE WHEN
+                   (t.ENTITY_NAME = N'NotificationProviderSetting' AND EXISTS (
+                        SELECT 1 FROM OPENJSON(JSON_VALUE(CAST(t.DATA_LOG AS nvarchar(max)), '$.Settings')) j
+                        WHERE (j.[key] LIKE N'%password%' OR j.[key] LIKE N'%pwd%' OR j.[key] LIKE N'%secret%' OR j.[key] LIKE N'%token%')
+                          AND j.[type] = 1 AND j.[value] NOT LIKE N'********%'))
+                OR (t.ENTITY_NAME <> N'NotificationProviderSetting'
+                    AND JSON_VALUE(CAST(t.DATA_LOG AS nvarchar(max)), '$.Password') NOT LIKE N'********%')
+               THEN 1 ELSE 0 END AS SIN_OFUSCAR) s
 WHERE t.ENTITY_NAME IN (N'NotificationProviderSetting', N'FtpWritingConnection', N'InventoryAutomationConnection')
 GROUP BY t.ENTITY_NAME;

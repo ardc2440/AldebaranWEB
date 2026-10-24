@@ -9,6 +9,7 @@ namespace Aldebaran.Web.Pages.LogPages
     /// <summary>
     /// Consulta genérica de visualización de alarmas activas por contexto (órdenes, pedidos, reservas, inventario).
     /// El contexto llega en la URL; el usuario debe tener el rol de log de ese contexto.
+    /// Solo se listan alarmas visualizadas; al expandir una alarma se ven los empleados que la visualizaron.
     /// </summary>
     public partial class AlarmVisualizationLog
     {
@@ -16,7 +17,6 @@ namespace Aldebaran.Web.Pages.LogPages
 
         #region Injections
         [Inject] protected ILogger<AlarmVisualizationLog> Logger { get; set; }
-        [Inject] protected DialogService DialogService { get; set; }
         [Inject] protected NavigationManager NavigationManager { get; set; }
         [Inject] protected SecurityService Security { get; set; }
         [Inject] protected IAlarmLogService AlarmLogService { get; set; }
@@ -30,6 +30,10 @@ namespace Aldebaran.Web.Pages.LogPages
         protected AlarmLogContextInfo contextInfo;
         protected IReadOnlyList<AlarmLogType> alarmTypes = Array.Empty<AlarmLogType>();
         protected IEnumerable<AlarmLogItem> alarms;
+        protected IReadOnlyList<AlarmLogVisualizer> visualizers = Array.Empty<AlarmLogVisualizer>();
+        protected IReadOnlyList<AlarmVisualization> visualizations = Array.Empty<AlarmVisualization>();
+        protected int? selectedEmployeeId;
+        protected bool isLoadingVisualizations;
         protected LocalizedDataGrid<AlarmLogItem> alarmsGrid;
         protected string selectedTypeCode;
         protected DateTime? dateFrom;
@@ -75,11 +79,32 @@ namespace Aldebaran.Web.Pages.LogPages
 
         protected async Task ApplyFiltersAsync() => await ReloadFromFirstPageAsync();
 
-        protected async Task ShowVisualizationsAsync(AlarmLogItem alarm)
+        /// <summary>Al cambiar el tipo de alarma se recargan los empleados del filtro (el seleccionado puede no aplicar).</summary>
+        protected async Task ChangeTypeAsync()
         {
-            await DialogService.OpenAsync<AlarmVisualizationsDialog>("Visualizaciones de la alarma",
-                new Dictionary<string, object> { { "TypeCode", selectedTypeCode }, { "Alarm", alarm } },
-                new DialogOptions { CloseDialogOnOverlayClick = true, Width = "700px" });
+            selectedEmployeeId = null;
+            await LoadVisualizersAsync();
+            await ReloadFromFirstPageAsync();
+        }
+
+        /// <summary>Subgrilla de la alarma expandida: empleados que la visualizaron.</summary>
+        protected async Task LoadVisualizationsAsync(AlarmLogItem alarm)
+        {
+            try
+            {
+                isLoadingVisualizations = true;
+                visualizations = Array.Empty<AlarmVisualization>();
+                visualizations = await AlarmLogService.GetVisualizationsAsync(selectedTypeCode, alarm.AlarmKey);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, nameof(LoadVisualizationsAsync));
+                errorMessage = "No fue posible consultar quién visualizó la alarma.";
+            }
+            finally
+            {
+                isLoadingVisualizations = false;
+            }
         }
         #endregion
 
@@ -95,6 +120,7 @@ namespace Aldebaran.Web.Pages.LogPages
             dateTo = DateTime.Today;
             dateFrom = DateTime.Today.AddDays(-DefaultDays);
             search = "";
+            selectedEmployeeId = null;
             errorMessage = null;
             alarms = null;
             count = 0;
@@ -104,6 +130,14 @@ namespace Aldebaran.Web.Pages.LogPages
         {
             alarmTypes = await AlarmLogService.GetTypesAsync(contextInfo!.Context, AlarmLogContextInfo.UserLogRoles(Security));
             selectedTypeCode = alarmTypes.FirstOrDefault()?.Code;
+            await LoadVisualizersAsync();
+        }
+
+        private async Task LoadVisualizersAsync()
+        {
+            visualizers = string.IsNullOrEmpty(selectedTypeCode)
+                ? Array.Empty<AlarmLogVisualizer>()
+                : await AlarmLogService.GetVisualizersAsync(selectedTypeCode);
         }
 
         private async Task ReloadFromFirstPageAsync()
@@ -139,7 +173,7 @@ namespace Aldebaran.Web.Pages.LogPages
             try
             {
                 isLoading = true;
-                var page = await AlarmLogService.GetAlarmsAsync(selectedTypeCode, dateFrom!.Value, dateTo!.Value, search, skip, top);
+                var page = await AlarmLogService.GetAlarmsAsync(selectedTypeCode, dateFrom!.Value, dateTo!.Value, search, selectedEmployeeId, skip, top);
                 alarms = page.Items;
                 count = page.TotalCount;
             }

@@ -50,6 +50,10 @@ namespace Aldebaran.Web.Shared
         {
             LoggedEmployee = await EmployeeService.FindByLoginUserIdAsync(Security.User.Id);
 
+            // Sin funcionario asociado (sesión de un usuario sin empleado) no hay preferencias que cargar
+            if (LoggedEmployee == null)
+                return;
+
             var preference = await EmployeeService.FindPreferenceAsync(LoggedEmployee.EmployeeId);
 
             EnableNotifications = preference?.EnableNotifications ?? false;
@@ -65,6 +69,9 @@ namespace Aldebaran.Web.Shared
 
         private async Task OnEnableNotificationsChanged(bool enabled)
         {
+            if (LoggedEmployee == null)
+                return;
+
             var preference = await EmployeeService.FindPreferenceAsync(LoggedEmployee.EmployeeId);
 
             if (!enabled)

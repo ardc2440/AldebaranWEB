@@ -28,7 +28,7 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
             }, ct);
         }
 
-        public async Task<IEnumerable<AlarmLogEntry>> GetAlarmsAsync(string typeCode, DateTime dateFrom, DateTime dateTo, string? searchKey, int skip, int take, CancellationToken ct = default)
+        public async Task<IEnumerable<AlarmLogEntry>> GetAlarmsAsync(string typeCode, DateTime dateFrom, DateTime dateTo, string? searchKey, int? employeeId, int skip, int take, CancellationToken ct = default)
         {
             return await ExecuteQueryAsync(async dbContext =>
             {
@@ -39,11 +39,12 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     new SqlParameter("@DateTo", SqlDbType.Date) { Value = dateTo.Date },
                     new SqlParameter("@SearchKey", SqlDbType.NVarChar, 100) { Value = (object?)searchKey ?? DBNull.Value },
                     new SqlParameter("@Skip", SqlDbType.Int) { Value = skip },
-                    new SqlParameter("@Take", SqlDbType.Int) { Value = take }
+                    new SqlParameter("@Take", SqlDbType.Int) { Value = take },
+                    new SqlParameter("@EmployeeId", SqlDbType.Int) { Value = (object?)employeeId ?? DBNull.Value }
                 };
 
                 return await dbContext.Set<AlarmLogEntry>()
-                    .FromSqlRaw("EXEC dbo.SP_GET_ALARM_LOG @TypeCode, @DateFrom, @DateTo, @SearchKey, @Skip, @Take", parameters)
+                    .FromSqlRaw("EXEC dbo.SP_GET_ALARM_LOG @TypeCode = @TypeCode, @DateFrom = @DateFrom, @DateTo = @DateTo, @SearchKey = @SearchKey, @Skip = @Skip, @Take = @Take, @EmployeeId = @EmployeeId", parameters)
                     .AsNoTracking()
                     .ToListAsync(ct);
             }, ct);
@@ -61,6 +62,19 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
 
                 return await dbContext.Set<AlarmLogVisualization>()
                     .FromSqlRaw("EXEC dbo.SP_GET_ALARM_LOG_VISUALIZATIONS @TypeCode, @AlarmKey", parameters)
+                    .AsNoTracking()
+                    .ToListAsync(ct);
+            }, ct);
+        }
+
+        public async Task<IEnumerable<AlarmLogVisualizer>> GetVisualizersAsync(string typeCode, CancellationToken ct = default)
+        {
+            return await ExecuteQueryAsync(async dbContext =>
+            {
+                var parameters = new[] { new SqlParameter("@TypeCode", SqlDbType.VarChar, 30) { Value = typeCode } };
+
+                return await dbContext.Set<AlarmLogVisualizer>()
+                    .FromSqlRaw("EXEC dbo.SP_GET_ALARM_LOG_VISUALIZERS @TypeCode", parameters)
                     .AsNoTracking()
                     .ToListAsync(ct);
             }, ct);

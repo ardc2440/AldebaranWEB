@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net7.0</TargetFramework>
@@ -79,4 +79,8 @@
 	    <DependentUpon>IVisualizedAutomaticCustomerInProcessModificationService.cs</DependentUpon>
 	  </Compile>
 	</ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Aldebaran.Application.Services.Tests" />
+  </ItemGroup>
+
 </Project>

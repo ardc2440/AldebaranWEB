@@ -18,9 +18,9 @@
             @errorMessage
         </RadzenAlert>
         <RadzenRow AlignItems="AlignItems.End" Gap="1rem">
-            <RadzenColumn SizeMD="4">
+            <RadzenColumn SizeMD="3">
                 <RadzenFormField Text="Tipo de alarma" Variant="Variant.Text" Style="width: 100%;">
-                    <RadzenDropDown Data="@alarmTypes" TextProperty="Name" ValueProperty="Code" TValue="string" @bind-Value="@selectedTypeCode" Change="@(async _ => await ApplyFiltersAsync())" style="display: block; width: 100%" />
+                    <RadzenDropDown Data="@alarmTypes" TextProperty="Name" ValueProperty="Code" TValue="string" @bind-Value="@selectedTypeCode" Change="@(async _ => await ChangeTypeAsync())" style="display: block; width: 100%" />
                 </RadzenFormField>
             </RadzenColumn>
             <RadzenColumn SizeMD="2">
@@ -33,14 +33,38 @@
                     <RadzenDatePicker TValue="DateTime?" DateFormat="@SharedLocalizer["date:format"]" @bind-Value="@dateTo" Change="@(async _ => await ApplyFiltersAsync())" style="display: block; width: 100%" />
                 </RadzenFormField>
             </RadzenColumn>
-            <RadzenColumn SizeMD="4">
+            <RadzenColumn SizeMD="2">
+                <RadzenFormField Text="Empleado" Variant="Variant.Text" Style="width: 100%;">
+                    <RadzenDropDown Data="@visualizers" TextProperty="EmployeeName" ValueProperty="EmployeeId" TValue="int?" @bind-Value="@selectedEmployeeId" Placeholder="Todos"
+                                    AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Name="EmployeeId"
+                                    Change="@(async _ => await ApplyFiltersAsync())" style="display: block; width: 100%" />
+                </RadzenFormField>
+            </RadzenColumn>
+            <RadzenColumn SizeMD="3">
                 <RadzenTextBox Placeholder="Buscar ..." style="display: block; width: 100%" @oninput="@Search" />
             </RadzenColumn>
         </RadzenRow>
         <RadzenRow>
             <RadzenColumn SizeMD="12">
                 <LocalizedDataGrid @ref="alarmsGrid" Count="@count" LoadData="@LoadData" Data="@alarms" TItem="AlarmLogItem" IsLoading="@isLoading"
-                                   AllowPaging="true" ShowPagingSummary="true" PageSize="20" PageSizeOptions=@(new int[]{10, 20, 30, 50}) AllowColumnResize="true">
+                                   AllowPaging="true" ShowPagingSummary="true" PageSize="20" PageSizeOptions=@(new int[]{10, 20, 30, 50}) AllowColumnResize="true"
+                                   RowExpand="@LoadVisualizationsAsync" ExpandMode="DataGridExpandMode.Single">
+                    <Template Context="alarm">
+                        <RadzenCard Variant="Variant.Text" class="rz-p-2">
+                            <RadzenText Text="Empleados que visualizaron la alarma" TextStyle="TextStyle.Subtitle2" />
+                            <LocalizedDataGrid Data="@visualizations" TItem="AlarmVisualization" IsLoading="@isLoadingVisualizations" AllowColumnResize="true">
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="AlarmVisualization" Property="EmployeeName" Title="Empleado" Width="45%" />
+                                    <RadzenDataGridColumn TItem="AlarmVisualization" Property="AreaName" Title="Área" Width="30%" />
+                                    <RadzenDataGridColumn TItem="AlarmVisualization" Property="VisualizedDate" Title="Fecha de visualización" Width="25%">
+                                        <Template Context="visualization">
+                                            <span>@visualization.VisualizedDate.ToString(SharedLocalizer["datetime:format"])</span>
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                </Columns>
+                            </LocalizedDataGrid>
+                        </RadzenCard>
+                    </Template>
                     <Columns>
                         <RadzenDataGridColumn TItem="AlarmLogItem" Property="AlarmDate" Title="Fecha de la alarma" Width="20%">
                             <Template Context="alarm">
@@ -49,18 +73,7 @@
                         </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="AlarmLogItem" Property="Document" Title="Documento / Referencia" Width="30%" />
                         <RadzenDataGridColumn TItem="AlarmLogItem" Property="Description" Title="Descripción" Width="40%" />
-                        <RadzenDataGridColumn TItem="AlarmLogItem" Property="VisualizationCount" Title="Visualizaciones" Width="10%" TextAlign="TextAlign.Center">
-                            <Template Context="alarm">
-                                @if (alarm.VisualizationCount > 0)
-                                {
-                                    <RadzenLink href="javascript:void(0);" @onclick="@(async () => await ShowVisualizationsAsync(alarm))">@alarm.VisualizationCount</RadzenLink>
-                                }
-                                else
-                                {
-                                    <span>0</span>
-                                }
-                            </Template>
-                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="AlarmLogItem" Property="VisualizationCount" Title="Visualizaciones" Width="10%" TextAlign="TextAlign.Center" />
                     </Columns>
                 </LocalizedDataGrid>
             </RadzenColumn>

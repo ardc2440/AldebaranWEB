@@ -29,13 +29,13 @@ namespace Aldebaran.Application.Services.AlarmLogs
             return rows.Select(r => new AlarmLogType(r.Code, r.Name)).ToList();
         }
 
-        public async Task<PagedResult<AlarmLogItem>> GetAlarmsAsync(string typeCode, DateTime dateFrom, DateTime dateTo, string? searchKey, int skip, int take, CancellationToken ct = default)
+        public async Task<PagedResult<AlarmLogItem>> GetAlarmsAsync(string typeCode, DateTime dateFrom, DateTime dateTo, string? searchKey, int? employeeId, int skip, int take, CancellationToken ct = default)
         {
             if (string.IsNullOrWhiteSpace(typeCode))
                 throw new ArgumentException("El tipo de alarma es obligatorio.", nameof(typeCode));
             ValidateDateRange(dateFrom, dateTo);
 
-            var rows = (await _repository.GetAlarmsAsync(typeCode, dateFrom, dateTo, NormalizeSearch(searchKey), NormalizeSkip(skip), NormalizeTake(take), ct)).ToList();
+            var rows = (await _repository.GetAlarmsAsync(typeCode, dateFrom, dateTo, NormalizeSearch(searchKey), employeeId, NormalizeSkip(skip), NormalizeTake(take), ct)).ToList();
             return ToPage(rows, r => r.TotalRows, ToModel);
         }
 
@@ -46,6 +46,15 @@ namespace Aldebaran.Application.Services.AlarmLogs
 
             var rows = await _repository.GetVisualizationsAsync(typeCode, alarmKey, ct);
             return rows.Select(r => new AlarmVisualization(r.EmployeeName, r.AreaName, r.VisualizedDate)).ToList();
+        }
+
+        public async Task<IReadOnlyList<AlarmLogVisualizer>> GetVisualizersAsync(string typeCode, CancellationToken ct = default)
+        {
+            if (string.IsNullOrWhiteSpace(typeCode))
+                return Array.Empty<AlarmLogVisualizer>();
+
+            var rows = await _repository.GetVisualizersAsync(typeCode, ct);
+            return rows.Select(r => new AlarmLogVisualizer(r.EmployeeId, r.EmployeeName)).ToList();
         }
 
         public async Task<IReadOnlyList<AlarmLogType>> GetInventoryLogTypesAsync(IEnumerable<string> userRoles, CancellationToken ct = default)

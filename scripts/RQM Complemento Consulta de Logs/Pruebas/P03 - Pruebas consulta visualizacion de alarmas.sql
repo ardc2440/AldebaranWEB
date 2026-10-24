@@ -10,10 +10,12 @@ DECLARE @r TABLE (PRUEBA VARCHAR(80), DETALLE NVARCHAR(400), OK BIT);
 DECLARE @t TABLE (ALARM_KEY VARCHAR(50), ALARM_DATE DATETIME, DOCUMENT NVARCHAR(300), DESCRIPTION NVARCHAR(500), VISUALIZATION_COUNT INT, TOTAL_ROWS INT);
 DECLARE @v TABLE (EMPLOYEE_NAME NVARCHAR(200), AREA_NAME NVARCHAR(200), VISUALIZED_DATE DATETIME);
 DECLARE @ty TABLE (CODE VARCHAR(30), NAME NVARCHAR(100));
-DECLARE @code VARCHAR(30), @spTotal INT, @spVis INT, @direct INT, @directVis INT;
+DECLARE @code VARCHAR(30), @spTotal INT, @spVis INT, @direct INT, @directVis INT, @viewAll INT, @viewVisualized INT;
 
-/* P1: por cada tipo, alarmas activas del SP = consulta directa a la fuente;
-       visualizaciones sumadas del SP = visualizaciones de esas alarmas en su tabla visualized_* */
+/* P1: por cada tipo:
+       - la vista de alarmas activas = consulta directa a la fuente;
+       - el SP solo lista las alarmas activas que al menos un empleado visualizó;
+       - visualizaciones sumadas del SP = visualizaciones de esas alarmas en su tabla visualized_* */
 DECLARE c CURSOR LOCAL FAST_FORWARD FOR SELECT CODE FROM dbo.ALARM_VISUALIZATION_LOG_TYPES WHERE IS_ACTIVE = 1;
 OPEN c; FETCH NEXT FROM c INTO @code;
 WHILE @@FETCH_STATUS = 0
@@ -49,24 +51,29 @@ BEGIN
         ELSE @spVis   -- AUTOMATIC_IN_PROCESS_CHANGE: llave compuesta, se valida en P8
     END;
 
+    SELECT @viewAll = COUNT(*) FROM dbo.VW_ALARM_LOG a WHERE a.TYPE_CODE = @code;
+    SELECT @viewVisualized = COUNT(*) FROM dbo.VW_ALARM_LOG a
+     WHERE a.TYPE_CODE = @code AND EXISTS (SELECT 1 FROM dbo.VW_ALARM_LOG_VISUALIZATIONS v WHERE v.TYPE_CODE = a.TYPE_CODE AND v.ALARM_KEY = a.ALARM_KEY);
     INSERT @r VALUES ('P1 ' + @code,
-                      CONCAT(N'Alarmas SP=', @spTotal, N' directo=', @direct, N' · Visualizaciones SP=', @spVis, N' directo=', @directVis),
-                      CASE WHEN @spTotal = @direct AND @spVis = @directVis THEN 1 ELSE 0 END);
+                      CONCAT(N'Activas vista=', @viewAll, N' directo=', @direct, N' · Visualizadas SP=', @spTotal, N' esperado=', ISNULL(@viewVisualized, 0),
+                             N' · Visualizaciones SP=', @spVis, N' directo=', @directVis),
+                      CASE WHEN @viewAll = @direct AND @spTotal = ISNULL(@viewVisualized, 0) AND @spVis = @directVis THEN 1 ELSE 0 END);
     FETCH NEXT FROM c INTO @code;
 END
 CLOSE c; DEALLOCATE c;
 
 /* P2: paginación — la página 2 no repite filas de la página 1 */
 DECLARE @p1 TABLE (ALARM_KEY VARCHAR(50));
-DELETE @t; INSERT @t EXEC dbo.SP_GET_ALARM_LOG 'AUTOMATIC_IN_PROCESS_CHANGE', '2000-01-01', '2100-12-31', NULL, 0, 20;
+DELETE @t; INSERT @t EXEC dbo.SP_GET_ALARM_LOG 'MINIMUM_LOCAL_WAREHOUSE', '2000-01-01', '2100-12-31', NULL, 0, 20;
 INSERT @p1 SELECT ALARM_KEY FROM @t;
-DELETE @t; INSERT @t EXEC dbo.SP_GET_ALARM_LOG 'AUTOMATIC_IN_PROCESS_CHANGE', '2000-01-01', '2100-12-31', NULL, 20, 20;
+DELETE @t; INSERT @t EXEC dbo.SP_GET_ALARM_LOG 'MINIMUM_LOCAL_WAREHOUSE', '2000-01-01', '2100-12-31', NULL, 20, 20;
 INSERT @r SELECT 'P2 Paginación', CONCAT(COUNT(*), N' filas en página 2; repetidas: ', COUNT(p.ALARM_KEY)),
                  CASE WHEN COUNT(*) > 0 AND COUNT(p.ALARM_KEY) = 0 THEN 1 ELSE 0 END
             FROM @t t LEFT JOIN @p1 p ON p.ALARM_KEY = t.ALARM_KEY;
 
 /* P3: búsqueda por texto del documento */
-DECLARE @term NVARCHAR(100) = (SELECT TOP 1 i.INTERNAL_REFERENCE FROM minimum_quantity_alarms f JOIN item_references r ON r.REFERENCE_ID = f.REFERENCE_ID AND r.IS_ACTIVE = 1 JOIN items i ON i.ITEM_ID = r.ITEM_ID AND i.IS_ACTIVE = 1 WHERE f.ACTIVE = 1);
+DECLARE @term NVARCHAR(100) = (SELECT TOP 1 i.INTERNAL_REFERENCE FROM minimum_quantity_alarms f JOIN item_references r ON r.REFERENCE_ID = f.REFERENCE_ID AND r.IS_ACTIVE = 1 JOIN items i ON i.ITEM_ID = r.ITEM_ID AND i.IS_ACTIVE = 1
+                                 WHERE f.ACTIVE = 1 AND EXISTS (SELECT 1 FROM visualized_minimum_quantity_alarms v WHERE v.MINIMUM_QUANTITY_ALARM_ID = f.MINIMUM_QUANTITY_ALARM_ID));
 DELETE @t; INSERT @t EXEC dbo.SP_GET_ALARM_LOG 'MINIMUM_QUANTITY', '2000-01-01', '2100-12-31', @term, 0, 1000;
 INSERT @r SELECT 'P3 Búsqueda "' + @term + '"', CONCAT(COUNT(*), N' filas; todas contienen el término: ', MIN(CASE WHEN DOCUMENT LIKE N'%' + @term + N'%' THEN 1 ELSE 0 END)),
                  CASE WHEN COUNT(*) > 0 AND MIN(CASE WHEN DOCUMENT LIKE N'%' + @term + N'%' THEN 1 ELSE 0 END) = 1 THEN 1 ELSE 0 END FROM @t;
@@ -102,5 +109,22 @@ INSERT @r SELECT 'P11 Contexto P con Administrador', CONCAT(COUNT(*), N' tipos (
 /* P12: roles nuevos creados */
 INSERT @r SELECT 'P12 Roles nuevos', CONCAT(COUNT(*), N' de 2'), CASE WHEN COUNT(*) = 2 THEN 1 ELSE 0 END
   FROM AspNetRoles WHERE Name IN (N'Log del sistema', N'Log de inventarios');
+
+/* P13: filtro por empleado — solo alarmas que ese empleado visualizó, y todas las que visualizó */
+DECLARE @emp INT = (SELECT TOP 1 v.EMPLOYEE_ID FROM dbo.VW_ALARM_LOG_VISUALIZATIONS v JOIN dbo.VW_ALARM_LOG a ON a.TYPE_CODE = v.TYPE_CODE AND a.ALARM_KEY = v.ALARM_KEY
+                     WHERE v.TYPE_CODE = 'MINIMUM_QUANTITY' GROUP BY v.EMPLOYEE_ID ORDER BY COUNT(*) DESC);
+DELETE @t; INSERT @t EXEC dbo.SP_GET_ALARM_LOG @TypeCode = 'MINIMUM_QUANTITY', @DateFrom = '2000-01-01', @DateTo = '2100-12-31', @Skip = 0, @Take = 1000000, @EmployeeId = @emp;
+SELECT @direct = COUNT(DISTINCT v.ALARM_KEY) FROM dbo.VW_ALARM_LOG_VISUALIZATIONS v JOIN dbo.VW_ALARM_LOG a ON a.TYPE_CODE = v.TYPE_CODE AND a.ALARM_KEY = v.ALARM_KEY
+ WHERE v.TYPE_CODE = 'MINIMUM_QUANTITY' AND v.EMPLOYEE_ID = @emp;
+DECLARE @others INT = (SELECT COUNT(*) FROM @t t WHERE NOT EXISTS (SELECT 1 FROM dbo.VW_ALARM_LOG_VISUALIZATIONS v WHERE v.TYPE_CODE = 'MINIMUM_QUANTITY' AND v.ALARM_KEY = t.ALARM_KEY AND v.EMPLOYEE_ID = @emp));
+INSERT @r SELECT 'P13 Filtro por empleado ' + CAST(@emp AS VARCHAR(10)),
+                 CONCAT(COUNT(*), N' alarmas (directo ', @direct, N'); no visualizadas por el empleado: ', @others),
+                 CASE WHEN COUNT(*) = @direct AND COUNT(*) > 0 AND @others = 0 THEN 1 ELSE 0 END FROM @t t;
+
+/* P14: opciones del filtro Empleado = empleados que visualizaron alarmas activas del tipo */
+DECLARE @emps TABLE (EMPLOYEE_ID INT, EMPLOYEE_NAME NVARCHAR(200));
+INSERT @emps EXEC dbo.SP_GET_ALARM_LOG_VISUALIZERS 'MINIMUM_QUANTITY';
+SELECT @direct = COUNT(DISTINCT v.EMPLOYEE_ID) FROM dbo.VW_ALARM_LOG_VISUALIZATIONS v JOIN dbo.VW_ALARM_LOG a ON a.TYPE_CODE = v.TYPE_CODE AND a.ALARM_KEY = v.ALARM_KEY WHERE v.TYPE_CODE = 'MINIMUM_QUANTITY';
+INSERT @r SELECT 'P14 Empleados del filtro', CONCAT(COUNT(*), N' (directo ', @direct, N')'), CASE WHEN COUNT(*) = @direct AND COUNT(*) > 0 THEN 1 ELSE 0 END FROM @emps;
 
 SELECT PRUEBA, DETALLE, OK FROM @r;

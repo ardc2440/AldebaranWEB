@@ -263,6 +263,12 @@ namespace Aldebaran.DataAccess
                 e.Property(x => x.AreaName).HasColumnName("AREA_NAME");
                 e.Property(x => x.VisualizedDate).HasColumnName("VISUALIZED_DATE");
             });
+            modelBuilder.Entity<AlarmLogVisualizer>(e =>
+            {
+                e.HasNoKey();
+                e.Property(x => x.EmployeeId).HasColumnName("EMPLOYEE_ID");
+                e.Property(x => x.EmployeeName).HasColumnName("EMPLOYEE_NAME");
+            });
             modelBuilder.Entity<TrackEntityName>(e =>
             {
                 e.HasNoKey();

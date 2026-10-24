@@ -236,14 +236,16 @@ BEGIN
 END
 GO
 
-/* Página de alarmas activas de un tipo, con su número de visualizaciones vigentes. */
+/* Página de alarmas activas de un tipo que al menos un empleado visualizó (las no visualizadas no se listan),
+   con su número de visualizaciones vigentes. @EmployeeId (opcional): solo las que visualizó ese empleado. */
 CREATE OR ALTER PROCEDURE dbo.SP_GET_ALARM_LOG
     @TypeCode  VARCHAR(30),
     @DateFrom  DATE,
     @DateTo    DATE,
     @SearchKey NVARCHAR(100) = NULL,
     @Skip      INT = 0,
-    @Take      INT = 20
+    @Take      INT = 20,
+    @EmployeeId INT = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -275,6 +277,9 @@ BEGIN
        AND (@SearchKey IS NULL
             OR a.DOCUMENT    LIKE N'%' + @SearchKey + N'%'
             OR a.DESCRIPTION LIKE N'%' + @SearchKey + N'%')
+       AND EXISTS (SELECT 1 FROM dbo.VW_ALARM_LOG_VISUALIZATIONS v
+                    WHERE v.TYPE_CODE = @TypeCode AND v.ALARM_KEY = a.ALARM_KEY
+                      AND (@EmployeeId IS NULL OR v.EMPLOYEE_ID = @EmployeeId))
      ORDER BY a.ALARM_DATE DESC, a.ALARM_KEY
     OFFSET @Skip ROWS FETCH NEXT @Take ROWS ONLY
     OPTION (RECOMPILE);
@@ -302,6 +307,24 @@ BEGIN
      WHERE v.TYPE_CODE = @TypeCode
        AND v.ALARM_KEY = @AlarmKey
      ORDER BY v.VISUALIZED_DATE DESC
+    OPTION (RECOMPILE);
+END
+GO
+
+/* Empleados que visualizaron alarmas activas del tipo (opciones del filtro Empleado). */
+CREATE OR ALTER PROCEDURE dbo.SP_GET_ALARM_LOG_VISUALIZERS
+    @TypeCode VARCHAR(30)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+
+    SELECT DISTINCT e.EMPLOYEE_ID, e.FULL_NAME AS EMPLOYEE_NAME
+      FROM dbo.VW_ALARM_LOG_VISUALIZATIONS v
+      JOIN dbo.VW_ALARM_LOG a ON a.TYPE_CODE = v.TYPE_CODE AND a.ALARM_KEY = v.ALARM_KEY
+      JOIN dbo.employees e ON e.EMPLOYEE_ID = v.EMPLOYEE_ID
+     WHERE v.TYPE_CODE = @TypeCode
+     ORDER BY e.FULL_NAME
     OPTION (RECOMPILE);
 END
 GO
