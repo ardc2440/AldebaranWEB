@@ -1,0 +1,46 @@
+@page "/internal-reference-consecutives"
+@attribute [Authorize(Roles = "Administrador,Modificación de artículos")]
+@using Aldebaran.Web.Resources.LocalizedControls;
+@using Aldebaran.Application.Services.Models.InternalReferences;
+
+<PageTitle>Consecutivos de referencia interna</PageTitle>
+
+<RadzenStack>
+    <RadzenRow AlignItems="AlignItems.Center">
+        <RadzenColumn Size="12">
+            <RadzenText Text="Consecutivos de referencia interna" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@(!string.IsNullOrEmpty(errorMessage))" AllowClose="false">
+        @errorMessage
+    </RadzenAlert>
+    <RadzenRow AlignItems="AlignItems.End" Gap="1rem">
+        <RadzenColumn SizeMD="3">
+            <RadzenFormField Text="Código" Variant="Variant.Text" Style="width: 100%;">
+                <RadzenTextBox @bind-Value="@code" MaxLength="@InternalReferenceCodeRules.MaxCodeLength" Name="Code" style="display: block; width: 100%; text-transform: uppercase;" />
+            </RadzenFormField>
+        </RadzenColumn>
+        <RadzenColumn SizeMD="2">
+            <RadzenFormField Text="Cantidad a generar" Variant="Variant.Text" Style="width: 100%;">
+                <RadzenNumeric TValue="int" @bind-Value="@quantity" Min="1" Name="Quantity" style="display: block; width: 100%" />
+            </RadzenFormField>
+        </RadzenColumn>
+        <RadzenColumn SizeMD="7">
+            <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem">
+                <RadzenButton Icon="search" Text="Consultar" Variant="Variant.Flat" Click="@ConsultAsync" IsBusy="@isBusy" BusyText="Procesando" />
+                <RadzenButton Icon="add_circle_outline" Text="Generar" ButtonStyle="ButtonStyle.Primary" Variant="Variant.Flat" Click="@GenerateAsync" IsBusy="@isBusy" BusyText="Procesando" />
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+    @if (consecutives != null)
+    {
+        <RadzenText Text="@resultTitle" TextStyle="TextStyle.H6" style="margin: 0" />
+        <LocalizedDataGrid Data="@consecutives" TItem="InternalReferenceConsecutive" AllowPaging="true" ShowPagingSummary="true" PageSize="20" PageSizeOptions=@(new int[]{10, 20, 50})>
+            <Columns>
+                <RadzenDataGridColumn TItem="InternalReferenceConsecutive" Property="InternalReference" Title="Referencia interna" />
+                <RadzenDataGridColumn TItem="InternalReferenceConsecutive" Property="Code" Title="Código" />
+                <RadzenDataGridColumn TItem="InternalReferenceConsecutive" Property="Consecutive" Title="Consecutivo" />
+            </Columns>
+        </LocalizedDataGrid>
+    }
+</RadzenStack>

@@ -59,6 +59,7 @@
             <RadzenPanelMenuItem Text="Tablero de notificaciones" Icon="dashboard" Path="" />
             <RadzenPanelMenuItem Text="Administración" Icon="admin_panel_settings">
                 <RadzenPanelMenuItem Text="Artículos" Path="items" Visible="@Security.IsInRole("Administrador", "Modificación de artículos", "Consulta de artículos")" />
+                <RadzenPanelMenuItem Text="Consecutivos de referencia" Path="internal-reference-consecutives" Visible="@Security.IsInRole("Administrador", "Modificación de artículos")" />
                 <RadzenPanelMenuItem Text="Artículos por áreas" Path="areas" Visible="@Security.IsInRole("Administrador", "Modificación de artículos por área", "Consulta de artículos por área")" />
                 <RadzenPanelMenuItem Text="Transportadoras" Path="forwarders" Visible="@Security.IsInRole("Administrador", "Modificación de agentes de transporte", "Consulta de agentes de transporte")" />
                 <RadzenPanelMenuItem Text="Funcionarios" Path="employees" Visible="@Security.IsInRole("Administrador", "Modificación de funcionarios", "Consulta de funcionarios")" />
