@@ -25,11 +25,12 @@ Ejecutar en este orden, sobre la BD Aldebaran (todos son re-ejecutables):
 19 - Pedido especial en logs de despachos y traslados.sql (T27) Columna Pedido especial en SP_GET_ORDER_DOCUMENT_LOG (reversa: Reversa\19); se despliega con la app
 20 - Consecutivos de referencia interna.sql  (E4 C1) Tablas, funciones y SP de consecutivos sugeridos CODIGO-NNN (codigo max. 5, hasta 9999;
        sobre la version anterior ajusta CODE a varchar(5)) (reversa: Reversa\20). Pruebas: ..\Pruebas\P07 y P08 (no dejan datos)
+21 - Log archivos totvs.sql                  SP para que ArchivosTotvs escriba en el log general (+ NLog.config y paquete NLog.Database del servicio) (reversa: Reversa\21)
 
 REVERSA (deja la BD como estaba antes del requerimiento):
-  1. Publicar la version anterior de la aplicacion y restaurar el NLog.config anterior del automata.
+  1. Publicar la version anterior de la aplicacion y restaurar el NLog.config anterior del automata y de ArchivosTotvs.
   2. Ejecutar TODAS las reversas de la carpeta Reversa\ en orden inverso:
-     20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 09, 08, 07, 06, 05, 04, 03, 01
+     21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 09, 08, 07, 06, 05, 04, 03, 01
      - 04 restaura SPs/triggers originales y borra INVENTORY_ALARM_LOG.
      - 03 retira los roles 'Log del sistema' y 'Log de inventarios' (y su asignacion a usuarios).
      - 01 va de ultima: borra indices, columnas calculadas y la tabla de respaldo RQM_LOGS_OBJECT_BACKUP.
@@ -43,4 +44,8 @@ Notas:
   (AutomataExistencias.Console\NLog.config, target "asyncDatabase") en la carpeta del servicio y reiniciarlo.
   Verificar que su usuario de BD tenga EXECUTE sobre log.SP_INSERT_AUTOMATA_EXISTENCIAS_LOG
   y que aparezca el origen AutomataExistencias en Consulta de Log > Log del sistema > Log general.
+- ARCHIVOS TOTVS: despues del script 21, publicar Totvs.FlatFileGenerator con el paquete NLog.Database y el
+  NLog.config actualizado (target "asyncDatabase", usa ConnectionStrings:AldebaranDbConnection de su appsettings.json)
+  y reiniciar el servicio. Dar EXECUTE sobre log.SP_INSERT_ARCHIVOS_TOTVS_LOG a su usuario de BD y verificar
+  el origen ArchivosTotvs en el Log general.
 - Los scripts de la carpeta ..\Pruebas son solo para validacion en el ambiente de pruebas; NO se ejecutan en produccion.
