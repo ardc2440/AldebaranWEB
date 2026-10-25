@@ -36,13 +36,12 @@ Contexto en esta misma carpeta (léelos primero, en este orden):
 - T17 manuales (Word) y T29 Excel de casos de prueba: generados en la carpeta del RQM (incluyen E4); faltan capturas y contraste de E1/E2 con el Proyecto.
 
 ## Pendiente (en orden)
-1. **Prueba conjunta T25–T28**: script 18 corregido y ejecutado sobre los SP reales (OK); faltan E3-14 a E3-23 en la aplicación.
-2. **T29** casos de prueba y ejecución completa E1+E2+E3 (incluye Excel del correo de mínimos con marca $ BOMBA, Movimiento de referencia abierto desde alarma, cierre de un pedido en proceso y crear/modificar OC y reserva).
-3. **T17** manuales técnico y de usuario (Word, línea visual de las propuestas).
-4. **T30** paquete de despliegue: scripts 01–20, reversas, LEEME, NLog.config del autómata (+ GRANT), validar script 05 (job) en producción. Scripts 16, 18 y 19 se despliegan junto con la app (cambian parámetros/columnas).
-5. Deudas técnicas para analizar al cierre: 9 reportes más con SQL concatenado (OC, Reservas, Inventario, Traslados, Ajustes, Stock bodega, Proveedor-referencias, Zona franca, Inventario en proceso).
-6. E4: cerrado (ver T29 E4-01 a E4-24).
-7. Retirar del repositorio `scripts/RQM Complemento Consulta de Logs/Pruebas/Usuario de prueba T5.txt` (credenciales en texto plano).
+**Una sola entrega** con los 4 requerimientos: Logs, Marca $ BOMBA, Pedido especial y Generador de consecutivos de referencia.
+1. **T29 ejecutado de punta a punta**: 72 OK. Pendientes para Andrés localmente: E1-16 y E3-12 (correo con Excel de mínimos y $ BOMBA), caso con imagen de E1-15 y autómata real (E2-05).
+2. **T17 / T30 manuales** reorganizados por los 4 requerimientos y una sola entrega. El manual de usuario incluye las pantallas. Ya documentan la visualización de alarmas por empleado (filtro, subgrilla, solo alarmas visualizadas, SP_GET_ALARM_LOG_VISUALIZERS). Al abrir el Word, actualizar la tabla de contenido (F9).
+3. **Producción**: scripts 01–20 en orden (16, 18 y 19 junto con la app), validar el script 05 contra msdb, NLog.config del autómata + GRANT, asignar roles nuevos. No reemplazar appsettings.
+4. Deudas técnicas para analizar al cierre: 9 reportes más con SQL concatenado (OC, Reservas, Inventario, Traslados, Ajustes, Stock bodega, Proveedor-referencias, Zona franca, Inventario en proceso).
+5. Retirar del repositorio `scripts/RQM Complemento Consulta de Logs/Pruebas/Usuario de prueba T5.txt` (credenciales en texto plano).
 
 ## Limitación importante para una sesión en la nube
 La BD de pruebas (GML0999\SQLEXPRESS01) y el sitio (https://localhost:6001) están en el computador de Andrés. Una sesión en la nube solo los alcanza si está vinculada a ese computador (app de escritorio). Sin eso puede editar código en la rama pero no probar ni aplicar scripts: en ese caso, implementar, dejar los scripts listos y pedir a Andrés compilar/ejecutar.
