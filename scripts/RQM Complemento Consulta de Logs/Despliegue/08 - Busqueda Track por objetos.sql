@@ -13,7 +13,8 @@
        * SP_BACKFILL_TRACK_OBJECTS para el histórico (masivo, por lotes, re-ejecutable: continúa desde LAST_ID).
    - SP_GET_TRACK_OBJECT_TYPES, SP_SEARCH_TRACK_OBJECTS(@ObjectType, @Text): búsqueda del objeto.
    - SP_GET_TRACK_LOG (reemplaza el de 07): entidad y/o objeto; rango obligatorio.
-   - SP_GET_TRACK_OBJECT_DESCRIPTIONS(@Id): descripción de los Id del detalle (ItemId 4160 -> [TE-122] ...).
+   - SP_GET_TRACK_OBJECT_DESCRIPTIONS(@Id): descripción de los Id del detalle (ItemId 4160 -> [TE-122] ...;
+     Id paramétricos con FN_TRACK_LOOKUP_DESCRIPTION: StatusDocumentTypeId 10 -> Confirmado, motivos, bodegas...).
    Ejecutar después de 07. Script re-ejecutable. Al final ejecuta la carga del histórico.
    ===================================================================================== */
 SET NOCOUNT ON;
@@ -330,6 +331,35 @@ END
 GO
 
 /* Descripción de los Id que aparecen en el movimiento y en el anterior (para el detalle). */
+/* Descripción de los Id paramétricos del detalle (estados, motivos, bodegas, ciudades...). Solo para mostrar:
+   no se indexan como objetos de búsqueda. */
+CREATE OR ALTER FUNCTION dbo.FN_TRACK_LOOKUP_DESCRIPTION (@FieldName NVARCHAR(100), @Id INT)
+RETURNS TABLE
+AS
+RETURN
+    SELECT TOP 1 DESCRIPTION FROM (
+        SELECT s.STATUS_DOCUMENT_TYPE_NAME AS DESCRIPTION FROM dbo.status_document_types s WHERE @FieldName IN (N'StatusDocumentTypeId', N'NewStatusDocumentTypeId', N'PreviousStatusDocumentTypeId') AND s.STATUS_DOCUMENT_TYPE_ID = @Id
+        UNION ALL SELECT d.DOCUMENT_TYPE_NAME FROM dbo.document_types d WHERE @FieldName = N'DocumentTypeId' AND d.DOCUMENT_TYPE_ID = @Id
+        UNION ALL SELECT r.CANCELLATION_REASON_NAME FROM dbo.cancellation_reasons r WHERE @FieldName = N'CancellationReasonId' AND r.CANCELLATION_REASON_ID = @Id
+        UNION ALL SELECT r.MODIFICATION_REASON_NAME FROM dbo.modification_reasons r WHERE @FieldName = N'ModificationReasonId' AND r.MODIFICATION_REASON_ID = @Id
+        UNION ALL SELECT r.CLOSE_REASON_NAME FROM dbo.close_customer_order_reasons r WHERE @FieldName = N'CloseCustomerOrderReasonId' AND r.CLOSE_CUSTOMER_ORDER_REASON_ID = @Id
+        UNION ALL SELECT r.ADJUSTMENT_REASON_NAME FROM dbo.adjustment_reasons r WHERE @FieldName = N'AdjustmentReasonId' AND r.ADJUSTMENT_REASON_ID = @Id
+        UNION ALL SELECT t.ADJUSTMENT_TYPE_NAME FROM dbo.adjustment_types t WHERE @FieldName = N'AdjustmentTypeId' AND t.ADJUSTMENT_TYPE_ID = @Id
+        UNION ALL SELECT w.WAREHOUSE_NAME FROM dbo.warehouses w WHERE @FieldName IN (N'WarehouseId', N'OriginWarehouseId', N'DestinationWarehouseId') AND w.WAREHOUSE_ID = @Id
+        UNION ALL SELECT c.CITY_NAME FROM dbo.cities c WHERE @FieldName = N'CityId' AND c.CITY_ID = @Id
+        UNION ALL SELECT i.IDENTITY_TYPE_NAME FROM dbo.identity_types i WHERE @FieldName = N'IdentityTypeId' AND i.IDENTITY_TYPE_ID = @Id
+        UNION ALL SELECT m.SHIPPING_METHOD_NAME FROM dbo.shipping_methods m WHERE @FieldName = N'ShippingMethodId' AND m.SHIPPING_METHOD_ID = @Id
+        UNION ALL SELECT p.PROCESS_SATELLITE_NAME FROM dbo.process_satellites p WHERE @FieldName = N'ProcessSatelliteId' AND p.PROCESS_SATELLITE_ID = @Id
+        UNION ALL SELECT CONCAT(l.LINE_CODE, N' - ', l.LINE_NAME) FROM dbo.lines l WHERE @FieldName = N'LineId' AND l.LINE_ID = @Id
+        UNION ALL SELECT c.CURRENCY_NAME FROM dbo.currencies c WHERE @FieldName = N'CurrencyId' AND c.CURRENCY_ID = @Id
+        UNION ALL SELECT u.MEASURE_UNIT_NAME FROM dbo.measure_units u WHERE @FieldName IN (N'FobMeasureUnitId', N'CifMeasureUnitId', N'MeasureUnitId') AND u.MEASURE_UNIT_ID = @Id
+        UNION ALL SELECT a.FORWARDER_AGENT_NAME FROM dbo.forwarder_agents a WHERE @FieldName = N'ForwarderAgentId' AND a.FORWARDER_AGENT_ID = @Id
+        UNION ALL SELECT CONCAT(m.SHIPMENT_METHOD_NAME, N' - ', a.FORWARDER_AGENT_NAME) FROM dbo.shipment_forwarder_agent_methods x JOIN dbo.shipment_methods m ON m.SHIPMENT_METHOD_ID = x.SHIPMENT_METHOD_ID JOIN dbo.forwarder_agents a ON a.FORWARDER_AGENT_ID = x.FORWARDER_AGENT_ID WHERE @FieldName = N'ShipmentForwarderAgentMethodId' AND x.SHIPMENT_FORWARDER_AGENT_METHOD_ID = @Id
+        UNION ALL SELECT t.NAME FROM dbo.alarm_types t WHERE @FieldName = N'AlarmTypeId' AND t.ALARM_TYPE_ID = @Id
+        UNION ALL SELECT t.NAME FROM dbo.notification_templates t WHERE @FieldName = N'NotificationTemplateId' AND t.NOTIFICATION_TEMPLATE_ID = @Id
+    ) x;
+GO
+
 CREATE OR ALTER PROCEDURE dbo.SP_GET_TRACK_OBJECT_DESCRIPTIONS
     @Id BIGINT
 AS
@@ -346,13 +376,20 @@ BEGIN
      ORDER BY x.MODIFIED_DATE DESC, x.ID DESC;
 
     ;WITH v AS (
-        SELECT x.[key] COLLATE DATABASE_DEFAULT AS FIELD_NAME, TRY_CONVERT(INT, x.[value]) AS OBJECT_ID FROM OPENJSON(CASE WHEN ISJSON(@Current) = 1 THEN @Current ELSE N'{}' END) x
+        /* Solo valores cortos: TRY_CONVERT de un texto de más de 4000 caracteres falla (Msg 8152) */
+        SELECT x.[key] COLLATE DATABASE_DEFAULT AS FIELD_NAME, TRY_CONVERT(INT, CASE WHEN LEN(x.[value]) <= 20 THEN x.[value] END) AS OBJECT_ID FROM OPENJSON(CASE WHEN ISJSON(@Current) = 1 THEN @Current ELSE N'{}' END) x
         UNION
-        SELECT x.[key] COLLATE DATABASE_DEFAULT, TRY_CONVERT(INT, x.[value]) FROM OPENJSON(CASE WHEN ISJSON(@Previous) = 1 THEN @Previous ELSE N'{}' END) x)
+        SELECT x.[key] COLLATE DATABASE_DEFAULT, TRY_CONVERT(INT, CASE WHEN LEN(x.[value]) <= 20 THEN x.[value] END) FROM OPENJSON(CASE WHEN ISJSON(@Previous) = 1 THEN @Previous ELSE N'{}' END) x)
     SELECT v.FIELD_NAME, v.OBJECT_ID, d.DESCRIPTION
       FROM v
       JOIN dbo.LOG_TRACK_OBJECT_FIELDS f ON f.FIELD_NAME = v.FIELD_NAME
      CROSS APPLY dbo.FN_TRACK_OBJECT_DESCRIPTION(f.OBJECT_TYPE, v.OBJECT_ID) d
+     WHERE v.OBJECT_ID > 0
+    UNION ALL
+    /* Id paramétricos (estado, motivos, bodegas...) */
+    SELECT v.FIELD_NAME, v.OBJECT_ID, d.DESCRIPTION
+      FROM v
+     CROSS APPLY dbo.FN_TRACK_LOOKUP_DESCRIPTION(v.FIELD_NAME, v.OBJECT_ID) d
      WHERE v.OBJECT_ID > 0;
 END
 GO
