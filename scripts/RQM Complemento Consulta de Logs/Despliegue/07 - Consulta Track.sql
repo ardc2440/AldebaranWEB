@@ -4,7 +4,7 @@
    - LOG_TRACK_ENTITY_NAMES: catálogo de entidades trazadas con su nombre en español
      (es el filtro principal de la consulta; no se recorre log.track para armarlo).
    - SP_GET_TRACK_ENTITIES: entidades activas del catálogo.
-   - SP_GET_TRACK_LOG: movimientos de una entidad en un rango de fechas (obligatorios),
+   - SP_GET_TRACK_LOG (se crea en el script 09): movimientos de una entidad en un rango de fechas (obligatorios),
      con filtros opcionales de acción, usuario y llave; paginado con TOTAL_ROWS.
      Usa IX_track_Entity_Date (T1).
    - SP_GET_TRACK_DETAIL: datos del movimiento y del movimiento anterior de la misma entidad
@@ -113,53 +113,7 @@ BEGIN
 END
 GO
 
-CREATE OR ALTER PROCEDURE dbo.SP_GET_TRACK_LOG
-    @EntityName   NVARCHAR(200),
-    @DateFrom     DATE,
-    @DateTo       DATE,
-    @Action       VARCHAR(10)   = NULL,   -- Added / Modified / Deleted
-    @ModifierName NVARCHAR(100) = NULL,
-    @EntityKey    NVARCHAR(100) = NULL,   -- valor de la llave (p. ej. 6161)
-    @Skip         INT = 0,
-    @Take         INT = 20
-AS
-BEGIN
-    SET NOCOUNT ON;
-    SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
-
-    IF LEN(LTRIM(RTRIM(ISNULL(@EntityName, N'')))) = 0
-        THROW 50001, N'La entidad es obligatoria.', 1;
-
-    IF @DateFrom IS NULL OR @DateTo IS NULL OR @DateFrom > @DateTo
-        THROW 50002, N'El rango de fechas es obligatorio y la fecha inicial no puede ser mayor que la final.', 1;
-
-    IF LEN(LTRIM(RTRIM(ISNULL(@Action, '')))) = 0        SET @Action = NULL;
-    IF LEN(LTRIM(RTRIM(ISNULL(@ModifierName, N'')))) = 0 SET @ModifierName = NULL;
-    IF LEN(LTRIM(RTRIM(ISNULL(@EntityKey, N'')))) = 0    SET @EntityKey = NULL;
-
-    DECLARE @From DATETIME = CAST(@DateFrom AS DATETIME);
-    DECLARE @To   DATETIME = DATEADD(DAY, 1, CAST(@DateTo AS DATETIME));
-    DECLARE @KeyPattern NVARCHAR(110) = CASE WHEN @EntityKey IS NULL THEN NULL ELSE N'%"' + @EntityKey + N'"%' END;
-
-    SELECT t.ID,
-           t.ENTITY_NAME,
-           CAST(t.ENTITY_KEY AS NVARCHAR(4000)) AS ENTITY_KEY,
-           t.ACTION,
-           t.MODIFIED_DATE,
-           t.MODIFIER_NAME,
-           COUNT(*) OVER () AS TOTAL_ROWS
-      FROM log.track t
-     WHERE t.ENTITY_NAME = @EntityName
-       AND t.MODIFIED_DATE >= @From
-       AND t.MODIFIED_DATE <  @To
-       AND (@Action IS NULL OR t.ACTION = @Action)
-       AND (@ModifierName IS NULL OR t.MODIFIER_NAME LIKE N'%' + @ModifierName + N'%')
-       AND (@KeyPattern IS NULL OR CAST(t.ENTITY_KEY AS NVARCHAR(4000)) LIKE @KeyPattern)
-     ORDER BY t.MODIFIED_DATE DESC, t.ID DESC
-    OFFSET @Skip ROWS FETCH NEXT @Take ROWS ONLY
-    OPTION (RECOMPILE);
-END
-GO
+/* SP_GET_TRACK_LOG se crea en el script 09 (versión final): volver a correr 07 u 08 no la reemplaza. */
 
 CREATE OR ALTER PROCEDURE dbo.SP_GET_TRACK_DETAIL
     @Id BIGINT

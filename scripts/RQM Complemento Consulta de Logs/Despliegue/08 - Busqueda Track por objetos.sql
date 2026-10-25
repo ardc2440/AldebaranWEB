@@ -12,7 +12,7 @@
        * TRG_LOG_TRACK_INDEX_OBJECTS (AFTER INSERT en log.track) para lo nuevo.
        * SP_BACKFILL_TRACK_OBJECTS para el histórico (masivo, por lotes, re-ejecutable: continúa desde LAST_ID).
    - SP_GET_TRACK_OBJECT_TYPES, SP_SEARCH_TRACK_OBJECTS(@ObjectType, @Text): búsqueda del objeto.
-   - SP_GET_TRACK_LOG (reemplaza el de 07): entidad y/o objeto; rango obligatorio.
+   - SP_GET_TRACK_LOG: entidad y/o objeto; se crea en el script 09.
    - SP_GET_TRACK_OBJECT_DESCRIPTIONS(@Id): descripción de los Id del detalle (ItemId 4160 -> [TE-122] ...;
      Id paramétricos con FN_TRACK_LOOKUP_DESCRIPTION: StatusDocumentTypeId 10 -> Confirmado, motivos, bodegas...).
    Ejecutar después de 07. Script re-ejecutable. Al final ejecuta la carga del histórico.
@@ -268,67 +268,8 @@ BEGIN
 END
 GO
 
-/* Reemplaza la versión de 07: la entidad es obligatoria solo si no se busca por objeto. */
-CREATE OR ALTER PROCEDURE dbo.SP_GET_TRACK_LOG
-    @EntityName   NVARCHAR(200) = NULL,
-    @DateFrom     DATE,
-    @DateTo       DATE,
-    @Action       VARCHAR(10)   = NULL,   -- Added / Modified / Deleted
-    @ModifierName NVARCHAR(100) = NULL,
-    @ObjectType   TINYINT       = NULL,
-    @ObjectId     INT           = NULL,
-    @Skip         INT = 0,
-    @Take         INT = 20
-AS
-BEGIN
-    SET NOCOUNT ON;
-    SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
-
-    IF LEN(LTRIM(RTRIM(ISNULL(@EntityName, N'')))) = 0 SET @EntityName = NULL;
-    IF @ObjectType IS NULL OR @ObjectId IS NULL BEGIN SET @ObjectType = NULL; SET @ObjectId = NULL; END
-
-    IF @EntityName IS NULL AND @ObjectId IS NULL
-        THROW 50001, N'Seleccione la entidad o el objeto a consultar.', 1;
-
-    IF @DateFrom IS NULL OR @DateTo IS NULL OR @DateFrom > @DateTo
-        THROW 50002, N'El rango de fechas es obligatorio y la fecha inicial no puede ser mayor que la final.', 1;
-
-    IF LEN(LTRIM(RTRIM(ISNULL(@Action, '')))) = 0        SET @Action = NULL;
-    IF LEN(LTRIM(RTRIM(ISNULL(@ModifierName, N'')))) = 0 SET @ModifierName = NULL;
-
-    DECLARE @From DATETIME = CAST(@DateFrom AS DATETIME);
-    DECLARE @To   DATETIME = DATEADD(DAY, 1, CAST(@DateTo AS DATETIME));
-
-    IF @ObjectId IS NULL
-        SELECT t.ID, t.ENTITY_NAME, ISNULL(n.DISPLAY_NAME, t.ENTITY_NAME) AS ENTITY_DISPLAY_NAME,
-               CAST(t.ENTITY_KEY AS NVARCHAR(4000)) AS ENTITY_KEY, t.ACTION, t.MODIFIED_DATE, t.MODIFIER_NAME,
-               COUNT(*) OVER () AS TOTAL_ROWS
-          FROM log.track t
-          LEFT JOIN dbo.LOG_TRACK_ENTITY_NAMES n ON n.ENTITY_NAME = t.ENTITY_NAME
-         WHERE t.ENTITY_NAME = @EntityName
-           AND t.MODIFIED_DATE >= @From AND t.MODIFIED_DATE < @To
-           AND (@Action IS NULL OR t.ACTION = @Action)
-           AND (@ModifierName IS NULL OR t.MODIFIER_NAME LIKE N'%' + @ModifierName + N'%')
-         ORDER BY t.MODIFIED_DATE DESC, t.ID DESC
-        OFFSET @Skip ROWS FETCH NEXT @Take ROWS ONLY
-        OPTION (RECOMPILE);
-    ELSE
-        SELECT t.ID, t.ENTITY_NAME, ISNULL(n.DISPLAY_NAME, t.ENTITY_NAME) AS ENTITY_DISPLAY_NAME,
-               CAST(t.ENTITY_KEY AS NVARCHAR(4000)) AS ENTITY_KEY, t.ACTION, t.MODIFIED_DATE, t.MODIFIER_NAME,
-               COUNT(*) OVER () AS TOTAL_ROWS
-          FROM dbo.LOG_TRACK_OBJECTS o
-          JOIN log.track t ON t.ID = o.TRACK_ID
-          LEFT JOIN dbo.LOG_TRACK_ENTITY_NAMES n ON n.ENTITY_NAME = t.ENTITY_NAME
-         WHERE o.OBJECT_TYPE = @ObjectType AND o.OBJECT_ID = @ObjectId
-           AND o.MODIFIED_DATE >= @From AND o.MODIFIED_DATE < @To
-           AND (@EntityName IS NULL OR t.ENTITY_NAME = @EntityName)
-           AND (@Action IS NULL OR t.ACTION = @Action)
-           AND (@ModifierName IS NULL OR t.MODIFIER_NAME LIKE N'%' + @ModifierName + N'%')
-         ORDER BY t.MODIFIED_DATE DESC, t.ID DESC
-        OFFSET @Skip ROWS FETCH NEXT @Take ROWS ONLY
-        OPTION (RECOMPILE);
-END
-GO
+/* SP_GET_TRACK_LOG se crea en el script 09 (versión final, con búsqueda por objeto y RECORD_DESCRIPTION):
+   volver a correr este script no la reemplaza. */
 
 /* Descripción de los Id que aparecen en el movimiento y en el anterior (para el detalle). */
 /* Descripción de los Id paramétricos del detalle (estados, motivos, bodegas, ciudades...). Solo para mostrar:
