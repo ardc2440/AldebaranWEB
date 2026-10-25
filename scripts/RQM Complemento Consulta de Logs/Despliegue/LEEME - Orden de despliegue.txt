@@ -26,8 +26,16 @@ Ejecutar en este orden, sobre la BD Aldebaran (todos son re-ejecutables):
 20 - Consecutivos de referencia interna.sql  (E4 C1) Tablas, funciones y SP de consecutivos sugeridos CODIGO-NNN (codigo max. 5, hasta 9999;
        sobre la version anterior ajusta CODE a varchar(5)) (reversa: Reversa\20). Pruebas: ..\Pruebas\P07 y P08 (no dejan datos)
 
-Reversa\04 - Reversa alarmas inventario.sql   Restaura SPs/triggers originales desde el respaldo (conserva el log)
-Reversa\05 - Reversa job verificacion alarmas.sql  Restaura los pasos originales del job
+REVERSA (deja la BD como estaba antes del requerimiento):
+  1. Publicar la version anterior de la aplicacion y restaurar el NLog.config anterior del automata.
+  2. Ejecutar TODAS las reversas de la carpeta Reversa\ en orden inverso:
+     20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 09, 08, 07, 06, 05, 04, 03, 01
+     - 04 restaura SPs/triggers originales y borra INVENTORY_ALARM_LOG.
+     - 03 retira los roles 'Log del sistema' y 'Log de inventarios' (y su asignacion a usuarios).
+     - 01 va de ultima: borra indices, columnas calculadas y la tabla de respaldo RQM_LOGS_OBJECT_BACKUP.
+  Se pierden solo los datos propios del requerimiento: marcas Pedido especial y Precio bomba, consecutivos
+  sugeridos e historial de los logs nuevos. Pedidos, articulos y demas registros se conservan.
+  El script 02 (ofuscacion del Track) no tiene reversa: los valores originales nunca se guardan.
 
 Notas:
 - Despues del despliegue de BD se publica la version de la aplicacion correspondiente.

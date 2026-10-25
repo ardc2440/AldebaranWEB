@@ -78,7 +78,8 @@ AS
 RETURN
     WITH j AS (SELECT CASE WHEN ISJSON(@Json) = 1 THEN @Json ELSE N'{}' END AS DOC),
     direct AS (
-        SELECT f.OBJECT_TYPE, TRY_CONVERT(INT, x.[value]) AS OBJECT_ID
+        /* Solo valores cortos: TRY_CONVERT de un texto de más de 4000 caracteres falla (Msg 8152) */
+        SELECT f.OBJECT_TYPE, TRY_CONVERT(INT, CASE WHEN LEN(x.[value]) <= 20 THEN x.[value] END) AS OBJECT_ID
           FROM j CROSS APPLY OPENJSON(j.DOC) x
           JOIN dbo.LOG_TRACK_OBJECT_FIELDS f ON f.FIELD_NAME = x.[key] COLLATE DATABASE_DEFAULT),
     orderDetail AS (
@@ -144,6 +145,7 @@ CREATE OR ALTER PROCEDURE dbo.SP_BACKFILL_TRACK_OBJECTS
 AS
 BEGIN
     SET NOCOUNT ON;
+    SET XACT_ABORT ON;   -- un error detiene la carga sin marcar el lote como procesado
     DECLARE @StartId BIGINT, @LastId BIGINT, @To BIGINT, @Batches INT = 0;
     SELECT @StartId = START_ID, @LastId = LAST_ID FROM dbo.LOG_TRACK_OBJECTS_BACKFILL WHERE ID = 1;
 
