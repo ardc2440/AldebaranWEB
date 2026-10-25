@@ -4,7 +4,7 @@
    Filtro Precio bomba Sí (1) / No (0) / Todos (NULL, por defecto) como último parámetro opcional
    (las llamadas existentes no cambian). Requiere el script 14 (items.IS_BOMB_PRICE).
    - T20 SP_GET_ITEM_REFERENCES_REPORT: columna IsBombPrice + filtro @BombPrice. Además, estándar de filtros
-     Sí/No/Todos: los switches @Only* pasan a condiciones de tres estados (@Is*/@Has*, NULL = Todos).
+     Sí/No/Todos: los switches @Only* pasan a condiciones de tres estados (@Is... / @Has..., NULL = Todos).
      Se despliega junto con la versión de la aplicación (cambian los nombres de parámetros).
    - T21 SP_GET_MINIMUM_WAREHOUSE_STOCK_REPORT: filtro @BombPrice (se agrega sobre la definición vigente,
      sin reescribir el SP; solo si aún no lo tiene).
