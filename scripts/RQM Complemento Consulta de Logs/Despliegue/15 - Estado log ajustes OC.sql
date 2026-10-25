@@ -21,11 +21,14 @@ IF OBJECT_ID('dbo.RQM_LOGS_PO_ADJUSTMENT_STATUS_BACKUP') IS NULL
 GO
 
 DECLARE @InApproval SMALLINT, @Confirmed SMALLINT;
-SELECT @InApproval = MAX(CASE WHEN s.STATUS_ORDER = 4 THEN s.STATUS_DOCUMENT_TYPE_ID END),
-       @Confirmed  = MAX(CASE WHEN s.STATUS_ORDER = 2 THEN s.STATUS_DOCUMENT_TYPE_ID END)
+SELECT @InApproval = MAX(s.STATUS_DOCUMENT_TYPE_ID)
   FROM dbo.status_document_types s
   JOIN dbo.document_types d ON d.DOCUMENT_TYPE_ID = s.DOCUMENT_TYPE_ID
- WHERE d.DOCUMENT_TYPE_CODE = 'O';
+ WHERE d.DOCUMENT_TYPE_CODE = 'O' AND s.STATUS_ORDER = 4;
+SELECT @Confirmed = MAX(s.STATUS_DOCUMENT_TYPE_ID)
+  FROM dbo.status_document_types s
+  JOIN dbo.document_types d ON d.DOCUMENT_TYPE_ID = s.DOCUMENT_TYPE_ID
+ WHERE d.DOCUMENT_TYPE_CODE = 'O' AND s.STATUS_ORDER = 2;
 
 IF @InApproval IS NULL OR @Confirmed IS NULL
     THROW 50010, N'No se encontraron los estados de OC "Ajuste en aprobación" / "Confirmada".', 1;
