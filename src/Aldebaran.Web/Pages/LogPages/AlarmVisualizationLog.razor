@@ -35,7 +35,7 @@
             </RadzenColumn>
             <RadzenColumn SizeMD="2">
                 <RadzenFormField Text="Empleado" Variant="Variant.Text" Style="width: 100%;">
-                    <RadzenDropDown Data="@visualizers" TextProperty="EmployeeName" ValueProperty="EmployeeId" TValue="int?" @bind-Value="@selectedEmployeeId" Placeholder="Todos"
+                    <RadzenDropDown Data="@visualizers" TextProperty="EmployeeName" ValueProperty="EmployeeId" TValue="int?" @bind-Value="@selectedEmployeeId"
                                     AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Name="EmployeeId"
                                     Change="@(async _ => await ApplyFiltersAsync())" style="display: block; width: 100%" />
                 </RadzenFormField>

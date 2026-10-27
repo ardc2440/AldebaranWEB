@@ -29,7 +29,7 @@
                                     </span>
                                 </div>
                                 <RadzenGravatar Email="@Security.User?.Name" onerror="this.style.display = 'none'" />
-                            </div>                            
+                            </div>
                         </Template>
                     </RadzenProfileMenu>
                     <div class="d-flex align-items-center gap-2 px-2">
@@ -71,11 +71,15 @@
                     <hr class="divider">
                     <RadzenPanelMenuItem Text="Tolerancias en ajustes en O.C." Path="purchase-order-approval-ranges" Visible="@Security.IsInRole("Administrador", "Administración de tolerancias de ajustes en órdenes de compra")" />
                 }
-                @if (Security.IsInRole("Administrador"))
+                @if (Security.IsInRole("Administrador", "Log del sistema")) 
                 {
                     <hr class="divider">
-                    <RadzenPanelMenuItem Text="Notificaciones" Path="email-notification-settings" />
+                    <RadzenPanelMenuItem Text="Notificaciones" Path="email-notification-settings" Visible="@Security.IsInRole("Administrador")" />
                     <RadzenPanelMenuItem Text="Conectividad" Path="connectivity" Visible="@Security.IsInRole("Administrador")" />
+                    <RadzenPanelMenuItem Text="Log del sistema" Icon="manage_history" Visible=@Security.IsInRole("Administrador", "Log del sistema")>
+                        <RadzenPanelMenuItem Text="Log general" Path="general_log" />
+                        <RadzenPanelMenuItem Text="Track" Path="track_log" />
+                    </RadzenPanelMenuItem>
                 }
             </RadzenPanelMenuItem>
             <RadzenPanelMenuItem Text="Movimientos de Inventario" Icon="extension">
@@ -123,10 +127,6 @@
                         <RadzenPanelMenuItem Text="Log de inventarios" Icon="inventory_2" Visible=@Security.IsInRole("Administrador", "Log de inventarios")>
                             <RadzenPanelMenuItem Text="Visualización de alarmas" Path="alarm_visualization_log/inventory" />
                             <RadzenPanelMenuItem Text="Inactivaciones y refrescos de alarmas" Path="inventory_alarm_events_log" />
-                        </RadzenPanelMenuItem>
-                        <RadzenPanelMenuItem Text="Log del sistema" Icon="manage_history" Visible=@Security.IsInRole("Administrador", "Log del sistema")>
-                            <RadzenPanelMenuItem Text="Log general" Path="general_log" />
-                            <RadzenPanelMenuItem Text="Track" Path="track_log" />
                         </RadzenPanelMenuItem>
                     </RadzenPanelMenuItem>
                 }

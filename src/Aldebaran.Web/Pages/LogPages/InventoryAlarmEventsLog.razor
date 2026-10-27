@@ -18,12 +18,12 @@
     <RadzenRow AlignItems="AlignItems.End" Gap="1rem">
         <RadzenColumn SizeMD="3">
             <RadzenFormField Text="Tipo de alarma" Variant="Variant.Text" Style="width: 100%;">
-                <RadzenDropDown Data="@alarmTypes" TextProperty="Name" ValueProperty="Code" TValue="string" AllowClear="true" Placeholder="Todas" @bind-Value="@selectedTypeCode" Change="@(async _ => await ApplyFiltersAsync())" style="display: block; width: 100%" />
+                <RadzenDropDown Data="@alarmTypes" TextProperty="Name" ValueProperty="Code" TValue="string" AllowClear="true" @bind-Value="@selectedTypeCode" Change="@(async _ => await ApplyFiltersAsync())" style="display: block; width: 100%" />
             </RadzenFormField>
         </RadzenColumn>
         <RadzenColumn SizeMD="2">
             <RadzenFormField Text="Evento" Variant="Variant.Text" Style="width: 100%;">
-                <RadzenDropDown Data="@eventTypes" TextProperty="Text" ValueProperty="Value" TValue="InventoryAlarmEventType?" AllowClear="true" Placeholder="Todos" @bind-Value="@selectedEventType" Change="@(async _ => await ApplyFiltersAsync())" style="display: block; width: 100%" />
+                <RadzenDropDown Data="@eventTypes" TextProperty="Text" ValueProperty="Value" TValue="InventoryAlarmEventType?" AllowClear="true" @bind-Value="@selectedEventType" Change="@(async _ => await ApplyFiltersAsync())" style="display: block; width: 100%" />
             </RadzenFormField>
         </RadzenColumn>
         <RadzenColumn SizeMD="2">
