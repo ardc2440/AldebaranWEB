@@ -1,4 +1,4 @@
-﻿namespace Aldebaran.Application.Services.Models
+namespace Aldebaran.Application.Services.Models
 {
     public class VisualizedPurchaseOrderTransitAlarm
     {
@@ -9,5 +9,10 @@
         /*reverse navigation*/
         public PurchaseOrderTransitAlarm PurchaseOrderTransitAlarm { get; set; } = null!;
         public Employee Employee { get; set; } = null!;
+
+        public VisualizedPurchaseOrderTransitAlarm()
+        {
+            VisualizedDate = DateTime.Now;
+        }
     }
 }

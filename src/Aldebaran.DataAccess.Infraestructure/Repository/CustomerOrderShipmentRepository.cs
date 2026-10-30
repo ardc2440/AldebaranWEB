@@ -1,5 +1,6 @@
-﻿using Aldebaran.DataAccess.Entities;
+using Aldebaran.DataAccess.Entities;
 using Aldebaran.DataAccess.Infraestructure.Models;
+using Aldebaran.DataAccess.Infraestructure.Rules;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository
@@ -38,6 +39,8 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                         CustomerOrderDetailId = item.CustomerOrderDetailId
                     });
                 }
+
+                await EnsureQuantitiesWithinProcessedAsync(dbContext, entity.CustomerOrderId, ShipmentQuantityRule.GroupByDetail(entity.CustomerOrderShipmentDetails), new Dictionary<int, int>(), ct);
                 
                 var orderEntity = await dbContext.CustomerOrders.FirstAsync(f => f.CustomerOrderId == entity.CustomerOrderId,ct);
 
@@ -72,7 +75,8 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                             dbContext.Entry(alarm).State = EntityState.Unchanged;
                         } 
                     dbContext.Entry(orderEntity).State = EntityState.Unchanged;
-                    dbContext.Entry(entity).State = EntityState.Unchanged;
+                    /* Registro nuevo (llave temporal): se desconecta; marcarlo Unchanged ocultaba el error original */
+                    dbContext.Entry(entity).State = EntityState.Detached;
                     throw;
                 }
 
@@ -113,6 +117,8 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
 
                 var oldDetailSum = entity.CustomerOrderShipmentDetails.Sum(s => s.DeliveredQuantity);
 
+                await EnsureQuantitiesWithinProcessedAsync(dbContext, entity.CustomerOrderId, ShipmentQuantityRule.GroupByDetail(customerOrderShipment.CustomerOrderShipmentDetails), ShipmentQuantityRule.GroupByDetail(entity.CustomerOrderShipmentDetails), ct);
+
                 foreach (var item in customerOrderShipment.CustomerOrderShipmentDetails)
                 {
                     if (item.CustomerOrderShipmentDetailId > 0)
@@ -133,9 +139,11 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                     });
                 }
 
-                foreach (var item in entity.CustomerOrderShipmentDetails)
+                /* Referencias quitadas del despacho: detalles existentes que ya no llegan en la modificación.
+                   Antes se comparaba CustomerOrderShipmentId (siempre igual) y nunca se eliminaban. */
+                foreach (var item in entity.CustomerOrderShipmentDetails.Where(w => w.CustomerOrderShipmentDetailId > 0).ToList())
                 {
-                    if (!customerOrderShipment.CustomerOrderShipmentDetails.Any(i => i.CustomerOrderShipmentId == item.CustomerOrderShipmentId))
+                    if (!customerOrderShipment.CustomerOrderShipmentDetails.Any(i => i.CustomerOrderShipmentDetailId == item.CustomerOrderShipmentDetailId))
                         dbContext.CustomerOrderShipmentDetails.Remove(item);
                 }
 
@@ -181,11 +189,32 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                         }
                     dbContext.Entry(orderEntity).State = EntityState.Unchanged;
                     dbContext.Entry(entity).State = EntityState.Unchanged;
-                    dbContext.Entry(reasonEntity).State = EntityState.Unchanged;
+                    /* Registro nuevo (llave temporal): se desconecta; marcarlo Unchanged ocultaba el error original */
+                    dbContext.Entry(reasonEntity).State = EntityState.Detached;
                     throw;
                 }
             }, ct);
         }
+
+        /// <summary>
+        /// Valida, dentro de la transacción, que lo que se agrega a despachar no supere la cantidad en proceso vigente en la BD.
+        /// Bloquea los detalles del pedido (UPDLOCK) hasta el commit: un segundo despacho simultáneo del mismo pedido espera y
+        /// se valida contra la cantidad ya descontada (evita despachos duplicados o por encima de lo que hay en proceso).
+        /// </summary>
+        private static async Task EnsureQuantitiesWithinProcessedAsync(AldebaranDbContext dbContext, int customerOrderId, IReadOnlyDictionary<int, int> newQuantities, IReadOnlyDictionary<int, int> currentQuantities, CancellationToken ct)
+        {
+            var processedQuantities = await GetLockedProcessedQuantitiesAsync(dbContext, customerOrderId, ct);
+
+            var violation = ShipmentQuantityRule.FindViolation(newQuantities, currentQuantities, processedQuantities);
+            if (violation != null)
+                throw new InvalidOperationException($"La cantidad a despachar ({violation.RequestedQuantity:N0}) supera la cantidad en proceso disponible ({violation.AvailableQuantity:N0}). Es posible que el pedido haya sido despachado por otro usuario; recargue el pedido e intente de nuevo.");
+        }
+
+        private static async Task<Dictionary<int, int>> GetLockedProcessedQuantitiesAsync(AldebaranDbContext dbContext, int customerOrderId, CancellationToken ct) =>
+            await dbContext.CustomerOrderDetails
+                .FromSqlInterpolated($"SELECT * FROM dbo.customer_order_details WITH (UPDLOCK, ROWLOCK) WHERE CUSTOMER_ORDER_ID = {customerOrderId}")
+                .AsNoTracking()
+                .ToDictionaryAsync(k => k.CustomerOrderDetailId, v => v.ProcessedQuantity, ct);
 
         public async Task<CustomerOrderShipment?> FindAsync(int customerOrderShipmentId, CancellationToken ct = default)
         {
@@ -223,7 +252,8 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
                 catch (Exception)
                 {
                     dbContext.Entry(entity).State = EntityState.Unchanged;
-                    dbContext.Entry(reasonEntity).State = EntityState.Unchanged;
+                    /* Registro nuevo (llave temporal): se desconecta; marcarlo Unchanged ocultaba el error original */
+                    dbContext.Entry(reasonEntity).State = EntityState.Detached;
                     throw;
                 }
             }, ct);

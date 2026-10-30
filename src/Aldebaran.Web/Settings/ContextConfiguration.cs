@@ -1,4 +1,4 @@
-﻿using Aldebaran.DataAccess;
+using Aldebaran.DataAccess;
 using Aldebaran.Web.Models;
 using Microsoft.Extensions.Options;
 
@@ -18,32 +18,23 @@ namespace Aldebaran.Web.Settings
         }
         public bool TrackEnabled => _settings.TrackEnabled;
 
+        /// <summary>
+        /// Usuario registrado en el Track.
+        /// Sin usuario autenticado (callbacks del notificador, enlace del correo de mínimos, procesos en segundo plano)
+        /// el cambio lo hace el sistema: se registra <see cref="SystemUser"/> sin escribir un error en el log.
+        /// </summary>
         public string TrackUser
         {
             get
             {
                 try
                 {
-                    if (_httpContextAccessor == null)
-                        throw new Exception("El acceso al contexto HTTP esta vacio");
-                    if (_httpContextAccessor.HttpContext == null)
-                        throw new Exception("El contexto HTTP esta vacio");
+                    var identity = _httpContextAccessor.HttpContext?.User?.Identity;
 
-                    var user = _httpContextAccessor.HttpContext?.User;
+                    if (identity == null || !identity.IsAuthenticated || string.IsNullOrWhiteSpace(identity.Name))
+                        return SystemUser;
 
-                    if (user == null)
-                        throw new Exception("El usuario esta vacio");
-
-                    if (!user.Identity.IsAuthenticated)
-                        throw new Exception("El usuario no esta autenticado");
-
-                    if (user.Identity == null)
-                        throw new Exception("La identidad del usuario esta vacia");
-
-                    if (user.Identity.Name == string.Empty)
-                        throw new Exception("El nombre del usuario esta vacio");
-
-                    return user.Identity.Name;
+                    return identity.Name;
                 }
                 catch (Exception ex)
                 {
@@ -52,5 +43,7 @@ namespace Aldebaran.Web.Settings
                 }
             }
         }
+
+        public const string SystemUser = "Sistema";
     }
 }

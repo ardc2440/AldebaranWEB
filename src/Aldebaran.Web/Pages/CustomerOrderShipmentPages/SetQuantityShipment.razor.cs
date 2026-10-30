@@ -75,19 +75,24 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
 
         protected async Task FormSubmit()
         {
+            /* Evita un segundo envío (doble clic / Enter) mientras el primero está en proceso */
+            if (IsSubmitInProgress)
+                return;
+
             try
             {
                 IsErrorVisible = false;
                 IsSubmitInProgress = true;
 
-                if ((detailInProcess.PROCESSED_QUANTITY + DetailInProcess.THIS_QUANTITY) < detailInProcess.THIS_QUANTITY)
-                    throw new Exception("La cantidad de este despacho debe ser menor o igual a la cantidad en proceso del artículo");
+                /* La cantidad se captura una sola vez: se valida y se aplica el mismo valor,
+                   aunque el campo cambie mientras se muestra la confirmación */
+                var quantity = detailInProcess.THIS_QUANTITY;
 
-                if (await DialogService.Confirm("Está seguro que desea despachar esta referencia?", "Confirmar") == true)
+                ValidateQuantity(quantity);
+
+                if (await DialogService.Confirm($"Está seguro que desea despachar {quantity:N0} unidades de esta referencia?", "Confirmar") == true)
                 {
-                    DetailInProcess.PROCESSED_QUANTITY = (detailInProcess.PROCESSED_QUANTITY + DetailInProcess.THIS_QUANTITY) - detailInProcess.THIS_QUANTITY;
-                    DetailInProcess.DELIVERED_QUANTITY = (detailInProcess.DELIVERED_QUANTITY - DetailInProcess.THIS_QUANTITY) + detailInProcess.THIS_QUANTITY;
-                    DetailInProcess.THIS_QUANTITY = detailInProcess.THIS_QUANTITY;
+                    ApplyQuantity(quantity);
 
                     DialogService.Close(DetailInProcess);
                 }
@@ -101,6 +106,24 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
             {
                 IsSubmitInProgress = false;
             }
+        }
+
+        /// <summary>
+        /// Máximo permitido: lo que está en proceso más lo que ya estaba asignado a este despacho.
+        /// </summary>
+        private int MaximumQuantity => detailInProcess.PROCESSED_QUANTITY + DetailInProcess.THIS_QUANTITY;
+
+        private void ValidateQuantity(int quantity)
+        {
+            if (quantity > MaximumQuantity)
+                throw new Exception($"La cantidad de este despacho ({quantity:N0}) debe ser menor o igual a la cantidad en proceso del artículo ({MaximumQuantity:N0})");
+        }
+
+        private void ApplyQuantity(int quantity)
+        {
+            DetailInProcess.PROCESSED_QUANTITY = MaximumQuantity - quantity;
+            DetailInProcess.DELIVERED_QUANTITY = (detailInProcess.DELIVERED_QUANTITY - DetailInProcess.THIS_QUANTITY) + quantity;
+            DetailInProcess.THIS_QUANTITY = quantity;
         }
 
         protected async Task CancelButtonClick(MouseEventArgs args)

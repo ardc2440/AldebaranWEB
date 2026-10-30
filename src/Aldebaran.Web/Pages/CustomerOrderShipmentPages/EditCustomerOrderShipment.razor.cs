@@ -159,6 +159,10 @@ namespace Aldebaran.Web.Pages.CustomerOrderShipmentPages
 
         protected async Task FormSubmit()
         {
+            /* Evita un segundo envío (doble clic / Enter) mientras el primero está en proceso */
+            if (IsSubmitInProgress)
+                return;
+
             try
             {
                 IsSubmitInProgress = true;
