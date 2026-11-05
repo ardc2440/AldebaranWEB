@@ -90,9 +90,13 @@ namespace Aldebaran.Web.Shared
 
         protected static string FormatDate(DateTime? value) => value?.ToString("dd/MM/yyyy") ?? string.Empty;
 
-        /// <summary>Muestra al pasar el cursor sobre el proveedor los datos de la última OC Confirmada.</summary>
+        /// <summary>
+        /// Muestra al pasar el cursor sobre el proveedor los datos de la última OC Confirmada.
+        /// Tooltip arriba de la fila: el inventario queda al final del diálogo, y abajo o a la izquierda
+        /// el tooltip se salía de la pantalla en las últimas filas (no se veían los datos).
+        /// </summary>
         protected void ShowLastPurchaseTooltip(ElementReference element, ArticleReferenceInventory row) =>
-            TooltipService.Open(element, _ => LastPurchaseTooltip(row), new TooltipOptions { Position = TooltipPosition.Left, Duration = 8000 });
+            TooltipService.Open(element, _ => LastPurchaseTooltip(row), new TooltipOptions { Position = TooltipPosition.Top, Duration = 8000 });
 
         protected static string AvailableStyle(int available) =>
             available <= 0 ? "color: red; font-weight: bold;" : "color: green; font-weight: bold;";
