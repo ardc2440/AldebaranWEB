@@ -18,3 +18,11 @@ Prueba: sin sesión → 401/redirección; el notificador sigue actualizando esta
 - Ya corregidos en el RQM de Logs: CustomerOrderReport, CustomerOrderActivityReport, CustomerSaleReport, AutomaticPurchaseOrderAssigmentReport, DashBoardRepository.
 
 Prueba: cada reporte tocado devuelve los mismos conteos que antes; búsquedas con comillas simples no fallan.
+
+## H9 – Ruido en el log (agregado 2026-11-05)
+- `EntityFrameworkCore.Triggered` escribe "Invoking trigger: ..." en nivel Información por cada trigger de EF (~251.000 registros/mes en producción). Causa: `builder.Logging.SetMinimumLevel(LogLevel.Trace)` en `Aldebaran.Web/Extensions/ArchitectureBuilderExtensions.cs`.
+- Corrección (código, sin tocar appsettings de producción), en la sección `// Logging` de ese archivo:
+  `builder.Logging.AddFilter("EntityFrameworkCore.Triggered", LogLevel.Warning);`
+- Revisar en el mismo cambio otros mensajes informativos repetitivos (ej. `RabbitQueue.*`, ~4.000/mes) y decidir con Andrés si se filtran.
+
+Prueba: crear/modificar un pedido → no aparecen "Invoking trigger" en el log; un error en un trigger sí se sigue registrando.
