@@ -126,6 +126,7 @@ namespace Aldebaran.Web.Extensions
             builder.Services.AddTransient<ICacheHelper, CacheHelper>();
             builder.Services.AddSingleton(AutoMapperConfiguration.Configure());
             builder.Services.AddTransient<IFileBytesGeneratorService, FileBytesGeneratorService>();
+            builder.Services.AddSingleton<IImageThumbnailService, ImageThumbnailService>();
             builder.Services.AddTransient<ITimerPreferenceService, TimerPreferenceService>();
             services.AddScoped<IContextConfiguration, ContextConfiguration>();
             // Logging
