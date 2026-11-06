@@ -4,6 +4,7 @@ using Aldebaran.Application.Services.Notificator.Model;
 using Aldebaran.Application.Services.NotificationsAccessToken;
 using Aldebaran.Infraestructure.Common.Security;
 using Aldebaran.Infraestructure.Common.Utils;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Text.RegularExpressions;
 using Aldebaran.Application.Services.InventoryMinimumAlerts.Models;
@@ -21,6 +22,8 @@ namespace Aldebaran.Application.Services.InventoryMinimumAlerts
         private readonly INotificationAccessTokenService _notificationAccessTokenService;
         private readonly INotificationTemplateService _notificationTemplateService;
         private readonly IArticleInventoryService _articleInventoryService;
+        private readonly IImageThumbnailService _imageThumbnailService;
+        private readonly ILogger<InventoryMinimumAlertService> _logger;
 
         private static readonly Regex _articleCodeRegex = new(@"\[(.*?)\]", RegexOptions.Compiled);
 
@@ -36,8 +39,12 @@ namespace Aldebaran.Application.Services.InventoryMinimumAlerts
             IEmployeeService employeeService, 
             IDashBoardService dashboardService,
             INotificationTemplateService notificationTemplateService,
-            IArticleInventoryService articleInventoryService)
+            IArticleInventoryService articleInventoryService,
+            IImageThumbnailService imageThumbnailService,
+            ILogger<InventoryMinimumAlertService> logger)
         {
+            _imageThumbnailService = imageThumbnailService ?? throw new ArgumentNullException(nameof(imageThumbnailService));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _articleInventoryService = articleInventoryService ?? throw new ArgumentNullException(nameof(articleInventoryService));
             _encryptionService = encryptionService;
             _notificationService = notificationService;
@@ -66,10 +73,10 @@ namespace Aldebaran.Application.Services.InventoryMinimumAlerts
 
                 if (!alarms.Any()) continue;
 
-                var excel = await GenerateExcelAsync(alarms, ct);
+                var (excel, withoutImages) = await GenerateExcelWithinLimitAsync(employee.EmployeeId, alarms, ct);
                 var (markAsReadLink, tokenId) = GenerateMarkAsReadLinkAsync();
                 var message = BuildMessage(employee, excel);
-                var aditionalBodyMessage = BuildAdditionalBodyMessage(markAsReadLink);
+                var aditionalBodyMessage = BuildAdditionalBodyMessage(markAsReadLink, withoutImages);
 
                 /* Despues de pasar todos los metodos se persiste el token el EmployeeId y la Lista de Alarmas 
                    Es preferible un token perdido y no un link huerfano */
@@ -104,6 +111,28 @@ namespace Aldebaran.Application.Services.InventoryMinimumAlerts
                     ReservedQuantity = x.ReservedQuantity
                 })
                 .ToList();
+        }
+
+        /// <summary>
+        /// Excel con miniaturas; si aun así supera el máximo configurado (límite del servidor de correo),
+        /// se genera sin imágenes para que el correo siempre salga.
+        /// </summary>
+        private async Task<(byte[] Excel, bool WithoutImages)> GenerateExcelWithinLimitAsync(int employeeId, List<InventoryMinimumDto> alarms, CancellationToken ct)
+        {
+            var excel = await GenerateExcelAsync(alarms, ct);
+            var maxBytes = (long)_settings.Value.MaxAttachmentMegabytes * 1024 * 1024;
+
+            _logger.LogInformation("InventoryMinimumAlert: empleado {EmployeeId}, {AlarmCount} alarmas, Excel {SizeKb} KB",
+                employeeId, alarms.Count, excel.Length / 1024);
+
+            if (excel.Length <= maxBytes)
+                return (excel, false);
+
+            _logger.LogWarning("InventoryMinimumAlert: empleado {EmployeeId}, Excel de {SizeKb} KB supera {MaxMb} MB; se envía sin imágenes",
+                employeeId, excel.Length / 1024, _settings.Value.MaxAttachmentMegabytes);
+
+            alarms.ForEach(alarm => alarm.ImagePath = null);
+            return (await GenerateExcelAsync(alarms, ct), true);
         }
 
         /// <summary>Excel agrupado por artículo con "+" (D6–D10): alarma con imagen + inventario de las referencias del artículo.</summary>
@@ -176,9 +205,14 @@ namespace Aldebaran.Application.Services.InventoryMinimumAlerts
             };
         }
 
-        private static string BuildAdditionalBodyMessage(string markAsReadLink)
+        private static string BuildAdditionalBodyMessage(string markAsReadLink, bool withoutImages)
         {
+            var withoutImagesNote = withoutImages
+                ? @"<p>El archivo adjunto se envía sin imágenes por su tamaño; puede consultarlas en el tablero de notificaciones.</p>"
+                : string.Empty;
+
             return $@"  <br/>
+                        {withoutImagesNote}
                         <br/>
                         <p>
                             Puede marcar todas las alarmas incluidas
@@ -205,7 +239,8 @@ namespace Aldebaran.Application.Services.InventoryMinimumAlerts
 
             var imagePath = Path.Combine(_imageRepositoryPath, $"{code}.jpg");
 
-            return File.Exists(imagePath) ? imagePath : null;
+            /* Miniatura: la imagen original (hasta ~1,2 MB) hacía que el correo superara el límite de Gmail */
+            return File.Exists(imagePath) ? _imageThumbnailService.GetThumbnailPath(imagePath, _settings.Value.ThumbnailMaxSize) : null;
         }
 
         private async Task<bool> SaveNotificationToken(int employeeId, short templateId, List<InventoryMinimumDto> alarms, Guid tokenId, CancellationToken ct)
