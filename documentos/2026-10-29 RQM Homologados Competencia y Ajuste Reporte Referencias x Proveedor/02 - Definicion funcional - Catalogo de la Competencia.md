@@ -1,6 +1,6 @@
 # 02 – Definición funcional: Catálogo de la Competencia (Homologaciones)
 
-Fecha: 2026-10-29 · Estado: definida con Andrés; pendiente propuesta/aprobación del cliente.
+Fecha: 2026-10-29 · Estado: **APROBADA por el cliente** (actualizado 2026-11-05).
 
 ## Necesidad
 PROMOS homologa artículos/referencias propios con productos de compañías de la competencia (hoy 3, pueden crecer). Homologar = la competencia también los vende o produce. Hoy se lleva a mano; se quiere administrar en Aldebarán y consultarlo en un reporte. **Solo informativo**: no participa en ninguna operación.

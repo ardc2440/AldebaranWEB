@@ -1,6 +1,6 @@
 # 01 – Definición funcional: Ajuste al Reporte de Referencias del Proveedor
 
-Fecha: 2026-10-29 · Estado: definida con Andrés; pendiente propuesta/aprobación del cliente.
+Fecha: 2026-10-29 · Estado: **APROBADA por el cliente** (actualizado 2026-11-05). Rama `RQM-HomologadosCompetencia_AjusteReporteReferenciasProveedor`.
 Alcance de este documento: **solo el ajuste del reporte**. Los Homologados de la Competencia se definen aparte (no tienen relación con este punto).
 
 ## Situación actual (análisis 2026-10-29)
@@ -12,16 +12,16 @@ Alcance de este documento: **solo el ajuste del reporte**. Los Homologados de la
 
 ## Ajuste solicitado
 1. **Filtro jerárquico** Línea → Artículo → Referencia (`HierarchicalReferencePicker` de Fase 2). Prevalece el nivel más específico; ninguno obligatorio. Se conserva el filtro de Proveedor.
-2. **Switches** (encendido = filtra, apagado = trae todo), iguales al Reporte de Artículos y Referencias, **excepto cantidades mínimas** (no aplican a la finalidad del reporte):
-   - Artículo: Solo activos · Solo visibles en página · Solo producto nacional · Solo importación especial · Solo en promoción.
-   - Referencia: Solo referencias activas · Solo referencias agotadas.
-   - Los switches también filtran lo que ofrece el picker (mismo comportamiento de Fase 2).
+2. **Condiciones de filtro Sí / No / Todos** (casilla de tres estados, criterio 12; raya = Todos por defecto), iguales al Reporte de Artículos y Referencias vigente (tras RQM Complemento Logs), **excepto cantidades mínimas**:
+   - Artículo: Activo · Visible en página · Producto nacional · Importación especial · En oferta (`IS_SALE_OFF`) · Precio bomba (`IS_BOMB_PRICE`).
+   - Referencia: Activa · Agotada.
+   - Las condiciones también limitan lo que ofrece el selector jerárquico (mismo comportamiento de Artículos y Referencias).
 3. **Switch "Mostrar inventario y bodegas"**, encendido por defecto:
    - Sí → igual que hoy (cantidades y desglose por bodega).
    - No → solo referencias (Código, Nombre, Nombre para el proveedor), sin saldos ni bodegas.
    - No filtra registros, solo presentación. Aplica a pantalla, Imprimir, PDF y Excel.
 4. **Exportar a Excel** según el filtro y lo que muestra la pantalla (con o sin inventario). Una fila por referencia con datos de proveedor, línea y artículo repetidos; con inventario: columnas Pedida, Reservada, Disponible, Bodega Local, Zona Franca.
-5. Validación "al menos un filtro": Proveedor, Línea/Artículo/Referencia o algún switch de filtro.
+5. Validación "al menos un filtro": Proveedor, Línea/Artículo/Referencia o alguna condición en Sí/No.
 
 ## Técnico (incluido, no como ítem para el cliente)
 - SP endurecido: `TRY_CAST`, tablas con PK, `OPTION(RECOMPILE)`, nuevos parámetros; script de pruebas.
