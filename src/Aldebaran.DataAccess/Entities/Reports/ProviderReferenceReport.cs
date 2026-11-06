@@ -27,8 +27,9 @@ namespace Aldebaran.DataAccess.Entities.Reports
         public int ReservedAmount { get; set; }
         public int AvailableAmount { get; set; }
 
-        public short WarehouseId { get; set; }
-        public string WarehouseName { get; set; } = null!;
-        public int Amount { get; set; }
+        // Nulos cuando el reporte se consulta sin inventario (@IncludeInventory = 0)
+        public short? WarehouseId { get; set; }
+        public string? WarehouseName { get; set; }
+        public int? Amount { get; set; }
     }
 }
