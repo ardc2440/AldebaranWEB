@@ -1,11 +1,10 @@
-﻿using Aldebaran.Application.Services.Models.Reports;
+using Aldebaran.Application.Services.Models.Reports;
 using Aldebaran.Application.Services.Reports;
 using Aldebaran.Infraestructure.Common.Utils;
 using Aldebaran.Web.Pages.ReportPages.Provider_References.Components;
 using Aldebaran.Web.Pages.ReportPages.Provider_References.ViewModel;
 using Aldebaran.Web.Shared;
 using Microsoft.AspNetCore.Components;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.JSInterop;
 using Radzen;
 using Radzen.Blazor;
@@ -33,11 +32,10 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References
 
         #region Variables
         protected ProviderReferencesFilter Filter;
-        protected ProviderReferencesViewModel ViewModel;
+        /// <summary>Resultado del caso de uso (árbol Proveedor -> Línea -> Artículo -> Referencias -> Bodegas).</summary>
+        protected ProviderReferenceReportResult Report;
         private bool IsBusy = false;
         private bool IsLoadingData = false;
-        protected IEnumerable<ProviderReferenceReport> DataReport { get; set; }
-
         #endregion
 
         #region Overrides
@@ -51,27 +49,22 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References
         #endregion
 
         #region Events
+
         async Task Reset()
         {
             Filter = null;
-            ViewModel = null;
+            Report = null;
             StateHasChanged();
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
             await OpenFilters();
         }
-        async Task RedrawReport(string filter = "", CancellationToken ct = default)
+
+        async Task RedrawReport(ProviderReferenceReportFilter filter, CancellationToken ct = default)
         {
             try
             {
                 IsLoadingData = true;
-
-                DataReport = await ProviderReferenceReportService.GetProviderReferenceReportDataAsync(filter, ct);
-
-                ViewModel = new ProviderReferencesViewModel()
-                {
-                    Providers = await GetProviderReferenceListAsync()
-                };
-
+                Report = await ProviderReferenceReportService.GetReportAsync(filter, ct);
             }
             finally
             {
@@ -87,24 +80,17 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References
                 return;
             Filter = (ProviderReferencesFilter)result;
 
-            await RedrawReport(await SetReportFilter(Filter));
+            await RedrawReport(ToReportFilter(Filter));
 
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
         }
 
-        async Task<string> SetReportFilter(ProviderReferencesFilter filter, CancellationToken ct = default)
+        /// <summary>Traduce la selección del diálogo al filtro del caso de uso.</summary>
+        static ProviderReferenceReportFilter ToReportFilter(ProviderReferencesFilter filter) => new()
         {
-            var filterResult = string.Empty;
-
-            if (filter.Provider != null)
-                if (filter.Provider.ProviderId > 0)
-                    filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ProviderId = {filter.Provider.ProviderId}";
-
-            if (filter.ItemReferences.Count > 0)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReferenceIds = '{String.Join(",", Filter.ItemReferences.Select(s => s.ReferenceId))}'";
-
-            return filterResult;
-        }
+            ProviderId = filter.Provider?.ProviderId > 0 ? filter.Provider.ProviderId : null,
+            ReferenceIds = filter.ItemReferences.Select(s => s.ReferenceId).ToList()
+        };
 
         async Task RemoveFilters()
         {
@@ -113,6 +99,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References
                 await Reset();
             }
         }
+
         async Task Save(RadzenSplitButtonItem args)
         {
             if (args?.Value == null)
@@ -130,10 +117,12 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References
             }
             IsBusy = false;
         }
+
         async Task ToggleReadMore()
         {
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink");
         }
+
         async Task ToggleReadMorePage()
         {
             await JSRuntime.InvokeVoidAsync("readMoreTogglePage", "toggleLinkPage");
@@ -143,79 +132,6 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References
             {
                 { "ArticleName", articleName }
             });
-        #endregion
-
-        #region Fill Data Report
-
-        async Task<List<ProviderReferencesViewModel.Provider>> GetProviderReferenceListAsync(CancellationToken ct = default)
-        {
-            return (from provider in DataReport.Select(s => new { s.ProviderId, s.ContactPerson, s.Email, s.Fax, s.Phone, s.ProviderAddress, s.ProviderCode, s.ProviderName })
-                                        .DistinctBy(d => d.ProviderId).OrderBy(o => o.ProviderName)
-                    select (new ProviderReferencesViewModel.Provider
-                    {
-                        ContactPerson = provider.ContactPerson,
-                        Email = provider.Email,
-                        Fax = provider.Fax,
-                        Phone = provider.Phone,
-                        ProviderAddress = provider.ProviderAddress,
-                        ProviderCode = provider.ProviderCode,
-                        ProviderName = provider.ProviderName,
-                        Lines = GetProviderLines(provider.ProviderId, ct).Result
-                    })).ToList();
-        }
-
-        async Task<List<ProviderReferencesViewModel.Line>> GetProviderLines(int providerId, CancellationToken ct = default)
-        {
-            return (from line in DataReport.Where(w => w.ProviderId == providerId).Select(s => new { s.LineId, s.LineCode, s.LineName }).DistinctBy(s => s.LineId).OrderBy(o => o.LineName)
-                    select (new ProviderReferencesViewModel.Line
-                    {
-                        LineCode = line.LineCode,
-                        LineName = line.LineName,
-                        Items = GetLineItems(providerId, line.LineId, ct).Result
-                    })).ToList();
-        }
-
-        async Task<List<ProviderReferencesViewModel.Item>> GetLineItems(int providerId, short lineId, CancellationToken ct = default)
-        {
-            return (from item in DataReport.Where(w => w.ProviderId == providerId && w.LineId == lineId).Select(s => new { s.ItemId, s.ItemName, s.InternalReference }).DistinctBy(d => d.ItemId).OrderBy(o => o.ItemName)
-                    select (new ProviderReferencesViewModel.Item
-                    {
-                        InternalReference = item.InternalReference,
-                        ItemName = item.ItemName,
-                        References = GetItemReferences(providerId, item.ItemId, ct).Result
-                    })).ToList();
-        }
-
-        async Task<List<ProviderReferencesViewModel.Reference>> GetItemReferences(int providerId, int itemId, CancellationToken ct = default)
-        {
-            return (from reference in DataReport.Where(w => w.ProviderId == providerId && w.ItemId == itemId).Select(s => new { s.ReferenceId, s.ReferenceName, s.ReferenceCode, s.ProviderReferenceName, s.AvailableAmount, s.ConfirmedAmount, s.ReservedAmount })
-                                          .DistinctBy(d => d.ReferenceId).OrderBy(o => o.ReferenceName)
-                    select (new ProviderReferencesViewModel.Reference
-                    {
-                        ReferenceName = reference.ReferenceName,
-                        ReferenceCode = reference.ReferenceCode,
-                        ProviderReferenceName = reference.ProviderReferenceName,
-                        AvailableAmount = reference.AvailableAmount,
-                        ConfirmedAmount = reference.ConfirmedAmount,
-                        ReservedAmount = reference.ReservedAmount,
-                        Warehouses = GetReferenceWarehouses(reference.ReferenceId, ct).Result
-                    })).ToList();
-        }
-
-        async Task<List<ProviderReferencesViewModel.Warehouse>> GetReferenceWarehouses(int referenceId, CancellationToken ct = default)
-        {
-            var result = (from warehouseReference in DataReport.Where(w => w.ReferenceId == referenceId).Select(s => new { s.WarehouseId, s.WarehouseName, s.Amount })
-                                                        .DistinctBy(d => d.WarehouseId).OrderBy(o => o.WarehouseName)
-                          select (new ProviderReferencesViewModel.Warehouse
-                          {
-                              WarehouseId = warehouseReference.WarehouseId,
-                              WarehouseName = warehouseReference.WarehouseName,
-                              Amount = warehouseReference.Amount,
-                          })).ToList();
-
-            return result;
-        }
-
         #endregion
     }
 }

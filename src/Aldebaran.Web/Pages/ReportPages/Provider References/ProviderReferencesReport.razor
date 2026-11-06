@@ -1,4 +1,4 @@
-﻿@page "/report/provider-references"
+@page "/report/provider-references"
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
 
 <PageTitle>Reporte de referencias del proveedor</PageTitle>
@@ -48,7 +48,7 @@
         </RadzenColumn>
         <RadzenColumn Size="6" class="align-self-end">
             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.End" JustifyContent="JustifyContent.End" Gap="0.5rem">
-                <RadzenSplitButton Icon="build" Text="Acciones" Click="@Save" Variant="Variant.Flat" Shade="Shade.Lighter" IsBusy="@IsBusy" Disabled="ViewModel==null">
+                <RadzenSplitButton Icon="build" Text="Acciones" Click="@Save" Variant="Variant.Flat" Shade="Shade.Lighter" IsBusy="@IsBusy" Disabled="Report==null">
                     <RadzenSplitButtonItem Text="Imprimir" Icon="print" Value="print" Style="cursor:pointer" />
                     <RadzenSplitButtonItem Text="Guardar PDF" Icon="picture_as_pdf" Value="save" Style="cursor:pointer" />
                 </RadzenSplitButton>
@@ -103,11 +103,11 @@
                         </table>
                         <div class="mt-1">
                             <LoadingData IsLoadingData="@IsLoadingData" />
-                            @if (ViewModel != null)
+                            @if (Report != null)
                             {
-                                @if (ViewModel.Providers?.Any() == true)
+                                @if (Report.HasData)
                                 {
-                                    @foreach (var provider in ViewModel.Providers)
+                                    @foreach (var provider in Report.Providers)
                                     {
                                         <table class="edged">
                                             <thead>

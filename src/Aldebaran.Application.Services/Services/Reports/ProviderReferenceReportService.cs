@@ -34,13 +34,6 @@ namespace Aldebaran.Application.Services.Reports
             return ProviderReferenceReportExportRowBuilder.Build(rows, filter.IncludeInventory);
         }
 
-        [Obsolete("Filtro armado como texto. Se retira en T3 (la pantalla pasa a usar GetReportAsync).")]
-        public async Task<IEnumerable<ProviderReferenceReport>> GetProviderReferenceReportDataAsync(string filter, CancellationToken ct = default)
-        {
-            var data = await _repository.GetProviderReferenceReportDataAsync(filter, ct);
-            return _mapper.Map<IEnumerable<ProviderReferenceReport>>(data);
-        }
-
         private Task<IEnumerable<Entities.ProviderReferenceReport>> GetRowsAsync(ProviderReferenceReportFilter filter, CancellationToken ct)
         {
             var dataFilter = _mapper.Map<Entities.ProviderReferenceReportFilter>(filter);

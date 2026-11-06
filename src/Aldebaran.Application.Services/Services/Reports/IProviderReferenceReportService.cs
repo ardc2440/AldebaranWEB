@@ -10,8 +10,5 @@ namespace Aldebaran.Application.Services.Reports
 
         /// <summary>Consulta el reporte en filas planas (una por proveedor-referencia) para exportar a Excel.</summary>
         Task<IReadOnlyList<ProviderReferenceReportExportRow>> GetExportAsync(ProviderReferenceReportFilter filter, CancellationToken ct = default);
-
-        [Obsolete("Filtro armado como texto. Se retira en T3 (la pantalla pasa a usar GetReportAsync).")]
-        Task<IEnumerable<ProviderReferenceReport>> GetProviderReferenceReportDataAsync(string filter = "", CancellationToken ct = default);
     }
 }

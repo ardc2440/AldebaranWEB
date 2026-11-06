@@ -37,15 +37,6 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository.Reports
             }, ct);
         }
 
-        [Obsolete("Filtro armado como texto. Se retira en T3 (la pantalla pasa a usar el filtro tipado).")]
-        public async Task<IEnumerable<ProviderReferenceReport>> GetProviderReferenceReportDataAsync(string filter, CancellationToken ct)
-        {
-            return await ExecuteQueryAsync(async dbContext =>
-            {
-                return await dbContext.Set<ProviderReferenceReport>().FromSqlRaw($"EXEC SP_GET_PROVIDER_REFERENCE_REPORT {filter}").ToListAsync(ct);
-            }, ct);
-        }
-
         /// <summary>Lista de Ids separada por coma; sin Ids no se envía (el SP lo interpreta como "sin filtro").</summary>
         private static string? Ids<T>(IEnumerable<T>? ids) => ids?.Any() == true ? string.Join(",", ids.Distinct()) : null;
     }
