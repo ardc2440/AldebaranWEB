@@ -1,0 +1,61 @@
+@page "/competitor-companies"
+@attribute [Authorize(Roles = "Administrador,Catálogo de la competencia")]
+@using Aldebaran.Web.Resources.LocalizedControls
+@using Aldebaran.Application.Services.Models.Competitors
+
+<PageTitle>Compañías de la competencia</PageTitle>
+
+<RadzenStack>
+    <RadzenRow AlignItems="AlignItems.Center">
+        <RadzenColumn Size="12">
+            <RadzenText Text="Compañías de la competencia" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
+        </RadzenColumn>
+        <RadzenColumn Size="12">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="1rem">
+                <RadzenButton Icon="add_circle_outline" Text="Nueva" Click="@AddAsync" Variant="Variant.Flat" />
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                    <RadzenCheckBox TValue="bool" Value="@IncludeInactive" ValueChanged="@OnIncludeInactiveChanged" Name="IncludeInactive" />
+                    <RadzenLabel Text="Mostrar inactivas" Component="IncludeInactive" />
+                </RadzenStack>
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTextBox Placeholder="Buscar por nombre, sitio web, contacto o teléfono..." style="display: block; width: 100%" @oninput="@SearchAsync" />
+    <RadzenRow>
+        <RadzenColumn SizeMD="12">
+            <LocalizedDataGrid @ref="Grid" ColumnWidth="180px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[] { 10, 20, 30 })
+                               Data="@Companies" TItem="CompetitorCompany" AllowColumnResize="true" AllowColumnPicking="true" IsLoading="@IsLoading">
+                <Columns>
+                    <RadzenDataGridColumn TItem="CompetitorCompany" Property="CompanyName" Title="Nombre" Width="220px" />
+                    <RadzenDataGridColumn TItem="CompetitorCompany" Property="Website" Title="Sitio web" Width="220px">
+                        <Template Context="company">
+                            <a href="@WebLink(company.Website)" target="_blank" rel="noopener noreferrer">@company.Website</a>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="CompetitorCompany" Property="ContactPerson" Title="Contacto" />
+                    <RadzenDataGridColumn TItem="CompetitorCompany" Property="Phone" Title="Teléfono" Width="140px" />
+                    <RadzenDataGridColumn TItem="CompetitorCompany" Property="Location" Title="Ubicación" Width="240px" Sortable="false" Filterable="false" />
+                    <RadzenDataGridColumn TItem="CompetitorCompany" Property="IsActive" Title="Estado" Width="110px" Filterable="false">
+                        <Template Context="company">@(company.IsActive ? "Activa" : "Inactiva")</Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="CompetitorCompany" Filterable="false" Sortable="false" Width="110px" TextAlign="TextAlign.Center" Pickable="false" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                        <Template Context="company">
+                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" title="Editar"
+                                          Click="@(args => EditAsync(company))" @onclick:stopPropagation="true" />
+                            @if (company.IsActive)
+                            {
+                                <RadzenButton Icon="block" ButtonStyle="ButtonStyle.Danger" Shade="Shade.Lighter" Variant="Variant.Flat" Size="ButtonSize.Medium" title="Inactivar"
+                                              Click="@(args => InactivateAsync(company))" @onclick:stopPropagation="true" />
+                            }
+                            else
+                            {
+                                <RadzenButton Icon="check_circle" ButtonStyle="ButtonStyle.Success" Shade="Shade.Lighter" Variant="Variant.Flat" Size="ButtonSize.Medium" title="Reactivar"
+                                              Click="@(args => ActivateAsync(company))" @onclick:stopPropagation="true" />
+                            }
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </LocalizedDataGrid>
+        </RadzenColumn>
+    </RadzenRow>
+</RadzenStack>

@@ -8,7 +8,7 @@ namespace Aldebaran.Application.Services.Reports
         /// <summary>Consulta el reporte en árbol Proveedor -> Línea -> Artículo -> Referencias (-> Bodegas) para pantalla, impresión y PDF.</summary>
         Task<ProviderReferenceReportResult> GetReportAsync(ProviderReferenceReportFilter filter, CancellationToken ct = default);
 
-        /// <summary>Consulta el reporte en filas planas (una por proveedor-referencia) para exportar a Excel.</summary>
-        Task<IReadOnlyList<ProviderReferenceReportExportRow>> GetExportAsync(ProviderReferenceReportFilter filter, CancellationToken ct = default);
+        /// <summary>Consulta el reporte en filas planas (una por proveedor-referencia, con o sin inventario) para exportar a Excel.</summary>
+        Task<ProviderReferenceReportExport> GetExportAsync(ProviderReferenceReportFilter filter, CancellationToken ct = default);
     }
 }

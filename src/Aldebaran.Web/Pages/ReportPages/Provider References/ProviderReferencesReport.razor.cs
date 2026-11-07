@@ -35,6 +35,10 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References
         /// <summary>Resultado del caso de uso (árbol Proveedor -> Línea -> Artículo -> Referencias -> Bodegas).</summary>
         protected ProviderReferenceReportResult Report;
         private bool IsBusy = false;
+        private bool IsExporting = false;
+        protected const string ExcelAction = "xlsx";
+        private const string ExcelFileName = "Referencias del proveedor.xlsx";
+        private const string ExcelMimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
         private bool IsLoadingData = false;
         #endregion
 
@@ -106,6 +110,35 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References
                 await JSRuntime.InvokeVoidAsync("print", "provider-references-report-container");
             }
             IsBusy = false;
+        }
+
+        /// <summary>
+        /// Exporta a Excel con el caso de uso de exportación (mismo filtro aplicado; con o sin inventario según la opción).
+        /// Se genera en el servidor y se descarga por JS.
+        /// </summary>
+        protected async Task ExportAsync(RadzenSplitButtonItem args)
+        {
+            var action = args?.Value ?? ExcelAction; // el botón principal también exporta a Excel (única opción)
+            if (action != ExcelAction || Filter == null || Report?.HasData != true)
+                return;
+            try
+            {
+                IsExporting = true;
+                StateHasChanged();
+                var export = await ProviderReferenceReportService.GetExportAsync(Filter.Criteria);
+                var bytes = export.IncludeInventory
+                    ? await FileBytesGeneratorService.GetExcelBytes(export.InventoryReferences.ToList())
+                    : await FileBytesGeneratorService.GetExcelBytes(export.References.ToList());
+                await JSRuntime.InvokeVoidAsync("downloadFile", ExcelFileName, ExcelMimeType, Convert.ToBase64String(bytes));
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error exportando a Excel el reporte de referencias del proveedor");
+            }
+            finally
+            {
+                IsExporting = false;
+            }
         }
 
         private async Task ShowImageDialog(string articleName) => DialogService.Open<ImageDialog>("", new Dictionary<string, object>

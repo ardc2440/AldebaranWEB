@@ -61,6 +61,8 @@ namespace Aldebaran.DataAccess
         public DbSet<DocumentType> DocumentTypes { get; set; }
         public DbSet<Employee> Employees { get; set; }
         public DbSet<Forwarder> Forwarders { get; set; }
+        public DbSet<CompetitorCompany> CompetitorCompanies { get; set; }
+        public DbSet<CompetitorHomologation> CompetitorHomologations { get; set; }
         public DbSet<ForwarderAgent> ForwarderAgents { get; set; }
         public DbSet<IdentityType> IdentityTypes { get; set; }
         public DbSet<Item> Items { get; set; }
@@ -172,6 +174,8 @@ namespace Aldebaran.DataAccess
             modelBuilder.ApplyConfiguration(new DocumentTypeConfiguration());
             modelBuilder.ApplyConfiguration(new EmployeeConfiguration());
             modelBuilder.ApplyConfiguration(new ForwarderConfiguration());
+            modelBuilder.ApplyConfiguration(new CompetitorCompanyConfiguration());
+            modelBuilder.ApplyConfiguration(new CompetitorHomologationConfiguration());
             modelBuilder.ApplyConfiguration(new ForwarderAgentConfiguration());
             modelBuilder.ApplyConfiguration(new IdentityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new ItemConfiguration());

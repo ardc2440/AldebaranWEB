@@ -80,31 +80,45 @@ namespace Aldebaran.Application.Services.Tests.Reports
         }
 
         [Fact]
-        public void Exportacion_UnaFilaPorProveedorReferencia_ConBodegas()
+        public void Exportacion_ConInventario_UnaFilaPorProveedorReferencia_ConBodegas()
         {
-            var rows = ProviderReferenceReportExportRowBuilder.Build(WithInventory(), true);
+            var export = ProviderReferenceReportExportRowBuilder.Build(WithInventory(), true);
 
-            Assert.Equal(4, rows.Count);
+            Assert.True(export.IncludeInventory);
+            Assert.Empty(export.References);
+            Assert.Equal(4, export.Count);
+            var rows = export.InventoryReferences;
             Assert.Equal(new[] { "Alfa", "Alfa", "Zeta", "Zeta" }, rows.Select(r => r.ProviderName));
-            var first = rows[0];
-            Assert.Equal("Negra", first.ReferenceName);
-            Assert.Equal(8, first.AvailableAmount);
-            Assert.Equal(new[] { 1, 4 }, first.Warehouses.Select(w => w.Amount));
+            var negra = rows[0];
+            Assert.Equal("Negra", negra.ReferenceName);
+            Assert.Equal(8, negra.AvailableAmount);
+            Assert.Equal(1, negra.LocalWarehouse);
+            Assert.Equal(4, negra.FreeZone);
+            var azul = rows.Single(r => r.ReferenceName == "Azul");
+            Assert.Equal(5, azul.LocalWarehouse);
+            Assert.Equal(3, azul.FreeZone);
         }
 
         [Fact]
-        public void Exportacion_SinInventario_SinCantidadesNiBodegas()
+        public void Exportacion_SinInventario_SoloColumnasDeReferencia()
         {
-            var rows = ProviderReferenceReportExportRowBuilder.Build(WithInventory(), false);
+            var rows = WithInventory().DistinctBy(r => (r.ProviderId, r.ReferenceId))
+                                      .Select(r => { r.WarehouseId = null; r.WarehouseName = null; r.Amount = null; return r; });
 
-            Assert.Equal(4, rows.Count);
-            Assert.All(rows, r =>
-            {
-                Assert.Null(r.ConfirmedAmount);
-                Assert.Null(r.ReservedAmount);
-                Assert.Null(r.AvailableAmount);
-                Assert.Empty(r.Warehouses);
-            });
+            var export = ProviderReferenceReportExportRowBuilder.Build(rows, false);
+
+            Assert.False(export.IncludeInventory);
+            Assert.Empty(export.InventoryReferences);
+            Assert.Equal(4, export.Count);
+            Assert.Equal("PR201", export.References[0].ProviderReferenceName);
+        }
+
+        [Fact]
+        public void Exportacion_ColumnasSinInventario_NoIncluyenCantidades()
+        {
+            var columns = typeof(Aldebaran.Application.Services.Models.Reports.ProviderReferenceReportExportRow).GetProperties().Select(p => p.Name).ToList();
+            Assert.DoesNotContain("AvailableAmount", columns);
+            Assert.DoesNotContain("LocalWarehouse", columns);
         }
     }
 }

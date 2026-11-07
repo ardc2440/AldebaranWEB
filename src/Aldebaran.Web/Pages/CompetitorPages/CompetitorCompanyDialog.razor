@@ -1,0 +1,82 @@
+@attribute [Authorize(Roles = "Administrador,Catálogo de la competencia")]
+@using Aldebaran.Application.Services.Competitors
+@using Aldebaran.Application.Services.Models.Competitors
+
+<LoadingData IsLoadingData="@IsLoading" />
+
+@if (!IsLoading)
+{
+    <RadzenColumn SizeMD="12">
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@(Errors.Count > 0)" AllowClose="false" Title="No se ha podido guardar la compañía">
+            <ul class="m-0" style="list-style-type:disc">
+                @foreach (var error in Errors)
+                {
+                    <li>@error</li>
+                }
+            </ul>
+        </RadzenAlert>
+        <RadzenTemplateForm TItem="CompetitorCompanyInput" Data="@Input" Submit="@SaveAsync">
+            <RadzenStack>
+                <RadzenRow>
+                    <RadzenColumn Size="12" SizeMD="6">
+                        <RadzenFormField Text="Nombre *" Variant="Variant.Text" Style="width: 100%;">
+                            <ChildContent>
+                                <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Input.CompanyName" Name="CompanyName" MaxLength="@CompetitorCompanyRules.CompanyNameMaxLength" />
+                            </ChildContent>
+                            <Helper>
+                                <RadzenRequiredValidator Component="CompanyName" Text="El nombre es obligatorio" />
+                            </Helper>
+                        </RadzenFormField>
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="6">
+                        <RadzenFormField Text="Sitio web *" Variant="Variant.Text" Style="width: 100%;">
+                            <ChildContent>
+                                <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Input.Website" Name="Website" MaxLength="@CompetitorCompanyRules.WebsiteMaxLength" Placeholder="www.competidor.com" />
+                            </ChildContent>
+                            <Helper>
+                                <RadzenRequiredValidator Component="Website" Text="El sitio web es obligatorio" />
+                            </Helper>
+                        </RadzenFormField>
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenRow>
+                    <RadzenColumn Size="12" SizeMD="6">
+                        <RadzenFormField Text="Contacto" Variant="Variant.Text" Style="width: 100%;">
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Input.ContactPerson" Name="ContactPerson" MaxLength="@CompetitorCompanyRules.ContactPersonMaxLength" />
+                        </RadzenFormField>
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="6">
+                        <RadzenFormField Text="Teléfono" Variant="Variant.Text" Style="width: 100%;">
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Input.Phone" Name="Phone" MaxLength="@CompetitorCompanyRules.PhoneMaxLength" />
+                        </RadzenFormField>
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenRow>
+                    <RadzenColumn Size="12" SizeMD="4">
+                        <RadzenFormField Text="País" Variant="Variant.Text" Style="width: 100%;">
+                            <RadzenDropDown TValue="int?" Data="@Countries" TextProperty="CountryName" ValueProperty="CountryId" Value="@Input.CountryId" ValueChanged="@OnCountryChangedAsync"
+                                            AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" style="display: block; width: 100%" Name="CountryId" />
+                        </RadzenFormField>
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="4">
+                        <RadzenFormField Text="Departamento / Estado" Variant="Variant.Text" Style="width: 100%;">
+                            <RadzenDropDown TValue="int?" Data="@Departments" TextProperty="DepartmentName" ValueProperty="DepartmentId" Value="@Input.DepartmentId" ValueChanged="@OnDepartmentChangedAsync"
+                                            Disabled="@(Input.CountryId == null)" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" style="display: block; width: 100%" Name="DepartmentId" />
+                        </RadzenFormField>
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="4">
+                        <RadzenFormField Text="Ciudad" Variant="Variant.Text" Style="width: 100%;">
+                            <RadzenDropDown TValue="int?" Data="@Cities" TextProperty="CityName" ValueProperty="CityId" @bind-Value="@Input.CityId"
+                                            Disabled="@(Input.DepartmentId == null)" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" style="display: block; width: 100%" Name="CityId" />
+                        </RadzenFormField>
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenText TextStyle="TextStyle.Caption">* Obligatorio. La ubicación es opcional: el departamento se habilita al elegir el país y la ciudad al elegir el departamento.</RadzenText>
+            </RadzenStack>
+            <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Guardando..." IsBusy="@IsSaving" />
+                <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@Cancel" />
+            </RadzenStack>
+        </RadzenTemplateForm>
+    </RadzenColumn>
+}

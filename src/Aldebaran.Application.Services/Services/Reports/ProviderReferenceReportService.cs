@@ -27,7 +27,7 @@ namespace Aldebaran.Application.Services.Reports
             return ProviderReferenceReportTreeBuilder.Build(rows, filter.IncludeInventory);
         }
 
-        public async Task<IReadOnlyList<ProviderReferenceReportExportRow>> GetExportAsync(ProviderReferenceReportFilter filter, CancellationToken ct = default)
+        public async Task<ProviderReferenceReportExport> GetExportAsync(ProviderReferenceReportFilter filter, CancellationToken ct = default)
         {
             filter ??= new ProviderReferenceReportFilter();
             var rows = await GetRowsAsync(filter, ct);

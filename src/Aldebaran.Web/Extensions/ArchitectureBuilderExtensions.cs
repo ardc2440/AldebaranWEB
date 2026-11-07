@@ -228,6 +228,8 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IDocumentTypeRepository, DocumentTypeRepository>();
             services.AddTransient<IEmployeeRepository, EmployeeRepository>();
             services.AddTransient<IForwarderRepository, ForwarderRepository>();
+            services.AddTransient<Aldebaran.DataAccess.Infraestructure.Repository.Competitors.ICompetitorCompanyRepository, Aldebaran.DataAccess.Infraestructure.Repository.Competitors.CompetitorCompanyRepository>();
+            services.AddTransient<Aldebaran.DataAccess.Infraestructure.Repository.Competitors.ICompetitorHomologationRepository, Aldebaran.DataAccess.Infraestructure.Repository.Competitors.CompetitorHomologationRepository>();
             services.AddTransient<IForwarderAgentRepository, ForwarderAgentRepository>();
             services.AddTransient<IIdentityTypeRepository, IdentityTypeRepository>();
             services.AddTransient<IItemRepository, ItemRepository>();
@@ -335,6 +337,8 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IDocumentTypeService, DocumentTypeService>();
             services.AddTransient<IEmployeeService, EmployeeService>();
             services.AddTransient<IForwarderService, ForwarderService>();
+            services.AddTransient<Aldebaran.Application.Services.Competitors.ICompetitorCompanyService, Aldebaran.Application.Services.Competitors.CompetitorCompanyService>();
+            services.AddTransient<Aldebaran.Application.Services.Competitors.ICompetitorHomologationService, Aldebaran.Application.Services.Competitors.CompetitorHomologationService>();
             services.AddTransient<IForwarderAgentService, ForwarderAgentService>();
             services.AddTransient<IIdentityTypeService, IdentityTypeService>();
             services.AddTransient<IItemService, ItemService>();
