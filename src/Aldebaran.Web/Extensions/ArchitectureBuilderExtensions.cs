@@ -339,6 +339,7 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IForwarderService, ForwarderService>();
             services.AddTransient<Aldebaran.Application.Services.Competitors.ICompetitorCompanyService, Aldebaran.Application.Services.Competitors.CompetitorCompanyService>();
             services.AddTransient<Aldebaran.Application.Services.Competitors.ICompetitorHomologationService, Aldebaran.Application.Services.Competitors.CompetitorHomologationService>();
+            services.AddTransient<Aldebaran.Application.Services.Competitors.ICompetitorImageStorage, Aldebaran.Web.Services.Competitors.CompetitorImageStorage>();
             services.AddTransient<IForwarderAgentService, ForwarderAgentService>();
             services.AddTransient<IIdentityTypeService, IdentityTypeService>();
             services.AddTransient<IItemService, ItemService>();

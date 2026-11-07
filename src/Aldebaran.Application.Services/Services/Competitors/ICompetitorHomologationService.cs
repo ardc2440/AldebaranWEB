@@ -14,5 +14,11 @@ namespace Aldebaran.Application.Services.Competitors
         Task InactivateAsync(int competitorHomologationId, CancellationToken ct = default);
         /// <summary>Reactiva; InvalidOperationException si ya hay otra activa igual o la compañía está inactiva.</summary>
         Task ActivateAsync(int competitorHomologationId, CancellationToken ct = default);
+
+        /// <summary>Carga o reemplaza la imagen del producto (ArgumentException si el tipo o tamaño no es válido). Elimina la anterior.</summary>
+        Task SetImageAsync(int competitorHomologationId, Stream content, string fileName, long size, CancellationToken ct = default);
+
+        /// <summary>Quita la imagen del producto y elimina el archivo.</summary>
+        Task RemoveImageAsync(int competitorHomologationId, CancellationToken ct = default);
     }
 }

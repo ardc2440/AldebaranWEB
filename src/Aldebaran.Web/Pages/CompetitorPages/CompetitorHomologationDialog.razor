@@ -1,0 +1,125 @@
+@attribute [Authorize(Roles = "Administrador,Catálogo de la competencia")]
+@using Aldebaran.Application.Services.Competitors
+@using Aldebaran.Application.Services.Models.Competitors
+@using Aldebaran.Web.Services.Competitors
+
+<LoadingData IsLoadingData="@IsLoading" />
+
+@if (!IsLoading)
+{
+    <RadzenColumn SizeMD="12">
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@(Errors.Count > 0)" AllowClose="false" Title="No se ha podido guardar la homologación">
+            <ul class="m-0" style="list-style-type:disc">
+                @foreach (var error in Errors)
+                {
+                    <li>@error</li>
+                }
+            </ul>
+        </RadzenAlert>
+        <RadzenTemplateForm TItem="CompetitorHomologationInput" Data="@Input" Submit="@SaveAsync">
+            <RadzenStack>
+                <RadzenText TextStyle="TextStyle.Subtitle2" class="m-0">PROMOS</RadzenText>
+                <RadzenRow>
+                    <RadzenColumn Size="12" SizeMD="7">
+                        <RadzenFormField Text="Artículo *" Variant="Variant.Text" Style="width: 100%;">
+                            <ChildContent>
+                                <RadzenDropDownDataGrid TValue="int?" Count="@ItemCount" LoadData="@LoadItemsAsync" Data="@Items" TextProperty="FullName" ValueProperty="ItemId"
+                                                        Value="@SelectedItemId" ValueChanged="@OnItemChangedAsync" AllowClear="true" AllowFilteringByAllStringColumns="true"
+                                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" style="display: block; width: 100%" Name="ItemId">
+                                    <Columns>
+                                        <RadzenDropDownDataGridColumn Property="InternalReference" Title="Ref. interna" Width="140px" />
+                                        <RadzenDropDownDataGridColumn Property="ItemName" Title="Nombre" />
+                                    </Columns>
+                                </RadzenDropDownDataGrid>
+                            </ChildContent>
+                        </RadzenFormField>
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="5">
+                        <RadzenFormField Text="Referencia (vacía = todo el artículo)" Variant="Variant.Text" Style="width: 100%;">
+                            <ChildContent>
+                                <RadzenDropDown TValue="int?" Data="@References" TextProperty="FullName" ValueProperty="ReferenceId" @bind-Value="@Input.ReferenceId"
+                                                Disabled="@(SelectedItemId == null)" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                style="display: block; width: 100%" Name="ReferenceId" />
+                            </ChildContent>
+                        </RadzenFormField>
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenText TextStyle="TextStyle.Caption" class="m-0">Sin referencia, la homologación aplica a todo el artículo.</RadzenText>
+
+                <RadzenText TextStyle="TextStyle.Subtitle2" class="mt-2 mb-0">Competencia</RadzenText>
+                <RadzenRow>
+                    <RadzenColumn Size="12" SizeMD="6">
+                        <RadzenFormField Text="Compañía de la competencia *" Variant="Variant.Text" Style="width: 100%;">
+                            <ChildContent>
+                                <RadzenDropDown TValue="int" Data="@Companies" TextProperty="CompanyName" ValueProperty="CompetitorCompanyId" @bind-Value="@Input.CompetitorCompanyId"
+                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" style="display: block; width: 100%" Name="CompetitorCompanyId" />
+                            </ChildContent>
+                        </RadzenFormField>
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="6">
+                        <RadzenFormField Text="Referencia del competidor *" Variant="Variant.Text" Style="width: 100%;">
+                            <ChildContent>
+                                <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Input.CompetitorReference" Name="CompetitorReference" MaxLength="@CompetitorHomologationRules.CompetitorReferenceMaxLength" />
+                            </ChildContent>
+                            <Helper>
+                                <RadzenRequiredValidator Component="CompetitorReference" Text="La referencia del competidor es obligatoria" />
+                            </Helper>
+                        </RadzenFormField>
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenRow>
+                    <RadzenColumn Size="12">
+                        <RadzenFormField Text="Nombre del producto del competidor *" Variant="Variant.Text" Style="width: 100%;">
+                            <ChildContent>
+                                <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Input.CompetitorProductName" Name="CompetitorProductName" MaxLength="@CompetitorHomologationRules.CompetitorProductNameMaxLength" />
+                            </ChildContent>
+                            <Helper>
+                                <RadzenRequiredValidator Component="CompetitorProductName" Text="El nombre del producto es obligatorio" />
+                            </Helper>
+                        </RadzenFormField>
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenRow>
+                    <RadzenColumn Size="12" SizeMD="8">
+                        <RadzenFormField Text="Enlace al producto" Variant="Variant.Text" Style="width: 100%;">
+                            <RadzenTextBox style="display: block; width: 100%" @bind-Value="@Input.ProductUrl" Name="ProductUrl" MaxLength="@CompetitorHomologationRules.ProductUrlMaxLength" Placeholder="www.competidor.com/producto" />
+                        </RadzenFormField>
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="4">
+                        <RadzenFormField Text="Precio de la competencia (COP)" Variant="Variant.Text" Style="width: 100%;">
+                            <RadzenNumeric TValue="decimal?" @bind-Value="@Input.CompetitorPrice" Min="0" Format="N2" ShowUpDown="false" style="display: block; width: 100%" Name="CompetitorPrice" />
+                        </RadzenFormField>
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenText TextStyle="TextStyle.Subtitle2" class="mt-2 mb-0">Imagen del producto (opcional)</RadzenText>
+                <RadzenRow AlignItems="AlignItems.Center">
+                    <RadzenColumn Size="12" SizeMD="3">
+                        @if (PreviewUrl != null)
+                        {
+                            <img src="@PreviewUrl" alt="Imagen del producto" style="max-width: 140px; max-height: 140px; border: 1px solid #ddd; border-radius: 4px;" />
+                        }
+                        else
+                        {
+                            <RadzenText TextStyle="TextStyle.Caption">Sin imagen</RadzenText>
+                        }
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="9">
+                        <RadzenStack Gap="0.5rem">
+                            <InputFile OnChange="@OnImageSelectedAsync" accept="@CompetitorImageRules.AcceptAttribute" />
+                            @if (PreviewUrl != null)
+                            {
+                                <RadzenButton Text="Quitar imagen" Icon="delete" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Small" Click="@RemoveImage" style="width: fit-content" />
+                            }
+                            <RadzenText TextStyle="TextStyle.Caption" class="m-0">JPG, PNG o WEBP de máximo 2 MB. Se guarda al pulsar Guardar.</RadzenText>
+                        </RadzenStack>
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenText TextStyle="TextStyle.Caption">* Obligatorio.</RadzenText>
+            </RadzenStack>
+            <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Guardar" Variant="Variant.Flat" BusyText="Guardando..." IsBusy="@IsSaving" />
+                <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@Cancel" />
+            </RadzenStack>
+        </RadzenTemplateForm>
+    </RadzenColumn>
+}

@@ -1,0 +1,78 @@
+@page "/competitor-homologations"
+@attribute [Authorize(Roles = "Administrador,Catálogo de la competencia")]
+@using Aldebaran.Web.Resources.LocalizedControls
+@using Aldebaran.Application.Services.Models.Competitors
+@using Aldebaran.Web.Services.Competitors
+
+<PageTitle>Homologaciones con la competencia</PageTitle>
+
+<RadzenStack>
+    <RadzenRow AlignItems="AlignItems.Center">
+        <RadzenColumn Size="12">
+            <RadzenText Text="Homologaciones con la competencia" TextStyle="TextStyle.H4" TagName="TagName.H1" style="margin: 0" />
+        </RadzenColumn>
+        <RadzenColumn Size="12">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="1rem" Wrap="FlexWrap.Wrap">
+                <RadzenButton Icon="add_circle_outline" Text="Nueva" Click="@AddAsync" Variant="Variant.Flat" />
+                <RadzenDropDown TValue="int?" Data="@Companies" TextProperty="CompanyName" ValueProperty="CompetitorCompanyId" Value="@CompanyFilter" ValueChanged="@OnCompanyFilterChanged"
+                                AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Placeholder="Todas las compañías" style="display: block; width: 320px" />
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                    <RadzenCheckBox TValue="bool" Value="@IncludeInactive" ValueChanged="@OnIncludeInactiveChanged" Name="IncludeInactive" />
+                    <RadzenLabel Text="Mostrar inactivas" Component="IncludeInactive" />
+                </RadzenStack>
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTextBox Placeholder="Buscar por referencia o nombre del competidor, referencia interna o nombre del artículo..." style="display: block; width: 100%" @oninput="@SearchAsync" />
+    <RadzenRow>
+        <RadzenColumn SizeMD="12">
+            <LocalizedDataGrid @ref="Grid" ColumnWidth="160px" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[] { 10, 20, 30 })
+                               Data="@Homologations" TItem="CompetitorHomologation" AllowColumnResize="true" AllowColumnPicking="true" IsLoading="@IsLoading">
+                <Columns>
+                    <RadzenDataGridColumn TItem="CompetitorHomologation" Property="ImageFileName" Title="Imagen" Width="90px" Sortable="false" Filterable="false" TextAlign="TextAlign.Center">
+                        <Template Context="h">
+                            @if (CompetitorImageStorage.Url(h.ImageFileName) is { } url)
+                            {
+                                <a href="@url" target="_blank" rel="noopener noreferrer"><img src="@url" alt="Imagen" style="max-width: 60px; max-height: 60px;" /></a>
+                            }
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="CompetitorHomologation" Property="CompanyName" Title="Compañía" Width="200px" />
+                    <RadzenDataGridColumn TItem="CompetitorHomologation" Property="LineName" Title="Línea" Visible="false" />
+                    <RadzenDataGridColumn TItem="CompetitorHomologation" Property="PromosDescription" Title="Artículo / Referencia PROMOS" Width="300px" Sortable="false" Filterable="false" />
+                    <RadzenDataGridColumn TItem="CompetitorHomologation" Property="Level" Title="Nivel" Width="110px" Sortable="false" Filterable="false" />
+                    <RadzenDataGridColumn TItem="CompetitorHomologation" Property="CompetitorReference" Title="Referencia competidor" />
+                    <RadzenDataGridColumn TItem="CompetitorHomologation" Property="CompetitorProductName" Title="Producto competidor" Width="240px" />
+                    <RadzenDataGridColumn TItem="CompetitorHomologation" Property="CompetitorPrice" Title="Precio" Width="130px" TextAlign="TextAlign.Right" FormatString="{0:N0}" />
+                    <RadzenDataGridColumn TItem="CompetitorHomologation" Property="ProductUrl" Title="Enlace" Width="100px" Sortable="false" Filterable="false">
+                        <Template Context="h">
+                            @if (!string.IsNullOrEmpty(h.ProductUrl))
+                            {
+                                <a href="@h.ProductUrl" target="_blank" rel="noopener noreferrer">Ver</a>
+                            }
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="CompetitorHomologation" Property="IsActive" Title="Estado" Width="100px" Filterable="false">
+                        <Template Context="h">@(h.IsActive ? "Activa" : "Inactiva")</Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="CompetitorHomologation" Filterable="false" Sortable="false" Width="110px" TextAlign="TextAlign.Center" Pickable="false" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                        <Template Context="h">
+                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" title="Editar"
+                                          Click="@(args => EditAsync(h))" @onclick:stopPropagation="true" />
+                            @if (h.IsActive)
+                            {
+                                <RadzenButton Icon="block" ButtonStyle="ButtonStyle.Danger" Shade="Shade.Lighter" Variant="Variant.Flat" Size="ButtonSize.Medium" title="Inactivar"
+                                              Click="@(args => InactivateAsync(h))" @onclick:stopPropagation="true" />
+                            }
+                            else
+                            {
+                                <RadzenButton Icon="check_circle" ButtonStyle="ButtonStyle.Success" Shade="Shade.Lighter" Variant="Variant.Flat" Size="ButtonSize.Medium" title="Reactivar"
+                                              Click="@(args => ActivateAsync(h))" @onclick:stopPropagation="true" />
+                            }
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </LocalizedDataGrid>
+        </RadzenColumn>
+    </RadzenRow>
+</RadzenStack>

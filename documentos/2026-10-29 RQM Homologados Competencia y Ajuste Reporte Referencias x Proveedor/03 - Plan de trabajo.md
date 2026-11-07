@@ -81,7 +81,14 @@ Fecha de última modificación en la BD de **desarrollo** (2026-11-05), para com
 
 > Esta lista se actualiza si alguna tarea agrega un objeto. Estado al 2026-11-05: T22 aún no analizado en detalle; si al ejecutarlo algún SP necesita cambio de firma, se agrega a la primera tabla.
 
-Orden de ejecución: T1–T17 → T21 → T22 → T18 → **T23** → T19 → T20.
+## Barrida exploratoria de la aplicación
+| T | Tarea | Prueba de aceptación |
+|---|---|---|
+| T24 | Recorrido con el navegador (usuario Administrador) por **todas** las opciones del menú: carga, consola sin errores, sin HTTP 500, abrir/cerrar diálogos sin guardar. Solo lectura. Entregable: lista de errores por pantalla → insumo de la tarea de pruebas de humo E2E (Playwright) del plan de deuda técnica | Lista entregada; errores dentro del alcance del RQM corregidos, el resto registrado en deuda técnica |
+
+**T23 ✅ (2026-11-05):** Andrés trajo los SP de producción a desarrollo antes de T1; T1 y T22 se construyen sobre esa versión.
+
+Orden de ejecución: T1–T17 → T21 → T22 → **T24** → T18 → T19 → T20.
 
 ## Decisiones vigentes
 - Condiciones = tri-estado Sí/No/Todos (no switches como se escribió inicialmente). Sin cantidades mínimas.
@@ -105,3 +112,9 @@ Orden de ejecución: T1–T17 → T21 → T22 → T18 → **T23** → T19 → T2
 | 2026-11-07 | T10 | Implementada sin compilar. Homologaciones: entidad (ITrackeable), configuración, repositorio (listado con filtros, validaciones de compañía activa / artículo / referencia del artículo, duplicado activo, imagen), servicio (crear, editar, inactivar, reactivar), reglas puras + 10 pruebas. Script `03 - Track catalogo de la competencia.sql` (+ reversa) **ejecutado en desarrollo**: nombres en español de las 2 entidades y sus campos. **Pendiente compilar/probar.** |
 | 2026-11-07 | T9 | Implementada sin compilar. Pantalla `/competitor-companies` (rol Administrador / Catálogo de la competencia): listado con búsqueda y "Mostrar inactivas", crear/editar en diálogo con País → Departamento → Ciudad opcional en cascada, inactivar (confirmación) / reactivar, mensajes de negocio. Menú Administración → Competencia → Compañías de la competencia. **Pendiente compilar/probar. Pausa aquí: siguiente sesión se prueba desde T5.** |
 | 2026-11-07 | T5–T10 | ✅ Compilado y probado (pantalla sin/con inventario, Excel sin/con inventario = BD, compañías: obligatorios, cascada, duplicado activo, inactivar/reactivar, editar, Track). Corregidos combos cortados (display:block). Pendiente de Andrés: Imprimir/PDF sin página en blanco. ChangeSet único T5–T10. Datos de prueba: compañías "PRUEBA T9 COMPETIDOR" (ids 1 y 2) → borrar al cierre. |
+| 2026-11-07 | Pruebas | +9 pruebas de servicios (CompetitorServicesTests, repositorios en memoria): 33 en total del RQM. Decisión: bUnit/Playwright como deuda técnica (T11/T12 del plan de deuda técnica); barrida T24 en este RQM. |
+| 2026-11-07 | T11 | Implementada, pendiente compilar/probar. Pantalla `/competitor-homologations`: filtro por compañía (incluye inactivas), texto, "Mostrar inactivas"; columnas Compañía, Artículo/Referencia PROMOS, Nivel, Ref. y producto competidor, Precio, Enlace, Estado; diálogo con artículo (búsqueda paginada) y referencia opcional, compañías activas (y la actual al editar), enlace, precio COP; inactivar/reactivar. Menú Competencia → Homologaciones con la competencia. |
+| 2026-11-07 | T11 | ✅ Probado (validaciones, nivel artículo/referencia, duplicado al editar, búsqueda, Track). Ajuste: título de Referencia sin placeholder superpuesto. |
+| 2026-11-07 | T12 | Implementada, pendiente compilar/probar. Imagen en `ImageRepositoryPath\Competencia\` (decisión Andrés), URL `/externalimages/Competencia/`, nombre `H{id}_{fecha}{ext}`; JPG/PNG/WEBP ≤ 2 MB; se elige en el diálogo (crear o editar) y se guarda al pulsar Guardar; reemplazar elimina la anterior; quitar; sin huérfanos si falla el registro. Miniatura en el listado. +14 pruebas (reglas y servicio de imagen). |
+| 2026-11-07 | T13 | ✅ Script `04 - Reporte homologaciones con la competencia.sql` (+ reversa) **ejecutado en desarrollo**. Jerarquía (con referencias incluye las de nivel artículo de su artículo), compañías, referencia/nombre del competidor (contiene), solo activas por defecto. Pruebas `scripts\...\Pruebas\04 - ...sql` 13/13 OK (con ROLLBACK). Imágenes de prueba para T12 en `documentos\...\Pruebas\`. **T12 y T13 pendientes de compilar/probar con Andrés.** |
+| 2026-11-07 | T12 | ✅ Probado: GIF rechazado; PNG cargado (vista previa, miniatura, URL 200); reemplazo por JPG (nueva 200, anterior 404 = archivo borrado); quitar (sin miniatura, archivo 404). Queda una imagen PNG en la homologación 1 para probar el reporte. ChangeSet único T11–T13. |

@@ -68,6 +68,7 @@
                 <RadzenPanelMenuItem Text="Proveedores" Path="providers" Visible="@Security.IsInRole("Administrador", "Modificación de proveedores", "Consulta de proveedores")" />
                 <RadzenPanelMenuItem Text="Competencia" Icon="compare_arrows" Visible="@Security.IsInRole("Administrador", "Catálogo de la competencia")">
                     <RadzenPanelMenuItem Text="Compañías de la competencia" Path="competitor-companies" />
+                    <RadzenPanelMenuItem Text="Homologaciones con la competencia" Path="competitor-homologations" />
                 </RadzenPanelMenuItem>
                 @if (Security.IsInRole("Administrador", "Administración de tolerancias de ajustes en órdenes de compra"))
                 {

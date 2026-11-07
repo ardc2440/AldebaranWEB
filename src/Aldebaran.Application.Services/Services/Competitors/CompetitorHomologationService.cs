@@ -11,10 +11,12 @@ namespace Aldebaran.Application.Services.Competitors
     public class CompetitorHomologationService : ICompetitorHomologationService
     {
         private readonly ICompetitorHomologationRepository _repository;
+        private readonly ICompetitorImageStorage? _imageStorage;
 
-        public CompetitorHomologationService(ICompetitorHomologationRepository repository)
+        public CompetitorHomologationService(ICompetitorHomologationRepository repository, ICompetitorImageStorage? imageStorage = null)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _imageStorage = imageStorage;
         }
 
         public async Task<IReadOnlyList<CompetitorHomologation>> GetAsync(CompetitorHomologationFilter filter, CancellationToken ct = default)
@@ -70,6 +72,39 @@ namespace Aldebaran.Application.Services.Competitors
                 throw new InvalidOperationException(CompetitorHomologationRepository.DuplicateMessage);
             await _repository.SetActiveAsync(competitorHomologationId, true, ct);
         }
+
+        #region Imagen
+        public async Task SetImageAsync(int competitorHomologationId, Stream content, string fileName, long size, CancellationToken ct = default)
+        {
+            var error = CompetitorImageRules.Validate(fileName, size);
+            if (error != null)
+                throw new ArgumentException(error);
+            var storage = _imageStorage ?? throw new InvalidOperationException("El almacenamiento de imágenes no está configurado.");
+            var current = await GetExistingAsync(competitorHomologationId, ct);
+
+            var newFileName = await storage.SaveAsync(competitorHomologationId, content, CompetitorImageRules.NormalizeExtension(fileName)!, ct);
+            try
+            {
+                await _repository.SetImageFileNameAsync(competitorHomologationId, newFileName, ct);
+            }
+            catch
+            {
+                storage.Delete(newFileName); // no dejar archivos huérfanos si no se pudo registrar
+                throw;
+            }
+            if (!string.Equals(current.ImageFileName, newFileName, StringComparison.OrdinalIgnoreCase))
+                storage.Delete(current.ImageFileName);
+        }
+
+        public async Task RemoveImageAsync(int competitorHomologationId, CancellationToken ct = default)
+        {
+            var current = await GetExistingAsync(competitorHomologationId, ct);
+            if (current.ImageFileName == null)
+                return;
+            await _repository.SetImageFileNameAsync(competitorHomologationId, null, ct);
+            _imageStorage?.Delete(current.ImageFileName);
+        }
+        #endregion
 
         #region Validación
         private async Task<CompetitorHomologationInput> ValidateAsync(CompetitorHomologationInput input, bool requireActiveCompany, bool checkDuplicate, int? excludeId, CancellationToken ct)
