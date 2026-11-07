@@ -1,5 +1,6 @@
 @page "/report/provider-references"
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
+@using Aldebaran.Web.Pages.ReportPages.Item_References.Components
 
 <PageTitle>Reporte de referencias del proveedor</PageTitle>
 <RadzenStack Style="gap:0.3em">
@@ -17,34 +18,19 @@
                     <RadzenButton Variant="Variant.Text" Click="@RemoveFilters" Text="Limpiar filtros" ButtonStyle="ButtonStyle.Secondary" class="text-decoration-underline p-0 pb-1" />
                 }
             </div>
-            <div class="component-section d-flex flex-column justify-content-start text-secondary-color">
-                @if (Filter != null)
-                {
-                    @if (Filter.ProviderId != null && Filter.Provider != null)
+            @if (Filter != null)
+            {
+                <div class="component-section d-flex flex-column justify-content-start text-secondary-color">
+                    @if (Filter.Provider != null)
                     {
                         <div class="d-flex flex-row justify-content-start gap-1 component-section-item">
                             <p class="component-label m-0 fw-bold">Proveedor: </p>
                             <span style="line-height: 1rem;transform: translate(0, -2px);">@Filter.Provider.ProviderName</span>
                         </div>
                     }
-                    <div class="component-section d-flex flex-column justify-content-start pt-2">
-                        @if (Filter.ItemReferences.Any())
-                        {
-                            <p class="component-label m-0 fw-bold">Referencias: </p>
-                            @for (int i = 0; i < Filter.ItemReferences.Count(); i++)
-                            {
-                                <span class="@(i>=2 ? "read-more" : "")" style="@(i>=2 ? "display: none" : "")">(@Filter.ItemReferences[i].Item.Line.LineName) @Filter.ItemReferences[i].Item.ItemName - @Filter.ItemReferences[i].ReferenceName</span>
-                            }
-                            @if (Filter.ItemReferences.Count() > 2)
-                            {
-                                <div>
-                                    <a href="javascript:;" id="toggleLink" @onclick="ToggleReadMore">Ver más</a>
-                                </div>
-                            }
-                        }
-                    </div>
-                }
-            </div>
+                    <ItemReferencesReportFilterSummaryView Summary="@Filter.Summary" CssClass="pt-2" />
+                </div>
+            }
         </RadzenColumn>
         <RadzenColumn Size="6" class="align-self-end">
             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.End" JustifyContent="JustifyContent.End" Gap="0.5rem">
@@ -71,31 +57,14 @@
                                     {
                                         <div class="filters">
                                             <div class="title">Filtros:</div>
-                                            <div>
-                                                @if (Filter.ProviderId != null && Filter.Provider != null)
-                                                {
-                                                    <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
-                                                        <div class="type">Proveedor: </div>
-                                                        <span>@Filter.Provider.ProviderName</span>
-                                                    </div>
-                                                }
-                                                @if (Filter.ItemReferences.Any())
-                                                {
-                                                    <div style="display:flex; flex-direction:column; justify-content:end">
-                                                        <div class="type">Referencias: </div>
-                                                        @for (int i = 0; i < Filter.ItemReferences.Count(); i++)
-                                                        {
-                                                            <p class="@(i>=2 ? "read-more-page" : "")" style="@(i>=2 ? "display: none" : "")"> [@Filter.ItemReferences[i].Item.InternalReference] (@Filter.ItemReferences[i].Item.Line.LineName) @Filter.ItemReferences[i].Item.ItemName - @Filter.ItemReferences[i].ReferenceName</p>
-                                                        }
-                                                        @if (Filter.ItemReferences.Count() > 2)
-                                                        {
-                                                            <div>
-                                                                <a href="javascript:;" id="toggleLinkPage" @onclick="ToggleReadMorePage">Ver más</a>
-                                                            </div>
-                                                        }
-                                                    </div>
-                                                }
-                                            </div>
+                                            @if (Filter.Provider != null)
+                                            {
+                                                <div style="display:flex; gap:5px; flex-direction:row; justify-content:end">
+                                                    <div class="type">Proveedor: </div>
+                                                    <span>@Filter.Provider.ProviderName</span>
+                                                </div>
+                                            }
+                                            <ItemReferencesReportFilterSummaryView Summary="@Filter.Summary" ExpandAll="true" />
                                         </div>
                                     }
                                 </td>

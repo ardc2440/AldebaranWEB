@@ -105,7 +105,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Item_References.Components
                 .Append(Field("Visible en página", ItemReferencesReportFormat.ToYesNo(item.IsCatalogVisible))).Append(Separator)
                 .Append(Field("Producto nacional", ItemReferencesReportFormat.ToYesNo(item.IsDomesticProduct))).Append(Separator)
                 .Append(Field("Importación especial", ItemReferencesReportFormat.ToYesNo(item.IsSpecialImport))).Append(Separator)
-                .Append(Field("Promoción", ItemReferencesReportFormat.ToYesNo(item.IsSaleOff))).Append(Separator)
+                .Append(Field("En oferta", ItemReferencesReportFormat.ToYesNo(item.IsSaleOff))).Append(Separator)
                 .Append(Field("Precio bomba", ItemReferencesReportFormat.ToYesNo(item.IsBombPrice)))
                 .Append("</p></div></td></tr>");
         }

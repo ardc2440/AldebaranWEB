@@ -1,29 +1,61 @@
-﻿@using ViewModel = Aldebaran.Web.Pages.ReportPages.Provider_References.ViewModel;
+@using Aldebaran.Application.Services.Models.Reports
+@using Aldebaran.Web.Shared
 
 <RadzenColumn SizeMD=12>
-    <RadzenTemplateForm TItem="ViewModel.ProviderReferencesFilter" Data="Filter" Submit="@FormSubmit">
+    <RadzenTemplateForm TItem="ProviderReferenceReportFilter" Data="Criteria" Submit="@FormSubmit">
         <RadzenRow style="margin-bottom: 1rem">
             <RadzenFormField Text="Proveedor" Variant="Variant.Text" Style="width: 100%;">
                 <ChildContent>
                     <RadzenDropDownDataGrid Count="@count" LoadData="@LoadData" @ref="providersDropdown" Data="@Providers" TextProperty="ProviderName" ValueProperty="ProviderId" AllowClear=true FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                            style="display: block; width: 100%" @bind-Value="@Filter.ProviderId" Name="ProviderId" AllowFilteringByAllStringColumns="true">
+                                            style="display: block; width: 100%" @bind-Value="@ProviderId" Name="ProviderId" AllowFilteringByAllStringColumns="true">
                         <Columns>
                             <RadzenDropDownDataGridColumn Property="ProviderCode" Title="Código" />
-                            <RadzenDropDownDataGridColumn Property="ProviderName" Title="Nombre" />                            
+                            <RadzenDropDownDataGridColumn Property="ProviderName" Title="Nombre" />
                         </Columns>
                     </RadzenDropDownDataGrid>
                 </ChildContent>
             </RadzenFormField>
         </RadzenRow>
+        <RadzenRow Gap="1rem" style="margin-bottom: 1rem">
+            <RadzenColumn SizeMD="6" SizeSM="12">
+                <RadzenCard class="h-100">
+                    <RadzenText TextStyle="TextStyle.Subtitle2" class="mb-2">Artículo</RadzenText>
+                    @foreach (var option in ItemConditions)
+                    {
+                        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem" class="mb-1">
+                            <RadzenCheckBox TriState="true" TValue="bool?" Value="@option.Get()" ValueChanged="@((bool? value) => OnConditionChanged(option, value))" Disabled="@IsLoadingReferences" />
+                            <RadzenLabel Text="@option.Label" />
+                        </RadzenStack>
+                    }
+                </RadzenCard>
+            </RadzenColumn>
+            <RadzenColumn SizeMD="6" SizeSM="12">
+                <RadzenCard class="h-100">
+                    <RadzenText TextStyle="TextStyle.Subtitle2" class="mb-2">Referencia</RadzenText>
+                    @foreach (var option in ReferenceConditions)
+                    {
+                        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem" class="mb-1">
+                            <RadzenCheckBox TriState="true" TValue="bool?" Value="@option.Get()" ValueChanged="@((bool? value) => OnConditionChanged(option, value))" Disabled="@IsLoadingReferences" />
+                            <RadzenLabel Text="@option.Label" />
+                        </RadzenStack>
+                    }
+                    <RadzenText TextStyle="TextStyle.Subtitle2" class="mt-3 mb-2">Presentación</RadzenText>
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem" class="mb-1">
+                        <RadzenCheckBox TValue="bool" @bind-Value="@Criteria.IncludeInventory" Name="IncludeInventory" />
+                        <RadzenLabel Text="Mostrar inventario y bodegas" Component="IncludeInventory" />
+                    </RadzenStack>
+                </RadzenCard>
+            </RadzenColumn>
+        </RadzenRow>
         <RadzenRow style="margin-bottom: 1rem">
-            <MultiReferencePicker @ref="referencePicker" OnChange="ItemReferenceHandler"></MultiReferencePicker>
+            <HierarchicalReferencePicker @ref="referencePicker" />
         </RadzenRow>
         @if (ValidationError)
         {
-            <div class="rz-message rz-messages-error">Debe seleccionar al menos un filtro</div>
+            <div class="rz-message rz-messages-error">Debe seleccionar al menos un filtro (proveedor, línea, artículo, referencia o una condición en Sí/No)</div>
         }
         <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
-            <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="filter_alt" Text="Filtrar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" />
+            <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="filter_alt" Text="Filtrar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" Disabled="@IsLoadingReferences" />
             <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
         </RadzenStack>
     </RadzenTemplateForm>

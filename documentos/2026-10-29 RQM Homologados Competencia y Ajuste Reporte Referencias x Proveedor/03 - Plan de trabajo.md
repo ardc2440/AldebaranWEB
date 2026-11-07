@@ -94,3 +94,7 @@ Orden de ejecución: T1–T17 → T21 → T22 → T18 → **T23** → T19 → T2
 |---|---|---|
 | 2026-11-05 | T7 | ✅ Script `02 - Catalogo de la competencia.sql` + reversa. 14/14 restricciones + 6/6 unicidad solo entre activos (índices únicos filtrados `IS_ACTIVE = 1`, decisión de Andrés). |
 | 2026-11-05 | T1 | ✅ Script `01 - Reporte referencias del proveedor.sql` + reversa, construido sobre la versión de producción (traída por Andrés). 21/21: llamadas actuales idénticas a producción (filas + checksum), sin inventario 1 fila por proveedor-referencia, 8 condiciones = BD, jerarquía y lista inválida. Catálogo completo: 1,6 s con inventario / 0,6 s sin. Respaldo en `RQM_HOMOLOGADOS_OBJECT_BACKUP`. |
+| 2026-11-05 | T2 | ✅ Caso de uso (filtro tipado, StoredProcedureCommand, árbol y filas planas) + 6 pruebas unitarias. Regresión en pantalla OK. ChangeSet aplicado. |
+| 2026-11-05 | T3 | ✅ Pantalla usa GetReportAsync; retirados métodos obsoletos, modelo viejo y ViewModel. Pantalla idéntica (mismo texto y tablas), PDF OK. ChangeSet aplicado. |
+| 2026-11-05 | T4 | Implementada, **pendiente compilar y probar (6-nov)**. Diálogo: proveedor, 8 condiciones tri-estado, "Mostrar inventario y bodegas", selector jerárquico, validación, resumen. Corregido error al reabrir con proveedor fuera de la página del combo. |
+| 2026-11-05 | Decisión | Etiqueta de `IS_SALE_OFF` = **"En oferta"** (como en la página promocional). Se unifica también en Artículos y Referencias (filtro, pantalla, PDF y Excel) → incluir en la regresión de T4. |

@@ -26,7 +26,7 @@ namespace Aldebaran.Application.Services.Models.Reports
         public string IsDomesticProduct { get; init; } = string.Empty;
         [DisplayName("Importación especial")]
         public string IsSpecialImport { get; init; } = string.Empty;
-        [DisplayName("Promoción")]
+        [DisplayName("En oferta")]
         public string IsSaleOff { get; init; } = string.Empty;
         [DisplayName("Precio bomba")]
         public string IsBombPrice { get; init; } = string.Empty;

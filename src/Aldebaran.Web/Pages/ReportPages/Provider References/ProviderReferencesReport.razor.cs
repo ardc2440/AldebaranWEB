@@ -55,7 +55,6 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References
             Filter = null;
             Report = null;
             StateHasChanged();
-            await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
             await OpenFilters();
         }
 
@@ -80,17 +79,8 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References
                 return;
             Filter = (ProviderReferencesFilter)result;
 
-            await RedrawReport(ToReportFilter(Filter));
-
-            await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
+            await RedrawReport(Filter.Criteria);
         }
-
-        /// <summary>Traduce la selección del diálogo al filtro del caso de uso.</summary>
-        static ProviderReferenceReportFilter ToReportFilter(ProviderReferencesFilter filter) => new()
-        {
-            ProviderId = filter.Provider?.ProviderId > 0 ? filter.Provider.ProviderId : null,
-            ReferenceIds = filter.ItemReferences.Select(s => s.ReferenceId).ToList()
-        };
 
         async Task RemoveFilters()
         {
@@ -116,16 +106,6 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References
                 await JSRuntime.InvokeVoidAsync("print", "provider-references-report-container");
             }
             IsBusy = false;
-        }
-
-        async Task ToggleReadMore()
-        {
-            await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink");
-        }
-
-        async Task ToggleReadMorePage()
-        {
-            await JSRuntime.InvokeVoidAsync("readMoreTogglePage", "toggleLinkPage");
         }
 
         private async Task ShowImageDialog(string articleName) => DialogService.Open<ImageDialog>("", new Dictionary<string, object>

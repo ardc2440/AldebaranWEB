@@ -68,7 +68,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Item_References.Components
                 new("Visible en página", () => Criteria.IsCatalogVisible, v => Criteria.IsCatalogVisible = v),
                 new("Producto nacional", () => Criteria.IsDomesticProduct, v => Criteria.IsDomesticProduct = v),
                 new("Importación especial", () => Criteria.IsSpecialImport, v => Criteria.IsSpecialImport = v),
-                new("En promoción", () => Criteria.IsSaleOff, v => Criteria.IsSaleOff = v),
+                new("En oferta", () => Criteria.IsSaleOff, v => Criteria.IsSaleOff = v),
                 new("Precio bomba", () => Criteria.BombPrice, v => Criteria.BombPrice = v)
             };
             ReferenceSwitches = new List<ConditionOption>
