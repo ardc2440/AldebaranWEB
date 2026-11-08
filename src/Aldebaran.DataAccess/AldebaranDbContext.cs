@@ -445,6 +445,7 @@ namespace Aldebaran.DataAccess
             modelBuilder.Entity<BackOrderReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<CustomerReservationReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<ProviderReferenceReport>(iar => { iar.HasNoKey(); });
+            modelBuilder.Entity<CompetitorHomologationReport>(chr => { chr.HasNoKey(); chr.Property(p => p.CompetitorPrice).HasColumnType("decimal(18,2)"); });
             modelBuilder.Entity<ReferenceMovementReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<WarehouseStockReport>(iar => { iar.HasNoKey(); });
             modelBuilder.Entity<PurchaseOrderReport>(iar => { iar.HasNoKey(); });

@@ -12,6 +12,8 @@ namespace Aldebaran.Web.Services.Competitors
     public sealed class CompetitorImageStorage : ICompetitorImageStorage
     {
         public const string FolderName = "Competencia";
+        /// <summary>Prefijo de la URL pública de las imágenes.</summary>
+        public const string UrlPrefix = "/externalimages/" + FolderName + "/";
         private readonly string _folder;
 
         public CompetitorImageStorage(IOptions<AppSettings> settings)
@@ -21,8 +23,8 @@ namespace Aldebaran.Web.Services.Competitors
         }
 
         /// <summary>URL pública de la imagen (null si no hay).</summary>
-        public static string? Url(string? fileName) =>
-            string.IsNullOrWhiteSpace(fileName) ? null : $"/externalimages/{FolderName}/{Uri.EscapeDataString(fileName)}";
+        public static string Url(string fileName) =>
+            string.IsNullOrWhiteSpace(fileName) ? null : UrlPrefix + Uri.EscapeDataString(fileName);
 
         public async Task<string> SaveAsync(int competitorHomologationId, Stream content, string extension, CancellationToken ct = default)
         {
@@ -33,7 +35,16 @@ namespace Aldebaran.Web.Services.Competitors
             return fileName;
         }
 
-        public void Delete(string? fileName)
+        public async Task<byte[]> ReadAsync(string fileName, CancellationToken ct = default)
+        {
+            if (string.IsNullOrWhiteSpace(fileName))
+                return null;
+            // Solo el nombre: nunca rutas recibidas desde fuera.
+            var path = Path.Combine(_folder, Path.GetFileName(fileName));
+            return File.Exists(path) ? await File.ReadAllBytesAsync(path, ct) : null;
+        }
+
+        public void Delete(string fileName)
         {
             if (string.IsNullOrWhiteSpace(fileName))
                 return;

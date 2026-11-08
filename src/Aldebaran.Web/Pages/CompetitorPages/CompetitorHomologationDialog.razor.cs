@@ -54,14 +54,14 @@ namespace Aldebaran.Web.Pages.CompetitorPages
         protected List<string> Errors = new();
         protected bool IsLoading = true;
         protected bool IsSaving;
-        private ItemOption? _currentItem;
+        private ItemOption _currentItem;
 
         /// <summary>Imagen elegida y aún no guardada (se sube al pulsar Guardar).</summary>
-        private PendingImage? _pendingImage;
-        private string? _savedImageFileName;
+        private PendingImage _pendingImage;
+        private string _savedImageFileName;
         private bool _removeSavedImage;
         /// <summary>Vista previa: la imagen nueva (data URL) o la guardada.</summary>
-        protected string? PreviewUrl;
+        protected string PreviewUrl;
         #endregion
 
         protected override async Task OnInitializedAsync()

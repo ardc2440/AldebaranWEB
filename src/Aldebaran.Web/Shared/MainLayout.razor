@@ -67,8 +67,8 @@
                 <RadzenPanelMenuItem Text="Clientes" Path="customers" Visible="@Security.IsInRole("Administrador", "Modificación de clientes", "Consulta de clientes")" />
                 <RadzenPanelMenuItem Text="Proveedores" Path="providers" Visible="@Security.IsInRole("Administrador", "Modificación de proveedores", "Consulta de proveedores")" />
                 <RadzenPanelMenuItem Text="Competencia" Icon="compare_arrows" Visible="@Security.IsInRole("Administrador", "Catálogo de la competencia")">
-                    <RadzenPanelMenuItem Text="Compañías de la competencia" Path="competitor-companies" />
-                    <RadzenPanelMenuItem Text="Homologaciones con la competencia" Path="competitor-homologations" />
+                    <RadzenPanelMenuItem Text="Compañías" Path="competitor-companies" />
+                    <RadzenPanelMenuItem Text="Homologaciones" Path="competitor-homologations" />
                 </RadzenPanelMenuItem>
                 @if (Security.IsInRole("Administrador", "Administración de tolerancias de ajustes en órdenes de compra"))
                 {
@@ -148,6 +148,7 @@
                 </RadzenPanelMenuItem>
                 <RadzenPanelMenuItem Text="Catálogos" Icon="summarize">
                     <RadzenPanelMenuItem Text="Artículos y referencias" Path="report/item-references" Visible=@Security.IsInRole("Administrador", "Consulta de reportes") />
+                    <RadzenPanelMenuItem Text="Homologaciones con la competencia" Path="report/competitor-homologations" Visible=@Security.IsInRole("Administrador", "Consulta de reportes") />
                 </RadzenPanelMenuItem>
                 <RadzenPanelMenuItem Text="Clientes" Icon="summarize">
                     <RadzenPanelMenuItem Text="Reservas por cliente" Path="report/customer-reservation" Visible=@Security.IsInRole("Administrador", "Consulta de reportes") />

@@ -1,4 +1,5 @@
 ﻿@page "/report/reference-movement"
+@attribute [Authorize(Roles = "Administrador,Consulta de reportes")]
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
 
 <PageTitle>Reporte de movimientos de artículos</PageTitle>

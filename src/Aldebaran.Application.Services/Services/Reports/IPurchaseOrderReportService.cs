@@ -4,6 +4,6 @@ namespace Aldebaran.Application.Services.Reports
 {
     public interface IPurchaseOrderReportService
     {
-        Task<IEnumerable<PurchaseOrderReport>> GetPurchaseOrderReportDataAsync(string filter = "", CancellationToken ct = default);
+        Task<IEnumerable<PurchaseOrderReport>> GetPurchaseOrderReportDataAsync(PurchaseOrderReportFilter filter, CancellationToken ct = default);
     }
 }

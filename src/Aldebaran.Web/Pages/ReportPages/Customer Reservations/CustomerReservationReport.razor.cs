@@ -9,6 +9,7 @@ using Microsoft.JSInterop;
 using Radzen;
 using Radzen.Blazor;
 using static Aldebaran.Web.Pages.ReportPages.Customer_Reservations.ViewModel.CustomerReservationViewModel;
+using ReportFilter = Aldebaran.Application.Services.Models.Reports.CustomerReservationReportFilter;
 
 namespace Aldebaran.Web.Pages.ReportPages.Customer_Reservations
 {
@@ -58,7 +59,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Reservations
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
             await OpenFilters();
         }
-        async Task RedrawReportAsync(string filter = "", CancellationToken ct = default)
+        async Task RedrawReportAsync(ReportFilter filter, CancellationToken ct = default)
         {
             try
             {
@@ -77,30 +78,18 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Reservations
             }
         }
 
-        async Task<string> SetReportFilterAsync(CustomerReservationFilter filter, CancellationToken ct = default)
+        /// <summary>Filtros del caso de uso (los valores viajan como parámetros del SP, nunca concatenados en el SQL).</summary>
+        static ReportFilter ToReportFilter(CustomerReservationFilter filter) => new()
         {
-            var filterResult = string.Empty;
-
-            if (filter.CreationDate.StartDate.HasValue)
-                filterResult += $"@CreationDateFrom = '{(DateTime)filter.CreationDate.StartDate:yyyyMMdd}', @CreationDateTo = '{(DateTime)filter.CreationDate.EndDate:yyyyMMdd}'";
-
-            if (filter.ReservationDate.StartDate.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReservationDateFrom = '{(DateTime)filter.ReservationDate.StartDate:yyyyMMdd}', @ReservationDateTo = '{(DateTime)filter.ReservationDate.EndDate:yyyyMMdd}'";
-
-            if (!filter.ReservationNumber.IsNullOrEmpty())
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReservationNumber = '{filter.ReservationNumber}'";
-
-            if (filter.StatusDocumentTypeId.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@StatusDocumentTypeId = {filter.StatusDocumentTypeId}";
-
-            if (filter.ItemReferences.Count > 0)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReferenceIds = '{String.Join(",", Filter.ItemReferences.Select(s => s.ReferenceId))}'";
-
-            if (filter.CustomerId.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@CustomerId = {filter.CustomerId}";
-
-            return filterResult;
-        }
+                ReservationNumber = filter.ReservationNumber,
+                CreationDateFrom = filter.CreationDate?.StartDate,
+                CreationDateTo = filter.CreationDate?.StartDate.HasValue == true ? filter.CreationDate.EndDate : null,
+                ReservationDateFrom = filter.ReservationDate?.StartDate,
+                ReservationDateTo = filter.ReservationDate?.StartDate.HasValue == true ? filter.ReservationDate.EndDate : null,
+                StatusDocumentTypeId = filter.StatusDocumentTypeId,
+                CustomerId = filter.CustomerId,
+                ReferenceIds = filter.ItemReferences?.Any() == true ? string.Join(",", filter.ItemReferences.Select(s => s.ReferenceId)) : null
+        };
         async Task OpenFilters()
         {
             var result = await DialogService.OpenAsync<CustomerReservationReportFilter>("Filtrar reporte de reservas por cliente", parameters: new Dictionary<string, object> { { "Filter", (CustomerReservationFilter)Filter?.Clone() } }, options: new DialogOptions { Width = "800px" });
@@ -108,7 +97,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Customer_Reservations
                 return;
             Filter = (CustomerReservationFilter)result;
 
-            await RedrawReportAsync(await SetReportFilterAsync(Filter));
+            await RedrawReportAsync(ToReportFilter(Filter));
 
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
         }

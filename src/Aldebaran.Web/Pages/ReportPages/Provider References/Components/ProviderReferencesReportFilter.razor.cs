@@ -98,7 +98,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References.Components
             return providers;
         }
 
-        private async Task<Provider?> GetSelectedProviderAsync()
+        private async Task<Provider> GetSelectedProviderAsync()
         {
             if (ProviderId == null)
                 return null;

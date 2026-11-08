@@ -37,6 +37,8 @@ namespace Aldebaran.Application.Services.Tests.Competitors
             {
                 var name = $"H{id}_{++_n}{extension}"; Files.Add(name); return Task.FromResult(name);
             }
+            public Task<byte[]?> ReadAsync(string? fileName, CancellationToken ct = default) =>
+                Task.FromResult<byte[]?>(fileName != null && Files.Contains(fileName) ? new byte[] { 1 } : null);
             public void Delete(string? fileName) { if (fileName != null) Files.Remove(fileName); }
         }
 

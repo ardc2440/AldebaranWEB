@@ -1,0 +1,45 @@
+@using Aldebaran.Application.Services.Models.Reports
+@using Aldebaran.Application.Services.Models.Competitors
+@using Aldebaran.Web.Shared
+
+<RadzenColumn SizeMD=12>
+    <RadzenTemplateForm TItem="CompetitorHomologationReportFilter" Data="Criteria" Submit="@FormSubmit">
+        <RadzenRow Gap="1rem" style="margin-bottom: 1rem">
+            <RadzenColumn SizeMD="12">
+                <RadzenFormField Text="Compañías de la competencia" Variant="Variant.Text" Style="width: 100%;">
+                    <ChildContent>
+                        <RadzenDropDown TValue="IEnumerable<int>" @bind-Value="@CompanyIds" Data="@Companies" TextProperty="CompanyName" ValueProperty="CompetitorCompanyId"
+                                        Multiple="true" Chips="true" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                        style="display: block; width: 100%" Name="CompanyIds" />
+                    </ChildContent>
+                </RadzenFormField>
+            </RadzenColumn>
+            <RadzenColumn SizeMD="6" SizeSM="12">
+                <RadzenFormField Text="Referencia del competidor (contiene)" Variant="Variant.Text" Style="width: 100%;">
+                    <ChildContent>
+                        <RadzenTextBox @bind-Value="@Criteria.CompetitorReference" MaxLength="50" style="display: block; width: 100%" Name="CompetitorReference" />
+                    </ChildContent>
+                </RadzenFormField>
+            </RadzenColumn>
+            <RadzenColumn SizeMD="6" SizeSM="12">
+                <RadzenFormField Text="Producto del competidor (contiene)" Variant="Variant.Text" Style="width: 100%;">
+                    <ChildContent>
+                        <RadzenTextBox @bind-Value="@Criteria.CompetitorProductName" MaxLength="100" style="display: block; width: 100%" Name="CompetitorProductName" />
+                    </ChildContent>
+                </RadzenFormField>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow style="margin-bottom: 1rem">
+            @if (IsLoadingReferences)
+            {
+                <RadzenText TextStyle="TextStyle.Body2" class="text-secondary-color">Cargando artículos homologados...</RadzenText>
+            }
+            <HierarchicalReferencePicker @ref="referencePicker" />
+        </RadzenRow>
+        <RadzenText TextStyle="TextStyle.Caption" class="text-secondary-color">Solo se listan líneas, artículos y referencias con homologaciones activas. Sin filtros se muestran todas las homologaciones.</RadzenText>
+        <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+            <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="filter_alt" Text="Filtrar" Variant="Variant.Flat" BusyText="Procesando..." IsBusy="@IsSubmitInProgress" Disabled="@IsLoadingReferences" />
+            <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancelar" Variant="Variant.Flat" Click="@CancelButtonClick" />
+        </RadzenStack>
+    </RadzenTemplateForm>
+</RadzenColumn>

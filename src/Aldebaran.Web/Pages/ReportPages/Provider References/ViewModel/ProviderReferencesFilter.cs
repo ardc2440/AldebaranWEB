@@ -8,5 +8,5 @@ namespace Aldebaran.Web.Pages.ReportPages.Provider_References.ViewModel
     /// Filtro aplicado en el reporte de Referencias del Proveedor (resultado del diálogo de filtros):
     /// criterios del caso de uso, proveedor elegido (para mostrarlo) y resumen legible de jerarquía y condiciones.
     /// </summary>
-    public sealed record ProviderReferencesFilter(ProviderReferenceReportFilter Criteria, Provider? Provider, ItemReferencesReportFilterSummary Summary);
+    public sealed record ProviderReferencesFilter(ProviderReferenceReportFilter Criteria, Provider Provider, ItemReferencesReportFilterSummary Summary);
 }

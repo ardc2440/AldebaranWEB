@@ -1,0 +1,18 @@
+@* Imagen ampliada del producto de la competencia (mismo formato que ImageDialog de los artículos, que no se modifica). *@
+<h5>@Title</h5>
+@if (!string.IsNullOrWhiteSpace(ImageUrl))
+{
+    <RadzenImage Path="@ImageUrl" AlternateText="@Title" style="max-width:100%; height:auto;" />
+}
+else
+{
+    <p>La imagen de este producto de la competencia no está disponible.</p>
+}
+
+@code {
+    /// <summary>Producto de la competencia (y su referencia) mostrado como título.</summary>
+    [Parameter] public string Title { get; set; }
+
+    /// <summary>URL pública de la imagen (CompetitorImageStorage.Url).</summary>
+    [Parameter] public string ImageUrl { get; set; }
+}

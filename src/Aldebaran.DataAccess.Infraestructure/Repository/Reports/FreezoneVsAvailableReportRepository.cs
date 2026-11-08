@@ -11,9 +11,10 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository.Reports
 
         public async Task<IEnumerable<FreezoneVsAvailableReport>> GetFreezoneVsAvailableReportDataAsync(string filter = "", CancellationToken ct = default)
         {
+            var command = ReportCommands.ByReferenceIds("dbo.SP_GET_FREEZONE_VS_AVAILABLE_REPORT", filter);
             return await ExecuteQueryAsync(async dbContext =>
             {
-                return await dbContext.Set<FreezoneVsAvailableReport>().FromSqlRaw($"EXEC SP_GET_FREEZONE_VS_AVAILABLE_REPORT @ReferenceIds = '{filter}'").ToListAsync(ct);
+                return await dbContext.Set<FreezoneVsAvailableReport>().FromSqlRaw(command.Sql, command.Parameters).AsNoTracking().ToListAsync(ct);
             }, ct);
         }
     }

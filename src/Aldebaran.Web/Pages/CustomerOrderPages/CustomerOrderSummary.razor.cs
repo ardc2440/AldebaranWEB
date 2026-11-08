@@ -1,3 +1,4 @@
+using Aldebaran.Application.Services.Notifications;
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Application.Services.Notificator;
@@ -37,6 +38,9 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
 
         [Inject]
         protected INotificationService NotificationService { get; set; }
+
+        [Inject]
+        protected INotificationHookSigner NotificationHookSigner { get; set; }
 
         [Inject]
         protected INotificationTemplateService NotificationTemplateService { get; set; }
@@ -109,12 +113,13 @@ namespace Aldebaran.Web.Pages.CustomerOrderPages
             string pdfBase64 = Convert.ToBase64String(pdfBytes);
             string[] emails = CustomerOrder.Customer.Email.Split(";");
 
+            var messageUid = Guid.NewGuid().ToString();
             var message = new MessageModel
             {
-                HookUrl = new Uri($"{NavigationManager.BaseUri.TrimEnd('/')}/Notification/CustomerOrderUpdate"),
+                HookUrl = NotificationHookSigner.BuildHookUrl(NavigationManager.BaseUri, NotificationHook.CustomerOrderUpdate, messageUid),
                 Header = new MessageModel.EnvelopeHeader
                 {
-                    MessageUid = Guid.NewGuid().ToString(),
+                    MessageUid = messageUid,
                     ReceiverUrn = emails.Where(s => s != null).ToArray(),
                     Subject = "Sales",
                 },

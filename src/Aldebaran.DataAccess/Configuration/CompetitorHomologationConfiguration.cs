@@ -23,7 +23,7 @@ namespace Aldebaran.DataAccess.Configuration
             builder.Property(x => x.ProductUrl).HasColumnName("PRODUCT_URL").HasColumnType("varchar(500)").IsRequired(false).IsUnicode(false).HasMaxLength(500);
             builder.Property(x => x.CompetitorPrice).HasColumnName("COMPETITOR_PRICE").HasColumnType("decimal(18,2)").IsRequired(false);
             builder.Property(x => x.ImageFileName).HasColumnName("IMAGE_FILE_NAME").HasColumnType("varchar(100)").IsRequired(false).IsUnicode(false).HasMaxLength(100);
-            builder.Property(x => x.IsActive).HasColumnName("IS_ACTIVE").HasColumnType("bit").IsRequired().HasDefaultValue(true);
+            builder.Property(x => x.IsActive).HasColumnName("IS_ACTIVE").HasColumnType("bit").IsRequired(); // El valor inicial (true) lo da la entidad; el DEFAULT de la tabla queda solo para inserts directos en BD.
             builder.Property(x => x.CreationDate).HasColumnName("CREATION_DATE").HasColumnType("datetime").IsRequired().HasDefaultValueSql("GETDATE()").ValueGeneratedOnAdd();
 
             builder.HasOne(x => x.CompetitorCompany).WithMany().HasForeignKey(x => x.CompetitorCompanyId).OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_COMPETITOR_HOMOLOGATIONS_COMPANY");

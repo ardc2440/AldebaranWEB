@@ -35,6 +35,10 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository
         public StoredProcedureCommand VarChar(string name, string? value, int size = -1) =>
             string.IsNullOrWhiteSpace(value) ? this : Add(name, SqlDbType.VarChar, value.Trim(), size);
 
+        /// <summary>Siempre se envía (null = texto vacío), para SP cuyo parámetro no tiene valor por defecto.</summary>
+        public StoredProcedureCommand VarCharOrEmpty(string name, string? value, int size = -1) =>
+            Add(name, SqlDbType.VarChar, value?.Trim() ?? string.Empty, size);
+
         public StoredProcedureCommand NVarChar(string name, string? value, int size = -1) =>
             string.IsNullOrWhiteSpace(value) ? this : Add(name, SqlDbType.NVarChar, value.Trim(), size);
 

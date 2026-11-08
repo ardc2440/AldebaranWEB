@@ -15,9 +15,9 @@ namespace Aldebaran.Application.Services.Reports
             _mapper = mapper ?? throw new ArgumentNullException(nameof(IMapper));
         }
 
-        public async Task<IEnumerable<WarehouseStockReport>> GetWarehouseStockReportDataAsync(string filter, CancellationToken ct = default)
+        public async Task<IEnumerable<WarehouseStockReport>> GetWarehouseStockReportDataAsync(WarehouseStockReportFilter filter, CancellationToken ct = default)
         {
-            var data = await _repository.GetWarehouseStockReportDataAsync(filter, ct);
+            var data = await _repository.GetWarehouseStockReportDataAsync(_mapper.Map<DataAccess.Entities.Reports.WarehouseStockReportFilter>(filter ?? new WarehouseStockReportFilter()), ct);
             return _mapper.Map<IEnumerable<WarehouseStockReport>>(data);
         }
     }

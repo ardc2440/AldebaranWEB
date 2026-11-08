@@ -33,7 +33,7 @@
                         <Template Context="h">
                             @if (CompetitorImageStorage.Url(h.ImageFileName) is { } url)
                             {
-                                <a href="@url" target="_blank" rel="noopener noreferrer"><img src="@url" alt="Imagen" style="max-width: 60px; max-height: 60px;" /></a>
+                                <img src="@url" alt="Imagen" title="Click para ver imagen" style="max-width: 60px; max-height: 60px; cursor: pointer;" @onclick="@(() => DialogService.OpenCompetitorImage(url, $"[{h.CompetitorReference}] {h.CompetitorProductName}"))" @onclick:stopPropagation="true" />
                             }
                         </Template>
                     </RadzenDataGridColumn>

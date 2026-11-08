@@ -22,7 +22,7 @@ namespace Aldebaran.DataAccess.Configuration
             builder.Property(x => x.CountryId).HasColumnName("COUNTRY_ID").HasColumnType("int").IsRequired(false);
             builder.Property(x => x.DepartmentId).HasColumnName("DEPARTMENT_ID").HasColumnType("int").IsRequired(false);
             builder.Property(x => x.CityId).HasColumnName("CITY_ID").HasColumnType("int").IsRequired(false);
-            builder.Property(x => x.IsActive).HasColumnName("IS_ACTIVE").HasColumnType("bit").IsRequired().HasDefaultValue(true);
+            builder.Property(x => x.IsActive).HasColumnName("IS_ACTIVE").HasColumnType("bit").IsRequired(); // El valor inicial (true) lo da la entidad; el DEFAULT de la tabla queda solo para inserts directos en BD.
             builder.Property(x => x.CreationDate).HasColumnName("CREATION_DATE").HasColumnType("datetime").IsRequired().HasDefaultValueSql("GETDATE()").ValueGeneratedOnAdd();
 
             builder.HasOne(x => x.Country).WithMany().HasForeignKey(x => x.CountryId).OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_COMPETITOR_COMPANIES_COUNTRY");

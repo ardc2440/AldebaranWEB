@@ -1,4 +1,5 @@
 using Aldebaran.Application.Services.Models;
+using Aldebaran.Application.Services.Notifications;
 using Aldebaran.Application.Services.Notificator;
 using Aldebaran.Application.Services.Notificator.Model;
 using Aldebaran.DataAccess.Infraestructure.Repository;
@@ -14,14 +15,16 @@ namespace Aldebaran.Application.Services
         private readonly IMapper _mapper;
         private readonly INotificationService _notificationService;
         private readonly ISharedStringLocalizer _sharedLocalizer;
+        private readonly INotificationHookSigner _hookSigner;
         
         public PurchaseOrderNotificationService(IPurchaseOrderNotificationRepository repository, IMapper mapper, INotificationService notificationService,
-            ISharedStringLocalizer sharedLocalizer)
+            ISharedStringLocalizer sharedLocalizer, INotificationHookSigner hookSigner)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(IPurchaseOrderNotificationRepository));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(IMapper));
             _notificationService = notificationService ?? throw new ArgumentNullException(nameof(INotificationService));
             _sharedLocalizer = sharedLocalizer ?? throw new ArgumentNullException(nameof(ISharedStringLocalizer));
+            _hookSigner = hookSigner ?? throw new ArgumentNullException(nameof(INotificationHookSigner));
         }
 
         public async Task<PurchaseOrderNotification?> FindAsync(int purchaseOrderNotificationId, CancellationToken ct = default)
@@ -66,7 +69,7 @@ namespace Aldebaran.Application.Services
                 var uid = Guid.NewGuid().ToString();
                 var message = new MessageModel
                 {
-                    HookUrl = new Uri($"{baseUri.TrimEnd('/')}/Notification/PurchaseOrderUpdate"),
+                    HookUrl = _hookSigner.BuildHookUrl(baseUri, NotificationHook.PurchaseOrderUpdate, uid),
                     Header = new MessageModel.EnvelopeHeader
                     {
                         MessageUid = uid,

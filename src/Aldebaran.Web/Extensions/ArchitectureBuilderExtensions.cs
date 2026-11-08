@@ -261,6 +261,7 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IInventoryReportRepository, InventoryReportRepository>();
             services.AddTransient<IItemReferencesReportRepository, ItemReferencesReportRepository>();
             services.AddTransient<IProviderReferenceReportRepository, ProviderReferenceReportRepository>();
+            services.AddTransient<ICompetitorHomologationReportRepository, CompetitorHomologationReportRepository>();
             services.AddTransient<IReferenceMovementReportRepository, ReferenceMovementReportRepository>();
             services.AddTransient<IWarehouseStockReportRepository, WarehouseStockReportRepository>();
             services.AddTransient<ICustomerOrderReportRepository, CustomerOrderReportRepository>();
@@ -369,6 +370,7 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IInventoryReportService, InventoryReportService>();
             services.AddTransient<IItemReferencesReportService, ItemReferencesReportService>();
             services.AddTransient<IProviderReferenceReportService, ProviderReferenceReportService>();
+            services.AddTransient<ICompetitorHomologationReportService, CompetitorHomologationReportService>();
             services.AddTransient<IReferenceMovementReportService, ReferenceMovementReportService>();
             services.AddTransient<IWarehouseStockReportService, WarehouseStockReportService>();
             services.AddTransient<ICustomerOrderReportService, CustomerOrderReportService>();
@@ -389,6 +391,8 @@ namespace Aldebaran.Web.Extensions
             services.AddTransient<IPurchaseOrderLogService, PurchaseOrderLogService>();
             services.AddTransient<IGeneralLogService, GeneralLogService>();
             services.AddTransient<IPurchaseOrderNotificationService, PurchaseOrderNotificationService>();
+            // Firma de las URL de retorno de notificaciones; falla al iniciar si falta AppSettings:NotificationHookKey.
+            services.AddSingleton<INotificationHookSigner>(new NotificationHookSigner(builder.Configuration["AppSettings:NotificationHookKey"]));
             services.AddTransient<IVisualizedPurchaseOrderTransitAlarmService, VisualizedPurchaseOrderTransitAlarmService>();
             services.AddTransient<IPurchaseOrderTransitAlarmService, PurchaseOrderTransitAlarmService>();
             services.AddTransient<ICustomerOrderNotificationService, CustomerOrderNotificationService>();

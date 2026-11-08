@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.JSInterop;
 using Radzen;
 using Radzen.Blazor;
+using ReportFilter = Aldebaran.Application.Services.Models.Reports.PurchaseOrderReportFilter;
 
 namespace Aldebaran.Web.Pages.ReportPages.Purchase_Orders
 {
@@ -60,7 +61,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Purchase_Orders
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
             await OpenFilters();
         }
-        async Task RedrawReportAsync(string filter = "", CancellationToken ct = default)
+        async Task RedrawReportAsync(ReportFilter filter, CancellationToken ct = default)
         {
 
             try
@@ -81,60 +82,28 @@ namespace Aldebaran.Web.Pages.ReportPages.Purchase_Orders
             }
         }
 
-        async Task<string> SetReportFilterAsync(PurchaseOrderFilter filter, CancellationToken ct = default)
+        /// <summary>Filtros del caso de uso (los valores viajan como parámetros del SP, nunca concatenados en el SQL).</summary>
+        static ReportFilter ToReportFilter(PurchaseOrderFilter filter) => new()
         {
-            var filterResult = string.Empty;
-
-            if (filter.CreationDate.StartDate.HasValue)
-                filterResult += $"@CreationDateFrom = '{(DateTime)filter.CreationDate.StartDate:yyyyMMdd}', @CreationDateTo = '{(DateTime)filter.CreationDate.EndDate:yyyyMMdd}'";
-
-            if (filter.RequestDate.StartDate.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@RequestDateFrom = '{(DateTime)filter.RequestDate.StartDate:yyyyMMdd}', @RequestDateTo = '{(DateTime)filter.RequestDate.EndDate:yyyyMMdd}'";
-
-            if (filter.ExpectedReceiptDate.StartDate.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ExpectedReceiptDateFrom = '{(DateTime)filter.ExpectedReceiptDate.StartDate:yyyyMMdd}', @ExpectedReceiptDateTo = '{(DateTime)filter.ExpectedReceiptDate.EndDate:yyyyMMdd}'";
-
-            if (!filter.OrderNumber.IsNullOrEmpty())
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@OrderNumber = '{filter.OrderNumber}'";
-
-            if (!filter.ImportNumber.IsNullOrEmpty())
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ImportNumber = '{filter.ImportNumber}'";
-
-            if (filter.ItemReferences.Count > 0)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReferenceIds = '{String.Join(",", Filter.ItemReferences.Select(s => s.ReferenceId))}'";
-
-            if (!filter.EmbarkationPort.IsNullOrEmpty())
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@EmbarkationPort = '{filter.EmbarkationPort}'";
-
-            if (!filter.ProformaNumber.IsNullOrEmpty())
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ProformaNumber = '{filter.ProformaNumber}'";
-
-            if (filter.ProviderId.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ProviderId = {filter.ProviderId}";
-
-            if (filter.ForwarderId.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ForwarderId = {filter.ForwarderId}";
-
-            if (filter.ForwarderAgentId.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ForwarderAgentId = {filter.ForwarderAgentId}";
-
-            if (filter.ShipmentMethodId.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ShipmentMethodId = {filter.ShipmentMethodId}";
-
-            if (filter.WarehouseId.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@WarehouseId = {filter.WarehouseId}";
-
-            if (filter.StatusDocumentId.HasValue)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@StatusDocumentTypeId = {filter.StatusDocumentId}";
-
-            if (filter.RequestedQuantityDifference)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@RequestedQuantityDifference = 1";
-
-            ShowRequestedAmount = filter.RequestedQuantityDifference;
-            ColSpan = filter.RequestedQuantityDifference ? 6 : 5;
-
-            return filterResult;
-        }
+                OrderNumber = filter.OrderNumber,
+                CreationDateFrom = filter.CreationDate?.StartDate,
+                CreationDateTo = filter.CreationDate?.StartDate.HasValue == true ? filter.CreationDate.EndDate : null,
+                RequestDateFrom = filter.RequestDate?.StartDate,
+                RequestDateTo = filter.RequestDate?.StartDate.HasValue == true ? filter.RequestDate.EndDate : null,
+                ExpectedReceiptDateFrom = filter.ExpectedReceiptDate?.StartDate,
+                ExpectedReceiptDateTo = filter.ExpectedReceiptDate?.StartDate.HasValue == true ? filter.ExpectedReceiptDate.EndDate : null,
+                ImportNumber = filter.ImportNumber,
+                EmbarkationPort = filter.EmbarkationPort,
+                ProformaNumber = filter.ProformaNumber,
+                ProviderId = filter.ProviderId,
+                ForwarderId = filter.ForwarderId,
+                ForwarderAgentId = filter.ForwarderAgentId,
+                ShipmentMethodId = filter.ShipmentMethodId,
+                WarehouseId = filter.WarehouseId,
+                StatusDocumentTypeId = filter.StatusDocumentId,
+                RequestedQuantityDifference = filter.RequestedQuantityDifference,
+                ReferenceIds = filter.ItemReferences?.Any() == true ? string.Join(",", filter.ItemReferences.Select(s => s.ReferenceId)) : null
+        };
 
         async Task OpenFilters()
         {
@@ -143,7 +112,9 @@ namespace Aldebaran.Web.Pages.ReportPages.Purchase_Orders
                 return;
             Filter = (PurchaseOrderFilter)result;
 
-            await RedrawReportAsync(await SetReportFilterAsync(Filter));
+            ShowRequestedAmount = Filter.RequestedQuantityDifference;
+            ColSpan = Filter.RequestedQuantityDifference ? 6 : 5;
+            await RedrawReportAsync(ToReportFilter(Filter));
 
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
         }

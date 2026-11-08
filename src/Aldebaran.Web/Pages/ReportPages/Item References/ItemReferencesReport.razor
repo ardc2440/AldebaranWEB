@@ -1,4 +1,5 @@
 @page "/report/item-references"
+@attribute [Authorize(Roles = "Administrador,Consulta de reportes")]
 @using Aldebaran.Web.Pages.ReportPages.Item_References.Components
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
 

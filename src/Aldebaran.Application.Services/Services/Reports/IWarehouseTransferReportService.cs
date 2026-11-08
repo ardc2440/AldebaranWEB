@@ -4,6 +4,6 @@ namespace Aldebaran.Application.Services.Reports
 {
     public interface IWarehouseTransferReportService
     {
-        Task<IEnumerable<WarehouseTransferReport>> GetWarehouseTransferReportDataAsync(string filter = "", CancellationToken ct = default);
+        Task<IEnumerable<WarehouseTransferReport>> GetWarehouseTransferReportDataAsync(WarehouseTransferReportFilter filter, CancellationToken ct = default);
     }
 }

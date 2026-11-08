@@ -9,11 +9,12 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository.Reports
         {
         }
 
-        public async Task<IEnumerable<PurchaseOrderReport>> GetPurchaseOrderReportDataAsync(string filter, CancellationToken ct = default)
+        public async Task<IEnumerable<PurchaseOrderReport>> GetPurchaseOrderReportDataAsync(PurchaseOrderReportFilter filter, CancellationToken ct = default)
         {
+            var command = ReportCommands.PurchaseOrder(filter ?? new PurchaseOrderReportFilter());
             return await ExecuteQueryAsync(async dbContext =>
             {
-                return await dbContext.Set<PurchaseOrderReport>().FromSqlRaw($"EXEC SP_GET_PURCHASE_ORDER_REPORT {filter}").ToListAsync(ct);
+                return await dbContext.Set<PurchaseOrderReport>().FromSqlRaw(command.Sql, command.Parameters).AsNoTracking().ToListAsync(ct);
             }, ct);
         }        
     }

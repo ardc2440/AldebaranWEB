@@ -1,6 +1,7 @@
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Application.Services.Models.Enums;
+using Aldebaran.Application.Services.Notifications;
 using Aldebaran.Application.Services.NotificationsAccessToken;
 using Aldebaran.Infraestructure.Common.Security;
 using Microsoft.AspNetCore.Authorization;
@@ -16,6 +17,7 @@ namespace Aldebaran.Web.Controllers
         private readonly ICustomerReservationNotificationService CustomerReservationNotificationService;
         private readonly IEncryptionService EncryptionService;
         private readonly INotificationAccessTokenService _notificationAccessTokenService;
+        private readonly INotificationHookSigner _hookSigner;
         private readonly ILogger<NotificationController> _logger;
 
         public NotificationController(
@@ -24,6 +26,7 @@ namespace Aldebaran.Web.Controllers
             ICustomerOrderNotificationService customerOrderNotificationService,
             ICustomerReservationNotificationService customerReservationNotificationService,
             INotificationAccessTokenService notificationAccessTokenService,
+            INotificationHookSigner hookSigner,
             ILogger<NotificationController> logger)
         {
             PurchaseOrderNotificationService = purchaseOrderNotificationService;
@@ -31,32 +34,58 @@ namespace Aldebaran.Web.Controllers
             CustomerReservationNotificationService = customerReservationNotificationService;
             EncryptionService = encryptionService;
             _notificationAccessTokenService = notificationAccessTokenService;
+            _hookSigner = hookSigner;
             _logger = logger;
         }
-        [HttpPost]
-        public async Task<IActionResult> PurchaseOrderUpdate([FromBody] Application.Services.Notificator.Model.MessageModel message, CancellationToken ct = default)
+        /// <summary>Estado de envío reportado por el procesador de notificaciones. La ruta lleva la firma del MessageUid.</summary>
+        [AllowAnonymous]
+        [HttpPost("{signature}")]
+        public async Task<IActionResult> PurchaseOrderUpdate(string signature, [FromBody] Application.Services.Notificator.Model.MessageModel message, CancellationToken ct = default)
         {
-            var notificationId = message.Header.MessageUid;
+            if (Reject(message, signature, nameof(PurchaseOrderUpdate)) is { } rejection)
+                return rejection;
             var status = message.MessageDeliveryStatus.Success ? NotificationStatus.Success : NotificationStatus.Error;
-            await PurchaseOrderNotificationService.UpdateNotificationResponseAsync(notificationId, status, message.MessageDeliveryStatus.Message, message.Header.SentDate.Value, ct);
+            await PurchaseOrderNotificationService.UpdateNotificationResponseAsync(message.Header.MessageUid, status, message.MessageDeliveryStatus.Message, message.Header.SentDate.Value, ct);
             return Ok();
         }
-        [HttpPost]
-        public async Task<IActionResult> CustomerOrderUpdate([FromBody] Application.Services.Notificator.Model.MessageModel message, CancellationToken ct = default)
+        /// <summary>Estado de envío reportado por el procesador de notificaciones. La ruta lleva la firma del MessageUid.</summary>
+        [AllowAnonymous]
+        [HttpPost("{signature}")]
+        public async Task<IActionResult> CustomerOrderUpdate(string signature, [FromBody] Application.Services.Notificator.Model.MessageModel message, CancellationToken ct = default)
         {
-            var notificationId = message.Header.MessageUid;
+            if (Reject(message, signature, nameof(CustomerOrderUpdate)) is { } rejection)
+                return rejection;
             var status = message.MessageDeliveryStatus.Success ? NotificationStatus.Success : NotificationStatus.Error;
-            await CustomerOrderNotificationService.UpdateAsync(notificationId, status, message.MessageDeliveryStatus.Message, message.Header.SentDate.Value, ct);
+            await CustomerOrderNotificationService.UpdateAsync(message.Header.MessageUid, status, message.MessageDeliveryStatus.Message, message.Header.SentDate.Value, ct);
             return Ok();
         }
 
-        [HttpPost]
-        public async Task<IActionResult> CustomerReservationUpdate([FromBody] Application.Services.Notificator.Model.MessageModel message, CancellationToken ct = default)
+        /// <summary>Estado de envío reportado por el procesador de notificaciones. La ruta lleva la firma del MessageUid.</summary>
+        [AllowAnonymous]
+        [HttpPost("{signature}")]
+        public async Task<IActionResult> CustomerReservationUpdate(string signature, [FromBody] Application.Services.Notificator.Model.MessageModel message, CancellationToken ct = default)
         {
-            var notificationId = message.Header.MessageUid;
+            if (Reject(message, signature, nameof(CustomerReservationUpdate)) is { } rejection)
+                return rejection;
             var status = message.MessageDeliveryStatus.Success ? NotificationStatus.Success : NotificationStatus.Error;
-            await CustomerReservationNotificationService.UpdateAsync(notificationId, status, message.MessageDeliveryStatus.Message, message.Header.SentDate.Value, ct);
+            await CustomerReservationNotificationService.UpdateAsync(message.Header.MessageUid, status, message.MessageDeliveryStatus.Message, message.Header.SentDate.Value, ct);
             return Ok();
+        }
+
+        /// <summary>400 si el mensaje está incompleto, 401 si la firma no corresponde; null si es válido.</summary>
+        private IActionResult Reject(Application.Services.Notificator.Model.MessageModel message, string signature, string hook)
+        {
+            switch (_hookSigner.Check(message, signature))
+            {
+                case NotificationHookCheck.Malformed:
+                    _logger.LogWarning("{Hook}: mensaje de estado incompleto.", hook);
+                    return BadRequest();
+                case NotificationHookCheck.InvalidSignature:
+                    _logger.LogWarning("{Hook}: firma inválida para el mensaje {MessageUid}.", hook, message.Header.MessageUid);
+                    return Unauthorized();
+                default:
+                    return null;
+            }
         }
 
         [AllowAnonymous]

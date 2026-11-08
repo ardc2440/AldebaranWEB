@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Radzen;
 using Radzen.Blazor;
+using ReportFilter = Aldebaran.Application.Services.Models.Reports.WarehouseTransferReportFilter;
+
 namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Transfers
 {
     public partial class WarehouseTransfersReport
@@ -64,7 +66,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Transfers
                 return;
             Filter = (WarehouseTransfersFilter)result;
 
-            await RedrawReport(await SetReportFilter(Filter));
+            await RedrawReport(ToReportFilter(Filter));
 
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
         }
@@ -100,7 +102,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Transfers
         {
             await JSRuntime.InvokeVoidAsync("readMoreTogglePage", "toggleLinkPage");
         }
-        async Task RedrawReport(string filter = "", CancellationToken ct = default)
+        async Task RedrawReport(ReportFilter filter, CancellationToken ct = default)
         {
             try
             {
@@ -120,33 +122,17 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Transfers
             }
 
         }
-        async Task<string> SetReportFilter(WarehouseTransfersFilter filter, CancellationToken ct = default)
+        /// <summary>Filtros del caso de uso (los valores viajan como parámetros del SP, nunca concatenados en el SQL).</summary>
+        static ReportFilter ToReportFilter(WarehouseTransfersFilter filter) => new()
         {
-            var filters = new List<string>();
-
-            if (filter.TargetWarehouseId.HasValue)
-                filters.Add($"@TargetWarehouseId = {filter.TargetWarehouseId}");
-
-            if (filter.SourceWarehouseId.HasValue)
-                filters.Add($"@SourceWarehouseId = {filter.SourceWarehouseId}");
-
-            if (filter.ItemReferences?.Any() == true)
-                filters.Add($"@ReferenceIds = '{string.Join(",", Filter.ItemReferences.Select(s => s.ReferenceId))}'");
-
-            if (filter.AdjustmentDate?.StartDate != null)
-                filters.Add($"@AdjustmentDateFrom = '{filter.AdjustmentDate.StartDate.Value:yyyyMMdd}'");
-
-            if (filter.AdjustmentDate?.EndDate != null)
-                filters.Add($"@AdjustmentDateTo = '{filter.AdjustmentDate.EndDate.Value:yyyyMMdd}'");
-
-            if (!string.IsNullOrEmpty(filter.NationalizationNumber))
-                filters.Add($"@NationalizationNumber = '{filter.NationalizationNumber.Trim()}'");
-
-            if (filter.StatusDocumentTypeId.HasValue)
-                filters.Add($"@StatusId = {filter.StatusDocumentTypeId}");
-
-            return string.Join(", ", filters);
-        }
+                TargetWarehouseId = filter.TargetWarehouseId,
+                SourceWarehouseId = filter.SourceWarehouseId,
+                AdjustmentDateFrom = filter.AdjustmentDate?.StartDate,
+                AdjustmentDateTo = filter.AdjustmentDate?.EndDate,
+                NationalizationNumber = filter.NationalizationNumber,
+                StatusId = filter.StatusDocumentTypeId,
+                ReferenceIds = filter.ItemReferences?.Any() == true ? string.Join(",", filter.ItemReferences.Select(s => s.ReferenceId)) : null
+        };
         private async Task ShowImageDialog(string articleName) => DialogService.Open<ImageDialog>("", new Dictionary<string, object>
             {
                 { "ArticleName", articleName }

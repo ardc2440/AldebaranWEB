@@ -9,11 +9,12 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository.Reports
         {
         }
 
-        public async Task<IEnumerable<InventoryAdjustmentReport>> GetInventoryAdjustmentReportDataAsync(string filter, CancellationToken ct = default)
+        public async Task<IEnumerable<InventoryAdjustmentReport>> GetInventoryAdjustmentReportDataAsync(InventoryAdjustmentReportFilter filter, CancellationToken ct = default)
         {
+            var command = ReportCommands.InventoryAdjustment(filter ?? new InventoryAdjustmentReportFilter());
             return await ExecuteQueryAsync(async dbContext =>
             {
-                return await dbContext.Set<InventoryAdjustmentReport>().FromSqlRaw($"EXEC SP_GET_INVENTORY_ADJUSTMENT_REPORT {filter}").ToListAsync(ct);
+                return await dbContext.Set<InventoryAdjustmentReport>().FromSqlRaw(command.Sql, command.Parameters).AsNoTracking().ToListAsync(ct);
             }, ct);
         }
     }

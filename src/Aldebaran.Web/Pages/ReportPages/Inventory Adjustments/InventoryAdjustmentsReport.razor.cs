@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Radzen;
 using Radzen.Blazor;
+using ReportFilter = Aldebaran.Application.Services.Models.Reports.InventoryAdjustmentReportFilter;
 
 namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
 {
@@ -167,7 +168,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
             await OpenFilters();
         }
-        async Task RedrawReportAsync(string filter = "", CancellationToken ct = default)
+        async Task RedrawReportAsync(ReportFilter filter, CancellationToken ct = default)
         {
             try
             {
@@ -196,44 +197,24 @@ namespace Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments
                 return;
             Filter = (InventoryAdjustmentsFilter)result;
 
-            await RedrawReportAsync(await SetReportFilterAsync(Filter));
+            await RedrawReportAsync(ToReportFilter(Filter));
 
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
         }
 
-        async Task<string> SetReportFilterAsync(InventoryAdjustmentsFilter filter, CancellationToken ct = default)
+        /// <summary>Filtros del caso de uso (los valores viajan como parámetros del SP, nunca concatenados en el SQL).</summary>
+        static ReportFilter ToReportFilter(InventoryAdjustmentsFilter filter) => new()
         {
-            var filters = new List<string>();
-
-            if (filter.CreationDate?.StartDate != null)
-                filters.Add($"@CreationDateFrom = '{filter.CreationDate.StartDate.Value:yyyyMMdd}'");
-
-            if (filter.CreationDate?.EndDate != null)
-                filters.Add($"@CreationDateTo = '{filter.CreationDate.EndDate.Value:yyyyMMdd}'");
-
-            if (filter.AdjustmentDate?.StartDate != null)
-                filters.Add($"@AdjustmentDateFrom = '{filter.AdjustmentDate.StartDate.Value:yyyyMMdd}'");
-
-            if (filter.AdjustmentDate?.EndDate != null)
-                filters.Add($"@AdjustmentDateTo = '{filter.AdjustmentDate.EndDate.Value:yyyyMMdd}'");
-
-            if (filter.AdjustmentId.HasValue)
-                filters.Add($"@AdjustmentId = {filter.AdjustmentId}");
-
-            if (filter.EmployeeId.HasValue)
-                filters.Add($"@EmployeeId = {filter.EmployeeId}");
-
-            if (filter.ItemReferences?.Any() == true)
-                filters.Add($"@ReferenceIds = '{string.Join(",", Filter.ItemReferences.Select(s => s.ReferenceId))}'");
-
-            if (filter.AdjustmentReasonId.HasValue)
-                filters.Add($"@AdjustmentReasonId = {filter.AdjustmentReasonId}");
-
-            if (filter.AdjustmentTypeId.HasValue)
-                filters.Add($"@AdjustmentTypeId = {filter.AdjustmentTypeId}");
-
-            return string.Join(", ", filters);
-        }
+                AdjustmentId = filter.AdjustmentId,
+                CreationDateFrom = filter.CreationDate?.StartDate,
+                CreationDateTo = filter.CreationDate?.EndDate,
+                AdjustmentDateFrom = filter.AdjustmentDate?.StartDate,
+                AdjustmentDateTo = filter.AdjustmentDate?.EndDate,
+                AdjustmentTypeId = filter.AdjustmentTypeId,
+                AdjustmentReasonId = filter.AdjustmentReasonId,
+                EmployeeId = filter.EmployeeId,
+                ReferenceIds = filter.ItemReferences?.Any() == true ? string.Join(",", filter.ItemReferences.Select(s => s.ReferenceId)) : null
+        };
 
         async Task RemoveFilters()
         {

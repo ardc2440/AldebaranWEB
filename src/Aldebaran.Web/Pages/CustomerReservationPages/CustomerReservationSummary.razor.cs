@@ -1,4 +1,5 @@
-﻿using Aldebaran.Application.Services;
+﻿using Aldebaran.Application.Services.Notifications;
+using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Application.Services.Notificator;
 using Aldebaran.Application.Services.Notificator.Model;
@@ -31,6 +32,9 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
 
         [Inject]
         protected INotificationService NotificationService { get; set; }
+
+        [Inject]
+        protected INotificationHookSigner NotificationHookSigner { get; set; }
 
         [Inject]
         protected INotificationTemplateService NotificationTemplateService { get; set; }
@@ -102,12 +106,13 @@ namespace Aldebaran.Web.Pages.CustomerReservationPages
             string pdfBase64 = Convert.ToBase64String(pdfBytes);
             string[] emails = CustomerReservation.Customer.Email.Split(";");
 
+            var messageUid = Guid.NewGuid().ToString();
             var message = new MessageModel
             {
-                HookUrl = new Uri($"{NavigationManager.BaseUri.TrimEnd('/')}/Notification/CustomerReservationUpdate"),
+                HookUrl = NotificationHookSigner.BuildHookUrl(NavigationManager.BaseUri, NotificationHook.CustomerReservationUpdate, messageUid),
                 Header = new MessageModel.EnvelopeHeader
                 {
-                    MessageUid = Guid.NewGuid().ToString(),
+                    MessageUid = messageUid,
                     ReceiverUrn = emails.Where(s => s != null).ToArray(),
                     Subject = "Sales",
                 },

@@ -80,7 +80,8 @@ namespace Aldebaran.Application.Services.Competitors
             if (error != null)
                 throw new ArgumentException(error);
             var storage = _imageStorage ?? throw new InvalidOperationException("El almacenamiento de imágenes no está configurado.");
-            var current = await GetExistingAsync(competitorHomologationId, ct);
+            // Se toma el nombre anterior antes de actualizar: no depender de que la entidad leída no cambie.
+            var previousFileName = (await GetExistingAsync(competitorHomologationId, ct)).ImageFileName;
 
             var newFileName = await storage.SaveAsync(competitorHomologationId, content, CompetitorImageRules.NormalizeExtension(fileName)!, ct);
             try
@@ -92,17 +93,17 @@ namespace Aldebaran.Application.Services.Competitors
                 storage.Delete(newFileName); // no dejar archivos huérfanos si no se pudo registrar
                 throw;
             }
-            if (!string.Equals(current.ImageFileName, newFileName, StringComparison.OrdinalIgnoreCase))
-                storage.Delete(current.ImageFileName);
+            if (!string.Equals(previousFileName, newFileName, StringComparison.OrdinalIgnoreCase))
+                storage.Delete(previousFileName);
         }
 
         public async Task RemoveImageAsync(int competitorHomologationId, CancellationToken ct = default)
         {
-            var current = await GetExistingAsync(competitorHomologationId, ct);
-            if (current.ImageFileName == null)
+            var previousFileName = (await GetExistingAsync(competitorHomologationId, ct)).ImageFileName;
+            if (previousFileName == null)
                 return;
             await _repository.SetImageFileNameAsync(competitorHomologationId, null, ct);
-            _imageStorage?.Delete(current.ImageFileName);
+            _imageStorage?.Delete(previousFileName);
         }
         #endregion
 

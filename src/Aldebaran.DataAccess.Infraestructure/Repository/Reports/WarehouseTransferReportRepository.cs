@@ -9,11 +9,12 @@ namespace Aldebaran.DataAccess.Infraestructure.Repository.Reports
         {
         }
 
-        public async Task<IEnumerable<WarehouseTransferReport>> GetWarehouseTransferReportDataAsync(string filter = "", CancellationToken ct = default)
+        public async Task<IEnumerable<WarehouseTransferReport>> GetWarehouseTransferReportDataAsync(WarehouseTransferReportFilter filter, CancellationToken ct = default)
         {
+            var command = ReportCommands.WarehouseTransfer(filter ?? new WarehouseTransferReportFilter());
             return await ExecuteQueryAsync(async dbContext =>
             {
-                return await dbContext.Set<WarehouseTransferReport>().FromSqlRaw($"EXEC SP_GET_WAREHOUSE_TRANSFER_REPORT {filter}").ToListAsync(ct);
+                return await dbContext.Set<WarehouseTransferReport>().FromSqlRaw(command.Sql, command.Parameters).AsNoTracking().ToListAsync(ct);
             }, ct);
         }
     }

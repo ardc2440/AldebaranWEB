@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.JSInterop;
 using Radzen;
 using Radzen.Blazor;
+using ReportFilter = Aldebaran.Application.Services.Models.Reports.WarehouseStockReportFilter;
 
 namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Stock
 {
@@ -57,7 +58,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Stock
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
             await OpenFilters();
         }
-        async Task RedrawReport(string filter = "", CancellationToken ct = default)
+        async Task RedrawReport(ReportFilter filter, CancellationToken ct = default)
         {
             try
             {
@@ -79,19 +80,12 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Stock
 
         }
 
-        async Task<string> SetReportFilter(WarehouseStockFilter filter, CancellationToken ct = default)
+        /// <summary>Filtros del caso de uso (los valores viajan como parámetros del SP, nunca concatenados en el SQL).</summary>
+        static ReportFilter ToReportFilter(WarehouseStockFilter filter) => new()
         {
-            var filterResult = string.Empty;
-
-            if (filter.Warehouse != null)
-                if (filter.Warehouse.WarehouseId > 0)
-                    filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@WarehouseId = {filter.Warehouse.WarehouseId}";
-
-            if (filter.ItemReferences.Count > 0)
-                filterResult += (!filterResult.IsNullOrEmpty() ? ", " : "") + $"@ReferenceIds = '{String.Join(",", Filter.ItemReferences.Select(s => s.ReferenceId))}'";
-
-            return filterResult;
-        }
+                WarehouseId = filter.Warehouse?.WarehouseId > 0 ? filter.Warehouse.WarehouseId : null,
+                ReferenceIds = filter.ItemReferences?.Any() == true ? string.Join(",", filter.ItemReferences.Select(s => s.ReferenceId)) : null
+        };
 
         async Task OpenFilters()
         {
@@ -100,7 +94,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Warehouse_Stock
                 return;
             Filter = (WarehouseStockFilter)result;
 
-            await RedrawReport(await SetReportFilter(Filter));
+            await RedrawReport(ToReportFilter(Filter));
 
             await JSRuntime.InvokeVoidAsync("readMoreToggle", "toggleLink", false);
         }

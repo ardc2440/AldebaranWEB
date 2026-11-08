@@ -1,4 +1,5 @@
 ﻿@page "/report/customer-reservation"
+@attribute [Authorize(Roles = "Administrador,Consulta de reportes")]
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
 
 <PageTitle>Reporte de reservas por cliente</PageTitle>

@@ -1,4 +1,5 @@
 @page "/report/automatic-purchase-order-assigment"
+@attribute [Authorize(Roles = "Administrador,Consulta de notificaciones por creación automática de traslados a proceso")]
 @inject Aldebaran.Infraestructure.Common.Utils.ISharedStringLocalizer SharedLocalizer
 
 <PageTitle>Reporte de asignación automática de referencias a pedidos</PageTitle>
