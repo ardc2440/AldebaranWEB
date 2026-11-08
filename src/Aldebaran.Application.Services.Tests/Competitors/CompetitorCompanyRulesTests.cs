@@ -49,7 +49,7 @@ namespace Aldebaran.Application.Services.Tests.Competitors
             var errors = Errors(new CompetitorCompanyInput
             {
                 CompanyName = new string('a', CompetitorCompanyRules.CompanyNameMaxLength + 1),
-                Website = "w",
+                Website = "www.c.com",
                 Phone = new string('1', CompetitorCompanyRules.PhoneMaxLength + 1)
             });
             Assert.Equal(2, errors.Count);

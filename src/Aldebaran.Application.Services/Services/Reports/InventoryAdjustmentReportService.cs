@@ -1,4 +1,4 @@
-﻿using Aldebaran.Application.Services.Models.Reports;
+using Aldebaran.Application.Services.Models.Reports;
 using Aldebaran.DataAccess.Infraestructure.Repository.Reports;
 using AutoMapper;
 

@@ -1,4 +1,4 @@
-﻿using Aldebaran.Application.Services.Models.Reports;
+using Aldebaran.Application.Services.Models.Reports;
 using Aldebaran.Application.Services.Reports;
 using Aldebaran.Infraestructure.Common.Utils;
 using Aldebaran.Web.Pages.ReportPages.Inventory_Adjustments.Components;

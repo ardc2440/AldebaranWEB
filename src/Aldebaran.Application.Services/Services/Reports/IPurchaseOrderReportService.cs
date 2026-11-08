@@ -1,4 +1,4 @@
-﻿using Aldebaran.Application.Services.Models.Reports;
+using Aldebaran.Application.Services.Models.Reports;
 
 namespace Aldebaran.Application.Services.Reports
 {

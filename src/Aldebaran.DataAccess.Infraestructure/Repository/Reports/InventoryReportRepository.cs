@@ -1,4 +1,4 @@
-﻿using Aldebaran.DataAccess.Entities.Reports;
+using Aldebaran.DataAccess.Entities.Reports;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aldebaran.DataAccess.Infraestructure.Repository.Reports

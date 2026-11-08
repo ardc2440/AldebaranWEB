@@ -4,6 +4,7 @@
 @using Aldebaran.Web.Pages.ReportPages.Item_References.Components
 @using Aldebaran.Web.Services.Competitors
 @using Aldebaran.Web.Pages.CompetitorPages
+@using Aldebaran.Application.Services.Competitors
 
 <PageTitle>Reporte de homologaciones con la competencia</PageTitle>
 <RadzenStack Style="gap:0.3em">
@@ -75,7 +76,7 @@
                                             <thead>
                                                 <tr class="border-bottom-1">
                                                     <td width="50%"><span class="bold">Compañía: </span>@company.CompanyName</td>
-                                                    <td width="50%"><span class="bold">Sitio web: </span><a href="@company.Website" target="_blank" rel="noopener noreferrer">@company.Website</a></td>
+                                                    <td width="50%"><span class="bold">Sitio web: </span>@if (CompetitorWebLink.ToSafeHref(company.Website) is { } site) { <a href="@site" target="_blank" rel="noopener noreferrer">@company.Website</a> } else { @company.Website }</td>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -126,9 +127,9 @@
                                                                                     <td width="25%">@h.CompetitorProductName</td>
                                                                                     <td width="13%">@(h.CompetitorPrice?.ToString("N2"))</td>
                                                                                     <td width="15%" style="word-break: break-all;">
-                                                                                        @if (!string.IsNullOrWhiteSpace(h.ProductUrl))
+                                                                                        @if (CompetitorWebLink.ToSafeHref(h.ProductUrl) is { } productUrl)
                                                                                         {
-                                                                                            <a href="@h.ProductUrl" target="_blank" rel="noopener noreferrer">Ver producto</a>
+                                                                                            <a href="@productUrl" target="_blank" rel="noopener noreferrer">Ver producto</a>
                                                                                         }
                                                                                     </td>
                                                                                 </tr>

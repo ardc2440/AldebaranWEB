@@ -29,6 +29,32 @@ namespace Aldebaran.Application.Services.Tests.Competitors
         public void Valida() => Assert.Null(CompetitorImageRules.Validate("a.png", 1024));
 
         #region Servicio
+        private static MemoryStream Jpg() => new(new byte[] { 0xFF, 0xD8, 0xFF, 0xE0, 0, 0, 0, 0, 0, 0 });
+        private static MemoryStream Png() => new(new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0, 0 });
+
+        [Fact]
+        public async Task ContenidoQueNoEsImagen_NoGuarda()
+        {
+            var storage = new FakeStorage();
+            var html = new MemoryStream(System.Text.Encoding.ASCII.GetBytes("<html><script>alert(1)</script></html>"));
+            var ex = await Assert.ThrowsAsync<ArgumentException>(() => new CompetitorHomologationService(new Repo(), storage).SetImageAsync(1, html, "falsa.jpg", html.Length));
+            Assert.Equal(CompetitorImageRules.InvalidContentMessage, ex.Message);
+            Assert.Empty(storage.Files);
+        }
+
+        [Theory]
+        [InlineData(".jpg", new byte[] { 0xFF, 0xD8, 0xFF, 0xDB }, true)]
+        [InlineData(".jpeg", new byte[] { 0xFF, 0xD8, 0xFF, 0xE1 }, true)]
+        [InlineData(".png", new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A }, true)]
+        [InlineData(".webp", new byte[] { 0x52, 0x49, 0x46, 0x46, 1, 2, 3, 4, 0x57, 0x45, 0x42, 0x50 }, true)]
+        [InlineData(".png", new byte[] { 0xFF, 0xD8, 0xFF, 0xE0 }, false)]
+        [InlineData(".jpg", new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A }, false)]
+        [InlineData(".jpg", new byte[] { 0x3C, 0x68, 0x74, 0x6D, 0x6C }, false)]
+        [InlineData(".gif", new byte[] { 0x47, 0x49, 0x46, 0x38 }, false)]
+        [InlineData(".jpg", new byte[0], false)]
+        public void Firma_SegunExtension(string extension, byte[] header, bool expected) =>
+            Assert.Equal(expected, CompetitorImageRules.MatchesSignature(header, extension));
+
         private sealed class FakeStorage : ICompetitorImageStorage
         {
             public List<string> Files { get; } = new();
@@ -67,9 +93,9 @@ namespace Aldebaran.Application.Services.Tests.Competitors
         {
             var repo = new Repo(); var storage = new FakeStorage();
             var service = new CompetitorHomologationService(repo, storage);
-            await service.SetImageAsync(1, new MemoryStream(new byte[10]), "a.jpg", 10);
+            await service.SetImageAsync(1, Jpg(), "a.jpg", 10);
             var first = repo.H.ImageFileName;
-            await service.SetImageAsync(1, new MemoryStream(new byte[10]), "b.png", 10);
+            await service.SetImageAsync(1, Png(), "b.png", 10);
 
             Assert.NotEqual(first, repo.H.ImageFileName);
             Assert.Equal(new[] { repo.H.ImageFileName! }, storage.Files);
@@ -79,7 +105,7 @@ namespace Aldebaran.Application.Services.Tests.Competitors
         public async Task FalloAlRegistrar_NoDejaArchivoHuerfano()
         {
             var repo = new Repo { FailOnSetImage = true }; var storage = new FakeStorage();
-            await Assert.ThrowsAsync<InvalidOperationException>(() => new CompetitorHomologationService(repo, storage).SetImageAsync(1, new MemoryStream(new byte[10]), "a.jpg", 10));
+            await Assert.ThrowsAsync<InvalidOperationException>(() => new CompetitorHomologationService(repo, storage).SetImageAsync(1, Jpg(), "a.jpg", 10));
             Assert.Empty(storage.Files);
         }
 
@@ -88,7 +114,7 @@ namespace Aldebaran.Application.Services.Tests.Competitors
         {
             var repo = new Repo(); var storage = new FakeStorage();
             var service = new CompetitorHomologationService(repo, storage);
-            await service.SetImageAsync(1, new MemoryStream(new byte[10]), "a.jpg", 10);
+            await service.SetImageAsync(1, Jpg(), "a.jpg", 10);
             await service.RemoveImageAsync(1);
             Assert.Null(repo.H.ImageFileName);
             Assert.Empty(storage.Files);

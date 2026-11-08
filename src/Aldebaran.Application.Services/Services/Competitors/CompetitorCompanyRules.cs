@@ -31,6 +31,8 @@ namespace Aldebaran.Application.Services.Competitors
             var errors = new List<string>();
             Required(errors, input.CompanyName, "El nombre", CompanyNameMaxLength);
             Required(errors, input.Website, "El sitio web", WebsiteMaxLength);
+            if (!string.IsNullOrWhiteSpace(input.Website) && input.Website.Length <= WebsiteMaxLength && CompetitorWebLink.ToSafeHref(input.Website) == null)
+                errors.Add("El sitio web no es una dirección web válida (ej.: www.competidor.com).");
             MaxLength(errors, input.ContactPerson, "El contacto", ContactPersonMaxLength);
             MaxLength(errors, input.Phone, "El teléfono", PhoneMaxLength);
             if (input.DepartmentId != null && input.CountryId == null)

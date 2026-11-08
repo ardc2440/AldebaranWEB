@@ -25,5 +25,20 @@ namespace Aldebaran.Application.Services.Competitors
                 return $"La imagen supera el tamaño máximo de {MaxBytes / (1024 * 1024)} MB.";
             return null;
         }
+
+        /// <summary>Mensaje cuando el contenido no corresponde a una imagen del tipo indicado por la extensión.</summary>
+        public const string InvalidContentMessage = "El archivo no es una imagen JPG, PNG o WEBP válida.";
+
+        /// <summary>
+        /// El contenido corresponde al tipo de la extensión (firma del archivo): evita que un archivo renombrado
+        /// (por ejemplo HTML o un ejecutable con extensión .jpg) quede publicado como imagen.
+        /// </summary>
+        public static bool MatchesSignature(ReadOnlySpan<byte> header, string? extension) => extension switch
+        {
+            ".jpg" or ".jpeg" => header.Length >= 3 && header[0] == 0xFF && header[1] == 0xD8 && header[2] == 0xFF,
+            ".png" => header.Length >= 8 && header[..8].SequenceEqual(new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A }),
+            ".webp" => header.Length >= 12 && header[..4].SequenceEqual("RIFF"u8) && header[8..12].SequenceEqual("WEBP"u8),
+            _ => false
+        };
     }
 }

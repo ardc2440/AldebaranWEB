@@ -1,4 +1,4 @@
-﻿using Aldebaran.Application.Services.Notifications;
+using Aldebaran.Application.Services.Notifications;
 using Aldebaran.Application.Services;
 using Aldebaran.Application.Services.Models;
 using Aldebaran.Application.Services.Notificator;

@@ -80,10 +80,17 @@ namespace Aldebaran.Application.Services.Competitors
             if (error != null)
                 throw new ArgumentException(error);
             var storage = _imageStorage ?? throw new InvalidOperationException("El almacenamiento de imágenes no está configurado.");
+            var extension = CompetitorImageRules.NormalizeExtension(fileName)!;
+            // Se lee completo (máximo 2 MB, ya validado) para revisar la firma antes de guardar.
+            using var buffer = new MemoryStream();
+            await content.CopyToAsync(buffer, ct);
+            if (buffer.Length > CompetitorImageRules.MaxBytes || !CompetitorImageRules.MatchesSignature(buffer.GetBuffer().AsSpan(0, (int)Math.Min(buffer.Length, 16)), extension))
+                throw new ArgumentException(buffer.Length > CompetitorImageRules.MaxBytes ? CompetitorImageRules.Validate(fileName, buffer.Length) : CompetitorImageRules.InvalidContentMessage);
+            buffer.Position = 0;
             // Se toma el nombre anterior antes de actualizar: no depender de que la entidad leída no cambie.
             var previousFileName = (await GetExistingAsync(competitorHomologationId, ct)).ImageFileName;
 
-            var newFileName = await storage.SaveAsync(competitorHomologationId, content, CompetitorImageRules.NormalizeExtension(fileName)!, ct);
+            var newFileName = await storage.SaveAsync(competitorHomologationId, buffer, extension, ct);
             try
             {
                 await _repository.SetImageFileNameAsync(competitorHomologationId, newFileName, ct);

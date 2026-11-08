@@ -29,7 +29,14 @@
                     <RadzenDataGridColumn TItem="CompetitorCompany" Property="CompanyName" Title="Nombre" Width="220px" />
                     <RadzenDataGridColumn TItem="CompetitorCompany" Property="Website" Title="Sitio web" Width="220px">
                         <Template Context="company">
-                            <a href="@WebLink(company.Website)" target="_blank" rel="noopener noreferrer">@company.Website</a>
+                            @if (WebLink(company.Website) is { } href)
+                            {
+                                <a href="@href" target="_blank" rel="noopener noreferrer">@company.Website</a>
+                            }
+                            else
+                            {
+                                @company.Website
+                            }
                         </Template>
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="CompetitorCompany" Property="ContactPerson" Title="Contacto" />

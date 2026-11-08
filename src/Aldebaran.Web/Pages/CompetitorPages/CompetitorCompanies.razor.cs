@@ -69,8 +69,8 @@ namespace Aldebaran.Web.Pages.CompetitorPages
         }
 
         /// <summary>Enlace navegable: si el sitio no trae esquema se abre con https.</summary>
-        protected static string WebLink(string website) =>
-            website.Contains("://", StringComparison.Ordinal) ? website : "https://" + website;
+        /// <summary>Enlace seguro (solo http/https); null si el valor no es una dirección web válida.</summary>
+        protected static string WebLink(string website) => CompetitorWebLink.ToSafeHref(website);
         #endregion
 
         #region Acciones

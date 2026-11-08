@@ -1,6 +1,6 @@
 /* Pruebas de SP_GET_COMPETITOR_HOMOLOGATION_REPORT (T13). Crea datos dentro de una transacción y hace ROLLBACK:
    no deja cambios. Requiere en desarrollo las homologaciones de prueba de ARIA (CMP-T11, nivel artículo y Amarillo)
-   de la compañía 2 activa y la compañía 1 inactiva (ver bitácora). Resultado 2026-11-07: 13/13 OK. */
+   de la compañía 2 activa y la compañía 1 inactiva (ver bitácora). Resultado 2026-11-07: 13/13 OK; 2026-11-08 ("contiene" con CHARINDEX): 16/16 OK. */
 SET NOCOUNT ON;
 CREATE TABLE #r (CompetitorCompanyId INT, CompanyName VARCHAR(100), Website VARCHAR(250), IsCompanyActive BIT, LineId SMALLINT, LineName VARCHAR(100), ItemId INT, InternalReference VARCHAR(20), ItemName VARCHAR(200), ReferenceId INT, ReferenceCode VARCHAR(20), ReferenceName VARCHAR(100), CompetitorHomologationId INT, CompetitorReference VARCHAR(50), CompetitorProductName VARCHAR(150), ProductUrl VARCHAR(500), CompetitorPrice DECIMAL(18,2), ImageFileName VARCHAR(100), IsActive BIT);
 DECLARE @o TABLE (Caso VARCHAR(70), Esperado INT, Obtenido INT);
@@ -29,7 +29,10 @@ INSERT @t VALUES
 ('P10 referencia competidor contiene "t11"', N'@CompetitorReference=''t11''', 2),
 ('P11 nombre producto contiene "amarillo"', N'@CompetitorProductName=''amarillo''', 1),
 ('P12 lista inválida no rompe', N'@ItemIds=''x,'+CAST(@aria AS VARCHAR)+',,''', 3),
-('P13 compañía B + artículo ARIA', N'@CompetitorCompanyIds='''+CAST(@B AS VARCHAR)+''', @ItemIds='''+CAST(@aria AS VARCHAR)+'''', 1);
+('P13 compañía B + artículo ARIA', N'@CompetitorCompanyIds='''+CAST(@B AS VARCHAR)+''', @ItemIds='''+CAST(@aria AS VARCHAR)+'''', 1),
+('P14 "%" es literal, no comodín', N'@CompetitorReference=''%''', 0),
+('P15 "_" es literal, no comodín', N'@CompetitorReference=''CMP_T11''', 0),
+('P16 inyección en texto no altera la consulta', N'@CompetitorProductName=''x'''' OR 1=1 --''', 0);
 DECLARE k CURSOR LOCAL FAST_FORWARD FOR SELECT n,s,e FROM @t; OPEN k; FETCH k INTO @n,@s,@e;
 WHILE @@FETCH_STATUS=0 BEGIN
   SET @sql = N'INSERT #r EXEC dbo.SP_GET_COMPETITOR_HOMOLOGATION_REPORT '+@s; EXEC(@sql);

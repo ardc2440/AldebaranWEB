@@ -21,7 +21,7 @@ namespace Aldebaran.Application.Services.Competitors
             ReferenceId = input?.ReferenceId is > 0 ? input.ReferenceId : null,
             CompetitorReference = (input?.CompetitorReference ?? string.Empty).Trim(),
             CompetitorProductName = (input?.CompetitorProductName ?? string.Empty).Trim(),
-            ProductUrl = NormalizeUrl(input?.ProductUrl),
+            ProductUrl = CompetitorWebLink.Normalize(input?.ProductUrl),
             CompetitorPrice = input?.CompetitorPrice
         };
 
@@ -49,18 +49,7 @@ namespace Aldebaran.Application.Services.Competitors
             return errors;
         }
 
-        public static bool IsWebUrl(string value) =>
-            Uri.TryCreate(value, UriKind.Absolute, out var uri)
-            && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)
-            && uri.Host.Contains('.');
-
-        private static string? NormalizeUrl(string? value)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-                return null;
-            var url = value.Trim();
-            return url.Contains("://", StringComparison.Ordinal) ? url : "https://" + url;
-        }
+        public static bool IsWebUrl(string value) => CompetitorWebLink.IsWebUrl(value);
 
         private static void Required(List<string> errors, string value, string field, int max)
         {

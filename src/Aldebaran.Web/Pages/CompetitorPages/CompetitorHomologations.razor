@@ -46,9 +46,9 @@
                     <RadzenDataGridColumn TItem="CompetitorHomologation" Property="CompetitorPrice" Title="Precio" Width="130px" TextAlign="TextAlign.Right" FormatString="{0:N0}" />
                     <RadzenDataGridColumn TItem="CompetitorHomologation" Property="ProductUrl" Title="Enlace" Width="100px" Sortable="false" Filterable="false">
                         <Template Context="h">
-                            @if (!string.IsNullOrEmpty(h.ProductUrl))
+                            @if (Aldebaran.Application.Services.Competitors.CompetitorWebLink.ToSafeHref(h.ProductUrl) is { } productUrl)
                             {
-                                <a href="@h.ProductUrl" target="_blank" rel="noopener noreferrer">Ver</a>
+                                <a href="@productUrl" target="_blank" rel="noopener noreferrer">Ver</a>
                             }
                         </Template>
                     </RadzenDataGridColumn>

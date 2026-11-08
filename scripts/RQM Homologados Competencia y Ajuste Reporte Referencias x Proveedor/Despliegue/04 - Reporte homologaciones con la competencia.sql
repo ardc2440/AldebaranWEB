@@ -84,8 +84,8 @@ BEGIN
        AND (@FilterLevel <> 2 OR EXISTS (SELECT 1 FROM @Items f WHERE f.ITEM_ID = h.ITEM_ID))
        AND (@FilterLevel <> 1 OR EXISTS (SELECT 1 FROM @Lines f WHERE f.LINE_ID = l.LINE_ID))
        AND (@FilterCompanies = 0 OR EXISTS (SELECT 1 FROM @Companies f WHERE f.COMPETITOR_COMPANY_ID = h.COMPETITOR_COMPANY_ID))
-       AND (@Reference IS NULL OR h.COMPETITOR_REFERENCE LIKE '%' + @Reference + '%')
-       AND (@Product   IS NULL OR h.COMPETITOR_PRODUCT_NAME LIKE '%' + @Product + '%')
+       AND (@Reference IS NULL OR CHARINDEX(@Reference, h.COMPETITOR_REFERENCE) > 0) -- "contiene" literal: %, _ y [ no actúan como comodines
+       AND (@Product   IS NULL OR CHARINDEX(@Product, h.COMPETITOR_PRODUCT_NAME) > 0)
      ORDER BY c.COMPANY_NAME, l.LINE_NAME, i.ITEM_NAME, ISNULL(r.REFERENCE_NAME, ''), h.COMPETITOR_REFERENCE
     OPTION (RECOMPILE);
 END

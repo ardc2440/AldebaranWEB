@@ -1,4 +1,4 @@
-﻿using Aldebaran.Application.Services.Reports;
+using Aldebaran.Application.Services.Reports;
 using Aldebaran.Infraestructure.Common.Utils;
 using Aldebaran.Web.Pages.ReportPages.Warehouse_Transfers.Components;
 using Aldebaran.Web.Pages.ReportPages.Warehouse_Transfers.ViewModel;
