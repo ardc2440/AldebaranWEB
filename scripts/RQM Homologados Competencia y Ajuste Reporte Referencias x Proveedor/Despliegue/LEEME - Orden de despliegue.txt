@@ -1,0 +1,86 @@
+RQM Homologados Competencia y Ajuste Reporte Referencias x Proveedor - Despliegue a produccion
+=============================================================================================
+Rama: RQM-HomologadosCompetencia_AjusteReporteReferenciasProveedor
+
+ORDEN
+-----
+Guia completa: documentos\2026-10-29 RQM ...\MANUAL DE DESPLIEGUE - Homologados Competencia y Referencias por Proveedor.docx
+
+REQUISITO: RQM Complemento Consulta de Logs desplegado (items.IS_BOMB_PRICE y LOG_TRACK_ENTITY_NAMES/FIELD_NAMES).
+  SELECT COL_LENGTH('dbo.items','IS_BOMB_PRICE'), OBJECT_ID('dbo.LOG_TRACK_ENTITY_NAMES'), OBJECT_ID('dbo.LOG_TRACK_FIELD_NAMES');  -- ninguno NULL
+
+1. Respaldo de la BD Aldebaran y del appsettings.json del sitio.
+2. Scripts de BD sobre la BD Aldebaran (todos re-ejecutables). 02, 03 y 04 pueden ir antes (objetos nuevos);
+   el 01 cambia el SP del reporte actual: ejecutarlo con el sitio detenido, justo antes de publicar (paso 5).
+
+   01 - Reporte referencias del proveedor.sql      (T1)  SP_GET_PROVIDER_REFERENCE_REPORT: filtro jerarquico, 8 condiciones
+                                                          Si/No/Todos e inventario opcional. Respalda el SP vigente en
+                                                          RQM_HOMOLOGADOS_OBJECT_BACKUP (reversa: Reversa\01)
+   02 - Catalogo de la competencia.sql             (T7)  Tablas COMPETITOR_COMPANIES y COMPETITOR_HOMOLOGATIONS (unicos solo
+                                                          entre activos) y rol "Catalogo de la competencia" (reversa: Reversa\02)
+   03 - Track catalogo de la competencia.sql       (T8)  Nombres en espanol de entidades y campos para Consulta de Log > Track
+                                                          (requiere el RQM Complemento Consulta de Logs) (reversa: Reversa\03)
+   04 - Reporte homologaciones con la competencia.sql (T13) SP_GET_COMPETITOR_HOMOLOGATION_REPORT (reversa: Reversa\04)
+   05 - OPCIONAL Ciudad Manizales duplicada.sql    SOLO CON APROBACION DEL CLIENTE. Elimina "Manizales" fuera de Caldas
+                                                          si no tiene uso; si lo tiene, no cambia nada y lista donde se usa
+                                                          (reversa: Reversa\05)
+
+3. Configuracion (appsettings.json del sitio en el servidor) - OBLIGATORIO ANTES DE PUBLICAR:
+   - AppSettings:NotificationHookKey = clave secreta propia de cada ambiente (pruebas y produccion distintas),
+     minimo 32 caracteres, sin compartirla ni guardarla en el repositorio. Ejemplo de generacion (PowerShell):
+         [Convert]::ToBase64String((1..48 | ForEach-Object { Get-Random -Maximum 256 }))
+     SIN ESTA CLAVE EL SITIO NO INICIA (falla con el mensaje "Falta la clave AppSettings:NotificationHookKey...").
+     Firma la URL a la que el procesador de notificaciones reporta el estado de cada correo.
+   - Ejemplo:
+         "AppSettings": {
+           ...,
+           "NotificationHookKey": "<clave de este ambiente>"
+         }
+
+4. Carpeta de imagenes de la competencia:
+   - Crear la subcarpeta "Competencia" dentro de la carpeta configurada en AppSettings:ImageRepositoryPath
+     (la aplicacion la crea al guardar la primera imagen si tiene permiso).
+   - El usuario del pool de IIS debe tener permiso de LECTURA y ESCRITURA (y eliminar) sobre esa subcarpeta:
+     al reemplazar o quitar una imagen se borra el archivo anterior.
+
+5. Publicar la aplicacion Aldebaran.Web (esta version).
+
+6. FileWritingService (Archivos de inventario a FTP): recompilar y publicar con esta version.
+   No cambia su configuracion; usa el repositorio de Inventario, cuya llamada al SP ahora es parametrizada.
+
+7. NotificationProcessor (procesador de notificaciones): NO requiere cambios ni nueva publicacion.
+   Los mensajes que esten en la cola en el momento del despliegue se envian normalmente, pero su estado
+   (enviado / error) no se actualiza en el sitio (llevan la URL de retorno anterior, sin firma). Para evitarlo,
+   desplegar cuando la cola aldebaran_notification-queue este vacia.
+
+8. Seguridad:
+   - Asignar el rol "Catalogo de la competencia" a los usuarios que administran Companias y Homologaciones
+     (Administracion > Competencia). El reporte "Homologaciones con la competencia" (Reportes > Catalogos)
+     usa el rol "Consulta de reportes", como los demas reportes.
+   - Desde esta version TODOS los reportes validan el rol tambien al entrar por URL directa
+     (antes solo se ocultaban del menu). Un usuario que abria un reporte por enlace sin tener el rol
+     "Consulta de reportes" ahora vera "Unauthorized": revisar asignaciones si alguien lo reporta.
+
+VERIFICACION DESPUES DEL DESPLIEGUE
+-----------------------------------
+- El sitio inicia (si no, revisar NotificationHookKey).
+- Reportes > Proveedores > Referencias del proveedor: filtrar, Imprimir, PDF y Excel con y sin inventario.
+- Administracion > Competencia > Companias y Homologaciones: crear una homologacion con imagen y ampliarla.
+- Reportes > Catalogos > Homologaciones con la competencia: filtrar, PDF (con imagen) y Excel.
+- Enviar por correo un pedido o una reserva y confirmar que su notificacion queda en estado "Enviado".
+
+REVERSA (deja la BD como antes del requerimiento)
+-------------------------------------------------
+1. Publicar la version anterior de la aplicacion y del FileWritingService (la clave NotificationHookKey
+   puede quedarse en la configuracion: la version anterior la ignora).
+2. Ejecutar las reversas de la carpeta Reversa\ en orden inverso: 05 (solo si se ejecuto el 05), 04, 03, 02, 01.
+   - 02 ELIMINA las tablas de la competencia con su informacion y el rol "Catalogo de la competencia".
+     Las imagenes de la subcarpeta Competencia no se eliminan (borrarlas a mano si se desea).
+   - 01 restaura el SP_GET_PROVIDER_REFERENCE_REPORT original desde RQM_HOMOLOGADOS_OBJECT_BACKUP.
+
+NOTAS
+-----
+- Los scripts de la carpeta ..\Pruebas son solo para validacion en el ambiente de pruebas; NO se ejecutan en produccion
+  (crean datos dentro de una transaccion y hacen ROLLBACK).
+- Los SP de reportes ajustados en la deuda tecnica (Reservas, Ajustes, Ordenes de compra, Existencias por bodega,
+  Traslados, Inventario, Inventario en proceso, Zona franca) NO cambian en BD: solo cambia como los llama la aplicacion.
