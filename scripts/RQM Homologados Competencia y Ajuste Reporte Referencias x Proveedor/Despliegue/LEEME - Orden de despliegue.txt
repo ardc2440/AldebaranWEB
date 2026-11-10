@@ -45,8 +45,11 @@ REQUISITO: RQM Complemento Consulta de Logs desplegado (items.IS_BOMB_PRICE y LO
 
 5. Publicar la aplicacion Aldebaran.Web (esta version).
 
-6. FileWritingService (Archivos de inventario a FTP): recompilar y publicar con esta version.
-   No cambia su configuracion; usa el repositorio de Inventario, cuya llamada al SP ahora es parametrizada.
+6. FileWritingService (Archivos de inventario a FTP): NO se publica en este despliegue (decision 2026-11-10).
+   La version en produccion sigue funcionando igual: el SP_GET_INVENTORY_REPORT no cambia y la llamada
+   parametrizada devuelve exactamente las mismas filas (validado en BD de pruebas: 7.613 = 7.613, 0 diferencias).
+   Pendiente conocido: publicarlo en el proximo despliegue que lo incluya, despues de correrlo un ciclo en
+   pruebas (FTP de prueba), para que tambien quede con la llamada parametrizada (T22).
 
 7. NotificationProcessor (procesador de notificaciones): NO requiere cambios ni nueva publicacion.
    Los mensajes que esten en la cola en el momento del despliegue se envian normalmente, pero su estado
@@ -71,7 +74,7 @@ VERIFICACION DESPUES DEL DESPLIEGUE
 
 REVERSA (deja la BD como antes del requerimiento)
 -------------------------------------------------
-1. Publicar la version anterior de la aplicacion y del FileWritingService (la clave NotificationHookKey
+1. Publicar la version anterior de la aplicacion (la clave NotificationHookKey
    puede quedarse en la configuracion: la version anterior la ignora).
 2. Ejecutar las reversas de la carpeta Reversa\ en orden inverso: 05 (solo si se ejecuto el 05), 04, 03, 02, 01.
    - 02 ELIMINA las tablas de la competencia con su informacion y el rol "Catalogo de la competencia".
