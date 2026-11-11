@@ -293,11 +293,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
         {
             var movementDetails = new List<ReferenceMovementViewModel.MovementDetail>();
 
-            foreach (var detail in DataReport.Where(w => w.ReferenceId == referenceId && w.TitleId == titleId)
-                                        .Select(s => new { s.Code, s.Date, s.Owner, s.MovementAmount, s.Status, s.Operator })
-                                        .DistinctBy(d => d.Code)
-                                        .OrderBy(o => o.Date)
-                                        .OrderBy(o => o.Code))
+            foreach (var detail in ReferenceMovementDetailRules.MovementLines(DataReport, referenceId, titleId))
             {
                 movementDetails.Add(new ReferenceMovementViewModel.MovementDetail
                 {
@@ -306,7 +302,7 @@ namespace Aldebaran.Web.Pages.ReportPages.Reference_Movement
                     Owner = detail.Owner,
                     Amount = (int)detail.MovementAmount,
                     Status = detail.Status,
-                    Operator = (short)detail.Operator 
+                    Operator = (short)detail.Operator
                 });
             }
 
