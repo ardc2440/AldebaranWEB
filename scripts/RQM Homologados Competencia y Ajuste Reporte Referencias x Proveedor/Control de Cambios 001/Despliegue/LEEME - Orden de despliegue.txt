@@ -1,0 +1,35 @@
+CONTROL DE CAMBIOS 001 - RQM Homologados Competencia
+=====================================================
+Cambios posteriores al despliegue del RQM (v6.11.0).
+
+TAREA 1 - Precio Bomba igual que Oferta en Cantidades Minimas
+-------------------------------------------------------------
+Solo base de datos. No requiere publicacion del sitio.
+Despliegue:
+  1. Despliegue\01 - Bomba excluye alarma de cantidades minimas.sql  (re-ejecutable)
+Efecto:
+  - Un articulo marcado como Precio Bomba no genera alarma de Cantidades Minimas.
+  - Al marcarlo se inactiva la alarma activa; al desmarcarlo se recalcula.
+  - Mismo comportamiento que Oferta. No afecta Sin Stock ni Bodega Local.
+Reversa:
+  1. Despliegue\Reversa\01 - Reversa Bomba excluye alarma de cantidades minimas.sql
+
+TAREA 2 - Cargue de homologaciones de la competencia (comparativo del cliente 2026-11-12)
+-----------------------------------------------------------------------------------------
+Solo base de datos. Requiere que el RQM (scripts 01-04) ya este desplegado.
+Despliegue:
+  1. Despliegue\02 - Cargue homologaciones competencia.sql  (re-ejecutable)
+Contenido:
+  - Crea 3 companias: Marpico, StockSur, Promoopcion (con su sitio web).
+  - Carga 435 homologaciones a nivel de articulo:
+      Nombre competidor = Nombre PROMOS + codigo competidor | Referencia = codigo competidor | Precio = neto.
+  - Inserta solo lo que no exista (re-ejecutable). Lista al final los codigos sin articulo.
+Validacion previa (2026-11-12, contra copia de produccion):
+  - 376 codigos PROMOS, 435 homologaciones (Marpico 279, StockSur 79, Promoopcion 77).
+  - Cero codigos sin articulo, cero sin precio.
+Reversa:
+  1. Despliegue\Reversa\02 - Reversa cargue homologaciones competencia.sql
+     (inactiva homologaciones y companias; el borrado fisico esta comentado como opcional)
+
+Nota: imagen y enlace del producto del competidor quedan vacios (no venian en el archivo);
+se cargan despues a mano desde la pantalla de Homologaciones si se requiere.
